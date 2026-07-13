@@ -212,7 +212,6 @@ jobs:
           components: clippy, rustfmt
 
       - name: Check Rust formatting
-        working-directory: src-tauri
         run: cargo fmt --all -- --check
 
       - name: Install Linux dependencies
@@ -227,12 +226,10 @@ jobs:
             librsvg2-dev=2.58.0+dfsg-1build1
 
       - name: Run Rust clippy
-        working-directory: src-tauri
-        run: cargo clippy -- -D warnings
+        run: cargo clippy --workspace -- -D warnings
 
       - name: Run Rust tests
-        working-directory: src-tauri
-        run: cargo test --lib
+        run: cargo test --workspace
 
   preflight-security-node:
     needs: release-inputs
@@ -294,7 +291,6 @@ jobs:
         run: cargo install cargo-deny --version 0.19.9 --locked
 
       - name: cargo deny supply-chain policy
-        working-directory: src-tauri
         run: cargo deny check advisories bans licenses sources
 
   create-release:
@@ -759,13 +755,13 @@ jobs:
           $installerSpecs = @(
             @{
               Kind = "Windows MSI"
-              Directory = "src-tauri/target/${{ matrix.target }}/release/bundle/msi"
+              Directory = "target/${{ matrix.target }}/release/bundle/msi"
               Filter = "*.msi"
               Pattern = "*_unsigned.msi"
             },
             @{
               Kind = "Windows NSIS setup"
-              Directory = "src-tauri/target/${{ matrix.target }}/release/bundle/nsis"
+              Directory = "target/${{ matrix.target }}/release/bundle/nsis"
               Filter = "*.exe"
               Pattern = "*_unsigned.exe"
             }
@@ -809,7 +805,7 @@ jobs:
           set -euo pipefail
           shopt -s nullglob
 
-          dmg_paths=(src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg)
+          dmg_paths=(target/${{ matrix.target }}/release/bundle/dmg/*.dmg)
           if [ "${#dmg_paths[@]}" -ne 1 ]; then
             printf 'Expected exactly one macOS DMG, found %s\n' "${#dmg_paths[@]}"
             exit 1
@@ -850,7 +846,7 @@ jobs:
           set -euo pipefail
           shopt -s nullglob
 
-          dmg_paths=(src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg)
+          dmg_paths=(target/${{ matrix.target }}/release/bundle/dmg/*.dmg)
           if [ "${#dmg_paths[@]}" -ne 1 ]; then
             printf 'Expected exactly one macOS DMG, found %s\n' "${#dmg_paths[@]}"
             exit 1
@@ -882,7 +878,7 @@ jobs:
           set -euo pipefail
           shopt -s nullglob
 
-          dmg_paths=(src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg)
+          dmg_paths=(target/${{ matrix.target }}/release/bundle/dmg/*.dmg)
           if [ "${#dmg_paths[@]}" -ne 1 ]; then
             printf 'Expected exactly one macOS DMG, found %s\n' "${#dmg_paths[@]}"
             exit 1
@@ -923,13 +919,13 @@ jobs:
           $installerSpecs = @(
             @{
               Kind = "Windows MSI"
-              Directory = "src-tauri/target/${{ matrix.target }}/release/bundle/msi"
+              Directory = "target/${{ matrix.target }}/release/bundle/msi"
               Filter = "*.msi"
               UnsignedPattern = "*_unsigned.msi"
             },
             @{
               Kind = "Windows NSIS setup"
-              Directory = "src-tauri/target/${{ matrix.target }}/release/bundle/nsis"
+              Directory = "target/${{ matrix.target }}/release/bundle/nsis"
               Filter = "*.exe"
               UnsignedPattern = "*_unsigned.exe"
             }
@@ -995,10 +991,10 @@ jobs:
         run: |
           $ErrorActionPreference = "Stop"
           New-Item -ItemType Directory -Force "release-assets/public" | Out-Null
-          Copy-Item "src-tauri/target/${{ matrix.target }}/release/bundle/msi/*.msi" "release-assets/public/"
-          Copy-Item "src-tauri/target/${{ matrix.target }}/release/bundle/msi/*.msi.sha256" "release-assets/public/"
-          Copy-Item "src-tauri/target/${{ matrix.target }}/release/bundle/nsis/*.exe" "release-assets/public/"
-          Copy-Item "src-tauri/target/${{ matrix.target }}/release/bundle/nsis/*.exe.sha256" "release-assets/public/"
+          Copy-Item "target/${{ matrix.target }}/release/bundle/msi/*.msi" "release-assets/public/"
+          Copy-Item "target/${{ matrix.target }}/release/bundle/msi/*.msi.sha256" "release-assets/public/"
+          Copy-Item "target/${{ matrix.target }}/release/bundle/nsis/*.exe" "release-assets/public/"
+          Copy-Item "target/${{ matrix.target }}/release/bundle/nsis/*.exe.sha256" "release-assets/public/"
 
       - name: Stage macOS release assets
         if: startsWith(matrix.platform, 'macos')
@@ -1006,8 +1002,8 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p release-assets/public
-          cp src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg release-assets/public/
-          cp src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg.sha256 release-assets/public/
+          cp target/${{ matrix.target }}/release/bundle/dmg/*.dmg release-assets/public/
+          cp target/${{ matrix.target }}/release/bundle/dmg/*.dmg.sha256 release-assets/public/
 
       - name: Verify Linux packages and checksums
         if: matrix.platform == 'ubuntu-24.04'
@@ -1018,8 +1014,8 @@ jobs:
           set -euo pipefail
           shopt -s nullglob
 
-          appimages=(src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/*.AppImage)
-          debs=(src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/deb/*.deb)
+          appimages=(target/x86_64-unknown-linux-gnu/release/bundle/appimage/*.AppImage)
+          debs=(target/x86_64-unknown-linux-gnu/release/bundle/deb/*.deb)
 
           if [ "${#appimages[@]}" -ne 1 ]; then
             printf 'Expected exactly one Linux AppImage before release upload; found %s\n' "${#appimages[@]}"
@@ -1074,10 +1070,10 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p release-assets/public
-          cp src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/*.AppImage release-assets/public/
-          cp src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/*.AppImage.sha256 release-assets/public/
-          cp src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/deb/*.deb release-assets/public/
-          cp src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/deb/*.deb.sha256 release-assets/public/
+          cp target/x86_64-unknown-linux-gnu/release/bundle/appimage/*.AppImage release-assets/public/
+          cp target/x86_64-unknown-linux-gnu/release/bundle/appimage/*.AppImage.sha256 release-assets/public/
+          cp target/x86_64-unknown-linux-gnu/release/bundle/deb/*.deb release-assets/public/
+          cp target/x86_64-unknown-linux-gnu/release/bundle/deb/*.deb.sha256 release-assets/public/
 
       - name: Generate release SBOM
         shell: bash

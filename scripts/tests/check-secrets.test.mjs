@@ -119,7 +119,7 @@ test("secret scan ignores generated and dependency directories", () => {
     );
     writeFixtureFile(
       root,
-      "src-tauri/target/debug/build.rs",
+      "target/debug/build.rs",
       `const token = "sk-proj-${"A".repeat(48)}";`,
     );
 

@@ -25,7 +25,7 @@ function seed(root, { npmDeps, cargoDeps, rationale }) {
   write(root, "package.json", JSON.stringify({ dependencies: npmDeps }));
   write(
     root,
-    "src-tauri/Cargo.toml",
+    "Cargo.toml",
     `[dependencies]\n${Object.entries(cargoDeps)
       .map(([name, version]) => `${name} = "${version}"`)
       .join("\n")}\n`,

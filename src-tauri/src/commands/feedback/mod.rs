@@ -3,18 +3,14 @@
 //! Privacy-first feedback collection for beta testers.
 //! ALL output is sanitized to prevent PII leakage (this is a PUBLIC repo).
 
-pub mod debug_log;
-pub mod report;
-pub mod sanitizer;
-pub mod system_info;
+mod debug_log;
+mod report;
+mod sanitizer;
+mod system_info;
 
-// Re-export public types and non-command functions
-pub use debug_log::{
-    clear_debug_log, format_debug_log, get_debug_log, get_recent_events, log_event, DebugEvent,
-    TimestampedEvent,
-};
-pub use sanitizer::{ConfigSummary, Sanitizer};
-pub use system_info::SystemInfo;
+use debug_log::{clear_debug_log, format_debug_log, get_debug_log, TimestampedEvent};
+use sanitizer::{ConfigSummary, Sanitizer};
+use system_info::SystemInfo;
 
 use crate::commands::AppState;
 use serde::Serialize;

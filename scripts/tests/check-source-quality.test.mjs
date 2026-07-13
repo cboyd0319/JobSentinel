@@ -144,54 +144,54 @@ test("source quality rejects backend glyphs and stale Rust stubs", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src-tauri/src/core/scoring/mod.rs",
+      "crates/jobsentinel-core/src/core/scoring/mod.rs",
       '"✓ Title matches";\n',
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/core/notify/slack.rs",
+      "crates/jobsentinel-core/src/core/notify/slack.rs",
       '"✓ Title matches";\n',
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/core/db/connection.rs",
+      "crates/jobsentinel-core/src/core/db/connection.rs",
       'info!("✅ connected");\n',
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/core/scrapers/mod.rs",
+      "crates/jobsentinel-core/src/core/scrapers/mod.rs",
       "pub async fn scrape_all() -> Vec<Job> {}\n",
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/core/resume/export.rs",
+      "crates/jobsentinel-core/src/core/resume/export.rs",
       "pub fn export_pdf() {}\n",
     );
 
     assert.equal(
       hasBackendScoringReasonGlyphMarkers(
         root,
-        "src-tauri/src/core/scoring/mod.rs",
+        "crates/jobsentinel-core/src/core/scoring/mod.rs",
       ),
       true,
     );
     assert.equal(
       hasNotificationScoringReasonGlyphMarkers(
         root,
-        "src-tauri/src/core/notify/slack.rs",
+        "crates/jobsentinel-core/src/core/notify/slack.rs",
       ),
       true,
     );
     assert.equal(
-      hasDatabaseLogEmojiMarkers(root, "src-tauri/src/core/db/connection.rs"),
+      hasDatabaseLogEmojiMarkers(root, "crates/jobsentinel-core/src/core/db/connection.rs"),
       true,
     );
     assert.equal(
-      hasStaleScrapeAllStub(root, "src-tauri/src/core/scrapers/mod.rs"),
+      hasStaleScrapeAllStub(root, "crates/jobsentinel-core/src/core/scrapers/mod.rs"),
       true,
     );
     assert.equal(
-      hasStaleResumeExportPdfStub(root, "src-tauri/src/core/resume/export.rs"),
+      hasStaleResumeExportPdfStub(root, "crates/jobsentinel-core/src/core/resume/export.rs"),
       true,
     );
   });
@@ -225,21 +225,21 @@ test("source quality requires verified pre-migration SQLite backups", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src-tauri/src/core/db/connection.rs",
+      "crates/jobsentinel-core/src/core/db/connection.rs",
       'sqlx::query("VACUUM INTO ?").execute(pool).await?;\n',
     );
 
     assert.equal(
       hasUnverifiedPreMigrationBackup(
         root,
-        "src-tauri/src/core/db/connection.rs",
+        "crates/jobsentinel-core/src/core/db/connection.rs",
       ),
       true,
     );
 
     writeFixtureFile(
       root,
-      "src-tauri/src/core/db/connection.rs",
+      "crates/jobsentinel-core/src/core/db/connection.rs",
       [
         'sqlx::query("VACUUM INTO ?").execute(pool).await?;',
         "Self::verify_pre_migration_backup(pool, backup_path_str).await?;",
@@ -253,7 +253,7 @@ test("source quality requires verified pre-migration SQLite backups", () => {
     assert.equal(
       hasUnverifiedPreMigrationBackup(
         root,
-        "src-tauri/src/core/db/connection.rs",
+        "crates/jobsentinel-core/src/core/db/connection.rs",
       ),
       false,
     );

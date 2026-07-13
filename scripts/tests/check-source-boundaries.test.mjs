@@ -199,17 +199,17 @@ test("source boundaries reject LinkedIn credential and automation drift", () => 
     writeFixtureFile(root, "docs/security/KEYRING.md", "voyager/api\n");
     writeFixtureFile(
       root,
-      "src-tauri/src/core/config/types.rs",
+      "crates/jobsentinel-core/src/core/config/types.rs",
       "pub struct LinkedInConfig {\n  pub session_cookie: String,\n}\n",
     );
     writeFixtureFile(
       root,
-      "src-tauri/Cargo.toml",
+      "Cargo.toml",
       'objc2-web-kit = { version = "=0.3.2", features = ["WKHTTPCookieStore"] }\n',
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/core/scrapers/linkedin.rs",
+      "crates/jobsentinel-core/src/core/scrapers/linkedin.rs",
       'debug.field("session_cookie_configured", &true);\n',
     );
     writeFixtureFile(
@@ -229,18 +229,18 @@ test("source boundaries reject LinkedIn credential and automation drift", () => 
     assert.equal(
       hasLinkedInAutomationBoundaryDrift(
         root,
-        "src-tauri/src/core/config/types.rs",
+        "crates/jobsentinel-core/src/core/config/types.rs",
       ),
       true,
     );
     assert.equal(
-      hasLinkedInAutomationBoundaryDrift(root, "src-tauri/Cargo.toml"),
+      hasLinkedInAutomationBoundaryDrift(root, "Cargo.toml"),
       true,
     );
     assert.equal(
       hasLinkedInAutomationBoundaryDrift(
         root,
-        "src-tauri/src/core/scrapers/linkedin.rs",
+        "crates/jobsentinel-core/src/core/scrapers/linkedin.rs",
       ),
       true,
     );
@@ -304,12 +304,12 @@ test("source boundaries reject unapproved JobsWithGPT endpoint flows", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src-tauri/src/core/scheduler/workers/scrapers.rs",
+      "crates/jobsentinel-core/src/core/scheduler/workers/scrapers.rs",
       "let jobswithgpt = JobsWithGptScraper::new(config.jobswithgpt_endpoint.clone(), query);\n",
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/core/health/smoke_tests.rs",
+      "crates/jobsentinel-core/src/core/health/smoke_tests.rs",
       "let endpoint = validate_external_http_url_for_fetch(&config.jobswithgpt_endpoint).await?;\n",
     );
     writeFixtureFile(
@@ -331,14 +331,14 @@ test("source boundaries reject unapproved JobsWithGPT endpoint flows", () => {
     assert.equal(
       hasJobsWithGptUnapprovedEndpointFlow(
         root,
-        "src-tauri/src/core/scheduler/workers/scrapers.rs",
+        "crates/jobsentinel-core/src/core/scheduler/workers/scrapers.rs",
       ),
       true,
     );
     assert.equal(
       hasJobsWithGptUnapprovedEndpointFlow(
         root,
-        "src-tauri/src/core/health/smoke_tests.rs",
+        "crates/jobsentinel-core/src/core/health/smoke_tests.rs",
       ),
       true,
     );
@@ -374,12 +374,12 @@ test("source boundaries reject missing JobsWithGPT request ledger", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src-tauri/migrations/00000000000006_source_request_log.sql",
+      "crates/jobsentinel-core/migrations/00000000000006_source_request_log.sql",
       "CREATE TABLE source_request_log (id INTEGER, raw_title TEXT);\n",
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/core/health/tracking.rs",
+      "crates/jobsentinel-core/src/core/health/tracking.rs",
       "pub async fn start_run() {}\n",
     );
     writeFixtureFile(
@@ -389,7 +389,7 @@ test("source boundaries reject missing JobsWithGPT request ledger", () => {
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/core/scheduler/workers/scrapers.rs",
+      "crates/jobsentinel-core/src/core/scheduler/workers/scrapers.rs",
       "let jobswithgpt = JobsWithGptScraper::new(endpoint, query);\n",
     );
     writeFixtureFile(
@@ -411,14 +411,14 @@ test("source boundaries reject missing JobsWithGPT request ledger", () => {
     assert.equal(
       hasJobsWithGptMissingRequestLedger(
         root,
-        "src-tauri/migrations/00000000000006_source_request_log.sql",
+        "crates/jobsentinel-core/migrations/00000000000006_source_request_log.sql",
       ),
       true,
     );
     assert.equal(
       hasJobsWithGptMissingRequestLedger(
         root,
-        "src-tauri/src/core/health/tracking.rs",
+        "crates/jobsentinel-core/src/core/health/tracking.rs",
       ),
       true,
     );
@@ -432,7 +432,7 @@ test("source boundaries reject missing JobsWithGPT request ledger", () => {
     assert.equal(
       hasJobsWithGptMissingRequestLedger(
         root,
-        "src-tauri/src/core/scheduler/workers/scrapers.rs",
+        "crates/jobsentinel-core/src/core/scheduler/workers/scrapers.rs",
       ),
       true,
     );

@@ -152,7 +152,7 @@ async fn complete_setup_to_runtime_and_paths(
 ) -> Result<(), String> {
     save_config_to_runtime_and_path(config, runtime_config, config_path).await?;
 
-    let database = Database::connect(db_path).await.map_err(|e| {
+    let database = connect_setup_database(db_path).await.map_err(|e| {
         let message = user_friendly_error("Failed to initialize database", &e);
         tracing::error!(
             db_path = %path_label_for_logging(db_path),
@@ -169,6 +169,13 @@ async fn complete_setup_to_runtime_and_paths(
     })?;
 
     Ok(())
+}
+
+async fn connect_setup_database(_db_path: &Path) -> Result<Database, sqlx::Error> {
+    #[cfg(test)]
+    return Database::connect_memory().await;
+    #[cfg(not(test))]
+    Database::connect(_db_path).await
 }
 
 /// Save user configuration
@@ -559,7 +566,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn complete_setup_updates_runtime_config_after_disk_save() {
+    async fn complete_setup_updates_runtime_config_without_system_credentials() {
         let runtime_config = RwLock::new(create_dashboard_test_config());
         let temp_dir = tempfile::tempdir().unwrap();
         let config_path = temp_dir.path().join("config.json");
@@ -587,7 +594,6 @@ mod tests {
         assert_eq!(saved.salary_floor_usd, 82_000);
         assert_eq!(saved.title_allowlist, vec!["Program Coordinator"]);
         assert!(saved.remoteok.enabled);
-        assert!(db_path.exists());
     }
 
     #[test]

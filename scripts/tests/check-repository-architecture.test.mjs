@@ -108,17 +108,17 @@ test("checkRepositoryArchitecture rejects cyclic core module imports before extr
     writeFixtureFile(root, "src-tauri/Cargo.toml", "[package]\nname = \"jobsentinel\"\n");
     writeFixtureFile(
       root,
-      "src-tauri/src/core/db/encryption.rs",
+      "crates/jobsentinel-core/src/core/db/encryption.rs",
       "use crate::core::credentials::SecretVault;\n",
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/core/scrapers/example.rs",
+      "crates/jobsentinel-core/src/core/scrapers/example.rs",
       "use crate::core::db::Job;\n",
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/core/job_hash.rs",
+      "crates/jobsentinel-core/src/core/job_hash.rs",
       "use crate::core::scrapers::normalize_url;\n",
     );
 
@@ -126,19 +126,19 @@ test("checkRepositoryArchitecture rejects cyclic core module imports before extr
 
     assert.ok(
       violations.includes(
-        "src-tauri/src/core/db/encryption.rs: database modules must not import credential modules",
+        "crates/jobsentinel-core/src/core/db/encryption.rs: database modules must not import credential modules",
       ),
       violations.join("\n"),
     );
     assert.ok(
       violations.includes(
-        "src-tauri/src/core/scrapers/example.rs: source adapters must not import database modules",
+        "crates/jobsentinel-core/src/core/scrapers/example.rs: source adapters must not import database modules",
       ),
       violations.join("\n"),
     );
     assert.ok(
       violations.includes(
-        "src-tauri/src/core/job_hash.rs: job identity must not import source adapter modules",
+        "crates/jobsentinel-core/src/core/job_hash.rs: job identity must not import source adapter modules",
       ),
       violations.join("\n"),
     );

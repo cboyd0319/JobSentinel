@@ -415,7 +415,7 @@ test("product copy rejects debug-report roadmap wording", () => {
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/core/health/smoke_tests.rs",
+      "crates/jobsentinel-core/src/core/health/smoke_tests.rs",
       "This source check could not finish. Try again later or attach a safe debug report.\n",
     );
     writeFixtureFile(
@@ -485,7 +485,7 @@ test("product copy rejects debug-report roadmap wording", () => {
     assert.equal(
       hasFeedbackLocalReportDrift(
         root,
-        "src-tauri/src/core/health/smoke_tests.rs",
+        "crates/jobsentinel-core/src/core/health/smoke_tests.rs",
       ),
       true,
     );

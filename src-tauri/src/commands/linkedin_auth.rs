@@ -211,3 +211,6 @@ mod tests {
         assert!(policy.warning.contains("User Agreement"));
     }
 }
+
+#[cfg(test)]
+mod credential_integration_tests;

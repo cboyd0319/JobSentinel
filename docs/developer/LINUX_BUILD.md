@@ -61,7 +61,7 @@ node scripts/build-linux-appimage.mjs --target x86_64-unknown-linux-gnu
 ```
 
 The AppImage wrapper keeps `APPIMAGE_EXTRACT_AND_RUN=1` enabled, uses Tauri's
-project-local helper cache under `src-tauri/target/.tauri/`, downloads only
+project-local helper cache under `target/.tauri/`, downloads only
 missing fallback helpers from pinned HTTPS URLs, and verifies SHA-256 before
 executing helper scripts or extracted `linuxdeploy` AppRun binaries.
 
@@ -69,8 +69,8 @@ executing helper scripts or extracted `linuxdeploy` AppRun binaries.
 
 Build outputs are located at:
 
-- **AppImage**: `src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/`
-- **Debian**: `src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/deb/`
+- **AppImage**: `target/x86_64-unknown-linux-gnu/release/bundle/appimage/`
+- **Debian**: `target/x86_64-unknown-linux-gnu/release/bundle/deb/`
 
 ## GitHub Build Workflow
 

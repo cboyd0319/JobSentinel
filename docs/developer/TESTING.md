@@ -43,45 +43,44 @@ We prioritize:
 ### Run All Tests
 
 ```bash
-cd src-tauri
-cargo test
+cargo test --workspace
 ```
 
 ### Run Tests in a Specific Module
 
 ```bash
 # Test only config module
-cargo test --lib core::config
+cargo test -p jobsentinel-core --lib core::config
 
 # Test only database module
-cargo test --lib core::db
+cargo test -p jobsentinel-core --lib core::db
 
 # Test only Slack notifications
-cargo test --lib core::notify::slack
+cargo test -p jobsentinel-core --lib core::notify::slack
 ```
 
 ### Run a Specific Test
 
 ```bash
-cargo test test_negative_salary_floor_fails
+cargo test -p jobsentinel-core test_negative_salary_floor_fails
 ```
 
 ### Run Tests with Output
 
 ```bash
-cargo test -- --nocapture
+cargo test --workspace -- --nocapture
 ```
 
 ### Run Tests in Parallel (Default)
 
 ```bash
-cargo test -- --test-threads=4
+cargo test --workspace -- --test-threads=4
 ```
 
 ### Run Tests Sequentially
 
 ```bash
-cargo test -- --test-threads=1
+cargo test --workspace -- --test-threads=1
 ```
 
 ---
@@ -91,16 +90,12 @@ cargo test -- --test-threads=1
 ### Directory Structure
 
 ```text
+crates/jobsentinel-core/
+- src/core/: core logic and adjacent tests
+- src/platforms/: target-gated platform adapters and tests
+- tests/: core integration test crates
 src-tauri/
-- src/core/config/: config logic and tests
-- src/core/db/: database operations and tests
-- src/core/scoring/: scoring logic and tests
-- src/core/scheduler/: job scheduling and tests
-- src/core/notify/: notification dispatch and channel tests
-- src/core/scrapers/: scraper adapters and unit tests
-- src/commands/: Tauri RPC handlers and command tests
-- src/platforms/: Windows, macOS, and Linux platform code
-- tests/: integration test crates
+- src/commands/: private Tauri RPC handlers and command tests
 ```
 
 **Note**: Large Rust modules keep most tests in separate `tests.rs` files or
@@ -386,24 +381,22 @@ The main CI jobs are:
 
 - **harness** — runs `npm run harness:check`, dependency/action pin checks,
   harness script tests, and markdown lint for docs/harness changes
-- **test-rust** — runs `cargo fmt --all -- --check`, `cargo clippy -- -D warnings`, and `cargo test --lib`
+- **test-rust** — runs `cargo fmt --all -- --check`, `cargo clippy --workspace -- -D warnings`, and `cargo test --workspace`
 - **test-frontend** — runs `npx --no-install tsc --noEmit`, `npm run lint`, and `npm test -- --run`
 - **security-node** — runs security sensors, workflow static analysis,
   `npm audit --audit-level=moderate`, and scheduled/manual dependency drift checks
 - **security-rust** — runs `cargo deny check advisories bans licenses sources`
 
-Note that CI runs `cargo test --lib`, which covers unit tests only. Normal
-integration tests in `tests/` run locally with `cargo test`. Ignored or live
-integration tests should use targeted commands such as
-`cargo test --test live_scraper_test -- --ignored --nocapture`.
+CI runs the complete workspace suite, including normal integration tests.
+Ignored or live integration tests remain opt-in and use targeted commands such
+as `cargo test -p jobsentinel-core --test live_scraper_test -- --ignored --nocapture`.
 
 Credential-store roundtrips are opt-in because macOS Keychain and equivalent
 stores can prompt for user approval. Default credential tests stay
 non-interactive. Run live keyring checks only when you are ready for OS prompts:
 
 ```bash
-cd src-tauri
-JOBSENTINEL_LIVE_KEYRING_TESTS=1 cargo test --test credential_test
+JOBSENTINEL_LIVE_KEYRING_TESTS=1 cargo test -p jobsentinel --lib credential_integration_tests -- --nocapture
 ```
 
 For full CI/CD documentation see [CI_CD.md](./CI_CD.md).
@@ -414,8 +407,7 @@ Add to `.git/hooks/pre-commit`:
 
 ```bash
 #!/bin/sh
-cd src-tauri
-cargo test --quiet
+cargo test --workspace --quiet
 if [ $? -ne 0 ]; then
     echo "Tests failed! Commit aborted."
     exit 1

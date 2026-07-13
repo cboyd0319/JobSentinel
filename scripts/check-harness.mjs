@@ -597,7 +597,7 @@ checkNoMachineSpecificLocalPaths();
 const packageJson = JSON.parse(read("package.json"));
 const packageLockJson = JSON.parse(read("package-lock.json"));
 const tauriConfig = JSON.parse(read("src-tauri/tauri.conf.json"));
-const cargoToml = read("src-tauri/Cargo.toml");
+const cargoToml = read("Cargo.toml");
 const cargoVersion = cargoToml.match(/^version\s*=\s*"([^"]+)"/m)?.[1];
 
 if (packageJson.version !== tauriConfig.version) {
@@ -615,7 +615,7 @@ if (packageLockJson.packages?.[""]?.version !== packageJson.version) {
 }
 
 if (cargoVersion !== packageJson.version) {
-  errors.push(`version mismatch: package.json=${packageJson.version}, src-tauri/Cargo.toml=${cargoVersion ?? "missing"}`);
+  errors.push(`version mismatch: package.json=${packageJson.version}, Cargo.toml=${cargoVersion ?? "missing"}`);
 }
 
 const currentVersion = packageJson.version;

@@ -253,7 +253,7 @@ test("product copy rejects technical provider setup shortcuts", () => {
         "Parallel Sending",
         "Connection Link Checks",
         "Module Structure",
-        "src-tauri/src/core/notify/",
+        "crates/jobsentinel-core/src/core/notify/",
         "https://hooks.slack.com/services/...",
         "https://discord.com/api/webhooks/...",
         "https://discordapp.com/api/webhooks/...",
@@ -692,7 +692,7 @@ test("product copy rejects technical backend error labels", () => {
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/core/db/error.rs",
+      "crates/jobsentinel-core/src/core/db/error.rs",
       [
         '"Could not open local job data. Restart JobSentinel and try again."',
         '"contact support"',
@@ -705,7 +705,7 @@ test("product copy rejects technical backend error labels", () => {
       true,
     );
     assert.equal(
-      hasTechnicalFirstUserCopy(root, "src-tauri/src/core/db/error.rs"),
+      hasTechnicalFirstUserCopy(root, "crates/jobsentinel-core/src/core/db/error.rs"),
       true,
     );
   });
@@ -819,44 +819,44 @@ test("product copy rejects non-advisory resume and pay guidance", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src-tauri/src/core/resume/matcher.rs",
+      "crates/jobsentinel-core/src/core/resume/matcher.rs",
       "Recommendation: Strong match. Apply immediately.\nStudy the missing skills.\nConsider upskilling.\n",
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/core/resume/ats_analyzer.rs",
+      "crates/jobsentinel-core/src/core/resume/ats_analyzer.rs",
       'improved.push_str(" (add specific metrics)");\n',
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/core/salary/analyzer.rs",
+      "crates/jobsentinel-core/src/core/salary/analyzer.rs",
       "Excellent offer! Accept or negotiate equity.\n",
     );
     writeFixtureFile(
       root,
-      "src-tauri/migrations/00000000000000_initial_schema.sql",
+      "crates/jobsentinel-core/migrations/00000000000000_initial_schema.sql",
       "I was hoping for a compensation package. Make this an easy decision. I would love to have more skin in the game.\n",
     );
 
     assert.equal(
-      hasTechnicalFirstUserCopy(root, "src-tauri/src/core/resume/matcher.rs"),
+      hasTechnicalFirstUserCopy(root, "crates/jobsentinel-core/src/core/resume/matcher.rs"),
       true,
     );
     assert.equal(
       hasTechnicalFirstUserCopy(
         root,
-        "src-tauri/src/core/resume/ats_analyzer.rs",
+        "crates/jobsentinel-core/src/core/resume/ats_analyzer.rs",
       ),
       true,
     );
     assert.equal(
-      hasTechnicalFirstUserCopy(root, "src-tauri/src/core/salary/analyzer.rs"),
+      hasTechnicalFirstUserCopy(root, "crates/jobsentinel-core/src/core/salary/analyzer.rs"),
       true,
     );
     assert.equal(
       hasTechnicalFirstUserCopy(
         root,
-        "src-tauri/migrations/00000000000000_initial_schema.sql",
+        "crates/jobsentinel-core/migrations/00000000000000_initial_schema.sql",
       ),
       true,
     );

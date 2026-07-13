@@ -60,7 +60,7 @@ export function hasNoAccountMacosReleaseOrder(releaseWorkflow) {
       "shasum -a 256",
       "while IFS= read -r asset; do",
       "gh release delete-asset",
-      "cp src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg.sha256 release-assets/public/",
+      "cp target/${{ matrix.target }}/release/bundle/dmg/*.dmg.sha256 release-assets/public/",
       "npm run release:sbom",
       "--require-artifacts",
       "subject-path: release-assets/public/*",

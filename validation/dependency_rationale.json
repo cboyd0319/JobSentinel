@@ -1,6 +1,6 @@
 {
   "schema": "jobsentinel.dependency_rationale.v1",
-  "policy": "YAGNI gate for direct dependencies (see docs/harness/engineering-principles.md ladder step 4). Every direct dependency in package.json and src-tauri/Cargo.toml must have a one-line reason a few lines of our own code could not replace it. Adding a direct dependency requires a matching entry; harness:check fails on any direct dependency without one and on any entry whose dependency was removed. Backfilled entries describe each library's role; small replaceable dependencies are tracked for review in docs/plans/tech-debt-tracker.md (DRY-002).",
+  "policy": "YAGNI gate for direct dependencies (see docs/harness/engineering-principles.md ladder step 4). Every direct dependency in package.json and the root Cargo.toml workspace policy must have a one-line reason a few lines of our own code could not replace it. Local workspace path dependencies are excluded. Adding an external direct dependency requires a matching entry; harness:check fails on any direct dependency without one and on any entry whose dependency was removed. Backfilled entries describe each library's role; small replaceable dependencies are tracked for review in docs/plans/tech-debt-tracker.md (DRY-002).",
   "npm": {
     "@dnd-kit/core": "Accessible drag-and-drop primitives for the application Kanban board.",
     "@dnd-kit/sortable": "Sortable board/list preset built on @dnd-kit/core.",

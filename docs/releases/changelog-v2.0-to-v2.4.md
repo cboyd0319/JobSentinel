@@ -250,7 +250,7 @@ Complete Settings UI with user-configurable scoring weights and intelligent job 
   - O(1) HashMap-based lookups for performance
   - Fully backward compatible with existing configurations
 
-- **New Module: `src-tauri/src/core/scoring/synonyms.rs`**
+- **New Module: `crates/jobsentinel-core/src/core/scoring/synonyms.rs`**
   - SynonymMap struct with efficient synonym storage
   - `matches_with_synonyms()` - Smart keyword matching function
   - `get_synonym_group()` - Retrieve all synonyms for a keyword
@@ -311,7 +311,7 @@ Complete Settings UI with user-configurable scoring weights and intelligent job 
 - **Graduated Scoring** - Jobs get partial credit instead of binary pass/fail
   - Unspecified work arrangements get partial credit (0.3-0.8)
   - Better job discovery without strict filtering
-- **New Module: `src-tauri/src/core/scoring/remote.rs`**
+- **New Module: `crates/jobsentinel-core/src/core/scoring/remote.rs`**
   - `RemotePreference` enum with 5 preference modes
   - `JobType` enum (Remote, Hybrid, Onsite, Unspecified)
   - `detect_job_type()` - Smart detection from job data
@@ -430,9 +430,9 @@ Complete Settings UI with user-configurable scoring weights and intelligent job 
 - **Job Card Badge** - "Seen on X sources" now visible
   - Shows duplicate detection at a glance
 - **3 New Utility Modules**:
-  - `src-tauri/src/core/scrapers/url_utils.rs` - URL normalization
-  - `src-tauri/src/core/scrapers/location_utils.rs` - Location normalization
-  - `src-tauri/src/core/scrapers/title_utils.rs` - Title normalization
+  - `crates/jobsentinel-core/src/core/scrapers/url_utils.rs` - URL normalization
+  - `crates/jobsentinel-core/src/core/scrapers/location_utils.rs` - Location normalization
+  - `crates/jobsentinel-core/src/core/scrapers/title_utils.rs` - Title normalization
 - **New Database Migration**: `20260118000001_add_ghost_feedback.sql`
 
 ## [2.1.0] - 2026-01-17
@@ -513,7 +513,7 @@ Complete Settings UI with user-configurable scoring weights and intelligent job 
   - `teams_webhook_url` - Microsoft Teams webhook URL
   - `linkedin_session_cookie` - LinkedIn session cookie
 - **Automatic migration** - Existing plaintext credentials automatically migrated on first v2.0 launch
-- **New `credentials` module** - `src-tauri/src/core/credentials/mod.rs` with
+- **New `credentials` module** - `crates/jobsentinel-core/src/core/credentials/mod.rs` with
   `CredentialStore` abstraction
 - **5 new Tauri commands** - `store_credential`, `retrieve_credential`,
   `delete_credential`, `has_credential`, `get_credential_status`

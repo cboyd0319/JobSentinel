@@ -154,7 +154,7 @@ test("frontend contracts reject resume suggestion category drift", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src-tauri/src/core/resume/ats_analyzer.rs",
+      "crates/jobsentinel-core/src/core/resume/ats_analyzer.rs",
       `
 pub enum SuggestionCategory {
     AddKeyword,

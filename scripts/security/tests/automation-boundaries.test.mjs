@@ -13,7 +13,7 @@ function mkdtempRoot(prefix) {
 }
 
 function writeAutomationPage(root, text) {
-  const pageDir = join(root, "src-tauri/src/core/automation/browser");
+  const pageDir = join(root, "crates/jobsentinel-core/src/core/automation/browser");
   mkdirSync(pageDir, { recursive: true });
   writeFileSync(join(pageDir, "page.rs"), text);
 }

@@ -584,7 +584,7 @@ test("checkRepoBloat rejects notification webhook keyring storage without valida
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src-tauri/src/core/credentials/mod.rs",
+      "crates/jobsentinel-core/src/core/credentials/mod.rs",
       [
         "enum CredentialKey { LinkedInCookie, SlackWebhook, DiscordWebhook, TeamsWebhook }",
         "fn validate_credential_value(key: CredentialKey, value: &str) -> Result<(), String> {",
@@ -605,7 +605,7 @@ test("checkRepoBloat rejects notification webhook keyring storage without valida
 
     execFileSync(
       "git",
-      ["add", "package.json", "src-tauri/src/core/credentials/mod.rs"],
+      ["add", "package.json", "crates/jobsentinel-core/src/core/credentials/mod.rs"],
       {
         cwd: root,
       },
@@ -615,7 +615,7 @@ test("checkRepoBloat rejects notification webhook keyring storage without valida
 
     assert.ok(
       violations.includes(
-        "validate notification webhook credentials before keyring storage: src-tauri/src/core/credentials/mod.rs",
+        "validate notification webhook credentials before keyring storage: crates/jobsentinel-core/src/core/credentials/mod.rs",
       ),
       violations.join("\n"),
     );
@@ -627,7 +627,7 @@ test("checkRepoBloat rejects stale active credential storage wording", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src-tauri/src/core/config/types.rs",
+      "crates/jobsentinel-core/src/core/config/types.rs",
       [
         "pub struct SlackConfig {",
         "  /// Webhook URL - stored in OS keyring, not serialized",
@@ -639,7 +639,7 @@ test("checkRepoBloat rejects stale active credential storage wording", () => {
 
     execFileSync(
       "git",
-      ["add", "package.json", "src-tauri/src/core/config/types.rs"],
+      ["add", "package.json", "crates/jobsentinel-core/src/core/config/types.rs"],
       {
         cwd: root,
       },
@@ -649,7 +649,7 @@ test("checkRepoBloat rejects stale active credential storage wording", () => {
 
     assert.ok(
       violations.includes(
-        "replace stale OS-keyring credential storage wording: src-tauri/src/core/config/types.rs",
+        "replace stale OS-keyring credential storage wording: crates/jobsentinel-core/src/core/config/types.rs",
       ),
       violations.join("\n"),
     );

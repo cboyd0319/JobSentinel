@@ -28,9 +28,9 @@ function withDoctorFixture(callback) {
     writeFixtureFile(root, "package-lock.json", "{}");
     writeFixtureFile(root, "node_modules/.bin/tauri", "");
     writeFixtureFile(root, "node_modules/@playwright/test/package.json", "{}");
-    writeFixtureFile(root, "src-tauri/Cargo.lock", "");
-    writeFixtureFile(root, "src-tauri/.sqlx/query.json", "{}");
-    writeFixtureFile(root, "src-tauri/.cargo/config.toml", 'SQLX_OFFLINE = "true"');
+    writeFixtureFile(root, "Cargo.lock", "");
+    writeFixtureFile(root, ".sqlx/query.json", "{}");
+    writeFixtureFile(root, ".cargo/config.toml", 'SQLX_OFFLINE = "true"');
     callback(root);
   } finally {
     rmSync(root, { recursive: true, force: true });

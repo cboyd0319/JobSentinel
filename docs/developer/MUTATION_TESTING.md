@@ -146,7 +146,7 @@ Summary:
 
 ### Project Configuration (`.cargo-mutants.toml`)
 
-Located at: `src-tauri/.cargo-mutants.toml`
+Located at: `.cargo-mutants.toml`
 
 ```toml
 # Key settings
@@ -382,7 +382,7 @@ jobs:
         run: cargo install cargo-mutants --version 27.1.0 --locked
 
       - name: Run mutation tests on changed files
-        run: cd src-tauri && cargo mutants --in-diff
+        run: cargo mutants --workspace --in-diff
 
       - name: Check mutation score
         run: |

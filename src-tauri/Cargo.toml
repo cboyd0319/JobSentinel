@@ -1,207 +1,47 @@
 [package]
 name = "jobsentinel"
-version = "2.9.1"
 description = "Privacy-preserving local-first job-search assistant for desktop"
-authors = ["Chad Boyd"]
-license = "MIT"
-repository = "https://github.com/cboyd0319/JobSentinel"
-keywords = ["job-search", "assistant", "privacy", "tauri", "desktop-app"]
-categories = ["command-line-utilities"]
-edition = "2021"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+keywords.workspace = true
+categories.workspace = true
 
 [features]
 default = []
-# OCR support for scanned PDFs (uses command-line tesseract + pdftoppm)
-# Requires: tesseract-ocr and poppler-utils installed on system
-ocr = []
-# Embedded ML for semantic skill matching with pinned local model governance.
-embedded-ml = ["basic-toml", "candle-core", "candle-nn", "hf-hub", "tokenizers"]
+ocr = ["jobsentinel-core/ocr"]
+embedded-ml = ["jobsentinel-core/embedded-ml"]
 
 [build-dependencies]
-tauri-build = { version = "=2.6.3", features = [] }
+tauri-build.workspace = true
 
 [dependencies]
-# Tauri Core
-tauri = { version = "=2.11.3", features = ["tray-icon"] }
-tauri-plugin-shell = "=2.3.5"
-tauri-plugin-notification = "=2.3.3"
-tauri-plugin-dialog = "=2.7.1"
-tauri-plugin-secure-storage = "=1.5.0"
-
-# Direct keyring access for Rust backend (same crate used by plugin)
-keyring = "=4.1.2"
-
-# Local secret vault encryption
-argon2 = { version = "=0.5.3", default-features = false, features = ["alloc", "zeroize"] }
-chacha20poly1305 = "=0.10.1"
-zeroize = "=1.9.0"
-
-# Serialization
-serde = { version = "=1.0.228", features = ["derive"] }
-serde_json = "=1.0.150"
-
-# Async Runtime
-tokio = { version = "=1.52.3", features = ["full"] }
-async-trait = "=0.1.89"
-
-# HTTP Client
-reqwest = { version = "=0.13.4", default-features = false, features = ["json", "query", "rustls", "system-proxy"] }
-url = "=2.5.8"
-
-# HTML Parsing
-scraper = "=0.27.0"
-
-# URL encoding for query parameters
-urlencoding = "=2.1.3"
-
-# Regular expressions for pattern matching
-regex = "=1.12.4"
-
-# Database
-sqlx = { version = "=0.9.0", default-features = false, features = ["runtime-tokio", "tls-rustls", "sqlite", "migrate", "chrono", "macros"] }
-# SQLCipher feature bridge for SQLx's constrained SQLite backend.
-# SQLx 0.9.0 requires libsqlite3-sys <0.38, so this pins the max compatible
-# stable version and enables bundled SQLCipher with vendored OpenSSL for
-# Windows/macOS/Linux portability.
-libsqlite3-sys = { version = "=0.37.0", default-features = false, features = ["bundled-sqlcipher-vendored-openssl"] }
-
-# Date/Time
-chrono = { version = "=0.4.45", features = ["serde"] }
-
-# Configuration
-dotenvy = "=0.15.7"
-
-# Error Handling
-thiserror = "=2.0.18"
-anyhow = "=1.0.102"
-
-# UUIDs
-uuid = { version = "=1.23.3", features = ["v4"] }
-
-# Logging
-tracing = "=0.1.44"
-tracing-subscriber = { version = "=0.3.23", features = ["env-filter"] }
-
-# SHA-256 for job hashing
-sha2 = "=0.11.0"
-hex = "=0.4.3"
-
-# Scope guard for cleanup
-scopeguard = "=1.2.0"
-
-# Platform directories
-dirs = "=6.0.0"
-
-# Email notifications (SMTP)
-lettre = { version = "=0.11.22", default-features = false, features = ["tokio1-rustls-tls", "builder", "smtp-transport"] }
-
-# PDF parsing for resume extraction
-pdf-extract = "=0.10.0"
-docx-rs = "=0.4.20"
-quick-xml = "=0.40.1"
-zip = { version = "=8.6.0", default-features = false, features = ["deflate"] }
-
-# Note: OCR feature uses command-line tesseract and pdftoppm (no Rust crate dependencies)
-# This avoids complex native library linking while still providing OCR support
-
-# Visible browser control for Application Assist
-chromiumoxide = "=0.9.1"
-futures-util = "=0.3.32"
-
-# Embedded ML (optional) - Candle framework for on-device inference
-candle-core = { version = "=0.10.2", optional = true }
-candle-nn = { version = "=0.10.2", optional = true }
-hf-hub = { version = "=0.5.0", optional = true, default-features = false, features = ["tokio", "rustls-tls"] }
-# Model files are downloaded through the pinned hf-hub client; tokenizers only
-# needs local tokenizer loading plus Oniguruma support.
-tokenizers = { version = "=0.23.1", optional = true, default-features = false, features = ["onig"] }
-basic-toml = { version = "=0.1.10", optional = true }
-arboard = "=3.6.1"
-tempfile = "=3.27.0"
-
-[target.'cfg(windows)'.dependencies]
-windows = { version = "=0.62.2", features = ["Win32_Foundation", "Win32_System_Threading"] }
-
-[target.'cfg(target_os = "macos")'.dependencies]
-# Native macOS user-presence protection for the local credential vault key.
-objc2 = "=0.6.4"
-objc2-foundation = { version = "=0.3.2", default-features = false, features = ["std", "NSString"] }
-objc2-local-authentication = { version = "=0.3.2", default-features = false, features = ["std", "LAContext"] }
-security-framework = "=3.7.0"
+anyhow.workspace = true
+arboard.workspace = true
+chrono.workspace = true
+jobsentinel-core.workspace = true
+regex.workspace = true
+reqwest.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sqlx.workspace = true
+tauri.workspace = true
+tauri-plugin-dialog.workspace = true
+tauri-plugin-notification.workspace = true
+tauri-plugin-secure-storage.workspace = true
+tauri-plugin-shell.workspace = true
+tokio.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+urlencoding.workspace = true
+uuid.workspace = true
+zeroize.workspace = true
 
 [dev-dependencies]
-proptest = "=1.11.0"
-wiremock = "=0.6.5"
-futures = "=0.3.32"
+keyring.workspace = true
+tempfile.workspace = true
 
-# Release profile with security hardening
-[profile.release]
-# Enable link-time optimization for smaller, faster binaries
-lto = "thin"
-# Strip debug symbols to reduce binary size and prevent reverse engineering
-strip = "symbols"
-# Single codegen unit for better optimization (at cost of compile time)
-codegen-units = 1
-# Abort on panic instead of unwinding (smaller binary, prevents info leaks)
-panic = "abort"
-# Enable overflow checks even in release builds
-overflow-checks = true
-
-[lints.rust]
-unsafe_code = "deny"
-
-[lints.clippy]
-pedantic = { level = "warn", priority = -1 }
-nursery = { level = "warn", priority = -1 }
-# Allow expect/unwrap in tests via #[cfg(test)] allow attributes
-# These are denied in production code
-unwrap_used = "warn"
-expect_used = "warn"
-# Allow from_str methods that don't impl FromStr (used for infallible parsing)
-should_implement_trait = "allow"
-# Allow pub(crate) in private modules (intentional API design)
-redundant_pub_crate = "allow"
-# Allow matches! alternatives (stylistic choice)
-match_like_matches_macro = "allow"
-equatable_if_let = "allow"
-# Allow single-char string patterns (readability)
-single_char_pattern = "allow"
-# Allow wildcard imports for prelude-style modules
-wildcard_imports = "allow"
-# Allow manual derive impls (sometimes needed for custom logic)
-derivable_impls = "allow"
-# Allow push_str with single char (readability over micro-optimization)
-single_char_add_str = "allow"
-# Allow format! for consistency
-useless_format = "allow"
-# Allow redundant field names (explicit is clearer)
-redundant_field_names = "allow"
-# Allow unwrap_or_else for defaults (stylistic)
-unwrap_or_default = "allow"
-# Allow manual char comparisons
-manual_is_ascii_check = "allow"
-# Allow consecutive replace calls
-collapsible_str_replace = "allow"
-# Allow &PathBuf (sometimes needed for API compatibility)
-ptr_arg = "allow"
-# Allow suboptimal mul_add (clarity over micro-optimization)
-suboptimal_flops = "allow"
-# Allow manual char range patterns (clearer intent)
-manual_range_patterns = "allow"
-# Doc link format flexibility
-doc_link_with_quotes = "allow"
-# Allow clamp-like patterns (sometimes clearer)
-manual_clamp = "allow"
-# Allow iteration style choices
-explicit_iter_loop = "allow"
-# Allow empty string construction style
-default_trait_access = "allow"
-manual_string_new = "allow"
-# Allow collection usage patterns
-collection_is_never_read = "allow"
-# Allow char comparisons
-manual_pattern_char_comparison = "allow"
-# Allow debug formatting in errors
-unnecessary_debug_formatting = "allow"
-# Allow unnecessary casts (for clarity)
-unnecessary_cast = "allow"
+[lints]
+workspace = true

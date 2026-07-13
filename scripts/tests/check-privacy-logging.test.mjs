@@ -122,7 +122,7 @@ test("privacy logging rejects raw automation dropdown selected values", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src-tauri/src/core/automation/browser/page.rs",
+      "crates/jobsentinel-core/src/core/automation/browser/page.rs",
       [
         'tracing::debug!("Selected option \'{}\' in dropdown \'{}\'", value, selector);',
         "",
@@ -132,12 +132,12 @@ test("privacy logging rejects raw automation dropdown selected values", () => {
     assert.equal(
       hasRawAutomationDropdownValueLogging(
         root,
-        "src-tauri/src/core/automation/browser/page.rs",
+        "crates/jobsentinel-core/src/core/automation/browser/page.rs",
       ),
       true,
     );
     assert.equal(
-      hasRawAutomationDropdownValueLogging(root, "src-tauri/src/core/automation/form_filler.rs"),
+      hasRawAutomationDropdownValueLogging(root, "crates/jobsentinel-core/src/core/automation/form_filler.rs"),
       false,
     );
   });
@@ -147,7 +147,7 @@ test("privacy logging rejects raw automation question and form data", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src-tauri/src/core/automation/form_filler.rs",
+      "crates/jobsentinel-core/src/core/automation/form_filler.rs",
       [
         'tracing::debug!("screening question \'{}\'", question_text);',
         'tracing::debug!("Matched pattern \'{}\' for question \'{}\'", answer.question_pattern, question);',
@@ -158,16 +158,16 @@ test("privacy logging rejects raw automation question and form data", () => {
     writeFixtureFile(root, "src/mocks/handlers.ts", "`screening:${answer.questionPattern}`");
 
     assert.equal(
-      hasRawAutomationQuestionLogging(root, "src-tauri/src/core/automation/form_filler.rs"),
+      hasRawAutomationQuestionLogging(root, "crates/jobsentinel-core/src/core/automation/form_filler.rs"),
       true,
     );
     assert.equal(
-      hasRawAutomationFormResultData(root, "src-tauri/src/core/automation/form_filler.rs"),
+      hasRawAutomationFormResultData(root, "crates/jobsentinel-core/src/core/automation/form_filler.rs"),
       true,
     );
     assert.equal(hasRawAutomationFormResultData(root, "src/mocks/handlers.ts"), true);
     assert.equal(
-      hasRawAutomationQuestionLogging(root, "src-tauri/src/core/automation/browser/page.rs"),
+      hasRawAutomationQuestionLogging(root, "crates/jobsentinel-core/src/core/automation/browser/page.rs"),
       false,
     );
   });
@@ -214,25 +214,25 @@ test("privacy logging rejects raw automation browser errors and notification tit
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src-tauri/src/core/automation/browser/manager.rs",
+      "crates/jobsentinel-core/src/core/automation/browser/manager.rs",
       'format!("Failed to build browser config: {}", e);',
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/core/notify/mod.rs",
+      "crates/jobsentinel-core/src/core/notify/mod.rs",
       "tracing::info!(notification.job.title);",
     );
 
     assert.equal(
-      hasRawAutomationBrowserErrors(root, "src-tauri/src/core/automation/browser/manager.rs"),
+      hasRawAutomationBrowserErrors(root, "crates/jobsentinel-core/src/core/automation/browser/manager.rs"),
       true,
     );
     assert.equal(
-      hasRawNotificationJobTitleLogging(root, "src-tauri/src/core/notify/mod.rs"),
+      hasRawNotificationJobTitleLogging(root, "crates/jobsentinel-core/src/core/notify/mod.rs"),
       true,
     );
     assert.equal(
-      hasRawAutomationBrowserErrors(root, "src-tauri/src/core/automation/form_filler.rs"),
+      hasRawAutomationBrowserErrors(root, "crates/jobsentinel-core/src/core/automation/form_filler.rs"),
       false,
     );
   });
@@ -269,24 +269,24 @@ test("privacy logging rejects raw ATS note and reminder timeline event data", ()
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src-tauri/src/core/ats/tracker.rs",
+      "crates/jobsentinel-core/src/core/ats/tracker.rs",
       'serde_json::json!({"notes": notes})',
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/core/ats/reminders.rs",
+      "crates/jobsentinel-core/src/core/ats/reminders.rs",
       'serde_json::json!({"message": message})',
     );
 
     assert.equal(
-      hasRawAtsTimelinePrivateEventData(root, "src-tauri/src/core/ats/tracker.rs"),
+      hasRawAtsTimelinePrivateEventData(root, "crates/jobsentinel-core/src/core/ats/tracker.rs"),
       true,
     );
     assert.equal(
-      hasRawAtsTimelinePrivateEventData(root, "src-tauri/src/core/ats/reminders.rs"),
+      hasRawAtsTimelinePrivateEventData(root, "crates/jobsentinel-core/src/core/ats/reminders.rs"),
       true,
     );
-    assert.equal(hasRawAtsTimelinePrivateEventData(root, "src-tauri/src/core/ats/types.rs"), false);
+    assert.equal(hasRawAtsTimelinePrivateEventData(root, "crates/jobsentinel-core/src/core/ats/types.rs"), false);
   });
 });
 
@@ -463,7 +463,7 @@ test("privacy logging rejects raw private query fields", () => {
     );
 
     assert.equal(hasRawPrivateQueryLogging(root, "src-tauri/src/commands/jobs.rs"), true);
-    assert.equal(hasRawPrivateQueryLogging(root, "src-tauri/src/core/db/mod.rs"), false);
+    assert.equal(hasRawPrivateQueryLogging(root, "crates/jobsentinel-core/src/core/db/mod.rs"), false);
   });
 });
 
@@ -476,12 +476,12 @@ test("privacy logging rejects raw user-data and scheduler logging", () => {
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/core/scheduler/workers/persistence.rs",
+      "crates/jobsentinel-core/src/core/scheduler/workers/persistence.rs",
       "let job_title = job.title.clone();",
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/core/scheduler/workers/scrapers.rs",
+      "crates/jobsentinel-core/src/core/scheduler/workers/scrapers.rs",
       "fail_run(db, scraper_run_id, &e.to_string()).await;",
     );
 
@@ -489,14 +489,14 @@ test("privacy logging rejects raw user-data and scheduler logging", () => {
     assert.equal(
       hasRawSchedulerJobContentLogging(
         root,
-        "src-tauri/src/core/scheduler/workers/persistence.rs",
+        "crates/jobsentinel-core/src/core/scheduler/workers/persistence.rs",
       ),
       true,
     );
     assert.equal(
       hasRawSchedulerScraperErrorDetails(
         root,
-        "src-tauri/src/core/scheduler/workers/scrapers.rs",
+        "crates/jobsentinel-core/src/core/scheduler/workers/scrapers.rs",
       ),
       true,
     );
@@ -513,7 +513,7 @@ test("privacy logging rejects raw import and bookmarklet details", () => {
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/core/bookmarklet/server.rs",
+      "crates/jobsentinel-core/src/core/bookmarklet/server.rs",
       [
         'tracing::info!(title = %title, company = %company, "imported");',
         'format!(r#"{{"error":"{}"}}"#, e);',
@@ -535,19 +535,19 @@ test("privacy logging rejects raw import and bookmarklet details", () => {
       true,
     );
     assert.equal(
-      hasRawBookmarkletImportLogging(root, "src-tauri/src/core/bookmarklet/server.rs"),
+      hasRawBookmarkletImportLogging(root, "crates/jobsentinel-core/src/core/bookmarklet/server.rs"),
       true,
     );
     assert.equal(
-      hasManualBookmarkletJsonErrorResponses(root, "src-tauri/src/core/bookmarklet/server.rs"),
+      hasManualBookmarkletJsonErrorResponses(root, "crates/jobsentinel-core/src/core/bookmarklet/server.rs"),
       true,
     );
     assert.equal(
-      hasUnauthenticatedBookmarkletImports(root, "src-tauri/src/core/bookmarklet/server.rs"),
+      hasUnauthenticatedBookmarkletImports(root, "crates/jobsentinel-core/src/core/bookmarklet/server.rs"),
       true,
     );
     assert.equal(
-      hasReusableBookmarkletImportToken(root, "src-tauri/src/core/bookmarklet/server.rs"),
+      hasReusableBookmarkletImportToken(root, "crates/jobsentinel-core/src/core/bookmarklet/server.rs"),
       true,
     );
     assert.equal(
@@ -562,32 +562,32 @@ test("privacy logging rejects raw scheduler scoring and residual core leaks", ()
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src-tauri/src/core/scoring/cache.rs",
+      "crates/jobsentinel-core/src/core/scoring/cache.rs",
       "tracing::debug!(job_hash = %job_hash);",
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/core/scheduler/workers/scoring.rs",
+      "crates/jobsentinel-core/src/core/scheduler/workers/scoring.rs",
       "tracing::warn!(error = %e, job_hash = %job.hash);",
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/core/config/io.rs",
+      "crates/jobsentinel-core/src/core/config/io.rs",
       'format!("Invalid API key: {}", e);',
     );
 
     assert.equal(
-      hasRawScoringCacheJobHashLogging(root, "src-tauri/src/core/scoring/cache.rs"),
+      hasRawScoringCacheJobHashLogging(root, "crates/jobsentinel-core/src/core/scoring/cache.rs"),
       true,
     );
     assert.equal(
       hasRawSchedulerScoringPrivacyLeak(
         root,
-        "src-tauri/src/core/scheduler/workers/scoring.rs",
+        "crates/jobsentinel-core/src/core/scheduler/workers/scoring.rs",
       ),
       true,
     );
-    assert.equal(hasResidualCorePrivacyLeak(root, "src-tauri/src/core/config/io.rs"), true);
+    assert.equal(hasResidualCorePrivacyLeak(root, "crates/jobsentinel-core/src/core/config/io.rs"), true);
     assert.equal(hasResidualCorePrivacyLeak(root, "src-tauri/src/commands/import.rs"), false);
   });
 });
@@ -596,16 +596,16 @@ test("privacy logging rejects raw scraper URL and query output", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src-tauri/src/core/scrapers/http_client.rs",
+      "crates/jobsentinel-core/src/core/scrapers/http_client.rs",
       'tracing::debug!("Fetching API for query: {}", query);',
     );
 
     assert.equal(
-      hasRawScraperUrlOrQueryLogging(root, "src-tauri/src/core/scrapers/http_client.rs"),
+      hasRawScraperUrlOrQueryLogging(root, "crates/jobsentinel-core/src/core/scrapers/http_client.rs"),
       true,
     );
     assert.equal(
-      hasRawScraperUrlOrQueryLogging(root, "src-tauri/src/core/scrapers/mod.rs"),
+      hasRawScraperUrlOrQueryLogging(root, "crates/jobsentinel-core/src/core/scrapers/mod.rs"),
       false,
     );
   });
@@ -615,7 +615,7 @@ test("privacy logging rejects raw scraper loop errors outside tests", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src-tauri/src/core/scrapers/greenhouse.rs",
+      "crates/jobsentinel-core/src/core/scrapers/greenhouse.rs",
       [
         'tracing::warn!("Failed to scrape {}: {}", company.name, e);',
         "#[cfg(test)]",
@@ -626,10 +626,10 @@ test("privacy logging rejects raw scraper loop errors outside tests", () => {
     );
 
     assert.equal(
-      hasRawScraperLoopErrorLogging(root, "src-tauri/src/core/scrapers/greenhouse.rs"),
+      hasRawScraperLoopErrorLogging(root, "crates/jobsentinel-core/src/core/scrapers/greenhouse.rs"),
       true,
     );
-    assert.equal(hasRawScraperLoopErrorLogging(root, "src-tauri/src/core/scrapers/dice.rs"), false);
+    assert.equal(hasRawScraperLoopErrorLogging(root, "crates/jobsentinel-core/src/core/scrapers/dice.rs"), false);
   });
 });
 
@@ -637,21 +637,21 @@ test("privacy logging rejects unbounded external response body reads", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src-tauri/src/core/scrapers/dice.rs",
+      "crates/jobsentinel-core/src/core/scrapers/dice.rs",
       "let body = response.text().await?;",
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/core/http_body.rs",
+      "crates/jobsentinel-core/src/core/http_body.rs",
       "let body = response.text().await?;",
     );
 
     assert.equal(
-      hasUnboundedExternalResponseBodyRead(root, "src-tauri/src/core/scrapers/dice.rs"),
+      hasUnboundedExternalResponseBodyRead(root, "crates/jobsentinel-core/src/core/scrapers/dice.rs"),
       true,
     );
     assert.equal(
-      hasUnboundedExternalResponseBodyRead(root, "src-tauri/src/core/http_body.rs"),
+      hasUnboundedExternalResponseBodyRead(root, "crates/jobsentinel-core/src/core/http_body.rs"),
       false,
     );
   });
@@ -674,15 +674,15 @@ test("privacy logging rejects raw backup path errors", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src-tauri/src/core/db/integrity/backups.rs",
+      "crates/jobsentinel-core/src/core/db/integrity/backups.rs",
       'return Err(format!("Backup file not found: {}", backup_path.display()));',
     );
 
     assert.equal(
-      hasRawBackupPathError(root, "src-tauri/src/core/db/integrity/backups.rs"),
+      hasRawBackupPathError(root, "crates/jobsentinel-core/src/core/db/integrity/backups.rs"),
       true,
     );
-    assert.equal(hasRawBackupPathError(root, "src-tauri/src/core/db/connection.rs"), false);
+    assert.equal(hasRawBackupPathError(root, "crates/jobsentinel-core/src/core/db/connection.rs"), false);
   });
 });
 
@@ -702,12 +702,12 @@ test("privacy logging rejects raw ML error display", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src-tauri/src/core/ml/mod.rs",
+      "crates/jobsentinel-core/src/core/ml/mod.rs",
       '#[error("model loading failed: {0}")]\nstruct MlError;',
     );
 
-    assert.equal(hasMlRawErrorDisplay(root, "src-tauri/src/core/ml/mod.rs"), true);
-    assert.equal(hasMlRawErrorDisplay(root, "src-tauri/src/core/ml/model.rs"), false);
+    assert.equal(hasMlRawErrorDisplay(root, "crates/jobsentinel-core/src/core/ml/mod.rs"), true);
+    assert.equal(hasMlRawErrorDisplay(root, "crates/jobsentinel-core/src/core/ml/model.rs"), false);
   });
 });
 
@@ -715,22 +715,22 @@ test("privacy logging rejects sensitive Debug derives", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src-tauri/src/core/scrapers/jobswithgpt.rs",
+      "crates/jobsentinel-core/src/core/scrapers/jobswithgpt.rs",
       "#[derive(Debug)]\npub struct JobQuery;",
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/core/scrapers/linkedin.rs",
+      "crates/jobsentinel-core/src/core/scrapers/linkedin.rs",
       "#[derive(Clone, Debug)]\npub struct LinkedInScraper;",
     );
 
     assert.equal(
-      hasRawJobsWithGptDebug(root, "src-tauri/src/core/scrapers/jobswithgpt.rs"),
+      hasRawJobsWithGptDebug(root, "crates/jobsentinel-core/src/core/scrapers/jobswithgpt.rs"),
       true,
     );
-    assert.equal(hasRawLinkedInDebug(root, "src-tauri/src/core/scrapers/linkedin.rs"), true);
-    assert.equal(hasRawJobsWithGptDebug(root, "src-tauri/src/core/scrapers/dice.rs"), false);
-    assert.equal(hasRawLinkedInDebug(root, "src-tauri/src/core/scrapers/dice.rs"), false);
+    assert.equal(hasRawLinkedInDebug(root, "crates/jobsentinel-core/src/core/scrapers/linkedin.rs"), true);
+    assert.equal(hasRawJobsWithGptDebug(root, "crates/jobsentinel-core/src/core/scrapers/dice.rs"), false);
+    assert.equal(hasRawLinkedInDebug(root, "crates/jobsentinel-core/src/core/scrapers/dice.rs"), false);
   });
 });
 

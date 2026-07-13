@@ -27,7 +27,7 @@ pub enum ErrorCategory {
 
 impl ErrorCategory {
     /// Get user-friendly title for this error category
-    pub fn title(&self) -> &'static str {
+    pub fn title(self) -> &'static str {
         match self {
             Self::Database => "Local data problem",
             Self::Network => "Connection problem",
@@ -41,7 +41,7 @@ impl ErrorCategory {
     }
 
     /// Get recovery suggestion for this error category
-    pub fn recovery_hint(&self) -> &'static str {
+    pub fn recovery_hint(self) -> &'static str {
         match self {
             Self::Database => {
                 "If this keeps happening, save a safe support report before closing and reopening JobSentinel or changing local data."

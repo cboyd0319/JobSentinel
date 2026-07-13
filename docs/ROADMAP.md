@@ -146,9 +146,9 @@ npm run test:run
 npm run test:e2e:smoke
 npm run build
 npm run tauri:build:macos # macOS package check, on macOS only
-cd src-tauri && cargo fmt --all -- --check
-cd src-tauri && cargo clippy -- -D warnings
-cd src-tauri && cargo test --lib
+cargo fmt --all -- --check
+cargo clippy --workspace -- -D warnings
+cargo test --workspace
 ```
 
 Full release verification also includes the broader Playwright matrix,

@@ -6,8 +6,8 @@ Quick guide for adding support for new sites to Job Site Search Links.
 
 Adding a new site requires changes to 3 files:
 
-1. `src-tauri/src/core/deeplinks/sites.rs` - Add site metadata
-2. `src-tauri/src/core/deeplinks/generator.rs` - Add URL generator
+1. `crates/jobsentinel-core/src/core/deeplinks/sites.rs` - Add site metadata
+2. `crates/jobsentinel-core/src/core/deeplinks/generator.rs` - Add URL generator
 3. Update tests
 
 **Estimated time:** 10-15 minutes per site
@@ -63,7 +63,7 @@ Parameters:
 
 ## Step 2: Add Site Metadata
 
-**File:** `src-tauri/src/core/deeplinks/sites.rs`
+**File:** `crates/jobsentinel-core/src/core/deeplinks/sites.rs`
 
 Add a new `SiteInfo` entry to the `get_all_sites()` function:
 
@@ -106,7 +106,7 @@ Choose the most appropriate category:
 
 ## Step 3: Add URL Generator
 
-**File:** `src-tauri/src/core/deeplinks/generator.rs`
+**File:** `crates/jobsentinel-core/src/core/deeplinks/generator.rs`
 
 ### 3.1: Add Function Call to Router
 
@@ -221,7 +221,7 @@ if let Some(job_type) = criteria.job_type {
 
 ## Step 4: Add Tests
 
-**File:** `src-tauri/src/core/deeplinks/generator.rs`
+**File:** `crates/jobsentinel-core/src/core/deeplinks/generator.rs`
 
 Add a test for your new site in the `#[cfg(test)]` mod tests section:
 

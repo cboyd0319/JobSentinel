@@ -91,10 +91,10 @@ test("macOS DMG builder strips Apple auth from Tauri build env", () => {
 });
 
 test("macOS DMG builder resolves release directories", () => {
-  assert.equal(getReleaseDir("/repo", []), join("/repo", "src-tauri", "target", "release"));
+  assert.equal(getReleaseDir("/repo", []), join("/repo", "target", "release"));
   assert.equal(
     getReleaseDir("/repo", ["--target", "universal-apple-darwin"]),
-    join("/repo", "src-tauri", "target", "universal-apple-darwin", "release"),
+    join("/repo", "target", "universal-apple-darwin", "release"),
   );
 });
 
@@ -116,7 +116,6 @@ test("macOS DMG builder names app and DMG outputs from metadata", () => {
     paths.appPath,
     join(
       "/repo",
-      "src-tauri",
       "target",
       "universal-apple-darwin",
       "release",
@@ -129,7 +128,6 @@ test("macOS DMG builder names app and DMG outputs from metadata", () => {
     paths.dmgPath,
     join(
       "/repo",
-      "src-tauri",
       "target",
       "universal-apple-darwin",
       "release",
@@ -153,7 +151,6 @@ test("macOS DMG builder can name no-account outputs directly", () => {
     paths.dmgPath,
     join(
       "/repo",
-      "src-tauri",
       "target",
       "universal-apple-darwin",
       "release",

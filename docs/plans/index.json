@@ -51,7 +51,7 @@
       "path": "docs/plans/v3/foundation-exec-plan.md",
       "state": "deferred",
       "nextStep": "Resume only after the full repository refactor, cleanup, and v2.9.5 readiness work or when the user explicitly reopens v3 feature implementation.",
-      "verification": "npm run harness:check; npm run lint:docs; cd src-tauri && cargo test --lib core::db"
+      "verification": "npm run harness:check; npm run lint:docs; cargo test -p jobsentinel-core --lib core::db"
     }
   ],
   "archivedWorkstreams": [

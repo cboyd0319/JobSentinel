@@ -551,7 +551,7 @@ test("checkRepoBloat rejects discontinued Stack Overflow Jobs deep links", () =>
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/core/deeplinks/generator.rs",
+      "crates/jobsentinel-core/src/core/deeplinks/generator.rs",
       '"stackoverflow" => "https://stackoverflow.com/jobs?q=test";\n',
     );
     writeFixtureFile(
@@ -566,7 +566,7 @@ test("checkRepoBloat rejects discontinued Stack Overflow Jobs deep links", () =>
         "add",
         "package.json",
         "docs/user/DEEP_LINKS.md",
-        "src-tauri/src/core/deeplinks/generator.rs",
+        "crates/jobsentinel-core/src/core/deeplinks/generator.rs",
         "src/mocks/handlers.ts",
       ],
       { cwd: root },
@@ -582,7 +582,7 @@ test("checkRepoBloat rejects discontinued Stack Overflow Jobs deep links", () =>
     );
     assert.ok(
       violations.includes(
-        "remove discontinued Stack Overflow Jobs deep link: src-tauri/src/core/deeplinks/generator.rs",
+        "remove discontinued Stack Overflow Jobs deep link: crates/jobsentinel-core/src/core/deeplinks/generator.rs",
       ),
       violations.join("\n"),
     );
@@ -633,7 +633,7 @@ test("checkRepoBloat rejects stale resume suggestion category labels", () => {
   withGitFixture((root) => {
     writeFixtureFile(
       root,
-      "src-tauri/src/core/resume/ats_analyzer.rs",
+      "crates/jobsentinel-core/src/core/resume/ats_analyzer.rs",
       `
 pub enum SuggestionCategory {
     AddKeyword,
@@ -664,7 +664,7 @@ pub enum SuggestionCategory {
       "git",
       [
         "add",
-        "src-tauri/src/core/resume/ats_analyzer.rs",
+        "crates/jobsentinel-core/src/core/resume/ats_analyzer.rs",
         "src/features/resumes/matching/resumeMatchModel.ts",
         "src/features/resumes/builder/AtsLiveScorePanel.tsx",
         "src/mocks/handlers.ts",

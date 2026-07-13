@@ -69,7 +69,7 @@ import {
 } from "./shared.mjs";
 
 export function hasRawAutomationDropdownValueLogging(root, path) {
-  if (path !== "src-tauri/src/core/automation/browser/page.rs") {
+  if (path !== "crates/jobsentinel-core/src/core/automation/browser/page.rs") {
     return false;
   }
 
@@ -432,7 +432,7 @@ export function hasRawAutomationFormResultData(root, path) {
     ? stripRustTestModules(readFileSync(join(root, path), "utf8"))
     : readFileSync(join(root, path), "utf8");
 
-  if (path === "src-tauri/src/core/automation/form_filler.rs") {
+  if (path === "crates/jobsentinel-core/src/core/automation/form_filler.rs") {
     return (
       /format!\(\s*"screening:\{\}"\s*,\s*(?:field_name|question_text)/.test(text) ||
       /truncate_question\(&question_text/.test(text) ||

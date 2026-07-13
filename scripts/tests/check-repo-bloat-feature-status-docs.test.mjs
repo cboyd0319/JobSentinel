@@ -156,7 +156,7 @@ test("checkRepoBloat rejects notifications doc glyph markers", () => {
       "docs/features/notifications.md",
       [
         '2. Click "Create New App" → "From Scratch"',
-        "src-tauri/src/core/notify/",
+        "crates/jobsentinel-core/src/core/notify/",
         "├── mod.rs",
         "",
       ].join("\n"),

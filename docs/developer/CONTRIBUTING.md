@@ -128,8 +128,7 @@ node scripts/install-pinned-npm.mjs
 npm ci --ignore-scripts
 
 # Check Rust compilation
-cd src-tauri
-cargo check
+cargo check --workspace
 cd ..
 ```
 
@@ -164,8 +163,8 @@ git rebase main
 **Follow the project structure:**
 
 - `src/` - React frontend (TypeScript + TailwindCSS)
-- `src-tauri/src/core/` - Platform-agnostic business logic
-- `src-tauri/src/platforms/` - OS-specific code
+- `crates/jobsentinel-core/src/core/` - Platform-agnostic business logic
+- `crates/jobsentinel-core/src/platforms/` - OS-specific code
 - `src-tauri/src/commands/` - Tauri RPC handlers
 
 **Keep changes focused:**
@@ -178,15 +177,14 @@ git rebase main
 
 ```bash
 # Run Rust tests
-cd src-tauri
-cargo test
+cargo test --workspace
 
 # Run with logging
 RUST_LOG=debug npm run tauri:dev
 
 # Test on target platforms
 # - Windows 11+
-# - macOS 13+
+# - macOS 26+
 ```
 
 ### 4. Commit Changes
@@ -198,7 +196,7 @@ git add .
 # Commit with descriptive message
 git commit -m "feat: Add support for NewBoard job scraper
 
-- Implement NewBoardScraper in src-tauri/src/core/scrapers/
+- Implement NewBoardScraper in crates/jobsentinel-core/src/core/scrapers/
 - Add parsing for NewBoard job listings
 - Add tests for NewBoard scraper
 - Update examples/config/config.example.json with NewBoard URLs
@@ -243,10 +241,10 @@ everywhere.
 
 ```bash
 # Format code
-cargo fmt
+cargo fmt --all -- --check
 
 # Lint production Rust targets
-cargo clippy -- -D warnings
+cargo clippy --workspace -- -D warnings
 
 # Check for security vulnerabilities
 cargo audit
@@ -378,16 +376,14 @@ mod tests;
 **Run tests:**
 
 ```bash
-cd src-tauri
-
 # All tests
-cargo test
+cargo test --workspace
 
 # Specific test
-cargo test test_scrape_greenhouse
+cargo test -p jobsentinel-core test_scrape_greenhouse
 
 # With output
-cargo test -- --nocapture
+cargo test --workspace -- --nocapture
 ```
 
 ### Manual Testing
@@ -491,7 +487,7 @@ Closes #123
 **1. Create scraper file:**
 
 ```rust
-// src-tauri/src/core/scrapers/newboard.rs
+// crates/jobsentinel-core/src/core/scrapers/newboard.rs
 
 use super::{JobScraper, ScraperResult};
 use async_trait::async_trait;
@@ -516,7 +512,7 @@ impl JobScraper for NewBoardScraper {
 **2. Add to mod.rs:**
 
 ```rust
-// src-tauri/src/core/scrapers/mod.rs
+// crates/jobsentinel-core/src/core/scrapers/mod.rs
 pub mod newboard;
 ```
 
@@ -552,7 +548,7 @@ mod tests {
 **1. Create platform module:**
 
 ```rust
-// src-tauri/src/platforms/freebsd/mod.rs
+// crates/jobsentinel-core/src/platforms/freebsd/mod.rs
 
 pub fn get_data_dir() -> PathBuf {
     // FreeBSD implementation
@@ -566,7 +562,7 @@ pub fn initialize() -> Result<(), Box<dyn std::error::Error>> {
 **2. Add conditional compilation:**
 
 ```rust
-// src-tauri/src/platforms/mod.rs
+// crates/jobsentinel-core/src/platforms/mod.rs
 #[cfg(target_os = "freebsd")]
 pub mod freebsd;
 ```

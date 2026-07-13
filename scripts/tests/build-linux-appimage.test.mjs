@@ -56,7 +56,7 @@ test("verifySha256 rejects helper tool hash drift", () => {
 test("resolveTauriBundlerCache isolates default helper cache under target", () => {
   assert.equal(
     resolveTauriBundlerCache("/repo", {}),
-    "/repo/src-tauri/target/.tauri",
+    "/repo/target/.tauri",
   );
   assert.equal(resolveTauriBundlerCache("/repo", { TAURI_BUNDLER_CACHE_DIR: "/cache" }), "/cache");
 });

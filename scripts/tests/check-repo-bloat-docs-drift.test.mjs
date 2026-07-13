@@ -100,7 +100,7 @@ test("checkRepoBloat rejects top-level active doc glyph markers", () => {
     writeFixtureFile(
       root,
       "docs/developer/LOCAL_SEMANTIC_MATCHING.md",
-      ["src-tauri/src/core/ml/", "├── mod.rs", "└── tests.rs", ""].join("\n"),
+      ["crates/jobsentinel-core/src/core/ml/", "├── mod.rs", "└── tests.rs", ""].join("\n"),
     );
     writeFixtureFile(
       root,
@@ -316,7 +316,7 @@ test("checkRepoBloat rejects stale macOS developer docs", () => {
       [
         "# macOS Development",
         "",
-        "**Output:** `src-tauri/target/release/bundle/dmg/JobSentinel_1.0.0_aarch64.dmg`",
+        "**Output:** `target/release/bundle/dmg/JobSentinel_1.0.0_aarch64.dmg`",
         "",
         "### Currently Implemented ✅",
         "",
@@ -475,7 +475,7 @@ test("checkRepoBloat rejects stale shipped-feature roadmap statuses", () => {
       root,
       "docs/ROADMAP.md",
       [
-        "- **Implementation:** `src-tauri/src/core/import/` module (planned)",
+        "- **Implementation:** `crates/jobsentinel-core/src/core/import/` module (planned)",
         `3. ${plannedStatusIcon} Universal Job Importer with Schema.org parsing`,
         `4. ${plannedStatusIcon} Deep Link Generator for 15+ sites`,
         `5. ${plannedStatusIcon} Bookmarklet generator`,
@@ -730,7 +730,7 @@ test("checkRepoBloat rejects stale Linux platform stub markers", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src-tauri/src/platforms/linux/mod.rs",
+      "crates/jobsentinel-core/src/platforms/linux/mod.rs",
       [
         "//! Linux-Specific Implementation (v2.0 - Coming Soon)",
         "//! This module will contain Linux-specific code for JobSentinel v2.0.",
@@ -739,7 +739,7 @@ test("checkRepoBloat rejects stale Linux platform stub markers", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "src-tauri/src/platforms/linux/mod.rs"], {
+    execFileSync("git", ["add", "package.json", "crates/jobsentinel-core/src/platforms/linux/mod.rs"], {
       cwd: root,
     });
 
@@ -747,7 +747,7 @@ test("checkRepoBloat rejects stale Linux platform stub markers", () => {
 
     assert.ok(
       violations.includes(
-        "replace stale Linux platform stub markers: src-tauri/src/platforms/linux/mod.rs",
+        "replace stale Linux platform stub markers: crates/jobsentinel-core/src/platforms/linux/mod.rs",
       ),
       violations.join("\n"),
     );
@@ -823,7 +823,7 @@ test("checkRepoBloat rejects stale cargo-deny advisory ignores", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src-tauri/deny.toml",
+      "deny.toml",
       [
         "[advisories]",
         "ignore = [",
@@ -833,14 +833,14 @@ test("checkRepoBloat rejects stale cargo-deny advisory ignores", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "src-tauri/deny.toml"], {
+    execFileSync("git", ["add", "package.json", "deny.toml"], {
       cwd: root,
     });
 
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("remove stale cargo-deny advisory ignore: src-tauri/deny.toml"),
+      violations.includes("remove stale cargo-deny advisory ignore: deny.toml"),
       violations.join("\n"),
     );
   });

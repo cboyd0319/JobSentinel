@@ -98,7 +98,7 @@ function writeMinimalNpmFixture(root, version = "1.2.3") {
 function writeMinimalCargoFixture(root, version = "=1.0.228") {
   writeFixtureFile(
     root,
-    "src-tauri/Cargo.toml",
+    "Cargo.toml",
     [
       "[package]",
       'name = "jobsentinel"',
@@ -118,7 +118,7 @@ function writeMinimalCargoFixture(root, version = "=1.0.228") {
   );
   writeFixtureFile(
     root,
-    "src-tauri/Cargo.lock",
+    "Cargo.lock",
     [
       "[[package]]",
       'name = "serde"',
@@ -397,7 +397,7 @@ test("Cargo pin check rejects prerelease lockfile crate versions", () => {
     writeMinimalCargoFixture(root);
     writeFixtureFile(
       root,
-      "src-tauri/Cargo.lock",
+      "Cargo.lock",
       [
         "[[package]]",
         'name = "serde"',
@@ -807,7 +807,7 @@ test("Cargo latest-stable check accepts SQLx-constrained SQLCipher bridge", asyn
   await withFixtureAsync(async (root) => {
     writeFixtureFile(
       root,
-      "src-tauri/Cargo.toml",
+      "Cargo.toml",
       [
         "[package]",
         'name = "jobsentinel"',
@@ -838,7 +838,7 @@ test("Cargo latest-stable check rejects SQLCipher bridge exception drift", async
   await withFixtureAsync(async (root) => {
     writeFixtureFile(
       root,
-      "src-tauri/Cargo.toml",
+      "Cargo.toml",
       [
         "[package]",
         'name = "jobsentinel"',

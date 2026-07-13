@@ -260,13 +260,13 @@ function buildFrameworks(root) {
               "rust-toolchain.toml",
             ),
             check("npm lockfile exists", exists(root, "package-lock.json"), "package-lock.json"),
-            check("Cargo lockfile exists", exists(root, "src-tauri/Cargo.lock"), "src-tauri/Cargo.lock"),
+            check("Cargo lockfile exists", exists(root, "Cargo.lock"), "Cargo.lock"),
             check(
               "Environment doctor commands exist",
               hasScripts(root, ["doctor", "doctor:e2e"]) &&
-                fileHasAll(root, "src-tauri/.cargo/config.toml", ['SQLX_OFFLINE = "true"']) &&
+                fileHasAll(root, ".cargo/config.toml", ['SQLX_OFFLINE = "true"']) &&
                 fileHasAll(root, "scripts/doctor.mjs", [".nvmrc", "rust-toolchain.toml"]),
-              "package.json, src-tauri/.cargo/config.toml, scripts/doctor.mjs",
+              "package.json, .cargo/config.toml, scripts/doctor.mjs",
             ),
           ],
         },

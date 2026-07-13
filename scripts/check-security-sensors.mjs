@@ -103,10 +103,10 @@ const forbiddenWorkflowTriggers = ["pull_request_target:", "workflow_run:", "iss
 const releaseCacheMarkers = ["actions/cache@", "Swatinem/rust-cache@", 'cache: "npm"', "cache: npm"];
 
 const notificationProviderPaths = [
-  "src-tauri/src/core/notify/slack.rs",
-  "src-tauri/src/core/notify/discord.rs",
-  "src-tauri/src/core/notify/teams.rs",
-  "src-tauri/src/core/notify/telegram.rs",
+  "crates/jobsentinel-core/src/core/notify/slack.rs",
+  "crates/jobsentinel-core/src/core/notify/discord.rs",
+  "crates/jobsentinel-core/src/core/notify/teams.rs",
+  "crates/jobsentinel-core/src/core/notify/telegram.rs",
 ];
 
 const releaseWorkflowChecks = [
@@ -297,11 +297,11 @@ const releasePreflightChecks = [
   },
   {
     label: "Rust clippy",
-    phrases: ["cargo clippy -- -D warnings"],
+    phrases: ["cargo clippy --workspace -- -D warnings"],
   },
   {
     label: "Rust tests",
-    phrases: ["cargo test --lib"],
+    phrases: ["cargo test --workspace"],
   },
 ];
 
@@ -351,9 +351,14 @@ const requiredCodeownersEntries = [
   "scripts/check-security-sensors.mjs",
   "scripts/tests/check-security-sensors.test.mjs",
   "scripts/security/",
+  "Cargo.toml",
+  "Cargo.lock",
+  ".cargo/",
+  "clippy.toml",
+  "deny.toml",
+  "crates/",
+  "scripts/check-repository-architecture.mjs",
   "src-tauri/Cargo.toml",
-  "src-tauri/Cargo.lock",
-  "src-tauri/deny.toml",
   "AGENTS.md",
   "CLAUDE.md",
   "docs/CLAUDE.md",
@@ -362,9 +367,9 @@ const requiredCodeownersEntries = [
   "docs/security/",
   "src-tauri/capabilities/",
   "src-tauri/tauri.conf.json",
-  "src-tauri/src/core/bookmarklet/",
-  "src-tauri/src/core/credentials/",
-  "src-tauri/src/core/url_security.rs",
+  "crates/jobsentinel-core/src/core/bookmarklet/",
+  "crates/jobsentinel-core/src/core/credentials/",
+  "crates/jobsentinel-core/src/core/url_security.rs",
 ];
 const requiredCodeowner = "@cboyd0319";
 
@@ -515,7 +520,7 @@ function checkSetupNodeCacheDisabled(path, text, violations) {
 }
 
 function checkNotificationEgressBoundary(root, violations) {
-  const notifyDir = "src-tauri/src/core/notify";
+  const notifyDir = "crates/jobsentinel-core/src/core/notify";
   if (!existsSync(repoPath(root, notifyDir))) {
     return;
   }

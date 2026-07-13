@@ -428,15 +428,15 @@ export function runDoctor(options = {}) {
     "Tauri CLI bin",
     { fix: "Run node scripts/install-pinned-npm.mjs, then npm ci --ignore-scripts" },
   );
-  checkPath(results, root, "src-tauri/Cargo.lock", "Cargo lockfile");
-  checkPath(results, root, "src-tauri/.sqlx", "SQLx offline cache", {
+  checkPath(results, root, "Cargo.lock", "Cargo lockfile");
+  checkPath(results, root, ".sqlx", "SQLx offline cache", {
     mustHaveEntries: true,
-    fix: "Run cargo sqlx prepare from src-tauri after schema changes",
+    fix: "Run cargo sqlx prepare from the repository root after schema changes",
   });
   checkPath(
     results,
     root,
-    "src-tauri/.cargo/config.toml",
+    ".cargo/config.toml",
     "SQLx offline env config",
     { mustContain: 'SQLX_OFFLINE = "true"' },
   );

@@ -95,13 +95,13 @@
     {
       "id": "config",
       "globs": ["*.json", "*.toml", "*.yml", "*.yaml", ".cargo/**/*.toml", "crates/*/Cargo.toml", "src-tauri/Cargo.toml", ".github/**/*.yml", ".github/**/*.yaml"],
-      "exclude_globs": ["package-lock.json", "Cargo.lock", "src-tauri/Cargo.lock"],
+      "exclude_globs": ["package-lock.json", "Cargo.lock"],
       "max_lines": 1200,
       "reason": "configuration should stay compact and explicit"
     },
     {
       "id": "sql-migrations",
-      "globs": ["src-tauri/migrations/**/*.sql", "crates/*/migrations/**/*.sql"],
+      "globs": ["crates/jobsentinel-core/migrations/**/*.sql", "crates/*/migrations/**/*.sql"],
       "max_lines": 2000,
       "reason": "checked-in schema migrations may be longer than logic modules"
     },
@@ -115,12 +115,10 @@
   "ignore_globs": [
     ".git/**",
     "node_modules/**",
-    "src-tauri/target/**",
     "target/**",
     "crates/**/target/**",
     "package-lock.json",
     "Cargo.lock",
-    "src-tauri/Cargo.lock",
     "src-tauri/gen/**",
     "docs/plans/archive/**"
   ],

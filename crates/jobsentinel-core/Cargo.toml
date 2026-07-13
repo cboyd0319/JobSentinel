@@ -1,0 +1,72 @@
+[package]
+name = "jobsentinel-core"
+description = "Tauri-free JobSentinel domain and local-first application core"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+keywords.workspace = true
+categories.workspace = true
+
+[features]
+default = []
+ocr = []
+embedded-ml = ["basic-toml", "candle-core", "candle-nn", "hf-hub", "tokenizers"]
+
+[dependencies]
+anyhow.workspace = true
+argon2.workspace = true
+async-trait.workspace = true
+basic-toml = { workspace = true, optional = true }
+candle-core = { workspace = true, optional = true }
+candle-nn = { workspace = true, optional = true }
+chacha20poly1305.workspace = true
+chrono.workspace = true
+chromiumoxide.workspace = true
+dirs.workspace = true
+docx-rs.workspace = true
+dotenvy.workspace = true
+futures-util.workspace = true
+hex.workspace = true
+hf-hub = { workspace = true, optional = true }
+keyring.workspace = true
+lettre.workspace = true
+libsqlite3-sys.workspace = true
+pdf-extract.workspace = true
+quick-xml.workspace = true
+regex.workspace = true
+reqwest.workspace = true
+scopeguard.workspace = true
+scraper.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+sqlx.workspace = true
+tempfile.workspace = true
+thiserror.workspace = true
+tokenizers = { workspace = true, optional = true }
+tokio.workspace = true
+tracing.workspace = true
+url.workspace = true
+urlencoding.workspace = true
+uuid.workspace = true
+zeroize.workspace = true
+zip.workspace = true
+
+[target.'cfg(windows)'.dependencies]
+windows.workspace = true
+
+[target.'cfg(target_os = "macos")'.dependencies]
+objc2.workspace = true
+objc2-foundation.workspace = true
+objc2-local-authentication.workspace = true
+security-framework.workspace = true
+
+[dev-dependencies]
+futures.workspace = true
+proptest.workspace = true
+wiremock.workspace = true
+
+[lints]
+workspace = true

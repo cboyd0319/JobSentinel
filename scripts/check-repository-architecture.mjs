@@ -130,12 +130,12 @@ function countLines(text) {
 function checkCoreModuleBoundaries(root, violations) {
   const boundaries = [
     {
-      directory: "src-tauri/src/core/db",
+      directory: "crates/jobsentinel-core/src/core/db",
       forbidden: /(?:^|\n)\s*use\s+crate::core::credentials(?:::|\s*::|;)/,
       message: "database modules must not import credential modules",
     },
     {
-      directory: "src-tauri/src/core/scrapers",
+      directory: "crates/jobsentinel-core/src/core/scrapers",
       forbidden: /(?:^|\n)\s*use\s+crate::core::db(?:::|\s*::|;)/,
       message: "source adapters must not import database modules",
     },
@@ -149,7 +149,7 @@ function checkCoreModuleBoundaries(root, violations) {
     }
   }
 
-  const jobHashPath = "src-tauri/src/core/job_hash.rs";
+  const jobHashPath = "crates/jobsentinel-core/src/core/job_hash.rs";
   if (
     existsSync(join(root, jobHashPath)) &&
     /(?:^|\n)\s*use\s+crate::core::scrapers(?:::|\s*::|;)/.test(read(root, jobHashPath))

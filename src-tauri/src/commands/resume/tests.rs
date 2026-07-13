@@ -244,14 +244,6 @@ fn selected_resume_validation_rejects_oversized_file_without_path_leak() {
 }
 
 #[test]
-fn renderer_supplied_resume_file_paths_are_rejected() {
-    let err = reject_renderer_resume_file_path("<renderer-supplied-resume-path>").unwrap_err();
-
-    assert!(err.contains("Choose"));
-    assert!(err.contains("Resume"));
-}
-
-#[test]
 fn html_resume_source_is_available_only_for_format_review() {
     let temp_dir = tempfile::tempdir().unwrap();
     let html_path = temp_dir.path().join("Private Resume.html");

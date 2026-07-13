@@ -18,8 +18,8 @@ function makeReleaseFixture(version) {
     JSON.stringify({ version }),
   );
   writeFileSync(
-    join(root, "src-tauri/Cargo.toml"),
-    `[package]\nname = "jobsentinel"\nversion = "${version}"\n`,
+    join(root, "Cargo.toml"),
+    `[workspace.package]\nversion = "${version}"\n`,
   );
   return root;
 }
@@ -36,7 +36,7 @@ test("readReleaseVersions reads package, Tauri, and Cargo versions", () => {
   assert.deepEqual(readReleaseVersions(root), {
     "package.json": "2.6.4",
     "src-tauri/tauri.conf.json": "2.6.4",
-    "src-tauri/Cargo.toml": "2.6.4",
+    "Cargo.toml": "2.6.4",
   });
 });
 
@@ -44,7 +44,7 @@ test("compareReleaseVersions passes when all metadata matches", () => {
   const result = compareReleaseVersions("v2.6.4", {
     "package.json": "2.6.4",
     "src-tauri/tauri.conf.json": "2.6.4",
-    "src-tauri/Cargo.toml": "2.6.4",
+    "Cargo.toml": "2.6.4",
   });
 
   assert.equal(result.expected, "2.6.4");
@@ -55,11 +55,11 @@ test("compareReleaseVersions reports mismatched metadata", () => {
   const result = compareReleaseVersions("2.6.4", {
     "package.json": "2.6.5",
     "src-tauri/tauri.conf.json": "2.6.4",
-    "src-tauri/Cargo.toml": undefined,
+    "Cargo.toml": undefined,
   });
 
   assert.deepEqual(result.failures, [
     "package.json has 2.6.5; expected 2.6.4",
-    "src-tauri/Cargo.toml is missing a version",
+    "Cargo.toml is missing a version",
   ]);
 });

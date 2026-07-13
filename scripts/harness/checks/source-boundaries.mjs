@@ -2,17 +2,17 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 const linkedInCredentialDocsPaths = new Set([
-  "src-tauri/src/core/scrapers/linkedin.rs",
+  "crates/jobsentinel-core/src/core/scrapers/linkedin.rs",
   "docs/features/job-sources.md",
   "docs/features/job-source-status.md",
 ]);
 
 const linkedInAutomationBoundaryPaths = new Set([
-  "src-tauri/Cargo.toml",
-  "src-tauri/src/core/config/types.rs",
-  "src-tauri/src/core/scrapers/linkedin.rs",
-  "src-tauri/src/core/scheduler/workers/scrapers.rs",
-  "src-tauri/src/core/health/smoke_tests.rs",
+  "Cargo.toml",
+  "crates/jobsentinel-core/src/core/config/types.rs",
+  "crates/jobsentinel-core/src/core/scrapers/linkedin.rs",
+  "crates/jobsentinel-core/src/core/scheduler/workers/scrapers.rs",
+  "crates/jobsentinel-core/src/core/health/smoke_tests.rs",
   "src/features/settings/sources/SettingsJobSourcesSection.tsx",
   "src/features/settings/SettingsPage.tsx",
   "docs/features/job-sources.md",
@@ -27,7 +27,7 @@ const linkedInNotificationBoundaryPaths = new Set([
   "src/mocks/handlers.ts",
   "src/features/settings/notifications/mockCommands.ts",
   "docs/features/user-data-management.md",
-  "src-tauri/src/core/user_data/mod.rs",
+  "crates/jobsentinel-core/src/core/user_data/mod.rs",
 ]);
 
 const cacheUsageDocPaths = new Set(["docs/developer/SCRAPER_CACHE.md"]);
@@ -42,10 +42,10 @@ const staleStackOverflowJobsPaths = new Set([
   "src/mocks/handlers.ts",
   "src/features/search-links/mocks/commands.ts",
   "src/shared/search-links/model.ts",
-  "src-tauri/src/core/deeplinks/generator.rs",
-  "src-tauri/src/core/deeplinks/mod.rs",
-  "src-tauri/src/core/deeplinks/sites.rs",
-  "src-tauri/src/core/deeplinks/types.rs",
+  "crates/jobsentinel-core/src/core/deeplinks/generator.rs",
+  "crates/jobsentinel-core/src/core/deeplinks/mod.rs",
+  "crates/jobsentinel-core/src/core/deeplinks/sites.rs",
+  "crates/jobsentinel-core/src/core/deeplinks/types.rs",
 ]);
 
 const userFacingSourceAddressCopyPaths = new Set([
@@ -56,8 +56,8 @@ const userFacingSourceAddressCopyPaths = new Set([
 ]);
 
 const jobsWithGptApprovalPaths = new Set([
-  "src-tauri/src/core/scheduler/workers/scrapers.rs",
-  "src-tauri/src/core/health/smoke_tests.rs",
+  "crates/jobsentinel-core/src/core/scheduler/workers/scrapers.rs",
+  "crates/jobsentinel-core/src/core/health/smoke_tests.rs",
   "src/features/settings/sources/SettingsConnectedJobSource.tsx",
   "src/features/settings/sources/SettingsJobSourcesSection.tsx",
   "src/features/settings/SettingsPage.tsx",
@@ -68,11 +68,11 @@ const jobsWithGptApprovalPaths = new Set([
 ]);
 
 const jobsWithGptRequestLedgerPaths = new Set([
-  "src-tauri/migrations/00000000000006_source_request_log.sql",
-  "src-tauri/src/core/health/tracking.rs",
+  "crates/jobsentinel-core/migrations/00000000000006_source_request_log.sql",
+  "crates/jobsentinel-core/src/core/health/tracking.rs",
   "src-tauri/src/commands/health.rs",
-  "src-tauri/src/core/scheduler/workers/scrapers.rs",
-  "src-tauri/src/core/scheduler/workers/scrapers/jobswithgpt_worker.rs",
+  "crates/jobsentinel-core/src/core/scheduler/workers/scrapers.rs",
+  "crates/jobsentinel-core/src/core/scheduler/workers/scrapers/jobswithgpt_worker.rs",
   "src-tauri/src/command_handlers.rs",
   "src-tauri/src/main.rs",
   "src/features/settings/sources/SettingsConnectedJobSource.tsx",
@@ -322,14 +322,14 @@ export function hasJobsWithGptUnapprovedEndpointFlow(root, path) {
 
   const text = readFileSync(join(root, path), "utf8");
 
-  if (path === "src-tauri/src/core/scheduler/workers/scrapers.rs") {
+  if (path === "crates/jobsentinel-core/src/core/scheduler/workers/scrapers.rs") {
     return (
       /JobsWithGptScraper::new/.test(text) &&
       !/jobswithgpt_payload_approved\(\)/.test(text)
     );
   }
 
-  if (path === "src-tauri/src/core/health/smoke_tests.rs") {
+  if (path === "crates/jobsentinel-core/src/core/health/smoke_tests.rs") {
     return /validate_external_http_url_for_fetch\(&config\.jobswithgpt_endpoint\)/.test(
       text,
     );
@@ -375,7 +375,7 @@ export function hasJobsWithGptMissingRequestLedger(root, path) {
 
   const text = readFileSync(join(root, path), "utf8");
 
-  if (path === "src-tauri/migrations/00000000000006_source_request_log.sql") {
+  if (path === "crates/jobsentinel-core/migrations/00000000000006_source_request_log.sql") {
     return (
       !/source_request_log/.test(text) ||
       /title_text|raw_title|location_value|salary_floor|private_notes/.test(
@@ -384,7 +384,7 @@ export function hasJobsWithGptMissingRequestLedger(root, path) {
     );
   }
 
-  if (path === "src-tauri/src/core/health/tracking.rs") {
+  if (path === "crates/jobsentinel-core/src/core/health/tracking.rs") {
     return (
       !/record_source_request_started/.test(text) ||
       !/get_latest_source_request/.test(text)
@@ -396,9 +396,9 @@ export function hasJobsWithGptMissingRequestLedger(root, path) {
   }
 
   if (
-    path === "src-tauri/src/core/scheduler/workers/scrapers.rs" ||
+    path === "crates/jobsentinel-core/src/core/scheduler/workers/scrapers.rs" ||
     path ===
-      "src-tauri/src/core/scheduler/workers/scrapers/jobswithgpt_worker.rs"
+      "crates/jobsentinel-core/src/core/scheduler/workers/scrapers/jobswithgpt_worker.rs"
   ) {
     return (
       /JobsWithGptScraper::new/.test(text) &&

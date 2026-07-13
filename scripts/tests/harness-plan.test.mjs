@@ -91,7 +91,7 @@ test("plans Rust, Tauri invoke, and migration checks", () => {
     const plan = summarizeHarnessPlan(root, {
       changedFiles: [
         "src-tauri/src/commands/job_import.rs",
-        "src-tauri/migrations/20260601000000_example.sql",
+        "crates/jobsentinel-core/migrations/20260601000000_example.sql",
       ],
     });
 

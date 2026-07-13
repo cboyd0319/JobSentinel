@@ -382,7 +382,7 @@ export function summarizeHarnessPlan(root = defaultRoot, options = {}) {
     }
 
     if (
-      path.startsWith("src-tauri/migrations/") ||
+      path.startsWith("crates/jobsentinel-core/migrations/") ||
       /^crates\/[^/]+\/migrations\//.test(path)
     ) {
       if (existsSync(join(root, "Cargo.toml"))) {

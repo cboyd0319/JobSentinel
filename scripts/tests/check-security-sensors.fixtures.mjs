@@ -14,7 +14,7 @@ export function writeBaseRepo(root, csp) {
   mkdirSync(join(root, "scripts"), { recursive: true });
   mkdirSync(join(root, "src-tauri"), { recursive: true });
   mkdirSync(join(root, "src-tauri/capabilities"), { recursive: true });
-  mkdirSync(join(root, "src-tauri/src/core/automation/browser"), {
+  mkdirSync(join(root, "crates/jobsentinel-core/src/core/automation/browser"), {
     recursive: true,
   });
   mkdirSync(join(root, "src/features/resumes/builder"), { recursive: true });
@@ -221,9 +221,14 @@ export function writeBaseRepo(root, csp) {
       "scripts/check-security-sensors.mjs @cboyd0319",
       "scripts/tests/check-security-sensors.test.mjs @cboyd0319",
       "scripts/security/ @cboyd0319",
+      "Cargo.toml @cboyd0319",
+      "Cargo.lock @cboyd0319",
+      ".cargo/ @cboyd0319",
+      "clippy.toml @cboyd0319",
+      "deny.toml @cboyd0319",
+      "crates/ @cboyd0319",
+      "scripts/check-repository-architecture.mjs @cboyd0319",
       "src-tauri/Cargo.toml @cboyd0319",
-      "src-tauri/Cargo.lock @cboyd0319",
-      "src-tauri/deny.toml @cboyd0319",
       "AGENTS.md @cboyd0319",
       "CLAUDE.md @cboyd0319",
       "docs/CLAUDE.md @cboyd0319",
@@ -232,9 +237,9 @@ export function writeBaseRepo(root, csp) {
       "docs/security/ @cboyd0319",
       "src-tauri/capabilities/ @cboyd0319",
       "src-tauri/tauri.conf.json @cboyd0319",
-      "src-tauri/src/core/bookmarklet/ @cboyd0319",
-      "src-tauri/src/core/credentials/ @cboyd0319",
-      "src-tauri/src/core/url_security.rs @cboyd0319",
+      "crates/jobsentinel-core/src/core/bookmarklet/ @cboyd0319",
+      "crates/jobsentinel-core/src/core/credentials/ @cboyd0319",
+      "crates/jobsentinel-core/src/core/url_security.rs @cboyd0319",
     ].join("\n"),
   );
   writeFileSync(
@@ -255,7 +260,7 @@ export function writeBaseRepo(root, csp) {
     }),
   );
   writeFileSync(
-    join(root, "src-tauri/src/core/automation/browser/page.rs"),
+    join(root, "crates/jobsentinel-core/src/core/automation/browser/page.rs"),
     "fn javascript_string_literal(value: &str) { serde_json::to_string(value); }\nfn dropdown_select_script(selector: &str, value: &str) {\n  document.querySelector({selector});\n  select.value = {value};\n}\n",
   );
   writeFileSync(
@@ -396,8 +401,8 @@ export function readBaseReleaseWorkflowWithout(removedLine) {
     "    needs: release-inputs",
     "    steps:",
     "      - run: cargo fmt --all -- --check",
-    "      - run: cargo clippy -- -D warnings",
-    "      - run: cargo test --lib",
+    "      - run: cargo clippy --workspace -- -D warnings",
+    "      - run: cargo test --workspace",
     "  preflight-security-node:",
     "    needs: release-inputs",
     "    steps:",

@@ -28,7 +28,7 @@ export {
 
 const npmDependencySections = ["dependencies", "devDependencies", "optionalDependencies", "peerDependencies"];
 const cargoDependencySectionPattern =
-  /^(?:dependencies|dev-dependencies|build-dependencies|target\..+\.dependencies)$/;
+  /^(?:workspace\.dependencies|dependencies|dev-dependencies|build-dependencies|target\..+\.dependencies)$/;
 const workflowDirectory = ".github/workflows";
 const cargoInstallScanRoots = [".github/workflows", "docs", "README.md"];
 const cratesIoHeaders = {
@@ -449,6 +449,10 @@ function parseCargoDependencyVersion(rawSpec) {
   return null;
 }
 
+function parseCargoDependencyPath(rawSpec) {
+  return rawSpec.match(/\bpath\s*=\s*"([^"]+)"/)?.[1] ?? null;
+}
+
 export function collectCargoDependencySpecs(cargoTomlText) {
   const dependencies = [];
   let currentSection = "";
@@ -480,6 +484,7 @@ export function collectCargoDependencySpecs(cargoTomlText) {
       name: dependency[1],
       section: currentSection,
       version: parseCargoDependencyVersion(dependency[2]),
+      path: parseCargoDependencyPath(dependency[2]),
       line: index + 1,
     });
   });
@@ -532,8 +537,8 @@ function parseCargoLockPackageVersions(cargoLockText) {
 
 export function collectCargoPinViolations(root = defaultRoot) {
   const violations = [];
-  const manifestPath = "src-tauri/Cargo.toml";
-  const lockPath = "src-tauri/Cargo.lock";
+  const manifestPath = "Cargo.toml";
+  const lockPath = "Cargo.lock";
 
   if (!existsSync(repoPath(root, manifestPath))) {
     return [`missing required Cargo manifest: ${manifestPath}`];
@@ -542,6 +547,10 @@ export function collectCargoPinViolations(root = defaultRoot) {
   const dependencies = collectCargoDependencySpecs(readFileSync(repoPath(root, manifestPath), "utf8"));
 
   for (const dependency of dependencies) {
+    if (dependency.path && !dependency.version) {
+      continue;
+    }
+
     if (!dependency.version) {
       violations.push(
         `${manifestPath}:${dependency.line} ${dependency.name} must declare an exact stable version`,
@@ -790,7 +799,7 @@ export async function collectCargoLatestStableViolations(
     return ["Cargo latest-stable check requires a fetch-capable Node runtime"];
   }
 
-  const cargoTomlText = readFileSync(repoPath(root, "src-tauri/Cargo.toml"), "utf8");
+  const cargoTomlText = readFileSync(repoPath(root, "Cargo.toml"), "utf8");
   const dependencies = collectCargoDependencySpecs(cargoTomlText).filter((dependency) =>
     dependency.version?.startsWith("=")
   );

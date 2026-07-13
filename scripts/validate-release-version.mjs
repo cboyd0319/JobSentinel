@@ -17,13 +17,13 @@ export function normalizeReleaseVersion(value) {
 export function readReleaseVersions(root = defaultRoot) {
   const packageJson = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
   const tauriConfig = JSON.parse(readFileSync(join(root, "src-tauri/tauri.conf.json"), "utf8"));
-  const cargoToml = readFileSync(join(root, "src-tauri/Cargo.toml"), "utf8");
+  const cargoToml = readFileSync(join(root, "Cargo.toml"), "utf8");
   const cargoVersion = cargoToml.match(/^version\s*=\s*"([^"]+)"/m)?.[1];
 
   return {
     "package.json": packageJson.version,
     "src-tauri/tauri.conf.json": tauriConfig.version,
-    "src-tauri/Cargo.toml": cargoVersion,
+    "Cargo.toml": cargoVersion,
   };
 }
 

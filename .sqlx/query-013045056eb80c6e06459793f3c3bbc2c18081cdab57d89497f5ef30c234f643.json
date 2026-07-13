@@ -1,0 +1,33 @@
+{
+  "db_name": "SQLite",
+  "query": "\n            SELECT\n                status,\n                COUNT(*) as count\n            FROM applications\n            GROUP BY status\n            ",
+  "describe": {
+    "columns": [
+      {
+        "name": "status",
+        "ordinal": 0,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "applications",
+            "name": "status"
+          }
+        }
+      },
+      {
+        "name": "count",
+        "ordinal": 1,
+        "type_info": "Integer",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Right": 0
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "013045056eb80c6e06459793f3c3bbc2c18081cdab57d89497f5ef30c234f643"
+}

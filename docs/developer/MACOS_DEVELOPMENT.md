@@ -126,7 +126,7 @@ npm run tauri:dev
 npm run tauri:build -- --bundles app
 ```
 
-**App output:** `src-tauri/target/release/bundle/macos/JobSentinel.app`
+**App output:** `target/release/bundle/macos/JobSentinel.app`
 
 For a local `.dmg` package, use the maintained macOS packaging script:
 
@@ -134,7 +134,7 @@ For a local `.dmg` package, use the maintained macOS packaging script:
 npm run tauri:build:macos
 ```
 
-**DMG output:** `src-tauri/target/release/bundle/dmg/JobSentinel_<version>_<arch>.dmg`
+**DMG output:** `target/release/bundle/dmg/JobSentinel_<version>_<arch>.dmg`
 
 For a universal `.dmg` package:
 
@@ -191,7 +191,7 @@ After building a `.dmg`, run the package verifier:
 
 ```bash
 npm run tauri:verify:macos -- \
-  --dmg src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_*_universal.dmg \
+  --dmg target/universal-apple-darwin/release/bundle/dmg/JobSentinel_*_universal.dmg \
   --expected-architectures x86_64,arm64 \
   --expected-bundle-id com.jobsentinel.main \
   --expected-product-name JobSentinel \
@@ -268,7 +268,7 @@ the public release verifier before they are treated as current.
 **Note:** The `.dmg` installer is for distribution. You can also run the binary directly:
 
 ```bash
-./src-tauri/target/release/jobsentinel
+./target/release/jobsentinel
 ```
 
 ---

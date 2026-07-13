@@ -155,7 +155,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/core/market_intelligence/tests.rs",
+      "crates/jobsentinel-core/src/core/market_intelligence/tests.rs",
       [
         'let title = "Software Engineer";',
         'let company = "TechCorp";',
@@ -165,7 +165,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/core/scrapers/simplyhired.rs",
+      "crates/jobsentinel-core/src/core/scrapers/simplyhired.rs",
       [
         '/// Search query (e.g., "rust developer")',
         'let company = scraper.extract_company("Software Engineer - Acme Corp", None);',
@@ -174,7 +174,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/core/scrapers/jobswithgpt.rs",
+      "crates/jobsentinel-core/src/core/scrapers/jobswithgpt.rs",
       [
         'titles: vec!["Rust Developer".to_string()],',
         '"company": "TechCorp",',
@@ -182,12 +182,12 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       ].join("\n"),
     );
     for (const path of [
-      "src-tauri/src/core/scrapers/glassdoor.rs",
-      "src-tauri/src/core/scrapers/greenhouse.rs",
-      "src-tauri/src/core/scrapers/http_client.rs",
-      "src-tauri/src/core/scrapers/lever/tests.rs",
-      "src-tauri/src/core/scrapers/usajobs.rs",
-      "src-tauri/src/core/scrapers/weworkremotely.rs",
+      "crates/jobsentinel-core/src/core/scrapers/glassdoor.rs",
+      "crates/jobsentinel-core/src/core/scrapers/greenhouse.rs",
+      "crates/jobsentinel-core/src/core/scrapers/http_client.rs",
+      "crates/jobsentinel-core/src/core/scrapers/lever/tests.rs",
+      "crates/jobsentinel-core/src/core/scrapers/usajobs.rs",
+      "crates/jobsentinel-core/src/core/scrapers/weworkremotely.rs",
     ]) {
       writeFixtureFile(
         root,
@@ -213,7 +213,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/core/resume/templates.rs",
+      "crates/jobsentinel-core/src/core/resume/templates.rs",
       '"Technical Skills-First"; "Perfect for engineering roles";\n',
     );
     writeFixtureFile(
@@ -333,12 +333,12 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/core/health/smoke_tests.rs",
+      "crates/jobsentinel-core/src/core/health/smoke_tests.rs",
       '"https://www.indeed.com/jobs?q=software+engineer&l=remote";\n',
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/core/deeplinks/generator.rs",
+      "crates/jobsentinel-core/src/core/deeplinks/generator.rs",
       'query: "Software Engineer"; location: "San Francisco, CA";\n',
     );
     writeFixtureFile(
@@ -417,17 +417,17 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/core/import/README.md",
+      "crates/jobsentinel-core/src/core/import/README.md",
       'title: "Software Engineer"; "San Francisco, CA";\n',
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/core/import/schema_org.rs",
+      "crates/jobsentinel-core/src/core/import/schema_org.rs",
       'title: "Software Engineer"; "San Francisco, CA";\n',
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/core/import/tests.rs",
+      "crates/jobsentinel-core/src/core/import/tests.rs",
       'title: "Software Engineer"; "San Francisco, CA";\n',
     );
     writeFixtureFile(
@@ -442,57 +442,57 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/core/resume/ats_analyzer.rs",
+      "crates/jobsentinel-core/src/core/resume/ats_analyzer.rs",
       '"John Doe"; "Senior Software Engineer"; "Tech Corp";\n',
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/core/resume/builder.rs",
+      "crates/jobsentinel-core/src/core/resume/builder.rs",
       '"John Doe"; "TechCorp"; "Senior Software Engineer";\n',
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/core/resume/export.rs",
+      "crates/jobsentinel-core/src/core/resume/export.rs",
       '"John Doe"; "Tech Corp"; "Senior Software Engineer";\n',
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/core/resume/json_resume.rs",
+      "crates/jobsentinel-core/src/core/resume/json_resume.rs",
       '"John Doe"; "Tech Corp"; "Software Engineer";\n',
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/core/resume/matcher.rs",
+      "crates/jobsentinel-core/src/core/resume/matcher.rs",
       'title: "Software Engineer", company: "TechCorp";\n',
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/core/resume/parser.rs",
+      "crates/jobsentinel-core/src/core/resume/parser.rs",
       '"John Doe"; "Software Engineer"; "TechCorp";\n',
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/core/resume/tests.rs",
+      "crates/jobsentinel-core/src/core/resume/tests.rs",
       'title: "Software Engineer", company: "TechCorp";\n',
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/core/bookmarklet/mod.rs",
+      "crates/jobsentinel-core/src/core/bookmarklet/mod.rs",
       'title: "Software Engineer", company: "Google";\n',
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/core/bookmarklet/server.rs",
+      "crates/jobsentinel-core/src/core/bookmarklet/server.rs",
       'calculate_job_hash("Google", "Software Engineer", "https://example.com/job/1");\n',
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/core/scoring/mod.rs",
+      "crates/jobsentinel-core/src/core/scoring/mod.rs",
       'job.location = Some("San Francisco, CA (Hybrid)".to_string());\n',
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/core/scoring/remote.rs",
+      "crates/jobsentinel-core/src/core/scoring/remote.rs",
       'create_test_job("Engineer", Some("Remote - US"), None, None);\n',
     );
     writeFixtureFile(
@@ -616,7 +616,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/core/deeplinks/types.rs",
+      "crates/jobsentinel-core/src/core/deeplinks/types.rs",
       '/// Job title or keywords (e.g., "Software Engineer")\n',
     );
     writeFixtureFile(
@@ -626,7 +626,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
-      "src-tauri/migrations/00000000000000_initial_schema.sql",
+      "crates/jobsentinel-core/migrations/00000000000000_initial_schema.sql",
       'job_title_normalized TEXT NOT NULL, -- Normalized title (e.g., "Software Engineer")\n',
     );
 
@@ -646,7 +646,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "src/mocks/data.ts",
         "src/mocks/handlers.ts",
         "src/mocks/handlers.test.ts",
-        "src-tauri/src/core/resume/templates.rs",
+        "crates/jobsentinel-core/src/core/resume/templates.rs",
         "src/features/resumes/builder/ResumeBuilderPage.tsx",
         "src/features/resumes/matching/ResumeMatchPage.tsx",
         "src/features/resumes/matching/ResumeMatchPage.test.tsx",
@@ -670,43 +670,43 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "src/features/applications/InterviewScheduler.test.tsx",
         "src/shared/validation/contactFieldValidation.test.ts",
         "src/features/dashboard/jobCsvExport.test.ts",
-        "src-tauri/src/core/health/smoke_tests.rs",
-        "src-tauri/src/core/deeplinks/generator.rs",
+        "crates/jobsentinel-core/src/core/health/smoke_tests.rs",
+        "crates/jobsentinel-core/src/core/deeplinks/generator.rs",
         "src-tauri/src/commands/deeplinks.rs",
         "src-tauri/src/commands/feedback/debug_log.rs",
         "src-tauri/src/commands/feedback/sanitizer.rs",
         "src-tauri/src/commands/import.rs",
         "src-tauri/src/commands/tests.rs",
-        "src-tauri/src/core/market_intelligence/tests.rs",
-        "src-tauri/src/core/scrapers/glassdoor.rs",
-        "src-tauri/src/core/scrapers/greenhouse.rs",
-        "src-tauri/src/core/scrapers/http_client.rs",
-        "src-tauri/src/core/scrapers/jobswithgpt.rs",
-        "src-tauri/src/core/scrapers/lever/tests.rs",
-        "src-tauri/src/core/scrapers/simplyhired.rs",
-        "src-tauri/src/core/scrapers/usajobs.rs",
-        "src-tauri/src/core/scrapers/weworkremotely.rs",
+        "crates/jobsentinel-core/src/core/market_intelligence/tests.rs",
+        "crates/jobsentinel-core/src/core/scrapers/glassdoor.rs",
+        "crates/jobsentinel-core/src/core/scrapers/greenhouse.rs",
+        "crates/jobsentinel-core/src/core/scrapers/http_client.rs",
+        "crates/jobsentinel-core/src/core/scrapers/jobswithgpt.rs",
+        "crates/jobsentinel-core/src/core/scrapers/lever/tests.rs",
+        "crates/jobsentinel-core/src/core/scrapers/simplyhired.rs",
+        "crates/jobsentinel-core/src/core/scrapers/usajobs.rs",
+        "crates/jobsentinel-core/src/core/scrapers/weworkremotely.rs",
         "src-tauri/tests/api_contract_test.rs",
         "src-tauri/tests/database_integration_test.rs",
         "src-tauri/tests/scraper_integration_test.rs",
         "src-tauri/tests/scraping_pipeline_integration.rs",
         "src-tauri/tests/scheduler_integration_test.rs",
-        "src-tauri/src/core/import/README.md",
-        "src-tauri/src/core/import/schema_org.rs",
-        "src-tauri/src/core/import/tests.rs",
+        "crates/jobsentinel-core/src/core/import/README.md",
+        "crates/jobsentinel-core/src/core/import/schema_org.rs",
+        "crates/jobsentinel-core/src/core/import/tests.rs",
         "docs/security/dompurify-test-examples.js",
         "docs/security/XSS_PREVENTION.md",
-        "src-tauri/src/core/resume/ats_analyzer.rs",
-        "src-tauri/src/core/resume/builder.rs",
-        "src-tauri/src/core/resume/export.rs",
-        "src-tauri/src/core/resume/json_resume.rs",
-        "src-tauri/src/core/resume/matcher.rs",
-        "src-tauri/src/core/resume/parser.rs",
-        "src-tauri/src/core/resume/tests.rs",
-        "src-tauri/src/core/bookmarklet/mod.rs",
-        "src-tauri/src/core/bookmarklet/server.rs",
-        "src-tauri/src/core/scoring/mod.rs",
-        "src-tauri/src/core/scoring/remote.rs",
+        "crates/jobsentinel-core/src/core/resume/ats_analyzer.rs",
+        "crates/jobsentinel-core/src/core/resume/builder.rs",
+        "crates/jobsentinel-core/src/core/resume/export.rs",
+        "crates/jobsentinel-core/src/core/resume/json_resume.rs",
+        "crates/jobsentinel-core/src/core/resume/matcher.rs",
+        "crates/jobsentinel-core/src/core/resume/parser.rs",
+        "crates/jobsentinel-core/src/core/resume/tests.rs",
+        "crates/jobsentinel-core/src/core/bookmarklet/mod.rs",
+        "crates/jobsentinel-core/src/core/bookmarklet/server.rs",
+        "crates/jobsentinel-core/src/core/scoring/mod.rs",
+        "crates/jobsentinel-core/src/core/scoring/remote.rs",
         "src/features/dashboard/hooks/useDashboardFilters.test.ts",
         "src/features/dashboard/hooks/useDashboardJobOps.test.ts",
         "src/features/dashboard/hooks/useDashboardSavedSearches.test.ts",
@@ -729,9 +729,9 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "docs/style-guide/WRITING-FOR-JOB-SEEKERS.md",
         "docs/developer/FRONTEND_TESTING.md",
         "docs/developer/INTEGRATION_TESTING.md",
-        "src-tauri/src/core/deeplinks/types.rs",
+        "crates/jobsentinel-core/src/core/deeplinks/types.rs",
         "src-tauri/src/main.rs",
-        "src-tauri/migrations/00000000000000_initial_schema.sql",
+        "crates/jobsentinel-core/migrations/00000000000000_initial_schema.sql",
       ],
       { cwd: root },
     );
@@ -750,7 +750,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       "src/mocks/data.ts",
       "src/mocks/handlers.ts",
       "src/mocks/handlers.test.ts",
-      "src-tauri/src/core/resume/templates.rs",
+      "crates/jobsentinel-core/src/core/resume/templates.rs",
       "src/features/resumes/builder/ResumeBuilderPage.tsx",
       "src/features/resumes/matching/ResumeMatchPage.tsx",
       "src/features/resumes/matching/ResumeMatchPage.test.tsx",
@@ -774,43 +774,43 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       "src/features/applications/InterviewScheduler.test.tsx",
       "src/shared/validation/contactFieldValidation.test.ts",
       "src/features/dashboard/jobCsvExport.test.ts",
-      "src-tauri/src/core/health/smoke_tests.rs",
-      "src-tauri/src/core/deeplinks/generator.rs",
+      "crates/jobsentinel-core/src/core/health/smoke_tests.rs",
+      "crates/jobsentinel-core/src/core/deeplinks/generator.rs",
       "src-tauri/src/commands/deeplinks.rs",
       "src-tauri/src/commands/feedback/debug_log.rs",
       "src-tauri/src/commands/feedback/sanitizer.rs",
       "src-tauri/src/commands/import.rs",
       "src-tauri/src/commands/tests.rs",
-      "src-tauri/src/core/market_intelligence/tests.rs",
-      "src-tauri/src/core/scrapers/glassdoor.rs",
-      "src-tauri/src/core/scrapers/greenhouse.rs",
-      "src-tauri/src/core/scrapers/http_client.rs",
-      "src-tauri/src/core/scrapers/jobswithgpt.rs",
-      "src-tauri/src/core/scrapers/lever/tests.rs",
-      "src-tauri/src/core/scrapers/simplyhired.rs",
-      "src-tauri/src/core/scrapers/usajobs.rs",
-      "src-tauri/src/core/scrapers/weworkremotely.rs",
+      "crates/jobsentinel-core/src/core/market_intelligence/tests.rs",
+      "crates/jobsentinel-core/src/core/scrapers/glassdoor.rs",
+      "crates/jobsentinel-core/src/core/scrapers/greenhouse.rs",
+      "crates/jobsentinel-core/src/core/scrapers/http_client.rs",
+      "crates/jobsentinel-core/src/core/scrapers/jobswithgpt.rs",
+      "crates/jobsentinel-core/src/core/scrapers/lever/tests.rs",
+      "crates/jobsentinel-core/src/core/scrapers/simplyhired.rs",
+      "crates/jobsentinel-core/src/core/scrapers/usajobs.rs",
+      "crates/jobsentinel-core/src/core/scrapers/weworkremotely.rs",
       "src-tauri/tests/api_contract_test.rs",
       "src-tauri/tests/database_integration_test.rs",
       "src-tauri/tests/scraper_integration_test.rs",
       "src-tauri/tests/scraping_pipeline_integration.rs",
       "src-tauri/tests/scheduler_integration_test.rs",
-      "src-tauri/src/core/import/README.md",
-      "src-tauri/src/core/import/schema_org.rs",
-      "src-tauri/src/core/import/tests.rs",
+      "crates/jobsentinel-core/src/core/import/README.md",
+      "crates/jobsentinel-core/src/core/import/schema_org.rs",
+      "crates/jobsentinel-core/src/core/import/tests.rs",
       "docs/security/dompurify-test-examples.js",
       "docs/security/XSS_PREVENTION.md",
-      "src-tauri/src/core/resume/ats_analyzer.rs",
-      "src-tauri/src/core/resume/builder.rs",
-      "src-tauri/src/core/resume/export.rs",
-      "src-tauri/src/core/resume/json_resume.rs",
-      "src-tauri/src/core/resume/matcher.rs",
-      "src-tauri/src/core/resume/parser.rs",
-      "src-tauri/src/core/resume/tests.rs",
-      "src-tauri/src/core/bookmarklet/mod.rs",
-      "src-tauri/src/core/bookmarklet/server.rs",
-      "src-tauri/src/core/scoring/mod.rs",
-      "src-tauri/src/core/scoring/remote.rs",
+      "crates/jobsentinel-core/src/core/resume/ats_analyzer.rs",
+      "crates/jobsentinel-core/src/core/resume/builder.rs",
+      "crates/jobsentinel-core/src/core/resume/export.rs",
+      "crates/jobsentinel-core/src/core/resume/json_resume.rs",
+      "crates/jobsentinel-core/src/core/resume/matcher.rs",
+      "crates/jobsentinel-core/src/core/resume/parser.rs",
+      "crates/jobsentinel-core/src/core/resume/tests.rs",
+      "crates/jobsentinel-core/src/core/bookmarklet/mod.rs",
+      "crates/jobsentinel-core/src/core/bookmarklet/server.rs",
+      "crates/jobsentinel-core/src/core/scoring/mod.rs",
+      "crates/jobsentinel-core/src/core/scoring/remote.rs",
       "src/features/dashboard/hooks/useDashboardFilters.test.ts",
       "src/features/dashboard/hooks/useDashboardJobOps.test.ts",
       "src/features/dashboard/hooks/useDashboardSavedSearches.test.ts",
@@ -831,9 +831,9 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       "docs/style-guide/WRITING-FOR-JOB-SEEKERS.md",
       "docs/developer/FRONTEND_TESTING.md",
       "docs/developer/INTEGRATION_TESTING.md",
-      "src-tauri/src/core/deeplinks/types.rs",
+      "crates/jobsentinel-core/src/core/deeplinks/types.rs",
       "src-tauri/src/main.rs",
-      "src-tauri/migrations/00000000000000_initial_schema.sql",
+      "crates/jobsentinel-core/migrations/00000000000000_initial_schema.sql",
     ]) {
       const expected = `replace engineer-first audience example: ${path}`;
       assert.ok(
@@ -849,7 +849,7 @@ test("checkRepoBloat rejects salary audience example drift", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src-tauri/src/core/salary/tests.rs",
+      "crates/jobsentinel-core/src/core/salary/tests.rs",
       [
         'SeniorityLevel::from_job_title("Junior Software Engineer");',
         'SeniorityLevel::from_job_title("Software Architect");',
@@ -859,7 +859,7 @@ test("checkRepoBloat rejects salary audience example drift", () => {
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/core/salary/predictor.rs",
+      "crates/jobsentinel-core/src/core/salary/predictor.rs",
       [
         'insert_test_job(&pool, "job_entry", "Junior Developer", "Remote").await;',
         'predictor.normalize_title("DevOps Engineer");',
@@ -872,8 +872,8 @@ test("checkRepoBloat rejects salary audience example drift", () => {
       [
         "add",
         "package.json",
-        "src-tauri/src/core/salary/tests.rs",
-        "src-tauri/src/core/salary/predictor.rs",
+        "crates/jobsentinel-core/src/core/salary/tests.rs",
+        "crates/jobsentinel-core/src/core/salary/predictor.rs",
       ],
       { cwd: root },
     );
@@ -881,8 +881,8 @@ test("checkRepoBloat rejects salary audience example drift", () => {
     const violations = checkRepoBloat(root);
 
     for (const path of [
-      "src-tauri/src/core/salary/tests.rs",
-      "src-tauri/src/core/salary/predictor.rs",
+      "crates/jobsentinel-core/src/core/salary/tests.rs",
+      "crates/jobsentinel-core/src/core/salary/predictor.rs",
     ]) {
       assert.ok(
         violations.includes(`replace salary audience example: ${path}`),

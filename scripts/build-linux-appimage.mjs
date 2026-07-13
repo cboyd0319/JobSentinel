@@ -137,7 +137,7 @@ export function verifySha256(path, expectedHash, label = basename(path)) {
 }
 
 export function resolveTauriBundlerCache(root, env = process.env) {
-  return env.TAURI_BUNDLER_CACHE_DIR ?? join(root, "src-tauri", "target", ".tauri");
+  return env.TAURI_BUNDLER_CACHE_DIR ?? join(root, "target", ".tauri");
 }
 
 export function expectedAppImageName(productName, version, target) {
@@ -349,7 +349,7 @@ function cleanAppImages(appimageDir) {
 }
 
 async function fallbackBundle({ root, target, productName, version, cacheDir }) {
-  const appimageDir = join(root, "src-tauri", "target", target, "release", "bundle", "appimage");
+  const appimageDir = join(root, "target", target, "release", "bundle", "appimage");
   const appDir = join(appimageDir, `${productName}.AppDir`);
   if (!existsSync(appDir)) {
     throw new Error(`Tauri AppImage AppDir was not created: ${appDir}`);
@@ -407,7 +407,7 @@ export async function main(argv = process.argv.slice(2)) {
   const config = readJson(join(root, "src-tauri", "tauri.conf.json"));
   const productName = config.productName;
   const version = config.version;
-  const appimageDir = join(root, "src-tauri", "target", args.target, "release", "bundle", "appimage");
+  const appimageDir = join(root, "target", args.target, "release", "bundle", "appimage");
   const cacheDir = resolveTauriBundlerCache(root);
 
   if (!productName || !version) {

@@ -96,6 +96,37 @@ test("checkRepoBloat rejects unsanitized structured feedback debug events", () =
   });
 });
 
+test("checkRepoBloat accepts disabled feedback activity collection", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/feedback/debug_log.rs",
+      [
+        "pub fn get_debug_log() -> Vec<TimestampedEvent> {",
+        "    Vec::new()",
+        "}",
+        "",
+        "pub fn get_recent_events(_limit: usize) -> Vec<TimestampedEvent> {",
+        "    Vec::new()",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync("git", ["add", "package.json", "src-tauri/src/commands/feedback/debug_log.rs"], {
+      cwd: root,
+    });
+
+    assert.equal(
+      checkRepoBloat(root).includes(
+        "sanitize structured feedback debug events: src-tauri/src/commands/feedback/debug_log.rs",
+      ),
+      false,
+    );
+  });
+});
+
 test("checkRepoBloat rejects unsanitized feedback file saves", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
@@ -182,7 +213,7 @@ test("checkRepoBloat rejects raw user-data privacy logging", () => {
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/core/user_data/mod.rs",
+      "crates/jobsentinel-core/src/core/user_data/mod.rs",
       [
         "#[instrument(skip(self, content))]",
         "pub async fn create_template(&self, name: &str, content: &str) -> Result<(), Error> {",
@@ -211,7 +242,7 @@ test("checkRepoBloat rejects raw user-data privacy logging", () => {
       "add",
       "package.json",
       "src-tauri/src/commands/user_data.rs",
-      "src-tauri/src/core/user_data/mod.rs",
+      "crates/jobsentinel-core/src/core/user_data/mod.rs",
     ], {
       cwd: root,
     });
@@ -223,7 +254,7 @@ test("checkRepoBloat rejects raw user-data privacy logging", () => {
       violations.join("\n"),
     );
     assert.ok(
-      violations.includes("replace raw user-data privacy logging: src-tauri/src/core/user_data/mod.rs"),
+      violations.includes("replace raw user-data privacy logging: crates/jobsentinel-core/src/core/user_data/mod.rs"),
       violations.join("\n"),
     );
   });
@@ -234,7 +265,7 @@ test("checkRepoBloat rejects raw scheduler job content logging", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src-tauri/src/core/db/crud.rs",
+      "crates/jobsentinel-core/src/core/db/crud.rs",
       [
         "#[tracing::instrument(skip(self, job), fields(",
         "    job_hash = %job.hash,",
@@ -249,7 +280,7 @@ test("checkRepoBloat rejects raw scheduler job content logging", () => {
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/core/scheduler/workers/persistence.rs",
+      "crates/jobsentinel-core/src/core/scheduler/workers/persistence.rs",
       [
         "pub async fn persist_and_notify(job: Job) {",
         "    tracing::error!(job_title = %job.title, job_company = %job.company, \"Failed\");",
@@ -262,8 +293,8 @@ test("checkRepoBloat rejects raw scheduler job content logging", () => {
     execFileSync("git", [
       "add",
       "package.json",
-      "src-tauri/src/core/db/crud.rs",
-      "src-tauri/src/core/scheduler/workers/persistence.rs",
+      "crates/jobsentinel-core/src/core/db/crud.rs",
+      "crates/jobsentinel-core/src/core/scheduler/workers/persistence.rs",
     ], {
       cwd: root,
     });
@@ -271,12 +302,12 @@ test("checkRepoBloat rejects raw scheduler job content logging", () => {
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("sanitize scheduler job content logging: src-tauri/src/core/db/crud.rs"),
+      violations.includes("sanitize scheduler job content logging: crates/jobsentinel-core/src/core/db/crud.rs"),
       violations.join("\n"),
     );
     assert.ok(
       violations.includes(
-        "sanitize scheduler job content logging: src-tauri/src/core/scheduler/workers/persistence.rs",
+        "sanitize scheduler job content logging: crates/jobsentinel-core/src/core/scheduler/workers/persistence.rs",
       ),
       violations.join("\n"),
     );
@@ -288,7 +319,7 @@ test("checkRepoBloat rejects raw scheduler scraper error details", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src-tauri/src/core/scheduler/workers/scrapers.rs",
+      "crates/jobsentinel-core/src/core/scheduler/workers/scrapers.rs",
       [
         "async fn run_scrapers() {",
         "  let _ = crate::core::health::fail_run(db, _tid, _dur, &e.to_string(), None).await;",
@@ -304,7 +335,7 @@ test("checkRepoBloat rejects raw scheduler scraper error details", () => {
     execFileSync("git", [
       "add",
       "package.json",
-      "src-tauri/src/core/scheduler/workers/scrapers.rs",
+      "crates/jobsentinel-core/src/core/scheduler/workers/scrapers.rs",
     ], {
       cwd: root,
     });
@@ -313,7 +344,7 @@ test("checkRepoBloat rejects raw scheduler scraper error details", () => {
 
     assert.ok(
       violations.includes(
-        "sanitize scheduler scraper error details: src-tauri/src/core/scheduler/workers/scrapers.rs",
+        "sanitize scheduler scraper error details: crates/jobsentinel-core/src/core/scheduler/workers/scrapers.rs",
       ),
       violations.join("\n"),
     );

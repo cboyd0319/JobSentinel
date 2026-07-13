@@ -40,12 +40,14 @@ only after the user explicitly turns on and configures those paths.
 JobSentinel is split into these layers:
 
 1. Frontend: React 19 screens such as Dashboard, Settings, and Job Browser.
-2. IPC boundary: Tauri commands validate and route frontend requests.
-3. Commands layer: handlers such as `search_jobs`, `get_config`, `get_recent_jobs`,
+2. Desktop shell: the `jobsentinel` crate owns Tauri startup and plugins.
+3. IPC boundary: private Tauri commands validate and route frontend requests.
+4. Commands layer: handlers such as `search_jobs`, `get_config`, `get_recent_jobs`,
    `save_config`, `get_statistics`, and `validate_slack_webhook`.
-4. Core business logic: scheduler, scoring, notification, scraper, database, and
-   configuration modules.
-5. Platform layer: Windows, macOS, and Linux path, tray, and notification adapters.
+5. Core crate: `jobsentinel-core` owns scheduler, scoring, notification,
+   scraper, database, configuration, and platform-neutral application logic.
+6. Platform layer: target-gated Windows, macOS, and Linux adapters in the core
+   crate.
 
 The frontend never reads or writes local job data directly. It calls typed Tauri
 commands, and the Rust backend owns scraping, scoring, persistence, and external
@@ -57,7 +59,7 @@ The layers form a one-directional dependency model. Lower layers must not depend
 on higher layers, and the frontend must not bypass the IPC boundary.
 
 ```text
-UI (React) -> IPC (Tauri commands) -> Core services -> Storage and sources
+UI (React) -> private IPC router (jobsentinel) -> jobsentinel-core -> storage and sources
 ```
 
 Cross-cutting concerns enter through one named boundary each, not ad hoc across
@@ -80,11 +82,23 @@ owning command.
 
 ## Module Breakdown
 
-### Core (`src/core/`)
+### Cargo Workspace
+
+The root `Cargo.toml` is an explicit-member virtual workspace. It centralizes
+package metadata, exact dependency pins, lint policy, and release settings for
+exactly two members:
+
+- `crates/jobsentinel-core`: Tauri-free core and platform adapters.
+- `src-tauri`: thin desktop shell, private IPC router, and Tauri plugins.
+
+`Cargo.lock`, `.cargo/config.toml`, `.sqlx/`, `clippy.toml`, `deny.toml`, and
+the standard `target/` directory are owned at the repository root.
+
+### Core (`crates/jobsentinel-core/src/core/`)
 
 Detailed core module inventory lives in [Core Architecture](ARCHITECTURE_CORE.md).
 
-### Commands (`src/commands/`)
+### Commands (`src-tauri/src/commands/`)
 
 Tauri command handlers (RPC interface between React and Rust). The registered
 command list lives in `src-tauri/src/command_handlers.rs`; `npm run lint:tauri-invokes`
@@ -207,7 +221,7 @@ is_browser_running(), fill_application_form()
   config. Job imports canonicalize URLs before preview/hash/storage and
   `import_job_from_url` returns only `{ jobId }`.
 
-### Platforms (`src/platforms/`)
+### Platforms (`crates/jobsentinel-core/src/platforms/`)
 
 OS-specific code (conditionally compiled).
 

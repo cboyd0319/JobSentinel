@@ -2,7 +2,7 @@
 
 Detailed module breakdown for JobSentinel core. See [Architecture](ARCHITECTURE.md) for the system-level layout.
 
-## Core (`src/core/`)
+## Core (`crates/jobsentinel-core/src/core/`)
 
 Platform-agnostic business logic shared by the desktop app across Windows,
 macOS, and Linux.
@@ -55,7 +55,7 @@ pub struct Config {
   modules. The database consumes the same record through the core facade.
 
 This direction keeps job identity independent from both persistence and remote
-source ownership, which is required before extracting the Tauri-free core.
+source ownership inside the Tauri-free core crate.
 
 ### `core/db/` (8 submodules + integrity/)
 

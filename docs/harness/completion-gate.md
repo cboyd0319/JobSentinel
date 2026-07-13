@@ -21,15 +21,15 @@ Code shape, types, style, and harness integrity.
 - `npm run lint`
 - `npm run lint:md` for docs
 - `npm run harness:check`
-- `cd src-tauri && cargo fmt --all -- --check`
-- `cd src-tauri && cargo clippy -- -D warnings`
+- `cargo fmt --all -- --check`
+- `cargo clippy --workspace -- -D warnings`
 
 ### Layer 2: Runtime Behavior
 
 The changed behavior runs and is proven by execution.
 
 - `npm run test:run` for frontend logic
-- `cd src-tauri && cargo test --lib` for core logic
+- `cargo test --workspace` for backend logic and integration contracts
 - Focused Tauri command or migration tests for IPC and storage changes
 
 ### Layer 3: System And Journey

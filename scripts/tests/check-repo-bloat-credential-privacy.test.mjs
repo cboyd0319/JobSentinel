@@ -122,7 +122,7 @@ test("checkRepoBloat rejects credential key input echo", () => {
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/core/credentials/mod.rs",
+      "crates/jobsentinel-core/src/core/credentials/mod.rs",
       [
         'impl FromStr for CredentialKey { type Err = String; fn from_str(s: &str) -> Result<Self, Self::Err> { Err(format!("Invalid credential key: {}", s)) } }',
         "",
@@ -135,7 +135,7 @@ test("checkRepoBloat rejects credential key input echo", () => {
         "add",
         "package.json",
         "src-tauri/src/commands/credentials.rs",
-        "src-tauri/src/core/credentials/mod.rs",
+        "crates/jobsentinel-core/src/core/credentials/mod.rs",
       ],
       { cwd: root },
     );
@@ -147,7 +147,7 @@ test("checkRepoBloat rejects credential key input echo", () => {
       violations.join("\n"),
     );
     assert.ok(
-      violations.includes("avoid echoing credential key input: src-tauri/src/core/credentials/mod.rs"),
+      violations.includes("avoid echoing credential key input: crates/jobsentinel-core/src/core/credentials/mod.rs"),
       violations.join("\n"),
     );
   });
@@ -158,7 +158,7 @@ test("checkRepoBloat rejects raw credential storage errors", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src-tauri/src/core/credentials/mod.rs",
+      "crates/jobsentinel-core/src/core/credentials/mod.rs",
       [
         "fn ensure_keyring_store() -> Result<(), String> {",
         '  keyring::use_native_store(true).map_err(|e| format!("Failed to initialize native keyring store: {e}"))',
@@ -172,7 +172,7 @@ test("checkRepoBloat rejects raw credential storage errors", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "src-tauri/src/core/credentials/mod.rs"], {
+    execFileSync("git", ["add", "package.json", "crates/jobsentinel-core/src/core/credentials/mod.rs"], {
       cwd: root,
     });
 
@@ -180,7 +180,7 @@ test("checkRepoBloat rejects raw credential storage errors", () => {
 
     assert.ok(
       violations.includes(
-        "sanitize credential storage errors: src-tauri/src/core/credentials/mod.rs",
+        "sanitize credential storage errors: crates/jobsentinel-core/src/core/credentials/mod.rs",
       ),
       violations.join("\n"),
     );
@@ -203,7 +203,7 @@ test("checkRepoBloat rejects enabled LinkedIn credential storage", () => {
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/core/credentials/mod.rs",
+      "crates/jobsentinel-core/src/core/credentials/mod.rs",
       [
         "impl CredentialStore {",
         "  pub fn store(key: CredentialKey, value: &str) -> Result<(), String> {",
@@ -220,7 +220,7 @@ test("checkRepoBloat rejects enabled LinkedIn credential storage", () => {
         "add",
         "package.json",
         "src-tauri/src/commands/credentials.rs",
-        "src-tauri/src/core/credentials/mod.rs",
+        "crates/jobsentinel-core/src/core/credentials/mod.rs",
       ],
       { cwd: root },
     );
@@ -235,7 +235,7 @@ test("checkRepoBloat rejects enabled LinkedIn credential storage", () => {
     );
     assert.ok(
       violations.includes(
-        "disable LinkedIn credential storage: src-tauri/src/core/credentials/mod.rs",
+        "disable LinkedIn credential storage: crates/jobsentinel-core/src/core/credentials/mod.rs",
       ),
       violations.join("\n"),
     );

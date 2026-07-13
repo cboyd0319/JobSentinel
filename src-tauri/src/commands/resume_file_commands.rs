@@ -13,18 +13,6 @@ pub(super) const MAX_SELECTED_RESUME_UPLOAD_BYTES: u64 = 10 * 1024 * 1024;
 const MANAGED_RESUME_UPLOAD_DIR: &str = "resume-uploads";
 const SUPPORTED_RESUME_UPLOAD_EXTENSIONS: &[&str] = &["pdf", "docx", "txt", "md", "html", "htm"];
 
-/// Upload and parse a resume
-#[tauri::command]
-pub async fn upload_resume(
-    name: String,
-    file_path: String,
-    state: State<'_, AppState>,
-) -> Result<i64, String> {
-    let _ = (name, state);
-    reject_renderer_resume_file_path(&file_path)?;
-    unreachable!("renderer resume file path rejection always returns an error")
-}
-
 /// Select, copy, and parse a local resume without exposing source paths to renderer IPC.
 #[tauri::command]
 pub async fn select_and_upload_resume(
@@ -95,18 +83,6 @@ pub async fn import_json_resume(
         .import_json_resume(name, &json_string)
         .await
         .map_err(|e| user_friendly_error("Failed to import JSON Resume", e))
-}
-
-/// Import resume from a JSON Resume file selected by the user.
-#[tauri::command]
-pub async fn import_json_resume_file(
-    name: String,
-    file_path: String,
-    state: State<'_, AppState>,
-) -> Result<i64, String> {
-    let _ = (name, state);
-    reject_renderer_resume_file_path(&file_path)?;
-    unreachable!("renderer resume file path rejection always returns an error")
 }
 
 /// Select and import a JSON Resume file without exposing source paths to renderer IPC.
@@ -197,10 +173,6 @@ pub(super) fn supported_resume_extension(path: &Path) -> Option<String> {
     SUPPORTED_RESUME_UPLOAD_EXTENSIONS
         .contains(&extension.as_str())
         .then_some(extension)
-}
-
-pub(super) fn reject_renderer_resume_file_path(_file_path: &str) -> Result<(), String> {
-    Err("Choose Resume inside JobSentinel so the app can handle the file privately.".to_string())
 }
 
 fn managed_resume_upload_dir() -> PathBuf {

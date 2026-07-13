@@ -73,13 +73,13 @@ const activeSecretStorageWordingPaths = new Set([
   "docs/developer/MACOS_DEVELOPMENT.md",
   "src/features/settings/config/SettingsConfig.ts",
   "src/features/onboarding/SetupWizard.tsx",
-  "src-tauri/src/core/config/types.rs",
+  "crates/jobsentinel-core/src/core/config/types.rs",
 ]);
 
 function isActiveSecretStorageWordingPath(path) {
   return (
     activeSecretStorageWordingPaths.has(path) ||
-    path.startsWith("src-tauri/src/core/config/tests/")
+    path.startsWith("crates/jobsentinel-core/src/core/config/tests/")
   );
 }
 
@@ -147,7 +147,10 @@ export function hasRawSlackWebhookValidationErrorReturn(root, path) {
 }
 
 export function hasSecretBearingDebugDerive(root, path) {
-  if (!path.startsWith("src-tauri/src/") || !path.endsWith(".rs")) {
+  const rustSource =
+    path.startsWith("src-tauri/src/") ||
+    path.startsWith("crates/jobsentinel-core/src/");
+  if (!rustSource || !path.endsWith(".rs")) {
     return false;
   }
 
@@ -211,7 +214,7 @@ export function hasMissingLinkedInCredentialStorageDisable(root, path) {
     readFileSync(join(root, path), "utf8"),
   );
 
-  if (path === "src-tauri/src/core/credentials/mod.rs") {
+  if (path === "crates/jobsentinel-core/src/core/credentials/mod.rs") {
     return (
       !productionText.includes("LINKEDIN_CREDENTIAL_STORAGE_DISABLED") ||
       !/fn\s+reject_disabled_credential_storage/.test(productionText) ||
@@ -238,7 +241,7 @@ export function hasMissingLinkedInCredentialStorageDisable(root, path) {
 }
 
 export function hasMissingWebhookCredentialStorageValidation(root, path) {
-  if (path !== "src-tauri/src/core/credentials/mod.rs") {
+  if (path !== "crates/jobsentinel-core/src/core/credentials/mod.rs") {
     return false;
   }
 
@@ -332,6 +335,14 @@ export function hasUnsanitizedStructuredDebugLogEvents(root, path) {
   }
 
   const text = readFileSync(join(root, path), "utf8");
+  const collectionDisabled =
+    /pub fn get_debug_log\(\) -> Vec<TimestampedEvent> \{\s*Vec::new\(\)\s*\}/.test(text) &&
+    /pub fn get_recent_events\([^)]*\) -> Vec<TimestampedEvent> \{\s*Vec::new\(\)\s*\}/.test(text);
+
+  if (collectionDisabled) {
+    return false;
+  }
+
   return (
     !text.includes("sanitize_timestamped_event") ||
     /pub fn get_debug_log\(\)[\s\S]*?\.map\(\|buffer\| buffer\.get_all\(\)\)/.test(

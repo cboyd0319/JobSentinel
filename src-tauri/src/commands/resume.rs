@@ -17,25 +17,16 @@ use std::path::Path;
 use tauri::State;
 
 #[path = "resume_builder_commands.rs"]
-pub mod resume_builder_commands;
-pub use resume_builder_commands::{
-    add_resume_education, add_resume_experience, create_resume_draft, delete_resume_draft,
-    delete_resume_education, delete_resume_experience, get_resume_draft, set_resume_skills,
-    update_resume_contact, update_resume_summary,
-};
+pub(crate) mod resume_builder_commands;
 
 #[path = "resume_file_commands.rs"]
-pub mod resume_file_commands;
+pub(crate) mod resume_file_commands;
 use resume_file_commands::read_html_resume_source_for_format_review;
-pub use resume_file_commands::{
-    delete_resume, import_json_resume, import_json_resume_file, select_and_import_json_resume,
-    select_and_upload_resume, upload_resume,
-};
 #[cfg(test)]
 use resume_file_commands::{
     delete_resume_with_file_cleanup, has_json_extension, managed_resume_upload_cleanup_path,
-    reject_renderer_resume_file_path, safe_resume_upload_file_name, supported_resume_extension,
-    validate_selected_resume, MAX_SELECTED_RESUME_UPLOAD_BYTES,
+    safe_resume_upload_file_name, supported_resume_extension, validate_selected_resume,
+    MAX_SELECTED_RESUME_UPLOAD_BYTES,
 };
 
 const MAX_RESUME_TEXT_PREVIEW_CHARS: usize = 6_000;

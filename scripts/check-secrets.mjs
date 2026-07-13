@@ -15,7 +15,7 @@ const ignoredPathParts = new Set([
   "dist",
   "node_modules",
   "playwright-report",
-  "src-tauri/target",
+  "target",
   "target",
   "test-results",
 ]);

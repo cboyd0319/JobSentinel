@@ -161,7 +161,7 @@ React settings and setup UI
 src-tauri/src/commands/credentials.rs
     |
     v
-src-tauri/src/core/credentials/mod.rs
+crates/jobsentinel-core/src/core/credentials/mod.rs
     |
     v
 CredentialService
@@ -203,7 +203,7 @@ from the encrypted local vault or the legacy OS item.
 
 ## Code Modules
 
-### `src-tauri/src/core/credentials/vault.rs`
+### `crates/jobsentinel-core/src/core/credentials/vault.rs`
 
 ```rust
 pub struct SecretVault;
@@ -221,7 +221,7 @@ The vault uses `XChaCha20Poly1305`, per-row random 24-byte nonces, and
 associated data shaped as `jobsentinel.secret-vault.v1:<credential-key>`.
 Disabled LinkedIn credential keys are rejected before storage.
 
-### `src-tauri/src/core/credentials/mod.rs`
+### `crates/jobsentinel-core/src/core/credentials/mod.rs`
 
 ```rust
 pub enum CredentialKey {
@@ -234,7 +234,7 @@ pub enum CredentialKey {
 }
 ```
 
-### `src-tauri/src/core/credentials/service.rs`
+### `crates/jobsentinel-core/src/core/credentials/service.rs`
 
 ```rust
 pub struct CredentialService;
@@ -482,7 +482,7 @@ entries owned by `JobSentinel`.
 
 ## Adding New Credentials
 
-1. Add a `CredentialKey` variant in `src-tauri/src/core/credentials/mod.rs`.
+1. Add a `CredentialKey` variant in `crates/jobsentinel-core/src/core/credentials/mod.rs`.
 2. Add its `jobsentinel_*` storage key in `CredentialKey::as_str`.
 3. Add parsing aliases in `FromStr`.
 4. Update migration extraction and config clearing when the credential can

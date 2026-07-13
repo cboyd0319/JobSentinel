@@ -210,7 +210,7 @@ export function hasStaleRefactoringPriorityTable(root, path) {
 }
 
 export function hasStaleLinuxPlatformStubMarkers(root, path) {
-  if (path !== "src-tauri/src/platforms/linux/mod.rs") {
+  if (path !== "crates/jobsentinel-core/src/platforms/linux/mod.rs") {
     return false;
   }
 
@@ -278,7 +278,7 @@ export function hasDocsReadmeReleaseLogShape(root, path) {
 }
 
 export function hasStaleCargoDenyIgnore(root, path) {
-  if (path !== "src-tauri/deny.toml") {
+  if (path !== "deny.toml") {
     return false;
   }
 

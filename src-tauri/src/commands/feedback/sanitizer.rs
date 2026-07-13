@@ -238,23 +238,6 @@ impl Sanitizer {
             .replace_all(&result, "[JOB_SEARCH_DETAIL_REDACTED]")
             .to_string()
     }
-
-    /// Sanitize file paths specifically
-    ///
-    /// More aggressive home-path redaction.
-    pub fn sanitize_path(path: &str) -> String {
-        let mut result = PATH_REGEX.replace_all(path, "/[USER_PATH]").to_string();
-        result = WINDOWS_PATH_REGEX
-            .replace_all(&result, "C:\\[USER_PATH]")
-            .to_string();
-        result = LOCAL_UNIX_PATH_REGEX
-            .replace_all(&result, "/[LOCAL_PATH]")
-            .to_string();
-        result = LOCAL_WINDOWS_PATH_REGEX
-            .replace_all(&result, "C:\\[LOCAL_PATH]")
-            .to_string();
-        result
-    }
 }
 
 /// Anonymized configuration summary (counts only, no values)
@@ -594,13 +577,6 @@ mod tests {
         let input = "Company 'Example Health' not found in blocklist";
         let output = Sanitizer::sanitize_error(input);
         assert_eq!(output, "Company '[REDACTED]' not found in blocklist");
-    }
-
-    #[test]
-    fn test_sanitize_path_windows() {
-        let input = windows_user_path("C", "JohnSmith", r"AppData\Local\JobSentinel");
-        let output = Sanitizer::sanitize_path(&input);
-        assert_eq!(output, r"C:\[USER_PATH]\AppData\Local\JobSentinel");
     }
 
     #[test]

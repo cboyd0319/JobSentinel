@@ -25,7 +25,7 @@ test("checkTestQuality rejects no-op Rust assertions", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src-tauri/src/core/browser.rs",
+      "crates/jobsentinel-core/src/core/browser.rs",
       `
 #[cfg(test)]
 mod tests {
@@ -40,7 +40,7 @@ mod tests {
     const violations = checkTestQuality(root);
 
     assert.deepEqual(violations, [
-      "src-tauri/src/core/browser.rs:6 contains no-op true assertion",
+      "crates/jobsentinel-core/src/core/browser.rs:6 contains no-op true assertion",
     ]);
   });
 });
@@ -52,7 +52,7 @@ test("checkTestQuality rejects temporarily disabled test blocks", () => {
     const reenableMarker = "Re-enable after " + "implementing";
     writeFixtureFile(
       root,
-      "src-tauri/src/core/scoring/mod.rs",
+      "crates/jobsentinel-core/src/core/scoring/mod.rs",
       `
 #[cfg(test)]
 mod tests {
@@ -70,8 +70,8 @@ mod tests {
     const violations = checkTestQuality(root);
 
     assert.deepEqual(violations, [
-      "src-tauri/src/core/scoring/mod.rs:4 contains temporarily disabled test block",
-      "src-tauri/src/core/scoring/mod.rs:5 contains temporarily disabled test block",
+      "crates/jobsentinel-core/src/core/scoring/mod.rs:4 contains temporarily disabled test block",
+      "crates/jobsentinel-core/src/core/scoring/mod.rs:5 contains temporarily disabled test block",
     ]);
   });
 });
@@ -126,7 +126,7 @@ test("checkTestQuality rejects empty Rust test bodies", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src-tauri/src/core/empty_test.rs",
+      "crates/jobsentinel-core/src/core/empty_test.rs",
       `
 #[cfg(test)]
 mod tests {
@@ -139,7 +139,7 @@ mod tests {
     const violations = checkTestQuality(root);
 
     assert.deepEqual(violations, [
-      "src-tauri/src/core/empty_test.rs:4 contains empty test body",
+      "crates/jobsentinel-core/src/core/empty_test.rs:4 contains empty test body",
     ]);
   });
 });

@@ -1,8 +1,8 @@
 # SQLite Configuration
 
-> **Source:** `src-tauri/src/core/db/connection.rs`,
-> `src-tauri/src/core/db/encryption.rs`, and
-> `src-tauri/src/core/db/integrity/`
+> **Source:** `crates/jobsentinel-core/src/core/db/connection.rs`,
+> `crates/jobsentinel-core/src/core/db/encryption.rs`, and
+> `crates/jobsentinel-core/src/core/db/integrity/`
 
 JobSentinel uses SQLite with SQLx and an on-disk database by default. The
 connection layer opens file-backed databases through SQLCipher, then applies
@@ -158,8 +158,8 @@ Use PRAGMA diagnostics or integration tests to verify:
 Run focused Rust checks after SQLite configuration changes:
 
 ```bash
-cd src-tauri && cargo test db --lib
-cd src-tauri && cargo test --test database_integration_test
+cargo test -p jobsentinel-core --lib db
+cargo test -p jobsentinel-core --test database_integration_test
 ```
 
 Also run the docs gate after changing this document:

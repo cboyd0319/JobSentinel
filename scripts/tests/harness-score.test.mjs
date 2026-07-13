@@ -52,8 +52,8 @@ function writeCompleteHarnessFixture(root) {
     }),
   );
   writeFixtureFile(root, "package-lock.json", "{}");
-  writeFixtureFile(root, "src-tauri/Cargo.lock", "");
-  writeFixtureFile(root, "src-tauri/.cargo/config.toml", 'SQLX_OFFLINE = "true"');
+  writeFixtureFile(root, "Cargo.lock", "");
+  writeFixtureFile(root, ".cargo/config.toml", 'SQLX_OFFLINE = "true"');
 
   writeFixtureFile(
     root,

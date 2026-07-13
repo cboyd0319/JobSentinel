@@ -73,7 +73,7 @@ export function hasMissingFreeForeverEthos(root, path) {
 }
 
 function isJobSearchProductTextPath(path) {
-  if (path === "package-lock.json" || path === "src-tauri/Cargo.lock") {
+  if (path === "package-lock.json" || path === "Cargo.lock") {
     return false;
   }
 

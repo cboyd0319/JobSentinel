@@ -82,17 +82,17 @@ rustup target add aarch64-apple-darwin x86_64-apple-darwin
 JOBSENTINEL_MACOS_NO_ACCOUNT=true npm run tauri:build:macos -- --target universal-apple-darwin
 
 # Windows installer outputs
-# src-tauri/target/<target>/release/bundle/msi/JobSentinel_<version>_x64_en-US.msi
-# src-tauri/target/<target>/release/bundle/nsis/JobSentinel_<version>_x64-setup.exe
+# target/<target>/release/bundle/msi/JobSentinel_<version>_x64_en-US.msi
+# target/<target>/release/bundle/nsis/JobSentinel_<version>_x64-setup.exe
 
 # macOS no-account universal DMG output
-# src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_<version>_no-account_universal.dmg
-# src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_<version>_no-account_universal.dmg.sha256
+# target/universal-apple-darwin/release/bundle/dmg/JobSentinel_<version>_no-account_universal.dmg
+# target/universal-apple-darwin/release/bundle/dmg/JobSentinel_<version>_no-account_universal.dmg.sha256
 
 # Linux packages output
 node scripts/build-linux-appimage.mjs --target x86_64-unknown-linux-gnu
-# src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/deb/JobSentinel_<version>_amd64.deb
-# src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/JobSentinel_<version>_amd64.AppImage
+# target/x86_64-unknown-linux-gnu/release/bundle/deb/JobSentinel_<version>_amd64.deb
+# target/x86_64-unknown-linux-gnu/release/bundle/appimage/JobSentinel_<version>_amd64.AppImage
 ```
 
 ### Project Structure
@@ -106,14 +106,18 @@ JobSentinel/
   - ui/: reusable visual primitives
   - test/: Vitest setup and shared test helpers
   - main.tsx: thin entry point
-- src-tauri/: Rust backend
-  - src/main.rs: Tauri app entry
-  - src/lib.rs: library exports
+- crates/jobsentinel-core/: Tauri-free Rust core
   - src/core/: business logic modules
-  - src/platforms/: Windows, macOS, and Linux code
-  - src/commands/: Tauri RPC command handlers
+  - src/platforms/: Windows, macOS, and Linux adapters
   - migrations/: SQLite migrations
-  - Cargo.toml: Rust dependencies
+  - tests/: core integration tests
+- src-tauri/: thin Tauri desktop shell
+  - src/main.rs: minimal app entry
+  - src/lib.rs: private shell composition and public run function
+  - src/commands/: private Tauri RPC command handlers
+  - Cargo.toml: app-only dependencies
+- Cargo.toml: explicit workspace members, metadata, dependencies, and lints
+- Cargo.lock, .cargo/, .sqlx/, clippy.toml, deny.toml: root Cargo policy
 - public/: static assets
 - docs/: documentation
 - package.json: npm dependencies
@@ -139,8 +143,7 @@ JobSentinel/
 
 ```bash
 # Backend tests
-cd src-tauri
-cargo test --lib
+cargo test --workspace
 
 # Frontend tests
 npm run test:run
@@ -150,11 +153,10 @@ npm run test:run
 
 ```bash
 # Format Rust code
-cd src-tauri
 cargo fmt --all -- --check
 
 # Lint Rust code
-cargo clippy -- -D warnings
+cargo clippy --workspace -- -D warnings
 
 # Fix TypeScript/React lint issues where safe
 npm run lint:fix
@@ -166,7 +168,7 @@ npm run lint:fix
 
 ### Core Business Logic (Platform-Agnostic)
 
-All core functionality is in `src-tauri/src/core/` and works identically on all platforms:
+All core functionality is in `crates/jobsentinel-core/src/core/` and works identically on all platforms:
 
 - **ats**: Application Tracking System with interview scheduler
 - **config**: JSON-based user preferences
@@ -184,7 +186,7 @@ All core functionality is in `src-tauri/src/core/` and works identically on all 
 
 ### Platform-Specific Code
 
-Platform code is in `src-tauri/src/platforms/` and uses conditional compilation:
+Platform code is in `crates/jobsentinel-core/src/platforms/` and uses conditional compilation:
 
 - **Windows**: Windows 11+ platform features
 - **macos**: macOS 13+ platform features
@@ -300,14 +302,13 @@ sudo apt-get install -y \
 ### "sqlx error" or "no cached data for this query"
 
 The project uses SQLx offline mode so you don't need a running database to compile.
-This is configured automatically via `src-tauri/.cargo/config.toml` (sets `SQLX_OFFLINE=true`).
+This is configured automatically via `.cargo/config.toml` (sets `SQLX_OFFLINE=true`).
 
-If you see this error, make sure the `.sqlx/` directory exists in `src-tauri/`. If you've
+If you see this error, make sure the root `.sqlx/` directory exists. If you've
 changed any SQL queries using the `sqlx::query!()` macro, you'll need to regenerate the cache:
 
 ```bash
-cd src-tauri
-DATABASE_URL="sqlite:jobs.db" cargo sqlx prepare
+DATABASE_URL="sqlite:jobs.db" cargo sqlx prepare --workspace
 ```
 
 > **Prefer runtime queries:** Use `sqlx::query()` (without `!`) for new code. Runtime queries

@@ -24,22 +24,18 @@ use std::path::Path;
 use tauri::State;
 
 #[path = "automation_browser_commands.rs"]
-pub mod automation_browser_commands;
+pub(crate) mod automation_browser_commands;
 mod profile_resume;
 
 #[cfg(test)]
 use automation_browser_commands::{application_page_matches_platform, prepare_form_target};
-pub use automation_browser_commands::{
-    close_automation_browser, fill_application_form, get_attempts_for_job, is_browser_running,
-    launch_automation_browser, mark_attempt_submitted, FillResultWithAttempt,
-};
 #[cfg(test)]
 use profile_resume::trusted_application_resume_path;
-pub use profile_resume::ApplicationResumeFileSelection;
 use profile_resume::{
     application_resume_dir, delete_managed_application_resume_file,
     prepare_application_profile_resume_input, resume_file_display_name,
     select_application_resume_file as select_application_resume_file_impl,
+    ApplicationResumeFileSelection,
 };
 
 fn has_stored_path(path: Option<&str>) -> bool {
@@ -515,11 +511,9 @@ pub async fn detect_ats_from_html(html: String) -> Result<String, String> {
 #[cfg(test)]
 mod tests;
 
-pub mod answer_learning;
+mod answer_learning;
 
-pub use answer_learning::{
-    AnswerStatisticsResponse, AnswerSuggestionResponse, ModificationExampleResponse,
-};
+use answer_learning::{AnswerStatisticsResponse, AnswerSuggestionResponse};
 
 #[tauri::command]
 pub async fn get_suggested_answers(

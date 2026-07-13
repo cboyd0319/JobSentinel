@@ -36,8 +36,8 @@ const broadAudienceExamplePaths = new Set([
   "src/features/application-assist/ApplicationPreview.test.tsx",
   "src/features/application-assist/ApplyButton.test.tsx",
   "src/features/application-assist/ProfileForm.tsx",
-  "src-tauri/src/core/automation/form_filler.rs",
-  "src-tauri/src/core/automation/profile.rs",
+  "crates/jobsentinel-core/src/core/automation/form_filler.rs",
+  "crates/jobsentinel-core/src/core/automation/profile.rs",
   "src/features/resumes/builder/AtsLiveScorePanel.test.tsx",
   "src/features/applications/CoverLetterTemplates.test.tsx",
   "src/features/market/MarketAlertCard.test.tsx",
@@ -90,40 +90,40 @@ const broadAudienceExamplePaths = new Set([
   "src/features/resumes/shared/resumeContactValidation.test.ts",
   "src/shared/validation/contactFieldValidation.test.ts",
   "src/shared/search-links/model.ts",
-  "src-tauri/src/core/health/smoke_tests.rs",
-  "src-tauri/src/core/deeplinks/generator.rs",
-  "src-tauri/src/core/import/README.md",
-  "src-tauri/src/core/import/schema_org.rs",
-  "src-tauri/src/core/import/tests.rs",
-  "src-tauri/src/core/resume/ats_analyzer/bullet_prompts.rs",
-  "src-tauri/src/core/resume/ats_analyzer.rs",
-  "src-tauri/src/core/resume/builder.rs",
-  "src-tauri/src/core/resume/export.rs",
-  "src-tauri/src/core/resume/json_resume.rs",
-  "src-tauri/src/core/resume/matcher.rs",
-  "src-tauri/src/core/resume/parser.rs",
-  "src-tauri/src/core/resume/templates.rs",
-  "src-tauri/src/core/resume/tests.rs",
-  "src-tauri/src/core/bookmarklet/mod.rs",
-  "src-tauri/src/core/bookmarklet/server.rs",
-  "src-tauri/src/core/scoring/mod.rs",
-  "src-tauri/src/core/scoring/remote.rs",
-  "src-tauri/src/core/scoring/synonyms.rs",
+  "crates/jobsentinel-core/src/core/health/smoke_tests.rs",
+  "crates/jobsentinel-core/src/core/deeplinks/generator.rs",
+  "crates/jobsentinel-core/src/core/import/README.md",
+  "crates/jobsentinel-core/src/core/import/schema_org.rs",
+  "crates/jobsentinel-core/src/core/import/tests.rs",
+  "crates/jobsentinel-core/src/core/resume/ats_analyzer/bullet_prompts.rs",
+  "crates/jobsentinel-core/src/core/resume/ats_analyzer.rs",
+  "crates/jobsentinel-core/src/core/resume/builder.rs",
+  "crates/jobsentinel-core/src/core/resume/export.rs",
+  "crates/jobsentinel-core/src/core/resume/json_resume.rs",
+  "crates/jobsentinel-core/src/core/resume/matcher.rs",
+  "crates/jobsentinel-core/src/core/resume/parser.rs",
+  "crates/jobsentinel-core/src/core/resume/templates.rs",
+  "crates/jobsentinel-core/src/core/resume/tests.rs",
+  "crates/jobsentinel-core/src/core/bookmarklet/mod.rs",
+  "crates/jobsentinel-core/src/core/bookmarklet/server.rs",
+  "crates/jobsentinel-core/src/core/scoring/mod.rs",
+  "crates/jobsentinel-core/src/core/scoring/remote.rs",
+  "crates/jobsentinel-core/src/core/scoring/synonyms.rs",
   "src-tauri/src/commands/deeplinks.rs",
   "src-tauri/src/commands/feedback/debug_log.rs",
   "src-tauri/src/commands/feedback/sanitizer.rs",
   "src-tauri/src/commands/import.rs",
   "src-tauri/src/commands/tests.rs",
-  "src-tauri/src/core/deeplinks/types.rs",
-  "src-tauri/src/core/market_intelligence/tests.rs",
-  "src-tauri/src/core/scrapers/glassdoor.rs",
-  "src-tauri/src/core/scrapers/greenhouse.rs",
-  "src-tauri/src/core/scrapers/http_client.rs",
-  "src-tauri/src/core/scrapers/jobswithgpt.rs",
-  "src-tauri/src/core/scrapers/lever/tests.rs",
-  "src-tauri/src/core/scrapers/simplyhired.rs",
-  "src-tauri/src/core/scrapers/usajobs.rs",
-  "src-tauri/src/core/scrapers/weworkremotely.rs",
+  "crates/jobsentinel-core/src/core/deeplinks/types.rs",
+  "crates/jobsentinel-core/src/core/market_intelligence/tests.rs",
+  "crates/jobsentinel-core/src/core/scrapers/glassdoor.rs",
+  "crates/jobsentinel-core/src/core/scrapers/greenhouse.rs",
+  "crates/jobsentinel-core/src/core/scrapers/http_client.rs",
+  "crates/jobsentinel-core/src/core/scrapers/jobswithgpt.rs",
+  "crates/jobsentinel-core/src/core/scrapers/lever/tests.rs",
+  "crates/jobsentinel-core/src/core/scrapers/simplyhired.rs",
+  "crates/jobsentinel-core/src/core/scrapers/usajobs.rs",
+  "crates/jobsentinel-core/src/core/scrapers/weworkremotely.rs",
   "src-tauri/tests/api_contract_test.rs",
   "src-tauri/tests/cow_zero_copy_tests.rs",
   "src-tauri/tests/database_integration_test.rs",
@@ -132,7 +132,7 @@ const broadAudienceExamplePaths = new Set([
   "src-tauri/tests/scraping_pipeline_integration.rs",
   "src-tauri/tests/scheduler_integration_test.rs",
   "src-tauri/src/main.rs",
-  "src-tauri/migrations/00000000000000_initial_schema.sql",
+  "crates/jobsentinel-core/migrations/00000000000000_initial_schema.sql",
   "tests/e2e/playwright/resume-upload-matching.spec.ts",
   "tests/e2e/playwright/hiring-trends.spec.ts",
   "tests/e2e/playwright/application-assist.spec.ts",
@@ -157,21 +157,21 @@ const broadAudienceExamplePaths = new Set([
 ]);
 
 const salaryAudienceExamplePaths = new Set([
-  "src-tauri/src/core/salary/benchmarks.rs",
-  "src-tauri/src/core/salary/negotiation.rs",
-  "src-tauri/src/core/salary/predictor.rs",
-  "src-tauri/src/core/salary/tests.rs",
+  "crates/jobsentinel-core/src/core/salary/benchmarks.rs",
+  "crates/jobsentinel-core/src/core/salary/negotiation.rs",
+  "crates/jobsentinel-core/src/core/salary/predictor.rs",
+  "crates/jobsentinel-core/src/core/salary/tests.rs",
 ]);
 
 const genericScraperFixturePaths = new Set([
-  "src-tauri/src/core/scrapers/glassdoor.rs",
-  "src-tauri/src/core/scrapers/greenhouse.rs",
-  "src-tauri/src/core/scrapers/http_client.rs",
-  "src-tauri/src/core/scrapers/jobswithgpt.rs",
-  "src-tauri/src/core/scrapers/lever/tests.rs",
-  "src-tauri/src/core/scrapers/simplyhired.rs",
-  "src-tauri/src/core/scrapers/usajobs.rs",
-  "src-tauri/src/core/scrapers/weworkremotely.rs",
+  "crates/jobsentinel-core/src/core/scrapers/glassdoor.rs",
+  "crates/jobsentinel-core/src/core/scrapers/greenhouse.rs",
+  "crates/jobsentinel-core/src/core/scrapers/http_client.rs",
+  "crates/jobsentinel-core/src/core/scrapers/jobswithgpt.rs",
+  "crates/jobsentinel-core/src/core/scrapers/lever/tests.rs",
+  "crates/jobsentinel-core/src/core/scrapers/simplyhired.rs",
+  "crates/jobsentinel-core/src/core/scrapers/usajobs.rs",
+  "crates/jobsentinel-core/src/core/scrapers/weworkremotely.rs",
 ]);
 
 export function hasEngineerFirstAudienceExamples(root, path) {
@@ -484,7 +484,7 @@ export function hasEngineerFirstAudienceExamples(root, path) {
     return sampleJsonResumePatterns.some((pattern) => pattern.test(text));
   }
 
-  if (path === "src-tauri/src/core/market_intelligence/tests.rs") {
+  if (path === "crates/jobsentinel-core/src/core/market_intelligence/tests.rs") {
     const marketIntelligenceTestPatterns = [
       /Software Engineer/i,
       /Data Scientist/i,
@@ -498,8 +498,8 @@ export function hasEngineerFirstAudienceExamples(root, path) {
   }
 
   if (
-    path === "src-tauri/src/core/scoring/mod.rs" ||
-    path === "src-tauri/src/core/scoring/remote.rs"
+    path === "crates/jobsentinel-core/src/core/scoring/mod.rs" ||
+    path === "crates/jobsentinel-core/src/core/scoring/remote.rs"
   ) {
     const scoringLocationFixturePatterns = [
       /create_test_job\(["']Engineer["']/i,
@@ -512,7 +512,7 @@ export function hasEngineerFirstAudienceExamples(root, path) {
     return scoringLocationFixturePatterns.some((pattern) => pattern.test(text));
   }
 
-  if (path === "src-tauri/src/core/scoring/synonyms.rs") {
+  if (path === "crates/jobsentinel-core/src/core/scoring/synonyms.rs") {
     if (text.includes("job-scoring-synonyms.json")) {
       const taxonomy = JSON.parse(
         readFileSync(
@@ -690,8 +690,8 @@ export function hasSalaryAudienceExampleDrift(root, path) {
   const text = readFileSync(join(root, path), "utf8");
 
   if (
-    path === "src-tauri/src/core/salary/benchmarks.rs" ||
-    path === "src-tauri/src/core/salary/negotiation.rs"
+    path === "crates/jobsentinel-core/src/core/salary/benchmarks.rs" ||
+    path === "crates/jobsentinel-core/src/core/salary/negotiation.rs"
   ) {
     const salaryLocationPatterns = [
       /location:\s*["']San Francisco,\s*CA["']/i,
@@ -710,7 +710,7 @@ export function hasSalaryAudienceExampleDrift(root, path) {
     }
   }
 
-  if (path === "src-tauri/src/core/salary/predictor.rs") {
+  if (path === "crates/jobsentinel-core/src/core/salary/predictor.rs") {
     const predictorPatterns = [
       /insert_test_job\([^)]*["'](?:Junior Developer|Staff Engineer|Principal Engineer|Backend Engineer|DevOps Engineer|ML Engineer)["']/i,
       /predictor\.normalize_title\(["'](?:DevOps Engineer|Machine Learning Engineer|Frontend Developer|C\+\+ Developer|ML\/AI Engineer)["']\)/i,

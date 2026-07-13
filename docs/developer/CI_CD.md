@@ -354,10 +354,10 @@ Debian metadata can be inspected, and matching checksums are generated.
 Run the same checks locally before pushing to avoid a CI failure round-trip.
 
 ```bash
-# Rust — from src-tauri/
+# Rust, from the repository root
 cargo fmt --all -- --check
-cargo clippy -- -D warnings
-cargo test --lib
+cargo clippy --workspace -- -D warnings
+cargo test --workspace
 
 # Frontend — from repo root
 npx --no-install tsc --noEmit
@@ -367,16 +367,16 @@ npm test -- --run
 # Security
 npm run lint:security
 npm audit --audit-level=moderate
-(cd src-tauri && cargo deny check advisories bans licenses sources)
+cargo deny check advisories bans licenses sources
 npm run release:check-deps
 ```
 
 For broader local validation, use the [verification matrix](../harness/verification-matrix.md):
 
 ```bash
-cargo fmt --manifest-path src-tauri/Cargo.toml && \
-cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings && \
-cargo test --manifest-path src-tauri/Cargo.toml --lib && \
+cargo fmt --all -- --check && \
+cargo clippy --workspace -- -D warnings && \
+cargo test --workspace && \
 npm run lint && npm run test:run
 ```
 
@@ -388,13 +388,13 @@ npm run lint && npm run test:run
 
 ```bash
 # Update version in release metadata and lock files
-# src-tauri/Cargo.toml -> [package] version = "X.Y.Z"
+# Cargo.toml -> [workspace.package] version = "X.Y.Z"
 # package.json -> "version": "X.Y.Z"
 # package-lock.json -> root "version" and packages[""].version = "X.Y.Z"
 # src-tauri/tauri.conf.json -> "version": "X.Y.Z"
 
 # Update CHANGELOG.md, then commit
-git add src-tauri/Cargo.toml package.json package-lock.json src-tauri/tauri.conf.json CHANGELOG.md
+git add Cargo.toml Cargo.lock package.json package-lock.json src-tauri/tauri.conf.json CHANGELOG.md
 git commit -m "chore: bump version to X.Y.Z"
 git push origin main
 ```
@@ -425,7 +425,7 @@ For local macOS no-account asset upload:
 rustup target add aarch64-apple-darwin x86_64-apple-darwin
 JOBSENTINEL_MACOS_NO_ACCOUNT=true npm run tauri:build:macos -- --target universal-apple-darwin
 npm run tauri:verify:macos -- \
-  --dmg src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_X.Y.Z_no-account_universal.dmg \
+  --dmg target/universal-apple-darwin/release/bundle/dmg/JobSentinel_X.Y.Z_no-account_universal.dmg \
   --expected-architectures x86_64,arm64 \
   --expected-bundle-id com.jobsentinel.main \
   --expected-product-name JobSentinel \
@@ -437,8 +437,8 @@ npm run tauri:verify:macos -- \
   --require-checksum
 
 gh release upload vX.Y.Z \
-  src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_X.Y.Z_no-account_universal.dmg \
-  src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_X.Y.Z_no-account_universal.dmg.sha256
+  target/universal-apple-darwin/release/bundle/dmg/JobSentinel_X.Y.Z_no-account_universal.dmg \
+  target/universal-apple-darwin/release/bundle/dmg/JobSentinel_X.Y.Z_no-account_universal.dmg.sha256
 
 npm run tauri:verify:macos:latest -- --tag vX.Y.Z --no-require-supply-chain
 ```

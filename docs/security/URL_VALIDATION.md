@@ -139,7 +139,7 @@ validate_webhook_url("https://hooks.slack.com.evil.com/webhook")
 
 ### External Job URLs And Imports
 
-**File**: `src-tauri/src/core/url_security.rs`
+**File**: `crates/jobsentinel-core/src/core/url_security.rs`
 
 `validate_external_http_url` is the shared low-level backend guard for
 user-controlled external HTTP(S) URLs. `validate_external_https_url` and
@@ -148,14 +148,14 @@ destinations, so job links must be public HTTPS.
 
 These guards are used by:
 
-- `src-tauri/src/core/db/crud.rs` before a job link is stored in SQLite.
+- `crates/jobsentinel-core/src/core/db/crud.rs` before a job link is stored in SQLite.
 - `src-tauri/src/commands/automation.rs` before Application Assist opens a
   visible review browser and loads local profile data.
 - `src-tauri/src/commands/deeplinks.rs` before opening a job URL in the user's browser.
-- `src-tauri/src/core/scrapers/http_client.rs` before shared scraper HTTP
+- `crates/jobsentinel-core/src/core/scrapers/http_client.rs` before shared scraper HTTP
   retry helpers fetch a source URL.
-- `src-tauri/src/core/config/validation.rs`, `src-tauri/src/core/scrapers/jobswithgpt.rs`,
-  and `src-tauri/src/core/health/smoke_tests.rs` before using a configured JobsWithGPT endpoint.
+- `crates/jobsentinel-core/src/core/config/validation.rs`, `crates/jobsentinel-core/src/core/scrapers/jobswithgpt.rs`,
+  and `crates/jobsentinel-core/src/core/health/smoke_tests.rs` before using a configured JobsWithGPT endpoint.
 
 Saved jobs now use this shared canonicalization path instead of a string prefix
 check, so stored job links cannot target localhost, private networks, embedded
@@ -216,8 +216,8 @@ renderer CSP.
 ### Browser Import Local Receiver
 
 **Files**: `src-tauri/src/commands/bookmarklet.rs`,
-`src-tauri/src/core/bookmarklet/server.rs`, and
-`src-tauri/src/core/bookmarklet/server/listener.rs`
+`crates/jobsentinel-core/src/core/bookmarklet/server.rs`, and
+`crates/jobsentinel-core/src/core/bookmarklet/server/listener.rs`
 
 Browser Import uses a loopback-only HTTP receiver and a generated browser button
 instead of account cookies or background site monitoring. The receiver binds to
@@ -249,7 +249,7 @@ spreadsheet does not execute remote job-posting content as a formula.
 
 ### Slack Webhooks
 
-**File**: `src-tauri/src/core/notify/slack.rs`
+**File**: `crates/jobsentinel-core/src/core/notify/slack.rs`
 
 ```rust
 fn validate_webhook_url(url: &str) -> Result<()> {
@@ -290,7 +290,7 @@ https://hooks.slack.com/other/...         (wrong path)
 
 ### Discord Webhooks
 
-**File**: `src-tauri/src/core/notify/discord.rs`
+**File**: `crates/jobsentinel-core/src/core/notify/discord.rs`
 
 ```rust
 fn validate_webhook_url(url: &str) -> Result<()> {
@@ -330,7 +330,7 @@ https://hooks.discord.com/api/webhooks/123456789/ABCDEFG
 
 ### Microsoft Teams Webhooks
 
-**File**: `src-tauri/src/core/notify/teams.rs`
+**File**: `crates/jobsentinel-core/src/core/notify/teams.rs`
 
 ```rust
 fn validate_webhook_url(url: &str) -> Result<()> {

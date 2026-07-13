@@ -327,11 +327,12 @@ export async function generateReleaseSbom({
   }
 
   const packageJson = readJson(join(root, "package.json"));
-  const cargoToml = readFileSync(join(root, "src-tauri/Cargo.toml"), "utf8");
-  const cargoLock = readFileSync(join(root, "src-tauri/Cargo.lock"), "utf8");
+  const workspaceCargoToml = readFileSync(join(root, "Cargo.toml"), "utf8");
+  const appCargoToml = readFileSync(join(root, "src-tauri/Cargo.toml"), "utf8");
+  const cargoLock = readFileSync(join(root, "Cargo.lock"), "utf8");
   const releaseVersion = version ?? packageJson.version;
-  const cargoName = cargoToml.match(/^\s*name\s*=\s*"([^"]+)"/m)?.[1] ?? packageJson.name;
-  const cargoVersion = cargoToml.match(/^\s*version\s*=\s*"([^"]+)"/m)?.[1] ?? releaseVersion;
+  const cargoName = appCargoToml.match(/^\s*name\s*=\s*"([^"]+)"/m)?.[1] ?? packageJson.name;
+  const cargoVersion = workspaceCargoToml.match(/^\s*version\s*=\s*"([^"]+)"/m)?.[1] ?? releaseVersion;
   const source = sourceInfo();
   const releaseOutDir = resolve(root, outDir);
   mkdirSync(releaseOutDir, { recursive: true });
@@ -393,7 +394,7 @@ export async function generateReleaseSbom({
       spdxVersion: sbom.spdxVersion,
       packageCount: sbom.packages.length,
       relationshipCount: sbom.relationships.length,
-      scope: "npm package-lock.json and src-tauri/Cargo.lock dependency inventory for this release build",
+      scope: "npm package-lock.json and root Cargo.lock dependency inventory for this release build",
     },
     assets: assets.map(({ fileName, kind, size, sha256 }) => ({
       fileName,

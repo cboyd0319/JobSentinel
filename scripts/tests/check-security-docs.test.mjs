@@ -124,7 +124,7 @@ test("security docs reject stale keyring docs and credential comments", () => {
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/core/credentials/mod.rs",
+      "crates/jobsentinel-core/src/core/credentials/mod.rs",
       'tauri-plugin-secure-storage` JS API\nprintln!("Got password: {}", password);\n',
     );
 
@@ -134,7 +134,7 @@ test("security docs reject stale keyring docs and credential comments", () => {
       true,
     );
     assert.equal(
-      hasStaleCredentialArchitectureComments(root, "src-tauri/src/core/credentials/mod.rs"),
+      hasStaleCredentialArchitectureComments(root, "crates/jobsentinel-core/src/core/credentials/mod.rs"),
       true,
     );
   });

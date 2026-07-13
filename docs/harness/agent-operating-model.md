@@ -111,9 +111,9 @@ npm run test:run
 Default Rust checks:
 
 ```bash
-cd src-tauri && cargo fmt --all -- --check
-cd src-tauri && cargo clippy -- -D warnings
-cd src-tauri && cargo test --lib
+cargo fmt --all -- --check
+cargo clippy --workspace -- -D warnings
+cargo test --workspace
 ```
 
 ## Handoff Strategy

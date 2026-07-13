@@ -1,0 +1,122 @@
+{
+  "db_name": "SQLite",
+  "query": "\n            SELECT\n                a.id,\n                a.job_hash,\n                a.status,\n                a.applied_at,\n                a.last_contact,\n                a.notes,\n                j.title as job_title,\n                j.company,\n                j.score as \"score!: f64\"\n            FROM applications a\n            JOIN jobs j ON a.job_hash = j.hash\n            ORDER BY a.updated_at DESC\n            ",
+  "describe": {
+    "columns": [
+      {
+        "name": "id",
+        "ordinal": 0,
+        "type_info": "Integer",
+        "origin": {
+          "Table": {
+            "table": "applications",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "name": "job_hash",
+        "ordinal": 1,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "applications",
+            "name": "job_hash"
+          }
+        }
+      },
+      {
+        "name": "status",
+        "ordinal": 2,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "applications",
+            "name": "status"
+          }
+        }
+      },
+      {
+        "name": "applied_at",
+        "ordinal": 3,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "applications",
+            "name": "applied_at"
+          }
+        }
+      },
+      {
+        "name": "last_contact",
+        "ordinal": 4,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "applications",
+            "name": "last_contact"
+          }
+        }
+      },
+      {
+        "name": "notes",
+        "ordinal": 5,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "applications",
+            "name": "notes"
+          }
+        }
+      },
+      {
+        "name": "job_title",
+        "ordinal": 6,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "jobs",
+            "name": "title"
+          }
+        }
+      },
+      {
+        "name": "company",
+        "ordinal": 7,
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "jobs",
+            "name": "company"
+          }
+        }
+      },
+      {
+        "name": "score!: f64",
+        "ordinal": 8,
+        "type_info": "Float",
+        "origin": {
+          "Table": {
+            "table": "jobs",
+            "name": "score"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Right": 0
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "e27434b0b9d81c7c921cea7e7008f9f3dc2251d798f665c8f102b67ea76df6ff"
+}

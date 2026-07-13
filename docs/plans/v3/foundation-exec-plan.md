@@ -64,7 +64,7 @@ Out of scope:
 
 ### 3. Migration And Rust Implementation
 
-- Add the next SQLite migration under `src-tauri/migrations/`.
+- Add the next SQLite migration under `crates/jobsentinel-core/migrations/`.
 - Add a focused database module for v3 foundation operations.
 - Add public database types only where downstream modules need them.
 - Keep methods typed and parameterized.
@@ -75,7 +75,7 @@ Out of scope:
 Targeted:
 
 ```bash
-cd src-tauri && cargo test --lib core::db::tests::tests::v3_foundation_tests
+cargo test -p jobsentinel-core --lib core::db::tests::tests::v3_foundation_tests
 ```
 
 Broader:
@@ -85,11 +85,11 @@ npm run harness:plan -- --since origin/main
 npm run lint:bloat
 npm run harness:check
 npm run lint:docs
-cd src-tauri && cargo fmt --all -- --check
-cd src-tauri && cargo test --lib core::db
+cargo fmt --all -- --check
+cargo test -p jobsentinel-core --lib core::db
 ```
 
-Run `cd src-tauri && cargo clippy -- -D warnings` if the Rust diff touches
+Run `cargo clippy --workspace -- -D warnings` if the Rust diff touches
 shared APIs or warnings surface.
 
 ### 5. Commit

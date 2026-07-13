@@ -95,31 +95,31 @@ test("privacy logging rejects raw match reasons in external alerts", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src-tauri/src/core/notify/slack.rs",
+      "crates/jobsentinel-core/src/core/notify/slack.rs",
       'fn build(notification: &Notification) { notification.score.reasons.join("\\n"); }',
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/core/notify/email.rs",
+      "crates/jobsentinel-core/src/core/notify/email.rs",
       "fn format(score: &JobScore) { score.reasons.iter(); }",
     );
 
     assert.equal(
       hasExternalAlertRawScoreReasons(
         root,
-        "src-tauri/src/core/notify/slack.rs",
+        "crates/jobsentinel-core/src/core/notify/slack.rs",
       ),
       true,
     );
     assert.equal(
       hasExternalAlertRawScoreReasons(
         root,
-        "src-tauri/src/core/notify/email.rs",
+        "crates/jobsentinel-core/src/core/notify/email.rs",
       ),
       true,
     );
     assert.equal(
-      hasExternalAlertRawScoreReasons(root, "src-tauri/src/core/notify/mod.rs"),
+      hasExternalAlertRawScoreReasons(root, "crates/jobsentinel-core/src/core/notify/mod.rs"),
       false,
     );
   });
@@ -129,12 +129,12 @@ test("privacy logging rejects secret-bearing Debug derives", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src-tauri/src/core/config/mod.rs",
+      "crates/jobsentinel-core/src/core/config/mod.rs",
       "#[derive(Debug)]\npub struct Config {\n  api_key: String,\n}",
     );
 
     assert.equal(
-      hasSecretBearingDebugDerive(root, "src-tauri/src/core/config/mod.rs"),
+      hasSecretBearingDebugDerive(root, "crates/jobsentinel-core/src/core/config/mod.rs"),
       true,
     );
     assert.equal(
@@ -151,7 +151,7 @@ test("privacy logging rejects credential key echo and storage errors", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src-tauri/src/core/credentials/mod.rs",
+      "crates/jobsentinel-core/src/core/credentials/mod.rs",
       [
         'format!("Invalid credential key: {}", key);',
         'format!("Failed to store credential: {e}");',
@@ -159,18 +159,18 @@ test("privacy logging rejects credential key echo and storage errors", () => {
     );
 
     assert.equal(
-      hasCredentialKeyInputEcho(root, "src-tauri/src/core/credentials/mod.rs"),
+      hasCredentialKeyInputEcho(root, "crates/jobsentinel-core/src/core/credentials/mod.rs"),
       true,
     );
     assert.equal(
       hasRawCredentialStorageErrors(
         root,
-        "src-tauri/src/core/credentials/mod.rs",
+        "crates/jobsentinel-core/src/core/credentials/mod.rs",
       ),
       true,
     );
     assert.equal(
-      hasCredentialKeyInputEcho(root, "src-tauri/src/core/config/mod.rs"),
+      hasCredentialKeyInputEcho(root, "crates/jobsentinel-core/src/core/config/mod.rs"),
       false,
     );
   });
@@ -180,28 +180,28 @@ test("privacy logging rejects missing credential storage guardrails", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src-tauri/src/core/credentials/mod.rs",
+      "crates/jobsentinel-core/src/core/credentials/mod.rs",
       "pub enum CredentialKey {}\n",
     );
 
     assert.equal(
       hasMissingLinkedInCredentialStorageDisable(
         root,
-        "src-tauri/src/core/credentials/mod.rs",
+        "crates/jobsentinel-core/src/core/credentials/mod.rs",
       ),
       true,
     );
     assert.equal(
       hasMissingWebhookCredentialStorageValidation(
         root,
-        "src-tauri/src/core/credentials/mod.rs",
+        "crates/jobsentinel-core/src/core/credentials/mod.rs",
       ),
       true,
     );
     assert.equal(
       hasMissingLinkedInCredentialStorageDisable(
         root,
-        "src-tauri/src/core/config/mod.rs",
+        "crates/jobsentinel-core/src/core/config/mod.rs",
       ),
       false,
     );
@@ -317,31 +317,31 @@ test("privacy logging rejects raw notification request token errors", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src-tauri/src/core/notify/telegram.rs",
+      "crates/jobsentinel-core/src/core/notify/telegram.rs",
       "client.post(&api_url).send().await?",
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/core/notify/slack.rs",
+      "crates/jobsentinel-core/src/core/notify/slack.rs",
       "client.post(&config.webhook_url).send().await?",
     );
 
     assert.equal(
       hasRawTelegramBotTokenRequestError(
         root,
-        "src-tauri/src/core/notify/telegram.rs",
+        "crates/jobsentinel-core/src/core/notify/telegram.rs",
       ),
       true,
     );
     assert.equal(
       hasRawWebhookTokenRequestError(
         root,
-        "src-tauri/src/core/notify/slack.rs",
+        "crates/jobsentinel-core/src/core/notify/slack.rs",
       ),
       true,
     );
     assert.equal(
-      hasRawWebhookTokenRequestError(root, "src-tauri/src/core/notify/mod.rs"),
+      hasRawWebhookTokenRequestError(root, "crates/jobsentinel-core/src/core/notify/mod.rs"),
       false,
     );
   });
@@ -351,33 +351,33 @@ test("privacy logging rejects notification provider and service error details", 
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src-tauri/src/core/notify/discord.rs",
+      "crates/jobsentinel-core/src/core/notify/discord.rs",
       "let error_text = read_text_with_limit(response, 1024).await?; anyhow!(error_text);",
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/core/notify/mod.rs",
+      "crates/jobsentinel-core/src/core/notify/mod.rs",
       'tracing::warn!("notification failed: {}", e);',
     );
 
     assert.equal(
       hasRawNotificationProviderErrorBody(
         root,
-        "src-tauri/src/core/notify/discord.rs",
+        "crates/jobsentinel-core/src/core/notify/discord.rs",
       ),
       true,
     );
     assert.equal(
       hasRawNotificationServiceErrorDetails(
         root,
-        "src-tauri/src/core/notify/mod.rs",
+        "crates/jobsentinel-core/src/core/notify/mod.rs",
       ),
       true,
     );
     assert.equal(
       hasRawNotificationProviderErrorBody(
         root,
-        "src-tauri/src/core/notify/slack.rs",
+        "crates/jobsentinel-core/src/core/notify/slack.rs",
       ),
       false,
     );
@@ -388,26 +388,26 @@ test("privacy logging rejects raw source health errors", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src-tauri/src/core/health/smoke_tests.rs",
+      "crates/jobsentinel-core/src/core/health/smoke_tests.rs",
       ['"error": e.to_string(),', "error: Some(e.to_string()),"].join("\n"),
     );
 
     assert.equal(
       hasRawJobsWithGptSmokeEndpointError(
         root,
-        "src-tauri/src/core/health/smoke_tests.rs",
+        "crates/jobsentinel-core/src/core/health/smoke_tests.rs",
       ),
       true,
     );
     assert.equal(
       hasRawSourceCheckResultError(
         root,
-        "src-tauri/src/core/health/smoke_tests.rs",
+        "crates/jobsentinel-core/src/core/health/smoke_tests.rs",
       ),
       true,
     );
     assert.equal(
-      hasRawSourceCheckResultError(root, "src-tauri/src/core/health/mod.rs"),
+      hasRawSourceCheckResultError(root, "crates/jobsentinel-core/src/core/health/mod.rs"),
       false,
     );
   });
@@ -417,29 +417,29 @@ test("privacy logging rejects raw URL logs and URL error displays", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src-tauri/src/core/scrapers/url_utils.rs",
+      "crates/jobsentinel-core/src/core/scrapers/url_utils.rs",
       'tracing::debug!("Fetching URL: {}", url);',
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/core/scrapers/error.rs",
+      "crates/jobsentinel-core/src/core/scrapers/error.rs",
       '#[error("HTTP request failed for {url}: {source}")]\nstruct ScraperError;',
     );
 
     assert.equal(
-      hasRawUrlLogging(root, "src-tauri/src/core/scrapers/url_utils.rs"),
+      hasRawUrlLogging(root, "crates/jobsentinel-core/src/core/scrapers/url_utils.rs"),
       true,
     );
     assert.equal(
-      hasRawUrlLogging(root, "src-tauri/src/core/scrapers/mod.rs"),
+      hasRawUrlLogging(root, "crates/jobsentinel-core/src/core/scrapers/mod.rs"),
       false,
     );
     assert.equal(
-      hasRawUrlErrorDisplay(root, "src-tauri/src/core/scrapers/error.rs"),
+      hasRawUrlErrorDisplay(root, "crates/jobsentinel-core/src/core/scrapers/error.rs"),
       true,
     );
     assert.equal(
-      hasRawUrlErrorDisplay(root, "src-tauri/src/core/scrapers/mod.rs"),
+      hasRawUrlErrorDisplay(root, "crates/jobsentinel-core/src/core/scrapers/mod.rs"),
       false,
     );
   });
@@ -449,7 +449,7 @@ test("privacy logging rejects raw path, query, and config URL displays", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src-tauri/src/core/db/error.rs",
+      "crates/jobsentinel-core/src/core/db/error.rs",
       '#[error("database query failed: {query}")]\nstruct DbError;',
     );
     writeFixtureFile(
@@ -459,12 +459,12 @@ test("privacy logging rejects raw path, query, and config URL displays", () => {
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/core/config/validation_error.rs",
+      "crates/jobsentinel-core/src/core/config/validation_error.rs",
       'format!("Got: {}", url);',
     );
 
     assert.equal(
-      hasRawPathOrQueryErrorDisplay(root, "src-tauri/src/core/db/error.rs"),
+      hasRawPathOrQueryErrorDisplay(root, "crates/jobsentinel-core/src/core/db/error.rs"),
       true,
     );
     assert.equal(
@@ -474,7 +474,7 @@ test("privacy logging rejects raw path, query, and config URL displays", () => {
     assert.equal(
       hasRawConfigValidationUrlDisplay(
         root,
-        "src-tauri/src/core/config/validation_error.rs",
+        "crates/jobsentinel-core/src/core/config/validation_error.rs",
       ),
       true,
     );
@@ -489,7 +489,7 @@ test("privacy logging rejects raw resume command details", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src-tauri/src/core/resume/parser.rs",
+      "crates/jobsentinel-core/src/core/resume/parser.rs",
       "let shown = file_path.display();",
     );
     writeFixtureFile(
@@ -508,7 +508,7 @@ test("privacy logging rejects raw resume command details", () => {
     assert.equal(
       hasRawResumeParserPathDisplay(
         root,
-        "src-tauri/src/core/resume/parser.rs",
+        "crates/jobsentinel-core/src/core/resume/parser.rs",
       ),
       true,
     );
@@ -587,7 +587,7 @@ test("privacy logging rejects raw import URL and HTTP errors", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src-tauri/src/core/import/types.rs",
+      "crates/jobsentinel-core/src/core/import/types.rs",
       "Redirect blocked while fetching URL: {location}",
     );
     writeFixtureFile(
@@ -601,7 +601,7 @@ test("privacy logging rejects raw import URL and HTTP errors", () => {
     );
 
     assert.equal(
-      hasRawImportRedirectDisplay(root, "src-tauri/src/core/import/types.rs"),
+      hasRawImportRedirectDisplay(root, "crates/jobsentinel-core/src/core/import/types.rs"),
       true,
     );
     assert.equal(
@@ -623,16 +623,16 @@ test("privacy logging rejects non-public IP echo", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src-tauri/src/core/url_security.rs",
+      "crates/jobsentinel-core/src/core/url_security.rs",
       "return Err(format!(\"Blocked non-public IP address '{}'\", host));",
     );
 
     assert.equal(
-      hasNonPublicIpErrorEcho(root, "src-tauri/src/core/url_security.rs"),
+      hasNonPublicIpErrorEcho(root, "crates/jobsentinel-core/src/core/url_security.rs"),
       true,
     );
     assert.equal(
-      hasNonPublicIpErrorEcho(root, "src-tauri/src/core/import/types.rs"),
+      hasNonPublicIpErrorEcho(root, "crates/jobsentinel-core/src/core/import/types.rs"),
       false,
     );
   });

@@ -31,7 +31,7 @@ Specific evidence:
 - Nine JSON taxonomies under `src/shared/` are compiled into Rust with
   `include_str!`. Their current path incorrectly assigns cross-runtime product
   data to the frontend.
-- `src-tauri/src/core/` contains 342 files and more than 109,000 lines.
+- `crates/jobsentinel-core/src/core/` contains 342 files and more than 109,000 lines.
   `src-tauri/src/lib.rs` publicly exposes `commands`, `core`, and `platforms`,
   while `src-tauri/src/main.rs` contains about 500 lines of startup logic.
 - The backend had dependency cycles that required module repair before crate
@@ -44,7 +44,7 @@ Specific evidence:
   not cover a new root `crates/` directory.
 - CI, release packaging, dependency checks, SBOM generation, the doctor, and
   security sensors contain dozens of `src-tauri/Cargo.toml`,
-  `src-tauri/Cargo.lock`, `src-tauri/.sqlx`, and `src-tauri/target` assumptions.
+  `Cargo.lock`, `.sqlx`, and `target` assumptions.
 - Four production components, `AsyncButton.tsx`, `Icons.tsx`,
   `SkillCategoryFilter.tsx`, and `VirtualJobList.tsx`, currently have no
   production consumers. They have tests but should be deletion candidates,
@@ -452,8 +452,8 @@ npm run lint:bloat
 npm run lint:architecture
 npm run test:run
 npm run test:scripts
-(cd src-tauri && cargo test --lib core::config)
-(cd src-tauri && cargo test --lib taxonomy)
+cargo test -p jobsentinel-core --lib core::config
+cargo test -p jobsentinel-core --lib taxonomy
 npm run harness:check
 ```
 
@@ -492,26 +492,26 @@ loading, error, empty, or narrow-width behavior could change.
 Rollback: revert the current feature move only. Do not start another feature
 with a failing slice.
 
-### 3. Repair backend modules inside the existing crate
+### 3. Repair backend modules before extraction
 
-- [ ] Introduce owner-neutral job record and normalization modules, then remove
+- [x] Introduce owner-neutral job record and normalization modules, then remove
   the `job_hash` to scraper and scraper to database model cycles.
-- [ ] Break the `db` and `credentials` cycle without changing vault, keyring,
+- [x] Break the `db` and `credentials` cycle without changing vault, keyring,
   migration, or local database behavior.
-- [ ] Group command-independent logic behind bounded-context facades while it
-  still lives under `src-tauri/src/core/`.
-- [ ] Make leaf modules private and move tests beside their owning facade.
-- [ ] Replace integration-test imports of implementation paths with public
+- [x] Group command-independent logic behind bounded-context facades while it
+  still lives under `crates/jobsentinel-core/src/core/`.
+- [x] Make leaf modules private and move tests beside their owning facade.
+- [x] Replace integration-test imports of implementation paths with public
   behavior APIs.
-- [ ] Update `ARCHITECTURE_CORE.md` to describe observed dependency direction,
+- [x] Update `ARCHITECTURE_CORE.md` to describe observed dependency direction,
   including OS-aware adapters.
 
 Per-slice acceptance:
 
 ```bash
-(cd src-tauri && cargo fmt --all -- --check)
-(cd src-tauri && cargo clippy -- -D warnings)
-(cd src-tauri && cargo test --lib <owning-module>)
+cargo fmt --all -- --check
+cargo clippy --workspace -- -D warnings
+cargo test -p <owning-package> --lib <owning-module>
 npm run lint:tauri-invokes
 npm run lint:security
 npm run harness:check
@@ -525,22 +525,22 @@ credential formats.
 
 ### 4. Create the explicit workspace and extract core
 
-- [ ] Add the root virtual `Cargo.toml` with the two literal members.
-- [ ] Move shared Cargo metadata, dependency versions, lint policy, release
+- [x] Add the root virtual `Cargo.toml` with the two literal members.
+- [x] Move shared Cargo metadata, dependency versions, lint policy, release
   profile, lockfile, Cargo config, Clippy config, and cargo-deny config to root.
-- [ ] Add `crates/jobsentinel-core/Cargo.toml` using workspace inheritance.
-- [ ] Move the curated Tauri-free core modules and their integration tests to
+- [x] Add `crates/jobsentinel-core/Cargo.toml` using workspace inheritance.
+- [x] Move the curated Tauri-free core modules and their integration tests to
   `crates/jobsentinel-core/`.
-- [ ] Move SQLx migrations to the core owner, update compile-time migration
+- [x] Move SQLx migrations to the core owner, update compile-time migration
   paths, and place offline metadata at the workspace-owned path selected by a
   clean `cargo sqlx prepare` run.
-- [ ] Keep platform-specific core dependencies target-gated and preserve
+- [x] Keep platform-specific core dependencies target-gated and preserve
   Windows, macOS, and Linux compilation contracts.
-- [ ] Update `src-tauri/Cargo.toml` to depend on `jobsentinel-core` by path and
+- [x] Update `src-tauri/Cargo.toml` to depend on `jobsentinel-core` by path and
   retain only Tauri app dependencies.
-- [ ] Update CI change classification, Cargo cache roots, dependency checks,
+- [x] Update CI change classification, Cargo cache roots, dependency checks,
   SBOM input, doctor checks, security sensors, and docs.
-- [ ] Use the standard root `target/` directory unless release dry runs prove a
+- [x] Use the standard root `target/` directory unless release dry runs prove a
   Tauri incompatibility. Update every package path atomically if selected.
 
 Acceptance:
@@ -567,15 +567,15 @@ old target-path contract together. Do not leave split Cargo policy behind.
 
 ### 5. Thin the Tauri application shell and IPC router
 
-- [ ] Move startup orchestration from `main.rs` into private app modules behind
+- [x] Move startup orchestration from `main.rs` into private app modules behind
   `pub fn run()` in `src-tauri/src/lib.rs`.
-- [ ] Reduce `main.rs` to platform attributes plus the app entrypoint call.
-- [ ] Keep `commands/` and command registration private to the app crate.
-- [ ] Group command implementation files by bounded context while preserving
+- [x] Reduce `main.rs` to platform attributes plus the app entrypoint call.
+- [x] Keep `commands/` and command registration private to the app crate.
+- [x] Group command implementation files by bounded context while preserving
   every IPC command name and serialized contract.
-- [ ] Move business rules out of command files into core APIs; commands retain
+- [x] Move business rules out of command files into core APIs; commands retain
   argument validation, state access, error translation, and response mapping.
-- [ ] Keep one explicit command registry and update the invoke contract sensor
+- [x] Keep one explicit command registry and update the invoke contract sensor
   to read it without requiring public command modules.
 
 Acceptance:
@@ -695,14 +695,6 @@ must belong to this plan and no build output or one-off report may be added.
 
 ## Verification
 
-Current assessment baseline on 2026-07-13:
-
-```text
-npm run lint:bloat         passed
-npm run lint:architecture  passed
-npm run harness:check      passed
-```
-
 Focused checks are listed under each milestone. Final completion requires:
 
 ```bash
@@ -734,6 +726,7 @@ evidence-log entry.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-07-13 | Milestones 3, 4, and 5 complete | Broke the database, credential, job-record, and normalization cycles, then created the two-member virtual Cargo workspace and extracted the Tauri-free core owner. Root Cargo policy, migrations, SQLx metadata, integration tests, CI, packaging paths, dependency checks, and security sensors now follow the new owner. The Tauri executable is a 5-line entrypoint, command modules are private, and one explicit registry retains all IPC names. The 769-test script harness, Cargo metadata, formatting, workspace Clippy, cargo-deny, fresh migration and SQLx checks, 184 app tests, 2,769 core unit tests, and every moved integration suite pass. |
 | 2026-07-13 | Milestone 3 in progress | Moved the canonical `Job` record out of database ownership and moved title, location, and URL normalization out of scraper ownership behind a public facade with private leaves. Database encryption now uses the private secure-storage namespace and owns its random key creation instead of importing credentials. The architecture sensor rejects all three former dependency directions before crate extraction. All 4 hash tests, 47 normalization tests, 289 database tests, 537 scraper tests, 34 credential tests, 10 focused architecture tests, the zero-copy integration test, Rust formatting, and Clippy pass. |
 | 2026-07-13 | Milestone 2 complete | Completed frontend ownership with a 32-line development command facade, 183-line explicit registry, 202-line state adapter layer, 244-line persisted-state owner, and feature-owned command behavior. Split the 1,127-line root test by owner and updated privacy, IPC, source, and command-completeness sensors to follow the new boundaries. All 2,931 frontend tests across 209 files, 766 script tests, the production build, and TypeScript, ESLint, architecture, bloat, security, language, duplication, and test-quality gates pass. |
 | 2026-07-13 | Milestone 2 in progress | Split the mixed user-data development mock into Applications-owned cover-letter templates, Dashboard-owned saved searches and search history, and Settings-owned notification preferences. Moved normalization and direct command tests with each owner, retained backend command names and persisted development state, and deleted the 389-line mixed handler plus 303-line mixed normalizer. All 16 focused tests, 2,920 frontend tests across 200 files, the 820-module build, TypeScript, ESLint, architecture, bloat, duplication, and test-quality gates pass. |
@@ -781,6 +774,11 @@ evidence-log entry.
 - Advanced profile JSON files and the in-app career profile taxonomy serve
   different schemas, but their current root placement obscures that the JSON
   files are contributor examples rather than runtime product data.
+- App-crate unit tests compile `jobsentinel-core` as a normal dependency, so
+  core-only `cfg(test)` credential isolation does not protect an app test that
+  calls a production database connector. Setup command tests now inject the
+  in-memory database connector explicitly, and live keyring tests remain gated
+  by `JOBSENTINEL_LIVE_KEYRING_TESTS=1`.
 
 ## Decisions
 
@@ -806,6 +804,8 @@ evidence-log entry.
   no-I/O loading and cache machinery, and retain legacy local-cache cleanup.
 - Treat v2.9.5 as a readiness target only until release execution is explicitly
   authorized.
+- Keep the default workspace test path free of operating-system credential
+  prompts. Credential-store round trips remain explicit live tests.
 
 ## Outcomes
 
@@ -874,25 +874,27 @@ evidence-log entry.
 - Settings company-preference field names changed. Read-only deserialize aliases
   preserve existing local values, and all newly saved data uses the new names.
   No privacy, credential, consent, or external-side-effect boundary changed.
+- Milestone 3 is complete. The canonical job record and normalization contract
+  have owner-neutral facades, database encryption no longer imports credential
+  ownership, leaf modules are private, and integration tests consume public
+  behavior APIs.
+- Milestone 4 is complete. The root virtual Cargo workspace has exactly
+  `crates/jobsentinel-core` and `src-tauri` as literal members. Members inherit
+  package metadata, exact dependency pins, lint policy, and release policy.
+  Root Cargo configuration, lock data, cargo-deny policy, SQLx metadata, target
+  output, CI, release tooling, and platform artifact fixtures follow the new
+  layout. Core owns migrations and all Tauri-free backend implementation.
+- Milestone 5 is complete. `src-tauri/src/main.rs` contains only its platform
+  attribute and app call, `src-tauri/src/lib.rs` exposes only `run()`, app and
+  command implementation modules are private, and the explicit IPC registry
+  remains the single command source of truth.
 
 ## Handoff
 
-- Current state: repo-wide structure audited; target ownership and migration
-  order documented; privacy is the immutable product boundary; Milestones 0,
-  1, and 2 are complete. Milestone 2 has app, Salary, Hiring Trends, Application
-  Assist, Applications tracking, first-run Onboarding, Dashboard job discovery,
-  Resume library, builder and matching, Settings, Search Links, LinkedIn
-  Workbench, Company Research, and reusable UI ownership established with
-  passing focused, full frontend, build, repository, and E2E checks. The root
-  components, contexts, hooks, pages, services, and utilities buckets are gone.
-  Shared Tauri, location, source guidance, contact-field, date, currency,
-  browser-download, support-report, and external-AI contracts have passing
-  evidence. Development commands, state, privacy sensors, and tests now have
-  explicit runtime or feature owners behind a 32-line public facade.
-- Evidence: live manifests, imports, file counts, module graph, SQLx paths, CI,
-  release scripts, harness sensors, Tamworth, and persona were inspected on 2026-07-13.
-- Next step: repair the backend module cycles inside the existing crate, then
-  prove the Tauri-free core boundary before any crate extraction.
-- Open risks: final SQLx offline metadata location and root Cargo target paths
-  must be proven in isolated workspace and release fixtures before old paths are
-  removed.
+- Current state: Milestones 0 through 5 are complete with passing focused and
+  full evidence. Privacy remains immutable.
+- Next step: rebuild script and harness ownership, then perform the mandatory
+  full repository cleanup and final file-cap cutover.
+- Open risks: Windows and Linux platform builds still require their final live
+  release-readiness hosts. Current cross-platform evidence is contract and
+  release-fixture coverage plus target-gated manifests; macOS is live-checked.

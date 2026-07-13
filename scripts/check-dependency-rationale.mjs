@@ -29,11 +29,15 @@ function directNpmDependencies(root) {
 }
 
 function directCargoDependencies(root) {
-  const cargoToml = join(root, "src-tauri/Cargo.toml");
+  const cargoToml = join(root, "Cargo.toml");
   if (!existsSync(cargoToml)) {
     return new Set();
   }
-  return new Set(collectCargoDependencySpecs(readFileSync(cargoToml, "utf8")).map((spec) => spec.name));
+  return new Set(
+    collectCargoDependencySpecs(readFileSync(cargoToml, "utf8"))
+      .filter((spec) => !spec.path)
+      .map((spec) => spec.name),
+  );
 }
 
 function hasReason(reasons, name) {

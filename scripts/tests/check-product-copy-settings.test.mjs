@@ -555,7 +555,7 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/core/scrapers/error.rs",
+      "crates/jobsentinel-core/src/core/scrapers/error.rs",
       [
         "pub fn user_message(&self) -> String {",
         '  "CAPTCHA detected. Please complete the challenge in your browser.".to_string()',
@@ -567,7 +567,7 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/core/automation/error.rs",
+      "crates/jobsentinel-core/src/core/automation/error.rs",
       [
         "pub fn user_message(&self) -> String {",
         '  "Failed to launch browser. Please ensure Chrome is installed.".to_string()',
@@ -785,7 +785,7 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/core/resume/ats_analyzer.rs",
+      "crates/jobsentinel-core/src/core/resume/ats_analyzer.rs",
       [
         'impact: "High".to_string(),',
         'suggestion: format!("Start bullet with action verb: {}", bullet),',
@@ -819,9 +819,9 @@ test("product copy rejects technical-first settings copy", () => {
       "docs/features/smart-scoring.md",
       "docs/user/DEEP_LINKS.md",
       "docs/user/QUICK_START.md",
-      "src-tauri/src/core/automation/error.rs",
-      "src-tauri/src/core/resume/ats_analyzer.rs",
-      "src-tauri/src/core/scrapers/error.rs",
+      "crates/jobsentinel-core/src/core/automation/error.rs",
+      "crates/jobsentinel-core/src/core/resume/ats_analyzer.rs",
+      "crates/jobsentinel-core/src/core/scrapers/error.rs",
       "src/features/applications/AnalyticsPanel.tsx",
       "src/components/AsyncButton.tsx",
       "src/features/resumes/builder/AtsLiveScorePanel.tsx",

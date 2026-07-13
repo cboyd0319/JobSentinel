@@ -180,7 +180,7 @@ async fn scraper_uses_cache_on_second_fetch() {
 For the cache module itself, run:
 
 ```bash
-cd src-tauri && cargo test cache --lib -- --test-threads=1
+cargo test -p jobsentinel-core --lib cache -- --test-threads=1
 ```
 
 ## Limitations

@@ -24,7 +24,7 @@ const ignoredPathPrefixes = [
   "dist/",
   "node_modules/",
   "playwright-report/",
-  "src-tauri/target/",
+  "target/",
   "target/",
   "test-results/",
   "tmp/",

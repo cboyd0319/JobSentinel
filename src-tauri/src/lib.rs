@@ -47,18 +47,16 @@
 #![allow(clippy::ignored_unit_patterns)]
 #![allow(clippy::implicit_hasher)]
 
-pub mod commands;
-/// JobSentinel Core Library
-///
-/// This library contains all platform-agnostic business logic for the desktop app.
-// Re-export core modules
-pub mod core;
-pub mod platforms;
+extern crate self as jobsentinel;
 
-// Re-export commonly used types
-pub use core::config::Config;
-pub use core::notify::{Notification, NotificationService};
-pub use core::scheduler::{ScheduleConfig, Scheduler};
-pub use core::scoring::{JobScore, ScoringEngine};
-pub use core::scrapers::{JobScraper, ScraperResult};
-pub use core::{db::Database, Job};
+use jobsentinel_core as core;
+use jobsentinel_core::platforms;
+
+mod app;
+mod command_handlers;
+mod commands;
+
+/// Start the JobSentinel desktop application.
+pub fn run() {
+    app::run();
+}

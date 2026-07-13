@@ -118,10 +118,11 @@ test("generateReleaseSbom writes SPDX, manifest, and installable attestation che
   );
   writeFileSync(
     join(root, "src-tauri/Cargo.toml"),
-    '[package]\nname = "jobsentinel"\nversion = "9.9.9"\nlicense = "MIT"\n',
+    '[package]\nname = "jobsentinel"\nversion.workspace = true\nlicense = "MIT"\n',
   );
+  writeFileSync(join(root, "Cargo.toml"), '[workspace.package]\nversion = "9.9.9"\n');
   writeFileSync(
-    join(root, "src-tauri/Cargo.lock"),
+    join(root, "Cargo.lock"),
     `
 [[package]]
 name = "jobsentinel"
@@ -201,8 +202,9 @@ test("generateReleaseSbom rejects required artifact mode without installable fil
   mkdirSync(join(root, "src-tauri"), { recursive: true });
   mkdirSync(join(root, "release-assets/public"), { recursive: true });
   writeFileSync(join(root, "package.json"), JSON.stringify({ name: "jobsentinel", version: "9.9.9" }));
-  writeFileSync(join(root, "src-tauri/Cargo.toml"), '[package]\nname = "jobsentinel"\nversion = "9.9.9"\n');
-  writeFileSync(join(root, "src-tauri/Cargo.lock"), "");
+  writeFileSync(join(root, "src-tauri/Cargo.toml"), '[package]\nname = "jobsentinel"\nversion.workspace = true\n');
+  writeFileSync(join(root, "Cargo.toml"), '[workspace.package]\nversion = "9.9.9"\n');
+  writeFileSync(join(root, "Cargo.lock"), "");
 
   await assert.rejects(
     generateReleaseSbom({

@@ -20,8 +20,6 @@ scripts/check-security-sensors.mjs @cboyd0319
 scripts/tests/check-security-sensors.test.mjs @cboyd0319
 scripts/security/ @cboyd0319
 src-tauri/Cargo.toml @cboyd0319
-src-tauri/Cargo.lock @cboyd0319
-src-tauri/deny.toml @cboyd0319
 
 # Agent and AI behavior controls.
 AGENTS.md @cboyd0319
@@ -34,6 +32,6 @@ SECURITY.md @cboyd0319
 docs/security/ @cboyd0319
 src-tauri/capabilities/ @cboyd0319
 src-tauri/tauri.conf.json @cboyd0319
-src-tauri/src/core/bookmarklet/ @cboyd0319
-src-tauri/src/core/credentials/ @cboyd0319
-src-tauri/src/core/url_security.rs @cboyd0319
+crates/jobsentinel-core/src/core/bookmarklet/ @cboyd0319
+crates/jobsentinel-core/src/core/credentials/ @cboyd0319
+crates/jobsentinel-core/src/core/url_security.rs @cboyd0319

@@ -59,9 +59,11 @@ jobs:
               .github/workflows/ci.yml \
               package.json \
               package-lock.json \
-              src-tauri/Cargo.lock \
+              Cargo.toml \
+              Cargo.lock \
+              crates/jobsentinel-core/Cargo.toml \
               src-tauri/Cargo.toml \
-              src-tauri/deny.toml \
+              deny.toml \
               > changed-files.txt
           elif [ "$event" = "pull_request" ]; then
             git diff --name-only "$PR_BASE_SHA" "$GITHUB_SHA" > changed-files.txt
@@ -102,7 +104,7 @@ jobs:
             esac
 
             case "$path" in
-              AGENTS.md|CLAUDE.md|docs/CLAUDE.md|CODEX.md|GEMINI.md|.cursorrules|.windsurfrules|.cursor/rules/*|.github/copilot-instructions.md|.github/instructions/*.instructions.md|package.json|package-lock.json|Cargo.toml|Cargo.lock|deny.toml|crates/*/Cargo.toml|src-tauri/Cargo.toml|src-tauri/Cargo.lock|src-tauri/deny.toml|.github/dependabot.yml|.github/workflows/*)
+              AGENTS.md|CLAUDE.md|docs/CLAUDE.md|CODEX.md|GEMINI.md|.cursorrules|.windsurfrules|.cursor/rules/*|.github/copilot-instructions.md|.github/instructions/*.instructions.md|package.json|package-lock.json|Cargo.toml|Cargo.lock|deny.toml|crates/*/Cargo.toml|src-tauri/Cargo.toml|.github/dependabot.yml|.github/workflows/*)
                 security=true
                 ;;
             esac
@@ -190,10 +192,9 @@ jobs:
       - name: Cache cargo
         uses: Swatinem/rust-cache@c19371144df3bb44fab255c43d04cbc2ab54d1c4 # v2.9.1
         with:
-          workspaces: src-tauri
+          workspaces: "."
 
       - name: Check formatting
-        working-directory: src-tauri
         run: cargo fmt --all -- --check
 
       - name: Install system dependencies
@@ -207,12 +208,10 @@ jobs:
             librsvg2-dev=2.58.0+dfsg-1build1
 
       - name: Run clippy
-        working-directory: src-tauri
-        run: cargo clippy -- -D warnings
+        run: cargo clippy --workspace -- -D warnings
 
       - name: Run tests
-        working-directory: src-tauri
-        run: cargo test --lib
+        run: cargo test --workspace
 
   test-frontend:
     needs: changes
@@ -311,11 +310,10 @@ jobs:
       - name: Cache cargo
         uses: Swatinem/rust-cache@c19371144df3bb44fab255c43d04cbc2ab54d1c4 # v2.9.1
         with:
-          workspaces: src-tauri
+          workspaces: "."
 
       - name: Install cargo-deny
         run: cargo install cargo-deny --version 0.19.9 --locked
 
       - name: cargo deny supply-chain policy
-        working-directory: src-tauri
         run: cargo deny check advisories bans licenses sources

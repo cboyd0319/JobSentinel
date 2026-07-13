@@ -2,12 +2,11 @@ import { spawnSync } from "node:child_process";
 import { join } from "node:path";
 
 export function collectCargoCompatibleUpdateViolations(root, { spawn = spawnSync } = {}) {
-  const srcTauriRoot = join(root, "src-tauri");
   const result = spawn(
     "cargo",
-    ["update", "--dry-run", "--verbose", "--manifest-path", join(srcTauriRoot, "Cargo.toml")],
+    ["update", "--dry-run", "--verbose", "--manifest-path", join(root, "Cargo.toml")],
     {
-      cwd: srcTauriRoot,
+      cwd: root,
       encoding: "utf8",
       maxBuffer: 1024 * 1024 * 10,
     },

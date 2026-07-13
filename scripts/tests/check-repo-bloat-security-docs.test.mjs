@@ -86,7 +86,7 @@ test("checkRepoBloat rejects unsafe keyring migration and stale credential comme
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/core/credentials/mod.rs",
+      "crates/jobsentinel-core/src/core/credentials/mod.rs",
       [
         "//! - Frontend uses `tauri-plugin-secure-storage` JS API",
         "//!   set_item, get_item, remove_item",
@@ -97,7 +97,7 @@ test("checkRepoBloat rejects unsafe keyring migration and stale credential comme
 
     execFileSync(
       "git",
-      ["add", "package.json", "src-tauri/src/main.rs", "src-tauri/src/core/credentials/mod.rs"],
+      ["add", "package.json", "src-tauri/src/main.rs", "crates/jobsentinel-core/src/core/credentials/mod.rs"],
       { cwd: root },
     );
 
@@ -109,7 +109,7 @@ test("checkRepoBloat rejects unsafe keyring migration and stale credential comme
     );
     assert.ok(
       violations.includes(
-        "sync credential architecture comments: src-tauri/src/core/credentials/mod.rs",
+        "sync credential architecture comments: crates/jobsentinel-core/src/core/credentials/mod.rs",
       ),
       violations.join("\n"),
     );

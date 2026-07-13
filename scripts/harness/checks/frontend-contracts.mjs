@@ -152,7 +152,7 @@ export function hasStaleAtsKeywordMatchFrontendShape(root, path) {
 }
 
 const resumeSuggestionCategoryPaths = new Set([
-  "src-tauri/src/core/resume/ats_analyzer.rs",
+  "crates/jobsentinel-core/src/core/resume/ats_analyzer.rs",
   "src/features/resumes/matching/ResumeMatchPage.tsx",
   "src/features/resumes/matching/resumeMatchModel.ts",
   "src/features/resumes/builder/AtsLiveScorePanel.tsx",
@@ -175,7 +175,7 @@ function readOptionalFile(root, path) {
 }
 
 function collectBackendResumeSuggestionCategories(root) {
-  const text = readOptionalFile(root, "src-tauri/src/core/resume/ats_analyzer.rs");
+  const text = readOptionalFile(root, "crates/jobsentinel-core/src/core/resume/ats_analyzer.rs");
   const enumBody = /pub\s+enum\s+SuggestionCategory\s*\{(?<body>[\s\S]*?)\n\}/.exec(text)
     ?.groups?.body;
 

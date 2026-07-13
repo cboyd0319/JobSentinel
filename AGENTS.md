@@ -93,12 +93,15 @@ product: an undocumented change does not exist. See
 ## Architecture Boundaries
 
 - `src/`: React UI, hooks, contexts, services, and frontend tests.
-- `src-tauri/src/commands/`: Tauri IPC handlers. Return typed results or clear
+- `Cargo.toml`: explicit two-member virtual workspace and shared Cargo policy.
+- `crates/jobsentinel-core/`: Tauri-free business logic, platform adapters,
+  migrations, and core integration tests.
+- `src-tauri/src/commands/`: private Tauri IPC handlers. Return typed results or clear
   error strings.
-- `src-tauri/src/core/`: platform-neutral business logic.
-- `src-tauri/src/core/scrapers/`: job board adapters with rate limits and
+- `crates/jobsentinel-core/src/core/`: platform-neutral business logic.
+- `crates/jobsentinel-core/src/core/scrapers/`: job board adapters with rate limits and
   structured `ScraperError` handling.
-- `src-tauri/migrations/`: SQLite migrations. Update SQLx offline data after
+- `crates/jobsentinel-core/migrations/`: SQLite migrations. Update SQLx offline data after
   schema changes.
 - `docs/`: system of record for product behavior, architecture, plans, and
   harness rules.
@@ -116,15 +119,15 @@ npm run test:run
 npm run test:e2e
 npm run test:e2e:all
 npm run build
-cd src-tauri && cargo fmt --all -- --check
-cd src-tauri && cargo clippy -- -D warnings
-cd src-tauri && cargo test --lib
+cargo fmt --all -- --check
+cargo clippy --workspace -- -D warnings
+cargo test --workspace
 ```
 
 After schema changes:
 
 ```bash
-cd src-tauri && DATABASE_URL="sqlite:jobs.db" cargo sqlx prepare
+DATABASE_URL="sqlite:jobs.db" cargo sqlx prepare --workspace
 ```
 
 ## Documentation

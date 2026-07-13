@@ -80,9 +80,9 @@ npm run lint
 npm run test:run
 npm run test:e2e:all
 npm run build
-cargo fmt --manifest-path src-tauri/Cargo.toml --all -- --check
-cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings
-cargo test --manifest-path src-tauri/Cargo.toml
+cargo fmt --all -- --check
+cargo clippy --workspace -- -D warnings
+cargo test --workspace
 ```
 
 Create and push the version tag:
@@ -177,18 +177,18 @@ cost, or replacing a broken public Mac asset outside normal tag CI:
 ```bash
 # macOS (from Mac)
 npm run tauri:build:macos
-# Output: src-tauri/target/release/bundle/dmg/JobSentinel_*.dmg
-# Checksum: src-tauri/target/release/bundle/dmg/JobSentinel_*.dmg.sha256
+# Output: target/release/bundle/dmg/JobSentinel_*.dmg
+# Checksum: target/release/bundle/dmg/JobSentinel_*.dmg.sha256
 
 # macOS universal binary (Intel + Apple Silicon)
 rustup target add aarch64-apple-darwin x86_64-apple-darwin
 npm run tauri:build:macos -- --target universal-apple-darwin
-# Output: src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_*_universal.dmg
-# Checksum: src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_*_universal.dmg.sha256
+# Output: target/universal-apple-darwin/release/bundle/dmg/JobSentinel_*_universal.dmg
+# Checksum: target/universal-apple-darwin/release/bundle/dmg/JobSentinel_*_universal.dmg.sha256
 
 # Verify macOS package integrity locally
 npm run tauri:verify:macos -- \
-  --dmg src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_*_universal.dmg \
+  --dmg target/universal-apple-darwin/release/bundle/dmg/JobSentinel_*_universal.dmg \
   --expected-architectures x86_64,arm64 \
   --expected-bundle-id com.jobsentinel.main \
   --expected-product-name JobSentinel \
@@ -201,7 +201,7 @@ npm run tauri:verify:macos -- \
 
 # Developer ID public macOS release gate
 npm run tauri:verify:macos -- \
-  --dmg src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_*_universal.dmg \
+  --dmg target/universal-apple-darwin/release/bundle/dmg/JobSentinel_*_universal.dmg \
   --expected-architectures x86_64,arm64 \
   --expected-bundle-id com.jobsentinel.main \
   --expected-product-name JobSentinel \
@@ -240,7 +240,7 @@ and then run the public verifier:
 JOBSENTINEL_MACOS_NO_ACCOUNT=true npm run tauri:build:macos -- --target universal-apple-darwin
 
 npm run tauri:verify:macos -- \
-  --dmg src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_X.Y.Z_no-account_universal.dmg \
+  --dmg target/universal-apple-darwin/release/bundle/dmg/JobSentinel_X.Y.Z_no-account_universal.dmg \
   --expected-architectures x86_64,arm64 \
   --expected-bundle-id com.jobsentinel.main \
   --expected-product-name JobSentinel \
@@ -252,8 +252,8 @@ npm run tauri:verify:macos -- \
   --require-checksum
 
 mkdir -p release-assets/public
-cp src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_X.Y.Z_no-account_universal.dmg release-assets/public/
-cp src-tauri/target/universal-apple-darwin/release/bundle/dmg/JobSentinel_X.Y.Z_no-account_universal.dmg.sha256 release-assets/public/
+cp target/universal-apple-darwin/release/bundle/dmg/JobSentinel_X.Y.Z_no-account_universal.dmg release-assets/public/
+cp target/universal-apple-darwin/release/bundle/dmg/JobSentinel_X.Y.Z_no-account_universal.dmg.sha256 release-assets/public/
 npm run release:sbom -- \
   --platform macos \
   --version X.Y.Z \
@@ -295,20 +295,20 @@ ready.
 ```bash
 # Windows (from Windows machine or VM)
 npm run tauri build
-# Output: src-tauri/target/release/bundle/msi/JobSentinel_*.msi
-# Output: src-tauri/target/release/bundle/nsis/JobSentinel_*.exe
-Get-AuthenticodeSignature src-tauri/target/release/bundle/msi/JobSentinel_*.msi
-Get-AuthenticodeSignature src-tauri/target/release/bundle/nsis/JobSentinel_*.exe
+# Output: target/release/bundle/msi/JobSentinel_*.msi
+# Output: target/release/bundle/nsis/JobSentinel_*.exe
+Get-AuthenticodeSignature target/release/bundle/msi/JobSentinel_*.msi
+Get-AuthenticodeSignature target/release/bundle/nsis/JobSentinel_*.exe
 
 # Linux (from Linux)
 APPIMAGE_EXTRACT_AND_RUN=1 npx --no-install tauri build --target x86_64-unknown-linux-gnu
-# Output: src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/
-file src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/*.AppImage
-dpkg-deb --info src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/deb/*.deb
-dpkg-deb --contents src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/deb/*.deb >/dev/null
+# Output: target/x86_64-unknown-linux-gnu/release/bundle/
+file target/x86_64-unknown-linux-gnu/release/bundle/appimage/*.AppImage
+dpkg-deb --info target/x86_64-unknown-linux-gnu/release/bundle/deb/*.deb
+dpkg-deb --contents target/x86_64-unknown-linux-gnu/release/bundle/deb/*.deb >/dev/null
 for asset in \
-  src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/appimage/*.AppImage \
-  src-tauri/target/x86_64-unknown-linux-gnu/release/bundle/deb/*.deb; do
+  target/x86_64-unknown-linux-gnu/release/bundle/appimage/*.AppImage \
+  target/x86_64-unknown-linux-gnu/release/bundle/deb/*.deb; do
   sha256sum "$asset" > "$asset.sha256"
 done
 ```

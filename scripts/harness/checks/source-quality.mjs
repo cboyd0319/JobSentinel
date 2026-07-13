@@ -2,10 +2,10 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 const databaseLogEmojiPaths = new Set([
-  "src-tauri/src/core/db/connection.rs",
-  "src-tauri/src/core/db/integrity/backups.rs",
-  "src-tauri/src/core/db/integrity/diagnostics.rs",
-  "src-tauri/src/core/db/integrity/mod.rs",
+  "crates/jobsentinel-core/src/core/db/connection.rs",
+  "crates/jobsentinel-core/src/core/db/integrity/backups.rs",
+  "crates/jobsentinel-core/src/core/db/integrity/diagnostics.rs",
+  "crates/jobsentinel-core/src/core/db/integrity/mod.rs",
 ]);
 
 const scoreReasonJsonParserPaths = new Set([
@@ -48,18 +48,18 @@ const rawSalaryCommandLoggingPaths = new Set([
 ]);
 
 const backendScoringReasonPaths = new Set([
-  "src-tauri/src/core/resume/matcher.rs",
-  "src-tauri/src/core/scoring/mod.rs",
-  "src-tauri/src/core/scoring/remote.rs",
+  "crates/jobsentinel-core/src/core/resume/matcher.rs",
+  "crates/jobsentinel-core/src/core/scoring/mod.rs",
+  "crates/jobsentinel-core/src/core/scoring/remote.rs",
 ]);
 
 const notificationScoringReasonPaths = new Set([
-  "src-tauri/src/core/notify/discord.rs",
-  "src-tauri/src/core/notify/email.rs",
-  "src-tauri/src/core/notify/mod.rs",
-  "src-tauri/src/core/notify/slack.rs",
-  "src-tauri/src/core/notify/teams.rs",
-  "src-tauri/src/core/notify/telegram.rs",
+  "crates/jobsentinel-core/src/core/notify/discord.rs",
+  "crates/jobsentinel-core/src/core/notify/email.rs",
+  "crates/jobsentinel-core/src/core/notify/mod.rs",
+  "crates/jobsentinel-core/src/core/notify/slack.rs",
+  "crates/jobsentinel-core/src/core/notify/teams.rs",
+  "crates/jobsentinel-core/src/core/notify/telegram.rs",
 ]);
 
 export function hasRawSalaryCommandLogging(root, path) {
@@ -125,7 +125,7 @@ export function hasFrontendStatusEmojiMarkers(root, path) {
 }
 
 export function hasStaleScrapeAllStub(root, path) {
-  if (path !== "src-tauri/src/core/scrapers/mod.rs") {
+  if (path !== "crates/jobsentinel-core/src/core/scrapers/mod.rs") {
     return false;
   }
 
@@ -137,7 +137,7 @@ export function hasStaleScrapeAllStub(root, path) {
 }
 
 export function hasStaleResumeExportPdfStub(root, path) {
-  if (path !== "src-tauri/src/core/resume/export.rs") {
+  if (path !== "crates/jobsentinel-core/src/core/resume/export.rs") {
     return false;
   }
 
@@ -170,7 +170,7 @@ export function hasDatabaseLogEmojiMarkers(root, path) {
 }
 
 export function hasUnverifiedPreMigrationBackup(root, path) {
-  if (path !== "src-tauri/src/core/db/connection.rs") {
+  if (path !== "crates/jobsentinel-core/src/core/db/connection.rs") {
     return false;
   }
 

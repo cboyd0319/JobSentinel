@@ -8,6 +8,7 @@ use crate::core::ml::{load_model_manifest, model_lock_hash, ModelKind, ModelMana
 use crate::platforms;
 
 #[derive(Debug, Clone, serde::Serialize)]
+#[cfg_attr(not(feature = "embedded-ml"), allow(dead_code))]
 #[serde(rename_all = "snake_case")]
 pub enum SemanticMatchingRuntimeStatus {
     Ready,

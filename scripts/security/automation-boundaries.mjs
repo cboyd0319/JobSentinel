@@ -23,7 +23,7 @@ function includesAll(text, phrases) {
 export function checkBrowserAutomationBoundary(root, violations) {
   const page = readIfExists(
     root,
-    "src-tauri/src/core/automation/browser/page.rs",
+    "crates/jobsentinel-core/src/core/automation/browser/page.rs",
     violations,
   );
 

@@ -313,8 +313,8 @@ export function getTechnicalFirstDocsResult(path, text) {
   }
 
   if (
-    path === "src-tauri/src/core/automation/error.rs" ||
-    path === "src-tauri/src/core/scrapers/error.rs"
+    path === "crates/jobsentinel-core/src/core/automation/error.rs" ||
+    path === "crates/jobsentinel-core/src/core/scrapers/error.rs"
   ) {
     const start = text.indexOf("pub fn user_message");
     const end = text.indexOf("/// Sanitize", start);
@@ -407,11 +407,11 @@ export function getTechnicalFirstDocsResult(path, text) {
   }
 
   if (
-    path === "src-tauri/src/core/resume/matcher.rs" ||
-    path === "src-tauri/src/core/resume/ats_analyzer.rs" ||
+    path === "crates/jobsentinel-core/src/core/resume/matcher.rs" ||
+    path === "crates/jobsentinel-core/src/core/resume/ats_analyzer.rs" ||
     path === "src/mocks/handlers.ts" ||
-    path === "src-tauri/src/core/salary/analyzer.rs" ||
-    path === "src-tauri/migrations/00000000000000_initial_schema.sql"
+    path === "crates/jobsentinel-core/src/core/salary/analyzer.rs" ||
+    path === "crates/jobsentinel-core/migrations/00000000000000_initial_schema.sql"
   ) {
     const advisoryGuidancePatterns = [
       /Apply immediately/i,

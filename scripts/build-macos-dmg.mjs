@@ -53,10 +53,10 @@ export function getReleaseDir(root, args) {
   const target = getArgValue(args, "--target");
 
   if (target) {
-    return join(root, "src-tauri", "target", target, "release");
+    return join(root, "target", target, "release");
   }
 
-  return join(root, "src-tauri", "target", "release");
+  return join(root, "target", "release");
 }
 
 export function getArchSuffix(target, arch = process.arch) {

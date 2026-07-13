@@ -60,9 +60,9 @@ broad E2E performance claims.
 
 | Change | Required sensor | Add when risk increases |
 | ------ | --------------- | ----------------------- |
-| Rust formatting | `cd src-tauri && cargo fmt --all -- --check` | None |
-| Core logic | Targeted `cargo test` | `cargo test --lib` |
-| Warnings or traits | `cargo clippy -- -D warnings` | Full Rust test suite |
+| Rust formatting | `cargo fmt --all -- --check` | None |
+| Core logic | Targeted `cargo test -p jobsentinel-core` | `cargo test --workspace` |
+| Warnings or traits | `cargo clippy --workspace -- -D warnings` | Full Rust test suite |
 | Tauri command | Command test or compile check | Frontend invoke path test |
 | Migration | Migration test or SQLx prepare | Manual upgrade/downgrade review |
 
@@ -127,9 +127,9 @@ npm run doctor:e2e
 npm run lint
 npm run test:run
 npm run build
-cd src-tauri && cargo fmt --all -- --check
-cd src-tauri && cargo clippy -- -D warnings
-cd src-tauri && cargo test --lib
+cargo fmt --all -- --check
+cargo clippy --workspace -- -D warnings
+cargo test --workspace
 ```
 
 Use before release:
@@ -145,9 +145,9 @@ npm run lint
 npm run test:run
 npm run test:e2e:all
 npm run build
-cd src-tauri && cargo fmt --all -- --check
-cd src-tauri && cargo clippy -- -D warnings
-cd src-tauri && cargo test
+cargo fmt --all -- --check
+cargo clippy --workspace -- -D warnings
+cargo test --workspace
 ```
 
 ## When Checks Cannot Run

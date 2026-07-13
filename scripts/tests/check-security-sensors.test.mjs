@@ -487,9 +487,9 @@ test("checkSecuritySensors rejects release workflow without Linux AppImage compa
 test("checkSecuritySensors rejects raw notification reqwest clients", () => {
   const root = mkdtempRoot("jobsentinel-security-sensors-notification-egress-");
   writeSelfOnlyBaseRepo(root);
-  mkdirSync(join(root, "src-tauri/src/core/notify"), { recursive: true });
+  mkdirSync(join(root, "crates/jobsentinel-core/src/core/notify"), { recursive: true });
   writeFileSync(
-    join(root, "src-tauri/src/core/notify/mod.rs"),
+    join(root, "crates/jobsentinel-core/src/core/notify/mod.rs"),
     [
       "use crate::core::url_security::resolve_external_https_url_for_fetch;",
       "use reqwest::redirect::Policy;",
@@ -501,13 +501,13 @@ test("checkSecuritySensors rejects raw notification reqwest clients", () => {
     ].join("\n"),
   );
   writeFileSync(
-    join(root, "src-tauri/src/core/notify/slack.rs"),
+    join(root, "crates/jobsentinel-core/src/core/notify/slack.rs"),
     "async fn send() { let client = reqwest::Client::builder().build().unwrap(); }\n",
   );
 
   assert(
     checkSecuritySensors(root).includes(
-      "src-tauri/src/core/notify/slack.rs must use notification_http_client_for_url instead of raw reqwest clients",
+      "crates/jobsentinel-core/src/core/notify/slack.rs must use notification_http_client_for_url instead of raw reqwest clients",
     ),
   );
 });
@@ -515,13 +515,13 @@ test("checkSecuritySensors rejects raw notification reqwest clients", () => {
 test("checkSecuritySensors rejects incomplete notification egress helper", () => {
   const root = mkdtempRoot("jobsentinel-security-sensors-notification-helper-");
   writeSelfOnlyBaseRepo(root);
-  mkdirSync(join(root, "src-tauri/src/core/notify"), { recursive: true });
+  mkdirSync(join(root, "crates/jobsentinel-core/src/core/notify"), { recursive: true });
   writeFileSync(
-    join(root, "src-tauri/src/core/notify/mod.rs"),
+    join(root, "crates/jobsentinel-core/src/core/notify/mod.rs"),
     "async fn notification_http_client_for_url(url: &str) { reqwest::Client::new(); }\n",
   );
   writeFileSync(
-    join(root, "src-tauri/src/core/notify/slack.rs"),
+    join(root, "crates/jobsentinel-core/src/core/notify/slack.rs"),
     'async fn send() { notification_http_client_for_url("https://hooks.slack.com/services/x").await; }\n',
   );
 

@@ -1,10 +1,8 @@
-//! Tauri Command Handlers
-//!
-//! This module contains all Tauri commands (RPC-style functions) that can be invoked
-//! from the React frontend using `invoke()`.
+//! Private Tauri command handlers and managed application state.
+
+use std::sync::Arc;
 
 use chrono::{DateTime, Utc};
-use std::sync::Arc;
 use tokio::sync::RwLock;
 
 use crate::core::{
@@ -12,49 +10,45 @@ use crate::core::{
     scheduler::Scheduler,
 };
 
-// Module declarations (public for Tauri macro access)
-pub mod ats;
-pub mod automation;
-pub mod bookmarklet;
-pub mod cache;
-pub mod config;
-pub mod credentials;
-pub mod deeplinks;
-pub mod errors;
-pub mod external_ai;
-pub mod feedback;
-pub mod geo;
-pub mod ghost;
-pub mod health;
-pub mod import;
-pub mod jobs;
-pub mod limits;
-pub mod linkedin_auth;
-pub mod linkedin_workbench;
-pub mod market;
-pub mod resume;
-pub mod salary;
-pub mod scoring;
-pub mod semantic_matching;
-pub mod user_data;
+pub(crate) mod ats;
+pub(crate) mod automation;
+pub(crate) mod bookmarklet;
+pub(crate) mod cache;
+pub(crate) mod config;
+pub(crate) mod credentials;
+pub(crate) mod deeplinks;
+pub(crate) mod errors;
+pub(crate) mod external_ai;
+pub(crate) mod feedback;
+pub(crate) mod geo;
+pub(crate) mod ghost;
+pub(crate) mod health;
+pub(crate) mod import;
+pub(crate) mod jobs;
+pub(crate) mod limits;
+pub(crate) mod linkedin_auth;
+pub(crate) mod linkedin_workbench;
+pub(crate) mod market;
+pub(crate) mod resume;
+pub(crate) mod salary;
+pub(crate) mod scoring;
+pub(crate) mod semantic_matching;
+pub(crate) mod user_data;
 
-// Optional ML commands
 #[cfg(feature = "embedded-ml")]
-pub mod ml;
+pub(crate) mod ml;
 
 #[cfg(test)]
 mod tests;
 
-/// Scheduler status tracking
 #[derive(Debug, Clone, Default)]
-pub struct SchedulerStatus {
+pub(crate) struct SchedulerStatus {
     pub is_running: bool,
     pub last_run: Option<DateTime<Utc>>,
     pub next_run: Option<DateTime<Utc>>,
 }
 
-/// Application state shared across commands
-pub struct AppState {
+pub(crate) struct AppState {
     pub config: Arc<RwLock<Config>>,
     pub database: Arc<Database>,
     pub credentials: Arc<CredentialService>,
@@ -62,194 +56,3 @@ pub struct AppState {
     pub scheduler_status: Arc<RwLock<SchedulerStatus>>,
     pub bookmarklet_server: Arc<RwLock<BookmarkletServer>>,
 }
-
-// ============================================================================
-// Re-export all command functions for Tauri
-// ============================================================================
-
-// Job commands
-pub use jobs::{
-    find_duplicates, get_bookmarked_jobs, get_job_by_id, get_job_notes, get_jobs_by_source,
-    get_recent_jobs, get_salary_distribution, get_scraping_status, get_statistics, hide_job,
-    merge_duplicates, search_jobs, search_jobs_query, set_job_notes, toggle_bookmark, unhide_job,
-};
-
-// ATS commands
-pub use ats::{
-    add_application_notes, complete_interview, complete_reminder, create_application,
-    delete_interview, detect_ghosted_applications, get_application_stats, get_applications_kanban,
-    get_past_interviews, get_pending_reminders, get_upcoming_interviews, schedule_interview,
-    update_application_status,
-};
-
-// Resume commands
-pub use resume::{
-    // Builder commands
-    add_resume_education,
-    add_resume_experience,
-    // Skill management commands (Phase 1)
-    add_user_skill,
-    // ATS analysis commands
-    analyze_active_resume_for_job,
-    analyze_resume_for_job,
-    analyze_resume_format,
-    create_resume_draft,
-    // Resume library commands (Phase 2)
-    delete_resume,
-    delete_resume_draft,
-    delete_resume_education,
-    delete_resume_experience,
-    delete_user_skill,
-    // Export commands
-    export_resume_docx,
-    export_resume_text,
-    extract_job_keywords,
-    // Matcher commands
-    get_active_resume,
-    get_ats_power_words,
-    get_match_result,
-    get_recent_matches,
-    get_resume_draft,
-    get_resume_text_preview,
-    get_user_skills,
-    // Import commands
-    import_json_resume,
-    improve_bullet_point,
-    list_all_resumes,
-    // Template commands
-    list_resume_templates,
-    match_resume_to_job,
-    render_resume_html,
-    render_resume_text,
-    select_and_import_json_resume,
-    select_and_upload_resume,
-    set_active_resume,
-    set_resume_skills,
-    update_resume_contact,
-    update_resume_summary,
-    update_user_skill,
-};
-
-// Salary commands
-pub use salary::{
-    compare_offers, generate_negotiation_script, get_salary_benchmark, predict_salary,
-};
-
-// Scoring configuration commands
-pub use scoring::{
-    get_scoring_config, reset_scoring_config_cmd, update_scoring_config, validate_scoring_config,
-};
-pub use semantic_matching::get_semantic_matching_diagnostics;
-
-// Market intelligence commands
-pub use market::{
-    get_active_companies, get_historical_snapshots, get_hottest_locations, get_market_alerts,
-    get_market_snapshot, get_trending_skills, mark_alert_read, mark_all_alerts_read,
-    run_market_analysis,
-};
-
-// Ghost detection commands
-pub use ghost::{
-    clear_ghost_feedback, get_ghost_config, get_ghost_feedback, get_ghost_jobs,
-    get_ghost_statistics, get_recent_jobs_filtered, mark_job_as_ghost, mark_job_as_real,
-    reset_ghost_config, set_ghost_config,
-};
-
-// User data commands
-pub use user_data::{
-    add_search_history, clear_search_history, create_cover_letter_template, create_saved_search,
-    delete_cover_letter_template, delete_saved_search, get_cover_letter_template,
-    get_interview_followup, get_interview_prep_checklist, get_notification_preferences,
-    get_search_history, import_cover_letter_templates, import_saved_searches,
-    list_cover_letter_templates, list_saved_searches, save_interview_followup,
-    save_interview_prep_item, save_notification_preferences, seed_default_templates,
-    update_cover_letter_template, use_saved_search,
-};
-
-// Config commands
-pub use config::{
-    complete_setup, get_config, get_dashboard_preferences, get_resume_matching_preference,
-    is_first_run, save_config, set_resume_matching_enabled, validate_slack_webhook,
-};
-
-// Outside AI commands
-pub use external_ai::send_external_ai_request;
-
-// Geo commands
-pub use geo::detect_location;
-
-// Credential commands
-pub use credentials::{
-    delete_credential, disable_credential_passphrase, enable_credential_passphrase,
-    get_credential_status, get_credential_unlock_status, has_credential, store_credential,
-    unlock_credential_vault,
-};
-
-// Legacy LinkedIn source-policy commands
-pub use linkedin_auth::{
-    close_linkedin_login, disconnect_linkedin, get_linkedin_expiry_status,
-    get_linkedin_interactive_policy, is_linkedin_connected, linkedin_login, store_linkedin_cookie,
-};
-pub use linkedin_workbench::record_linkedin_workbench_event;
-
-// Automation commands (Application Assist)
-pub use automation::{
-    // Profile management
-    approve_automation_attempt,
-    cancel_automation_attempt,
-    // Browser control
-    close_automation_browser,
-    create_automation_attempt,
-    detect_ats_from_html,
-    detect_ats_platform,
-    fill_application_form,
-    find_answer_for_question,
-    get_application_profile,
-    get_application_profile_preview,
-    get_automation_attempt,
-    get_automation_stats,
-    get_pending_attempts,
-    get_screening_answers,
-    has_application_profile,
-    is_browser_running,
-    launch_automation_browser,
-    upsert_application_profile,
-    upsert_screening_answer,
-};
-
-// Health monitoring commands
-pub use health::{
-    get_expiring_credentials, get_health_summary, get_latest_source_request,
-    get_linkedin_cookie_health, get_scraper_configs, get_scraper_health, get_scraper_runs,
-    run_all_smoke_tests, run_scraper_smoke_test, set_scraper_enabled,
-};
-
-// Cache management commands
-pub use cache::{clear_scoring_cache, get_cache_health, get_score_cache_stats};
-
-// Feedback system commands
-pub use feedback::{
-    clear_debug_log_cmd, generate_feedback_report, get_config_summary, get_debug_log_events,
-    get_debug_log_formatted, get_feedback_filename, get_system_info, open_github_issues,
-    reveal_saved_feedback_file, sanitize_feedback_text, save_feedback_file,
-};
-
-// Import commands
-pub use import::{import_job_from_url, preview_job_import};
-
-// Deep link commands
-pub use deeplinks::{
-    generate_deep_link, generate_deep_links, get_sites_by_category_cmd, get_supported_sites,
-    open_deep_link,
-};
-
-// Bookmarklet commands
-pub use bookmarklet::{
-    confirm_pending_bookmarklet_imports, copy_bookmarklet_code,
-    discard_pending_bookmarklet_imports, get_bookmarklet_config, get_pending_bookmarklet_imports,
-    set_bookmarklet_port, start_bookmarklet_server, stop_bookmarklet_server,
-};
-
-// ML commands (optional)
-#[cfg(feature = "embedded-ml")]
-pub use ml::{download_ml_model, get_ml_status, match_resume_semantic, semantic_match_skills};
