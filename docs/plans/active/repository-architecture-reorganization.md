@@ -511,6 +511,7 @@ evidence-log entry.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-07-13 | Milestone 7 Rust lint ownership complete | Moved active Clippy exceptions into the inherited root workspace policy, removed four redundant crate-level exceptions, and added a regression sensor that rejects member-owned crate-root policy. The full 772-test script harness, 184 Tauri tests, workspace Clippy, formatting, architecture, language, duplication, bloat, and harness gates pass. |
 | 2026-07-13 | Milestone 7 file-cap cutover complete | Split every remaining oversized production, test, script, and maintained-document owner. Policy sensors now follow private Rust modules and documentation sidecars. The final cap gate, 771 script tests, 2,769 core tests, 184 Tauri tests, 280 focused frontend tests, production build, workspace Clippy, docs, architecture, language, and 100/100 harness score all pass. |
 | 2026-07-13 | Milestones 3, 4, and 5 complete | Broke the database, credential, job-record, and normalization cycles, then created the two-member virtual Cargo workspace and extracted the Tauri-free core owner. Root Cargo policy, migrations, SQLx metadata, integration tests, CI, packaging paths, dependency checks, and security sensors now follow the new owner. The Tauri executable is a 5-line entrypoint, command modules are private, and one explicit registry retains all IPC names. The 769-test script harness, Cargo metadata, formatting, workspace Clippy, cargo-deny, fresh migration and SQLx checks, 184 app tests, 2,769 core unit tests, and every moved integration suite pass. |
 | 2026-07-13 | Milestone 6 complete | Moved platform and release implementations to owned directories, split all five oversized policy entrypoints under `scripts/checks/`, deleted root compatibility files, and replaced fixed test globs with recursive sorted discovery. All 770 script tests plus focused harness, bloat, dependency, security, and IPC gates pass. |
@@ -582,6 +583,9 @@ evidence-log entry.
   the same milestone.
 - Treat full cleanup as a required phase after structural refactoring, not as
   optional polish.
+- Sequence remaining cleanup by cross-cutting risk, dependency impact, and
+  difficulty. Do not take easy documentation or formatting work ahead of a
+  harder structural owner that blocks it.
 - Keep icons cross-platform and local to the owning UI. Do not add an SF
   Symbols integration or platform adapter solely for icons.
 - Compose Company Research at the app boundary through one shared render
@@ -602,6 +606,9 @@ evidence-log entry.
   lines for maintained documents. Every tracked violation was split by an
   observed owner, and policy sensors follow the resulting private modules and
   documentation sidecars.
+- Rust lint policy is owned once by the root workspace. Member crate roots
+  cannot shadow inherited Clippy or `unsafe_code` policy, and four obsolete
+  crate-wide exceptions are gone.
 - The cap slice passes the complete 771-test script harness, 2,769 core tests,
   184 Tauri tests, 280 focused frontend tests, the production frontend build,
   workspace Clippy, docs, architecture, language, bloat, and 100/100 harness
@@ -615,8 +622,8 @@ evidence-log entry.
 
 - Current state: Milestones 0 through 6 and the final file-cap slice of
   Milestone 7 are complete with passing evidence. Privacy remains immutable.
-- Next step: continue the dead-code, orphan-test, dependency, root-file, stale
-  reference, documentation, and public wiki cleanup audits.
+- Next step: continue the Rust public-surface, dead-code, feature, dependency,
+  and compatibility-shim audit before moving to easier cleanup surfaces.
 - Open risks: Windows and Linux platform builds still require their final live
   release-readiness hosts. Current cross-platform evidence is contract and
   release-fixture coverage plus target-gated manifests; macOS is live-checked.

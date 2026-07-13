@@ -325,7 +325,7 @@ pub async fn get_statistics(state: State<'_, AppState>) -> Result<Value, String>
     tracing::info!("Command: get_statistics");
 
     match state.database.get_statistics().await {
-        Ok(stats) => serde_json::to_value(&stats)
+        Ok(statistics) => serde_json::to_value(&statistics)
             .map_err(|e| user_friendly_error("Failed to serialize stats", e)),
         Err(e) => {
             tracing::error!(

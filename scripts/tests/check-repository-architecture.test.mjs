@@ -261,6 +261,32 @@ panic = "abort"
   });
 });
 
+test("checkRepositoryArchitecture rejects crate-root lint policy", () => {
+  withFixture((root) => {
+    writeTargetWorkspace(root);
+    writeFixtureFile(
+      root,
+      "crates/jobsentinel-core/src/lib.rs",
+      '#![deny(unsafe_code)]\n#![allow(clippy::too_many_lines)]\nmod search;\n',
+    );
+
+    const violations = checkRepositoryArchitecture(root);
+
+    assert.ok(
+      violations.includes(
+        "crates/jobsentinel-core/src/lib.rs must inherit unsafe_code policy from Cargo.toml",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "crates/jobsentinel-core/src/lib.rs must inherit Clippy policy from Cargo.toml",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepositoryArchitecture rejects Tauri dependencies and imports in core", () => {
   withFixture((root) => {
     writeTargetWorkspace(root);

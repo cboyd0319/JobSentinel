@@ -61,7 +61,7 @@ pub async fn get_ghost_statistics(state: State<'_, AppState>) -> Result<Value, S
     tracing::info!("Command: get_ghost_statistics");
 
     match state.database.get_ghost_statistics().await {
-        Ok(stats) => serde_json::to_value(&stats)
+        Ok(statistics) => serde_json::to_value(&statistics)
             .map_err(|e| user_friendly_error("Failed to serialize ghost statistics", e)),
         Err(e) => {
             let message = user_friendly_error("Failed to get posting-risk statistics", &e);

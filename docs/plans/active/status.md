@@ -57,7 +57,7 @@ weakened.
 | Workstream | State | Current focus | Source |
 | ---------- | ----- | ------------- | ------ |
 | Current product and quality work | Active | Keep privacy, design, platform, harness, and release evidence aligned during the refactor | [Plan](current-work.md) |
-| Full repository refactor and v2.9.5 readiness | Active | Complete the orphan, dependency, root-file, docs, wiki, and platform cleanup audits | [Plan](repository-architecture-reorganization.md) |
+| Full repository refactor and v2.9.5 readiness | Active | Continue the Rust public-surface, dead-code, feature, and dependency audit | [Plan](repository-architecture-reorganization.md) |
 
 ## Current Posture
 
@@ -83,6 +83,8 @@ weakened.
   metadata inaccuracies.
 - Final file caps are live: 500 lines for production and scripts, 800 for tests,
   and 700 for maintained documents. The focused cap and policy harness passes.
+- Rust lint policy is centralized in the root workspace and enforced against
+  crate-root policy drift.
 - Coverage for all configured source adapters and user-gated restricted-source
   paths must retain focused parser/import/gate evidence before any release-ready
   claim.

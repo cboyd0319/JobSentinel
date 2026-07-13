@@ -90,7 +90,7 @@ pub async fn get_answer_statistics(
 
     let manager = AnswerLearningManager::new(state.database.pool().clone());
     match manager.get_answer_statistics(&pattern).await {
-        Ok(Some(stats)) => Ok(Some(AnswerStatisticsResponse::from(stats))),
+        Ok(Some(statistics)) => Ok(Some(AnswerStatisticsResponse::from(statistics))),
         Ok(None) => Ok(None),
         Err(e) => Err(user_friendly_error("Failed to get statistics", e)),
     }

@@ -1,4 +1,5 @@
 use super::*;
+use crate::core::automation::ApplicationAttempt;
 
 fn valid_application_profile_input() -> ApplicationProfileInput {
     ApplicationProfileInput {

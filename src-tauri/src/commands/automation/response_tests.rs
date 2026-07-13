@@ -1,5 +1,6 @@
 use super::*;
 use crate::core::automation::answer_learning::{AnswerSource, AnswerStatistics, AnswerSuggestion};
+use crate::core::automation::ApplicationProfile;
 
 fn profile_with_resume_path(path: Option<String>) -> ApplicationProfile {
     ApplicationProfile {

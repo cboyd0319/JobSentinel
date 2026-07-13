@@ -186,6 +186,23 @@ function checkMemberManifest(root, member, violations) {
   }
 }
 
+function checkMemberCrateRootLintPolicy(root, member, violations) {
+  for (const relativePath of ["src/lib.rs", "src/main.rs"]) {
+    const path = `${member}/${relativePath}`;
+    if (!existsSync(join(root, path))) {
+      continue;
+    }
+
+    const text = read(root, path);
+    if (/#!\[(?:allow|warn|deny|forbid)\(unsafe_code\)\]/.test(text)) {
+      violations.push(`${path} must inherit unsafe_code policy from Cargo.toml`);
+    }
+    if (/#!\[(?:allow|warn|deny|forbid)\(clippy::/.test(text)) {
+      violations.push(`${path} must inherit Clippy policy from Cargo.toml`);
+    }
+  }
+}
+
 function checkCoreBoundary(root, violations) {
   const manifestPath = "crates/jobsentinel-core/Cargo.toml";
   if (!existsSync(join(root, manifestPath))) {
@@ -304,6 +321,7 @@ export function checkRepositoryArchitecture(root = defaultRoot) {
 
   for (const member of discoveredMembers) {
     checkMemberManifest(root, member, violations);
+    checkMemberCrateRootLintPolicy(root, member, violations);
   }
   checkCoreBoundary(root, violations);
   checkTauriShell(root, violations);
