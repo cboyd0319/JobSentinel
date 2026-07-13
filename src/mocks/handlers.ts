@@ -33,7 +33,9 @@ import {
 } from "../features/applications/mocks/interviewProgress";
 import { handleMockDashboardCommand } from "../features/dashboard/mocks/commands";
 import { handleMockApplicationsCommand } from "../features/applications/mocks/commands";
-import { handleMockSettingsSupportCommand } from "./handlers/settingsSupportCommands";
+import { handleMockOnboardingCommand } from "../features/onboarding/mocks/commands";
+import { handleMockSettingsCommand } from "../features/settings/mocks/commands";
+import { handleMockSupportCommand } from "../features/settings/support/mocks/commands";
 import {
   getMockActiveResume,
   handleMockResumeCommand,
@@ -537,11 +539,11 @@ function applyMockApplicationsCommand<T>(
   return result.value as T;
 }
 
-function applyMockSettingsSupportCommand<T>(
+function applyMockSettingsCommand<T>(
   command: string,
   args: Record<string, unknown> | undefined,
 ): T {
-  const result = handleMockSettingsSupportCommand(
+  const result = handleMockSettingsCommand(
     command,
     args,
     {
@@ -552,7 +554,6 @@ function applyMockSettingsSupportCommand<T>(
       bookmarkletConfig,
       pendingBookmarkletImports,
     },
-    Boolean(getMockActiveResume(resumes)),
   );
 
   if (!result.handled) {
@@ -571,6 +572,31 @@ function applyMockSettingsSupportCommand<T>(
   }
 
   return result.value as T;
+}
+
+function applyMockOnboardingCommand<T>(
+  command: string,
+  args: Record<string, unknown> | undefined,
+): T {
+  const result = handleMockOnboardingCommand(command, args, { config });
+  if (!result.handled) return undefined as T;
+
+  config = result.state.config;
+  if (result.shouldSave) saveMockState();
+  return result.value as T;
+}
+
+function applyMockSupportCommand<T>(
+  command: string,
+  args: Record<string, unknown> | undefined,
+): T {
+  const result = handleMockSupportCommand(
+    command,
+    args,
+    config,
+    Boolean(getMockActiveResume(resumes)),
+  );
+  return result.handled ? result.value as T : undefined as T;
 }
 
 function applyMockResumeCommand<T>(
@@ -675,6 +701,9 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
     // Setup/First run
     case "is_first_run":
     case "complete_setup":
+      return applyMockOnboardingCommand<T>(cmd, args);
+
+    // Settings
     case "get_config":
     case "get_dashboard_preferences":
     case "get_resume_matching_preference":
@@ -704,6 +733,11 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
     case "start_bookmarklet_server":
     case "stop_bookmarklet_server":
     case "set_bookmarklet_port":
+    case "send_external_ai_request":
+    case "get_semantic_matching_diagnostics":
+      return applyMockSettingsCommand<T>(cmd, args);
+
+    // Support reports
     case "get_system_info":
     case "get_config_summary":
     case "get_debug_log_events":
@@ -713,9 +747,7 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
     case "save_feedback_file":
     case "open_github_issues":
     case "reveal_saved_feedback_file":
-    case "send_external_ai_request":
-    case "get_semantic_matching_diagnostics":
-      return applyMockSettingsSupportCommand<T>(cmd, args);
+      return applyMockSupportCommand<T>(cmd, args);
 
     // Statistics commands
     case "get_statistics":

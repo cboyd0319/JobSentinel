@@ -1,15 +1,7 @@
 import {
-  getMockConfigSummary,
-  getMockFeedbackFilename,
-  getMockSystemInfo,
-  generateMockFeedbackReport,
-  sanitizeMockFeedbackText,
-  saveMockFeedbackFile,
-} from "../../shared/errorReporting/mocks/supportReports";
-import {
   hasConfiguredJobsWithGpt,
   hasEnabledMockScraperSource,
-} from "../../features/settings/sources/mocks/scraperHealth";
+} from "../sources/mocks/scraperHealth";
 import {
   getArg,
   getDefaultGhostConfig,
@@ -17,7 +9,7 @@ import {
   getStringArg,
   hasConfiguredUrlList,
   isCredentialKey,
-} from "./commandHelpers";
+} from "../../../mocks/handlers/commandHelpers";
 import type {
   MockBookmarkletConfig,
   MockConfig,
@@ -26,9 +18,9 @@ import type {
   MockDashboardPreferences,
   MockGhostConfig,
   MockPendingBookmarkletImport,
-} from "./types";
+} from "../../../mocks/handlers/types";
 
-export interface MockSettingsSupportCommandState {
+export interface MockSettingsCommandState {
   config: MockConfig;
   credentials: Partial<Record<MockCredentialKey, string>>;
   credentialUnlock: MockCredentialUnlockState;
@@ -37,10 +29,10 @@ export interface MockSettingsSupportCommandState {
   pendingBookmarkletImports: MockPendingBookmarkletImport[];
 }
 
-export interface MockSettingsSupportCommandResult {
+export interface MockSettingsCommandResult {
   handled: boolean;
   shouldSave: boolean;
-  state: MockSettingsSupportCommandState;
+  state: MockSettingsCommandState;
   value: unknown;
 }
 
@@ -60,19 +52,12 @@ const MOCK_CREDENTIAL_KEYS: MockCredentialKey[] = [
 const MIN_BOOKMARKLET_PORT = 1024;
 const MAX_BOOKMARKLET_PORT = 65535;
 
-export function handleMockSettingsSupportCommand(
+export function handleMockSettingsCommand(
   command: string,
   args: Record<string, unknown> | undefined,
-  state: MockSettingsSupportCommandState,
-  hasActiveResume: boolean,
-): MockSettingsSupportCommandResult {
+  state: MockSettingsCommandState,
+): MockSettingsCommandResult {
   switch (command) {
-    case "is_first_run":
-      return withoutSave(state, false);
-
-    case "complete_setup":
-      return completeSetup(args, state);
-
     case "get_config":
       return withoutSave(state, state.config);
 
@@ -206,7 +191,6 @@ export function handleMockSettingsSupportCommand(
     case "validate_slack_webhook":
     case "test_email_notification":
     case "copy_bookmarklet_code":
-    case "open_github_issues":
       return withoutSave(state, undefined);
 
     case "get_bookmarklet_config":
@@ -241,42 +225,6 @@ export function handleMockSettingsSupportCommand(
         state,
         state.bookmarkletConfig.enabled,
       );
-
-    case "get_system_info":
-      return withoutSave(state, getMockSystemInfo());
-
-    case "get_config_summary":
-      return withoutSave(
-        state,
-        getMockConfigSummary(state.config, hasActiveResume),
-      );
-
-    case "get_debug_log_events":
-      return withoutSave(state, []);
-
-    case "generate_feedback_report":
-      return withoutSave(
-        state,
-        generateMockFeedbackReport(args, state.config, hasActiveResume),
-      );
-
-    case "sanitize_feedback_text":
-      return withoutSave(state, sanitizeMockFeedbackText(args));
-
-    case "get_feedback_filename":
-      return withoutSave(state, getMockFeedbackFilename());
-
-    case "save_feedback_file":
-      return withoutSave(state, saveMockFeedbackFile(args));
-
-    case "reveal_saved_feedback_file": {
-      const revealToken =
-        getStringArg(args, "revealToken") ?? getStringArg(args, "reveal_token");
-      if (!revealToken) {
-        throw new Error("Reveal token cannot be empty");
-      }
-      return withoutSave(state, undefined);
-    }
 
     case "send_external_ai_request":
       return withoutSave(state, {
@@ -377,9 +325,9 @@ function getPendingBookmarkletIds(
 
 function updatePendingBookmarkletImports(
   args: Record<string, unknown> | undefined,
-  state: MockSettingsSupportCommandState,
+  state: MockSettingsCommandState,
   action: "confirm" | "discard",
-): MockSettingsSupportCommandResult {
+): MockSettingsCommandResult {
   const ids = getPendingBookmarkletIds(args);
   if (ids.length === 0) {
     throw new Error(
@@ -412,36 +360,16 @@ function updatePendingBookmarkletImports(
 }
 
 function withoutSave(
-  state: MockSettingsSupportCommandState,
+  state: MockSettingsCommandState,
   value: unknown,
-): MockSettingsSupportCommandResult {
+): MockSettingsCommandResult {
   return { handled: true, shouldSave: false, state, value };
-}
-
-function completeSetup(
-  args: Record<string, unknown> | undefined,
-  state: MockSettingsSupportCommandState,
-): MockSettingsSupportCommandResult {
-  const setupConfig = getArg(args, "config");
-  if (!setupConfig || typeof setupConfig !== "object") {
-    return withoutSave(state, undefined);
-  }
-
-  return {
-    handled: true,
-    shouldSave: true,
-    state: {
-      ...state,
-      config: { ...state.config, ...(setupConfig as Partial<MockConfig>) },
-    },
-    value: undefined,
-  };
 }
 
 function storeCredential(
   args: Record<string, unknown> | undefined,
-  state: MockSettingsSupportCommandState,
-): MockSettingsSupportCommandResult {
+  state: MockSettingsCommandState,
+): MockSettingsCommandResult {
   const key = getArg(args, "key");
   const value = getArg(args, "value");
   if (!isCredentialKey(key) || typeof value !== "string") {
@@ -461,9 +389,9 @@ function storeCredential(
 
 function updateCredentialUnlock(
   args: Record<string, unknown> | undefined,
-  state: MockSettingsSupportCommandState,
+  state: MockSettingsCommandState,
   action: "enable" | "unlock" | "disable",
-): MockSettingsSupportCommandResult {
+): MockSettingsCommandResult {
   const passphrase = getStringArg(args, "passphrase");
   if (!passphrase) {
     throw new Error("Enter the passphrase.");
@@ -501,9 +429,9 @@ function updateCredentialUnlock(
 }
 
 function credentialUnlockResult(
-  state: MockSettingsSupportCommandState,
+  state: MockSettingsCommandState,
   credentialUnlock: MockCredentialUnlockState,
-): MockSettingsSupportCommandResult {
+): MockSettingsCommandResult {
   return {
     handled: true,
     shouldSave: true,
@@ -514,9 +442,9 @@ function credentialUnlockResult(
 
 function updateBookmarkletPort(
   args: Record<string, unknown> | undefined,
-  state: MockSettingsSupportCommandState,
+  state: MockSettingsCommandState,
   enabled: boolean,
-): MockSettingsSupportCommandResult {
+): MockSettingsCommandResult {
   const port = getNumericArg(args, "port") ?? state.bookmarkletConfig.port;
   if (
     !Number.isInteger(port) ||
