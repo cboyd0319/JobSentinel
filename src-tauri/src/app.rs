@@ -1,6 +1,9 @@
 use crate::commands::{self, AppState, SchedulerStatus};
 use crate::core::bookmarklet::{BookmarkletConfig, BookmarkletServer};
-use crate::core::credentials::{migration, CredentialService};
+use crate::core::credentials::{
+    clear_config_credentials, extract_plaintext_credentials, is_migrated, set_migrated,
+    CredentialService,
+};
 use crate::core::logging::path_label_for_logging;
 use crate::core::scheduler::Scheduler;
 use crate::core::{Config, Database};
@@ -19,13 +22,13 @@ async fn migrate_plaintext_credentials_to_secure_storage(
     config_path: &Path,
     credentials: &CredentialService,
 ) -> bool {
-    if !config_path.exists() || migration::is_migrated() {
+    if !config_path.exists() || is_migrated() {
         return false;
     }
 
     tracing::info!("Checking for plaintext credentials to migrate to secure storage");
 
-    let credentials_to_migrate = match migration::extract_plaintext_credentials(config_path) {
+    let credentials_to_migrate = match extract_plaintext_credentials(config_path) {
         Ok(credentials_to_migrate) => credentials_to_migrate,
         Err(e) => {
             tracing::error!(
@@ -38,7 +41,7 @@ async fn migrate_plaintext_credentials_to_secure_storage(
 
     let mark_migration_complete = if credentials_to_migrate.is_empty() {
         tracing::info!("No active plaintext credentials found");
-        if let Err(e) = migration::clear_config_credentials(config_path) {
+        if let Err(e) = clear_config_credentials(config_path) {
             tracing::error!("Failed to clear legacy credential fields: {}", e);
             tracing::warn!("Secure-storage migration will retry on next startup");
             false
@@ -66,7 +69,7 @@ async fn migrate_plaintext_credentials_to_secure_storage(
         }
 
         if migration_success {
-            if let Err(e) = migration::clear_config_credentials(config_path) {
+            if let Err(e) = clear_config_credentials(config_path) {
                 tracing::error!("Failed to clear plaintext credentials from config: {}", e);
                 tracing::warn!("Secure-storage migration will retry on next startup");
                 false
@@ -80,7 +83,7 @@ async fn migrate_plaintext_credentials_to_secure_storage(
     };
 
     if mark_migration_complete {
-        if let Err(e) = migration::set_migrated() {
+        if let Err(e) = set_migrated() {
             tracing::warn!("Failed to set migration flag: {}", e);
         }
     }

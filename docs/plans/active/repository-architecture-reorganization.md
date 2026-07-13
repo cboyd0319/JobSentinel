@@ -511,6 +511,7 @@ evidence-log entry.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-07-13 | Milestone 7 sensitive Rust leaf facades complete | Made credential and application-assistance implementation modules private behind flat facades, split plaintext credential migration into its own owner, made the legacy OS credential adapter private, and deleted its duplicate status path plus two test-only vault methods from production. The full workspace, all-feature targets, both Clippy modes, 774 script tests, security sensors, and focused noninteractive credential checks pass without a Keychain prompt. |
 | 2026-07-13 | Milestone 7 Rust facade and target cleanup complete | Replaced the wildcard core facade and 67 root compatibility re-exports with an explicit crate boundary, moved the database edge-case tests under their real integration target, removed the unused direct `dotenvy` dependency, and replaced an all-feature local-path reach-through with a path-private model diagnostic API. The default workspace suite, default and all-feature Clippy, every all-feature test target build, 773 script tests, and all focused repository gates pass. |
 | 2026-07-13 | Milestone 7 Rust lint ownership complete | Moved active Clippy exceptions into the inherited root workspace policy, removed four redundant crate-level exceptions, and added a regression sensor that rejects member-owned crate-root policy. The full 772-test script harness, 184 Tauri tests, workspace Clippy, formatting, architecture, language, duplication, bloat, and harness gates pass. |
 | 2026-07-13 | Milestone 7 file-cap cutover complete | Split every remaining oversized production, test, script, and maintained-document owner. Policy sensors now follow private Rust modules and documentation sidecars. The final cap gate, 771 script tests, 2,769 core tests, 184 Tauri tests, 280 focused frontend tests, production build, workspace Clippy, docs, architecture, language, and 100/100 harness score all pass. |
@@ -614,6 +615,11 @@ evidence-log entry.
   compatibility exports. Its database edge-case tests belong to one intended
   integration target, its unused direct `dotenvy` edge is gone, and embedded
   model diagnostics no longer require access to private cache paths.
+- Credential and application-assistance implementation modules are private
+  behind flat facades. Plaintext credential migration has one file owner, and
+  the legacy OS credential adapter can no longer be called across the crate
+  boundary. Noninteractive vault and migration tests preserve the privacy and
+  data-cleanup contract without prompting for Keychain access.
 - The cap slice passes the complete 771-test script harness, 2,769 core tests,
   184 Tauri tests, 280 focused frontend tests, the production frontend build,
   workspace Clippy, docs, architecture, language, bloat, and 100/100 harness
@@ -626,8 +632,8 @@ evidence-log entry.
 ## Handoff
 
 - Current state: Milestones 0 through 6 plus the Milestone 7 file-cap, Rust
-  lint-policy, and first facade and target slices are complete with passing
-  evidence. Privacy remains immutable.
+  lint-policy, facade, target, and sensitive leaf-module slices are complete
+  with passing evidence. Privacy remains immutable.
 - Next step: continue the Rust leaf-module visibility, dead-code, feature, and
   dependency audit before moving to easier cleanup surfaces.
 - Open risks: Windows and Linux platform builds still require their final live

@@ -2,8 +2,8 @@ use super::*;
 use crate::core::{
     config::{AlertConfig, LocationPreferences},
     credentials::{
-        smtp::{encode_smtp_password, SmtpCredentialBinding, SMTP_CREDENTIAL_REENTRY_REQUIRED},
-        CredentialService,
+        encode_smtp_password, CredentialService, SmtpCredentialBinding,
+        SMTP_CREDENTIAL_REENTRY_REQUIRED,
     },
     db::Database,
 };

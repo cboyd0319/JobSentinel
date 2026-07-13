@@ -2,8 +2,8 @@ use super::*;
 use crate::core::{
     config::{AlertConfig, DiscordConfig, EmailConfig, SlackConfig, TeamsConfig, TelegramConfig},
     credentials::{
-        smtp::{encode_smtp_password, SmtpCredentialBinding, SMTP_CREDENTIAL_REENTRY_REQUIRED},
-        CredentialKey, CredentialService,
+        encode_smtp_password, CredentialKey, CredentialService, SmtpCredentialBinding,
+        SMTP_CREDENTIAL_REENTRY_REQUIRED,
     },
     scoring::{JobScore, ScoreBreakdown},
     Job,

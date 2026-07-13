@@ -9,7 +9,7 @@
 //! - Automation attempt structures
 //! - Screening answer matching
 
-use jobsentinel_core::automation::{ats_detector::AtsDetector, AtsPlatform, AutomationStatus};
+use jobsentinel_core::automation::{AtsDetector, AtsPlatform, AutomationStatus};
 
 // ============================================================================
 // ATS Detection Tests (URL-based)

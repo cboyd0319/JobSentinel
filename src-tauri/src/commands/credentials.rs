@@ -4,8 +4,7 @@
 
 use crate::commands::AppState;
 use crate::core::credentials::{
-    smtp::{encode_smtp_password, SmtpCredentialBinding},
-    CredentialKey, CredentialService,
+    encode_smtp_password, CredentialKey, CredentialService, SmtpCredentialBinding,
 };
 use serde::{Deserialize, Serialize};
 use tauri::State;

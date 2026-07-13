@@ -14,9 +14,8 @@ use crate::commands::AppState;
 #[cfg(test)]
 use crate::core::automation::AutomationStatus;
 use crate::core::automation::{
-    ats_detector::AtsDetector,
-    profile::{ApplicationProfileInput, ProfileManager},
-    AtsPlatform, AutomationManager, AutomationStats,
+    ApplicationProfileInput, AtsDetector, AtsPlatform, AutomationManager, AutomationStats,
+    ProfileManager,
 };
 use crate::core::url_security::sanitize_url_for_logging;
 use std::path::Path;

@@ -6,8 +6,7 @@ use crate::commands::errors::user_friendly_error;
 use crate::commands::AppState;
 use crate::core::config::{AutoRefreshConfig, Config, EmailConfig};
 use crate::core::credentials::{
-    smtp::{decode_smtp_password_for_binding, SmtpCredentialBinding},
-    CredentialKey, CredentialService,
+    decode_smtp_password_for_binding, CredentialKey, CredentialService, SmtpCredentialBinding,
 };
 use crate::core::db::Database;
 use crate::core::logging::path_label_for_logging;

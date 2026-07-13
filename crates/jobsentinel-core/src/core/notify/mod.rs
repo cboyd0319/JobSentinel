@@ -7,8 +7,7 @@
 use crate::core::{
     config::Config,
     credentials::{
-        smtp::{decode_smtp_password_for_binding, SmtpCredentialBinding},
-        CredentialKey, CredentialService,
+        decode_smtp_password_for_binding, CredentialKey, CredentialService, SmtpCredentialBinding,
     },
     scoring::JobScore,
     url_security::{canonicalize_user_supplied_job_url, resolve_external_https_url_for_fetch},

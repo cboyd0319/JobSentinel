@@ -80,9 +80,8 @@ impl SecretVault {
         bytes
     }
 
-    /// Create a vault backed by an existing SQLite pool.
-    #[must_use]
-    pub fn new(pool: SqlitePool, master_key: [u8; MASTER_KEY_LEN]) -> Self {
+    #[cfg(test)]
+    fn new(pool: SqlitePool, master_key: [u8; MASTER_KEY_LEN]) -> Self {
         Self::from_shared_key(pool, Arc::new(Zeroizing::new(master_key)))
     }
 
@@ -199,21 +198,6 @@ impl SecretVault {
         Ok(())
     }
 
-    /// Return true when a vault row exists for this credential key.
-    pub async fn exists(&self, key: CredentialKey) -> Result<bool, SecretVaultError> {
-        if is_disabled_credential(key) {
-            return Ok(false);
-        }
-
-        let exists: i64 =
-            sqlx::query_scalar("SELECT EXISTS(SELECT 1 FROM secret_vault WHERE key = ?)")
-                .bind(key.as_str())
-                .fetch_one(&self.pool)
-                .await?;
-
-        Ok(exists == 1)
-    }
-
     fn cipher(&self) -> XChaCha20Poly1305 {
         XChaCha20Poly1305::new(Key::from_slice(self.master_key.as_ref().as_ref()))
     }
@@ -243,7 +227,6 @@ mod tests {
             .await
             .unwrap();
 
-        assert!(vault.exists(CredentialKey::SmtpPassword).await.unwrap());
         assert_eq!(
             vault.retrieve(CredentialKey::SmtpPassword).await.unwrap(),
             Some("mail-password".to_string())
@@ -274,7 +257,6 @@ mod tests {
             .await
             .unwrap();
 
-        assert!(!vault.exists(CredentialKey::TelegramBotToken).await.unwrap());
         assert_eq!(
             vault
                 .retrieve(CredentialKey::TelegramBotToken)
@@ -336,7 +318,11 @@ mod tests {
             !err.to_string().contains(secret),
             "disabled credential error must not echo secret"
         );
-        assert!(!vault.exists(CredentialKey::LinkedInCookie).await.unwrap());
+        assert!(vault
+            .retrieve(CredentialKey::LinkedInCookie)
+            .await
+            .unwrap()
+            .is_none());
     }
 
     #[tokio::test]

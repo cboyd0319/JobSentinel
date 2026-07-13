@@ -5,7 +5,7 @@
 //! stores can prompt the user.
 
 use super::disconnect_linkedin_with_credentials;
-use crate::core::credentials::{CredentialKey, CredentialService, CredentialStore};
+use crate::core::credentials::{CredentialKey, CredentialService};
 use keyring::{Entry, Error as KeyringError};
 
 const SECURE_STORAGE_UNAVAILABLE: &str =
@@ -71,10 +71,11 @@ fn delete_raw_legacy_credential(key: CredentialKey) -> Result<(), String> {
     }
 }
 
-fn roundtrip_or_accept_locked_store(key: CredentialKey, test_value: &str, label: &str) {
-    let _ = CredentialStore::delete(key);
+async fn roundtrip_or_accept_locked_store(key: CredentialKey, test_value: &str, label: &str) {
+    let credentials = CredentialService::compatibility_keyring();
+    let _ = credentials.delete(key).await;
 
-    match CredentialStore::store(key, test_value) {
+    match credentials.store(key, test_value).await {
         Ok(()) => {}
         Err(error) if error == SECURE_STORAGE_UNAVAILABLE => {
             assert_error_is_sanitized(&error, test_value);
@@ -83,7 +84,7 @@ fn roundtrip_or_accept_locked_store(key: CredentialKey, test_value: &str, label:
         Err(error) => panic!("Failed to store {label} credential: {error:?}"),
     }
 
-    let retrieved = CredentialStore::retrieve(key);
+    let retrieved = credentials.retrieve(key).await;
     assert!(
         retrieved.is_ok(),
         "Failed to retrieve {label} credential: {:?}",
@@ -91,53 +92,56 @@ fn roundtrip_or_accept_locked_store(key: CredentialKey, test_value: &str, label:
     );
     assert_eq!(retrieved.unwrap(), Some(test_value.to_string()));
 
-    let delete_result = CredentialStore::delete(key);
+    let delete_result = credentials.delete(key).await;
     assert!(
         delete_result.is_ok(),
         "Failed to delete {label} credential: {:?}",
         delete_result
     );
 
-    let after_delete = CredentialStore::retrieve(key);
+    let after_delete = credentials.retrieve(key).await;
     assert!(after_delete.is_ok());
     assert_eq!(after_delete.unwrap(), None);
 }
 
-#[test]
-fn test_slack_webhook_credential() {
+#[tokio::test]
+async fn test_slack_webhook_credential() {
     if !require_live_keyring_test("Slack webhook keyring roundtrip") {
         return;
     }
 
     let test_value = "https://hooks.slack.com/services/TEST/TEST/TEST123";
 
-    roundtrip_or_accept_locked_store(CredentialKey::SlackWebhook, test_value, "Slack webhook");
+    roundtrip_or_accept_locked_store(CredentialKey::SlackWebhook, test_value, "Slack webhook")
+        .await;
 }
 
-#[test]
-fn test_discord_webhook_credential() {
+#[tokio::test]
+async fn test_discord_webhook_credential() {
     if !require_live_keyring_test("Discord webhook keyring roundtrip") {
         return;
     }
 
     let test_value = "https://discord.com/api/webhooks/test/token123";
 
-    roundtrip_or_accept_locked_store(CredentialKey::DiscordWebhook, test_value, "Discord webhook");
+    roundtrip_or_accept_locked_store(CredentialKey::DiscordWebhook, test_value, "Discord webhook")
+        .await;
 }
 
-#[test]
-fn test_teams_webhook_credential() {
+#[tokio::test]
+async fn test_teams_webhook_credential() {
     if !require_live_keyring_test("Teams webhook keyring roundtrip") {
         return;
     }
 
     let test_value = "https://outlook.office.com/webhook/test/IncomingWebhook/abc123";
 
-    roundtrip_or_accept_locked_store(CredentialKey::TeamsWebhook, test_value, "Teams webhook");
+    roundtrip_or_accept_locked_store(CredentialKey::TeamsWebhook, test_value, "Teams webhook")
+        .await;
 }
 
-#[test]
-fn test_telegram_bot_token_credential() {
+#[tokio::test]
+async fn test_telegram_bot_token_credential() {
     if !require_live_keyring_test("Telegram bot token keyring roundtrip") {
         return;
     }
@@ -148,14 +152,18 @@ fn test_telegram_bot_token_credential() {
         CredentialKey::TelegramBotToken,
         test_value,
         "Telegram bot token",
-    );
+    )
+    .await;
 }
 
-#[test]
-fn test_linkedin_cookie_credential() {
+#[tokio::test]
+async fn test_linkedin_cookie_credential() {
     let test_value = "AQEDAQRlbmNyeXB0ZWQtdGVzdC1jb29raWUtdmFsdWU";
+    let credentials = CredentialService::compatibility_keyring();
 
-    let result = CredentialStore::store(CredentialKey::LinkedInCookie, test_value);
+    let result = credentials
+        .store(CredentialKey::LinkedInCookie, test_value)
+        .await;
     assert!(
         result.is_err(),
         "LinkedIn credential storage should stay disabled"
@@ -164,11 +172,15 @@ fn test_linkedin_cookie_credential() {
     assert_eq!(error, LINKEDIN_CREDENTIAL_STORAGE_DISABLED);
     assert_error_is_sanitized(&error, test_value);
 
-    let retrieved = CredentialStore::retrieve(CredentialKey::LinkedInCookie)
+    let retrieved = credentials
+        .retrieve(CredentialKey::LinkedInCookie)
+        .await
         .expect("disabled LinkedIn retrieval should not touch the keyring");
     assert_eq!(retrieved, None);
 
-    let exists = CredentialStore::exists(CredentialKey::LinkedInCookie)
+    let exists = credentials
+        .exists(CredentialKey::LinkedInCookie)
+        .await
         .expect("disabled LinkedIn status should not touch the keyring");
     assert!(!exists);
 }
@@ -211,13 +223,14 @@ async fn test_disconnect_linkedin_deletes_legacy_cookie_and_expiry_entries() {
     assert!(!raw_legacy_credential_exists(CredentialKey::LinkedInCookieExpiry).unwrap());
 }
 
-#[test]
-fn test_usajobs_api_key_credential() {
+#[tokio::test]
+async fn test_usajobs_api_key_credential() {
     if !require_live_keyring_test("USAJobs API key keyring roundtrip") {
         return;
     }
 
     let test_value = "xABC123defGHI456jklMNO789pqrSTU";
 
-    roundtrip_or_accept_locked_store(CredentialKey::UsaJobsApiKey, test_value, "USAJobs API key");
+    roundtrip_or_accept_locked_store(CredentialKey::UsaJobsApiKey, test_value, "USAJobs API key")
+        .await;
 }

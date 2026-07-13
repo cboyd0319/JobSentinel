@@ -1,5 +1,5 @@
 use super::{has_stored_path, resume_file_display_name};
-use crate::core::automation::{profile::ScreeningAnswer, ApplicationAttempt, ApplicationProfile};
+use crate::core::automation::{ApplicationAttempt, ApplicationProfile, ScreeningAnswer};
 use serde::{Deserialize, Serialize};
 
 /// Response type for application profile (frontend-friendly)

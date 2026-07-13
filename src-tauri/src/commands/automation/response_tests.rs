@@ -1,6 +1,7 @@
 use super::*;
-use crate::core::automation::answer_learning::{AnswerSource, AnswerStatistics, AnswerSuggestion};
-use crate::core::automation::ApplicationProfile;
+use crate::core::automation::{
+    AnswerSource, AnswerStatistics, AnswerSuggestion, ApplicationProfile, ModificationExample,
+};
 
 fn profile_with_resume_path(path: Option<String>) -> ApplicationProfile {
     ApplicationProfile {
@@ -173,14 +174,12 @@ fn answer_statistics_response_omits_raw_answer_history() {
         confidence_score: 0.75,
         last_used_at: Some(modified_at),
         created_at: modified_at,
-        recent_modifications: vec![
-            crate::core::automation::answer_learning::ModificationExample {
-                original_answer: "Expected salary 110000".to_string(),
-                modified_to: "Expected salary 120000".to_string(),
-                question_text: "What salary range do you need?".to_string(),
-                modified_at,
-            },
-        ],
+        recent_modifications: vec![ModificationExample {
+            original_answer: "Expected salary 110000".to_string(),
+            modified_to: "Expected salary 120000".to_string(),
+            question_text: "What salary range do you need?".to_string(),
+            modified_at,
+        }],
     };
 
     let response = AnswerStatisticsResponse::from(stats);

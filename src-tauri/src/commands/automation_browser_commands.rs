@@ -1,10 +1,8 @@
 use crate::commands::errors::user_friendly_error;
 use crate::commands::AppState;
-use crate::core::automation::browser::{BrowserManager, FillResult};
-use crate::core::automation::form_filler::FormFiller;
 use crate::core::automation::{
-    ats_detector::AtsDetector, profile::ProfileManager, AtsPlatform, AutomationManager,
-    AutomationStatus,
+    AtsDetector, AtsPlatform, AutomationManager, AutomationStatus, BrowserManager, FillResult,
+    FormFiller, ProfileManager,
 };
 #[cfg(test)]
 use crate::core::url_security::validate_external_https_url;

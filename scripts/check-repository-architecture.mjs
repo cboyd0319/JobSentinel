@@ -231,6 +231,31 @@ function checkCoreBoundary(root, violations) {
       violations.push(`${libPath} must export an explicit bounded core facade`);
     }
   }
+
+  for (const path of [
+    "crates/jobsentinel-core/src/core/automation/mod.rs",
+    "crates/jobsentinel-core/src/core/credentials/mod.rs",
+  ]) {
+    if (!existsSync(join(root, path))) {
+      continue;
+    }
+
+    if (/(?:^|\n)\s*pub\s+mod\s+\w+/.test(read(root, path))) {
+      violations.push(
+        `${path} must keep implementation modules private and re-export a bounded facade`,
+      );
+    }
+  }
+
+  const credentialsPath = "crates/jobsentinel-core/src/core/credentials/mod.rs";
+  if (
+    existsSync(join(root, credentialsPath)) &&
+    /\bpub\s+struct\s+CredentialStore\b/.test(read(root, credentialsPath))
+  ) {
+    violations.push(
+      `${credentialsPath} must keep the legacy OS credential adapter private`,
+    );
+  }
 }
 
 function checkTauriShell(root, violations) {

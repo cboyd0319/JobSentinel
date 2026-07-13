@@ -5,7 +5,7 @@
 use crate::commands::errors::user_friendly_error;
 use crate::commands::limits::validate_optional_command_limit_usize;
 use crate::commands::AppState;
-use crate::core::automation::answer_learning::{
+use crate::core::automation::{
     AnswerLearningManager, AnswerSource, AnswerStatistics, AnswerSuggestion,
 };
 use serde::{Deserialize, Serialize};
@@ -210,10 +210,8 @@ pub struct ModificationExampleResponse {
     pub modified_at: String,
 }
 
-impl From<crate::core::automation::answer_learning::ModificationExample>
-    for ModificationExampleResponse
-{
-    fn from(ex: crate::core::automation::answer_learning::ModificationExample) -> Self {
+impl From<crate::core::automation::ModificationExample> for ModificationExampleResponse {
+    fn from(ex: crate::core::automation::ModificationExample) -> Self {
         Self {
             before_chars: ex.original_answer.chars().count(),
             after_chars: ex.modified_to.chars().count(),

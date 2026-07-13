@@ -15,9 +15,9 @@ readiness effort. Milestones 0 through 6 are complete: structural sensors,
 neutral data ownership, frontend feature ownership, backend cycle repair, the
 explicit two-member Cargo workspace, core extraction, and the thin private
 Tauri shell, and final script and harness ownership all have passing evidence.
-The final file-cap, Rust lint-policy, and first Rust facade and target slices of
-Milestone 7 are also complete with passing evidence; the remaining work is the
-full cleanup audit and release-readiness proof.
+The final file-cap, Rust lint-policy, core facade and target, and sensitive Rust
+leaf-module slices of Milestone 7 are also complete with passing evidence; the
+remaining work is the full cleanup audit and release-readiness proof.
 
 Observed release state on 2026-06-22 local time:
 
@@ -88,6 +88,9 @@ weakened.
   crate-root policy drift.
 - The core crate exposes an explicit bounded facade. Its integration targets
   are deliberate, and embedded model diagnostics do not expose cache paths.
+- Credential and application-assistance internals are private behind flat
+  facades. The legacy OS credential adapter cannot be called across the crate
+  boundary, and default tests explicitly keep live keyring access disabled.
 - Coverage for all configured source adapters and user-gated restricted-source
   paths must retain focused parser/import/gate evidence before any release-ready
   claim.

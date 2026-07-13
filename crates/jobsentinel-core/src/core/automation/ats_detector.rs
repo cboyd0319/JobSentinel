@@ -17,8 +17,7 @@ impl AtsDetector {
     ///
     /// # Examples
     /// ```
-    /// use jobsentinel_core::automation::ats_detector::AtsDetector;
-    /// use jobsentinel_core::automation::AtsPlatform;
+    /// use jobsentinel_core::automation::{AtsDetector, AtsPlatform};
     ///
     /// let platform = AtsDetector::detect_from_url("https://boards.greenhouse.io/company/jobs/123");
     /// assert_eq!(platform, AtsPlatform::Greenhouse);

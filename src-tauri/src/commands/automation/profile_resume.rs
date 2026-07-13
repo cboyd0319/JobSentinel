@@ -1,4 +1,4 @@
-use crate::core::automation::profile::ApplicationProfileInput;
+use crate::core::automation::ApplicationProfileInput;
 use crate::platforms;
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};

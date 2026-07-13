@@ -1,61 +1,32 @@
-//! Application Assist Module (Application Assist)
+//! Candidate-controlled application assistance.
 //!
-//! **⚠️ ETHICAL GUIDELINES ⚠️**
-//!
-//! This module provides infrastructure for candidate-controlled application form filling.
-//! Users MUST:
-//! - Comply with all company Terms of Service
-//! - Never bypass CAPTCHAs or security measures
-//! - Respect rate limits (default: max 10 applications/day)
-//! - Only apply to jobs they genuinely intend to pursue
-//! - Review applications before submission (human-in-the-loop)
-//!
-//! **Legal Considerations:**
-//! - Some companies prohibit browser-driven application assistance in their ToS
-//! - Evading security measures may violate CFAA (Computer Fraud and Abuse Act)
-//! - Users are responsible for ensuring compliance
-//!
-//! **Our Approach:**
-//! - Transparency: Users must explicitly enable automation
-//! - Quality: Only assist with 80%+ match jobs
-//! - Approval: User reviews before submission (default)
-//! - Respect: Honor robots.txt and no-bot policies
-//! - CAPTCHA: stop and prompt the user
-//!
-//! ## Architecture
-//!
-//! This is a **Phase 1 Foundation** implementation providing:
-//! - Application profile management
-//! - ATS platform detection
-//! - Screening answer configuration
-//! - Application-assist attempt logging
-//!
-//! **Future Phases:**
-//! - Phase 2: Headless browser integration (`fantoccini` or `headless_chrome`)
-//! - Phase 3: Form field mapping and auto-fill
-//! - Phase 4: CAPTCHA detection and user prompting
-//! - Phase 5: Resume/cover letter customization per job
+//! Users explicitly enable assistance, review every application before
+//! submission, and remain responsible for the target site's terms. The app
+//! stops at security challenges and does not bypass site protections.
 
 use crate::core::ats::parse_sqlite_datetime;
 use anyhow::Result;
 use chrono::{DateTime, Utc};
 use sqlx::SqlitePool;
 
-pub mod answer_learning;
-pub mod ats_detector;
-pub mod browser;
-pub mod error;
-pub mod form_filler;
-pub mod profile;
+mod answer_learning;
+mod ats_detector;
+mod browser;
+mod error;
+mod form_filler;
+mod profile;
 mod types;
 
+pub use answer_learning::{
+    AnswerLearningManager, AnswerSource, AnswerStatistics, AnswerSuggestion, ModificationExample,
+};
 pub use types::{ApplicationAttempt, AtsPlatform, AutomationStats, AutomationStatus};
 
 pub use ats_detector::AtsDetector;
 pub use browser::{AutomationPage, BrowserManager, FillResult};
 pub use error::{AutomationError, AutomationResult};
 pub use form_filler::FormFiller;
-pub use profile::ApplicationProfile;
+pub use profile::{ApplicationProfile, ApplicationProfileInput, ProfileManager, ScreeningAnswer};
 
 /// Manages application automation lifecycle and database tracking.
 ///

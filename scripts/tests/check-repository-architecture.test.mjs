@@ -340,6 +340,44 @@ test("checkRepositoryArchitecture rejects wildcard core facade exports", () => {
   });
 });
 
+test("checkRepositoryArchitecture rejects public security-sensitive leaf modules", () => {
+  withFixture((root) => {
+    writeTargetWorkspace(root);
+    for (const path of [
+      "crates/jobsentinel-core/src/core/automation/mod.rs",
+      "crates/jobsentinel-core/src/core/credentials/mod.rs",
+    ]) {
+      writeFixtureFile(
+        root,
+        path,
+        path.includes("credentials")
+          ? "pub mod implementation;\npub struct CredentialStore;\n"
+          : "pub mod implementation;\n",
+      );
+    }
+
+    const violations = checkRepositoryArchitecture(root);
+
+    for (const path of [
+      "crates/jobsentinel-core/src/core/automation/mod.rs",
+      "crates/jobsentinel-core/src/core/credentials/mod.rs",
+    ]) {
+      assert.ok(
+        violations.includes(
+          `${path} must keep implementation modules private and re-export a bounded facade`,
+        ),
+        violations.join("\n"),
+      );
+    }
+    assert.ok(
+      violations.includes(
+        "crates/jobsentinel-core/src/core/credentials/mod.rs must keep the legacy OS credential adapter private",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepositoryArchitecture enforces thin private Tauri entrypoints", () => {
   withFixture((root) => {
     writeTargetWorkspace(root);
