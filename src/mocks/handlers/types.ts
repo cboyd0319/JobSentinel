@@ -11,8 +11,10 @@ import type {
 } from "../../features/application-assist/mockProfile";
 import type {
   MockCoverLetterTemplate,
+} from "../../features/applications/mocks/coverLetterTemplateCommands";
+import type {
   MockSavedSearch,
-} from "./coreCommands";
+} from "../../features/dashboard/mocks/savedSearchCommands";
 import type {
   MockInterviewFollowUpState,
   MockInterviewPrepState,

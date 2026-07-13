@@ -735,6 +735,7 @@ evidence-log entry.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-07-13 | Milestone 2 in progress | Split the mixed user-data development mock into Applications-owned cover-letter templates, Dashboard-owned saved searches and search history, and Settings-owned notification preferences. Moved normalization and direct command tests with each owner, retained backend command names and persisted development state, and deleted the 389-line mixed handler plus 303-line mixed normalizer. All 16 focused tests, 2,920 frontend tests across 200 files, the 820-module build, TypeScript, ESLint, architecture, bloat, duplication, and test-quality gates pass. |
 | 2026-07-13 | Milestone 2 in progress | Moved the four-consumer Score Display visual, tests, and stories into `src/ui/score-display/`. Extracted validated score-reason parsing into a private 111-line module and reduced the visual to 416 lines. Copy, thresholds, keyboard behavior, and renderer-safe parsing are unchanged; policy sensors follow both owners. All 162 focused frontend tests, 54 focused sensor tests, 2,933 frontend tests across 194 files, 766 script tests, the 816-module build, repository gates, and 19 Dashboard and Resume E2E flows pass. Only the company research family remains in the root components bucket. |
 | 2026-07-13 | Milestone 2 in progress | Deleted the root `src/utils/` bucket after assigning safe browser downloads, Dashboard CSV, and Settings backups to real owners. Then established `src/features/linkedin-workbench/` with a public visual facade and private consent, transport, and learning modules. App composition supplies the workbench to Dashboard and Settings without feature-to-feature imports. The LinkedIn cut passed 62 focused frontend tests, 2,933 frontend tests across 192 files, 766 script tests, the production build, repository gates, and all 16 Settings E2E flows. Credential redaction, formula neutralization, URL sanitization, explicit review, and local-only behavior are unchanged. |
 | 2026-07-13 | Milestone 2 in progress | Split Error Reporting by dependency direction: `src/app/providers/ErrorReportingProvider.tsx` owns initialization and composition, while `src/shared/errorReporting/` owns the typed context, hook, local reporter, validation, and sanitization contract used across app recovery, Dashboard, Settings, utilities, and feedback. Deleted four helpers with no production consumers, removed the transitional contexts barrel, and deleted the empty root `contexts` and `hooks` buckets. The reporter is 470 lines, below the final production cap. All 189 focused frontend tests, 64 focused policy tests, 3,052 frontend tests across 184 files, 766 script tests, the 804-module build, repository gates, and 31 app-shell and Settings E2E flows pass. No user-facing behavior or public wiki page changed. |
@@ -832,7 +833,10 @@ evidence-log entry.
   Dashboard-only keyboard navigation, desktop notifications, posting-risk
   interpretation, and job URL validation also live under their feature owner.
   Resume analysis scoring is shared only within the Resume domain. Cover-letter
-  template processing is private to Applications. The unused root error-helper
+  template processing and its development commands are private to Applications.
+  Dashboard owns saved-search and search-history development commands, while
+  Settings notifications own notification-preference development commands. The
+  unused root error-helper
   family is deleted, while its privacy checks now apply to any frontend
   TypeScript owner instead of one hardcoded file. Dashboard owns its debounce
   hook directly, and the unused root hooks barrel is gone. App bootstrap owns
@@ -884,8 +888,9 @@ evidence-log entry.
   now live with their owners; mixed root command groups remain to split.
 - Evidence: live manifests, imports, file counts, module graph, SQLx paths, CI,
   release scripts, harness sensors, Tamworth, and persona were inspected on 2026-07-13.
-- Next step: split Settings and cross-feature user-data mock commands, then
-  reduce the dispatcher to deterministic registration.
+- Next step: move the remaining source-link/import and Settings-support mock
+  commands to their owners, then reduce the dispatcher to deterministic
+  registration.
 - Open risks: final SQLx offline metadata location and root Cargo target paths
   must be proven in isolated workspace and release fixtures before old paths are
   removed.

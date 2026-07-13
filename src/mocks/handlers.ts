@@ -43,18 +43,24 @@ import {
 import { handleMockDashboardCommand } from "../features/dashboard/mocks/commands";
 import { handleMockApplicationsCommand } from "../features/applications/mocks/commands";
 import { handleMockSettingsSupportCommand } from "./handlers/settingsSupportCommands";
-import { handleMockUserDataCommand } from "./handlers/userDataCommands";
 import {
   getMockActiveResume,
   handleMockResumeCommand,
 } from "../features/resumes/mocks/resumeCommands";
 import {
   getNextMockCoverLetterTemplateId,
-  getNextMockSavedSearchId,
+  handleMockCoverLetterTemplateCommand,
   normalizeMockCoverLetterTemplate,
-  normalizeMockNotificationPreferences,
+} from "../features/applications/mocks/coverLetterTemplateCommands";
+import {
+  getNextMockSavedSearchId,
+  handleMockSavedSearchCommand,
   normalizeMockSavedSearch,
-} from "./handlers/coreCommands";
+} from "../features/dashboard/mocks/savedSearchCommands";
+import {
+  handleMockNotificationCommand,
+  normalizeMockNotificationPreferences,
+} from "../features/settings/notifications/mockCommands";
 import {
   buildMockApplicationProfileFromInput,
   getDefaultMockApplicationProfile,
@@ -402,15 +408,12 @@ function readMockInvokeControl(cmd: string): MockInvokeControl {
   }
 }
 
-function applyMockUserDataCommand<T>(
+function applyMockCoverLetterTemplateCommand<T>(
   command: string,
   args: Record<string, unknown> | undefined,
 ): T {
-  const result = handleMockUserDataCommand(command, args, {
+  const result = handleMockCoverLetterTemplateCommand(command, args, {
     coverLetterTemplates,
-    savedSearches,
-    searchHistory,
-    notificationPreferences,
   });
 
   if (!result.handled) {
@@ -418,8 +421,49 @@ function applyMockUserDataCommand<T>(
   }
 
   coverLetterTemplates = result.state.coverLetterTemplates;
+
+  if (result.shouldSave) {
+    saveMockState();
+  }
+
+  return result.value as T;
+}
+
+function applyMockSavedSearchCommand<T>(
+  command: string,
+  args: Record<string, unknown> | undefined,
+): T {
+  const result = handleMockSavedSearchCommand(command, args, {
+    savedSearches,
+    searchHistory,
+  });
+
+  if (!result.handled) {
+    return undefined as T;
+  }
+
   savedSearches = result.state.savedSearches;
   searchHistory = result.state.searchHistory;
+
+  if (result.shouldSave) {
+    saveMockState();
+  }
+
+  return result.value as T;
+}
+
+function applyMockNotificationCommand<T>(
+  command: string,
+  args: Record<string, unknown> | undefined,
+): T {
+  const result = handleMockNotificationCommand(command, args, {
+    notificationPreferences,
+  });
+
+  if (!result.handled) {
+    return undefined as T;
+  }
+
   notificationPreferences = result.state.notificationPreferences;
 
   if (result.shouldSave) {
@@ -932,8 +976,14 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
     case "update_cover_letter_template":
     case "delete_cover_letter_template":
     case "import_cover_letter_templates":
+      return applyMockCoverLetterTemplateCommand<T>(cmd, args);
+
+    // Notification preferences
     case "get_notification_preferences":
     case "save_notification_preferences":
+      return applyMockNotificationCommand<T>(cmd, args);
+
+    // Saved searches and search history
     case "get_search_history":
     case "list_saved_searches":
     case "create_saved_search":
@@ -942,7 +992,7 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
     case "import_saved_searches":
     case "add_search_history":
     case "clear_search_history":
-      return applyMockUserDataCommand<T>(cmd, args);
+      return applyMockSavedSearchCommand<T>(cmd, args);
 
     default:
       return undefined as T;
