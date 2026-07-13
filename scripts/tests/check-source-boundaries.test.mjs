@@ -204,7 +204,7 @@ test("source boundaries reject cache docs and direct-open fallbacks", () => {
 
     assert.equal(hasStaleCacheUsageDoc(root, "docs/developer/SCRAPER_CACHE.md"), true);
     assert.equal(hasFrontendDirectOpenDeepLinkFallback(root, "src/components/JobCard.tsx"), true);
-    assert.equal(hasFrontendDirectOpenDeepLinkFallback(root, "src/components/Navigation.tsx"), false);
+    assert.equal(hasFrontendDirectOpenDeepLinkFallback(root, "src/app/Navigation.tsx"), false);
   });
 });
 

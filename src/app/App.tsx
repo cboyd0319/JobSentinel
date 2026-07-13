@@ -1,33 +1,34 @@
 import { useEffect, useState, useCallback, lazy, Suspense } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { default as ErrorBoundary } from "./components/ErrorBoundary";
-import { LoadingSpinner } from "./components/LoadingSpinner";
-import { SkipToContent } from "./components/SkipToContent";
-import { CommandPalette } from "./components/CommandPalette";
-import { default as PageErrorBoundary } from "./components/PageErrorBoundary";
-import { KeyboardShortcutsHelp } from "./components/KeyboardShortcutsHelp";
-import { OnboardingProvider } from "./components/OnboardingTour";
-import { useOnboarding } from "./hooks/useOnboarding";
-import { Navigation } from "./components/Navigation";
-import { KeyboardShortcutsProvider } from "./contexts/KeyboardShortcutsContext";
-import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
-import { logError } from "./utils/errorUtils";
-import { defaultTourSteps } from "./config/tourSteps";
+import type { Page } from "./routes";
+import { default as ErrorBoundary } from "../components/ErrorBoundary";
+import { LoadingSpinner } from "../components/LoadingSpinner";
+import { SkipToContent } from "../components/SkipToContent";
+import { CommandPalette } from "../components/CommandPalette";
+import { default as PageErrorBoundary } from "../components/PageErrorBoundary";
+import { KeyboardShortcutsHelp } from "../components/KeyboardShortcutsHelp";
+import { OnboardingProvider } from "../components/OnboardingTour";
+import { useOnboarding } from "../hooks/useOnboarding";
+import { Navigation } from "./Navigation";
+import { KeyboardShortcutsProvider } from "../contexts/KeyboardShortcutsContext";
+import { useKeyboardShortcuts } from "../hooks/useKeyboardShortcuts";
+import { logError } from "../utils/errorUtils";
+import { defaultTourSteps } from "../config/tourSteps";
 import {
   copySanitizedDebugReport,
   saveSanitizedDebugReport,
-} from "./services/feedbackService";
+} from "../services/feedbackService";
 
 // Lazy load pages for better initial load performance
-const SetupWizard = lazy(() => import("./pages/SetupWizard"));
-const Dashboard = lazy(() => import("./pages/Dashboard"));
-const Applications = lazy(() => import("./pages/Applications"));
-const Resume = lazy(() => import("./pages/Resume"));
-const ResumeBuilder = lazy(() => import("./pages/ResumeBuilder"));
-const ResumeOptimizer = lazy(() => import("./pages/ResumeOptimizer"));
-const Salary = lazy(() => import("./pages/Salary"));
-const Market = lazy(() => import("./pages/Market"));
-const ApplicationProfile = lazy(() => import("./pages/ApplicationProfile"));
+const SetupWizard = lazy(() => import("../pages/SetupWizard"));
+const Dashboard = lazy(() => import("../pages/Dashboard"));
+const Applications = lazy(() => import("../pages/Applications"));
+const Resume = lazy(() => import("../pages/Resume"));
+const ResumeBuilder = lazy(() => import("../pages/ResumeBuilder"));
+const ResumeOptimizer = lazy(() => import("../pages/ResumeOptimizer"));
+const Salary = lazy(() => import("../pages/Salary"));
+const Market = lazy(() => import("../pages/Market"));
+const ApplicationProfile = lazy(() => import("../pages/ApplicationProfile"));
 
 // Loading fallback for lazy-loaded pages
 function PageLoader({ message = "Loading..." }: { message?: string }) {
@@ -62,8 +63,6 @@ function TourStartTrigger({ shouldStart, onStarted }: { shouldStart: boolean; on
 
   return null;
 }
-
-type Page = "dashboard" | "applications" | "resume" | "resume-builder" | "ats-optimizer" | "salary" | "market" | "automation";
 
 export function StartupRecovery({
   onRetry,

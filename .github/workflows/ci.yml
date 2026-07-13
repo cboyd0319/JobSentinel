@@ -96,13 +96,13 @@ jobs:
             esac
 
             case "$path" in
-              src-tauri/*|rust-toolchain.toml)
+              Cargo.toml|Cargo.lock|.cargo/*|clippy.toml|deny.toml|crates/*|src-tauri/*|rust-toolchain.toml|resources/*)
                 rust=true
                 ;;
             esac
 
             case "$path" in
-              AGENTS.md|CLAUDE.md|docs/CLAUDE.md|CODEX.md|GEMINI.md|.cursorrules|.windsurfrules|.cursor/rules/*|.github/copilot-instructions.md|.github/instructions/*.instructions.md|package.json|package-lock.json|src-tauri/Cargo.toml|src-tauri/Cargo.lock|src-tauri/deny.toml|.github/dependabot.yml|.github/workflows/*)
+              AGENTS.md|CLAUDE.md|docs/CLAUDE.md|CODEX.md|GEMINI.md|.cursorrules|.windsurfrules|.cursor/rules/*|.github/copilot-instructions.md|.github/instructions/*.instructions.md|package.json|package-lock.json|Cargo.toml|Cargo.lock|deny.toml|crates/*/Cargo.toml|src-tauri/Cargo.toml|src-tauri/Cargo.lock|src-tauri/deny.toml|.github/dependabot.yml|.github/workflows/*)
                 security=true
                 ;;
             esac

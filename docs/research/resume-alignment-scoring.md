@@ -208,7 +208,7 @@ Future implementation should improve:
 - Readable-text format headings, parser section aliases, plain-text evidence
   section aliases, icon-font terms, ATS-friendly fonts, risky fonts, and
   custom-font signals now live in
-  `src/shared/resumeFormatTaxonomy.json` instead of Rust-only arrays.
+  `resources/taxonomies/resume-format.json` instead of Rust-only arrays.
 - Resume/job fit keeps required and preferred job-post language separate.
 - Resume/job fit now returns requirement-review rows for recognized local
   job-post keywords with direct, strong, partial, implied, or missing states,
@@ -322,25 +322,25 @@ Future implementation should improve:
 - Resume/job fit now treats curated physical-weight wording with the same
   number, such as `lift 50 lbs`, `lift and carry 50 lbs`, and matching
   pound/lbs evidence, as equivalent local physical-demand evidence. The
-  taxonomy lives in `src/shared/resumeKeywordTaxonomy.json` so Rust and
+  taxonomy lives in `resources/taxonomies/resume-keywords.json` so Rust and
   TypeScript paths do not drift.
 - Resume/job fit now keeps shared supplemental keyword groups for office,
   project, marketing, finance, healthcare, legal, supply-chain, support,
-  retail, and security terms in `src/shared/resumeKeywordTaxonomy.json`. These
+  retail, and security terms in `resources/taxonomies/resume-keywords.json`. These
   are curated from JobSentinel research, private local reference profiles, and
   current public resume-keyword guidance; they should stay evidence-oriented
   and must not become copied third-party keyword dumps.
 - Resume/job fit now keeps conservative requirement-search equivalence groups
-  in `src/shared/resumeKeywordTaxonomy.json`, so common wording variants can
+  in `resources/taxonomies/resume-keywords.json`, so common wording variants can
   grow from shared data instead of Rust-only arrays.
 - Resume/job fit now keeps the base industry keyword catalog and canonical
-  requirement-keyword alias map in `src/shared/resumeKeywordTaxonomy.json`.
+  requirement-keyword alias map in `resources/taxonomies/resume-keywords.json`.
 - Resume bullet suggestions now keep role-specific evidence prompt triggers
-  and prompt text in `src/shared/resumeKeywordTaxonomy.json`.
+  and prompt text in `resources/taxonomies/resume-keywords.json`.
 - Resume/job fit now keeps hard-constraint category keyword sets in
-  `src/shared/resumeKeywordTaxonomy.json`.
+  `resources/taxonomies/resume-keywords.json`.
 - Resume/job fit now keeps credential, license, and designation groups in
-  `src/shared/resumeKeywordTaxonomy.json` so Rust and TypeScript paths do not
+  `resources/taxonomies/resume-keywords.json` so Rust and TypeScript paths do not
   drift. Each group separates evidence/search terms from requirement extraction
   terms and catalog terms. This keeps credentials such as `CPA certification`
   source-backed without treating marketing uses such as cost-per-acquisition

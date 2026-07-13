@@ -4,7 +4,8 @@ use std::sync::LazyLock;
 use regex::Regex;
 use serde::Deserialize;
 
-const TAXONOMY_JSON: &str = include_str!("../../../../../src/shared/resumeKeywordTaxonomy.json");
+const TAXONOMY_JSON: &str =
+    include_str!("../../../../../resources/taxonomies/resume-keywords.json");
 
 #[derive(Debug, Deserialize)]
 struct ResumeKeywordTaxonomy {

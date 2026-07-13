@@ -42,9 +42,10 @@ Out of scope:
 
 | Area | State | Next useful slice |
 | ---- | ----- | ----------------- |
-| Active plan state | Current | Keep `status.md`, this file, the release-pipeline plan, `docs/plans/index.json`, and harness manifest aligned. |
+| Active plan state | Current | Keep `status.md`, this file, the full-repository refactor plan, `docs/plans/index.json`, and harness manifest aligned. |
 | v2.9.1 release history | Complete | Keep the moved completed plan as history; do not use it as active release routing. |
-| Release pipeline | Active | Make local macOS the default no-account process, keep hosted all-platform proof opt-in, and document explicit public verification. |
+| Full repository refactor | Active | Complete the clean ownership cutover, full cleanup, and v2.9.5 readiness without weakening privacy. |
+| Release pipeline | Deferred | Re-evaluate prior optimization decisions against the final workspace during v2.9.5 readiness. |
 | v3 planning | Deferred | Leave v3 docs available for later major-release work; do not implement during post-release closeout. |
 | Scraper/source verification | Maintenance watch | Keep existing source-boundary evidence and restricted-source rules intact; update only for cleanup or regressions. |
 | Locked redesign: Quiet Shield | Maintenance watch | `DESIGN.md`, `docs/design/README.md`, and `docs/design/design-spec.md` remain the active UI contract. |
@@ -109,7 +110,7 @@ or macOS deployment behavior.
 When resuming, read:
 
 1. [Status](status.md)
-2. [Release pipeline audit and optimization](release-pipeline-audit-and-optimization.md)
+2. [Full repository refactor and v2.9.5 readiness](repository-architecture-reorganization.md)
 3. [Verification matrix](../../harness/verification-matrix.md)
 4. Completed or archived plans only for old decisions
 

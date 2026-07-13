@@ -1,8 +1,7 @@
 // Navigation Component - Visible navigation bar for all app pages
 
 import { memo } from "react";
-
-type Page = "dashboard" | "applications" | "resume" | "resume-builder" | "ats-optimizer" | "salary" | "market" | "automation";
+import type { Page } from "./routes";
 
 interface NavItem {
   id: Page;

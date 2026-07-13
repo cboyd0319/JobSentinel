@@ -27,7 +27,7 @@ use std::borrow::Cow;
 use std::sync::LazyLock;
 
 const JOB_TITLE_NORMALIZATION_TAXONOMY_JSON: &str =
-    include_str!("../../../../src/shared/jobTitleNormalizationTaxonomy.json");
+    include_str!("../../../../resources/taxonomies/job-title-normalization.json");
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]

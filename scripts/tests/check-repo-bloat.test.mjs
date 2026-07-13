@@ -105,6 +105,28 @@ test("checkRepoBloat applies the shared taxonomy data cap", () => {
   });
 });
 
+test("checkRepoBloat applies the Rust source cap under workspace crates", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(root, "crates/jobsentinel-core/src/lib.rs", lineFixture(701));
+
+    execFileSync(
+      "git",
+      ["add", "package.json", "crates/jobsentinel-core/src/lib.rs"],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "split oversized tracked file: crates/jobsentinel-core/src/lib.rs has 701 lines (file-size contract max 700, scope rust-source)",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
 test("checkRepoBloat rejects reserved E2E fixture placeholders", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

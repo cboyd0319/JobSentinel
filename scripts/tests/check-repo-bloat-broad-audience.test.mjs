@@ -28,7 +28,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "examples/sample-json-resume.json",
+      "examples/resumes/sample-json-resume.json",
       [
         '"name": "John Doe",',
         '"label": "Senior Software Engineer",',
@@ -621,7 +621,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       [
         "add",
         "package.json",
-        "examples/sample-json-resume.json",
+        "examples/resumes/sample-json-resume.json",
         "src/pages/Dashboard.tsx",
         "src/pages/SetupWizard.tsx",
         "src/pages/Salary.tsx",
@@ -725,7 +725,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     const violations = checkRepoBloat(root);
 
     for (const path of [
-      "examples/sample-json-resume.json",
+      "examples/resumes/sample-json-resume.json",
       "src/pages/Salary.tsx",
       "src/pages/Dashboard.tsx",
       "src/pages/SetupWizard.tsx",

@@ -82,7 +82,7 @@ mod tests {
     #[test]
     fn config_example_matches_current_schema_and_source_policy() {
         let manifest_dir = Path::new(env!("CARGO_MANIFEST_DIR"));
-        let sample_path = manifest_dir.join("../config/config.example.json");
+        let sample_path = manifest_dir.join("../examples/config/config.example.json");
         let sample_text = fs::read_to_string(&sample_path).unwrap_or_else(|error| {
             panic!(
                 "failed to read sample config at {}: {error}",

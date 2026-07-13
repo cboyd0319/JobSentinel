@@ -91,7 +91,15 @@ function isFrontendTest(path) {
 }
 
 function isRustSource(path) {
-  return path.startsWith("src-tauri/src/") && path.endsWith(".rs");
+  return (
+    (path.startsWith("src-tauri/src/") || /^crates\/[^/]+\/src\//.test(path)) &&
+    path.endsWith(".rs")
+  );
+}
+
+function rustPackageForPath(path) {
+  const crateMatch = path.match(/^crates\/([^/]+)\//);
+  return crateMatch?.[1] ?? "jobsentinel";
 }
 
 function isE2ePath(path) {
@@ -131,7 +139,7 @@ function isUserFacingPath(path) {
     path.startsWith("docs/user/") ||
     path.startsWith("docs/features/") ||
     path.startsWith(".github/ISSUE_TEMPLATE/") ||
-    path.startsWith("profiles/") ||
+    path.startsWith("examples/profiles/") ||
     path.startsWith("src/pages/") ||
     path.startsWith("src/components/")
   );
@@ -213,6 +221,9 @@ function commandRank(command) {
   if (command === "cd src-tauri && cargo fmt --all -- --check") return 90;
   if (command === "cd src-tauri && cargo clippy -- -D warnings") return 91;
   if (command === "cd src-tauri && cargo test --lib") return 92;
+  if (command === "cargo fmt --all -- --check") return 90;
+  if (command === "cargo clippy --workspace -- -D warnings") return 91;
+  if (command.startsWith("cargo test -p ")) return 92;
   if (command === "npm run lint:tauri-invokes") return 93;
   if (command.includes("cargo sqlx prepare")) return 94;
   if (command === "npm run lint:external-ai") return 100;
@@ -348,14 +359,48 @@ export function summarizeHarnessPlan(root = defaultRoot, options = {}) {
     }
 
     if (isRustSource(path)) {
-      addCommand(commands, "cd src-tauri && cargo fmt --all -- --check", "Rust source changed.", path);
-      addCommand(commands, "cd src-tauri && cargo clippy -- -D warnings", "Rust source changed.", path);
-      addCommand(commands, "cd src-tauri && cargo test --lib", "Rust source changed.", path);
+      if (existsSync(join(root, "Cargo.toml"))) {
+        addCommand(commands, "cargo fmt --all -- --check", "Workspace Rust source changed.", path);
+        addCommand(
+          commands,
+          "cargo clippy --workspace -- -D warnings",
+          "Workspace Rust source changed.",
+          path,
+        );
+        addCommand(
+          commands,
+          `cargo test -p ${rustPackageForPath(path)}`,
+          "Run the owning workspace crate tests.",
+          path,
+        );
+      } else {
+        addCommand(commands, "cd src-tauri && cargo fmt --all -- --check", "Rust source changed.", path);
+        addCommand(commands, "cd src-tauri && cargo clippy -- -D warnings", "Rust source changed.", path);
+        addCommand(commands, "cd src-tauri && cargo test --lib", "Rust source changed.", path);
+      }
     }
 
-    if (path.startsWith("src-tauri/migrations/")) {
-      addCommand(commands, 'cd src-tauri && DATABASE_URL="sqlite:jobs.db" cargo sqlx prepare', "SQLite migration changed.", path);
-      addCommand(commands, "cd src-tauri && cargo test --lib", "SQLite migration changed.", path);
+    if (
+      path.startsWith("src-tauri/migrations/") ||
+      /^crates\/[^/]+\/migrations\//.test(path)
+    ) {
+      if (existsSync(join(root, "Cargo.toml"))) {
+        addCommand(
+          commands,
+          'DATABASE_URL="sqlite:jobs.db" cargo sqlx prepare --workspace',
+          "Workspace SQLite migration changed.",
+          path,
+        );
+        addCommand(
+          commands,
+          `cargo test -p ${rustPackageForPath(path)}`,
+          "Run the migration owner tests.",
+          path,
+        );
+      } else {
+        addCommand(commands, 'cd src-tauri && DATABASE_URL="sqlite:jobs.db" cargo sqlx prepare', "SQLite migration changed.", path);
+        addCommand(commands, "cd src-tauri && cargo test --lib", "SQLite migration changed.", path);
+      }
     }
 
     if (isTauriInvokePath(path)) {

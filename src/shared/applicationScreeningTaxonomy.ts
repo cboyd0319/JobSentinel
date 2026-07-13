@@ -1,4 +1,4 @@
-import screeningAliasTaxonomy from "./applicationScreeningAliasTaxonomy.json";
+import screeningAliasTaxonomy from "../../resources/taxonomies/application-screening-aliases.json";
 
 export interface CommonScreeningPattern {
   pattern: string;

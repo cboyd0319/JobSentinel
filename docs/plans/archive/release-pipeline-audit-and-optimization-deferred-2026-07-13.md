@@ -1,5 +1,9 @@
 # Release Pipeline Audit And Optimization
 
+Deferred on 2026-07-13 while the full repository refactor and cleanup take
+priority. Re-evaluate these decisions against the final workspace during the
+v2.9.5 readiness milestone.
+
 Last updated: 2026-06-22.
 
 ## Problem
@@ -90,7 +94,7 @@ git diff --check
 
 ## Handoff
 
-Start from [active status](status.md), then this plan. Keep release-process
+Start from [active status](../active/status.md), then this plan. Keep release-process
 changes small and backed by command output. Do not remove package verification,
 checksums, SBOMs, attestations for hosted artifacts, unsigned/no-account labels,
 or explicit public verification to make the release faster.

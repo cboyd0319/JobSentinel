@@ -3,7 +3,7 @@ use serde::Deserialize;
 use std::sync::LazyLock;
 
 const JOB_POSTING_RISK_TAXONOMY_JSON: &str =
-    include_str!("../../../../src/shared/jobPostingRiskTaxonomy.json");
+    include_str!("../../../../resources/taxonomies/job-posting-risk.json");
 
 static JOB_POSTING_RISK_TAXONOMY: LazyLock<JobPostingRiskTaxonomy> =
     LazyLock::new(load_job_posting_risk_taxonomy);

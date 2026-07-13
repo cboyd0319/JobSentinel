@@ -23,7 +23,7 @@ See [Exec Plans](../exec-plans.md) for required format.
 | ---------- | -------- |
 | Current active status | [Compact status](active/status.md) |
 | Current product and quality work | [Active plan](active/current-work.md) |
-| Release pipeline audit and optimization | [Active plan](active/release-pipeline-audit-and-optimization.md) |
+| Full repository refactor and v2.9.5 readiness | [Active plan](active/repository-architecture-reorganization.md) |
 
 ## Major-Release Planning
 
@@ -60,6 +60,7 @@ Each broad plan follows [the exec-plan template](templates/exec-plan-template.md
 | Superseded active history | Archived | [Guided intake](archive/guided-job-search-intake-superseded-2026-06-04.md), [cleanup sweep](archive/repo-cleanup-and-quality-sweep-superseded-2026-06-04.md), [cleanup handoff](archive/repo-cleanup-handoff-superseded-2026-06-04.md), [research-backed improvements](archive/research-backed-product-improvements-superseded-2026-06-04.md) |
 | v2.5.0 | Complete | No formal plan. |
 | v2.0.0 | Complete | No formal plan. |
+| Release pipeline optimization | Deferred on 2026-07-13 | [Deferred plan](archive/release-pipeline-audit-and-optimization-deferred-2026-07-13.md) |
 | v1.0.0 | Complete | No formal plan. |
 
 Starting with the harness alignment work, broad changes should use

@@ -1,7 +1,7 @@
 {
   "_comment": "JobSentinel v2.9 Configuration",
-  "_instructions": "1. Copy a profile from profiles/ folder OR customize below. 2. Save to config.json in your config directory.",
-  "_profiles_available": "See profiles/ folder for ready-to-use templates: seo-digital-marketing, sales-business-dev, project-operations, finance-accounting, hr-recruiting, content-copywriting, product-management, ux-design, data-science, cybersecurity, software-engineering",
+  "_instructions": "1. Copy a profile from examples/profiles/ OR customize below. 2. Save to config.json in your config directory.",
+  "_profiles_available": "See examples/profiles/ for ready-to-use templates: seo-digital-marketing, sales-business-dev, project-operations, finance-accounting, hr-recruiting, content-copywriting, product-management, ux-design, data-science, cybersecurity, software-engineering",
   "_security_note": "IMPORTANT: Passwords, access codes, and connection links are stored in JobSentinel's encrypted local vault, NOT in this file. Configure credentials in Settings UI.",
 
   "title_allowlist": [

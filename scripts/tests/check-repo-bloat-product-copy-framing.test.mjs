@@ -28,7 +28,7 @@ test("checkRepoBloat rejects stale Resume Optimizer framing", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src/components/Navigation.tsx",
+      "src/app/Navigation.tsx",
       '{ id: "ats-optimizer", label: "Resume Optimizer", shortcut: "⌘8" }\n',
     );
     writeFixtureFile(
@@ -38,7 +38,7 @@ test("checkRepoBloat rejects stale Resume Optimizer framing", () => {
     );
     writeFixtureFile(
       root,
-      "src/App.tsx",
+      "src/app/App.tsx",
       '<PageErrorBoundary pageName="Resume Optimizer">\n',
     );
     writeFixtureFile(
@@ -100,9 +100,9 @@ test("checkRepoBloat rejects stale Resume Optimizer framing", () => {
       [
         "add",
         "package.json",
-        "src/components/Navigation.tsx",
+        "src/app/Navigation.tsx",
         "src/contexts/KeyboardShortcutsContext.tsx",
-        "src/App.tsx",
+        "src/app/App.tsx",
         "src/components/AtsLiveScorePanel.tsx",
         "src/pages/Resume.tsx",
         "src/pages/ResumeBuilder.tsx",
@@ -119,9 +119,9 @@ test("checkRepoBloat rejects stale Resume Optimizer framing", () => {
     const violations = checkRepoBloat(root);
 
     for (const path of [
-      "src/components/Navigation.tsx",
+      "src/app/Navigation.tsx",
       "src/contexts/KeyboardShortcutsContext.tsx",
-      "src/App.tsx",
+      "src/app/App.tsx",
       "src/components/AtsLiveScorePanel.tsx",
       "src/pages/Resume.tsx",
       "src/pages/ResumeBuilder.tsx",

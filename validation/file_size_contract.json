@@ -35,12 +35,16 @@
     },
     {
       "id": "rust-source",
-      "globs": ["src-tauri/src/**/*.rs"],
+      "globs": ["src-tauri/src/**/*.rs", "crates/**/*.rs"],
       "exclude_globs": [
         "src-tauri/src/**/*test*.rs",
         "src-tauri/src/**/tests.rs",
         "src-tauri/src/**/tests/**/*.rs",
-        "src-tauri/src/**/*tests/**/*.rs"
+        "src-tauri/src/**/*tests/**/*.rs",
+        "crates/**/*test*.rs",
+        "crates/**/tests.rs",
+        "crates/**/tests/**/*.rs",
+        "crates/**/*tests/**/*.rs"
       ],
       "max_lines": 700,
       "reason": "Rust modules should stay cohesive and split before becoming hard to review"
@@ -52,10 +56,21 @@
         "src-tauri/src/**/tests.rs",
         "src-tauri/src/**/tests/**/*.rs",
         "src-tauri/src/**/*tests/**/*.rs",
-        "src-tauri/tests/**/*.rs"
+        "src-tauri/tests/**/*.rs",
+        "crates/**/*test*.rs",
+        "crates/**/tests.rs",
+        "crates/**/tests/**/*.rs",
+        "crates/**/*tests/**/*.rs",
+        "crates/*/tests/**/*.rs"
       ],
       "max_lines": 1200,
       "reason": "Rust tests should stay focused by behavior or platform surface"
+    },
+    {
+      "id": "cross-runtime-resources",
+      "globs": ["resources/**/*.json"],
+      "max_lines": 2000,
+      "reason": "canonical cross-runtime structured data may be larger than logic modules"
     },
     {
       "id": "scripts",
@@ -79,14 +94,14 @@
     },
     {
       "id": "config",
-      "globs": ["*.json", "*.toml", "*.yml", "*.yaml", ".github/**/*.yml", ".github/**/*.yaml"],
-      "exclude_globs": ["package-lock.json", "src-tauri/Cargo.lock"],
+      "globs": ["*.json", "*.toml", "*.yml", "*.yaml", ".cargo/**/*.toml", "crates/*/Cargo.toml", "src-tauri/Cargo.toml", ".github/**/*.yml", ".github/**/*.yaml"],
+      "exclude_globs": ["package-lock.json", "Cargo.lock", "src-tauri/Cargo.lock"],
       "max_lines": 1200,
       "reason": "configuration should stay compact and explicit"
     },
     {
       "id": "sql-migrations",
-      "globs": ["src-tauri/migrations/**/*.sql"],
+      "globs": ["src-tauri/migrations/**/*.sql", "crates/*/migrations/**/*.sql"],
       "max_lines": 2000,
       "reason": "checked-in schema migrations may be longer than logic modules"
     },
@@ -101,7 +116,10 @@
     ".git/**",
     "node_modules/**",
     "src-tauri/target/**",
+    "target/**",
+    "crates/**/target/**",
     "package-lock.json",
+    "Cargo.lock",
     "src-tauri/Cargo.lock",
     "src-tauri/gen/**",
     "docs/plans/archive/**"

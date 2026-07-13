@@ -7,7 +7,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 const scriptPath = fileURLToPath(import.meta.url);
 const defaultRoot = resolve(dirname(scriptPath), "..");
 
-const checkedRoots = ["src", "src-tauri/src", "tests", "scripts"];
+const checkedRoots = ["src", "src-tauri/src", "crates", "tests", "scripts"];
 const checkedExtensions = new Set([".js", ".jsx", ".mjs", ".rs", ".ts", ".tsx"]);
 const ignoredPathParts = new Set([
   "node_modules",

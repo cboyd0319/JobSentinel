@@ -4,7 +4,7 @@ use serde::Deserialize;
 use std::sync::LazyLock;
 
 const RESUME_FORMAT_TAXONOMY_JSON: &str =
-    include_str!("../../../../src/shared/resumeFormatTaxonomy.json");
+    include_str!("../../../../resources/taxonomies/resume-format.json");
 
 static RESUME_FORMAT_TAXONOMY: LazyLock<ResumeFormatTaxonomy> =
     LazyLock::new(load_resume_format_taxonomy);

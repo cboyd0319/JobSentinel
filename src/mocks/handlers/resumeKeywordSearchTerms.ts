@@ -2,7 +2,7 @@ import { MOCK_HUMAN_LANGUAGES } from "./resumeAnalysis";
 import type { MockAtsResumeSections } from "./resumeAnalysisSections";
 import { countMockKeywordFrequency } from "./resumeKeywordFrequency";
 import { getMockCredentialSearchTerms } from "./resumeCredentialTaxonomy";
-import resumeKeywordTaxonomy from "../../shared/resumeKeywordTaxonomy.json";
+import resumeKeywordTaxonomy from "../../../resources/taxonomies/resume-keywords.json";
 
 export function getConservativeMockSearchTerms(keyword: string): string[] {
   const lower = keyword.toLowerCase();

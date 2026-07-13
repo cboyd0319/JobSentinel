@@ -37,7 +37,7 @@
     "docs/references.md",
     "docs/exec-plans.md",
     "docs/plans/README.md",
-    "docs/plans/active/release-pipeline-audit-and-optimization.md",
+    "docs/plans/active/repository-architecture-reorganization.md",
     "docs/plans/index.json",
     "docs/plans/templates/exec-plan-template.md",
     "docs/plans/templates/change-contract-template.md",
@@ -163,12 +163,12 @@
       "Public GitHub wiki pages from `docs/harness/manifest.json` to update",
       "Lean and DRY:"
     ],
-    "docs/plans/active/release-pipeline-audit-and-optimization.md": [
+    "docs/plans/active/repository-architecture-reorganization.md": [
       "## Problem",
-      "The `v2.9.1` release was successful, but the process took too long",
-      "local macOS build",
-      "Hosted `all` remains available",
-      "Do not remove package verification"
+      "Privacy guarantees are immutable",
+      "modules before crates",
+      "explicit members",
+      "v2.9.5 release readiness"
     ],
     "docs/harness/verification-matrix.md": [
       "## Experience And Support",

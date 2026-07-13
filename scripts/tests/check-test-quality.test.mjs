@@ -143,3 +143,24 @@ mod tests {
     ]);
   });
 });
+
+test("checkTestQuality scans Rust tests under workspace crates", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "crates/jobsentinel-core/src/search/tests.rs",
+      `
+#[test]
+fn search_contract() {
+    assert!(true, "search works");
+}
+`,
+    );
+
+    const violations = checkTestQuality(root);
+
+    assert.deepEqual(violations, [
+      "crates/jobsentinel-core/src/search/tests.rs:4 contains no-op true assertion",
+    ]);
+  });
+});

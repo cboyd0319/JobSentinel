@@ -8,7 +8,7 @@ use std::collections::HashMap;
 use std::sync::LazyLock;
 
 const JOB_SCORING_SYNONYM_TAXONOMY_JSON: &str =
-    include_str!("../../../../src/shared/jobScoringSynonymTaxonomy.json");
+    include_str!("../../../../resources/taxonomies/job-scoring-synonyms.json");
 
 static JOB_SCORING_SYNONYM_TAXONOMY: LazyLock<JobScoringSynonymTaxonomy> =
     LazyLock::new(load_job_scoring_synonym_taxonomy);

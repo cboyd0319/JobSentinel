@@ -1,6 +1,6 @@
 # Active Plan Status
 
-Last updated: 2026-06-22. Read this file first; load archived or completed
+Last updated: 2026-07-13. Read this file first; load archived or completed
 history only when old decision context is needed.
 
 ## Goal State
@@ -41,12 +41,20 @@ harness. It remains a harness-controlled active-goal acceptance gate;
 `DESIGN.md`, `docs/design/README.md`, and `docs/design/design-spec.md` remain
 UI/UX contracts.
 
+The user explicitly reopened a full repository refactor on 2026-07-13, with no
+internal repository backward-compatibility requirement. The work begins with
+structural sensors, proceeds through a clean ownership cutover and full cleanup,
+and ends at v2.9.5 release readiness. Privacy guarantees are immutable.
+Behavior, UI, APIs, schemas, storage layout, tests, docs, and tooling may change;
+data changes require safe migration and no silent loss, and security may not be
+weakened.
+
 ## Active Workstreams
 
 | Workstream | State | Current focus | Source |
 | ---------- | ----- | ------------- | ------ |
-| Current product and quality work | Active | Post-release docs accuracy, harness health, release pipeline hygiene, and regression watch | [Plan](current-work.md) |
-| Release pipeline audit and optimization | Active | Reduce release time and runner cost, make local macOS the default no-account path, and preserve release evidence | [Plan](release-pipeline-audit-and-optimization.md) |
+| Current product and quality work | Active | Keep privacy, design, platform, harness, and release evidence aligned during the refactor | [Plan](current-work.md) |
+| Full repository refactor and v2.9.5 readiness | Active | Migrate frontend ownership after completing sensors, neutral resources, examples, and dead-code deletion | [Plan](repository-architecture-reorganization.md) |
 
 ## Current Posture
 
@@ -64,8 +72,9 @@ UI/UX contracts.
   GitHub run list for the workflow-token-published `v2.9.1` release, so public
   release verification must be run explicitly until the pipeline has a blocking
   in-workflow verifier.
-- v3 planning remains useful background, but implementation is deferred unless
-  the user explicitly changes scope.
+- General v3 feature work and the prior release-pipeline optimization plan are
+  deferred. The user explicitly opened a full repository refactor on
+  2026-07-13.
 - Cleanup is allowed when it fixes stale docs, broken harness state, bloat,
   test brittleness, security or privacy drift, portability issues, or release
   metadata inaccuracies.
@@ -75,12 +84,10 @@ UI/UX contracts.
 
 ## Next Best Work
 
-1. Use the new manual release dispatch flow for the next release: local macOS
-   by default for no-account builds, hosted `windows-linux` for Windows/Linux,
-   and explicit public verification.
-2. Decide whether to add a blocking in-workflow public verifier before or
-   immediately after publication, instead of relying on a separate release-event
-   workflow.
+1. Implement Milestone 2 of the repository refactor: create frontend ownership
+   directories only as the first app and feature vertical slices move.
+2. Keep every ownership slice green and remove transition code before accepting
+   it.
 3. Keep future product work scoped by the current active plan and the
    verification matrix.
 
@@ -91,8 +98,8 @@ UI/UX contracts.
   best work without old plan reads.
 - Plan indexes, docs hubs, roadmap links, README, release notes, harness
   expectations, and public wiki posture match the published `v2.9.1` state.
-- Release pipeline docs distinguish hosted releases from local macOS uploads
-  and do not overclaim hosted provenance for local artifacts.
+- Release pipeline docs and final v2.9.5 readiness evidence distinguish hosted
+  releases from local macOS uploads and do not overclaim provenance.
 - No known repo bloat, stale docs, generated artifacts, or duplicate sources of
   truth block product, privacy, security, or verification work.
 - No known privacy leak remains in logs, command errors, renderer messages,

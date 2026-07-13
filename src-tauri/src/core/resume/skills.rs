@@ -8,7 +8,7 @@ use std::collections::HashSet;
 use std::sync::LazyLock;
 
 const RESUME_SKILL_TAXONOMY_JSON: &str =
-    include_str!("../../../../src/shared/resumeSkillTaxonomy.json");
+    include_str!("../../../../resources/taxonomies/resume-skills.json");
 
 static RESUME_SKILL_TAXONOMY: LazyLock<ResumeSkillTaxonomy> =
     LazyLock::new(load_resume_skill_taxonomy);

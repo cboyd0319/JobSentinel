@@ -57,10 +57,10 @@ Normal users should use setup or Settings inside JobSentinel.
 
 ```bash
 # macOS/Linux
-cp profiles/seo-digital-marketing.json ~/.config/jobsentinel/config.json
+cp examples/profiles/seo-digital-marketing.json ~/.config/jobsentinel/config.json
 
 # Windows
-copy profiles\seo-digital-marketing.json %LOCALAPPDATA%\JobSentinel\config.json
+copy examples\profiles\seo-digital-marketing.json %LOCALAPPDATA%\JobSentinel\config.json
 ```
 
 ## How Profiles Shape Results

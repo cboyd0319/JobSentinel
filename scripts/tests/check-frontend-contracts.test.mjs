@@ -65,7 +65,7 @@ test("frontend contracts reject stale feedback system-info architecture fields",
       true,
     );
     assert.equal(
-      hasStaleFeedbackSystemInfoArchitecture(root, "src/components/Navigation.tsx"),
+      hasStaleFeedbackSystemInfoArchitecture(root, "src/app/Navigation.tsx"),
       false,
     );
   });

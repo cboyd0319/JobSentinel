@@ -147,3 +147,107 @@ export function Dashboard() {
     );
   });
 });
+
+test("checkFrontendBoundaries rejects feature implementation imports across feature owners", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "tsconfig.json",
+      JSON.stringify({ compilerOptions: { paths: { "@/*": ["./src/*"] } } }),
+    );
+    writeFixtureFile(
+      root,
+      "src/features/search/SearchPage.tsx",
+      'import { ResumeEditor } from "@/features/resume/ResumeEditor";\nexport { ResumeEditor };\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/features/resume/ResumeEditor.tsx",
+      "export function ResumeEditor() { return null; }\n",
+    );
+
+    const violations = checkFrontendBoundaries(root);
+
+    assert.ok(
+      violations.some((violation) =>
+        violation.includes(
+          "src/features/search/SearchPage.tsx imports @/features/resume/ResumeEditor across feature ownership boundary (search -> resume)",
+        ),
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkFrontendBoundaries allows app composition of feature facades", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "tsconfig.json",
+      JSON.stringify({ compilerOptions: { paths: { "@/*": ["./src/*"] } } }),
+    );
+    writeFixtureFile(
+      root,
+      "src/app/router.tsx",
+      'import { SearchPage } from "@/features/search";\nexport { SearchPage };\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/features/search/index.ts",
+      'export { SearchPage } from "./SearchPage";\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/features/search/SearchPage.tsx",
+      "export function SearchPage() { return null; }\n",
+    );
+
+    const violations = checkFrontendBoundaries(root);
+
+    assert.deepEqual(violations, []);
+  });
+});
+
+test("checkFrontendBoundaries rejects ui dependencies on product features", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src/ui/Button.tsx",
+      'import { searchLabel } from "../features/search/model";\nexport const Button = searchLabel;\n',
+    );
+    writeFixtureFile(root, "src/features/search/model.ts", 'export const searchLabel = "Search";\n');
+
+    const violations = checkFrontendBoundaries(root);
+
+    assert.ok(
+      violations.some((violation) =>
+        violation.includes(
+          "src/ui/Button.tsx imports ../features/search/model across forbidden boundary (ui -> features)",
+        ),
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkFrontendBoundaries rejects shared dependencies on app, features, or ui", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src/shared/format.ts",
+      'import { Button } from "../ui/Button";\nexport { Button };\n',
+    );
+    writeFixtureFile(root, "src/ui/Button.tsx", "export function Button() { return null; }\n");
+
+    const violations = checkFrontendBoundaries(root);
+
+    assert.ok(
+      violations.some((violation) =>
+        violation.includes(
+          "src/shared/format.ts imports ../ui/Button across forbidden boundary (shared -> ui)",
+        ),
+      ),
+      violations.join("\n"),
+    );
+  });
+});

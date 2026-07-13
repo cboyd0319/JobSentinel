@@ -270,7 +270,7 @@ test("product copy rejects technical provider setup shortcuts", () => {
 
 test("product copy rejects market-intel jargon in hiring trends surfaces", () => {
   withFixture((root) => {
-    writeFixtureFile(root, "src/components/Navigation.tsx", "Market Intel\n");
+    writeFixtureFile(root, "src/app/Navigation.tsx", "Market Intel\n");
     writeFixtureFile(root, "src/pages/Market.tsx", "Market Intelligence\nRefresh Market Data\n");
     writeFixtureFile(root, "src/pages/marketErrorCopy.ts", "Market data unavailable\n");
     writeFixtureFile(root, "src/components/MarketSnapshotCard.tsx", "No market snapshot yet. Refresh market data to create one.\n");
@@ -295,7 +295,7 @@ test("product copy rejects market-intel jargon in hiring trends surfaces", () =>
       ].join("\n"),
     );
 
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/components/Navigation.tsx"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/app/Navigation.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Market.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/marketErrorCopy.ts"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/components/MarketSnapshotCard.tsx"), true);
@@ -605,10 +605,10 @@ test("product copy rejects command-first profile docs", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "profiles/README.md",
+      "examples/profiles/README.md",
       [
         "Pre-configured job search profiles for different career paths. Copy one to use as your starting point.",
-        "Start with `config/config.example.json` and fill in your own:",
+        "Start with `examples/config/config.example.json` and fill in your own:",
         "`title_allowlist`: Job titles you're targeting",
         "",
         "### Option 1: Use a Profile Directly",
@@ -618,6 +618,6 @@ test("product copy rejects command-first profile docs", () => {
       ].join("\n"),
     );
 
-    assert.equal(hasTechnicalFirstUserCopy(root, "profiles/README.md"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "examples/profiles/README.md"), true);
   });
 });

@@ -201,7 +201,7 @@ git commit -m "feat: Add support for NewBoard job scraper
 - Implement NewBoardScraper in src-tauri/src/core/scrapers/
 - Add parsing for NewBoard job listings
 - Add tests for NewBoard scraper
-- Update config/config.example.json with NewBoard URLs
+- Update examples/config/config.example.json with NewBoard URLs
 
 Closes #123"
 ```
@@ -523,7 +523,7 @@ pub mod newboard;
 **3. Add configuration:**
 
 ```json
-// config/config.example.json
+// examples/config/config.example.json
 {
   "newboard_urls": ["https://www.newboard.com/jobs?q=engineer"]
 }

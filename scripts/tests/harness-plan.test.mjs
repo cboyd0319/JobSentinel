@@ -105,6 +105,25 @@ test("plans Rust, Tauri invoke, and migration checks", () => {
   });
 });
 
+test("plans root workspace checks for Rust crates and owned migrations", () => {
+  withFixture((root) => {
+    writeFixtureFile(root, "Cargo.toml", "[workspace]\n");
+    const plan = summarizeHarnessPlan(root, {
+      changedFiles: [
+        "crates/jobsentinel-core/src/search.rs",
+        "crates/jobsentinel-core/migrations/20260713000000_example.sql",
+      ],
+    });
+
+    assert.deepEqual(commandsFor(plan), [
+      "cargo fmt --all -- --check",
+      "cargo clippy --workspace -- -D warnings",
+      "cargo test -p jobsentinel-core",
+      'DATABASE_URL="sqlite:jobs.db" cargo sqlx prepare --workspace',
+    ]);
+  });
+});
+
 test("plans script tests and focused script test", () => {
   withFixture((root) => {
     writeFixtureFile(root, "scripts/tests/harness-plan.test.mjs");

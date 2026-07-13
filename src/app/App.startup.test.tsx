@@ -3,11 +3,11 @@ import userEvent from "@testing-library/user-event";
 import { invoke } from "@tauri-apps/api/core";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import App, { StartupRecovery } from "./App";
-import * as feedbackService from "./services/feedbackService";
+import * as feedbackService from "../services/feedbackService";
 
 const mockInvoke = vi.mocked(invoke);
 
-vi.mock("./utils/errorUtils", () => ({
+vi.mock("../utils/errorUtils", () => ({
   logError: vi.fn(),
 }));
 

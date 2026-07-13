@@ -10,7 +10,7 @@ use sqlx::SqlitePool;
 use std::{collections::HashSet, sync::LazyLock};
 
 const APPLICATION_SCREENING_ALIAS_TAXONOMY_JSON: &str =
-    include_str!("../../../../src/shared/applicationScreeningAliasTaxonomy.json");
+    include_str!("../../../../resources/taxonomies/application-screening-aliases.json");
 
 static APPLICATION_SCREENING_ALIAS_TAXONOMY: LazyLock<ApplicationScreeningAliasTaxonomy> =
     LazyLock::new(load_application_screening_alias_taxonomy);

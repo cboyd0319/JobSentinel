@@ -407,7 +407,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(root, "src/components/CommandPalette.tsx", '"Type a command or search..."\n');
     writeFixtureFile(root, "src/components/KeyboardShortcutsHelp.tsx", '"Open command palette"\n');
-    writeFixtureFile(root, "src/components/Navigation.tsx", '"for command palette"\n');
+    writeFixtureFile(root, "src/app/Navigation.tsx", '"for command palette"\n');
     writeFixtureFile(
       root,
       "src/contexts/KeyboardShortcutsContext.tsx",
@@ -568,7 +568,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         "src/components/CareerProfileSelector.tsx",
         "src/components/CommandPalette.tsx",
         "src/components/KeyboardShortcutsHelp.tsx",
-        "src/components/Navigation.tsx",
+        "src/app/Navigation.tsx",
         "src/components/automation/ApplyButton.tsx",
         "src/components/automation/ScreeningAnswersForm.tsx",
         "src/components/feedback/DebugInfoPreview.tsx",
@@ -625,7 +625,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "src/components/CareerProfileSelector.tsx",
       "src/components/CommandPalette.tsx",
       "src/components/KeyboardShortcutsHelp.tsx",
-      "src/components/Navigation.tsx",
+      "src/app/Navigation.tsx",
       "src/components/automation/ApplyButton.tsx",
       "src/components/automation/ScreeningAnswersForm.tsx",
       "src/components/feedback/DebugInfoPreview.tsx",

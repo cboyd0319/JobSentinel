@@ -30,6 +30,16 @@ exact command from `verification-matrix.md`, not a paraphrase.
 
 | Date | Command | Scope | Result | Exit | Notes |
 | ---- | ------- | ----- | ------ | ---- | ----- |
+| 2026-07-13 | `npm run test:run`, `npm run lint`, and `npm run build` | Milestone 2 app bootstrap, route composition, and navigation ownership slice | pass | 0 | All 3,141 frontend tests, TypeScript and ESLint checks, and the 741-module production build passed after the app-shell move. |
+| 2026-07-13 | `cargo clippy -- -D warnings` | Milestone 1 Rust consumers and full current backend | pass | 0 | The full backend passed Clippy with warnings denied. |
+| 2026-07-13 | `cargo test --lib` | Full Rust regression gate after Milestone 1 resource ownership changes | pass | 0 | 2,958 tests passed, 11 intentionally ignored, and no tests failed. |
+| 2026-07-13 | `npm run test:run` | Milestone 1 frontend resource moves, dead-code deletion, and deterministic application review model | pass | 0 | 3,141 tests passed across 184 files after the time-sensitive model test received an explicit reference time. |
+| 2026-07-13 | `npm run test:scripts` | Milestone 1 example paths plus repository architecture sensors | pass | 0 | 758 tests passed, including resource, example, bloat, boundary, and harness-planning fixtures. |
+| 2026-07-13 | `cargo test --lib core::config` and `cargo test --lib taxonomy` | Milestone 1 Rust consumers of moved examples and cross-runtime taxonomies | pass | 0 | 157 configuration tests and 3 taxonomy-filtered tests passed. |
+| 2026-07-13 | `npm run lint:architecture`, `npm run lint:bloat`, `npm run lint:security`, and `npm run harness:check` | Milestone 1 ownership, artifact, privacy, security, and harness gates | pass | 0 | All focused structural and policy gates passed after generated frontend build output was removed. |
+| 2026-07-13 | `npm run harness:check` | Milestone 0 harness, active-state, manifest, and security contracts | pass | 0 | Harness score and required privacy, design, plan, workflow, and ownership sensors pass after the refactor plan became active. |
+| 2026-07-13 | `npm run test:scripts` | Milestone 0 architecture, bloat, security, release, and utility sensors | pass | 0 | 757 tests passed, including new workspace, frontend feature, file-cap, test-quality, and harness-plan fixtures. |
+| 2026-07-13 | `npm run lint:architecture`, `npm run lint:tests`, and `npm run lint:bloat` | Focused Milestone 0 structural gate | pass | 0 | Frontend ownership, repository architecture, test quality, and tracked-file policy pass on the current migration state. |
 | 2026-06-24 | `npm run release:check-deps` | npm, Cargo, and Actions latest-pin gate | pass | 0 | All direct deps, transitives, the Node 24.18.0 baseline, and Actions are at latest stable. Five Cargo pins are held behind latest by documented SQLx and upstream constraints. |
 | 2026-06-24 | `npm run build` and `npm run test:run` | Frontend build and Vitest suite | pass | 0 | Proves vite 8.1.0, recharts 3.9.0, and @vitejs/plugin-react 6.0.3 work after the dependency bump. |
 | 2026-06-24 | `cargo test --lib` | Rust core after chacha20 0.10.1 | pass | 0 | 2958 passed, 0 failed. |

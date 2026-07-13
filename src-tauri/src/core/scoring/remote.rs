@@ -7,7 +7,7 @@ use serde::Deserialize;
 use std::sync::LazyLock;
 
 const WORK_ARRANGEMENT_TAXONOMY_JSON: &str =
-    include_str!("../../../../src/shared/workArrangementTaxonomy.json");
+    include_str!("../../../../resources/taxonomies/work-arrangements.json");
 
 static WORK_ARRANGEMENT_TAXONOMY: LazyLock<WorkArrangementTaxonomy> =
     LazyLock::new(

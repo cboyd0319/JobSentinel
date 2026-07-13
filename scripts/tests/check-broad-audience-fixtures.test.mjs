@@ -140,7 +140,7 @@ test("broad audience fixtures reject tech-brand config and profile seeds", () =>
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "config/config.example.json",
+      "examples/config/config.example.json",
       [
         '"company_whitelist": ["Google", "Cloudflare", "GitHub"]',
         '"_profiles_available": "software-engineering, seo-digital-marketing"',
@@ -148,7 +148,7 @@ test("broad audience fixtures reject tech-brand config and profile seeds", () =>
     );
     writeFixtureFile(
       root,
-      "profiles/README.md",
+      "examples/profiles/README.md",
       [
         "| Profile | File | Target Roles | Salary Range |",
         "|---------|------|--------------|--------------|",
@@ -158,52 +158,52 @@ test("broad audience fixtures reject tech-brand config and profile seeds", () =>
     );
     writeFixtureFile(
       root,
-      "profiles/hr-recruiting.json",
+      "examples/profiles/hr-recruiting.json",
       '"greenhouse_urls": ["https://boards.greenhouse.io/rippling"]',
     );
     writeFixtureFile(
       root,
-      "profiles/product-management.json",
+      "examples/profiles/product-management.json",
       '"greenhouse_urls": ["https://boards.greenhouse.io/stripe"]',
     );
     writeFixtureFile(
       root,
-      "profiles/ux-design.json",
+      "examples/profiles/ux-design.json",
       '"greenhouse_urls": ["https://boards.greenhouse.io/figma"]',
     );
     writeFixtureFile(
       root,
-      "profiles/content-copywriting.json",
+      "examples/profiles/content-copywriting.json",
       '"greenhouse_urls": ["https://boards.greenhouse.io/notion"]',
     );
     writeFixtureFile(
       root,
-      "profiles/seo-digital-marketing.json",
+      "examples/profiles/seo-digital-marketing.json",
       '"lever_urls": ["https://jobs.lever.co/semrush"]',
     );
     writeFixtureFile(
       root,
-      "profiles/sales-business-dev.json",
+      "examples/profiles/sales-business-dev.json",
       '"greenhouse_urls": ["https://boards.greenhouse.io/datadog"]',
     );
 
-    assert.equal(hasEngineerFirstAudienceExamples(root, "config/config.example.json"), true);
-    assert.equal(hasEngineerFirstAudienceExamples(root, "profiles/README.md"), true);
-    assert.equal(hasEngineerFirstAudienceExamples(root, "profiles/hr-recruiting.json"), true);
+    assert.equal(hasEngineerFirstAudienceExamples(root, "examples/config/config.example.json"), true);
+    assert.equal(hasEngineerFirstAudienceExamples(root, "examples/profiles/README.md"), true);
+    assert.equal(hasEngineerFirstAudienceExamples(root, "examples/profiles/hr-recruiting.json"), true);
     assert.equal(
-      hasEngineerFirstAudienceExamples(root, "profiles/product-management.json"),
+      hasEngineerFirstAudienceExamples(root, "examples/profiles/product-management.json"),
       true,
     );
-    assert.equal(hasEngineerFirstAudienceExamples(root, "profiles/ux-design.json"), true);
+    assert.equal(hasEngineerFirstAudienceExamples(root, "examples/profiles/ux-design.json"), true);
     assert.equal(
-      hasEngineerFirstAudienceExamples(root, "profiles/content-copywriting.json"),
+      hasEngineerFirstAudienceExamples(root, "examples/profiles/content-copywriting.json"),
       true,
     );
     assert.equal(
-      hasEngineerFirstAudienceExamples(root, "profiles/seo-digital-marketing.json"),
+      hasEngineerFirstAudienceExamples(root, "examples/profiles/seo-digital-marketing.json"),
       true,
     );
-    assert.equal(hasEngineerFirstAudienceExamples(root, "profiles/sales-business-dev.json"), true);
+    assert.equal(hasEngineerFirstAudienceExamples(root, "examples/profiles/sales-business-dev.json"), true);
   });
 });
 

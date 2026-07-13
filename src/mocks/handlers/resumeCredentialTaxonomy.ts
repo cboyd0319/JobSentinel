@@ -1,4 +1,4 @@
-import resumeKeywordTaxonomy from "../../shared/resumeKeywordTaxonomy.json";
+import resumeKeywordTaxonomy from "../../../resources/taxonomies/resume-keywords.json";
 
 type CredentialKeywordGroup = {
   canonical: string;

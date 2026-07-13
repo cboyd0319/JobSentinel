@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { CAREER_PROFILES } from "./careerProfileTaxonomy";
-import resumeKeywordTaxonomy from "./resumeKeywordTaxonomy.json";
+import resumeKeywordTaxonomy from "../../resources/taxonomies/resume-keywords.json";
 import {
   REQUIRED_RESUME_ROLE_FAMILY_IDS,
   RESUME_ROLE_FAMILY_TAXONOMY,

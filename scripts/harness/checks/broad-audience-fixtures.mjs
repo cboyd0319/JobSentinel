@@ -2,17 +2,17 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 const broadAudienceExamplePaths = new Set([
-  "config/config.example.json",
-  "examples/sample-json-resume.json",
-  "profiles/content-copywriting.json",
-  "profiles/finance-accounting.json",
-  "profiles/hr-recruiting.json",
-  "profiles/product-management.json",
-  "profiles/project-operations.json",
-  "profiles/seo-digital-marketing.json",
-  "profiles/README.md",
-  "profiles/sales-business-dev.json",
-  "profiles/ux-design.json",
+  "examples/config/config.example.json",
+  "examples/resumes/sample-json-resume.json",
+  "examples/profiles/content-copywriting.json",
+  "examples/profiles/finance-accounting.json",
+  "examples/profiles/hr-recruiting.json",
+  "examples/profiles/product-management.json",
+  "examples/profiles/project-operations.json",
+  "examples/profiles/seo-digital-marketing.json",
+  "examples/profiles/README.md",
+  "examples/profiles/sales-business-dev.json",
+  "examples/profiles/ux-design.json",
   "src/components/CoverLetterTemplates.tsx",
   "src/components/CompanyResearchPanel.tsx",
   "src/components/CompanyResearchPanel.test.tsx",
@@ -176,7 +176,7 @@ export function hasEngineerFirstAudienceExamples(root, path) {
 
   const text = readFileSync(join(root, path), "utf8");
 
-  if (path === "config/config.example.json") {
+  if (path === "examples/config/config.example.json") {
     const configExamplePatterns = [
       /"company_whitelist":\s*\[[^\]]*"Google"[^\]]*"Cloudflare"[^\]]*"GitHub"/is,
       /"_profiles_available":\s*"[^"]*software-engineering,\s*seo-digital-marketing/is,
@@ -187,7 +187,7 @@ export function hasEngineerFirstAudienceExamples(root, path) {
     }
   }
 
-  if (path === "profiles/README.md") {
+  if (path === "examples/profiles/README.md") {
     const firstProfileRow = text.match(/\|\s*\*\*[^*]+\*\*\s*\|[^\n]+/);
     if (
       firstProfileRow &&
@@ -198,14 +198,14 @@ export function hasEngineerFirstAudienceExamples(root, path) {
   }
 
   if (
-    path === "profiles/content-copywriting.json" ||
-    path === "profiles/finance-accounting.json" ||
-    path === "profiles/hr-recruiting.json" ||
-    path === "profiles/product-management.json" ||
-    path === "profiles/project-operations.json" ||
-    path === "profiles/seo-digital-marketing.json" ||
-    path === "profiles/sales-business-dev.json" ||
-    path === "profiles/ux-design.json"
+    path === "examples/profiles/content-copywriting.json" ||
+    path === "examples/profiles/finance-accounting.json" ||
+    path === "examples/profiles/hr-recruiting.json" ||
+    path === "examples/profiles/product-management.json" ||
+    path === "examples/profiles/project-operations.json" ||
+    path === "examples/profiles/seo-digital-marketing.json" ||
+    path === "examples/profiles/sales-business-dev.json" ||
+    path === "examples/profiles/ux-design.json"
   ) {
     const profileSeedPatterns = [
       /"(?:greenhouse_urls|lever_urls)"\s*:\s*\[[^\]]*"https?:\/\//is,
@@ -465,7 +465,7 @@ export function hasEngineerFirstAudienceExamples(root, path) {
     }
   }
 
-  if (path === "examples/sample-json-resume.json") {
+  if (path === "examples/resumes/sample-json-resume.json") {
     const sampleJsonResumePatterns = [
       /"name":\s*"John Doe"/i,
       /"label":\s*"Senior Software Engineer"/i,
@@ -508,9 +508,9 @@ export function hasEngineerFirstAudienceExamples(root, path) {
   }
 
   if (path === "src-tauri/src/core/scoring/synonyms.rs") {
-    if (text.includes("jobScoringSynonymTaxonomy.json")) {
+    if (text.includes("job-scoring-synonyms.json")) {
       const taxonomy = JSON.parse(
-        readFileSync(join(root, "src/shared/jobScoringSynonymTaxonomy.json"), "utf8"),
+        readFileSync(join(root, "resources/taxonomies/job-scoring-synonyms.json"), "utf8"),
       );
       const synonymGroups = Array.isArray(taxonomy.synonymGroups)
         ? taxonomy.synonymGroups

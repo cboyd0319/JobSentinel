@@ -1,4 +1,4 @@
-import resumeKeywordTaxonomy from "../../shared/resumeKeywordTaxonomy.json";
+import resumeKeywordTaxonomy from "../../../resources/taxonomies/resume-keywords.json";
 import { getMockCredentialCatalogTerms } from "./resumeCredentialTaxonomy";
 
 export type MockKeywordImportance = "Required" | "Preferred" | "Industry";

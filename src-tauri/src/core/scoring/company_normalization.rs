@@ -2,7 +2,7 @@ use serde::Deserialize;
 use std::sync::LazyLock;
 
 const COMPANY_NORMALIZATION_TAXONOMY_JSON: &str =
-    include_str!("../../../../src/shared/companyNormalizationTaxonomy.json");
+    include_str!("../../../../resources/taxonomies/company-normalization.json");
 
 static COMPANY_NORMALIZATION_TAXONOMY: LazyLock<CompanyNormalizationTaxonomy> =
     LazyLock::new(load_company_normalization_taxonomy);

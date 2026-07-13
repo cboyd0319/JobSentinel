@@ -8,9 +8,11 @@ const ignoredTraversalPaths = new Set([
   ".husky/_",
   "node_modules",
   "src-tauri/target",
+  "target",
 ]);
 
 const allowedRootEntries = new Set([
+  ".cargo",
   ".claudeignore",
   ".env.example",
   ".github",
@@ -23,6 +25,8 @@ const allowedRootEntries = new Set([
   ".vale",
   ".vale.ini",
   "AGENTS.md",
+  "Cargo.lock",
+  "Cargo.toml",
   "CHANGELOG.md",
   "CLAUDE.md",
   "CODE_OF_CONDUCT.md",
@@ -35,6 +39,7 @@ const allowedRootEntries = new Set([
   "ROADMAP.md",
   "SECURITY.md",
   "config",
+  "crates",
   "docs",
   "eslint.config.js",
   "examples",
@@ -45,6 +50,7 @@ const allowedRootEntries = new Set([
   "postcss.config.js",
   "profiles",
   "public",
+  "resources",
   "rust-toolchain.toml",
   "scripts",
   "skills",
@@ -57,6 +63,8 @@ const allowedRootEntries = new Set([
   "vite.config.ts",
   "vitest.config.ts",
   "validation",
+  "clippy.toml",
+  "deny.toml",
 ]);
 
 const allowedTrackedGeneratedPaths = new Set([
@@ -173,12 +181,16 @@ const defaultFileSizeContract = {
     },
     {
       id: "rust-source",
-      globs: ["src-tauri/src/**/*.rs"],
+      globs: ["src-tauri/src/**/*.rs", "crates/**/*.rs"],
       exclude_globs: [
         "src-tauri/src/**/*test*.rs",
         "src-tauri/src/**/tests.rs",
         "src-tauri/src/**/tests/**/*.rs",
         "src-tauri/src/**/*tests/**/*.rs",
+        "crates/**/*test*.rs",
+        "crates/**/tests.rs",
+        "crates/**/tests/**/*.rs",
+        "crates/**/*tests/**/*.rs",
       ],
       max_lines: 700,
     },
@@ -190,8 +202,18 @@ const defaultFileSizeContract = {
         "src-tauri/src/**/tests/**/*.rs",
         "src-tauri/src/**/*tests/**/*.rs",
         "src-tauri/tests/**/*.rs",
+        "crates/**/*test*.rs",
+        "crates/**/tests.rs",
+        "crates/**/tests/**/*.rs",
+        "crates/**/*tests/**/*.rs",
+        "crates/*/tests/**/*.rs",
       ],
       max_lines: 1200,
+    },
+    {
+      id: "cross-runtime-resources",
+      globs: ["resources/**/*.json"],
+      max_lines: 2000,
     },
     {
       id: "scripts",
@@ -214,7 +236,10 @@ const defaultFileSizeContract = {
     ".git/**",
     "node_modules/**",
     "src-tauri/target/**",
+    "target/**",
+    "crates/**/target/**",
     "package-lock.json",
+    "Cargo.lock",
     "src-tauri/Cargo.lock",
     "src-tauri/gen/**",
     "docs/plans/archive/**",

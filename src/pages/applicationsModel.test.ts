@@ -147,7 +147,9 @@ describe("applicationsModel", () => {
       },
     ];
 
-    expect(getApplicationReviewSummary(applications, reminders).actions).toEqual([
+    expect(
+      getApplicationReviewSummary(applications, reminders, new Date("2026-06-19T12:00:00Z")).actions,
+    ).toEqual([
       expect.objectContaining({ kind: "reminders", priority: "high", count: 1 }),
       expect.objectContaining({ kind: "interviews", priority: "medium", count: 1 }),
       expect.objectContaining({ kind: "offers", priority: "medium", count: 1 }),

@@ -19,14 +19,14 @@ const hiringTrendsCopyPaths = new Set([
   "src/components/LocationHeatmap.tsx",
   "src/components/MarketAlertCard.tsx",
   "src/components/MarketSnapshotCard.tsx",
-  "src/components/Navigation.tsx",
+  "src/app/Navigation.tsx",
   "src/mocks/handlers/marketIntelligence.ts",
   "src/pages/Market.tsx",
   "src/pages/marketErrorCopy.ts",
   "tests/e2e/playwright/page-objects/MarketIntelligencePage.ts",
 ]);
 const firstRunPlainCopyPaths = new Set([
-  "src/App.tsx",
+  "src/app/App.tsx",
   "src/components/CareerProfileSelector.tsx",
   "src/config/tourSteps.ts",
   "src/pages/SetupWizard.tsx",

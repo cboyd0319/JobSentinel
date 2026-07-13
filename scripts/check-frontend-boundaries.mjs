@@ -60,6 +60,21 @@ const boundaryRules = [
     disallow: ["pages", "components", "hooks", "contexts", "services"],
     reason: "configuration must not depend on runtime UI or service modules",
   },
+  {
+    from: "features",
+    disallow: ["app"],
+    reason: "features must not depend on application composition",
+  },
+  {
+    from: "ui",
+    disallow: ["app", "features"],
+    reason: "reusable UI must not depend on application or product feature modules",
+  },
+  {
+    from: "shared",
+    disallow: ["app", "features", "ui"],
+    reason: "shared contracts must not depend on application, feature, or UI modules",
+  },
 ];
 
 const dynamicTailwindClassPattern =
@@ -112,6 +127,12 @@ function getLayer(root, fullPath) {
   const rel = relative(join(root, "src"), fullPath);
   const [layer] = rel.split(/[\\/]/);
   return layer ?? "";
+}
+
+function getFeatureOwner(root, fullPath) {
+  const rel = relative(join(root, "src"), fullPath);
+  const [layer, owner] = rel.split(/[\\/]/);
+  return layer === "features" ? (owner ?? "") : "";
 }
 
 function getImportSpecifiers(text) {
@@ -326,10 +347,6 @@ export function checkFrontendBoundaries(root = defaultRoot) {
     const fromLayer = getLayer(root, file);
     const applicableRules = boundaryRules.filter((rule) => rule.from === fromLayer);
 
-    if (applicableRules.length === 0) {
-      continue;
-    }
-
     for (const specifier of getImportSpecifiers(text)) {
       const resolved = resolveImport(root, file, specifier, aliasMappings);
 
@@ -342,6 +359,18 @@ export function checkFrontendBoundaries(root = defaultRoot) {
       }
 
       const toLayer = getLayer(root, resolved);
+      const fromFeature = getFeatureOwner(root, file);
+      const toFeature = getFeatureOwner(root, resolved);
+
+      if (
+        fromLayer === "features" &&
+        toLayer === "features" &&
+        fromFeature !== toFeature
+      ) {
+        violations.push(
+          `${relFile} imports ${specifier} across feature ownership boundary (${fromFeature} -> ${toFeature}): compose features in app or move the smallest shared contract to shared`,
+        );
+      }
 
       for (const rule of applicableRules) {
         if (!rule.disallow.includes(toLayer)) {

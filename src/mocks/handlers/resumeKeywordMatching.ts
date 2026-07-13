@@ -4,7 +4,7 @@ import {
   type MockAtsKeyword,
   type MockKeywordImportance,
 } from "./resumeAnalysis";
-import resumeKeywordTaxonomy from "../../shared/resumeKeywordTaxonomy.json";
+import resumeKeywordTaxonomy from "../../../resources/taxonomies/resume-keywords.json";
 import type { MockAtsResumeSections } from "./resumeAnalysisSections";
 import {
   extractMockCredentialKeywords,
