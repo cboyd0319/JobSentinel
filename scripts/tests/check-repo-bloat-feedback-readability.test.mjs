@@ -28,7 +28,7 @@ test("checkRepoBloat rejects stale feedback system-info architecture field", () 
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src/services/feedbackService.ts",
+      "src/features/settings/support/feedback/feedbackClient.ts",
       [
         "export interface SystemInfo {",
         "  arch: string;",
@@ -65,7 +65,7 @@ test("checkRepoBloat rejects stale feedback system-info architecture field", () 
       [
         "add",
         "package.json",
-        "src/services/feedbackService.ts",
+        "src/features/settings/support/feedback/feedbackClient.ts",
         "src/features/settings/support/feedback/DebugInfoPreview.tsx",
         "src/mocks/handlers.ts",
       ],
@@ -76,7 +76,7 @@ test("checkRepoBloat rejects stale feedback system-info architecture field", () 
 
     assert.ok(
       violations.includes(
-        "sync feedback system-info architecture field: src/services/feedbackService.ts",
+        "sync feedback system-info architecture field: src/features/settings/support/feedback/feedbackClient.ts",
       ),
       violations.join("\n"),
     );
@@ -100,7 +100,7 @@ test("checkRepoBloat rejects raw feedback debug-event JSON", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src/services/feedbackService.ts",
+      "src/features/settings/support/feedback/feedbackReportFormatting.ts",
       [
         "export function formatDebugInfo(debugEvents) {",
         "  return debugEvents.map(event => JSON.stringify(event.details));",
@@ -119,7 +119,7 @@ test("checkRepoBloat rejects raw feedback debug-event JSON", () => {
       [
         "add",
         "package.json",
-        "src/services/feedbackService.ts",
+        "src/features/settings/support/feedback/feedbackReportFormatting.ts",
         "src/features/settings/support/feedback/DebugInfoPreview.tsx",
       ],
       { cwd: root },
@@ -129,7 +129,7 @@ test("checkRepoBloat rejects raw feedback debug-event JSON", () => {
 
     assert.ok(
       violations.includes(
-        "keep feedback debug event details readable: src/services/feedbackService.ts",
+        "keep feedback debug event details readable: src/features/settings/support/feedback/feedbackReportFormatting.ts",
       ),
       violations.join("\n"),
     );
@@ -147,10 +147,10 @@ test("checkRepoBloat rejects technical company labels in feedback reports", () =
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src/services/feedbackService.ts",
+      "src/features/settings/support/feedback/feedbackReportFormatting.ts",
       [
         "export function formatDebugInfo(configSummary) {",
-        '  return `Company blocklist: ${configSummary.has_company_blocklist}\\nCompany allowlist: ${configSummary.has_company_allowlist}`;',
+        '  return `Company exclusion list: ${configSummary.has_blocked_companies}\\nCompany preference list: ${configSummary.has_preferred_companies}`;',
         "}",
         "",
       ].join("\n"),
@@ -158,14 +158,20 @@ test("checkRepoBloat rejects technical company labels in feedback reports", () =
 
     execFileSync(
       "git",
-      ["add", "package.json", "src/services/feedbackService.ts"],
+      [
+        "add",
+        "package.json",
+        "src/features/settings/support/feedback/feedbackReportFormatting.ts",
+      ],
       { cwd: root },
     );
 
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("keep feedback reports plain-language: src/services/feedbackService.ts"),
+      violations.includes(
+        "keep feedback reports plain-language: src/features/settings/support/feedback/feedbackReportFormatting.ts",
+      ),
       violations.join("\n"),
     );
   });

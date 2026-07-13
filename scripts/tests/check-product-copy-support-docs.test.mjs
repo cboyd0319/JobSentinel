@@ -70,7 +70,7 @@ test("product copy rejects support troubleshooting jargon", () => {
     );
     writeFixtureFile(
       root,
-      "src/services/feedbackService.ts",
+      "src/features/settings/support/feedback/feedbackReportFormatting.ts",
       [
         'const DEBUG_DETAIL_LABELS = { event: "Event" };',
         "${errors.length - MAX_FRONTEND_ERRORS_IN_REPORT} older frontend errors omitted.",
@@ -112,7 +112,10 @@ test("product copy rejects support troubleshooting jargon", () => {
       true,
     );
     assert.equal(
-      hasFeedbackSetupJargon(root, "src/services/feedbackService.ts"),
+      hasFeedbackSetupJargon(
+        root,
+        "src/features/settings/support/feedback/feedbackReportFormatting.ts",
+      ),
       true,
     );
     assert.equal(

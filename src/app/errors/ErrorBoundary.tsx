@@ -2,7 +2,7 @@ import { Component, ErrorInfo, ReactNode } from 'react';
 import { errorReporter, sanitizeTextForStorage } from '../../shared/errorReporting/errorReporter';
 import { clearStorage, readStorageValue, writeStorageValue } from '../../shared/browserStorage';
 import { logError } from '../../shared/errorReporting/logger';
-import { copySanitizedDebugReport, saveSanitizedDebugReport } from '../../services/feedbackService';
+import { copySanitizedDebugReport, saveSanitizedDebugReport } from '../../shared/errorReporting/supportReport';
 
 const VISUAL_PREFERENCE_KEYS = [
   'jobsentinel-theme',

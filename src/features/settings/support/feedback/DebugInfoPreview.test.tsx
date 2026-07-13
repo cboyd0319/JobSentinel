@@ -15,8 +15,8 @@ const configSummary = {
   keywords_count: 6,
   has_location_prefs: true,
   has_salary_prefs: true,
-  has_company_blocklist: false,
-  has_company_allowlist: true,
+  has_blocked_companies: false,
+  has_preferred_companies: true,
   notifications_configured: 1,
   has_resume: true,
 };

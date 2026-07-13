@@ -141,8 +141,8 @@ pub fn summarize_config(config: &Config) -> ConfigSummary {
             || !config.location_preferences.states.is_empty()
             || !config.location_preferences.allow_remote,
         has_salary_prefs: config.salary_floor_usd > 0,
-        has_company_blocklist: !config.blocked_companies.is_empty(),
-        has_company_allowlist: !config.preferred_companies.is_empty(),
+        has_blocked_companies: !config.blocked_companies.is_empty(),
+        has_preferred_companies: !config.preferred_companies.is_empty(),
         notifications_configured,
         has_resume: config.use_resume_matching,
     }

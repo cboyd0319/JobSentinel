@@ -7,7 +7,7 @@ import {
   sanitizeContext,
   type ErrorReport,
 } from '../../../shared/errorReporting/errorReporter';
-import { copySanitizedDebugReport, saveSanitizedDebugReport } from '../../../services/feedbackService';
+import { copySanitizedDebugReport, saveSanitizedDebugReport } from '../../../shared/errorReporting/supportReport';
 import { logError } from '../../../shared/errorReporting/logger';
 
 const TYPE_LABELS: Record<ErrorReport['type'], { label: string; variant: 'danger' | 'alert' | 'surface' }> = {

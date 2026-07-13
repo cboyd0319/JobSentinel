@@ -207,7 +207,6 @@ export function handleMockSettingsSupportCommand(
     case "test_email_notification":
     case "copy_bookmarklet_code":
     case "open_github_issues":
-    case "open_google_drive":
       return withoutSave(state, undefined);
 
     case "get_bookmarklet_config":

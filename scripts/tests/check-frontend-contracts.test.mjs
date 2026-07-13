@@ -53,11 +53,18 @@ test("frontend contracts reject stale user-data, deep-link, and feedback mock ha
 
 test("frontend contracts reject stale feedback system-info architecture fields", () => {
   withFixture((root) => {
-    writeFixtureFile(root, "src/services/feedbackService.ts", "systemInfo.arch;\n");
+    writeFixtureFile(
+      root,
+      "src/features/settings/support/feedback/feedbackReportFormatting.ts",
+      "systemInfo.arch;\n",
+    );
     writeFixtureFile(root, "src/mocks/handlers.ts", 'case "get_system_info": return { arch: "x64" };\n');
 
     assert.equal(
-      hasStaleFeedbackSystemInfoArchitecture(root, "src/services/feedbackService.ts"),
+      hasStaleFeedbackSystemInfoArchitecture(
+        root,
+        "src/features/settings/support/feedback/feedbackReportFormatting.ts",
+      ),
       true,
     );
     assert.equal(

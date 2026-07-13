@@ -20,7 +20,7 @@ import { defaultTourSteps } from "./onboarding/tourSteps";
 import {
   copySanitizedDebugReport,
   saveSanitizedDebugReport,
-} from "../services/feedbackService";
+} from "../shared/errorReporting/supportReport";
 
 // Lazy load pages for better initial load performance
 const SetupWizard = lazy(() => import("../features/onboarding"));

@@ -341,16 +341,18 @@ the broader agent harness.
   link checks shared by Application Assist and Resumes.
 - `src/shared/errorReporting/` owns the validated, privacy-preserving local
   problem-report model, sanitizer, storage contract, context, hook, safe user
-  messages, safe toast copy, and development logger. The app provider under
-  `src/app/providers/` owns initialization and composition.
+  messages, safe toast copy, development logger, and sanitized support-report
+  generation. The app provider under `src/app/providers/` owns initialization
+  and composition.
 - `src/shared/tauri/` owns the product-neutral renderer command client,
   including request deduplication, bounded response caching, command-scoped
   invalidation, privacy-safe errors, and optional sanitized error toasts.
 - Settings owns its notification company chooser, source-health UI and model,
   local problem report panel, and Send Feedback UI under the matching private
-  `notifications/`, `sources/health/`, and `support/` subdomains. Sanitized
-  support-report services remain outside the feature because app-level error
-  boundaries also use them. Settings credential handling owns notification
+  `notifications/`, `sources/health/`, and `support/` subdomains. Feedback
+  commands and readable preview formatting stay private to Settings; sanitized
+  support reports remain shared because app-level error boundaries also use
+  them. Settings credential handling owns notification
   connection-link target validation in `credentials/`. Its support subdomain
   owns recursively redacted local-data backup files and JSON file selection.
 - Dashboard owns job-card salary, malformed-pay, and description formatting in

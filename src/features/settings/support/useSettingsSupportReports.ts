@@ -3,7 +3,7 @@ import type { ToastContextType } from "../../../shared/toast/toastContext";
 import {
   copySanitizedDebugReport,
   saveSanitizedDebugReport,
-} from "../../../services/feedbackService";
+} from "../../../shared/errorReporting/supportReport";
 import { logError } from "../../../shared/errorReporting/logger";
 
 export function useSettingsSupportReports(toast: ToastContextType) {

@@ -1,6 +1,6 @@
 import { memo } from "react";
 import { Button } from "../../../../ui/Button";
-import type { SavedFeedbackFile } from "../../../../services/feedbackService";
+import type { SavedFeedbackFile } from "./feedbackClient";
 
 interface SuccessScreenProps {
   submittedVia: "github" | "local";

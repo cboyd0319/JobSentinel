@@ -133,7 +133,9 @@ const feedbackLocalReportPaths = new Set([
   "src/features/settings/support/feedback/SuccessScreen.tsx",
   "src/features/settings/support/feedback/useFeedback.ts",
   "src/features/settings/SettingsPage.tsx",
-  "src/services/feedbackService.ts",
+  "src/shared/errorReporting/supportReport.ts",
+  "src/features/settings/support/feedback/feedbackClient.ts",
+  "src/features/settings/support/feedback/feedbackReportFormatting.ts",
   "src-tauri/src/commands/feedback/mod.rs",
   "src-tauri/src/commands/feedback/debug_log.rs",
   "src-tauri/src/commands/feedback/report.rs",
@@ -144,7 +146,7 @@ const feedbackLocalReportPaths = new Set([
 
 const feedbackDebugEventFormattingPaths = new Set([
   "src/features/settings/support/feedback/DebugInfoPreview.tsx",
-  "src/services/feedbackService.ts",
+  "src/features/settings/support/feedback/feedbackReportFormatting.ts",
 ]);
 
 const problemHistoryContextFormattingPaths = new Set([
@@ -734,12 +736,12 @@ export function hasRawFeedbackDebugEventDetails(root, path) {
 }
 
 export function hasFeedbackTechnicalCompanyLabels(root, path) {
-  if (path !== "src/services/feedbackService.ts") {
+  if (path !== "src/features/settings/support/feedback/feedbackReportFormatting.ts") {
     return false;
   }
 
   const text = readFileSync(join(root, path), "utf8");
-  return /Company (?:blocklist|allowlist)/.test(text);
+  return /Company (?:exclusion|preference) list/.test(text);
 }
 
 export function hasFeedbackSetupJargon(root, path) {

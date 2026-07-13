@@ -296,9 +296,9 @@ test("product copy rejects raw feedback report presentation", () => {
     );
     writeFixtureFile(
       root,
-      "src/services/feedbackService.ts",
+      "src/features/settings/support/feedback/feedbackReportFormatting.ts",
       [
-        "Company blocklist",
+        "Company exclusion list",
         "`Notifications: ${configSummary.notifications_configured} configured`",
         'has_resume ? "configured" : "not configured"',
         "`  Extra app details: ${sanitizeTextForStorage(error.stack)}`",
@@ -322,7 +322,7 @@ test("product copy rejects raw feedback report presentation", () => {
     assert.equal(
       hasFeedbackTechnicalCompanyLabels(
         root,
-        "src/services/feedbackService.ts",
+        "src/features/settings/support/feedback/feedbackReportFormatting.ts",
       ),
       true,
     );
@@ -334,7 +334,10 @@ test("product copy rejects raw feedback report presentation", () => {
       true,
     );
     assert.equal(
-      hasFeedbackSetupJargon(root, "src/services/feedbackService.ts"),
+      hasFeedbackSetupJargon(
+        root,
+        "src/features/settings/support/feedback/feedbackReportFormatting.ts",
+      ),
       true,
     );
     assert.equal(

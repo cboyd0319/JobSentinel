@@ -3,7 +3,7 @@ import { Button } from "../../ui/Button";
 import { EmptyState } from "../../ui/EmptyState";
 import { errorReporter, sanitizeTextForStorage } from "../../shared/errorReporting/errorReporter";
 import { logError } from "../../shared/errorReporting/logger";
-import { saveSanitizedDebugReport } from "../../services/feedbackService";
+import { saveSanitizedDebugReport } from "../../shared/errorReporting/supportReport";
 
 function getSafeErrorMessage(error: Error | null): string {
   return error

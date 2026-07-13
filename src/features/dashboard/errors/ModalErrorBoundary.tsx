@@ -4,7 +4,7 @@ import { logError } from '../../../shared/errorReporting/logger';
 import {
   copySanitizedDebugReport,
   saveSanitizedDebugReport,
-} from '../../../services/feedbackService';
+} from '../../../shared/errorReporting/supportReport';
 
 interface Props {
   children: ReactNode;

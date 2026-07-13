@@ -11,8 +11,8 @@ import {
   saveFeedbackReport,
   openGitHubIssue,
   revealSavedFeedbackFile,
-  formatDebugInfo,
-} from "../../../../services/feedbackService";
+} from "./feedbackClient";
+import { formatDebugInfo } from "./feedbackReportFormatting";
 import { logError } from "../../../../shared/errorReporting/logger";
 
 export type FeedbackStep = "category" | "description" | "review" | "submit" | "success";

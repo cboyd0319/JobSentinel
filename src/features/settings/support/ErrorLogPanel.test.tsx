@@ -12,7 +12,7 @@ vi.mock("../../../shared/errorReporting/useErrorReporting", () => ({
 
 const mockCopySanitizedDebugReport = vi.fn();
 const mockSaveSanitizedDebugReport = vi.fn();
-vi.mock("../../../services/feedbackService", () => ({
+vi.mock("../../../shared/errorReporting/supportReport", () => ({
   copySanitizedDebugReport: (...args: unknown[]) =>
     mockCopySanitizedDebugReport(...args),
   saveSanitizedDebugReport: (...args: unknown[]) =>

@@ -188,7 +188,6 @@ macro_rules! jobsentinel_command_handlers {
             jobsentinel::commands::feedback::get_debug_log_events,
             jobsentinel::commands::feedback::clear_debug_log_cmd,
             jobsentinel::commands::feedback::open_github_issues,
-            jobsentinel::commands::feedback::open_google_drive,
             jobsentinel::commands::feedback::reveal_saved_feedback_file,
             jobsentinel::commands::feedback::generate_feedback_report,
             jobsentinel::commands::feedback::sanitize_feedback_text,

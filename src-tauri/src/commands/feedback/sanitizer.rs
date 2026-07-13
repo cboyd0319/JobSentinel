@@ -264,8 +264,8 @@ pub struct ConfigSummary {
     pub keywords_count: usize,
     pub has_location_prefs: bool,
     pub has_salary_prefs: bool,
-    pub has_company_blocklist: bool,
-    pub has_company_allowlist: bool,
+    pub has_blocked_companies: bool,
+    pub has_preferred_companies: bool,
     pub notifications_configured: usize,
     pub has_resume: bool,
 }

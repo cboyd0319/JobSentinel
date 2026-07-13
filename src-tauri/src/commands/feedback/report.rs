@@ -155,27 +155,22 @@ fn format_feedback_report(
                 "not set"
             }
         ));
-        if summary.has_company_blocklist || summary.has_company_allowlist {
-            let blocklist_str = if summary.has_company_blocklist {
-                "blocklist"
+        report.push_str(&format!(
+            "Hidden companies: {}\n",
+            if summary.has_blocked_companies {
+                "set"
             } else {
-                ""
-            };
-            let allowlist_str = if summary.has_company_allowlist {
-                "allowlist"
+                "not set"
+            }
+        ));
+        report.push_str(&format!(
+            "Preferred companies: {}\n",
+            if summary.has_preferred_companies {
+                "set"
             } else {
-                ""
-            };
-            let both = if summary.has_company_blocklist && summary.has_company_allowlist {
-                ", "
-            } else {
-                ""
-            };
-            report.push_str(&format!(
-                "Company preferences: {}{}{}\n",
-                blocklist_str, both, allowlist_str
-            ));
-        }
+                "not set"
+            }
+        ));
         report.push_str(&format!(
             "Notifications: {} channel(s)\n",
             summary.notifications_configured
@@ -294,8 +289,8 @@ mod tests {
             keywords_count: 5,
             has_location_prefs: true,
             has_salary_prefs: true,
-            has_company_blocklist: false,
-            has_company_allowlist: true,
+            has_blocked_companies: false,
+            has_preferred_companies: true,
             notifications_configured: 2,
             has_resume: true,
         };
@@ -313,6 +308,8 @@ mod tests {
         assert!(report.contains("Search words saved: 5"));
         assert!(report.contains("Location preferences: configured"));
         assert!(report.contains("Salary preferences: configured"));
+        assert!(report.contains("Hidden companies: not set"));
+        assert!(report.contains("Preferred companies: set"));
         assert!(report.contains("Notifications: 2 channel(s)"));
     }
 

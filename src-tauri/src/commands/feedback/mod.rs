@@ -147,19 +147,6 @@ pub async fn open_github_issues(app: AppHandle, template: Option<String>) -> Res
     Ok(())
 }
 
-/// Open Google Drive feedback folder
-#[tauri::command]
-#[allow(deprecated)]
-pub async fn open_google_drive(app: AppHandle) -> Result<(), String> {
-    let url = "https://drive.google.com/drive/folders/1cbhxt_8mVf4fbi-eD3XPd2UGUSBmhLfo";
-
-    app.shell()
-        .open(url, None)
-        .map_err(|_| feedback_page_open_error())?;
-
-    Ok(())
-}
-
 fn reveal_canonical_path(app: AppHandle, canonical: PathBuf) -> Result<(), String> {
     #[cfg(target_os = "macos")]
     {

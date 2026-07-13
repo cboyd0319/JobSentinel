@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { invoke } from "@tauri-apps/api/core";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import App, { StartupRecovery } from "./App";
-import * as feedbackService from "../services/feedbackService";
+import * as supportReport from "../shared/errorReporting/supportReport";
 
 const mockInvoke = vi.mocked(invoke);
 
@@ -41,7 +41,7 @@ describe("App startup recovery", () => {
 
   it("lets users copy a safe support report from startup recovery", async () => {
     const user = userEvent.setup();
-    vi.spyOn(feedbackService, "copySanitizedDebugReport").mockResolvedValueOnce({
+    vi.spyOn(supportReport, "copySanitizedDebugReport").mockResolvedValueOnce({
       content: "safe report",
       copied: true,
       errorCount: 0,
@@ -51,7 +51,7 @@ describe("App startup recovery", () => {
 
     await user.click(screen.getByRole("button", { name: "Copy Safe Support Report" }));
 
-    expect(feedbackService.copySanitizedDebugReport).toHaveBeenCalledTimes(1);
+    expect(supportReport.copySanitizedDebugReport).toHaveBeenCalledTimes(1);
     expect(screen.getByText("Safe support report copied")).toBeInTheDocument();
   });
 

@@ -4,7 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { invoke } from "@tauri-apps/api/core";
 import Settings from "./SettingsPage";
 import { DEFAULT_EXTERNAL_AI_CONFIG } from "./config/SettingsConfig";
-import * as feedbackService from "../../services/feedbackService";
+import * as supportReport from "../../shared/errorReporting/supportReport";
 import { resetBodyScrollLocksForTests } from "../../ui/bodyScrollLock";
 
 const mockInvoke = vi.mocked(invoke);
@@ -257,7 +257,7 @@ describe("Settings — loadConfig flow", () => {
   it("copies a sanitized support report from settings with one click", async () => {
     const user = userEvent.setup();
     const copySpy = vi
-      .spyOn(feedbackService, "copySanitizedDebugReport")
+      .spyOn(supportReport, "copySanitizedDebugReport")
       .mockResolvedValueOnce({
         content: "safe support report",
         copied: true,
@@ -284,7 +284,7 @@ describe("Settings — loadConfig flow", () => {
   it("saves a sanitized support report from settings with one click", async () => {
     const user = userEvent.setup();
     const saveSpy = vi
-      .spyOn(feedbackService, "saveSanitizedDebugReport")
+      .spyOn(supportReport, "saveSanitizedDebugReport")
       .mockResolvedValueOnce({
         fileName: "jobsentinel-support-report.txt",
         revealToken: "feedback-token",
@@ -309,7 +309,7 @@ describe("Settings — loadConfig flow", () => {
 
   it("shows error state with Try Again button when get_config throws", async () => {
     const copySpy = vi
-      .spyOn(feedbackService, "copySanitizedDebugReport")
+      .spyOn(supportReport, "copySanitizedDebugReport")
       .mockResolvedValueOnce({
         content: "safe support report",
         copied: true,

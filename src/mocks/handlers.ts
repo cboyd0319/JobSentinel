@@ -649,7 +649,6 @@ export async function mockInvoke<T>(cmd: string, args?: Record<string, unknown>)
     case "get_feedback_filename":
     case "save_feedback_file":
     case "open_github_issues":
-    case "open_google_drive":
     case "reveal_saved_feedback_file":
     case "send_external_ai_request":
     case "get_semantic_matching_diagnostics":

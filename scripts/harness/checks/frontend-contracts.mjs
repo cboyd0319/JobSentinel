@@ -63,7 +63,6 @@ export function hasStaleFeedbackMockHandlers(root, path) {
     "get_feedback_filename",
     "save_feedback_file",
     "open_github_issues",
-    "open_google_drive",
     "reveal_saved_feedback_file",
   ];
 
@@ -74,7 +73,8 @@ export function hasStaleFeedbackMockHandlers(root, path) {
 
 export function hasStaleFeedbackSystemInfoArchitecture(root, path) {
   if (
-    path !== "src/services/feedbackService.ts" &&
+    path !== "src/features/settings/support/feedback/feedbackClient.ts" &&
+    path !== "src/features/settings/support/feedback/feedbackReportFormatting.ts" &&
     path !== "src/features/settings/support/feedback/DebugInfoPreview.tsx" &&
     path !== "src/mocks/handlers.ts"
   ) {

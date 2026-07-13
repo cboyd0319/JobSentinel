@@ -16,7 +16,7 @@ export const frontendDirectErrorLoggingPaths = new Set([
   "src/features/dashboard/errors/ModalErrorBoundary.tsx",
   "src/app/errors/PageErrorBoundary.tsx",
   "src/features/settings/support/feedback/useFeedback.ts",
-  "src/services/feedbackService.ts",
+  "src/features/settings/support/feedback/feedbackClient.ts",
 ]);
 
 export const rawPrivateQueryLoggingPaths = new Set([

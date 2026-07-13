@@ -135,8 +135,8 @@ export function getMockConfigSummary(
     keywords_count: config.keywords_boost.length,
     has_location_prefs: config.location_preferences.cities.length > 0,
     has_salary_prefs: config.salary_floor_usd > 0,
-    has_company_blocklist: getArrayLength(config.blocked_companies) > 0,
-    has_company_allowlist: getArrayLength(config.preferred_companies) > 0,
+    has_blocked_companies: getArrayLength(config.blocked_companies) > 0,
+    has_preferred_companies: getArrayLength(config.preferred_companies) > 0,
     notifications_configured: Number(config.alerts.email?.enabled ?? false),
     has_resume: hasResume,
   };

@@ -574,7 +574,6 @@ describe("mock core command handlers", () => {
     await expect(
       mockInvoke<void>("open_github_issues", { template: "feature" }),
     ).resolves.toBeUndefined();
-    await expect(mockInvoke<void>("open_google_drive")).resolves.toBeUndefined();
     await expect(
       mockInvoke<void>("reveal_saved_feedback_file", {
         revealToken: savedFile?.revealToken,

@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { FeedbackCategory } from "../../../../services/feedbackService";
+import type { FeedbackCategory } from "./feedbackClient";
 
 interface CategorySelectorProps {
   selected: FeedbackCategory | null;

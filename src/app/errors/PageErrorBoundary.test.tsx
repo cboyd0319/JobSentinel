@@ -36,7 +36,7 @@ vi.mock("../../shared/errorReporting/errorReporter", async () => {
 });
 
 const mockSaveSanitizedDebugReport = vi.fn();
-vi.mock("../../services/feedbackService", () => ({
+vi.mock("../../shared/errorReporting/supportReport", () => ({
   saveSanitizedDebugReport: (...args: unknown[]) =>
     mockSaveSanitizedDebugReport(...args),
 }));

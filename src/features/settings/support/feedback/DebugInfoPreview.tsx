@@ -1,11 +1,13 @@
 import { memo, useState } from "react";
 import {
-  formatDebugEventDetails,
-  formatDebugEventName,
   type ConfigSummary,
   type DebugEvent,
   type SystemInfo,
-} from "../../../../services/feedbackService";
+} from "./feedbackClient";
+import {
+  formatDebugEventDetails,
+  formatDebugEventName,
+} from "./feedbackReportFormatting";
 
 interface DebugInfoPreviewProps {
   systemInfo: SystemInfo | null;
@@ -93,8 +95,8 @@ export const DebugInfoPreview = memo(function DebugInfoPreview({
                   <InfoRow label="Search words" value={`${configSummary.keywords_count} saved`} />
                   <InfoRow label="Location choices" value={formatSetState(configSummary.has_location_prefs)} />
                   <InfoRow label="Salary choices" value={formatSetState(configSummary.has_salary_prefs)} />
-                  <InfoRow label="Hidden companies" value={formatSetState(configSummary.has_company_blocklist)} />
-                  <InfoRow label="Favorite companies" value={formatSetState(configSummary.has_company_allowlist)} />
+                  <InfoRow label="Hidden companies" value={formatSetState(configSummary.has_blocked_companies)} />
+                  <InfoRow label="Preferred companies" value={formatSetState(configSummary.has_preferred_companies)} />
                   <InfoRow label="Notifications" value={formatTurnedOnCount(configSummary.notifications_configured)} />
                   <InfoRow label="Resume" value={configSummary.has_resume ? "added" : "not added"} />
                 </Section>
