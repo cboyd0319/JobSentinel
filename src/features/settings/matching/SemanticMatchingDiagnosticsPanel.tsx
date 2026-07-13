@@ -5,7 +5,7 @@ import {
   type SemanticMatchingDiagnostics,
   type SemanticMatchingModelDiagnostic,
   type SemanticMatchingRuntimeStatus,
-} from "../../../services/semanticMatchingDiagnostics";
+} from "./semanticMatchingDiagnostics";
 
 const STATUS_COPY: Record<
   SemanticMatchingRuntimeStatus,

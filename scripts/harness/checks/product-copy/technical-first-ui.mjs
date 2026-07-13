@@ -109,7 +109,7 @@ export function getTechnicalFirstUiResult(path, text) {
     );
   }
 
-  if (path === "src/hooks/useFeedback.ts") {
+  if (path === "src/features/settings/support/feedback/useFeedback.ts") {
     return /Failed to load system information|Please try again or copy the report instead|Could not open GitHub/i.test(
       text,
     );

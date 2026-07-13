@@ -148,7 +148,7 @@ test("checkExternalAiGateway avoids company-name false positives", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src/utils/companySuggestions.ts",
+      "src/features/settings/notifications/companySuggestions.ts",
       `
 export const companies = [
   { name: "openai", displayName: "OpenAI" },

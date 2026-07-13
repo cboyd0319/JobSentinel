@@ -698,7 +698,7 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/hooks/useFeedback.ts",
+      "src/features/settings/support/feedback/useFeedback.ts",
       "Failed to load system information\nPlease try again or copy the report instead\nCould not open GitHub. Please save a safe support report instead.\n",
     );
     writeFixtureFile(
@@ -853,7 +853,7 @@ test("product copy rejects technical-first settings copy", () => {
       "src/features/dashboard/components/jobCardGuidance.ts",
       "src/contexts/KeyboardShortcutsContext.tsx",
       "src/contexts/UndoContext.tsx",
-      "src/hooks/useFeedback.ts",
+      "src/features/settings/support/feedback/useFeedback.ts",
       "src/features/application-assist/ApplicationProfilePage.tsx",
       "src/features/applications/ApplicationsPage.tsx",
       "src/features/dashboard/DashboardPage.tsx",

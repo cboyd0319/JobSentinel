@@ -157,7 +157,7 @@ test("checkRepoBloat rejects feedback support paths drifting away from local-fir
     );
     writeFixtureFile(
       root,
-      "src/hooks/useFeedback.ts",
+      "src/features/settings/support/feedback/useFeedback.ts",
       'submittedVia: "drive"; submitViaDrive();\n',
     );
     writeFixtureFile(
@@ -183,7 +183,7 @@ test("checkRepoBloat rejects feedback support paths drifting away from local-fir
         "package.json",
         "src/features/settings/support/feedback/SubmitOptions.tsx",
         "src/features/settings/support/feedback/SuccessScreen.tsx",
-        "src/hooks/useFeedback.ts",
+        "src/features/settings/support/feedback/useFeedback.ts",
         "docs/features/job-sources.md",
         "src/features/settings/SettingsPage.tsx",
         "docs/user/QUICK_START.md",
@@ -196,7 +196,7 @@ test("checkRepoBloat rejects feedback support paths drifting away from local-fir
     for (const path of [
       "src/features/settings/support/feedback/SubmitOptions.tsx",
       "src/features/settings/support/feedback/SuccessScreen.tsx",
-      "src/hooks/useFeedback.ts",
+      "src/features/settings/support/feedback/useFeedback.ts",
       "docs/features/job-sources.md",
       "src/features/settings/SettingsPage.tsx",
       "docs/user/QUICK_START.md",

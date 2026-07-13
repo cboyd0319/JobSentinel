@@ -1,5 +1,5 @@
 import { memo, useState, useRef, useEffect, useCallback, useMemo } from 'react';
-import { COMPANY_SUGGESTIONS } from '../../../utils/companySuggestions';
+import { COMPANY_SUGGESTIONS } from './companySuggestions';
 
 interface CompanyAutocompleteProps {
   value: string;

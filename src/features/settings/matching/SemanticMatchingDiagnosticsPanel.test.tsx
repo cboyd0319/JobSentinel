@@ -2,9 +2,9 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { SemanticMatchingDiagnosticsPanel } from "./SemanticMatchingDiagnosticsPanel";
-import { getSemanticMatchingDiagnostics } from "../../../services/semanticMatchingDiagnostics";
+import { getSemanticMatchingDiagnostics } from "./semanticMatchingDiagnostics";
 
-vi.mock("../../../services/semanticMatchingDiagnostics", () => ({
+vi.mock("./semanticMatchingDiagnostics", () => ({
   getSemanticMatchingDiagnostics: vi.fn(),
 }));
 
