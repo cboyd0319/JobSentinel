@@ -511,6 +511,7 @@ evidence-log entry.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-07-13 | Milestone 7 notification ownership complete | Made all five notification provider modules private behind the typed service facade and retained only the Slack and email validators used by Tauri commands. Deleted unused Discord, Teams, and Telegram network test-message APIs while preserving provider send-path URL checks, pinned resolution, sanitized failures, credential isolation, and local match-detail copy. The full default workspace, 440 focused notification tests, 12 Tauri configuration tests, all-feature Clippy, all-feature test-target compilation, all 775 script tests, and repository gates pass with live keyring access disabled. |
 | 2026-07-13 | Milestone 7 resume ownership complete | Made all ten resume implementation leaves private behind the typed resume facade and removed the unused internal JSON parser export. Deleted the unused parser status and section-extraction paths, then routed PDF extension and path-safety tests through the real parser entrypoint. The full default workspace, 393 focused resume tests, 11 Tauri resume-command tests, all-feature Clippy, all-feature test-target compilation, all 775 script tests, and the architecture gate pass with live keyring access disabled. |
 | 2026-07-13 | Milestone 7 scraper ownership complete | Made the scraper owner and all implementation leaves private, replaced cross-owner leaf imports with one flat internal facade, and moved scraper construction and opt-in live checks under their source owner. Deleted the unused response cache, cached HTTP wrappers, compatibility constructor, parallel helper, stale error surface, and obsolete cache guide. The full default workspace passed with live keyring access disabled; all-feature Clippy and test-target compilation, 775 script tests, documentation lint, language, architecture, and harness gates also passed. |
 | 2026-07-13 | Milestone 7 sensitive Rust leaf facades complete | Made credential and application-assistance implementation modules private behind flat facades, split plaintext credential migration into its own owner, made the legacy OS credential adapter private, and deleted its duplicate status path plus two test-only vault methods from production. The full workspace, all-feature targets, both Clippy modes, 774 script tests, security sensors, and focused noninteractive credential checks pass without a Keychain prompt. |
@@ -622,6 +623,10 @@ evidence-log entry.
   the legacy OS credential adapter can no longer be called across the crate
   boundary. Noninteractive vault and migration tests preserve the privacy and
   data-cleanup contract without prompting for Keychain access.
+- Notification provider implementations are private behind their typed service
+  owner. Tauri commands use the two required flat validation APIs, and three
+  unused network test-message paths are gone without weakening outbound URL,
+  DNS, redaction, credential, or local-detail protections.
 - The cap slice passes the complete 771-test script harness, 2,769 core tests,
   184 Tauri tests, 280 focused frontend tests, the production frontend build,
   workspace Clippy, docs, architecture, language, bloat, and 100/100 harness
@@ -634,8 +639,9 @@ evidence-log entry.
 ## Handoff
 
 - Current state: Milestones 0 through 6 plus the Milestone 7 file-cap, Rust
-  lint-policy, facade, target, and sensitive leaf-module slices are complete
-  with passing evidence. Privacy remains immutable.
+  lint-policy, facade, target, sensitive leaf-module, scraper, resume, and
+  notification slices are complete with passing evidence. Privacy remains
+  immutable.
 - Next step: continue the Rust leaf-module visibility, dead-code, feature, and
   dependency audit before moving to easier cleanup surfaces.
 - Open risks: Windows and Linux platform builds still require their final live

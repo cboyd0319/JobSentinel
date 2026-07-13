@@ -16,9 +16,9 @@ neutral data ownership, frontend feature ownership, backend cycle repair, the
 explicit two-member Cargo workspace, core extraction, and the thin private
 Tauri shell, and final script and harness ownership all have passing evidence.
 The final file-cap, Rust lint-policy, core facade and target, sensitive Rust
-leaf-module, scraper, and resume ownership slices of Milestone 7 are also
-complete with passing evidence. The remaining work is the rest of the cleanup
-audit and the release-readiness proof.
+leaf-module, scraper, resume, and notification ownership slices of Milestone 7
+are also complete with passing evidence. The remaining work is the rest of the
+cleanup audit and the release-readiness proof.
 
 Observed release state on 2026-06-22 local time:
 
@@ -100,6 +100,9 @@ weakened.
 - Resume implementation modules are private behind the existing typed facade.
   The unused parser status check and section extractor are gone, and file-type
   and path-safety tests now exercise the real resume parsing entrypoint.
+- Notification provider modules are private behind the typed service facade.
+  Only the Slack and email validators used by Tauri commands remain public;
+  unused Discord, Teams, and Telegram network test-message APIs are gone.
 - Coverage for all configured source adapters and user-gated restricted-source
   paths must retain focused parser/import/gate evidence before any release-ready
   claim.

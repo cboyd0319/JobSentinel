@@ -311,7 +311,7 @@ pub async fn validate_slack_webhook(
     let webhook_url =
         resolve_slack_webhook_for_test(webhook_url, state.credentials.as_ref()).await?;
 
-    match crate::core::notify::slack::validate_webhook(&webhook_url).await {
+    match crate::core::notify::validate_slack_webhook(&webhook_url).await {
         Ok(valid) => Ok(valid),
         Err(e) => {
             let message = user_friendly_error("Validation failed", &e);
@@ -370,7 +370,7 @@ pub async fn test_email_notification(
         use_starttls: email_config.use_starttls,
     };
 
-    crate::core::notify::email::validate_email_config(&config)
+    crate::core::notify::validate_email_config(&config)
         .await
         .map_err(|e| user_friendly_error("Failed to send test email", &e))?;
 

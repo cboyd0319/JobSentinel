@@ -235,6 +235,7 @@ function checkCoreBoundary(root, violations) {
   for (const path of [
     "crates/jobsentinel-core/src/core/automation/mod.rs",
     "crates/jobsentinel-core/src/core/credentials/mod.rs",
+    "crates/jobsentinel-core/src/core/notify/mod.rs",
     "crates/jobsentinel-core/src/core/resume/mod.rs",
     "crates/jobsentinel-core/src/core/scrapers/mod.rs",
     "crates/jobsentinel-core/src/core/scrapers/source_adapters/mod.rs",

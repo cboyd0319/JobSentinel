@@ -216,37 +216,5 @@ _Sent by JobSentinel • Job Search Assistant_"#,
     )
 }
 
-/// Validate Telegram configuration by sending a test message
-pub async fn validate_telegram_config(config: &TelegramConfig) -> Result<bool> {
-    let api_url = format!(
-        "https://api.telegram.org/bot{}/sendMessage",
-        config.bot_token
-    );
-
-    let payload = json!({
-        "chat_id": config.chat_id,
-        "text": "✅ *JobSentinel Telegram Test*\n\nYour Telegram bot is configured correctly\\! You'll now receive job alerts in this chat\\.",
-        "parse_mode": "MarkdownV2"
-    });
-
-    let (client, api_url) = notification_http_client_for_url(&api_url).await?;
-
-    let response = client
-        .post(api_url)
-        .json(&payload)
-        .send()
-        .await
-        .map_err(|e| anyhow!("Telegram API request failed: {}", e.without_url()))?;
-
-    if !response.status().is_success() {
-        let error_summary =
-            notification_provider_failure_summary(response, "https://api.telegram.org/sendMessage")
-                .await;
-        return Err(anyhow!("Telegram API error: {}", error_summary));
-    }
-
-    Ok(true)
-}
-
 #[cfg(test)]
 mod tests;

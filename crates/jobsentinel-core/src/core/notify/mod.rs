@@ -19,11 +19,14 @@ use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use std::time::Duration;
 
-pub mod discord;
-pub mod email;
-pub mod slack;
-pub mod teams;
-pub mod telegram;
+mod discord;
+mod email;
+mod slack;
+mod teams;
+mod telegram;
+
+pub use email::validate_email_config;
+pub use slack::validate_webhook as validate_slack_webhook;
 
 /// Notification
 #[derive(Debug, Clone, Serialize, Deserialize)]

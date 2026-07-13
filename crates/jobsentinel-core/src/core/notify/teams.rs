@@ -156,44 +156,6 @@ pub async fn send_teams_notification(webhook_url: &str, notification: &Notificat
     Ok(())
 }
 
-/// Validate Teams webhook by sending a test message
-pub async fn validate_webhook(webhook_url: &str) -> Result<bool> {
-    // First validate the URL format
-    validate_webhook_url(webhook_url)?;
-
-    let payload = json!({
-        "@type": "MessageCard",
-        "@context": "https://schema.org/extensions",
-        "summary": "JobSentinel Webhook Test",
-        "themeColor": "00FF00",
-        "title": "✅ JobSentinel Webhook Test",
-        "text": "Your Microsoft Teams webhook is configured correctly! You'll now receive job alerts in this channel.",
-        "potentialAction": [
-            {
-                "@type": "OpenUri",
-                "name": "Learn More",
-                "targets": [
-                    {
-                        "os": "default",
-                        "uri": "https://github.com/cboyd0319/JobSentinel"
-                    }
-                ]
-            }
-        ]
-    });
-
-    // Send a test message with DNS/IP validation and pinned resolution.
-    let (client, webhook_url) = notification_http_client_for_url(webhook_url).await?;
-    let response = client
-        .post(webhook_url)
-        .json(&payload)
-        .send()
-        .await
-        .map_err(|e| anyhow!("Teams webhook validation failed: {}", e.without_url()))?;
-
-    Ok(response.status().is_success())
-}
-
 #[cfg(test)]
 #[path = "teams_tests.rs"]
 mod tests;

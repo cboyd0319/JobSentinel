@@ -149,35 +149,6 @@ pub async fn send_discord_notification(
     Ok(())
 }
 
-/// Validate Discord webhook by sending a test message
-pub async fn validate_webhook(webhook_url: &str) -> Result<bool> {
-    // First validate the URL format
-    validate_webhook_url(webhook_url)?;
-
-    let payload = json!({
-        "embeds": [{
-            "title": "✅ JobSentinel Webhook Test",
-            "description": "Your Discord webhook is configured correctly!",
-            "color": 0x10b981,
-            "footer": {
-                "text": "JobSentinel • Job Search Assistant"
-            },
-            "timestamp": chrono::Utc::now().to_rfc3339()
-        }]
-    });
-
-    // Send a test message with DNS/IP validation and pinned resolution.
-    let (client, webhook_url) = notification_http_client_for_url(webhook_url).await?;
-    let response = client
-        .post(webhook_url)
-        .json(&payload)
-        .send()
-        .await
-        .map_err(|e| anyhow!("Discord webhook validation failed: {}", e.without_url()))?;
-
-    Ok(response.status().is_success())
-}
-
 #[cfg(test)]
 #[path = "discord_tests.rs"]
 mod tests;
