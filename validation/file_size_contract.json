@@ -1,7 +1,7 @@
 {
   "schema": "jobsentinel.file_size_contract.v1",
-  "docs_checked_on": "2026-06-19",
-  "policy": "New or changed files must stay within scope limits. Existing exceptions are frozen at their recorded size and must not grow.",
+  "docs_checked_on": "2026-07-13",
+  "policy": "Every maintained file must stay within its scope limit. Exceptions require a named owner, a specific reason, and a removal trigger.",
   "scopes": [
     {
       "id": "frontend-source",
@@ -14,13 +14,13 @@
         "src/shared/*Taxonomy.json",
         "src/shared/*Entries.ts"
       ],
-      "max_lines": 700,
+      "max_lines": 500,
       "reason": "frontend modules should stay small enough for focused review and agent editing"
     },
     {
       "id": "frontend-tests-and-mocks",
       "globs": ["src/**/*.test.ts", "src/**/*.test.tsx", "src/mocks/**/*.ts"],
-      "max_lines": 1200,
+      "max_lines": 800,
       "reason": "frontend tests and mocks should stay grouped by behavior or user surface"
     },
     {
@@ -46,7 +46,7 @@
         "crates/**/tests/**/*.rs",
         "crates/**/*tests/**/*.rs"
       ],
-      "max_lines": 700,
+      "max_lines": 500,
       "reason": "Rust modules should stay cohesive and split before becoming hard to review"
     },
     {
@@ -63,7 +63,7 @@
         "crates/**/*tests/**/*.rs",
         "crates/*/tests/**/*.rs"
       ],
-      "max_lines": 1200,
+      "max_lines": 800,
       "reason": "Rust tests should stay focused by behavior or platform surface"
     },
     {
@@ -76,20 +76,20 @@
       "id": "scripts",
       "globs": ["scripts/**/*.mjs"],
       "exclude_globs": ["scripts/tests/**"],
-      "max_lines": 900,
+      "max_lines": 500,
       "reason": "scripts should be small or split into named checks and helpers"
     },
     {
       "id": "script-tests",
       "globs": ["scripts/tests/**/*.mjs"],
-      "max_lines": 1200,
+      "max_lines": 800,
       "reason": "script tests should stay focused by checked rule family"
     },
     {
       "id": "docs",
       "globs": ["*.md", "docs/**/*.md"],
       "exclude_globs": ["docs/plans/archive/**"],
-      "max_lines": 900,
+      "max_lines": 700,
       "reason": "large active docs should be split by product boundary and linked from an index"
     },
     {

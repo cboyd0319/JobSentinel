@@ -13,7 +13,9 @@ function writeFixtureFile(root, path, content = "") {
 }
 
 function withGitFixture(callback) {
-  const root = mkdtempSync(join(tmpdir(), "jobsentinel-repo-bloat-security-docs-"));
+  const root = mkdtempSync(
+    join(tmpdir(), "jobsentinel-repo-bloat-frontend-security-"),
+  );
 
   try {
     execFileSync("git", ["init", "--quiet"], { cwd: root });
@@ -23,93 +25,184 @@ function withGitFixture(callback) {
   }
 }
 
-test("checkRepoBloat rejects stale keyring credential docs", () => {
+
+test("checkRepoBloat rejects stale webhook security doc markers", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "docs/security/KEYRING.md",
+      "docs/security/WEBHOOK_SECURITY.md",
       [
-        "JobSentinel v2.0.0 introduces OS-native keyring integration.",
-        "Frontend uses `tauri-plugin-secure-storage` JS API.",
-        "pub enum CredentialKey { SlackWebhookUrl, DiscordWebhookUrl, TeamsWebhookUrl }",
-        "pub fn list_status() -> Result<HashMap<String, bool>, String>;",
-        "Does NOT delete plaintext values",
-        "- ✅ Stored",
-        "**Last Updated**: 2026-05-19",
-        "",
-      ].join("\n"),
-    );
-    writeFixtureFile(
-      root,
-      "docs/features/saved-secrets.md",
-      [
-        "JobSentinel:slack-webhook",
-        "pub enum CredentialKey { EmailSmtpPassword, LinkedinCookies, TelegramToken }",
-        "Self::TelegramToken => \"JobSentinel:telegram-token\"",
-        "Setup complete ✓",
+        "// ❌ BAD: Easy to bypass",
+        "2. **Invalid domain**: Try `https://evil.com/hook` → Should error",
+        "1. **v2.0.0+**: Webhooks stored in OS keyring",
+        "**Last Updated**: 2026-03-18",
+        "**Version**: 2.6.4",
         "",
       ].join("\n"),
     );
 
     execFileSync(
       "git",
-      ["add", "package.json", "docs/security/KEYRING.md", "docs/features/saved-secrets.md"],
-      { cwd: root },
+      ["add", "package.json", "docs/security/WEBHOOK_SECURITY.md"],
+      {
+        cwd: root,
+      },
     );
 
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("sync keyring credential docs: docs/security/KEYRING.md"),
-      violations.join("\n"),
-    );
-    assert.ok(
-      violations.includes("sync keyring credential docs: docs/features/saved-secrets.md"),
+      violations.includes(
+        "replace webhook security doc stale markers: docs/security/WEBHOOK_SECURITY.md",
+      ),
       violations.join("\n"),
     );
   });
 });
 
-test("checkRepoBloat rejects unsafe keyring migration and stale credential comments", () => {
+test("checkRepoBloat rejects stale command execution security doc markers", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src-tauri/src/app.rs",
+      "docs/security/COMMAND_EXECUTION.md",
       [
-        'tracing::info!("✓ Migrated {:?} to secure storage", key);',
-        "// Mark migration as complete (even if partial, to avoid repeated attempts)",
-        "migration::set_migrated();",
-        "",
-      ].join("\n"),
-    );
-    writeFixtureFile(
-      root,
-      "crates/jobsentinel-core/src/core/credentials/mod.rs",
-      [
-        "//! - Frontend uses `tauri-plugin-secure-storage` JS API",
-        "//!   set_item, get_item, remove_item",
-        '///     println!("Got password: {}", password);',
+        "PDF File → pdftoppm → PNG Images → tesseract → Extracted Text",
+        "// ❌ VULNERABLE: Shell injection risk",
+        "- ✅ Path traversal: `../../etc/passwd` → Error",
+        "**Last Updated**: 2026-03-18",
+        "**Version**: 2.6.4",
+        "**Security Level**: Production Ready",
         "",
       ].join("\n"),
     );
 
     execFileSync(
       "git",
-      ["add", "package.json", "src-tauri/src/app.rs", "crates/jobsentinel-core/src/core/credentials/mod.rs"],
+      ["add", "package.json", "docs/security/COMMAND_EXECUTION.md"],
+      {
+        cwd: root,
+      },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "replace command execution security doc stale markers: docs/security/COMMAND_EXECUTION.md",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects stale URL validation security doc markers", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "docs/security/URL_VALIDATION.md",
+      [
+        "### Insecure Approach ❌",
+        "// ✅ GOOD: Explicit allowlist",
+        "**Last Updated**: 2026-05-19",
+        "**Version**: 2.6.4",
+        "**Security Level**: Production Ready",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync(
+      "git",
+      ["add", "package.json", "docs/security/URL_VALIDATION.md"],
+      {
+        cwd: root,
+      },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "sync URL validation security doc markers: docs/security/URL_VALIDATION.md",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects stale XSS security docs", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "docs/security/README.md",
+      [
+        "Input → Validation → Sanitization",
+        "User Input ↑ Parse",
+        "// ❌ Insecure: Allows on error",
+        "// ✅ Secure: Denies on error",
+        "**Last Updated**: 2026-05-19",
+        "**JobSentinel Version**: 2.6.4",
+        "**Security Level**: Production Ready",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "docs/security/XSS_PREVENTION.md",
+      [
+        "> JobSentinel Security Documentation",
+        "npm install dompurify  # JobSentinel uses v3.3.1+",
+        '<script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>',
+        "### Resume Builder Configuration",
+        "While JobSentinel is a desktop app with no backend",
+        "// ✅ SAFE - Always sanitize first",
+        "**DOMPurify Version**: 3.x",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "docs/security/dompurify-test-examples.js",
+      [
+        " * DOMPurify Integration Test Example",
+        "// ✅ Output: Same as input",
+        "// ❌ UNSAFE",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "docs/security/README.md",
+        "docs/security/XSS_PREVENTION.md",
+        "docs/security/dompurify-test-examples.js",
+      ],
       { cwd: root },
     );
 
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("keep keyring migration retry-safe: src-tauri/src/app.rs"),
+      violations.includes(
+        "sync XSS security docs with live sanitizer path: docs/security/README.md",
+      ),
       violations.join("\n"),
     );
     assert.ok(
       violations.includes(
-        "sync credential architecture comments: crates/jobsentinel-core/src/core/credentials/mod.rs",
+        "sync XSS security docs with live sanitizer path: docs/security/XSS_PREVENTION.md",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "sync XSS security docs with live sanitizer path: docs/security/dompurify-test-examples.js",
       ),
       violations.join("\n"),
     );

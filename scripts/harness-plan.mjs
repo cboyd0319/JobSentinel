@@ -5,6 +5,22 @@ import { existsSync } from "node:fs";
 import { basename, dirname, extname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import {
+  isDependencyPolicyPath,
+  isDesignOrVisualPath,
+  isE2ePath,
+  isFrontendTest,
+  isHarnessPath,
+  isMarkdown,
+  isPrivacyOrSecurityPath,
+  isRepoBloatPolicyPath,
+  isRustSource,
+  isSourceFile,
+  isTauriInvokePath,
+  isUserFacingPath,
+  rustPackageForPath,
+} from "./harness/plan-paths.mjs";
+
 const scriptPath = fileURLToPath(import.meta.url);
 const defaultRoot = resolve(dirname(scriptPath), "..");
 
@@ -76,135 +92,6 @@ export function collectChangedFiles(root = defaultRoot, options = {}) {
   addGitPaths(files, safeGit(root, ["ls-files", "--others", "--exclude-standard"], exec));
 
   return [...files].sort();
-}
-
-function isMarkdown(path) {
-  return path.endsWith(".md");
-}
-
-function isSourceFile(path) {
-  return /\.(ts|tsx)$/.test(path);
-}
-
-function isFrontendTest(path) {
-  return /\.(test|spec)\.(ts|tsx)$/.test(path);
-}
-
-function isRustSource(path) {
-  return (
-    (path.startsWith("src-tauri/src/") || /^crates\/[^/]+\/src\//.test(path)) &&
-    path.endsWith(".rs")
-  );
-}
-
-function rustPackageForPath(path) {
-  const crateMatch = path.match(/^crates\/([^/]+)\//);
-  return crateMatch?.[1] ?? "jobsentinel";
-}
-
-function isE2ePath(path) {
-  return (
-    path.startsWith("tests/e2e/") ||
-    path.startsWith("e2e/") ||
-    path === "playwright.config.ts" ||
-    path === "scripts/run-playwright.mjs" ||
-    path === "scripts/tests/run-playwright.test.mjs"
-  );
-}
-
-function isHarnessPath(path) {
-  return (
-    path === "AGENTS.md" ||
-    path === "CLAUDE.md" ||
-    path === ".github/copilot-instructions.md" ||
-    path === "README.md" ||
-    path === "DESIGN.md" ||
-    path === "package.json" ||
-    path === "package-lock.json" ||
-    path.startsWith("docs/design/") ||
-    path.startsWith("docs/harness/") ||
-    path.startsWith("docs/plans/") ||
-    path === "docs/plans/index.json" ||
-    path.startsWith(".github/workflows/") ||
-    path.startsWith(".github/ISSUE_TEMPLATE/") ||
-    path.startsWith("scripts/")
-  );
-}
-
-function isUserFacingPath(path) {
-  return (
-    path === "README.md" ||
-    path === "DESIGN.md" ||
-    path.startsWith("docs/design/") ||
-    path.startsWith("docs/user/") ||
-    path.startsWith("docs/features/") ||
-    path.startsWith(".github/ISSUE_TEMPLATE/") ||
-    path.startsWith("examples/profiles/") ||
-    path.startsWith("src/features/") ||
-    path.startsWith("src/ui/")
-  );
-}
-
-function isDesignOrVisualPath(path) {
-  return (
-    path === "DESIGN.md" ||
-    path.startsWith("docs/design/") ||
-    path.startsWith("src/features/") ||
-    path.startsWith("src/ui/")
-  );
-}
-
-function isPrivacyOrSecurityPath(path) {
-  const lowerPath = path.toLowerCase();
-
-  return (
-    path === "PRIVACY.md" ||
-    path === "RESPONSIBLE_AI.md" ||
-    path === "SECURITY.md" ||
-    path.startsWith("src/shared/externalAi/") ||
-    path === "scripts/check-external-ai-gateway.mjs" ||
-    path === "scripts/checks/security-sensors.mjs" ||
-    path.startsWith("scripts/checks/security-sensors/") ||
-    path.startsWith("docs/security/") ||
-    path.startsWith("docs/architecture/privacy-first-ai-gateway.md") ||
-    lowerPath.includes("credential") ||
-    lowerPath.includes("privacy") ||
-    lowerPath.includes("security") ||
-    lowerPath.includes("auth") ||
-    lowerPath.includes("token")
-  );
-}
-
-function isTauriInvokePath(path) {
-  return (
-    path === "src-tauri/src/main.rs" ||
-    path === "src-tauri/src/command_handlers.rs" ||
-    path.startsWith("src-tauri/src/commands/") ||
-    path === "scripts/checks/tauri-invokes.mjs" ||
-    path.startsWith("scripts/checks/tauri-invokes/") ||
-    path === "scripts/tests/check-tauri-invokes.test.mjs" ||
-    path.startsWith("src/mocks/") ||
-    path.startsWith("src/shared/tauri/commandClient") ||
-    path.startsWith("src/shared/errorReporting/supportReport") ||
-    path.startsWith("src/features/settings/support/feedback/feedbackClient") ||
-    path.startsWith("src/shared/search-links")
-  );
-}
-
-function isDependencyPolicyPath(path) {
-  return (
-    path === "scripts/checks/dependency-pins.mjs" ||
-    path.startsWith("scripts/checks/dependencies/") ||
-    path.startsWith("scripts/dependency/")
-  );
-}
-
-function isRepoBloatPolicyPath(path) {
-  return (
-    path === "scripts/checks/repo-bloat.mjs" ||
-    path.startsWith("scripts/checks/repo-bloat/") ||
-    path.startsWith("scripts/harness/checks/")
-  );
 }
 
 function addCommand(commands, command, reason, path) {

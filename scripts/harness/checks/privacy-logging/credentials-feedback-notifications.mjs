@@ -1,4 +1,5 @@
 import {
+  existsSync,
   readFileSync,
   join,
   frontendErrorReportingPaths,
@@ -66,6 +67,21 @@ import {
   stripRustTestModules,
   stripTypeScriptComments,
 } from "./shared.mjs";
+
+function readCredentialStoragePolicyText(root, path) {
+  const productionText = stripRustTestModules(
+    readFileSync(join(root, path), "utf8"),
+  );
+  const validationPath = join(
+    root,
+    "crates/jobsentinel-core/src/core/credentials/validation.rs",
+  );
+
+  return path === "crates/jobsentinel-core/src/core/credentials/mod.rs" &&
+    existsSync(validationPath)
+    ? `${productionText}\n${stripRustTestModules(readFileSync(validationPath, "utf8"))}`
+    : productionText;
+}
 
 const activeSecretStorageWordingPaths = new Set([
   "docs/architecture/privacy-first-ai-gateway.md",
@@ -210,9 +226,7 @@ export function hasMissingLinkedInCredentialStorageDisable(root, path) {
     return false;
   }
 
-  const productionText = stripRustTestModules(
-    readFileSync(join(root, path), "utf8"),
-  );
+  const productionText = readCredentialStoragePolicyText(root, path);
 
   if (path === "crates/jobsentinel-core/src/core/credentials/mod.rs") {
     return (
@@ -245,9 +259,7 @@ export function hasMissingWebhookCredentialStorageValidation(root, path) {
     return false;
   }
 
-  const productionText = stripRustTestModules(
-    readFileSync(join(root, path), "utf8"),
-  );
+  const productionText = readCredentialStoragePolicyText(root, path);
   return (
     !productionText.includes("CredentialKey::SlackWebhook") ||
     !productionText.includes("CredentialKey::DiscordWebhook") ||

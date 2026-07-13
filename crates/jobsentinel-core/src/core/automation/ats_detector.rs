@@ -9,19 +9,9 @@ use url::Url;
 /// ATS detector
 pub struct AtsDetector;
 
-fn host_matches_domain(host: &str, domain: &str) -> bool {
-    host == domain || host.ends_with(&format!(".{domain}"))
-}
+mod url_patterns;
 
-fn path_has_segment(url: &Url, segment: &str) -> bool {
-    url.path_segments()
-        .is_some_and(|mut segments| segments.any(|part| part.eq_ignore_ascii_case(segment)))
-}
-
-fn path_contains(url: &Url, needle: &str) -> bool {
-    url.path().to_ascii_lowercase().contains(needle)
-}
-
+use url_patterns::{host_matches_domain, path_contains, path_has_segment};
 impl AtsDetector {
     /// Detect ATS platform from job URL
     ///

@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback, memo } from "react";
 import { invalidateCacheByCommand, safeInvoke } from "../../../../shared/tauri/commandClient";
 import { Button } from "../../../../ui/Button";
-import { Badge } from "../../../../ui/Badge";
 import { StatCard } from "../../../../ui/StatCard";
 import { LoadingSpinner } from "../../../../ui/LoadingSpinner";
 import { Modal } from "../../../../ui/Modal";
@@ -13,8 +12,6 @@ import {
 import {
   formatCredentialLabel,
   formatCredentialWarning,
-  formatDuration,
-  formatSafeIssue,
   type CredentialHealth,
   type HealthSummary,
   type ScraperHealthMetrics,
@@ -25,6 +22,7 @@ import {
   ScraperHealthSourceTable,
   StatusIcon,
 } from "./ScraperHealthSourceTable";
+import { ScraperHealthResultsModal } from "./ScraperHealthResultsModal";
 
 interface ScraperHealthDashboardProps {
   onClose: () => void;
@@ -47,30 +45,6 @@ function sourceCheckNeedsAcknowledgement(scraperName: string): boolean {
   return RESTRICTED_SOURCE_CHECK_IDS.has(scraperName);
 }
 
-function getSmokeResultStatus(result: SmokeTestResult) {
-  const skipped = result.details?.status === "skipped";
-  if (skipped) {
-    return {
-      badge: "Skipped",
-      variant: "surface" as const,
-      className:
-        "bg-surface-50 border-surface-200 dark:bg-surface-800/60 dark:border-surface-700",
-    };
-  }
-
-  return result.passed
-    ? {
-        badge: "Worked",
-        variant: "success" as const,
-        className: "bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800",
-      }
-    : {
-        badge: "Problem found",
-        variant: "danger" as const,
-        className: "bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800",
-      };
-}
-
 export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
   onClose,
 }: ScraperHealthDashboardProps) {
@@ -91,8 +65,6 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
   const sourceNameById = new Map(
     scrapers.map((scraper) => [scraper.scraper_name, scraper.display_name]),
   );
-  const getSourceDisplayName = (sourceName: string) =>
-    sourceNameById.get(sourceName) ?? sourceName;
   const restrictedEnabledSources = scrapers.filter(
     (scraper) =>
       scraper.is_enabled && sourceCheckNeedsAcknowledgement(scraper.scraper_name),
@@ -485,49 +457,12 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
         </div>
       </Modal>
 
-      {/* Check Results Modal */}
-      <Modal
+      <ScraperHealthResultsModal
         isOpen={showTestResults}
         onClose={() => setShowTestResults(false)}
-        title="Check Results"
-        size="lg"
-      >
-        <div className="space-y-3">
-          {testResults.map((result) => {
-            const status = getSmokeResultStatus(result);
-            return (
-              <div
-                key={result.scraper_name}
-                className={`p-3 rounded-lg border ${status.className}`}
-              >
-                <div className="flex items-center justify-between">
-                  <span className="font-medium text-surface-900 dark:text-white">
-                    {getSourceDisplayName(result.scraper_name)}
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-surface-500 dark:text-surface-400">
-                      {formatDuration(result.duration_ms)}
-                    </span>
-                    <Badge variant={status.variant} size="sm">
-                      {status.badge}
-                    </Badge>
-                  </div>
-                </div>
-                {result.error && (
-                  <p className="text-sm text-red-600 dark:text-red-400 mt-1">
-                    {formatSafeIssue(result.error)}
-                  </p>
-                )}
-              </div>
-            );
-          })}
-        </div>
-        <div className="mt-4 flex justify-end">
-          <Button variant="secondary" onClick={() => setShowTestResults(false)}>
-            Close
-          </Button>
-        </div>
-      </Modal>
+        results={testResults}
+        sourceNameById={sourceNameById}
+      />
     </>
   );
 });

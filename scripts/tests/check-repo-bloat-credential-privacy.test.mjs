@@ -241,3 +241,74 @@ test("checkRepoBloat rejects enabled LinkedIn credential storage", () => {
     );
   });
 });
+
+test("credential storage policy follows the validation owner module", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "crates/jobsentinel-core/src/core/credentials/mod.rs",
+      [
+        "mod validation;",
+        "const LINKEDIN_CREDENTIAL_STORAGE_DISABLED: &str = \"disabled\";",
+        "fn store(key: CredentialKey, value: &str) -> Result<(), String> {",
+        "  reject_disabled_credential_storage(key)?;",
+        "  validate_credential_value(key, value)?;",
+        "  Ok(())",
+        "}",
+        "",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "crates/jobsentinel-core/src/core/credentials/validation.rs",
+      [
+        "fn reject_disabled_credential_storage(key: CredentialKey) -> Result<(), String> {",
+        "  let disabled = matches!(key, CredentialKey::LinkedInCookie | CredentialKey::LinkedInCookieExpiry);",
+        "  if disabled { Err(LINKEDIN_CREDENTIAL_STORAGE_DISABLED.to_string()) } else { Ok(()) }",
+        "}",
+        "fn validate_credential_value(key: CredentialKey, value: &str) -> Result<(), String> {",
+        "  match key {",
+        "    CredentialKey::SlackWebhook | CredentialKey::DiscordWebhook => validate_webhook_credential(value),",
+        "    CredentialKey::TeamsWebhook => validate_teams_webhook_credential(value),",
+        "    CredentialKey::TelegramBotToken => validate_telegram_bot_token_credential(value),",
+        "    _ => Ok(()),",
+        "  }",
+        "}",
+        "fn validate_webhook_credential(_value: &str) -> Result<(), String> { Ok(()) }",
+        "fn validate_teams_webhook_credential(_value: &str) -> Result<(), String> { Ok(()) }",
+        "fn validate_telegram_bot_token_credential(_value: &str) -> Result<(), String> { Ok(()) }",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "crates/jobsentinel-core/src/core/credentials/mod.rs",
+        "crates/jobsentinel-core/src/core/credentials/validation.rs",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+    assert.equal(
+      violations.some((violation) =>
+        violation.startsWith("disable LinkedIn credential storage:"),
+      ),
+      false,
+      violations.join("\n"),
+    );
+    assert.equal(
+      violations.some((violation) =>
+        violation.startsWith(
+          "validate notification webhook credentials before keyring storage:",
+        ),
+      ),
+      false,
+      violations.join("\n"),
+    );
+  });
+});

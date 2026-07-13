@@ -90,6 +90,29 @@ test("security docs require live URL validation sanitizer reference", () => {
   });
 });
 
+test("URL validation policy follows the webhook validation owner", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "docs/security/URL_VALIDATION.md",
+      "Webhook rules: [Notification Webhook URL Validation](WEBHOOK_URL_VALIDATION.md).\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/security/WEBHOOK_URL_VALIDATION.md",
+      "validate_webhook_url_security_parts(&url_parsed)?\n",
+    );
+
+    assert.equal(
+      hasStaleUrlValidationSecurityDocMarkers(
+        root,
+        "docs/security/URL_VALIDATION.md",
+      ),
+      false,
+    );
+  });
+});
+
 test("security docs reject stale XSS doc shapes", () => {
   withFixture((root) => {
     writeFixtureFile(root, "docs/security/README.md", "Input → Validation\n");

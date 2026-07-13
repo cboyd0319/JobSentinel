@@ -15,6 +15,8 @@ readiness effort. Milestones 0 through 6 are complete: structural sensors,
 neutral data ownership, frontend feature ownership, backend cycle repair, the
 explicit two-member Cargo workspace, core extraction, and the thin private
 Tauri shell, and final script and harness ownership all have passing evidence.
+The final file-cap slice of Milestone 7 is also complete with passing evidence;
+the remaining work is the full cleanup audit and release-readiness proof.
 
 Observed release state on 2026-06-22 local time:
 
@@ -55,7 +57,7 @@ weakened.
 | Workstream | State | Current focus | Source |
 | ---------- | ----- | ------------- | ------ |
 | Current product and quality work | Active | Keep privacy, design, platform, harness, and release evidence aligned during the refactor | [Plan](current-work.md) |
-| Full repository refactor and v2.9.5 readiness | Active | Complete the repo-wide cleanup and final file-cap cutover | [Plan](repository-architecture-reorganization.md) |
+| Full repository refactor and v2.9.5 readiness | Active | Complete the orphan, dependency, root-file, docs, wiki, and platform cleanup audits | [Plan](repository-architecture-reorganization.md) |
 
 ## Current Posture
 
@@ -79,13 +81,16 @@ weakened.
 - Cleanup is allowed when it fixes stale docs, broken harness state, bloat,
   test brittleness, security or privacy drift, portability issues, or release
   metadata inaccuracies.
+- Final file caps are live: 500 lines for production and scripts, 800 for tests,
+  and 700 for maintained documents. The focused cap and policy harness passes.
 - Coverage for all configured source adapters and user-gated restricted-source
   paths must retain focused parser/import/gate evidence before any release-ready
   claim.
 
 ## Next Best Work
 
-1. Complete the repo-wide cleanup, orphan audit, and final file-cap cutover.
+1. Complete the repo-wide dead-code, orphan-test, dependency, root-file, and
+   stale-reference cleanup audits.
 2. Align final architecture, contributor, release, and public wiki docs.
 3. Prove v2.9.5 readiness without tagging, publishing, uploading, or dispatching
    a release.

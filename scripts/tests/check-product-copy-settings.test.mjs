@@ -5,6 +5,10 @@ import { dirname, join } from "node:path";
 import test from "node:test";
 import { hasTechnicalFirstUserCopy } from "../harness/checks/product-copy.mjs";
 
+import {
+  technicalFirstSettingsPaths,
+  writeResumeReviewSettingsFixtures,
+} from "./product-copy-settings-fixtures.mjs";
 function writeFixtureFile(root, path, content = "") {
   const fullPath = join(root, path);
   mkdirSync(dirname(fullPath), { recursive: true });
@@ -753,126 +757,8 @@ test("product copy rejects technical-first settings copy", () => {
         "",
       ].join("\n"),
     );
-    writeFixtureFile(
-      root,
-      "docs/user/QUICK_START.md",
-      "Open Settings, choose **More Settings**.\nFollow the provider guidance shown in JobSentinel.\nJobSentinel is now watching the allowed sources you enabled.\nHere's what happens automatically:\n",
-    );
-    writeFixtureFile(
-      root,
-      "src/features/resumes/builder/AtsLiveScorePanel.tsx",
-      [
-        "analyzing...",
-        ">Job Context<",
-        "View Full Analysis",
-        "Format Issues",
-        "<Badge>{issue.severity}</Badge>",
-        "Fix: {issue.fix}",
-        "Impact: {suggestion.impact}",
-        "Include technical, workplace, and role-specific skills",
-        "Add words from the job post",
-        'ScoreBar label="Complete"',
-        'ScoreCard label="Completeness"',
-        ">View Details<",
-        "Full Resume Readability Review",
-        "{analysis.missing_keywords.length} missing",
-        "{analysis.format_issues.length} issues",
-        "Checks Worked",
-        "Check Time",
-        "Last Worked",
-        "",
-      ].join("\n"),
-    );
-    writeFixtureFile(
-      root,
-      "crates/jobsentinel-core/src/core/resume/ats_analyzer.rs",
-      [
-        'impact: "High".to_string(),',
-        'suggestion: format!("Start bullet with action verb: {}", bullet),',
-        "",
-      ].join("\n"),
-    );
-    writeFixtureFile(
-      root,
-      "src/features/settings/notifications/NotificationPreferences.tsx",
-      'placeholder="e.g., 90"\nthousand per year\n',
-    );
-    writeFixtureFile(
-      root,
-      "src/features/settings/support/ErrorLogPanel.tsx",
-      "Advanced: Save Support Details\nSave Extra Support Details\nSave Detailed Local Report\n",
-    );
-    writeFixtureFile(
-      root,
-      "docs/features/browser-import.md",
-      "choose another port in advanced settings\nadvanced connection settings\nafter restarting JobSentinel\nIf support asks, open **Connection settings**\nlocal safety code\nDebug reports must redact\n",
-    );
-
-    assertTechnicalFirstCopy(root, [
-      "README.md",
-      "docs/features/browser-import.md",
-      "docs/features/saved-secrets.md",
-      "docs/features/notifications.md",
-      "docs/features/application-assist.md",
-      "docs/features/job-source-status.md",
-      "docs/features/job-sources.md",
-      "docs/features/smart-scoring.md",
-      "docs/user/DEEP_LINKS.md",
-      "docs/user/QUICK_START.md",
-      "crates/jobsentinel-core/src/core/automation/error.rs",
-      "crates/jobsentinel-core/src/core/resume/ats_analyzer.rs",
-      "crates/jobsentinel-core/src/core/scrapers/error.rs",
-      "src/features/applications/AnalyticsPanel.tsx",
-      "src/components/AsyncButton.tsx",
-      "src/features/resumes/builder/AtsLiveScorePanel.tsx",
-      "src/features/settings/sources/browser-import/BrowserImportSection.tsx",
-      "src/app/commands/CommandPalette.tsx",
-      "src/features/company-research/CompanyResearchPanel.tsx",
-      "src/features/applications/CoverLetterTemplates.tsx",
-      "src/features/settings/support/ErrorLogPanel.tsx",
-      "src/features/dashboard/components/JobCard.tsx",
-      "src/features/dashboard/components/JobImportModal.tsx",
-      "src/app/commands/KeyboardShortcutsHelp.tsx",
-      "src/features/market/MarketSnapshotCard.test.tsx",
-      "src/features/market/MarketSnapshotCard.tsx",
-      "src/features/settings/notifications/NotificationPreferences.tsx",
-      "src/features/dashboard/components/ScoreBreakdownModal.tsx",
-      "src/features/application-assist/ApplicationPreview.tsx",
-      "src/features/application-assist/ApplyButton.tsx",
-      "src/features/application-assist/ProfileForm.tsx",
-      "src/features/application-assist/ScreeningAnswerSuggestions.tsx",
-      "src/features/application-assist/ScreeningAnswersForm.tsx",
-      "src/features/settings/support/feedback/SubmitOptions.tsx",
-      "src/features/dashboard/components/jobCardGuidance.ts",
-      "src/app/keyboard/KeyboardShortcutsProvider.tsx",
-      "src/app/providers/UndoProvider.tsx",
-      "src/features/settings/support/feedback/useFeedback.ts",
-      "src/features/application-assist/ApplicationProfilePage.tsx",
-      "src/features/applications/ApplicationsPage.tsx",
-      "src/features/dashboard/DashboardPage.tsx",
-      "src/features/dashboard/components/DashboardFiltersBar.tsx",
-      "src/features/dashboard/components/DashboardHeader.tsx",
-      "src/features/dashboard/components/filterLabels.ts",
-      "src/features/dashboard/components/noJobsEmptyStateCopy.ts",
-      "src/features/applications/InterviewScheduler.tsx",
-      "src/features/market/MarketPage.tsx",
-      "src/features/resumes/matching/ResumeMatchPage.tsx",
-      "src/features/settings/SettingsPage.tsx",
-      "src/features/onboarding/SetupWizard.tsx",
-      "src/pages/dashboardErrorCopy.ts",
-      "src/features/dashboard/hooks/useDashboardAutoRefresh.ts",
-      "src/features/dashboard/hooks/useDashboardJobOps.ts",
-      "src/shared/externalAi/internal/aiGateway.ts",
-      "src/shared/tauri/commandClient.ts",
-      "src/shared/errorReporting/messages.ts",
-      "src/features/settings/support/settingsBackupFile.test.ts",
-      "src/features/settings/support/settingsBackupFile.ts",
-      "src/features/application-assist/applicationFormValidation.ts",
-      "src/features/settings/credentials/notificationConnectionValidation.ts",
-      "src/shared/validation/contactFieldValidation.ts",
-      "src/shared/errorReporting/safeToastCopy.ts",
-      "src/shared/jobSourceGuidance.ts",
-    ]);
+    writeResumeReviewSettingsFixtures(root, writeFixtureFile);
+    assertTechnicalFirstCopy(root, technicalFirstSettingsPaths);
     assertNoTechnicalFirstCopy(root, [
       "src/features/settings/SettingsPage.test.tsx",
     ]);

@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 const notificationDocsPaths = new Set([
@@ -66,7 +66,11 @@ export function hasStaleUrlValidationSecurityDocMarkers(root, path) {
     return false;
   }
 
-  const text = readFileSync(join(root, path), "utf8");
+  const primaryText = readFileSync(join(root, path), "utf8");
+  const webhookPath = join(root, "docs/security/WEBHOOK_URL_VALIDATION.md");
+  const text = existsSync(webhookPath)
+    ? `${primaryText}\n${readFileSync(webhookPath, "utf8")}`
+    : primaryText;
   return (
     /[✅❌⚠️]|\*\*(?:Last Updated|Version|Security Level)\*\*:/.test(text) ||
     !text.includes("validate_webhook_url_security_parts(&url_parsed)?")

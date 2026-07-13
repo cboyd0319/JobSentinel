@@ -397,234 +397,20 @@ feature wiring remain local where ownership differs.
 
 ## Milestones
 
-### 0. Install structural sensors before moving code
+### 0-6. Completed structural milestones
 
-- [x] Extend `validation/file_size_contract.json` to cover `crates/**/*.rs`,
-  root workspace policy, `resources/**/*.json`, and the future migration path.
-- [x] Document the final 500-line production/script, 800-line test, and
-  700-line active-doc caps as staged targets. Existing over-cap files must
-  shrink during their owning milestone; no exception survives final cleanup.
-- [x] Add fail-first script fixtures proving an oversized Rust file under
-  `crates/` is rejected.
-- [x] Add a repository-layout check that rejects wildcard Cargo members,
-  missing explicit members, unlisted tracked member manifests, duplicate
-  workspace policy, and Tauri dependencies in core.
-- [x] Add a frontend feature-boundary fixture model before moving the first
-  feature.
-- [x] Add thin-shell contracts for `src-tauri/src/main.rs`, command routing,
-  and public module facades.
-- [x] Teach change classification, test-quality checks, harness planning, and
-  CODEOWNERS about both the current and target roots during transition.
-- [x] Keep `npm run lint:architecture` as the focused structural harness and
-  make it run every architecture sensor through stable entrypoints.
+Milestones 0 through 6 are complete:
 
-Acceptance:
+- Structural sensors and final cap contracts are installed.
+- Neutral resource and data ownership is established.
+- Frontend feature ownership is migrated.
+- Backend ownership cycles are repaired.
+- The explicit two-member Cargo workspace and core crate are live.
+- The Tauri shell and IPC router are thin and private.
+- Script, platform, release, and harness ownership is assigned.
 
-```bash
-npm run lint:architecture
-npm run lint:bloat
-npm run test:scripts
-npm run harness:check
-```
-
-Rollback: remove only the new sensors and fixtures. No production path has
-changed.
-
-### 1. Remove dead cargo and assign neutral data ownership
-
-- [x] Confirm the four unused frontend component candidates have no dynamic or
-  story consumers, then delete their source and tests instead of moving them.
-- [x] Move Rust-consumed JSON taxonomies from `src/shared/` to
-  `resources/taxonomies/` and update TypeScript imports and Rust `include_str!`
-  paths in one taxonomy family at a time.
-- [x] Move `config/config.example.json` to `examples/config/`, profile JSON and
-  its README to `examples/profiles/`, and the sample resume to
-  `examples/resumes/`.
-- [x] Update the Rust configuration fixture, broad-audience checks, docs, and
-  contributor commands for each example move.
-- [x] Keep `models.lock.toml` at the root as governed lock data unless a
-  separate model-resource owner is proven.
-
-Acceptance:
-
-```bash
-npm run lint:bloat
-npm run lint:architecture
-npm run test:run
-npm run test:scripts
-cargo test -p jobsentinel-core --lib core::config
-cargo test -p jobsentinel-core --lib taxonomy
-npm run harness:check
-```
-
-Rollback: restore one resource or example family and its callers. No user data
-or installed configuration path changes.
-
-### 2. Migrate frontend ownership one feature at a time
-
-- [x] Create `src/app/`, `src/features/`, `src/ui/`, and the reduced
-  `src/shared/` only as the first files move.
-- [x] Move root app startup, providers, router, navigation, and route
-  composition into `src/app/` without changing rendered behavior.
-- [x] Choose a low-coupling feature as the first vertical slice. Move its page,
-  components, hooks, service, types, mocks, and tests together.
-- [x] Repeat by feature, using import evidence rather than filename prefixes.
-- [x] Move proven multi-feature visual primitives into `src/ui/`.
-- [x] Reduce and delete `src/pages/`, `src/hooks/`, `src/contexts/`, and `src/utils/`.
-- [x] Move the external-AI boundary and delete `src/services/`.
-- [x] Reduce `src/components/` to zero and delete it.
-- [x] Split the large mock dispatcher into feature-owned handlers and retain a
-  thin deterministic registration layer.
-
-Per-slice acceptance:
-
-```bash
-npm run lint:architecture
-npm run lint
-npm run test:run -- --related <moved-files>
-npm run build
-npm run harness:check
-```
-
-Run the relevant Playwright route test when composition, navigation, focus,
-loading, error, empty, or narrow-width behavior could change.
-
-Rollback: revert the current feature move only. Do not start another feature
-with a failing slice.
-
-### 3. Repair backend modules before extraction
-
-- [x] Introduce owner-neutral job record and normalization modules, then remove
-  the `job_hash` to scraper and scraper to database model cycles.
-- [x] Break the `db` and `credentials` cycle without changing vault, keyring,
-  migration, or local database behavior.
-- [x] Group command-independent logic behind bounded-context facades while it
-  still lives under `crates/jobsentinel-core/src/core/`.
-- [x] Make leaf modules private and move tests beside their owning facade.
-- [x] Replace integration-test imports of implementation paths with public
-  behavior APIs.
-- [x] Update `ARCHITECTURE_CORE.md` to describe observed dependency direction,
-  including OS-aware adapters.
-
-Per-slice acceptance:
-
-```bash
-cargo fmt --all -- --check
-cargo clippy --workspace -- -D warnings
-cargo test -p <owning-package> --lib <owning-module>
-npm run lint:tauri-invokes
-npm run lint:security
-npm run harness:check
-```
-
-Credential or database slices also require fresh isolated database and
-credential contract tests. Live keyring checks remain explicit opt-in tests.
-
-Rollback: revert one module seam while retaining the preexisting database and
-credential formats.
-
-### 4. Create the explicit workspace and extract core
-
-- [x] Add the root virtual `Cargo.toml` with the two literal members.
-- [x] Move shared Cargo metadata, dependency versions, lint policy, release
-  profile, lockfile, Cargo config, Clippy config, and cargo-deny config to root.
-- [x] Add `crates/jobsentinel-core/Cargo.toml` using workspace inheritance.
-- [x] Move the curated Tauri-free core modules and their integration tests to
-  `crates/jobsentinel-core/`.
-- [x] Move SQLx migrations to the core owner, update compile-time migration
-  paths, and place offline metadata at the workspace-owned path selected by a
-  clean `cargo sqlx prepare` run.
-- [x] Keep platform-specific core dependencies target-gated and preserve
-  Windows, macOS, and Linux compilation contracts.
-- [x] Update `src-tauri/Cargo.toml` to depend on `jobsentinel-core` by path and
-  retain only Tauri app dependencies.
-- [x] Update CI change classification, Cargo cache roots, dependency checks,
-  SBOM input, doctor checks, security sensors, and docs.
-- [x] Use the standard root `target/` directory unless release dry runs prove a
-  Tauri incompatibility. Update every package path atomically if selected.
-
-Acceptance:
-
-```bash
-cargo metadata --no-deps --format-version 1
-cargo fmt --all -- --check
-cargo clippy --workspace -- -D warnings
-cargo test -p jobsentinel-core
-cargo test -p jobsentinel --lib
-cargo deny check advisories bans licenses sources
-npm run lint:architecture
-npm run lint:deps
-npm run lint:security
-npm run test:scripts
-npm run harness:check
-```
-
-Also build one clean isolated database from the moved migrations and run the
-release path fixture tests for Windows, macOS, and Linux artifact locations.
-
-Rollback: restore the single package manifest, lockfile, migration owner, and
-old target-path contract together. Do not leave split Cargo policy behind.
-
-### 5. Thin the Tauri application shell and IPC router
-
-- [x] Move startup orchestration from `main.rs` into private app modules behind
-  `pub fn run()` in `src-tauri/src/lib.rs`.
-- [x] Reduce `main.rs` to platform attributes plus the app entrypoint call.
-- [x] Keep `commands/` and command registration private to the app crate.
-- [x] Group command implementation files by bounded context while preserving
-  every IPC command name and serialized contract.
-- [x] Move business rules out of command files into core APIs; commands retain
-  argument validation, state access, error translation, and response mapping.
-- [x] Keep one explicit command registry and update the invoke contract sensor
-  to read it without requiring public command modules.
-
-Acceptance:
-
-```bash
-cargo fmt --all -- --check
-cargo clippy -p jobsentinel -- -D warnings
-cargo test -p jobsentinel --lib
-cargo test -p jobsentinel-core
-npm run lint:tauri-invokes
-npm run lint:architecture
-npm run lint:security
-npm run test:run
-npm run harness:check
-```
-
-Rollback: restore the prior startup or command group without changing the IPC
-name registry.
-
-### 6. Rebuild script and harness ownership
-
-- [x] Split `check-harness.mjs`, `check-security-sensors.mjs`,
-  `check-dependency-pins.mjs`, `check-tauri-invokes.mjs`, and
-  `check-repo-bloat.mjs` by existing policy families.
-- [x] Move platform build implementations under `scripts/platform/` and
-  release assembly or verification under `scripts/release/`.
-- [x] Keep temporary-repository fixture setup local because no second consumer
-  with the same contract exists.
-- [x] Make `test:scripts` recursively and deterministically discover all script
-  tests if tests move out of the current two globs.
-- [x] Update package.json, workflows, docs, hooks, and all maintained callers
-  directly to the final commands and paths.
-- [x] Delete root compatibility entrypoints and old test globs in this
-  milestone.
-
-Acceptance:
-
-```bash
-npm run test:scripts
-npm run harness:check
-npm run lint:bloat
-npm run lint:deps
-npm run lint:security
-npm run lint:tauri-invokes
-npm run doctor
-```
-
-Rollback: revert the script ownership milestone as a unit. Do not keep dual
-entrypoints.
+The detailed checklists, acceptance commands, and rollback boundaries live in
+[Repository Architecture Milestones 0 Through 6](../archive/repository-architecture-milestones-0-6.md).
 
 ### 7. Complete the full post-refactor repository cleanup
 
@@ -648,10 +434,9 @@ entrypoints.
   testing, or release command changes.
 - [ ] Update `AGENTS.md`, the verification matrix, harness map, plan index,
   CODEOWNERS, and evidence log to the final paths.
-- [ ] Replace the transitional 700-line source, 1,200-line test, and 900-line
-  script/doc contract limits with the final caps after every owner is below its
-  target. Until then, each completed ownership slice records its target-cap
-  evidence separately.
+- [x] Enforce the final 500-line production and script, 800-line test, and
+  700-line maintained-document caps after splitting every tracked violation by
+  ownership. Keep the larger taxonomy and configuration limits explicit.
 - [ ] Search maintained files for stale old-root references and explicitly
   classify necessary historical references.
 - [ ] Record Windows 11 and macOS 26 evidence or clearly name any host gap and
@@ -726,6 +511,7 @@ evidence-log entry.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-07-13 | Milestone 7 file-cap cutover complete | Split every remaining oversized production, test, script, and maintained-document owner. Policy sensors now follow private Rust modules and documentation sidecars. The final cap gate, 771 script tests, 2,769 core tests, 184 Tauri tests, 280 focused frontend tests, production build, workspace Clippy, docs, architecture, language, and 100/100 harness score all pass. |
 | 2026-07-13 | Milestones 3, 4, and 5 complete | Broke the database, credential, job-record, and normalization cycles, then created the two-member virtual Cargo workspace and extracted the Tauri-free core owner. Root Cargo policy, migrations, SQLx metadata, integration tests, CI, packaging paths, dependency checks, and security sensors now follow the new owner. The Tauri executable is a 5-line entrypoint, command modules are private, and one explicit registry retains all IPC names. The 769-test script harness, Cargo metadata, formatting, workspace Clippy, cargo-deny, fresh migration and SQLx checks, 184 app tests, 2,769 core unit tests, and every moved integration suite pass. |
 | 2026-07-13 | Milestone 6 complete | Moved platform and release implementations to owned directories, split all five oversized policy entrypoints under `scripts/checks/`, deleted root compatibility files, and replaced fixed test globs with recursive sorted discovery. All 770 script tests plus focused harness, bloat, dependency, security, and IPC gates pass. |
 | 2026-07-13 | Milestone 2 complete | Completed frontend ownership with a 32-line development command facade, 183-line explicit registry, 202-line state adapter layer, 244-line persisted-state owner, and feature-owned command behavior. Split the 1,127-line root test by owner and updated privacy, IPC, source, and command-completeness sensors to follow the new boundaries. All 2,931 frontend tests across 209 files, 766 script tests, the production build, and TypeScript, ESLint, architecture, bloat, security, language, duplication, and test-quality gates pass. |
@@ -758,10 +544,9 @@ evidence-log entry.
 
 - The baseline file-size policy passed even though its Rust scope would have
   silently missed a new root `crates/` directory; Milestone 0 closed that gap.
-- Final 500-line production/script, 800-line test, and 700-line active-doc caps
-  are milestone targets, not yet the global contract. The live contract retains
-  transitional 700/1,200/900 limits until remaining owners shrink, so every
-  completed slice must prove the tighter target separately.
+- Final 500-line production and script, 800-line test, and 700-line
+  maintained-document caps are the live repository contract. Taxonomy and
+  configuration resources retain their explicit larger limits.
 - Frontend organization is the largest ownership problem by file distribution;
   a Cargo workspace alone would leave most structural debt untouched.
 - The current `src/shared/` directory is not frontend-only because Rust embeds
@@ -809,92 +594,29 @@ evidence-log entry.
 
 ## Outcomes
 
-- Milestone 0 is complete. Structural rules now fail before an invalid feature
-  import, wildcard or incomplete workspace, duplicated member policy, Tauri
-  dependency in core, oversized workspace source file, public command module,
-  or oversized Tauri entrypoint can enter the target layout.
-- Milestone 1 is complete. Canonical cross-runtime taxonomies now have neutral
-  ownership under `resources/`, contributor samples have one `examples/`
-  owner, and four unused component families have been deleted.
-- Milestone 2 is complete. App composition is owned by `src/app/`; Salary,
-  Hiring Trends, Application Assist, Applications tracking, first-run
-  Onboarding, Dashboard job discovery, Resume library, builder and matching,
-  Settings, Search Links, LinkedIn Workbench, and Company Research are complete
-  feature slices with public facades and private implementation modules under
-  `src/features/`. The shared Search
-  Links IPC model and client have one neutral multi-consumer owner. Eighteen proven
-  multi-feature visual primitives now have direct ownership under `src/ui/`, without
-  an aggregate barrel; job-fit reason parsing stays private. Settings-private notification,
-  source-health, problem-report, and feedback UI modules have moved out of the
-  transitional components bucket into explicit Settings subdomains. App-only
-  command, keyboard-help, recovery, and tour-configuration modules now live in
-  private `src/app/` subdirectories. Dashboard-only recovery boundaries live
-  under their feature owner. Settings-only feedback state, matching diagnostics,
-  and company suggestions no longer leak into the root technical buckets.
-  Dashboard-only keyboard navigation, desktop notifications, posting-risk
-  interpretation, and job URL validation also live under their feature owner.
-  Resume analysis scoring is shared only within the Resume domain. Cover-letter
-  template processing and its development commands are private to Applications.
-  Dashboard owns saved-search and search-history development commands, while
-  Settings notifications own notification-preference development commands. The
-  Search Links feature owns its development site catalog and safe outbound-link
-  commands; Dashboard owns job-import preview, canonicalization, and insertion.
-  Their shared development-only external-HTTPS validation is a named security
-  contract instead of part of either feature's implementation. The
-  unused root error-helper
-  family is deleted, while its privacy checks now apply to any frontend
-  TypeScript owner instead of one hardcoded file. Dashboard owns its debounce
-  hook directly, and the unused root hooks barrel is gone. App bootstrap owns
-  its web-vitals implementation, and the modal primitive owns its body-scroll
-  locking implementation under `src/ui/`. The app-only keyboard provider,
-  context, hook, shortcut model, and formatter share one private owner under
-  `src/app/keyboard/`. App onboarding owns the tour state and overlay, while
-  Dashboard receives the app-composed tour action through an optional visual
-  slot instead of importing app internals. The unused announcer provider family
-  and its permanently empty live regions are deleted rather than relocated.
-  Failure-tolerant browser storage is a named cross-feature contract under
-  `src/shared/` instead of a root utility. Theme persistence and document
-  effects belong to the app provider, while the theme context and hook form a
-  small shared UI contract. Toast timers and rendering belong to the app
-  provider, while features consume a small typed notification contract under
-  `src/shared/toast/`. Undo stacks and global keyboard handling belong to the
-  app provider, while Dashboard and Applications consume the typed shared Undo
-  contract directly. Error Reporting initialization belongs to the app
-  provider, while the typed context, hook, validated local reporter, and
-  sanitization contract belong to `src/shared/errorReporting/`. The legacy root
-  `contexts` and `hooks` buckets are deleted. Development commands use a thin
-  explicit registry, persisted state owner, and feature-owned handlers and tests.
-- Shared contact-field validation now lives under `src/shared/validation/`.
-  Application Assist owns its required-field rules, and Settings credentials
-  own notification connection-link validation. Six test-only compatibility
-  validators were deleted with the mixed root form-validation utility.
-- Shared date, currency, source guidance, and safe browser downloads have named
-  `src/shared/` owners. Dashboard owns job display and CSV export; Settings owns
-  private backups. The root `src/utils/` bucket is deleted.
-- Settings company-preference field names changed. Read-only deserialize aliases
-  preserve existing local values, and all newly saved data uses the new names.
-  No privacy, credential, consent, or external-side-effect boundary changed.
-- Milestone 3 is complete. The canonical job record and normalization contract
-  have owner-neutral facades, database encryption no longer imports credential
-  ownership, leaf modules are private, and integration tests consume public
-  behavior APIs.
-- Milestone 4 is complete. The root virtual Cargo workspace has exactly
-  `crates/jobsentinel-core` and `src-tauri` as literal members. Members inherit
-  package metadata, exact dependency pins, lint policy, and release policy.
-  Root Cargo configuration, lock data, cargo-deny policy, SQLx metadata, target
-  output, CI, release tooling, and platform artifact fixtures follow the new
-  layout. Core owns migrations and all Tauri-free backend implementation.
-- Milestone 5 is complete. `src-tauri/src/main.rs` contains only its platform
-  attribute and app call, `src-tauri/src/lib.rs` exposes only `run()`, app and
-  command implementation modules are private, and the explicit IPC registry
-  remains the single command source of truth.
+- Milestones 0 through 6 are complete. Detailed structural outcomes and
+  acceptance evidence are preserved in
+  [Repository Architecture Milestones 0 Through 6](../archive/repository-architecture-milestones-0-6.md).
+- The final file-cap slice of Milestone 7 is complete. The live contract now
+  enforces 500 lines for production and scripts, 800 lines for tests, and 700
+  lines for maintained documents. Every tracked violation was split by an
+  observed owner, and policy sensors follow the resulting private modules and
+  documentation sidecars.
+- The cap slice passes the complete 771-test script harness, 2,769 core tests,
+  184 Tauri tests, 280 focused frontend tests, the production frontend build,
+  workspace Clippy, docs, architecture, language, bloat, and 100/100 harness
+  score gates. Default tests did not access the operating-system credential
+  store.
+- Milestone 7 remains open for the orphan, dependency, root-file, stale-path,
+  documentation, wiki, and cross-platform cleanup audits. Milestone 8 remains
+  blocked on completion of that cleanup and explicit release readiness work.
 
 ## Handoff
 
-- Current state: Milestones 0 through 5 are complete with passing focused and
-  full evidence. Privacy remains immutable.
-- Next step: rebuild script and harness ownership, then perform the mandatory
-  full repository cleanup and final file-cap cutover.
+- Current state: Milestones 0 through 6 and the final file-cap slice of
+  Milestone 7 are complete with passing evidence. Privacy remains immutable.
+- Next step: continue the dead-code, orphan-test, dependency, root-file, stale
+  reference, documentation, and public wiki cleanup audits.
 - Open risks: Windows and Linux platform builds still require their final live
   release-readiness hosts. Current cross-platform evidence is contract and
   release-fixture coverage plus target-gated manifests; macOS is live-checked.
