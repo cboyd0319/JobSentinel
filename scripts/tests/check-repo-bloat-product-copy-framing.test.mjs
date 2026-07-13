@@ -145,27 +145,27 @@ test("checkRepoBloat rejects application-assist automation framing", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src/pages/ApplicationProfile.tsx",
+      "src/features/application-assist/ApplicationProfilePage.tsx",
       '"One-Click Apply Settings"; "Total Attempts"; "Success Rate"; "Submission Rate";\n',
     );
     writeFixtureFile(
       root,
-      "src/components/automation/ApplyButton.tsx",
+      "src/features/application-assist/ApplyButton.tsx",
       '"Quick Apply"; "Prepare to apply - fills form fields automatically"; "Settings > Application Assist";\n',
     );
     writeFixtureFile(
       root,
-      "src/components/automation/ApplicationPreview.tsx",
+      "src/features/application-assist/ApplicationPreview.tsx",
       '"Fields that will be auto-filled"; "Code profile";\n',
     );
     writeFixtureFile(
       root,
-      "src/components/automation/ProfileForm.tsx",
+      "src/features/application-assist/ProfileForm.tsx",
       '"This information will be auto-filled when you apply to jobs"; "Automation Settings";\n',
     );
     writeFixtureFile(
       root,
-      "src/components/automation/ScreeningAnswersForm.tsx",
+      "src/features/application-assist/ScreeningAnswersForm.tsx",
       '"Add common answers to auto-fill screening questions during Quick Apply";\n',
     );
     writeFixtureFile(
@@ -203,11 +203,11 @@ test("checkRepoBloat rejects application-assist automation framing", () => {
         "README.md",
         "index.html",
         "src-tauri/Cargo.toml",
-        "src/pages/ApplicationProfile.tsx",
-        "src/components/automation/ApplyButton.tsx",
-        "src/components/automation/ApplicationPreview.tsx",
-        "src/components/automation/ProfileForm.tsx",
-        "src/components/automation/ScreeningAnswersForm.tsx",
+        "src/features/application-assist/ApplicationProfilePage.tsx",
+        "src/features/application-assist/ApplyButton.tsx",
+        "src/features/application-assist/ApplicationPreview.tsx",
+        "src/features/application-assist/ProfileForm.tsx",
+        "src/features/application-assist/ScreeningAnswersForm.tsx",
         "src/pages/DashboardUI/DashboardHeader.tsx",
         "docs/features/application-assist.md",
         "docs/user/QUICK_START.md",
@@ -218,11 +218,11 @@ test("checkRepoBloat rejects application-assist automation framing", () => {
     const violations = checkRepoBloat(root);
 
     for (const path of [
-      "src/pages/ApplicationProfile.tsx",
-      "src/components/automation/ApplyButton.tsx",
-      "src/components/automation/ApplicationPreview.tsx",
-      "src/components/automation/ProfileForm.tsx",
-      "src/components/automation/ScreeningAnswersForm.tsx",
+      "src/features/application-assist/ApplicationProfilePage.tsx",
+      "src/features/application-assist/ApplyButton.tsx",
+      "src/features/application-assist/ApplicationPreview.tsx",
+      "src/features/application-assist/ProfileForm.tsx",
+      "src/features/application-assist/ScreeningAnswersForm.tsx",
       "src/pages/DashboardUI/DashboardHeader.tsx",
       "docs/features/application-assist.md",
       "docs/user/QUICK_START.md",

@@ -1,12 +1,12 @@
 import { useState, useEffect, useCallback, useRef, type KeyboardEvent } from "react";
-import { Card } from "../components/Card";
-import { StatCard } from "../components/StatCard";
-import { Skeleton } from "../components/Skeleton";
-import { ProfileForm } from "../components/automation/ProfileForm";
-import { ScreeningAnswersForm } from "../components/automation/ScreeningAnswersForm";
+import { Card } from "../../components/Card";
+import { StatCard } from "../../components/StatCard";
+import { Skeleton } from "../../components/Skeleton";
+import { ProfileForm } from "./ProfileForm";
+import { ScreeningAnswersForm } from "./ScreeningAnswersForm";
 import { invoke } from "@tauri-apps/api/core";
-import { logError } from "../utils/errorUtils";
-import { useToast } from "../contexts";
+import { logError } from "../../utils/errorUtils";
+import { useToast } from "../../contexts";
 
 interface ApplicationProfileProps {
   onBack: () => void;
@@ -25,7 +25,7 @@ type Tab = "profile" | "screening";
 const getTabClassName = (tab: Tab, activeTab: Tab) =>
   `app-section-tab ${activeTab === tab ? "app-section-tab-selected" : "app-section-tab-idle"}`;
 
-export default function ApplicationProfile({ onBack }: ApplicationProfileProps) {
+export default function ApplicationProfilePage({ onBack }: ApplicationProfileProps) {
   const [activeTab, setActiveTab] = useState<Tab>("profile");
   const [stats, setStats] = useState<AutomationStats | null>(null);
   const [loadingStats, setLoadingStats] = useState(false);

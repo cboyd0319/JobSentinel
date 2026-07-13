@@ -252,7 +252,7 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/automation/ScreeningAnswersForm.tsx",
+      "src/features/application-assist/ScreeningAnswersForm.tsx",
       [
         "<code>{a.questionPattern}</code>",
         "{Math.round(a.confidenceScore * 100)}% confident",
@@ -262,7 +262,7 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/automation/ScreeningAnswerSuggestions.tsx",
+      "src/features/application-assist/ScreeningAnswerSuggestions.tsx",
       [
         "Smart Suggestions",
         "Based on your history",
@@ -275,12 +275,12 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/automation/ApplyButton.tsx",
+      "src/features/application-assist/ApplyButton.tsx",
       "CAPTCHA detected\nForm preparation error\nForm preparation failed\n",
     );
     writeFixtureFile(
       root,
-      "src/components/automation/ApplicationPreview.tsx",
+      "src/features/application-assist/ApplicationPreview.tsx",
       "CAPTCHA verification (if present)\n",
     );
     writeFixtureFile(
@@ -432,7 +432,7 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/pages/ApplicationProfile.tsx",
+      "src/features/application-assist/ApplicationProfilePage.tsx",
       "Failed to load application history\nRestart JobSentinel\nMarked Sent\nReady to Send\nSubmission Rate\n",
     );
     writeFixtureFile(
@@ -629,12 +629,12 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/automation/ApplicationPreview.tsx",
+      "src/features/application-assist/ApplicationPreview.tsx",
       "No profile configured. Please set up your application profile first.\nResume upload (select your file)\n",
     );
     writeFixtureFile(
       root,
-      "src/components/automation/ProfileForm.tsx",
+      "src/features/application-assist/ProfileForm.tsx",
       [
         "Require manual approval",
         "Daily application review limit",
@@ -651,7 +651,7 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/automation/ScreeningAnswersForm.tsx",
+      "src/features/application-assist/ScreeningAnswersForm.tsx",
       "Dropdown selection\nPlease fix the errors\nFailed to load answers\nPlease try again\n",
     );
     writeFixtureFile(
@@ -822,17 +822,17 @@ test("product copy rejects technical-first settings copy", () => {
       "src/features/market/MarketSnapshotCard.tsx",
       "src/components/NotificationPreferences.tsx",
       "src/components/ScoreBreakdownModal.tsx",
-      "src/components/automation/ApplicationPreview.tsx",
-      "src/components/automation/ApplyButton.tsx",
-      "src/components/automation/ProfileForm.tsx",
-      "src/components/automation/ScreeningAnswerSuggestions.tsx",
-      "src/components/automation/ScreeningAnswersForm.tsx",
+      "src/features/application-assist/ApplicationPreview.tsx",
+      "src/features/application-assist/ApplyButton.tsx",
+      "src/features/application-assist/ProfileForm.tsx",
+      "src/features/application-assist/ScreeningAnswerSuggestions.tsx",
+      "src/features/application-assist/ScreeningAnswersForm.tsx",
       "src/components/feedback/SubmitOptions.tsx",
       "src/components/jobCardGuidance.ts",
       "src/contexts/KeyboardShortcutsContext.tsx",
       "src/contexts/UndoContext.tsx",
       "src/hooks/useFeedback.ts",
-      "src/pages/ApplicationProfile.tsx",
+      "src/features/application-assist/ApplicationProfilePage.tsx",
       "src/pages/Applications.tsx",
       "src/pages/Dashboard.tsx",
       "src/pages/DashboardUI/DashboardFiltersBar.tsx",

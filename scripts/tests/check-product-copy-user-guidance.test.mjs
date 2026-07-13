@@ -132,11 +132,11 @@ test("product copy rejects Application Profile send/sent stats", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src/pages/ApplicationProfile.tsx",
+      "src/features/application-assist/ApplicationProfilePage.tsx",
       "Marked Sent\nReady to Send\nSubmission Rate\n",
     );
 
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/ApplicationProfile.tsx"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/features/application-assist/ApplicationProfilePage.tsx"), true);
   });
 });
 

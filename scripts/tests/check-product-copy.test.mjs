@@ -137,17 +137,17 @@ test("product copy rejects application automation framing", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/automation/ApplyButton.tsx",
+      "src/features/application-assist/ApplyButton.tsx",
       "const badge = <span title={atsInfo?.automationNotes || undefined} />;\n",
     );
     writeFixtureFile(
       root,
-      "src/components/automation/ApplicationPreview.tsx",
+      "src/features/application-assist/ApplicationPreview.tsx",
       'aria-label={`Application tracking system: ${atsPlatform}`}\n',
     );
     writeFixtureFile(
       root,
-      "src/pages/ApplicationProfile.tsx",
+      "src/features/application-assist/ApplicationProfilePage.tsx",
       '"Submission Rate"\n',
     );
 
@@ -156,18 +156,18 @@ test("product copy rejects application automation framing", () => {
       true,
     );
     assert.equal(
-      hasApplicationAssistAutomationFraming(root, "src/components/automation/ApplyButton.tsx"),
+      hasApplicationAssistAutomationFraming(root, "src/features/application-assist/ApplyButton.tsx"),
       true,
     );
     assert.equal(
       hasApplicationAssistAutomationFraming(
         root,
-        "src/components/automation/ApplicationPreview.tsx",
+        "src/features/application-assist/ApplicationPreview.tsx",
       ),
       true,
     );
     assert.equal(
-      hasApplicationAssistAutomationFraming(root, "src/pages/ApplicationProfile.tsx"),
+      hasApplicationAssistAutomationFraming(root, "src/features/application-assist/ApplicationProfilePage.tsx"),
       true,
     );
   });

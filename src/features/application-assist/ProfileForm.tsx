@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef, memo } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { Button } from "../Button";
-import { Card } from "../Card";
+import { Button } from "../../components/Button";
+import { Card } from "../../components/Card";
 import { useToast } from "../../contexts";
 import { logError } from "../../utils/errorUtils";
 import {
@@ -18,65 +18,13 @@ import {
   WorkAuthorizationSection,
   type ProfileFieldErrors,
 } from "./ProfileFormSections";
-
-// Type for tracking original form values
-interface FormSnapshot {
-  fullName: string;
-  email: string;
-  phone: string;
-  linkedinUrl: string;
-  githubUrl: string;
-  portfolioUrl: string;
-  websiteUrl: string;
-  usWorkAuthorized: boolean;
-  requiresSponsorship: boolean;
-  maxApplicationsPerDay: number;
-  requireManualApproval: boolean;
-}
-
-// Types matching the Rust backend
-interface ApplicationProfile {
-  fullName: string;
-  email: string;
-  phone: string | null;
-  linkedinUrl: string | null;
-  githubUrl: string | null;
-  portfolioUrl: string | null;
-  websiteUrl: string | null;
-  hasResumeFile: boolean;
-  resumeFileName: string | null;
-  usWorkAuthorized: boolean;
-  requiresSponsorship: boolean;
-  maxApplicationsPerDay: number;
-  requireManualApproval: boolean;
-}
-
-interface ApplicationProfileInput {
-  full_name: string;
-  email: string;
-  phone?: string | null;
-  linkedin_url?: string | null;
-  github_url?: string | null;
-  portfolio_url?: string | null;
-  website_url?: string | null;
-  default_resume_id?: number | null;
-  resume_file_token?: string | null;
-  clear_resume_file?: boolean;
-  default_cover_letter_template?: string | null;
-  us_work_authorized: boolean;
-  requires_sponsorship: boolean;
-  max_applications_per_day?: number;
-  require_manual_approval?: boolean;
-}
-
-interface ProfileFormProps {
-  onSaved?: () => void;
-}
-
-interface ApplicationResumeFileSelection {
-  token: string;
-  fileName: string;
-}
+import type {
+  ApplicationProfile,
+  ApplicationProfileInput,
+  ApplicationResumeFileSelection,
+  FormSnapshot,
+  ProfileFormProps,
+} from "./profileModel";
 
 export const ProfileForm = memo(function ProfileForm({ onSaved }: ProfileFormProps) {
   const [loading, setLoading] = useState(true);

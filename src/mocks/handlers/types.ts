@@ -8,7 +8,7 @@ import type { NotificationPreferences } from "../../utils/notificationPreference
 import type {
   MockApplicationProfile,
   MockScreeningAnswer,
-} from "./applicationProfile";
+} from "../../features/application-assist/mockProfile";
 import type {
   MockCoverLetterTemplate,
   MockSavedSearch,

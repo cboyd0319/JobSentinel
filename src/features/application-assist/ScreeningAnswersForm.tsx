@@ -1,20 +1,15 @@
 import { memo, useState, useEffect, useCallback, type ReactElement } from "react";
-import { Badge } from "../Badge";
-import { Button } from "../Button";
-import { Card } from "../Card";
-import { HelpIcon } from "../HelpIcon";
-import { Input } from "../Input";
-import { Modal, ModalFooter } from "../Modal";
+import { Badge } from "../../components/Badge";
+import { Button } from "../../components/Button";
+import { Card } from "../../components/Card";
+import { HelpIcon } from "../../components/HelpIcon";
+import { Input } from "../../components/Input";
+import { Modal, ModalFooter } from "../../components/Modal";
 import { useToast } from "../../contexts";
 import { safeInvoke, safeInvokeWithToast } from "../../utils/api";
 import { validateRequired, validateRequiredQuestionWording } from "../../utils/formValidation";
 import { getSafeErrorToastCopy } from "../../utils/safeErrorCopy";
 import { getHardScreeningAnswerGuidance } from "./screeningReviewGuidance";
-import {
-  COMMON_SCREENING_PATTERNS,
-  LEGACY_SCREENING_PATTERNS,
-  PLAIN_SCREENING_PATTERN_ALIASES,
-} from "../../shared/applicationScreeningTaxonomy";
 
 // Lookup object for answer type badges (better performance than switch)
 const ANSWER_TYPE_BADGES: Record<string, ReactElement> = {
@@ -28,117 +23,18 @@ const DEFAULT_BADGE = ANSWER_TYPE_BADGES.text;
 
 const getAnswerTypeBadge = (type: string | null) =>
   ANSWER_TYPE_BADGES[type ?? "text"] ?? DEFAULT_BADGE;
-
-// Types matching the Rust backend
-interface ScreeningAnswer {
-  id: number;
-  questionPattern: string;
-  answer: string;
-  answerType: string | null;
-  notes: string | null;
-  createdAt: string;
-  updatedAt: string;
-  // Learning fields (added v2.6.4)
-  timesUsed?: number;
-  timesModified?: number;
-  confidenceScore?: number;
-  lastUsedAt?: string | null;
-}
-
-interface ScreeningAnswersFormProps {
-  onSaved?: () => void;
-}
-
-const COMMON_PATTERNS = COMMON_SCREENING_PATTERNS;
-
-function normalizePatternKey(pattern: string) {
-  return pattern.trim().toLowerCase();
-}
-
-function getPlainPatternAlias(pattern: string) {
-  const normalizedPattern = normalizePatternKey(pattern);
-  return PLAIN_SCREENING_PATTERN_ALIASES.find((item) =>
-    item.patterns.some((alias) => alias.toLowerCase() === normalizedPattern)
-  );
-}
-
-function looksLikeMatcherPattern(pattern: string) {
-  return /(\(\?[a-z-]*\)|\\[dDsSwWbB]|\.\*|\.\+|\[[^\]]+\]|\([^)]*\|[^)]*\)|[|^$]|\{\d+(,\d*)?\})/.test(pattern);
-}
-
-// Format relative time (e.g., "2 days ago", "1 week ago")
-function formatRelativeTime(isoDate: string): string {
-  const date = new Date(isoDate);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-  if (diffDays === 0) return "today";
-  if (diffDays === 1) return "yesterday";
-  if (diffDays < 7) return `${diffDays} days ago`;
-  if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
-  if (diffDays < 365) return `${Math.floor(diffDays / 30)} months ago`;
-  return `${Math.floor(diffDays / 365)} years ago`;
-}
-
-function getQuestionMatchLabel(pattern: string) {
-  const normalizedPattern = normalizePatternKey(pattern);
-  const common = COMMON_PATTERNS.find(
-    (item) => item.pattern.toLowerCase() === normalizedPattern,
-  );
-  if (common) return common.label;
-
-  const legacy = LEGACY_SCREENING_PATTERNS.find(
-    (item) => item.pattern.toLowerCase() === normalizedPattern,
-  );
-  if (legacy) return legacy.label;
-
-  const plainAlias = getPlainPatternAlias(pattern);
-  if (plainAlias) return plainAlias.label;
-  return looksLikeMatcherPattern(pattern) ? "Custom screening question" : pattern.trim();
-}
-
-function getEditableQuestionPattern(pattern: string) {
-  const normalizedPattern = normalizePatternKey(pattern);
-  const legacy = LEGACY_SCREENING_PATTERNS.find(
-    (item) => item.pattern.toLowerCase() === normalizedPattern,
-  );
-  if (legacy) return legacy.editablePattern;
-
-  const plainAlias = getPlainPatternAlias(pattern);
-  return plainAlias?.editablePattern ?? pattern.trim();
-}
-
-function getPersistedQuestionPattern(currentPattern: string, originalPattern: string | null) {
-  const trimmedPattern = currentPattern.trim();
-  if (!originalPattern) return trimmedPattern;
-
-  return normalizePatternKey(trimmedPattern) === normalizePatternKey(getEditableQuestionPattern(originalPattern))
-    ? originalPattern
-    : trimmedPattern;
-}
-
-function answerMatchesCommonPattern(answerPattern: string, commonPattern: (typeof COMMON_PATTERNS)[number]) {
-  const normalizedAnswerPattern = normalizePatternKey(answerPattern);
-  return (
-    normalizedAnswerPattern === commonPattern.pattern.toLowerCase() ||
-    getQuestionMatchLabel(answerPattern).toLowerCase() === commonPattern.label.toLowerCase()
-  );
-}
-
-function getConfidenceLabel(score?: number) {
-  if (score === undefined || score <= 0) return null;
-  if (score >= 0.8) return "Usually matches";
-  if (score >= 0.5) return "Review before using";
-  return "Needs review";
-}
-
-function getModifiedUseLabel(timesModified?: number, timesUsed?: number) {
-  if (!timesModified || !timesUsed) return null;
-  const ratio = timesModified / timesUsed;
-  if (ratio >= 0.5) return "Often edited";
-  return "Sometimes edited";
-}
+import {
+  COMMON_PATTERNS,
+  answerMatchesCommonPattern,
+  formatRelativeTime,
+  getConfidenceLabel,
+  getEditableQuestionPattern,
+  getModifiedUseLabel,
+  getPersistedQuestionPattern,
+  getQuestionMatchLabel,
+  type ScreeningAnswer,
+  type ScreeningAnswersFormProps,
+} from "./screeningAnswersModel";
 
 export const ScreeningAnswersForm = memo(function ScreeningAnswersForm({ onSaved }: ScreeningAnswersFormProps) {
   const [answers, setAnswers] = useState<ScreeningAnswer[]>([]);

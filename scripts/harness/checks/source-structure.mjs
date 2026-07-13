@@ -28,7 +28,7 @@ const unreferencedSourceHelpers = new Map([
 ]);
 
 const unreferencedBarrelModules = new Set([
-  "src/components/automation/index.ts",
+  "src/features/application-assist/index.ts",
   "src/components/feedback/index.ts",
   "src/pages/DashboardUI/index.ts",
 ]);

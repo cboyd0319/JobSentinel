@@ -432,18 +432,18 @@ test("checkRepoBloat rejects unreferenced local barrel modules", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src/components/automation/index.ts",
+      "src/features/application-assist/index.ts",
       "export { ProfileForm } from './ProfileForm';\n",
     );
     writeFixtureFile(
       root,
-      "src/components/automation/ProfileForm.tsx",
+      "src/features/application-assist/ProfileForm.tsx",
       "export function ProfileForm() { return null; }\n",
     );
     writeFixtureFile(
       root,
-      "src/pages/ApplicationProfile.tsx",
-      "import { ProfileForm } from '../components/automation/ProfileForm';\n",
+      "src/features/application-assist/ApplicationProfilePage.tsx",
+      "import { ProfileForm } from './ProfileForm';\n",
     );
 
     execFileSync(
@@ -451,9 +451,9 @@ test("checkRepoBloat rejects unreferenced local barrel modules", () => {
       [
         "add",
         "package.json",
-        "src/components/automation/index.ts",
-        "src/components/automation/ProfileForm.tsx",
-        "src/pages/ApplicationProfile.tsx",
+        "src/features/application-assist/index.ts",
+        "src/features/application-assist/ProfileForm.tsx",
+        "src/features/application-assist/ApplicationProfilePage.tsx",
       ],
       { cwd: root },
     );
@@ -461,7 +461,7 @@ test("checkRepoBloat rejects unreferenced local barrel modules", () => {
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("remove unreferenced barrel module: src/components/automation/index.ts"),
+      violations.includes("remove unreferenced barrel module: src/features/application-assist/index.ts"),
       violations.join("\n"),
     );
   });

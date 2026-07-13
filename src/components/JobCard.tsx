@@ -2,7 +2,7 @@ import { useEffect, useState, memo, lazy, Suspense } from "react";
 import { ScoreDisplay } from "./ScoreDisplay";
 import { GhostIndicatorCompact } from "./GhostIndicator";
 import { ModalSkeleton } from "./LoadingFallbacks";
-import { ApplyButton } from "./automation/ApplyButton";
+import { ApplyButton } from "../features/application-assist";
 import { ExternalAiJobSummary } from "./ExternalAiJobSummary";
 import {
   JobFeedbackAdjustment,

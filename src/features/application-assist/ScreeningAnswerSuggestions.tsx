@@ -1,8 +1,8 @@
 import { memo, useState, useEffect } from "react";
-import { Badge } from "../Badge";
-import { Button } from "../Button";
-import { Card } from "../Card";
-import { Skeleton } from "../Skeleton";
+import { Badge } from "../../components/Badge";
+import { Button } from "../../components/Button";
+import { Card } from "../../components/Card";
+import { Skeleton } from "../../components/Skeleton";
 import { invoke } from "@tauri-apps/api/core";
 import { logError } from "../../utils/errorUtils";
 import { getHardScreeningAnswerGuidance } from "./screeningReviewGuidance";

@@ -84,12 +84,12 @@ test("source-structure checks honor active barrel imports", () => {
 
 test("source-structure checks detect unreferenced local barrels", () => {
   withGitFixture((root) => {
-    writeFixtureFile(root, "src/components/automation/index.ts", "export const Assist = null;\n");
+    writeFixtureFile(root, "src/features/application-assist/index.ts", "export const Assist = null;\n");
     writeFixtureFile(root, "src/pages/Dashboard.tsx", "export function Dashboard() { return null; }\n");
-    track(root, ["src/components/automation/index.ts", "src/pages/Dashboard.tsx"]);
+    track(root, ["src/features/application-assist/index.ts", "src/pages/Dashboard.tsx"]);
 
     assert.equal(
-      hasUnreferencedBarrelModule(root, "src/components/automation/index.ts"),
+      hasUnreferencedBarrelModule(root, "src/features/application-assist/index.ts"),
       true,
     );
   });

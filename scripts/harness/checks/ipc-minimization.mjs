@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
-const fullProfileAllowedPaths = new Set(["src/components/automation/ProfileForm.tsx"]);
+const fullProfileAllowedPaths = new Set(["src/features/application-assist/ProfileForm.tsx"]);
 
 function readIfPresent(root, path) {
   const fullPath = join(root, path);
@@ -138,7 +138,7 @@ export function hasBookmarkletTokenIpcExposure(root, path) {
 export function hasApplicationProfileResumePathExposure(root, path) {
   if (
     path !== "src-tauri/src/commands/automation.rs" &&
-    path !== "src/components/automation/ProfileForm.tsx" &&
+    path !== "src/features/application-assist/ProfileForm.tsx" &&
     path !== "src/mocks/handlers.ts"
   ) {
     return false;
@@ -242,7 +242,7 @@ export function hasAnswerHistoryRendererInvoke(root, path) {
 export function hasRawAnswerHistoryIpcExposure(root, path) {
   if (
     path !== "src-tauri/src/commands/automation.rs" &&
-    path !== "src/components/automation/ScreeningAnswerSuggestions.tsx" &&
+    path !== "src/features/application-assist/ScreeningAnswerSuggestions.tsx" &&
     path !== "src/mocks/handlers.ts"
   ) {
     return false;

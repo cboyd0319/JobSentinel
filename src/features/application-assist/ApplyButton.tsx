@@ -1,8 +1,8 @@
 import { memo, useState, useEffect, useCallback } from "react";
 // memo applied to ApplyButton and application-form badges
 import { invoke } from "@tauri-apps/api/core";
-import { Button } from "../Button";
-import { Modal, ModalFooter } from "../Modal";
+import { Button } from "../../components/Button";
+import { Modal, ModalFooter } from "../../components/Modal";
 import { useToast } from "../../contexts";
 import { logError } from "../../utils/errorUtils";
 import { safeInvoke, safeInvokeWithToast } from "../../utils/api";

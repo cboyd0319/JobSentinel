@@ -230,7 +230,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/automation/ApplyButton.tsx",
+      "src/features/application-assist/ApplyButton.tsx",
       [
         "setFillError(result.errorMessage);",
         'toast.error("Form preparation error", result.errorMessage);',
@@ -239,7 +239,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/automation/ScreeningAnswersForm.tsx",
+      "src/features/application-assist/ScreeningAnswersForm.tsx",
       [
         '<Select label="Dropdown selection" />',
         "",
@@ -461,7 +461,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/pages/ApplicationProfile.tsx",
+      "src/features/application-assist/ApplicationProfilePage.tsx",
       '"Failed to load application history";\n',
     );
     writeFixtureFile(
@@ -538,7 +538,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         "src/pages/Resume.tsx",
         "src/pages/ResumeOptimizer.tsx",
         "src/pages/Applications.tsx",
-        "src/pages/ApplicationProfile.tsx",
+        "src/features/application-assist/ApplicationProfilePage.tsx",
         "src/pages/Dashboard.tsx",
         "src/pages/DashboardUI/DashboardHeader.tsx",
         "src/pages/hooks/useDashboardJobOps.ts",
@@ -569,8 +569,8 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         "src/components/CommandPalette.tsx",
         "src/components/KeyboardShortcutsHelp.tsx",
         "src/app/Navigation.tsx",
-        "src/components/automation/ApplyButton.tsx",
-        "src/components/automation/ScreeningAnswersForm.tsx",
+        "src/features/application-assist/ApplyButton.tsx",
+        "src/features/application-assist/ScreeningAnswersForm.tsx",
         "src/components/feedback/DebugInfoPreview.tsx",
         "src/components/feedback/FeedbackModal.tsx",
         "src/components/feedback/SuccessScreen.tsx",
@@ -596,7 +596,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "src/pages/Resume.tsx",
       "src/pages/ResumeOptimizer.tsx",
       "src/pages/Applications.tsx",
-      "src/pages/ApplicationProfile.tsx",
+      "src/features/application-assist/ApplicationProfilePage.tsx",
       "src/pages/Dashboard.tsx",
       "src/pages/DashboardUI/DashboardHeader.tsx",
       "src/pages/hooks/useDashboardJobOps.ts",
@@ -626,8 +626,8 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "src/components/CommandPalette.tsx",
       "src/components/KeyboardShortcutsHelp.tsx",
       "src/app/Navigation.tsx",
-      "src/components/automation/ApplyButton.tsx",
-      "src/components/automation/ScreeningAnswersForm.tsx",
+      "src/features/application-assist/ApplyButton.tsx",
+      "src/features/application-assist/ScreeningAnswersForm.tsx",
       "src/components/feedback/DebugInfoPreview.tsx",
       "src/components/feedback/FeedbackModal.tsx",
       "src/components/feedback/SuccessScreen.tsx",

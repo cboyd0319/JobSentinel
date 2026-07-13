@@ -28,7 +28,7 @@ const ResumeBuilder = lazy(() => import("../pages/ResumeBuilder"));
 const ResumeOptimizer = lazy(() => import("../pages/ResumeOptimizer"));
 const Salary = lazy(() => import("../features/salary"));
 const Market = lazy(() => import("../features/market"));
-const ApplicationProfile = lazy(() => import("../pages/ApplicationProfile"));
+const ApplicationProfile = lazy(() => import("../features/application-assist"));
 
 // Loading fallback for lazy-loaded pages
 function PageLoader({ message = "Loading..." }: { message?: string }) {

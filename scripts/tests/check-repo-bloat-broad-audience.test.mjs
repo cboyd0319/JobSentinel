@@ -243,22 +243,22 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/automation/ProfileForm.tsx",
+      "src/features/application-assist/ProfileForm.tsx",
       '<Input label="GitHub" placeholder="https://github.com/johndoe" />\n',
     );
     writeFixtureFile(
       root,
-      "src/components/automation/ApplicationPreview.tsx",
+      "src/features/application-assist/ApplicationPreview.tsx",
       '{ label: "GitHub", value: profile.githubUrl };\n',
     );
     writeFixtureFile(
       root,
-      "src/components/automation/ApplicationPreview.test.tsx",
+      "src/features/application-assist/ApplicationPreview.test.tsx",
       'githubUrl: "https://code.example.com/jordanlee";\n',
     );
     writeFixtureFile(
       root,
-      "src/components/automation/ApplyButton.test.tsx",
+      "src/features/application-assist/ApplyButton.test.tsx",
       [
         'title: "Senior Software Engineer",',
         'company: "Tech Corp",',
@@ -640,10 +640,10 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "src/components/resume-builder/steps/SummaryStep.tsx",
         "src/components/resume-builder/steps/ContactStep.tsx",
         "src/components/resume-builder/steps/SkillsStep.tsx",
-        "src/components/automation/ProfileForm.tsx",
-        "src/components/automation/ApplicationPreview.tsx",
-        "src/components/automation/ApplicationPreview.test.tsx",
-        "src/components/automation/ApplyButton.test.tsx",
+        "src/features/application-assist/ProfileForm.tsx",
+        "src/features/application-assist/ApplicationPreview.tsx",
+        "src/features/application-assist/ApplicationPreview.test.tsx",
+        "src/features/application-assist/ApplyButton.test.tsx",
         "src/components/AtsLiveScorePanel.test.tsx",
         "src/components/CompanyResearchPanel.test.tsx",
         "src/components/ScoreBreakdownModal.test.tsx",
@@ -744,10 +744,10 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       "src/components/resume-builder/steps/SummaryStep.tsx",
       "src/components/resume-builder/steps/ContactStep.tsx",
       "src/components/resume-builder/steps/SkillsStep.tsx",
-      "src/components/automation/ProfileForm.tsx",
-      "src/components/automation/ApplicationPreview.tsx",
-      "src/components/automation/ApplicationPreview.test.tsx",
-      "src/components/automation/ApplyButton.test.tsx",
+      "src/features/application-assist/ProfileForm.tsx",
+      "src/features/application-assist/ApplicationPreview.tsx",
+      "src/features/application-assist/ApplicationPreview.test.tsx",
+      "src/features/application-assist/ApplyButton.test.tsx",
       "src/components/AtsLiveScorePanel.test.tsx",
       "src/components/CompanyResearchPanel.test.tsx",
       "src/components/ScoreBreakdownModal.test.tsx",

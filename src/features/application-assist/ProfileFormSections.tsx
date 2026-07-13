@@ -1,6 +1,6 @@
-import { Button } from "../Button";
-import { HelpIcon } from "../HelpIcon";
-import { Input } from "../Input";
+import { Button } from "../../components/Button";
+import { HelpIcon } from "../../components/HelpIcon";
+import { Input } from "../../components/Input";
 
 const REVIEW_PACE_OPTIONS = [3, 5, 10, 15] as const;
 

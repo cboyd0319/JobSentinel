@@ -2,7 +2,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { invoke } from "@tauri-apps/api/core";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import ApplicationProfile from "./ApplicationProfile";
+import ApplicationProfilePage from "./ApplicationProfilePage";
 
 const mockInvoke = vi.mocked(invoke);
 
@@ -13,19 +13,19 @@ const mockToast = {
   warning: vi.fn(),
 };
 
-vi.mock("../contexts", () => ({
+vi.mock("../../contexts", () => ({
   useToast: () => mockToast,
 }));
 
-vi.mock("../utils/errorUtils", () => ({
+vi.mock("../../utils/errorUtils", () => ({
   logError: vi.fn(),
 }));
 
-vi.mock("../components/automation/ProfileForm", () => ({
+vi.mock("./ProfileForm", () => ({
   ProfileForm: () => <div data-testid="profile-form" />,
 }));
 
-vi.mock("../components/automation/ScreeningAnswersForm", () => ({
+vi.mock("./ScreeningAnswersForm", () => ({
   ScreeningAnswersForm: () => <div data-testid="screening-answers-form" />,
 }));
 
@@ -42,7 +42,7 @@ describe("ApplicationProfile", () => {
   });
 
   it("keeps application stats clear that users submit themselves", async () => {
-    render(<ApplicationProfile onBack={vi.fn()} />);
+    render(<ApplicationProfilePage onBack={vi.fn()} />);
 
     await waitFor(() => {
       expect(screen.getByRole("article", { name: "Submitted by You statistic" })).toBeInTheDocument();
@@ -59,7 +59,7 @@ describe("ApplicationProfile", () => {
   it("keeps the visible selected tab state aligned with the active panel", async () => {
     const user = userEvent.setup();
 
-    render(<ApplicationProfile onBack={vi.fn()} />);
+    render(<ApplicationProfilePage onBack={vi.fn()} />);
 
     const profileTab = screen.getByRole("tab", { name: "Profile" });
     const screeningTab = screen.getByRole("tab", { name: "Screening Questions" });
@@ -85,7 +85,7 @@ describe("ApplicationProfile", () => {
   it("keeps keyboard tab navigation in sync with the visible selected tab state", async () => {
     const user = userEvent.setup();
 
-    render(<ApplicationProfile onBack={vi.fn()} />);
+    render(<ApplicationProfilePage onBack={vi.fn()} />);
 
     const profileTab = screen.getByRole("tab", { name: "Profile" });
     const screeningTab = screen.getByRole("tab", { name: "Screening Questions" });

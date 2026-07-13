@@ -20,7 +20,7 @@ export function getTechnicalFirstUiResult(path, text) {
     return /Who's Hiring thread|HN Who's Hiring|Hacker News/i.test(text);
   }
 
-  if (path === "src/components/automation/ApplicationPreview.tsx") {
+  if (path === "src/features/application-assist/ApplicationPreview.tsx") {
     return [
       /CAPTCHA verification \(if present\)/i,
       /No profile configured/i,
@@ -42,15 +42,15 @@ export function getTechnicalFirstUiResult(path, text) {
     ].some((pattern) => pattern.test(text));
   }
 
-  if (path === "src/components/automation/ProfileForm.tsx") {
+  if (path === "src/features/application-assist/ProfileForm.tsx") {
     return /Require manual approval|Failed to load profile|Failed to select file|Please fix the errors|Failed to save|Please try again|Taking longer than expected|Select your resume file \(PDF or DOCX\) for application review|Daily application review limit|Daily review limit:|<option value="50">50<\/option>/i.test(text);
   }
 
-  if (path === "src/components/automation/ScreeningAnswersForm.tsx") {
+  if (path === "src/features/application-assist/ScreeningAnswersForm.tsx") {
     return /Dropdown selection|Please fix the errors|Failed to load answers|Please try again/i.test(text);
   }
 
-  if (path === "src/components/automation/ScreeningAnswerSuggestions.tsx") {
+  if (path === "src/features/application-assist/ScreeningAnswerSuggestions.tsx") {
     return /Failed to load suggestions|setError\(\s*["'`]Could not load saved answers["'`]\s*\)/i.test(text);
   }
 
@@ -87,7 +87,7 @@ export function getTechnicalFirstUiResult(path, text) {
     return /Job Search Failed/i.test(text);
   }
 
-  if (path === "src/pages/ApplicationProfile.tsx") {
+  if (path === "src/features/application-assist/ApplicationProfilePage.tsx") {
     return /Failed to load application history|Restart JobSentinel|Marked Sent|Ready to Send|Submission Rate/i.test(text);
   }
 

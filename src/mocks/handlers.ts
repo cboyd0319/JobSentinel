@@ -64,7 +64,7 @@ import {
   normalizeMockApplicationProfile,
   normalizeMockScreeningAnswer,
   upsertMockScreeningAnswer as upsertMockScreeningAnswerState,
-} from "./handlers/applicationProfile";
+} from "../features/application-assist/mockProfile";
 import {
   getMockAtsPlatform,
   getMockAtsPlatformDetection,

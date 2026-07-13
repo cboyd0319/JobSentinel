@@ -39,26 +39,26 @@ test("ipc minimization rejects full profile calls outside the profile editor", (
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src/components/automation/ApplyButton.tsx",
+      "src/features/application-assist/ApplyButton.tsx",
       'safeInvoke("get_application_profile");\n',
     );
     writeFixtureFile(
       root,
-      "src/components/automation/ProfileForm.tsx",
+      "src/features/application-assist/ProfileForm.tsx",
       'invoke("get_application_profile");\n',
     );
 
     assert.equal(
       hasNonSettingsFullApplicationProfileInvoke(
         root,
-        "src/components/automation/ApplyButton.tsx",
+        "src/features/application-assist/ApplyButton.tsx",
       ),
       true,
     );
     assert.equal(
       hasNonSettingsFullApplicationProfileInvoke(
         root,
-        "src/components/automation/ProfileForm.tsx",
+        "src/features/application-assist/ProfileForm.tsx",
       ),
       false,
     );
@@ -197,7 +197,7 @@ test("ipc minimization rejects application resume path exposure across renderer 
     );
     writeFixtureFile(
       root,
-      "src/components/automation/ProfileForm.tsx",
+      "src/features/application-assist/ProfileForm.tsx",
       [
         'import { open } from "@tauri-apps/plugin-dialog";',
         "setResumeFilePath(data.resumeFilePath);",
@@ -213,7 +213,7 @@ test("ipc minimization rejects application resume path exposure across renderer 
 
     for (const path of [
       "src-tauri/src/commands/automation.rs",
-      "src/components/automation/ProfileForm.tsx",
+      "src/features/application-assist/ProfileForm.tsx",
       "src/mocks/handlers.ts",
     ]) {
       assert.equal(hasApplicationProfileResumePathExposure(root, path), true);
@@ -330,7 +330,7 @@ test("ipc minimization rejects raw screening answer history IPC", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/automation/ScreeningAnswerSuggestions.tsx",
+      "src/features/application-assist/ScreeningAnswerSuggestions.tsx",
       "type AnswerSource = { type: 'historical'; originalQuestion: string } | { type: 'manual'; pattern: string };\n",
     );
     writeFixtureFile(
@@ -346,7 +346,7 @@ test("ipc minimization rejects raw screening answer history IPC", () => {
     assert.equal(
       hasRawAnswerHistoryIpcExposure(
         root,
-        "src/components/automation/ScreeningAnswerSuggestions.tsx",
+        "src/features/application-assist/ScreeningAnswerSuggestions.tsx",
       ),
       true,
     );
@@ -358,26 +358,26 @@ test("ipc minimization rejects renderer answer-history management calls", () => 
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src/components/automation/ScreeningAnswerSuggestions.tsx",
+      "src/features/application-assist/ScreeningAnswerSuggestions.tsx",
       'await invoke("get_answer_statistics", { pattern });\nawait invoke("clear_answer_history");\n',
     );
     writeFixtureFile(
       root,
-      "src/components/automation/ScreeningAnswerSuggestions.test.tsx",
+      "src/features/application-assist/ScreeningAnswerSuggestions.test.tsx",
       'expect(command).toBe("get_answer_statistics");\n',
     );
 
     assert.equal(
       hasAnswerHistoryRendererInvoke(
         root,
-        "src/components/automation/ScreeningAnswerSuggestions.tsx",
+        "src/features/application-assist/ScreeningAnswerSuggestions.tsx",
       ),
       true,
     );
     assert.equal(
       hasAnswerHistoryRendererInvoke(
         root,
-        "src/components/automation/ScreeningAnswerSuggestions.test.tsx",
+        "src/features/application-assist/ScreeningAnswerSuggestions.test.tsx",
       ),
       false,
     );
