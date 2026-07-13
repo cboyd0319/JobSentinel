@@ -18,7 +18,7 @@ import type {
   MockInterviewPrepState,
 } from "./interviewProgress";
 import type { MockMarketAlert } from "../../features/market/mockHandlers";
-import type { MockBuilderSkill, MockResumeDraft } from "./resumeBuilder";
+import type { MockBuilderSkill, MockResumeDraft } from "../../features/resumes/mocks/resumeBuilder";
 import type { MockScraperEnabledOverrides } from "./scraperHealth";
 
 export type MockJob = typeof mockJobs[number];

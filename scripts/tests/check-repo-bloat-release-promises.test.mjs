@@ -81,18 +81,18 @@ test("checkRepoBloat rejects source release version promises", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src/pages/ResumeBuilder.tsx",
+      "src/features/resumes/builder/ResumeBuilderPage.tsx",
       'export const tooltip = "Coming in v2.7 - Full ATS compatibility check";\n',
     );
 
-    execFileSync("git", ["add", "package.json", "src/pages/ResumeBuilder.tsx"], {
+    execFileSync("git", ["add", "package.json", "src/features/resumes/builder/ResumeBuilderPage.tsx"], {
       cwd: root,
     });
 
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("replace source release version promises: src/pages/ResumeBuilder.tsx"),
+      violations.includes("replace source release version promises: src/features/resumes/builder/ResumeBuilderPage.tsx"),
       violations.join("\n"),
     );
   });

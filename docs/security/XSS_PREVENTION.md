@@ -6,10 +6,10 @@ render path must sanitize before using `dangerouslySetInnerHTML`.
 ## Current Implementation
 
 The active Resume Builder preview is in
-`src/pages/ResumeBuilderPreviewStep.tsx`, with the shared sanitizer policy in
-`src/pages/resumeHtmlSanitizer.ts`. PDF export uses the same sanitizer before
+`src/features/resumes/builder/ResumeBuilderPreviewStep.tsx`, with the shared sanitizer policy in
+`src/features/resumes/builder/resumeHtmlSanitizer.ts`. PDF export uses the same sanitizer before
 placing resume HTML into the temporary print iframe in
-`src/pages/resumeBuilderExportDom.ts`.
+`src/features/resumes/builder/resumeBuilderExportDom.ts`.
 
 ```typescript
 <iframe
@@ -167,7 +167,7 @@ sanitized output.
 Focused manual checks:
 
 ```javascript
-import { sanitizeResumeHtmlDocument } from "../../src/pages/resumeHtmlSanitizer";
+import { sanitizeResumeHtmlDocument } from "../../src/features/resumes/builder/resumeHtmlSanitizer";
 
 sanitizeResumeHtmlDocument('<h1>Safe</h1><script>alert("XSS")</script>');
 // Expected: <h1>Safe</h1>

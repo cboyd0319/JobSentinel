@@ -76,7 +76,7 @@ export function checkExternalAiGatewayBoundary(root, violations) {
 }
 
 export function checkResumeHtmlSinkBoundary(root, violations) {
-  const preview = readIfExists(root, "src/pages/ResumeBuilderPreviewStep.tsx", violations);
+  const preview = readIfExists(root, "src/features/resumes/builder/ResumeBuilderPreviewStep.tsx", violations);
   if (
     !includesAll(preview, [
       'sandbox=""',
@@ -89,7 +89,7 @@ export function checkResumeHtmlSinkBoundary(root, violations) {
     );
   }
 
-  const printExport = readIfExists(root, "src/pages/resumeBuilderExportDom.ts", violations);
+  const printExport = readIfExists(root, "src/features/resumes/builder/resumeBuilderExportDom.ts", violations);
   if (
     !includesAll(printExport, [
       'iframe.setAttribute("sandbox", "allow-modals")',

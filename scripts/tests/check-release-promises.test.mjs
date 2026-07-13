@@ -73,11 +73,11 @@ test("release promises reject front-door macOS distribution overpromises", () =>
 
 test("release promises reject runtime source version promises", () => {
   withFixture((root) => {
-    writeFixtureFile(root, "src/pages/ResumeBuilder.tsx", 'const copy = "Coming in v2.7";\n');
-    writeFixtureFile(root, "src/pages/ResumeBuilder.test.tsx", 'const copy = "Coming in v2.7";\n');
+    writeFixtureFile(root, "src/features/resumes/builder/ResumeBuilderPage.tsx", 'const copy = "Coming in v2.7";\n');
+    writeFixtureFile(root, "src/features/resumes/builder/ResumeBuilderPage.test.tsx", 'const copy = "Coming in v2.7";\n');
 
-    assert.equal(hasSourceReleaseVersionPromise(root, "src/pages/ResumeBuilder.tsx"), true);
-    assert.equal(hasSourceReleaseVersionPromise(root, "src/pages/ResumeBuilder.test.tsx"), false);
+    assert.equal(hasSourceReleaseVersionPromise(root, "src/features/resumes/builder/ResumeBuilderPage.tsx"), true);
+    assert.equal(hasSourceReleaseVersionPromise(root, "src/features/resumes/builder/ResumeBuilderPage.test.tsx"), false);
   });
 });
 

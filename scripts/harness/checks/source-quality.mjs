@@ -17,9 +17,9 @@ const scoreReasonJsonParserPaths = new Set([
 const storageJsonParserPaths = new Set([
   "src/features/applications/AnalyticsPanel.tsx",
   "src/features/applications/analyticsPanelModel.ts",
-  "src/components/AtsLiveScorePanel.tsx",
+  "src/features/resumes/builder/AtsLiveScorePanel.tsx",
   "src/components/CompanyResearchPanel.tsx",
-  "src/utils/resumeJobContext.ts",
+  "src/features/resumes/shared/resumeJobContext.ts",
 ]);
 
 const staticCompanyFallbackPaths = new Set(["src/components/CompanyResearchPanel.tsx"]);
@@ -29,7 +29,7 @@ const settingsCredentialPaths = new Set([
   "src/pages/Settings.tsx",
 ]);
 
-const resumeImportPaths = new Set(["src/pages/Resume.tsx"]);
+const resumeImportPaths = new Set(["src/features/resumes/library/ResumeLibraryPage.tsx"]);
 
 const frontendStatusEmojiPaths = new Set([
   "src/features/applications/AnalyticsPanel.tsx",
@@ -216,7 +216,7 @@ export function hasUnsafeStorageJsonParsing(root, path) {
 
   const text = readFileSync(join(root, path), "utf8");
   if (
-    path !== "src/components/AtsLiveScorePanel.tsx" &&
+    path !== "src/features/resumes/builder/AtsLiveScorePanel.tsx" &&
     !/JSON\.parse\(/.test(text) &&
     !/readStorageValue\(/.test(text)
   ) {
@@ -243,7 +243,7 @@ export function hasUnsafeStorageJsonParsing(root, path) {
     );
   }
 
-  if (path === "src/components/AtsLiveScorePanel.tsx") {
+  if (path === "src/features/resumes/builder/AtsLiveScorePanel.tsx") {
     return (
       /const\s+parsed\s*=\s*JSON\.parse\(stored\)/.test(text) ||
       /readStorageValue\("session",\s*["']jobContext["']\)/.test(text) ||
@@ -251,7 +251,7 @@ export function hasUnsafeStorageJsonParsing(root, path) {
     );
   }
 
-  if (path === "src/utils/resumeJobContext.ts") {
+  if (path === "src/features/resumes/shared/resumeJobContext.ts") {
     return (
       !/function\s+isStoredResumeJobContext/.test(text) ||
       !/Number\.isFinite\(candidate\.timestamp\)/.test(text) ||

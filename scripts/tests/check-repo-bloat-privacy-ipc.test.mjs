@@ -97,12 +97,12 @@ test("checkRepoBloat rejects resume renderer DTO path exposure", () => {
     );
     writeFixtureFile(
       root,
-      "src/pages/Resume.tsx",
+      "src/features/resumes/library/ResumeLibraryPage.tsx",
       ["interface ResumeData {", "  id: number;", "  file_path: string;", "}"].join("\n"),
     );
     writeFixtureFile(
       root,
-      "src/pages/ResumeBuilder.tsx",
+      "src/features/resumes/builder/ResumeBuilderPage.tsx",
       ["interface Resume {", "  id: number;", "  parsed_text: string | null;", "}"].join("\n"),
     );
     writeFixtureFile(
@@ -128,8 +128,8 @@ test("checkRepoBloat rejects resume renderer DTO path exposure", () => {
         "add",
         "package.json",
         "src-tauri/src/commands/resume.rs",
-        "src/pages/Resume.tsx",
-        "src/pages/ResumeBuilder.tsx",
+        "src/features/resumes/library/ResumeLibraryPage.tsx",
+        "src/features/resumes/builder/ResumeBuilderPage.tsx",
         "src/mocks/handlers.ts",
         "docs/developer/ARCHITECTURE.md",
       ],
@@ -140,8 +140,8 @@ test("checkRepoBloat rejects resume renderer DTO path exposure", () => {
 
     for (const path of [
       "src-tauri/src/commands/resume.rs",
-      "src/pages/Resume.tsx",
-      "src/pages/ResumeBuilder.tsx",
+      "src/features/resumes/library/ResumeLibraryPage.tsx",
+      "src/features/resumes/builder/ResumeBuilderPage.tsx",
       "src/mocks/handlers.ts",
       "docs/developer/ARCHITECTURE.md",
     ]) {

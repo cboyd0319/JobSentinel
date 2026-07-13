@@ -26,10 +26,10 @@ function withFixture(callback) {
 
 test("broad audience fixtures reject engineer-first resume optimizer copy", () => {
   withFixture((root) => {
-    writeFixtureFile(root, "src/pages/ResumeOptimizer.tsx", "ATS Resume Optimizer\n");
+    writeFixtureFile(root, "src/features/resumes/matching/ResumeMatchPage.tsx", "ATS Resume Optimizer\n");
 
     assert.equal(
-      hasEngineerFirstAudienceExamples(root, "src/pages/ResumeOptimizer.tsx"),
+      hasEngineerFirstAudienceExamples(root, "src/features/resumes/matching/ResumeMatchPage.tsx"),
       true,
     );
     assert.equal(

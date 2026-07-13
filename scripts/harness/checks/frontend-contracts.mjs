@@ -117,9 +117,9 @@ export function hasStaleResumeOptimizerMockHandlers(root, path) {
 
 export function hasStaleAtsKeywordMatchFrontendShape(root, path) {
   if (
-    path !== "src/pages/ResumeOptimizer.tsx" &&
-    path !== "src/pages/resumeOptimizerModel.ts" &&
-    path !== "src/components/AtsLiveScorePanel.tsx"
+    path !== "src/features/resumes/matching/ResumeMatchPage.tsx" &&
+    path !== "src/features/resumes/matching/resumeMatchModel.ts" &&
+    path !== "src/features/resumes/builder/AtsLiveScorePanel.tsx"
   ) {
     return false;
   }
@@ -130,12 +130,12 @@ export function hasStaleAtsKeywordMatchFrontendShape(root, path) {
 
 const resumeSuggestionCategoryPaths = new Set([
   "src-tauri/src/core/resume/ats_analyzer.rs",
-  "src/pages/ResumeOptimizer.tsx",
-  "src/pages/resumeOptimizerModel.ts",
-  "src/components/AtsLiveScorePanel.tsx",
-  "src/components/AtsLiveScorePanelModel.ts",
+  "src/features/resumes/matching/ResumeMatchPage.tsx",
+  "src/features/resumes/matching/resumeMatchModel.ts",
+  "src/features/resumes/builder/AtsLiveScorePanel.tsx",
+  "src/features/resumes/builder/AtsLiveScorePanelModel.ts",
   "src/mocks/handlers.ts",
-  "src/mocks/handlers/resumeAnalysis.ts",
+  "src/features/resumes/mocks/resumeAnalysis.ts",
 ]);
 
 const fallbackResumeSuggestionCategories = [
@@ -188,10 +188,10 @@ export function hasResumeSuggestionCategoryDrift(root, path) {
 
   const categories = collectBackendResumeSuggestionCategories(root);
   const liveScoreModelText =
-    readOptionalFile(root, "src/components/AtsLiveScorePanelModel.ts") ||
-    readOptionalFile(root, "src/components/AtsLiveScorePanel.tsx");
+    readOptionalFile(root, "src/features/resumes/builder/AtsLiveScorePanelModel.ts") ||
+    readOptionalFile(root, "src/features/resumes/builder/AtsLiveScorePanel.tsx");
   const frontendTexts = [
-    readOptionalFile(root, "src/pages/resumeOptimizerModel.ts"),
+    readOptionalFile(root, "src/features/resumes/matching/resumeMatchModel.ts"),
     liveScoreModelText,
   ].filter(Boolean);
 
@@ -206,27 +206,33 @@ export function hasResumeSuggestionCategoryDrift(root, path) {
 
   const mockText = [
     readOptionalFile(root, "src/mocks/handlers.ts"),
-    readOptionalFile(root, "src/mocks/handlers/resumeAnalysis.ts"),
+    readOptionalFile(root, "src/features/resumes/mocks/resumeAnalysis.ts"),
   ].join("\n");
   return Boolean(mockText) && hasMissingResumeSuggestionCategories(mockText, categories);
 }
 
-export function hasUnsafeResumeOptimizerJsonParsing(root, path) {
+export function hasUnsafeResumeMatchJsonParsing(root, path) {
   if (
-    path !== "src/pages/ResumeOptimizer.tsx" &&
-    path !== "src/pages/resumeOptimizerModel.ts"
+    path !== "src/features/resumes/matching/ResumeMatchPage.tsx" &&
+    path !== "src/features/resumes/matching/resumeMatchModel.ts" &&
+    path !== "src/features/resumes/matching/resumeMatchValidation.ts"
   ) {
     return false;
   }
 
-  const pageText = readOptionalFile(root, "src/pages/ResumeOptimizer.tsx");
-  const modelText = readOptionalFile(root, "src/pages/resumeOptimizerModel.ts");
+  const pageText = readOptionalFile(root, "src/features/resumes/matching/ResumeMatchPage.tsx");
+  const modelText = readOptionalFile(root, "src/features/resumes/matching/resumeMatchModel.ts");
+  const validationText = readOptionalFile(
+    root,
+    "src/features/resumes/matching/resumeMatchValidation.ts",
+  );
   const changedText = readFileSync(join(root, path), "utf8");
+  const validationContractText = `${modelText}\n${validationText}`;
   return (
     /const\s+resume:\s*AtsResumeData\s*=\s*JSON\.parse\(resumeJson\)/.test(changedText) ||
     !/parseAtsResumeInput/.test(pageText) ||
-    !/function\s+isAtsResumeData/.test(modelText) ||
-    !/export\s+function\s+parseAtsResumeInput/.test(modelText)
+    !/function\s+isAtsResumeData/.test(validationContractText) ||
+    !/export\s+function\s+parseAtsResumeInput/.test(validationContractText)
   );
 }
 
@@ -303,7 +309,7 @@ export function hasStaleInterviewFollowupFrontendShape(root, path) {
 }
 
 export function hasStaleResumeMatchSubscoreDisplay(root, path) {
-  if (path !== "src/pages/Resume.tsx") {
+  if (path !== "src/features/resumes/library/ResumeLibraryPage.tsx") {
     return false;
   }
 

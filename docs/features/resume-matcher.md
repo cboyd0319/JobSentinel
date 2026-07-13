@@ -529,7 +529,7 @@ Builder tooltips and Resume Match rows, use plain evidence labels such as
 current role experience, recent role experience, work experience, and skills
 list instead of backend section names.
 Resume Match also shows a compact Role Coverage card backed by
-`src/shared/resumeRoleFamilyTaxonomy.ts`. The shared contract covers technical,
+`src/features/resumes/shared/resumeRoleFamilyTaxonomy.ts`. The shared contract covers technical,
 content, operations, healthcare, service, trades, education, sales, and
 early-career resume help, and tests verify each family maps to existing career
 profiles plus analyzer evidence prompts.

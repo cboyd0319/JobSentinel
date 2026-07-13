@@ -436,7 +436,7 @@ test("product copy rejects stale zero-technical resume and shortcut copy", () =>
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src/pages/Resume.tsx",
+      "src/features/resumes/library/ResumeLibraryPage.tsx",
       "Import Resume Data\nNo Resume Uploaded\nResume uploaded\nUpload Resume\nUpload New\nUploading...\nUploaded:\n",
     );
     writeFixtureFile(
@@ -447,7 +447,7 @@ test("product copy rejects stale zero-technical resume and shortcut copy", () =>
     writeFixtureFile(root, "docs/features/smart-scoring.md", "Uploaded resume skills\n");
     writeFixtureFile(
       root,
-      "src/pages/ResumeOptimizer.tsx",
+      "src/features/resumes/matching/ResumeMatchPage.tsx",
       [
         "Improve Bullet Point",
         "Improved Version",
@@ -467,10 +467,10 @@ test("product copy rejects stale zero-technical resume and shortcut copy", () =>
       "Navigate: j/k, Open: o/Enter, Hide: h\nj/k/o/h\n",
     );
 
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Resume.tsx"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/features/resumes/library/ResumeLibraryPage.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Settings.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/smart-scoring.md"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/ResumeOptimizer.tsx"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/features/resumes/matching/ResumeMatchPage.tsx"), true);
     assert.equal(
       hasTechnicalFirstUserCopy(root, "src/features/dashboard/components/DashboardFiltersBar.tsx"),
       true,

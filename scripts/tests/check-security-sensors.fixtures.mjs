@@ -15,6 +15,7 @@ export function writeBaseRepo(root, csp) {
   mkdirSync(join(root, "src-tauri"), { recursive: true });
   mkdirSync(join(root, "src-tauri/capabilities"), { recursive: true });
   mkdirSync(join(root, "src-tauri/src/core/automation/browser"), { recursive: true });
+  mkdirSync(join(root, "src/features/resumes/builder"), { recursive: true });
   mkdirSync(join(root, "src/pages"), { recursive: true });
   mkdirSync(join(root, "src/services"), { recursive: true });
 
@@ -280,7 +281,7 @@ export function writeBaseRepo(root, csp) {
     writeFileSync(join(root, "src/services", path), aiGatewayBoundarySource);
   }
   writeFileSync(
-    join(root, "src/pages/ResumeBuilderPreviewStep.tsx"),
+    join(root, "src/features/resumes/builder/ResumeBuilderPreviewStep.tsx"),
     [
       "<iframe",
       "  sandbox=\"\"",
@@ -290,7 +291,7 @@ export function writeBaseRepo(root, csp) {
     ].join("\n"),
   );
   writeFileSync(
-    join(root, "src/pages/resumeBuilderExportDom.ts"),
+    join(root, "src/features/resumes/builder/resumeBuilderExportDom.ts"),
     [
       "function openResumePrintDialog(html) {",
       "  const iframe = document.createElement('iframe');",

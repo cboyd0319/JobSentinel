@@ -25,7 +25,7 @@ test("product copy rejects technical-first resume copy", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src/pages/Resume.tsx",
+      "src/features/resumes/library/ResumeLibraryPage.tsx",
       [
         "Programming Languages",
         "Gap Analysis",
@@ -40,12 +40,12 @@ test("product copy rejects technical-first resume copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/pages/ResumeBuilder.tsx",
+      "src/features/resumes/builder/ResumeBuilderPage.tsx",
       'const PROFICIENCY_LEVELS = ["beginner", "intermediate", "advanced", "expert"]; Proficiency Select level Failed to import skills Failed to generate preview Export failed Try restarting JobSentinel Try restarting the app more issues',
     );
     writeFixtureFile(
       root,
-      "src/components/resume-builder/steps/SkillsStep.tsx",
+      "src/features/resumes/builder/steps/SkillsStep.tsx",
       "Proficiency\nSelect level\nlevel.charAt(0).toUpperCase() + level.slice(1)\n",
     );
     writeFixtureFile(
@@ -245,7 +245,7 @@ test("product copy rejects technical-first resume copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/pages/ResumeOptimizer.tsx",
+      "src/features/resumes/matching/ResumeMatchPage.tsx",
       [
         "{suggestion.category}",
         "Navigating to Resume Builder",
@@ -261,7 +261,7 @@ test("product copy rejects technical-first resume copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/pages/ResumeOptimizerResultsPanel.tsx",
+      "src/features/resumes/matching/ResumeMatchResultsPanel.tsx",
       [
         "Format Issues",
         "<Badge>{issue.severity}</Badge>",
@@ -271,10 +271,10 @@ test("product copy rejects technical-first resume copy", () => {
       ].join("\n"),
     );
 
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Resume.tsx"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/ResumeBuilder.tsx"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/features/resumes/library/ResumeLibraryPage.tsx"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/features/resumes/builder/ResumeBuilderPage.tsx"), true);
     assert.equal(
-      hasTechnicalFirstUserCopy(root, "src/components/resume-builder/steps/SkillsStep.tsx"),
+      hasTechnicalFirstUserCopy(root, "src/features/resumes/builder/steps/SkillsStep.tsx"),
       true,
     );
     assert.equal(hasTechnicalFirstUserCopy(root, "src/features/salary/SalaryPage.tsx"), true);
@@ -298,9 +298,9 @@ test("product copy rejects technical-first resume copy", () => {
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/notifications.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/saved-secrets.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/ROADMAP.md"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/ResumeOptimizer.tsx"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/features/resumes/matching/ResumeMatchPage.tsx"), true);
     assert.equal(
-      hasTechnicalFirstUserCopy(root, "src/pages/ResumeOptimizerResultsPanel.tsx"),
+      hasTechnicalFirstUserCopy(root, "src/features/resumes/matching/ResumeMatchResultsPanel.tsx"),
       true,
     );
   });

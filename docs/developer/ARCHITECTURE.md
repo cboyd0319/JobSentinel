@@ -300,13 +300,16 @@ the broader agent harness.
 - `src/features/<feature>/` owns a complete product slice, including its page,
   feature-local components, model, tests, and development mock handlers.
   Current complete slices are `salary`, `market`, `application-assist`,
-  `applications`, `onboarding`, and `dashboard`. Salary, Market, Applications,
-  and Dashboard expose only their pages; Onboarding exposes only its first-run
-  wizard. Application Assist exposes its profile page and the Apply action
-  composed into Dashboard by `src/app/`. Models, panels, cards, import flows,
-  board logic, interview scheduling, cover-letter templates, setup taxonomies,
-  data hooks, review logic, and mock handlers remain private to the owning
-  feature or the development mock registry.
+  `applications`, `onboarding`, `dashboard`, and `resumes`. Salary, Market,
+  Applications, and Dashboard expose only their pages; Onboarding exposes only
+  its first-run wizard. Application Assist exposes its profile page and the
+  Apply action composed into Dashboard by `src/app/`. Resumes exposes its
+  library, builder, and matching pages through one domain facade while their
+  controllers, validation, rendering, taxonomies, and mock handlers stay
+  private. Other models, panels, cards, import flows, board logic, interview
+  scheduling, cover-letter templates, setup taxonomies, data hooks, review
+  logic, and mock handlers remain private to the owning feature or the
+  development mock registry.
 - A feature must not import another feature's implementation files. Shared
   product-neutral code belongs in `src/shared/`; reusable UI belongs in
   `src/ui/` as those owners are established.

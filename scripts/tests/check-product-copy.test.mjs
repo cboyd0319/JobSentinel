@@ -43,17 +43,17 @@ test("product copy rejects stale Resume Optimizer framing", () => {
     writeFixtureFile(root, "docs/features/resume-matcher.md", "ATS Resume Optimizer\n");
     writeFixtureFile(
       root,
-      "src/pages/ResumeOptimizer.tsx",
+      "src/features/resumes/matching/ResumeMatchPage.tsx",
       "Words To Add\n= Words to add\nPower Words\nStrong Resume Words\nView Strong Resume Words\n",
     );
     writeFixtureFile(
       root,
-      "src/pages/ResumeOptimizerResultsPanel.tsx",
+      "src/features/resumes/matching/ResumeMatchResultsPanel.tsx",
       "Words To Add\n= Words to add\n",
     );
     writeFixtureFile(
       root,
-      "src/components/AtsLiveScorePanel.tsx",
+      "src/features/resumes/builder/AtsLiveScorePanel.tsx",
       "Only add these words when they honestly fit your experience.\n",
     );
 
@@ -62,15 +62,15 @@ test("product copy rejects stale Resume Optimizer framing", () => {
       true,
     );
     assert.equal(
-      hasStaleResumeOptimizerFraming(root, "src/pages/ResumeOptimizer.tsx"),
+      hasStaleResumeOptimizerFraming(root, "src/features/resumes/matching/ResumeMatchPage.tsx"),
       true,
     );
     assert.equal(
-      hasStaleResumeOptimizerFraming(root, "src/pages/ResumeOptimizerResultsPanel.tsx"),
+      hasStaleResumeOptimizerFraming(root, "src/features/resumes/matching/ResumeMatchResultsPanel.tsx"),
       true,
     );
     assert.equal(
-      hasStaleResumeOptimizerFraming(root, "src/components/AtsLiveScorePanel.tsx"),
+      hasStaleResumeOptimizerFraming(root, "src/features/resumes/builder/AtsLiveScorePanel.tsx"),
       true,
     );
     assert.equal(
@@ -89,7 +89,7 @@ test("product copy rejects local resume upload wording in resume match", () => {
     );
     writeFixtureFile(
       root,
-      "src/pages/ResumeOptimizer.tsx",
+      "src/features/resumes/matching/ResumeMatchPage.tsx",
       "Choose a saved resume or upload one.\nChoose or Upload Resume\nChoose or upload a resume instead.\n",
     );
     writeFixtureFile(
@@ -99,17 +99,17 @@ test("product copy rejects local resume upload wording in resume match", () => {
     );
     writeFixtureFile(
       root,
-      "src/pages/ResumeBuilder.tsx",
+      "src/features/resumes/builder/ResumeBuilderPage.tsx",
       "No resume uploaded\nPlease upload a resume in Resume Match first\nUpload and review a resume in Resume Match first\n",
     );
 
     assert.equal(hasStaleResumeOptimizerFraming(root, "docs/features/resume-matcher.md"), true);
-    assert.equal(hasStaleResumeOptimizerFraming(root, "src/pages/ResumeOptimizer.tsx"), true);
+    assert.equal(hasStaleResumeOptimizerFraming(root, "src/features/resumes/matching/ResumeMatchPage.tsx"), true);
     assert.equal(
       hasStaleResumeOptimizerFraming(root, "src/components/ResumeMatchScoreBreakdown.tsx"),
       true,
     );
-    assert.equal(hasStaleResumeOptimizerFraming(root, "src/pages/ResumeBuilder.tsx"), true);
+    assert.equal(hasStaleResumeOptimizerFraming(root, "src/features/resumes/builder/ResumeBuilderPage.tsx"), true);
   });
 });
 
@@ -502,9 +502,9 @@ test("product copy rejects stale match-ranking labels", () => {
       ["src/components/ScoreDisplay.tsx", "Score factor weights"],
       ["src/components/ScoreDisplay.tsx", "<td>{factor.weight}%</td>"],
       ["src/features/dashboard/components/ScoreBreakdownModal.tsx", "<span>{factorPercentage}%</span>"],
-      ["src/pages/ResumeOptimizer.tsx", "Format result: ${Math.round(result.format_score)}%"],
-      ["src/pages/ResumeOptimizer.tsx", "Overall Match"],
-      ["src/pages/ResumeOptimizer.tsx", "<span>{Math.round(score)}%</span>"],
+      ["src/features/resumes/matching/ResumeMatchPage.tsx", "Format result: ${Math.round(result.format_score)}%"],
+      ["src/features/resumes/matching/ResumeMatchPage.tsx", "Overall Match"],
+      ["src/features/resumes/matching/ResumeMatchPage.tsx", "<span>{Math.round(score)}%</span>"],
       ["src/features/dashboard/components/filterLabels.ts", "Best Match First"],
       ["src/features/dashboard/components/filterLabels.ts", "Lowest Match First"],
       ["src/features/onboarding/SetupWizard.tsx", "strongest matches"],

@@ -216,29 +216,29 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
-      "src/pages/ResumeBuilder.tsx",
+      "src/features/resumes/builder/ResumeBuilderPage.tsx",
       ['"$ whoami"', '"JOHN DOE - Data Analyst"', '"B.S. CS"', "<p>GitHub</p>", ""].join("\n"),
     );
     writeFixtureFile(
       root,
-      "src/pages/ResumeOptimizer.tsx",
+      "src/features/resumes/matching/ResumeMatchPage.tsx",
       '<textarea placeholder="e.g., Worked on improving database performance" />\n',
     );
-    writeFixtureFile(root, "src/pages/ResumeOptimizer.test.tsx", 'name: "Jane Doe";\n');
-    writeFixtureFile(root, "src/utils/resumeContactValidation.test.ts", 'name: "Jane Doe";\n');
+    writeFixtureFile(root, "src/features/resumes/matching/ResumeMatchPage.test.tsx", 'name: "Jane Doe";\n');
+    writeFixtureFile(root, "src/features/resumes/shared/resumeContactValidation.test.ts", 'name: "Jane Doe";\n');
     writeFixtureFile(
       root,
-      "src/components/resume-builder/steps/SummaryStep.tsx",
+      "src/features/resumes/builder/steps/SummaryStep.tsx",
       '<textarea placeholder="Experienced software engineer with 5+ years building apps." />\n',
     );
     writeFixtureFile(
       root,
-      "src/components/resume-builder/steps/SkillsStep.tsx",
+      "src/features/resumes/builder/steps/SkillsStep.tsx",
       '<input placeholder="React" /><input placeholder="Frontend" />"Technical and professional skills"\n',
     );
     writeFixtureFile(
       root,
-      "src/components/resume-builder/steps/ContactStep.tsx",
+      "src/features/resumes/builder/steps/ContactStep.tsx",
       '<Input label="GitHub" placeholder="John Doe" /><Input placeholder="San Francisco, CA" />\n',
     );
     writeFixtureFile(
@@ -268,7 +268,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/AtsLiveScorePanel.test.tsx",
+      "src/features/resumes/builder/AtsLiveScorePanel.test.tsx",
       [
         'name: "John Doe",',
         'linkedin: "linkedin.com/in/johndoe",',
@@ -633,18 +633,18 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "src/mocks/handlers.ts",
         "src/mocks/handlers.test.ts",
         "src-tauri/src/core/resume/templates.rs",
-        "src/pages/ResumeBuilder.tsx",
-        "src/pages/ResumeOptimizer.tsx",
-        "src/pages/ResumeOptimizer.test.tsx",
-        "src/utils/resumeContactValidation.test.ts",
-        "src/components/resume-builder/steps/SummaryStep.tsx",
-        "src/components/resume-builder/steps/ContactStep.tsx",
-        "src/components/resume-builder/steps/SkillsStep.tsx",
+        "src/features/resumes/builder/ResumeBuilderPage.tsx",
+        "src/features/resumes/matching/ResumeMatchPage.tsx",
+        "src/features/resumes/matching/ResumeMatchPage.test.tsx",
+        "src/features/resumes/shared/resumeContactValidation.test.ts",
+        "src/features/resumes/builder/steps/SummaryStep.tsx",
+        "src/features/resumes/builder/steps/ContactStep.tsx",
+        "src/features/resumes/builder/steps/SkillsStep.tsx",
         "src/features/application-assist/ProfileForm.tsx",
         "src/features/application-assist/ApplicationPreview.tsx",
         "src/features/application-assist/ApplicationPreview.test.tsx",
         "src/features/application-assist/ApplyButton.test.tsx",
-        "src/components/AtsLiveScorePanel.test.tsx",
+        "src/features/resumes/builder/AtsLiveScorePanel.test.tsx",
         "src/components/CompanyResearchPanel.test.tsx",
         "src/features/dashboard/components/ScoreBreakdownModal.test.tsx",
         "src/features/dashboard/components/JobCard.test.tsx",
@@ -737,18 +737,18 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       "src/mocks/handlers.ts",
       "src/mocks/handlers.test.ts",
       "src-tauri/src/core/resume/templates.rs",
-      "src/pages/ResumeBuilder.tsx",
-      "src/pages/ResumeOptimizer.tsx",
-      "src/pages/ResumeOptimizer.test.tsx",
-      "src/utils/resumeContactValidation.test.ts",
-      "src/components/resume-builder/steps/SummaryStep.tsx",
-      "src/components/resume-builder/steps/ContactStep.tsx",
-      "src/components/resume-builder/steps/SkillsStep.tsx",
+      "src/features/resumes/builder/ResumeBuilderPage.tsx",
+      "src/features/resumes/matching/ResumeMatchPage.tsx",
+      "src/features/resumes/matching/ResumeMatchPage.test.tsx",
+      "src/features/resumes/shared/resumeContactValidation.test.ts",
+      "src/features/resumes/builder/steps/SummaryStep.tsx",
+      "src/features/resumes/builder/steps/ContactStep.tsx",
+      "src/features/resumes/builder/steps/SkillsStep.tsx",
       "src/features/application-assist/ProfileForm.tsx",
       "src/features/application-assist/ApplicationPreview.tsx",
       "src/features/application-assist/ApplicationPreview.test.tsx",
       "src/features/application-assist/ApplyButton.test.tsx",
-      "src/components/AtsLiveScorePanel.test.tsx",
+      "src/features/resumes/builder/AtsLiveScorePanel.test.tsx",
       "src/components/CompanyResearchPanel.test.tsx",
       "src/features/dashboard/components/ScoreBreakdownModal.test.tsx",
       "src/features/dashboard/components/JobCard.test.tsx",

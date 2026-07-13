@@ -224,7 +224,7 @@ pub async fn update_resume_summary(resume_id: i64, summary: String) -> Result<()
     );
     writeFixtureFile(
       root,
-      "src/pages/ResumeBuilder.tsx",
+      "src/features/resumes/builder/ResumeBuilderPage.tsx",
       `
 import { invoke } from "@tauri-apps/api/core";
 

@@ -16,7 +16,7 @@ import {
   hasResumeSuggestionCategoryDrift,
   hasStaleSalaryBenchmarkFrontendShape,
   hasStaleUserDataMockHandlers,
-  hasUnsafeResumeOptimizerJsonParsing,
+  hasUnsafeResumeMatchJsonParsing,
   missingRuntimeMockInvokeCases,
 } from "../harness/checks/frontend-contracts.mjs";
 
@@ -80,32 +80,65 @@ test("frontend contracts reject stale resume optimizer and ATS shapes", () => {
     );
     writeFixtureFile(
       root,
-      "src/pages/ResumeOptimizer.tsx",
+      "src/features/resumes/matching/ResumeMatchPage.tsx",
       "const resume: AtsResumeData = JSON.parse(resumeJson);\n",
     );
     writeFixtureFile(
       root,
-      "src/components/AtsLiveScorePanel.tsx",
+      "src/features/resumes/builder/AtsLiveScorePanel.tsx",
       "type Keyword = { found_in: string; context: string; };\n",
     );
     writeFixtureFile(
       root,
-      "src/pages/resumeOptimizerModel.ts",
+      "src/features/resumes/matching/resumeMatchModel.ts",
       "type Keyword = { found_in: string; context: string; };\n",
     );
 
     assert.equal(hasStaleResumeOptimizerMockHandlers(root, "src/mocks/handlers.ts"), true);
     assert.equal(
-      hasUnsafeResumeOptimizerJsonParsing(root, "src/pages/ResumeOptimizer.tsx"),
+      hasUnsafeResumeMatchJsonParsing(root, "src/features/resumes/matching/ResumeMatchPage.tsx"),
       true,
     );
     assert.equal(
-      hasStaleAtsKeywordMatchFrontendShape(root, "src/pages/resumeOptimizerModel.ts"),
+      hasStaleAtsKeywordMatchFrontendShape(root, "src/features/resumes/matching/resumeMatchModel.ts"),
       true,
     );
     assert.equal(
-      hasStaleAtsKeywordMatchFrontendShape(root, "src/components/AtsLiveScorePanel.tsx"),
+      hasStaleAtsKeywordMatchFrontendShape(root, "src/features/resumes/builder/AtsLiveScorePanel.tsx"),
       true,
+    );
+  });
+});
+
+test("frontend contracts accept split Resume Match validation ownership", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src/features/resumes/matching/ResumeMatchPage.tsx",
+      "const resume = parseAtsResumeInput(resumeJson);\n",
+    );
+    writeFixtureFile(
+      root,
+      "src/features/resumes/matching/resumeMatchModel.ts",
+      'export { parseAtsResumeInput } from "./resumeMatchValidation";\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/features/resumes/matching/resumeMatchValidation.ts",
+      [
+        "function isAtsResumeData(value: unknown) { return Boolean(value); }",
+        "export function parseAtsResumeInput(value: string) {",
+        "  return isAtsResumeData(JSON.parse(value));",
+        "}",
+      ].join("\n"),
+    );
+
+    assert.equal(
+      hasUnsafeResumeMatchJsonParsing(
+        root,
+        "src/features/resumes/matching/resumeMatchValidation.ts",
+      ),
+      false,
     );
   });
 });
@@ -127,7 +160,7 @@ pub enum SuggestionCategory {
     );
     writeFixtureFile(
       root,
-      "src/pages/resumeOptimizerModel.ts",
+      "src/features/resumes/matching/resumeMatchModel.ts",
       `
 type SuggestionCategory = "AddKeyword" | "RewordBullet" | "AddSection" | "RemoveItem";
 function formatSuggestionCategory(category: SuggestionCategory): string {
@@ -142,7 +175,7 @@ function formatSuggestionCategory(category: SuggestionCategory): string {
     );
     writeFixtureFile(
       root,
-      "src/components/AtsLiveScorePanelModel.ts",
+      "src/features/resumes/builder/AtsLiveScorePanelModel.ts",
       `
 interface AtsSuggestion {
   category: "AddKeyword" | "RewordBullet" | "AddSection" | "ReorderContent" | "FormatFix";
@@ -165,11 +198,11 @@ function formatSuggestionCategory(category: AtsSuggestion["category"]): string {
     );
 
     assert.equal(
-      hasResumeSuggestionCategoryDrift(root, "src/pages/resumeOptimizerModel.ts"),
+      hasResumeSuggestionCategoryDrift(root, "src/features/resumes/matching/resumeMatchModel.ts"),
       true,
     );
     assert.equal(
-      hasResumeSuggestionCategoryDrift(root, "src/components/AtsLiveScorePanelModel.ts"),
+      hasResumeSuggestionCategoryDrift(root, "src/features/resumes/builder/AtsLiveScorePanelModel.ts"),
       true,
     );
     assert.equal(hasResumeSuggestionCategoryDrift(root, "src/mocks/handlers.ts"), true);
@@ -208,7 +241,7 @@ test("frontend contracts reject stale salary, interview, resume, and E2E match s
   withFixture((root) => {
     writeFixtureFile(root, "src/features/salary/model.ts", "type Benchmark = { p50: number; };\n");
     writeFixtureFile(root, "src/features/applications/InterviewScheduler.tsx", "thank_you_sent;\n");
-    writeFixtureFile(root, "src/pages/Resume.tsx", "Math.round(match.skills_match_score);\n");
+    writeFixtureFile(root, "src/features/resumes/library/ResumeLibraryPage.tsx", "Math.round(match.skills_match_score);\n");
     writeFixtureFile(
       root,
       "tests/e2e/playwright/resume-upload-matching.spec.ts",
@@ -220,7 +253,7 @@ test("frontend contracts reject stale salary, interview, resume, and E2E match s
       hasStaleInterviewFollowupFrontendShape(root, "src/features/applications/InterviewScheduler.tsx"),
       true,
     );
-    assert.equal(hasStaleResumeMatchSubscoreDisplay(root, "src/pages/Resume.tsx"), true);
+    assert.equal(hasStaleResumeMatchSubscoreDisplay(root, "src/features/resumes/library/ResumeLibraryPage.tsx"), true);
     assert.equal(
       hasStaleResumeE2eMatchSeed(root, "tests/e2e/playwright/resume-upload-matching.spec.ts"),
       true,

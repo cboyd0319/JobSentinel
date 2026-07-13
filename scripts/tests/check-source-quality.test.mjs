@@ -177,20 +177,20 @@ test("source quality rejects unsafe rendered JSON parsing", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/AtsLiveScorePanel.tsx",
+      "src/features/resumes/builder/AtsLiveScorePanel.tsx",
       "const parsed = JSON.parse(stored);\n",
     );
     writeFixtureFile(
       root,
-      "src/utils/resumeJobContext.ts",
+      "src/features/resumes/shared/resumeJobContext.ts",
       "export function readStoredResumeJobContext() { return JSON.parse(stored); }\n",
     );
 
     assert.equal(hasUnsafeScoreReasonJsonParsing(root, "src/components/ScoreDisplay.tsx"), true);
     assert.equal(hasUnsafeScoreReasonJsonParsing(root, "src/features/dashboard/components/GhostIndicator.tsx"), true);
     assert.equal(hasUnsafeStorageJsonParsing(root, "src/features/applications/AnalyticsPanel.tsx"), true);
-    assert.equal(hasUnsafeStorageJsonParsing(root, "src/components/AtsLiveScorePanel.tsx"), true);
-    assert.equal(hasUnsafeStorageJsonParsing(root, "src/utils/resumeJobContext.ts"), true);
+    assert.equal(hasUnsafeStorageJsonParsing(root, "src/features/resumes/builder/AtsLiveScorePanel.tsx"), true);
+    assert.equal(hasUnsafeStorageJsonParsing(root, "src/features/resumes/shared/resumeJobContext.ts"), true);
   });
 });
 
@@ -198,19 +198,19 @@ test("source quality requires ATS job context to be consumed from session storag
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src/components/AtsLiveScorePanel.tsx",
+      "src/features/resumes/builder/AtsLiveScorePanel.tsx",
       'import { readStoredResumeJobContext } from "../utils/resumeJobContext";\nreadStoredResumeJobContext();\n',
     );
 
-    assert.equal(hasUnsafeStorageJsonParsing(root, "src/components/AtsLiveScorePanel.tsx"), true);
+    assert.equal(hasUnsafeStorageJsonParsing(root, "src/features/resumes/builder/AtsLiveScorePanel.tsx"), true);
 
     writeFixtureFile(
       root,
-      "src/components/AtsLiveScorePanel.tsx",
+      "src/features/resumes/builder/AtsLiveScorePanel.tsx",
       'import { takeStoredResumeJobContext } from "../utils/resumeJobContext";\ntakeStoredResumeJobContext();\n',
     );
 
-    assert.equal(hasUnsafeStorageJsonParsing(root, "src/components/AtsLiveScorePanel.tsx"), false);
+    assert.equal(hasUnsafeStorageJsonParsing(root, "src/features/resumes/builder/AtsLiveScorePanel.tsx"), false);
   });
 });
 
@@ -265,7 +265,7 @@ test("source quality rejects frontend file URL resume imports", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src/pages/Resume.tsx",
+      "src/features/resumes/library/ResumeLibraryPage.tsx",
       [
         "const response = await fetch(`file://${filePath}`);",
         "const jsonString = await response.text();",
@@ -275,7 +275,7 @@ test("source quality rejects frontend file URL resume imports", () => {
       ].join("\n"),
     );
 
-    assert.equal(hasFrontendFileUrlResumeImport(root, "src/pages/Resume.tsx"), true);
+    assert.equal(hasFrontendFileUrlResumeImport(root, "src/features/resumes/library/ResumeLibraryPage.tsx"), true);
   });
 });
 
@@ -283,7 +283,7 @@ test("source quality rejects renderer-owned resume file picker imports", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src/pages/Resume.tsx",
+      "src/features/resumes/library/ResumeLibraryPage.tsx",
       [
         'import { open } from "@tauri-apps/plugin-dialog";',
         "const selected = await open({ multiple: false });",
@@ -292,7 +292,7 @@ test("source quality rejects renderer-owned resume file picker imports", () => {
       ].join("\n"),
     );
 
-    assert.equal(hasFrontendFileUrlResumeImport(root, "src/pages/Resume.tsx"), true);
+    assert.equal(hasFrontendFileUrlResumeImport(root, "src/features/resumes/library/ResumeLibraryPage.tsx"), true);
   });
 });
 

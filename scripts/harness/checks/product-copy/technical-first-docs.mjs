@@ -312,7 +312,7 @@ export function getTechnicalFirstDocsResult(path, text) {
     );
   }
 
-  if (path === "src/pages/Resume.tsx") {
+  if (path === "src/features/resumes/library/ResumeLibraryPage.tsx") {
     const resumePagePatterns = [
       /Programming Languages/i,
       /Cloud & DevOps/i,
@@ -344,13 +344,13 @@ export function getTechnicalFirstDocsResult(path, text) {
   }
 
   if (
-    path === "src/pages/ResumeBuilder.tsx" ||
-    path === "src/pages/ResumeBuilderPreviewStep.tsx" ||
-    path === "src/components/resume-builder/steps/ContactStep.tsx" ||
-    path === "src/components/resume-builder/steps/EducationStep.tsx" ||
-    path === "src/components/resume-builder/steps/ExperienceStep.tsx" ||
-    path === "src/components/resume-builder/steps/SkillsStep.tsx" ||
-    path === "src/components/resume-builder/steps/SummaryStep.tsx"
+    path === "src/features/resumes/builder/ResumeBuilderPage.tsx" ||
+    path === "src/features/resumes/builder/ResumeBuilderPreviewStep.tsx" ||
+    path === "src/features/resumes/builder/steps/ContactStep.tsx" ||
+    path === "src/features/resumes/builder/steps/EducationStep.tsx" ||
+    path === "src/features/resumes/builder/steps/ExperienceStep.tsx" ||
+    path === "src/features/resumes/builder/steps/SkillsStep.tsx" ||
+    path === "src/features/resumes/builder/steps/SummaryStep.tsx"
   ) {
     const resumeBuilderPatterns = [
       />\s*Proficiency\s*</i,
@@ -420,10 +420,10 @@ export function getTechnicalFirstDocsResult(path, text) {
   }
 
   if (
-    path === "src/pages/ResumeOptimizer.tsx" ||
-    path === "src/pages/ResumeOptimizerJobWordsOverview.tsx" ||
-    path === "src/pages/ResumeOptimizerResultsPanel.tsx" ||
-    path === "src/pages/resumeOptimizerModel.ts"
+    path === "src/features/resumes/matching/ResumeMatchPage.tsx" ||
+    path === "src/features/resumes/matching/ResumeMatchJobWordsOverview.tsx" ||
+    path === "src/features/resumes/matching/ResumeMatchResultsPanel.tsx" ||
+    path === "src/features/resumes/matching/resumeMatchModel.ts"
   ) {
     const resumeMatchDetailPatterns = [
       /Improve Bullet Point/i,
@@ -449,7 +449,7 @@ export function getTechnicalFirstDocsResult(path, text) {
     }
   }
 
-  if (path === "src/components/AtsLiveScorePanel.tsx") {
+  if (path === "src/features/resumes/builder/AtsLiveScorePanel.tsx") {
     const resumeReadabilityPatterns = [
       /analyzing\.\.\./i,
       />\s*Job Context\s*</i,

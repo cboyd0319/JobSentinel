@@ -122,8 +122,8 @@ test("product copy rejects prescriptive resume review copy", () => {
       "How to fix: {issue.fix}",
       "How to fix: Use one short paragraph.",
     ]) {
-      writeFixtureFile(root, "src/pages/ResumeOptimizer.tsx", `${staleCopy}\n`);
-      assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/ResumeOptimizer.tsx"), true);
+      writeFixtureFile(root, "src/features/resumes/matching/ResumeMatchPage.tsx", `${staleCopy}\n`);
+      assert.equal(hasTechnicalFirstUserCopy(root, "src/features/resumes/matching/ResumeMatchPage.tsx"), true);
     }
   });
 });

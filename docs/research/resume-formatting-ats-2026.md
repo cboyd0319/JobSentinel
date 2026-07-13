@@ -345,7 +345,7 @@ resume help should adjust examples and evidence prompts for:
   specialized-experience, grade-level, public-trust, occupational-series,
   job-announcement, and required-document work.
 - The 2026-06-19 open resume tool/template and ATS-optimization pass is now
-  captured in `src/shared/resumeWritingTaxonomy.ts`. Resume Match shows local
+  captured in `src/features/resumes/shared/resumeWritingTaxonomy.ts`. Resume Match shows local
   bullet frameworks for action/scope/method/result, X-Y-Z, and CAR, and Resume
   Builder Preview shows export checks for selectable text, reading order,
   employer-requested file type, portal field review, portable data, and major

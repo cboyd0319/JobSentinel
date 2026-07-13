@@ -4,7 +4,7 @@
  * These examples are intended for a JavaScript environment where the app's
  * shared resume sanitizer has already been imported. In source or tests, use:
  *
- * import { sanitizeResumeHtmlDocument } from "../../src/pages/resumeHtmlSanitizer";
+ * import { sanitizeResumeHtmlDocument } from "../../src/features/resumes/builder/resumeHtmlSanitizer";
  */
 
 // Example 1: normal resume HTML should preserve safe formatting.

@@ -46,7 +46,7 @@ import { handleMockUserDataCommand } from "./handlers/userDataCommands";
 import {
   getMockActiveResume,
   handleMockResumeCommand,
-} from "./handlers/resumeCommands";
+} from "../features/resumes/mocks/resumeCommands";
 import {
   getNextMockCoverLetterTemplateId,
   getNextMockSavedSearchId,
@@ -81,7 +81,7 @@ import {
   getMockMarketSnapshot,
   getMockTrendingSkills,
 } from "../features/market/mockHandlers";
-import { normalizeResumeDraft } from "./handlers/resumeBuilder";
+import { normalizeResumeDraft } from "../features/resumes/mocks/resumeBuilder";
 import {
   cloneApplications,
   getArg,

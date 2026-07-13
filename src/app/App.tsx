@@ -23,9 +23,21 @@ import {
 const SetupWizard = lazy(() => import("../features/onboarding"));
 const Dashboard = lazy(() => import("../features/dashboard"));
 const Applications = lazy(() => import("../features/applications"));
-const Resume = lazy(() => import("../pages/Resume"));
-const ResumeBuilder = lazy(() => import("../pages/ResumeBuilder"));
-const ResumeOptimizer = lazy(() => import("../pages/ResumeOptimizer"));
+const ResumeLibraryPage = lazy(() =>
+  import("../features/resumes").then((module) => ({
+    default: module.ResumeLibraryPage,
+  })),
+);
+const ResumeBuilderPage = lazy(() =>
+  import("../features/resumes").then((module) => ({
+    default: module.ResumeBuilderPage,
+  })),
+);
+const ResumeMatchPage = lazy(() =>
+  import("../features/resumes").then((module) => ({
+    default: module.ResumeMatchPage,
+  })),
+);
 const Salary = lazy(() => import("../features/salary"));
 const Market = lazy(() => import("../features/market"));
 const ApplicationProfile = lazy(() => import("../features/application-assist"));
@@ -284,17 +296,17 @@ function App() {
               )}
               {currentPage === "resume" && (
                 <PageErrorBoundary pageName="Resume" onBack={() => navigateTo("dashboard")}>
-                  <Resume onBack={() => navigateTo("dashboard")} />
+                  <ResumeLibraryPage onBack={() => navigateTo("dashboard")} />
                 </PageErrorBoundary>
               )}
               {currentPage === "resume-builder" && (
                 <PageErrorBoundary pageName="Resume Builder" onBack={() => navigateTo("dashboard")}>
-                  <ResumeBuilder onBack={() => navigateTo("dashboard")} />
+                  <ResumeBuilderPage onBack={() => navigateTo("dashboard")} />
                 </PageErrorBoundary>
               )}
               {currentPage === "ats-optimizer" && (
                 <PageErrorBoundary pageName="Resume Match" onBack={() => navigateTo("dashboard")}>
-                  <ResumeOptimizer onBack={() => navigateTo("dashboard")} onNavigate={navigateTo} />
+                  <ResumeMatchPage onBack={() => navigateTo("dashboard")} onNavigate={navigateTo} />
                 </PageErrorBoundary>
               )}
               {currentPage === "salary" && (

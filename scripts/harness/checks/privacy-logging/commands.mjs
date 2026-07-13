@@ -227,11 +227,11 @@ export function hasRawResumeCommandDtoExposure(root, path) {
     );
   }
 
-  if (path === "src/pages/Resume.tsx") {
+  if (path === "src/features/resumes/library/ResumeLibraryPage.tsx") {
     return /interface\s+ResumeData\s*\{[\s\S]{0,320}\b(?:file_path|parsed_text)\b/.test(text);
   }
 
-  if (path === "src/pages/ResumeBuilder.tsx") {
+  if (path === "src/features/resumes/builder/ResumeBuilderPage.tsx") {
     return /interface\s+Resume\s*\{[\s\S]{0,320}\b(?:file_path|parsed_text)\b/.test(text);
   }
 
@@ -245,7 +245,7 @@ export function hasRawResumeCommandDtoExposure(root, path) {
     );
   }
 
-  if (path === "src/mocks/handlers/resumeCommands.ts") {
+  if (path === "src/features/resumes/mocks/resumeCommands.ts") {
     return (
       !/toMockResumeSummary/.test(text) ||
       /case\s+["']list_all_resumes["']:[\s\S]{0,160}return\s+withoutSave\(\s*state\s*,\s*state\.resumes\s*\)/.test(

@@ -264,10 +264,10 @@ export function getTechnicalFirstUiResult(path, text) {
   }
 
   if (
-    path === "src/pages/ResumeOptimizer.tsx" ||
-    path === "src/pages/ResumeOptimizerJobWordsOverview.tsx" ||
-    path === "src/pages/ResumeOptimizerResultsPanel.tsx" ||
-    path === "src/pages/resumeOptimizerModel.ts"
+    path === "src/features/resumes/matching/ResumeMatchPage.tsx" ||
+    path === "src/features/resumes/matching/ResumeMatchJobWordsOverview.tsx" ||
+    path === "src/features/resumes/matching/ResumeMatchResultsPanel.tsx" ||
+    path === "src/features/resumes/matching/resumeMatchModel.ts"
   ) {
     const resumeOptimizerPatterns = [
       /Overall match:\s*\$\{/i,

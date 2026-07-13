@@ -43,7 +43,7 @@ test("checkRepoBloat rejects stale Resume Optimizer framing", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/AtsLiveScorePanel.tsx",
+      "src/features/resumes/builder/AtsLiveScorePanel.tsx",
       [
         '"ATS Score"',
         '"Fix format issues to improve ATS parsing"',
@@ -53,7 +53,7 @@ test("checkRepoBloat rejects stale Resume Optimizer framing", () => {
     );
     writeFixtureFile(
       root,
-      "src/pages/ResumeBuilder.tsx",
+      "src/features/resumes/builder/ResumeBuilderPage.tsx",
       [
         '"ATS Format Score"',
         '"For detailed analysis and optimization recommendations, visit ATS"',
@@ -63,7 +63,7 @@ test("checkRepoBloat rejects stale Resume Optimizer framing", () => {
     );
     writeFixtureFile(
       root,
-      "src/pages/Resume.tsx",
+      "src/features/resumes/library/ResumeLibraryPage.tsx",
       '"AI-powered resume analysis and job matching"\n',
     );
     writeFixtureFile(
@@ -103,9 +103,9 @@ test("checkRepoBloat rejects stale Resume Optimizer framing", () => {
         "src/app/Navigation.tsx",
         "src/contexts/KeyboardShortcutsContext.tsx",
         "src/app/App.tsx",
-        "src/components/AtsLiveScorePanel.tsx",
-        "src/pages/Resume.tsx",
-        "src/pages/ResumeBuilder.tsx",
+        "src/features/resumes/builder/AtsLiveScorePanel.tsx",
+        "src/features/resumes/library/ResumeLibraryPage.tsx",
+        "src/features/resumes/builder/ResumeBuilderPage.tsx",
         "src-tauri/src/core/resume/templates.rs",
         "docs/user/QUICK_START.md",
         "docs/releases/v2.0.md",
@@ -122,9 +122,9 @@ test("checkRepoBloat rejects stale Resume Optimizer framing", () => {
       "src/app/Navigation.tsx",
       "src/contexts/KeyboardShortcutsContext.tsx",
       "src/app/App.tsx",
-      "src/components/AtsLiveScorePanel.tsx",
-      "src/pages/Resume.tsx",
-      "src/pages/ResumeBuilder.tsx",
+      "src/features/resumes/builder/AtsLiveScorePanel.tsx",
+      "src/features/resumes/library/ResumeLibraryPage.tsx",
+      "src/features/resumes/builder/ResumeBuilderPage.tsx",
       "src-tauri/src/core/resume/templates.rs",
       "docs/user/QUICK_START.md",
       "docs/releases/v2.0.md",

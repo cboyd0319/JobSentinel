@@ -403,9 +403,9 @@ feature wiring remain local where ownership differs.
 
 - [x] Extend `validation/file_size_contract.json` to cover `crates/**/*.rs`,
   root workspace policy, `resources/**/*.json`, and the future migration path.
-- [x] Encode the final 500-line production/script, 800-line test, and 700-line
-  active-doc caps as staged targets. Existing over-cap files must shrink during
-  their owning milestone; no exception survives final cleanup.
+- [x] Document the final 500-line production/script, 800-line test, and
+  700-line active-doc caps as staged targets. Existing over-cap files must
+  shrink during their owning milestone; no exception survives final cleanup.
 - [x] Add fail-first script fixtures proving an oversized Rust file under
   `crates/` is rejected.
 - [x] Add a repository-layout check that rejects wildcard Cargo members,
@@ -649,6 +649,10 @@ entrypoints.
   testing, or release command changes.
 - [ ] Update `AGENTS.md`, the verification matrix, harness map, plan index,
   CODEOWNERS, and evidence log to the final paths.
+- [ ] Replace the transitional 700-line source, 1,200-line test, and 900-line
+  script/doc contract limits with the final caps after every owner is below its
+  target. Until then, each completed ownership slice records its target-cap
+  evidence separately.
 - [ ] Search maintained files for stale old-root references and explicitly
   classify necessary historical references.
 - [ ] Record Windows 11 and macOS 26 evidence or clearly name any host gap and
@@ -731,15 +735,19 @@ evidence-log entry.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
-| 2026-07-13 | Milestone 2 in progress | Moved the app composition root and navigation into `src/app/`, then completed vertical feature slices under `src/features/salary/`, `src/features/market/`, `src/features/application-assist/`, `src/features/applications/`, `src/features/onboarding/`, and `src/features/dashboard/`. Pages, models, private components, tests, and development mocks now follow feature ownership. The former 696-line Salary page, 679-line Market page, 693-line Dashboard page, 691-line Dashboard job-operations hook, and 682-line Job Card were split at real behavior boundaries. Application Assist controllers are 488 lines or fewer, Applications production modules are 467 lines or fewer, Onboarding production modules are 461 lines or fewer, and Dashboard production modules are 496 lines or fewer. The app composition root now injects Application Assist into Dashboard through the two public feature facades. Feature copy, schema, broad-audience, IPC minimization, source-quality, source-structure, privacy logging, and file-cap sensors follow the new owners. Focused and full frontend tests, all 758 script tests, lint, architecture, production builds, focused E2E, security sensors, and harness checks pass. |
+| 2026-07-13 | Milestone 2 in progress | Moved the app composition root and navigation into `src/app/`, then completed vertical feature slices under `src/features/salary/`, `src/features/market/`, `src/features/application-assist/`, `src/features/applications/`, `src/features/onboarding/`, `src/features/dashboard/`, and `src/features/resumes/`. Pages, models, private components, tests, and development mocks now follow feature ownership. Resume library, builder, and matching remain one domain owner with three public pages and private workflow modules. The former 696-line Salary page, 679-line Market page, 693-line Dashboard page, 691-line Dashboard job-operations hook, and 682-line Job Card were split at real behavior boundaries. Application Assist controllers are 488 lines or fewer, Applications production modules are 467 lines or fewer, Onboarding production modules are 461 lines or fewer, Dashboard production modules are 496 lines or fewer, and Resume production modules are 495 lines or fewer with tests at 796 lines or fewer. The app composition root imports only public feature facades. Feature copy, schema, broad-audience, IPC minimization, source-quality, source-structure, privacy logging, security, and file-cap sensors follow the new owners. Focused and full frontend tests, all 759 script tests, lint, architecture, the 787-module production build, focused E2E, security sensors, and harness checks pass. |
 | 2026-07-13 | Milestone 1 complete | Deleted four verified production-orphan component families, moved nine cross-runtime taxonomies to `resources/taxonomies/`, consolidated contributor samples under `examples/`, and updated every live consumer and harness path. Full frontend and script suites plus focused Rust consumers pass. |
 | 2026-07-13 | Milestone 0 complete | Added fail-first feature, workspace, thin-shell, file-cap, test-quality, harness-planning, CI classification, and ownership sensors. `test:scripts` passed 757 tests; focused architecture, bloat, test-quality, Markdown, and harness checks passed. No production paths moved. |
 | 2026-07-13 | Planned | Completed repo-wide inventory, boundary analysis, sibling-pattern comparison, and baseline harness checks. No production paths moved. |
 
 ## Discoveries
 
-- The current file-size policy passes, but its Rust scope would silently miss a
-  new root `crates/` directory.
+- The baseline file-size policy passed even though its Rust scope would have
+  silently missed a new root `crates/` directory; Milestone 0 closed that gap.
+- Final 500-line production/script, 800-line test, and 700-line active-doc caps
+  are milestone targets, not yet the global contract. The live contract retains
+  transitional 700/1,200/900 limits until remaining owners shrink, so every
+  completed slice must prove the tighter target separately.
 - Frontend organization is the largest ownership problem by file distribution;
   a Cargo workspace alone would leave most structural debt untouched.
 - The current `src/shared/` directory is not frontend-only because Rust embeds
@@ -784,8 +792,9 @@ evidence-log entry.
   owner, and four unused component families have been deleted.
 - Milestone 2 is in progress. App composition is owned by `src/app/`; Salary,
   Hiring Trends, Application Assist, Applications tracking, first-run
-  Onboarding, and Dashboard job discovery are complete feature slices with
-  public facades and private implementation modules under `src/features/`.
+  Onboarding, Dashboard job discovery, and Resume library, builder, and matching
+  are complete feature slices with public facades and private implementation
+  modules under `src/features/`.
 - No user data, schema, IPC contract, installed configuration path, privacy
   boundary, or release artifact contract changed in Milestones 1 or 2 so far.
 
@@ -794,9 +803,9 @@ evidence-log entry.
 - Current state: repo-wide structure audited; target ownership and migration
   order documented; privacy is the immutable product boundary; Milestones 0
   and 1 are complete; Milestone 2 has app, Salary, Hiring Trends, Application
-  Assist, Applications tracking, first-run Onboarding, and Dashboard job
-  discovery ownership established with passing focused and full frontend
-  checks.
+  Assist, Applications tracking, first-run Onboarding, Dashboard job discovery,
+  and Resume library, builder, and matching ownership established with passing
+  focused and full frontend checks.
 - Evidence: live manifests, imports, file counts, module graph, SQLx migration
   paths, CI, release scripts, harness sensors, Tamworth, and persona were
   inspected on 2026-07-13.

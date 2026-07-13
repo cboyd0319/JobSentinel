@@ -25,28 +25,28 @@ const broadAudienceExamplePaths = new Set([
   "src/features/dashboard/components/ScoreBreakdownModal.test.tsx",
   "src/components/StatCard.test.tsx",
   "src/components/SkillCategoryFilter.test.tsx",
-  "src/components/resume-builder/steps/ContactStep.tsx",
-  "src/components/resume-builder/steps/EducationStep.tsx",
-  "src/components/resume-builder/steps/ExperienceStep.tsx",
-  "src/components/resume-builder/steps/SkillsStep.tsx",
-  "src/components/resume-builder/steps/SummaryStep.tsx",
+  "src/features/resumes/builder/steps/ContactStep.tsx",
+  "src/features/resumes/builder/steps/EducationStep.tsx",
+  "src/features/resumes/builder/steps/ExperienceStep.tsx",
+  "src/features/resumes/builder/steps/SkillsStep.tsx",
+  "src/features/resumes/builder/steps/SummaryStep.tsx",
   "src/features/application-assist/ApplicationPreview.tsx",
   "src/features/application-assist/ApplicationPreview.test.tsx",
   "src/features/application-assist/ApplyButton.test.tsx",
   "src/features/application-assist/ProfileForm.tsx",
   "src-tauri/src/core/automation/form_filler.rs",
   "src-tauri/src/core/automation/profile.rs",
-  "src/components/AtsLiveScorePanel.test.tsx",
+  "src/features/resumes/builder/AtsLiveScorePanel.test.tsx",
   "src/features/applications/CoverLetterTemplates.test.tsx",
   "src/features/market/MarketAlertCard.test.tsx",
   "src/features/market/MarketSnapshotCard.test.tsx",
   "src/mocks/handlers/atsPlatform.ts",
   "src/features/market/mockHandlers.ts",
-  "src/mocks/handlers/resumeAnalysisRunner.ts",
-  "src/mocks/handlers/resumeBulletPrompts.ts",
-  "src/mocks/handlers/resumeBuilder.ts",
-  "src/mocks/handlers/resumeKeywordMatching.ts",
-  "src/mocks/handlers/resumeRequirementReview.ts",
+  "src/features/resumes/mocks/resumeAnalysisRunner.ts",
+  "src/features/resumes/mocks/resumeBulletPrompts.ts",
+  "src/features/resumes/mocks/resumeBuilder.ts",
+  "src/features/resumes/mocks/resumeKeywordMatching.ts",
+  "src/features/resumes/mocks/resumeRequirementReview.ts",
   "src/mocks/data.ts",
   "src/mocks/handlers.ts",
   "src/mocks/handlers.test.ts",
@@ -57,18 +57,18 @@ const broadAudienceExamplePaths = new Set([
   "src/utils/export.test.ts",
   "src/features/dashboard/DashboardPage.tsx",
   "src/features/dashboard/components/DashboardFiltersBar.tsx",
-  "src/pages/ResumeBuilder.tsx",
-  "src/pages/ResumeBuilderPreviewStep.tsx",
-  "src/pages/ResumeBuilderVisuals.tsx",
-  "src/pages/ResumeOptimizer.tsx",
-  "src/pages/ResumeOptimizerJobWordsOverview.tsx",
-  "src/pages/ResumeOptimizerResultsPanel.tsx",
-  "src/pages/resumeOptimizerModel.ts",
-  "src/pages/ResumeOptimizer.test.tsx",
-  "src/pages/Resume.tsx",
-  "src/pages/ResumeLibraryDropdown.tsx",
-  "src/pages/ResumeTextPreviewModal.tsx",
-  "src/pages/resumePageModel.ts",
+  "src/features/resumes/builder/ResumeBuilderPage.tsx",
+  "src/features/resumes/builder/ResumeBuilderPreviewStep.tsx",
+  "src/features/resumes/builder/ResumeBuilderVisuals.tsx",
+  "src/features/resumes/matching/ResumeMatchPage.tsx",
+  "src/features/resumes/matching/ResumeMatchJobWordsOverview.tsx",
+  "src/features/resumes/matching/ResumeMatchResultsPanel.tsx",
+  "src/features/resumes/matching/resumeMatchModel.ts",
+  "src/features/resumes/matching/ResumeMatchPage.test.tsx",
+  "src/features/resumes/library/ResumeLibraryPage.tsx",
+  "src/features/resumes/library/ResumeLibraryDropdown.tsx",
+  "src/features/resumes/library/ResumeTextPreviewModal.tsx",
+  "src/features/resumes/library/resumePageModel.ts",
   "src/features/salary/mockHandlers.ts",
   "src/features/salary/SalaryPage.tsx",
   "src/features/salary/SalarySearchCard.tsx",
@@ -84,7 +84,7 @@ const broadAudienceExamplePaths = new Set([
   "src/features/onboarding/setupWizardPreferences.ts",
   "src/contexts/UndoIntegration.test.tsx",
   "src/utils/profiles.ts",
-  "src/utils/resumeContactValidation.test.ts",
+  "src/features/resumes/shared/resumeContactValidation.test.ts",
   "src/utils/formValidation.test.ts",
   "src/types/deeplinks.ts",
   "src-tauri/src/core/health/smoke_tests.rs",
@@ -258,7 +258,7 @@ export function hasEngineerFirstAudienceExamples(root, path) {
     }
   }
 
-  if (path === "src/components/AtsLiveScorePanel.tsx") {
+  if (path === "src/features/resumes/builder/AtsLiveScorePanel.tsx") {
     const atsLiveScorePatterns = [
       /Add missing keywords/i,
       /["'`]Keywords["'`]/i,
@@ -274,10 +274,10 @@ export function hasEngineerFirstAudienceExamples(root, path) {
   }
 
   if (
-    path === "src/pages/ResumeOptimizer.tsx" ||
-    path === "src/pages/ResumeOptimizerJobWordsOverview.tsx" ||
-    path === "src/pages/ResumeOptimizerResultsPanel.tsx" ||
-    path === "src/pages/resumeOptimizerModel.ts"
+    path === "src/features/resumes/matching/ResumeMatchPage.tsx" ||
+    path === "src/features/resumes/matching/ResumeMatchJobWordsOverview.tsx" ||
+    path === "src/features/resumes/matching/ResumeMatchResultsPanel.tsx" ||
+    path === "src/features/resumes/matching/resumeMatchModel.ts"
   ) {
     const resumeOptimizerPatterns = [
       /ATS Resume Optimizer/i,

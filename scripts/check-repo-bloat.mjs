@@ -89,7 +89,7 @@ import {
   hasResumeSuggestionCategoryDrift,
   hasStaleSalaryBenchmarkFrontendShape,
   hasStaleUserDataMockHandlers,
-  hasUnsafeResumeOptimizerJsonParsing,
+  hasUnsafeResumeMatchJsonParsing,
   missingRuntimeMockInvokeCases,
 } from "./harness/checks/frontend-contracts.mjs";
 import {
@@ -612,8 +612,8 @@ export function checkRepoBloat(root = defaultRoot) {
       violations.push(`sync resume suggestion category labels: ${path}`);
     }
 
-    if (hasUnsafeResumeOptimizerJsonParsing(root, path)) {
-      violations.push(`validate Resume Optimizer JSON before invoke: ${path}`);
+    if (hasUnsafeResumeMatchJsonParsing(root, path)) {
+      violations.push(`validate Resume Match JSON before invoke: ${path}`);
     }
 
     const missingMockCases = missingRuntimeMockInvokeCases(root, path);

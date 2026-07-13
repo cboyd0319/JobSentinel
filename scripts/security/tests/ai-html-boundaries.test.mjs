@@ -35,16 +35,16 @@ function writeAiGatewayFixture(root, source) {
 }
 
 function writeResumeHtmlFixture(root, source) {
-  mkdirSync(join(root, "src/pages"), { recursive: true });
+  mkdirSync(join(root, "src/features/resumes/builder"), { recursive: true });
   mkdirSync(join(root, "docs/security"), { recursive: true });
   writeFileSync(
-    join(root, "src/pages/ResumeBuilderPreviewStep.tsx"),
+    join(root, "src/features/resumes/builder/ResumeBuilderPreviewStep.tsx"),
     [
       '<iframe sandbox="" referrerPolicy="no-referrer"',
       "  srcDoc={sanitizeResumeHtmlDocument(previewHtml)} />",
     ].join("\n"),
   );
-  writeFileSync(join(root, "src/pages/resumeBuilderExportDom.ts"), source);
+  writeFileSync(join(root, "src/features/resumes/builder/resumeBuilderExportDom.ts"), source);
   writeFileSync(
     join(root, "docs/security/XSS_PREVENTION.md"),
     [

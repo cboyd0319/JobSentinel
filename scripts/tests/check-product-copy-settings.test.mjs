@@ -37,7 +37,7 @@ test("product copy rejects technical-first settings copy", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src/pages/ResumeOptimizer.tsx",
+      "src/features/resumes/matching/ResumeMatchPage.tsx",
       [
         "Exported resume details",
         "Paste exported resume details here",
@@ -745,7 +745,7 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/AtsLiveScorePanel.tsx",
+      "src/features/resumes/builder/AtsLiveScorePanel.tsx",
       [
         "analyzing...",
         ">Job Context<",
@@ -809,7 +809,7 @@ test("product copy rejects technical-first settings copy", () => {
       "src-tauri/src/core/scrapers/error.rs",
       "src/features/applications/AnalyticsPanel.tsx",
       "src/components/AsyncButton.tsx",
-      "src/components/AtsLiveScorePanel.tsx",
+      "src/features/resumes/builder/AtsLiveScorePanel.tsx",
       "src/components/BookmarkletGenerator.tsx",
       "src/components/CommandPalette.tsx",
       "src/components/CompanyResearchPanel.tsx",
@@ -841,7 +841,7 @@ test("product copy rejects technical-first settings copy", () => {
       "src/features/dashboard/components/noJobsEmptyStateCopy.ts",
       "src/features/applications/InterviewScheduler.tsx",
       "src/features/market/MarketPage.tsx",
-      "src/pages/ResumeOptimizer.tsx",
+      "src/features/resumes/matching/ResumeMatchPage.tsx",
       "src/pages/Settings.tsx",
       "src/features/onboarding/SetupWizard.tsx",
       "src/pages/dashboardErrorCopy.ts",

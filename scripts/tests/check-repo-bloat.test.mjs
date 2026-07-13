@@ -68,9 +68,9 @@ test("checkRepoBloat requires the file-size contract in the JobSentinel repo", (
 test("checkRepoBloat rejects formerly grandfathered oversized files at the hard cap", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
-    writeFixtureFile(root, "src/pages/ResumeBuilder.tsx", lineFixture(701));
+    writeFixtureFile(root, "src/features/resumes/builder/ResumeBuilderPage.tsx", lineFixture(701));
 
-    execFileSync("git", ["add", "package.json", "src/pages/ResumeBuilder.tsx"], {
+    execFileSync("git", ["add", "package.json", "src/features/resumes/builder/ResumeBuilderPage.tsx"], {
       cwd: root,
     });
 
@@ -78,7 +78,7 @@ test("checkRepoBloat rejects formerly grandfathered oversized files at the hard 
 
     assert.ok(
       violations.includes(
-        "split oversized tracked file: src/pages/ResumeBuilder.tsx has 701 lines (file-size contract max 700, scope frontend-source)",
+        "split oversized tracked file: src/features/resumes/builder/ResumeBuilderPage.tsx has 701 lines (file-size contract max 700, scope frontend-source)",
       ),
       violations.join("\n"),
     );
@@ -562,12 +562,12 @@ pub enum SuggestionCategory {
     );
     writeFixtureFile(
       root,
-      "src/pages/resumeOptimizerModel.ts",
+      "src/features/resumes/matching/resumeMatchModel.ts",
       'type SuggestionCategory = "AddKeyword" | "RewordBullet" | "AddSection" | "RemoveItem";\n',
     );
     writeFixtureFile(
       root,
-      "src/components/AtsLiveScorePanel.tsx",
+      "src/features/resumes/builder/AtsLiveScorePanel.tsx",
       'type SuggestionCategory = "AddKeyword" | "RewordBullet" | "AddSection" | "ReorderContent" | "FormatFix";\n',
     );
     writeFixtureFile(
@@ -581,8 +581,8 @@ pub enum SuggestionCategory {
       [
         "add",
         "src-tauri/src/core/resume/ats_analyzer.rs",
-        "src/pages/resumeOptimizerModel.ts",
-        "src/components/AtsLiveScorePanel.tsx",
+        "src/features/resumes/matching/resumeMatchModel.ts",
+        "src/features/resumes/builder/AtsLiveScorePanel.tsx",
         "src/mocks/handlers.ts",
       ],
       { cwd: root },
@@ -591,7 +591,7 @@ pub enum SuggestionCategory {
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("sync resume suggestion category labels: src/pages/resumeOptimizerModel.ts"),
+      violations.includes("sync resume suggestion category labels: src/features/resumes/matching/resumeMatchModel.ts"),
       violations.join("\n"),
     );
     assert.ok(
@@ -606,7 +606,7 @@ test("checkRepoBloat rejects stale ATS keyword match frontend shape", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src/pages/resumeOptimizerModel.ts",
+      "src/features/resumes/matching/resumeMatchModel.ts",
       [
         "interface KeywordMatch {",
         "  keyword: string;",
@@ -618,7 +618,7 @@ test("checkRepoBloat rejects stale ATS keyword match frontend shape", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/AtsLiveScorePanel.tsx",
+      "src/features/resumes/builder/AtsLiveScorePanel.tsx",
       [
         "interface KeywordMatch {",
         "  keyword: string;",
@@ -634,8 +634,8 @@ test("checkRepoBloat rejects stale ATS keyword match frontend shape", () => {
       [
         "add",
         "package.json",
-        "src/pages/resumeOptimizerModel.ts",
-        "src/components/AtsLiveScorePanel.tsx",
+        "src/features/resumes/matching/resumeMatchModel.ts",
+        "src/features/resumes/builder/AtsLiveScorePanel.tsx",
       ],
       { cwd: root },
     );
@@ -644,25 +644,25 @@ test("checkRepoBloat rejects stale ATS keyword match frontend shape", () => {
 
     assert.ok(
       violations.includes(
-        "sync ATS keyword match frontend shape: src/pages/resumeOptimizerModel.ts",
+        "sync ATS keyword match frontend shape: src/features/resumes/matching/resumeMatchModel.ts",
       ),
       violations.join("\n"),
     );
     assert.ok(
       violations.includes(
-        "sync ATS keyword match frontend shape: src/components/AtsLiveScorePanel.tsx",
+        "sync ATS keyword match frontend shape: src/features/resumes/builder/AtsLiveScorePanel.tsx",
       ),
       violations.join("\n"),
     );
   });
 });
 
-test("checkRepoBloat rejects unsafe Resume Optimizer JSON parsing", () => {
+test("checkRepoBloat rejects unsafe Resume Match JSON parsing", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src/pages/ResumeOptimizer.tsx",
+      "src/features/resumes/matching/ResumeMatchPage.tsx",
       [
         "async function handleAnalyze() {",
         "  const resume: AtsResumeData = JSON.parse(resumeJson);",
@@ -672,14 +672,14 @@ test("checkRepoBloat rejects unsafe Resume Optimizer JSON parsing", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "src/pages/ResumeOptimizer.tsx"], {
+    execFileSync("git", ["add", "package.json", "src/features/resumes/matching/ResumeMatchPage.tsx"], {
       cwd: root,
     });
 
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("validate Resume Optimizer JSON before invoke: src/pages/ResumeOptimizer.tsx"),
+      violations.includes("validate Resume Match JSON before invoke: src/features/resumes/matching/ResumeMatchPage.tsx"),
       violations.join("\n"),
     );
   });
@@ -823,7 +823,7 @@ test("checkRepoBloat rejects stale resume match sub-score display", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src/pages/Resume.tsx",
+      "src/features/resumes/library/ResumeLibraryPage.tsx",
       [
         "export function Resume({ match }) {",
         "  return <div style={{ width: `${match.skills_match_score}%` }}>{Math.round(match.experience_match_score)}%</div>;",
@@ -832,14 +832,14 @@ test("checkRepoBloat rejects stale resume match sub-score display", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "src/pages/Resume.tsx"], {
+    execFileSync("git", ["add", "package.json", "src/features/resumes/library/ResumeLibraryPage.tsx"], {
       cwd: root,
     });
 
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("render resume match sub-scores from backend fractions: src/pages/Resume.tsx"),
+      violations.includes("render resume match sub-scores from backend fractions: src/features/resumes/library/ResumeLibraryPage.tsx"),
       violations.join("\n"),
     );
   });

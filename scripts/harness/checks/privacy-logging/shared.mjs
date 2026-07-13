@@ -142,10 +142,10 @@ export const rawResumeNameLoggingPaths = new Set(["src-tauri/src/commands/resume
 
 export const resumeCommandDtoPrivacyPaths = new Set([
   "src-tauri/src/commands/resume.rs",
-  "src/pages/Resume.tsx",
-  "src/pages/ResumeBuilder.tsx",
+  "src/features/resumes/library/ResumeLibraryPage.tsx",
+  "src/features/resumes/builder/ResumeBuilderPage.tsx",
   "src/mocks/handlers.ts",
-  "src/mocks/handlers/resumeCommands.ts",
+  "src/features/resumes/mocks/resumeCommands.ts",
   "docs/developer/ARCHITECTURE.md",
 ]);
 

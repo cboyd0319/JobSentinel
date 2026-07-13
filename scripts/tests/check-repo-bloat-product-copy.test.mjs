@@ -130,7 +130,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/AtsLiveScorePanel.tsx",
+      "src/features/resumes/builder/AtsLiveScorePanel.tsx",
       [
         '"Add LinkedIn profile for tech roles"',
         '"Add missing keywords: TypeScript, scheduling, support"',
@@ -175,7 +175,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/pages/Resume.tsx",
+      "src/features/resumes/library/ResumeLibraryPage.tsx",
       [
         '<Button>Import JSON Resume</Button><p>Your JSON Resume has been imported</p>',
         '"Programming Languages"',
@@ -194,7 +194,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/pages/ResumeOptimizer.tsx",
+      "src/features/resumes/matching/ResumeMatchPage.tsx",
       [
         '<CardHeader title="Resume Data (JSON)" />',
         '<label>Resume Data in JSON format</label>',
@@ -402,7 +402,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/pages/ResumeBuilder.tsx",
+      "src/features/resumes/builder/ResumeBuilderPage.tsx",
       '"Try restarting the app or check if the database is accessible."\n',
     );
     writeFixtureFile(root, "src/components/CommandPalette.tsx", '"Type a command or search..."\n');
@@ -535,8 +535,8 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         "add",
         "package.json",
         "README.md",
-        "src/pages/Resume.tsx",
-        "src/pages/ResumeOptimizer.tsx",
+        "src/features/resumes/library/ResumeLibraryPage.tsx",
+        "src/features/resumes/matching/ResumeMatchPage.tsx",
         "src/features/applications/ApplicationsPage.tsx",
         "src/features/application-assist/ApplicationProfilePage.tsx",
         "src/features/dashboard/DashboardPage.tsx",
@@ -545,7 +545,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         "src/features/dashboard/hooks/useDashboardSavedSearches.ts",
         "src/features/dashboard/components/QuickActions.tsx",
         "src/features/market/MarketPage.tsx",
-        "src/pages/ResumeBuilder.tsx",
+        "src/features/resumes/builder/ResumeBuilderPage.tsx",
         "src/features/salary/SalaryPage.tsx",
         "src/pages/Settings.tsx",
         "src/features/onboarding/SetupWizard.tsx",
@@ -561,7 +561,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         "src/features/dashboard/components/JobImportModal.tsx",
         "src/features/dashboard/components/JobCard.tsx",
         "src/features/dashboard/components/jobCardGuidance.ts",
-        "src/components/AtsLiveScorePanel.tsx",
+        "src/features/resumes/builder/AtsLiveScorePanel.tsx",
         "src/features/applications/AnalyticsPanel.tsx",
         "src/features/dashboard/components/DashboardWidgets.tsx",
         "src/features/applications/InterviewScheduler.tsx",
@@ -593,8 +593,8 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     const violations = checkRepoBloat(root);
 
     for (const path of [
-      "src/pages/Resume.tsx",
-      "src/pages/ResumeOptimizer.tsx",
+      "src/features/resumes/library/ResumeLibraryPage.tsx",
+      "src/features/resumes/matching/ResumeMatchPage.tsx",
       "src/features/applications/ApplicationsPage.tsx",
       "src/features/application-assist/ApplicationProfilePage.tsx",
       "src/features/dashboard/DashboardPage.tsx",
@@ -603,7 +603,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "src/features/dashboard/hooks/useDashboardSavedSearches.ts",
       "src/features/dashboard/components/QuickActions.tsx",
       "src/features/market/MarketPage.tsx",
-      "src/pages/ResumeBuilder.tsx",
+      "src/features/resumes/builder/ResumeBuilderPage.tsx",
       "src/features/salary/SalaryPage.tsx",
       "src/pages/Settings.tsx",
       "src/features/onboarding/SetupWizard.tsx",
@@ -618,7 +618,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "src/components/ScraperHealthDashboard.tsx",
       "src/features/dashboard/components/JobImportModal.tsx",
       "src/features/dashboard/components/JobCard.tsx",
-      "src/components/AtsLiveScorePanel.tsx",
+      "src/features/resumes/builder/AtsLiveScorePanel.tsx",
       "src/features/applications/AnalyticsPanel.tsx",
       "src/features/dashboard/components/DashboardWidgets.tsx",
       "src/features/applications/InterviewScheduler.tsx",

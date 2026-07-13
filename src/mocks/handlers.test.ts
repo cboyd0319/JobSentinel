@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { mockInvoke, resetMockData } from "./handlers";
-import { atsResume } from "./handlers/resumeAnalysisTestData";
-import type { AtsAnalysisResult } from "./handlers/resumeAnalysisTestData";
+import { atsResume } from "../features/resumes/mocks/resumeAnalysisTestData";
+import type { AtsAnalysisResult } from "../features/resumes/mocks/resumeAnalysisTestData";
 
 type MockJobSummary = {
   hash: string;

@@ -66,11 +66,14 @@ Out of scope:
 
 ## Next Work
 
-1. Keep the release-pipeline audit focused on high-leverage process fixes.
-2. Evaluate whether public verification should be folded into the release
-   workflow as a blocking job.
+1. Continue the full repository refactor with the next evidence-selected
+   ownership boundary.
+2. Keep each ownership cutover green, remove transitional paths, and record
+   focused evidence before committing it.
 3. Confirm major route screenshots, Computer Use clicks, keyboard flow, and
    affected route/action/state checks after any UI change.
+4. Revisit release-pipeline optimization only after the final workspace,
+   cleanup, and v2.9.5 readiness gates are established.
 
 ## Sensors
 

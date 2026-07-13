@@ -1,0 +1,146 @@
+export interface ContactInfo {
+  name: string;
+  email: string;
+  phone: string;
+  location: string;
+  linkedin: string | null;
+  github: string | null;
+  website: string | null;
+}
+
+export interface Experience {
+  title: string;
+  company: string;
+  location: string;
+  start_date: string;
+  end_date: string;
+  achievements: string[];
+  current: boolean;
+}
+
+export interface Education {
+  degree: string;
+  institution: string;
+  location: string;
+  graduation_date: string;
+  gpa: number | null;
+  honors: string[];
+}
+
+export interface Skill {
+  name: string;
+  category: string;
+  proficiency: string | null;
+}
+
+export interface AtsResumeData {
+  contact_info: ContactInfo;
+  summary: string;
+  experience: Experience[];
+  skills: Skill[];
+  education: Education[];
+  certifications: string[];
+  projects: string[];
+  custom_sections: Record<string, string[]>;
+}
+
+export type KeywordImportance = "Required" | "Preferred" | "Industry";
+export type IssueSeverity = "Critical" | "Warning" | "Info";
+export type RequirementMatchState = "Direct" | "Strong" | "Partial" | "Implied" | "Missing";
+export type HardConstraintCategory =
+  | "WorkAuthorization"
+  | "Citizenship"
+  | "SecurityClearance"
+  | "LicenseOrCertification"
+  | "Education"
+  | "Experience"
+  | "Language"
+  | "Age"
+  | "BackgroundScreening"
+  | "PhysicalRequirement"
+  | "Location";
+export type SuggestionCategory =
+  | "AddKeyword"
+  | "RewordBullet"
+  | "AddSection"
+  | "ReorderContent"
+  | "FormatFix";
+
+export interface KeywordMatch {
+  keyword: string;
+  importance: KeywordImportance;
+  found_in: string[];
+  frequency: number;
+}
+
+export interface MissingKeyword {
+  keyword: string;
+  importance: KeywordImportance;
+}
+
+export interface RequirementReview {
+  keyword: string;
+  importance: KeywordImportance;
+  match_state: RequirementMatchState;
+  evidence_sections: string[];
+  hard_constraint: boolean;
+  recommendation: string;
+}
+
+export interface HardConstraintRisk {
+  requirement: string;
+  category: HardConstraintCategory;
+  score_cap: number;
+  reason: string;
+  action: string;
+}
+
+export interface FormatIssue {
+  severity: IssueSeverity;
+  issue: string;
+  fix: string;
+}
+
+export interface AtsSuggestion {
+  category: SuggestionCategory;
+  suggestion: string;
+  impact: string;
+}
+
+export interface AtsAnalysisResult {
+  overall_score: number;
+  keyword_score: number;
+  format_score: number;
+  completeness_score: number;
+  keyword_matches: KeywordMatch[];
+  missing_keywords: string[];
+  missing_keyword_details?: MissingKeyword[];
+  requirement_reviews?: RequirementReview[];
+  hard_constraint_risks?: HardConstraintRisk[];
+  format_issues: FormatIssue[];
+  suggestions: AtsSuggestion[];
+}
+
+export interface ResumeNextAction {
+  title: string;
+  detail: string;
+  variant: "danger" | "alert" | "success" | "sentinel" | "surface";
+  label: string;
+}
+
+export interface ResumeFitEvidenceStatus {
+  label: string;
+  detail: string;
+  variant: "danger" | "alert" | "success" | "sentinel" | "surface";
+}
+
+export interface ResumeSummary {
+  id: number;
+  name: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+  format_label?: string;
+  has_readable_text?: boolean;
+  readable_text_chars?: number;
+}
