@@ -735,6 +735,7 @@ evidence-log entry.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-07-13 | Milestone 2 in progress | Renamed the root cover-letter helper to `src/features/applications/coverLetterTemplate.ts`, its actual 33-line owner and role. All 58 focused template tests, 3,146 frontend tests, the 808-module build, lint, architecture, bloat, and 22 Application Tracking E2E flows pass. |
 | 2026-07-13 | Milestone 2 in progress | Moved the root resume-analysis score utility and its tests into `src/features/resumes/shared/resumeScore.ts`. Builder, library, and matching consumers now use one Resume-owned scoring contract, and product-copy sensors follow that owner. All 101 focused tests, 3,146 frontend tests, 766 script tests, the 808-module build, repository gates, and 31 Resume E2E flows pass. |
 | 2026-07-13 | Milestone 2 in progress | Moved Dashboard-only keyboard navigation, privacy-preserving desktop notifications, posting-risk interpretation, and external job URL validation from root technical buckets into `src/features/dashboard/`. Renamed the job URL and keyboard modules to state their actual scope, removed the stale root hook export, and corrected the developer hook example to match the live object-based API. All 126 focused tests, 3,146 frontend tests, 766 script tests, the 808-module build, repository gates, and 48 Dashboard E2E flows pass. |
 | 2026-07-13 | Milestone 2 in progress | Moved the Settings-only feedback hook, semantic-matching diagnostics client, and company-suggestion data from the root `hooks`, `services`, and `utils` buckets into their notification, matching, and support owners. All 57 focused tests, 3,146 frontend tests, 766 script tests, the 808-module build, repository gates, and 16 Settings E2E flows pass. |
@@ -813,7 +814,8 @@ evidence-log entry.
   and company suggestions no longer leak into the root technical buckets.
   Dashboard-only keyboard navigation, desktop notifications, posting-risk
   interpretation, and job URL validation also live under their feature owner.
-  Resume analysis scoring is shared only within the Resume domain.
+  Resume analysis scoring is shared only within the Resume domain. Cover-letter
+  template processing is private to Applications.
 - Settings company-preference field names changed. Read-only deserialize aliases
   preserve existing local values, and all newly saved data uses the new names.
   No privacy, credential, consent, or external-side-effect boundary changed.

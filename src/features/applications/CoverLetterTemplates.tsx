@@ -7,7 +7,7 @@ import { useToast } from '../../contexts';
 import { useUndo } from '../../hooks/useUndo';
 import { LoadingSpinner } from '../../ui/LoadingSpinner';
 import { logError } from '../../utils/errorUtils';
-import type { JobForTemplate } from '../../utils/coverLetterUtils';
+import type { JobForTemplate } from './coverLetterTemplate';
 import { getUserFriendlyError } from '../../utils/errorMessages';
 import { CoverLetterReviewChecklist } from './CoverLetterReviewChecklist';
 import {

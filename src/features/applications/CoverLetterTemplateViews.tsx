@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button } from '../../ui/Button';
 import { Input } from '../../ui/Input';
 import { Modal, ModalFooter } from '../../ui/Modal';
-import { fillTemplatePlaceholders, type JobForTemplate } from '../../utils/coverLetterUtils';
+import { fillTemplatePlaceholders, type JobForTemplate } from './coverLetterTemplate';
 import {
   CATEGORY_LABELS,
   PLACEHOLDER_HINTS,
