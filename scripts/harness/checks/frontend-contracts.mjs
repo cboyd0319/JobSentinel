@@ -279,7 +279,7 @@ export function missingRuntimeMockInvokeCases(root, path) {
 }
 
 export function hasStaleSalaryBenchmarkFrontendShape(root, path) {
-  if (path !== "src/pages/Salary.tsx") {
+  if (path !== "src/features/salary/model.ts") {
     return false;
   }
 

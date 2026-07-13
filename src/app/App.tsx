@@ -26,7 +26,7 @@ const Applications = lazy(() => import("../pages/Applications"));
 const Resume = lazy(() => import("../pages/Resume"));
 const ResumeBuilder = lazy(() => import("../pages/ResumeBuilder"));
 const ResumeOptimizer = lazy(() => import("../pages/ResumeOptimizer"));
-const Salary = lazy(() => import("../pages/Salary"));
+const Salary = lazy(() => import("../features/salary"));
 const Market = lazy(() => import("../pages/Market"));
 const ApplicationProfile = lazy(() => import("../pages/ApplicationProfile"));
 

@@ -97,7 +97,11 @@ const overconfidentGhostCopyPaths = new Set([
 ]);
 const payProtectionGuidancePaths = new Set([
   "docs/features/pay-protection.md",
-  "src/pages/Salary.tsx",
+  "src/features/salary/NegotiationNotesCard.tsx",
+  "src/features/salary/OfferReviewPanel.tsx",
+  "src/features/salary/SalaryEvidenceCard.tsx",
+  "src/features/salary/SalaryPage.tsx",
+  "src/features/salary/SalarySearchCard.tsx",
 ]);
 const payFloorRecoveryCopyPaths = new Set([
   "docs/user/QUICK_START.md",
@@ -286,7 +290,11 @@ const technicalFirstUserCopyPaths = new Set([
   "src/pages/ResumeTextPreviewModal.tsx",
   "src/pages/resumePageModel.ts",
   "src/pages/resumeOptimizerModel.ts",
-  "src/pages/Salary.tsx",
+  "src/features/salary/NegotiationNotesCard.tsx",
+  "src/features/salary/OfferReviewPanel.tsx",
+  "src/features/salary/SalaryEvidenceCard.tsx",
+  "src/features/salary/SalaryPage.tsx",
+  "src/features/salary/SalarySearchCard.tsx",
   "src/pages/SettingsConnectedJobSource.tsx", "src/pages/SettingsJobSourcesSection.tsx",
   "src/pages/SettingsResumeMatchingSection.tsx", "src/pages/SettingsPostingRiskSection.tsx",
   "src/pages/SettingsSecurityBadge.tsx", "src/pages/SettingsSupportSections.tsx", "src/pages/Settings.tsx",

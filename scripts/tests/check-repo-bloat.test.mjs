@@ -737,7 +737,7 @@ test("checkRepoBloat rejects stale salary benchmark frontend shape", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src/pages/Salary.tsx",
+      "src/features/salary/model.ts",
       [
         "interface SalaryBenchmark {",
         "  role: string;",
@@ -751,14 +751,14 @@ test("checkRepoBloat rejects stale salary benchmark frontend shape", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "src/pages/Salary.tsx"], {
+    execFileSync("git", ["add", "package.json", "src/features/salary/model.ts"], {
       cwd: root,
     });
 
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("sync salary benchmark frontend shape: src/pages/Salary.tsx"),
+      violations.includes("sync salary benchmark frontend shape: src/features/salary/model.ts"),
       violations.join("\n"),
     );
   });
@@ -769,7 +769,7 @@ test("checkRepoBloat rejects unsupported salary seniority option values", () => 
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src/pages/Salary.tsx",
+      "src/features/salary/model.ts",
       [
         "const SENIORITY_LEVELS = [",
         '  { value: "executive", label: "Executive/Director" },',
@@ -778,14 +778,14 @@ test("checkRepoBloat rejects unsupported salary seniority option values", () => 
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "src/pages/Salary.tsx"], {
+    execFileSync("git", ["add", "package.json", "src/features/salary/model.ts"], {
       cwd: root,
     });
 
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("sync salary benchmark frontend shape: src/pages/Salary.tsx"),
+      violations.includes("sync salary benchmark frontend shape: src/features/salary/model.ts"),
       violations.join("\n"),
     );
   });

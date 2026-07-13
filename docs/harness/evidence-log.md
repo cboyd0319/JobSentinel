@@ -30,6 +30,8 @@ exact command from `verification-matrix.md`, not a paraphrase.
 
 | Date | Command | Scope | Result | Exit | Notes |
 | ---- | ------- | ----- | ------ | ---- | ----- |
+| 2026-07-13 | `npm run test:e2e -- tests/e2e/playwright/app.spec.ts` | Milestone 2 app shell and first salary feature route | pass | 0 | 14 Chromium app-shell, navigation, keyboard, and responsive checks passed, including the Pay Protection route. |
+| 2026-07-13 | `npm run test:run`, `npm run test:scripts`, and `npm run build` | Milestone 2 salary vertical slice and sensor ownership | pass | 0 | All 3,141 frontend tests, 758 script tests, TypeScript checks, and the 746-module production build passed after the feature move and file split. |
 | 2026-07-13 | `npm run test:run`, `npm run lint`, and `npm run build` | Milestone 2 app bootstrap, route composition, and navigation ownership slice | pass | 0 | All 3,141 frontend tests, TypeScript and ESLint checks, and the 741-module production build passed after the app-shell move. |
 | 2026-07-13 | `cargo clippy -- -D warnings` | Milestone 1 Rust consumers and full current backend | pass | 0 | The full backend passed Clippy with warnings denied. |
 | 2026-07-13 | `cargo test --lib` | Full Rust regression gate after Milestone 1 resource ownership changes | pass | 0 | 2,958 tests passed, 11 intentionally ignored, and no tests failed. |

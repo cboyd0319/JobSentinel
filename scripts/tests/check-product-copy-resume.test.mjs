@@ -50,7 +50,7 @@ test("product copy rejects technical-first resume copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/pages/Salary.tsx",
+      "src/features/salary/SalaryPage.tsx",
       "Seniority Level\nEntry Level (0-2 years)\nPrincipal/Executive\n25th %\nStrong target from higher range\nunder-anchoring\n",
     );
     writeFixtureFile(
@@ -277,7 +277,7 @@ test("product copy rejects technical-first resume copy", () => {
       hasTechnicalFirstUserCopy(root, "src/components/resume-builder/steps/SkillsStep.tsx"),
       true,
     );
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Salary.tsx"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/features/salary/SalaryPage.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/resume-builder.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/resume-matcher.md"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "docs/features/json-resume-import.md"), true);

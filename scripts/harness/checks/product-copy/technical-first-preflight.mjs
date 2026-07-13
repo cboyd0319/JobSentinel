@@ -9,7 +9,11 @@ const payPlainLanguagePaths = new Set([
   "docs/features/resume-matcher.md",
   "docs/harness/readme-information-design.md",
   "docs/research/pay-equity.md",
-  "src/pages/Salary.tsx",
+  "src/features/salary/NegotiationNotesCard.tsx",
+  "src/features/salary/OfferReviewPanel.tsx",
+  "src/features/salary/SalaryEvidenceCard.tsx",
+  "src/features/salary/SalaryPage.tsx",
+  "src/features/salary/SalarySearchCard.tsx",
 ]);
 
 const hiringTrendsCopyPaths = new Set([

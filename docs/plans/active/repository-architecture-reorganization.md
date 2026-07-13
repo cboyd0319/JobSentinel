@@ -468,7 +468,7 @@ or installed configuration path changes.
   `src/shared/` only as the first files move.
 - [ ] Move root app startup, providers, router, navigation, and route
   composition into `src/app/` without changing rendered behavior.
-- [ ] Choose a low-coupling feature as the first vertical slice. Move its page,
+- [x] Choose a low-coupling feature as the first vertical slice. Move its page,
   components, hooks, service, types, mocks, and tests together.
 - [ ] Repeat by feature, using import evidence rather than filename prefixes.
 - [ ] Move only multi-consumer, product-neutral components into `src/ui/`.
@@ -731,7 +731,7 @@ evidence-log entry.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
-| 2026-07-13 | Milestone 2 in progress | Moved the app composition root and navigation into `src/app/`, reduced `src/main.tsx` to a three-line bootstrap entrypoint, and centralized the page route type. Focused app tests, the full frontend suite, lint, architecture, build, product-copy fixtures, and harness checks pass. |
+| 2026-07-13 | Milestone 2 in progress | Moved the app composition root and navigation into `src/app/`, then completed the first vertical feature slice under `src/features/salary/`. The salary page, model, test, and development mock now have one owner; the 696-line page was split into production files of 269 lines or fewer; feature copy and schema sensors follow the new owners. Focused and full frontend tests, script tests, lint, architecture, build, app-shell E2E, and harness checks pass. |
 | 2026-07-13 | Milestone 1 complete | Deleted four verified production-orphan component families, moved nine cross-runtime taxonomies to `resources/taxonomies/`, consolidated contributor samples under `examples/`, and updated every live consumer and harness path. Full frontend and script suites plus focused Rust consumers pass. |
 | 2026-07-13 | Milestone 0 complete | Added fail-first feature, workspace, thin-shell, file-cap, test-quality, harness-planning, CI classification, and ownership sensors. `test:scripts` passed 757 tests; focused architecture, bloat, test-quality, Markdown, and harness checks passed. No production paths moved. |
 | 2026-07-13 | Planned | Completed repo-wide inventory, boundary analysis, sibling-pattern comparison, and baseline harness checks. No production paths moved. |

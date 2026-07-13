@@ -1,5 +1,5 @@
-import { getUserFriendlyError } from "../utils/errorMessages";
-import { formatCurrency } from "../utils/formatUtils";
+import { getUserFriendlyError } from "../../utils/errorMessages";
+import { formatCurrency } from "../../utils/formatUtils";
 
 export interface SalaryBenchmark {
   job_title: string;
@@ -17,6 +17,32 @@ export interface SalaryBenchmark {
 
 export type SalarySeniority = "entry" | "mid" | "senior" | "staff" | "principal";
 export type OfferEvidenceStatus = "written" | "verbal" | "unknown";
+
+export interface OfferReviewInput {
+  company: string;
+  evidenceStatus: OfferEvidenceStatus;
+  verbalOffer: string;
+  currentOffer: string;
+  targetMin: string;
+  targetMax: string;
+  decisionDeadline: string;
+  totalCompNotes: string;
+  commuteRelocationNotes: string;
+  deadlinePressureNotes: string;
+}
+
+export const DEFAULT_OFFER_REVIEW: OfferReviewInput = {
+  company: "",
+  evidenceStatus: "written",
+  verbalOffer: "",
+  currentOffer: "",
+  targetMin: "",
+  targetMax: "",
+  decisionDeadline: "",
+  totalCompNotes: "",
+  commuteRelocationNotes: "",
+  deadlinePressureNotes: "",
+};
 
 export type SalarySampleQuality = {
   label: string;

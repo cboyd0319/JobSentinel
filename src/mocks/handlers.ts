@@ -72,7 +72,7 @@ import {
 import {
   generateMockNegotiationScript,
   getMockSalaryBenchmark,
-} from "./handlers/salary";
+} from "../features/salary/mockHandlers";
 import { handleMockLinkedInWorkbenchCommand } from "./handlers/linkedinWorkbenchCommands";
 import {
   getDefaultMarketAlerts,

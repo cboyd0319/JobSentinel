@@ -173,7 +173,7 @@ function formatSuggestionCategory(category: AtsSuggestion["category"]): string {
       true,
     );
     assert.equal(hasResumeSuggestionCategoryDrift(root, "src/mocks/handlers.ts"), true);
-    assert.equal(hasResumeSuggestionCategoryDrift(root, "src/pages/Salary.tsx"), false);
+    assert.equal(hasResumeSuggestionCategoryDrift(root, "src/features/salary/SalaryPage.tsx"), false);
   });
 });
 
@@ -206,7 +206,7 @@ test("frontend contracts ignore commented runtime invokes when checking mock cas
 
 test("frontend contracts reject stale salary, interview, resume, and E2E match shapes", () => {
   withFixture((root) => {
-    writeFixtureFile(root, "src/pages/Salary.tsx", "type Benchmark = { p50: number; };\n");
+    writeFixtureFile(root, "src/features/salary/model.ts", "type Benchmark = { p50: number; };\n");
     writeFixtureFile(root, "src/components/InterviewScheduler.tsx", "thank_you_sent;\n");
     writeFixtureFile(root, "src/pages/Resume.tsx", "Math.round(match.skills_match_score);\n");
     writeFixtureFile(
@@ -215,7 +215,7 @@ test("frontend contracts reject stale salary, interview, resume, and E2E match s
       "overall_match_score: 88,\n",
     );
 
-    assert.equal(hasStaleSalaryBenchmarkFrontendShape(root, "src/pages/Salary.tsx"), true);
+    assert.equal(hasStaleSalaryBenchmarkFrontendShape(root, "src/features/salary/model.ts"), true);
     assert.equal(
       hasStaleInterviewFollowupFrontendShape(root, "src/components/InterviewScheduler.tsx"),
       true,

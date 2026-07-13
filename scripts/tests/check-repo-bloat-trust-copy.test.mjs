@@ -214,13 +214,18 @@ test("checkRepoBloat rejects overconfident pay guidance", () => {
     );
     writeFixtureFile(
       root,
-      "src/pages/Salary.tsx",
+      "src/features/salary/SalaryEvidenceCard.tsx",
       '"Copy-paste templates for asking for more money"; "maximize your compensation";\n',
     );
 
     execFileSync(
       "git",
-      ["add", "package.json", "docs/features/pay-protection.md", "src/pages/Salary.tsx"],
+      [
+        "add",
+        "package.json",
+        "docs/features/pay-protection.md",
+        "src/features/salary/SalaryEvidenceCard.tsx",
+      ],
       { cwd: root },
     );
 
@@ -231,7 +236,9 @@ test("checkRepoBloat rejects overconfident pay guidance", () => {
       violations.join("\n"),
     );
     assert.ok(
-      violations.includes("replace overconfident pay guidance: src/pages/Salary.tsx"),
+      violations.includes(
+        "replace overconfident pay guidance: src/features/salary/SalaryEvidenceCard.tsx",
+      ),
       violations.join("\n"),
     );
   });

@@ -373,7 +373,7 @@ export function getTechnicalFirstDocsResult(path, text) {
     }
   }
 
-  if (path === "src/pages/Salary.tsx") {
+  if (path.startsWith("src/features/salary/") && path.endsWith(".tsx")) {
     const salaryPagePatterns = [
       /Seniority Level/i,
       /Entry Level \(0-2 years\)/i,

@@ -1,14 +1,16 @@
+interface OfferReviewTextareaProps {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  placeholder: string;
+}
+
 export function OfferReviewTextarea({
   label,
   value,
   onChange,
   placeholder,
-}: {
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  placeholder: string;
-}) {
+}: OfferReviewTextareaProps) {
   const id = label.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 
   return (

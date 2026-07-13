@@ -41,7 +41,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
-      "src/pages/Salary.tsx",
+      "src/features/salary/SalaryPage.tsx",
       '<Input placeholder="e.g., Senior Software Engineer" />\n',
     );
     writeFixtureFile(
@@ -624,7 +624,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "examples/resumes/sample-json-resume.json",
         "src/pages/Dashboard.tsx",
         "src/pages/SetupWizard.tsx",
-        "src/pages/Salary.tsx",
+        "src/features/salary/SalaryPage.tsx",
         "src/pages/DashboardUI/DashboardFiltersBar.tsx",
         "src/components/CompanyResearchPanel.tsx",
         "src/components/CoverLetterTemplates.tsx",
@@ -726,7 +726,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
 
     for (const path of [
       "examples/resumes/sample-json-resume.json",
-      "src/pages/Salary.tsx",
+      "src/features/salary/SalaryPage.tsx",
       "src/pages/Dashboard.tsx",
       "src/pages/SetupWizard.tsx",
       "src/pages/DashboardUI/DashboardFiltersBar.tsx",

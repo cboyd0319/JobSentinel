@@ -1,4 +1,4 @@
-export interface MockSalaryBenchmark {
+interface MockSalaryBenchmark {
   job_title: string;
   location: string;
   seniority_level: string;

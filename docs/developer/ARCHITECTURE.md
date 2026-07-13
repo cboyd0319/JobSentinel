@@ -295,13 +295,19 @@ get_config_dir()  // ~/.config/jobsentinel
 Run `npm run lint:architecture` directly, or `npm run harness:check` as part of
 the broader agent harness.
 
-- Shared layers (`components`, `contexts`, `hooks`, `services`, `utils`,
-  `types`, and `config`) must not import page modules.
-- Utilities and services must stay outside UI and app-state layers.
-- Page modules may compose shared layers and page-local modules such as
-  `src/pages/DashboardUI` and `src/pages/hooks`.
-- Tests, mocks, stories, and test setup files are excluded from this production
-  architecture sensor.
+- `src/app/` owns startup, providers, navigation, and route composition. It may
+  import only a feature's public `index.ts` facade when composing features.
+- `src/features/<feature>/` owns a complete product slice, including its page,
+  feature-local components, model, tests, and development mock handlers.
+- A feature must not import another feature's implementation files. Shared
+  product-neutral code belongs in `src/shared/`; reusable UI belongs in
+  `src/ui/` as those owners are established.
+- Legacy `components`, `contexts`, `hooks`, `services`, `utils`, `types`,
+  `config`, and `pages` buckets remain transitional. They must not import app
+  or feature implementation modules.
+- Tests, mocks, stories, and test setup files are excluded from the production
+  architecture sensor, but feature-owned mock handlers remain colocated with
+  their feature and are registered by the central development dispatcher.
 
 ---
 
@@ -312,8 +318,9 @@ the broader agent harness.
 - **Core**: Platform-agnostic business logic
 - **Commands**: Thin RPC layer (no business logic)
 - **Platforms**: OS-specific code only
-- **Frontend shared layers**: Components, hooks, contexts, services, utilities,
-  types, and config stay reusable and independent from page modules.
+- **Frontend ownership**: App composition depends on public feature facades;
+  features own complete vertical slices; shared and UI layers stay independent
+  from app and feature implementations.
 
 ### 2. **Dependency Inversion**
 

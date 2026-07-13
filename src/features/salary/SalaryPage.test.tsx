@@ -2,15 +2,15 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { invoke } from "@tauri-apps/api/core";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { ToastProvider } from "../contexts";
-import Salary from "./Salary";
+import { ToastProvider } from "../../contexts";
+import SalaryPage from "./SalaryPage";
 
 const mockInvoke = vi.mocked(invoke);
 
 function renderSalary() {
   return render(
     <ToastProvider>
-      <Salary onBack={vi.fn()} />
+      <SalaryPage onBack={vi.fn()} />
     </ToastProvider>,
   );
 }

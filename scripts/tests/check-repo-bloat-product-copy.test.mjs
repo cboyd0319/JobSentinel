@@ -415,7 +415,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/pages/Salary.tsx",
+      "src/features/salary/SalaryPage.tsx",
       [
         'toast.error("Benchmark failed", getErrorMessage(err));',
         'toast.error("Note drafting failed", getErrorMessage(err));',
@@ -546,7 +546,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         "src/pages/DashboardUI/QuickActions.tsx",
         "src/pages/Market.tsx",
         "src/pages/ResumeBuilder.tsx",
-        "src/pages/Salary.tsx",
+        "src/features/salary/SalaryPage.tsx",
         "src/pages/Settings.tsx",
         "src/pages/SetupWizard.tsx",
         "src/components/AsyncButton.tsx",
@@ -604,7 +604,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "src/pages/DashboardUI/QuickActions.tsx",
       "src/pages/Market.tsx",
       "src/pages/ResumeBuilder.tsx",
-      "src/pages/Salary.tsx",
+      "src/features/salary/SalaryPage.tsx",
       "src/pages/Settings.tsx",
       "src/pages/SetupWizard.tsx",
       "src/components/AsyncButton.tsx",
