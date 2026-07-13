@@ -7,7 +7,6 @@ import {
 } from "./InterviewScheduleFormModal";
 import { Modal } from "../../ui/Modal";
 import { useToast } from "../../shared/toast/useToast";
-import { MIN_INTERVIEW_DURATION, MAX_INTERVIEW_DURATION } from "../../utils/constants";
 import { getSafeErrorToastCopy } from "../../shared/errorReporting/safeToastCopy";
 import { downloadInterviewICalFile } from "./InterviewCalendarExport";
 import {
@@ -29,6 +28,9 @@ import {
   PlusIcon,
 } from "./InterviewSchedulerIcons";
 import { InterviewDetailPanels } from "./InterviewDetailPanels";
+
+const MIN_INTERVIEW_DURATION_MINUTES = 15;
+const MAX_INTERVIEW_DURATION_MINUTES = 8 * 60;
 
 export const InterviewScheduler = memo(function InterviewScheduler({ onClose, applications = [] }: InterviewSchedulerProps) {
   const [interviews, setInterviews] = useState<Interview[]>([]);
@@ -230,8 +232,8 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
     }
 
     // Validate duration is reasonable
-    if (formData.duration_minutes < MIN_INTERVIEW_DURATION || formData.duration_minutes > MAX_INTERVIEW_DURATION) {
-      toast.error("Choose a valid length", `Pick between ${MIN_INTERVIEW_DURATION} minutes and ${MAX_INTERVIEW_DURATION / 60} hours.`);
+    if (formData.duration_minutes < MIN_INTERVIEW_DURATION_MINUTES || formData.duration_minutes > MAX_INTERVIEW_DURATION_MINUTES) {
+      toast.error("Choose a valid length", `Pick between ${MIN_INTERVIEW_DURATION_MINUTES} minutes and ${MAX_INTERVIEW_DURATION_MINUTES / 60} hours.`);
       return;
     }
 

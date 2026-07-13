@@ -5,7 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { DashboardSkeleton } from "../../ui/Skeleton";
 import { useToast } from "../../shared/toast/useToast";
 import { logError } from "../../shared/errorReporting/logger";
-import { SCORE_THRESHOLD_GOOD } from "../../utils/constants";
+import { GOOD_JOB_MATCH_THRESHOLD } from "../../shared/jobMatchScore";
 import { invalidateCacheByCommand } from "../../shared/tauri/commandClient";
 import { isValidJobUrl } from "./jobUrlValidation";
 import { openDeepLink } from "../../shared/search-links";
@@ -214,7 +214,7 @@ export default function Dashboard({
   // Memoized callbacks for QuickActions and DashboardFiltersBar
   const handleExportHighMatches = useCallback(() => {
     const highMatchJobs = jobs.filter(
-      (j) => (j.score ?? 0) >= SCORE_THRESHOLD_GOOD,
+      (j) => (j.score ?? 0) >= GOOD_JOB_MATCH_THRESHOLD,
     );
     jobOps.handleExportJobs(highMatchJobs);
   }, [jobs, jobOps]);

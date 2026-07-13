@@ -1,7 +1,11 @@
 import { memo } from "react";
 import { Modal, ModalFooter } from "../../../ui/Modal";
 import { Button } from "../../../ui/Button";
-import { SCORE_THRESHOLD_HIGH, SCORE_THRESHOLD_GOOD, SCORE_THRESHOLD_PARTIAL } from "../../../utils/constants";
+import {
+  GOOD_JOB_MATCH_THRESHOLD,
+  PARTIAL_JOB_MATCH_THRESHOLD,
+  STRONG_JOB_MATCH_THRESHOLD,
+} from "../../../shared/jobMatchScore";
 
 interface ScoreBreakdown {
   skills: number;
@@ -316,8 +320,8 @@ function estimateBreakdown(_score: number, reasons: ReturnType<typeof parseScore
  */
 function getScoreColor(score: number, maxScore: number): string {
   const percentage = score / maxScore;
-  if (percentage >= SCORE_THRESHOLD_HIGH) return "text-sentinel-700 dark:text-sentinel-300 bg-sentinel-50 dark:bg-sentinel-900/30";
-  if (percentage >= SCORE_THRESHOLD_PARTIAL) return "text-alert-700 dark:text-alert-300 bg-alert-50 dark:bg-alert-900/20";
+  if (percentage >= STRONG_JOB_MATCH_THRESHOLD) return "text-sentinel-700 dark:text-sentinel-300 bg-sentinel-50 dark:bg-sentinel-900/30";
+  if (percentage >= PARTIAL_JOB_MATCH_THRESHOLD) return "text-alert-700 dark:text-alert-300 bg-alert-50 dark:bg-alert-900/20";
   return "text-danger bg-red-50 dark:bg-red-900/20";
 }
 
@@ -326,8 +330,8 @@ function getScoreColor(score: number, maxScore: number): string {
  */
 function getFactorEvidenceLabel(score: number, maxScore: number): string {
   const percentage = score / maxScore;
-  if (percentage >= SCORE_THRESHOLD_HIGH) return "Clear evidence";
-  if (percentage >= SCORE_THRESHOLD_PARTIAL) return "Some evidence";
+  if (percentage >= STRONG_JOB_MATCH_THRESHOLD) return "Clear evidence";
+  if (percentage >= PARTIAL_JOB_MATCH_THRESHOLD) return "Some evidence";
   return "Needs review";
 }
 
@@ -336,8 +340,8 @@ function getFactorEvidenceLabel(score: number, maxScore: number): string {
  */
 function getBarColor(score: number, maxScore: number): string {
   const percentage = score / maxScore;
-  if (percentage >= SCORE_THRESHOLD_HIGH) return "bg-sentinel-500 dark:bg-sentinel-400";
-  if (percentage >= SCORE_THRESHOLD_PARTIAL) return "bg-alert-500 dark:bg-alert-400";
+  if (percentage >= STRONG_JOB_MATCH_THRESHOLD) return "bg-sentinel-500 dark:bg-sentinel-400";
+  if (percentage >= PARTIAL_JOB_MATCH_THRESHOLD) return "bg-alert-500 dark:bg-alert-400";
   return "bg-danger";
 }
 
@@ -355,9 +359,9 @@ export const ScoreBreakdownModal = memo(function ScoreBreakdownModal({
   const evidenceStatus = getScoreEvidenceStatus(reasons);
 
   const getScoreLabel = () => {
-    if (safeScore >= SCORE_THRESHOLD_HIGH) return { label: "Strong Fit", color: "text-sentinel-600 dark:text-sentinel-300" };
-    if (safeScore >= SCORE_THRESHOLD_GOOD) return { label: "Good Fit", color: "text-blue-700 dark:text-info" };
-    if (safeScore >= SCORE_THRESHOLD_PARTIAL) return { label: "Possible Fit", color: "text-alert-700 dark:text-alert-300" };
+    if (safeScore >= STRONG_JOB_MATCH_THRESHOLD) return { label: "Strong Fit", color: "text-sentinel-600 dark:text-sentinel-300" };
+    if (safeScore >= GOOD_JOB_MATCH_THRESHOLD) return { label: "Good Fit", color: "text-blue-700 dark:text-info" };
+    if (safeScore >= PARTIAL_JOB_MATCH_THRESHOLD) return { label: "Possible Fit", color: "text-alert-700 dark:text-alert-300" };
     return { label: "Needs Review", color: "text-surface-500 dark:text-surface-400" };
   };
 

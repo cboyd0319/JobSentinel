@@ -10,7 +10,7 @@ import type {
   GhostFilter,
   SearchQuery,
 } from "../types";
-import { SCORE_THRESHOLD_GOOD } from "../../../utils/constants";
+import { GOOD_JOB_MATCH_THRESHOLD } from "../../../shared/jobMatchScore";
 import { hasPostingReviewAlert } from "../postingRisk";
 
 // Coerce score to a finite number for safe comparison (null/NaN/Infinity → -1)
@@ -189,9 +189,9 @@ export function useDashboardFilters(jobs: Job[]): FilterState &
       result = result.filter((job) => {
         const score = job.score;
         if (score == null || !Number.isFinite(score)) return false;
-        if (scoreFilter === "high") return score >= SCORE_THRESHOLD_GOOD;
+        if (scoreFilter === "high") return score >= GOOD_JOB_MATCH_THRESHOLD;
         if (scoreFilter === "medium")
-          return score >= 0.4 && score < SCORE_THRESHOLD_GOOD;
+          return score >= 0.4 && score < GOOD_JOB_MATCH_THRESHOLD;
         if (scoreFilter === "low") return score < 0.4;
         return true;
       });

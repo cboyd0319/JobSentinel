@@ -1,5 +1,6 @@
-import { GHOST_SCORE_THRESHOLD } from "../../utils/constants";
 import jobPostingRiskTaxonomy from "../../../resources/taxonomies/job-posting-risk.json";
+
+const POSTING_RISK_SCORE_THRESHOLD = 0.5;
 
 interface PostingRiskReason {
   category: "stale" | "repost" | "generic" | "missing_details" | "unrealistic" | "company_behavior";
@@ -117,7 +118,7 @@ export function hasPostingReviewAlert(
     ghostScore <= 1;
 
   return (
-    (hasValidScore && ghostScore >= GHOST_SCORE_THRESHOLD) ||
+    (hasValidScore && ghostScore >= POSTING_RISK_SCORE_THRESHOLD) ||
     hasPostingEvidenceReviewCue(ghostReasons) ||
     (title !== undefined && hasLowDetailPostingReviewCue(title, description)) ||
     (description !== undefined && hasScamPostingReviewCue(description)) ||

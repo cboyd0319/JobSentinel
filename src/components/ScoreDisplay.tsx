@@ -1,10 +1,10 @@
 import { memo } from "react";
 import { Tooltip } from "../ui/Tooltip";
 import {
-  SCORE_THRESHOLD_HIGH,
-  SCORE_THRESHOLD_GOOD,
-  SCORE_THRESHOLD_PARTIAL,
-} from "../utils/constants";
+  GOOD_JOB_MATCH_THRESHOLD,
+  PARTIAL_JOB_MATCH_THRESHOLD,
+  STRONG_JOB_MATCH_THRESHOLD,
+} from "../shared/jobMatchScore";
 
 interface ScoreDisplayProps {
   score: number | null; // 0-1 range, null when unscored
@@ -90,19 +90,19 @@ function parseScoreReasons(reasonsJson?: string | null): {
  * Get a human-friendly label and explanation for job fit.
  */
 function getScoreInfo(score: number) {
-  if (score >= SCORE_THRESHOLD_HIGH)
+  if (score >= STRONG_JOB_MATCH_THRESHOLD)
     return {
       label: "Strong Fit",
       explanation:
         "Strong evidence this fits your stated skills, pay, and preferences. Worth tailoring after checking the original posting.",
     };
-  if (score >= SCORE_THRESHOLD_GOOD)
+  if (score >= GOOD_JOB_MATCH_THRESHOLD)
     return {
       label: "Good Fit",
       explanation:
         "This role fits many criteria. Review pay, posting freshness, and must-haves before tailoring.",
     };
-  if (score >= SCORE_THRESHOLD_PARTIAL)
+  if (score >= PARTIAL_JOB_MATCH_THRESHOLD)
     return {
       label: "Possible Fit",
       explanation:
@@ -372,19 +372,19 @@ export const ScoreDisplay = memo(function ScoreDisplay({
 
   // Color based on score
   const getScoreColor = () => {
-    if (safeScore >= SCORE_THRESHOLD_HIGH)
+    if (safeScore >= STRONG_JOB_MATCH_THRESHOLD)
       return {
         ring: "stroke-sentinel-400",
         text: "text-sentinel-600 dark:text-sentinel-300",
         glow: "shadow-glow",
       };
-    if (safeScore >= SCORE_THRESHOLD_GOOD)
+    if (safeScore >= GOOD_JOB_MATCH_THRESHOLD)
       return {
         ring: "stroke-info",
         text: "text-blue-700 dark:text-info",
         glow: "",
       };
-    if (safeScore >= SCORE_THRESHOLD_PARTIAL)
+    if (safeScore >= PARTIAL_JOB_MATCH_THRESHOLD)
       return {
         ring: "stroke-alert-500",
         text: "text-alert-700 dark:text-alert-300",
@@ -438,7 +438,7 @@ export const ScoreDisplay = memo(function ScoreDisplay({
         }
       >
         <div
-          className={`relative ${config.container} ${safeScore >= SCORE_THRESHOLD_HIGH ? colors.glow : ""} rounded-full`}
+          className={`relative ${config.container} ${safeScore >= STRONG_JOB_MATCH_THRESHOLD ? colors.glow : ""} rounded-full`}
         >
           <svg
             className="w-full h-full -rotate-90"
@@ -507,9 +507,9 @@ export const ScoreBar = memo(function ScoreBar({
   const percentage = Math.round(safeBarScore * 100);
 
   const getColor = () => {
-    if (safeBarScore >= SCORE_THRESHOLD_HIGH) return "bg-sentinel-500";
-    if (safeBarScore >= SCORE_THRESHOLD_GOOD) return "bg-info";
-    if (safeBarScore >= SCORE_THRESHOLD_PARTIAL) return "bg-alert-500";
+    if (safeBarScore >= STRONG_JOB_MATCH_THRESHOLD) return "bg-sentinel-500";
+    if (safeBarScore >= GOOD_JOB_MATCH_THRESHOLD) return "bg-info";
+    if (safeBarScore >= PARTIAL_JOB_MATCH_THRESHOLD) return "bg-alert-500";
     return "bg-surface-300";
   };
 

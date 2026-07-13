@@ -1,5 +1,6 @@
-import { COMPANY_CACHE_TTL } from '../utils/constants';
 import type { CompanyInfo } from './companyResearchData';
+
+const COMPANY_RESEARCH_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 
 interface CacheEntry {
   data: CompanyInfo;
@@ -15,7 +16,7 @@ function getCompanyCacheKey(name: string): string {
 export function getCachedCompany(name: string): CompanyInfo | null {
   const entry = companyMemoryCache[getCompanyCacheKey(name)];
 
-  if (entry && Date.now() - entry.timestamp < COMPANY_CACHE_TTL) {
+  if (entry && Date.now() - entry.timestamp < COMPANY_RESEARCH_CACHE_TTL_MS) {
     return entry.data;
   }
   return null;

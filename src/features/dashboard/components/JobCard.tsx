@@ -11,7 +11,10 @@ import {
   formatSalaryRange,
   truncateText,
 } from "../../../utils/formatUtils";
-import { SCORE_THRESHOLD_HIGH, SCORE_THRESHOLD_GOOD } from "../../../utils/constants";
+import {
+  GOOD_JOB_MATCH_THRESHOLD,
+  STRONG_JOB_MATCH_THRESHOLD,
+} from "../../../shared/jobMatchScore";
 import { useToast } from "../../../shared/toast/useToast";
 import { isValidJobUrl } from "../jobUrlValidation";
 import { openDeepLink } from "../../../shared/search-links";
@@ -147,8 +150,8 @@ export const JobCard = memo(function JobCard({
     : null;
   const displayedScore = feedbackScoreAdjustment?.score ?? safeScore;
   const displayedScoreValue = hasValidScore ? displayedScore : job.score;
-  const isHighMatch = displayedScore >= SCORE_THRESHOLD_HIGH;
-  const isGoodMatch = displayedScore >= SCORE_THRESHOLD_GOOD;
+  const isHighMatch = displayedScore >= STRONG_JOB_MATCH_THRESHOLD;
+  const isGoodMatch = displayedScore >= GOOD_JOB_MATCH_THRESHOLD;
   const salaryText = formatSalaryRange(job.salary_min, job.salary_max);
   const descSnippet = truncateText(job.description);
   const rawPostingRiskScore = job.ghost_score;
@@ -185,9 +188,9 @@ export const JobCard = memo(function JobCard({
   const sourceReviewGuidance = sourceGuidance.review;
   const hasSafeJobUrl = isValidJobUrl(job.url);
   const cardAriaLabel = `${job.title} at ${job.company}${
-    safeScore >= SCORE_THRESHOLD_HIGH
+    safeScore >= STRONG_JOB_MATCH_THRESHOLD
       ? ", high match"
-      : safeScore >= SCORE_THRESHOLD_GOOD
+      : safeScore >= GOOD_JOB_MATCH_THRESHOLD
         ? ", good match"
         : ""
   }${salaryText || payFloorGuidance ? "" : ", pay not listed"}${

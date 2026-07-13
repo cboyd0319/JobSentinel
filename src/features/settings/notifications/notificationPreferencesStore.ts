@@ -1,5 +1,6 @@
 import { safeInvoke } from "../../../shared/tauri/commandClient";
-import { SALARY_THOUSANDS_MULTIPLIER } from "../../../utils/constants";
+
+const SALARY_INPUT_MULTIPLIER = 1000;
 
 export interface SourceNotificationConfig {
   enabled: boolean;
@@ -216,7 +217,7 @@ export function shouldNotifyForJob(
     // Salary filter
     if (advancedFilters.minSalary !== null) {
       const minSalaryThreshold =
-        advancedFilters.minSalary * SALARY_THOUSANDS_MULTIPLIER;
+        advancedFilters.minSalary * SALARY_INPUT_MULTIPLIER;
       const jobMaxSalary = job.salary_max ?? job.salary_min ?? 0;
       if (jobMaxSalary > 0 && jobMaxSalary < minSalaryThreshold) return false;
     }

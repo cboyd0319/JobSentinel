@@ -1,0 +1,3 @@
+export const STRONG_JOB_MATCH_THRESHOLD = 0.9;
+export const GOOD_JOB_MATCH_THRESHOLD = 0.7;
+export const PARTIAL_JOB_MATCH_THRESHOLD = 0.5;

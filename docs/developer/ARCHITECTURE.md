@@ -316,6 +316,8 @@ the broader agent harness.
   `src/ui/` as those owners are established. `src/shared/search-links/` owns
   the typed Tauri client and model used by Search Links, Dashboard, and the
   LinkedIn Workbench; Search Links display state remains private to its feature.
+- `src/shared/jobMatchScore.ts` owns the job-fit thresholds used across
+  Dashboard and Resume displays. Unrelated constants stay with their owners.
 - `src/shared/errorReporting/` owns the validated, privacy-preserving local
   problem-report model, sanitizer, storage contract, context, hook, safe user
   messages, safe toast copy, and development logger. The app provider under
