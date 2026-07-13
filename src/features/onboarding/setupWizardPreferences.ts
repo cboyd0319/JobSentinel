@@ -1,4 +1,4 @@
-import { getSearchSourceDefaults } from "../../utils/profiles";
+import { getSearchSourceDefaults } from "../../shared/jobSourceRecommendations";
 export { COMMON_STARTER_JOB_TITLES, COMMON_WORK_TO_AVOID } from "./setupWizardTaxonomy";
 import type {
   FreshnessOption,

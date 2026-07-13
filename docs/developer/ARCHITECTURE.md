@@ -310,7 +310,8 @@ the broader agent harness.
   private. Other models, panels, cards, import flows, board logic, interview
   scheduling, cover-letter templates, setup taxonomies, data hooks, review
   logic, and mock handlers remain private to the owning feature or the
-  development mock registry.
+  development mock registry. Onboarding also owns career-profile lookup and
+  first-run config mapping in `careerProfileSetup.ts`.
 - A feature must not import another feature's implementation files. Shared
   product-neutral code belongs in `src/shared/`; reusable UI belongs in
   `src/ui/` as those owners are established. `src/shared/search-links/` owns
@@ -320,6 +321,9 @@ the broader agent harness.
   Dashboard and Resume displays. Unrelated constants stay with their owners.
 - `src/shared/location/` owns the validated, current-session detected-location
   cache shared by Onboarding and Settings.
+- `src/shared/jobSourceRecommendations.ts` owns narrow search-term source
+  defaults used by Onboarding and Settings; its broad-audience sensor follows
+  that shared owner.
 - `src/shared/errorReporting/` owns the validated, privacy-preserving local
   problem-report model, sanitizer, storage contract, context, hook, safe user
   messages, safe toast copy, and development logger. The app provider under

@@ -5,7 +5,7 @@ import {
   REMOTE_INTENT_TERMS,
   STARTUP_SOURCE_TERMS,
 } from "../../../shared/jobSourceRecommendationTaxonomy";
-import { searchLooksTechFocused } from "../../../utils/profiles";
+import { searchLooksTechFocused } from "../../../shared/jobSourceRecommendations";
 import {
   buildSettingsSourceQuery,
   type Config,

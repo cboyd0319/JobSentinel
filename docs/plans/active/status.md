@@ -54,7 +54,7 @@ weakened.
 | Workstream | State | Current focus | Source |
 | ---------- | ----- | ------------- | ------ |
 | Current product and quality work | Active | Keep privacy, design, platform, harness, and release evidence aligned during the refactor | [Plan](current-work.md) |
-| Full repository refactor and v2.9.5 readiness | Active | Continue the remaining frontend buckets after assigning the shared location cache | [Plan](repository-architecture-reorganization.md) |
+| Full repository refactor and v2.9.5 readiness | Active | Continue the remaining frontend buckets after splitting mixed profile utilities | [Plan](repository-architecture-reorganization.md) |
 
 ## Current Posture
 

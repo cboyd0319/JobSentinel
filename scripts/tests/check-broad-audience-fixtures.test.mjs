@@ -436,7 +436,7 @@ test("broad audience fixtures reject broad role tech-source heuristics", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src/utils/profiles.ts",
+      "src/shared/jobSourceRecommendationTaxonomy.ts",
       [
         "const TECH_SOURCE_TERMS = [",
         '  "developer",',
@@ -445,13 +445,24 @@ test("broad audience fixtures reject broad role tech-source heuristics", () => {
         '  "sql",',
         '  "python",',
         "];",
-        "terms.some((term) => TECH_SOURCE_TERMS.some((techTerm) => term.includes(techTerm)));",
         "",
       ].join("\n"),
     );
+    writeFixtureFile(
+      root,
+      "src/shared/jobSourceRecommendations.ts",
+      "terms.some((term) => TECH_SOURCE_TERMS.some((techTerm) => term.includes(techTerm)));",
+    );
 
     assert.equal(
-      hasEngineerFirstAudienceExamples(root, "src/utils/profiles.ts"),
+      hasEngineerFirstAudienceExamples(
+        root,
+        "src/shared/jobSourceRecommendationTaxonomy.ts",
+      ),
+      true,
+    );
+    assert.equal(
+      hasEngineerFirstAudienceExamples(root, "src/shared/jobSourceRecommendations.ts"),
       true,
     );
   });

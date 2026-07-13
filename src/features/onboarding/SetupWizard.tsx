@@ -3,7 +3,10 @@ import { Button } from "../../ui/Button";
 import { Card } from "../../ui/Card";
 import { useToast } from "../../shared/toast/useToast";
 import { invalidateCacheByCommand, safeInvokeWithToast } from "../../shared/tauri/commandClient";
-import { getProfileById, profileToConfig } from "../../utils/profiles";
+import {
+  buildSetupConfigFromCareerProfile,
+  findCareerProfileById,
+} from "./careerProfileSetup";
 import { CareerProfileSelector } from "./CareerProfileSelector";
 import { SentinelIcon } from "./SetupWizardIcons";
 import { SetupWizardJobBasicsStep } from "./SetupWizardJobBasicsStep";
@@ -84,9 +87,9 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
   const handleProfileSelect = (profileId: string | null) => {
     setSelectedProfile(profileId);
     if (profileId) {
-      const profile = getProfileById(profileId);
+      const profile = findCareerProfileById(profileId);
       if (profile) {
-        const profileConfig = profileToConfig(profile);
+        const profileConfig = buildSetupConfigFromCareerProfile(profile);
         setPayFloorInput(profileConfig.salary_floor_usd > 0
           ? String(profileConfig.salary_floor_usd)
           : "");

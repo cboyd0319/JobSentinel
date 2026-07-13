@@ -85,7 +85,8 @@ const broadAudienceExamplePaths = new Set([
   "src/features/onboarding/SetupWizardSearchSummary.tsx",
   "src/features/onboarding/setupWizardPreferences.ts",
   "src/app/providers/UndoProvider.integration.test.tsx",
-  "src/utils/profiles.ts",
+  "src/shared/jobSourceRecommendations.ts",
+  "src/shared/jobSourceRecommendationTaxonomy.ts",
   "src/features/resumes/shared/resumeContactValidation.test.ts",
   "src/utils/formValidation.test.ts",
   "src/shared/search-links/model.ts",
@@ -222,25 +223,23 @@ export function hasEngineerFirstAudienceExamples(root, path) {
     }
   }
 
-  if (path === "src/utils/profiles.ts") {
-    const techSourceTerms = text.match(
-      /const TECH_SOURCE_TERMS = \[([\s\S]*?)\];/,
-    );
-    const techSourceTermBody = techSourceTerms?.[1] ?? "";
+  if (path === "src/shared/jobSourceRecommendationTaxonomy.ts") {
     const broadTitlePatterns = [
       /["'`]developer["'`]/i,
       /["'`]engineer["'`]/i,
       /["'`]technical product manager["'`]/i,
       /["'`](?:react|typescript|javascript|python|rust|java|kubernetes|aws|gcp|azure|docker|terraform|node\.js|sql|postgresql)["'`]/i,
     ];
-    const broadSubstringMatcherPatterns = [/term\.includes\(techTerm\)/];
-
-    if (
-      broadTitlePatterns.some((pattern) => pattern.test(techSourceTermBody)) ||
-      broadSubstringMatcherPatterns.some((pattern) => pattern.test(text))
-    ) {
+    if (broadTitlePatterns.some((pattern) => pattern.test(text))) {
       return true;
     }
+  }
+
+  if (
+    path === "src/shared/jobSourceRecommendations.ts" &&
+    /term\.includes\(techTerm\)/.test(text)
+  ) {
+    return true;
   }
 
   if (

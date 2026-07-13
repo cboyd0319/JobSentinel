@@ -1,9 +1,3 @@
-export const TECH_SOURCE_PROFILE_IDS = [
-  "software-engineering",
-  "cybersecurity",
-  "data-science",
-] as const;
-
 // Role-specific terms only. Broad tool names such as SQL or AWS can appear in
 // non-technical searches and should not enable tech-only job-board defaults.
 export const TECH_SOURCE_TERMS = [

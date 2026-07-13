@@ -2,7 +2,7 @@ import type { ComponentProps } from "react";
 import { Badge } from "../../ui/Badge";
 import { Button } from "../../ui/Button";
 import { Input } from "../../ui/Input";
-import { CAREER_PROFILES } from "../../utils/profiles";
+import { CAREER_PROFILES } from "../../shared/careerProfileTaxonomy";
 import { AvoidIcon, SearchIcon, SparkleIcon } from "./SetupWizardIcons";
 import { SetupWizardPayFloorSection } from "./SetupWizardPayFloorSection";
 import { SetupWizardResumeSuggestions } from "./SetupWizardResumeSuggestions";

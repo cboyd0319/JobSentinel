@@ -282,7 +282,7 @@ user onboarding and notification configuration.
 ### Changed
 
 - `src/pages/SetupWizard.tsx` - Credential storage, default scrapers, alert preservation
-- `src/utils/profiles.ts` - Career profiles now include default scrapers
+- `src/features/onboarding/careerProfileSetup.ts` - Career profiles now include default scrapers
 - `src/pages/Settings.tsx` - Added 3 credential types and input fields
 
 ---
