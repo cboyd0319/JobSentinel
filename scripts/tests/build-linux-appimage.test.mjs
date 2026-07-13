@@ -13,7 +13,7 @@ import {
   resolveTauriBundlerCache,
   tauriAppImageToolDownloads,
   verifySha256,
-} from "../build-linux-appimage.mjs";
+} from "../platform/build-linux-appimage.mjs";
 
 test("expectedAppImageName maps Linux x86_64 to release asset naming", () => {
   assert.equal(

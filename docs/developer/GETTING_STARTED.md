@@ -90,7 +90,7 @@ JOBSENTINEL_MACOS_NO_ACCOUNT=true npm run tauri:build:macos -- --target universa
 # target/universal-apple-darwin/release/bundle/dmg/JobSentinel_<version>_no-account_universal.dmg.sha256
 
 # Linux packages output
-node scripts/build-linux-appimage.mjs --target x86_64-unknown-linux-gnu
+node scripts/platform/build-linux-appimage.mjs --target x86_64-unknown-linux-gnu
 # target/x86_64-unknown-linux-gnu/release/bundle/deb/JobSentinel_<version>_amd64.deb
 # target/x86_64-unknown-linux-gnu/release/bundle/appimage/JobSentinel_<version>_amd64.AppImage
 ```

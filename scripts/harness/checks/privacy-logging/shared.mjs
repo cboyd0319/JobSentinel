@@ -50,7 +50,7 @@ export const rawLocalPathLoggingPaths = new Set([
   "crates/jobsentinel-core/src/core/automation/form_filler.rs",
   "crates/jobsentinel-core/src/core/db/connection.rs",
   "crates/jobsentinel-core/src/core/db/integrity/backups.rs",
-  "src-tauri/src/main.rs",
+  "src-tauri/src/app.rs",
   "crates/jobsentinel-core/src/platforms/linux/mod.rs",
   "crates/jobsentinel-core/src/platforms/macos/mod.rs",
   "crates/jobsentinel-core/src/platforms/windows/mod.rs",
@@ -99,7 +99,7 @@ export const credentialStorageErrorPrivacyPaths = new Set([
 export const credentialSecretReadIpcPaths = new Set([
   "src-tauri/src/commands/credentials.rs",
   "src-tauri/src/commands/mod.rs",
-  "src-tauri/src/main.rs",
+  "src-tauri/src/app.rs",
   "src/features/settings/sources/SettingsJobSourcesSection.tsx",
   "src/features/settings/SettingsPage.tsx",
   "src/mocks/handlers.ts",
@@ -220,7 +220,7 @@ export const utilityCommandErrorPrivacyPaths = new Set([
 export const rawCommandSetupErrorDisplayPaths = new Set([
   "src-tauri/src/commands/config.rs",
   "src-tauri/src/commands/ghost.rs",
-  "src-tauri/src/main.rs",
+  "src-tauri/src/app.rs",
 ]);
 
 export const configValidationPrivacyPaths = new Set([

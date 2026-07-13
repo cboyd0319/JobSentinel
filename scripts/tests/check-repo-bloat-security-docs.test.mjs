@@ -76,7 +76,7 @@ test("checkRepoBloat rejects unsafe keyring migration and stale credential comme
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src-tauri/src/main.rs",
+      "src-tauri/src/app.rs",
       [
         'tracing::info!("✓ Migrated {:?} to secure storage", key);',
         "// Mark migration as complete (even if partial, to avoid repeated attempts)",
@@ -97,14 +97,14 @@ test("checkRepoBloat rejects unsafe keyring migration and stale credential comme
 
     execFileSync(
       "git",
-      ["add", "package.json", "src-tauri/src/main.rs", "crates/jobsentinel-core/src/core/credentials/mod.rs"],
+      ["add", "package.json", "src-tauri/src/app.rs", "crates/jobsentinel-core/src/core/credentials/mod.rs"],
       { cwd: root },
     );
 
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("keep keyring migration retry-safe: src-tauri/src/main.rs"),
+      violations.includes("keep keyring migration retry-safe: src-tauri/src/app.rs"),
       violations.join("\n"),
     );
     assert.ok(

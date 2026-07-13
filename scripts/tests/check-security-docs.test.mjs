@@ -174,11 +174,11 @@ test("security docs reject unsafe keyring migration", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src-tauri/src/main.rs",
+      "src-tauri/src/app.rs",
       'tracing::info!("✓ Migrated {:?} to secure storage", key);\n// even if partial\n',
     );
 
-    assert.equal(hasUnsafeKeyringMigration(root, "src-tauri/src/main.rs"), true);
+    assert.equal(hasUnsafeKeyringMigration(root, "src-tauri/src/app.rs"), true);
   });
 });
 
@@ -186,7 +186,7 @@ test("security docs allow secure-storage migration retry marker", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src-tauri/src/main.rs",
+      "src-tauri/src/app.rs",
       [
         "let mark_migration_complete = migration_success;",
         'tracing::warn!("Secure-storage migration incomplete; will retry on next startup");',
@@ -194,7 +194,7 @@ test("security docs allow secure-storage migration retry marker", () => {
       ].join("\n"),
     );
 
-    assert.equal(hasUnsafeKeyringMigration(root, "src-tauri/src/main.rs"), false);
+    assert.equal(hasUnsafeKeyringMigration(root, "src-tauri/src/app.rs"), false);
   });
 });
 

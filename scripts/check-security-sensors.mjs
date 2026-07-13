@@ -222,7 +222,7 @@ const releaseWorkflowChecks = [
       "squashfs-tools=1:4.6.1-1build1",
       "Build Linux Tauri app",
       'APPIMAGE_EXTRACT_AND_RUN: "1"',
-      "scripts/build-linux-appimage.mjs",
+      "scripts/platform/build-linux-appimage.mjs",
     ],
   },
   {
@@ -767,7 +767,7 @@ export function checkSecuritySensors(root = defaultRoot) {
     }
   }
 
-  const publicReleaseVerifier = readIfExists(root, "scripts/verify-public-release-assets.mjs", violations);
+  const publicReleaseVerifier = readIfExists(root, "scripts/release/verify-public-release-assets.mjs", violations);
   for (const check of publicReleaseVerifierChecks) {
     if (!includesAll(publicReleaseVerifier, check.phrases)) {
       violations.push(`public release verifier is missing artifact gate: ${check.label}`);

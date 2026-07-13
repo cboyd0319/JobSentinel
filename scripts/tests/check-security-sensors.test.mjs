@@ -473,7 +473,7 @@ test("checkSecuritySensors rejects release workflow without Linux AppImage compa
   writeFileSync(
     join(root, ".github/workflows/release.yml"),
     readBaseReleaseWorkflowWithout(
-      "        run: node scripts/build-linux-appimage.mjs --target x86_64-unknown-linux-gnu\n",
+      "        run: node scripts/platform/build-linux-appimage.mjs --target x86_64-unknown-linux-gnu\n",
     ),
   );
 
@@ -684,7 +684,7 @@ test("checkSecuritySensors rejects public release verifier without exact asset-s
   );
   writeSelfOnlyBaseRepo(root);
   writeFileSync(
-    join(root, "scripts/verify-public-release-assets.mjs"),
+    join(root, "scripts/release/verify-public-release-assets.mjs"),
     "export function findPlatformInstallerAssets() {}\n",
   );
 

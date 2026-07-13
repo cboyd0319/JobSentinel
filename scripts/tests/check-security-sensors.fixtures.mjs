@@ -11,7 +11,7 @@ export function writeBaseRepo(root, csp) {
   mkdirSync(join(root, "docs/developer"), { recursive: true });
   mkdirSync(join(root, ".github/workflows"), { recursive: true });
   mkdirSync(join(root, ".github"), { recursive: true });
-  mkdirSync(join(root, "scripts"), { recursive: true });
+  mkdirSync(join(root, "scripts/release"), { recursive: true });
   mkdirSync(join(root, "src-tauri"), { recursive: true });
   mkdirSync(join(root, "src-tauri/capabilities"), { recursive: true });
   mkdirSync(join(root, "crates/jobsentinel-core/src/core/automation/browser"), {
@@ -138,7 +138,7 @@ export function writeBaseRepo(root, csp) {
     ].join("\n"),
   );
   writeFileSync(
-    join(root, "scripts/verify-public-release-assets.mjs"),
+    join(root, "scripts/release/verify-public-release-assets.mjs"),
     [
       "function selectedPlatformAssetExtensions() {}",
       "export function validateExactPublicInstallerAssetSet() {",
@@ -446,7 +446,7 @@ export function readBaseReleaseWorkflowWithout(removedLine) {
     "          package-manager-cache: false",
     "      - name: Build Linux Tauri app",
     '          APPIMAGE_EXTRACT_AND_RUN: "1"',
-    "        run: node scripts/build-linux-appimage.mjs --target x86_64-unknown-linux-gnu",
+    "        run: node scripts/platform/build-linux-appimage.mjs --target x86_64-unknown-linux-gnu",
     "      - name: Configure Windows signing",
     "        run: |",
     "          WINDOWS_CERTIFICATE",

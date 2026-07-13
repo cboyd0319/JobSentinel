@@ -5,7 +5,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const scriptPath = fileURLToPath(import.meta.url);
-const defaultRoot = resolve(dirname(scriptPath), "..");
+const defaultRoot = resolve(dirname(scriptPath), "../..");
 
 export function normalizeReleaseVersion(value) {
   return String(value ?? "")
@@ -56,7 +56,7 @@ if (process.argv[1] && resolve(process.argv[1]) === scriptPath) {
   const expectedValue = process.argv[2] ?? process.env.GITHUB_REF_NAME;
 
   if (!expectedValue) {
-    console.error("Usage: node scripts/validate-release-version.mjs <version-or-tag>");
+    console.error("Usage: node scripts/release/validate-release-version.mjs <version-or-tag>");
     process.exitCode = 1;
   } else {
     const versions = readReleaseVersions();

@@ -11,7 +11,7 @@ import {
   buildSkillsZip,
   packageAgentSkills,
   parseArgs,
-} from "../package-agent-skills.mjs";
+} from "../release/package-agent-skills.mjs";
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 

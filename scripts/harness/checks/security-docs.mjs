@@ -21,7 +21,7 @@ const keyringSecurityDocsPaths = new Set([
   "docs/features/saved-secrets.md",
 ]);
 
-const keyringMigrationPaths = new Set(["src-tauri/src/main.rs"]);
+const keyringMigrationPaths = new Set(["src-tauri/src/app.rs"]);
 const credentialArchitecturePaths = new Set(["crates/jobsentinel-core/src/core/credentials/mod.rs"]);
 const userDataFeatureDocsPaths = new Set(["docs/features/user-data-management.md"]);
 const userDataDeveloperDocsPaths = new Set(["docs/developer/ARCHITECTURE.md"]);

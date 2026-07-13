@@ -17,10 +17,10 @@ import {
   releaseAssetUploadsStayDraft,
   releasePublishesAfterSuccessfulUploads,
   windowsInstallerUploadRequiresSignatureOrUnsignedLabel,
-} from "./check-macos-readiness.mjs";
+} from "../check-macos-readiness.mjs";
 
 const scriptPath = fileURLToPath(import.meta.url);
-const defaultRoot = resolve(dirname(scriptPath), "..");
+const defaultRoot = resolve(dirname(scriptPath), "../..");
 
 function read(root, path) {
   return readFileSync(join(root, path), "utf8");
@@ -62,7 +62,7 @@ export function loadReleaseReadinessInputs({
     releaseDocs: read(root, "docs/developer/RELEASING.md"),
     releaseWorkflow: read(root, ".github/workflows/release.yml"),
     tauriConfig: readJson(root, "src-tauri/tauri.conf.json"),
-    verifyPublicScript: read(root, "scripts/verify-public-release-assets.mjs"),
+    verifyPublicScript: read(root, "scripts/release/verify-public-release-assets.mjs"),
     verifyWorkflow: read(root, ".github/workflows/verify-release-artifacts.yml"),
     versions: readReleaseVersions(root),
   };
@@ -83,11 +83,11 @@ export function evaluateReleaseReadinessFromInputs(inputs) {
     criterion(
       "release scripts expose environment, readiness, and public verification",
       inputs.packageJson.scripts?.["release:readiness"] ===
-        "node scripts/check-release-readiness.mjs" &&
+        "node scripts/release/check-release-readiness.mjs" &&
         inputs.packageJson.scripts?.["release:check-env"] ===
-          "node scripts/check-release-environment.mjs" &&
+          "node scripts/release/check-release-environment.mjs" &&
         inputs.packageJson.scripts?.["release:verify:public"] ===
-          "node scripts/verify-public-release-assets.mjs" &&
+          "node scripts/release/verify-public-release-assets.mjs" &&
         inputs.packageJson.scripts?.["macos:readiness"] ===
           "node scripts/check-macos-readiness.mjs",
       "Release environment, readiness, public asset, and macOS readiness scripts must stay discoverable.",

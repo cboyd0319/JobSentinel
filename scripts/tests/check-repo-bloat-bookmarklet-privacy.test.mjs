@@ -113,7 +113,7 @@ test("checkRepoBloat rejects raw command setup error display", () => {
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/main.rs",
+      "src-tauri/src/app.rs",
       [
         "fn main() {",
         "    match Config::load(&config_path) {",
@@ -134,7 +134,7 @@ test("checkRepoBloat rejects raw command setup error display", () => {
         "add",
         "package.json",
         "src-tauri/src/commands/config.rs",
-        "src-tauri/src/main.rs",
+        "src-tauri/src/app.rs",
       ],
       { cwd: root },
     );
@@ -148,7 +148,7 @@ test("checkRepoBloat rejects raw command setup error display", () => {
       violations.join("\n"),
     );
     assert.ok(
-      violations.includes("replace raw command setup error display: src-tauri/src/main.rs"),
+      violations.includes("replace raw command setup error display: src-tauri/src/app.rs"),
       violations.join("\n"),
     );
   });

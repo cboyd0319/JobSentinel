@@ -7,7 +7,7 @@ import {
   evaluateWindowsSigning,
   formatReleaseEnvironmentReport,
   parseArgs,
-} from "../check-release-environment.mjs";
+} from "../release/check-release-environment.mjs";
 
 const validWindowsEnv = {
   WINDOWS_CERTIFICATE: "base64",

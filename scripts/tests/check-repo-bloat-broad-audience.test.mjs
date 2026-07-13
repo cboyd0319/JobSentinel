@@ -621,7 +621,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/main.rs",
+      "src-tauri/src/app.rs",
       "// Resume Matcher commands\n",
     );
     writeFixtureFile(
@@ -730,7 +730,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "docs/developer/FRONTEND_TESTING.md",
         "docs/developer/INTEGRATION_TESTING.md",
         "crates/jobsentinel-core/src/core/deeplinks/types.rs",
-        "src-tauri/src/main.rs",
+        "src-tauri/src/app.rs",
         "crates/jobsentinel-core/migrations/00000000000000_initial_schema.sql",
       ],
       { cwd: root },
@@ -832,7 +832,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       "docs/developer/FRONTEND_TESTING.md",
       "docs/developer/INTEGRATION_TESTING.md",
       "crates/jobsentinel-core/src/core/deeplinks/types.rs",
-      "src-tauri/src/main.rs",
+      "src-tauri/src/app.rs",
       "crates/jobsentinel-core/migrations/00000000000000_initial_schema.sql",
     ]) {
       const expected = `replace engineer-first audience example: ${path}`;

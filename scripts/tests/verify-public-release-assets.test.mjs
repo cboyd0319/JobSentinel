@@ -3,7 +3,7 @@ import { dirname, resolve } from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { gzipSync, gunzipSync } from "node:zlib";
-import { buildSkillsTarGz, buildSkillsZip } from "../package-agent-skills.mjs";
+import { buildSkillsTarGz, buildSkillsZip } from "../release/package-agent-skills.mjs";
 import {
   findAgentSkillsArchiveAssets,
   findPlatformInstallerAssets,
@@ -13,7 +13,7 @@ import {
   validateExactAgentSkillsAssetSet,
   validatePublicReleaseSupplyChain,
   validateExactPublicInstallerAssetSet,
-} from "../verify-public-release-assets.mjs";
+} from "../release/verify-public-release-assets.mjs";
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 

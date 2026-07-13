@@ -131,7 +131,7 @@ const broadAudienceExamplePaths = new Set([
   "src-tauri/tests/scraper_integration_test.rs",
   "src-tauri/tests/scraping_pipeline_integration.rs",
   "src-tauri/tests/scheduler_integration_test.rs",
-  "src-tauri/src/main.rs",
+  "src-tauri/src/app.rs",
   "crates/jobsentinel-core/migrations/00000000000000_initial_schema.sql",
   "tests/e2e/playwright/resume-upload-matching.spec.ts",
   "tests/e2e/playwright/hiring-trends.spec.ts",

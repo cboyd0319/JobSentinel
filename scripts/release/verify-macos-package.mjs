@@ -18,10 +18,10 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import {
   assertDeveloperIdSignature,
   parseCodesignDetails,
-} from "./macos-signature.mjs";
+} from "../platform/macos-signature.mjs";
 
 const scriptPath = fileURLToPath(import.meta.url);
-const defaultRoot = resolve(dirname(scriptPath), "..");
+const defaultRoot = resolve(dirname(scriptPath), "../..");
 const defaultSmokeSeconds = 12;
 const smokeDatabaseKeyHexEnv = "JOBSENTINEL_MACOS_PACKAGE_SMOKE_DATABASE_KEY_HEX";
 const smokeRootEnv = "JOBSENTINEL_MACOS_PACKAGE_SMOKE_ROOT";

@@ -7,7 +7,7 @@ import {
   compareReleaseVersions,
   normalizeReleaseVersion,
   readReleaseVersions,
-} from "../validate-release-version.mjs";
+} from "../release/validate-release-version.mjs";
 
 function makeReleaseFixture(version) {
   const root = mkdtempSync(join(tmpdir(), "jobsentinel-release-version-"));

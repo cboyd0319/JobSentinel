@@ -74,7 +74,7 @@ const jobsWithGptRequestLedgerPaths = new Set([
   "crates/jobsentinel-core/src/core/scheduler/workers/scrapers.rs",
   "crates/jobsentinel-core/src/core/scheduler/workers/scrapers/jobswithgpt_worker.rs",
   "src-tauri/src/command_handlers.rs",
-  "src-tauri/src/main.rs",
+  "src-tauri/src/app.rs",
   "src/features/settings/sources/SettingsConnectedJobSource.tsx",
   "src/features/settings/sources/SettingsJobSourcesSection.tsx",
   "src/features/settings/SettingsPage.tsx",
@@ -410,7 +410,7 @@ export function hasJobsWithGptMissingRequestLedger(root, path) {
     return !/commands::health::get_latest_source_request/.test(text);
   }
 
-  if (path === "src-tauri/src/main.rs") {
+  if (path === "src-tauri/src/app.rs") {
     return !/command_handlers::jobsentinel_command_handlers!\(\)/.test(text);
   }
 

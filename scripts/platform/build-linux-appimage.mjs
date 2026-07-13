@@ -22,7 +22,7 @@ import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const scriptPath = fileURLToPath(import.meta.url);
-const defaultRoot = resolve(dirname(scriptPath), "..");
+const defaultRoot = resolve(dirname(scriptPath), "../..");
 const squashfsMagic = Buffer.from("hsqs", "ascii");
 const tauriAppImageExecutableHashes = new Map([
   ["linuxdeploy-x86_64.AppImage", "eb6fec35c90d4e5a271d00abfc84fdfaf47256d75ab4a66be99fbf05dbf99099"],
@@ -86,7 +86,7 @@ function parseArgs(argv) {
 }
 
 function printHelp() {
-  console.log(`Usage: node scripts/build-linux-appimage.mjs [options]
+  console.log(`Usage: node scripts/platform/build-linux-appimage.mjs [options]
 
 Build the Linux Tauri packages, then recover AppImage packaging with a
 linuxdeploy fallback when Tauri leaves a valid AppDir but linuxdeploy exits on

@@ -394,7 +394,7 @@ test("source boundaries reject missing JobsWithGPT request ledger", () => {
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/main.rs",
+      "src-tauri/src/app.rs",
       "commands::health::get_scraper_runs,\n",
     );
     writeFixtureFile(
@@ -437,7 +437,7 @@ test("source boundaries reject missing JobsWithGPT request ledger", () => {
       true,
     );
     assert.equal(
-      hasJobsWithGptMissingRequestLedger(root, "src-tauri/src/main.rs"),
+      hasJobsWithGptMissingRequestLedger(root, "src-tauri/src/app.rs"),
       true,
     );
     assert.equal(

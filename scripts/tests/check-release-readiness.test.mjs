@@ -7,7 +7,7 @@ import {
   formatReleaseReadinessReport,
   loadReleaseReadinessInputs,
   parseArgs,
-} from "../check-release-readiness.mjs";
+} from "../release/check-release-readiness.mjs";
 
 test("release readiness accepts the current local v2.9.1 gate posture", () => {
   const report = evaluateReleaseReadiness({ env: {} });

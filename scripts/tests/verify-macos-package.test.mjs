@@ -6,7 +6,7 @@ import test from "node:test";
 import {
   developerIdSignatureViolations,
   parseCodesignDetails,
-} from "../macos-signature.mjs";
+} from "../platform/macos-signature.mjs";
 import {
   buildGatekeeperAssessArgs,
   buildMacosOpenArgs,
@@ -25,7 +25,7 @@ import {
   parseSha256Checksum,
   smokeDataPermissionViolations,
   verifyLocalDmgChecksum,
-} from "../verify-macos-package.mjs";
+} from "../release/verify-macos-package.mjs";
 
 test("macOS verifier parses positional and flagged DMG arguments", () => {
   assert.deepEqual(parseArgs(["build.dmg"], "arm64"), {

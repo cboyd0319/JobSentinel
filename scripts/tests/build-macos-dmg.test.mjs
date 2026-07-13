@@ -26,7 +26,7 @@ import {
   stripMacosTauriBuildSecrets,
   staleDmgArtifactNames,
   verifyDmgWithRetry,
-} from "../build-macos-dmg.mjs";
+} from "../platform/build-macos-dmg.mjs";
 
 test("macOS DMG builder defaults to app bundle builds", () => {
   assert.deepEqual(buildTauriArgs([]), ["build", "--bundles", "app"]);

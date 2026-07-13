@@ -9,7 +9,7 @@ import {
   generateReleaseSbom,
   npmSbom,
   parseCargoLock,
-} from "../generate-release-sbom.mjs";
+} from "../release/generate-release-sbom.mjs";
 
 const minimalNpmSbom = {
   spdxVersion: "SPDX-2.3",

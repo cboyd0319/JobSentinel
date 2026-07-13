@@ -6,10 +6,10 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSy
 import { basename, dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
-import { checkAgentSkills } from "./check-agent-skills.mjs";
+import { checkAgentSkills } from "../check-agent-skills.mjs";
 
 const scriptPath = fileURLToPath(import.meta.url);
-const defaultRoot = resolve(dirname(scriptPath), "..");
+const defaultRoot = resolve(dirname(scriptPath), "../..");
 
 function getArgValue(args, name) {
   const exactIndex = args.indexOf(name);

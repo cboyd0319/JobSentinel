@@ -23,7 +23,7 @@ import {
 } from "./macos-signature.mjs";
 
 const scriptPath = fileURLToPath(import.meta.url);
-const defaultRoot = resolve(dirname(scriptPath), "..");
+const defaultRoot = resolve(dirname(scriptPath), "../..");
 
 export function hasArg(args, name) {
   return args.some((arg) => arg === name || arg.startsWith(`${name}=`));

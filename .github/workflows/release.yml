@@ -719,7 +719,7 @@ jobs:
         if: matrix.platform == 'ubuntu-24.04'
         env:
           APPIMAGE_EXTRACT_AND_RUN: "1"
-        run: node scripts/build-linux-appimage.mjs --target ${{ matrix.target }}
+        run: node scripts/platform/build-linux-appimage.mjs --target ${{ matrix.target }}
 
       - name: Clean Windows signing material
         if: always() && matrix.platform == 'windows-2025'

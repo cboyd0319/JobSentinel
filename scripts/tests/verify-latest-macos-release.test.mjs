@@ -11,7 +11,7 @@ import {
   validateReleaseSbomManifest,
   validateMacosAssetLabel,
   verifyGitHubAttestation,
-} from "../verify-latest-macos-release.mjs";
+} from "../release/verify-latest-macos-release.mjs";
 
 test("latest macOS release verifier defaults to no-account public checks", () => {
   assert.deepEqual(parseArgs([]), {

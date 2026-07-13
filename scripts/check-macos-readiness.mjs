@@ -292,9 +292,9 @@ export function evaluateMacosReadiness({ root = defaultRoot, env = process.env }
   const readme = read(root, "README.md");
   const releaseWorkflow = read(root, ".github/workflows/release.yml");
   const verifyWorkflow = read(root, ".github/workflows/verify-release-artifacts.yml");
-  const buildScript = read(root, "scripts/build-macos-dmg.mjs");
-  const packageVerifier = read(root, "scripts/verify-macos-package.mjs");
-  const latestVerifier = read(root, "scripts/verify-latest-macos-release.mjs");
+  const buildScript = read(root, "scripts/platform/build-macos-dmg.mjs");
+  const packageVerifier = read(root, "scripts/release/verify-macos-package.mjs");
+  const latestVerifier = read(root, "scripts/release/verify-latest-macos-release.mjs");
   const releaseDocs = read(root, "docs/developer/RELEASING.md");
   const macDocs = read(root, "docs/developer/MACOS_DEVELOPMENT.md");
   const buildTests = read(root, "scripts/tests/build-macos-dmg.test.mjs");
@@ -306,9 +306,9 @@ export function evaluateMacosReadiness({ root = defaultRoot, env = process.env }
     criterion(
       "package scripts expose macOS build and verification",
       6,
-      scripts["tauri:build:macos"] === "node scripts/build-macos-dmg.mjs" &&
-        scripts["tauri:verify:macos"] === "node scripts/verify-macos-package.mjs" &&
-        scripts["tauri:verify:macos:latest"] === "node scripts/verify-latest-macos-release.mjs" &&
+      scripts["tauri:build:macos"] === "node scripts/platform/build-macos-dmg.mjs" &&
+        scripts["tauri:verify:macos"] === "node scripts/release/verify-macos-package.mjs" &&
+        scripts["tauri:verify:macos:latest"] === "node scripts/release/verify-latest-macos-release.mjs" &&
         scripts["macos:readiness"] === "node scripts/check-macos-readiness.mjs",
       "Repo must expose maintained local, public, and readiness checks.",
     ),

@@ -57,7 +57,7 @@ cd ..
 The Tauri CLI builds both the frontend and the Rust backend:
 
 ```bash
-node scripts/build-linux-appimage.mjs --target x86_64-unknown-linux-gnu
+node scripts/platform/build-linux-appimage.mjs --target x86_64-unknown-linux-gnu
 ```
 
 The AppImage wrapper keeps `APPIMAGE_EXTRACT_AND_RUN=1` enabled, uses Tauri's
@@ -216,7 +216,7 @@ docker run -it --rm \
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y && \
     source ~/.cargo/env && \
     node scripts/install-pinned-npm.mjs && \
-    npm ci --ignore-scripts && node scripts/build-linux-appimage.mjs --target x86_64-unknown-linux-gnu"
+    npm ci --ignore-scripts && node scripts/platform/build-linux-appimage.mjs --target x86_64-unknown-linux-gnu"
 ```
 
 ## Signing and Auto-Updates
