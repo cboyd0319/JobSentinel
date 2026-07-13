@@ -55,7 +55,7 @@ scraper = "=0.27.0"
 urlencoding = "=2.1.3"
 
 # Regular expressions for pattern matching
-regex = "=1.12.4"
+regex = "=1.13.0"
 
 # Database
 sqlx = { version = "=0.9.0", default-features = false, features = ["runtime-tokio", "tls-rustls", "sqlite", "migrate", "chrono", "macros"] }
