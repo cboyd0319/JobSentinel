@@ -13,7 +13,7 @@ import {
   revealSavedFeedbackFile,
   formatDebugInfo,
 } from "../../../../services/feedbackService";
-import { logError } from "../../../../utils/errorUtils";
+import { logError } from "../../../../shared/errorReporting/logger";
 
 export type FeedbackStep = "category" | "description" | "review" | "submit" | "success";
 

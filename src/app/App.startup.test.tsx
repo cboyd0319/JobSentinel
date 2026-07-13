@@ -7,7 +7,7 @@ import * as feedbackService from "../services/feedbackService";
 
 const mockInvoke = vi.mocked(invoke);
 
-vi.mock("../utils/errorUtils", () => ({
+vi.mock("../shared/errorReporting/logger", () => ({
   logError: vi.fn(),
 }));
 

@@ -1,25 +1,7 @@
 import {
   sanitizeContext,
   sanitizeTextForStorage,
-} from "../shared/errorReporting/errorReporter";
-import { getUserFriendlyError } from "./errorMessages";
-
-/**
- * Extract a user-friendly error message from an unknown error.
- *
- * This helper is display-safe. It must not return raw exception text because
- * caught errors can include paths, tokens, emails, provider responses, or local
- * job-search details.
- *
- * @param error - The caught error (unknown type from catch block)
- * @returns A string message suitable for displaying to users
- */
-export function getErrorMessage(error: unknown): string {
-  const friendly = getUserFriendlyError(error);
-  return friendly.action
-    ? `${friendly.message}\n\n${friendly.action}`
-    : friendly.message;
-}
+} from "./errorReporter";
 
 /**
  * Log an error in development, optionally with context.

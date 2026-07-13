@@ -1,4 +1,4 @@
-import { getUserFriendlyError } from "../../../utils/errorMessages";
+import { getUserFriendlyError } from "../../../shared/errorReporting/messages";
 import type {
   IssueSeverity,
   RequirementMatchState,

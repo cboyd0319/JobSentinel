@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getSafeErrorToastCopy } from "./safeErrorCopy";
+import { getSafeErrorToastCopy } from "./safeToastCopy";
 
 describe("getSafeErrorToastCopy", () => {
   it("uses contextual fallback copy without exposing raw private error values", () => {

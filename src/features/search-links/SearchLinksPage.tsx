@@ -6,7 +6,7 @@ import {
   type SearchCriteria,
   SiteCategory,
 } from "../../shared/search-links";
-import { logError } from "../../utils/errorUtils";
+import { logError } from "../../shared/errorReporting/logger";
 import { SearchLinksForm } from "./SearchLinksForm";
 import { SearchLinksResults } from "./SearchLinksResults";
 

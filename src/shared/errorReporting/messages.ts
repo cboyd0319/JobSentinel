@@ -5,13 +5,13 @@
  * helping them understand what went wrong and what they can do about it.
  */
 
-import { sanitizeTextForStorage } from '../shared/errorReporting/errorReporter';
+import { sanitizeTextForStorage } from './errorReporter';
 
 export interface UserFriendlyError {
   title: string;
   message: string;
   action?: string;
-  technical?: string; // Original error for debugging
+  technical?: string;
 }
 
 /**

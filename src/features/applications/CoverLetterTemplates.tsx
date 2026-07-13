@@ -6,9 +6,9 @@ import { Modal, ModalFooter } from '../../ui/Modal';
 import { useToast } from '../../shared/toast/useToast';
 import { useUndo } from '../../shared/undo/useUndo';
 import { LoadingSpinner } from '../../ui/LoadingSpinner';
-import { logError } from '../../utils/errorUtils';
+import { logError } from '../../shared/errorReporting/logger';
 import type { JobForTemplate } from './coverLetterTemplate';
-import { getUserFriendlyError } from '../../utils/errorMessages';
+import { getUserFriendlyError } from '../../shared/errorReporting/messages';
 import { CoverLetterReviewChecklist } from './CoverLetterReviewChecklist';
 import {
   CATEGORY_LABELS,

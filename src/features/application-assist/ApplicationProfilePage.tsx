@@ -5,7 +5,7 @@ import { Skeleton } from "../../ui/Skeleton";
 import { ProfileForm } from "./ProfileForm";
 import { ScreeningAnswersForm } from "./ScreeningAnswersForm";
 import { invoke } from "@tauri-apps/api/core";
-import { logError } from "../../utils/errorUtils";
+import { logError } from "../../shared/errorReporting/logger";
 import { useToast } from "../../shared/toast/useToast";
 
 interface ApplicationProfileProps {

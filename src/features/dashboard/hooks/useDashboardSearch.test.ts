@@ -3,7 +3,7 @@ import { renderHook, waitFor } from "@testing-library/react";
 import { invoke } from "@tauri-apps/api/core";
 import { useDashboardSearch } from "./useDashboardSearch";
 
-vi.mock("../../../utils/errorUtils", () => ({
+vi.mock("../../../shared/errorReporting/logger", () => ({
   logError: vi.fn(),
 }));
 

@@ -4,7 +4,7 @@ export { join } from "node:path";
 export const frontendErrorReportingPaths = new Set([
   "src/shared/errorReporting/errorReporter.ts",
 ]);
-export const frontendErrorUtilsPaths = new Set(["src/utils/errorUtils.ts"]);
+export const frontendErrorLoggerPaths = new Set(["src/shared/errorReporting/logger.ts"]);
 export const frontendToastSupportDetailPaths = new Set(["src/utils/api.ts"]);
 export const frontendDirectErrorLoggingPaths = new Set([
   "src/features/settings/sources/browser-import/BrowserImportSection.tsx",

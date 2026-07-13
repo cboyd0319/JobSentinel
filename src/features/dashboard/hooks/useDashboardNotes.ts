@@ -3,7 +3,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { useToast } from "../../../shared/toast/useToast";
 import { useUndo } from "../../../shared/undo/useUndo";
 import { invalidateCacheByCommand, safeInvokeWithToast } from "../../../utils/api";
-import { logError } from "../../../utils/errorUtils";
+import { logError } from "../../../shared/errorReporting/logger";
 import { recordJobLearningSignal } from "../dashboardJobLearning";
 import type { Job } from "../types";
 

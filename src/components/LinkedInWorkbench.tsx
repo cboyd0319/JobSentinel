@@ -25,7 +25,7 @@ import {
   type LinkedInWorkbenchEventType,
   type LinkedInWorkbenchPrefill,
 } from "../shared/linkedinWorkbench";
-import { logError } from "../utils/errorUtils";
+import { logError } from "../shared/errorReporting/logger";
 
 const LINKEDIN_JOBS_URL = "https://www.linkedin.com/jobs/";
 const LINKEDIN_TRACKER_URL = "https://www.linkedin.com/jobs-tracker/?stage=applied";

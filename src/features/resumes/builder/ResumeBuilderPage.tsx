@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import { useToast } from "../../../shared/toast/useToast";
 import { safeInvoke, safeInvokeWithToast } from "../../../utils/api";
-import { getSafeErrorToastCopy } from "../../../utils/safeErrorCopy";
+import { getSafeErrorToastCopy } from "../../../shared/errorReporting/safeToastCopy";
 import { hasStoredResumeJobContext } from "../shared/resumeJobContext";
 import { mapSkillProficiencyLevel } from "../shared/resumeSkillUiTaxonomy";
 import {

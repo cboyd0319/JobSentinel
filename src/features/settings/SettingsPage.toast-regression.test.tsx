@@ -8,11 +8,11 @@ import { DEFAULT_EXTERNAL_AI_CONFIG } from "./config/SettingsConfig";
 
 const mockInvoke = vi.mocked(invoke);
 
-vi.mock("../../utils/errorUtils", () => ({
+vi.mock("../../shared/errorReporting/logger", () => ({
   logError: vi.fn(),
 }));
 
-vi.mock("../../utils/errorMessages", () => ({
+vi.mock("../../shared/errorReporting/messages", () => ({
   getUserFriendlyError: (err: unknown) => ({
     title: "Error",
     message: String(err),

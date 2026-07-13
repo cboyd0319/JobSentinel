@@ -17,7 +17,7 @@ vi.mock("@tauri-apps/api/core", () => ({
 }));
 
 // Mock error utils
-vi.mock("../../../../utils/errorUtils", () => ({
+vi.mock("../../../../shared/errorReporting/logger", () => ({
   logError: vi.fn(),
 }));
 

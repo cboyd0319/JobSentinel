@@ -9,7 +9,7 @@ import {
 } from 'recharts';
 import { Card } from '../../../ui/Card';
 import { LoadingSpinner } from '../../../ui/LoadingSpinner';
-import { logError } from '../../../utils/errorUtils';
+import { logError } from '../../../shared/errorReporting/logger';
 import { getJobSourceGuidance } from '../../../utils/sourceLabels';
 
 // Extracted constant to prevent re-creating object on each render

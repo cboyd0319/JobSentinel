@@ -119,7 +119,7 @@ export function getTechnicalFirstUiResult(path, text) {
     return /Operation Failed|Support details:|An error occurred/i.test(text);
   }
 
-  if (path === "src/utils/errorMessages.ts") {
+  if (path === "src/shared/errorReporting/messages.ts") {
     return /Notification Setup Failed|Slack Notification Failed|Discord Notification Failed|Teams Notification Failed|Email Notification Failed|Reminder Setup Failed|API key|API Limit|The database is currently in use|Configuration Missing|configuration file|webhook URL|SMTP credentials|contact support|technical:\s*technicalMessage|JSON\.stringify\(error\)|Try refreshing|restart the app|Check your internet connection and try again\.'|system date\/?time|system date and time|Try again in 10-15 minutes|Check your notification settings and try again\.'|Website Format Changed|Job Source Disabled|currently disabled|More Settings|View Job Sources|stopped accepting more requests|Security Certificate Issue|Resume Analysis Problem|analysis service|No resume has been uploaded|Upload your resume/i.test(
       text,
     );

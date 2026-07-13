@@ -306,7 +306,7 @@ test("privacy logging rejects raw frontend error forwarding", () => {
     );
 
     assert.equal(hasRawFrontendErrorReporterForwarding(root, "src/shared/errorReporting/errorReporter.ts"), true);
-    assert.equal(hasRawFrontendErrorReporterForwarding(root, "src/utils/errorUtils.ts"), false);
+    assert.equal(hasRawFrontendErrorReporterForwarding(root, "src/shared/errorReporting/logger.ts"), false);
   });
 });
 
@@ -337,7 +337,7 @@ test("privacy logging rejects unsafe frontend error report storage", () => {
       hasHardcodedFrontendErrorExportVersion(root, "src/shared/errorReporting/errorReporter.ts"),
       true,
     );
-    assert.equal(hasUnsafeErrorReportStorageParsing(root, "src/utils/errorUtils.ts"), false);
+    assert.equal(hasUnsafeErrorReportStorageParsing(root, "src/shared/errorReporting/logger.ts"), false);
   });
 });
 
@@ -402,7 +402,7 @@ test("privacy logging rejects raw shared and direct frontend error logging", () 
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src/utils/errorUtils.ts",
+      "src/shared/errorReporting/logger.ts",
       [
         "export function getErrorMessage(error) {",
         "  return error.message;",
@@ -413,12 +413,12 @@ test("privacy logging rejects raw shared and direct frontend error logging", () 
     );
     writeFixtureFile(root, "src/app/errors/ErrorBoundary.tsx", "console.error(error);");
 
-    assert.equal(hasRawFrontendSharedErrorLogging(root, "src/utils/errorUtils.ts"), true);
+    assert.equal(hasRawFrontendSharedErrorLogging(root, "src/shared/errorReporting/logger.ts"), true);
     assert.equal(
       hasRawFrontendDirectErrorLogging(root, "src/app/errors/ErrorBoundary.tsx"),
       true,
     );
-    assert.equal(hasRawFrontendDirectErrorLogging(root, "src/utils/errorUtils.ts"), false);
+    assert.equal(hasRawFrontendDirectErrorLogging(root, "src/shared/errorReporting/logger.ts"), false);
   });
 });
 
@@ -439,12 +439,12 @@ test("privacy logging rejects raw frontend toast support details", () => {
     );
     writeFixtureFile(
       root,
-      "src/utils/errorUtils.ts",
+      "src/shared/errorReporting/logger.ts",
       "const fullMessage = enhancedError.message;",
     );
 
     assert.equal(hasRawFrontendToastSupportDetails(root, "src/utils/api.ts"), true);
-    assert.equal(hasRawFrontendToastSupportDetails(root, "src/utils/errorUtils.ts"), false);
+    assert.equal(hasRawFrontendToastSupportDetails(root, "src/shared/errorReporting/logger.ts"), false);
     assert.deepEqual(collectPrivacyLoggingViolations(root, "src/utils/api.ts"), [
       "sanitize frontend toast support details: src/utils/api.ts",
     ]);

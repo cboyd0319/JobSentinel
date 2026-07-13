@@ -212,7 +212,7 @@ test("checkRepoBloat rejects raw shared frontend error logging", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src/utils/errorUtils.ts",
+      "src/shared/errorReporting/logger.ts",
       [
         "export function logError(message, error) {",
         "  console.error(message, error);",
@@ -221,7 +221,7 @@ test("checkRepoBloat rejects raw shared frontend error logging", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "src/utils/errorUtils.ts"], {
+    execFileSync("git", ["add", "package.json", "src/shared/errorReporting/logger.ts"], {
       cwd: root,
     });
 
@@ -229,7 +229,7 @@ test("checkRepoBloat rejects raw shared frontend error logging", () => {
 
     assert.ok(
       violations.includes(
-        "sanitize shared frontend error logging: src/utils/errorUtils.ts",
+        "sanitize shared frontend error logging: src/shared/errorReporting/logger.ts",
       ),
       violations.join("\n"),
     );
@@ -241,7 +241,7 @@ test("checkRepoBloat rejects raw shared frontend error messages", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src/utils/errorUtils.ts",
+      "src/shared/errorReporting/logger.ts",
       [
         "export function getErrorMessage(error) {",
         "  if (error instanceof Error) return error.message;",
@@ -255,7 +255,7 @@ test("checkRepoBloat rejects raw shared frontend error messages", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "src/utils/errorUtils.ts"], {
+    execFileSync("git", ["add", "package.json", "src/shared/errorReporting/logger.ts"], {
       cwd: root,
     });
 
@@ -263,7 +263,7 @@ test("checkRepoBloat rejects raw shared frontend error messages", () => {
 
     assert.ok(
       violations.includes(
-        "sanitize shared frontend error logging: src/utils/errorUtils.ts",
+        "sanitize shared frontend error logging: src/shared/errorReporting/logger.ts",
       ),
       violations.join("\n"),
     );

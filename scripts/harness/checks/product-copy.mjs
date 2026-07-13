@@ -139,7 +139,7 @@ const feedbackLocalReportPaths = new Set([
   "src-tauri/src/commands/feedback/report.rs",
   "src-tauri/src/core/health/smoke_tests.rs",
   "src/mocks/handlers.ts",
-  "src/utils/errorMessages.ts",
+  "src/shared/errorReporting/messages.ts",
 ]);
 
 const feedbackDebugEventFormattingPaths = new Set([
@@ -318,8 +318,8 @@ const technicalFirstUserCopyPaths = new Set([
   "src/features/onboarding/SetupWizard.tsx",
   "src/features/onboarding/SetupWizardSearchSummary.tsx",
   "src/features/onboarding/setupWizardPreferences.ts",
-  "src/utils/errorMessages.ts",
-  "src/utils/safeErrorCopy.ts",
+  "src/shared/errorReporting/messages.ts",
+  "src/shared/errorReporting/safeToastCopy.ts",
   "src/utils/formValidation.ts",
   "src/utils/sourceLabels.ts",
   "tests/e2e/playwright/application-tracking.spec.ts",

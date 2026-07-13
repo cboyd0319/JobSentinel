@@ -17,7 +17,7 @@ import { Button } from "../../ui/Button";
 import { Card } from "../../ui/Card";
 import { useToast } from "../../shared/toast/useToast";
 import { useUndo } from "../../shared/undo/useUndo";
-import { logError } from "../../utils/errorUtils";
+import { logError } from "../../shared/errorReporting/logger";
 import { formatEventDate } from "../../utils/formatUtils";
 import {
   findApplicationById,

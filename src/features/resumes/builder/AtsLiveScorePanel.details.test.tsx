@@ -9,7 +9,7 @@ vi.mock("@tauri-apps/api/core", () => ({
   invoke: (...args: unknown[]) => mockInvoke(...args),
 }));
 
-vi.mock("../../../utils/errorUtils", () => ({
+vi.mock("../../../shared/errorReporting/logger", () => ({
   logError: vi.fn(),
 }));
 

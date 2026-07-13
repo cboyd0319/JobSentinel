@@ -1,4 +1,4 @@
-import { getUserFriendlyError } from "../../utils/errorMessages";
+import { getUserFriendlyError } from "../../shared/errorReporting/messages";
 import { formatCurrency } from "../../utils/formatUtils";
 
 export interface SalaryBenchmark {

@@ -7,8 +7,8 @@ import { ScraperHealthDashboard } from "./sources/health/ScraperHealthDashboard"
 import { FeedbackModal } from "./support/feedback/FeedbackModal";
 import { BrowserImportSection } from "./sources/browser-import/BrowserImportSection";
 import { useToast } from "../../shared/toast/useToast";
-import { logError } from "../../utils/errorUtils";
-import { getUserFriendlyError } from "../../utils/errorMessages";
+import { logError } from "../../shared/errorReporting/logger";
+import { getUserFriendlyError } from "../../shared/errorReporting/messages";
 import { normalizeRestrictedSourceAcknowledgements } from "../../shared/restrictedSourceTaxonomy";
 import {
   cacheDetectedLocation,

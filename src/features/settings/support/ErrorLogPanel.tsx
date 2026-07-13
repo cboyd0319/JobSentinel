@@ -8,7 +8,7 @@ import {
   type ErrorReport,
 } from '../../../shared/errorReporting/errorReporter';
 import { copySanitizedDebugReport, saveSanitizedDebugReport } from '../../../services/feedbackService';
-import { logError } from '../../../utils/errorUtils';
+import { logError } from '../../../shared/errorReporting/logger';
 
 const TYPE_LABELS: Record<ErrorReport['type'], { label: string; variant: 'danger' | 'alert' | 'surface' }> = {
   render: { label: 'Screen', variant: 'danger' },

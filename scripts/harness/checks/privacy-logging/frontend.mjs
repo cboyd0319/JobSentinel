@@ -3,7 +3,7 @@ import {
   readFileSync,
   join,
   frontendErrorReportingPaths,
-  frontendErrorUtilsPaths,
+  frontendErrorLoggerPaths,
   frontendToastSupportDetailPaths,
   frontendDirectErrorLoggingPaths,
   rawPrivateQueryLoggingPaths,
@@ -144,7 +144,7 @@ export function hasRawFrontendErrorHelperUserMessage(root, path) {
 }
 
 export function hasRawFrontendSharedErrorLogging(root, path) {
-  if (!frontendErrorUtilsPaths.has(path)) {
+  if (!frontendErrorLoggerPaths.has(path)) {
     return false;
   }
 
@@ -166,7 +166,6 @@ export function hasRawFrontendSharedErrorLogging(root, path) {
     /\breturn\s+(?:error\.message|error|String\(\s*\([^)]*message|String\(\s*error)/.test(
       getErrorMessageBody,
     ) ||
-    !text.includes("getUserFriendlyError") ||
     !text.includes("sanitizeLoggedError") ||
     !text.includes("sanitizeTextForStorage") ||
     !text.includes("sanitizeContext")

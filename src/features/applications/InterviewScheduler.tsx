@@ -8,7 +8,7 @@ import {
 import { Modal } from "../../ui/Modal";
 import { useToast } from "../../shared/toast/useToast";
 import { MIN_INTERVIEW_DURATION, MAX_INTERVIEW_DURATION } from "../../utils/constants";
-import { getSafeErrorToastCopy } from "../../utils/safeErrorCopy";
+import { getSafeErrorToastCopy } from "../../shared/errorReporting/safeToastCopy";
 import { downloadInterviewICalFile } from "./InterviewCalendarExport";
 import {
   InterviewSchedulerTabs,

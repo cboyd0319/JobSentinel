@@ -235,8 +235,12 @@ export async function safeInvoke<T>(
     return await invoke<T>(cmd, args);
   } catch (error: unknown) {
     // Import utilities here to avoid circular dependencies
-    const { logError: log } = await import("./errorUtils");
-    const { getUserFriendlyError } = await import("./errorMessages");
+    const { logError: log } = await import(
+      "../shared/errorReporting/logger"
+    );
+    const { getUserFriendlyError } = await import(
+      "../shared/errorReporting/messages"
+    );
 
     const context = options?.logContext || `invoke(${cmd})`;
 

@@ -26,9 +26,8 @@ vi.mock("../../shared/toast/useToast", () => ({
 }));
 
 // Mock logError
-vi.mock("../../utils/errorUtils", () => ({
+vi.mock("../../shared/errorReporting/logger", () => ({
   logError: vi.fn(),
-  getErrorMessage: (err: Error) => err.message,
 }));
 
 // Mock URL methods for calendar reminder download

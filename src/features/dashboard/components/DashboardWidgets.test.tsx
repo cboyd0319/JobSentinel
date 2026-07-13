@@ -41,7 +41,7 @@ vi.mock("recharts", () => ({
 }));
 
 // Mock logError
-vi.mock("../../../utils/errorUtils", () => ({
+vi.mock("../../../shared/errorReporting/logger", () => ({
   logError: vi.fn(),
 }));
 

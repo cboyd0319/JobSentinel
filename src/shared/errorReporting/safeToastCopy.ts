@@ -1,4 +1,4 @@
-import { getUserFriendlyError } from "./errorMessages";
+import { getUserFriendlyError } from "./messages";
 
 const GENERIC_ERROR_TITLE = "JobSentinel needs attention";
 const GENERIC_ERROR_MESSAGE = "JobSentinel ran into a problem.";

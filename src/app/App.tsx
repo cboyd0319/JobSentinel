@@ -15,7 +15,7 @@ import { useOnboarding } from "./onboarding/useOnboarding";
 import { Navigation } from "./Navigation";
 import { KeyboardShortcutsProvider } from "./keyboard/KeyboardShortcutsProvider";
 import { useKeyboardShortcuts } from "./keyboard/useKeyboardShortcuts";
-import { logError } from "../utils/errorUtils";
+import { logError } from "../shared/errorReporting/logger";
 import { defaultTourSteps } from "./onboarding/tourSteps";
 import {
   copySanitizedDebugReport,

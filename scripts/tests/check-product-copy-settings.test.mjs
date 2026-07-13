@@ -402,7 +402,7 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/utils/errorMessages.ts",
+      "src/shared/errorReporting/messages.ts",
       [
         "Something Went Wrong",
         "An unexpected error occurred.",
@@ -535,7 +535,7 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/utils/safeErrorCopy.ts",
+      "src/shared/errorReporting/safeToastCopy.ts",
       'const GENERIC_ERROR_TITLE = "Something Went Wrong";\n',
     );
     writeFixtureFile(
@@ -706,7 +706,7 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/utils/errorMessages.ts",
+      "src/shared/errorReporting/messages.ts",
       [
         "Something Went Wrong",
         "An unexpected error occurred.",
@@ -854,11 +854,11 @@ test("product copy rejects technical-first settings copy", () => {
       "src/features/dashboard/hooks/useDashboardJobOps.ts",
       "src/services/aiGateway.ts",
       "src/utils/api.ts",
-      "src/utils/errorMessages.ts",
+      "src/shared/errorReporting/messages.ts",
       "src/utils/export.test.ts",
       "src/utils/export.ts",
       "src/utils/formValidation.ts",
-      "src/utils/safeErrorCopy.ts",
+      "src/shared/errorReporting/safeToastCopy.ts",
       "src/utils/sourceLabels.ts",
     ]);
     assertNoTechnicalFirstCopy(root, [

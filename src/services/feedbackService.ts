@@ -1,5 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
-import { logError } from "../utils/errorUtils";
+import { logError } from "../shared/errorReporting/logger";
 import {
   errorReporter,
   sanitizeContext,

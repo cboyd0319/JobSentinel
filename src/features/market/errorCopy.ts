@@ -1,4 +1,4 @@
-import { getUserFriendlyError } from "../../utils/errorMessages";
+import { getUserFriendlyError } from "../../shared/errorReporting/messages";
 
 export function getMarketDataErrorCopy(error: unknown) {
   const friendly = getUserFriendlyError(error);

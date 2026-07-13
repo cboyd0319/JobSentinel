@@ -4,7 +4,7 @@ import {
   copySanitizedDebugReport,
   saveSanitizedDebugReport,
 } from "../../../services/feedbackService";
-import { logError } from "../../../utils/errorUtils";
+import { logError } from "../../../shared/errorReporting/logger";
 
 export function useSettingsSupportReports(toast: ToastContextType) {
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);

@@ -2,7 +2,7 @@ import {
   readFileSync,
   join,
   frontendErrorReportingPaths,
-  frontendErrorUtilsPaths,
+  frontendErrorLoggerPaths,
   frontendToastSupportDetailPaths,
   frontendDirectErrorLoggingPaths,
   rawPrivateQueryLoggingPaths,

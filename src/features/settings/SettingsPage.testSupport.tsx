@@ -18,11 +18,11 @@ vi.mock("../../shared/toast/useToast", () => ({
   useToast: () => mockToast,
 }));
 
-vi.mock("../../utils/errorUtils", () => ({
+vi.mock("../../shared/errorReporting/logger", () => ({
   logError: vi.fn(),
 }));
 
-vi.mock("../../utils/errorMessages", () => ({
+vi.mock("../../shared/errorReporting/messages", () => ({
   getUserFriendlyError: (err: unknown) => ({
     title: "Error",
     message: String(err),

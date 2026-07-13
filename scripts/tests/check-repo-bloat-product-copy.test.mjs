@@ -450,7 +450,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/utils/errorMessages.ts",
+      "src/shared/errorReporting/messages.ts",
       [
         '"Your credentials or API key aren\'t working."',
         '"API Limit Reached"',
@@ -589,7 +589,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         "src/mocks/handlers.ts",
         "src/mocks/handlers/atsPlatform.ts",
         "src/utils/formValidation.ts",
-        "src/utils/errorMessages.ts",
+        "src/shared/errorReporting/messages.ts",
         "docs/features/notifications.md",
         "docs/features/application-assist.md",
         "docs/features/job-sources.md",
@@ -646,7 +646,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "src/mocks/handlers.ts",
       "src/mocks/handlers/atsPlatform.ts",
       "src/utils/formValidation.ts",
-      "src/utils/errorMessages.ts",
+      "src/shared/errorReporting/messages.ts",
       "README.md",
       "docs/features/notifications.md",
       "docs/features/application-assist.md",

@@ -5,7 +5,7 @@ import { Card } from "../../../../ui/Card";
 import { Badge } from "../../../../ui/Badge";
 import { HelpIcon } from "../../../../ui/HelpIcon";
 import { recordBrowserAssistLearningSignalIfEnabled } from "../../../../shared/browserAssistLearning";
-import { logError } from "../../../../utils/errorUtils";
+import { logError } from "../../../../shared/errorReporting/logger";
 import {
   BrowserImportControls,
   MAX_BROWSER_IMPORT_PORT,

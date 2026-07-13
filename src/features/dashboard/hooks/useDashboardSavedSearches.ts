@@ -13,7 +13,7 @@ import type {
 import { useToast } from "../../../shared/toast/useToast";
 import { useUndo } from "../../../shared/undo/useUndo";
 import { safeInvoke, safeInvokeWithToast } from "../../../utils/api";
-import { getSafeErrorToastCopy } from "../../../utils/safeErrorCopy";
+import { getSafeErrorToastCopy } from "../../../shared/errorReporting/safeToastCopy";
 import { recordBrowserAssistLearningSignalIfEnabled } from "../../../shared/browserAssistLearning";
 
 type BackendSavedSearch = {

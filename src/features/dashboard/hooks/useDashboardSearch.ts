@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { logError } from "../../../utils/errorUtils";
+import { logError } from "../../../shared/errorReporting/logger";
 
 const SEARCH_HISTORY_LIMIT = 20;
 

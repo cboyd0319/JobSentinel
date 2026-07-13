@@ -7,9 +7,9 @@ import {
   isValidationError,
   getErrorSummary,
   createUserError,
-} from "./errorMessages";
+} from "./messages";
 
-describe("errorMessages", () => {
+describe("messages", () => {
   describe("getUserFriendlyError", () => {
     it("handles network errors", () => {
       const result = getUserFriendlyError(new Error("network timeout"));

@@ -12,8 +12,8 @@ import { invoke } from "@tauri-apps/api/core";
 import { Badge } from "../../../ui/Badge";
 import { Button } from "../../../ui/Button";
 import { Tooltip } from "../../../ui/Tooltip";
-import { logError } from "../../../utils/errorUtils";
-import { getUserFriendlyError } from "../../../utils/errorMessages";
+import { logError } from "../../../shared/errorReporting/logger";
+import { getUserFriendlyError } from "../../../shared/errorReporting/messages";
 import type { SkillProficiency } from "../shared/resumeSkillUiTaxonomy";
 import {
   getScoreBg,

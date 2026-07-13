@@ -25,7 +25,7 @@ vi.mock("../../../shared/undo/useUndo", () => ({
   useUndo: () => ({ pushAction: mockPushAction }),
 }));
 
-vi.mock("../../../utils/errorUtils", () => ({ logError: vi.fn() }));
+vi.mock("../../../shared/errorReporting/logger", () => ({ logError: vi.fn() }));
 vi.mock("../../../utils/export", () => ({ exportJobsToCSV: vi.fn() }));
 vi.mock("../../../utils/api", () => ({
   invalidateCacheByCommand: vi.fn(),

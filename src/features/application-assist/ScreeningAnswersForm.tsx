@@ -8,7 +8,7 @@ import { Modal, ModalFooter } from "../../ui/Modal";
 import { useToast } from "../../shared/toast/useToast";
 import { safeInvoke, safeInvokeWithToast } from "../../utils/api";
 import { validateRequired, validateRequiredQuestionWording } from "../../utils/formValidation";
-import { getSafeErrorToastCopy } from "../../utils/safeErrorCopy";
+import { getSafeErrorToastCopy } from "../../shared/errorReporting/safeToastCopy";
 import { getHardScreeningAnswerGuidance } from "./screeningReviewGuidance";
 
 // Lookup object for answer type badges (better performance than switch)

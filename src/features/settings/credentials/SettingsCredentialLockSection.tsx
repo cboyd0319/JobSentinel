@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Button } from "../../../ui/Button";
 import { HelpIcon } from "../../../ui/HelpIcon";
 import { useToast } from "../../../shared/toast/useToast";
-import { logError } from "../../../utils/errorUtils";
+import { logError } from "../../../shared/errorReporting/logger";
 import {
   disableCredentialPassphrase,
   enableCredentialPassphrase,

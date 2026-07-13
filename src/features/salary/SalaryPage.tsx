@@ -2,7 +2,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { useCallback, useState } from "react";
 import { useToast } from "../../shared/toast/useToast";
 import { getPayFloorBenchmarkGuidance } from "../../shared/payFloorBenchmarkGuidance";
-import { logError } from "../../utils/errorUtils";
+import { logError } from "../../shared/errorReporting/logger";
 import { formatCurrency } from "../../utils/formatUtils";
 import { NegotiationNotesCard } from "./NegotiationNotesCard";
 import { SalaryEvidenceCard } from "./SalaryEvidenceCard";

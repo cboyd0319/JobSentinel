@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { logError } from "../../../utils/errorUtils";
-import { getUserFriendlyError } from "../../../utils/errorMessages";
+import { logError } from "../../../shared/errorReporting/logger";
+import { getUserFriendlyError } from "../../../shared/errorReporting/messages";
 import type {
   GhostConfig,
   GhostPresetSelection,

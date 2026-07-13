@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState, type Dispatch, type SetStateAction } from "react";
 import { useToast } from "../../../shared/toast/useToast";
 import { safeInvoke } from "../../../utils/api";
-import { getSafeErrorToastCopy } from "../../../utils/safeErrorCopy";
+import { getSafeErrorToastCopy } from "../../../shared/errorReporting/safeToastCopy";
 import {
   downloadResumeDocx,
   downloadResumeJson,

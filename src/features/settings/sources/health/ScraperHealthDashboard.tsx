@@ -5,7 +5,7 @@ import { Badge } from "../../../../ui/Badge";
 import { StatCard } from "../../../../ui/StatCard";
 import { LoadingSpinner } from "../../../../ui/LoadingSpinner";
 import { Modal } from "../../../../ui/Modal";
-import { getUserFriendlyError } from "../../../../utils/errorMessages";
+import { getUserFriendlyError } from "../../../../shared/errorReporting/messages";
 import {
   JOB_SOURCE_DISCOVERY_TAXONOMY,
   technicalAccessForJobSource,

@@ -17,7 +17,7 @@ vi.mock("../../shared/toast/useToast", () => ({
   useToast: () => mockToast,
 }));
 
-vi.mock("../../utils/errorUtils", () => ({
+vi.mock("../../shared/errorReporting/logger", () => ({
   logError: vi.fn(),
 }));
 

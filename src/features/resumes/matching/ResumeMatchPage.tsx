@@ -4,7 +4,7 @@ import { Button } from "../../../ui/Button";
 import { Card, CardHeader } from "../../../ui/Card";
 import { Badge } from "../../../ui/Badge";
 import { useToast } from "../../../shared/toast/useToast";
-import { logError } from "../../../utils/errorUtils";
+import { logError } from "../../../shared/errorReporting/logger";
 import { ResumeMatchTools } from "./ResumeMatchTools";
 import { ResumeMatchResultsPanel } from "./ResumeMatchResultsPanel";
 import {

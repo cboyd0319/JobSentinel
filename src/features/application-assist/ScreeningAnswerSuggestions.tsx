@@ -4,7 +4,7 @@ import { Button } from "../../ui/Button";
 import { Card } from "../../ui/Card";
 import { Skeleton } from "../../ui/Skeleton";
 import { invoke } from "@tauri-apps/api/core";
-import { logError } from "../../utils/errorUtils";
+import { logError } from "../../shared/errorReporting/logger";
 import { getHardScreeningAnswerGuidance } from "./screeningReviewGuidance";
 
 // Types matching Rust backend

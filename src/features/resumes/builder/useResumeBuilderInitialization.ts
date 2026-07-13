@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useToast } from "../../../shared/toast/useToast";
 import { safeInvoke } from "../../../utils/api";
-import { getSafeErrorToastCopy } from "../../../utils/safeErrorCopy";
+import { getSafeErrorToastCopy } from "../../../shared/errorReporting/safeToastCopy";
 import type { Template } from "./resumeBuilderData";
 
 export function useResumeBuilderInitialization() {

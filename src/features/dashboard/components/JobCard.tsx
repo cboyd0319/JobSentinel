@@ -5,7 +5,7 @@ import { ExternalAiJobSummary } from "./ExternalAiJobSummary";
 import {
   JobFitFeedbackControls,
 } from "./JobFitFeedback";
-import { logError } from "../../../utils/errorUtils";
+import { logError } from "../../../shared/errorReporting/logger";
 import {
   formatRelativeDate,
   formatSalaryRange,

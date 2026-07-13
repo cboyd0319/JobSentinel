@@ -2,7 +2,7 @@ import { Component, ErrorInfo, ReactNode } from "react";
 import { Button } from "../../ui/Button";
 import { EmptyState } from "../../ui/EmptyState";
 import { errorReporter, sanitizeTextForStorage } from "../../shared/errorReporting/errorReporter";
-import { logError } from "../../utils/errorUtils";
+import { logError } from "../../shared/errorReporting/logger";
 import { saveSanitizedDebugReport } from "../../services/feedbackService";
 
 function getSafeErrorMessage(error: Error | null): string {

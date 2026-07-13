@@ -317,8 +317,9 @@ the broader agent harness.
   the typed Tauri client and model used by Search Links, Dashboard, and the
   LinkedIn Workbench; Search Links display state remains private to its feature.
 - `src/shared/errorReporting/` owns the validated, privacy-preserving local
-  problem-report model, sanitizer, storage contract, context, and hook. The app
-  provider under `src/app/providers/` owns initialization and composition.
+  problem-report model, sanitizer, storage contract, context, hook, safe user
+  messages, safe toast copy, and development logger. The app provider under
+  `src/app/providers/` owns initialization and composition.
 - Settings owns its notification company chooser, source-health UI and model,
   local problem report panel, and Send Feedback UI under the matching private
   `notifications/`, `sources/health/`, and `support/` subdomains. Sanitized
