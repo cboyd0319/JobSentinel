@@ -2,6 +2,7 @@
 // Extracted from Dashboard.tsx to reduce file size
 
 import type { ComponentType, ReactNode } from "react";
+import type { RenderCompanyResearch } from "../../shared/companyResearch";
 
 export type SortOption =
   "score-desc" | "score-asc" | "date-desc" | "date-asc" | "company-asc";
@@ -88,6 +89,7 @@ export interface DashboardProps {
     job: Job,
     onOpenApplicationAssist: () => void,
   ) => ReactNode;
+  renderCompanyResearch?: RenderCompanyResearch;
   settingsPage?: ComponentType<{
     onClose: () => void;
     linkedinWorkbench?: ReactNode;

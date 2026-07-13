@@ -121,12 +121,12 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/CompanyResearchPanel.tsx",
+      "src/features/company-research/CompanyResearchPanel.tsx",
       '<p>Tech Stack</p><p>Try searching for "{companyName}" on LinkedIn or Glassdoor.</p>\n',
     );
     writeFixtureFile(
       root,
-      "src/components/CompanyResearchPanel.test.tsx",
+      "src/features/company-research/CompanyResearchPanel.test.tsx",
       '<CompanyResearchPanel companyName="TestCorp" />\n',
     );
     writeFixtureFile(
@@ -640,7 +640,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "src/features/onboarding/SetupWizard.tsx",
         "src/features/salary/SalaryPage.tsx",
         "src/features/dashboard/components/DashboardFiltersBar.tsx",
-        "src/components/CompanyResearchPanel.tsx",
+        "src/features/company-research/CompanyResearchPanel.tsx",
         "src/features/applications/CoverLetterTemplates.tsx",
         "src/features/dashboard/components/JobImportModal.tsx",
         "src/mocks/data.ts",
@@ -659,7 +659,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "src/features/application-assist/ApplicationPreview.test.tsx",
         "src/features/application-assist/ApplyButton.test.tsx",
         "src/features/resumes/builder/AtsLiveScorePanel.test.tsx",
-        "src/components/CompanyResearchPanel.test.tsx",
+        "src/features/company-research/CompanyResearchPanel.test.tsx",
         "src/features/dashboard/components/ScoreBreakdownModal.test.tsx",
         "src/features/dashboard/components/JobCard.test.tsx",
         "src/features/market/LocationHeatmap.test.tsx",
@@ -744,7 +744,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       "src/features/dashboard/DashboardPage.tsx",
       "src/features/onboarding/SetupWizard.tsx",
       "src/features/dashboard/components/DashboardFiltersBar.tsx",
-      "src/components/CompanyResearchPanel.tsx",
+      "src/features/company-research/CompanyResearchPanel.tsx",
       "src/features/applications/CoverLetterTemplates.tsx",
       "src/features/dashboard/components/JobImportModal.tsx",
       "src/mocks/data.ts",
@@ -763,7 +763,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       "src/features/application-assist/ApplicationPreview.test.tsx",
       "src/features/application-assist/ApplyButton.test.tsx",
       "src/features/resumes/builder/AtsLiveScorePanel.test.tsx",
-      "src/components/CompanyResearchPanel.test.tsx",
+      "src/features/company-research/CompanyResearchPanel.test.tsx",
       "src/features/dashboard/components/ScoreBreakdownModal.test.tsx",
       "src/features/dashboard/components/JobCard.test.tsx",
       "src/features/market/LocationHeatmap.test.tsx",

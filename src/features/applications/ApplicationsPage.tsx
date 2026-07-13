@@ -40,13 +40,19 @@ import {
 import { ApplicationsReviewPanel } from "./ApplicationsReviewPanel";
 import { ApplicationsOverlays } from "./ApplicationsOverlays";
 import { ApplicationsHeader } from "./ApplicationsHeader";
+import type { RenderCompanyResearch } from "../../shared/companyResearch";
 
 interface ApplicationsProps {
   onBack: () => void;
   onImportJob?: () => void;
+  renderCompanyResearch?: RenderCompanyResearch;
 }
 
-export default function ApplicationsPage({ onBack, onImportJob }: ApplicationsProps) {
+export default function ApplicationsPage({
+  onBack,
+  onImportJob,
+  renderCompanyResearch,
+}: ApplicationsProps) {
   const [applications, setApplications] = useState<ApplicationsByStatus | null>(null);
   const [reminders, setReminders] = useState<PendingReminder[]>([]);
   const [loading, setLoading] = useState(true);
@@ -461,6 +467,7 @@ export default function ApplicationsPage({ onBack, onImportJob }: ApplicationsPr
         showAnalytics={showAnalytics}
         showInterviews={showInterviews}
         showTemplates={showTemplates}
+        renderCompanyResearch={renderCompanyResearch}
       />
     </div>
   );

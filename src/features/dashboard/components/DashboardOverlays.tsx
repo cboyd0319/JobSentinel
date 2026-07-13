@@ -1,4 +1,4 @@
-import { lazy, Suspense, type ReactNode } from "react";
+import { Suspense, type ReactNode } from "react";
 import { Button } from "../../../ui/Button";
 import { FocusTrap } from "../../../ui/FocusTrap";
 import { JobImportModal } from "./JobImportModal";
@@ -9,12 +9,7 @@ import ModalErrorBoundary from "../errors/ModalErrorBoundary";
 import { CheckCircleIcon } from "./DashboardIcons";
 import type { DuplicateGroup } from "../types";
 import { DuplicateGroupCard } from "./DuplicateGroupCard";
-
-const CompanyResearchPanel = lazy(() =>
-  import("../../../components/CompanyResearchPanel").then((module) => ({
-    default: module.CompanyResearchPanel,
-  })),
-);
+import type { RenderCompanyResearch } from "../../../shared/companyResearch";
 
 export function DashboardSettingsPanel({
   children,
@@ -118,12 +113,14 @@ export function DashboardLinkedInWorkbenchModal({
 
 export function DashboardCompanyResearchOverlay({
   researchCompany,
+  renderCompanyResearch,
   onClose,
 }: {
   researchCompany: string | null;
+  renderCompanyResearch?: RenderCompanyResearch;
   onClose: () => void;
 }) {
-  if (!researchCompany) {
+  if (!researchCompany || !renderCompanyResearch) {
     return null;
   }
 
@@ -155,10 +152,10 @@ export function DashboardCompanyResearchOverlay({
           )}
         >
           <Suspense fallback={<PanelSkeleton />}>
-            <CompanyResearchPanel
-              companyName={researchCompany}
-              onClose={onClose}
-            />
+            {renderCompanyResearch({
+              companyName: researchCompany,
+              onClose,
+            })}
           </Suspense>
         </ComponentErrorBoundary>
       </FocusTrap>

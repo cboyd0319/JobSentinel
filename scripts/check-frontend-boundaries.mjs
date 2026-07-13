@@ -24,32 +24,17 @@ const ignoredFilePatterns = [
   /\.d\.ts$/,
 ];
 
+const removedRootBuckets = new Set([
+  "components",
+  "config",
+  "contexts",
+  "hooks",
+  "pages",
+  "services",
+  "utils",
+]);
+
 const boundaryRules = [
-  {
-    from: "components",
-    disallow: ["features", "pages"],
-    reason: "shared UI components must not depend on product feature or page modules",
-  },
-  {
-    from: "contexts",
-    disallow: ["pages", "components"],
-    reason: "app state providers must not depend on page or UI component modules",
-  },
-  {
-    from: "hooks",
-    disallow: ["pages", "components"],
-    reason: "shared hooks must not depend on page or UI component modules",
-  },
-  {
-    from: "services",
-    disallow: ["pages", "components", "hooks", "contexts"],
-    reason: "services must stay framework-agnostic and outside UI/state layers",
-  },
-  {
-    from: "utils",
-    disallow: ["pages", "components", "hooks", "contexts"],
-    reason: "utilities must stay reusable and outside UI/state layers",
-  },
   {
     from: "types",
     disallow: ["pages", "components", "hooks", "contexts", "services", "utils"],
@@ -345,6 +330,13 @@ export function checkFrontendBoundaries(root = defaultRoot) {
     }
 
     const fromLayer = getLayer(root, file);
+
+    if (removedRootBuckets.has(fromLayer)) {
+      violations.push(
+        `${relFile} uses removed root bucket src/${fromLayer}/; assign it to app, a feature, shared, or ui`,
+      );
+    }
+
     const applicableRules = boundaryRules.filter((rule) => rule.from === fromLayer);
 
     for (const specifier of getImportSpecifiers(text)) {

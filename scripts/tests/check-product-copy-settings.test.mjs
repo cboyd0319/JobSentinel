@@ -484,7 +484,7 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/CompanyResearchPanel.tsx",
+      "src/features/company-research/CompanyResearchPanel.tsx",
       [
         "Information about TestCo is being gathered. Check back later for more details.",
         "Request timed out. The company lookup is taking too long.",
@@ -827,7 +827,7 @@ test("product copy rejects technical-first settings copy", () => {
       "src/features/resumes/builder/AtsLiveScorePanel.tsx",
       "src/features/settings/sources/browser-import/BrowserImportSection.tsx",
       "src/app/commands/CommandPalette.tsx",
-      "src/components/CompanyResearchPanel.tsx",
+      "src/features/company-research/CompanyResearchPanel.tsx",
       "src/features/applications/CoverLetterTemplates.tsx",
       "src/features/settings/support/ErrorLogPanel.tsx",
       "src/features/dashboard/components/JobCard.tsx",

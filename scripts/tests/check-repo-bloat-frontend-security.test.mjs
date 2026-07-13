@@ -440,17 +440,6 @@ test("checkRepoBloat rejects unsafe storage JSON parsing", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/CompanyResearchPanel.tsx",
-      [
-        "function loadCache() {",
-        "  const stored = readStorageValue('local', CACHE_KEY);",
-        "  return stored ? JSON.parse(stored) : {};",
-        "}",
-        "",
-      ].join("\n"),
-    );
-    writeFixtureFile(
-      root,
       "src/features/resumes/builder/AtsLiveScorePanel.tsx",
       [
         "function loadJobContext() {",
@@ -469,7 +458,6 @@ test("checkRepoBloat rejects unsafe storage JSON parsing", () => {
         "package.json",
         "src/features/applications/AnalyticsPanel.tsx",
         "src/features/resumes/builder/AtsLiveScorePanel.tsx",
-        "src/components/CompanyResearchPanel.tsx",
       ],
       { cwd: root },
     );
@@ -484,50 +472,7 @@ test("checkRepoBloat rejects unsafe storage JSON parsing", () => {
     );
     assert.ok(
       violations.includes(
-        "validate storage JSON before rendering: src/components/CompanyResearchPanel.tsx",
-      ),
-      violations.join("\n"),
-    );
-    assert.ok(
-      violations.includes(
         "validate storage JSON before rendering: src/features/resumes/builder/AtsLiveScorePanel.tsx",
-      ),
-      violations.join("\n"),
-    );
-  });
-});
-
-test("checkRepoBloat accepts memory-only company research cache cleanup", () => {
-  withGitFixture((root) => {
-    writeFixtureFile(root, "package.json", "{}\n");
-    writeFixtureFile(
-      root,
-      "src/components/CompanyResearchPanel.tsx",
-      [
-        "import { removeStorageValue } from '../shared/browserStorage';",
-        "const LEGACY_CACHE_KEY = 'jobsentinel_company_cache';",
-        "let companyMemoryCache = {};",
-        "function clearLegacyCache() {",
-        "  removeStorageValue('local', LEGACY_CACHE_KEY);",
-        "  companyMemoryCache = {};",
-        "}",
-        "",
-      ].join("\n"),
-    );
-
-    execFileSync(
-      "git",
-      ["add", "package.json", "src/components/CompanyResearchPanel.tsx"],
-      {
-        cwd: root,
-      },
-    );
-
-    const violations = checkRepoBloat(root);
-
-    assert.ok(
-      !violations.includes(
-        "validate storage JSON before rendering: src/components/CompanyResearchPanel.tsx",
       ),
       violations.join("\n"),
     );

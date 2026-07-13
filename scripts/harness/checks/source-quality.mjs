@@ -18,12 +18,13 @@ const storageJsonParserPaths = new Set([
   "src/features/applications/AnalyticsPanel.tsx",
   "src/features/applications/analyticsPanelModel.ts",
   "src/features/resumes/builder/AtsLiveScorePanel.tsx",
-  "src/components/CompanyResearchPanel.tsx",
   "src/features/resumes/shared/resumeJobContext.ts",
 ]);
 
 const staticCompanyFallbackPaths = new Set([
-  "src/components/CompanyResearchPanel.tsx",
+  "src/features/company-research/internal/directory/digitalEmployers.ts",
+  "src/features/company-research/internal/directory/serviceAndPublicEmployers.ts",
+  "src/features/company-research/internal/directory/specializedEmployers.ts",
 ]);
 
 const settingsCredentialPaths = new Set([
@@ -285,15 +286,7 @@ export function hasStaticCompanyRatingFallback(root, path) {
     return false;
   }
 
-  const text = readFileSync(join(root, path), "utf8");
-  const start = text.indexOf("const KNOWN_COMPANIES");
-  const end = text.indexOf("\n};\n\nasync function fetchCompanyInfo", start);
-
-  if (start === -1 || end === -1) {
-    return false;
-  }
-
-  return /\bglassdoorRating\s*:/.test(text.slice(start, end));
+  return /\bglassdoorRating\s*:/.test(readFileSync(join(root, path), "utf8"));
 }
 
 export function hasFrontendFileUrlResumeImport(root, path) {

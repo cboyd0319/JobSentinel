@@ -30,7 +30,7 @@ const JOB_INDEXES = {
 test.describe("Job Interactions and Tracking", () => {
   test.describe("Bookmarking Jobs", () => {
     test("should bookmark an unbookmarked job", async ({ page }) => {
-      const { jobDetail, dashboard } = await openDashboard(page);
+      const { jobDetail } = await openDashboard(page);
 
       await jobDetail.openJobDetail(JOB_INDEXES.bookmarkCreate);
 
@@ -156,6 +156,28 @@ test.describe("Job Interactions and Tracking", () => {
       expect(matchScore).not.toBeNull();
       expect(matchScore).toBeGreaterThanOrEqual(0);
       expect(matchScore).toBeLessThanOrEqual(100);
+    });
+  });
+
+  test.describe("Company Research", () => {
+    test("opens and closes research for a listed company", async ({ page }) => {
+      const { dashboard } = await openDashboard(page);
+      const firstCard = dashboard.jobCards.first();
+      const companyName = (await firstCard.getByTestId("job-company").textContent())?.trim();
+
+      if (!companyName) {
+        throw new Error("Expected the first job card to include a company name");
+      }
+      await firstCard.getByTestId("btn-research").click();
+
+      const dialog = page.getByRole("dialog", {
+        name: `Company research for ${companyName}`,
+      });
+      await expect(dialog).toBeVisible();
+      await expect(dialog.getByText(companyName, { exact: true })).toBeVisible();
+
+      await dialog.getByRole("button", { name: "Close" }).click();
+      await expect(dialog).toBeHidden();
     });
   });
 

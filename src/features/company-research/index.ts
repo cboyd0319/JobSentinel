@@ -1,0 +1,1 @@
+export { CompanyResearchPanel } from "./CompanyResearchPanel";

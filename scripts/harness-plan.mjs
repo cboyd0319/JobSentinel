@@ -141,8 +141,7 @@ function isUserFacingPath(path) {
     path.startsWith(".github/ISSUE_TEMPLATE/") ||
     path.startsWith("examples/profiles/") ||
     path.startsWith("src/features/") ||
-    path.startsWith("src/pages/") ||
-    path.startsWith("src/components/")
+    path.startsWith("src/ui/")
   );
 }
 
@@ -151,8 +150,7 @@ function isDesignOrVisualPath(path) {
     path === "DESIGN.md" ||
     path.startsWith("docs/design/") ||
     path.startsWith("src/features/") ||
-    path.startsWith("src/pages/") ||
-    path.startsWith("src/components/")
+    path.startsWith("src/ui/")
   );
 }
 

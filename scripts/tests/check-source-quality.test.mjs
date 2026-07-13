@@ -61,7 +61,7 @@ test("source quality rejects frontend glyphs and lint suppressions", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/CompanyResearchPanel.tsx",
+      "src/features/company-research/CompanyResearchPanel.tsx",
       "// eslint-disable-next-line react-hooks/exhaustive-deps\n",
     );
     writeFixtureFile(
@@ -96,7 +96,7 @@ test("source quality rejects frontend glyphs and lint suppressions", () => {
     assert.equal(
       hasProductionHookDependencySuppression(
         root,
-        "src/components/CompanyResearchPanel.tsx",
+        "src/features/company-research/CompanyResearchPanel.tsx",
       ),
       true,
     );
@@ -538,7 +538,7 @@ test("source quality rejects static company fallback ratings", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src/components/CompanyResearchPanel.tsx",
+      "src/features/company-research/internal/directory/digitalEmployers.ts",
       [
         "const KNOWN_COMPANIES = {",
         "  example: {",
@@ -555,7 +555,7 @@ test("source quality rejects static company fallback ratings", () => {
     assert.equal(
       hasStaticCompanyRatingFallback(
         root,
-        "src/components/CompanyResearchPanel.tsx",
+        "src/features/company-research/internal/directory/digitalEmployers.ts",
       ),
       true,
     );

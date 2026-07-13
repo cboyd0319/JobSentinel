@@ -3,6 +3,7 @@ import { Button } from "../../ui/Button";
 import { AnalyticsSkeleton, ModalSkeleton } from "../../ui/LoadingFallbacks";
 import { Modal, ModalFooter } from "../../ui/Modal";
 import { getInterviewSchedulerApplications, STATUS_COLUMNS, type Application, type ApplicationsByStatus } from "./applicationsModel";
+import type { RenderCompanyResearch } from "../../shared/companyResearch";
 
 const AnalyticsPanel = lazy(() => import("./AnalyticsPanel").then((module) => ({ default: module.AnalyticsPanel })));
 const InterviewScheduler = lazy(() => import("./InterviewScheduler").then((module) => ({ default: module.InterviewScheduler })));
@@ -24,6 +25,7 @@ interface ApplicationsOverlaysProps {
   showAnalytics: boolean;
   showInterviews: boolean;
   showTemplates: boolean;
+  renderCompanyResearch?: RenderCompanyResearch;
 }
 
 export function ApplicationsOverlays({
@@ -42,6 +44,7 @@ export function ApplicationsOverlays({
   showAnalytics,
   showInterviews,
   showTemplates,
+  renderCompanyResearch,
 }: ApplicationsOverlaysProps) {
   return (
     <>
@@ -127,6 +130,7 @@ export function ApplicationsOverlays({
           <InterviewScheduler
             onClose={() => onCloseInterviews()}
             applications={getInterviewSchedulerApplications(applications)}
+            renderCompanyResearch={renderCompanyResearch}
           />
         </Suspense>
       )}

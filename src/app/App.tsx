@@ -21,6 +21,7 @@ import {
   copySanitizedDebugReport,
   saveSanitizedDebugReport,
 } from "../shared/errorReporting/supportReport";
+import type { CompanyResearchPanelProps } from "../shared/companyResearch";
 
 // Lazy load pages for better initial load performance
 const SetupWizard = lazy(() => import("../features/onboarding"));
@@ -30,6 +31,11 @@ const Settings = lazy(() => import("../features/settings"));
 const LinkedInWorkbench = lazy(() =>
   import("../features/linkedin-workbench").then((module) => ({
     default: module.LinkedInWorkbench,
+  })),
+);
+const CompanyResearchPanel = lazy(() =>
+  import("../features/company-research").then((module) => ({
+    default: module.CompanyResearchPanel,
   })),
 );
 const ResumeLibraryPage = lazy(() =>
@@ -63,6 +69,14 @@ function PageLoader({ message = "Loading..." }: { message?: string }) {
     <div className="min-h-[60vh] flex items-center justify-center">
       <LoadingSpinner message={message} />
     </div>
+  );
+}
+
+function renderCompanyResearch(props: CompanyResearchPanelProps) {
+  return (
+    <Suspense fallback={<LoadingSpinner message="Loading company research..." />}>
+      <CompanyResearchPanel {...props} />
+    </Suspense>
   );
 }
 
@@ -310,6 +324,7 @@ function App() {
                     )}
                     settingsPage={Settings}
                     linkedinWorkbench={<LinkedInWorkbench />}
+                    renderCompanyResearch={renderCompanyResearch}
                     showSettings={showSettings}
                     onShowSettingsChange={setShowSettings}
                     openImportOnMount={openImportOnDashboard}
@@ -325,6 +340,7 @@ function App() {
                   <Applications
                     onBack={() => navigateTo("dashboard")}
                     onImportJob={openJobImportFromApplications}
+                    renderCompanyResearch={renderCompanyResearch}
                   />
                 </PageErrorBoundary>
               )}

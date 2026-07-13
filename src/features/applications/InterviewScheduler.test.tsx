@@ -504,6 +504,31 @@ describe("InterviewScheduler", () => {
       });
     });
 
+    it("opens app-composed company research", async () => {
+      mockInvoke.mockResolvedValue([]);
+      const renderCompanyResearch = vi.fn(({ companyName }) => (
+        <div>Research for {companyName}</div>
+      ));
+
+      render(
+        <InterviewScheduler
+          onClose={mockOnClose}
+          renderCompanyResearch={renderCompanyResearch}
+        />,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText("Customer Support Coordinator")).toBeInTheDocument();
+      });
+      fireEvent.click(screen.getByText("Customer Support Coordinator"));
+      fireEvent.click(screen.getByRole("button", { name: "Research" }));
+
+      expect(screen.getByText("Research for CareBridge Services")).toBeInTheDocument();
+      expect(renderCompanyResearch).toHaveBeenCalledWith(
+        expect.objectContaining({ companyName: "CareBridge Services" }),
+      );
+    });
+
     it("shows Add to Calendar button in modal", async () => {
       mockInvoke.mockResolvedValue([]);
 

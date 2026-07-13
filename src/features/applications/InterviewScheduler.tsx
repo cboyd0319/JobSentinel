@@ -32,7 +32,11 @@ import { InterviewDetailPanels } from "./InterviewDetailPanels";
 const MIN_INTERVIEW_DURATION_MINUTES = 15;
 const MAX_INTERVIEW_DURATION_MINUTES = 8 * 60;
 
-export const InterviewScheduler = memo(function InterviewScheduler({ onClose, applications = [] }: InterviewSchedulerProps) {
+export const InterviewScheduler = memo(function InterviewScheduler({
+  onClose,
+  applications = [],
+  renderCompanyResearch,
+}: InterviewSchedulerProps) {
   const [interviews, setInterviews] = useState<Interview[]>([]);
   const [pastInterviews, setPastInterviews] = useState<Interview[]>([]);
   const [loading, setLoading] = useState(true);
@@ -401,6 +405,7 @@ export const InterviewScheduler = memo(function InterviewScheduler({ onClose, ap
           onExportICal={handleExportICal}
           onPrepToggle={handlePrepToggle}
           prepProgress={prepProgress}
+          renderCompanyResearch={renderCompanyResearch}
         />
       )}
     </>

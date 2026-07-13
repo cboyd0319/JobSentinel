@@ -301,9 +301,10 @@ the broader agent harness.
   feature-local components, model, tests, and development mock handlers.
   Current complete slices are `salary`, `market`, `application-assist`,
   `applications`, `onboarding`, `dashboard`, `resumes`, `settings`, and
-  `search-links`, plus the app-composed `linkedin-workbench`. Salary, Market,
-  Applications, Dashboard, Settings, and Search Links expose only their pages;
-  Onboarding exposes only its first-run wizard.
+  `search-links`, plus the app-composed `linkedin-workbench` and
+  `company-research`. Salary, Market, Applications, Dashboard, Settings, and
+  Search Links expose only their pages; Onboarding exposes only its first-run
+  wizard.
   Application Assist exposes its profile page and the
   Apply action composed into Dashboard by `src/app/`. Resumes exposes its
   library, builder, and matching pages through one domain facade while their
@@ -318,6 +319,9 @@ the broader agent harness.
 - LinkedIn Workbench exposes one visual entrypoint. `src/app/` composes it into
   Dashboard and Settings through React-node slots; its consent storage, Tauri
   transport, learning view, and privacy policy remain feature-owned modules.
+- Company Research exposes one visual entrypoint. `src/app/` composes it into
+  Dashboard and Applications through `src/shared/companyResearch.ts`; the
+  local directory and lookup model remain private to the feature.
 - A feature must not import another feature's implementation files. Shared
   product-neutral code belongs in `src/shared/`; reusable UI belongs in
   `src/ui/` as those owners are established. `src/shared/search-links/` owns
@@ -367,10 +371,9 @@ the broader agent harness.
   under `src/ui/score-display/`; there is no aggregate barrel. Score-reason
   parsing stays private to that visual. Product-domain panels and workflows do
   not belong in this directory.
-- Legacy `components`, `services`, `types`, and `config` buckets remain
-  transitional. The legacy `pages`, `contexts`, `hooks`, and `utils` buckets
-  have been removed. Remaining domain components and transitional owners must
-  not import app or feature implementation modules.
+- The legacy root `components`, `config`, `contexts`, `hooks`, `pages`,
+  `services`, and `utils` buckets have been removed and are denied by the
+  frontend boundary sensor. The root `types` bucket remains transitional.
 - Tests, mocks, stories, and test setup files are excluded from the production
   architecture sensor, but feature-owned mock handlers remain colocated with
   their feature and are registered by the central development dispatcher.

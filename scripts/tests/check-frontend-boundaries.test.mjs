@@ -116,7 +116,7 @@ test("checkFrontendBoundaries resolves tsconfig path aliases", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/BadImport.tsx",
+      "src/ui/BadImport.tsx",
       `
 import { Dashboard } from "@/features/dashboard/DashboardPage";
 
@@ -140,8 +140,27 @@ export function Dashboard() {
     assert.ok(
       violations.some((violation) =>
         violation.includes(
-          "src/components/BadImport.tsx imports @/features/dashboard/DashboardPage across forbidden boundary (components -> features)",
+          "src/ui/BadImport.tsx imports @/features/dashboard/DashboardPage across forbidden boundary (ui -> features)",
         ),
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkFrontendBoundaries rejects removed root buckets", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src/components/LegacyPanel.tsx",
+      "export function LegacyPanel() { return null; }\n",
+    );
+
+    const violations = checkFrontendBoundaries(root);
+
+    assert.ok(
+      violations.includes(
+        "src/components/LegacyPanel.tsx uses removed root bucket src/components/; assign it to app, a feature, shared, or ui",
       ),
       violations.join("\n"),
     );

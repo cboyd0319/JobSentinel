@@ -79,7 +79,7 @@ test("plans focused frontend tests when adjacent coverage exists", () => {
 test("plans full unit suite when frontend source has no adjacent test", () => {
   withFixture((root) => {
     const plan = summarizeHarnessPlan(root, {
-      changedFiles: ["src/services/jobImport.ts"],
+      changedFiles: ["src/shared/uncovered.ts"],
     });
 
     assert.deepEqual(commandsFor(plan), ["npm run lint", "npm run test:run"]);

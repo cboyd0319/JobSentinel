@@ -49,6 +49,7 @@ export default function Dashboard({
   onNavigate,
   tourAction,
   renderApplicationAssistAction,
+  renderCompanyResearch,
   settingsPage: SettingsPage,
   linkedinWorkbench,
   showSettings: showSettingsProp,
@@ -465,6 +466,7 @@ export default function Dashboard({
 
       <DashboardCompanyResearchOverlay
         researchCompany={researchCompany}
+        renderCompanyResearch={renderCompanyResearch}
         onClose={() => setResearchCompany(null)}
       />
 

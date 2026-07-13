@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Button } from "../../ui/Button";
-import { CompanyResearchPanel } from "../../components/CompanyResearchPanel";
 import { Modal } from "../../ui/Modal";
 import { formatInterviewDate } from "../../shared/dateFormatting";
+import type { RenderCompanyResearch } from "../../shared/companyResearch";
 import {
   INTERVIEW_TYPES,
   OUTCOME_COLORS,
@@ -30,6 +30,7 @@ interface InterviewDetailPanelsProps {
   onExportICal: (interview: Interview) => void;
   onPrepToggle: (itemId: string) => void;
   prepProgress: PrepProgress;
+  renderCompanyResearch?: RenderCompanyResearch;
 }
 
 export function InterviewDetailPanels({
@@ -42,6 +43,7 @@ export function InterviewDetailPanels({
   onExportICal,
   onPrepToggle,
   prepProgress,
+  renderCompanyResearch,
 }: InterviewDetailPanelsProps) {
   const [feedbackNotes, setFeedbackNotes] = useState("");
   const [feedbackOutcome, setFeedbackOutcome] = useState("");
@@ -119,7 +121,7 @@ export function InterviewDetailPanels({
                       <span className={`text-sm ${prepProgress[item.id] ? 'text-surface-400 line-through' : 'text-surface-600 dark:text-surface-400'}`}>
                         {item.label}
                       </span>
-                      {item.id === "research" && (
+                      {item.id === "research" && renderCompanyResearch && (
                         <button
                           onClick={(e) => {
                             e.preventDefault();
@@ -145,14 +147,16 @@ export function InterviewDetailPanels({
                   <DownloadIcon />
                   Add to Calendar
                 </Button>
-                <Button
-                  variant="secondary"
-                  onClick={() => handleOpenCompanyResearch(interview.company)}
-                  className="flex items-center gap-1"
-                >
-                  <SearchIcon />
-                  Research
-                </Button>
+                {renderCompanyResearch && (
+                  <Button
+                    variant="secondary"
+                    onClick={() => handleOpenCompanyResearch(interview.company)}
+                    className="flex items-center gap-1"
+                  >
+                    <SearchIcon />
+                    Research
+                  </Button>
+                )}
               </div>
 
               <div className="border-t border-surface-200 dark:border-surface-600 pt-4">
@@ -269,14 +273,11 @@ export function InterviewDetailPanels({
       )}
 
       {/* Company Research Panel Modal */}
-      {researchCompany && (
-        <CompanyResearchPanel
-          companyName={researchCompany}
-          onClose={() => {
-            setResearchCompany(null);
-          }}
-        />
-      )}
+      {researchCompany &&
+        renderCompanyResearch?.({
+          companyName: researchCompany,
+          onClose: () => setResearchCompany(null),
+        })}
     </>
   );
 }

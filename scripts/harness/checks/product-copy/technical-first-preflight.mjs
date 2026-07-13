@@ -74,7 +74,7 @@ export function getTechnicalFirstPreflightResult(root, path) {
     return /analytics service|analytics services|custom reporting|sendToAnalytics|telemetry/i.test(text);
   }
 
-  if (path === "src/components/CompanyResearchPanel.tsx") {
+  if (path === "src/features/company-research/CompanyResearchPanel.tsx") {
     const text = readFileSync(join(root, path), "utf8");
     const companyResearchPatterns = [
       /Information about .* is being gathered/i,

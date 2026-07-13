@@ -152,7 +152,7 @@ test("checkRepoBloat rejects production hook dependency suppressions", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src/components/CompanyResearchPanel.tsx",
+      "src/features/company-research/CompanyResearchPanel.tsx",
       [
         "useEffect(() => {",
         "  setLoading(false);",
@@ -164,7 +164,11 @@ test("checkRepoBloat rejects production hook dependency suppressions", () => {
 
     execFileSync(
       "git",
-      ["add", "package.json", "src/components/CompanyResearchPanel.tsx"],
+      [
+        "add",
+        "package.json",
+        "src/features/company-research/CompanyResearchPanel.tsx",
+      ],
       {
         cwd: root,
       },
@@ -174,7 +178,7 @@ test("checkRepoBloat rejects production hook dependency suppressions", () => {
 
     assert.ok(
       violations.includes(
-        "remove production hook dependency suppression: src/components/CompanyResearchPanel.tsx",
+        "remove production hook dependency suppression: src/features/company-research/CompanyResearchPanel.tsx",
       ),
       violations.join("\n"),
     );

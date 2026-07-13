@@ -1,3 +1,5 @@
+import type { RenderCompanyResearch } from "../../shared/companyResearch";
+
 export interface Interview {
   id: number;
   application_id: number;
@@ -26,6 +28,7 @@ export interface Application {
 export interface InterviewSchedulerProps {
   onClose: () => void;
   applications?: Application[];
+  renderCompanyResearch?: RenderCompanyResearch;
 }
 
 export interface FollowUpReminder {

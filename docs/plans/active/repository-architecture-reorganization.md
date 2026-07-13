@@ -473,7 +473,7 @@ or installed configuration path changes.
 - [x] Move proven multi-feature visual primitives into `src/ui/`.
 - [x] Reduce and delete `src/pages/`, `src/hooks/`, `src/contexts/`, and `src/utils/`.
 - [x] Move the external-AI boundary and delete `src/services/`.
-- [ ] Reduce `src/components/` to zero before deleting it.
+- [x] Reduce `src/components/` to zero and delete it.
 - [ ] Split the large mock dispatcher into feature-owned handlers and retain a
   thin deterministic registration layer.
 
@@ -799,6 +799,9 @@ evidence-log entry.
   optional polish.
 - Keep icons cross-platform and local to the owning UI. Do not add an SF
   Symbols integration or platform adapter solely for icons.
+- Compose Company Research at the app boundary through one shared render
+  contract. Keep its local directory and lookup model feature-private, remove
+  no-I/O loading and cache machinery, and retain legacy local-cache cleanup.
 - Treat v2.9.5 as a readiness target only until release execution is explicitly
   authorized.
 
@@ -814,8 +817,9 @@ evidence-log entry.
 - Milestone 2 is in progress. App composition is owned by `src/app/`; Salary,
   Hiring Trends, Application Assist, Applications tracking, first-run
   Onboarding, Dashboard job discovery, Resume library, builder and matching,
-  Settings, and Search Links are complete feature slices with public facades
-  and private implementation modules under `src/features/`. The shared Search
+  Settings, Search Links, LinkedIn Workbench, and Company Research are complete
+  feature slices with public facades and private implementation modules under
+  `src/features/`. The shared Search
   Links IPC model and client have one neutral multi-consumer owner. Eighteen proven
   multi-feature visual primitives now have direct ownership under `src/ui/`, without
   an aggregate barrel; job-fit reason parsing stays private. Settings-private notification,
@@ -869,25 +873,16 @@ evidence-log entry.
   order documented; privacy is the immutable product boundary; Milestones 0
   and 1 are complete; Milestone 2 has app, Salary, Hiring Trends, Application
   Assist, Applications tracking, first-run Onboarding, Dashboard job discovery,
-  Resume library, builder and matching, Settings, and Search Links ownership
-  established with passing focused, full frontend, build, repository, and E2E
-  checks. The reusable UI boundary is established with passing focused, full
-  frontend, build, repository, and E2E checks. The latest Settings-private
-  component move has passing focused, full frontend, build, repository, and E2E
-  checks. App-shell and Dashboard-private recovery ownership has the same
-  passing evidence. The latest Settings hook, service, and utility move has
-  passing focused, full frontend, build, repository, and E2E checks. The latest
-  Dashboard-private hook and utility move has the same passing evidence.
-  Error Reporting, support-report, and external-AI ownership; root contexts,
-  hooks, services, and utilities deletion; shared Tauri, location, source guidance,
-  contact-field, date, currency, and browser-download contracts; feature-private form, job display,
-  CSV, and backup-file behavior; and root utility deletion all have passing
-  focused, full frontend, build, repository, and E2E evidence, including the
-  app-composed LinkedIn Workbench.
+  Resume library, builder and matching, Settings, Search Links, LinkedIn
+  Workbench, Company Research, and reusable UI ownership established with
+  passing focused, full frontend, build, repository, and E2E checks. The root
+  components, contexts, hooks, pages, services, and utilities buckets are gone.
+  Shared Tauri, location, source guidance, contact-field, date, currency,
+  browser-download, support-report, and external-AI contracts have passing
+  evidence.
 - Evidence: live manifests, imports, file counts, module graph, SQLx paths, CI,
   release scripts, harness sensors, Tamworth, and persona were inspected on 2026-07-13.
-- Next step: finish company research and score display ownership, then delete
-  the root components bucket.
+- Next step: split the development mock dispatcher by feature ownership.
 - Open risks: final SQLx offline metadata location and root Cargo target paths
   must be proven in isolated workspace and release fixtures before old paths are
   removed.
