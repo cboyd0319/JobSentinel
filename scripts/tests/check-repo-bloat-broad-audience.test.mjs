@@ -134,7 +134,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/CoverLetterTemplates.tsx",
+      "src/features/applications/CoverLetterTemplates.tsx",
       '<Input placeholder="e.g., Tech Company Application" />\n',
     );
     writeFixtureFile(
@@ -497,7 +497,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/CoverLetterTemplates.test.tsx",
+      "src/features/applications/CoverLetterTemplates.test.tsx",
       [
         'title: "Software Engineer",',
         'company: "TechCorp",',
@@ -508,7 +508,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/InterviewScheduler.test.tsx",
+      "src/features/applications/InterviewScheduler.test.tsx",
       [
         'job_title: "Software Engineer",',
         'company: "TechCorp",',
@@ -627,7 +627,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "src/features/salary/SalaryPage.tsx",
         "src/pages/DashboardUI/DashboardFiltersBar.tsx",
         "src/components/CompanyResearchPanel.tsx",
-        "src/components/CoverLetterTemplates.tsx",
+        "src/features/applications/CoverLetterTemplates.tsx",
         "src/components/JobImportModal.tsx",
         "src/mocks/data.ts",
         "src/mocks/handlers.ts",
@@ -652,8 +652,8 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "src/contexts/UndoIntegration.test.tsx",
         "src/components/NotificationPreferences.test.tsx",
         "src/components/StatCard.test.tsx",
-        "src/components/CoverLetterTemplates.test.tsx",
-        "src/components/InterviewScheduler.test.tsx",
+        "src/features/applications/CoverLetterTemplates.test.tsx",
+        "src/features/applications/InterviewScheduler.test.tsx",
         "src/utils/formValidation.test.ts",
         "src/utils/export.test.ts",
         "src-tauri/src/core/health/smoke_tests.rs",
@@ -731,7 +731,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       "src/pages/SetupWizard.tsx",
       "src/pages/DashboardUI/DashboardFiltersBar.tsx",
       "src/components/CompanyResearchPanel.tsx",
-      "src/components/CoverLetterTemplates.tsx",
+      "src/features/applications/CoverLetterTemplates.tsx",
       "src/components/JobImportModal.tsx",
       "src/mocks/data.ts",
       "src/mocks/handlers.ts",
@@ -756,8 +756,8 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       "src/contexts/UndoIntegration.test.tsx",
       "src/components/NotificationPreferences.test.tsx",
       "src/components/StatCard.test.tsx",
-      "src/components/CoverLetterTemplates.test.tsx",
-      "src/components/InterviewScheduler.test.tsx",
+      "src/features/applications/CoverLetterTemplates.test.tsx",
+      "src/features/applications/InterviewScheduler.test.tsx",
       "src/utils/formValidation.test.ts",
       "src/utils/export.test.ts",
       "src-tauri/src/core/health/smoke_tests.rs",

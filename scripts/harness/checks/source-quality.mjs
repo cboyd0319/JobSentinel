@@ -15,8 +15,8 @@ const scoreReasonJsonParserPaths = new Set([
 ]);
 
 const storageJsonParserPaths = new Set([
-  "src/components/AnalyticsPanel.tsx",
-  "src/components/analyticsPanelModel.ts",
+  "src/features/applications/AnalyticsPanel.tsx",
+  "src/features/applications/analyticsPanelModel.ts",
   "src/components/AtsLiveScorePanel.tsx",
   "src/components/CompanyResearchPanel.tsx",
   "src/utils/resumeJobContext.ts",
@@ -32,10 +32,10 @@ const settingsCredentialPaths = new Set([
 const resumeImportPaths = new Set(["src/pages/Resume.tsx"]);
 
 const frontendStatusEmojiPaths = new Set([
-  "src/components/AnalyticsPanel.tsx",
+  "src/features/applications/AnalyticsPanel.tsx",
   "src/components/BookmarkletGenerator.tsx",
-  "src/components/InterviewScheduler.tsx",
-  "src/pages/Applications.tsx",
+  "src/features/applications/InterviewScheduler.tsx",
+  "src/features/applications/ApplicationsPage.tsx",
 ]);
 
 const rawSalaryCommandLoggingPaths = new Set(["src-tauri/src/commands/salary.rs"]);
@@ -223,7 +223,7 @@ export function hasUnsafeStorageJsonParsing(root, path) {
     return false;
   }
 
-  if (path === "src/components/AnalyticsPanel.tsx") {
+  if (path === "src/features/applications/AnalyticsPanel.tsx") {
     if (/from "\.\/analyticsPanelModel"/.test(text)) {
       return false;
     }
@@ -235,7 +235,7 @@ export function hasUnsafeStorageJsonParsing(root, path) {
     );
   }
 
-  if (path === "src/components/analyticsPanelModel.ts") {
+  if (path === "src/features/applications/analyticsPanelModel.ts") {
     return (
       /return\s+stored\s+\?\s+JSON\.parse\(stored\)\s+:\s+null/.test(text) ||
       !/function\s+isWeeklyGoal/.test(text) ||

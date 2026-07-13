@@ -89,7 +89,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/CoverLetterTemplates.tsx",
+      "src/features/applications/CoverLetterTemplates.tsx",
       [
         "setError(errorMsg);",
         "toast.error('Failed to save template', String(error));",
@@ -150,7 +150,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/AnalyticsPanel.tsx",
+      "src/features/applications/AnalyticsPanel.tsx",
       'technical_interview: "Technical",\n',
     );
     writeFixtureFile(
@@ -160,7 +160,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/InterviewScheduler.tsx",
+      "src/features/applications/InterviewScheduler.tsx",
       '"Technical Interview"\n',
     );
     writeFixtureFile(
@@ -366,7 +366,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/pages/Applications.tsx",
+      "src/features/applications/ApplicationsPage.tsx",
       '"Try again, or check if the database is accessible."; "Technical Interview";\n',
     );
     writeFixtureFile(
@@ -537,7 +537,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         "README.md",
         "src/pages/Resume.tsx",
         "src/pages/ResumeOptimizer.tsx",
-        "src/pages/Applications.tsx",
+        "src/features/applications/ApplicationsPage.tsx",
         "src/features/application-assist/ApplicationProfilePage.tsx",
         "src/pages/Dashboard.tsx",
         "src/pages/DashboardUI/DashboardHeader.tsx",
@@ -551,7 +551,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         "src/pages/SetupWizard.tsx",
         "src/components/AsyncButton.tsx",
         "src/components/BookmarkletGenerator.tsx",
-        "src/components/CoverLetterTemplates.tsx",
+        "src/features/applications/CoverLetterTemplates.tsx",
         "src/components/DeepLinkGenerator.tsx",
         "src/components/ErrorBoundary.tsx",
         "src/components/ErrorLogPanel.tsx",
@@ -562,9 +562,9 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         "src/components/JobCard.tsx",
         "src/components/jobCardGuidance.ts",
         "src/components/AtsLiveScorePanel.tsx",
-        "src/components/AnalyticsPanel.tsx",
+        "src/features/applications/AnalyticsPanel.tsx",
         "src/components/DashboardWidgets.tsx",
-        "src/components/InterviewScheduler.tsx",
+        "src/features/applications/InterviewScheduler.tsx",
         "src/components/CareerProfileSelector.tsx",
         "src/components/CommandPalette.tsx",
         "src/components/KeyboardShortcutsHelp.tsx",
@@ -595,7 +595,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     for (const path of [
       "src/pages/Resume.tsx",
       "src/pages/ResumeOptimizer.tsx",
-      "src/pages/Applications.tsx",
+      "src/features/applications/ApplicationsPage.tsx",
       "src/features/application-assist/ApplicationProfilePage.tsx",
       "src/pages/Dashboard.tsx",
       "src/pages/DashboardUI/DashboardHeader.tsx",
@@ -609,7 +609,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "src/pages/SetupWizard.tsx",
       "src/components/AsyncButton.tsx",
       "src/components/BookmarkletGenerator.tsx",
-      "src/components/CoverLetterTemplates.tsx",
+      "src/features/applications/CoverLetterTemplates.tsx",
       "src/components/DeepLinkGenerator.tsx",
       "src/components/ErrorBoundary.tsx",
       "src/components/ErrorLogPanel.tsx",
@@ -619,9 +619,9 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "src/components/JobImportModal.tsx",
       "src/components/JobCard.tsx",
       "src/components/AtsLiveScorePanel.tsx",
-      "src/components/AnalyticsPanel.tsx",
+      "src/features/applications/AnalyticsPanel.tsx",
       "src/components/DashboardWidgets.tsx",
-      "src/components/InterviewScheduler.tsx",
+      "src/features/applications/InterviewScheduler.tsx",
       "src/components/CareerProfileSelector.tsx",
       "src/components/CommandPalette.tsx",
       "src/components/KeyboardShortcutsHelp.tsx",

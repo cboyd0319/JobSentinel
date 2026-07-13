@@ -1,4 +1,4 @@
-import { COVER_LETTER_REVIEW_ITEMS } from "../shared/coverLetterReviewTaxonomy";
+import { COVER_LETTER_REVIEW_ITEMS } from "../../shared/coverLetterReviewTaxonomy";
 
 export function CoverLetterReviewChecklist() {
   return (

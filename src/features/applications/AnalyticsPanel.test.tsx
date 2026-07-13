@@ -4,12 +4,12 @@ import { AnalyticsPanel } from "./AnalyticsPanel";
 
 // Mock cachedInvoke
 const mockCachedInvoke = vi.fn();
-vi.mock("../utils/api", () => ({
+vi.mock("../../utils/api", () => ({
   cachedInvoke: (...args: unknown[]) => mockCachedInvoke(...args),
 }));
 
 // Mock logError
-vi.mock("../utils/errorUtils", () => ({
+vi.mock("../../utils/errorUtils", () => ({
   logError: vi.fn(),
 }));
 

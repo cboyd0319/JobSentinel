@@ -28,11 +28,11 @@ test("checkRepoBloat rejects frontend status emoji markers", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src/components/InterviewScheduler.tsx",
+      "src/features/applications/InterviewScheduler.tsx",
       '<Button>⏳ Pending</Button><Button>✓ Passed</Button><Button>✗ Failed</Button>\n',
     );
 
-    execFileSync("git", ["add", "package.json", "src/components/InterviewScheduler.tsx"], {
+    execFileSync("git", ["add", "package.json", "src/features/applications/InterviewScheduler.tsx"], {
       cwd: root,
     });
 
@@ -40,7 +40,7 @@ test("checkRepoBloat rejects frontend status emoji markers", () => {
 
     assert.ok(
       violations.includes(
-        "replace frontend status emoji markers: src/components/InterviewScheduler.tsx",
+        "replace frontend status emoji markers: src/features/applications/InterviewScheduler.tsx",
       ),
       violations.join("\n"),
     );

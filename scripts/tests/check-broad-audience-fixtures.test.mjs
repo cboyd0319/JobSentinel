@@ -33,7 +33,7 @@ test("broad audience fixtures reject engineer-first resume optimizer copy", () =
       true,
     );
     assert.equal(
-      hasEngineerFirstAudienceExamples(root, "src/pages/Applications.tsx"),
+      hasEngineerFirstAudienceExamples(root, "src/features/applications/ApplicationsPage.tsx"),
       false,
     );
   });

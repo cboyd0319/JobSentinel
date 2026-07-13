@@ -294,7 +294,7 @@ export function hasStaleSalaryBenchmarkFrontendShape(root, path) {
 }
 
 export function hasStaleInterviewFollowupFrontendShape(root, path) {
-  if (path !== "src/components/InterviewScheduler.tsx") {
+  if (path !== "src/features/applications/InterviewScheduler.tsx") {
     return false;
   }
 

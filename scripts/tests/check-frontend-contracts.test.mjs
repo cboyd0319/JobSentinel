@@ -207,7 +207,7 @@ test("frontend contracts ignore commented runtime invokes when checking mock cas
 test("frontend contracts reject stale salary, interview, resume, and E2E match shapes", () => {
   withFixture((root) => {
     writeFixtureFile(root, "src/features/salary/model.ts", "type Benchmark = { p50: number; };\n");
-    writeFixtureFile(root, "src/components/InterviewScheduler.tsx", "thank_you_sent;\n");
+    writeFixtureFile(root, "src/features/applications/InterviewScheduler.tsx", "thank_you_sent;\n");
     writeFixtureFile(root, "src/pages/Resume.tsx", "Math.round(match.skills_match_score);\n");
     writeFixtureFile(
       root,
@@ -217,7 +217,7 @@ test("frontend contracts reject stale salary, interview, resume, and E2E match s
 
     assert.equal(hasStaleSalaryBenchmarkFrontendShape(root, "src/features/salary/model.ts"), true);
     assert.equal(
-      hasStaleInterviewFollowupFrontendShape(root, "src/components/InterviewScheduler.tsx"),
+      hasStaleInterviewFollowupFrontendShape(root, "src/features/applications/InterviewScheduler.tsx"),
       true,
     );
     assert.equal(hasStaleResumeMatchSubscoreDisplay(root, "src/pages/Resume.tsx"), true);

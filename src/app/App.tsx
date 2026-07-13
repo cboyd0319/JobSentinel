@@ -22,7 +22,7 @@ import {
 // Lazy load pages for better initial load performance
 const SetupWizard = lazy(() => import("../pages/SetupWizard"));
 const Dashboard = lazy(() => import("../pages/Dashboard"));
-const Applications = lazy(() => import("../pages/Applications"));
+const Applications = lazy(() => import("../features/applications"));
 const Resume = lazy(() => import("../pages/Resume"));
 const ResumeBuilder = lazy(() => import("../pages/ResumeBuilder"));
 const ResumeOptimizer = lazy(() => import("../pages/ResumeOptimizer"));

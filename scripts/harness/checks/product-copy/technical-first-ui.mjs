@@ -29,7 +29,7 @@ export function getTechnicalFirstUiResult(path, text) {
     ].some((pattern) => pattern.test(text));
   }
 
-  if (path === "src/components/CoverLetterTemplates.tsx") {
+  if (path === "src/features/applications/CoverLetterTemplates.tsx") {
     return [
       /\bsetError\(errorMsg\)/,
       /toast\.error\(\s*["'`]Failed to save template/i,
@@ -62,7 +62,7 @@ export function getTechnicalFirstUiResult(path, text) {
     return /Scanning job boards|Scan complete|Failed to load company research/i.test(text);
   }
 
-  if (path === "src/components/InterviewScheduler.tsx") {
+  if (path === "src/features/applications/InterviewScheduler.tsx") {
     return /Failed to load interviews|Technical Interview|Mark as Complete|>\s*Failed\s*<|Did not go well|feedbackOutcome\.charAt/.test(text) || /Interview Outcome:/.test(text);
   }
 
@@ -70,7 +70,7 @@ export function getTechnicalFirstUiResult(path, text) {
     return /Scanning job boards|Scanning\.\.\.|Ready to scan|Auto-refresh in/i.test(text);
   }
 
-  if (path === "src/pages/Applications.tsx") {
+  if (path === "src/features/applications/ApplicationsPage.tsx") {
     if (
       /\{reminder\.reminder_type\}\s*-\s*Due:/i.test(text) ||
       /applications list failed to load/i.test(text) ||

@@ -370,7 +370,7 @@ test("checkRepoBloat rejects unsafe storage JSON parsing", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src/components/AnalyticsPanel.tsx",
+      "src/features/applications/AnalyticsPanel.tsx",
       [
         "function getWeeklyGoal() {",
         "  const stored = readStorageValue('local', WEEKLY_GOALS_KEY);",
@@ -408,7 +408,7 @@ test("checkRepoBloat rejects unsafe storage JSON parsing", () => {
       [
         "add",
         "package.json",
-        "src/components/AnalyticsPanel.tsx",
+        "src/features/applications/AnalyticsPanel.tsx",
         "src/components/AtsLiveScorePanel.tsx",
         "src/components/CompanyResearchPanel.tsx",
       ],
@@ -418,7 +418,7 @@ test("checkRepoBloat rejects unsafe storage JSON parsing", () => {
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("validate storage JSON before rendering: src/components/AnalyticsPanel.tsx"),
+      violations.includes("validate storage JSON before rendering: src/features/applications/AnalyticsPanel.tsx"),
       violations.join("\n"),
     );
     assert.ok(

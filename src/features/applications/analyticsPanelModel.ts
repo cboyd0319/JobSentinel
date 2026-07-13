@@ -1,5 +1,5 @@
-import { readStorageValue, removeStorageValue, writeStorageValue } from "../utils/browserStorage";
-import { getJobSourceGuidance } from "../utils/sourceLabels";
+import { readStorageValue, removeStorageValue, writeStorageValue } from "../../utils/browserStorage";
+import { getJobSourceGuidance } from "../../utils/sourceLabels";
 
 export interface StatusCounts {
   to_apply: number;

@@ -107,7 +107,7 @@ test("product copy rejects technical-first resume copy", () => {
         "credentials, private paths, cookies, webhook",
         "## Developer Notes",
         "Implementation references",
-        "src/components/CoverLetterTemplates.tsx",
+        "src/features/applications/CoverLetterTemplates.tsx",
         "src-tauri/src/core/user_data/",
         "Tauri commands",
         "notificationPrefsExample",

@@ -510,9 +510,9 @@ test("product copy rejects technical backend error labels", () => {
 
 test("product copy rejects non-protective no-response labels", () => {
   withFixture((root) => {
-    writeFixtureFile(root, "src/pages/Applications.tsx", "Detect Ghosted\n");
+    writeFixtureFile(root, "src/features/applications/ApplicationsPage.tsx", "Detect Ghosted\n");
     writeFixtureFile(root, "src/components/DashboardWidgets.tsx", 'label="Ghosted"\n');
-    writeFixtureFile(root, "src/components/AnalyticsPanel.tsx", 'ghosted: "Ghosted"\n');
+    writeFixtureFile(root, "src/features/applications/AnalyticsPanel.tsx", 'ghosted: "Ghosted"\n');
     writeFixtureFile(root, "tests/e2e/playwright/application-tracking.spec.ts", '["ghosted", "Ghosted"]\n');
     writeFixtureFile(
       root,
@@ -520,9 +520,9 @@ test("product copy rejects non-protective no-response labels", () => {
       "| Ghosted | No response |\nNo response after the configured quiet period.\nSlack, Discord, Teams, SMTP, or other channels are used only if the user configures them.\n",
     );
 
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/pages/Applications.tsx"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/features/applications/ApplicationsPage.tsx"), true);
     assert.equal(hasTechnicalFirstUserCopy(root, "src/components/DashboardWidgets.tsx"), true);
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/components/AnalyticsPanel.tsx"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/features/applications/AnalyticsPanel.tsx"), true);
     assert.equal(
       hasTechnicalFirstUserCopy(root, "tests/e2e/playwright/application-tracking.spec.ts"),
       true,

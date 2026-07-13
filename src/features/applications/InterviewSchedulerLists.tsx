@@ -1,4 +1,4 @@
-import { Badge } from "./Badge";
+import { Badge } from "../../components/Badge";
 import {
   CalendarIcon,
   DownloadIcon,
@@ -16,7 +16,7 @@ import {
   type Interview,
   type InterviewTab,
 } from "./InterviewSchedulerModel";
-import { formatInterviewDate, getRelativeTimeUntil } from "../utils/formatUtils";
+import { formatInterviewDate, getRelativeTimeUntil } from "../../utils/formatUtils";
 
 interface InterviewSchedulerTabsProps {
   activeTab: InterviewTab;

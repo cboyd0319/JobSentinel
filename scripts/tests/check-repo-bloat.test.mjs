@@ -796,7 +796,7 @@ test("checkRepoBloat rejects stale interview follow-up frontend shape", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src/components/InterviewScheduler.tsx",
+      "src/features/applications/InterviewScheduler.tsx",
       [
         "export function mapFollowup(result) {",
         "  return { thankYouSent: result.thank_you_sent, sentAt: result.sent_at };",
@@ -805,14 +805,14 @@ test("checkRepoBloat rejects stale interview follow-up frontend shape", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "src/components/InterviewScheduler.tsx"], {
+    execFileSync("git", ["add", "package.json", "src/features/applications/InterviewScheduler.tsx"], {
       cwd: root,
     });
 
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("sync interview follow-up frontend shape: src/components/InterviewScheduler.tsx"),
+      violations.includes("sync interview follow-up frontend shape: src/features/applications/InterviewScheduler.tsx"),
       violations.join("\n"),
     );
   });

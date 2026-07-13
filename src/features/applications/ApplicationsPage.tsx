@@ -1,6 +1,6 @@
-import { useEffect, useState, useCallback, lazy, Suspense, useId, useMemo, useRef } from "react";
+import { useEffect, useState, useCallback, useId, useMemo, useRef } from "react";
 import { invoke } from "@tauri-apps/api/core";
-import { cachedInvoke, invalidateCacheByCommand, safeInvokeWithToast } from "../utils/api";
+import { cachedInvoke, invalidateCacheByCommand, safeInvokeWithToast } from "../../utils/api";
 import {
   DndContext,
   DragOverlay,
@@ -13,31 +13,18 @@ import {
   DragOverEvent,
 } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
-import { Button } from "../components/Button";
-import { Card } from "../components/Card";
-import { AnalyticsSkeleton, ModalSkeleton } from "../components/LoadingFallbacks";
-import { Modal, ModalFooter } from "../components/Modal";
-import { useToast } from "../contexts";
-import { useUndo } from "../hooks/useUndo";
-import { logError } from "../utils/errorUtils";
-import { formatEventDate } from "../utils/formatUtils";
-import {
-  AnalyticsIcon,
-  AppliedIcon,
-  BackIcon,
-  CalendarIcon,
-  OfferIcon,
-  PhoneStatIcon,
-  ProgressIcon,
-  TemplateIcon,
-} from "./ApplicationsIcons";
+import { Button } from "../../components/Button";
+import { Card } from "../../components/Card";
+import { useToast } from "../../contexts";
+import { useUndo } from "../../hooks/useUndo";
+import { logError } from "../../utils/errorUtils";
+import { formatEventDate } from "../../utils/formatUtils";
 import {
   findApplicationById,
   findColumnForApplication,
   getApplicationReviewSummary,
   formatReminderType,
   getApplicationStats,
-  getInterviewSchedulerApplications,
   hasAnyApplications,
   STATUS_COLUMNS,
   type Application,
@@ -49,21 +36,17 @@ import { APPLICATION_DRAG_COLLISION_DETECTION } from "./applicationsDnd";
 import {
   DroppableColumn,
   KanbanSkeleton,
-  QuickStat,
 } from "./ApplicationsBoard";
 import { ApplicationsReviewPanel } from "./ApplicationsReviewPanel";
-
-// Lazy load heavy components to reduce initial bundle size
-const AnalyticsPanel = lazy(() => import("../components/AnalyticsPanel").then(m => ({ default: m.AnalyticsPanel })));
-const InterviewScheduler = lazy(() => import("../components/InterviewScheduler").then(m => ({ default: m.InterviewScheduler })));
-const CoverLetterTemplates = lazy(() => import("../components/CoverLetterTemplates").then(m => ({ default: m.CoverLetterTemplates })));
+import { ApplicationsOverlays } from "./ApplicationsOverlays";
+import { ApplicationsHeader } from "./ApplicationsHeader";
 
 interface ApplicationsProps {
   onBack: () => void;
   onImportJob?: () => void;
 }
 
-export default function Applications({ onBack, onImportJob }: ApplicationsProps) {
+export default function ApplicationsPage({ onBack, onImportJob }: ApplicationsProps) {
   const [applications, setApplications] = useState<ApplicationsByStatus | null>(null);
   const [reminders, setReminders] = useState<PendingReminder[]>([]);
   const [loading, setLoading] = useState(true);
@@ -217,6 +200,25 @@ export default function Applications({ onBack, onImportJob }: ApplicationsProps)
     }
   };
 
+  const handleStatusChange = async (newStatus: string) => {
+    if (!selectedApp) return;
+
+    try {
+      await invoke("update_application_status", { applicationId: selectedApp.id, status: newStatus });
+      invalidateCacheByCommand("get_applications_kanban");
+      const newLabel = STATUS_COLUMNS.find((column) => column.key === newStatus)?.label ?? newStatus;
+      toast.success("Status updated", `Application moved to ${newLabel}`);
+      setSelectedApp({ ...selectedApp, status: newStatus });
+      fetchData();
+    } catch (error: unknown) {
+      logError("Failed to update status:", error);
+      toast.error(
+        "Could not update status",
+        "The application status wasn't changed. Try again, or copy a safe support report before closing and reopening JobSentinel.",
+      );
+    }
+  };
+
   const handleAddNotes = async () => {
     if (!selectedApp || !notes.trim()) return;
     const appId = selectedApp.id;
@@ -324,78 +326,14 @@ export default function Applications({ onBack, onImportJob }: ApplicationsProps)
         )}
       </div>
 
-      {/* Header */}
-      <header className="bg-white dark:bg-surface-800 border-b border-surface-100 dark:border-surface-700 sticky top-0 z-10">
-        <div className="max-w-full mx-auto px-6 py-4">
-          <div className="flex min-w-0 flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div className="flex min-w-0 items-start gap-3 md:items-center">
-              <button
-                onClick={onBack}
-                className="shrink-0 p-2 text-surface-500 hover:text-surface-700 dark:text-surface-400 dark:hover:text-surface-200 transition-colors"
-                aria-label="Go back"
-              >
-                <BackIcon />
-              </button>
-              <div className="min-w-0">
-                <h1 className="break-words font-display text-display-md text-surface-900 dark:text-white">
-                  Application Tracker
-                </h1>
-                <p className="break-words text-sm text-surface-500 dark:text-surface-400">
-                  Track each application from saved job to final decision.
-                </p>
-              </div>
-            </div>
-            <div className="flex min-w-0 flex-wrap items-center gap-2 md:justify-end">
-              <Button onClick={() => setShowTemplates(true)} variant="secondary" className="min-w-0">
-                <TemplateIcon />
-                Templates
-              </Button>
-              <Button onClick={() => setShowInterviews(true)} variant="secondary" className="min-w-0">
-                <CalendarIcon />
-                Interviews
-              </Button>
-              <Button onClick={() => setShowAnalytics(true)} variant="secondary" className="min-w-0">
-                <AnalyticsIcon />
-                Summary
-              </Button>
-              <Button onClick={handleReviewNoResponses} variant="secondary" className="min-w-0 whitespace-normal">
-                Review No Responses
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Quick Stats Bar */}
-      {stats && (
-        <div className="bg-white dark:bg-surface-800 border-b border-surface-100 dark:border-surface-700 px-6 py-3">
-          <div className="flex min-w-0 flex-wrap items-center gap-x-6 gap-y-2 text-sm">
-            <QuickStat
-              label="Applied"
-              value={stats.totalApplied}
-              icon={<AppliedIcon />}
-            />
-            <QuickStat
-              label="Interviews"
-              value={stats.interviews}
-              percent={stats.interviewRate}
-              icon={<PhoneStatIcon />}
-            />
-            <QuickStat
-              label="Offers"
-              value={stats.offers}
-              percent={stats.offerRate}
-              icon={<OfferIcon />}
-              highlight
-            />
-            <QuickStat
-              label="In Progress"
-              value={stats.inProgress}
-              icon={<ProgressIcon />}
-            />
-          </div>
-        </div>
-      )}
+      <ApplicationsHeader
+        onBack={onBack}
+        onOpenInterviews={() => setShowInterviews(true)}
+        onOpenSummary={() => setShowAnalytics(true)}
+        onOpenTemplates={() => setShowTemplates(true)}
+        onReviewNoResponses={handleReviewNoResponses}
+        stats={stats}
+      />
 
       <main className="p-6">
         <ApplicationsReviewPanel
@@ -507,121 +445,23 @@ export default function Applications({ onBack, onImportJob }: ApplicationsProps)
         </DndContext>
       </main>
 
-      {/* Application Detail Modal */}
-      <Modal
-        isOpen={Boolean(selectedApp)}
-        onClose={closeApplicationDetail}
-        title={selectedApp?.job_title}
-        size="lg"
-      >
-        {selectedApp && (
-          <div data-testid="application-detail-dialog" className="min-w-0">
-            <p className="mb-4 break-words text-surface-600 [overflow-wrap:anywhere] dark:text-surface-400">
-              {selectedApp.company}
-            </p>
-
-            <div className="mb-4">
-                <label htmlFor={appStatusId} className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
-                  Status
-                </label>
-                <select
-                  id={appStatusId}
-                  value={selectedApp.status}
-                  onChange={async (e) => {
-                    const newStatus = e.target.value;
-                    try {
-                      await invoke("update_application_status", { applicationId: selectedApp.id, status: newStatus });
-                      invalidateCacheByCommand("get_applications_kanban");
-                      const newLabel = STATUS_COLUMNS.find((col) => col.key === newStatus)?.label ?? newStatus;
-                      toast.success("Status updated", `Application moved to ${newLabel}`);
-                      setSelectedApp({ ...selectedApp, status: newStatus });
-                      fetchData();
-                    } catch (err: unknown) {
-                      logError("Failed to update status:", err);
-                      toast.error(
-                        "Could not update status",
-                        "The application status wasn't changed. Try again, or copy a safe support report before closing and reopening JobSentinel."
-                      );
-                    }
-                  }}
-                  className="w-full px-3 py-2 border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 focus-visible:ring-2 focus-visible:ring-sentinel-500 focus:border-sentinel-500"
-                >
-                  {STATUS_COLUMNS.map((col) => (
-                    <option key={col.key} value={col.key}>
-                      {col.label}
-                    </option>
-                  ))}
-                </select>
-            </div>
-
-            <div className="mb-4">
-                <label htmlFor={appNotesId} className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-2">
-                  Add Notes
-                </label>
-                <textarea
-                  id={appNotesId}
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  placeholder="Add notes about this application..."
-                  rows={3}
-                  maxLength={500}
-                  className="w-full px-3 py-2 border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 resize-none break-words [overflow-wrap:anywhere] focus-visible:ring-2 focus-visible:ring-sentinel-500 focus:border-sentinel-500"
-                />
-                <p className="text-xs text-surface-500 dark:text-surface-400 mt-1 text-right">
-                  {notes.length}/500 characters
-                </p>
-            </div>
-
-            {selectedApp.notes && (
-              <div className="mb-4 rounded-lg bg-surface-50 p-3 dark:bg-surface-700">
-                <p className="whitespace-pre-wrap break-words text-sm text-surface-600 [overflow-wrap:anywhere] dark:text-surface-400">
-                    Previous notes: {selectedApp.notes}
-                </p>
-              </div>
-            )}
-
-            <ModalFooter className="flex-col sm:flex-row">
-              <Button variant="secondary" onClick={closeApplicationDetail} className="w-full sm:flex-1">
-                Close
-              </Button>
-              <Button onClick={handleAddNotes} disabled={!notes.trim()} className="w-full sm:flex-1">
-                Save Notes
-              </Button>
-            </ModalFooter>
-          </div>
-        )}
-      </Modal>
-
-      {/* Application summary panel */}
-      {showAnalytics && (
-        <Suspense fallback={<AnalyticsSkeleton />}>
-          <AnalyticsPanel onClose={() => setShowAnalytics(false)} />
-        </Suspense>
-      )}
-
-      {/* Interview Scheduler */}
-      {showInterviews && applications && (
-        <Suspense fallback={<ModalSkeleton />}>
-          <InterviewScheduler
-            onClose={() => setShowInterviews(false)}
-            applications={getInterviewSchedulerApplications(applications)}
-          />
-        </Suspense>
-      )}
-
-      {/* Cover Letter Templates */}
-      {showTemplates && (
-        <Modal
-          isOpen
-          onClose={() => setShowTemplates(false)}
-          title="Cover Letter Templates"
-          size="wide"
-        >
-          <Suspense fallback={<ModalSkeleton />}>
-            <CoverLetterTemplates />
-          </Suspense>
-        </Modal>
-      )}
+      <ApplicationsOverlays
+        appNotesId={appNotesId}
+        appStatusId={appStatusId}
+        applications={applications}
+        notes={notes}
+        onCloseAnalytics={() => setShowAnalytics(false)}
+        onCloseApplication={closeApplicationDetail}
+        onCloseInterviews={() => setShowInterviews(false)}
+        onCloseTemplates={() => setShowTemplates(false)}
+        onNotesChange={setNotes}
+        onSaveNotes={handleAddNotes}
+        onStatusChange={handleStatusChange}
+        selectedApp={selectedApp}
+        showAnalytics={showAnalytics}
+        showInterviews={showInterviews}
+        showTemplates={showTemplates}
+      />
     </div>
   );
 }

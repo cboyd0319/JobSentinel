@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { CoverLetterTemplates } from "./CoverLetterTemplates";
-import { fillTemplatePlaceholders, type JobForTemplate } from "../utils/coverLetterUtils";
-import { UndoProvider } from "../contexts/UndoContext";
+import { fillTemplatePlaceholders, type JobForTemplate } from "../../utils/coverLetterUtils";
+import { UndoProvider } from "../../contexts/UndoContext";
 
 // Mock Tauri invoke
 const mockInvoke = vi.fn();
@@ -17,7 +17,7 @@ const mockToast = {
   info: vi.fn(),
   warning: vi.fn(),
 };
-vi.mock("../contexts", () => ({
+vi.mock("../../contexts", () => ({
   useToast: () => mockToast,
 }));
 

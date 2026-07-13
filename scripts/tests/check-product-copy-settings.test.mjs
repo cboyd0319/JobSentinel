@@ -211,7 +211,7 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/AnalyticsPanel.tsx",
+      "src/features/applications/AnalyticsPanel.tsx",
       [
         "Application Funnel",
         "No funnel data yet",
@@ -448,7 +448,7 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/CoverLetterTemplates.tsx",
+      "src/features/applications/CoverLetterTemplates.tsx",
       [
         "Available placeholders (click to insert):",
         "<button>{placeholder}</button>",
@@ -656,7 +656,7 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/InterviewScheduler.tsx",
+      "src/features/applications/InterviewScheduler.tsx",
       'fallbackTitle: "Failed to load interviews"\nMark as Complete\n>Failed<\nDid not go well\nfeedbackOutcome.charAt(0).toUpperCase()\nInterview Outcome:\n',
     );
     writeFixtureFile(
@@ -666,7 +666,7 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/pages/Applications.tsx",
+      "src/features/applications/ApplicationsPage.tsx",
       "{reminder.reminder_type} - Due: {formatEventDate(reminder.reminder_time)}\nYour applications list failed to load\nStatus update failed\nRestart JobSentinel\nMove cards between columns, or use Space and arrow keys to update status\n>Analytics<\n",
     );
     writeFixtureFile(
@@ -807,13 +807,13 @@ test("product copy rejects technical-first settings copy", () => {
       "src-tauri/src/core/automation/error.rs",
       "src-tauri/src/core/resume/ats_analyzer.rs",
       "src-tauri/src/core/scrapers/error.rs",
-      "src/components/AnalyticsPanel.tsx",
+      "src/features/applications/AnalyticsPanel.tsx",
       "src/components/AsyncButton.tsx",
       "src/components/AtsLiveScorePanel.tsx",
       "src/components/BookmarkletGenerator.tsx",
       "src/components/CommandPalette.tsx",
       "src/components/CompanyResearchPanel.tsx",
-      "src/components/CoverLetterTemplates.tsx",
+      "src/features/applications/CoverLetterTemplates.tsx",
       "src/components/ErrorLogPanel.tsx",
       "src/components/JobCard.tsx",
       "src/components/JobImportModal.tsx",
@@ -833,13 +833,13 @@ test("product copy rejects technical-first settings copy", () => {
       "src/contexts/UndoContext.tsx",
       "src/hooks/useFeedback.ts",
       "src/features/application-assist/ApplicationProfilePage.tsx",
-      "src/pages/Applications.tsx",
+      "src/features/applications/ApplicationsPage.tsx",
       "src/pages/Dashboard.tsx",
       "src/pages/DashboardUI/DashboardFiltersBar.tsx",
       "src/pages/DashboardUI/DashboardHeader.tsx",
       "src/pages/DashboardUI/filterLabels.ts",
       "src/pages/DashboardUI/noJobsEmptyStateCopy.ts",
-      "src/components/InterviewScheduler.tsx",
+      "src/features/applications/InterviewScheduler.tsx",
       "src/features/market/MarketPage.tsx",
       "src/pages/ResumeOptimizer.tsx",
       "src/pages/Settings.tsx",

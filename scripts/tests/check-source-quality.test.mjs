@@ -61,7 +61,7 @@ test("source quality rejects frontend glyphs and lint suppressions", () => {
       "src/contexts/UndoContext.tsx",
       "// eslint-disable-next-line react-refresh/only-export-components\n",
     );
-    writeFixtureFile(root, "src/components/InterviewScheduler.tsx", "<Button>✓ Passed</Button>\n");
+    writeFixtureFile(root, "src/features/applications/InterviewScheduler.tsx", "<Button>✓ Passed</Button>\n");
 
     assert.equal(hasProductionSourceGlyphMarkers(root, "src/features/market/MarketPage.tsx"), true);
     assert.equal(hasProductionExplicitAnySuppression(root, "src/features/market/TrendChart.tsx"), true);
@@ -71,7 +71,7 @@ test("source quality rejects frontend glyphs and lint suppressions", () => {
       true,
     );
     assert.equal(hasProductionReactRefreshSuppression(root, "src/contexts/UndoContext.tsx"), true);
-    assert.equal(hasFrontendStatusEmojiMarkers(root, "src/components/InterviewScheduler.tsx"), true);
+    assert.equal(hasFrontendStatusEmojiMarkers(root, "src/features/applications/InterviewScheduler.tsx"), true);
   });
 });
 
@@ -172,7 +172,7 @@ test("source quality rejects unsafe rendered JSON parsing", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/AnalyticsPanel.tsx",
+      "src/features/applications/AnalyticsPanel.tsx",
       "return stored ? JSON.parse(stored) : null;\n",
     );
     writeFixtureFile(
@@ -188,7 +188,7 @@ test("source quality rejects unsafe rendered JSON parsing", () => {
 
     assert.equal(hasUnsafeScoreReasonJsonParsing(root, "src/components/ScoreDisplay.tsx"), true);
     assert.equal(hasUnsafeScoreReasonJsonParsing(root, "src/components/GhostIndicator.tsx"), true);
-    assert.equal(hasUnsafeStorageJsonParsing(root, "src/components/AnalyticsPanel.tsx"), true);
+    assert.equal(hasUnsafeStorageJsonParsing(root, "src/features/applications/AnalyticsPanel.tsx"), true);
     assert.equal(hasUnsafeStorageJsonParsing(root, "src/components/AtsLiveScorePanel.tsx"), true);
     assert.equal(hasUnsafeStorageJsonParsing(root, "src/utils/resumeJobContext.ts"), true);
   });
@@ -218,12 +218,12 @@ test("source quality accepts analytics storage validation in model helper", () =
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src/components/AnalyticsPanel.tsx",
+      "src/features/applications/AnalyticsPanel.tsx",
       'import { getWeeklyGoal } from "../analyticsPanelModel";\ngetWeeklyGoal();\n',
     );
     writeFixtureFile(
       root,
-      "src/components/analyticsPanelModel.ts",
+      "src/features/applications/analyticsPanelModel.ts",
       [
         'const WEEKLY_GOALS_KEY = "jobsentinel_weekly_goals";',
         "export function getWeeklyGoal() {",
@@ -244,8 +244,8 @@ test("source quality accepts analytics storage validation in model helper", () =
       ].join("\n"),
     );
 
-    assert.equal(hasUnsafeStorageJsonParsing(root, "src/components/AnalyticsPanel.tsx"), false);
-    assert.equal(hasUnsafeStorageJsonParsing(root, "src/components/analyticsPanelModel.ts"), false);
+    assert.equal(hasUnsafeStorageJsonParsing(root, "src/features/applications/AnalyticsPanel.tsx"), false);
+    assert.equal(hasUnsafeStorageJsonParsing(root, "src/features/applications/analyticsPanelModel.ts"), false);
   });
 });
 
@@ -253,11 +253,11 @@ test("source quality rejects unsafe analytics storage model helper", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src/components/analyticsPanelModel.ts",
+      "src/features/applications/analyticsPanelModel.ts",
       "return stored ? JSON.parse(stored) : null;\n",
     );
 
-    assert.equal(hasUnsafeStorageJsonParsing(root, "src/components/analyticsPanelModel.ts"), true);
+    assert.equal(hasUnsafeStorageJsonParsing(root, "src/features/applications/analyticsPanelModel.ts"), true);
   });
 });
 

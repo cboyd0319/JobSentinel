@@ -1,5 +1,5 @@
-import { Button } from "./Button";
-import { Modal } from "./Modal";
+import { Button } from "../../components/Button";
+import { Modal } from "../../components/Modal";
 
 export interface InterviewScheduleApplication {
   id: number;
