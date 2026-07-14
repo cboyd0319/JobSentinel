@@ -1,8 +1,5 @@
 use super::*;
 
-#[path = "benchmarks_tests/manager_tests.rs"]
-mod manager_tests;
-
 #[test]
 fn test_salary_formatting() {
     assert_eq!(SalaryBenchmark::format_salary(150000), "150,000");

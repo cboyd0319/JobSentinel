@@ -386,6 +386,7 @@ test("checkRepositoryArchitecture rejects public implementation leaf modules", (
       "crates/jobsentinel-core/src/core/market_intelligence/mod.rs",
       "crates/jobsentinel-core/src/core/notify/mod.rs",
       "crates/jobsentinel-core/src/core/resume/mod.rs",
+      "crates/jobsentinel-core/src/core/salary/mod.rs",
       "crates/jobsentinel-core/src/core/scrapers/mod.rs",
       "crates/jobsentinel-core/src/core/scrapers/source_adapters/mod.rs",
     ]) {
@@ -407,6 +408,7 @@ test("checkRepositoryArchitecture rejects public implementation leaf modules", (
       "crates/jobsentinel-core/src/core/market_intelligence/mod.rs",
       "crates/jobsentinel-core/src/core/notify/mod.rs",
       "crates/jobsentinel-core/src/core/resume/mod.rs",
+      "crates/jobsentinel-core/src/core/salary/mod.rs",
       "crates/jobsentinel-core/src/core/scrapers/mod.rs",
       "crates/jobsentinel-core/src/core/scrapers/source_adapters/mod.rs",
     ]) {

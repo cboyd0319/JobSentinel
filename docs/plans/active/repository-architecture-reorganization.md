@@ -511,6 +511,7 @@ evidence-log entry.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-07-13 | Milestone 7 salary ownership complete | Made the salary benchmark, negotiation, and prediction leaves private behind the typed salary facade. Deleted the self-tested benchmark manager and negotiation-template management paths plus their tests, removing 890 net source and test lines while retaining shipped prediction, benchmark lookup, offer comparison, and script generation behavior. The focused salary suite passed 134 tests; the default workspace, all-feature Clippy and test-target compilation, all 776 script tests, and repository gates pass with live keyring access disabled. |
 | 2026-07-13 | Milestone 7 market ownership complete | Made the market alert, analytics, and computation leaves private behind the typed market facade. Deleted the 656-line self-tested trend-model surface plus unused alert listing, filtering, cleanup, and date-specific snapshot APIs and their self-only tests, removing 996 lines overall while retaining live daily computations, unread-alert handling, snapshot history, DTO serialization, and Tauri commands. The focused market suite passed 139 tests; the default workspace, all-feature Clippy and test-target compilation, all 776 script tests, and repository gates pass with live keyring access disabled. |
 | 2026-07-13 | Milestone 7 job-import ownership complete | Moved job-link preview, fetching, parsing, pending review state, and database insertion behind the private core import owner. Confirmation now uses a capped, expiring, memory-only identifier and saves the exact reviewed job without refetching; atomic insert preserves an existing saved job if a concurrent save wins. The Tauri adapter is 161 lines with no SQL, fetch, parser, or hashing ownership. Dashboard cache invalidation now makes successful imports visible immediately. The focused import, database, Tauri command, frontend, and 23-flow Dashboard E2E suites pass, as do 2,933 frontend tests, 776 script tests, the full default workspace, all-feature Clippy and test-target compilation, the production build, and repository gates with live keyring access disabled. |
 | 2026-07-13 | Milestone 7 notification ownership complete | Made all five notification provider modules private behind the typed service facade and retained only the Slack and email validators used by Tauri commands. Deleted unused Discord, Teams, and Telegram network test-message APIs while preserving provider send-path URL checks, pinned resolution, sanitized failures, credential isolation, and local match-detail copy. The full default workspace, 440 focused notification tests, 12 Tauri configuration tests, all-feature Clippy, all-feature test-target compilation, all 775 script tests, and repository gates pass with live keyring access disabled. |
@@ -643,7 +644,8 @@ evidence-log entry.
 - Current state: Milestones 0 through 6 plus the Milestone 7 file-cap, Rust
   lint-policy, facade, target, sensitive leaf-module, scraper, resume, and
   notification slices are complete with passing evidence. The core-owned
-  job-import and market slices are also complete. Privacy remains immutable.
+  job-import, market, and salary slices are also complete. Privacy remains
+  immutable.
 - Next step: continue the Rust owner visibility, dead-code, feature, and
   dependency audit before moving to easier cleanup surfaces.
 - Open risks: Windows and Linux platform builds still require their final live

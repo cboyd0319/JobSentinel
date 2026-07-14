@@ -2,13 +2,9 @@
 //!
 //! Manages salary benchmark data from H1B database and user reports.
 
-use crate::core::ats::parse_sqlite_datetime;
-
 use super::SeniorityLevel;
-use anyhow::Result;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use sqlx::{Row, SqlitePool};
 
 /// Salary benchmark data
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -75,135 +71,6 @@ impl SalaryBenchmark {
             // Already great, maybe push 5% higher
             (current_offer as f64 * 1.05) as i64
         }
-    }
-}
-
-/// Benchmark manager
-pub struct BenchmarkManager {
-    db: SqlitePool,
-}
-
-impl BenchmarkManager {
-    pub fn new(db: SqlitePool) -> Self {
-        Self { db }
-    }
-
-    /// Upsert salary benchmark
-    pub async fn upsert_benchmark(&self, benchmark: &SalaryBenchmark) -> Result<()> {
-        let seniority_str = benchmark.seniority_level.as_str();
-
-        sqlx::query(
-            r#"
-            INSERT INTO salary_benchmarks (
-                job_title_normalized, location_normalized, seniority_level,
-                min_salary, p25_salary, median_salary, p75_salary,
-                max_salary, average_salary, sample_size, data_source,
-                last_updated
-            )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'h1b', datetime('now'))
-            ON CONFLICT(job_title_normalized, location_normalized, seniority_level, data_source)
-            DO UPDATE SET
-                min_salary = excluded.min_salary,
-                p25_salary = excluded.p25_salary,
-                median_salary = excluded.median_salary,
-                p75_salary = excluded.p75_salary,
-                max_salary = excluded.max_salary,
-                average_salary = excluded.average_salary,
-                sample_size = excluded.sample_size,
-                last_updated = datetime('now')
-            "#,
-        )
-        .bind(&benchmark.job_title)
-        .bind(&benchmark.location)
-        .bind(seniority_str)
-        .bind(benchmark.min_salary)
-        .bind(benchmark.p25_salary)
-        .bind(benchmark.median_salary)
-        .bind(benchmark.p75_salary)
-        .bind(benchmark.max_salary)
-        .bind(benchmark.average_salary)
-        .bind(benchmark.sample_size)
-        .execute(&self.db)
-        .await?;
-
-        Ok(())
-    }
-
-    /// Get all benchmarks for a job title
-    pub async fn get_benchmarks_for_title(&self, job_title: &str) -> Result<Vec<SalaryBenchmark>> {
-        let rows = sqlx::query(
-            r#"
-            SELECT job_title_normalized, location_normalized, seniority_level,
-                   min_salary, p25_salary, median_salary, p75_salary,
-                   max_salary, average_salary, sample_size, last_updated
-            FROM salary_benchmarks
-            WHERE job_title_normalized LIKE ?
-            ORDER BY sample_size DESC
-            LIMIT 50
-            "#,
-        )
-        .bind(format!("%{}%", job_title.to_lowercase()))
-        .fetch_all(&self.db)
-        .await?;
-
-        rows.into_iter()
-            .map(|r| {
-                let last_updated: String = r.try_get("last_updated")?;
-
-                Ok(SalaryBenchmark {
-                    job_title: r
-                        .try_get::<String, _>("job_title_normalized")
-                        .unwrap_or_default(),
-                    location: r
-                        .try_get::<String, _>("location_normalized")
-                        .unwrap_or_default(),
-                    seniority_level: SeniorityLevel::parse(
-                        &r.try_get::<String, _>("seniority_level")
-                            .unwrap_or_default(),
-                    ),
-                    min_salary: r.try_get::<i64, _>("min_salary").unwrap_or(0),
-                    p25_salary: r.try_get::<i64, _>("p25_salary").unwrap_or(0),
-                    median_salary: r.try_get::<i64, _>("median_salary").unwrap_or(0),
-                    p75_salary: r.try_get::<i64, _>("p75_salary").unwrap_or(0),
-                    max_salary: r.try_get::<i64, _>("max_salary").unwrap_or(0),
-                    average_salary: r.try_get::<i64, _>("average_salary").unwrap_or(0),
-                    sample_size: r.try_get::<i64, _>("sample_size").unwrap_or(0),
-                    last_updated: parse_sqlite_datetime(&last_updated)?,
-                })
-            })
-            .collect()
-    }
-
-    /// Get top paying locations for a job title
-    pub async fn get_top_paying_locations(
-        &self,
-        job_title: &str,
-        limit: usize,
-    ) -> Result<Vec<(String, i64)>> {
-        let rows = sqlx::query(
-            r#"
-            SELECT location_normalized, median_salary
-            FROM salary_benchmarks
-            WHERE job_title_normalized = ?
-            ORDER BY median_salary DESC
-            LIMIT ?
-            "#,
-        )
-        .bind(job_title)
-        .bind(limit as i64)
-        .fetch_all(&self.db)
-        .await?;
-
-        Ok(rows
-            .into_iter()
-            .map(|r| {
-                (
-                    r.try_get::<String, _>("location_normalized")
-                        .unwrap_or_default(),
-                    r.try_get::<i64, _>("median_salary").unwrap_or(0),
-                )
-            })
-            .collect())
     }
 }
 

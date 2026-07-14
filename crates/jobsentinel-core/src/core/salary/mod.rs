@@ -38,20 +38,14 @@
 //! println!("Market median: ${}", prediction.median);
 //! ```
 
-// Submodules
-pub mod benchmarks;
-pub mod negotiation;
-pub mod predictor;
-
-// Internal modules
 mod analyzer;
+mod benchmarks;
+mod negotiation;
+mod predictor;
 mod types;
 
-// Re-exports
 pub use analyzer::SalaryAnalyzer;
 pub use benchmarks::SalaryBenchmark;
-pub use negotiation::NegotiationScriptGenerator;
-pub use predictor::SalaryPredictor;
 pub use types::{OfferComparison, SalaryPrediction, SeniorityLevel};
 
 // Tests module

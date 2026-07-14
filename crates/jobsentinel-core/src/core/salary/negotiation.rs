@@ -50,51 +50,6 @@ impl NegotiationScriptGenerator {
 
         Ok(row.try_get::<String, _>("template_text")?)
     }
-
-    /// Get all available templates
-    pub async fn get_templates(&self) -> Result<Vec<(String, String)>> {
-        let rows = sqlx::query(
-            "SELECT template_name, scenario FROM negotiation_templates ORDER BY is_default DESC, template_name ASC",
-        )
-        .fetch_all(&self.db)
-        .await?;
-
-        Ok(rows
-            .into_iter()
-            .map(|r| {
-                (
-                    r.try_get::<String, _>("template_name").unwrap_or_default(),
-                    r.try_get::<String, _>("scenario").unwrap_or_default(),
-                )
-            })
-            .collect())
-    }
-
-    /// Add custom template
-    pub async fn add_template(
-        &self,
-        name: &str,
-        scenario: &str,
-        template_text: &str,
-        placeholders: Vec<String>,
-    ) -> Result<()> {
-        let placeholders_json = serde_json::to_string(&placeholders)?;
-
-        sqlx::query(
-            r#"
-            INSERT INTO negotiation_templates (template_name, scenario, template_text, placeholders, is_default)
-            VALUES (?, ?, ?, ?, 0)
-            "#,
-        )
-        .bind(name)
-        .bind(scenario)
-        .bind(template_text)
-        .bind(&placeholders_json)
-        .execute(&self.db)
-        .await?;
-
-        Ok(())
-    }
 }
 
 #[cfg(test)]
