@@ -22,6 +22,7 @@ const requiredWorkspaceSections = [
   "workspace.lints.rust",
   "workspace.lints.clippy",
   "profile.release",
+  'profile.release.package."*"',
 ];
 
 function read(root, path) {

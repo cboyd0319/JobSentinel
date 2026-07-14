@@ -8,25 +8,23 @@
       "id": "active-status",
       "path": "docs/plans/active/status.md",
       "state": "active",
-      "nextStep": "Read first for full-repository refactor scope, immutable privacy guarantees, current evidence, next best work, and Rule 0 constraints.",
+      "nextStep": "Read first for completed refactor evidence, immutable privacy guarantees, current source-candidate state, and Rule 0 constraints.",
       "verification": "npm run harness:session"
     },
     {
       "id": "current-product-and-quality-work",
       "path": "docs/plans/active/current-work.md",
       "state": "active",
-      "nextStep": "Keep the full refactor, cleanup, and v2.9.5 readiness work aligned with privacy, harness, design, platform, and release evidence.",
+      "nextStep": "Preserve the completed source candidate and require explicit authorization before release execution.",
       "verification": "npm run harness:check; for redesign changes, add Computer Use or Playwright screenshot proof across touched routes, modals, toasts, settings, keyboard flow, and narrow-width states."
-    },
-    {
-      "id": "repository-architecture-reorganization",
-      "path": "docs/plans/active/repository-architecture-reorganization.md",
-      "state": "active",
-      "nextStep": "Run the complete v2.9.5 release-readiness and platform matrix, record clean-state evidence, close the refactor plan, and stop before release execution.",
-      "verification": "npm run lint:architecture; npm run lint:bloat; npm run test:scripts; npm run harness:check"
     }
   ],
   "completedWorkstreams": [
+    {
+      "id": "repository-architecture-reorganization",
+      "path": "docs/plans/completed/repository-architecture-reorganization.md",
+      "state": "completed"
+    },
     {
       "id": "v2.9.1-maintenance-and-repo-cleanup",
       "path": "docs/plans/completed/v2.9.1-maintenance-and-repo-cleanup.md",

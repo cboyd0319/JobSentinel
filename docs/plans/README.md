@@ -23,7 +23,6 @@ See [Exec Plans](../exec-plans.md) for required format.
 | ---------- | -------- |
 | Current active status | [Compact status](active/status.md) |
 | Current product and quality work | [Active plan](active/current-work.md) |
-| Full repository refactor and v2.9.5 readiness | [Active plan](active/repository-architecture-reorganization.md) |
 
 ## Major-Release Planning
 
@@ -52,6 +51,7 @@ Each broad plan follows [the exec-plan template](templates/exec-plan-template.md
 
 | Version | Status | Document |
 | ------- | ------ | -------- |
+| v2.9.5 | Source readiness complete | [Full repository refactor and readiness](completed/repository-architecture-reorganization.md) |
 | Feedback workflow | Complete on main | [Beta feedback system](completed/beta-feedback-system.md) |
 | v2.9.1 | Complete | [Maintenance and repo cleanup](completed/v2.9.1-maintenance-and-repo-cleanup.md) |
 | v2.9.0 | Complete | [Completion and full-feature roadmap](completed/v2.9.0-completion-and-full-feature-roadmap.md) |

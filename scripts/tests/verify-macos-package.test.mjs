@@ -9,6 +9,7 @@ import {
 } from "../platform/macos-signature.mjs";
 import {
   buildGatekeeperAssessArgs,
+  bundleIconResourceNames,
   buildMacosOpenArgs,
   buildStaplerValidateArgs,
   bundleMetadataViolations,
@@ -26,6 +27,12 @@ import {
   smokeDataPermissionViolations,
   verifyLocalDmgChecksum,
 } from "../release/verify-macos-package.mjs";
+
+test("macOS verifier resolves bundle icon resource names", () => {
+  assert.deepEqual(bundleIconResourceNames("icon.icns"), ["icon.icns"]);
+  assert.deepEqual(bundleIconResourceNames("AppIcon"), ["AppIcon", "AppIcon.icns"]);
+  assert.deepEqual(bundleIconResourceNames(""), []);
+});
 
 test("macOS verifier parses positional and flagged DMG arguments", () => {
   assert.deepEqual(parseArgs(["build.dmg"], "arm64"), {

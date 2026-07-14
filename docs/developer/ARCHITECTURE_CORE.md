@@ -20,6 +20,10 @@ separate runtime, dependency policy, release unit, or independently testable
 ownership boundary. Repository size and file count are not reasons to add a
 crate.
 
+The root workspace owns release optimization. JobSentinel binaries are
+symbol-stripped; third-party release dependencies remain unstripped so Apple
+linker toolchains can load host proc macros during universal package builds.
+
 ## Ownership Map
 
 | Owner | Responsibility | Important boundary |
@@ -81,9 +85,9 @@ configuration, cache, and log directory resolution plus platform
 initialization. Target-specific modules remain crate-private.
 
 The packaging minimum for macOS is declared in `src-tauri/tauri.conf.json`.
-macOS 26 is the current live validation target; Windows 11 is the current
-Windows validation target. Linux packaging uses the pinned workflow and helper
-contracts under `scripts/platform/`.
+The release target is macOS 26+; evidence records the exact live host. Windows
+11 is the Windows validation target. Linux packaging uses the pinned workflow
+and helper contracts under `scripts/platform/`.
 
 ## Tauri Interaction
 

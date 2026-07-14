@@ -4,20 +4,10 @@ Last updated: 2026-07-13. Read this first; load archived history only when neede
 
 ## Goal State
 
-The repo-wide goal remains open: zero known errors, privacy leaks, stale docs,
-brittle tests, user-facing technical assumptions, engineer-only defaults, and
-unverified claims.
-
-The `v2.9.1` maintenance release is published, verified, and closed out in
-maintained docs. Current work is the full repository refactor and v2.9.5
-readiness effort. Milestones 0 through 6 are complete: structural sensors,
-neutral data ownership, frontend feature ownership, backend cycle repair, the
-explicit two-member Cargo workspace, core extraction, and the thin private
-Tauri shell, and final script and harness ownership all have passing evidence.
-Milestone 7's file caps, Rust boundaries, owner audits, dependency and artifact
-cleanup, stale-path repair, and maintained-document alignment are complete. The
-public wiki and v2.9.5 version contract are complete. Platform evidence and the
-final release-readiness proof remain.
+The full repository refactor, cleanup, and v2.9.5 local source-readiness goal is
+complete. The final tree has explicit frontend, Rust, script, platform,
+documentation, and harness ownership with immutable privacy guarantees. No
+release execution is authorized.
 
 Observed release state on 2026-06-22 local time:
 
@@ -45,17 +35,15 @@ harness. It remains a harness-controlled active-goal acceptance gate;
 `DESIGN.md`, `docs/design/README.md`, and `docs/design/design-spec.md` remain
 UI/UX contracts.
 
-The user reopened a full repository refactor on 2026-07-13 with no internal
-backward-compatibility requirement. Privacy guarantees are immutable. Behavior,
-APIs, schemas, storage, tests, docs, and tooling may change; data changes require
-safe migration and no silent loss, and security may not weaken.
+The completed refactor intentionally has no internal backward-compatibility
+requirement. Data changes still require safe migration and no silent loss, and
+privacy and security may not weaken.
 
 ## Active Workstreams
 
 | Workstream | State | Current focus | Source |
 | ---------- | ----- | ------------- | ------ |
-| Current product and quality work | Active | Keep privacy, design, platform, harness, and release evidence aligned during the refactor | [Plan](current-work.md) |
-| Full repository refactor and v2.9.5 readiness | Active | Establish the version contract and run final release-readiness proof | [Plan](repository-architecture-reorganization.md) |
+| Current product and quality work | Active | Preserve the completed source candidate and require authorization before release execution | [Plan](current-work.md) |
 
 ## Current Posture
 
@@ -66,9 +54,12 @@ safe migration and no silent loss, and security may not weaken.
   checksums, SBOM manifests, SPDX SBOMs, and hosted attestations.
 - macOS and Windows signing gaps remain external. Do not claim Gatekeeper-ready
   macOS or signed Windows distribution before credential-backed proof exists.
-- The no-account macOS package is verified for checksum, metadata,
+- The v2.9.5 no-account universal package is live-verified on macOS 27 beta for
+  checksum, metadata,
   architecture, signature, launch smoke, install smoke, and private local data;
   expected Gatekeeper rejection remains an accepted no-account limitation.
+- Windows 11 and Linux were not live hosts. Pinned workflow, package, verifier,
+  fixture, and target-gated manifest contracts passed instead.
 - The separate `Verify Release Artifacts` workflow did not appear in the latest
   GitHub run list for the workflow-token-published `v2.9.1` release, so public
   release verification must be run explicitly until the pipeline has a blocking
@@ -112,11 +103,10 @@ safe migration and no silent loss, and security may not weaken.
 
 ## Next Best Work
 
-1. Run the complete frontend, Rust, E2E, security, dependency, SQLx, and package
-   readiness matrix.
-2. Record final Windows 11, macOS 26, and Linux evidence or named host gaps.
-3. Close the active plan without tagging, publishing, uploading, or dispatching
-   a release.
+1. Stop before tagging, signing, notarizing, uploading, publishing, or
+   dispatching a release.
+2. If release execution is explicitly authorized, rerun release-time platform
+   and public-asset verification from the completed source candidate.
 
 ## Completion Bar
 

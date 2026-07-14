@@ -2,8 +2,8 @@
 
 This archive preserves the completed checklists, acceptance commands, and
 rollback boundaries from the
-[active repository architecture plan](../active/repository-architecture-reorganization.md).
-The active plan retains the remaining cleanup and release-readiness work.
+[completed repository architecture plan](../completed/repository-architecture-reorganization.md).
+The completed plan records the cleanup and source-readiness outcomes.
 
 ## Completed Milestones
 

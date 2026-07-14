@@ -150,3 +150,8 @@ strip = "symbols"
 codegen-units = 1
 panic = "abort"
 overflow-checks = true
+
+# Keep host-side proc macros loadable on current Apple linker toolchains while
+# retaining symbol stripping for JobSentinel's final workspace binaries.
+[profile.release.package."*"]
+strip = "none"

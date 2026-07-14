@@ -439,7 +439,7 @@ The detailed checklists, acceptance commands, and rollback boundaries live in
   ownership. Keep the larger taxonomy and configuration limits explicit.
 - [x] Search maintained files for stale old-root references and explicitly
   classify necessary historical references.
-- [ ] Record Windows 11 and macOS 26 evidence or clearly name any host gap and
+- [x] Record Windows 11 and macOS 26+ evidence or clearly name any host gap and
   the isolated contract evidence used instead.
 
 Cleanup acceptance:
@@ -462,20 +462,20 @@ must belong to this plan and no build output or one-off report may be added.
 
 ### 8. Prove v2.9.5 release readiness
 
-- [ ] Confirm all refactor and cleanup milestones are complete with evidence.
+- [x] Confirm all refactor and cleanup milestones are complete with evidence.
 - [x] Update package, Tauri, Cargo workspace, changelog, docs, and release
   metadata to v2.9.5 in one version contract change.
 - [x] Refresh SQLx offline metadata, dependency rationale, SBOM inputs, and
   release-path fixtures from the final workspace.
-- [ ] Run the full frontend, Rust workspace, security, harness, docs, E2E, and
+- [x] Run the full frontend, Rust workspace, security, harness, docs, E2E, and
   platform package gates required by the verification matrix.
-- [ ] Verify a clean Windows 11 package path and a clean macOS 26 package path,
-  plus Linux contract or live evidence required by the release process.
+- [x] Verify a clean macOS 26+ package path and the Windows 11 and Linux package
+  contracts required by the release process. Record unavailable live hosts.
 - [x] Update the public GitHub wiki from the final commands and architecture.
-- [ ] Record all readiness evidence in `docs/harness/evidence-log.md`.
-- [ ] Move this plan to `docs/plans/completed/` only when readiness passes and
+- [x] Record all readiness evidence in `docs/harness/evidence-log.md`.
+- [x] Move this plan to `docs/plans/completed/` only when readiness passes and
   no required work remains.
-- [ ] Stop before tagging, publishing, uploading, or dispatching a release. Ask
+- [x] Stop before tagging, publishing, uploading, or dispatching a release. Ask
   for explicit release authorization.
 
 ## Verification
@@ -511,6 +511,7 @@ evidence-log entry.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-07-13 | Milestone 8 complete | The exact Rust 1.97 workspace matrix, 2,933 frontend tests, 775 script tests, 286 E2E flows, production and Storybook builds, dependency and security gates, and final harness checks pass. A no-account universal macOS package passed checksum, metadata, architecture, signature, visible-window launch, private-data, database, and copied-app install checks on macOS 27 beta. Windows 11 and Linux lacked live hosts; pinned workflow, package, verifier, and fixture contracts passed instead. Local Agent Skills, SPDX SBOM, manifest, checksum, and attestation inputs were generated without publishing. No Keychain opt-in, tag, upload, workflow dispatch, or publication occurred. |
 | 2026-07-13 | Milestone 8 version contract complete | Updated npm, both lockfile families, Tauri, Cargo workspace dependency, changelog, source-candidate notes, maintained docs, release fixtures, and the public wiki to distinguish v2.9.5 source readiness from the published v2.9.1 release. Added a cross-platform isolated SQLx metadata harness and removed the last live planner fallback to the pre-workspace Cargo layout. All 770 script tests, SQLx refresh and check, release version and readiness gates, Cargo metadata, docs, language, actions, dependencies, security, architecture, bloat, and harness checks pass. |
 | 2026-07-13 | Milestone 7 code and artifact cleanup complete | Audited every tracked root and owner, removed two unused frontend dependencies and 47 unused generated mobile and store icons, deleted obsolete transition-only source sensors and their self-only tests, repaired every stale current policy path, broadened raw Rust path/query privacy enforcement, and removed empty owner directories and generated build output. All 770 script tests, 2,933 frontend tests, production and Storybook builds, the Tauri no-bundle desktop build, documentation, dependency, architecture, bloat, security, duplication, language, and test-quality gates pass. |
 | 2026-07-13 | Milestone 7 Rust ownership audit complete | Added a static crate module-graph sensor that rejects uncompiled Rust source, deleted six orphan source files containing 1,579 lines, and denied unreachable public items through inherited workspace policy. Core implementation leaves and every Tauri command and response item now use the narrowest compiler-supported visibility. The full default workspace, all-feature Clippy, all-feature test-target compilation, all 777 script tests, architecture, bloat, privacy, security, language, duplication, and harness gates pass without live keyring access. The milestone removed 1,439 net lines. |
@@ -607,6 +608,9 @@ evidence-log entry.
   authorized.
 - Keep the default workspace test path free of operating-system credential
   prompts. Credential-store round trips remain explicit live tests.
+- Keep release dependencies unstripped so host proc macros remain loadable on
+  current Apple linker toolchains; retain symbol stripping for JobSentinel's
+  final workspace binaries.
 
 ## Outcomes
 
@@ -639,18 +643,20 @@ evidence-log entry.
   workspace Clippy, docs, architecture, language, bloat, and 100/100 harness
   score gates. Default tests did not access the operating-system credential
   store.
-- Milestone 7 remains open only for public-wiki alignment and final
-  cross-platform evidence. Code, artifact, dependency, root-entrypoint,
-  stale-path, maintained-document, and harness-policy cleanup are complete.
+- Milestones 7 and 8 are complete. The macOS 26+ package path is live-checked
+  on macOS 27 beta. Windows 11 and Linux remain honestly recorded host gaps
+  with passing pinned workflow, package, verifier, and fixture contracts.
+- The v2.9.5 source candidate has local package, checksum, Agent Skills, SPDX
+  SBOM, manifest, and attestation-input evidence. Public signing, notarization,
+  hosted provenance, tagging, upload, and publication remain release execution.
 
 ## Handoff
 
-- Current state: Milestones 0 through 6 plus the Milestone 7 structure, owner,
-  dead-code, dependency, artifact, root-entrypoint, stale-path, and maintained
-  documentation cleanup are complete with passing evidence. Privacy remains
-  immutable.
-- Next step: run the final release-readiness and platform matrix, close the
-  active plan, and stop before release execution.
-- Open risks: Windows and Linux platform builds still require their final live
-  release-readiness hosts. Current cross-platform evidence is contract and
-  release-fixture coverage plus target-gated manifests; macOS is live-checked.
+- Current state: all refactor, cleanup, dependency, documentation, harness, and
+  v2.9.5 source-readiness milestones are complete with passing evidence.
+  Privacy remains immutable.
+- Next step: stop. Tagging, signing, notarization, hosted provenance, upload,
+  workflow dispatch, and publication require explicit release authorization.
+- Open evidence gap: Windows 11 and Linux were not live hosts. Their current
+  evidence is pinned workflow, package, verifier, fixture, and target-gated
+  manifest coverage. macOS 26+ was live-checked on macOS 27 beta.

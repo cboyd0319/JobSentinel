@@ -358,7 +358,7 @@ const requiredBundleMetadata = [
   ["bundleVersion", "CFBundleVersion"],
 ];
 
-function bundleIconResourceNames(iconFile) {
+export function bundleIconResourceNames(iconFile) {
   if (!iconFile) {
     return [];
   }

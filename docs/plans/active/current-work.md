@@ -10,9 +10,8 @@ belongs in completed plans, archives, and git.
 ## Problem
 
 `v2.9.1` is published history. The `v2.9.5` source candidate now contains the
-full repository ownership refactor, cleanup, and documentation alignment. The
-remaining work is the final verification matrix and platform evidence before
-release authorization can be requested.
+completed repository ownership refactor, cleanup, documentation alignment, and
+local source-readiness evidence. Release execution is not authorized.
 
 ## Scope
 
@@ -42,9 +41,9 @@ Out of scope:
 
 | Area | State | Next useful slice |
 | ---- | ----- | ----------------- |
-| Active plan state | Current | Keep `status.md`, this file, the full-repository refactor plan, `docs/plans/index.json`, and harness manifest aligned. |
+| Active plan state | Current | Keep `status.md`, this file, `docs/plans/index.json`, and the harness manifest aligned. |
 | v2.9.1 release history | Complete | Keep the moved completed plan as history; do not use it as active release routing. |
-| Full repository refactor | Active | Complete v2.9.5 readiness evidence and close the refactor plan without weakening privacy. |
+| Full repository refactor | Complete | Preserve the completed plan and evidence; do not reopen internal compatibility work. |
 | Release pipeline | Deferred | Re-evaluate prior optimization decisions against the final workspace during v2.9.5 readiness. |
 | v3 planning | Deferred | Leave v3 docs available for later major-release work; do not implement during post-release closeout. |
 | Scraper/source verification | Maintenance watch | Keep existing source-boundary evidence and restricted-source rules intact; update only for cleanup or regressions. |
@@ -66,14 +65,11 @@ Out of scope:
 
 ## Next Work
 
-1. Run the complete v2.9.5 frontend, Rust, E2E, security, dependency, package,
-   SQLx, docs, and harness matrix.
-2. Record macOS 26 live evidence and Windows 11 and Linux live or isolated
-   contract evidence without overclaiming unavailable hosts.
-3. Close the refactor plan only after a clean worktree and evidence log prove
-   every completion condition.
-4. Stop before tagging, uploading, publishing, or dispatching a release.
-5. Confirm major route screenshots, Computer Use clicks, keyboard flow, and
+1. Stop before tagging, signing, notarizing, uploading, publishing, or
+   dispatching a release.
+2. If release execution is explicitly authorized, start from the completed
+   refactor evidence and rerun the release-time platform and public-asset gates.
+3. Confirm major route screenshots, Computer Use clicks, keyboard flow, and
    affected route, action, and state checks after any UI change.
 
 ## Sensors
@@ -114,7 +110,7 @@ or macOS deployment behavior.
 When resuming, read:
 
 1. [Status](status.md)
-2. [Full repository refactor and v2.9.5 readiness](repository-architecture-reorganization.md)
+2. [Completed full repository refactor and v2.9.5 readiness](../completed/repository-architecture-reorganization.md)
 3. [Verification matrix](../../harness/verification-matrix.md)
 4. Completed or archived plans only for old decisions
 

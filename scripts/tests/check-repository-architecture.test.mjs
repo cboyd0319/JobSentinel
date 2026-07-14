@@ -112,6 +112,9 @@ pedantic = "warn"
 
 [profile.release]
 panic = "abort"
+
+[profile.release.package."*"]
+strip = "none"
 `;
 }
 
@@ -222,6 +225,27 @@ test("checkRepositoryArchitecture rejects workspace members without manifests", 
     assert.ok(
       violations.includes(
         "Cargo.toml workspace member crates/jobsentinel-missing has no Cargo.toml",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepositoryArchitecture requires dependency-safe release stripping", () => {
+  withFixture((root) => {
+    writeTargetWorkspace(
+      root,
+      targetRootManifest().replace(
+        '\n[profile.release.package."*"]\nstrip = "none"\n',
+        "",
+      ),
+    );
+
+    const violations = checkRepositoryArchitecture(root);
+
+    assert.ok(
+      violations.includes(
+        'Cargo.toml must centralize [profile.release.package."*"]',
       ),
       violations.join("\n"),
     );

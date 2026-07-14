@@ -26,8 +26,8 @@ Active implementation planning is indexed in [docs/plans](plans/README.md).
 Major-release exploration for the next generation of JobSentinel lives in
 [v3 planning](plans/v3/README.md).
 The `v2.9.1` release is published. Current source metadata is the `v2.9.5`
-candidate after the full repository refactor and cleanup; final readiness proof
-is active.
+candidate after the completed full repository refactor, cleanup, and local
+source-readiness proof. Release execution still requires explicit authorization.
 Every non-trivial change should update the relevant feature doc, active plan,
 or tech-debt item before it is committed.
 
@@ -90,13 +90,13 @@ See [PRIVACY.md](../PRIVACY.md),
 [RESPONSIBLE_AI.md](../RESPONSIBLE_AI.md), and
 [privacy-first AI gateway](architecture/privacy-first-ai-gateway.md).
 
-## Active plans
+## Current and completed plans
 
 Current active plan docs are part of the repo goal:
 
 - [Active status](plans/active/status.md)
 - [Current product and quality work](plans/active/current-work.md)
-- [Full repository refactor and v2.9.5 readiness](plans/active/repository-architecture-reorganization.md)
+- [Completed full repository refactor and v2.9.5 readiness](plans/completed/repository-architecture-reorganization.md)
 
 Superseded long-running plan history is archived under
 [Archived Plans](plans/README.md#archived-plans).

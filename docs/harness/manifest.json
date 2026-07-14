@@ -37,7 +37,7 @@
     "docs/references.md",
     "docs/exec-plans.md",
     "docs/plans/README.md",
-    "docs/plans/active/repository-architecture-reorganization.md",
+    "docs/plans/completed/repository-architecture-reorganization.md",
     "docs/plans/index.json",
     "docs/plans/templates/exec-plan-template.md",
     "docs/plans/templates/change-contract-template.md",
@@ -181,7 +181,7 @@
       "Public GitHub wiki pages from `docs/harness/manifest.json` to update",
       "Lean and DRY:"
     ],
-    "docs/plans/active/repository-architecture-reorganization.md": [
+    "docs/plans/completed/repository-architecture-reorganization.md": [
       "## Problem",
       "Privacy guarantees are immutable",
       "modules before crates",
