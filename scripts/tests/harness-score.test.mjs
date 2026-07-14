@@ -26,7 +26,7 @@ function writeCompleteHarnessFixture(root) {
   writeFixtureFile(
     root,
     "rust-toolchain.toml",
-    ['[toolchain]', 'channel = "1.96.0"', 'components = ["clippy", "rustfmt"]'].join("\n"),
+    ['[toolchain]', 'channel = "1.97.0"', 'components = ["clippy", "rustfmt"]'].join("\n"),
   );
   writeFixtureFile(
     root,

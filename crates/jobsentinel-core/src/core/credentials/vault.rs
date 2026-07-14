@@ -4,8 +4,8 @@
 //! XChaCha20-Poly1305 nonce, ciphertext, key version, and algorithm metadata.
 
 use chacha20poly1305::{
-    aead::{rand_core::RngCore, Aead, AeadCore, KeyInit, OsRng, Payload},
-    Key, XChaCha20Poly1305, XNonce,
+    aead::{Aead, Generate, KeyInit, Payload},
+    XChaCha20Poly1305, XNonce,
 };
 use sqlx::{sqlite::SqlitePool, Row};
 use std::{fmt, sync::Arc};
@@ -75,9 +75,7 @@ impl SecretVault {
     /// Generate a random 256-bit vault master key.
     #[must_use]
     pub(super) fn generate_master_key() -> [u8; MASTER_KEY_LEN] {
-        let mut bytes = [0_u8; MASTER_KEY_LEN];
-        OsRng.fill_bytes(&mut bytes);
-        bytes
+        <[u8; MASTER_KEY_LEN]>::generate()
     }
 
     #[cfg(test)]
@@ -107,8 +105,8 @@ impl SecretVault {
         reject_disabled_credential_storage(key).map_err(SecretVaultError::Credential)?;
         validate_credential_value(key, value).map_err(SecretVaultError::Credential)?;
 
-        let cipher = self.cipher();
-        let nonce = XChaCha20Poly1305::generate_nonce(&mut OsRng);
+        let cipher = self.cipher()?;
+        let nonce = XNonce::generate();
         let aad = aad_for_key(key);
         let ciphertext = cipher.encrypt(
             &nonce,
@@ -185,8 +183,10 @@ impl SecretVault {
 
         let ciphertext: Vec<u8> = row.try_get("ciphertext")?;
         let aad = aad_for_key(key);
-        let plaintext = self.cipher().decrypt(
-            XNonce::from_slice(&nonce),
+        let nonce =
+            XNonce::try_from(nonce.as_slice()).map_err(|_| SecretVaultError::InvalidData)?;
+        let plaintext = self.cipher()?.decrypt(
+            &nonce,
             Payload {
                 msg: &ciphertext,
                 aad: aad.as_bytes(),
@@ -205,8 +205,9 @@ impl SecretVault {
         Ok(())
     }
 
-    fn cipher(&self) -> XChaCha20Poly1305 {
-        XChaCha20Poly1305::new(Key::from_slice(self.master_key.as_ref().as_ref()))
+    fn cipher(&self) -> Result<XChaCha20Poly1305, SecretVaultError> {
+        XChaCha20Poly1305::new_from_slice(self.master_key.as_ref().as_ref())
+            .map_err(|_| SecretVaultError::Crypto)
     }
 }
 

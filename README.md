@@ -348,8 +348,8 @@ Developer entrypoints:
 Requirements:
 
 - Node.js 24.18.0 from `.nvmrc`
-- npm 11.17.0 from `package.json`
-- Rust 1.96.0 from `rust-toolchain.toml`
+- npm 12.0.1 from `package.json`
+- Rust 1.97.0 from `rust-toolchain.toml`
 - Platform packages from [developer setup](docs/developer/GETTING_STARTED.md)
 
 Current backend surface: **207 registered Tauri commands**.

@@ -5,8 +5,8 @@
 
 use argon2::{Algorithm, Argon2, Params, Version};
 use chacha20poly1305::{
-    aead::{rand_core::RngCore, Aead, KeyInit, OsRng, Payload},
-    Key, XChaCha20Poly1305, XNonce,
+    aead::{Aead, Generate, KeyInit, Payload},
+    XChaCha20Poly1305, XNonce,
 };
 use sqlx::{sqlite::SqlitePool, Row};
 use std::fmt;
@@ -180,16 +180,15 @@ fn encrypt_vault_key(
     vault_key: &[u8; MASTER_KEY_LEN],
     params: KdfParams,
 ) -> Result<WrappedVaultKey, PassphraseError> {
-    let mut salt = vec![0_u8; SALT_LEN];
-    OsRng.fill_bytes(&mut salt);
-    let mut nonce = vec![0_u8; NONCE_LEN];
-    OsRng.fill_bytes(&mut nonce);
+    let salt = <[u8; SALT_LEN]>::generate();
+    let nonce = XNonce::generate();
 
     let derived_key = derive_key(passphrase, &salt, params)?;
-    let cipher = XChaCha20Poly1305::new(Key::from_slice(derived_key.as_ref()));
+    let cipher = XChaCha20Poly1305::new_from_slice(derived_key.as_ref())
+        .map_err(|_| PassphraseError::Storage)?;
     let ciphertext = cipher
         .encrypt(
-            XNonce::from_slice(&nonce),
+            &nonce,
             Payload {
                 msg: vault_key.as_slice(),
                 aad: WRAP_AAD,
@@ -201,8 +200,8 @@ fn encrypt_vault_key(
         memory_kib: params.memory_kib,
         iterations: params.iterations,
         parallelism: params.parallelism,
-        salt,
-        nonce,
+        salt: salt.to_vec(),
+        nonce: nonce.to_vec(),
         ciphertext,
     })
 }
@@ -219,11 +218,14 @@ fn decrypt_vault_key(
         parallelism: envelope.parallelism,
     };
     let derived_key = derive_key(passphrase, &envelope.salt, params)?;
-    let cipher = XChaCha20Poly1305::new(Key::from_slice(derived_key.as_ref()));
+    let cipher = XChaCha20Poly1305::new_from_slice(derived_key.as_ref())
+        .map_err(|_| PassphraseError::UnsupportedEnvelope)?;
+    let nonce = XNonce::try_from(envelope.nonce.as_slice())
+        .map_err(|_| PassphraseError::UnsupportedEnvelope)?;
     let plaintext = Zeroizing::new(
         cipher
             .decrypt(
-                XNonce::from_slice(&envelope.nonce),
+                &nonce,
                 Payload {
                     msg: envelope.ciphertext.as_slice(),
                     aad: WRAP_AAD,

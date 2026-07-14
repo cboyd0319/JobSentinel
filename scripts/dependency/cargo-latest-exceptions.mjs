@@ -3,7 +3,7 @@ const allowedCargoLatestStableExceptions = new Map([
     "libsqlite3-sys",
     {
       version: "0.37.0",
-      section: "dependencies",
+      section: "workspace.dependencies",
       constrainedBy: { name: "sqlx", version: "0.9.0" },
       requiredFeature: "bundled-sqlcipher-vendored-openssl",
       reason:

@@ -70,6 +70,38 @@ test("npm latest-stable check compares override pins to registry versions", asyn
   });
 });
 
+test("npm latest-stable check accepts an upstream-constrained TypeScript pin", async () => {
+  await withFixtureAsync(async (root) => {
+    const packageJson = {
+      packageManager: "npm@12.0.1",
+      devDependencies: {
+        typescript: "6.0.3",
+        "typescript-eslint": "8.64.0",
+      },
+    };
+    writeFixtureFile(root, "package.json", JSON.stringify(packageJson));
+
+    const violations = await collectNpmLatestStableViolations(root, {
+      fetchImpl: async (url) => {
+        const name = decodeURIComponent(String(url).split("/").pop());
+        const versions =
+          name === "typescript"
+            ? { "6.0.3": {}, "7.0.2": {} }
+            : name === "typescript-eslint"
+              ? {
+                  "8.64.0": {
+                    peerDependencies: { typescript: ">=4.8.4 <6.1.0" },
+                  },
+                }
+              : { "12.0.1": {} };
+        return { ok: true, json: async () => ({ versions }) };
+      },
+    });
+
+    assert.deepEqual(violations, []);
+  });
+});
+
 test("Cargo latest-stable check compares exact pins to crates.io versions", async () => {
   await withFixtureAsync(async (root) => {
     writeMinimalCargoFixture(root, "=1.0.0");
@@ -91,17 +123,43 @@ test("Cargo latest-stable check compares exact pins to crates.io versions", asyn
   });
 });
 
+test("Cargo latest-stable check skips versioned local workspace dependencies", async () => {
+  await withFixtureAsync(async (root) => {
+    writeFixtureFile(
+      root,
+      "Cargo.toml",
+      [
+        "[workspace]",
+        'members = ["crates/example-core"]',
+        "",
+        "[workspace.dependencies]",
+        'example-core = { path = "crates/example-core", version = "=2.9.5" }',
+      ].join("\n"),
+    );
+    const requests = [];
+
+    const violations = await collectCargoLatestStableViolations(root, {
+      fetchImpl: async (url) => {
+        requests.push(String(url));
+        throw new Error("local dependencies must not be queried");
+      },
+    });
+
+    assert.deepEqual(violations, []);
+    assert.deepEqual(requests, []);
+  });
+});
+
 test("Cargo latest-stable check accepts SQLx-constrained SQLCipher bridge", async () => {
   await withFixtureAsync(async (root) => {
     writeFixtureFile(
       root,
       "Cargo.toml",
       [
-        "[package]",
-        'name = "jobsentinel"',
-        'version = "0.0.0"',
+        "[workspace]",
+        'members = ["crates/example"]',
         "",
-        "[dependencies]",
+        "[workspace.dependencies]",
         'sqlx = { version = "=0.9.0", default-features = false, features = ["sqlite"] }',
         'libsqlite3-sys = { version = "=0.37.0", default-features = false, features = ["bundled-sqlcipher-vendored-openssl"] }',
       ].join("\n"),
@@ -128,11 +186,10 @@ test("Cargo latest-stable check rejects SQLCipher bridge exception drift", async
       root,
       "Cargo.toml",
       [
-        "[package]",
-        'name = "jobsentinel"',
-        'version = "0.0.0"',
+        "[workspace]",
+        'members = ["crates/example"]',
         "",
-        "[dependencies]",
+        "[workspace.dependencies]",
         'sqlx = { version = "=0.9.0", default-features = false, features = ["sqlite"] }',
         'libsqlite3-sys = { version = "=0.37.0", default-features = false, features = ["bundled"] }',
       ].join("\n"),
@@ -244,4 +301,47 @@ test("npm compatible outdated check reports current-vs-wanted transitive drift",
   assert.deepEqual(calls, [
     ["C:\\Windows\\System32\\cmd.exe", ["/d", "/s", "/c", "npm.cmd", "outdated", "--all", "--json"]],
   ]);
+});
+
+test("npm compatible outdated check accepts constrained TypeScript peer drift", async () => {
+  await withFixtureAsync(async (root) => {
+    writeFixtureFile(
+      root,
+      "package.json",
+      JSON.stringify({
+        devDependencies: {
+          typescript: "6.0.3",
+          "typescript-eslint": "8.64.0",
+        },
+      }),
+    );
+    writeFixtureFile(
+      root,
+      "package-lock.json",
+      JSON.stringify({
+        packages: {
+          "node_modules/typescript-eslint": {
+            version: "8.64.0",
+            peerDependencies: { typescript: ">=4.8.4 <6.1.0" },
+          },
+        },
+      }),
+    );
+
+    const violations = collectNpmCompatibleOutdatedViolations(root, {
+      spawn: () => ({
+        status: 1,
+        stdout: JSON.stringify({
+          typescript: {
+            current: "6.0.3",
+            wanted: "7.0.2",
+            dependent: "@storybook/react",
+          },
+        }),
+        stderr: "",
+      }),
+    });
+
+    assert.deepEqual(violations, []);
+  });
 });

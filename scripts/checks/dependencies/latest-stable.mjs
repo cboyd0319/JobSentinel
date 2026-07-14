@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 
 import { cargoLatestStableException } from "../../dependency/cargo-latest-exceptions.mjs";
+import { npmLatestStableException } from "../../dependency/npm-latest-exceptions.mjs";
 import { npmOverrideDependencyPins } from "../../dependency/npm-overrides.mjs";
 import { collectCargoDependencySpecs } from "./cargo-pins.mjs";
 import {
@@ -155,23 +156,34 @@ export async function collectNpmLatestStableViolations(
     overrideDependencies,
   );
 
-  const checks = await mapWithLimit(targets, 8, async (dependency) => {
+  const registryResults = await mapWithLimit(targets, 8, async (dependency) => {
     try {
       const metadata = await fetchJson(
         fetchImpl,
         `https://registry.npmjs.org/${encodeURIComponent(dependency.name)}`,
       );
+      return { dependency, metadata };
+    } catch (error) {
+      return { dependency, error };
+    }
+  });
+  const registryByName = new Map(
+    registryResults
+      .filter((result) => result.metadata)
+      .map((result) => [result.dependency.name, result.metadata]),
+  );
+  return registryResults
+    .map(({ dependency, metadata, error }) => {
+      if (error) return `npm latest-stable lookup failed for ${dependency.name}: ${error.message}`;
       const latest = highestStableVersion(Object.keys(metadata.versions ?? {}));
       if (!latest) return `npm registry has no stable versions for ${dependency.name}`;
       if (compareStableSemver(dependency.version, latest) !== 0) {
+        if (npmLatestStableException(dependency, packageJson, registryByName)) return null;
         return `${dependency.label} is pinned to ${dependency.version}; latest stable npm version is ${latest}`;
       }
-    } catch (error) {
-      return `npm latest-stable lookup failed for ${dependency.name}: ${error.message}`;
-    }
-    return null;
-  });
-  return checks.filter(Boolean);
+      return null;
+    })
+    .filter(Boolean);
 }
 
 export async function collectCargoLatestStableViolations(
@@ -184,7 +196,7 @@ export async function collectCargoLatestStableViolations(
 
   const cargoTomlText = readFileSync(repoPath(root, "Cargo.toml"), "utf8");
   const dependencies = collectCargoDependencySpecs(cargoTomlText).filter(
-    (dependency) => dependency.version?.startsWith("="),
+    (dependency) => !dependency.path && dependency.version?.startsWith("="),
   );
   const uniqueDependencies = [
     ...new Map(dependencies.map((dependency) => [dependency.name, dependency])).values(),

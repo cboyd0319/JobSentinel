@@ -22,7 +22,7 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
 # Install Node.js 24.18.0 (https://nodejs.org/)
 # `.nvmrc` pins the local baseline used by CI.
-# `package.json` pins npm 11.17.0.
+# `package.json` pins npm 12.0.1.
 
 # Tauri CLI
 # `npm ci --ignore-scripts` installs the repo-local CLI from @tauri-apps/cli.

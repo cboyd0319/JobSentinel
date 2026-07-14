@@ -6,7 +6,7 @@ use crate::core::ml::manifest::{load_model_manifest, model_lock_hash, ModelManif
 use crate::core::ml::MlError;
 use anyhow::{Context, Result};
 use chrono::Utc;
-use hf_hub::{api::tokio::Api, Repo, RepoType};
+use hf_hub::{split_id, HFClient};
 use std::path::{Path, PathBuf};
 
 impl ModelManager {
@@ -61,15 +61,11 @@ impl ModelManager {
 
         std::fs::create_dir_all(&self.cache_dir).context("Failed to create cache directory")?;
 
-        let api = Api::new().map_err(|_e| {
+        let client = HFClient::new().map_err(|_error| {
             MlError::DownloadFailed("Failed to initialize model download client".to_string())
         })?;
-
-        let repo = api.repo(Repo::with_revision(
-            spec.repo.clone(),
-            RepoType::Model,
-            spec.revision.clone(),
-        ));
+        let (owner, name) = split_id(&spec.repo);
+        let repo = client.model(owner, name);
 
         let model_dir = self.model_cache_dir(spec);
         std::fs::create_dir_all(&model_dir).context("Failed to create model directory")?;
@@ -82,7 +78,13 @@ impl ModelManager {
                 "Downloading model file"
             );
 
-            let remote_path = match repo.get(&file.path).await {
+            let remote_path = match repo
+                .download_file()
+                .filename(file.path.clone())
+                .revision(spec.revision.clone())
+                .send()
+                .await
+            {
                 Ok(path) => path,
                 Err(_error) if !file.required => {
                     tracing::warn!(file = file.path, "Optional model file was not downloaded");

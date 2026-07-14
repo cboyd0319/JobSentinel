@@ -32,7 +32,7 @@ sudo apt-get install -y \
 ### Build Tools
 
 - **Node.js** 24.18.0 (frontend)
-- **Rust** 1.96.0, matching `rust-toolchain.toml`
+- **Rust** 1.97.0, matching `rust-toolchain.toml`
 - **npm** (package manager)
 - **libfuse2t64** on Ubuntu 24.04, or **libfuse2** on older Debian/Ubuntu
   releases, for AppImage helper compatibility

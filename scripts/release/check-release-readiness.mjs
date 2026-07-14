@@ -128,7 +128,7 @@ export function evaluateReleaseReadinessFromInputs(inputs) {
         "npm run lint:security",
         "zizmorcore/zizmor-action@",
         "npm audit --audit-level=moderate",
-        "cargo install cargo-deny --version 0.19.9 --locked",
+        "cargo install cargo-deny --version 0.20.2 --locked",
         "cargo deny check advisories bans licenses sources",
       ]),
       "Release preflight must block on security sensors, workflow static analysis, npm audit, and cargo-deny.",

@@ -1,6 +1,9 @@
 import { spawnSync } from "node:child_process";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 
 import { npmInvocation } from "./npm-invocation.mjs";
+import { npmCompatibleOutdatedException } from "./npm-latest-exceptions.mjs";
 
 export function collectNpmCompatibleUpdateViolations(
   root,
@@ -71,6 +74,15 @@ export function collectNpmCompatibleOutdatedViolations(
     return [`npm outdated --all returned invalid JSON: ${error.message}`];
   }
 
+  let packageJson = {};
+  let packageLock = {};
+  try {
+    packageJson = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
+    packageLock = JSON.parse(readFileSync(join(root, "package-lock.json"), "utf8"));
+  } catch {
+    // Other dependency checks report missing or malformed manifests and lockfiles.
+  }
+
   const violations = [];
   for (const [name, value] of Object.entries(outdated)) {
     const entries = Array.isArray(value) ? value : [value];
@@ -78,6 +90,11 @@ export function collectNpmCompatibleOutdatedViolations(
       const current = entry?.current;
       const wanted = entry?.wanted;
       if (!current || !wanted || current === wanted) {
+        continue;
+      }
+      if (
+        npmCompatibleOutdatedException({ name, current, wanted }, packageJson, packageLock)
+      ) {
         continue;
       }
 

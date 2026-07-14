@@ -89,7 +89,7 @@ export const releasePreflightChecks = [
   ["frontend lint", "npm run lint"],
   ["frontend unit tests", "npm test -- --run"],
   ["Node security preflight", "npm run lint:security", "zizmorcore/zizmor-action@", "npm audit --audit-level=moderate"],
-  ["cargo deny supply-chain policy", "cargo install cargo-deny --version 0.19.9 --locked", "cargo deny check advisories bans licenses sources"],
+  ["cargo deny supply-chain policy", "cargo install cargo-deny --version 0.20.2 --locked", "cargo deny check advisories bans licenses sources"],
   ["Rust formatting", "cargo fmt --all -- --check"],
   ["Rust clippy", "cargo clippy --workspace -- -D warnings"],
   ["Rust tests", "cargo test --workspace"],

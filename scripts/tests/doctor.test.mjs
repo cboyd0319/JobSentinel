@@ -23,8 +23,8 @@ function withDoctorFixture(callback) {
 
   try {
     writeFixtureFile(root, ".nvmrc", "24.18.0\n");
-    writeFixtureFile(root, "rust-toolchain.toml", 'channel = "1.96.0"\n');
-    writeFixtureFile(root, "package.json", '{"packageManager":"npm@11.17.0"}');
+    writeFixtureFile(root, "rust-toolchain.toml", 'channel = "1.97.0"\n');
+    writeFixtureFile(root, "package.json", '{"packageManager":"npm@12.0.1"}');
     writeFixtureFile(root, "package-lock.json", "{}");
     writeFixtureFile(root, "node_modules/.bin/tauri", "");
     writeFixtureFile(root, "node_modules/@playwright/test/package.json", "{}");
@@ -51,25 +51,25 @@ function createMockExec(options = {}) {
     const [firstArg, secondArg] = args;
 
     if (command === "npm" || command === "npm.cmd") {
-      return "10.0.0";
+      return options.npmOutput ?? "12.0.1";
     }
 
     if (command === "cargo") {
       if (firstArg === "--version") {
-        return "cargo 1.96.0";
+        return "cargo 1.97.0";
       }
 
       if (firstArg === "fmt") {
-        return "rustfmt 1.96.0";
+        return "rustfmt 1.97.0";
       }
 
       if (firstArg === "clippy") {
-        return "clippy 0.1.96";
+        return "clippy 0.1.97";
       }
     }
 
     if (command === "rustc") {
-      return options.rustcOutput ?? "rustc 1.96.0";
+      return options.rustcOutput ?? "rustc 1.97.0";
     }
 
     if (command === "pkg-config") {
@@ -273,7 +273,7 @@ test("runDoctor warns when local npm differs from the package-manager pin", () =
       root,
       platform: "darwin",
       nodeVersion: "v24.18.0",
-      execFileSync: createMockExec(),
+      execFileSync: createMockExec({ npmOutput: "11.17.0" }),
     });
 
     assert.ok(
@@ -281,7 +281,7 @@ test("runDoctor warns when local npm differs from the package-manager pin", () =
         (result) =>
           result.status === "warn" &&
           result.label === "npm package-manager baseline" &&
-          result.detail.includes("package.json pins npm 11.17.0"),
+          result.detail.includes("package.json pins npm 12.0.1"),
       ),
       formatDoctorResults(results),
     );

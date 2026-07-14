@@ -206,9 +206,9 @@ jobs:
           persist-credentials: false
 
       - name: Setup Rust
-        uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8 # stable
+        uses: dtolnay/rust-toolchain@4be7066ada62dd38de10e7b70166bc74ed198c30 # stable
         with:
-          toolchain: "1.96.0"
+          toolchain: "1.97.0"
           components: clippy, rustfmt
 
       - name: Check Rust formatting
@@ -283,12 +283,12 @@ jobs:
           persist-credentials: false
 
       - name: Setup Rust
-        uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8 # stable
+        uses: dtolnay/rust-toolchain@4be7066ada62dd38de10e7b70166bc74ed198c30 # stable
         with:
-          toolchain: "1.96.0"
+          toolchain: "1.97.0"
 
       - name: Install cargo-deny
-        run: cargo install cargo-deny --version 0.19.9 --locked
+        run: cargo install cargo-deny --version 0.20.2 --locked
 
       - name: cargo deny supply-chain policy
         run: cargo deny check advisories bans licenses sources
@@ -412,12 +412,12 @@ jobs:
         run: npm run release:skills -- --version "$RELEASE_VERSION" --out-dir release-assets/public
 
       - name: Attest Agent Skills tarball provenance
-        uses: actions/attest@59d89421af93a897026c735860bf21b6eb4f7b26 # v4.1.0
+        uses: actions/attest@a1948c3f048ba23858d222213b7c278aabede763 # v4.1.1
         with:
           subject-path: release-assets/public/JobSentinel-${{ needs.create-release.outputs.version }}-agent-skills.tar.gz
 
       - name: Attest Agent Skills ZIP provenance
-        uses: actions/attest@59d89421af93a897026c735860bf21b6eb4f7b26 # v4.1.0
+        uses: actions/attest@a1948c3f048ba23858d222213b7c278aabede763 # v4.1.1
         with:
           subject-path: release-assets/public/JobSentinel-${{ needs.create-release.outputs.version }}-agent-skills.zip
 
@@ -496,9 +496,9 @@ jobs:
         run: node scripts/install-pinned-npm.mjs
 
       - name: Setup Rust
-        uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8 # stable
+        uses: dtolnay/rust-toolchain@4be7066ada62dd38de10e7b70166bc74ed198c30 # stable
         with:
-          toolchain: "1.96.0"
+          toolchain: "1.97.0"
           targets: ${{ matrix.target == 'universal-apple-darwin' && 'aarch64-apple-darwin,x86_64-apple-darwin' || matrix.target }}
 
       - name: Install frontend dependencies
@@ -1089,12 +1089,12 @@ jobs:
             --require-artifacts
 
       - name: Attest release artifact provenance
-        uses: actions/attest@59d89421af93a897026c735860bf21b6eb4f7b26 # v4.1.0
+        uses: actions/attest@a1948c3f048ba23858d222213b7c278aabede763 # v4.1.1
         with:
           subject-path: release-assets/public/*
 
       - name: Attest release artifact SBOM
-        uses: actions/attest@59d89421af93a897026c735860bf21b6eb4f7b26 # v4.1.0
+        uses: actions/attest@a1948c3f048ba23858d222213b7c278aabede763 # v4.1.1
         with:
           subject-path: |
             release-assets/public/*.dmg

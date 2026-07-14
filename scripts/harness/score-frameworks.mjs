@@ -118,7 +118,7 @@ export function buildFrameworks(root) {
             check(
               "Rust toolchain target is pinned",
               fileHasAll(root, "rust-toolchain.toml", [
-                "channel = \"1.96.0\"",
+                "channel = \"1.97.0\"",
                 "clippy",
                 "rustfmt",
               ]),

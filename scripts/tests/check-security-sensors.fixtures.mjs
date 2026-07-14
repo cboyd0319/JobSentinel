@@ -417,7 +417,7 @@ export function readBaseReleaseWorkflowWithout(removedLine) {
     "  preflight-security-rust:",
     "    needs: release-inputs",
     "    steps:",
-    "      - run: cargo install cargo-deny --version 0.19.9 --locked",
+    "      - run: cargo install cargo-deny --version 0.20.2 --locked",
     "      - run: cargo deny check advisories bans licenses sources",
     "  create-release:",
     "    needs:",

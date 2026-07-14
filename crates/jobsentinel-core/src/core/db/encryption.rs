@@ -1,7 +1,7 @@
 //! SQLCipher-backed SQLite encryption.
 
 #[cfg(not(test))]
-use chacha20poly1305::aead::{rand_core::RngCore, OsRng};
+use chacha20poly1305::aead::Generate;
 #[cfg(not(test))]
 use keyring::{Entry, Error as KeyringError};
 use sqlx::{
@@ -54,8 +54,7 @@ fn load_or_create_database_key_blocking() -> Result<Zeroizing<String>, sqlx::Err
     match entry.get_password() {
         Ok(encoded_key) => validate_database_key_hex(encoded_key),
         Err(KeyringError::NoEntry) => {
-            let mut key = [0_u8; DATABASE_KEY_LEN];
-            OsRng.fill_bytes(&mut key);
+            let key = <[u8; DATABASE_KEY_LEN]>::generate();
             let encoded_key = Zeroizing::new(hex::encode(key));
             entry
                 .set_password(encoded_key.as_str())

@@ -96,7 +96,7 @@ Workflow changes must preserve the GitHub Actions security baseline:
 or manual run
 
 CI runs on `ubuntu-24.04`. There is no OS matrix and no beta toolchain, only
-pinned Rust 1.96.0 on Linux. Jobs are path-aware so docs-only changes avoid
+pinned Rust 1.97.0 on Linux. Jobs are path-aware so docs-only changes avoid
 unrelated Rust and frontend work.
 
 ### Job: changes
@@ -167,6 +167,13 @@ jobs so a broad CI run does not serialize `npm audit`/zizmor checks behind
 | npm audit        | `npm audit --audit-level=moderate` |
 | Rust policy      | `cargo deny check advisories bans licenses sources` |
 | Drift check      | `npm run release:check-deps`       |
+
+Direct dependency exceptions are code-enforced rather than advisory. TypeScript
+6.0.3 remains pinned while `typescript-eslint` 8.64.0 requires TypeScript below
+6.1, and `libsqlite3-sys` 0.37.0 remains pinned while SQLx 0.9.0 requires a
+version below 0.38 for the bundled SQLCipher bridge. The exception checks bind
+the exact dependent version and upstream constraint so later updates cannot
+silently preserve stale exceptions.
 
 ---
 
