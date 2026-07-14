@@ -94,6 +94,12 @@ exactly two members:
 `Cargo.lock`, `.cargo/config.toml`, `.sqlx/`, `clippy.toml`, `deny.toml`, and
 the standard `target/` directory are owned at the repository root.
 
+The literal member list is the deterministic source of workspace membership.
+Do not use wildcard discovery. Use modules before crates: add a workspace
+member only for a distinct runtime, dependency policy, release unit, or stable
+cross-crate contract. Repository size and file count do not create an ownership
+boundary.
+
 ### Core (`crates/jobsentinel-core/src/core/`)
 
 Detailed core module inventory lives in [Core Architecture](ARCHITECTURE_CORE.md).
@@ -104,59 +110,29 @@ Tauri command handlers (RPC interface between React and Rust). The registered
 command list lives in `src-tauri/src/command_handlers.rs`; `npm run lint:tauri-invokes`
 checks frontend invocations and command-count documentation drift.
 
-**Core Commands:**
+Command ownership is stable even when individual command names change:
 
-```rust
-search_jobs()              // Trigger manual scrape
-get_recent_jobs(limit)     // Get N recent jobs
-get_job_by_id(id)          // Get specific job
-get_config()               // Get user config
-get_dashboard_preferences() // Get minimal Dashboard-only preferences
-save_config(config)        // Save user config
-validate_slack_webhook()   // Test webhook
-get_statistics()           // Get aggregate stats
-get_scraping_status()      // Get scheduler status
-// ... plus setup, search, bookmarks, notes
-```
+| Owner | Renderer-facing responsibility |
+| ----- | ------------------------------ |
+| Jobs and configuration | Search, recent jobs, preferences, runtime configuration, source status, and statistics |
+| Applications and user data | Application tracking, reminders, interviews, notes, templates, searches, and history |
+| Resumes | Managed resume summaries, active selection, skills, local matching, builder drafts, and export |
+| Salary, market, scoring, and posting risk | Advisory estimates, comparisons, trends, alerts, and evidence |
+| Imports, Browser Import, and deep links | Reviewed previews, staged confirmation, bookmarklet delivery, and user-started source links |
+| Application assist | Profile, screening answers, ATS detection, reviewed preparation, and browser lifecycle |
+| Credentials and external AI | Keyring-backed credential operations, provider validation, approval state, and minimized gateway requests |
+| Health and embedded ML | Safe diagnostics, support summaries, optional model lifecycle, and local inference status |
 
-**Ghost Detection (3):**
+The complete command inventory is generated from
+`src-tauri/src/command_handlers.rs`; do not duplicate a fixed count here.
+`npm run lint:tauri-invokes` checks that renderer invocations match the
+registered router.
 
-```rust
-get_ghost_jobs()           // Get flagged ghost jobs
-get_ghost_statistics()     // Detection stats
-get_recent_jobs_filtered() // Filter by ghost status
-```
+Every command must remain private, validate its IPC input, call one core owner,
+and map the result to the smallest practical typed DTO. SQL, HTTP fetching,
+credential resolution, and business rules do not belong in command handlers.
 
-**ATS Commands:**
-
-```rust
-create_application(), get_applications_kanban(),
-update_application_status(), add_application_notes(),
-get_pending_reminders(), complete_reminder(),
-detect_ghosted_applications(), schedule_interview(),
-get_upcoming_interviews(), complete_interview()
-```
-
-**User Data Commands:**
-
-```rust
-// Templates
-list_cover_letter_templates(), create_cover_letter_template(),
-update_cover_letter_template(), delete_cover_letter_template(),
-// Interview Prep
-get_interview_prep_checklist(), save_interview_prep_item(),
-get_interview_followup(), save_interview_followup(),
-// Saved Searches
-list_saved_searches(), create_saved_search(),
-use_saved_search(), delete_saved_search(),
-// Notifications & History
-get_notification_preferences(), save_notification_preferences(),
-add_search_history(), get_search_history(), clear_search_history()
-```
-
-Notification preference command payloads use the current `prefs` shape. Keep
-developer references aligned with this form and keep the user-facing Local
-Job-Search Data guide free of command examples:
+Notification preference calls use the typed `prefs` envelope:
 
 ```ts
 invoke("save_notification_preferences", {
@@ -166,14 +142,6 @@ invoke("save_notification_preferences", {
     advancedFilters: {},
   },
 });
-```
-
-**Resume/Salary/Market (15):**
-
-```rust
-// Resume: upload, get_active, set_active, get_skills, match, get_match_result
-// Salary: predict, benchmark, negotiate, compare
-// Market: trends, companies, locations, alerts, analysis
 ```
 
 Resume list and active-resume commands return renderer-safe summaries. Keep
@@ -189,31 +157,11 @@ pub struct ResumeSummary {
 }
 ```
 
-**Automation Commands:**
+**Error Handling And Data Minimization:**
 
-```rust
-// Application Profile
-upsert_application_profile(), get_application_profile(),
-has_application_profile(), get_application_profile_preview(),
-// Screening Answers
-upsert_screening_answer(), get_screening_answers(),
-delete_screening_answer(), find_answer_for_question(),
-// Automation Attempts
-create_automation_attempt(), get_automation_attempt(),
-approve_automation_attempt(), cancel_automation_attempt(),
-get_pending_attempts(), get_automation_stats(),
-// ATS Detection
-detect_ats_platform(), detect_ats_from_html(),
-// Browser Control
-launch_automation_browser(), close_automation_browser(),
-is_browser_running(), fill_application_form()
-```
-
-**Error Handling:**
-
-- All commands return `Result<T, String>`
-- Errors logged with `tracing`
-- User-friendly error messages
+- Commands return typed values or clear, sanitized error strings.
+- Errors use structured `tracing` fields without secrets or user data.
+- User-facing errors explain the recovery action in plain language.
 - Renderer-facing commands use the smallest practical DTO. Non-settings
   application assist screens use `has_application_profile` or
   `get_application_profile_preview`; the full profile response is for the

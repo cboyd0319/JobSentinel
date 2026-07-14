@@ -428,11 +428,11 @@ The detailed checklists, acceptance commands, and rollback boundaries live in
   are true repository-wide entrypoints, lockfiles, or policies.
 - [x] Run formatter and lint autofixes only after structural moves settle, then
   manually review the resulting diff.
-- [ ] Update architecture, getting-started, testing, SQLx, release, platform,
+- [x] Update architecture, getting-started, testing, SQLx, release, platform,
   security, and contributor docs.
 - [ ] Update the public GitHub wiki pages affected by setup, architecture,
   testing, or release command changes.
-- [ ] Update `AGENTS.md`, the verification matrix, harness map, plan index,
+- [x] Update `AGENTS.md`, the verification matrix, harness map, plan index,
   CODEOWNERS, and evidence log to the final paths.
 - [x] Enforce the final 500-line production and script, 800-line test, and
   700-line maintained-document caps after splitting every tracked violation by
@@ -638,19 +638,18 @@ evidence-log entry.
   workspace Clippy, docs, architecture, language, bloat, and 100/100 harness
   score gates. Default tests did not access the operating-system credential
   store.
-- Milestone 7 remains open for the orphan, dependency, root-file, stale-path,
-  documentation, wiki, and cross-platform cleanup audits. Milestone 8 remains
-  blocked on completion of that cleanup and explicit release readiness work.
+- Milestone 7 remains open only for public-wiki alignment and final
+  cross-platform evidence. Code, artifact, dependency, root-entrypoint,
+  stale-path, maintained-document, and harness-policy cleanup are complete.
 
 ## Handoff
 
-- Current state: Milestones 0 through 6 plus the Milestone 7 file-cap, Rust
-  lint-policy, facade, target, sensitive leaf-module, scraper, resume,
-  notification, import, market, salary, and database slices are complete with
-  passing evidence. Privacy remains immutable.
-- Next step: finish the smaller Rust owner and dead-code audit, then move to
-  orphan, dependency, root-file, stale-reference, documentation, and wiki
-  cleanup.
+- Current state: Milestones 0 through 6 plus the Milestone 7 structure, owner,
+  dead-code, dependency, artifact, root-entrypoint, stale-path, and maintained
+  documentation cleanup are complete with passing evidence. Privacy remains
+  immutable.
+- Next step: establish the v2.9.5 version contract, update the public wiki, and
+  run the final release-readiness and platform matrix.
 - Open risks: Windows and Linux platform builds still require their final live
   release-readiness hosts. Current cross-platform evidence is contract and
   release-fixture coverage plus target-gated manifests; macOS is live-checked.

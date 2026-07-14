@@ -91,7 +91,7 @@ process(input);   // Only reached if valid
 
 ### 3. Minimize Attack Surface
 
-- **Feature flags:** OCR is optional (`cargo build --features ocr`)
+- **Feature flags:** OCR is optional (`cargo build -p jobsentinel --features ocr`)
 - **No network by default:** External lookups run only after user action or
   source/channel configuration
 - **Local-first:** All data stays on device unless explicitly shared
@@ -99,11 +99,12 @@ process(input);   // Only reached if valid
 
 ### 4. Use Safe Libraries
 
-- **Rust:** Memory-safe language, no buffer overflows
-- **SQLx:** Compile-time checked SQL, prevents injection
-- **rustls:** Pure Rust TLS, no OpenSSL vulnerabilities
-- **DOMPurify:** Industry-standard XSS sanitizer
-- **url crate:** RFC-compliant URL parsing
+- **Rust:** Memory-safe application code with workspace `unsafe_code = "deny"`
+- **SQLx:** Parameterized SQLite access and checked query metadata where macros
+  are used
+- **rustls:** TLS for supported HTTP and SMTP paths
+- **DOMPurify:** Sanitization for reviewed HTML rendering paths
+- **url crate:** Structured URL parsing before policy checks
 
 ### 5. Validate Everything
 
@@ -130,18 +131,15 @@ Never trust:
 
 ```bash
 # Run all tests including security tests
-cargo test
+cargo test --workspace
 
 # Check local security sensor coverage
 npm run lint:security
 
 # Run security-specific tests
-cargo test security
-cargo test validation
-cargo test credentials
-
-# Run with coverage
-cargo tarpaulin --out Html
+cargo test -p jobsentinel-core --lib url_security
+cargo test -p jobsentinel-core --lib validation
+cargo test -p jobsentinel-core --lib credentials
 ```
 
 `npm run lint:security` checks that required security docs exist, that the
@@ -167,16 +165,16 @@ webhooks, private keys, and session-cookie values.
 
 ```bash
 # Check for known vulnerabilities in dependencies
-cargo audit
+cargo deny check advisories bans licenses sources
 
-# Check for unsafe code usage
-cargo geiger
+# Check repository security and unsafe-code policy
+npm run lint:security
 
 # Static analysis
-cargo clippy -- -D warnings
+cargo clippy --workspace -- -D warnings
 
 # Format check
-cargo fmt -- --check
+cargo fmt --all -- --check
 ```
 
 ---
@@ -301,30 +299,21 @@ Before merging, verify:
 ### Pre-Commit Hooks
 
 ```bash
-# Install pre-commit hooks
-cargo install cargo-audit --version 0.22.2 --locked
-cargo install cargo-geiger --version 0.13.0 --locked
-
 # Run before committing
-cargo test
-cargo clippy
-cargo audit
+npm run lint:security
+npm run lint:secrets
+cargo clippy --workspace -- -D warnings
+cargo test --workspace
+cargo deny check advisories bans licenses sources
 ```
 
 ### Dependency Management
 
 ```bash
-# Check for outdated dependencies
-cargo outdated
-
-# Update dependencies
-cargo update
-
-# Audit dependencies
-cargo audit
-
-# Check for unsafe code in dependencies
-cargo geiger
+# Check exact pins, compatible updates, and supply-chain policy
+npm run lint:deps -- --latest
+cargo update --dry-run --verbose
+cargo deny check advisories bans licenses sources
 ```
 
 ---

@@ -66,8 +66,7 @@ cargo mutants --version
 ### Run All Mutations
 
 ```bash
-cd src-tauri
-cargo mutants
+cargo mutants --workspace
 ```
 
 This will:
@@ -315,8 +314,7 @@ const MAX: i64 = 0;
 ### 1. Run Mutation Tests
 
 ```bash
-cd src-tauri
-cargo mutants -- --file src/core/config/mod.rs
+cargo mutants -p jobsentinel-core --file crates/jobsentinel-core/src/core/config/mod.rs
 ```
 
 ### 2. Review Missed Mutants

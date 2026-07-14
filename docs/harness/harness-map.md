@@ -70,7 +70,8 @@ enforced elsewhere or the risk no longer exists.
 | `security-docs.mjs` | Security | Security-sensitive docs and policy presence |
 | `source-boundaries.mjs` | Sources | Restricted-source and authenticated-session boundaries |
 | `source-quality.mjs` | Sources | Source adapter quality and realism contracts |
-| `source-structure.mjs` | Sources | Source taxonomy and domain-record structure |
+| `source-structure.mjs` | Frontend structure | Import parsing, unreferenced barrels, and stale compatibility wrappers |
+| `rust-source-ownership.mjs` | Rust structure | Every Rust source file is reachable from an explicit workspace member crate root |
 | `ipc-minimization.mjs` | IPC | Least-privilege Tauri command surface |
 | `frontend-contracts.mjs` | Frontend | Frontend contract and state expectations |
 | `product-copy.mjs` (+ submodules) | Experience | Plain-language, non-technical-first copy |

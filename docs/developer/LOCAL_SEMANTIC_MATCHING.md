@@ -175,29 +175,25 @@ Preferred improvement path:
 Build without local ML:
 
 ```bash
-cd src-tauri
-cargo build --release
+cargo build -p jobsentinel --release
 ```
 
 Build with local ML:
 
 ```bash
-cd src-tauri
-cargo build --release --features embedded-ml
+cargo build -p jobsentinel --release --features embedded-ml
 ```
 
 Run feature-gated tests:
 
 ```bash
-cd src-tauri
-cargo test --features embedded-ml
+cargo test -p jobsentinel --features embedded-ml
 ```
 
 Run ignored tests that require model files:
 
 ```bash
-cd src-tauri
-cargo test --features embedded-ml -- --ignored
+cargo test -p jobsentinel --features embedded-ml -- --ignored
 ```
 
 ## Commands

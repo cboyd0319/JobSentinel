@@ -22,7 +22,7 @@
       "id": "repository-architecture-reorganization",
       "path": "docs/plans/active/repository-architecture-reorganization.md",
       "state": "active",
-      "nextStep": "Implement Milestone 7: complete the repo-wide orphan audit, cleanup, and final file-cap cutover before final documentation and v2.9.5 readiness.",
+      "nextStep": "Complete final documentation and public-wiki alignment, establish the v2.9.5 version contract, run the release-readiness matrix, and close the refactor plan with clean-state evidence.",
       "verification": "npm run lint:architecture; npm run lint:bloat; npm run test:scripts; npm run harness:check"
     }
   ],

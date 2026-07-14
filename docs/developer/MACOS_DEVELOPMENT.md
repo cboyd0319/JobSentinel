@@ -61,15 +61,13 @@ launch checks.
 3. **Check for compilation errors:**
 
    ```bash
-   cd src-tauri
-   cargo check
+   cargo check --workspace
    ```
 
 4. **Run tests:**
 
    ```bash
-   cd src-tauri
-   cargo test
+   env -u JOBSENTINEL_LIVE_KEYRING_TESTS cargo test --workspace
    ```
 
 ---
@@ -388,20 +386,18 @@ npm ci --ignore-scripts
 ### Running Specific Tests
 
 ```bash
-cd src-tauri
-
 # Run all tests
-cargo test
+env -u JOBSENTINEL_LIVE_KEYRING_TESTS cargo test --workspace
 
 # Run tests for a specific module
-cargo test --test db
-cargo test --test platforms
+cargo test -p jobsentinel-core --lib core::db
+cargo test -p jobsentinel-core --lib platforms::macos
 
 # Run with output
-cargo test -- --nocapture
+cargo test --workspace -- --nocapture
 
 # Run macOS platform tests specifically
-cargo test --lib platforms::macos
+cargo test -p jobsentinel-core --lib platforms::macos
 ```
 
 ### Debugging
@@ -411,7 +407,7 @@ cargo test --lib platforms::macos
 cargo check
 
 # Build with verbose output
-cargo build --verbose
+cargo build -p jobsentinel --verbose
 
 # Run with trace logging
 RUST_LOG=trace npm run tauri:dev

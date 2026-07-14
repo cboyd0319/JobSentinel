@@ -155,7 +155,7 @@ These guards are used by:
 - `crates/jobsentinel-core/src/core/scrapers/http_client.rs` before shared scraper HTTP
   retry helpers fetch a source URL.
 - `crates/jobsentinel-core/src/core/config/validation.rs`, `crates/jobsentinel-core/src/core/scrapers/jobswithgpt.rs`,
-  and `crates/jobsentinel-core/src/core/health/smoke_tests.rs` before using a configured JobsWithGPT endpoint.
+  and `crates/jobsentinel-core/src/core/health/smoke_checks/sources.rs` before using a configured JobsWithGPT endpoint.
 
 Saved jobs now use this shared canonicalization path instead of a string prefix
 check, so stored job links cannot target localhost, private networks, embedded

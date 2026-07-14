@@ -129,7 +129,6 @@ npm ci --ignore-scripts
 
 # Check Rust compilation
 cargo check --workspace
-cd ..
 ```
 
 ### Run Development Mode
@@ -167,6 +166,10 @@ git rebase main
 - `crates/jobsentinel-core/src/platforms/` - OS-specific code
 - `src-tauri/src/commands/` - Tauri RPC handlers
 
+Use modules before crates. Keep implementation leaves private and expose one
+owner facade. Add a workspace member only for a distinct runtime, dependency
+policy, release unit, or stable cross-crate contract.
+
 **Keep changes focused:**
 
 - One feature/fix per pull request
@@ -194,12 +197,11 @@ RUST_LOG=debug npm run tauri:dev
 git add .
 
 # Commit with descriptive message
-git commit -m "feat: Add support for NewBoard job scraper
+git commit -m "feat(sources): add Acme board adapter
 
-- Implement NewBoardScraper in crates/jobsentinel-core/src/core/scrapers/
-- Add parsing for NewBoard job listings
-- Add tests for NewBoard scraper
-- Update examples/config/config.example.json with NewBoard URLs
+- Register the private adapter through the scraper facade
+- Add bounded parser fixtures and rate-limit coverage
+- Document the source privacy and access boundary
 
 Closes #123"
 ```
@@ -247,7 +249,7 @@ cargo fmt --all -- --check
 cargo clippy --workspace -- -D warnings
 
 # Check for security vulnerabilities
-cargo audit
+cargo deny check advisories bans licenses sources
 ```
 
 **Best Practices:**
@@ -398,7 +400,7 @@ cargo test --workspace -- --nocapture
 - [ ] Slack notifications send (if configured)
 - [ ] Dashboard displays jobs
 - [ ] Config file loads/saves correctly
-- [ ] App runs on Windows 11+ and macOS 13+
+- [ ] App runs on Windows 11+ and macOS 26+
 
 ---
 
@@ -483,100 +485,40 @@ Closes #123
 
 ## Adding New Features
 
-### Adding a New Job Scraper
+### Adding a New Job Source
 
-**1. Create scraper file:**
+1. Confirm the source permits the planned access pattern and document any rate,
+   authentication, or user-consent boundary.
+2. Add a private adapter under
+   `crates/jobsentinel-core/src/core/scrapers/` and register it through the
+   scraper facade. Do not expose the adapter module publicly.
+3. Reuse the bounded HTTP and URL-validation owners. Do not create an ad hoc
+   client or bypass redirect, DNS, response-size, or rate-limit controls.
+4. Extend typed configuration only when the source needs user-controlled
+   settings. Keep credentials in the approved vault, not `config.json`.
+5. Add parser fixtures, error coverage, rate-limit coverage, and a disabled or
+   opt-in live check. Default tests must not contact the source.
+6. Update source, privacy, security, user, and public-wiki documentation, then
+   run the source and language gates.
 
-```rust
-// crates/jobsentinel-core/src/core/scrapers/newboard.rs
+### Changing a Platform Adapter
 
-use super::{JobScraper, ScraperResult};
-use async_trait::async_trait;
+Windows 11+, macOS, and Linux are the supported platform owners. Keep target
+implementations under `crates/jobsentinel-core/src/platforms/`, selected by the
+private facade with `cfg` attributes.
 
-pub struct NewBoardScraper {
-    pub base_url: String,
-}
+1. Change the smallest target-specific module and preserve the shared facade.
+2. Add or update target-independent contract tests for directory, permissions,
+   and error behavior.
+3. Run the live target check when available. When it is unavailable, use an
+   isolated root or contract test and record the verification gap.
+4. Update packaging workflows, developer docs, and the verification matrix when
+   target behavior changes.
 
-#[async_trait]
-impl JobScraper for NewBoardScraper {
-    async fn scrape(&self) -> ScraperResult {
-        // Implementation
-        Ok(vec![])
-    }
-
-    fn name(&self) -> &'static str {
-        "newboard"
-    }
-}
-```
-
-**2. Add to mod.rs:**
-
-```rust
-// crates/jobsentinel-core/src/core/scrapers/mod.rs
-pub mod newboard;
-```
-
-**3. Add configuration:**
-
-```json
-// examples/config/config.example.json
-{
-  "newboard_urls": ["https://www.newboard.com/jobs?q=engineer"]
-}
-```
-
-**4. Add tests:**
-
-```rust
-#[cfg(test)]
-mod tests {
-    #[tokio::test]
-    async fn test_newboard_scraper() {
-        // Test implementation
-    }
-}
-```
-
-**5. Update documentation:**
-
-- Update README.md
-- Update QUICK_START.md
-- Add to supported scrapers list
-
-### Adding a New Platform
-
-**1. Create platform module:**
-
-```rust
-// crates/jobsentinel-core/src/platforms/freebsd/mod.rs
-
-pub fn get_data_dir() -> PathBuf {
-    // FreeBSD implementation
-}
-
-pub fn initialize() -> Result<(), Box<dyn std::error::Error>> {
-    // FreeBSD-specific setup
-}
-```
-
-**2. Add conditional compilation:**
-
-```rust
-// crates/jobsentinel-core/src/platforms/mod.rs
-#[cfg(target_os = "freebsd")]
-pub mod freebsd;
-```
-
-**3. Update tauri.conf.json:**
-
-```json
-{
-  "bundle": {
-    "targets": ["msi", "dmg", "app", "freebsd"]
-  }
-}
-```
+Adding another supported operating system is a product and release decision,
+not a local module-only change. It requires packaging, signing, update,
+security, accessibility, and release evidence before the target is documented
+as supported.
 
 ---
 

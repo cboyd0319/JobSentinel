@@ -121,7 +121,7 @@ Test counts change as features move. Use fresh command output as source of truth
 | `core/resume` | Parser, matcher, builder, export |
 | `core/salary` | Benchmarks, prediction, offer comparison |
 | `core/market_intelligence` | Trends, alerts, analytics |
-| `src/**/*.test.*` | React components, hooks, contexts, pages |
+| `src/**/*.test.*` | App composition, feature owners, shared services, UI primitives, and development mocks |
 | `tests/e2e/playwright/*` | Browser-level user flows |
 
 ---

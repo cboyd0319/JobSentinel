@@ -61,10 +61,11 @@ broad E2E performance claims.
 | Change | Required sensor | Add when risk increases |
 | ------ | --------------- | ----------------------- |
 | Rust formatting | `cargo fmt --all -- --check` | None |
+| Cargo workspace manifest or crate boundary | `cargo metadata --no-deps --format-version 1`, `npm run lint:architecture`, and `npm run lint:deps` | `cargo clippy --workspace -- -D warnings` |
 | Core logic | Targeted `cargo test -p jobsentinel-core` | `cargo test --workspace` |
 | Warnings or traits | `cargo clippy --workspace -- -D warnings` | Full Rust test suite |
 | Tauri command | Command test or compile check | Frontend invoke path test |
-| Migration | Migration test or SQLx prepare | Manual upgrade/downgrade review |
+| Migration or SQLx metadata | Focused migration test and `DATABASE_URL="sqlite:jobs.db" cargo sqlx prepare --workspace --check` | Manual encrypted upgrade, snapshot, integrity, and failure-path review |
 
 Production clippy is the hard Rust lint gate. Test-target clippy warnings are
 advisory until the test lint policy is tightened; do not use all-target clippy
@@ -76,7 +77,7 @@ with warnings-as-errors as a required local or CI gate.
 | ------ | --------------- |
 | URL, file path, command, or HTML input | Unit tests for malicious input |
 | Renderer CSP, renderer asset, or frontend network boundary | `npm run lint:security` and focused CSP or asset sensor test |
-| Credential handling | Keyring behavior check and no plaintext path, focused storage tests, and `cargo clippy -- -D warnings` when Rust code changes |
+| Credential handling | Keyring behavior check and no plaintext path, focused storage tests, and `cargo clippy --workspace -- -D warnings` when Rust code changes; keep `JOBSENTINEL_LIVE_KEYRING_TESTS` unset unless a live OS-store roundtrip is intentional |
 | Local database encryption | Focused storage tests, plaintext-upgrade cleanup proof, and no raw `sqlite3` inspection guidance |
 | External network destination | Privacy docs update and explicit user configuration |
 | External AI provider path | `npm run lint:external-ai`, AI gateway test, privacy label update, payload preview gate, and no direct provider call outside `src/shared/externalAi/` |

@@ -257,8 +257,7 @@ fn test_generate_newsite_url_with_remote() {
 ### Run Tests
 
 ```bash
-cd src-tauri
-cargo test --lib deeplinks
+cargo test -p jobsentinel-core --lib deeplinks
 ```
 
 All tests should pass, including your new ones.
@@ -376,7 +375,7 @@ Before submitting:
 - [ ] URL generator function implemented
 - [ ] Function added to router match statement
 - [ ] At least 2 tests added (basic + one filter)
-- [ ] All tests pass (`cargo test --lib deeplinks`)
+- [ ] All tests pass (`cargo test -p jobsentinel-core --lib deeplinks`)
 - [ ] Manual testing completed
 - [ ] Documentation updated (if needed)
 

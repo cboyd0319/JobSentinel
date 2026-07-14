@@ -10,9 +10,11 @@ package-lock.json @cboyd0319
 Cargo.toml @cboyd0319
 Cargo.lock @cboyd0319
 .cargo/ @cboyd0319
+.sqlx/ @cboyd0319
 clippy.toml @cboyd0319
 deny.toml @cboyd0319
 crates/ @cboyd0319
+crates/jobsentinel-core/migrations/ @cboyd0319
 scripts/checks/ @cboyd0319
 scripts/platform/ @cboyd0319
 scripts/release/ @cboyd0319
@@ -23,6 +25,8 @@ scripts/checks/security-sensors.mjs @cboyd0319
 scripts/tests/check-security-sensors.test.mjs @cboyd0319
 scripts/security/ @cboyd0319
 src-tauri/Cargo.toml @cboyd0319
+src-tauri/src/command_handlers.rs @cboyd0319
+validation/ @cboyd0319
 
 # Agent and AI behavior controls.
 AGENTS.md @cboyd0319

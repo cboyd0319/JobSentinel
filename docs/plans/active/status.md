@@ -1,7 +1,6 @@
 # Active Plan Status
 
-Last updated: 2026-07-13. Read this file first; load archived or completed
-history only when old decision context is needed.
+Last updated: 2026-07-13. Read this first; load archived history only when needed.
 
 ## Goal State
 
@@ -15,9 +14,10 @@ readiness effort. Milestones 0 through 6 are complete: structural sensors,
 neutral data ownership, frontend feature ownership, backend cycle repair, the
 explicit two-member Cargo workspace, core extraction, and the thin private
 Tauri shell, and final script and harness ownership all have passing evidence.
-Milestone 7's file caps, Rust boundaries, sensitive leaf ownership, and final
-Rust source and dead-code audit are complete. The remaining work is repo-wide
-cleanup, documentation alignment, and the release-readiness proof.
+Milestone 7's file caps, Rust boundaries, owner audits, dependency and artifact
+cleanup, stale-path repair, and maintained-document alignment are complete. The
+remaining work is the public wiki, v2.9.5 version contract, platform evidence,
+and the final release-readiness proof.
 
 Observed release state on 2026-06-22 local time:
 
@@ -45,20 +45,17 @@ harness. It remains a harness-controlled active-goal acceptance gate;
 `DESIGN.md`, `docs/design/README.md`, and `docs/design/design-spec.md` remain
 UI/UX contracts.
 
-The user explicitly reopened a full repository refactor on 2026-07-13, with no
-internal repository backward-compatibility requirement. The work begins with
-structural sensors, proceeds through a clean ownership cutover and full cleanup,
-and ends at v2.9.5 release readiness. Privacy guarantees are immutable.
-Behavior, UI, APIs, schemas, storage layout, tests, docs, and tooling may change;
-data changes require safe migration and no silent loss, and security may not be
-weakened.
+The user reopened a full repository refactor on 2026-07-13 with no internal
+backward-compatibility requirement. Privacy guarantees are immutable. Behavior,
+APIs, schemas, storage, tests, docs, and tooling may change; data changes require
+safe migration and no silent loss, and security may not weaken.
 
 ## Active Workstreams
 
 | Workstream | State | Current focus | Source |
 | ---------- | ----- | ------------- | ------ |
 | Current product and quality work | Active | Keep privacy, design, platform, harness, and release evidence aligned during the refactor | [Plan](current-work.md) |
-| Full repository refactor and v2.9.5 readiness | Active | Run repo-wide cleanup and final documentation alignment | [Plan](repository-architecture-reorganization.md) |
+| Full repository refactor and v2.9.5 readiness | Active | Establish the version contract and run final release-readiness proof | [Plan](repository-architecture-reorganization.md) |
 
 ## Current Posture
 
@@ -107,17 +104,20 @@ weakened.
   the Dashboard job and statistics caches.
 - Market, salary, and database internals are private. Existing migrations require
   a verified encrypted snapshot and live integrity checks before initialization.
+- The orphan, dependency, root-entrypoint, generated-artifact, stale-path, and
+  maintained-document cleanup audits are complete with passing gates.
 - Coverage for all configured source adapters and user-gated restricted-source
   paths must retain focused parser/import/gate evidence before any release-ready
   claim.
 
 ## Next Best Work
 
-1. Complete the repo-wide orphan-test, dependency, root-file, and stale-reference
-   cleanup audits.
-2. Align final architecture, contributor, release, and public wiki docs.
-3. Prove v2.9.5 readiness without tagging, publishing, uploading, or dispatching
-   a release.
+1. Update package, Cargo, Tauri, changelog, and release metadata through one
+   v2.9.5 version contract.
+2. Align the public wiki and record final Windows 11, macOS 26, and Linux
+   evidence or named host gaps.
+3. Run the full readiness matrix without tagging, publishing, uploading, or
+   dispatching a release.
 
 ## Completion Bar
 
@@ -125,7 +125,8 @@ weakened.
 - `status.md` answers current state, recent evidence, macOS posture, and next
   best work without old plan reads.
 - Plan indexes, docs hubs, roadmap links, README, release notes, harness
-  expectations, and public wiki posture match the published `v2.9.1` state.
+  expectations, and public wiki distinguish v2.9.5 source readiness from the
+  published `v2.9.1` release.
 - Release pipeline docs and final v2.9.5 readiness evidence distinguish hosted
   releases from local macOS uploads and do not overclaim provenance.
 - No known repo bloat, stale docs, generated artifacts, or duplicate sources of

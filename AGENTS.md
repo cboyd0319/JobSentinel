@@ -92,7 +92,8 @@ product: an undocumented change does not exist. See
 
 ## Architecture Boundaries
 
-- `src/`: React UI, hooks, contexts, services, and frontend tests.
+- `src/`: app composition, feature owners, shared contracts, UI primitives,
+  development mocks, and frontend tests.
 - `Cargo.toml`: explicit two-member virtual workspace and shared Cargo policy.
 - `crates/jobsentinel-core/`: Tauri-free business logic, platform adapters,
   migrations, and core integration tests.
@@ -105,6 +106,9 @@ product: an undocumented change does not exist. See
   schema changes.
 - `docs/`: system of record for product behavior, architecture, plans, and
   harness rules.
+
+Use modules before crates. Add a workspace member only for a distinct runtime,
+dependency policy, release unit, or stable cross-crate contract.
 
 ## Commands
 

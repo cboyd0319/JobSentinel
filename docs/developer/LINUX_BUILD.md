@@ -47,9 +47,7 @@ node scripts/install-pinned-npm.mjs
 npm ci --ignore-scripts
 
 # Fetch Rust dependencies
-cd src-tauri
 cargo fetch --target x86_64-unknown-linux-gnu
-cd ..
 ```
 
 ### 2. Build Tauri App

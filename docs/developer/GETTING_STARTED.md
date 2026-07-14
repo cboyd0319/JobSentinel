@@ -189,8 +189,9 @@ All core functionality is in `crates/jobsentinel-core/src/core/` and works ident
 Platform code is in `crates/jobsentinel-core/src/platforms/` and uses conditional compilation:
 
 - **Windows**: Windows 11+ platform features
-- **macos**: macOS 13+ platform features
-- **linux**: Linux platform features
+- **macOS**: macOS platform features. Packaging declares macOS 13.0 as the
+  minimum; current release validation targets macOS 26+
+- **Linux**: Linux platform features
 
 Example:
 
@@ -233,7 +234,7 @@ The SQLite database is **created automatically** on first launch — no setup ne
 
 Migrations run automatically. You never need to set up tables manually.
 
-Open with [DB Browser for SQLite](https://sqlitebrowser.org/):
+Open the containing directory with the platform file browser:
 
 ```bash
 # Windows
@@ -245,6 +246,10 @@ open ~/Library/Application\ Support/JobSentinel/
 # Linux
 xdg-open ~/.local/share/jobsentinel/
 ```
+
+`jobs.db` is encrypted with SQLCipher. Do not open it with an unkeyed SQLite
+tool or copy private job-search data into a diagnostic service. Use the
+owner-provided database tests and safe support report for diagnosis.
 
 ---
 
@@ -316,12 +321,16 @@ DATABASE_URL="sqlite:jobs.db" cargo sqlx prepare --workspace
 
 ### Modular Architecture
 
-To maintain code quality and regenerability, all files follow the LLM-first coding principle:
+The repository enforces explicit ownership and maintainable file boundaries:
 
 - **File size policy**: Follow the current maintainable thresholds in
   [Harness Engineering](../harness/README.md) and run `npm run lint:bloat`
-- **Flat hierarchy**: Explicit code over deep abstractions
-- **Modular structure**: Each module has clear boundaries and minimal coupling
+- **Modules before crates**: Split private modules before creating another
+  workspace member; crate count follows runtime, dependency, release, and API
+  ownership
+- **Explicit structure**: Prefer clear ownership over deep abstractions
+- **Private implementation**: Expose one owner facade and keep implementation
+  leaves private or crate-visible
 - **Separated concerns**: Tests go in `tests.rs` files, not inline `#[cfg(test)]` blocks
 
 Current refactor candidates live in

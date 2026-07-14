@@ -493,9 +493,8 @@ entries owned by `JobSentinel`.
 ## Testing
 
 ```bash
-cd src-tauri
-cargo test credentials --lib
-cargo test --test credential_test
+cargo test -p jobsentinel-core --lib credentials
+env -u JOBSENTINEL_LIVE_KEYRING_TESTS cargo test -p jobsentinel --lib commands::credentials
 ```
 
 Default credential tests are non-interactive. Live OS keyring roundtrips use
@@ -503,8 +502,7 @@ test-owned key names but can prompt on macOS Keychain and equivalent stores, so
 they are opt-in:
 
 ```bash
-cd src-tauri
-JOBSENTINEL_LIVE_KEYRING_TESTS=1 cargo test --test credential_test
+JOBSENTINEL_LIVE_KEYRING_TESTS=1 cargo test -p jobsentinel --lib credential_integration_tests
 ```
 
 Credential tests must not write real user secrets.

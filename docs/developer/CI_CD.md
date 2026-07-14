@@ -124,14 +124,14 @@ agent-facing files, workflow files, or release metadata changed.
 ### Job: test-rust
 
 Checks formatting, installs Linux Tauri dependencies only after formatting
-passes, lints, and runs the library test suite. This keeps format failures from
+passes, lints, and runs the full Rust workspace. This keeps format failures from
 waiting on Ubuntu package installation.
 
 | Step             | Command                       |
 | ---------------- | ----------------------------- |
 | Check formatting | `cargo fmt --all -- --check`  |
-| Run Clippy       | `cargo clippy -- -D warnings` |
-| Run tests        | `cargo test --lib`            |
+| Run Clippy       | `cargo clippy --workspace -- -D warnings` |
+| Run tests        | `cargo test --workspace`      |
 
 Rust dependencies are cached with `Swatinem/rust-cache`. `SQLX_OFFLINE=true` is set globally
 so SQLx does not attempt a live database connection.
@@ -592,14 +592,15 @@ CI uses the pinned stable toolchain. If your local toolchain is older, update it
 
 ```bash
 rustup update stable
-cargo clippy -- -D warnings
+cargo clippy --workspace -- -D warnings
 ```
 
-### `cargo test --lib` vs `cargo test`
+### Focused Rust tests vs the workspace
 
-CI runs `cargo test --lib`, which skips integration tests in `tests/`. Normal
-integration tests run locally with `cargo test`. Ignored or live tests should
-use targeted commands such as
+CI runs `cargo test --workspace`, including the core and Tauri library targets
+plus workspace integration tests. During development, use an owner-focused
+command first, such as `cargo test -p jobsentinel-core --lib core::db`, then run
+the workspace before completion. Ignored or live tests remain explicit, such as
 `cargo test -p jobsentinel-core core::scrapers::live_tests -- --ignored --nocapture`.
 
 ### npm audit blocks CI
