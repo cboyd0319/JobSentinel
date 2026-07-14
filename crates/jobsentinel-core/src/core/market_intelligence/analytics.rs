@@ -237,29 +237,6 @@ impl MarketAnalyzer {
         }
     }
 
-    /// Get market snapshot for a specific date
-    pub async fn get_snapshot(&self, date: NaiveDate) -> Result<Option<MarketSnapshot>> {
-        let row = sqlx::query(
-            r#"
-            SELECT
-                date, total_jobs, new_jobs_today, jobs_filled_today,
-                avg_salary, median_salary, remote_job_percentage,
-                top_skill, top_company, top_location,
-                total_companies_hiring, market_sentiment, notes
-            FROM market_snapshots
-            WHERE date = ?
-            "#,
-        )
-        .bind(date.to_string())
-        .fetch_optional(&self.db)
-        .await?;
-
-        match row {
-            Some(r) => Ok(Some(row_to_snapshot(&r)?)),
-            None => Ok(None),
-        }
-    }
-
     /// Get latest market snapshot
     pub async fn get_latest_snapshot(&self) -> Result<Option<MarketSnapshot>> {
         let row = sqlx::query(

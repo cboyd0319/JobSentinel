@@ -16,9 +16,9 @@ neutral data ownership, frontend feature ownership, backend cycle repair, the
 explicit two-member Cargo workspace, core extraction, and the thin private
 Tauri shell, and final script and harness ownership all have passing evidence.
 The final file-cap, Rust lint-policy, core facade and target, sensitive Rust
-leaf-module, scraper, resume, notification, and job-import ownership slices of
-Milestone 7 are complete. The remaining work is the rest of the cleanup audit
-and the release-readiness proof.
+leaf-module, scraper, resume, notification, job-import, and market ownership
+slices of Milestone 7 are complete. The remaining work is the cleanup audit and
+release-readiness proof.
 
 Observed release state on 2026-06-22 local time:
 
@@ -95,8 +95,6 @@ weakened.
 - Scraper implementations and source-adapter contracts are private to their
   core owner. Scheduler, health, and import consumers use one flat internal
   facade, while scraper integration and live checks compile under that owner.
-- The unused scraper response cache, cached HTTP wrappers, compatibility
-  constructor, parallel helper, error variants, and stale cache guide are gone.
 - Resume implementation modules are private behind the existing typed facade.
   The unused parser status check and section extractor are gone, and file-type
   and path-safety tests now exercise the real resume parsing entrypoint.
@@ -107,6 +105,8 @@ weakened.
   state, and atomic insertion. Tauri confirms opaque identifiers without
   refetching or overwriting a concurrent save; successful imports invalidate
   the Dashboard job and statistics caches.
+- Market implementation modules are private behind a typed facade. Self-tested
+  trend models and unused alert and date-specific snapshot APIs are gone.
 - Coverage for all configured source adapters and user-gated restricted-source
   paths must retain focused parser/import/gate evidence before any release-ready
   claim.

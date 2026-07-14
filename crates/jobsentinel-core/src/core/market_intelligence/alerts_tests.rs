@@ -301,6 +301,29 @@ mod async_tests {
         pool
     }
 
+    async fn load_all_alerts(pool: &SqlitePool, limit: usize) -> Vec<MarketAlert> {
+        let rows = sqlx::query(
+            r#"
+            SELECT
+                id, alert_type, title, description, severity,
+                related_entity, related_entity_type,
+                metric_value, metric_change_pct, is_read, created_at
+            FROM market_alerts
+            ORDER BY created_at DESC
+            LIMIT ?
+            "#,
+        )
+        .bind(limit as i64)
+        .fetch_all(pool)
+        .await
+        .unwrap();
+
+        rows.iter()
+            .map(row_to_alert)
+            .collect::<Result<_>>()
+            .unwrap()
+    }
+
     #[tokio::test]
     async fn test_mark_read() {
         let pool = setup_test_db().await;
@@ -338,41 +361,6 @@ mod async_tests {
     }
 
     #[tokio::test]
-    async fn test_get_all_alerts_empty() {
-        let pool = setup_test_db().await;
-        let alerts = get_all_alerts(&pool, 10).await.unwrap();
-        assert_eq!(alerts.len(), 0);
-    }
-
-    #[tokio::test]
-    async fn test_get_all_alerts_with_data() {
-        let pool = setup_test_db().await;
-
-        // Insert multiple alerts
-        sqlx::query(
-            r#"
-            INSERT INTO market_alerts (alert_type, title, description, severity, is_read, created_at)
-            VALUES
-                ('skill_surge', 'Alert 1', 'Desc 1', 'info', 0, datetime('now', '-2 days')),
-                ('salary_spike', 'Alert 2', 'Desc 2', 'warning', 1, datetime('now', '-1 day')),
-                ('hiring_spree', 'Alert 3', 'Desc 3', 'critical', 0, datetime('now'))
-            "#,
-        )
-        .execute(&pool)
-        .await
-        .unwrap();
-
-        // Get all alerts
-        let alerts = get_all_alerts(&pool, 10).await.unwrap();
-        assert_eq!(alerts.len(), 3);
-
-        // Should be ordered by created_at DESC
-        assert_eq!(alerts[0].title, "Alert 3");
-        assert_eq!(alerts[1].title, "Alert 2");
-        assert_eq!(alerts[2].title, "Alert 1");
-    }
-
-    #[tokio::test]
     async fn test_row_to_alert_preserves_sqlite_created_at() {
         let pool = setup_test_db().await;
 
@@ -386,103 +374,12 @@ mod async_tests {
         .await
         .unwrap();
 
-        let alerts = get_all_alerts(&pool, 1).await.unwrap();
+        let alerts = load_all_alerts(&pool, 1).await;
         assert_eq!(alerts.len(), 1);
         assert_eq!(
             alerts[0].created_at.to_rfc3339(),
             "2026-05-20T12:34:56+00:00"
         );
-    }
-
-    #[tokio::test]
-    async fn test_get_all_alerts_limit() {
-        let pool = setup_test_db().await;
-
-        // Insert 5 alerts
-        for i in 1..=5 {
-            sqlx::query(
-                r#"
-                INSERT INTO market_alerts (alert_type, title, description, severity)
-                VALUES ('skill_surge', ?, 'Description', 'info')
-                "#,
-            )
-            .bind(format!("Alert {}", i))
-            .execute(&pool)
-            .await
-            .unwrap();
-        }
-
-        // Get only 3
-        let alerts = get_all_alerts(&pool, 3).await.unwrap();
-        assert_eq!(alerts.len(), 3);
-    }
-
-    #[tokio::test]
-    async fn test_get_alerts_by_type_empty() {
-        let pool = setup_test_db().await;
-        let alerts = get_alerts_by_type(&pool, AlertType::SkillSurge, 10)
-            .await
-            .unwrap();
-        assert_eq!(alerts.len(), 0);
-    }
-
-    #[tokio::test]
-    async fn test_get_alerts_by_type_filter() {
-        let pool = setup_test_db().await;
-
-        // Insert different types
-        sqlx::query(
-            r#"
-            INSERT INTO market_alerts (alert_type, title, description, severity)
-            VALUES
-                ('skill_surge', 'Skill Alert 1', 'Desc', 'info'),
-                ('salary_spike', 'Salary Alert', 'Desc', 'warning'),
-                ('skill_surge', 'Skill Alert 2', 'Desc', 'info'),
-                ('hiring_spree', 'Hiring Alert', 'Desc', 'critical')
-            "#,
-        )
-        .execute(&pool)
-        .await
-        .unwrap();
-
-        // Get only skill_surge alerts
-        let alerts = get_alerts_by_type(&pool, AlertType::SkillSurge, 10)
-            .await
-            .unwrap();
-        assert_eq!(alerts.len(), 2);
-        assert_eq!(alerts[0].alert_type, AlertType::SkillSurge);
-        assert_eq!(alerts[1].alert_type, AlertType::SkillSurge);
-
-        // Get only salary_spike alerts
-        let salary_alerts = get_alerts_by_type(&pool, AlertType::SalarySpike, 10)
-            .await
-            .unwrap();
-        assert_eq!(salary_alerts.len(), 1);
-        assert_eq!(salary_alerts[0].alert_type, AlertType::SalarySpike);
-    }
-
-    #[tokio::test]
-    async fn test_get_alerts_by_type_limit() {
-        let pool = setup_test_db().await;
-
-        // Insert 5 skill_surge alerts
-        for i in 1..=5 {
-            sqlx::query(
-                r#"
-                INSERT INTO market_alerts (alert_type, title, description, severity)
-                VALUES ('skill_surge', ?, 'Description', 'info')
-                "#,
-            )
-            .bind(format!("Alert {}", i))
-            .execute(&pool)
-            .await
-            .unwrap();
-        }
-
-        let alerts = get_alerts_by_type(&pool, AlertType::SkillSurge, 3)
-            .await
-            .unwrap();
-        assert_eq!(alerts.len(), 3);
     }
 
     #[tokio::test]
@@ -518,76 +415,9 @@ mod async_tests {
         let unread = get_unread_alerts(&pool).await.unwrap();
         assert_eq!(unread.len(), 0);
 
-        let all = get_all_alerts(&pool, 10).await.unwrap();
+        let all = load_all_alerts(&pool, 10).await;
         assert_eq!(all.len(), 3);
         assert!(all.iter().all(|a| a.is_read));
-    }
-
-    #[tokio::test]
-    async fn test_cleanup_old_alerts_empty() {
-        let pool = setup_test_db().await;
-        let count = cleanup_old_alerts(&pool, 30).await.unwrap();
-        assert_eq!(count, 0);
-    }
-
-    #[tokio::test]
-    async fn test_cleanup_old_alerts_filter_by_age() {
-        let pool = setup_test_db().await;
-
-        // Insert old read alert, old unread, recent read
-        sqlx::query(
-            r#"
-            INSERT INTO market_alerts (alert_type, title, description, severity, is_read, created_at)
-            VALUES
-                ('skill_surge', 'Old Read', 'Desc', 'info', 1, datetime('now', '-40 days')),
-                ('salary_spike', 'Old Unread', 'Desc', 'warning', 0, datetime('now', '-40 days')),
-                ('hiring_spree', 'Recent Read', 'Desc', 'critical', 1, datetime('now', '-5 days'))
-            "#,
-        )
-        .execute(&pool)
-        .await
-        .unwrap();
-
-        // Cleanup alerts older than 30 days
-        let count = cleanup_old_alerts(&pool, 30).await.unwrap();
-        assert_eq!(count, 1); // Only old read alert should be deleted
-
-        // Verify remaining alerts
-        let remaining = get_all_alerts(&pool, 10).await.unwrap();
-        assert_eq!(remaining.len(), 2);
-        assert!(remaining.iter().any(|a| a.title == "Old Unread"));
-        assert!(remaining.iter().any(|a| a.title == "Recent Read"));
-        assert!(!remaining.iter().any(|a| a.title == "Old Read"));
-    }
-
-    #[tokio::test]
-    async fn test_cleanup_old_alerts_different_thresholds() {
-        let pool = setup_test_db().await;
-
-        sqlx::query(
-            r#"
-            INSERT INTO market_alerts (alert_type, title, description, severity, is_read, created_at)
-            VALUES
-                ('skill_surge', 'Very Old', 'Desc', 'info', 1, datetime('now', '-100 days')),
-                ('salary_spike', 'Old', 'Desc', 'warning', 1, datetime('now', '-50 days')),
-                ('hiring_spree', 'Recent', 'Desc', 'critical', 1, datetime('now', '-10 days'))
-            "#,
-        )
-        .execute(&pool)
-        .await
-        .unwrap();
-
-        // Cleanup with 60 day threshold
-        let count = cleanup_old_alerts(&pool, 60).await.unwrap();
-        assert_eq!(count, 1); // Only very old should be deleted
-
-        // Cleanup with 20 day threshold
-        let count2 = cleanup_old_alerts(&pool, 20).await.unwrap();
-        assert_eq!(count2, 1); // Old should now be deleted
-
-        let remaining = get_all_alerts(&pool, 10).await.unwrap();
-        assert_eq!(remaining.len(), 1);
-        assert_eq!(remaining[0].title, "Recent");
     }
 
     #[tokio::test]
@@ -615,7 +445,7 @@ mod async_tests {
         .await
         .unwrap();
 
-        let alerts = get_all_alerts(&pool, 1).await.unwrap();
+        let alerts = load_all_alerts(&pool, 1).await;
         assert_eq!(alerts.len(), 1);
 
         let alert = &alerts[0];
@@ -645,7 +475,7 @@ mod async_tests {
         .await
         .unwrap();
 
-        let alerts = get_all_alerts(&pool, 1).await.unwrap();
+        let alerts = load_all_alerts(&pool, 1).await;
         assert_eq!(alerts.len(), 1);
 
         let alert = &alerts[0];
@@ -681,7 +511,7 @@ mod async_tests {
         .await
         .unwrap();
 
-        let alerts = get_all_alerts(&pool, 10).await.unwrap();
+        let alerts = load_all_alerts(&pool, 10).await;
         assert_eq!(alerts.len(), 6);
 
         // Verify all types are parsed correctly
@@ -713,7 +543,7 @@ mod async_tests {
         .await
         .unwrap();
 
-        let alerts = get_all_alerts(&pool, 10).await.unwrap();
+        let alerts = load_all_alerts(&pool, 10).await;
         assert_eq!(alerts.len(), 4);
 
         let entity_types: Vec<EntityType> = alerts

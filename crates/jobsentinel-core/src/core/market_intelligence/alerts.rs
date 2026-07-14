@@ -204,52 +204,6 @@ pub async fn get_unread_alerts(db: &SqlitePool) -> Result<Vec<MarketAlert>> {
     rows.iter().map(row_to_alert).collect()
 }
 
-/// Get all alerts (read and unread)
-pub async fn get_all_alerts(db: &SqlitePool, limit: usize) -> Result<Vec<MarketAlert>> {
-    let rows = sqlx::query(
-        r#"
-        SELECT
-            id, alert_type, title, description, severity,
-            related_entity, related_entity_type,
-            metric_value, metric_change_pct, is_read, created_at
-        FROM market_alerts
-        ORDER BY created_at DESC
-        LIMIT ?
-        "#,
-    )
-    .bind(limit as i64)
-    .fetch_all(db)
-    .await?;
-
-    rows.iter().map(row_to_alert).collect()
-}
-
-/// Get alerts by type
-pub async fn get_alerts_by_type(
-    db: &SqlitePool,
-    alert_type: AlertType,
-    limit: usize,
-) -> Result<Vec<MarketAlert>> {
-    let rows = sqlx::query(
-        r#"
-        SELECT
-            id, alert_type, title, description, severity,
-            related_entity, related_entity_type,
-            metric_value, metric_change_pct, is_read, created_at
-        FROM market_alerts
-        WHERE alert_type = ?
-        ORDER BY created_at DESC
-        LIMIT ?
-        "#,
-    )
-    .bind(alert_type.as_str())
-    .bind(limit as i64)
-    .fetch_all(db)
-    .await?;
-
-    rows.iter().map(row_to_alert).collect()
-}
-
 /// Mark all alerts as read
 pub async fn mark_all_read(db: &SqlitePool) -> Result<u64> {
     let result = sqlx::query("UPDATE market_alerts SET is_read = 1 WHERE is_read = 0")
@@ -267,19 +221,6 @@ pub async fn mark_alert_read(db: &SqlitePool, id: i64) -> Result<bool> {
         .await?;
 
     Ok(result.rows_affected() > 0)
-}
-
-/// Delete old alerts (older than N days)
-pub async fn cleanup_old_alerts(db: &SqlitePool, days: usize) -> Result<u64> {
-    let modifier = format!("-{days} days");
-    let result = sqlx::query(
-        "DELETE FROM market_alerts WHERE created_at < datetime('now', ?) AND is_read = 1",
-    )
-    .bind(modifier)
-    .execute(db)
-    .await?;
-
-    Ok(result.rows_affected())
 }
 
 #[cfg(test)]

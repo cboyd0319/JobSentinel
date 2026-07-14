@@ -423,49 +423,6 @@ async fn test_store_snapshot_upsert() {
 mod sentiment_tests;
 
 #[tokio::test]
-async fn test_get_snapshot_existing() {
-    let pool = setup_test_db().await;
-
-    sqlx::query(
-        "INSERT INTO market_snapshots (date, total_jobs, new_jobs_today, jobs_filled_today, total_companies_hiring, market_sentiment) VALUES (?, ?, ?, ?, ?, ?)",
-    )
-    .bind("2026-01-16")
-    .bind(100)
-    .bind(10)
-    .bind(5)
-    .bind(50)
-    .bind("bullish")
-    .execute(&pool)
-    .await
-    .unwrap();
-
-    let analyzer = MarketAnalyzer::new(pool);
-    let snapshot = analyzer
-        .get_snapshot(NaiveDate::from_ymd_opt(2026, 1, 16).unwrap())
-        .await
-        .unwrap();
-
-    assert!(snapshot.is_some());
-    let snapshot = snapshot.unwrap();
-    assert_eq!(snapshot.total_jobs, 100);
-    assert_eq!(snapshot.new_jobs_today, 10);
-    assert_eq!(snapshot.market_sentiment, "bullish");
-}
-
-#[tokio::test]
-async fn test_get_snapshot_not_found() {
-    let pool = setup_test_db().await;
-    let analyzer = MarketAnalyzer::new(pool);
-
-    let snapshot = analyzer
-        .get_snapshot(NaiveDate::from_ymd_opt(2026, 1, 16).unwrap())
-        .await
-        .unwrap();
-
-    assert!(snapshot.is_none());
-}
-
-#[tokio::test]
 async fn test_get_latest_snapshot() {
     let pool = setup_test_db().await;
 
@@ -599,11 +556,7 @@ async fn test_row_to_snapshot_all_fields() {
     .unwrap();
 
     let analyzer = MarketAnalyzer::new(pool);
-    let snapshot = analyzer
-        .get_snapshot(NaiveDate::from_ymd_opt(2026, 1, 16).unwrap())
-        .await
-        .unwrap()
-        .unwrap();
+    let snapshot = analyzer.get_latest_snapshot().await.unwrap().unwrap();
 
     assert_eq!(snapshot.date, NaiveDate::from_ymd_opt(2026, 1, 16).unwrap());
     assert_eq!(snapshot.total_jobs, 100);
@@ -646,11 +599,7 @@ async fn test_row_to_snapshot_nullable_fields() {
     .unwrap();
 
     let analyzer = MarketAnalyzer::new(pool);
-    let snapshot = analyzer
-        .get_snapshot(NaiveDate::from_ymd_opt(2026, 1, 16).unwrap())
-        .await
-        .unwrap()
-        .unwrap();
+    let snapshot = analyzer.get_latest_snapshot().await.unwrap().unwrap();
 
     // Verify required fields are present
     assert_eq!(snapshot.total_jobs, 50);

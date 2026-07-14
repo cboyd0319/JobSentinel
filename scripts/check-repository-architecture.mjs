@@ -257,6 +257,7 @@ function checkCoreBoundary(root, violations) {
     "crates/jobsentinel-core/src/core/automation/mod.rs",
     "crates/jobsentinel-core/src/core/credentials/mod.rs",
     "crates/jobsentinel-core/src/core/import/mod.rs",
+    "crates/jobsentinel-core/src/core/market_intelligence/mod.rs",
     "crates/jobsentinel-core/src/core/notify/mod.rs",
     "crates/jobsentinel-core/src/core/resume/mod.rs",
     "crates/jobsentinel-core/src/core/scrapers/mod.rs",

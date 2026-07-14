@@ -6,9 +6,8 @@
 use anyhow::Result;
 use sqlx::SqlitePool;
 
-pub mod alerts;
-pub mod analytics;
-pub mod trends;
+mod alerts;
+mod analytics;
 
 mod computations;
 mod queries;
@@ -17,10 +16,11 @@ mod utils;
 #[cfg(test)]
 mod tests;
 
-pub use alerts::{mark_alert_read, mark_all_read, AlertSeverity, AlertType, MarketAlert};
-pub use analytics::{MarketAnalyzer, MarketSnapshot};
+use analytics::MarketAnalyzer;
+
+pub use alerts::{AlertSeverity, AlertType, EntityType, MarketAlert};
+pub use analytics::MarketSnapshot;
 pub use queries::{CompanyActivity, LocationHeat, SkillTrend};
-pub use trends::{RoleDemandTrend, SalaryTrend, SkillDemandTrend};
 
 /// Market intelligence manager
 pub struct MarketIntelligence {
