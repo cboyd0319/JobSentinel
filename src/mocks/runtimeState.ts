@@ -24,6 +24,7 @@ import {
   normalizeMockScreeningAnswer,
 } from "../features/application-assist/mockProfile";
 import { getDefaultMarketAlerts } from "../features/market/mockHandlers";
+import type { MockPendingUrlImport } from "../features/dashboard/mocks/jobImportCommands";
 import { normalizeResumeDraft } from "../features/resumes/mocks/resumeBuilder";
 import { normalizeMockNotificationPreferences } from "../features/settings/notifications/mockCommands";
 import {
@@ -31,10 +32,7 @@ import {
   getDefaultGhostConfig,
   normalizeApplications,
 } from "./handlers/commandHelpers";
-import type {
-  MockCredentialUnlockState,
-  MockState,
-} from "./handlers/types";
+import type { MockCredentialUnlockState, MockState } from "./handlers/types";
 
 const MOCK_STATE_KEY = "jobsentinel.mockState.v1";
 const defaultCredentialUnlock: MockCredentialUnlockState = {
@@ -46,12 +44,12 @@ const defaultCredentialUnlock: MockCredentialUnlockState = {
 interface MockRuntimeState extends MockState {
   automationBrowserRunning: boolean;
   nextAutomationAttemptId: number;
+  pendingUrlImports: MockPendingUrlImport[];
 }
 
 function canUseStorage(): boolean {
   return (
-    typeof window !== "undefined" &&
-    typeof window.localStorage !== "undefined"
+    typeof window !== "undefined" && typeof window.localStorage !== "undefined"
   );
 }
 
@@ -84,6 +82,7 @@ function createDefaultState(): MockRuntimeState {
     ghostConfig: getDefaultGhostConfig(),
     bookmarkletConfig: { port: 4321, enabled: false },
     pendingBookmarkletImports: [],
+    pendingUrlImports: [],
     resumes: [],
     userSkills: [],
     resumeDrafts: [],
@@ -104,11 +103,10 @@ export const mockRuntimeState = createDefaultState();
 export function saveMockState(): void {
   if (!canUseStorage()) return;
 
-  const {
-    automationBrowserRunning: _automationBrowserRunning,
-    nextAutomationAttemptId: _nextAutomationAttemptId,
-    ...persistedState
-  } = mockRuntimeState;
+  const persistedState: Partial<MockState> = { ...mockRuntimeState };
+  delete persistedState.automationBrowserRunning;
+  delete persistedState.nextAutomationAttemptId;
+  delete persistedState.pendingUrlImports;
   window.localStorage.setItem(MOCK_STATE_KEY, JSON.stringify(persistedState));
 }
 
@@ -124,7 +122,8 @@ export function loadMockState(): void {
     if (state.config && typeof state.config === "object") {
       mockRuntimeState.config = { ...mockConfig, ...state.config };
     }
-    if (Array.isArray(state.interviews)) mockRuntimeState.interviews = state.interviews;
+    if (Array.isArray(state.interviews))
+      mockRuntimeState.interviews = state.interviews;
     if (state.applications && typeof state.applications === "object") {
       mockRuntimeState.applications = normalizeApplications(state.applications);
     }
@@ -132,11 +131,14 @@ export function loadMockState(): void {
       mockRuntimeState.pendingReminders = state.pendingReminders;
     }
     if (Array.isArray(state.coverLetterTemplates)) {
-      mockRuntimeState.coverLetterTemplates = state.coverLetterTemplates.map((template) =>
-        normalizeMockCoverLetterTemplate(
-          template,
-          getNextMockCoverLetterTemplateId(mockRuntimeState.coverLetterTemplates),
-        ),
+      mockRuntimeState.coverLetterTemplates = state.coverLetterTemplates.map(
+        (template) =>
+          normalizeMockCoverLetterTemplate(
+            template,
+            getNextMockCoverLetterTemplateId(
+              mockRuntimeState.coverLetterTemplates,
+            ),
+          ),
       );
     }
     if (Array.isArray(state.savedSearches)) {
@@ -149,13 +151,16 @@ export function loadMockState(): void {
     }
     if (Array.isArray(state.searchHistory)) {
       mockRuntimeState.searchHistory = state.searchHistory.filter(
-        (query): query is string => typeof query === "string" && query.trim().length >= 2,
+        (query): query is string =>
+          typeof query === "string" && query.trim().length >= 2,
       );
     }
-    if (state.notificationPreferences && typeof state.notificationPreferences === "object") {
-      mockRuntimeState.notificationPreferences = normalizeMockNotificationPreferences(
-        state.notificationPreferences,
-      );
+    if (
+      state.notificationPreferences &&
+      typeof state.notificationPreferences === "object"
+    ) {
+      mockRuntimeState.notificationPreferences =
+        normalizeMockNotificationPreferences(state.notificationPreferences);
     }
     if (state.credentials && typeof state.credentials === "object") {
       mockRuntimeState.credentials = state.credentials;
@@ -164,26 +169,36 @@ export function loadMockState(): void {
       mockRuntimeState.credentialUnlock = state.credentialUnlock;
     }
     if (state.ghostConfig && typeof state.ghostConfig === "object") {
-      mockRuntimeState.ghostConfig = { ...getDefaultGhostConfig(), ...state.ghostConfig };
+      mockRuntimeState.ghostConfig = {
+        ...getDefaultGhostConfig(),
+        ...state.ghostConfig,
+      };
     }
-    if (state.bookmarkletConfig && typeof state.bookmarkletConfig === "object") {
+    if (
+      state.bookmarkletConfig &&
+      typeof state.bookmarkletConfig === "object"
+    ) {
       mockRuntimeState.bookmarkletConfig = {
         ...mockRuntimeState.bookmarkletConfig,
         ...state.bookmarkletConfig,
       };
     }
     if (Array.isArray(state.pendingBookmarkletImports)) {
-      mockRuntimeState.pendingBookmarkletImports = state.pendingBookmarkletImports;
+      mockRuntimeState.pendingBookmarkletImports =
+        state.pendingBookmarkletImports;
     }
     if (Array.isArray(state.resumes)) mockRuntimeState.resumes = state.resumes;
-    if (Array.isArray(state.userSkills)) mockRuntimeState.userSkills = state.userSkills;
+    if (Array.isArray(state.userSkills))
+      mockRuntimeState.userSkills = state.userSkills;
     if (Array.isArray(state.resumeDrafts)) {
       mockRuntimeState.resumeDrafts = state.resumeDrafts
         .filter((draft) => draft && typeof draft === "object")
         .map((draft) => normalizeResumeDraft(draft));
     }
-    if (Array.isArray(state.recentMatches)) mockRuntimeState.recentMatches = state.recentMatches;
-    if (Array.isArray(state.marketAlerts)) mockRuntimeState.marketAlerts = state.marketAlerts;
+    if (Array.isArray(state.recentMatches))
+      mockRuntimeState.recentMatches = state.recentMatches;
+    if (Array.isArray(state.marketAlerts))
+      mockRuntimeState.marketAlerts = state.marketAlerts;
     if ("applicationProfile" in state) {
       mockRuntimeState.applicationProfile =
         state.applicationProfile && typeof state.applicationProfile === "object"
@@ -195,15 +210,24 @@ export function loadMockState(): void {
         .filter((answer) => answer && typeof answer === "object")
         .map((answer) => normalizeMockScreeningAnswer(answer));
     }
-    if (state.scraperEnabledOverrides && typeof state.scraperEnabledOverrides === "object") {
+    if (
+      state.scraperEnabledOverrides &&
+      typeof state.scraperEnabledOverrides === "object"
+    ) {
       mockRuntimeState.scraperEnabledOverrides = state.scraperEnabledOverrides;
     }
-    if (state.interviewPrepChecklists && typeof state.interviewPrepChecklists === "object") {
+    if (
+      state.interviewPrepChecklists &&
+      typeof state.interviewPrepChecklists === "object"
+    ) {
       mockRuntimeState.interviewPrepChecklists = normalizeInterviewPrepState(
         state.interviewPrepChecklists,
       );
     }
-    if (state.interviewFollowups && typeof state.interviewFollowups === "object") {
+    if (
+      state.interviewFollowups &&
+      typeof state.interviewFollowups === "object"
+    ) {
       mockRuntimeState.interviewFollowups = normalizeInterviewFollowUpState(
         state.interviewFollowups,
       );
@@ -230,6 +254,7 @@ export function resetMockState(): void {
     ghostConfig: defaults.ghostConfig,
     bookmarkletConfig: defaults.bookmarkletConfig,
     pendingBookmarkletImports: defaults.pendingBookmarkletImports,
+    pendingUrlImports: defaults.pendingUrlImports,
     resumes: defaults.resumes,
     userSkills: defaults.userSkills,
     resumeDrafts: defaults.resumeDrafts,

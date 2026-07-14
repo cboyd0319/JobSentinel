@@ -31,6 +31,12 @@ pub enum ImportError {
     #[error("Database operation failed")]
     DatabaseError(String),
 
+    #[error("Job already exists")]
+    AlreadyExists,
+
+    #[error("Import preview is missing or expired")]
+    PendingImportNotFound,
+
     #[error("Timeout while fetching URL")]
     Timeout,
 
@@ -82,12 +88,12 @@ mod tests {
     }
 }
 
-pub type ImportResult<T> = Result<T, ImportError>;
+pub(super) type ImportResult<T> = Result<T, ImportError>;
 
 /// Raw Schema.org JobPosting data (parsed from JSON-LD)
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct SchemaOrgJobPosting {
+pub(super) struct SchemaOrgJobPosting {
     /// Job title (from "title" or "name")
     #[serde(alias = "name")]
     pub title: Option<String>,
@@ -141,7 +147,7 @@ pub struct SchemaOrgJobPosting {
 /// Hiring organization (company) information
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct HiringOrganization {
+pub(super) struct HiringOrganization {
     /// Company name
     pub name: Option<String>,
 
@@ -155,6 +161,9 @@ pub struct HiringOrganization {
 /// Preview of what will be imported (shown to user before confirming)
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct JobImportPreview {
+    /// Opaque identifier for saving the exact details shown in this preview.
+    pub import_id: Option<String>,
+
     /// Job title
     pub title: String,
 
@@ -190,6 +199,12 @@ pub struct JobImportPreview {
 
     /// Whether this job already exists in the database
     pub already_exists: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ImportedJobSummary {
+    pub job_id: i64,
 }
 
 impl JobImportPreview {

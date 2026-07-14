@@ -511,6 +511,7 @@ evidence-log entry.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-07-13 | Milestone 7 job-import ownership complete | Moved job-link preview, fetching, parsing, pending review state, and database insertion behind the private core import owner. Confirmation now uses a capped, expiring, memory-only identifier and saves the exact reviewed job without refetching; atomic insert preserves an existing saved job if a concurrent save wins. The Tauri adapter is 161 lines with no SQL, fetch, parser, or hashing ownership. Dashboard cache invalidation now makes successful imports visible immediately. The focused import, database, Tauri command, frontend, and 23-flow Dashboard E2E suites pass, as do 2,933 frontend tests, 776 script tests, the full default workspace, all-feature Clippy and test-target compilation, the production build, and repository gates with live keyring access disabled. |
 | 2026-07-13 | Milestone 7 notification ownership complete | Made all five notification provider modules private behind the typed service facade and retained only the Slack and email validators used by Tauri commands. Deleted unused Discord, Teams, and Telegram network test-message APIs while preserving provider send-path URL checks, pinned resolution, sanitized failures, credential isolation, and local match-detail copy. The full default workspace, 440 focused notification tests, 12 Tauri configuration tests, all-feature Clippy, all-feature test-target compilation, all 775 script tests, and repository gates pass with live keyring access disabled. |
 | 2026-07-13 | Milestone 7 resume ownership complete | Made all ten resume implementation leaves private behind the typed resume facade and removed the unused internal JSON parser export. Deleted the unused parser status and section-extraction paths, then routed PDF extension and path-safety tests through the real parser entrypoint. The full default workspace, 393 focused resume tests, 11 Tauri resume-command tests, all-feature Clippy, all-feature test-target compilation, all 775 script tests, and the architecture gate pass with live keyring access disabled. |
 | 2026-07-13 | Milestone 7 scraper ownership complete | Made the scraper owner and all implementation leaves private, replaced cross-owner leaf imports with one flat internal facade, and moved scraper construction and opt-in live checks under their source owner. Deleted the unused response cache, cached HTTP wrappers, compatibility constructor, parallel helper, stale error surface, and obsolete cache guide. The full default workspace passed with live keyring access disabled; all-feature Clippy and test-target compilation, 775 script tests, documentation lint, language, architecture, and harness gates also passed. |
@@ -640,9 +641,9 @@ evidence-log entry.
 
 - Current state: Milestones 0 through 6 plus the Milestone 7 file-cap, Rust
   lint-policy, facade, target, sensitive leaf-module, scraper, resume, and
-  notification slices are complete with passing evidence. Privacy remains
-  immutable.
-- Next step: continue the Rust leaf-module visibility, dead-code, feature, and
+  notification slices are complete with passing evidence. The core-owned
+  job-import slice is also complete. Privacy remains immutable.
+- Next step: continue the Rust owner visibility, dead-code, feature, and
   dependency audit before moving to easier cleanup surfaces.
 - Open risks: Windows and Linux platform builds still require their final live
   release-readiness hosts. Current cross-platform evidence is contract and

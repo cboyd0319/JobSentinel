@@ -69,7 +69,9 @@ function section(text, name) {
 }
 
 function parseWorkspaceMembers(workspaceSection) {
-  const match = workspaceSection.match(/(?:^|\n)\s*members\s*=\s*\[([\s\S]*?)\]/);
+  const match = workspaceSection.match(
+    /(?:^|\n)\s*members\s*=\s*\[([\s\S]*?)\]/,
+  );
   if (!match) {
     return null;
   }
@@ -89,7 +91,10 @@ function discoverMemberPaths(root) {
   const cratesRoot = join(root, "crates");
   if (existsSync(cratesRoot)) {
     for (const entry of readdirSync(cratesRoot, { withFileTypes: true })) {
-      if (entry.isDirectory() && existsSync(join(cratesRoot, entry.name, "Cargo.toml"))) {
+      if (
+        entry.isDirectory() &&
+        existsSync(join(cratesRoot, entry.name, "Cargo.toml"))
+      ) {
         members.push(`crates/${entry.name}`);
       }
     }
@@ -108,7 +113,9 @@ function collectRustFiles(root, path) {
   for (const entry of readdirSync(directory, { withFileTypes: true })) {
     const child = join(directory, entry.name);
     if (entry.isDirectory()) {
-      files.push(...collectRustFiles(root, normalizePath(relative(root, child))));
+      files.push(
+        ...collectRustFiles(root, normalizePath(relative(root, child))),
+      );
     } else if (entry.isFile() && entry.name.endsWith(".rs")) {
       files.push(normalizePath(relative(root, child)));
     }
@@ -152,9 +159,13 @@ function checkCoreModuleBoundaries(root, violations) {
   const jobHashPath = "crates/jobsentinel-core/src/core/job_hash.rs";
   if (
     existsSync(join(root, jobHashPath)) &&
-    /(?:^|\n)\s*use\s+crate::core::scrapers(?:::|\s*::|;)/.test(read(root, jobHashPath))
+    /(?:^|\n)\s*use\s+crate::core::scrapers(?:::|\s*::|;)/.test(
+      read(root, jobHashPath),
+    )
   ) {
-    violations.push(`${jobHashPath}: job identity must not import source adapter modules`);
+    violations.push(
+      `${jobHashPath}: job identity must not import source adapter modules`,
+    );
   }
 }
 
@@ -163,9 +174,13 @@ function checkMemberManifest(root, member, violations) {
   const text = stripTomlComments(read(root, path));
 
   for (const field of inheritedPackageFields) {
-    const inheritance = new RegExp(`(?:^|\\n)\\s*${field}\\.workspace\\s*=\\s*true\\s*(?:$|\\n)`);
+    const inheritance = new RegExp(
+      `(?:^|\\n)\\s*${field}\\.workspace\\s*=\\s*true\\s*(?:$|\\n)`,
+    );
     if (!inheritance.test(text)) {
-      violations.push(`${path} must inherit package ${field} from the workspace`);
+      violations.push(
+        `${path} must inherit package ${field} from the workspace`,
+      );
     }
   }
 
@@ -176,7 +191,9 @@ function checkMemberManifest(root, member, violations) {
 
   for (const policy of ["lints.rust", "lints.clippy"]) {
     if (section(text, policy) !== null) {
-      violations.push(`${path} must inherit lint policy instead of defining [${policy}]`);
+      violations.push(
+        `${path} must inherit lint policy instead of defining [${policy}]`,
+      );
     }
   }
   if (section(text, "profile.release") !== null) {
@@ -195,7 +212,9 @@ function checkMemberCrateRootLintPolicy(root, member, violations) {
 
     const text = read(root, path);
     if (/#!\[(?:allow|warn|deny|forbid)\(unsafe_code\)\]/.test(text)) {
-      violations.push(`${path} must inherit unsafe_code policy from Cargo.toml`);
+      violations.push(
+        `${path} must inherit unsafe_code policy from Cargo.toml`,
+      );
     }
     if (/#!\[(?:allow|warn|deny|forbid)\(clippy::/.test(text)) {
       violations.push(`${path} must inherit Clippy policy from Cargo.toml`);
@@ -225,7 +244,9 @@ function checkCoreBoundary(root, violations) {
     const text = read(root, libPath);
     const lines = countLines(text);
     if (lines > 100) {
-      violations.push(`${libPath} must stay at or below 100 lines; found ${lines}`);
+      violations.push(
+        `${libPath} must stay at or below 100 lines; found ${lines}`,
+      );
     }
     if (/\bpub\s+use\s+(?:crate::)?core::\*\s*;/.test(text)) {
       violations.push(`${libPath} must export an explicit bounded core facade`);
@@ -235,6 +256,7 @@ function checkCoreBoundary(root, violations) {
   for (const path of [
     "crates/jobsentinel-core/src/core/automation/mod.rs",
     "crates/jobsentinel-core/src/core/credentials/mod.rs",
+    "crates/jobsentinel-core/src/core/import/mod.rs",
     "crates/jobsentinel-core/src/core/notify/mod.rs",
     "crates/jobsentinel-core/src/core/resume/mod.rs",
     "crates/jobsentinel-core/src/core/scrapers/mod.rs",
@@ -256,7 +278,9 @@ function checkCoreBoundary(root, violations) {
     existsSync(join(root, coreModulePath)) &&
     /(?:^|\n)\s*pub\s+mod\s+scrapers\s*;/.test(read(root, coreModulePath))
   ) {
-    violations.push(`${coreModulePath} must keep scraper implementations core-internal`);
+    violations.push(
+      `${coreModulePath} must keep scraper implementations core-internal`,
+    );
   }
 
   const credentialsPath = "crates/jobsentinel-core/src/core/credentials/mod.rs";
@@ -284,7 +308,9 @@ function checkTauriShell(root, violations) {
   if (existsSync(join(root, mainPath))) {
     const lines = countLines(read(root, mainPath));
     if (lines > 20) {
-      violations.push(`${mainPath} must stay at or below 20 lines; found ${lines}`);
+      violations.push(
+        `${mainPath} must stay at or below 20 lines; found ${lines}`,
+      );
     }
   }
 
@@ -293,7 +319,9 @@ function checkTauriShell(root, violations) {
     const text = read(root, libPath);
     const lines = countLines(text);
     if (lines > 100) {
-      violations.push(`${libPath} must stay at or below 100 lines; found ${lines}`);
+      violations.push(
+        `${libPath} must stay at or below 100 lines; found ${lines}`,
+      );
     }
     if (/(?:^|\n)\s*pub\s+mod\s+commands\s*;/.test(text)) {
       violations.push(
@@ -306,7 +334,29 @@ function checkTauriShell(root, violations) {
   if (existsSync(join(root, registryPath))) {
     const lines = countLines(read(root, registryPath));
     if (lines > 300) {
-      violations.push(`${registryPath} must stay at or below 300 lines; found ${lines}`);
+      violations.push(
+        `${registryPath} must stay at or below 300 lines; found ${lines}`,
+      );
+    }
+  }
+
+  const importCommandPath = "src-tauri/src/commands/import.rs";
+  if (existsSync(join(root, importCommandPath))) {
+    const text = read(root, importCommandPath);
+    const lines = countLines(text);
+    if (lines > 200) {
+      violations.push(
+        `${importCommandPath} must stay at or below 200 lines; found ${lines}`,
+      );
+    }
+    if (
+      /\bsqlx::|\bfetch_job_page\b|\bparse_schema_org_job_posting\b|\bcalculate_job_hash\b/.test(
+        text,
+      )
+    ) {
+      violations.push(
+        `${importCommandPath} must delegate import orchestration and storage to jobsentinel-core`,
+      );
     }
   }
 }
@@ -335,10 +385,14 @@ export function checkRepositoryArchitecture(root = defaultRoot) {
 
   const parsedMembers = parseWorkspaceMembers(workspace);
   if (parsedMembers === null) {
-    violations.push("Cargo.toml [workspace] must define an explicit members array");
+    violations.push(
+      "Cargo.toml [workspace] must define an explicit members array",
+    );
   } else {
     if (!parsedMembers.literalOnly) {
-      violations.push("Cargo.toml workspace members must contain only quoted literal paths");
+      violations.push(
+        "Cargo.toml workspace members must contain only quoted literal paths",
+      );
     }
     for (const member of parsedMembers.members) {
       if (/[*?\[]/.test(member)) {
@@ -347,21 +401,32 @@ export function checkRepositoryArchitecture(root = defaultRoot) {
         );
       }
       if (!existsSync(join(root, member, "Cargo.toml"))) {
-        violations.push(`Cargo.toml workspace member ${member} has no Cargo.toml`);
+        violations.push(
+          `Cargo.toml workspace member ${member} has no Cargo.toml`,
+        );
       }
     }
     for (const member of discoveredMembers) {
       if (!parsedMembers.members.includes(member)) {
-        violations.push(`Cargo.toml workspace members must list tracked crate ${member}`);
+        violations.push(
+          `Cargo.toml workspace members must list tracked crate ${member}`,
+        );
       }
     }
-    if (parsedMembers.members.join("\n") !== [...parsedMembers.members].sort().join("\n")) {
-      violations.push("Cargo.toml workspace members must be sorted for deterministic review");
+    if (
+      parsedMembers.members.join("\n") !==
+      [...parsedMembers.members].sort().join("\n")
+    ) {
+      violations.push(
+        "Cargo.toml workspace members must be sorted for deterministic review",
+      );
     }
   }
 
   if (!/(?:^|\n)\s*resolver\s*=\s*"2"\s*(?:$|\n)/.test(workspace)) {
-    violations.push('Cargo.toml [workspace] must set resolver = "2" for Rust 2021 members');
+    violations.push(
+      'Cargo.toml [workspace] must set resolver = "2" for Rust 2021 members',
+    );
   }
   for (const required of requiredWorkspaceSections) {
     if (section(rootManifest, required) === null) {
@@ -379,7 +444,10 @@ export function checkRepositoryArchitecture(root = defaultRoot) {
   return violations;
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (
+  process.argv[1] &&
+  import.meta.url === pathToFileURL(process.argv[1]).href
+) {
   const root = process.argv[2] ? resolve(process.argv[2]) : defaultRoot;
   const violations = checkRepositoryArchitecture(root);
 

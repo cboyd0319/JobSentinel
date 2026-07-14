@@ -268,6 +268,7 @@ pub(crate) fn run() {
                 scheduler: Some(Arc::clone(&scheduler_arc)),
                 scheduler_status: Arc::clone(&scheduler_status),
                 bookmarklet_server: Arc::clone(&bookmarklet_server),
+                pending_url_imports: Default::default(),
             };
 
             // Register AppState with Tauri

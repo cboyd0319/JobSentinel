@@ -12,7 +12,9 @@ function writeFixtureFile(root, path, content = "") {
 }
 
 function withFixture(callback) {
-  const root = mkdtempSync(join(tmpdir(), "jobsentinel-repository-architecture-"));
+  const root = mkdtempSync(
+    join(tmpdir(), "jobsentinel-repository-architecture-"),
+  );
 
   try {
     callback(root);
@@ -34,8 +36,16 @@ serde.workspace = true
 workspace = true
 `,
   );
-  writeFixtureFile(root, "crates/jobsentinel-core/src/lib.rs", "mod search;\npub use search::Search;\n");
-  writeFixtureFile(root, "crates/jobsentinel-core/src/search.rs", "pub struct Search;\n");
+  writeFixtureFile(
+    root,
+    "crates/jobsentinel-core/src/lib.rs",
+    "mod search;\npub use search::Search;\n",
+  );
+  writeFixtureFile(
+    root,
+    "crates/jobsentinel-core/src/search.rs",
+    "pub struct Search;\n",
+  );
   writeFixtureFile(
     root,
     "src-tauri/Cargo.toml",
@@ -48,8 +58,16 @@ tauri.workspace = true
 workspace = true
 `,
   );
-  writeFixtureFile(root, "src-tauri/src/main.rs", "fn main() { jobsentinel::run(); }\n");
-  writeFixtureFile(root, "src-tauri/src/lib.rs", "mod commands;\npub fn run() {}\n");
+  writeFixtureFile(
+    root,
+    "src-tauri/src/main.rs",
+    "fn main() { jobsentinel::run(); }\n",
+  );
+  writeFixtureFile(
+    root,
+    "src-tauri/src/lib.rs",
+    "mod commands;\npub fn run() {}\n",
+  );
 }
 
 function inheritedPackage() {
@@ -65,7 +83,9 @@ categories.workspace = true
 `;
 }
 
-function targetRootManifest(members = '["crates/jobsentinel-core", "src-tauri"]') {
+function targetRootManifest(
+  members = '["crates/jobsentinel-core", "src-tauri"]',
+) {
   return `[workspace]
 members = ${members}
 resolver = "2"
@@ -97,7 +117,11 @@ panic = "abort"
 
 test("checkRepositoryArchitecture permits the pre-workspace migration state", () => {
   withFixture((root) => {
-    writeFixtureFile(root, "src-tauri/Cargo.toml", "[package]\nname = \"jobsentinel\"\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/Cargo.toml",
+      '[package]\nname = "jobsentinel"\n',
+    );
 
     assert.deepEqual(checkRepositoryArchitecture(root), []);
   });
@@ -105,7 +129,11 @@ test("checkRepositoryArchitecture permits the pre-workspace migration state", ()
 
 test("checkRepositoryArchitecture rejects cyclic core module imports before extraction", () => {
   withFixture((root) => {
-    writeFixtureFile(root, "src-tauri/Cargo.toml", "[package]\nname = \"jobsentinel\"\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/Cargo.toml",
+      '[package]\nname = "jobsentinel"\n',
+    );
     writeFixtureFile(
       root,
       "crates/jobsentinel-core/src/core/db/encryption.rs",
@@ -163,7 +191,11 @@ test("checkRepositoryArchitecture rejects wildcard workspace member discovery", 
 test("checkRepositoryArchitecture rejects tracked member manifests omitted from the workspace", () => {
   withFixture((root) => {
     writeTargetWorkspace(root);
-    writeFixtureFile(root, "crates/jobsentinel-extra/Cargo.toml", inheritedPackage());
+    writeFixtureFile(
+      root,
+      "crates/jobsentinel-extra/Cargo.toml",
+      inheritedPackage(),
+    );
 
     const violations = checkRepositoryArchitecture(root);
 
@@ -267,7 +299,7 @@ test("checkRepositoryArchitecture rejects crate-root lint policy", () => {
     writeFixtureFile(
       root,
       "crates/jobsentinel-core/src/lib.rs",
-      '#![deny(unsafe_code)]\n#![allow(clippy::too_many_lines)]\nmod search;\n',
+      "#![deny(unsafe_code)]\n#![allow(clippy::too_many_lines)]\nmod search;\n",
     );
 
     const violations = checkRepositoryArchitecture(root);
@@ -301,7 +333,11 @@ tauri.workspace = true
 workspace = true
 `,
     );
-    writeFixtureFile(root, "crates/jobsentinel-core/src/lib.rs", "use tauri::Manager;\n");
+    writeFixtureFile(
+      root,
+      "crates/jobsentinel-core/src/lib.rs",
+      "use tauri::Manager;\n",
+    );
 
     const violations = checkRepositoryArchitecture(root);
 
@@ -346,6 +382,7 @@ test("checkRepositoryArchitecture rejects public implementation leaf modules", (
     for (const path of [
       "crates/jobsentinel-core/src/core/automation/mod.rs",
       "crates/jobsentinel-core/src/core/credentials/mod.rs",
+      "crates/jobsentinel-core/src/core/import/mod.rs",
       "crates/jobsentinel-core/src/core/notify/mod.rs",
       "crates/jobsentinel-core/src/core/resume/mod.rs",
       "crates/jobsentinel-core/src/core/scrapers/mod.rs",
@@ -365,6 +402,7 @@ test("checkRepositoryArchitecture rejects public implementation leaf modules", (
     for (const path of [
       "crates/jobsentinel-core/src/core/automation/mod.rs",
       "crates/jobsentinel-core/src/core/credentials/mod.rs",
+      "crates/jobsentinel-core/src/core/import/mod.rs",
       "crates/jobsentinel-core/src/core/notify/mod.rs",
       "crates/jobsentinel-core/src/core/resume/mod.rs",
       "crates/jobsentinel-core/src/core/scrapers/mod.rs",
@@ -383,7 +421,11 @@ test("checkRepositoryArchitecture rejects public implementation leaf modules", (
       ),
       violations.join("\n"),
     );
-    writeFixtureFile(root, "crates/jobsentinel-core/src/core/mod.rs", "pub mod scrapers;\n");
+    writeFixtureFile(
+      root,
+      "crates/jobsentinel-core/src/core/mod.rs",
+      "pub mod scrapers;\n",
+    );
 
     const coreModuleViolations = checkRepositoryArchitecture(root);
     assert.ok(
@@ -425,21 +467,60 @@ test("checkRepositoryArchitecture enforces thin private Tauri entrypoints", () =
     writeFixtureFile(
       root,
       "src-tauri/src/main.rs",
-      Array.from({ length: 21 }, (_, index) => `const LINE_${index}: usize = ${index};`).join(
-        "\n",
-      ),
+      Array.from(
+        { length: 21 },
+        (_, index) => `const LINE_${index}: usize = ${index};`,
+      ).join("\n"),
     );
-    writeFixtureFile(root, "src-tauri/src/lib.rs", "pub mod commands;\npub fn run() {}\n");
+    writeFixtureFile(
+      root,
+      "src-tauri/src/lib.rs",
+      "pub mod commands;\npub fn run() {}\n",
+    );
 
     const violations = checkRepositoryArchitecture(root);
 
     assert.ok(
-      violations.includes("src-tauri/src/main.rs must stay at or below 20 lines; found 21"),
+      violations.includes(
+        "src-tauri/src/main.rs must stay at or below 20 lines; found 21",
+      ),
       violations.join("\n"),
     );
     assert.ok(
       violations.includes(
         "src-tauri/src/lib.rs must keep commands private; use mod commands instead of pub mod commands",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepositoryArchitecture keeps import orchestration in core", () => {
+  withFixture((root) => {
+    writeTargetWorkspace(root);
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/import.rs",
+      [
+        'async fn import_job() { sqlx::query("SELECT 1"); }',
+        ...Array.from(
+          { length: 200 },
+          (_, index) => `const LINE_${index}: usize = ${index};`,
+        ),
+      ].join("\n"),
+    );
+
+    const violations = checkRepositoryArchitecture(root);
+
+    assert.ok(
+      violations.includes(
+        "src-tauri/src/commands/import.rs must stay at or below 200 lines; found 201",
+      ),
+      violations.join("\n"),
+    );
+    assert.ok(
+      violations.includes(
+        "src-tauri/src/commands/import.rs must delegate import orchestration and storage to jobsentinel-core",
       ),
       violations.join("\n"),
     );

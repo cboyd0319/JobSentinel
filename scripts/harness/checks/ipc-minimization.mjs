@@ -1,7 +1,9 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
-const fullProfileAllowedPaths = new Set(["src/features/application-assist/ProfileForm.tsx"]);
+const fullProfileAllowedPaths = new Set([
+  "src/features/application-assist/ProfileForm.tsx",
+]);
 
 function readIfPresent(root, path) {
   const fullPath = join(root, path);
@@ -53,8 +55,11 @@ export function hasRawJobImportUrlAfterPreview(root, path) {
   }
 
   const text = stripTypeScriptComments(readIfPresent(root, path));
-  return /["'`]import_job_from_url["'`][\s\S]{0,160}\{\s*url\s*:\s*(?:url(?:\.trim\(\))?|rawUrl)\s*\}/.test(
-    text,
+  return (
+    /["'`]import_job_from_url["'`]/.test(text) ||
+    /["'`]confirm_job_import["'`][\s\S]{0,160}\{\s*(?:url\s*:|importId\s*:\s*(?:url|rawUrl))/.test(
+      text,
+    )
   );
 }
 
@@ -65,7 +70,7 @@ export function hasFullImportedJobReturn(root, path) {
 
   const text = stripRustTestModules(readIfPresent(root, path));
   return (
-    /import_job_from_url[\s\S]{0,220}->\s*Result\s*<\s*(?:Value|serde_json::Value)\s*,\s*String\s*>/.test(
+    /confirm_job_import[\s\S]{0,220}->\s*Result\s*<\s*(?:Value|serde_json::Value)\s*,\s*String\s*>/.test(
       text,
     ) ||
     /serde_json::to_value\s*\(\s*&job\s*\)/.test(text) ||
@@ -83,9 +88,12 @@ export function hasStaleJobImportMockHandlers(root, path) {
   }
 
   const text = readIfPresent(root, path);
-  const requiredCommands = ["preview_job_import", "import_job_from_url"];
+  const requiredCommands = ["preview_job_import", "confirm_job_import"];
   const missingCommand = requiredCommands.some((command) => {
-    const pattern = path === registryPath ? `["']${command}["']` : `case\\s+["']${command}["']`;
+    const pattern =
+      path === registryPath
+        ? `["']${command}["']`
+        : `case\\s+["']${command}["']`;
     return !new RegExp(pattern).test(text);
   });
   if (path === registryPath) {
@@ -104,7 +112,10 @@ export function hasStaleProfilePreviewMock(root, path) {
     : "src/mocks/handlers.ts";
   const profileOwnerPath = "src/features/application-assist/mockProfile.ts";
   const hasProfileOwner = existsSync(join(root, profileOwnerPath));
-  if (path !== registryPath && (!hasProfileOwner || path !== profileOwnerPath)) {
+  if (
+    path !== registryPath &&
+    (!hasProfileOwner || path !== profileOwnerPath)
+  ) {
     return false;
   }
 
@@ -117,7 +128,7 @@ export function hasStaleProfilePreviewMock(root, path) {
   }
 
   const previewBody = hasProfileOwner
-    ? /getMockApplicationProfilePreview[\s\S]*?\n\}/.exec(text)?.[0] ?? ""
+    ? (/getMockApplicationProfilePreview[\s\S]*?\n\}/.exec(text)?.[0] ?? "")
     : text;
   return /(?:resumeFilePath|defaultResumeId|defaultCoverLetterTemplate|maxApplicationsPerDay|createdAt|updatedAt)/.test(
     previewBody,
@@ -127,17 +138,17 @@ export function hasStaleProfilePreviewMock(root, path) {
 export function hasBookmarkletTokenIpcExposure(root, path) {
   if (
     path !== "src-tauri/src/commands/bookmarklet.rs" &&
-    path !== "src/features/settings/sources/browser-import/BrowserImportSection.tsx" &&
+    path !==
+      "src/features/settings/sources/browser-import/BrowserImportSection.tsx" &&
     path !== "src/features/settings/mocks/commands.ts" &&
     path !== "src/mocks/handlers.ts"
   ) {
     return false;
   }
 
-  const text =
-    path.endsWith(".rs")
-      ? stripRustTestModules(readIfPresent(root, path))
-      : stripTypeScriptComments(readIfPresent(root, path));
+  const text = path.endsWith(".rs")
+    ? stripRustTestModules(readIfPresent(root, path))
+    : stripTypeScriptComments(readIfPresent(root, path));
 
   if (path === "src-tauri/src/commands/bookmarklet.rs") {
     return (
@@ -151,7 +162,9 @@ export function hasBookmarkletTokenIpcExposure(root, path) {
 
   return (
     /\bauthToken\b/.test(text) ||
-    /X-JobSentinel-Token[\s\S]{0,120}(?:invoke|navigator\.clipboard|writeText)/.test(text)
+    /X-JobSentinel-Token[\s\S]{0,120}(?:invoke|navigator\.clipboard|writeText)/.test(
+      text,
+    )
   );
 }
 
@@ -166,10 +179,9 @@ export function hasApplicationProfileResumePathExposure(root, path) {
     return false;
   }
 
-  const text =
-    path.endsWith(".rs")
-      ? stripRustTestModules(readIfPresent(root, path))
-      : stripTypeScriptComments(readIfPresent(root, path));
+  const text = path.endsWith(".rs")
+    ? stripRustTestModules(readIfPresent(root, path))
+    : stripTypeScriptComments(readIfPresent(root, path));
 
   if (path === "src-tauri/src/commands/automation.rs") {
     return (
@@ -180,12 +192,12 @@ export function hasApplicationProfileResumePathExposure(root, path) {
       /resume_file_path[\s\S]{0,160}\.map\s*\(\s*(?:std::path::)?PathBuf::from\s*\)/.test(
         text,
       ) ||
-      /pub\s+async\s+fn\s+upsert_application_profile[\s\S]{0,700}\.upsert_profile\s*\(\s*&input\s*\)[\s\S]{0,120}\.await/.test(
+      (/pub\s+async\s+fn\s+upsert_application_profile[\s\S]{0,700}\.upsert_profile\s*\(\s*&input\s*\)[\s\S]{0,120}\.await/.test(
         text,
       ) &&
         !/pub\s+async\s+fn\s+upsert_application_profile[\s\S]{0,350}prepare_application_profile_resume_input/.test(
           text,
-        )
+        ))
     );
   }
 
@@ -228,7 +240,9 @@ export function hasApplicationAssistUntrustedFormTarget(root, path) {
     .filter((index) => index !== -1)
     .sort((left, right) => left - right)[0];
 
-  return profileLoad !== -1 && (targetCheck === -1 || targetCheck > profileLoad);
+  return (
+    profileLoad !== -1 && (targetCheck === -1 || targetCheck > profileLoad)
+  );
 }
 
 export function hasAutomationScreenshotPathIpcExposure(root, path) {
@@ -271,10 +285,9 @@ export function hasRawAnswerHistoryIpcExposure(root, path) {
     return false;
   }
 
-  const text =
-    path.endsWith(".rs")
-      ? stripRustTestModules(readIfPresent(root, path))
-      : stripTypeScriptComments(readIfPresent(root, path));
+  const text = path.endsWith(".rs")
+    ? stripRustTestModules(readIfPresent(root, path))
+    : stripTypeScriptComments(readIfPresent(root, path));
 
   if (path === "src-tauri/src/commands/automation.rs") {
     return (

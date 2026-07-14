@@ -3,6 +3,10 @@
 #[cfg(test)]
 mod tests {
     use super::super::*;
+    use super::super::{
+        schema_org::{self, parse_schema_org_job_posting},
+        types::{self, SchemaOrgJobPosting},
+    };
 
     const SAMPLE_SCHEMA_ORG_HTML: &str = r#"
 <!DOCTYPE html>

@@ -10,6 +10,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { Modal, ModalFooter } from "../../../ui/Modal";
 import { Button } from "../../../ui/Button";
 import { useToast } from "../../../shared/toast/useToast";
+import { invalidateCacheByCommand } from "../../../shared/tauri/commandClient";
 import {
   isRestrictedJobSourceUrl,
   RESTRICTED_JOB_SOURCE_WARNING,
@@ -32,13 +33,18 @@ interface JobImportModalProps {
   onImportSuccess?: () => void;
 }
 
-export function JobImportModal({ isOpen, onClose, onImportSuccess }: JobImportModalProps) {
+export function JobImportModal({
+  isOpen,
+  onClose,
+  onImportSuccess,
+}: JobImportModalProps) {
   const [url, setUrl] = useState("");
   const [preview, setPreview] = useState<JobImportPreview | null>(null);
   const [loading, setLoading] = useState(false);
   const [importing, setImporting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [restrictedSourceAcknowledged, setRestrictedSourceAcknowledged] = useState(false);
+  const [restrictedSourceAcknowledged, setRestrictedSourceAcknowledged] =
+    useState(false);
 
   const toast = useToast();
   const needsRestrictedSourceGate = isRestrictedJobSourceUrl(url.trim());
@@ -63,7 +69,9 @@ export function JobImportModal({ isOpen, onClose, onImportSuccess }: JobImportMo
     }
 
     if (needsRestrictedSourceGate && !restrictedSourceAcknowledged) {
-      setError("Review the restricted-source warning and check the box if you want to continue.");
+      setError(
+        "Review the restricted-source warning and check the box if you want to continue.",
+      );
       return;
     }
 
@@ -85,7 +93,11 @@ export function JobImportModal({ isOpen, onClose, onImportSuccess }: JobImportMo
     if (parsedUrl.protocol === "http:") {
       const httpsEquivalent = new URL(parsedUrl);
       httpsEquivalent.protocol = "https:";
-      setError(isValidJobUrl(httpsEquivalent.toString()) ? secureJobLinkMessage : publicJobLinkMessage);
+      setError(
+        isValidJobUrl(httpsEquivalent.toString())
+          ? secureJobLinkMessage
+          : publicJobLinkMessage,
+      );
       return;
     }
 
@@ -99,11 +111,16 @@ export function JobImportModal({ isOpen, onClose, onImportSuccess }: JobImportMo
     setPreview(null);
 
     try {
-      const result = await invoke<JobImportPreview>("preview_job_import", { url: trimmedUrl });
+      const result = await invoke<JobImportPreview>("preview_job_import", {
+        url: trimmedUrl,
+      });
       setPreview(result);
 
       if (result.already_exists) {
-        toast.info("Job already saved", "This job is already in your saved jobs");
+        toast.info(
+          "Job already saved",
+          "This job is already in your saved jobs",
+        );
       }
     } catch (err) {
       const safeError = getSafeJobImportError(err);
@@ -116,7 +133,7 @@ export function JobImportModal({ isOpen, onClose, onImportSuccess }: JobImportMo
 
   // Import the job
   const handleImport = useCallback(async () => {
-    if (!preview || preview.already_exists) {
+    if (!preview?.import_id || preview.already_exists) {
       return;
     }
 
@@ -124,8 +141,12 @@ export function JobImportModal({ isOpen, onClose, onImportSuccess }: JobImportMo
     setError(null);
 
     try {
-      await invoke<JobImportResult>("import_job_from_url", { url: preview.url });
+      await invoke<JobImportResult>("confirm_job_import", {
+        importId: preview.import_id,
+      });
 
+      invalidateCacheByCommand("get_recent_jobs");
+      invalidateCacheByCommand("get_statistics");
       toast.success("Job saved", `Saved "${preview.title}"`);
 
       // Call success callback
@@ -150,7 +171,7 @@ export function JobImportModal({ isOpen, onClose, onImportSuccess }: JobImportMo
         handlePreview();
       }
     },
-    [loading, preview, handlePreview]
+    [loading, preview, handlePreview],
   );
 
   return (
@@ -164,14 +185,21 @@ export function JobImportModal({ isOpen, onClose, onImportSuccess }: JobImportMo
     >
       <div className="space-y-4">
         {/* Description */}
-        <p id="import-job-description" className="text-sm text-gray-600 dark:text-gray-400">
-          Paste a link to an individual job page from a job board or company career site.
-          JobSentinel will check for job details you can review before saving.
+        <p
+          id="import-job-description"
+          className="text-sm text-gray-600 dark:text-gray-400"
+        >
+          Paste a link to an individual job page from a job board or company
+          career site. JobSentinel will check for job details you can review
+          before saving.
         </p>
 
         {/* URL Input */}
         <div>
-          <label htmlFor="job-url" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          <label
+            htmlFor="job-url"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+          >
             Job link
           </label>
           <input
@@ -201,9 +229,14 @@ export function JobImportModal({ isOpen, onClose, onImportSuccess }: JobImportMo
                 type="checkbox"
                 className="mt-0.5 h-5 w-5 rounded border-amber-300 text-amber-700 focus:ring-amber-500"
                 checked={restrictedSourceAcknowledged}
-                onChange={(event) => setRestrictedSourceAcknowledged(event.target.checked)}
+                onChange={(event) =>
+                  setRestrictedSourceAcknowledged(event.target.checked)
+                }
               />
-              <span>I understand this risk and want JobSentinel to check this job link.</span>
+              <span>
+                I understand this risk and want JobSentinel to check this job
+                link.
+              </span>
             </label>
           </div>
         )}
@@ -224,7 +257,11 @@ export function JobImportModal({ isOpen, onClose, onImportSuccess }: JobImportMo
           <div className="flex justify-end">
             <Button
               onClick={handlePreview}
-              disabled={loading || importing || (needsRestrictedSourceGate && !restrictedSourceAcknowledged)}
+              disabled={
+                loading ||
+                importing ||
+                (needsRestrictedSourceGate && !restrictedSourceAcknowledged)
+              }
               loading={loading}
               variant="primary"
             >
@@ -280,18 +317,22 @@ export function JobImportModal({ isOpen, onClose, onImportSuccess }: JobImportMo
               {/* Salary */}
               {preview.salary ? (
                 <div className="text-sm text-gray-700 dark:text-gray-300">
-                  <span className="font-medium">Listed pay:</span> {preview.salary}
+                  <span className="font-medium">Listed pay:</span>{" "}
+                  {preview.salary}
                 </div>
               ) : (
                 <div className="text-sm text-gray-700 dark:text-gray-300">
-                  <span className="font-medium">Listed pay not shown.</span> Verify pay before tailoring.
+                  <span className="font-medium">Listed pay not shown.</span>{" "}
+                  Verify pay before tailoring.
                 </div>
               )}
 
               {/* Description Preview */}
               {preview.description_preview && (
                 <div className="text-sm text-gray-600 dark:text-gray-400">
-                  <span className="font-medium text-gray-700 dark:text-gray-300">Description:</span>{" "}
+                  <span className="font-medium text-gray-700 dark:text-gray-300">
+                    Description:
+                  </span>{" "}
                   {preview.description_preview}
                 </div>
               )}
@@ -316,8 +357,11 @@ export function JobImportModal({ isOpen, onClose, onImportSuccess }: JobImportMo
                   <p className="flex items-start gap-1.5 text-xs text-yellow-800 dark:text-yellow-200">
                     <WarningIcon className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
                     <span>
-                      Details to check: {formatMissingDetails(preview.missing_fields)}. You can still save this job
-                      and verify the missing details before tailoring.
+                      Details to check:{" "}
+                      {formatMissingDetails(preview.missing_fields)}.{" "}
+                      {preview.import_id
+                        ? "You can still save this job and verify the missing details before tailoring."
+                        : "Check a different job page before saving."}
                     </span>
                   </p>
                 </div>
@@ -339,15 +383,19 @@ export function JobImportModal({ isOpen, onClose, onImportSuccess }: JobImportMo
 
       {/* Modal Footer */}
       <ModalFooter>
-        {preview && !preview.already_exists && (
-          <Button onClick={() => setPreview(null)} variant="secondary" disabled={importing}>
+        {preview?.import_id && !preview.already_exists && (
+          <Button
+            onClick={() => setPreview(null)}
+            variant="secondary"
+            disabled={importing}
+          >
             Change Link
           </Button>
         )}
         <Button onClick={onClose} variant="secondary" disabled={importing}>
           Cancel
         </Button>
-        {preview && !preview.already_exists && (
+        {preview?.import_id && !preview.already_exists && (
           <Button
             onClick={handleImport}
             disabled={importing}

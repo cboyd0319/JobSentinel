@@ -218,8 +218,9 @@ is_browser_running(), fill_application_form()
   application assist screens use `has_application_profile` or
   `get_application_profile_preview`; the full profile response is for the
   settings editor. Dashboard reads `get_dashboard_preferences` instead of full
-  config. Job imports canonicalize URLs before preview/hash/storage and
-  `import_job_from_url` returns only `{ jobId }`.
+  config. Job imports canonicalize URLs before preview, stage the exact reviewed
+  details behind an opaque in-memory identifier, and let `confirm_job_import`
+  return only `{ jobId }`.
 
 ### Platforms (`crates/jobsentinel-core/src/platforms/`)
 

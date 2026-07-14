@@ -13,7 +13,7 @@ use scraper::{Html, Selector};
 ///
 /// Looks for <script type="application/ld+json"> tags containing JobPosting data.
 /// Returns all found JobPosting objects.
-pub fn parse_schema_org_job_posting(html: &str) -> ImportResult<Vec<SchemaOrgJobPosting>> {
+pub(super) fn parse_schema_org_job_posting(html: &str) -> ImportResult<Vec<SchemaOrgJobPosting>> {
     let document = Html::parse_document(html);
 
     // Find all JSON-LD script tags
@@ -103,7 +103,7 @@ fn is_job_posting_type(type_value: &serde_json::Value) -> bool {
 /// Convert Schema.org JobPosting to JobImportPreview
 ///
 /// Validates required fields and formats data for user preview.
-pub fn create_preview(
+pub(super) fn create_preview(
     posting: &SchemaOrgJobPosting,
     url: String,
     already_exists: bool,
@@ -112,7 +112,7 @@ pub fn create_preview(
 
     // Extract title
     let title = match &posting.title {
-        Some(t) if !t.trim().is_empty() => t.clone(),
+        Some(t) if !t.trim().is_empty() => t.trim().to_string(),
         _ => {
             missing_fields.push("title".to_string());
             String::new()
@@ -122,7 +122,7 @@ pub fn create_preview(
     // Extract company name
     let company = match &posting.hiring_organization {
         Some(org) => match &org.name {
-            Some(name) if !name.trim().is_empty() => name.clone(),
+            Some(name) if !name.trim().is_empty() => name.trim().to_string(),
             _ => {
                 missing_fields.push("company name".to_string());
                 String::new()
@@ -174,6 +174,7 @@ pub fn create_preview(
         .is_some_and(|t| t == "TELECOMMUTE");
 
     Ok(JobImportPreview {
+        import_id: None,
         title,
         company,
         url,
@@ -305,11 +306,13 @@ fn strip_html_tags(html: &str) -> String {
 
 /// Truncate a string to a maximum length, adding "..." if truncated
 fn truncate(s: &str, max_len: usize) -> String {
-    if s.len() <= max_len {
-        s.to_string()
-    } else {
-        format!("{}...", &s[..max_len])
+    let mut chars = s.chars();
+    let preview = chars.by_ref().take(max_len).collect::<String>();
+    if chars.next().is_none() {
+        return preview;
     }
+
+    format!("{preview}...")
 }
 
 #[cfg(test)]
@@ -363,5 +366,14 @@ mod tests {
     fn test_strip_html_tags() {
         let html = "<p>Hello <strong>world</strong>!</p>";
         assert_eq!(strip_html_tags(html), "Hello world !");
+    }
+
+    #[test]
+    fn test_truncate_preserves_unicode_boundaries() {
+        let input = "é".repeat(501);
+        let truncated = truncate(&input, 500);
+
+        assert_eq!(truncated.chars().count(), 503);
+        assert!(truncated.ends_with("..."));
     }
 }

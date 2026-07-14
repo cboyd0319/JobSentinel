@@ -765,4 +765,7 @@ mod tests {
 
     #[path = "job_field_update_tests.rs"]
     mod job_field_updates;
+
+    #[path = "job_insert_tests.rs"]
+    mod job_insert_tests;
 }

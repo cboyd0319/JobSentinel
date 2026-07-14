@@ -104,7 +104,7 @@ test("ipc minimization rejects importing from raw input after preview", () => {
     writeFixtureFile(
       root,
       "src/features/dashboard/components/JobImportModal.tsx",
-      'await invoke("import_job_from_url", { url: url.trim() });\n',
+      'await invoke("confirm_job_import", { importId: rawUrl });\n',
     );
 
     assert.equal(
@@ -123,7 +123,7 @@ test("ipc minimization rejects backend full imported job returns", () => {
       root,
       "src-tauri/src/commands/import.rs",
       [
-        "pub async fn import_job_from_url(url: String) -> Result<Value, String> {",
+        "pub async fn confirm_job_import(import_id: String) -> Result<Value, String> {",
         "  let job = state.database.get_job_by_id(job_id).await?;",
         "  serde_json::to_value(&job)",
         "}",
@@ -169,7 +169,7 @@ test("ipc minimization rejects stale import and profile mocks", () => {
         "  switch (command) {",
         "    case 'preview_job_import':",
         "      return {};",
-        "    case 'import_job_from_url':",
+        "    case 'confirm_job_import':",
         "      return { value: { ...job } };",
         "    default:",
         "      return undefined;",

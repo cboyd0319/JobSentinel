@@ -56,7 +56,7 @@ impl SalaryPeriod {
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct ParsedSchemaOrgSalary {
+pub(super) struct ParsedSchemaOrgSalary {
     currency: Option<String>,
     min: Option<f64>,
     max: Option<f64>,
@@ -64,11 +64,11 @@ pub struct ParsedSchemaOrgSalary {
 }
 
 impl ParsedSchemaOrgSalary {
-    pub fn currency(&self) -> Option<String> {
+    pub(super) fn currency(&self) -> Option<String> {
         self.currency.clone()
     }
 
-    pub fn annual_bounds(&self) -> (Option<i64>, Option<i64>) {
+    pub(super) fn annual_bounds(&self) -> (Option<i64>, Option<i64>) {
         let Some(multiplier) = self.period.yearly_multiplier() else {
             return (None, None);
         };
@@ -79,7 +79,7 @@ impl ParsedSchemaOrgSalary {
         )
     }
 
-    pub fn preview_text(&self) -> Option<String> {
+    pub(super) fn preview_text(&self) -> Option<String> {
         let amount = format_salary_range(self.min, self.max)?;
         let currency = self.currency.as_deref().unwrap_or("USD");
         Some(format!(
@@ -89,7 +89,9 @@ impl ParsedSchemaOrgSalary {
     }
 }
 
-pub fn parse_schema_org_salary(base_salary: &Option<Value>) -> Option<ParsedSchemaOrgSalary> {
+pub(super) fn parse_schema_org_salary(
+    base_salary: &Option<Value>,
+) -> Option<ParsedSchemaOrgSalary> {
     let salary = base_salary.as_ref()?;
     let obj = salary.as_object()?;
 

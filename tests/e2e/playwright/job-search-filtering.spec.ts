@@ -21,7 +21,9 @@ test.describe("Job Search and Filtering", () => {
       await dashboard.searchForJobs("manager");
 
       await expect(dashboard.jobCards.first()).toBeVisible();
-      await expect(dashboard.jobCards.filter({ hasText: /manager/i }).first()).toBeVisible();
+      await expect(
+        dashboard.jobCards.filter({ hasText: /manager/i }).first(),
+      ).toBeVisible();
     });
 
     test("should clear search input", async () => {
@@ -43,7 +45,9 @@ test.describe("Job Search and Filtering", () => {
 
   test.describe("Filter Functionality", () => {
     test("should display filter options", async () => {
-      await expect.poll(() => dashboard.filterButtons.count()).toBeGreaterThan(0);
+      await expect
+        .poll(() => dashboard.filterButtons.count())
+        .toBeGreaterThan(0);
     });
 
     test("should filter jobs by location", async () => {
@@ -64,7 +68,9 @@ test.describe("Job Search and Filtering", () => {
 
       await expect.poll(() => dashboard.getJobCount()).toBeGreaterThan(0);
       const cards = await dashboard.jobCards.allTextContents();
-      expect(cards.every((card) => /\$(?:1[5-9]\d|[2-9]\d{2})k/i.test(card))).toBe(true);
+      expect(
+        cards.every((card) => /\$(?:1[5-9]\d|[2-9]\d{2})k/i.test(card)),
+      ).toBe(true);
     });
 
     test("should filter jobs by source", async () => {
@@ -139,7 +145,9 @@ test.describe("Job Search and Filtering", () => {
       await expect(dashboard.mainContent).toBeVisible();
     });
 
-    test("should block opening a saved public HTTP job link", async ({ page }) => {
+    test("should block opening a saved public HTTP job link", async ({
+      page,
+    }) => {
       await page.evaluate(() => {
         localStorage.setItem(
           "jobsentinel.mockState.v1",
@@ -151,7 +159,8 @@ test.describe("Job Search and Filtering", () => {
                 title: "Operations Coordinator",
                 company: "Example Services",
                 location: "Denver, CO",
-                description: "Coordinate operations and applicant communications.",
+                description:
+                  "Coordinate operations and applicant communications.",
                 url: "http://example.com/jobs/operations-coordinator",
                 source: "manual",
                 salary_min: null,
@@ -178,7 +187,9 @@ test.describe("Job Search and Filtering", () => {
       });
 
       await expect(firstCard.locator).toContainText("Operations Coordinator");
-      await expect(firstCard.locator.locator("[data-testid='job-link-guidance']")).toContainText("Check job link");
+      await expect(
+        firstCard.locator.locator("[data-testid='job-link-guidance']"),
+      ).toContainText("Check job link");
 
       const popupPromise = page
         .waitForEvent("popup", { timeout: 750 })
@@ -186,7 +197,9 @@ test.describe("Job Search and Filtering", () => {
       await firstCard.hover();
       await firstCard.viewButton.click();
 
-      await expect(page.getByText("This saved link does not look safe to open.")).toBeVisible();
+      await expect(
+        page.getByText("This saved link does not look safe to open."),
+      ).toBeVisible();
       expect(await popupPromise).toBeNull();
       await expect(dashboard.mainContent).toBeVisible();
       expect(consoleErrors).toEqual([]);
@@ -201,7 +214,9 @@ test.describe("Job Search and Filtering", () => {
       await expect(firstCard.viewButton).toBeVisible();
     });
 
-    test("should flag malformed listed pay without showing it as a range", async ({ page }) => {
+    test("should flag malformed listed pay without showing it as a range", async ({
+      page,
+    }) => {
       await page.evaluate(() => {
         localStorage.setItem(
           "jobsentinel.mockState.v1",
@@ -240,7 +255,9 @@ test.describe("Job Search and Filtering", () => {
       await expect(card).not.toContainText("$120k - $70k");
     });
 
-    test("should flag MVR and auto-insurance requirements before preparing a form", async ({ page }) => {
+    test("should flag MVR and auto-insurance requirements before preparing a form", async ({
+      page,
+    }) => {
       await page.evaluate(() => {
         const now = new Date().toISOString();
         localStorage.setItem(
@@ -296,17 +313,25 @@ test.describe("Job Search and Filtering", () => {
       await expect(card.applyButton).toBeEnabled();
       await card.applyButton.click();
 
-      await expect(page.getByRole("dialog", { name: "Review Application" })).toBeVisible();
+      await expect(
+        page.getByRole("dialog", { name: "Review Application" }),
+      ).toBeVisible();
       await expect(page.getByText("Hard Question Review")).toBeVisible();
-      await expect(page.getByText("Driving record, vehicle, or insurance")).toBeVisible();
-      await expect(page.getByText(
-        "Saved driving record or insurance answer says: I have current auto insurance for field visits. Confirm it matches the employer's wording and resume evidence before continuing.",
-      )).toBeVisible();
+      await expect(
+        page.getByText("Driving record, vehicle, or insurance"),
+      ).toBeVisible();
+      await expect(
+        page.getByText(
+          "Saved driving record or insurance answer says: I have current auto insurance for field visits. Confirm it matches the employer's wording and resume evidence before continuing.",
+        ),
+      ).toBeVisible();
     });
   });
 
   test.describe("Job Import Modal", () => {
-    test("opens the LinkedIn Workbench from the dashboard", async ({ page }) => {
+    test("opens the LinkedIn Workbench from the dashboard", async ({
+      page,
+    }) => {
       await page.getByRole("button", { name: "LinkedIn Workbench" }).click();
 
       const dialog = page.getByRole("dialog", { name: "LinkedIn Workbench" });
@@ -314,26 +339,34 @@ test.describe("Job Search and Filtering", () => {
       await expect(dialog).toContainText(
         "Use LinkedIn yourself. JobSentinel keeps a private local record",
       );
-      await expect(dialog.getByRole("button", { name: "Log applied" })).toBeDisabled();
+      await expect(
+        dialog.getByRole("button", { name: "Log applied" }),
+      ).toBeDisabled();
 
       await page.keyboard.press("Escape");
       await expect(dialog).not.toBeVisible();
     });
 
-    test("should block plain HTTP imports from the dashboard", async ({ page }) => {
+    test("should block plain HTTP imports from the dashboard", async ({
+      page,
+    }) => {
       await page.getByRole("button", { name: "Import Job" }).click();
 
       const dialog = page.getByRole("dialog", { name: "Import Job from Link" });
       await expect(dialog).toBeVisible();
 
-      await dialog.getByLabel("Job link").fill("http://example.com/jobs/office-manager");
+      await dialog
+        .getByLabel("Job link")
+        .fill("http://example.com/jobs/office-manager");
       await dialog.getByRole("button", { name: "Check Job Link" }).click();
 
       await expect(dialog.getByRole("alert")).toContainText(
         "Paste an https job posting link from your browser address bar.",
       );
 
-      await dialog.getByLabel("Job link").fill("http://localhost:4321/private-job");
+      await dialog
+        .getByLabel("Job link")
+        .fill("http://localhost:4321/private-job");
       await dialog.getByRole("button", { name: "Check Job Link" }).click();
 
       await expect(dialog.getByRole("alert")).toContainText(
@@ -341,14 +374,18 @@ test.describe("Job Search and Filtering", () => {
       );
     });
 
-    test("should keep blocked HTTP import guidance visible on narrow screens", async ({ page }) => {
+    test("should keep blocked HTTP import guidance visible on narrow screens", async ({
+      page,
+    }) => {
       await page.setViewportSize({ width: 390, height: 844 });
       await page.getByRole("button", { name: "Import Job" }).click();
 
       const dialog = page.getByRole("dialog", { name: "Import Job from Link" });
       await expect(dialog).toBeVisible();
 
-      await dialog.getByLabel("Job link").fill("http://example.com/jobs/office-manager");
+      await dialog
+        .getByLabel("Job link")
+        .fill("http://example.com/jobs/office-manager");
       await dialog.getByRole("button", { name: "Check Job Link" }).click();
 
       await expect(dialog.getByRole("alert")).toContainText(
@@ -363,7 +400,37 @@ test.describe("Job Search and Filtering", () => {
         };
       });
 
-      expect(Math.max(metrics.documentWidth, metrics.bodyWidth)).toBeLessThanOrEqual(metrics.viewportWidth);
+      expect(
+        Math.max(metrics.documentWidth, metrics.bodyWidth),
+      ).toBeLessThanOrEqual(metrics.viewportWidth);
+    });
+
+    test("saves the exact job details shown in the reviewed preview", async ({
+      page,
+    }) => {
+      await page.getByRole("button", { name: "Import Job" }).click();
+
+      const dialog = page.getByRole("dialog", { name: "Import Job from Link" });
+      await dialog
+        .getByLabel("Job link")
+        .fill(
+          "https://jobs.example.org/openings/community-outreach-coordinator",
+        );
+      await dialog.getByRole("button", { name: "Check Job Link" }).click();
+
+      await expect(
+        dialog.getByText("Community Outreach Coordinator", { exact: true }),
+      ).toBeVisible();
+      await expect(
+        dialog.getByText("jobs.example.org", { exact: true }),
+      ).toBeVisible();
+      await dialog.getByRole("button", { name: "Save Job" }).click();
+
+      await expect(dialog).not.toBeVisible();
+      await expect(page.getByText("Job saved", { exact: true })).toBeVisible();
+      await expect(
+        page.getByText("Community Outreach Coordinator", { exact: true }),
+      ).toBeVisible();
     });
   });
 

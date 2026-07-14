@@ -22,7 +22,7 @@ const HTTP_TIMEOUT: Duration = Duration::from_secs(30);
 /// - HTTPS enforcement
 /// - Redirects disabled to avoid fetching a different trust boundary
 /// - No cookies or authentication (user-initiated, public page)
-pub async fn fetch_job_page(url: &str) -> ImportResult<String> {
+pub(super) async fn fetch_job_page(url: &str) -> ImportResult<String> {
     // Validate URL
     let fetch_target = resolve_external_https_url_for_fetch(url)
         .await

@@ -1,6 +1,7 @@
 import { getUserFriendlyError } from "../../../shared/errorReporting/messages";
 
 export interface JobImportPreview {
+  import_id: string | null;
   title: string;
   company: string;
   url: string;
@@ -44,12 +45,18 @@ const missingDetailLabels = new Map<string, string>([
   ["job_link", "job link"],
 ]);
 
-export const fullJobLinkMessage = "Paste the full job link from your browser address bar.";
-export const publicJobLinkMessage = "Paste a public job posting link from your browser address bar.";
-export const secureJobLinkMessage = "Paste an https job posting link from your browser address bar.";
+export const fullJobLinkMessage =
+  "Paste the full job link from your browser address bar.";
+export const publicJobLinkMessage =
+  "Paste a public job posting link from your browser address bar.";
+export const secureJobLinkMessage =
+  "Paste an https job posting link from your browser address bar.";
 
 function formatMissingDetail(field: string) {
-  const normalized = field.trim().toLowerCase().replace(/[\s-]+/g, "_");
+  const normalized = field
+    .trim()
+    .toLowerCase()
+    .replace(/[\s-]+/g, "_");
   return missingDetailLabels.get(normalized) ?? normalized.replace(/_/g, " ");
 }
 
@@ -70,7 +77,12 @@ export function formatImportDate(value: string) {
 function extractImportErrorMessage(error: unknown): string {
   if (typeof error === "string") return error;
   if (error instanceof Error) return error.message;
-  if (error && typeof error === "object" && "message" in error && typeof error.message === "string") {
+  if (
+    error &&
+    typeof error === "object" &&
+    "message" in error &&
+    typeof error.message === "string"
+  ) {
     return error.message;
   }
   return "";
@@ -95,7 +107,8 @@ function getSafeImportSpecificMessage(error: unknown): string | null {
     /^The website returned an error: [0-9]{3}(?: [A-Za-z ]+)?$/,
     /^The job page response is too large to import safely\. Maximum size is \d+ MiB\.$/,
     /^The job link redirects to another page\. Paste the final public job posting link from your browser address bar\.$/,
-    /^This job is already in your saved jobs$/,
+    /^This job is already in your saved jobs\.?$/,
+    /^This job preview expired\. Check the job link again before saving\.$/,
   ];
 
   return safePatterns.some((pattern) => pattern.test(message)) ? message : null;

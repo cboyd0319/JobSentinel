@@ -9,6 +9,7 @@ import {
 } from "../../../mocks/externalUrlSafety";
 
 export interface MockJobImportPreview {
+  import_id: string | null;
   title: string;
   company: string;
   url: string;
@@ -23,12 +24,18 @@ export interface MockJobImportPreview {
   already_exists: boolean;
 }
 
+export interface MockPendingUrlImport {
+  id: string;
+  preview: MockJobImportPreview;
+}
+
 export interface MockJobImportResult {
   jobId: number;
 }
 
 interface MockJobImportCommandState {
   jobs: MockJob[];
+  pendingUrlImports: MockPendingUrlImport[];
 }
 
 export interface MockJobImportCommandResult {
@@ -67,45 +74,64 @@ export function handleMockJobImportCommand(
 ): MockJobImportCommandResult {
   switch (command) {
     case "preview_job_import":
-      return withoutSave(state, previewMockJobImport(args, state.jobs));
-    case "import_job_from_url":
-      return importMockJobFromUrl(args, state);
+      return previewMockJobImport(args, state);
+    case "confirm_job_import":
+      return confirmMockJobImport(args, state);
     default:
       return { handled: false, shouldSave: false, state, value: undefined };
   }
 }
 
-function importMockJobFromUrl(
+function confirmMockJobImport(
   args: Record<string, unknown> | undefined,
   state: MockJobImportCommandState,
 ): MockJobImportCommandResult {
-  const preview = previewMockJobImport(args, state.jobs);
-  if (preview.already_exists) {
+  const importId = getStringArg(args, "importId")?.trim();
+  const pending = state.pendingUrlImports.find(
+    (entry) => entry.id === importId,
+  );
+  if (!pending) {
+    throw new Error(
+      "This job preview expired. Check the job link again before saving.",
+    );
+  }
+
+  if (state.jobs.some((job) => job.url === pending.preview.url)) {
     throw new Error("This job is already in your saved jobs");
   }
 
   const job = buildMockImportedJob(
-    preview,
+    pending.preview,
     getNextId(state.jobs),
     new Date().toISOString(),
   );
   return {
     handled: true,
     shouldSave: true,
-    state: { jobs: [job, ...state.jobs] },
+    state: {
+      jobs: [job, ...state.jobs],
+      pendingUrlImports: state.pendingUrlImports.filter(
+        (entry) => entry.id !== importId,
+      ),
+    },
     value: { jobId: job.id } satisfies MockJobImportResult,
   };
 }
 
 function previewMockJobImport(
   args: Record<string, unknown> | undefined,
-  jobs: readonly MockJob[],
-): MockJobImportPreview {
+  state: MockJobImportCommandState,
+): MockJobImportCommandResult {
   const url = getJobImportUrl(args);
   const title = getMockImportTitle(url);
   const company = new URL(url).hostname;
+  const alreadyExists = state.jobs.some((job) => job.url === url);
+  const importId = alreadyExists
+    ? null
+    : `mock-${hashString(`${url}:${title}`)}`;
 
-  return {
+  const preview: MockJobImportPreview = {
+    import_id: importId,
     title,
     company,
     url,
@@ -117,8 +143,16 @@ function previewMockJobImport(
     employment_types: ["FULL_TIME"],
     remote: true,
     missing_fields: [],
-    already_exists: jobs.some((job) => job.url === url),
+    already_exists: alreadyExists,
   };
+  const pendingUrlImports = importId
+    ? [
+        ...state.pendingUrlImports.filter((entry) => entry.id !== importId),
+        { id: importId, preview },
+      ]
+    : state.pendingUrlImports;
+
+  return withoutSave({ ...state, pendingUrlImports }, preview);
 }
 
 function buildMockImportedJob(
@@ -159,8 +193,13 @@ function getJobImportUrl(args: Record<string, unknown> | undefined): string {
     throw new Error("Paste the full job link from your browser address bar.");
   }
 
-  if (parsedUrl.protocol === "http:" && !isLocalOrPrivateHost(parsedUrl.hostname)) {
-    throw new Error("Paste an https job posting link from your browser address bar.");
+  if (
+    parsedUrl.protocol === "http:" &&
+    !isLocalOrPrivateHost(parsedUrl.hostname)
+  ) {
+    throw new Error(
+      "Paste an https job posting link from your browser address bar.",
+    );
   }
 
   if (!isSafeExternalHttpsUrl(url)) {
@@ -197,7 +236,7 @@ function isStrippedJobImportQueryParam(
     normalizedKey.startsWith("utm_") ||
     STRIPPED_JOB_IMPORT_QUERY_KEYS.has(normalizedKey) ||
     STRIPPED_JOB_IMPORT_QUERY_MARKERS.some((marker) =>
-      normalizedKey.includes(marker)
+      normalizedKey.includes(marker),
     ) ||
     isSensitiveJobImportQueryValue(value)
   );

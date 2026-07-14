@@ -29,7 +29,10 @@ src/core/import/
 ├── mod.rs           - Module entry point
 ├── types.rs         - Import-specific types (errors, preview, Schema.org structs)
 ├── fetcher.rs       - HTTP fetcher for single job pages
+├── pending.rs       - Bounded, expiring in-memory review queue
+├── salary.rs        - Shared salary parsing for preview and storage
 ├── schema_org.rs    - Schema.org/JobPosting parser
+├── service.rs       - Preview and reviewed-save orchestration
 └── tests.rs         - Unit tests
 ```
 
@@ -38,16 +41,23 @@ src/core/import/
 ### Backend (Rust)
 
 ```rust
-use crate::core::import::{fetch_job_page, parse_schema_org_job_posting, create_preview};
+use jobsentinel_core::import::{
+    confirm_job_import, preview_job_import, PendingUrlImports,
+};
 
-// Fetch job page
-let html = fetch_job_page("https://example.com/jobs/123").await?;
+let pending = PendingUrlImports::default();
+let preview = preview_job_import(
+    &database,
+    &pending,
+    "https://example.com/jobs/123",
+).await?;
 
-// Parse Schema.org data
-let postings = parse_schema_org_job_posting(&html)?;
-
-// Create preview
-let preview = create_preview(&postings[0], url.clone(), already_exists)?;
+// Save only after the user confirms the exact staged preview.
+let saved = confirm_job_import(
+    &database,
+    &pending,
+    preview.import_id.as_deref().unwrap(),
+).await?;
 ```
 
 ### Frontend (TypeScript)
@@ -61,8 +71,8 @@ const preview = await invoke("preview_job_import", {
 });
 
 // Import job; returns only the saved job id
-const result = await invoke("import_job_from_url", {
-  url: "https://example.com/jobs/123"
+const result = await invoke("confirm_job_import", {
+  importId: preview.import_id
 });
 ```
 
@@ -155,14 +165,6 @@ cargo test import
 ## Limitations
 
 - Requires Schema.org/JobPosting data to be present on the page
-- Only extracts data from the first JobPosting if multiple are found
+- Requires a page with exactly one JobPosting record
 - Limited to single-page imports (no bulk import)
 - Requires valid HTTPS URLs for fetched job-page imports
-
-## Future Enhancements
-
-- Support for multiple job postings selection
-- Batch import from clipboard (multiple URLs)
-- Native Workbench and browser-button import flows
-- Import from screenshots (OCR)
-- Import history and duplicate detection

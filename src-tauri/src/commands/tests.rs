@@ -84,6 +84,7 @@ mod tests {
             scheduler: None,
             scheduler_status: Arc::new(RwLock::new(SchedulerStatus::default())),
             bookmarklet_server: Arc::new(RwLock::new(bookmarklet_server)),
+            pending_url_imports: Default::default(),
         }
     }
 

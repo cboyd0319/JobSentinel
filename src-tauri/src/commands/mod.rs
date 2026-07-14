@@ -7,7 +7,7 @@ use tokio::sync::RwLock;
 
 use crate::core::{
     bookmarklet::BookmarkletServer, config::Config, credentials::CredentialService, db::Database,
-    scheduler::Scheduler,
+    import::PendingUrlImports, scheduler::Scheduler,
 };
 
 pub(crate) mod ats;
@@ -55,4 +55,5 @@ pub(crate) struct AppState {
     pub scheduler: Option<Arc<Scheduler>>,
     pub scheduler_status: Arc<RwLock<SchedulerStatus>>,
     pub bookmarklet_server: Arc<RwLock<BookmarkletServer>>,
+    pub pending_url_imports: PendingUrlImports,
 }

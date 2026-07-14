@@ -15,14 +15,19 @@ describe("Dashboard job-import mock commands", () => {
   it("previews and imports jobs with minimized backend payloads", async () => {
     const url =
       "https://alice:secret@jobs.example.com/careers/care-coordinator?jobId=123&utm_source=newsletter&token=raw-secret#private";
-    const canonicalUrl = "https://jobs.example.com/careers/care-coordinator?jobId=123";
+    const canonicalUrl =
+      "https://jobs.example.com/careers/care-coordinator?jobId=123";
 
-    const preview = await mockInvoke<MockJobImportPreview>("preview_job_import", {
-      url,
-    });
+    const preview = await mockInvoke<MockJobImportPreview>(
+      "preview_job_import",
+      {
+        url,
+      },
+    );
 
     expect(preview).toMatchObject({
       title: "Care Coordinator",
+      import_id: expect.any(String),
       company: "jobs.example.com",
       url: canonicalUrl,
       location: "Remote",
@@ -35,9 +40,12 @@ describe("Dashboard job-import mock commands", () => {
     });
     expect(preview.date_posted).toEqual(expect.any(String));
 
-    const imported = await mockInvoke<MockJobImportResult>("import_job_from_url", {
-      url: preview.url,
-    });
+    const imported = await mockInvoke<MockJobImportResult>(
+      "confirm_job_import",
+      {
+        importId: preview.import_id,
+      },
+    );
     expect(imported).toEqual({ jobId: expect.any(Number) });
 
     const duplicatePreview = await mockInvoke<MockJobImportPreview>(
@@ -46,8 +54,10 @@ describe("Dashboard job-import mock commands", () => {
     );
     expect(duplicatePreview.already_exists).toBe(true);
     await expect(
-      mockInvoke<MockJobImportResult>("import_job_from_url", { url }),
-    ).rejects.toThrow("This job is already in your saved jobs");
+      mockInvoke<MockJobImportResult>("confirm_job_import", {
+        importId: preview.import_id,
+      }),
+    ).rejects.toThrow("This job preview expired");
   });
 
   it("rejects unsafe links and removes sensitive URL details", async () => {
@@ -55,7 +65,9 @@ describe("Dashboard job-import mock commands", () => {
       mockInvoke<MockJobImportPreview>("preview_job_import", {
         url: "http://jobs.example.com/careers/care-coordinator",
       }),
-    ).rejects.toThrow("Paste an https job posting link from your browser address bar.");
+    ).rejects.toThrow(
+      "Paste an https job posting link from your browser address bar.",
+    );
     await expect(
       mockInvoke<MockJobImportPreview>("preview_job_import", {
         url: "http://localhost:3000/jobs/care-coordinator",
@@ -75,7 +87,10 @@ describe("Dashboard job-import mock commands", () => {
   });
 
   it("rejects commands owned by another feature", () => {
-    const state = { jobs: mockJobs.map((job) => ({ ...job })) };
+    const state = {
+      jobs: mockJobs.map((job) => ({ ...job })),
+      pendingUrlImports: [],
+    };
 
     expect(
       handleMockJobImportCommand("generate_deep_links", undefined, state),

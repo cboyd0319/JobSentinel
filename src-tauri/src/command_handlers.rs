@@ -194,7 +194,7 @@ macro_rules! jobsentinel_command_handlers {
             jobsentinel::commands::feedback::get_feedback_filename,
             jobsentinel::commands::feedback::save_feedback_file,
             jobsentinel::commands::import::preview_job_import,
-            jobsentinel::commands::import::import_job_from_url,
+            jobsentinel::commands::import::confirm_job_import,
             jobsentinel::commands::deeplinks::generate_deep_links,
             jobsentinel::commands::deeplinks::generate_deep_link,
             jobsentinel::commands::deeplinks::get_supported_sites,

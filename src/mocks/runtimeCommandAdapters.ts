@@ -8,7 +8,10 @@ import { handleMockSavedSearchCommand } from "../features/dashboard/mocks/savedS
 import { handleMockLinkedInWorkbenchCommand } from "../features/linkedin-workbench/mocks/commands";
 import { handleMockMarketCommand } from "../features/market/mocks/commands";
 import { handleMockOnboardingCommand } from "../features/onboarding/mocks/commands";
-import { getMockActiveResume, handleMockResumeCommand } from "../features/resumes/mocks/resumeCommands";
+import {
+  getMockActiveResume,
+  handleMockResumeCommand,
+} from "../features/resumes/mocks/resumeCommands";
 import { handleMockSalaryCommand } from "../features/salary/mocks/commands";
 import { handleMockSearchLinksCommand } from "../features/search-links/mocks/commands";
 import { handleMockSettingsCommand } from "../features/settings/mocks/commands";
@@ -22,7 +25,10 @@ export type MockCommandAdapter = (
   args: Record<string, unknown> | undefined,
 ) => unknown;
 
-export const applyMockDashboardCommand: MockCommandAdapter = (command, args) => {
+export const applyMockDashboardCommand: MockCommandAdapter = (
+  command,
+  args,
+) => {
   const result = handleMockDashboardCommand(command, args, {
     jobs: mockRuntimeState.jobs,
   });
@@ -32,7 +38,10 @@ export const applyMockDashboardCommand: MockCommandAdapter = (command, args) => 
   return result.value;
 };
 
-export const applyMockOnboardingCommand: MockCommandAdapter = (command, args) => {
+export const applyMockOnboardingCommand: MockCommandAdapter = (
+  command,
+  args,
+) => {
   const result = handleMockOnboardingCommand(command, args, {
     config: mockRuntimeState.config,
   });
@@ -67,22 +76,32 @@ export const applyMockSupportCommand: MockCommandAdapter = (command, args) => {
   return result.handled ? result.value : undefined;
 };
 
-export const applyMockSearchLinksCommand: MockCommandAdapter = (command, args) => {
+export const applyMockSearchLinksCommand: MockCommandAdapter = (
+  command,
+  args,
+) => {
   const result = handleMockSearchLinksCommand(command, args);
   return result.handled ? result.value : undefined;
 };
 
-export const applyMockJobImportCommand: MockCommandAdapter = (command, args) => {
+export const applyMockJobImportCommand: MockCommandAdapter = (
+  command,
+  args,
+) => {
   const result = handleMockJobImportCommand(command, args, {
     jobs: mockRuntimeState.jobs,
+    pendingUrlImports: mockRuntimeState.pendingUrlImports,
   });
   if (!result.handled) return undefined;
-  mockRuntimeState.jobs = result.state.jobs;
+  Object.assign(mockRuntimeState, result.state);
   if (result.shouldSave) saveMockState();
   return result.value;
 };
 
-export const applyMockLinkedInCommand: MockCommandAdapter = (_command, args) => {
+export const applyMockLinkedInCommand: MockCommandAdapter = (
+  _command,
+  args,
+) => {
   const result = handleMockLinkedInWorkbenchCommand(args, {
     jobs: mockRuntimeState.jobs,
     applications: mockRuntimeState.applications,
@@ -93,7 +112,10 @@ export const applyMockLinkedInCommand: MockCommandAdapter = (_command, args) => 
   return result.value;
 };
 
-export const applyMockApplicationsCommand: MockCommandAdapter = (command, args) => {
+export const applyMockApplicationsCommand: MockCommandAdapter = (
+  command,
+  args,
+) => {
   const result = handleMockApplicationsCommand(command, args, {
     jobs: mockRuntimeState.jobs,
     applications: mockRuntimeState.applications,
@@ -135,7 +157,10 @@ export const applyMockMarketCommand: MockCommandAdapter = (command, args) => {
   return result.value;
 };
 
-export const applyMockApplicationAssistCommand: MockCommandAdapter = (command, args) => {
+export const applyMockApplicationAssistCommand: MockCommandAdapter = (
+  command,
+  args,
+) => {
   const result = handleMockApplicationAssistCommand(command, args, {
     applicationProfile: mockRuntimeState.applicationProfile,
     screeningAnswers: mockRuntimeState.screeningAnswers,
@@ -148,7 +173,10 @@ export const applyMockApplicationAssistCommand: MockCommandAdapter = (command, a
   return result.value;
 };
 
-export const applyMockSourceHealthCommand: MockCommandAdapter = (command, args) => {
+export const applyMockSourceHealthCommand: MockCommandAdapter = (
+  command,
+  args,
+) => {
   const result = handleMockSourceHealthCommand(command, args, {
     config: mockRuntimeState.config,
     scraperEnabledOverrides: mockRuntimeState.scraperEnabledOverrides,
@@ -159,7 +187,10 @@ export const applyMockSourceHealthCommand: MockCommandAdapter = (command, args) 
   return result.value;
 };
 
-export const applyMockInterviewCommand: MockCommandAdapter = (command, args) => {
+export const applyMockInterviewCommand: MockCommandAdapter = (
+  command,
+  args,
+) => {
   const result = handleMockInterviewCommand(command, args, {
     interviewPrepChecklists: mockRuntimeState.interviewPrepChecklists,
     interviewFollowups: mockRuntimeState.interviewFollowups,
@@ -170,7 +201,10 @@ export const applyMockInterviewCommand: MockCommandAdapter = (command, args) => 
   return result.value;
 };
 
-export const applyMockCoverLetterTemplateCommand: MockCommandAdapter = (command, args) => {
+export const applyMockCoverLetterTemplateCommand: MockCommandAdapter = (
+  command,
+  args,
+) => {
   const result = handleMockCoverLetterTemplateCommand(command, args, {
     coverLetterTemplates: mockRuntimeState.coverLetterTemplates,
   });
@@ -180,17 +214,24 @@ export const applyMockCoverLetterTemplateCommand: MockCommandAdapter = (command,
   return result.value;
 };
 
-export const applyMockNotificationCommand: MockCommandAdapter = (command, args) => {
+export const applyMockNotificationCommand: MockCommandAdapter = (
+  command,
+  args,
+) => {
   const result = handleMockNotificationCommand(command, args, {
     notificationPreferences: mockRuntimeState.notificationPreferences,
   });
   if (!result.handled) return undefined;
-  mockRuntimeState.notificationPreferences = result.state.notificationPreferences;
+  mockRuntimeState.notificationPreferences =
+    result.state.notificationPreferences;
   if (result.shouldSave) saveMockState();
   return result.value;
 };
 
-export const applyMockSavedSearchCommand: MockCommandAdapter = (command, args) => {
+export const applyMockSavedSearchCommand: MockCommandAdapter = (
+  command,
+  args,
+) => {
   const result = handleMockSavedSearchCommand(command, args, {
     savedSearches: mockRuntimeState.savedSearches,
     searchHistory: mockRuntimeState.searchHistory,

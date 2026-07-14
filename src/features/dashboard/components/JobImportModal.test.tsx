@@ -3,9 +3,15 @@ import userEvent from "@testing-library/user-event";
 import { invoke } from "@tauri-apps/api/core";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { ToastProvider } from "../../../app/providers/ToastProvider";
+import { invalidateCacheByCommand } from "../../../shared/tauri/commandClient";
 import { JobImportModal } from "./JobImportModal";
 
+vi.mock("../../../shared/tauri/commandClient", () => ({
+  invalidateCacheByCommand: vi.fn(),
+}));
+
 const mockInvoke = vi.mocked(invoke);
+const mockInvalidateCacheByCommand = vi.mocked(invalidateCacheByCommand);
 
 const renderModal = () =>
   render(
@@ -20,6 +26,7 @@ describe("JobImportModal", () => {
   );
 
   const preview = {
+    import_id: "reviewed-import-1",
     title: "Office Manager",
     company: "Example Co",
     url: "https://example.com/jobs/office-manager",
@@ -41,18 +48,27 @@ describe("JobImportModal", () => {
   it("uses plain job-link copy and broad role examples", () => {
     renderModal();
 
-    expect(screen.getByRole("heading", { name: "Import Job from Link" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Import Job from Link" }),
+    ).toBeInTheDocument();
     expect(
       screen.getByText(/Paste a link to an individual job page/),
     ).toBeInTheDocument();
     expect(screen.getByText(/review before saving/i)).toBeInTheDocument();
 
     const input = screen.getByLabelText("Job link");
-    expect(input).toHaveAttribute("placeholder", "https://example.com/jobs/office-manager");
+    expect(input).toHaveAttribute(
+      "placeholder",
+      "https://example.com/jobs/office-manager",
+    );
     expect(screen.queryByText("Job URL")).not.toBeInTheDocument();
     expect(screen.queryByText(/any website/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/automatically extract/i)).not.toBeInTheDocument();
-    expect(screen.queryByPlaceholderText(/software-engineer/i)).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/automatically extract/i),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByPlaceholderText(/software-engineer/i),
+    ).not.toBeInTheDocument();
   });
 
   it("guides users when the job link is missing", async () => {
@@ -76,9 +92,9 @@ describe("JobImportModal", () => {
     });
     await user.click(screen.getByRole("button", { name: "Check Job Link" }));
 
-    expect(
-      await screen.findByRole("alert"),
-    ).toHaveTextContent("Paste the full job link from your browser address bar.");
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Paste the full job link from your browser address bar.",
+    );
     expect(invoke).not.toHaveBeenCalled();
   });
 
@@ -92,9 +108,15 @@ describe("JobImportModal", () => {
     });
     await user.click(screen.getByRole("button", { name: "Check Job Link" }));
 
-    expect(await screen.findByText("JobSentinel ran into a problem.")).toBeInTheDocument();
+    expect(
+      await screen.findByText("JobSentinel ran into a problem."),
+    ).toBeInTheDocument();
     expect(screen.getByText(/safe support report/i)).toBeInTheDocument();
-    expect(screen.queryByText(/raw-secret|private@example\.test|resume=private-file/)).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(
+        /raw-secret|private@example\.test|resume=private-file/,
+      ),
+    ).not.toBeInTheDocument();
   });
 
   it.each([
@@ -112,10 +134,14 @@ describe("JobImportModal", () => {
     await user.click(screen.getByRole("button", { name: "Check Job Link" }));
 
     expect(
-      await screen.findByText("Paste a public job posting link from your browser address bar."),
+      await screen.findByText(
+        "Paste a public job posting link from your browser address bar.",
+      ),
     ).toBeInTheDocument();
     expect(invoke).not.toHaveBeenCalled();
-    expect(screen.queryByText("JobSentinel ran into a problem.")).not.toBeInTheDocument();
+    expect(
+      screen.queryByText("JobSentinel ran into a problem."),
+    ).not.toBeInTheDocument();
   });
 
   it("blocks plaintext public job links before preview", async () => {
@@ -128,7 +154,9 @@ describe("JobImportModal", () => {
     await user.click(screen.getByRole("button", { name: "Check Job Link" }));
 
     expect(
-      await screen.findByText("Paste an https job posting link from your browser address bar."),
+      await screen.findByText(
+        "Paste an https job posting link from your browser address bar.",
+      ),
     ).toBeInTheDocument();
     expect(invoke).not.toHaveBeenCalled();
   });
@@ -145,13 +173,17 @@ describe("JobImportModal", () => {
       target: { value: "https://www.indeed.com/viewjob?jk=123456789" },
     });
 
-    expect(screen.getByText(/rules about automated tools/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/rules about automated tools/i),
+    ).toBeInTheDocument();
     const checkButton = screen.getByRole("button", { name: "Check Job Link" });
     expect(checkButton).toBeDisabled();
     expect(invoke).not.toHaveBeenCalled();
 
     await user.click(
-      screen.getByLabelText(/I understand this risk and want JobSentinel to check this job link/i),
+      screen.getByLabelText(
+        /I understand this risk and want JobSentinel to check this job link/i,
+      ),
     );
     expect(checkButton).not.toBeDisabled();
 
@@ -178,9 +210,60 @@ describe("JobImportModal", () => {
 
     await user.click(screen.getByRole("button", { name: "Save Job" }));
 
-    expect(await screen.findByText("JobSentinel ran into a problem.")).toBeInTheDocument();
+    expect(
+      await screen.findByText("JobSentinel ran into a problem."),
+    ).toBeInTheDocument();
     expect(screen.getByText(/safe support report/i)).toBeInTheDocument();
-    expect(screen.queryByText(/raw-secret|private@example\.test|resume=private-file/)).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(
+        /raw-secret|private@example\.test|resume=private-file/,
+      ),
+    ).not.toBeInTheDocument();
+  });
+
+  it("asks for a fresh review when the staged preview expires", async () => {
+    const user = userEvent.setup();
+    mockInvoke
+      .mockResolvedValueOnce(preview)
+      .mockRejectedValueOnce(
+        "This job preview expired. Check the job link again before saving.",
+      );
+    renderModal();
+
+    fireEvent.change(screen.getByLabelText("Job link"), {
+      target: { value: "https://example.com/jobs/office-manager" },
+    });
+    await user.click(screen.getByRole("button", { name: "Check Job Link" }));
+    await user.click(await screen.findByRole("button", { name: "Save Job" }));
+
+    expect(
+      await screen.findAllByText(
+        "This job preview expired. Check the job link again before saving.",
+      ),
+    ).toHaveLength(2);
+  });
+
+  it("does not offer to save a preview without required details", async () => {
+    const user = userEvent.setup();
+    mockInvoke.mockResolvedValueOnce({
+      ...preview,
+      import_id: null,
+      title: "",
+      missing_fields: ["title"],
+    });
+    renderModal();
+
+    fireEvent.change(screen.getByLabelText("Job link"), {
+      target: { value: "https://example.com/jobs/incomplete" },
+    });
+    await user.click(screen.getByRole("button", { name: "Check Job Link" }));
+
+    expect(
+      await screen.findByText(/Check a different job page before saving/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Save Job" }),
+    ).not.toBeInTheDocument();
   });
 
   it("lets users save jobs even when the preview is missing details", async () => {
@@ -199,16 +282,28 @@ describe("JobImportModal", () => {
     });
     await user.click(screen.getByRole("button", { name: "Check Job Link" }));
 
-    expect(await screen.findByText(/Details to check: pay range, posting date/i)).toBeInTheDocument();
-    expect(screen.getByText(/You can still save this job/i)).toBeInTheDocument();
+    expect(
+      await screen.findByText(/Details to check: pay range, posting date/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/You can still save this job/i),
+    ).toBeInTheDocument();
     const saveButton = screen.getByRole("button", { name: "Save Job" });
     expect(saveButton).not.toBeDisabled();
 
     await user.click(saveButton);
 
-    expect(mockInvoke).toHaveBeenLastCalledWith("import_job_from_url", {
-      url: "https://example.com/jobs/office-manager",
+    expect(mockInvoke).toHaveBeenLastCalledWith("confirm_job_import", {
+      importId: "reviewed-import-1",
     });
+    expect(mockInvalidateCacheByCommand).toHaveBeenNthCalledWith(
+      1,
+      "get_recent_jobs",
+    );
+    expect(mockInvalidateCacheByCommand).toHaveBeenNthCalledWith(
+      2,
+      "get_statistics",
+    );
   });
 
   it("shows readable labels when imported missing fields use backend keys", async () => {
@@ -226,9 +321,13 @@ describe("JobImportModal", () => {
     await user.click(screen.getByRole("button", { name: "Check Job Link" }));
 
     expect(
-      await screen.findByText(/Details to check: pay range, company name, job link/i),
+      await screen.findByText(
+        /Details to check: pay range, company name, job link/i,
+      ),
     ).toBeInTheDocument();
-    expect(screen.queryByText(/salary_min|salary_max|company_name|job_url/)).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/salary_min|salary_max|company_name|job_url/),
+    ).not.toBeInTheDocument();
   });
 
   it("labels posting pay as listed pay in the preview", async () => {
@@ -261,8 +360,12 @@ describe("JobImportModal", () => {
     });
     await user.click(screen.getByRole("button", { name: "Check Job Link" }));
 
-    expect(await screen.findByText("Listed pay not shown.")).toBeInTheDocument();
-    expect(screen.getByText(/Verify pay before tailoring/i)).toBeInTheDocument();
+    expect(
+      await screen.findByText("Listed pay not shown."),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/Verify pay before tailoring/i),
+    ).toBeInTheDocument();
     expect(screen.queryByText("Salary:")).not.toBeInTheDocument();
   });
 
@@ -281,7 +384,9 @@ describe("JobImportModal", () => {
     await user.click(screen.getByRole("button", { name: "Check Job Link" }));
 
     expect(await screen.findByText("Posted: 5/1/2026")).toBeInTheDocument();
-    expect(await screen.findByText("Closing date: 6/15/2026")).toBeInTheDocument();
+    expect(
+      await screen.findByText("Closing date: 6/15/2026"),
+    ).toBeInTheDocument();
   });
 
   it("shows plain unavailable copy for malformed preview dates", async () => {
@@ -299,8 +404,12 @@ describe("JobImportModal", () => {
     });
     await user.click(screen.getByRole("button", { name: "Check Job Link" }));
 
-    expect(await screen.findByText("Posted: Date not shown")).toBeInTheDocument();
-    expect(screen.getByText("Closing date: Date not shown")).toBeInTheDocument();
+    expect(
+      await screen.findByText("Posted: Date not shown"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Closing date: Date not shown"),
+    ).toBeInTheDocument();
     expect(screen.queryByText(/Invalid Date/i)).not.toBeInTheDocument();
   });
 });
