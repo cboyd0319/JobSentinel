@@ -16,9 +16,9 @@ neutral data ownership, frontend feature ownership, backend cycle repair, the
 explicit two-member Cargo workspace, core extraction, and the thin private
 Tauri shell, and final script and harness ownership all have passing evidence.
 The final file-cap, Rust lint-policy, core facade and target, sensitive Rust
-leaf-module, scraper, resume, notification, job-import, market, and salary
-ownership slices of Milestone 7 are complete. The remaining work is the cleanup
-audit and release-readiness proof.
+leaf-module, scraper, resume, notification, job-import, market, salary, and
+database ownership slices of Milestone 7 are complete. The remaining work is a
+smaller Rust audit, cleanup, and the release-readiness proof.
 
 Observed release state on 2026-06-22 local time:
 
@@ -59,7 +59,7 @@ weakened.
 | Workstream | State | Current focus | Source |
 | ---------- | ----- | ------------- | ------ |
 | Current product and quality work | Active | Keep privacy, design, platform, harness, and release evidence aligned during the refactor | [Plan](current-work.md) |
-| Full repository refactor and v2.9.5 readiness | Active | Continue the remaining Rust owner visibility and dead-code audit | [Plan](repository-architecture-reorganization.md) |
+| Full repository refactor and v2.9.5 readiness | Active | Finish the smaller Rust audit, then run full cleanup | [Plan](repository-architecture-reorganization.md) |
 
 ## Current Posture
 
@@ -105,15 +105,15 @@ weakened.
   state, and atomic insertion. Tauri confirms opaque identifiers without
   refetching or overwriting a concurrent save; successful imports invalidate
   the Dashboard job and statistics caches.
-- Market and salary implementation leaves are private behind typed facades.
-  Self-tested trend, benchmark-manager, and template-management APIs are gone.
+- Market, salary, and database internals are private. Existing migrations require
+  a verified encrypted snapshot and live integrity checks before initialization.
 - Coverage for all configured source adapters and user-gated restricted-source
   paths must retain focused parser/import/gate evidence before any release-ready
   claim.
 
 ## Next Best Work
 
-1. Complete the remaining Rust owner visibility and dead-code audit.
+1. Finish the smaller remaining Rust owner visibility and dead-code audit.
 2. Complete the repo-wide orphan-test, dependency, root-file, and stale-reference
    cleanup audits.
 3. Align final architecture, contributor, release, and public wiki docs.

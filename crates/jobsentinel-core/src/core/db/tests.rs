@@ -1,11 +1,8 @@
 #[cfg(test)]
 mod tests {
-    use crate::core::db::{
-        with_timeout, Database, DuplicateGroup, Statistics, DEFAULT_QUERY_TIMEOUT,
-    };
+    use crate::core::db::{Database, DuplicateGroup, Statistics};
     use crate::core::{calculate_job_hash, Job};
     use chrono::Utc;
-    use std::time::Duration;
 
     /// Helper to create a test job
     fn create_test_job(hash: &str, title: &str, score: f64) -> Job {
@@ -590,33 +587,6 @@ mod tests {
     #[path = "job_statistics_tests.rs"]
     mod job_statistics_tests;
 
-    mod timeout_additional_tests {
-        use super::*;
-        use std::time::Duration;
-
-        #[tokio::test]
-        async fn test_with_timeout_immediate_success() {
-            let result = with_timeout(async { Ok::<i64, sqlx::Error>(42) }).await;
-
-            assert!(result.is_ok());
-            assert_eq!(result.unwrap(), 42);
-        }
-
-        #[tokio::test]
-        async fn test_with_timeout_propagates_error() {
-            let result =
-                with_timeout(async { Err::<i64, sqlx::Error>(sqlx::Error::RowNotFound) }).await;
-
-            assert!(result.is_err());
-        }
-
-        #[test]
-        fn test_default_query_timeout_value() {
-            // Verify timeout is 30 seconds
-            assert_eq!(DEFAULT_QUERY_TIMEOUT, Duration::from_secs(30));
-        }
-    }
-
     #[path = "job_upsert_tests.rs"]
     mod job_upsert_tests;
 
@@ -759,9 +729,6 @@ mod tests {
 
     #[path = "duplicate_edge_cases.rs"]
     mod duplicate_edge_cases;
-
-    #[path = "with_timeout_coverage.rs"]
-    mod with_timeout_coverage;
 
     #[path = "job_field_update_tests.rs"]
     mod job_field_updates;

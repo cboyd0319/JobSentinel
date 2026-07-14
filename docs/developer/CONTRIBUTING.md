@@ -254,7 +254,8 @@ cargo audit
 
 - Use descriptive variable names
 - Add doc comments for public APIs
-- Handle errors explicitly with domain-specific error types (`ScraperError`, `DatabaseError`)
+- Handle errors explicitly with domain-specific types when callers need to
+  distinguish failure modes, and preserve dependency errors otherwise
 - Use structured error handling with `thiserror` (avoid `.unwrap()` in production)
 - Treat test-target clippy warnings as advisory unless a change explicitly
   tightens the test lint policy; production clippy is the hard lint gate.

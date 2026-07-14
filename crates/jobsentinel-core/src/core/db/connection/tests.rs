@@ -43,6 +43,35 @@ mod backup_tests {
 
         assert_eq!(note, "saved in wal");
     }
+
+    #[tokio::test]
+    async fn migration_stops_when_required_backup_cannot_be_created() {
+        let temp_dir = tempfile::tempdir().unwrap();
+        let db_path = temp_dir.path().join("jobs.db");
+        let database = Database::connect(&db_path).await.unwrap();
+        database.migrate().await.unwrap();
+
+        std::fs::write(temp_dir.path().join("backups"), b"not a directory").unwrap();
+
+        let error = database.migrate().await.unwrap_err();
+        assert!(error
+            .to_string()
+            .ends_with("Required pre-migration backup failed"));
+    }
+
+    #[tokio::test]
+    async fn migration_finishes_with_a_recorded_integrity_check() {
+        let database = Database::connect_memory().await.unwrap();
+
+        database.migrate().await.unwrap();
+
+        let passed_checks: i64 =
+            sqlx::query_scalar("SELECT COUNT(*) FROM integrity_check_log WHERE status = 'passed'")
+                .fetch_one(database.pool())
+                .await
+                .unwrap();
+        assert!(passed_checks > 0);
+    }
 }
 
 #[cfg(all(test, unix))]

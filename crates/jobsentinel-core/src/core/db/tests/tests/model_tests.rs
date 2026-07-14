@@ -495,37 +495,6 @@ mod duplicate_group_tests {
     }
 }
 
-mod timeout_tests {
-    use super::*;
-
-    #[tokio::test]
-    async fn test_with_timeout_success() {
-        // Simulate a fast query that succeeds
-        let future = async {
-            tokio::time::sleep(tokio::time::Duration::from_millis(10)).await;
-            Ok::<_, sqlx::Error>(42)
-        };
-
-        let result = with_timeout(future).await;
-        assert!(result.is_ok());
-        assert_eq!(result.unwrap(), 42);
-    }
-
-    #[tokio::test]
-    async fn test_with_timeout_error() {
-        // Simulate a query that returns an error
-        let future = async { Err::<i32, sqlx::Error>(sqlx::Error::Protocol("Test error".into())) };
-
-        let result = with_timeout(future).await;
-        assert!(result.is_err());
-    }
-
-    #[tokio::test]
-    async fn test_default_query_timeout_constant() {
-        assert_eq!(DEFAULT_QUERY_TIMEOUT, Duration::from_secs(30));
-    }
-}
-
 mod database_path_tests {
     use super::*;
 

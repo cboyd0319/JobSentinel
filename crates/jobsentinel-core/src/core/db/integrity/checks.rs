@@ -1,15 +1,14 @@
 //! Database integrity checking operations
 
-use anyhow::Result;
 use chrono::{DateTime, Utc};
 use sqlx::Row;
 
-use super::types::{CheckResult, ForeignKeyViolation};
+use super::types::CheckResult;
 use super::DatabaseIntegrity;
 
 impl DatabaseIntegrity {
     /// Quick integrity check (PRAGMA quick_check)
-    pub(super) async fn quick_check(&self) -> Result<CheckResult> {
+    pub(super) async fn quick_check(&self) -> Result<CheckResult, sqlx::Error> {
         let row = sqlx::query("PRAGMA quick_check")
             .fetch_one(&self.db)
             .await?;
@@ -18,12 +17,11 @@ impl DatabaseIntegrity {
 
         Ok(CheckResult {
             is_ok: result.eq_ignore_ascii_case("ok"),
-            message: result,
         })
     }
 
     /// Full integrity check (PRAGMA integrity_check)
-    pub(super) async fn full_integrity_check(&self) -> Result<CheckResult> {
+    pub(super) async fn full_integrity_check(&self) -> Result<CheckResult, sqlx::Error> {
         let row = sqlx::query("PRAGMA integrity_check")
             .fetch_one(&self.db)
             .await?;
@@ -32,31 +30,19 @@ impl DatabaseIntegrity {
 
         Ok(CheckResult {
             is_ok: result.eq_ignore_ascii_case("ok"),
-            message: result,
         })
     }
 
     /// Check for foreign key violations
-    pub(super) async fn foreign_key_check(&self) -> Result<Vec<ForeignKeyViolation>> {
+    pub(super) async fn foreign_key_violation_count(&self) -> Result<usize, sqlx::Error> {
         let rows = sqlx::query("PRAGMA foreign_key_check")
             .fetch_all(&self.db)
             .await?;
-
-        let mut violations = Vec::new();
-        for row in rows {
-            violations.push(ForeignKeyViolation {
-                table: row.try_get(0)?,
-                rowid: row.try_get(1)?,
-                parent: row.try_get(2)?,
-                fkid: row.try_get(3)?,
-            });
-        }
-
-        Ok(violations)
+        Ok(rows.len())
     }
 
     /// Determine if full check is needed (run weekly)
-    pub(super) async fn should_run_full_check(&self) -> Result<bool> {
+    pub(super) async fn should_run_full_check(&self) -> Result<bool, sqlx::Error> {
         let last_check: Option<String> = sqlx::query_scalar(
             "SELECT value FROM app_metadata WHERE key = 'last_full_integrity_check'",
         )
@@ -77,7 +63,7 @@ impl DatabaseIntegrity {
     }
 
     /// Update last full check timestamp
-    pub(super) async fn update_last_full_check(&self) -> Result<()> {
+    pub(super) async fn update_last_full_check(&self) -> Result<(), sqlx::Error> {
         sqlx::query(
             "INSERT OR REPLACE INTO app_metadata (key, value, updated_at) VALUES (?, ?, datetime('now'))",
         )
@@ -96,7 +82,7 @@ impl DatabaseIntegrity {
         status: &str,
         details: Option<&str>,
         duration: std::time::Duration,
-    ) -> Result<()> {
+    ) -> Result<(), sqlx::Error> {
         sqlx::query(
             "INSERT INTO integrity_check_log (check_type, status, details, duration_ms) VALUES (?, ?, ?, ?)",
         )

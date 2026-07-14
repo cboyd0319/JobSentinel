@@ -166,7 +166,6 @@ impl ScraperError {
 
 **Other Domain-Specific Errors:**
 
-- `DatabaseError` - Database operations with query context
 - `AutomationError` - Browser automation errors
 - `ConfigError` - Configuration validation errors
 
@@ -253,7 +252,7 @@ impl Config {
 
 | Situation | Use | Example |
 |-----------|-----|---------|
-| Library with specific errors | Domain-specific error enum | `ScraperError`, `DatabaseError`, `AutomationError` |
+| Library with specific errors | Domain-specific error enum | `ScraperError`, `AutomationError` |
 | Application logic | `anyhow` | Scheduler, command handlers |
 | Public API boundaries | `Box<dyn Error>` | Config loading, Tauri commands |
 | Cannot fail | Return value directly | Pure computation |
@@ -364,8 +363,6 @@ pub async fn search_jobs(state: State<'_, AppState>) -> Result<Value, String> {
             // Use domain-specific error's user-friendly message
             let user_msg = if let Some(scraper_err) = e.downcast_ref::<ScraperError>() {
                 scraper_err.user_message()
-            } else if let Some(db_err) = e.downcast_ref::<DatabaseError>() {
-                db_err.user_message()
             } else {
                 "JobSentinel ran into a problem. Please try again.".to_string()
             };

@@ -1,88 +1,72 @@
-//! Database Integrity and Backup Management
-//!
-//! Provides comprehensive integrity checking, automated backups,
-//! and corruption detection/recovery for SQLite database.
+//! Startup integrity verification for SQLite data.
 
-mod backups;
 mod checks;
-mod diagnostics;
-pub mod types;
+mod types;
 
 #[cfg(test)]
 mod tests;
 
-use anyhow::Result;
 use sqlx::SqlitePool;
-use std::path::PathBuf;
 
-pub use types::*;
+use types::IntegrityStatus;
 
-/// Database integrity manager
-pub struct DatabaseIntegrity {
+struct DatabaseIntegrity {
     db: SqlitePool,
-    backup_dir: PathBuf,
 }
 
 impl DatabaseIntegrity {
-    /// Create new integrity manager
-    pub fn new(db: SqlitePool, backup_dir: PathBuf) -> Self {
-        crate::platforms::ensure_private_dir(&backup_dir).ok();
-        Self { db, backup_dir }
+    fn new(db: SqlitePool) -> Self {
+        Self { db }
     }
 
-    /// Run full integrity check on startup
-    pub async fn startup_check(&self) -> Result<IntegrityStatus> {
+    pub(super) async fn startup_check(&self) -> Result<IntegrityStatus, sqlx::Error> {
         tracing::info!("Running database integrity check");
         let start_time = std::time::Instant::now();
 
-        // 1. Quick check first (fast)
         let quick_result = self.quick_check().await?;
         if !quick_result.is_ok {
-            tracing::error!("Quick integrity check failed: {}", quick_result.message);
+            tracing::error!("Database quick integrity check failed");
             self.log_check(
                 "quick",
                 "failed",
-                Some(&quick_result.message),
+                Some("Database quick integrity check failed"),
                 start_time.elapsed(),
             )
             .await?;
-            return Ok(IntegrityStatus::Corrupted(quick_result.message));
+            return Ok(IntegrityStatus::Corrupted);
         }
 
-        // 2. Foreign key check
-        let fk_violations = self.foreign_key_check().await?;
-        if !fk_violations.is_empty() {
+        let fk_violation_count = self.foreign_key_violation_count().await?;
+        if fk_violation_count > 0 {
             tracing::warn!(
                 "Foreign key violations detected: {} issues",
-                fk_violations.len()
+                fk_violation_count
             );
             self.log_check(
                 "foreign_key",
                 "warning",
-                Some(&format!("{} violations", fk_violations.len())),
+                Some(&format!("{fk_violation_count} violations")),
                 start_time.elapsed(),
             )
             .await?;
-            return Ok(IntegrityStatus::ForeignKeyViolations(fk_violations));
+            return Ok(IntegrityStatus::ForeignKeyViolations);
         }
 
-        // 3. Full integrity check (only if needed based on schedule)
         if self.should_run_full_check().await? {
-            tracing::info!("Running full integrity check (weekly schedule)...");
+            tracing::info!("Running scheduled full database integrity check");
             let full_result = self.full_integrity_check().await?;
             if !full_result.is_ok {
-                tracing::error!("Full integrity check failed: {}", full_result.message);
+                tracing::error!("Full database integrity check failed");
                 self.log_check(
                     "full",
                     "failed",
-                    Some(&full_result.message),
+                    Some("Full database integrity check failed"),
                     start_time.elapsed(),
                 )
                 .await?;
-                return Ok(IntegrityStatus::Corrupted(full_result.message));
+                return Ok(IntegrityStatus::Corrupted);
             }
 
-            // Update last full check timestamp
             self.update_last_full_check().await?;
         }
 
@@ -93,5 +77,17 @@ impl DatabaseIntegrity {
             start_time.elapsed()
         );
         Ok(IntegrityStatus::Healthy)
+    }
+}
+
+pub(super) async fn verify_startup(pool: &SqlitePool) -> Result<(), sqlx::Error> {
+    match DatabaseIntegrity::new(pool.clone()).startup_check().await? {
+        IntegrityStatus::Healthy => Ok(()),
+        IntegrityStatus::Corrupted => Err(sqlx::Error::Protocol(
+            "Database integrity check failed".into(),
+        )),
+        IntegrityStatus::ForeignKeyViolations => Err(sqlx::Error::Protocol(
+            "Database relational integrity check failed".into(),
+        )),
     }
 }

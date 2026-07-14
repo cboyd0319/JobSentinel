@@ -426,9 +426,9 @@ pub struct GreenhouseScraper { ... }
 
 ### 3. **Error Handling**
 
-- Use domain-specific errors (`ScraperError`, `DatabaseError`, `AutomationError`)
-- All errors implement structured error types with `thiserror`
-- Provide user-friendly messages with `.user_message()` method
+- Use domain-specific errors when callers need to distinguish failure modes
+- Preserve dependency errors when another error hierarchy adds no behavior
+- Translate failures to user-friendly messages at the Tauri boundary
 - Sanitize URLs and sensitive data in error messages
 - Never use `.unwrap()` in production code
 - Always provide context with errors

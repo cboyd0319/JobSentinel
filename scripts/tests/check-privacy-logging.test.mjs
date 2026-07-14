@@ -674,12 +674,12 @@ test("privacy logging rejects raw backup path errors", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/db/integrity/backups.rs",
+      "crates/jobsentinel-core/src/core/db/connection/backups.rs",
       'return Err(format!("Backup file not found: {}", backup_path.display()));',
     );
 
     assert.equal(
-      hasRawBackupPathError(root, "crates/jobsentinel-core/src/core/db/integrity/backups.rs"),
+      hasRawBackupPathError(root, "crates/jobsentinel-core/src/core/db/connection/backups.rs"),
       true,
     );
     assert.equal(hasRawBackupPathError(root, "crates/jobsentinel-core/src/core/db/connection.rs"), false);

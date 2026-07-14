@@ -12,7 +12,12 @@ impl Database {
         pool: &SqlitePool,
         db_path: &Path,
     ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-        Self::backup_pre_migration_to_dir(pool, db_path, &Self::default_backup_dir())
+        let backup_dir = db_path
+            .parent()
+            .filter(|parent| !parent.as_os_str().is_empty())
+            .map(|parent| parent.join("backups"))
+            .unwrap_or_else(Self::default_backup_dir);
+        Self::backup_pre_migration_to_dir(pool, db_path, &backup_dir)
             .await
             .map(|_| ())
     }

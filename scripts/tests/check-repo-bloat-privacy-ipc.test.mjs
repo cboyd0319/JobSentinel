@@ -689,11 +689,6 @@ test("checkRepoBloat rejects database log emoji markers", () => {
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/db/integrity/diagnostics.rs",
-      'tracing::warn!("⚠️ WAL checkpoint partially complete (database was busy)");\n',
-    );
-    writeFixtureFile(
-      root,
       "crates/jobsentinel-core/src/core/db/integrity/mod.rs",
       [
         'tracing::info!("🔍 Running database integrity check...");',
@@ -704,8 +699,8 @@ test("checkRepoBloat rejects database log emoji markers", () => {
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/db/integrity/backups.rs",
-      'tracing::info!("✅ Database restored successfully");\n',
+      "crates/jobsentinel-core/src/core/db/connection/backups.rs",
+      'tracing::info!("✅ Database backup created");\n',
     );
 
     execFileSync(
@@ -714,8 +709,7 @@ test("checkRepoBloat rejects database log emoji markers", () => {
         "add",
         "package.json",
         "crates/jobsentinel-core/src/core/db/connection.rs",
-        "crates/jobsentinel-core/src/core/db/integrity/backups.rs",
-        "crates/jobsentinel-core/src/core/db/integrity/diagnostics.rs",
+        "crates/jobsentinel-core/src/core/db/connection/backups.rs",
         "crates/jobsentinel-core/src/core/db/integrity/mod.rs",
       ],
       { cwd: root },
@@ -731,19 +725,13 @@ test("checkRepoBloat rejects database log emoji markers", () => {
     );
     assert.ok(
       violations.includes(
-        "replace database log emoji markers: crates/jobsentinel-core/src/core/db/integrity/diagnostics.rs",
-      ),
-      violations.join("\n"),
-    );
-    assert.ok(
-      violations.includes(
         "replace database log emoji markers: crates/jobsentinel-core/src/core/db/integrity/mod.rs",
       ),
       violations.join("\n"),
     );
     assert.ok(
       violations.includes(
-        "replace database log emoji markers: crates/jobsentinel-core/src/core/db/integrity/backups.rs",
+        "replace database log emoji markers: crates/jobsentinel-core/src/core/db/connection/backups.rs",
       ),
       violations.join("\n"),
     );

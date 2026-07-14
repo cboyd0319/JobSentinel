@@ -382,6 +382,8 @@ test("checkRepositoryArchitecture rejects public implementation leaf modules", (
     for (const path of [
       "crates/jobsentinel-core/src/core/automation/mod.rs",
       "crates/jobsentinel-core/src/core/credentials/mod.rs",
+      "crates/jobsentinel-core/src/core/db/mod.rs",
+      "crates/jobsentinel-core/src/core/db/integrity/mod.rs",
       "crates/jobsentinel-core/src/core/import/mod.rs",
       "crates/jobsentinel-core/src/core/market_intelligence/mod.rs",
       "crates/jobsentinel-core/src/core/notify/mod.rs",
@@ -404,6 +406,8 @@ test("checkRepositoryArchitecture rejects public implementation leaf modules", (
     for (const path of [
       "crates/jobsentinel-core/src/core/automation/mod.rs",
       "crates/jobsentinel-core/src/core/credentials/mod.rs",
+      "crates/jobsentinel-core/src/core/db/mod.rs",
+      "crates/jobsentinel-core/src/core/db/integrity/mod.rs",
       "crates/jobsentinel-core/src/core/import/mod.rs",
       "crates/jobsentinel-core/src/core/market_intelligence/mod.rs",
       "crates/jobsentinel-core/src/core/notify/mod.rs",

@@ -473,14 +473,14 @@ test("checkRepoBloat rejects raw backup path error display", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/db/integrity/backups.rs",
+      "crates/jobsentinel-core/src/core/db/connection/backups.rs",
       [
         'return Err(anyhow::anyhow!("Backup file not found: {}", backup_path.display()));',
         "",
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "crates/jobsentinel-core/src/core/db/integrity/backups.rs"], {
+    execFileSync("git", ["add", "package.json", "crates/jobsentinel-core/src/core/db/connection/backups.rs"], {
       cwd: root,
     });
 
@@ -488,7 +488,7 @@ test("checkRepoBloat rejects raw backup path error display", () => {
 
     assert.ok(
       violations.includes(
-        "sanitize backup path error display: crates/jobsentinel-core/src/core/db/integrity/backups.rs",
+        "sanitize backup path error display: crates/jobsentinel-core/src/core/db/connection/backups.rs",
       ),
       violations.join("\n"),
     );

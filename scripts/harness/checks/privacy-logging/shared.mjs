@@ -49,7 +49,7 @@ export const rawLocalPathLoggingPaths = new Set([
   "crates/jobsentinel-core/src/core/automation/browser/page.rs",
   "crates/jobsentinel-core/src/core/automation/form_filler.rs",
   "crates/jobsentinel-core/src/core/db/connection.rs",
-  "crates/jobsentinel-core/src/core/db/integrity/backups.rs",
+  "crates/jobsentinel-core/src/core/db/connection/backups.rs",
   "src-tauri/src/app.rs",
   "crates/jobsentinel-core/src/platforms/linux/mod.rs",
   "crates/jobsentinel-core/src/platforms/macos/mod.rs",
@@ -57,7 +57,7 @@ export const rawLocalPathLoggingPaths = new Set([
 ]);
 
 export const rawBackupPathErrorPaths = new Set([
-  "crates/jobsentinel-core/src/core/db/integrity/backups.rs",
+  "crates/jobsentinel-core/src/core/db/connection/backups.rs",
 ]);
 
 export const mlRawLocalPathExposurePaths = new Set([

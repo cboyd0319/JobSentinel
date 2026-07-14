@@ -68,66 +68,29 @@ WAL mode, memory-mapped I/O, auto-vacuum, WAL checkpointing, and application
 metadata belong to file-backed databases and are not part of the in-memory
 configuration.
 
-## Integrity Tools
+## Migration Backup And Startup Integrity
 
-The integrity module wraps common maintenance and diagnostic operations.
+`Database::migrate` owns the full data-safety sequence:
 
-| API | Behavior |
-| --- | --- |
-| `quick_check` | Runs `PRAGMA quick_check`. |
-| `full_integrity_check` | Runs `PRAGMA integrity_check` and records the result. |
-| `foreign_key_check` | Runs `PRAGMA foreign_key_check`. |
-| `create_backup` | Uses `VACUUM INTO` to create a compact backup file. |
-| `backup_before_operation` | Creates a named pre-operation backup. |
-| `restore_from_backup` | Quarantines the current database plus `-wal` and `-shm` sidecars, then copies the backup into place. |
-| `cleanup_old_backups` | Deletes older backup files beyond a caller-provided keep count. |
-| `get_backup_history` | Reads backup metadata from `backup_log`. |
-| `checkpoint_wal` | Runs `PRAGMA wal_checkpoint(TRUNCATE)`. |
-| `optimize_query_planner` | Runs `PRAGMA optimize`. |
-| `get_pragma_diagnostics` | Reads current PRAGMA values for debugging. |
+1. For an existing migrated database, create an encrypted SQLite snapshot with
+   `VACUUM INTO` in the adjacent `backups` directory.
+2. Apply private directory and file permissions.
+3. Run `PRAGMA quick_check` against the snapshot before accepting it.
+4. Keep the five newest pre-migration snapshots.
+5. Apply SQLx migrations only after the required snapshot succeeds.
+6. Run `PRAGMA quick_check` and `PRAGMA foreign_key_check` on the migrated
+   database. Run `PRAGMA integrity_check` when the last full check is at least
+   seven days old.
 
-Backup reason strings are sanitized before becoming part of backup filenames.
-Backup and database paths are logged through non-identifying path labels.
-Pre-migration backups use SQLite `VACUUM INTO` so committed WAL frames are
-included in the snapshot, and they inherit the SQLCipher encryption key.
-Restore callers must close the active pool first; the restore helper then moves
-the main database and SQLite sidecars out of the way before copying the backup
-and applying private file permissions.
+A required snapshot failure stops migration. A failed integrity or foreign-key
+check stops initialization. Runtime errors and logs use generic messages or
+non-identifying path labels; they do not expose local database paths or check
+details. Check history and the last successful full-check timestamp remain in
+the encrypted local database.
 
-## Health Metrics
-
-`DatabaseIntegrity::get_health_metrics` reports:
-
-- Database, free-list, and WAL sizes.
-- Fragmentation percentage.
-- `user_version` and `application_id`.
-- Integrity-check and backup freshness.
-- Total jobs.
-- Integrity-check and backup history counts.
-
-`integrity_check_overdue` becomes true when the last full integrity check is
-more than seven days old. `backup_overdue` becomes true when the last backup is
-more than 24 hours old.
-
-## Diagnostics Example
-
-```rust
-let integrity = DatabaseIntegrity::new(pool.clone(), backup_dir);
-
-let health = integrity.get_health_metrics().await?;
-let diagnostics = integrity.get_pragma_diagnostics().await?;
-
-assert_eq!(diagnostics.journal_mode, "wal");
-assert!(diagnostics.foreign_keys);
-assert_eq!(diagnostics.cache_size, -128000);
-
-if health.backup_overdue {
-    tracing::warn!(
-        hours_since_last_backup = health.hours_since_last_backup,
-        "Database backup overdue"
-    );
-}
-```
+The integrity implementation is private to the database owner. Callers use
+`Database::migrate` instead of coordinating backup, migration, and verification
+steps independently.
 
 ## Operational Guidance
 
@@ -135,16 +98,17 @@ if health.backup_overdue {
   measured issue requires a different tradeoff.
 - Keep `foreign_keys = ON`; tests and production behavior rely on it.
 - Use `PRAGMA optimize` after bulk writes or schema work.
-- Run a WAL checkpoint before backup-sensitive size checks.
 - Use `VACUUM` only for explicit maintenance because it rebuilds the database.
-- Keep backup and diagnostic paths sanitized in logs.
+- Never continue an existing-database migration after its required verified
+  snapshot fails.
+- Keep backup and database paths sanitized in logs.
 - Do not inspect `jobs.db` with raw `sqlite3`; it is SQLCipher encrypted and
   must be opened through the keyed connection path.
 - Do not add cloud backup behavior without an explicit product decision.
 
 ## Verification
 
-Use PRAGMA diagnostics or integration tests to verify:
+Use focused tests to verify:
 
 - `journal_mode` returns `wal` for file-backed databases.
 - `foreign_keys` returns `1`.
@@ -153,7 +117,9 @@ Use PRAGMA diagnostics or integration tests to verify:
 - `application_id` returns `1246970946`.
 - `user_version` returns `2`.
 - `quick_check` returns `ok`.
-- Backup creation succeeds through `backup_before_operation`.
+- A verified pre-migration snapshot includes committed WAL data.
+- Migration stops when the required snapshot cannot be created.
+- Successful migration records a passing startup integrity check.
 
 Run focused Rust checks after SQLite configuration changes:
 

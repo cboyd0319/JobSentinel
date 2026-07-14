@@ -354,8 +354,7 @@ impl Database {
     /// named `backup_pre_migration_YYYYMMDD_HHMMSS.db`. Only the 5 most recent
     /// pre-migration backups are kept; older ones are pruned automatically.
     ///
-    /// A backup failure is logged as a warning but never aborts the migration —
-    /// a missing backup is better than refusing to migrate.
+    /// Migration stops if the required backup cannot be created and verified.
     pub async fn migrate(&self) -> Result<(), sqlx::Error> {
         // Only attempt a backup when we have a real on-disk database that has
         // already been migrated at least once (i.e. not a fresh install).
@@ -369,17 +368,25 @@ impl Database {
                 > 0;
 
             if is_existing_db {
-                if let Err(_e) = Self::backup_pre_migration(&self.pool, db_path).await {
-                    tracing::warn!("Pre-migration backup failed; migration will continue");
-                }
+                Self::backup_pre_migration(&self.pool, db_path)
+                    .await
+                    .map_err(|_| {
+                        tracing::error!("Required pre-migration backup failed");
+                        sqlx::Error::Protocol("Required pre-migration backup failed".into())
+                    })?;
             }
         }
 
         sqlx::migrate!("./migrations").run(&self.pool).await?;
+        self.verify_integrity().await?;
         if let Some(db_path) = &self.db_path {
             crate::platforms::ensure_private_sqlite_files(db_path).map_err(sqlx::Error::Io)?;
         }
         Ok(())
+    }
+
+    async fn verify_integrity(&self) -> Result<(), sqlx::Error> {
+        super::integrity::verify_startup(&self.pool).await
     }
 
     /// Connect to in-memory SQLite database (for testing)

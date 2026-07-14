@@ -25,8 +25,8 @@
     "Entries\\.ts$"
   ],
   "baseline": {
-    "duplicatedLines": 1690,
-    "cloneRegions": 80
+    "duplicatedLines": 810,
+    "cloneRegions": 40
   },
   "measuredOn": "2026-07-13"
 }

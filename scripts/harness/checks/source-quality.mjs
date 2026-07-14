@@ -3,8 +3,7 @@ import { join } from "node:path";
 
 const databaseLogEmojiPaths = new Set([
   "crates/jobsentinel-core/src/core/db/connection.rs",
-  "crates/jobsentinel-core/src/core/db/integrity/backups.rs",
-  "crates/jobsentinel-core/src/core/db/integrity/diagnostics.rs",
+  "crates/jobsentinel-core/src/core/db/connection/backups.rs",
   "crates/jobsentinel-core/src/core/db/integrity/mod.rs",
 ]);
 

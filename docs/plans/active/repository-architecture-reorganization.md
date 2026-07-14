@@ -511,6 +511,7 @@ evidence-log entry.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-07-13 | Milestone 7 database ownership complete | Made database integrity implementation private and integrated it into the live migration path. Existing databases now require an encrypted, permission-hardened, integrity-verified snapshot before migration; successful migrations run quick, foreign-key, and scheduled full checks before initialization completes. Deleted unreachable duplicate backup, restore, health, diagnostics, query-cache, timeout, and error surfaces plus their self-only tests. The focused database suite passed 189 tests; the default workspace, all-feature Clippy and test-target compilation, all 776 script tests, docs, language, security, and repository gates pass. The change removed 3,330 net lines and lowered the duplication baseline from 1,690 lines across 80 regions to 810 lines across 40 regions. |
 | 2026-07-13 | Milestone 7 salary ownership complete | Made the salary benchmark, negotiation, and prediction leaves private behind the typed salary facade. Deleted the self-tested benchmark manager and negotiation-template management paths plus their tests, removing 890 net source and test lines while retaining shipped prediction, benchmark lookup, offer comparison, and script generation behavior. The focused salary suite passed 134 tests; the default workspace, all-feature Clippy and test-target compilation, all 776 script tests, and repository gates pass with live keyring access disabled. |
 | 2026-07-13 | Milestone 7 market ownership complete | Made the market alert, analytics, and computation leaves private behind the typed market facade. Deleted the 656-line self-tested trend-model surface plus unused alert listing, filtering, cleanup, and date-specific snapshot APIs and their self-only tests, removing 996 lines overall while retaining live daily computations, unread-alert handling, snapshot history, DTO serialization, and Tauri commands. The focused market suite passed 139 tests; the default workspace, all-feature Clippy and test-target compilation, all 776 script tests, and repository gates pass with live keyring access disabled. |
 | 2026-07-13 | Milestone 7 job-import ownership complete | Moved job-link preview, fetching, parsing, pending review state, and database insertion behind the private core import owner. Confirmation now uses a capped, expiring, memory-only identifier and saves the exact reviewed job without refetching; atomic insert preserves an existing saved job if a concurrent save wins. The Tauri adapter is 161 lines with no SQL, fetch, parser, or hashing ownership. Dashboard cache invalidation now makes successful imports visible immediately. The focused import, database, Tauri command, frontend, and 23-flow Dashboard E2E suites pass, as do 2,933 frontend tests, 776 script tests, the full default workspace, all-feature Clippy and test-target compilation, the production build, and repository gates with live keyring access disabled. |
@@ -642,12 +643,12 @@ evidence-log entry.
 ## Handoff
 
 - Current state: Milestones 0 through 6 plus the Milestone 7 file-cap, Rust
-  lint-policy, facade, target, sensitive leaf-module, scraper, resume, and
-  notification slices are complete with passing evidence. The core-owned
-  job-import, market, and salary slices are also complete. Privacy remains
-  immutable.
-- Next step: continue the Rust owner visibility, dead-code, feature, and
-  dependency audit before moving to easier cleanup surfaces.
+  lint-policy, facade, target, sensitive leaf-module, scraper, resume,
+  notification, import, market, salary, and database slices are complete with
+  passing evidence. Privacy remains immutable.
+- Next step: finish the smaller Rust owner and dead-code audit, then move to
+  orphan, dependency, root-file, stale-reference, documentation, and wiki
+  cleanup.
 - Open risks: Windows and Linux platform builds still require their final live
   release-readiness hosts. Current cross-platform evidence is contract and
   release-fixture coverage plus target-gated manifests; macOS is live-checked.
