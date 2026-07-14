@@ -150,28 +150,7 @@ export function hasBroadAudienceProfileExampleDrift(path, text) {
     }
   }
 
-  if (path === "src-tauri/tests/scraper_integration_test.rs") {
-    const scraperIntegrationPatterns = [
-      /Senior Rust Engineer/i,
-      /Full Stack Engineer/i,
-      /Remote Rust Developer/i,
-      /Backend Engineer/i,
-      /Senior Software Engineer/i,
-      /software engineer/i,
-      /rust developer/i,
-      /DiceScraper::new\(["']python["']/i,
-      /San Francisco/i,
-      /TechCorp|StartupXYZ/i,
-      /"team":\s*"Engineering"/i,
-      /"tags":\s*\["rust",\s*"remote"\]/i,
-    ];
-
-    if (scraperIntegrationPatterns.some((pattern) => pattern.test(text))) {
-      return true;
-    }
-  }
-
-  if (path === "src-tauri/tests/scraping_pipeline_integration.rs") {
+  if (path === "crates/jobsentinel-core/tests/scraping_pipeline_integration.rs") {
     const pipelineIntegrationPatterns = [
       /Security Engineer/i,
       /Rust Developer/i,
@@ -191,7 +170,7 @@ export function hasBroadAudienceProfileExampleDrift(path, text) {
     }
   }
 
-  if (path === "src-tauri/tests/scheduler_integration_test.rs") {
+  if (path === "crates/jobsentinel-core/tests/scheduler_integration_test.rs") {
     const schedulerIntegrationPatterns = [
       /Security Engineer/i,
       /Rust Developer/i,
@@ -216,7 +195,7 @@ export function hasBroadAudienceProfileExampleDrift(path, text) {
     }
   }
 
-  if (path === "src-tauri/tests/database_integration_test.rs") {
+  if (path === "crates/jobsentinel-core/tests/database_integration_test.rs") {
     const databaseIntegrationPatterns = [
       /TestCorp/i,
       /Senior Rust Engineer/i,
@@ -235,13 +214,13 @@ export function hasBroadAudienceProfileExampleDrift(path, text) {
     }
   }
 
-  if (path === "src-tauri/tests/api_contract_test.rs") {
+  if (path === "crates/jobsentinel-core/tests/api_contract_test.rs") {
     if (/add_search_history\(["']rust developer["']\)/i.test(text)) {
       return true;
     }
   }
 
-  if (path === "src-tauri/tests/cow_zero_copy_tests.rs") {
+  if (path === "crates/jobsentinel-core/tests/cow_zero_copy_tests.rs") {
     const cowFixturePatterns = [
       /jobs\/senior-engineer/i,
       /department=engineering/i,
@@ -253,21 +232,6 @@ export function hasBroadAudienceProfileExampleDrift(path, text) {
     ];
 
     if (cowFixturePatterns.some((pattern) => pattern.test(text))) {
-      return true;
-    }
-  }
-
-  if (path === "src-tauri/tests/live_scraper_test.rs") {
-    const liveScraperFixturePatterns = [
-      /"developer"\.to_string\(\)/i,
-      /remote-programming-jobs/i,
-      /rust developer/i,
-      /YcStartupScraper::new\(Some\(["']engineer["']/i,
-      /software engineer/i,
-      /Some\(["']San Francisco["']\.to_string\(\)\)/i,
-    ];
-
-    if (liveScraperFixturePatterns.some((pattern) => pattern.test(text))) {
       return true;
     }
   }

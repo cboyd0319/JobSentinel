@@ -344,10 +344,6 @@ test("checkRepoBloat rejects residual core privacy leaks", () => {
         'tracing::warn!("Failed to create database directory: {}", e);\n',
       ],
       [
-        "crates/jobsentinel-core/src/core/db/error.rs",
-        'format!("Database operation failed: {}", context)\n',
-      ],
-      [
         "crates/jobsentinel-core/src/core/import/schema_org.rs",
         'tracing::debug!(error = %e, "Skipping invalid JSON-LD script tag");\n',
       ],

@@ -26,7 +26,6 @@ export const rawPrivateQueryLoggingPaths = new Set([
 ]);
 
 export const rawScraperLoggingPaths = new Set([
-  "crates/jobsentinel-core/src/core/scrapers/cache.rs",
   "crates/jobsentinel-core/src/core/scrapers/dice.rs",
   "crates/jobsentinel-core/src/core/scrapers/glassdoor.rs",
   "crates/jobsentinel-core/src/core/scrapers/greenhouse.rs",
@@ -154,13 +153,13 @@ export const frontendDesktopNotificationPrivacyPaths = new Set([
   "src/features/dashboard/notifications.ts",
 ]);
 export const healthSmokePrivacyPaths = new Set([
-  "crates/jobsentinel-core/src/core/health/smoke_tests.rs",
+  "crates/jobsentinel-core/src/core/health/smoke_checks/mod.rs",
+  "crates/jobsentinel-core/src/core/health/smoke_checks/sources.rs",
 ]);
 
 export const rawUrlLoggingPaths = new Set([
   "src-tauri/src/commands/linkedin_auth.rs",
   "crates/jobsentinel-core/src/core/automation/browser/manager.rs",
-  "crates/jobsentinel-core/src/core/scrapers/url_utils.rs",
 ]);
 
 export const rawUrlErrorDisplayPaths = new Set([
@@ -169,9 +168,6 @@ export const rawUrlErrorDisplayPaths = new Set([
   "crates/jobsentinel-core/src/core/scrapers/error.rs",
 ]);
 
-export const rawPathOrQueryErrorDisplayPaths = new Set([
-  "crates/jobsentinel-core/src/core/db/error.rs",
-]);
 export const rawResumeParserPathDisplayPaths = new Set([
   "crates/jobsentinel-core/src/core/resume/parser.rs",
 ]);
@@ -282,7 +278,6 @@ export const residualCorePrivacyPaths = new Set([
   "crates/jobsentinel-core/src/core/automation/browser/manager.rs",
   "crates/jobsentinel-core/src/core/config/io.rs",
   "crates/jobsentinel-core/src/core/db/connection.rs",
-  "crates/jobsentinel-core/src/core/db/error.rs",
   "crates/jobsentinel-core/src/core/import/schema_org.rs",
   "crates/jobsentinel-core/src/core/ml/model.rs",
   "crates/jobsentinel-core/src/core/resume/parser.rs",

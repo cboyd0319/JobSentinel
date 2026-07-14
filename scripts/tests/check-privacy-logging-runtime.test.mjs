@@ -388,21 +388,26 @@ test("privacy logging rejects raw source health errors", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/health/smoke_tests.rs",
-      ['"error": e.to_string(),', "error: Some(e.to_string()),"].join("\n"),
+      "crates/jobsentinel-core/src/core/health/smoke_checks/sources.rs",
+      '"error": e.to_string(),',
+    );
+    writeFixtureFile(
+      root,
+      "crates/jobsentinel-core/src/core/health/smoke_checks/mod.rs",
+      "error: Some(e.to_string()),",
     );
 
     assert.equal(
       hasRawJobsWithGptSmokeEndpointError(
         root,
-        "crates/jobsentinel-core/src/core/health/smoke_tests.rs",
+        "crates/jobsentinel-core/src/core/health/smoke_checks/sources.rs",
       ),
       true,
     );
     assert.equal(
       hasRawSourceCheckResultError(
         root,
-        "crates/jobsentinel-core/src/core/health/smoke_tests.rs",
+        "crates/jobsentinel-core/src/core/health/smoke_checks/mod.rs",
       ),
       true,
     );
@@ -417,8 +422,8 @@ test("privacy logging rejects raw URL logs and URL error displays", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/scrapers/url_utils.rs",
-      'tracing::debug!("Fetching URL: {}", url);',
+      "crates/jobsentinel-core/src/core/automation/browser/manager.rs",
+      '#[tracing::instrument(skip(self), fields(url = %url), level = "info")]',
     );
     writeFixtureFile(
       root,
@@ -427,7 +432,7 @@ test("privacy logging rejects raw URL logs and URL error displays", () => {
     );
 
     assert.equal(
-      hasRawUrlLogging(root, "crates/jobsentinel-core/src/core/scrapers/url_utils.rs"),
+      hasRawUrlLogging(root, "crates/jobsentinel-core/src/core/automation/browser/manager.rs"),
       true,
     );
     assert.equal(
@@ -449,7 +454,7 @@ test("privacy logging rejects raw path, query, and config URL displays", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/db/error.rs",
+      "crates/jobsentinel-core/src/core/db/connection.rs",
       '#[error("database query failed: {query}")]\nstruct DbError;',
     );
     writeFixtureFile(
@@ -464,7 +469,7 @@ test("privacy logging rejects raw path, query, and config URL displays", () => {
     );
 
     assert.equal(
-      hasRawPathOrQueryErrorDisplay(root, "crates/jobsentinel-core/src/core/db/error.rs"),
+      hasRawPathOrQueryErrorDisplay(root, "crates/jobsentinel-core/src/core/db/connection.rs"),
       true,
     );
     assert.equal(

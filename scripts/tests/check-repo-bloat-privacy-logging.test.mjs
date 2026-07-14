@@ -31,13 +31,12 @@ test("checkRepoBloat rejects raw URL logging outside approved sanitizers", () =>
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/scrapers/url_utils.rs",
-      'tracing::warn!("Failed to parse URL for normalization: {}", url_str);\n',
-    );
-    writeFixtureFile(
-      root,
       "crates/jobsentinel-core/src/core/automation/browser/manager.rs",
-      '#[tracing::instrument(skip(self), fields(url = %url), level = "info")]\n',
+      [
+        'tracing::warn!("Failed to parse URL for navigation: {}", url_str);',
+        '#[tracing::instrument(skip(self), fields(url = %url), level = "info")]',
+        "",
+      ].join("\n"),
     );
     writeFixtureFile(
       root,
@@ -50,7 +49,6 @@ test("checkRepoBloat rejects raw URL logging outside approved sanitizers", () =>
       [
         "add",
         "package.json",
-        "crates/jobsentinel-core/src/core/scrapers/url_utils.rs",
         "crates/jobsentinel-core/src/core/automation/browser/manager.rs",
         "src-tauri/src/commands/linkedin_auth.rs",
       ],
@@ -59,12 +57,6 @@ test("checkRepoBloat rejects raw URL logging outside approved sanitizers", () =>
 
     const violations = checkRepoBloat(root);
 
-    assert.ok(
-      violations.includes(
-        "replace raw URL logging: crates/jobsentinel-core/src/core/scrapers/url_utils.rs",
-      ),
-      violations.join("\n"),
-    );
     assert.ok(
       violations.includes(
         "replace raw URL logging: crates/jobsentinel-core/src/core/automation/browser/manager.rs",

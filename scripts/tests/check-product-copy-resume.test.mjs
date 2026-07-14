@@ -185,7 +185,7 @@ test("product copy rejects technical-first resume copy", () => {
       [
         "## For Maintainers",
         "Important modules:",
-        "`crates/jobsentinel-core/src/core/health/smoke_tests.rs`",
+        "`crates/jobsentinel-core/src/core/health/smoke_checks/mod.rs`",
         "cd src-tauri && cargo test --lib core::health",
         "npm run lint:bloat",
         "",

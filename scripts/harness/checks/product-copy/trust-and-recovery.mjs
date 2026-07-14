@@ -60,7 +60,7 @@ const feedbackLocalReportPaths = new Set([
   "src-tauri/src/commands/feedback/mod.rs",
   "src-tauri/src/commands/feedback/debug_log.rs",
   "src-tauri/src/commands/feedback/report.rs",
-  "crates/jobsentinel-core/src/core/health/smoke_tests.rs",
+  "crates/jobsentinel-core/src/core/health/smoke_checks/mod.rs",
   "src/mocks/handlers.ts",
   "src/shared/errorReporting/messages.ts",
 ]);
@@ -99,7 +99,6 @@ const protectiveScoreCopyPaths = new Set([
   "docs/user/QUICK_START.md",
   "src/app/onboarding/tourSteps.ts",
   "src/features/resumes/builder/AtsLiveScorePanel.tsx",
-  "src/components/ResumeMatchScoreBreakdown.tsx",
   "src/features/dashboard/components/GhostIndicator.tsx",
   "src/ui/score-display/ScoreDisplay.tsx",
   "src/ui/score-display/ScoreDisplay.stories.tsx",

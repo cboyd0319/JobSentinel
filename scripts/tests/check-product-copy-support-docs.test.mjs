@@ -690,22 +690,8 @@ test("product copy rejects technical backend error labels", () => {
         "",
       ].join("\n"),
     );
-    writeFixtureFile(
-      root,
-      "crates/jobsentinel-core/src/core/db/error.rs",
-      [
-        '"Could not open local job data. Restart JobSentinel and try again."',
-        '"contact support"',
-        "",
-      ].join("\n"),
-    );
-
     assert.equal(
       hasTechnicalFirstUserCopy(root, "src-tauri/src/commands/errors.rs"),
-      true,
-    );
-    assert.equal(
-      hasTechnicalFirstUserCopy(root, "crates/jobsentinel-core/src/core/db/error.rs"),
       true,
     );
   });

@@ -33,7 +33,6 @@ import {
   healthSmokePrivacyPaths,
   rawUrlLoggingPaths,
   rawUrlErrorDisplayPaths,
-  rawPathOrQueryErrorDisplayPaths,
   rawResumeParserPathDisplayPaths,
   rawResumeNameLoggingPaths,
   resumeCommandDtoPrivacyPaths,
@@ -314,7 +313,7 @@ export function hasRawUrlErrorDisplay(root, path) {
 }
 
 export function hasRawPathOrQueryErrorDisplay(root, path) {
-  if (!rawPathOrQueryErrorDisplayPaths.has(path)) {
+  if (!path.endsWith(".rs")) {
     return false;
   }
 

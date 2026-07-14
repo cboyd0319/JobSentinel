@@ -79,7 +79,7 @@ Evidence:
 - `src-tauri/src/commands/linkedin_auth.rs` disables legacy login and cookie
   storage, returns disconnected status, exposes policy only, and tests that no
   auth material is stored.
-- `src-tauri/src/core/scrapers/linkedin.rs` returns an invalid-configuration
+- `crates/jobsentinel-core/src/core/scrapers/linkedin.rs` returns an invalid-configuration
   warning instead of running hidden monitoring.
 - `src/features/settings/sources/SettingsJobSourcesSection.tsx` tells users LinkedIn is
   user-controlled and that no sign-in material is collected.
@@ -161,11 +161,11 @@ Evidence:
   source references, and a concrete reason.
 - `src/features/settings/config/SettingsConfig.ts` blocks saving enabled restricted scheduled
   sources without acknowledgement.
-- `src-tauri/src/core/scheduler/workers/scrapers.rs` skips restricted scheduled
+- `crates/jobsentinel-core/src/core/scheduler/workers/scrapers.rs` skips restricted scheduled
   sources without acknowledgement.
 - `src/features/settings/sources/health/ScraperHealthDashboard.tsx` prompts before one-off Source
   Status checks for restricted public source helpers.
-- `src-tauri/src/core/health/smoke_tests.rs` skips restricted public smoke
+- `crates/jobsentinel-core/src/core/health/smoke_checks/mod.rs` skips restricted public smoke
   checks unless the user action supplies acknowledgement or the source already
   has a saved scheduled-source acknowledgement.
 
@@ -215,11 +215,11 @@ click through flows for the user.
 
 Evidence:
 
-- `src-tauri/src/core/config/types.rs` requires exact payload approval before
+- `crates/jobsentinel-core/src/core/config/types.rs` requires exact payload approval before
   JobsWithGPT runs.
-- `src-tauri/src/core/scheduler/workers/scrapers.rs` skips the source unless the
+- `crates/jobsentinel-core/src/core/scheduler/workers/scrapers.rs` skips the source unless the
   current payload is approved.
-- `src-tauri/src/core/scrapers/jobswithgpt.rs` validates HTTPS fetch targets and
+- `crates/jobsentinel-core/src/core/scrapers/jobswithgpt.rs` validates HTTPS fetch targets and
   uses bounded response reads.
 
 Risk:
@@ -242,13 +242,13 @@ values.
 
 Evidence:
 
-- `src-tauri/src/core/scrapers/http_client.rs` disables redirects by default,
+- `crates/jobsentinel-core/src/core/scrapers/http_client.rs` disables redirects by default,
   validates and resolves fetch URLs, pins DNS resolution where needed, bounds
   retry behavior, and sanitizes logged URLs.
-- `src-tauri/src/core/http_body.rs` limits decoded response bodies.
-- `src-tauri/src/core/import/fetcher.rs` enforces HTTPS, disables redirects, and
+- `crates/jobsentinel-core/src/core/http_body.rs` limits decoded response bodies.
+- `crates/jobsentinel-core/src/core/import/fetcher.rs` enforces HTTPS, disables redirects, and
   uses bounded reads for Browser Import.
-- `src-tauri/src/core/url_security.rs` rejects non-public hosts, userinfo,
+- `crates/jobsentinel-core/src/core/url_security.rs` rejects non-public hosts, userinfo,
   internal suffixes, private IPs, sensitive URL storage, and unsafe log labels.
 
 Risk:

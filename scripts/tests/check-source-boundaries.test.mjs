@@ -309,7 +309,7 @@ test("source boundaries reject unapproved JobsWithGPT endpoint flows", () => {
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/health/smoke_tests.rs",
+      "crates/jobsentinel-core/src/core/health/smoke_checks/sources.rs",
       "let endpoint = validate_external_http_url_for_fetch(&config.jobswithgpt_endpoint).await?;\n",
     );
     writeFixtureFile(
@@ -338,7 +338,7 @@ test("source boundaries reject unapproved JobsWithGPT endpoint flows", () => {
     assert.equal(
       hasJobsWithGptUnapprovedEndpointFlow(
         root,
-        "crates/jobsentinel-core/src/core/health/smoke_tests.rs",
+        "crates/jobsentinel-core/src/core/health/smoke_checks/sources.rs",
       ),
       true,
     );

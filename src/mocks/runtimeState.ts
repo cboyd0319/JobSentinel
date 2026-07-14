@@ -103,7 +103,7 @@ export const mockRuntimeState = createDefaultState();
 export function saveMockState(): void {
   if (!canUseStorage()) return;
 
-  const persistedState: Partial<MockState> = { ...mockRuntimeState };
+  const persistedState: Partial<MockRuntimeState> = { ...mockRuntimeState };
   delete persistedState.automationBrowserRunning;
   delete persistedState.nextAutomationAttemptId;
   delete persistedState.pendingUrlImports;

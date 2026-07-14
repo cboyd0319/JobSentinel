@@ -307,7 +307,7 @@ test("checkRepoBloat rejects raw path or query error display", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/db/error.rs",
+      "crates/jobsentinel-core/src/core/db/connection.rs",
       [
         "#[derive(thiserror::Error, Debug)]",
         "pub enum DatabaseError {",
@@ -320,14 +320,14 @@ test("checkRepoBloat rejects raw path or query error display", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "crates/jobsentinel-core/src/core/db/error.rs"], {
+    execFileSync("git", ["add", "package.json", "crates/jobsentinel-core/src/core/db/connection.rs"], {
       cwd: root,
     });
 
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("replace raw path/query error display: crates/jobsentinel-core/src/core/db/error.rs"),
+      violations.includes("replace raw path/query error display: crates/jobsentinel-core/src/core/db/connection.rs"),
       violations.join("\n"),
     );
   });

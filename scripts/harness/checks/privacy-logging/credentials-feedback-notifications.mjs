@@ -34,7 +34,6 @@ import {
   healthSmokePrivacyPaths,
   rawUrlLoggingPaths,
   rawUrlErrorDisplayPaths,
-  rawPathOrQueryErrorDisplayPaths,
   rawResumeParserPathDisplayPaths,
   rawResumeNameLoggingPaths,
   resumeCommandDtoPrivacyPaths,

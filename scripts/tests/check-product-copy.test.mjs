@@ -107,11 +107,6 @@ test("product copy rejects local resume upload wording in resume match", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/ResumeMatchScoreBreakdown.tsx",
-      "Upload a resume to see detailed match information\n",
-    );
-    writeFixtureFile(
-      root,
       "src/features/resumes/builder/ResumeBuilderPage.tsx",
       "No resume uploaded\nPlease upload a resume in Resume Match first\nUpload and review a resume in Resume Match first\n",
     );
@@ -124,13 +119,6 @@ test("product copy rejects local resume upload wording in resume match", () => {
       hasStaleResumeOptimizerFraming(
         root,
         "src/features/resumes/matching/ResumeMatchPage.tsx",
-      ),
-      true,
-    );
-    assert.equal(
-      hasStaleResumeOptimizerFraming(
-        root,
-        "src/components/ResumeMatchScoreBreakdown.tsx",
       ),
       true,
     );
@@ -415,7 +403,7 @@ test("product copy rejects debug-report roadmap wording", () => {
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/health/smoke_tests.rs",
+      "crates/jobsentinel-core/src/core/health/smoke_checks/mod.rs",
       "This source check could not finish. Try again later or attach a safe debug report.\n",
     );
     writeFixtureFile(
@@ -485,7 +473,7 @@ test("product copy rejects debug-report roadmap wording", () => {
     assert.equal(
       hasFeedbackLocalReportDrift(
         root,
-        "crates/jobsentinel-core/src/core/health/smoke_tests.rs",
+        "crates/jobsentinel-core/src/core/health/smoke_checks/mod.rs",
       ),
       true,
     );
@@ -615,7 +603,7 @@ test("product copy rejects non-protective scoring and legacy preference copy", (
     );
     writeFixtureFile(
       root,
-      "src/components/ResumeMatchScoreBreakdown.tsx",
+      "src/features/resumes/matching/resumeMatchModel.ts",
       "(50% influence)\nOverall match uses these default priorities.\n",
     );
     writeFixtureFile(
@@ -649,7 +637,7 @@ test("product copy rejects non-protective scoring and legacy preference copy", (
     assert.equal(
       hasNonProtectiveScoreCopy(
         root,
-        "src/components/ResumeMatchScoreBreakdown.tsx",
+        "src/features/resumes/matching/resumeMatchModel.ts",
       ),
       true,
     );

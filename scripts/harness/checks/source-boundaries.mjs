@@ -12,7 +12,7 @@ const linkedInAutomationBoundaryPaths = new Set([
   "crates/jobsentinel-core/src/core/config/types.rs",
   "crates/jobsentinel-core/src/core/scrapers/linkedin.rs",
   "crates/jobsentinel-core/src/core/scheduler/workers/scrapers.rs",
-  "crates/jobsentinel-core/src/core/health/smoke_tests.rs",
+  "crates/jobsentinel-core/src/core/health/smoke_checks/sources.rs",
   "src/features/settings/sources/SettingsJobSourcesSection.tsx",
   "src/features/settings/SettingsPage.tsx",
   "docs/features/job-sources.md",
@@ -57,7 +57,7 @@ const userFacingSourceAddressCopyPaths = new Set([
 
 const jobsWithGptApprovalPaths = new Set([
   "crates/jobsentinel-core/src/core/scheduler/workers/scrapers.rs",
-  "crates/jobsentinel-core/src/core/health/smoke_tests.rs",
+  "crates/jobsentinel-core/src/core/health/smoke_checks/sources.rs",
   "src/features/settings/sources/SettingsConnectedJobSource.tsx",
   "src/features/settings/sources/SettingsJobSourcesSection.tsx",
   "src/features/settings/SettingsPage.tsx",
@@ -329,9 +329,11 @@ export function hasJobsWithGptUnapprovedEndpointFlow(root, path) {
     );
   }
 
-  if (path === "crates/jobsentinel-core/src/core/health/smoke_tests.rs") {
-    return /validate_external_http_url_for_fetch\(&config\.jobswithgpt_endpoint\)/.test(
-      text,
+  if (path === "crates/jobsentinel-core/src/core/health/smoke_checks/sources.rs") {
+    return (
+      /validate_external_http_url_for_fetch\(&config\.jobswithgpt_endpoint\)/.test(text) ||
+      (/async fn test_jobswithgpt/.test(text) &&
+        !/jobswithgpt_payload_approved\(\)/.test(text))
     );
   }
 

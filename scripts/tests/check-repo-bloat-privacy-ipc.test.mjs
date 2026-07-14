@@ -387,7 +387,7 @@ test("checkRepoBloat rejects raw JobsWithGPT smoke-test endpoint errors", () => 
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/health/smoke_tests.rs",
+      "crates/jobsentinel-core/src/core/health/smoke_checks/sources.rs",
       [
         "match resp {",
         "  Err(e) if e.is_connect() => Ok(serde_json::json!({",
@@ -402,7 +402,7 @@ test("checkRepoBloat rejects raw JobsWithGPT smoke-test endpoint errors", () => 
 
     execFileSync(
       "git",
-      ["add", "package.json", "crates/jobsentinel-core/src/core/health/smoke_tests.rs"],
+      ["add", "package.json", "crates/jobsentinel-core/src/core/health/smoke_checks/sources.rs"],
       {
         cwd: root,
       },
@@ -412,7 +412,7 @@ test("checkRepoBloat rejects raw JobsWithGPT smoke-test endpoint errors", () => 
 
     assert.ok(
       violations.includes(
-        "sanitize JobsWithGPT smoke-test endpoint errors: crates/jobsentinel-core/src/core/health/smoke_tests.rs",
+        "sanitize JobsWithGPT smoke-test endpoint errors: crates/jobsentinel-core/src/core/health/smoke_checks/sources.rs",
       ),
       violations.join("\n"),
     );
@@ -454,7 +454,7 @@ test("checkRepoBloat rejects raw source-check result errors", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/health/smoke_tests.rs",
+      "crates/jobsentinel-core/src/core/health/smoke_checks/mod.rs",
       [
         "let smoke_result = match result {",
         "  Err(e) => SmokeTestResult {",
@@ -471,7 +471,7 @@ test("checkRepoBloat rejects raw source-check result errors", () => {
 
     execFileSync(
       "git",
-      ["add", "package.json", "crates/jobsentinel-core/src/core/health/smoke_tests.rs"],
+      ["add", "package.json", "crates/jobsentinel-core/src/core/health/smoke_checks/mod.rs"],
       {
         cwd: root,
       },
@@ -481,7 +481,7 @@ test("checkRepoBloat rejects raw source-check result errors", () => {
 
     assert.ok(
       violations.includes(
-        "sanitize source-check result errors: crates/jobsentinel-core/src/core/health/smoke_tests.rs",
+        "sanitize source-check result errors: crates/jobsentinel-core/src/core/health/smoke_checks/mod.rs",
       ),
       violations.join("\n"),
     );

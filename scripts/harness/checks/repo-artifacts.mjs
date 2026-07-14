@@ -82,7 +82,6 @@ const allowedTrackedGeneratedPaths = new Set([
   "docs/images/application-tracking.png",
   "docs/images/hiring-system-transparency.png",
   "docs/images/dashboard.png",
-  "docs/images/logo.png",
   "docs/images/hiring-trends.png",
   "docs/images/application-assist.png",
   "docs/images/resume-builder.png",

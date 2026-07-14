@@ -414,19 +414,19 @@ The detailed checklists, acceptance commands, and rollback boundaries live in
 
 ### 7. Complete the full post-refactor repository cleanup
 
-- [ ] Remove obsolete directories only after `rg` finds no maintained caller.
-- [ ] Run tracked-file dead-code and orphan-test audits across TypeScript, Rust,
+- [x] Remove obsolete directories only after `rg` finds no maintained caller.
+- [x] Run tracked-file dead-code and orphan-test audits across TypeScript, Rust,
   JavaScript, fixtures, examples, generated outputs, and assets.
-- [ ] Delete unused dependencies, features, lint allowances, configuration,
+- [x] Delete unused dependencies, features, lint allowances, configuration,
   scripts, fixtures, screenshots, icons, and tests. Do not keep tests whose only
   subject was deleted.
-- [ ] Resolve duplicate product concepts and sources of truth. Runtime data,
+- [x] Resolve duplicate product concepts and sources of truth. Runtime data,
   examples, docs, tests, and release artifacts must each have distinct owners.
-- [ ] Remove temporary re-exports, path aliases, migration shims, duplicate
+- [x] Remove temporary re-exports, path aliases, migration shims, duplicate
   Cargo settings, and old target-directory handling.
-- [ ] Review every root file and directory. Keep root singletons only when they
+- [x] Review every root file and directory. Keep root singletons only when they
   are true repository-wide entrypoints, lockfiles, or policies.
-- [ ] Run formatter and lint autofixes only after structural moves settle, then
+- [x] Run formatter and lint autofixes only after structural moves settle, then
   manually review the resulting diff.
 - [ ] Update architecture, getting-started, testing, SQLx, release, platform,
   security, and contributor docs.
@@ -437,7 +437,7 @@ The detailed checklists, acceptance commands, and rollback boundaries live in
 - [x] Enforce the final 500-line production and script, 800-line test, and
   700-line maintained-document caps after splitting every tracked violation by
   ownership. Keep the larger taxonomy and configuration limits explicit.
-- [ ] Search maintained files for stale old-root references and explicitly
+- [x] Search maintained files for stale old-root references and explicitly
   classify necessary historical references.
 - [ ] Record Windows 11 and macOS 26 evidence or clearly name any host gap and
   the isolated contract evidence used instead.
@@ -511,6 +511,7 @@ evidence-log entry.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-07-13 | Milestone 7 code and artifact cleanup complete | Audited every tracked root and owner, removed two unused frontend dependencies and 47 unused generated mobile and store icons, deleted obsolete transition-only source sensors and their self-only tests, repaired every stale current policy path, broadened raw Rust path/query privacy enforcement, and removed empty owner directories and generated build output. All 770 script tests, 2,933 frontend tests, production and Storybook builds, the Tauri no-bundle desktop build, documentation, dependency, architecture, bloat, security, duplication, language, and test-quality gates pass. |
 | 2026-07-13 | Milestone 7 Rust ownership audit complete | Added a static crate module-graph sensor that rejects uncompiled Rust source, deleted six orphan source files containing 1,579 lines, and denied unreachable public items through inherited workspace policy. Core implementation leaves and every Tauri command and response item now use the narrowest compiler-supported visibility. The full default workspace, all-feature Clippy, all-feature test-target compilation, all 777 script tests, architecture, bloat, privacy, security, language, duplication, and harness gates pass without live keyring access. The milestone removed 1,439 net lines. |
 | 2026-07-13 | Milestone 7 database ownership complete | Made database integrity implementation private and integrated it into the live migration path. Existing databases now require an encrypted, permission-hardened, integrity-verified snapshot before migration; successful migrations run quick, foreign-key, and scheduled full checks before initialization completes. Deleted unreachable duplicate backup, restore, health, diagnostics, query-cache, timeout, and error surfaces plus their self-only tests. The focused database suite passed 189 tests; the default workspace, all-feature Clippy and test-target compilation, all 776 script tests, docs, language, security, and repository gates pass. The change removed 3,330 net lines and lowered the duplication baseline from 1,690 lines across 80 regions to 810 lines across 40 regions. |
 | 2026-07-13 | Milestone 7 salary ownership complete | Made the salary benchmark, negotiation, and prediction leaves private behind the typed salary facade. Deleted the self-tested benchmark manager and negotiation-template management paths plus their tests, removing 890 net source and test lines while retaining shipped prediction, benchmark lookup, offer comparison, and script generation behavior. The focused salary suite passed 134 tests; the default workspace, all-feature Clippy and test-target compilation, all 776 script tests, and repository gates pass with live keyring access disabled. |

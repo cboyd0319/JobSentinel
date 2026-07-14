@@ -74,11 +74,6 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/AsyncButton.tsx",
-      'toast.error("Error", errorMessage || errMsg);\n',
-    );
-    writeFixtureFile(
-      root,
       "src/features/dashboard/components/JobCard.tsx",
       [
         '"Invalid URL"',
@@ -570,7 +565,6 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         "src/features/salary/SalaryPage.tsx",
         "src/features/settings/SettingsPage.tsx",
         "src/features/onboarding/SetupWizard.tsx",
-        "src/components/AsyncButton.tsx",
         "src/features/settings/sources/browser-import/BrowserImportSection.tsx",
         "src/features/applications/CoverLetterTemplates.tsx",
         "src/features/search-links/SearchLinksPage.tsx",
@@ -631,7 +625,6 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "src/features/salary/SalaryPage.tsx",
       "src/features/settings/SettingsPage.tsx",
       "src/features/onboarding/SetupWizard.tsx",
-      "src/components/AsyncButton.tsx",
       "src/features/settings/sources/browser-import/BrowserImportSection.tsx",
       "src/features/applications/CoverLetterTemplates.tsx",
       "src/features/search-links/SearchLinksPage.tsx",

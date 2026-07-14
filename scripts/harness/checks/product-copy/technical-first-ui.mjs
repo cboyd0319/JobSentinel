@@ -99,7 +99,7 @@ export function getTechnicalFirstUiResult(path, text) {
     }
   }
 
-  if (path === "src/pages/dashboardErrorCopy.ts") {
+  if (path === "src/features/dashboard/dashboardErrorCopy.ts") {
     return /Job Search Failed/i.test(text);
   }
 

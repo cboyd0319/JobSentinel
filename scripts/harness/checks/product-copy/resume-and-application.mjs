@@ -5,7 +5,6 @@ const staleResumeOptimizerFramingPaths = new Set([
   "src/app/App.tsx",
   "src/features/resumes/builder/AtsLiveScorePanel.tsx",
   "src/app/Navigation.tsx",
-  "src/components/ResumeMatchScoreBreakdown.tsx",
   "src/app/keyboard/KeyboardShortcutsProvider.tsx",
   "src/features/resumes/library/ResumeLibraryPage.tsx",
   "src/features/resumes/library/ResumeLibraryDropdown.tsx",

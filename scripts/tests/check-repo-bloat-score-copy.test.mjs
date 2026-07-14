@@ -46,7 +46,7 @@ test("checkRepoBloat rejects non-protective score copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/components/ResumeMatchScoreBreakdown.tsx",
+      "src/features/resumes/matching/resumeMatchModel.ts",
       '"Overall score is calculated using weighted averages based on component importance"; "(50% weight)";\n',
     );
     writeFixtureFile(
@@ -99,7 +99,7 @@ test("checkRepoBloat rejects non-protective score copy", () => {
         "docs/features/smart-scoring.md",
         "docs/user/QUICK_START.md",
         "src/app/onboarding/tourSteps.ts",
-        "src/components/ResumeMatchScoreBreakdown.tsx",
+        "src/features/resumes/matching/resumeMatchModel.ts",
         "src/ui/score-display/ScoreDisplay.tsx",
         "src/features/dashboard/components/ScoreBreakdownModal.tsx",
         "src/features/dashboard/DashboardPage.tsx",
@@ -125,7 +125,7 @@ test("checkRepoBloat rejects non-protective score copy", () => {
     );
     assert.ok(
       violations.includes(
-        "keep score copy protective: src/components/ResumeMatchScoreBreakdown.tsx",
+        "keep score copy protective: src/features/resumes/matching/resumeMatchModel.ts",
       ),
       violations.join("\n"),
     );

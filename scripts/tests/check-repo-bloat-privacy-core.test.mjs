@@ -137,7 +137,7 @@ test("checkRepoBloat rejects raw scraper URL and query logging", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/scrapers/cache.rs",
+      "crates/jobsentinel-core/src/core/scrapers/greenhouse.rs",
       'tracing::debug!("Cache HIT for URL: {}", url);\n',
     );
     writeFixtureFile(
@@ -179,7 +179,7 @@ test("checkRepoBloat rejects raw scraper URL and query logging", () => {
       [
         "add",
         "package.json",
-        "crates/jobsentinel-core/src/core/scrapers/cache.rs",
+        "crates/jobsentinel-core/src/core/scrapers/greenhouse.rs",
         "crates/jobsentinel-core/src/core/scrapers/http_client.rs",
         "crates/jobsentinel-core/src/core/scrapers/dice.rs",
         "crates/jobsentinel-core/src/core/scrapers/linkedin.rs",
@@ -192,7 +192,7 @@ test("checkRepoBloat rejects raw scraper URL and query logging", () => {
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("replace raw scraper URL/query logging: crates/jobsentinel-core/src/core/scrapers/cache.rs"),
+      violations.includes("replace raw scraper URL/query logging: crates/jobsentinel-core/src/core/scrapers/greenhouse.rs"),
       violations.join("\n"),
     );
     assert.ok(

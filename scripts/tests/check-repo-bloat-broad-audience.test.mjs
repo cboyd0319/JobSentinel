@@ -334,7 +334,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/health/smoke_tests.rs",
+      "crates/jobsentinel-core/src/core/health/smoke_checks/mod.rs",
       '"https://www.indeed.com/jobs?q=software+engineer&l=remote";\n',
     );
     writeFixtureFile(
@@ -369,12 +369,12 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
-      "src-tauri/tests/api_contract_test.rs",
+      "crates/jobsentinel-core/tests/api_contract_test.rs",
       'create_test_job("salary_test", "Software Engineer", "TestCorp");\n',
     );
     writeFixtureFile(
       root,
-      "src-tauri/tests/database_integration_test.rs",
+      "crates/jobsentinel-core/tests/database_integration_test.rs",
       [
         'let job = create_test_job("idempotent_001", "Test Job", "TestCorp");',
         'title: "Senior Rust Engineer".to_string(),',
@@ -385,17 +385,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
-      "src-tauri/tests/scraper_integration_test.rs",
-      [
-        '"company": "TechCorp",',
-        '"position": "Remote Rust Developer",',
-        "<title><![CDATA[Company ABC: Senior Software Engineer]]></title>",
-        "",
-      ].join("\n"),
-    );
-    writeFixtureFile(
-      root,
-      "src-tauri/tests/scraping_pipeline_integration.rs",
+      "crates/jobsentinel-core/tests/scraping_pipeline_integration.rs",
       [
         'title: "Senior Rust Security Engineer".to_string(),',
         'company: "TechCorp".to_string(),',
@@ -406,7 +396,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
-      "src-tauri/tests/scheduler_integration_test.rs",
+      "crates/jobsentinel-core/tests/scheduler_integration_test.rs",
       [
         'title_allowlist: vec!["Security Engineer".to_string()],',
         'keywords_boost: vec!["Rust".to_string()],',
@@ -671,7 +661,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "src/features/applications/InterviewScheduler.test.tsx",
         "src/shared/validation/contactFieldValidation.test.ts",
         "src/features/dashboard/jobCsvExport.test.ts",
-        "crates/jobsentinel-core/src/core/health/smoke_tests.rs",
+        "crates/jobsentinel-core/src/core/health/smoke_checks/mod.rs",
         "crates/jobsentinel-core/src/core/deeplinks/generator.rs",
         "src-tauri/src/commands/deeplinks.rs",
         "src-tauri/src/commands/feedback/debug_log.rs",
@@ -687,11 +677,10 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "crates/jobsentinel-core/src/core/scrapers/simplyhired.rs",
         "crates/jobsentinel-core/src/core/scrapers/usajobs.rs",
         "crates/jobsentinel-core/src/core/scrapers/weworkremotely.rs",
-        "src-tauri/tests/api_contract_test.rs",
-        "src-tauri/tests/database_integration_test.rs",
-        "src-tauri/tests/scraper_integration_test.rs",
-        "src-tauri/tests/scraping_pipeline_integration.rs",
-        "src-tauri/tests/scheduler_integration_test.rs",
+        "crates/jobsentinel-core/tests/api_contract_test.rs",
+        "crates/jobsentinel-core/tests/database_integration_test.rs",
+        "crates/jobsentinel-core/tests/scraping_pipeline_integration.rs",
+        "crates/jobsentinel-core/tests/scheduler_integration_test.rs",
         "crates/jobsentinel-core/src/core/import/README.md",
         "crates/jobsentinel-core/src/core/import/schema_org.rs",
         "crates/jobsentinel-core/src/core/import/tests.rs",

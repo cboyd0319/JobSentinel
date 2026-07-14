@@ -55,10 +55,6 @@ import {
 import {
   hasStaleNotificationPreferenceSyncWrapper,
   hasUnreferencedBarrelModule,
-  hasUnreferencedComponentsBarrel,
-  hasUnreferencedHookModule,
-  hasUnreferencedSettingsHelperComponent,
-  hasUnreferencedSourceHelper,
 } from "../../harness/checks/source-structure.mjs";
 import {
   hasBackendScoringReasonGlyphMarkers,
@@ -85,16 +81,9 @@ import {
 
 const repositoryPolicies = [
   [
-    hasUnreferencedSettingsHelperComponent,
-    "remove unreferenced settings helper component",
-  ],
-  [hasUnreferencedHookModule, "remove unreferenced hook module"],
-  [hasUnreferencedSourceHelper, "remove unreferenced source helper"],
-  [
     hasStaleNotificationPreferenceSyncWrapper,
     "remove stale notification preference sync wrapper",
   ],
-  [hasUnreferencedComponentsBarrel, "remove unreferenced components barrel"],
   [hasUnreferencedBarrelModule, "remove unreferenced barrel module"],
   [hasRawSalaryCommandLogging, "remove raw salary command logging"],
   [hasStaticCompanyRatingFallback, "remove stale static company ratings"],
