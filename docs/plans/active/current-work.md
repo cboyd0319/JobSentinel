@@ -1,6 +1,6 @@
 # Current Product And Quality Work
 
-Last updated: 2026-06-22.
+Last updated: 2026-07-13.
 
 ## Purpose
 
@@ -9,10 +9,10 @@ belongs in completed plans, archives, and git.
 
 ## Problem
 
-`v2.9.1` is published and closed out in maintained docs. The release exposed
-process friction: a full hosted cross-platform release took about 40 minutes
-and spent hosted macOS time even though future no-account macOS packages can be
-built and verified locally.
+`v2.9.1` is published history. The `v2.9.5` source candidate now contains the
+full repository ownership refactor, cleanup, and documentation alignment. The
+remaining work is the final verification matrix and platform evidence before
+release authorization can be requested.
 
 ## Scope
 
@@ -44,7 +44,7 @@ Out of scope:
 | ---- | ----- | ----------------- |
 | Active plan state | Current | Keep `status.md`, this file, the full-repository refactor plan, `docs/plans/index.json`, and harness manifest aligned. |
 | v2.9.1 release history | Complete | Keep the moved completed plan as history; do not use it as active release routing. |
-| Full repository refactor | Active | Complete the remaining Rust owner boundaries, repo-wide cleanup, and v2.9.5 readiness without weakening privacy. |
+| Full repository refactor | Active | Complete v2.9.5 readiness evidence and close the refactor plan without weakening privacy. |
 | Release pipeline | Deferred | Re-evaluate prior optimization decisions against the final workspace during v2.9.5 readiness. |
 | v3 planning | Deferred | Leave v3 docs available for later major-release work; do not implement during post-release closeout. |
 | Scraper/source verification | Maintenance watch | Keep existing source-boundary evidence and restricted-source rules intact; update only for cleanup or regressions. |
@@ -66,14 +66,15 @@ Out of scope:
 
 ## Next Work
 
-1. Continue the full repository refactor with the next evidence-selected
-   ownership boundary.
-2. Keep each ownership cutover green, remove transitional paths, and record
-   focused evidence before committing it.
-3. Confirm major route screenshots, Computer Use clicks, keyboard flow, and
-   affected route/action/state checks after any UI change.
-4. Revisit release-pipeline optimization only after the final workspace,
-   cleanup, and v2.9.5 readiness gates are established.
+1. Run the complete v2.9.5 frontend, Rust, E2E, security, dependency, package,
+   SQLx, docs, and harness matrix.
+2. Record macOS 26 live evidence and Windows 11 and Linux live or isolated
+   contract evidence without overclaiming unavailable hosts.
+3. Close the refactor plan only after a clean worktree and evidence log prove
+   every completion condition.
+4. Stop before tagging, uploading, publishing, or dispatching a release.
+5. Confirm major route screenshots, Computer Use clicks, keyboard flow, and
+   affected route, action, and state checks after any UI change.
 
 ## Sensors
 
@@ -81,7 +82,7 @@ Use focused docs, workflow, release, and harness checks for this closeout:
 
 ```bash
 npm run harness:check
-npm run release:readiness -- --version 2.9.1
+npm run release:readiness -- --version 2.9.5
 npm run lint:actions
 npm run lint:security
 npm run lint:docs
@@ -94,8 +95,8 @@ or macOS deployment behavior.
 
 ## Risks
 
-- Active docs can drift back into old v2.9.0 or pre-publication `v2.9.1`
-  instructions.
+- Source-candidate docs can incorrectly imply that `v2.9.5` is already a
+  public release.
 - Release docs can imply automatic public verification when a workflow-token
   publication requires explicit verification.
 - Local macOS release guidance can overclaim hosted SLSA provenance for a local

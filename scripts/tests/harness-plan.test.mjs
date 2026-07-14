@@ -88,6 +88,7 @@ test("plans full unit suite when frontend source has no adjacent test", () => {
 
 test("plans Rust, Tauri invoke, and migration checks", () => {
   withFixture((root) => {
+    writeFixtureFile(root, "Cargo.toml", "[workspace]\n");
     const plan = summarizeHarnessPlan(root, {
       changedFiles: [
         "src-tauri/src/commands/job_import.rs",
@@ -96,11 +97,12 @@ test("plans Rust, Tauri invoke, and migration checks", () => {
     });
 
     assert.deepEqual(commandsFor(plan), [
-      "cd src-tauri && cargo fmt --all -- --check",
-      "cd src-tauri && cargo clippy -- -D warnings",
-      "cd src-tauri && cargo test --lib",
+      "cargo fmt --all -- --check",
+      "cargo clippy --workspace -- -D warnings",
+      "cargo test -p jobsentinel",
+      "cargo test -p jobsentinel-core",
       "npm run lint:tauri-invokes",
-      'cd src-tauri && DATABASE_URL="sqlite:jobs.db" cargo sqlx prepare',
+      "npm run sqlx:prepare",
     ]);
   });
 });
@@ -119,7 +121,7 @@ test("plans root workspace checks for Rust crates and owned migrations", () => {
       "cargo fmt --all -- --check",
       "cargo clippy --workspace -- -D warnings",
       "cargo test -p jobsentinel-core",
-      'DATABASE_URL="sqlite:jobs.db" cargo sqlx prepare --workspace',
+      "npm run sqlx:prepare",
     ]);
   });
 });

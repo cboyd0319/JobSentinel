@@ -78,7 +78,8 @@ export function evaluateReleaseReadinessFromInputs(inputs) {
     criterion(
       "release metadata matches expected version",
       versionCheck.failures.length === 0,
-      versionCheck.failures.join("; ") || "package, Tauri, and Cargo metadata match.",
+      versionCheck.failures.join("; ") ||
+        "Package, lockfile, Tauri, and Cargo workspace metadata match.",
     ),
     criterion(
       "release scripts expose environment, readiness, and public verification",

@@ -25,8 +25,9 @@ The public roadmap organizes work around six design pillars:
 Active implementation planning is indexed in [docs/plans](plans/README.md).
 Major-release exploration for the next generation of JobSentinel lives in
 [v3 planning](plans/v3/README.md).
-The `v2.9.1` release is published; current active work is the full repository
-refactor, cleanup, and v2.9.5 readiness effort.
+The `v2.9.1` release is published. Current source metadata is the `v2.9.5`
+candidate after the full repository refactor and cleanup; final readiness proof
+is active.
 Every non-trivial change should update the relevant feature doc, active plan,
 or tech-debt item before it is committed.
 

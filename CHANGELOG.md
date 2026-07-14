@@ -12,8 +12,37 @@ supported path is user-opened search links plus user-clicked Browser Import.
 
 ## [Unreleased]
 
+No changes recorded after the `2.9.5` source candidate.
+
+## [2.9.5] - 2026-07-13
+
+Source candidate for the full repository refactor. This version is not a
+published release until the release workflow and public asset verification
+finish.
+
 ### Changed
 
+- **Repository ownership** - Reorganized the frontend, Rust backend, scripts,
+  tests, docs, platform tooling, and release tooling under explicit owners with
+  private implementation leaves and bounded facades.
+- **Cargo workspace** - Added a root explicit-member virtual workspace with
+  inherited package metadata, exact dependency policy, shared lint policy, a
+  Tauri-free core crate, and a thin private Tauri shell.
+- **Maintainability contract** - Enforced deterministic member and test
+  discovery, compiled Rust source ownership, modules before crates, and file
+  caps for production, scripts, tests, and maintained documents.
+- **Database startup integrity** - Existing encrypted databases now require a
+  verified pre-migration snapshot. Successful migrations run quick,
+  foreign-key, and scheduled full integrity checks before startup completes.
+- **Reviewed job import** - Moved fetching, parsing, staged review state, and
+  atomic insertion into the core owner. Confirmation saves the exact reviewed
+  record without a second fetch.
+- **Private domain owners** - Narrowed scraper, resume, notification, salary,
+  market, automation, credential, and database APIs to the contracts used by
+  the app.
+- **Repository cleanup** - Removed orphan source, unused dependencies, obsolete
+  compatibility paths, transition-only sensors, empty directories, and unused
+  generated mobile and store icons.
 - **Release process** - Release publication now uses manual dispatch from an
   existing version tag instead of publication as a side effect of pushing a
   tag. It also adds a hosted `windows-linux` path for releases with locally
@@ -22,6 +51,18 @@ supported path is user-opened search links plus user-clicked Browser Import.
 - **Release closeout docs** - Closed `v2.9.1` as published and verified
   history across maintained docs, active plans, validation ledgers, and release
   process guidance.
+
+### Fixed
+
+- **Credential test prompts** - Default workspace tests no longer access the
+  live operating-system credential store. Live roundtrips require explicit
+  opt-in.
+- **Occupied development ports** - Browser test and Browser Import setup paths
+  recover from occupied default loopback ports by selecting an available local
+  port.
+- **Stale repository guidance** - Architecture, contributor, testing, SQLx,
+  security, platform, release, harness, and ownership docs now follow the final
+  workspace.
 
 ## [2.9.1] - 2026-06-22
 

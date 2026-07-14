@@ -10,7 +10,7 @@ Core workflows work locally. JobSentinel is free, will always stay free, and
 will always remain MIT licensed.
 
 [![CI](https://github.com/cboyd0319/JobSentinel/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/cboyd0319/JobSentinel/actions/workflows/ci.yml)
-[![Version](https://img.shields.io/badge/version-2.9.1-2563eb)](docs/releases/v2.9.1.md)
+[![Source version](https://img.shields.io/badge/source-2.9.5-2563eb)](docs/releases/v2.9.5.md)
 [![Release](https://img.shields.io/github/v/release/cboyd0319/JobSentinel?label=release&color=2563eb)](https://github.com/cboyd0319/JobSentinel/releases/latest)
 [![MIT License](https://img.shields.io/badge/license-MIT-111827)](LICENSE)
 [![Rule 0](https://img.shields.io/badge/rule%200-privacy%20%26%20security-991b1b)](PRIVACY.md)
@@ -96,8 +96,8 @@ a package or installer.
 | Linux | Use the `.AppImage` or `.deb` when present for the release. |
 | Agent Skills | Download the Agent Skills ZIP on Windows, or ZIP/tar.gz on macOS and Linux, then verify the matching checksum. |
 
-JobSentinel does not silently update itself in `2.9.1`. Back up Settings before
-replacing the app, then install the newer release. See
+JobSentinel does not silently update itself. Back up Settings before replacing
+the app, then install the newer release. See
 [Updating Or Going Back](docs/user/UPDATES.md).
 
 Agent Skills downloads are separate from the desktop installer. Release assets
@@ -162,12 +162,22 @@ Read more in [PRIVACY.md](PRIVACY.md),
 [RESPONSIBLE_AI.md](RESPONSIBLE_AI.md), and the
 [security docs](docs/security/README.md).
 
-## What Is New In v2.9.1
+## Current Source Candidate: v2.9.5
 
-v2.9.1 is a maintenance and repo cleanup release. It keeps the v2.9.0 user
-features intact while refreshing stable dependencies and shrinking oversized
-maintenance surfaces. The public `v2.9.1` release is published with Windows,
-macOS, Linux, and Agent Skills assets plus checksums and release evidence.
+The `v2.9.5` source candidate completes a full repository refactor around
+explicit ownership, an inherited two-member Cargo workspace, a Tauri-free core,
+a thin private IPC shell, feature-owned frontend code, deterministic discovery,
+and enforced file caps.
+
+Privacy and security guarantees do not change. Local data remains local by
+default, external AI remains optional and disabled by default, credential
+tests remain non-interactive unless explicitly enabled, database migrations
+require verified encrypted snapshots and integrity checks, and users retain
+review control over imports, external channels, browser actions, and final
+application submission.
+
+This source version is not a published release yet. Current downloads remain on
+the [latest GitHub release](https://github.com/cboyd0319/JobSentinel/releases/latest).
 
 ## What Was New In 2.9.0
 
@@ -193,7 +203,8 @@ macOS, Linux, and Agent Skills assets plus checksums and release evidence.
 - Optional external AI provider configuration for OpenAI, Anthropic, Google
   Gemini, GitHub Copilot, and custom HTTPS providers through the local gateway.
 
-Full notes: [docs/releases/v2.9.1.md](docs/releases/v2.9.1.md).
+Full candidate notes: [docs/releases/v2.9.5.md](docs/releases/v2.9.5.md).
+Published v2.9.1 notes: [docs/releases/v2.9.1.md](docs/releases/v2.9.1.md).
 
 ## Job Source Terms And User Control
 

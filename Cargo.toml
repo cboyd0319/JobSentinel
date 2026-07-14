@@ -3,7 +3,7 @@ members = ["crates/jobsentinel-core", "src-tauri"]
 resolver = "2"
 
 [workspace.package]
-version = "2.9.1"
+version = "2.9.5"
 edition = "2021"
 authors = ["Chad Boyd"]
 license = "MIT"
@@ -28,7 +28,7 @@ futures = "=0.3.32"
 futures-util = "=0.3.32"
 hex = "=0.4.3"
 hf-hub = { version = "=0.5.0", default-features = false, features = ["tokio", "rustls-tls"] }
-jobsentinel-core = { path = "crates/jobsentinel-core", version = "=2.9.1" }
+jobsentinel-core = { path = "crates/jobsentinel-core", version = "=2.9.5" }
 keyring = "=4.1.2"
 lettre = { version = "=0.11.22", default-features = false, features = ["tokio1-rustls-tls", "builder", "smtp-transport"] }
 libsqlite3-sys = { version = "=0.37.0", default-features = false, features = ["bundled-sqlcipher-vendored-openssl"] }

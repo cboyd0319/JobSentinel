@@ -7,6 +7,15 @@ import { fileURLToPath } from "node:url";
 const scriptPath = fileURLToPath(import.meta.url);
 const defaultRoot = resolve(dirname(scriptPath), "../..");
 
+function cargoLockPackageVersion(text, packageName) {
+  for (const block of text.split("[[package]]")) {
+    if (block.match(/^\s*name\s*=\s*"([^"]+)"/m)?.[1] === packageName) {
+      return block.match(/^\s*version\s*=\s*"([^"]+)"/m)?.[1];
+    }
+  }
+  return undefined;
+}
+
 export function normalizeReleaseVersion(value) {
   return String(value ?? "")
     .trim()
@@ -16,14 +25,24 @@ export function normalizeReleaseVersion(value) {
 
 export function readReleaseVersions(root = defaultRoot) {
   const packageJson = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
+  const packageLock = JSON.parse(readFileSync(join(root, "package-lock.json"), "utf8"));
   const tauriConfig = JSON.parse(readFileSync(join(root, "src-tauri/tauri.conf.json"), "utf8"));
   const cargoToml = readFileSync(join(root, "Cargo.toml"), "utf8");
+  const cargoLock = readFileSync(join(root, "Cargo.lock"), "utf8");
   const cargoVersion = cargoToml.match(/^version\s*=\s*"([^"]+)"/m)?.[1];
+  const coreDependencyVersion = cargoToml.match(
+    /^jobsentinel-core\s*=\s*\{[^}]*version\s*=\s*"=([^"]+)"[^}]*\}/m,
+  )?.[1];
 
   return {
     "package.json": packageJson.version,
+    "package-lock.json": packageLock.version,
+    "package-lock.json root package": packageLock.packages?.[""]?.version,
     "src-tauri/tauri.conf.json": tauriConfig.version,
     "Cargo.toml": cargoVersion,
+    "Cargo.toml jobsentinel-core dependency": coreDependencyVersion,
+    "Cargo.lock jobsentinel": cargoLockPackageVersion(cargoLock, "jobsentinel"),
+    "Cargo.lock jobsentinel-core": cargoLockPackageVersion(cargoLock, "jobsentinel-core"),
   };
 }
 

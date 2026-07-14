@@ -125,14 +125,11 @@ function commandRank(command) {
   if (command === "npm run doctor:e2e") return 70;
   if (command.startsWith("npm run test:e2e -- ")) return 80;
   if (command === "npm run test:e2e:smoke") return 81;
-  if (command === "cd src-tauri && cargo fmt --all -- --check") return 90;
-  if (command === "cd src-tauri && cargo clippy -- -D warnings") return 91;
-  if (command === "cd src-tauri && cargo test --lib") return 92;
   if (command === "cargo fmt --all -- --check") return 90;
   if (command === "cargo clippy --workspace -- -D warnings") return 91;
   if (command.startsWith("cargo test -p ")) return 92;
   if (command === "npm run lint:tauri-invokes") return 93;
-  if (command.includes("cargo sqlx prepare")) return 94;
+  if (command === "npm run sqlx:prepare") return 94;
   if (command === "npm run lint:external-ai") return 100;
   if (command === "npm run lint:security") return 101;
   if (command === "npm audit") return 110;
@@ -285,48 +282,37 @@ export function summarizeHarnessPlan(root = defaultRoot, options = {}) {
     }
 
     if (isRustSource(path)) {
-      if (existsSync(join(root, "Cargo.toml"))) {
-        addCommand(commands, "cargo fmt --all -- --check", "Workspace Rust source changed.", path);
-        addCommand(
-          commands,
-          "cargo clippy --workspace -- -D warnings",
-          "Workspace Rust source changed.",
-          path,
-        );
-        addCommand(
-          commands,
-          `cargo test -p ${rustPackageForPath(path)}`,
-          "Run the owning workspace crate tests.",
-          path,
-        );
-      } else {
-        addCommand(commands, "cd src-tauri && cargo fmt --all -- --check", "Rust source changed.", path);
-        addCommand(commands, "cd src-tauri && cargo clippy -- -D warnings", "Rust source changed.", path);
-        addCommand(commands, "cd src-tauri && cargo test --lib", "Rust source changed.", path);
-      }
+      addCommand(commands, "cargo fmt --all -- --check", "Workspace Rust source changed.", path);
+      addCommand(
+        commands,
+        "cargo clippy --workspace -- -D warnings",
+        "Workspace Rust source changed.",
+        path,
+      );
+      addCommand(
+        commands,
+        `cargo test -p ${rustPackageForPath(path)}`,
+        "Run the owning workspace crate tests.",
+        path,
+      );
     }
 
     if (
       path.startsWith("crates/jobsentinel-core/migrations/") ||
       /^crates\/[^/]+\/migrations\//.test(path)
     ) {
-      if (existsSync(join(root, "Cargo.toml"))) {
-        addCommand(
-          commands,
-          'DATABASE_URL="sqlite:jobs.db" cargo sqlx prepare --workspace',
-          "Workspace SQLite migration changed.",
-          path,
-        );
-        addCommand(
-          commands,
-          `cargo test -p ${rustPackageForPath(path)}`,
-          "Run the migration owner tests.",
-          path,
-        );
-      } else {
-        addCommand(commands, 'cd src-tauri && DATABASE_URL="sqlite:jobs.db" cargo sqlx prepare', "SQLite migration changed.", path);
-        addCommand(commands, "cd src-tauri && cargo test --lib", "SQLite migration changed.", path);
-      }
+      addCommand(
+        commands,
+        "npm run sqlx:prepare",
+        "Workspace SQLite migration changed.",
+        path,
+      );
+      addCommand(
+        commands,
+        `cargo test -p ${rustPackageForPath(path)}`,
+        "Run the migration owner tests.",
+        path,
+      );
     }
 
     if (isTauriInvokePath(path)) {

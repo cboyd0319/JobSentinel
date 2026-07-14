@@ -56,6 +56,7 @@ enforced elsewhere or the risk no longer exists.
 | cargo-fmt | `cargo fmt --all -- --check` | Rust style | Rust formatting gate | Baseline | Never |
 | cargo-clippy | `cargo clippy --workspace -- -D warnings` | Rust static | Production workspace Clippy is the hard Rust lint gate | Baseline | Never |
 | cargo-test | `cargo test --workspace` | Rust behavior | App, core, and integration behavior proof | Baseline | Never |
+| lint-sqlx | `npm run lint:sqlx` | SQLx metadata | Verifies root offline metadata against an isolated fully migrated database | Workspace extraction | SQLx metadata can be checked safely against user data |
 | release-readiness | `npm run release:readiness` | Release | Release metadata, packages, SBOM, and attestation evidence | Release hardening | Release proof is fully hosted |
 | release-verify-public | `npm run release:verify:public` | Release | Verifies published assets and checksums | Release hardening | Public verification is automated post-publish |
 

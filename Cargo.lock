@@ -3100,7 +3100,7 @@ dependencies = [
 
 [[package]]
 name = "jobsentinel"
-version = "2.9.1"
+version = "2.9.5"
 dependencies = [
  "anyhow",
  "arboard",
@@ -3129,7 +3129,7 @@ dependencies = [
 
 [[package]]
 name = "jobsentinel-core"
-version = "2.9.1"
+version = "2.9.5"
 dependencies = [
  "anyhow",
  "argon2",

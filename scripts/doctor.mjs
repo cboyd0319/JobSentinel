@@ -431,7 +431,7 @@ export function runDoctor(options = {}) {
   checkPath(results, root, "Cargo.lock", "Cargo lockfile");
   checkPath(results, root, ".sqlx", "SQLx offline cache", {
     mustHaveEntries: true,
-    fix: "Run cargo sqlx prepare from the repository root after schema changes",
+    fix: "Run npm run sqlx:prepare from the repository root after schema changes",
   });
   checkPath(
     results,

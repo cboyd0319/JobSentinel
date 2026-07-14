@@ -430,7 +430,7 @@ The detailed checklists, acceptance commands, and rollback boundaries live in
   manually review the resulting diff.
 - [x] Update architecture, getting-started, testing, SQLx, release, platform,
   security, and contributor docs.
-- [ ] Update the public GitHub wiki pages affected by setup, architecture,
+- [x] Update the public GitHub wiki pages affected by setup, architecture,
   testing, or release command changes.
 - [x] Update `AGENTS.md`, the verification matrix, harness map, plan index,
   CODEOWNERS, and evidence log to the final paths.
@@ -463,15 +463,15 @@ must belong to this plan and no build output or one-off report may be added.
 ### 8. Prove v2.9.5 release readiness
 
 - [ ] Confirm all refactor and cleanup milestones are complete with evidence.
-- [ ] Update package, Tauri, Cargo workspace, changelog, docs, and release
+- [x] Update package, Tauri, Cargo workspace, changelog, docs, and release
   metadata to v2.9.5 in one version contract change.
-- [ ] Refresh SQLx offline metadata, dependency rationale, SBOM inputs, and
+- [x] Refresh SQLx offline metadata, dependency rationale, SBOM inputs, and
   release-path fixtures from the final workspace.
 - [ ] Run the full frontend, Rust workspace, security, harness, docs, E2E, and
   platform package gates required by the verification matrix.
 - [ ] Verify a clean Windows 11 package path and a clean macOS 26 package path,
   plus Linux contract or live evidence required by the release process.
-- [ ] Update the public GitHub wiki from the final commands and architecture.
+- [x] Update the public GitHub wiki from the final commands and architecture.
 - [ ] Record all readiness evidence in `docs/harness/evidence-log.md`.
 - [ ] Move this plan to `docs/plans/completed/` only when readiness passes and
   no required work remains.
@@ -511,6 +511,7 @@ evidence-log entry.
 
 | Date | Status | Notes |
 | ---- | ------ | ----- |
+| 2026-07-13 | Milestone 8 version contract complete | Updated npm, both lockfile families, Tauri, Cargo workspace dependency, changelog, source-candidate notes, maintained docs, release fixtures, and the public wiki to distinguish v2.9.5 source readiness from the published v2.9.1 release. Added a cross-platform isolated SQLx metadata harness and removed the last live planner fallback to the pre-workspace Cargo layout. All 770 script tests, SQLx refresh and check, release version and readiness gates, Cargo metadata, docs, language, actions, dependencies, security, architecture, bloat, and harness checks pass. |
 | 2026-07-13 | Milestone 7 code and artifact cleanup complete | Audited every tracked root and owner, removed two unused frontend dependencies and 47 unused generated mobile and store icons, deleted obsolete transition-only source sensors and their self-only tests, repaired every stale current policy path, broadened raw Rust path/query privacy enforcement, and removed empty owner directories and generated build output. All 770 script tests, 2,933 frontend tests, production and Storybook builds, the Tauri no-bundle desktop build, documentation, dependency, architecture, bloat, security, duplication, language, and test-quality gates pass. |
 | 2026-07-13 | Milestone 7 Rust ownership audit complete | Added a static crate module-graph sensor that rejects uncompiled Rust source, deleted six orphan source files containing 1,579 lines, and denied unreachable public items through inherited workspace policy. Core implementation leaves and every Tauri command and response item now use the narrowest compiler-supported visibility. The full default workspace, all-feature Clippy, all-feature test-target compilation, all 777 script tests, architecture, bloat, privacy, security, language, duplication, and harness gates pass without live keyring access. The milestone removed 1,439 net lines. |
 | 2026-07-13 | Milestone 7 database ownership complete | Made database integrity implementation private and integrated it into the live migration path. Existing databases now require an encrypted, permission-hardened, integrity-verified snapshot before migration; successful migrations run quick, foreign-key, and scheduled full checks before initialization completes. Deleted unreachable duplicate backup, restore, health, diagnostics, query-cache, timeout, and error surfaces plus their self-only tests. The focused database suite passed 189 tests; the default workspace, all-feature Clippy and test-target compilation, all 776 script tests, docs, language, security, and repository gates pass. The change removed 3,330 net lines and lowered the duplication baseline from 1,690 lines across 80 regions to 810 lines across 40 regions. |
@@ -648,8 +649,8 @@ evidence-log entry.
   dead-code, dependency, artifact, root-entrypoint, stale-path, and maintained
   documentation cleanup are complete with passing evidence. Privacy remains
   immutable.
-- Next step: establish the v2.9.5 version contract, update the public wiki, and
-  run the final release-readiness and platform matrix.
+- Next step: run the final release-readiness and platform matrix, close the
+  active plan, and stop before release execution.
 - Open risks: Windows and Linux platform builds still require their final live
   release-readiness hosts. Current cross-platform evidence is contract and
   release-fixture coverage plus target-gated manifests; macOS is live-checked.

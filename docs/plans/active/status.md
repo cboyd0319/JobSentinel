@@ -16,8 +16,8 @@ explicit two-member Cargo workspace, core extraction, and the thin private
 Tauri shell, and final script and harness ownership all have passing evidence.
 Milestone 7's file caps, Rust boundaries, owner audits, dependency and artifact
 cleanup, stale-path repair, and maintained-document alignment are complete. The
-remaining work is the public wiki, v2.9.5 version contract, platform evidence,
-and the final release-readiness proof.
+public wiki and v2.9.5 version contract are complete. Platform evidence and the
+final release-readiness proof remain.
 
 Observed release state on 2026-06-22 local time:
 
@@ -112,12 +112,11 @@ safe migration and no silent loss, and security may not weaken.
 
 ## Next Best Work
 
-1. Update package, Cargo, Tauri, changelog, and release metadata through one
-   v2.9.5 version contract.
-2. Align the public wiki and record final Windows 11, macOS 26, and Linux
-   evidence or named host gaps.
-3. Run the full readiness matrix without tagging, publishing, uploading, or
-   dispatching a release.
+1. Run the complete frontend, Rust, E2E, security, dependency, SQLx, and package
+   readiness matrix.
+2. Record final Windows 11, macOS 26, and Linux evidence or named host gaps.
+3. Close the active plan without tagging, publishing, uploading, or dispatching
+   a release.
 
 ## Completion Bar
 

@@ -65,7 +65,7 @@ broad E2E performance claims.
 | Core logic | Targeted `cargo test -p jobsentinel-core` | `cargo test --workspace` |
 | Warnings or traits | `cargo clippy --workspace -- -D warnings` | Full Rust test suite |
 | Tauri command | Command test or compile check | Frontend invoke path test |
-| Migration or SQLx metadata | Focused migration test and `DATABASE_URL="sqlite:jobs.db" cargo sqlx prepare --workspace --check` | Manual encrypted upgrade, snapshot, integrity, and failure-path review |
+| Migration or SQLx metadata | Focused migration test, `npm run sqlx:prepare`, and `npm run lint:sqlx` | Manual encrypted upgrade, snapshot, integrity, and failure-path review |
 
 Production clippy is the hard Rust lint gate. Test-target clippy warnings are
 advisory until the test lint policy is tightened; do not use all-target clippy
@@ -142,6 +142,7 @@ npm run release:check-deps
 npm run release:sbom -- --platform macos --out-dir <staged-assets> --checksums-out <staged-assets>/attestation-subjects.sha256 --require-artifacts
 npm run doctor
 npm run lint:docs
+npm run lint:sqlx
 npm run lint
 npm run test:run
 npm run test:e2e:all

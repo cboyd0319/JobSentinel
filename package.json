@@ -1,6 +1,6 @@
 {
   "name": "jobsentinel",
-  "version": "2.9.1",
+  "version": "2.9.5",
   "description": "Privacy-preserving local-first job-search assistant for desktop",
   "type": "module",
   "packageManager": "npm@11.17.0",
@@ -16,6 +16,7 @@
     "lint:prose": "node scripts/run-vale-docs.mjs",
     "lint:prose:all": "vale .",
     "lint:language": "node -e 'import(\"./scripts/harness/checks/language-style.mjs\").then(({ collectLanguageStyleViolations }) => { const violations = collectLanguageStyleViolations(process.cwd()); if (violations.length) { console.error(violations.join(\"\\n\")); process.exit(1); } console.log(\"Language style check passed.\"); })'",
+    "lint:sqlx": "node scripts/checks/sqlx-metadata.mjs",
     "lint:architecture": "node scripts/check-frontend-boundaries.mjs && node scripts/check-repository-architecture.mjs",
     "lint:security": "node scripts/checks/security-sensors.mjs && npm run lint:secrets",
     "lint:secrets": "node scripts/check-secrets.mjs",
@@ -43,6 +44,7 @@
     "release:sbom": "node scripts/release/generate-release-sbom.mjs",
     "release:skills": "node scripts/release/package-agent-skills.mjs",
     "release:verify:public": "node scripts/release/verify-public-release-assets.mjs",
+    "sqlx:prepare": "node scripts/checks/sqlx-metadata.mjs --write",
     "lint:harness": "npm run harness:check",
     "lint:docs": "npm run harness:check && npm run lint:md && npm run lint:prose",
     "test": "vitest",

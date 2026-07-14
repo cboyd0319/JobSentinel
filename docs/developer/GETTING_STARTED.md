@@ -313,7 +313,8 @@ If you see this error, make sure the root `.sqlx/` directory exists. If you've
 changed any SQL queries using the `sqlx::query!()` macro, you'll need to regenerate the cache:
 
 ```bash
-DATABASE_URL="sqlite:jobs.db" cargo sqlx prepare --workspace
+npm run sqlx:prepare
+npm run lint:sqlx
 ```
 
 > **Prefer runtime queries:** Use `sqlx::query()` (without `!`) for new code. Runtime queries

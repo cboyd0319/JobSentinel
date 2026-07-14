@@ -14,12 +14,20 @@ function makeReleaseFixture(version) {
   mkdirSync(join(root, "src-tauri"), { recursive: true });
   writeFileSync(join(root, "package.json"), JSON.stringify({ version }));
   writeFileSync(
+    join(root, "package-lock.json"),
+    JSON.stringify({ version, packages: { "": { version } } }),
+  );
+  writeFileSync(
     join(root, "src-tauri/tauri.conf.json"),
     JSON.stringify({ version }),
   );
   writeFileSync(
     join(root, "Cargo.toml"),
-    `[workspace.package]\nversion = "${version}"\n`,
+    `[workspace.package]\nversion = "${version}"\n[workspace.dependencies]\njobsentinel-core = { path = "crates/jobsentinel-core", version = "=${version}" }\n`,
+  );
+  writeFileSync(
+    join(root, "Cargo.lock"),
+    `[[package]]\nname = "jobsentinel"\nversion = "${version}"\n\n[[package]]\nname = "jobsentinel-core"\nversion = "${version}"\n`,
   );
   return root;
 }
@@ -30,13 +38,18 @@ test("normalizeReleaseVersion accepts tags and plain versions", () => {
   assert.equal(normalizeReleaseVersion("2.6.4"), "2.6.4");
 });
 
-test("readReleaseVersions reads package, Tauri, and Cargo versions", () => {
+test("readReleaseVersions reads the complete version contract", () => {
   const root = makeReleaseFixture("2.6.4");
 
   assert.deepEqual(readReleaseVersions(root), {
     "package.json": "2.6.4",
+    "package-lock.json": "2.6.4",
+    "package-lock.json root package": "2.6.4",
     "src-tauri/tauri.conf.json": "2.6.4",
     "Cargo.toml": "2.6.4",
+    "Cargo.toml jobsentinel-core dependency": "2.6.4",
+    "Cargo.lock jobsentinel": "2.6.4",
+    "Cargo.lock jobsentinel-core": "2.6.4",
   });
 });
 

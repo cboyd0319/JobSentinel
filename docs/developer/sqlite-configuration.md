@@ -126,6 +126,7 @@ Run focused Rust checks after SQLite configuration changes:
 ```bash
 cargo test -p jobsentinel-core --lib db
 cargo test -p jobsentinel-core --test database_integration_test
+npm run lint:sqlx
 ```
 
 Also run the docs gate after changing this document:

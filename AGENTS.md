@@ -131,7 +131,8 @@ cargo test --workspace
 After schema changes:
 
 ```bash
-DATABASE_URL="sqlite:jobs.db" cargo sqlx prepare --workspace
+npm run sqlx:prepare
+npm run lint:sqlx
 ```
 
 ## Documentation
