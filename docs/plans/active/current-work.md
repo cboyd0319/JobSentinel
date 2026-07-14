@@ -1,117 +1,220 @@
-# Current Product And Quality Work
+# Full Repository Refactor
 
-Last updated: 2026-07-13.
+Last updated: 2026-07-14.
 
 ## Purpose
 
-Keep one compact active plan for the current product and quality line. History
-belongs in completed plans, archives, and git.
+Replace JobSentinel's accumulated repository structure with explicit ownership
+boundaries that support sustained growth. This is a clean cutover. Internal
+module paths, crate APIs, IPC commands, tests, scripts, and documentation do not
+need compatibility layers.
+
+The locked ownership and dependency decisions are in the
+[repository refactor blueprint](repository-refactor-blueprint.md). Changes to
+that blueprint require evidence and a new decision-log entry.
 
 ## Problem
 
-`v2.9.1` is published history. The `v2.9.5` source candidate now contains the
-completed repository ownership refactor, cleanup, documentation alignment, and
-local source-readiness evidence. Release execution is not authorized.
+The source candidate at `c644995d` passes its prior readiness gates, but the
+repository still concentrates 412 Rust files under `jobsentinel-core`, exposes
+database implementation details to callers, keeps runtime behavior in Tauri
+commands, and has frontend, test, script, CI, and documentation layouts shaped
+by prior incremental work. Those facts invalidate the previous full-refactor
+completion claim.
 
 ## Scope
 
 In scope:
 
-- Stale active-plan, docs-index, roadmap, manifest, release-state, and README
-  cleanup after `v2.9.1` publication.
-- Release pipeline and process fixes that reduce unnecessary hosted runner time
-  while keeping verification explicit.
-- Repo bloat, generated-artifact, machine-specific path, duplicate-source, and
-  docs drift cleanup.
-- Harness, script, test, dependency-pin, and release metadata fixes when they
-  keep current behavior verifiable.
-- Small confirmed bug fixes with focused tests.
+- The entire tracked repository: Rust crates, Tauri, React, tests, fixtures,
+  scripts, workflows, configuration, documentation, packaging, and harnesses.
+- Clean replacement of obsolete module paths, APIs, IPC commands, compatibility
+  wrappers, duplicate fixtures, generated residue, and stale documentation.
+- Safe migration of persistent user data when a schema or storage format must
+  change.
+- Milestone commits after focused verification passes.
 
 Out of scope:
 
-- New product features.
-- v3 implementation.
-- New job-source adapters or browser automation behavior.
-- New external AI features, provider paths, or private-data sends.
-- Broad redesign work beyond fixing a confirmed regression or stale claim.
-- New dependencies unless existing repo tooling is broken and there is no
-  smaller native or installed-dependency path.
+- New product features unrelated to proving the new architecture.
+- Tagging, signing, notarizing, uploading, publishing, or cutting v2.9.5.
+- Weakening privacy, security, accessibility, or platform behavior to simplify
+  the refactor.
 
-## Current Priorities
+## Invariants
 
-| Area | State | Next useful slice |
-| ---- | ----- | ----------------- |
-| Active plan state | Current | Keep `status.md`, this file, `docs/plans/index.json`, and the harness manifest aligned. |
-| v2.9.1 release history | Complete | Keep the moved completed plan as history; do not use it as active release routing. |
-| Full repository refactor | Complete | Preserve the completed plan and evidence; do not reopen internal compatibility work. |
-| Release pipeline | Deferred | Re-evaluate prior optimization decisions against the final workspace during v2.9.5 readiness. |
-| v3 planning | Deferred | Leave v3 docs available for later major-release work; do not implement during post-release closeout. |
-| Scraper/source verification | Maintenance watch | Keep existing source-boundary evidence and restricted-source rules intact; update only for cleanup or regressions. |
-| Locked redesign: Quiet Shield | Maintenance watch | `DESIGN.md`, `docs/design/README.md`, and `docs/design/design-spec.md` remain the active UI contract. |
-| macOS and Windows readiness | External gaps visible | Keep no-account language accurate; do not claim signed or Gatekeeper-ready distribution without credentials and proof. |
+- Rule 0 does not change. User data remains local unless the user explicitly
+  configures an external channel. External AI remains optional and disabled by
+  default. Secret reads remain action-driven.
+- Existing databases and user-owned files receive safe migrations with no
+  silent loss. Internal source compatibility is not an invariant.
+- Windows 11, macOS 26+, and Linux behavior remains supported. Where a live host
+  is unavailable, target compilation and isolated contract tests provide the
+  evidence and the live gap stays explicit.
+- The workspace uses explicit members, inherited package metadata and lint
+  policy, deterministic features, and no wildcard member discovery.
+- Crates follow independent ownership, dependency, runtime, or security
+  boundaries. File size and project size alone never create a crate.
+- Crate dependencies remain acyclic. Lower crates never depend on Tauri or the
+  application crate.
+- Modules come before crates when no independent boundary exists. Crate
+  implementation modules remain private behind bounded facades.
 
-## Completion Bar
+## Lean And DRY
 
-- Active plan directory contains exactly the compact restart docs needed for
-  current post-release work.
-- `v2.9.1` is treated as published, verified history.
-- Every product or security-sensitive change preserves Rule 0: local-first
-  storage, credential safety, explicit user review, privacy-preserving
-  defaults, and optional external AI.
-- Every claim of completion has fresh verification evidence.
-- Docs and public wiki impact are reviewed when behavior, setup, commands,
-  architecture, security, release flow, capabilities, screenshots, design, or
-  user-facing copy changes.
+Nothing smaller meets the request because database, network, Tauri, frontend,
+and harness ownership currently cross repository layers. Reuse Cargo workspaces,
+Rust visibility, SQLx migrations, TypeScript aliases, existing dependencies,
+and current harness entrypoints. Add no framework or dependency solely for the
+move. Delete the old facade and duplicate policy instead of forwarding it.
 
-## Next Work
+## Product And Design Contract
 
-1. Stop before tagging, signing, notarizing, uploading, publishing, or
-   dispatching a release.
-2. If release execution is explicitly authorized, start from the completed
-   refactor evidence and rerun the release-time platform and public-asset gates.
-3. Confirm major route screenshots, Computer Use clicks, keyboard flow, and
-   affected route, action, and state checks after any UI change.
+The work changes structure, not the product mission. Job-search automation,
+plain-language consent, local-first defaults, and non-technical user flows stay
+intact.
+
+Locked redesign: Quiet Shield remains the product direction in `DESIGN.md`,
+`docs/design/README.md`, and `docs/design/design-spec.md`.
+
+Harness-controlled redesign lock: structural moves must not silently change
+visual behavior. Confirm major route screenshots, Computer Use clicks, keyboard
+flow, and narrow-width states after frontend or desktop-shell changes.
+
+Scraper/source verification must cover all configured source adapters and
+user-gated restricted-source paths before final readiness.
+
+## Milestones
+
+1. Lock this plan and the blueprint, incorporate adversarial review, block
+   release execution, pass focused documentation and harness checks, and commit
+   only the planning milestone.
+2. First make generic crate-edge and technology-ownership sensors blocking in
+   the harness and CI. Then extract domain, security, network, platform, storage,
+   credentials, and application ownership; remove raw pool and Tauri SQL access;
+   and preserve encryption, backup, integrity, and migration behavior.
+3. Extract source, document, assistance, intelligence, local-AI, external-AI,
+   and notification owners. Move persistence fragments to storage and keep
+   optional heavy dependencies out of the default desktop build.
+4. Make Tauri a thin adapter. Delete obsolete IPC, enforce the bidirectional
+   command contract, remove path redirections, and separate desktop startup,
+   tray, state, and command adapters.
+5. Reorganize the frontend by feature ownership. Move misplaced shared domain
+   code and test support, delete orphan production files, and preserve all
+   interaction and accessibility states.
+6. Reorganize tests, fixtures, scripts, workflows, packaging, docs, examples,
+   resources, validation policy, and tracked generated assets. Make local and CI
+   commands use the same blocking architecture sensors.
+7. Run the layered completion gate, clean ignored and generated residue, update
+   public wiki sources, and commit a verified v2.9.5 source candidate. Release
+   execution remains separate and requires explicit authorization.
+
+## Milestone Gates
+
+Every milestone requires:
+
+- A scoped pre-change contract and reviewed diff.
+- Focused tests for the changed owner, `git diff --check`, language checks when
+  text changes, and file-cap checks for every moved path.
+- No new dependency cycle, raw storage escape, unreviewed external send, secret
+  probe, machine-specific path, unregistered invoke, or unused registration.
+- Evidence recorded in `docs/harness/evidence-log.md` before the milestone commit.
+- A clean index after the commit. Unrelated user changes remain untouched.
+
+Milestone 2 uses separate gated commits for enforcement, foundational crates,
+storage/key cutover, and pool removal. It requires database snapshots, migration
+tests, SQLx metadata, integrity and restore tests, plus Linux, macOS, and Windows
+compile evidence. Milestones 4 and 5 require IPC and affected UI/E2E checks.
+Milestones 6 and 7 require all CI-equivalent and release-readiness checks.
+
+## Acceptance Criteria
+
+- The final tree and dependency graph match the locked blueprint.
+- No `jobsentinel-core` crate, forwarding facade, raw database pool escape, SQL
+  in Tauri commands, or provider transport in the desktop adapter remains.
+- Cargo metadata shows only explicit workspace members and allowed dependency
+  edges. Default and all-feature matrices compile and test.
+- Every registered IPC command has a deliberate production consumer or a
+  documented desktop-only reason, and every production invoke is registered.
+- Production, test, script, and maintained-document caps scan all owned paths
+  without spot-check exclusions.
+- Frontend, Rust, artifact, terminology, security, privacy, migration, and
+  platform checks block through the focused harness and CI.
+- No tracked or ignored build residue, machine-specific path, obsolete source,
+  duplicate fixture, stale architecture claim, or release overclaim remains.
 
 ## Sensors
 
-Use focused docs, workflow, release, and harness checks for this closeout:
+Use the smallest relevant checks for each milestone, then broaden:
 
 ```bash
 npm run harness:check
-npm run release:readiness -- --version 2.9.5
-npm run lint:actions
-npm run lint:security
-npm run lint:docs
-npm run lint:bloat
+npm run harness:score
+npm run lint:language
+npm run lint
+npm run test:run
+npm run build
+cargo fmt --all -- --check
+cargo clippy --workspace --all-targets --all-features -- -D warnings
+cargo test --workspace --all-features
 git diff --check
 ```
 
-Broaden only if edits touch product code, privacy/security sensors, packaging,
-or macOS deployment behavior.
+Run SQLx offline, target-specific, E2E, packaging, release-readiness, and manual
+UI checks when their owners change.
 
-## Risks
+## Risks And Rollback
 
-- Source-candidate docs can incorrectly imply that `v2.9.5` is already a
-  public release.
-- Release docs can imply automatic public verification when a workflow-token
-  publication requires explicit verification.
-- Local macOS release guidance can overclaim hosted SLSA provenance for a local
-  artifact unless the docs separate checksum/SBOM evidence from hosted
-  attestations.
-- macOS public-readiness language can drift if no-account completion and
-  Apple-account-only release work are not kept separate.
-- Secret-storage UX can regress if passive Settings or status checks call
-  secure storage. Saved-secret verification must stay lazy and action-driven.
-- Harness-controlled redesign lock: keep required design files, change
-  contracts, and screenshot or Computer Use evidence for broad UI changes.
+- Database extraction can damage encrypted local data or transaction behavior.
+  Prove it against isolated copies before deleting the old path.
+- Crate extraction can reproduce the monolith through cycles or broad facades.
+  Reject the edge or keep the code as a private module until ownership is real.
+- IPC deletion can remove a dynamic call. Verify literal, generated, test, and
+  desktop-only surfaces before deletion.
+- Each milestone is revertible with `git revert`. Never roll back a persistent
+  data migration by deleting user data; use a forward repair or verified restore.
+
+## Progress
+
+- [x] Internal and external adversarial repository reviews completed.
+- [x] Milestone 1: locked plan committed with passing gates.
+- [ ] Milestone 2: storage and application boundaries committed.
+- [ ] Milestone 3: remaining Rust owners committed.
+- [ ] Milestone 4: thin Tauri adapter committed.
+- [ ] Milestone 5: frontend ownership committed.
+- [ ] Milestone 6: support surfaces committed.
+- [ ] Milestone 7: full verification and cleanup committed.
+
+## Surprises
+
+- The earlier workspace refactor produced only one reusable Rust crate, while
+  Tauri retained direct database and network responsibilities.
+- Existing architecture checks are available but are not all blocking through
+  the focused harness and CI.
+- Registered and consumed IPC surfaces differ materially, so command count alone
+  is not evidence of an intentional API.
+
+## Decision Log
+
+- 2026-07-14: The user authorized a full clean-cutover repository refactor with
+  no internal backward-compatibility requirement.
+- 2026-07-14: Privacy and security guarantees remain immutable. Persistent data
+  receives safe migrations even though internal APIs do not.
+- 2026-07-14: Work is ordered by highest coupling and risk first, beginning with
+  database and application ownership.
+- 2026-07-14: The plan and blueprint must be committed before source execution.
+  Later boundary changes require evidence and a recorded decision.
+- 2026-07-14: Claude Fable blocked the first draft on nine concrete gaps. The
+  locked revision assigns database keys, early enforcement, platform compile
+  gates, runtime mocks, model downloads, Storybook, and the inbound listener.
+
+## Outcomes
+
+Not complete. v2.9.5 source readiness is blocked until all milestones and gates
+pass.
 
 ## Handoff
 
-When resuming, read:
-
-1. [Status](status.md)
-2. [Completed full repository refactor and v2.9.5 readiness](../completed/repository-architecture-reorganization.md)
-3. [Verification matrix](../../harness/verification-matrix.md)
-4. Completed or archived plans only for old decisions
-
-Archived and completed history stays out of active restart context.
+Read [status.md](status.md) and the
+[blueprint](repository-refactor-blueprint.md), then continue the first unchecked
+milestone. Completed plans are historical evidence, not current architecture.
