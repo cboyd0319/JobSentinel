@@ -1,15 +1,15 @@
 //! Configuration type definitions
 
 mod notifications;
-mod sources;
+pub(super) mod sources;
 
-pub use super::external_ai::{ExternalAiConfig, ExternalAiProvider};
+use super::external_ai::ExternalAiConfig;
 pub use notifications::{
     AlertConfig, DesktopConfig, DiscordConfig, EmailConfig, SlackConfig, TeamsConfig,
     TelegramConfig,
 };
 use serde::{Deserialize, Serialize};
-pub use sources::{
+use sources::{
     BuiltInConfig, DiceConfig, GlassdoorConfig, HnHiringConfig, LinkedInConfig, RemoteOkConfig,
     SimplyHiredConfig, UsaJobsConfig, WeWorkRemotelyConfig, YcStartupConfig,
 };
@@ -161,7 +161,7 @@ pub struct Config {
     pub blocked_companies: Vec<String>,
 }
 
-pub const JOBSWITHGPT_DEFAULT_LIMIT: usize = 100;
+pub(super) const JOBSWITHGPT_DEFAULT_LIMIT: usize = 100;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct JobsWithGptPayload {

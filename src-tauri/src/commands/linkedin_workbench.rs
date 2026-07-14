@@ -8,7 +8,7 @@ use crate::core::linkedin_workbench::{
 use tauri::State;
 
 #[tauri::command]
-pub async fn record_linkedin_workbench_event(
+pub(crate) async fn record_linkedin_workbench_event(
     input: LinkedInWorkbenchEventInput,
     state: State<'_, AppState>,
 ) -> Result<LinkedInWorkbenchEventResult, String> {

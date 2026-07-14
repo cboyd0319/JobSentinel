@@ -16,7 +16,7 @@ const LINKEDIN_CREDENTIALS_DISABLED: &str =
 
 /// Credential status for frontend display
 #[derive(Debug, Serialize, Deserialize)]
-pub struct CredentialStatus {
+pub(crate) struct CredentialStatus {
     pub key: String,
     pub exists: bool,
     pub available: bool,
@@ -24,7 +24,7 @@ pub struct CredentialStatus {
 
 /// Non-secret credential vault unlock status for frontend display.
 #[derive(Debug, Serialize, Deserialize)]
-pub struct CredentialUnlockStatus {
+pub(crate) struct CredentialUnlockStatus {
     pub mode: String,
     pub configured: bool,
     pub unlocked: bool,
@@ -185,7 +185,7 @@ async fn disable_credential_passphrase_with_service(
 
 /// Store a credential in the encrypted local vault.
 #[tauri::command]
-pub async fn store_credential(
+pub(crate) async fn store_credential(
     key: String,
     value: String,
     state: State<'_, AppState>,
@@ -210,19 +210,25 @@ pub async fn store_credential(
 
 /// Delete a credential from the encrypted local vault and legacy keyring entry.
 #[tauri::command]
-pub async fn delete_credential(key: String, state: State<'_, AppState>) -> Result<(), String> {
+pub(crate) async fn delete_credential(
+    key: String,
+    state: State<'_, AppState>,
+) -> Result<(), String> {
     delete_credential_with_service(key, state.credentials.as_ref()).await
 }
 
 /// Check whether a credential exists without unlocking the OS credential store.
 #[tauri::command]
-pub async fn has_credential(key: String, state: State<'_, AppState>) -> Result<bool, String> {
+pub(crate) async fn has_credential(
+    key: String,
+    state: State<'_, AppState>,
+) -> Result<bool, String> {
     has_credential_with_service(key, state.credentials.as_ref()).await
 }
 
 /// Get non-secret status of all credentials.
 #[tauri::command]
-pub async fn get_credential_status(
+pub(crate) async fn get_credential_status(
     state: State<'_, AppState>,
 ) -> Result<Vec<CredentialStatus>, String> {
     get_credential_status_with_service(state.credentials.as_ref()).await
@@ -230,7 +236,7 @@ pub async fn get_credential_status(
 
 /// Get non-secret app-level credential vault lock status.
 #[tauri::command]
-pub async fn get_credential_unlock_status(
+pub(crate) async fn get_credential_unlock_status(
     state: State<'_, AppState>,
 ) -> Result<CredentialUnlockStatus, String> {
     get_credential_unlock_status_with_service(state.credentials.as_ref()).await
@@ -238,7 +244,7 @@ pub async fn get_credential_unlock_status(
 
 /// Enable passphrase wrapping for the credential vault.
 #[tauri::command]
-pub async fn enable_credential_passphrase(
+pub(crate) async fn enable_credential_passphrase(
     passphrase: String,
     state: State<'_, AppState>,
 ) -> Result<(), String> {
@@ -247,7 +253,7 @@ pub async fn enable_credential_passphrase(
 
 /// Unlock a passphrase-protected credential vault for this app session.
 #[tauri::command]
-pub async fn unlock_credential_vault(
+pub(crate) async fn unlock_credential_vault(
     passphrase: String,
     state: State<'_, AppState>,
 ) -> Result<(), String> {
@@ -256,7 +262,7 @@ pub async fn unlock_credential_vault(
 
 /// Disable passphrase wrapping and return to system credential locking.
 #[tauri::command]
-pub async fn disable_credential_passphrase(
+pub(crate) async fn disable_credential_passphrase(
     passphrase: String,
     state: State<'_, AppState>,
 ) -> Result<(), String> {

@@ -17,7 +17,7 @@ use tauri::State;
 /// - Manual patterns (from screening_answers table)
 /// - Learned patterns (from user modifications)
 /// - Historical answers (from similar questions)
-pub async fn get_suggested_answers(
+pub(super) async fn get_suggested_answers(
     question: String,
     limit: Option<usize>,
     state: State<'_, AppState>,
@@ -45,7 +45,7 @@ pub async fn get_suggested_answers(
 ///
 /// Tracks usage and user modifications for learning.
 /// If `was_modified` is true, the system learns from the correction.
-pub async fn record_answer_usage(
+pub(super) async fn record_answer_usage(
     screening_answer_id: Option<i64>,
     question_text: String,
     answer_filled: String,
@@ -79,7 +79,7 @@ pub async fn record_answer_usage(
 /// Get statistics for a specific answer pattern
 ///
 /// Shows usage metrics, modification rate, confidence score, and recent modifications.
-pub async fn get_answer_statistics(
+pub(super) async fn get_answer_statistics(
     pattern: String,
     state: State<'_, AppState>,
 ) -> Result<Option<AnswerStatisticsResponse>, String> {
@@ -100,7 +100,7 @@ pub async fn get_answer_statistics(
 ///
 /// Removes usage history and resets statistics.
 /// If `pattern` is None, clears all history.
-pub async fn clear_answer_history(
+pub(super) async fn clear_answer_history(
     pattern: Option<String>,
     state: State<'_, AppState>,
 ) -> Result<usize, String> {
@@ -123,7 +123,7 @@ pub async fn clear_answer_history(
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct AnswerSuggestionResponse {
+pub(crate) struct AnswerSuggestionResponse {
     pub answer: String,
     pub confidence: f64,
     pub source: AnswerSourceResponse,
@@ -149,7 +149,7 @@ impl From<AnswerSuggestion> for AnswerSuggestionResponse {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
-pub enum AnswerSourceResponse {
+pub(crate) enum AnswerSourceResponse {
     Manual {
         #[serde(rename = "answerId")]
         answer_id: i64,
@@ -173,7 +173,7 @@ impl From<AnswerSource> for AnswerSourceResponse {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct AnswerStatisticsResponse {
+pub(crate) struct AnswerStatisticsResponse {
     pub times_used: i32,
     pub times_modified: i32,
     pub modification_rate: f64,
@@ -203,7 +203,7 @@ impl From<AnswerStatistics> for AnswerStatisticsResponse {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct ModificationExampleResponse {
+pub(crate) struct ModificationExampleResponse {
     pub before_chars: usize,
     pub after_chars: usize,
     pub question_chars: usize,

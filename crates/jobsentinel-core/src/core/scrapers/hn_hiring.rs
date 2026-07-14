@@ -16,7 +16,7 @@ use chrono::Utc;
 
 /// Hacker News Who's Hiring scraper
 #[derive(Debug, Clone)]
-pub struct HnHiringScraper {
+pub(crate) struct HnHiringScraper {
     /// Maximum results to return
     pub limit: usize,
     /// Filter for remote jobs only
@@ -26,7 +26,7 @@ pub struct HnHiringScraper {
 }
 
 impl HnHiringScraper {
-    pub fn new(limit: usize, remote_only: bool) -> Self {
+    pub(crate) fn new(limit: usize, remote_only: bool) -> Self {
         Self {
             limit,
             remote_only,

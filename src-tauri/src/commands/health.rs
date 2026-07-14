@@ -161,7 +161,7 @@ async fn set_config_backed_scraper_enabled_in_runtime_and_path(
 
 /// Get health metrics for all scrapers
 #[tauri::command]
-pub async fn get_scraper_health(
+pub(crate) async fn get_scraper_health(
     state: State<'_, AppState>,
 ) -> Result<Vec<ScraperHealthMetrics>, String> {
     get_all_scraper_health(&state.database)
@@ -171,7 +171,9 @@ pub async fn get_scraper_health(
 
 /// Get health summary statistics
 #[tauri::command]
-pub async fn get_health_summary(state: State<'_, AppState>) -> Result<HealthSummary, String> {
+pub(crate) async fn get_health_summary(
+    state: State<'_, AppState>,
+) -> Result<HealthSummary, String> {
     health_summary(&state.database)
         .await
         .map_err(|e| health_command_error("Failed to load health summary", e))
@@ -179,7 +181,9 @@ pub async fn get_health_summary(state: State<'_, AppState>) -> Result<HealthSumm
 
 /// Get scraper configuration
 #[tauri::command]
-pub async fn get_scraper_configs(state: State<'_, AppState>) -> Result<Vec<ScraperConfig>, String> {
+pub(crate) async fn get_scraper_configs(
+    state: State<'_, AppState>,
+) -> Result<Vec<ScraperConfig>, String> {
     scraper_configs(&state.database)
         .await
         .map_err(|e| health_command_error("Failed to load scraper configuration", e))
@@ -187,7 +191,7 @@ pub async fn get_scraper_configs(state: State<'_, AppState>) -> Result<Vec<Scrap
 
 /// Enable or disable a scraper
 #[tauri::command]
-pub async fn set_scraper_enabled(
+pub(crate) async fn set_scraper_enabled(
     state: State<'_, AppState>,
     scraper_name: String,
     enabled: bool,
@@ -208,7 +212,7 @@ pub async fn set_scraper_enabled(
 
 /// Get recent runs for a specific scraper
 #[tauri::command]
-pub async fn get_scraper_runs(
+pub(crate) async fn get_scraper_runs(
     state: State<'_, AppState>,
     scraper_name: String,
     limit: Option<i32>,
@@ -222,7 +226,7 @@ pub async fn get_scraper_runs(
 
 /// Get the latest minimized request record for an optional external source.
 #[tauri::command]
-pub async fn get_latest_source_request(
+pub(crate) async fn get_latest_source_request(
     state: State<'_, AppState>,
     source: String,
 ) -> Result<Option<SourceRequestSummary>, String> {
@@ -234,7 +238,7 @@ pub async fn get_latest_source_request(
 
 /// Run a smoke test for a specific scraper
 #[tauri::command]
-pub async fn run_scraper_smoke_test(
+pub(crate) async fn run_scraper_smoke_test(
     state: State<'_, AppState>,
     scraper_name: String,
     restricted_source_acknowledged: Option<bool>,
@@ -254,7 +258,7 @@ pub async fn run_scraper_smoke_test(
 
 /// Run smoke tests for all scrapers
 #[tauri::command]
-pub async fn run_all_smoke_tests(
+pub(crate) async fn run_all_smoke_tests(
     state: State<'_, AppState>,
     restricted_source_acknowledged: Option<bool>,
 ) -> Result<Vec<SmokeTestResult>, String> {
@@ -271,7 +275,7 @@ pub async fn run_all_smoke_tests(
 
 /// Get inactive legacy LinkedIn credential status.
 #[tauri::command]
-pub async fn get_linkedin_cookie_health(
+pub(crate) async fn get_linkedin_cookie_health(
     state: State<'_, AppState>,
 ) -> Result<CredentialHealth, String> {
     check_linkedin_cookie_health(&state.database)
@@ -281,7 +285,7 @@ pub async fn get_linkedin_cookie_health(
 
 /// Get all credentials that are expiring soon
 #[tauri::command]
-pub async fn get_expiring_credentials(
+pub(crate) async fn get_expiring_credentials(
     state: State<'_, AppState>,
 ) -> Result<Vec<CredentialHealth>, String> {
     fetch_expiring_credentials(&state.database)

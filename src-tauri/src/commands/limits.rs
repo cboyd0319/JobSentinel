@@ -7,7 +7,7 @@ fn limit_error() -> String {
 }
 
 /// Validate a required signed command limit.
-pub fn validate_command_limit_i64(limit: i64) -> Result<i64, String> {
+pub(crate) fn validate_command_limit_i64(limit: i64) -> Result<i64, String> {
     if (1..=MAX_COMMAND_LIMIT).contains(&limit) {
         Ok(limit)
     } else {
@@ -16,7 +16,7 @@ pub fn validate_command_limit_i64(limit: i64) -> Result<i64, String> {
 }
 
 /// Validate an optional signed command limit.
-pub fn validate_optional_command_limit_i64(
+pub(crate) fn validate_optional_command_limit_i64(
     limit: Option<i64>,
     default_limit: i64,
 ) -> Result<i64, String> {
@@ -24,7 +24,7 @@ pub fn validate_optional_command_limit_i64(
 }
 
 /// Validate an optional 32-bit signed command limit.
-pub fn validate_optional_command_limit_i32(
+pub(crate) fn validate_optional_command_limit_i32(
     limit: Option<i32>,
     default_limit: i32,
 ) -> Result<i32, String> {
@@ -33,7 +33,7 @@ pub fn validate_optional_command_limit_i32(
 }
 
 /// Validate a required unsigned command limit.
-pub fn validate_command_limit_usize(limit: usize) -> Result<usize, String> {
+pub(crate) fn validate_command_limit_usize(limit: usize) -> Result<usize, String> {
     if limit == 0 || limit > MAX_COMMAND_LIMIT as usize {
         return Err(limit_error());
     }
@@ -42,7 +42,7 @@ pub fn validate_command_limit_usize(limit: usize) -> Result<usize, String> {
 }
 
 /// Validate an optional unsigned command limit.
-pub fn validate_optional_command_limit_usize(
+pub(crate) fn validate_optional_command_limit_usize(
     limit: Option<usize>,
     default_limit: usize,
 ) -> Result<usize, String> {
@@ -50,7 +50,7 @@ pub fn validate_optional_command_limit_usize(
 }
 
 /// Validate an unsigned command limit and convert it for SQL bindings.
-pub fn validate_command_limit_usize_as_i64(limit: usize) -> Result<i64, String> {
+pub(crate) fn validate_command_limit_usize_as_i64(limit: usize) -> Result<i64, String> {
     let limit = validate_command_limit_usize(limit)?;
     i64::try_from(limit).map_err(|_| "limit is outside supported range".to_string())
 }

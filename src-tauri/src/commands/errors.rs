@@ -6,7 +6,7 @@ use std::fmt::Display;
 
 /// Categories of errors with user-friendly descriptions
 #[derive(Debug, Clone, Copy)]
-pub enum ErrorCategory {
+pub(crate) enum ErrorCategory {
     /// Database connection or query errors
     Database,
     /// Network or HTTP errors
@@ -27,7 +27,7 @@ pub enum ErrorCategory {
 
 impl ErrorCategory {
     /// Get user-friendly title for this error category
-    pub fn title(self) -> &'static str {
+    pub(crate) fn title(self) -> &'static str {
         match self {
             Self::Database => "Local data problem",
             Self::Network => "Connection problem",
@@ -41,7 +41,7 @@ impl ErrorCategory {
     }
 
     /// Get recovery suggestion for this error category
-    pub fn recovery_hint(self) -> &'static str {
+    pub(crate) fn recovery_hint(self) -> &'static str {
         match self {
             Self::Database => {
                 "If this keeps happening, save a safe support report before closing and reopening JobSentinel or changing local data."
@@ -58,7 +58,7 @@ impl ErrorCategory {
 }
 
 /// Classify an error string into a category
-pub fn categorize_error(error: &str) -> ErrorCategory {
+pub(crate) fn categorize_error(error: &str) -> ErrorCategory {
     let lower = error.to_lowercase();
 
     // Database errors
@@ -146,7 +146,7 @@ pub fn categorize_error(error: &str) -> ErrorCategory {
 }
 
 /// Format an error with user-friendly message
-pub fn user_friendly_error<E: Display>(context: &str, error: E) -> String {
+pub(crate) fn user_friendly_error<E: Display>(context: &str, error: E) -> String {
     let error_str = error.to_string();
     let category = categorize_error(&error_str);
     let context = plain_context(context);

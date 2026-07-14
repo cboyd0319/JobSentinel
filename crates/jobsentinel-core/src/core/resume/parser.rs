@@ -31,14 +31,14 @@ const MAX_DOCX_DOCUMENT_XML_BYTES: u64 = 8 * 1024 * 1024;
 /// - macOS: `brew install tesseract poppler`
 /// - Windows: Download Tesseract installer + poppler binaries
 /// - Linux: `apt install tesseract-ocr poppler-utils`
-pub struct ResumeParser {
+pub(super) struct ResumeParser {
     /// Whether OCR is available (requires `ocr` feature and system Tesseract)
     #[cfg(feature = "ocr")]
     ocr_available: bool,
 }
 
 impl ResumeParser {
-    pub fn new() -> Self {
+    pub(super) fn new() -> Self {
         #[cfg(feature = "ocr")]
         {
             let ocr_available = parser_ocr::check_tesseract_available();
@@ -54,7 +54,7 @@ impl ResumeParser {
     /// Parse a supported resume file and extract text content.
     ///
     /// Supported formats are PDF, DOCX, TXT, Markdown, and HTML.
-    pub fn parse_resume(&self, file_path: &Path) -> Result<String> {
+    pub(super) fn parse_resume(&self, file_path: &Path) -> Result<String> {
         let canonical_path = canonical_regular_file(file_path)?;
 
         match resume_extension(&canonical_path).as_deref() {

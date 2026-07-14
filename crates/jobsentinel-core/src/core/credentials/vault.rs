@@ -18,12 +18,12 @@ use super::{
 
 const ALGORITHM: &str = "xchacha20poly1305";
 const KEY_VERSION: i64 = 1;
-pub const MASTER_KEY_LEN: usize = 32;
+pub(super) const MASTER_KEY_LEN: usize = 32;
 const NONCE_LEN: usize = 24;
 
 /// Sanitized errors from local secret-vault operations.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum SecretVaultError {
+pub(super) enum SecretVaultError {
     Credential(String),
     Crypto,
     InvalidData,
@@ -66,7 +66,7 @@ impl From<std::string::FromUtf8Error> for SecretVaultError {
 }
 
 /// SQLite-backed encrypted credential vault.
-pub struct SecretVault {
+pub(super) struct SecretVault {
     pool: SqlitePool,
     master_key: Arc<Zeroizing<[u8; MASTER_KEY_LEN]>>,
 }
@@ -74,7 +74,7 @@ pub struct SecretVault {
 impl SecretVault {
     /// Generate a random 256-bit vault master key.
     #[must_use]
-    pub fn generate_master_key() -> [u8; MASTER_KEY_LEN] {
+    pub(super) fn generate_master_key() -> [u8; MASTER_KEY_LEN] {
         let mut bytes = [0_u8; MASTER_KEY_LEN];
         OsRng.fill_bytes(&mut bytes);
         bytes
@@ -87,7 +87,7 @@ impl SecretVault {
 
     /// Create a vault backed by a session-cached master key.
     #[must_use]
-    pub fn from_shared_key(
+    pub(super) fn from_shared_key(
         pool: SqlitePool,
         master_key: Arc<Zeroizing<[u8; MASTER_KEY_LEN]>>,
     ) -> Self {
@@ -95,7 +95,11 @@ impl SecretVault {
     }
 
     /// Store or replace an encrypted credential. Empty values delete the row.
-    pub async fn store(&self, key: CredentialKey, value: &str) -> Result<(), SecretVaultError> {
+    pub(super) async fn store(
+        &self,
+        key: CredentialKey,
+        value: &str,
+    ) -> Result<(), SecretVaultError> {
         if value.is_empty() {
             return self.delete(key).await;
         }
@@ -146,7 +150,10 @@ impl SecretVault {
     }
 
     /// Retrieve and decrypt a credential.
-    pub async fn retrieve(&self, key: CredentialKey) -> Result<Option<String>, SecretVaultError> {
+    pub(super) async fn retrieve(
+        &self,
+        key: CredentialKey,
+    ) -> Result<Option<String>, SecretVaultError> {
         if is_disabled_credential(key) {
             return Ok(None);
         }
@@ -190,7 +197,7 @@ impl SecretVault {
     }
 
     /// Delete a credential row. Missing rows are treated as success.
-    pub async fn delete(&self, key: CredentialKey) -> Result<(), SecretVaultError> {
+    pub(super) async fn delete(&self, key: CredentialKey) -> Result<(), SecretVaultError> {
         sqlx::query("DELETE FROM secret_vault WHERE key = ?")
             .bind(key.as_str())
             .execute(&self.pool)

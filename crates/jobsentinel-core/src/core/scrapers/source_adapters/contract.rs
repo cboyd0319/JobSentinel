@@ -3,7 +3,7 @@ use std::collections::{BTreeMap, HashSet};
 use url::Url;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub enum SourceAdapterLane {
+pub(super) enum SourceAdapterLane {
     WorkdayCxsListingAdapter,
     PhenomWidgetAdapter,
     SyscoRadancyTalentBrewHtmlAdapter,
@@ -16,7 +16,7 @@ pub enum SourceAdapterLane {
 }
 
 impl SourceAdapterLane {
-    pub const fn as_str(self) -> &'static str {
+    pub(super) const fn as_str(self) -> &'static str {
         match self {
             Self::WorkdayCxsListingAdapter => "WorkdayCxsListingAdapter",
             Self::PhenomWidgetAdapter => "PhenomWidgetAdapter",
@@ -30,7 +30,7 @@ impl SourceAdapterLane {
         }
     }
 
-    pub const fn source_platform(self) -> SourcePlatform {
+    pub(super) const fn source_platform(self) -> SourcePlatform {
         match self {
             Self::WorkdayCxsListingAdapter => SourcePlatform::WorkdayCxs,
             Self::PhenomWidgetAdapter => SourcePlatform::PhenomWidget,
@@ -44,7 +44,7 @@ impl SourceAdapterLane {
         }
     }
 
-    pub const fn fetch_contract(self) -> FetchContract {
+    pub(super) const fn fetch_contract(self) -> FetchContract {
         match self {
             Self::WorkdayCxsListingAdapter => FetchContract {
                 method: HttpMethod::Post,
@@ -81,7 +81,7 @@ impl SourceAdapterLane {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub enum SourcePlatform {
+pub(super) enum SourcePlatform {
     WorkdayCxs,
     PhenomWidget,
     SyscoRadancyTalentBrewHtml,
@@ -94,7 +94,7 @@ pub enum SourcePlatform {
 }
 
 impl SourcePlatform {
-    pub const fn as_str(self) -> &'static str {
+    pub(super) const fn as_str(self) -> &'static str {
         match self {
             Self::WorkdayCxs => "workday_cxs",
             Self::PhenomWidget => "phenom_widget",
@@ -110,13 +110,13 @@ impl SourcePlatform {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub enum HttpMethod {
+pub(super) enum HttpMethod {
     Get,
     Post,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct FetchContract {
+pub(super) struct FetchContract {
     pub method: HttpMethod,
     pub static_http_only: bool,
     pub respect_robots: bool,
@@ -128,7 +128,7 @@ pub struct FetchContract {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct CanonicalJobRecord {
+pub(super) struct CanonicalJobRecord {
     pub adapter_lane: SourceAdapterLane,
     pub source_platform: SourcePlatform,
     pub company: String,
@@ -146,7 +146,7 @@ pub struct CanonicalJobRecord {
 }
 
 impl CanonicalJobRecord {
-    pub fn new(
+    pub(super) fn new(
         adapter_lane: SourceAdapterLane,
         company: impl Into<String>,
         title: impl Into<String>,
@@ -172,7 +172,7 @@ impl CanonicalJobRecord {
         }
     }
 
-    pub fn validate(&self) -> Vec<String> {
+    pub(super) fn validate(&self) -> Vec<String> {
         let mut errors = Vec::new();
         if self.company.trim().is_empty() {
             errors.push("missing company".to_string());
@@ -202,7 +202,7 @@ impl CanonicalJobRecord {
     }
 }
 
-pub fn validate_canonical_records(records: &[CanonicalJobRecord]) -> Vec<String> {
+pub(super) fn validate_canonical_records(records: &[CanonicalJobRecord]) -> Vec<String> {
     let mut errors = Vec::new();
     let mut seen_dedupe_keys: HashSet<&str> = HashSet::new();
 

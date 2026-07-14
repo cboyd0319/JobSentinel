@@ -15,10 +15,9 @@ readiness effort. Milestones 0 through 6 are complete: structural sensors,
 neutral data ownership, frontend feature ownership, backend cycle repair, the
 explicit two-member Cargo workspace, core extraction, and the thin private
 Tauri shell, and final script and harness ownership all have passing evidence.
-The final file-cap, Rust lint-policy, core facade and target, sensitive Rust
-leaf-module, scraper, resume, notification, job-import, market, salary, and
-database ownership slices of Milestone 7 are complete. The remaining work is a
-smaller Rust audit, cleanup, and the release-readiness proof.
+Milestone 7's file caps, Rust boundaries, sensitive leaf ownership, and final
+Rust source and dead-code audit are complete. The remaining work is repo-wide
+cleanup, documentation alignment, and the release-readiness proof.
 
 Observed release state on 2026-06-22 local time:
 
@@ -59,7 +58,7 @@ weakened.
 | Workstream | State | Current focus | Source |
 | ---------- | ----- | ------------- | ------ |
 | Current product and quality work | Active | Keep privacy, design, platform, harness, and release evidence aligned during the refactor | [Plan](current-work.md) |
-| Full repository refactor and v2.9.5 readiness | Active | Finish the smaller Rust audit, then run full cleanup | [Plan](repository-architecture-reorganization.md) |
+| Full repository refactor and v2.9.5 readiness | Active | Run repo-wide cleanup and final documentation alignment | [Plan](repository-architecture-reorganization.md) |
 
 ## Current Posture
 
@@ -85,8 +84,9 @@ weakened.
   metadata inaccuracies.
 - Final file caps are live: 500 lines for production and scripts, 800 for tests,
   and 700 for maintained documents. The focused cap and policy harness passes.
-- Rust lint policy is centralized in the root workspace and enforced against
-  crate-root policy drift.
+- Rust lint policy denies unsafe code and unreachable public items from the root
+  workspace. A module-graph sensor rejects uncompiled source, and Tauri command
+  and response items are crate-visible.
 - The core crate exposes an explicit bounded facade. Its integration targets
   are deliberate, and embedded model diagnostics do not expose cache paths.
 - Credential and application-assistance internals are private behind flat
@@ -113,11 +113,10 @@ weakened.
 
 ## Next Best Work
 
-1. Finish the smaller remaining Rust owner visibility and dead-code audit.
-2. Complete the repo-wide orphan-test, dependency, root-file, and stale-reference
+1. Complete the repo-wide orphan-test, dependency, root-file, and stale-reference
    cleanup audits.
-3. Align final architecture, contributor, release, and public wiki docs.
-4. Prove v2.9.5 readiness without tagging, publishing, uploading, or dispatching
+2. Align final architecture, contributor, release, and public wiki docs.
+3. Prove v2.9.5 readiness without tagging, publishing, uploading, or dispatching
    a release.
 
 ## Completion Bar

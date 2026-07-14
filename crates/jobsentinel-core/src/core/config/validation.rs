@@ -12,7 +12,7 @@ use crate::core::url_security::validate_external_https_url;
 const MIN_BOOKMARKLET_PORT: u16 = 1024;
 const MAX_BOOKMARKLET_PORT: u16 = u16::MAX;
 
-pub fn validate_config(config: &Config) -> Result<(), Box<dyn std::error::Error>> {
+pub(super) fn validate_config(config: &Config) -> Result<(), Box<dyn std::error::Error>> {
     let mut errors = ValidationErrors::new();
 
     validate_core_settings(config, &mut errors);

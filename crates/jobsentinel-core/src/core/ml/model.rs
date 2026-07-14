@@ -8,15 +8,15 @@ mod download;
 mod integrity;
 mod legacy;
 mod loading;
-mod status;
+pub(super) mod status;
 
 use super::manifest::{load_model_manifest, model_lock_hash, ModelFileSpec, ModelSpec};
 use super::MlError;
 use anyhow::Result;
 use std::path::PathBuf;
 
-pub use legacy::SentenceTransformer;
-pub use status::{ModelCacheMetadata, ModelStatus};
+pub(crate) use legacy::SentenceTransformer;
+pub(crate) use status::ModelCacheMetadata;
 
 /// Manages model download and caching.
 pub struct ModelManager {

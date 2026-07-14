@@ -19,7 +19,7 @@ const COMPANY_SCRAPE_FAILED: &str =
 
 /// Lever scraper configuration
 #[derive(Debug, Clone)]
-pub struct LeverScraper {
+pub(crate) struct LeverScraper {
     /// List of Lever company URLs to scrape
     pub companies: Vec<LeverCompany>,
     /// Rate limiter for respecting Lever's request limits
@@ -27,14 +27,14 @@ pub struct LeverScraper {
 }
 
 #[derive(Debug, Clone)]
-pub struct LeverCompany {
+pub(crate) struct LeverCompany {
     pub id: String,
     pub name: String,
     pub url: String,
 }
 
 impl LeverScraper {
-    pub fn new(companies: Vec<LeverCompany>) -> Self {
+    pub(crate) fn new(companies: Vec<LeverCompany>) -> Self {
         Self {
             companies,
             rate_limiter: RateLimiter::shared(),

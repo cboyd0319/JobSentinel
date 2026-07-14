@@ -1,5 +1,5 @@
 use super::integrity::verify_model_file_checksum;
-use super::{fallback_runtime_model_spec, ModelManager, ModelStatus};
+use super::{fallback_runtime_model_spec, status::ModelStatus, ModelManager};
 use crate::core::ml::manifest::model_lock_hash;
 use crate::core::ml::manifest::ModelSpec;
 use crate::core::ml::MlError;

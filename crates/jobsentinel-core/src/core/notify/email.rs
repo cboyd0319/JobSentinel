@@ -14,7 +14,7 @@ use lettre::{
 };
 
 /// Send email notification
-pub async fn send_email_notification(
+pub(super) async fn send_email_notification(
     config: &EmailConfig,
     notification: &Notification,
 ) -> Result<()> {

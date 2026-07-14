@@ -9,7 +9,7 @@ use super::sanitizer::ConfigSummary;
 
 /// System information for feedback reports (safe to share publicly)
 #[derive(Debug, Clone, Serialize)]
-pub struct SystemInfo {
+pub(crate) struct SystemInfo {
     pub app_version: String,
     pub platform: String,
     pub os_version: String,
@@ -18,7 +18,7 @@ pub struct SystemInfo {
 
 impl SystemInfo {
     /// Get current system information
-    pub fn current() -> Self {
+    pub(crate) fn current() -> Self {
         Self {
             app_version: env!("CARGO_PKG_VERSION").to_string(),
             platform: std::env::consts::OS.to_string(),
@@ -73,7 +73,7 @@ impl SystemInfo {
 }
 
 /// Generate anonymized configuration summary
-pub fn summarize_config(config: &Config) -> ConfigSummary {
+pub(super) fn summarize_config(config: &Config) -> ConfigSummary {
     // Count configured notification channels
     let notifications_configured = {
         let mut count = 0;

@@ -207,7 +207,9 @@ export function hasRawUtilityCommandErrorDetails(root, path) {
 }
 
 function resumeSummaryStructMissingOrPrivate(text) {
-  const match = text.match(/pub\s+struct\s+ResumeSummary\s*\{([^}]*)\}/);
+  const match = text.match(
+    /pub(?:\([^)]*\))?\s+struct\s+ResumeSummary\s*\{([^}]*)\}/,
+  );
   return !match || /\b(?:file_path|parsed_text)\b/.test(match[1]);
 }
 

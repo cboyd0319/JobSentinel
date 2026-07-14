@@ -5,7 +5,12 @@ use crate::core::url_security::canonicalize_user_supplied_job_url;
 use sha2::{Digest, Sha256};
 
 /// Compute the canonical job hash used for deduplication.
-pub fn calculate_job_hash(company: &str, title: &str, location: Option<&str>, url: &str) -> String {
+pub(crate) fn calculate_job_hash(
+    company: &str,
+    title: &str,
+    location: Option<&str>,
+    url: &str,
+) -> String {
     let mut hasher = Sha256::new();
     hasher.update(company.to_lowercase().as_bytes());
     hasher.update(normalize_title(title).as_bytes());

@@ -20,7 +20,7 @@ const COMPANY_SCRAPE_FAILED: &str =
 
 /// Greenhouse scraper configuration
 #[derive(Debug, Clone)]
-pub struct GreenhouseScraper {
+pub(crate) struct GreenhouseScraper {
     /// List of Greenhouse company URLs to scrape
     pub companies: Vec<GreenhouseCompany>,
     /// Rate limiter for respecting Greenhouse's request limits
@@ -28,14 +28,14 @@ pub struct GreenhouseScraper {
 }
 
 #[derive(Debug, Clone)]
-pub struct GreenhouseCompany {
+pub(crate) struct GreenhouseCompany {
     pub id: String,
     pub name: String,
     pub url: String,
 }
 
 impl GreenhouseScraper {
-    pub fn new(companies: Vec<GreenhouseCompany>) -> Self {
+    pub(crate) fn new(companies: Vec<GreenhouseCompany>) -> Self {
         Self {
             companies,
             rate_limiter: RateLimiter::shared(),

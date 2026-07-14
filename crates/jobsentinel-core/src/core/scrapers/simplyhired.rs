@@ -22,7 +22,7 @@ use chrono::Utc;
 
 /// SimplyHired job scraper using RSS feeds
 #[derive(Debug, Clone)]
-pub struct SimplyHiredScraper {
+pub(crate) struct SimplyHiredScraper {
     /// Search query (e.g., "care coordinator")
     pub query: String,
     /// Location filter (e.g., "remote" or "san francisco")
@@ -34,7 +34,7 @@ pub struct SimplyHiredScraper {
 }
 
 impl SimplyHiredScraper {
-    pub fn new(query: impl Into<String>, location: Option<String>, limit: usize) -> Self {
+    pub(crate) fn new(query: impl Into<String>, location: Option<String>, limit: usize) -> Self {
         Self {
             query: query.into(),
             location,

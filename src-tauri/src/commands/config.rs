@@ -19,7 +19,7 @@ use tokio::sync::RwLock;
 /// Email configuration for testing (matches frontend interface)
 #[derive(Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
-pub struct TestEmailConfig {
+pub(crate) struct TestEmailConfig {
     pub smtp_server: String,
     pub smtp_port: u16,
     pub smtp_username: String,
@@ -179,7 +179,7 @@ async fn connect_setup_database(_db_path: &Path) -> Result<Database, sqlx::Error
 
 /// Save user configuration
 #[tauri::command]
-pub async fn save_config(config: Value, state: State<'_, AppState>) -> Result<(), String> {
+pub(crate) async fn save_config(config: Value, state: State<'_, AppState>) -> Result<(), String> {
     tracing::info!("Command: save_config");
 
     let config_path = Config::default_path();
@@ -191,7 +191,7 @@ pub async fn save_config(config: Value, state: State<'_, AppState>) -> Result<()
 
 /// Get user configuration
 #[tauri::command]
-pub async fn get_config(state: State<'_, AppState>) -> Result<Value, String> {
+pub(crate) async fn get_config(state: State<'_, AppState>) -> Result<Value, String> {
     tracing::info!("Command: get_config");
 
     let config = state.config.read().await;
@@ -201,7 +201,7 @@ pub async fn get_config(state: State<'_, AppState>) -> Result<Value, String> {
 /// Minimal dashboard preferences. Avoids exposing full settings to dashboard UI.
 #[derive(Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct DashboardPreferences {
+pub(crate) struct DashboardPreferences {
     pub auto_refresh: AutoRefreshConfig,
     pub salary_floor_usd: i64,
     pub any_job_source_enabled: bool,
@@ -209,7 +209,7 @@ pub struct DashboardPreferences {
 
 #[derive(Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct ResumeMatchingPreference {
+pub(crate) struct ResumeMatchingPreference {
     pub enabled: bool,
 }
 
@@ -253,7 +253,7 @@ async fn set_resume_matching_enabled_in_runtime_and_path(
 }
 
 #[tauri::command]
-pub async fn get_dashboard_preferences(
+pub(crate) async fn get_dashboard_preferences(
     state: State<'_, AppState>,
 ) -> Result<DashboardPreferences, String> {
     tracing::info!("Command: get_dashboard_preferences");
@@ -262,7 +262,7 @@ pub async fn get_dashboard_preferences(
 }
 
 #[tauri::command]
-pub async fn get_resume_matching_preference(
+pub(crate) async fn get_resume_matching_preference(
     state: State<'_, AppState>,
 ) -> Result<ResumeMatchingPreference, String> {
     tracing::info!("Command: get_resume_matching_preference");
@@ -273,7 +273,7 @@ pub async fn get_resume_matching_preference(
 }
 
 #[tauri::command]
-pub async fn set_resume_matching_enabled(
+pub(crate) async fn set_resume_matching_enabled(
     enabled: bool,
     state: State<'_, AppState>,
 ) -> Result<ResumeMatchingPreference, String> {
@@ -303,7 +303,7 @@ fn any_job_source_enabled(config: &Config) -> bool {
 
 /// Validate Slack webhook URL
 #[tauri::command]
-pub async fn validate_slack_webhook(
+pub(crate) async fn validate_slack_webhook(
     webhook_url: String,
     state: State<'_, AppState>,
 ) -> Result<bool, String> {
@@ -323,7 +323,7 @@ pub async fn validate_slack_webhook(
 
 /// Check if first-run setup is complete
 #[tauri::command]
-pub async fn is_first_run() -> Result<bool, String> {
+pub(crate) async fn is_first_run() -> Result<bool, String> {
     tracing::info!("Command: is_first_run");
 
     // Check if configuration file exists
@@ -336,7 +336,10 @@ pub async fn is_first_run() -> Result<bool, String> {
 
 /// Complete first-run setup
 #[tauri::command]
-pub async fn complete_setup(config: Value, state: State<'_, AppState>) -> Result<(), String> {
+pub(crate) async fn complete_setup(
+    config: Value,
+    state: State<'_, AppState>,
+) -> Result<(), String> {
     tracing::info!("Command: complete_setup");
 
     let config_path = Config::default_path();
@@ -350,7 +353,7 @@ pub async fn complete_setup(config: Value, state: State<'_, AppState>) -> Result
 
 /// Test email notification configuration by sending a test email
 #[tauri::command]
-pub async fn test_email_notification(
+pub(crate) async fn test_email_notification(
     email_config: TestEmailConfig,
     state: State<'_, AppState>,
 ) -> Result<(), String> {

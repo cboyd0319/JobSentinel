@@ -6,11 +6,11 @@ use url::Url;
 
 use super::contract::{CanonicalJobRecord, SourceAdapterLane};
 
-pub const DEFAULT_LIMIT: u16 = 20;
-pub const DEFAULT_OFFSET: u32 = 0;
+pub(super) const DEFAULT_LIMIT: u16 = 20;
+pub(super) const DEFAULT_OFFSET: u32 = 0;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct WorkdayCxsSource {
+pub(super) struct WorkdayCxsSource {
     pub rank: u16,
     pub company: String,
     pub endpoint_url: String,
@@ -20,7 +20,7 @@ pub struct WorkdayCxsSource {
 }
 
 impl WorkdayCxsSource {
-    pub fn landing_base_url(&self) -> Option<String> {
+    pub(super) fn landing_base_url(&self) -> Option<String> {
         let endpoint = Url::parse(&self.endpoint_url).ok()?;
         Some(format!(
             "{}://{}/{}",
@@ -32,7 +32,7 @@ impl WorkdayCxsSource {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct WorkdayCxsRequest {
+pub(super) struct WorkdayCxsRequest {
     pub endpoint_url: String,
     pub applied_facets: Value,
     pub limit: u16,
@@ -41,7 +41,7 @@ pub struct WorkdayCxsRequest {
 }
 
 impl WorkdayCxsRequest {
-    pub fn new(endpoint_url: impl Into<String>) -> Self {
+    pub(super) fn new(endpoint_url: impl Into<String>) -> Self {
         Self {
             endpoint_url: endpoint_url.into(),
             applied_facets: json!({}),
@@ -51,7 +51,7 @@ impl WorkdayCxsRequest {
         }
     }
 
-    pub fn payload(&self) -> Value {
+    pub(super) fn payload(&self) -> Value {
         json!({
             "appliedFacets": self.applied_facets,
             "limit": self.limit,
@@ -60,7 +60,7 @@ impl WorkdayCxsRequest {
         })
     }
 
-    pub fn cache_key(&self) -> String {
+    pub(super) fn cache_key(&self) -> String {
         let payload = serde_json::to_vec(&self.payload()).unwrap_or_default();
         let digest = Sha256::digest(payload);
         let prefix = hex_prefix(&digest, 16);
@@ -76,13 +76,16 @@ impl WorkdayCxsRequest {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct WorkdayCxsListing {
+pub(super) struct WorkdayCxsListing {
     pub total: Option<u64>,
     pub jobs: Vec<CanonicalJobRecord>,
     pub parse_warnings: Vec<String>,
 }
 
-pub fn parse_workday_cxs_listing(payload: &Value, source: &WorkdayCxsSource) -> WorkdayCxsListing {
+pub(super) fn parse_workday_cxs_listing(
+    payload: &Value,
+    source: &WorkdayCxsSource,
+) -> WorkdayCxsListing {
     let postings = payload
         .get("jobPostings")
         .or_else(|| payload.get("jobs"))

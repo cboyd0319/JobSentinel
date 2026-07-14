@@ -24,7 +24,7 @@ use std::time::Duration;
 
 /// JobsWithGPT MCP scraper
 #[derive(Clone)]
-pub struct JobsWithGptScraper {
+pub(crate) struct JobsWithGptScraper {
     /// MCP server endpoint
     pub endpoint: String,
     /// Search query parameters
@@ -34,7 +34,7 @@ pub struct JobsWithGptScraper {
 }
 
 #[derive(Clone, Default)]
-pub struct JobQuery {
+pub(crate) struct JobQuery {
     /// Job titles to search for
     pub titles: Vec<String>,
     /// Location filter (optional)
@@ -67,7 +67,7 @@ impl fmt::Debug for JobQuery {
 }
 
 impl JobsWithGptScraper {
-    pub fn new(endpoint: impl Into<String>, query: JobQuery) -> Self {
+    pub(crate) fn new(endpoint: impl Into<String>, query: JobQuery) -> Self {
         Self {
             endpoint: endpoint.into(),
             query,

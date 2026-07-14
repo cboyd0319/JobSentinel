@@ -15,7 +15,7 @@ pub(crate) const PACKAGE_SMOKE_ROOT_ENV: &str = "JOBSENTINEL_MACOS_PACKAGE_SMOKE
 ///
 /// This follows Apple's File System Programming Guide recommendations:
 /// https://developer.apple.com/library/archive/documentation/FileManagement/Conceptual/FileSystemProgrammingGuide/
-pub fn get_data_dir() -> PathBuf {
+pub(crate) fn get_data_dir() -> PathBuf {
     if let Some(root) = package_smoke_root() {
         return smoke_home_dir(root)
             .join("Library")
@@ -43,7 +43,7 @@ pub fn get_data_dir() -> PathBuf {
 ///
 /// Uses XDG Base Directory Specification for cross-platform consistency:
 /// https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
-pub fn get_config_dir() -> PathBuf {
+pub(crate) fn get_config_dir() -> PathBuf {
     if let Some(root) = package_smoke_root() {
         return root.join("xdg").join("jobsentinel");
     }
@@ -68,7 +68,7 @@ pub fn get_config_dir() -> PathBuf {
 /// - Creates application data directories
 /// - Sets up macOS notifications (future)
 /// - Registers launch agent (future)
-pub fn initialize() -> Result<(), Box<dyn std::error::Error>> {
+pub(crate) fn initialize() -> Result<(), Box<dyn std::error::Error>> {
     // Create data directory if it doesn't exist
     let data_dir = get_data_dir();
     let data_dir_existed = data_dir.exists();
@@ -105,7 +105,7 @@ pub fn initialize() -> Result<(), Box<dyn std::error::Error>> {
 /// Get macOS version information
 ///
 /// Returns a string like "macOS 14.2" or "macOS (unknown)"
-pub fn get_macos_version() -> String {
+pub(crate) fn get_macos_version() -> String {
     // Try to read macOS version from system
     if let Ok(output) = std::process::Command::new("sw_vers")
         .arg("-productVersion")
@@ -122,7 +122,7 @@ pub fn get_macos_version() -> String {
 /// Get the appropriate cache directory for macOS
 ///
 /// Returns: ~/Library/Caches/JobSentinel
-pub fn get_cache_dir() -> PathBuf {
+pub(crate) fn get_cache_dir() -> PathBuf {
     if let Some(root) = package_smoke_root() {
         return smoke_home_dir(root)
             .join("Library")

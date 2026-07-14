@@ -10,7 +10,9 @@ use tauri::State;
 
 /// Get current scoring configuration
 #[tauri::command]
-pub async fn get_scoring_config(state: State<'_, AppState>) -> Result<ScoringConfig, String> {
+pub(crate) async fn get_scoring_config(
+    state: State<'_, AppState>,
+) -> Result<ScoringConfig, String> {
     tracing::info!("Command: get_scoring_config");
 
     load_scoring_config(state.database.pool())
@@ -26,7 +28,7 @@ pub async fn get_scoring_config(state: State<'_, AppState>) -> Result<ScoringCon
 ///
 /// Validates that weights sum to approximately 1.0 before saving.
 #[tauri::command]
-pub async fn update_scoring_config(
+pub(crate) async fn update_scoring_config(
     config: ScoringConfig,
     state: State<'_, AppState>,
 ) -> Result<(), String> {
@@ -59,7 +61,9 @@ pub async fn update_scoring_config(
 /// - Company: 10%
 /// - Recency: 5%
 #[tauri::command]
-pub async fn reset_scoring_config_cmd(state: State<'_, AppState>) -> Result<ScoringConfig, String> {
+pub(crate) async fn reset_scoring_config_cmd(
+    state: State<'_, AppState>,
+) -> Result<ScoringConfig, String> {
     tracing::info!("Command: reset_scoring_config");
 
     reset_scoring_config(state.database.pool())
@@ -81,7 +85,7 @@ pub async fn reset_scoring_config_cmd(state: State<'_, AppState>) -> Result<Scor
 /// - All weights are at most 1.0
 /// - Sum of weights is approximately 1.0 (±0.01 tolerance)
 #[tauri::command]
-pub async fn validate_scoring_config(config: ScoringConfig) -> Result<bool, String> {
+pub(crate) async fn validate_scoring_config(config: ScoringConfig) -> Result<bool, String> {
     tracing::info!("Command: validate_scoring_config");
 
     match config.validate() {

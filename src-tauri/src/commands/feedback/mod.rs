@@ -27,7 +27,7 @@ static SAVED_FEEDBACK_FILES: LazyLock<Mutex<HashMap<String, PathBuf>>> =
 
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct SavedFeedbackFile {
+pub(crate) struct SavedFeedbackFile {
     pub file_name: String,
     pub reveal_token: String,
 }
@@ -122,7 +122,10 @@ fn feedback_reveal_error() -> String {
 /// Open GitHub Issues page for bug reports
 #[tauri::command]
 #[allow(deprecated)]
-pub async fn open_github_issues(app: AppHandle, template: Option<String>) -> Result<(), String> {
+pub(crate) async fn open_github_issues(
+    app: AppHandle,
+    template: Option<String>,
+) -> Result<(), String> {
     let base_url = "https://github.com/cboyd0319/JobSentinel/issues/new";
 
     let url = if let Some(tmpl) = template {
@@ -184,7 +187,7 @@ fn reveal_canonical_path(app: AppHandle, canonical: PathBuf) -> Result<(), Strin
 }
 
 #[tauri::command]
-pub async fn reveal_saved_feedback_file(
+pub(crate) async fn reveal_saved_feedback_file(
     app: AppHandle,
     reveal_token: String,
 ) -> Result<(), String> {
@@ -203,20 +206,22 @@ pub async fn reveal_saved_feedback_file(
 
 /// Get system information (Tauri command)
 #[tauri::command]
-pub async fn get_system_info() -> Result<SystemInfo, String> {
+pub(crate) async fn get_system_info() -> Result<SystemInfo, String> {
     Ok(SystemInfo::current())
 }
 
 /// Get configuration summary (Tauri command)
 #[tauri::command]
-pub async fn get_config_summary(state: State<'_, AppState>) -> Result<ConfigSummary, String> {
+pub(crate) async fn get_config_summary(
+    state: State<'_, AppState>,
+) -> Result<ConfigSummary, String> {
     let config = state.config.read().await;
     Ok(system_info::summarize_config(&config))
 }
 
 /// Generate a complete feedback report
 #[tauri::command]
-pub async fn generate_feedback_report(
+pub(crate) async fn generate_feedback_report(
     state: State<'_, AppState>,
     category: String,
     description: String,
@@ -227,19 +232,19 @@ pub async fn generate_feedback_report(
 
 /// Sanitize renderer-composed feedback text before clipboard or file use.
 #[tauri::command]
-pub fn sanitize_feedback_text(content: String) -> String {
+pub(crate) fn sanitize_feedback_text(content: String) -> String {
     feedback_file_content(&content)
 }
 
 /// Generate suggested filename for feedback report
 #[tauri::command]
-pub fn get_feedback_filename() -> String {
+pub(crate) fn get_feedback_filename() -> String {
     report::get_feedback_filename_impl()
 }
 
 /// Save a feedback report using a native file dialog.
 #[tauri::command]
-pub async fn save_feedback_file(
+pub(crate) async fn save_feedback_file(
     app: tauri::AppHandle,
     content: String,
     suggested_filename: Option<String>,
@@ -274,7 +279,7 @@ pub async fn save_feedback_file(
 /// Returns the last 100 debug events, fully anonymized.
 /// Safe to include in bug reports and feedback submissions.
 #[tauri::command]
-pub async fn get_debug_log_formatted(_state: State<'_, AppState>) -> Result<String, String> {
+pub(crate) async fn get_debug_log_formatted(_state: State<'_, AppState>) -> Result<String, String> {
     Ok(format_debug_log())
 }
 
@@ -282,7 +287,7 @@ pub async fn get_debug_log_formatted(_state: State<'_, AppState>) -> Result<Stri
 ///
 /// Returns structured event data. Frontend can format as needed.
 #[tauri::command]
-pub async fn get_debug_log_events(
+pub(crate) async fn get_debug_log_events(
     _state: State<'_, AppState>,
 ) -> Result<Vec<TimestampedEvent>, String> {
     Ok(get_debug_log())
@@ -292,7 +297,7 @@ pub async fn get_debug_log_events(
 ///
 /// Useful for testing or resetting diagnostic state.
 #[tauri::command]
-pub async fn clear_debug_log_cmd(_state: State<'_, AppState>) -> Result<(), String> {
+pub(crate) async fn clear_debug_log_cmd(_state: State<'_, AppState>) -> Result<(), String> {
     clear_debug_log();
     Ok(())
 }

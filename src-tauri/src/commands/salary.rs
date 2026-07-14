@@ -11,7 +11,7 @@ use tauri::State;
 
 /// Predict salary for a job
 #[tauri::command]
-pub async fn predict_salary(
+pub(crate) async fn predict_salary(
     job_hash: String,
     years_experience: Option<i32>,
     state: State<'_, AppState>,
@@ -31,7 +31,7 @@ pub async fn predict_salary(
 
 /// Get salary benchmark for a role
 #[tauri::command]
-pub async fn get_salary_benchmark(
+pub(crate) async fn get_salary_benchmark(
     job_title: String,
     location: String,
     seniority: String,
@@ -65,7 +65,7 @@ pub async fn get_salary_benchmark(
 
 /// Generate negotiation script
 #[tauri::command]
-pub async fn generate_negotiation_script(
+pub(crate) async fn generate_negotiation_script(
     scenario: String,
     params: HashMap<String, String>,
     state: State<'_, AppState>,
@@ -84,7 +84,7 @@ pub async fn generate_negotiation_script(
 
 /// Compare multiple job offers
 #[tauri::command]
-pub async fn compare_offers(
+pub(crate) async fn compare_offers(
     offer_ids: Vec<i64>,
     state: State<'_, AppState>,
 ) -> Result<Vec<OfferComparison>, String> {

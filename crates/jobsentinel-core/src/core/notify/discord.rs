@@ -120,7 +120,7 @@ fn build_discord_payload(config: &DiscordConfig, notification: &Notification) ->
 }
 
 /// Send Discord notification via webhook
-pub async fn send_discord_notification(
+pub(super) async fn send_discord_notification(
     config: &DiscordConfig,
     notification: &Notification,
 ) -> Result<()> {

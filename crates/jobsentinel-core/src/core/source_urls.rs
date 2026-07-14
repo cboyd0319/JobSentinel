@@ -3,7 +3,7 @@
 use url::Url;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct CompanyBoardUrl {
+pub(crate) struct CompanyBoardUrl {
     pub id: String,
     pub url: String,
 }
@@ -11,7 +11,7 @@ pub struct CompanyBoardUrl {
 const GREENHOUSE_BOARD_HOSTS: &[&str] = &["boards.greenhouse.io", "job-boards.greenhouse.io"];
 const CURRENT_GREENHOUSE_BOARD_HOST: &str = "job-boards.greenhouse.io";
 
-pub fn parse_greenhouse_company_url(value: &str) -> Result<CompanyBoardUrl, String> {
+pub(crate) fn parse_greenhouse_company_url(value: &str) -> Result<CompanyBoardUrl, String> {
     parse_company_board_url(
         value,
         GREENHOUSE_BOARD_HOSTS,
@@ -20,11 +20,11 @@ pub fn parse_greenhouse_company_url(value: &str) -> Result<CompanyBoardUrl, Stri
     )
 }
 
-pub fn parse_lever_company_url(value: &str) -> Result<CompanyBoardUrl, String> {
+pub(crate) fn parse_lever_company_url(value: &str) -> Result<CompanyBoardUrl, String> {
     parse_company_board_url(value, &["jobs.lever.co"], "Lever", "jobs.lever.co")
 }
 
-pub fn is_safe_company_board_id(value: &str) -> bool {
+pub(crate) fn is_safe_company_board_id(value: &str) -> bool {
     !value.is_empty()
         && value
             .bytes()

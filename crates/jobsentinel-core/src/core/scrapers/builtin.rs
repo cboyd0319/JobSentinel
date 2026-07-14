@@ -21,7 +21,7 @@ use scraper::{Html, Selector};
 
 /// BuiltIn job scraper
 #[derive(Debug, Clone)]
-pub struct BuiltInScraper {
+pub(crate) struct BuiltInScraper {
     /// Whether to filter for remote jobs only
     pub remote_only: bool,
     /// Maximum results to return
@@ -36,7 +36,7 @@ impl BuiltInScraper {
     /// # Arguments
     /// * `remote_only` - If true, only fetch remote jobs from /jobs/remote
     /// * `limit` - Maximum number of jobs to return
-    pub fn new(remote_only: bool, limit: usize) -> Self {
+    pub(crate) fn new(remote_only: bool, limit: usize) -> Self {
         Self {
             remote_only,
             limit,

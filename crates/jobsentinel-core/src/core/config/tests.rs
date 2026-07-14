@@ -5,6 +5,7 @@ mod tests {
     use super::super::defaults::*;
     use super::super::types::*;
     use super::super::validation::validate_config;
+    use super::super::LinkedInConfig;
     use std::fs;
     use std::path::Path;
     use tempfile::TempDir;

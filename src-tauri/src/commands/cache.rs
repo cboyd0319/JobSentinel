@@ -8,7 +8,7 @@ use crate::core::scoring::{clear_score_cache, score_cache_stats, ScoreCacheStats
 ///
 /// Returns hit/miss counts, entry count, and hit rate
 #[tauri::command]
-pub async fn get_score_cache_stats() -> Result<ScoreCacheStats, String> {
+pub(crate) async fn get_score_cache_stats() -> Result<ScoreCacheStats, String> {
     Ok(score_cache_stats().await)
 }
 
@@ -16,7 +16,7 @@ pub async fn get_score_cache_stats() -> Result<ScoreCacheStats, String> {
 ///
 /// Useful for testing or when forcing fresh scoring
 #[tauri::command]
-pub async fn clear_scoring_cache() -> Result<(), String> {
+pub(crate) async fn clear_scoring_cache() -> Result<(), String> {
     clear_score_cache().await;
     Ok(())
 }
@@ -25,7 +25,7 @@ pub async fn clear_scoring_cache() -> Result<(), String> {
 ///
 /// Returns statistics about cache performance
 #[tauri::command]
-pub async fn get_cache_health() -> Result<serde_json::Value, String> {
+pub(crate) async fn get_cache_health() -> Result<serde_json::Value, String> {
     let score_stats = score_cache_stats().await;
 
     Ok(serde_json::json!({

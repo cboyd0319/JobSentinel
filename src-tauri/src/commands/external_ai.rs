@@ -84,7 +84,7 @@ const HIDDEN_TEXT_MARKERS: &[&str] = &[
 /// Reviewed outside-AI request from the renderer.
 #[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct ExternalAiCommandRequest {
+pub(crate) struct ExternalAiCommandRequest {
     pub feature: String,
     pub provider: ExternalAiProvider,
     pub labels: Vec<String>,
@@ -99,13 +99,13 @@ pub struct ExternalAiCommandRequest {
 /// Plain provider response for the renderer.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
-pub struct ExternalAiCommandResponse {
+pub(crate) struct ExternalAiCommandResponse {
     pub text: String,
 }
 
 /// Send reviewed public job-posting details to the user's configured provider.
 #[tauri::command]
-pub async fn send_external_ai_request(
+pub(crate) async fn send_external_ai_request(
     request: ExternalAiCommandRequest,
     state: State<'_, AppState>,
 ) -> Result<ExternalAiCommandResponse, String> {

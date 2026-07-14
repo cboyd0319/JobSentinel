@@ -281,7 +281,7 @@ fn copy_selected_resume_to_managed_storage(
 /// and an opaque app-owned token, never the user's source file path.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct ApplicationResumeFileSelection {
+pub(crate) struct ApplicationResumeFileSelection {
     pub token: String,
     pub file_name: String,
 }

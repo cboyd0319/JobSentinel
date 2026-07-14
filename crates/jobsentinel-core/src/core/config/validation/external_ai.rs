@@ -1,5 +1,5 @@
-use crate::core::config::types::{Config, ExternalAiProvider};
 use crate::core::config::validation_error::{ValidationError, ValidationErrors};
+use crate::core::config::{Config, ExternalAiProvider};
 use crate::core::url_security::validate_external_https_url;
 use std::collections::BTreeSet;
 

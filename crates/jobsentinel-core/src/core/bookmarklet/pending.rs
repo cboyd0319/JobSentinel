@@ -37,7 +37,7 @@ pub struct BookmarkletImportConfirmResult {
 }
 
 #[derive(Debug, Clone, Serialize)]
-pub struct BookmarkletImportQueueResult {
+pub(super) struct BookmarkletImportQueueResult {
     pub pending: usize,
     pub skipped: usize,
 }
@@ -78,11 +78,11 @@ impl PendingBookmarkletImport {
     }
 }
 
-pub fn new_pending_bookmarklet_imports() -> PendingBookmarkletImports {
+pub(super) fn new_pending_bookmarklet_imports() -> PendingBookmarkletImports {
     Arc::new(RwLock::new(Vec::new()))
 }
 
-pub fn pending_bookmarklet_import_previews(
+pub(super) fn pending_bookmarklet_import_previews(
     pending_imports: &PendingBookmarkletImports,
 ) -> Vec<PendingBookmarkletImportPreview> {
     let pending = match pending_imports.read() {
@@ -96,7 +96,7 @@ pub fn pending_bookmarklet_import_previews(
         .collect()
 }
 
-pub fn queue_pending_bookmarklet_imports(
+pub(super) fn queue_pending_bookmarklet_imports(
     pending_imports: &PendingBookmarkletImports,
     imports: Vec<PendingBookmarkletImport>,
 ) -> BookmarkletImportQueueResult {
@@ -136,7 +136,7 @@ pub fn queue_pending_bookmarklet_imports(
     }
 }
 
-pub fn selected_pending_bookmarklet_imports(
+pub(super) fn selected_pending_bookmarklet_imports(
     pending_imports: &PendingBookmarkletImports,
     ids: &[String],
 ) -> Vec<PendingBookmarkletImport> {
@@ -157,7 +157,7 @@ pub fn selected_pending_bookmarklet_imports(
         .collect()
 }
 
-pub fn remove_pending_bookmarklet_imports(
+pub(super) fn remove_pending_bookmarklet_imports(
     pending_imports: &PendingBookmarkletImports,
     ids: &[String],
 ) -> usize {

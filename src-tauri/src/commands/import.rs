@@ -12,7 +12,7 @@ use tauri::State;
 
 #[tauri::command]
 #[tracing::instrument(skip(state, url), fields(url = %sanitize_url_for_logging(&url)), level = "info")]
-pub async fn preview_job_import(
+pub(crate) async fn preview_job_import(
     url: String,
     state: State<'_, AppState>,
 ) -> Result<JobImportPreview, String> {
@@ -32,7 +32,7 @@ pub async fn preview_job_import(
 
 #[tauri::command]
 #[tracing::instrument(skip(state, import_id), level = "info")]
-pub async fn confirm_job_import(
+pub(crate) async fn confirm_job_import(
     import_id: String,
     state: State<'_, AppState>,
 ) -> Result<ImportedJobSummary, String> {

@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 use sqlx::{Row, SqlitePool};
 
 /// Market analyzer
-pub struct MarketAnalyzer {
+pub(super) struct MarketAnalyzer {
     db: SqlitePool,
 }
 
@@ -27,12 +27,12 @@ fn compute_median(values: &mut [f64]) -> Option<f64> {
 }
 
 impl MarketAnalyzer {
-    pub fn new(db: SqlitePool) -> Self {
+    pub(super) fn new(db: SqlitePool) -> Self {
         Self { db }
     }
 
     /// Create daily market snapshot
-    pub async fn create_daily_snapshot(&self) -> Result<MarketSnapshot> {
+    pub(super) async fn create_daily_snapshot(&self) -> Result<MarketSnapshot> {
         let today = Utc::now().date_naive();
 
         // Total jobs in database
@@ -238,7 +238,7 @@ impl MarketAnalyzer {
     }
 
     /// Get latest market snapshot
-    pub async fn get_latest_snapshot(&self) -> Result<Option<MarketSnapshot>> {
+    pub(super) async fn get_latest_snapshot(&self) -> Result<Option<MarketSnapshot>> {
         let row = sqlx::query(
             r#"
             SELECT
@@ -261,7 +261,10 @@ impl MarketAnalyzer {
     }
 
     /// Get historical snapshots (last N days)
-    pub async fn get_historical_snapshots(&self, days: usize) -> Result<Vec<MarketSnapshot>> {
+    pub(super) async fn get_historical_snapshots(
+        &self,
+        days: usize,
+    ) -> Result<Vec<MarketSnapshot>> {
         let modifier = format!("-{days} days");
         let rows = sqlx::query(
             r#"

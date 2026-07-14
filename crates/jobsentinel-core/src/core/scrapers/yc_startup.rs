@@ -21,7 +21,7 @@ const YC_JOBS_URL: &str = "https://www.ycombinator.com/jobs";
 
 /// Y Combinator Work at a Startup scraper
 #[derive(Debug, Clone)]
-pub struct YcStartupScraper {
+pub(crate) struct YcStartupScraper {
     /// Optional keyword filter
     pub query: Option<String>,
     /// Filter for remote jobs only
@@ -33,7 +33,7 @@ pub struct YcStartupScraper {
 }
 
 impl YcStartupScraper {
-    pub fn new(query: Option<String>, remote_only: bool, limit: usize) -> Self {
+    pub(crate) fn new(query: Option<String>, remote_only: bool, limit: usize) -> Self {
         Self {
             query,
             remote_only,

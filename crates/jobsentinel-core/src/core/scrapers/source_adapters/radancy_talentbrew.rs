@@ -8,10 +8,10 @@ use url::Url;
 
 use super::contract::{CanonicalJobRecord, SourceAdapterLane};
 
-pub const DEFAULT_PAGE: u16 = 1;
+pub(super) const DEFAULT_PAGE: u16 = 1;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct SyscoRadancySource {
+pub(super) struct SyscoRadancySource {
     pub rank: u16,
     pub company: String,
     pub careers_url: String,
@@ -20,14 +20,14 @@ pub struct SyscoRadancySource {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct SyscoRadancyRequest {
+pub(super) struct SyscoRadancyRequest {
     pub search_url: String,
     pub page: u16,
     pub keyword: String,
 }
 
 impl SyscoRadancyRequest {
-    pub fn new(search_url: impl Into<String>) -> Self {
+    pub(super) fn new(search_url: impl Into<String>) -> Self {
         Self {
             search_url: search_url.into(),
             page: DEFAULT_PAGE,
@@ -35,7 +35,7 @@ impl SyscoRadancyRequest {
         }
     }
 
-    pub fn url(&self) -> String {
+    pub(super) fn url(&self) -> String {
         if self.keyword.trim().is_empty() && self.page <= 1 {
             return self.search_url.clone();
         }
@@ -55,7 +55,7 @@ impl SyscoRadancyRequest {
         url.to_string()
     }
 
-    pub fn cache_key(&self) -> String {
+    pub(super) fn cache_key(&self) -> String {
         let resolved_url = self.url();
         let digest = Sha256::digest(resolved_url.as_bytes());
         let prefix = hex_prefix(&digest, 16);
@@ -71,7 +71,7 @@ impl SyscoRadancyRequest {
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
-pub struct RadancyListingMetadata {
+pub(super) struct RadancyListingMetadata {
     pub current_page: Option<u16>,
     pub records_per_page: Option<u16>,
     pub total_results: Option<u32>,
@@ -83,7 +83,7 @@ pub struct RadancyListingMetadata {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct SyscoRadancyListing {
+pub(super) struct SyscoRadancyListing {
     pub page_title: String,
     pub metadata: RadancyListingMetadata,
     pub jobs: Vec<CanonicalJobRecord>,
@@ -91,7 +91,7 @@ pub struct SyscoRadancyListing {
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
-pub struct JsonLdJobPosting {
+pub(super) struct JsonLdJobPosting {
     pub title: Option<String>,
     pub identifier: Option<String>,
     pub url: Option<String>,
@@ -102,14 +102,14 @@ pub struct JsonLdJobPosting {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct SyscoRadancyDetail {
+pub(super) struct SyscoRadancyDetail {
     pub page_title: String,
     pub json_ld_jobpostings: Vec<JsonLdJobPosting>,
     pub workday_apply_urls: Vec<String>,
     pub parse_warnings: Vec<String>,
 }
 
-pub fn parse_sysco_radancy_listing(
+pub(super) fn parse_sysco_radancy_listing(
     html: &str,
     source: &SyscoRadancySource,
     request: &SyscoRadancyRequest,
@@ -132,7 +132,7 @@ pub fn parse_sysco_radancy_listing(
     }
 }
 
-pub fn parse_sysco_radancy_detail(html: &str) -> SyscoRadancyDetail {
+pub(super) fn parse_sysco_radancy_detail(html: &str) -> SyscoRadancyDetail {
     let document = Html::parse_document(html);
     let page_title = first_text(&document, "title").unwrap_or_default();
     let json_ld_jobpostings = parse_json_ld_jobpostings(&document);

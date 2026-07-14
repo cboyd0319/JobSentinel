@@ -9,7 +9,7 @@ use super::builder::Proficiency;
 
 mod types;
 
-pub use types::*;
+pub(crate) use types::*;
 
 // ============================================================================
 // Conversion Implementation
@@ -17,12 +17,12 @@ pub use types::*;
 
 impl JsonResume {
     /// Parse JSON Resume from JSON string
-    pub fn from_json(json_string: &str) -> Result<Self> {
+    pub(super) fn from_json(json_string: &str) -> Result<Self> {
         serde_json::from_str(json_string).context("Failed to parse JSON Resume")
     }
 
     /// Convert JSON Resume to intermediate format (avoid type conflicts)
-    pub fn to_resume_data(&self) -> Result<ConvertedResumeData> {
+    pub(super) fn to_resume_data(&self) -> Result<ConvertedResumeData> {
         let contact_info = self.convert_contact_info();
         let summary = self.basics.summary.clone();
         let experience = self.convert_experience();

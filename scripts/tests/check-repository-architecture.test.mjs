@@ -384,11 +384,13 @@ test("checkRepositoryArchitecture rejects public implementation leaf modules", (
       "crates/jobsentinel-core/src/core/credentials/mod.rs",
       "crates/jobsentinel-core/src/core/db/mod.rs",
       "crates/jobsentinel-core/src/core/db/integrity/mod.rs",
+      "crates/jobsentinel-core/src/core/deeplinks/mod.rs",
       "crates/jobsentinel-core/src/core/import/mod.rs",
       "crates/jobsentinel-core/src/core/market_intelligence/mod.rs",
       "crates/jobsentinel-core/src/core/notify/mod.rs",
       "crates/jobsentinel-core/src/core/resume/mod.rs",
       "crates/jobsentinel-core/src/core/salary/mod.rs",
+      "crates/jobsentinel-core/src/core/scheduler/workers/mod.rs",
       "crates/jobsentinel-core/src/core/scrapers/mod.rs",
       "crates/jobsentinel-core/src/core/scrapers/source_adapters/mod.rs",
     ]) {
@@ -408,11 +410,13 @@ test("checkRepositoryArchitecture rejects public implementation leaf modules", (
       "crates/jobsentinel-core/src/core/credentials/mod.rs",
       "crates/jobsentinel-core/src/core/db/mod.rs",
       "crates/jobsentinel-core/src/core/db/integrity/mod.rs",
+      "crates/jobsentinel-core/src/core/deeplinks/mod.rs",
       "crates/jobsentinel-core/src/core/import/mod.rs",
       "crates/jobsentinel-core/src/core/market_intelligence/mod.rs",
       "crates/jobsentinel-core/src/core/notify/mod.rs",
       "crates/jobsentinel-core/src/core/resume/mod.rs",
       "crates/jobsentinel-core/src/core/salary/mod.rs",
+      "crates/jobsentinel-core/src/core/scheduler/workers/mod.rs",
       "crates/jobsentinel-core/src/core/scrapers/mod.rs",
       "crates/jobsentinel-core/src/core/scrapers/source_adapters/mod.rs",
     ]) {
@@ -441,6 +445,26 @@ test("checkRepositoryArchitecture rejects public implementation leaf modules", (
         "crates/jobsentinel-core/src/core/mod.rs must keep scraper implementations core-internal",
       ),
       coreModuleViolations.join("\n"),
+    );
+  });
+});
+
+test("checkRepositoryArchitecture rejects Rust source outside the module graph", () => {
+  withFixture((root) => {
+    writeTargetWorkspace(root);
+    writeFixtureFile(
+      root,
+      "crates/jobsentinel-core/src/unowned.rs",
+      "pub struct Unowned;\n",
+    );
+
+    const violations = checkRepositoryArchitecture(root);
+
+    assert.ok(
+      violations.includes(
+        "crates/jobsentinel-core/src/unowned.rs must be reachable from a Rust crate root",
+      ),
+      violations.join("\n"),
     );
   });
 });

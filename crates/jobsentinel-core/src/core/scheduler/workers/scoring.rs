@@ -41,7 +41,7 @@ async fn active_resume_cache_id(config: &Config, database: &Database) -> Option<
     ),
     level = "info"
 )]
-pub async fn score_jobs(
+pub(crate) async fn score_jobs(
     jobs: Vec<Job>,
     config: &Arc<Config>,
     database: &Arc<Database>,

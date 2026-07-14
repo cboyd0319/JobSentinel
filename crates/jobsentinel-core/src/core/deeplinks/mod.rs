@@ -42,9 +42,9 @@
 //! - **Remote**: FlexJobs, We Work Remotely, Remote OK
 //! - **Startups**: Wellfound (AngelList), Y Combinator Jobs
 
-pub mod generator;
-pub mod sites;
-pub mod types;
+mod generator;
+mod sites;
+mod types;
 
 // Re-exports
 pub use generator::{generate_all_links, generate_link_for_site};

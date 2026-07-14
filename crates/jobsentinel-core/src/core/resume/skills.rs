@@ -74,7 +74,7 @@ fn load_resume_skill_taxonomy() -> ResumeSkillTaxonomy {
 
 /// Extracted skill with metadata
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ExtractedSkill {
+pub(super) struct ExtractedSkill {
     pub skill_name: String,
     pub skill_category: Option<String>,
     pub confidence_score: f64,
@@ -87,12 +87,12 @@ pub struct ExtractedSkill {
 /// - Requires no external services or ML models
 /// - Works 100% offline
 /// - Is deterministic and fast
-pub struct SkillExtractor {
+pub(super) struct SkillExtractor {
     skill_database: SkillDatabase,
 }
 
 impl SkillExtractor {
-    pub fn new() -> Self {
+    pub(super) fn new() -> Self {
         Self {
             skill_database: SkillDatabase::default(),
         }
@@ -101,7 +101,7 @@ impl SkillExtractor {
     /// Extract skills from resume text
     ///
     /// Returns a list of skills with confidence scores and categories
-    pub fn extract_skills(&self, text: &str) -> Vec<ExtractedSkill> {
+    pub(super) fn extract_skills(&self, text: &str) -> Vec<ExtractedSkill> {
         let text_lower = text.to_lowercase();
         let mut found_skills = Vec::new();
         let mut seen_skills = HashSet::new();

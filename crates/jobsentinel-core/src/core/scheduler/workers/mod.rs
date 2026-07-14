@@ -5,10 +5,10 @@
 //! - Scoring jobs based on user preferences
 //! - Persisting jobs to the database and sending notifications
 
-pub mod persistence;
-pub mod scoring;
-pub mod scrapers;
+mod persistence;
+mod scoring;
+mod scrapers;
 
-pub use persistence::persist_and_notify;
-pub use scoring::score_jobs;
-pub use scrapers::run_scrapers;
+pub(super) use persistence::persist_and_notify;
+pub(super) use scoring::score_jobs;
+pub(super) use scrapers::run_scrapers;

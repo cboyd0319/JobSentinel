@@ -15,7 +15,7 @@ const SUPPORTED_RESUME_UPLOAD_EXTENSIONS: &[&str] = &["pdf", "docx", "txt", "md"
 
 /// Select, copy, and parse a local resume without exposing source paths to renderer IPC.
 #[tauri::command]
-pub async fn select_and_upload_resume(
+pub(crate) async fn select_and_upload_resume(
     app: tauri::AppHandle,
     state: State<'_, AppState>,
 ) -> Result<Option<i64>, String> {
@@ -67,7 +67,7 @@ async fn upload_resume_from_managed_path(
 
 /// Import resume from JSON Resume format
 #[tauri::command]
-pub async fn import_json_resume(
+pub(crate) async fn import_json_resume(
     name: String,
     json_string: String,
     state: State<'_, AppState>,
@@ -87,7 +87,7 @@ pub async fn import_json_resume(
 
 /// Select and import a JSON Resume file without exposing source paths to renderer IPC.
 #[tauri::command]
-pub async fn select_and_import_json_resume(
+pub(crate) async fn select_and_import_json_resume(
     app: tauri::AppHandle,
     state: State<'_, AppState>,
 ) -> Result<Option<i64>, String> {
@@ -323,7 +323,10 @@ fn delete_managed_resume_upload_file(
 
 /// Delete a resume
 #[tauri::command]
-pub async fn delete_resume(resume_id: i64, state: State<'_, AppState>) -> Result<(), String> {
+pub(crate) async fn delete_resume(
+    resume_id: i64,
+    state: State<'_, AppState>,
+) -> Result<(), String> {
     tracing::info!("Command: delete_resume (id: {})", resume_id);
 
     let matcher = ResumeMatcher::new(state.database.pool().clone());

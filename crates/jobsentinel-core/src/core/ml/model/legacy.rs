@@ -4,7 +4,7 @@ use candle_core::{DType, Module, Tensor};
 use candle_nn::VarBuilder;
 
 /// Simple BERT-like model for sentence embeddings (all-MiniLM-L6-v2 architecture).
-pub struct SentenceTransformer {
+pub(crate) struct SentenceTransformer {
     embeddings: candle_nn::Embedding,
     layers: Vec<TransformerLayer>,
 }
@@ -32,7 +32,7 @@ struct FeedForward {
 
 impl SentenceTransformer {
     /// Load model from VarBuilder.
-    pub fn load(vb: VarBuilder) -> Result<Self> {
+    pub(crate) fn load(vb: VarBuilder) -> Result<Self> {
         const HIDDEN_SIZE: usize = 384;
         const NUM_LAYERS: usize = 6;
         const NUM_HEADS: usize = 12;
@@ -52,7 +52,7 @@ impl SentenceTransformer {
     }
 
     /// Forward pass to generate embeddings.
-    pub fn forward(&self, input_ids: &Tensor, attention_mask: &Tensor) -> Result<Tensor> {
+    pub(crate) fn forward(&self, input_ids: &Tensor, attention_mask: &Tensor) -> Result<Tensor> {
         let mut hidden = self
             .embeddings
             .forward(input_ids)

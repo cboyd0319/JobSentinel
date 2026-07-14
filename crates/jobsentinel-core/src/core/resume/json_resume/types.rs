@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 // ============================================================================
 
 #[derive(Debug, Clone)]
-pub struct ConvertedResumeData {
+pub(crate) struct ConvertedResumeData {
     pub contact_info: ConvertedContactInfo,
     pub summary: String,
     pub experience: Vec<ConvertedExperience>,
@@ -17,7 +17,7 @@ pub struct ConvertedResumeData {
 }
 
 #[derive(Debug, Clone)]
-pub struct ConvertedContactInfo {
+pub(crate) struct ConvertedContactInfo {
     pub name: String,
     pub email: String,
     pub phone: String,
@@ -28,7 +28,7 @@ pub struct ConvertedContactInfo {
 }
 
 #[derive(Debug, Clone)]
-pub struct ConvertedExperience {
+pub(crate) struct ConvertedExperience {
     pub title: String,
     pub company: String,
     pub location: String,
@@ -39,7 +39,7 @@ pub struct ConvertedExperience {
 }
 
 #[derive(Debug, Clone)]
-pub struct ConvertedEducation {
+pub(crate) struct ConvertedEducation {
     pub degree: String,
     pub institution: String,
     pub location: String,
@@ -49,21 +49,21 @@ pub struct ConvertedEducation {
 }
 
 #[derive(Debug, Clone)]
-pub struct ConvertedSkill {
+pub(crate) struct ConvertedSkill {
     pub name: String,
     pub category: String,
     pub proficiency: Option<Proficiency>,
 }
 
 #[derive(Debug, Clone)]
-pub struct ConvertedCertification {
+pub(crate) struct ConvertedCertification {
     pub name: String,
     pub issuer: String,
     pub date: String,
 }
 
 #[derive(Debug, Clone)]
-pub struct ConvertedProject {
+pub(crate) struct ConvertedProject {
     pub name: String,
     pub description: String,
     pub technologies: Vec<String>,
@@ -79,7 +79,7 @@ pub struct ConvertedProject {
 
 /// Root JSON Resume structure
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct JsonResume {
+pub(crate) struct JsonResume {
     #[serde(default)]
     pub basics: Basics,
     #[serde(default)]
@@ -107,7 +107,7 @@ pub struct JsonResume {
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
-pub struct Basics {
+pub(crate) struct Basics {
     #[serde(default)]
     pub name: String,
     #[serde(default)]
@@ -130,7 +130,7 @@ pub struct Basics {
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct Location {
+pub(crate) struct Location {
     #[serde(default)]
     pub address: String,
     #[serde(default)]
@@ -144,7 +144,7 @@ pub struct Location {
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
-pub struct Profile {
+pub(crate) struct Profile {
     #[serde(default)]
     pub network: String,
     #[serde(default)]
@@ -155,7 +155,7 @@ pub struct Profile {
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct Work {
+pub(crate) struct Work {
     #[serde(default)]
     pub name: String,
     #[serde(default)]
@@ -174,7 +174,7 @@ pub struct Work {
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct Volunteer {
+pub(crate) struct Volunteer {
     #[serde(default)]
     pub organization: String,
     #[serde(default)]
@@ -193,7 +193,7 @@ pub struct Volunteer {
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct EducationItem {
+pub(crate) struct EducationItem {
     #[serde(default)]
     pub institution: String,
     #[serde(default)]
@@ -213,7 +213,7 @@ pub struct EducationItem {
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
-pub struct Award {
+pub(crate) struct Award {
     #[serde(default)]
     pub title: String,
     #[serde(default)]
@@ -225,7 +225,7 @@ pub struct Award {
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
-pub struct Certificate {
+pub(crate) struct Certificate {
     #[serde(default)]
     pub name: String,
     #[serde(default)]
@@ -238,7 +238,7 @@ pub struct Certificate {
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct Publication {
+pub(crate) struct Publication {
     #[serde(default)]
     pub name: String,
     #[serde(default)]
@@ -252,7 +252,7 @@ pub struct Publication {
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
-pub struct SkillItem {
+pub(crate) struct SkillItem {
     #[serde(default)]
     pub name: String,
     #[serde(default)]
@@ -262,7 +262,7 @@ pub struct SkillItem {
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
-pub struct Language {
+pub(crate) struct Language {
     #[serde(default)]
     pub language: String,
     #[serde(default)]
@@ -270,7 +270,7 @@ pub struct Language {
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
-pub struct Interest {
+pub(crate) struct Interest {
     #[serde(default)]
     pub name: String,
     #[serde(default)]
@@ -278,7 +278,7 @@ pub struct Interest {
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
-pub struct Reference {
+pub(crate) struct Reference {
     #[serde(default)]
     pub name: String,
     #[serde(default)]
@@ -287,7 +287,7 @@ pub struct Reference {
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct Project {
+pub(crate) struct Project {
     #[serde(default)]
     pub name: String,
     #[serde(default)]

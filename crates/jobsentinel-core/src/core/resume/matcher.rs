@@ -21,13 +21,13 @@ struct JobInfo {
     description: String,
 }
 
-pub struct JobMatcher {
+pub(super) struct JobMatcher {
     db: SqlitePool,
     skill_extractor: SkillExtractor,
 }
 
 impl JobMatcher {
-    pub fn new(db: SqlitePool) -> Self {
+    pub(super) fn new(db: SqlitePool) -> Self {
         Self {
             db,
             skill_extractor: SkillExtractor::new(),
@@ -35,7 +35,7 @@ impl JobMatcher {
     }
 
     /// Extract skills from job description and store in database
-    pub async fn extract_job_skills(&self, job_hash: &str) -> Result<Vec<String>> {
+    pub(super) async fn extract_job_skills(&self, job_hash: &str) -> Result<Vec<String>> {
         // Get job details
         let job = self.get_job(job_hash).await?;
 
@@ -68,7 +68,7 @@ impl JobMatcher {
 
     /// Extract experience requirements from job description
     /// Patterns: "5+ years Python", "3-5 years experience", "Senior (7+ years)"
-    pub fn extract_experience_requirements(&self, text: &str) -> Vec<ExperienceRequirement> {
+    pub(super) fn extract_experience_requirements(&self, text: &str) -> Vec<ExperienceRequirement> {
         let mut requirements = Vec::new();
         let lower = text.to_lowercase();
 
@@ -155,7 +155,10 @@ impl JobMatcher {
     }
 
     /// Extract education requirements from job description
-    pub fn extract_education_requirements(&self, text: &str) -> Option<EducationRequirement> {
+    pub(super) fn extract_education_requirements(
+        &self,
+        text: &str,
+    ) -> Option<EducationRequirement> {
         let lower = text.to_lowercase();
 
         // Check if education is explicitly NOT required
@@ -320,7 +323,11 @@ impl JobMatcher {
     }
 
     /// Calculate match between resume and job
-    pub async fn calculate_match(&self, resume_id: i64, job_hash: &str) -> Result<MatchResult> {
+    pub(super) async fn calculate_match(
+        &self,
+        resume_id: i64,
+        job_hash: &str,
+    ) -> Result<MatchResult> {
         // Get job details for experience/education extraction
         let job = self.get_job(job_hash).await?;
         let job_text = format!("{} {}", job.title, job.description);

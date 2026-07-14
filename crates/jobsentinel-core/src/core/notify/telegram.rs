@@ -91,7 +91,7 @@ fn validate_chat_id(chat_id: &str) -> Result<()> {
 }
 
 /// Send Telegram notification via Bot API
-pub async fn send_telegram_notification(
+pub(super) async fn send_telegram_notification(
     config: &TelegramConfig,
     notification: &Notification,
 ) -> Result<()> {

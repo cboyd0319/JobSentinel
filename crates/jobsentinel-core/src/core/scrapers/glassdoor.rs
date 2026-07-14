@@ -22,7 +22,7 @@ use scraper::{Html, Selector as HtmlSelector};
 
 /// Glassdoor job scraper
 #[derive(Debug, Clone)]
-pub struct GlassdoorScraper {
+pub(crate) struct GlassdoorScraper {
     /// Search query (e.g., "office manager")
     pub query: String,
     /// Location filter (e.g., "San Francisco, CA")
@@ -34,7 +34,7 @@ pub struct GlassdoorScraper {
 }
 
 impl GlassdoorScraper {
-    pub fn new(query: impl Into<String>, location: Option<String>, limit: usize) -> Self {
+    pub(crate) fn new(query: impl Into<String>, location: Option<String>, limit: usize) -> Self {
         Self {
             query: query.into(),
             location,

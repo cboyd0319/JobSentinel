@@ -29,7 +29,7 @@ const MAX_RESULTS_PER_PAGE: u32 = 500;
 
 /// USAJobs API scraper for federal government positions
 #[derive(Clone)]
-pub struct UsaJobsScraper {
+pub(crate) struct UsaJobsScraper {
     /// API key from developer.usajobs.gov
     pub api_key: String,
     /// Email used for User-Agent header (required by API)
@@ -81,7 +81,7 @@ impl fmt::Debug for UsaJobsScraper {
 
 impl UsaJobsScraper {
     /// Create a new USAJobs scraper with API credentials
-    pub fn new(api_key: impl Into<String>, email: impl Into<String>) -> Self {
+    pub(crate) fn new(api_key: impl Into<String>, email: impl Into<String>) -> Self {
         Self {
             api_key: api_key.into(),
             email: email.into(),
@@ -98,39 +98,43 @@ impl UsaJobsScraper {
     }
 
     /// Set search keywords
-    pub fn with_keywords(mut self, keywords: impl Into<String>) -> Self {
+    pub(crate) fn with_keywords(mut self, keywords: impl Into<String>) -> Self {
         self.keywords = Some(keywords.into());
         self
     }
 
     /// Set location filter
-    pub fn with_location(mut self, location: impl Into<String>, radius: Option<u32>) -> Self {
+    pub(crate) fn with_location(
+        mut self,
+        location: impl Into<String>,
+        radius: Option<u32>,
+    ) -> Self {
         self.location = Some(location.into());
         self.radius = radius;
         self
     }
 
     /// Filter to remote-only positions
-    pub fn remote_only(mut self) -> Self {
+    pub(crate) fn remote_only(mut self) -> Self {
         self.remote_only = true;
         self
     }
 
     /// Set GS pay grade range
-    pub fn with_pay_grade(mut self, min: Option<u8>, max: Option<u8>) -> Self {
+    pub(crate) fn with_pay_grade(mut self, min: Option<u8>, max: Option<u8>) -> Self {
         self.pay_grade_min = min;
         self.pay_grade_max = max;
         self
     }
 
     /// Set date posted filter (0-60 days)
-    pub fn posted_within_days(mut self, days: u8) -> Self {
+    pub(crate) fn posted_within_days(mut self, days: u8) -> Self {
         self.date_posted_days = Some(days.min(60));
         self
     }
 
     /// Set maximum results limit
-    pub fn with_limit(mut self, limit: usize) -> Self {
+    pub(crate) fn with_limit(mut self, limit: usize) -> Self {
         self.limit = limit;
         self
     }

@@ -15,7 +15,7 @@ use tauri::State;
 /// This triggers a full scraping cycle across Greenhouse, Lever, and JobsWithGPT.
 #[tauri::command]
 #[tracing::instrument(skip(state), level = "info")]
-pub async fn search_jobs(state: State<'_, AppState>) -> Result<Value, String> {
+pub(crate) async fn search_jobs(state: State<'_, AppState>) -> Result<Value, String> {
     tracing::info!("Manual job search triggered via command");
 
     let scheduler = state.scheduler.clone().unwrap_or_else(|| {
@@ -61,7 +61,7 @@ pub async fn search_jobs(state: State<'_, AppState>) -> Result<Value, String> {
 /// Returns the most recent jobs, sorted by score (descending).
 #[tauri::command]
 #[tracing::instrument(skip(state), fields(limit), level = "debug")]
-pub async fn get_recent_jobs(
+pub(crate) async fn get_recent_jobs(
     limit: usize,
     state: State<'_, AppState>,
 ) -> Result<Vec<Value>, String> {
@@ -102,7 +102,10 @@ pub async fn get_recent_jobs(
 /// Get job by ID
 #[tauri::command]
 #[tracing::instrument(skip(state), fields(job_id = id), level = "debug")]
-pub async fn get_job_by_id(id: i64, state: State<'_, AppState>) -> Result<Option<Value>, String> {
+pub(crate) async fn get_job_by_id(
+    id: i64,
+    state: State<'_, AppState>,
+) -> Result<Option<Value>, String> {
     match state.database.get_job_by_id(id).await {
         Ok(job) => {
             let found = job.is_some();
@@ -133,7 +136,7 @@ pub async fn get_job_by_id(id: i64, state: State<'_, AppState>) -> Result<Option
 /// Search jobs with filter
 #[tauri::command]
 #[tracing::instrument(skip(state))]
-pub async fn search_jobs_query(
+pub(crate) async fn search_jobs_query(
     query: String,
     limit: usize,
     state: State<'_, AppState>,
@@ -177,7 +180,7 @@ pub async fn search_jobs_query(
 
 /// Hide a job (mark as dismissed by user)
 #[tauri::command]
-pub async fn hide_job(id: i64, state: State<'_, AppState>) -> Result<(), String> {
+pub(crate) async fn hide_job(id: i64, state: State<'_, AppState>) -> Result<(), String> {
     tracing::info!("Command: hide_job (id: {})", id);
 
     match state.database.hide_job(id).await {
@@ -197,7 +200,7 @@ pub async fn hide_job(id: i64, state: State<'_, AppState>) -> Result<(), String>
 
 /// Unhide a job (restore to visible)
 #[tauri::command]
-pub async fn unhide_job(id: i64, state: State<'_, AppState>) -> Result<(), String> {
+pub(crate) async fn unhide_job(id: i64, state: State<'_, AppState>) -> Result<(), String> {
     tracing::info!("Command: unhide_job (id: {})", id);
 
     match state.database.unhide_job(id).await {
@@ -217,7 +220,7 @@ pub async fn unhide_job(id: i64, state: State<'_, AppState>) -> Result<(), Strin
 
 /// Toggle bookmark status for a job
 #[tauri::command]
-pub async fn toggle_bookmark(id: i64, state: State<'_, AppState>) -> Result<bool, String> {
+pub(crate) async fn toggle_bookmark(id: i64, state: State<'_, AppState>) -> Result<bool, String> {
     tracing::info!("Command: toggle_bookmark (id: {})", id);
 
     match state.database.toggle_bookmark(id).await {
@@ -237,7 +240,7 @@ pub async fn toggle_bookmark(id: i64, state: State<'_, AppState>) -> Result<bool
 
 /// Get bookmarked jobs
 #[tauri::command]
-pub async fn get_bookmarked_jobs(
+pub(crate) async fn get_bookmarked_jobs(
     limit: usize,
     state: State<'_, AppState>,
 ) -> Result<Vec<Value>, String> {
@@ -276,7 +279,7 @@ pub async fn get_bookmarked_jobs(
 
 /// Set notes for a job
 #[tauri::command]
-pub async fn set_job_notes(
+pub(crate) async fn set_job_notes(
     id: i64,
     notes: Option<String>,
     state: State<'_, AppState>,
@@ -304,7 +307,10 @@ pub async fn set_job_notes(
 
 /// Get notes for a job
 #[tauri::command]
-pub async fn get_job_notes(id: i64, state: State<'_, AppState>) -> Result<Option<String>, String> {
+pub(crate) async fn get_job_notes(
+    id: i64,
+    state: State<'_, AppState>,
+) -> Result<Option<String>, String> {
     tracing::info!("Command: get_job_notes (id: {})", id);
 
     match state.database.get_job_notes(id).await {
@@ -321,7 +327,7 @@ pub async fn get_job_notes(id: i64, state: State<'_, AppState>) -> Result<Option
 
 /// Get application statistics
 #[tauri::command]
-pub async fn get_statistics(state: State<'_, AppState>) -> Result<Value, String> {
+pub(crate) async fn get_statistics(state: State<'_, AppState>) -> Result<Value, String> {
     tracing::info!("Command: get_statistics");
 
     match state.database.get_statistics().await {
@@ -339,7 +345,7 @@ pub async fn get_statistics(state: State<'_, AppState>) -> Result<Value, String>
 
 /// Get scraping status
 #[tauri::command]
-pub async fn get_scraping_status(state: State<'_, AppState>) -> Result<Value, String> {
+pub(crate) async fn get_scraping_status(state: State<'_, AppState>) -> Result<Value, String> {
     tracing::info!("Command: get_scraping_status");
 
     let status = state.scheduler_status.read().await;
@@ -355,7 +361,9 @@ pub async fn get_scraping_status(state: State<'_, AppState>) -> Result<Value, St
 
 /// Find duplicate job groups (same title + company from different sources)
 #[tauri::command]
-pub async fn find_duplicates(state: State<'_, AppState>) -> Result<Vec<DuplicateGroup>, String> {
+pub(crate) async fn find_duplicates(
+    state: State<'_, AppState>,
+) -> Result<Vec<DuplicateGroup>, String> {
     tracing::info!("Command: find_duplicates");
 
     state
@@ -367,7 +375,7 @@ pub async fn find_duplicates(state: State<'_, AppState>) -> Result<Vec<Duplicate
 
 /// Merge duplicate jobs: keep primary, hide duplicates
 #[tauri::command]
-pub async fn merge_duplicates(
+pub(crate) async fn merge_duplicates(
     primary_id: i64,
     duplicate_ids: Vec<i64>,
     state: State<'_, AppState>,
@@ -387,14 +395,16 @@ pub async fn merge_duplicates(
 
 /// Job count by source for analytics
 #[derive(serde::Serialize)]
-pub struct JobsBySource {
+pub(crate) struct JobsBySource {
     pub source: String,
     pub count: i64,
 }
 
 /// Get job counts grouped by source
 #[tauri::command]
-pub async fn get_jobs_by_source(state: State<'_, AppState>) -> Result<Vec<JobsBySource>, String> {
+pub(crate) async fn get_jobs_by_source(
+    state: State<'_, AppState>,
+) -> Result<Vec<JobsBySource>, String> {
     tracing::info!("Command: get_jobs_by_source");
 
     state
@@ -411,14 +421,14 @@ pub async fn get_jobs_by_source(state: State<'_, AppState>) -> Result<Vec<JobsBy
 
 /// Salary range for analytics
 #[derive(serde::Serialize)]
-pub struct SalaryRange {
+pub(crate) struct SalaryRange {
     pub range: String,
     pub count: i64,
 }
 
 /// Get salary distribution (jobs grouped by salary ranges)
 #[tauri::command]
-pub async fn get_salary_distribution(
+pub(crate) async fn get_salary_distribution(
     state: State<'_, AppState>,
 ) -> Result<Vec<SalaryRange>, String> {
     tracing::info!("Command: get_salary_distribution");

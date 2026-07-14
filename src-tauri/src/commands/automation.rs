@@ -23,7 +23,7 @@ use tauri::State;
 
 mod responses;
 
-pub use responses::{
+pub(crate) use responses::{
     ApplicationProfilePreviewResponse, ApplicationProfileResponse, AtsDetectionResponse,
     AttemptResponse, ScreeningAnswerResponse,
 };
@@ -53,7 +53,7 @@ fn has_stored_path(path: Option<&str>) -> bool {
 
 /// Select a resume with the native file picker and copy it into app-owned storage.
 #[tauri::command]
-pub async fn select_application_resume_file(
+pub(crate) async fn select_application_resume_file(
     app: tauri::AppHandle,
 ) -> Result<Option<ApplicationResumeFileSelection>, String> {
     select_application_resume_file_impl(app).await
@@ -61,7 +61,7 @@ pub async fn select_application_resume_file(
 
 /// Upsert (create or update) the application profile
 #[tauri::command]
-pub async fn upsert_application_profile(
+pub(crate) async fn upsert_application_profile(
     input: ApplicationProfileInput,
     state: State<'_, AppState>,
 ) -> Result<i64, String> {
@@ -111,7 +111,7 @@ async fn upsert_application_profile_with_resume_cleanup(
 
 /// Get the current application profile
 #[tauri::command]
-pub async fn get_application_profile(
+pub(crate) async fn get_application_profile(
     state: State<'_, AppState>,
 ) -> Result<Option<ApplicationProfileResponse>, String> {
     tracing::info!("Command: get_application_profile");
@@ -126,7 +126,7 @@ pub async fn get_application_profile(
 
 /// Check whether an application profile exists without returning profile data
 #[tauri::command]
-pub async fn has_application_profile(state: State<'_, AppState>) -> Result<bool, String> {
+pub(crate) async fn has_application_profile(state: State<'_, AppState>) -> Result<bool, String> {
     tracing::info!("Command: has_application_profile");
 
     let manager = ProfileManager::new(state.database.pool().clone());
@@ -138,7 +138,7 @@ pub async fn has_application_profile(state: State<'_, AppState>) -> Result<bool,
 
 /// Get only the profile fields needed for a user-facing application preview
 #[tauri::command]
-pub async fn get_application_profile_preview(
+pub(crate) async fn get_application_profile_preview(
     state: State<'_, AppState>,
 ) -> Result<Option<ApplicationProfilePreviewResponse>, String> {
     tracing::info!("Command: get_application_profile_preview");
@@ -157,7 +157,7 @@ pub async fn get_application_profile_preview(
 
 /// Add or update a screening answer pattern
 #[tauri::command]
-pub async fn upsert_screening_answer(
+pub(crate) async fn upsert_screening_answer(
     question_pattern: String,
     answer: String,
     answer_type: String,
@@ -180,7 +180,7 @@ pub async fn upsert_screening_answer(
 
 /// Get all screening answers
 #[tauri::command]
-pub async fn get_screening_answers(
+pub(crate) async fn get_screening_answers(
     state: State<'_, AppState>,
 ) -> Result<Vec<ScreeningAnswerResponse>, String> {
     tracing::info!("Command: get_screening_answers");
@@ -197,7 +197,7 @@ pub async fn get_screening_answers(
 
 /// Find the best answer for a specific question
 #[tauri::command]
-pub async fn find_answer_for_question(
+pub(crate) async fn find_answer_for_question(
     question: String,
     state: State<'_, AppState>,
 ) -> Result<Option<String>, String> {
@@ -219,7 +219,7 @@ pub async fn find_answer_for_question(
 
 /// Create a new automation attempt for a job
 #[tauri::command]
-pub async fn create_automation_attempt(
+pub(crate) async fn create_automation_attempt(
     job_hash: String,
     ats_platform: String,
     state: State<'_, AppState>,
@@ -242,7 +242,7 @@ pub async fn create_automation_attempt(
 
 /// Get an automation attempt by ID
 #[tauri::command]
-pub async fn get_automation_attempt(
+pub(crate) async fn get_automation_attempt(
     attempt_id: i64,
     state: State<'_, AppState>,
 ) -> Result<AttemptResponse, String> {
@@ -257,7 +257,7 @@ pub async fn get_automation_attempt(
 
 /// Approve an automation attempt (user reviewed and approved)
 #[tauri::command]
-pub async fn approve_automation_attempt(
+pub(crate) async fn approve_automation_attempt(
     attempt_id: i64,
     state: State<'_, AppState>,
 ) -> Result<(), String> {
@@ -272,7 +272,7 @@ pub async fn approve_automation_attempt(
 
 /// Cancel an automation attempt
 #[tauri::command]
-pub async fn cancel_automation_attempt(
+pub(crate) async fn cancel_automation_attempt(
     attempt_id: i64,
     state: State<'_, AppState>,
 ) -> Result<(), String> {
@@ -291,7 +291,7 @@ pub async fn cancel_automation_attempt(
 
 /// Get pending automation attempts (approved and ready to process)
 #[tauri::command]
-pub async fn get_pending_attempts(
+pub(crate) async fn get_pending_attempts(
     limit: Option<usize>,
     state: State<'_, AppState>,
 ) -> Result<Vec<AttemptResponse>, String> {
@@ -307,7 +307,9 @@ pub async fn get_pending_attempts(
 
 /// Get automation statistics
 #[tauri::command]
-pub async fn get_automation_stats(state: State<'_, AppState>) -> Result<AutomationStats, String> {
+pub(crate) async fn get_automation_stats(
+    state: State<'_, AppState>,
+) -> Result<AutomationStats, String> {
     tracing::info!("Command: get_automation_stats");
 
     let manager = AutomationManager::new(state.database.pool().clone());
@@ -323,7 +325,7 @@ pub async fn get_automation_stats(state: State<'_, AppState>) -> Result<Automati
 
 /// Detect ATS platform from a URL
 #[tauri::command]
-pub async fn detect_ats_platform(url: String) -> Result<AtsDetectionResponse, String> {
+pub(crate) async fn detect_ats_platform(url: String) -> Result<AtsDetectionResponse, String> {
     tracing::info!(
         "Command: detect_ats_platform (url: {})",
         sanitize_url_for_logging(&url)
@@ -345,7 +347,7 @@ pub async fn detect_ats_platform(url: String) -> Result<AtsDetectionResponse, St
 
 /// Detect ATS platform from HTML content
 #[tauri::command]
-pub async fn detect_ats_from_html(html: String) -> Result<String, String> {
+pub(crate) async fn detect_ats_from_html(html: String) -> Result<String, String> {
     tracing::info!("Command: detect_ats_from_html");
 
     let platform = AtsDetector::detect_from_html(&html);
@@ -360,7 +362,7 @@ mod answer_learning;
 use answer_learning::{AnswerStatisticsResponse, AnswerSuggestionResponse};
 
 #[tauri::command]
-pub async fn get_suggested_answers(
+pub(crate) async fn get_suggested_answers(
     question: String,
     limit: Option<usize>,
     state: State<'_, AppState>,
@@ -370,7 +372,7 @@ pub async fn get_suggested_answers(
 }
 
 #[tauri::command]
-pub async fn record_answer_usage(
+pub(crate) async fn record_answer_usage(
     screening_answer_id: Option<i64>,
     question_text: String,
     answer_filled: String,
@@ -394,7 +396,7 @@ pub async fn record_answer_usage(
 }
 
 #[tauri::command]
-pub async fn get_answer_statistics(
+pub(crate) async fn get_answer_statistics(
     pattern: String,
     state: State<'_, AppState>,
 ) -> Result<Option<AnswerStatisticsResponse>, String> {
@@ -402,7 +404,7 @@ pub async fn get_answer_statistics(
 }
 
 #[tauri::command]
-pub async fn clear_answer_history(
+pub(crate) async fn clear_answer_history(
     pattern: Option<String>,
     state: State<'_, AppState>,
 ) -> Result<usize, String> {

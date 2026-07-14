@@ -9,7 +9,7 @@ use crate::platforms;
 
 #[derive(Debug, Clone, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
-pub enum SemanticMatchingRuntimeStatus {
+pub(crate) enum SemanticMatchingRuntimeStatus {
     #[cfg(feature = "embedded-ml")]
     Ready,
     #[cfg(feature = "embedded-ml")]
@@ -19,7 +19,7 @@ pub enum SemanticMatchingRuntimeStatus {
 }
 
 #[derive(Debug, Clone, serde::Serialize)]
-pub struct SemanticMatchingDiagnostics {
+pub(crate) struct SemanticMatchingDiagnostics {
     pub build_enabled: bool,
     pub runtime_status: SemanticMatchingRuntimeStatus,
     pub active_profile: String,
@@ -32,7 +32,7 @@ pub struct SemanticMatchingDiagnostics {
 }
 
 #[derive(Debug, Clone, serde::Serialize)]
-pub struct SemanticMatchingModelDiagnostic {
+pub(crate) struct SemanticMatchingModelDiagnostic {
     pub id: String,
     pub role: String,
     pub repo: String,
@@ -49,7 +49,7 @@ pub struct SemanticMatchingModelDiagnostic {
 }
 
 #[derive(Debug, Clone, serde::Serialize)]
-pub struct SemanticMatchingSignal {
+pub(crate) struct SemanticMatchingSignal {
     pub id: String,
     pub label: String,
     pub state: String,
@@ -57,7 +57,8 @@ pub struct SemanticMatchingSignal {
 }
 
 #[tauri::command]
-pub async fn get_semantic_matching_diagnostics() -> Result<SemanticMatchingDiagnostics, String> {
+pub(crate) async fn get_semantic_matching_diagnostics(
+) -> Result<SemanticMatchingDiagnostics, String> {
     semantic_matching_diagnostics()
 }
 

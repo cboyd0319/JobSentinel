@@ -11,7 +11,7 @@ mod test_helpers {
     /// The JSON is embedded as a double-quoted HTML attribute value.
     /// html5ever decodes `&quot;` → `"` during parsing, so we encode
     /// double-quotes before embedding so the HTML stays well-formed.
-    pub fn inertia_html(payload_json: &str) -> String {
+    pub(super) fn inertia_html(payload_json: &str) -> String {
         let encoded = payload_json.replace('&', "&amp;").replace('"', "&quot;");
         format!(
             r#"<!DOCTYPE html>
@@ -27,7 +27,7 @@ mod test_helpers {
     /// Build a minimal Inertia payload JSON string with the given companies.
     ///
     /// `companies` is a list of `(company_name, Vec<(title, url_path, location)>)`.
-    pub fn build_payload(companies: &[(&str, Vec<(&str, &str, Option<&str>)>)]) -> String {
+    pub(super) fn build_payload(companies: &[(&str, Vec<(&str, &str, Option<&str>)>)]) -> String {
         let companies_json: Vec<String> = companies
             .iter()
             .map(|(name, postings)| {

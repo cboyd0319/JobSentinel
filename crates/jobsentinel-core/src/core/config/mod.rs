@@ -13,10 +13,14 @@ mod validation_error;
 // Re-export public types
 pub use external_ai::{ExternalAiConfig, ExternalAiProvider, ExternalAiRedactionConfig};
 pub(crate) use io::write_file_atomic_private;
+pub use types::sources::{
+    BuiltInConfig, DiceConfig, GlassdoorConfig, HnHiringConfig, LinkedInConfig, RemoteOkConfig,
+    SimplyHiredConfig, UsaJobsConfig, WeWorkRemotelyConfig, YcStartupConfig,
+};
 pub use types::{
     AlertConfig, AutoRefreshConfig, Config, DesktopConfig, DiscordConfig, EmailConfig,
-    JobsWithGptApproval, JobsWithGptPayload, LinkedInConfig, LocationPreferences,
-    RestrictedSourceAcknowledgements, SlackConfig, TeamsConfig, TelegramConfig,
+    JobsWithGptApproval, JobsWithGptPayload, LocationPreferences, RestrictedSourceAcknowledgements,
+    SlackConfig, TeamsConfig, TelegramConfig,
 };
 pub use validation_error::{ValidationError, ValidationErrors};
 

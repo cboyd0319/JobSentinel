@@ -10,7 +10,7 @@ use crate::commands::AppState;
 use crate::core::credentials::{CredentialKey, CredentialService};
 use tauri::{AppHandle, Manager, State};
 
-pub const LINKEDIN_AUTH_DISABLED_MESSAGE: &str =
+pub(crate) const LINKEDIN_AUTH_DISABLED_MESSAGE: &str =
     "JobSentinel does not collect LinkedIn login details or session cookies. \
      You sign in and use LinkedIn yourself. JobSentinel can help you keep a \
      local record of jobs you choose to save, apply to, track, or review, but \
@@ -19,11 +19,11 @@ pub const LINKEDIN_AUTH_DISABLED_MESSAGE: &str =
      automates activity can violate its User Agreement, may lead to account \
      restrictions, and may raise privacy-law concerns.";
 
-pub const LINKEDIN_INTERACTIVE_SESSION_REMINDER_MINUTES: i64 = 60;
+pub(crate) const LINKEDIN_INTERACTIVE_SESSION_REMINDER_MINUTES: i64 = 60;
 
 /// Legacy LinkedIn credential expiry status.
 #[derive(serde::Serialize)]
-pub struct LinkedInExpiryStatus {
+pub(crate) struct LinkedInExpiryStatus {
     /// Whether a LinkedIn session credential is active.
     pub connected: bool,
     /// Expiry date in ISO 8601 format, if applicable.
@@ -38,7 +38,7 @@ pub struct LinkedInExpiryStatus {
 
 /// Restricted interactive LinkedIn session policy.
 #[derive(serde::Serialize)]
-pub struct LinkedInInteractivePolicy {
+pub(crate) struct LinkedInInteractivePolicy {
     /// Whether a user action is required before any restricted LinkedIn use.
     pub requires_user_initiated_action: bool,
     /// Whether a fresh sign-in is required for each restricted session.
@@ -88,26 +88,26 @@ fn linkedin_interactive_policy() -> LinkedInInteractivePolicy {
 
 /// LinkedIn login capture is disabled.
 #[tauri::command]
-pub async fn linkedin_login(app: AppHandle) -> Result<String, String> {
+pub(crate) async fn linkedin_login(app: AppHandle) -> Result<String, String> {
     close_linkedin_login(app).await?;
     Err(disabled_error())
 }
 
 /// Storing LinkedIn session cookies is disabled.
 #[tauri::command]
-pub async fn store_linkedin_cookie(cookie: String) -> Result<(), String> {
+pub(crate) async fn store_linkedin_cookie(cookie: String) -> Result<(), String> {
     drop(cookie);
     Err(disabled_error())
 }
 
 /// LinkedIn is not connected because session automation is disabled.
 #[tauri::command]
-pub async fn is_linkedin_connected() -> Result<bool, String> {
+pub(crate) async fn is_linkedin_connected() -> Result<bool, String> {
     Ok(false)
 }
 
 /// Remove legacy LinkedIn session entries from the OS credential store.
-pub async fn disconnect_linkedin_with_credentials(
+pub(crate) async fn disconnect_linkedin_with_credentials(
     credentials: &CredentialService,
 ) -> Result<(), String> {
     credentials
@@ -124,13 +124,13 @@ pub async fn disconnect_linkedin_with_credentials(
 
 /// Remove legacy LinkedIn session entries from secure storage.
 #[tauri::command]
-pub async fn disconnect_linkedin(state: State<'_, AppState>) -> Result<(), String> {
+pub(crate) async fn disconnect_linkedin(state: State<'_, AppState>) -> Result<(), String> {
     disconnect_linkedin_with_credentials(state.credentials.as_ref()).await
 }
 
 /// Close any legacy LinkedIn login window if it exists.
 #[tauri::command]
-pub async fn close_linkedin_login(app: AppHandle) -> Result<(), String> {
+pub(crate) async fn close_linkedin_login(app: AppHandle) -> Result<(), String> {
     if let Some(window) = app.get_webview_window("linkedin-login") {
         window
             .close()
@@ -141,7 +141,7 @@ pub async fn close_linkedin_login(app: AppHandle) -> Result<(), String> {
 
 /// Expiry status is inactive because session automation is disabled.
 #[tauri::command]
-pub async fn get_linkedin_expiry_status() -> Result<LinkedInExpiryStatus, String> {
+pub(crate) async fn get_linkedin_expiry_status() -> Result<LinkedInExpiryStatus, String> {
     Ok(LinkedInExpiryStatus {
         connected: false,
         expires_at: None,
@@ -153,7 +153,7 @@ pub async fn get_linkedin_expiry_status() -> Result<LinkedInExpiryStatus, String
 
 /// Return the restricted interactive LinkedIn policy without exposing auth state.
 #[tauri::command]
-pub async fn get_linkedin_interactive_policy() -> Result<LinkedInInteractivePolicy, String> {
+pub(crate) async fn get_linkedin_interactive_policy() -> Result<LinkedInInteractivePolicy, String> {
     Ok(linkedin_interactive_policy())
 }
 

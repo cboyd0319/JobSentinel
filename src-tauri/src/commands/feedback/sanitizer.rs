@@ -136,7 +136,7 @@ static SINGLE_QUOTED_REGEX: LazyLock<Regex> = LazyLock::new(|| {
 });
 
 /// Sanitizer removes all user-identifiable information from text
-pub struct Sanitizer;
+pub(super) struct Sanitizer;
 
 impl Sanitizer {
     /// Sanitize all user-identifiable information from text
@@ -153,7 +153,7 @@ impl Sanitizer {
     /// let clean = Sanitizer::sanitize(&dirty);
     /// assert_eq!(clean, "Error reading /[USER_PATH]/Documents/jobs.db");
     /// ```
-    pub fn sanitize(text: &str) -> String {
+    pub(super) fn sanitize(text: &str) -> String {
         let mut result = text.to_string();
 
         // Unix home paths are reduced to /[USER_PATH].
@@ -215,7 +215,7 @@ impl Sanitizer {
     ///
     /// More aggressive than `sanitize()` - also removes quoted strings that might
     /// contain job titles or company names.
-    pub fn sanitize_error(error: &str) -> String {
+    pub(super) fn sanitize_error(error: &str) -> String {
         let mut result = Self::sanitize(error);
 
         // Remove double-quoted strings (might be job titles/companies)
@@ -231,7 +231,7 @@ impl Sanitizer {
         result
     }
 
-    pub fn sanitize_support_report_text(text: &str) -> String {
+    pub(super) fn sanitize_support_report_text(text: &str) -> String {
         let result = Self::sanitize_error(text);
 
         JOB_SEARCH_NARRATIVE_CONTEXT_REGEX
@@ -242,7 +242,7 @@ impl Sanitizer {
 
 /// Anonymized configuration summary (counts only, no values)
 #[derive(Debug, Clone, Serialize)]
-pub struct ConfigSummary {
+pub(crate) struct ConfigSummary {
     pub scrapers_enabled: usize,
     pub keywords_count: usize,
     pub has_location_prefs: bool,

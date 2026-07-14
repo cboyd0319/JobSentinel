@@ -7,12 +7,12 @@ use sqlx::{Row, SqlitePool};
 use std::collections::HashMap;
 
 /// Negotiation script generator
-pub struct NegotiationScriptGenerator {
+pub(super) struct NegotiationScriptGenerator {
     db: SqlitePool,
 }
 
 impl NegotiationScriptGenerator {
-    pub fn new(db: SqlitePool) -> Self {
+    pub(super) fn new(db: SqlitePool) -> Self {
         Self { db }
     }
 
@@ -21,7 +21,7 @@ impl NegotiationScriptGenerator {
     /// # Arguments
     /// * `scenario` - Template scenario (e.g., "initial_offer", "counter_offer")
     /// * `params` - Key-value pairs to fill placeholders
-    pub async fn generate(
+    pub(super) async fn generate(
         &self,
         scenario: &str,
         params: HashMap<String, String>,

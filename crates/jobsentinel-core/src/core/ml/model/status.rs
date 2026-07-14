@@ -12,7 +12,7 @@ pub struct ModelStatus {
 }
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
-pub struct ModelCacheMetadata {
+pub(crate) struct ModelCacheMetadata {
     pub manifest_version: u32,
     pub manifest_hash: String,
     pub model_id: String,

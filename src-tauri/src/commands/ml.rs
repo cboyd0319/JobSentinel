@@ -13,7 +13,7 @@ use tauri::State;
 
 /// Download the default local semantic models from HuggingFace Hub.
 #[tauri::command]
-pub async fn download_ml_model() -> Result<String, String> {
+pub(crate) async fn download_ml_model() -> Result<String, String> {
     tracing::info!("Command: download_ml_model");
 
     let app_data_dir = platforms::get_data_dir();
@@ -40,7 +40,7 @@ pub async fn download_ml_model() -> Result<String, String> {
 
 /// Get ML model status
 #[tauri::command]
-pub async fn get_ml_status() -> Result<ModelStatus, String> {
+pub(crate) async fn get_ml_status() -> Result<ModelStatus, String> {
     tracing::info!("Command: get_ml_status");
 
     let app_data_dir = platforms::get_data_dir();
@@ -50,7 +50,7 @@ pub async fn get_ml_status() -> Result<ModelStatus, String> {
 
 /// Perform semantic skill matching
 #[tauri::command]
-pub async fn semantic_match_skills(
+pub(crate) async fn semantic_match_skills(
     user_skills: Vec<String>,
     job_requirements: Vec<String>,
 ) -> Result<serde_json::Value, String> {
@@ -73,7 +73,7 @@ pub async fn semantic_match_skills(
 
 /// Enhanced resume matching with semantic understanding
 #[tauri::command]
-pub async fn match_resume_semantic(
+pub(crate) async fn match_resume_semantic(
     resume_id: i64,
     job_hash: String,
     state: State<'_, AppState>,

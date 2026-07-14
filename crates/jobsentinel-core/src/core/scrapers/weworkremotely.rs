@@ -18,7 +18,7 @@ use chrono::Utc;
 
 /// WeWorkRemotely job scraper
 #[derive(Debug, Clone)]
-pub struct WeWorkRemotelyScraper {
+pub(crate) struct WeWorkRemotelyScraper {
     /// Category to search (e.g., "programming", "design", "devops")
     pub category: Option<String>,
     /// Maximum results to return
@@ -28,7 +28,7 @@ pub struct WeWorkRemotelyScraper {
 }
 
 impl WeWorkRemotelyScraper {
-    pub fn new(category: Option<String>, limit: usize) -> Self {
+    pub(crate) fn new(category: Option<String>, limit: usize) -> Self {
         Self {
             category,
             limit,

@@ -15,7 +15,7 @@ use scraper::{Html, Selector};
 
 /// Dice job scraper
 #[derive(Debug, Clone)]
-pub struct DiceScraper {
+pub(crate) struct DiceScraper {
     /// Search query (e.g., "rust developer", "software engineer")
     pub query: String,
     /// Location (e.g., "Remote", "New York, NY")
@@ -27,7 +27,7 @@ pub struct DiceScraper {
 }
 
 impl DiceScraper {
-    pub fn new(query: impl Into<String>, location: Option<String>, limit: usize) -> Self {
+    pub(crate) fn new(query: impl Into<String>, location: Option<String>, limit: usize) -> Self {
         Self {
             query: query.into(),
             location,

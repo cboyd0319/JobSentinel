@@ -17,7 +17,7 @@ use tauri::State;
 
 /// List all cover letter templates
 #[tauri::command]
-pub async fn list_cover_letter_templates(
+pub(crate) async fn list_cover_letter_templates(
     state: State<'_, AppState>,
 ) -> Result<Vec<CoverLetterTemplate>, String> {
     tracing::info!("Command: list_cover_letter_templates");
@@ -31,7 +31,7 @@ pub async fn list_cover_letter_templates(
 
 /// Get a single cover letter template by ID
 #[tauri::command]
-pub async fn get_cover_letter_template(
+pub(crate) async fn get_cover_letter_template(
     id: String,
     state: State<'_, AppState>,
 ) -> Result<Option<CoverLetterTemplate>, String> {
@@ -46,7 +46,7 @@ pub async fn get_cover_letter_template(
 
 /// Create a new cover letter template
 #[tauri::command]
-pub async fn create_cover_letter_template(
+pub(crate) async fn create_cover_letter_template(
     name: String,
     content: String,
     category: String,
@@ -70,7 +70,7 @@ pub async fn create_cover_letter_template(
 
 /// Update an existing cover letter template
 #[tauri::command]
-pub async fn update_cover_letter_template(
+pub(crate) async fn update_cover_letter_template(
     id: String,
     name: String,
     content: String,
@@ -92,7 +92,7 @@ pub async fn update_cover_letter_template(
 
 /// Delete a cover letter template
 #[tauri::command]
-pub async fn delete_cover_letter_template(
+pub(crate) async fn delete_cover_letter_template(
     id: String,
     state: State<'_, AppState>,
 ) -> Result<bool, String> {
@@ -108,7 +108,7 @@ pub async fn delete_cover_letter_template(
 /// Seed default templates if none exist
 /// Called on first app launch to provide starter templates
 #[tauri::command]
-pub async fn seed_default_templates(state: State<'_, AppState>) -> Result<usize, String> {
+pub(crate) async fn seed_default_templates(state: State<'_, AppState>) -> Result<usize, String> {
     tracing::info!("Command: seed_default_templates");
 
     let manager = UserDataManager::new(state.database.pool().clone());
@@ -120,7 +120,7 @@ pub async fn seed_default_templates(state: State<'_, AppState>) -> Result<usize,
 
 /// Import cover letter templates from localStorage migration
 #[tauri::command]
-pub async fn import_cover_letter_templates(
+pub(crate) async fn import_cover_letter_templates(
     templates: Vec<CoverLetterTemplate>,
     state: State<'_, AppState>,
 ) -> Result<usize, String> {
@@ -142,7 +142,7 @@ pub async fn import_cover_letter_templates(
 
 /// Get interview prep checklist for an interview
 #[tauri::command]
-pub async fn get_interview_prep_checklist(
+pub(crate) async fn get_interview_prep_checklist(
     interview_id: i64,
     state: State<'_, AppState>,
 ) -> Result<Vec<PrepChecklistItem>, String> {
@@ -160,7 +160,7 @@ pub async fn get_interview_prep_checklist(
 
 /// Save interview prep checklist item
 #[tauri::command]
-pub async fn save_interview_prep_item(
+pub(crate) async fn save_interview_prep_item(
     interview_id: i64,
     item_id: String,
     completed: bool,
@@ -186,7 +186,7 @@ pub async fn save_interview_prep_item(
 
 /// Get interview follow-up reminder
 #[tauri::command]
-pub async fn get_interview_followup(
+pub(crate) async fn get_interview_followup(
     interview_id: i64,
     state: State<'_, AppState>,
 ) -> Result<Option<FollowUpReminder>, String> {
@@ -204,7 +204,7 @@ pub async fn get_interview_followup(
 
 /// Save interview follow-up reminder
 #[tauri::command]
-pub async fn save_interview_followup(
+pub(crate) async fn save_interview_followup(
     interview_id: i64,
     thank_you_sent: bool,
     state: State<'_, AppState>,
@@ -228,7 +228,9 @@ pub async fn save_interview_followup(
 
 /// List all saved searches
 #[tauri::command]
-pub async fn list_saved_searches(state: State<'_, AppState>) -> Result<Vec<SavedSearch>, String> {
+pub(crate) async fn list_saved_searches(
+    state: State<'_, AppState>,
+) -> Result<Vec<SavedSearch>, String> {
     tracing::info!("Command: list_saved_searches");
 
     let manager = UserDataManager::new(state.database.pool().clone());
@@ -240,7 +242,7 @@ pub async fn list_saved_searches(state: State<'_, AppState>) -> Result<Vec<Saved
 
 /// Create a saved search
 #[tauri::command]
-pub async fn create_saved_search(
+pub(crate) async fn create_saved_search(
     search: SavedSearch,
     state: State<'_, AppState>,
 ) -> Result<SavedSearch, String> {
@@ -262,7 +264,10 @@ pub async fn create_saved_search(
 
 /// Mark a saved search as used (updates last_used_at)
 #[tauri::command]
-pub async fn use_saved_search(id: String, state: State<'_, AppState>) -> Result<bool, String> {
+pub(crate) async fn use_saved_search(
+    id: String,
+    state: State<'_, AppState>,
+) -> Result<bool, String> {
     tracing::info!("Command: use_saved_search (id: {})", id);
 
     let manager = UserDataManager::new(state.database.pool().clone());
@@ -274,7 +279,10 @@ pub async fn use_saved_search(id: String, state: State<'_, AppState>) -> Result<
 
 /// Delete a saved search
 #[tauri::command]
-pub async fn delete_saved_search(id: String, state: State<'_, AppState>) -> Result<bool, String> {
+pub(crate) async fn delete_saved_search(
+    id: String,
+    state: State<'_, AppState>,
+) -> Result<bool, String> {
     tracing::info!("Command: delete_saved_search (id: {})", id);
 
     let manager = UserDataManager::new(state.database.pool().clone());
@@ -286,7 +294,7 @@ pub async fn delete_saved_search(id: String, state: State<'_, AppState>) -> Resu
 
 /// Import saved searches from localStorage migration
 #[tauri::command]
-pub async fn import_saved_searches(
+pub(crate) async fn import_saved_searches(
     searches: Vec<SavedSearch>,
     state: State<'_, AppState>,
 ) -> Result<usize, String> {
@@ -308,7 +316,7 @@ pub async fn import_saved_searches(
 
 /// Get notification preferences
 #[tauri::command]
-pub async fn get_notification_preferences(
+pub(crate) async fn get_notification_preferences(
     state: State<'_, AppState>,
 ) -> Result<NotificationPreferences, String> {
     tracing::info!("Command: get_notification_preferences");
@@ -322,7 +330,7 @@ pub async fn get_notification_preferences(
 
 /// Save notification preferences
 #[tauri::command]
-pub async fn save_notification_preferences(
+pub(crate) async fn save_notification_preferences(
     prefs: NotificationPreferences,
     state: State<'_, AppState>,
 ) -> Result<(), String> {
@@ -341,7 +349,10 @@ pub async fn save_notification_preferences(
 
 /// Add search query to history
 #[tauri::command]
-pub async fn add_search_history(query: String, state: State<'_, AppState>) -> Result<(), String> {
+pub(crate) async fn add_search_history(
+    query: String,
+    state: State<'_, AppState>,
+) -> Result<(), String> {
     tracing::info!("Command: add_search_history");
 
     let manager = UserDataManager::new(state.database.pool().clone());
@@ -353,7 +364,7 @@ pub async fn add_search_history(query: String, state: State<'_, AppState>) -> Re
 
 /// Get search history
 #[tauri::command]
-pub async fn get_search_history(
+pub(crate) async fn get_search_history(
     limit: i64,
     state: State<'_, AppState>,
 ) -> Result<Vec<String>, String> {
@@ -369,7 +380,7 @@ pub async fn get_search_history(
 
 /// Clear search history
 #[tauri::command]
-pub async fn clear_search_history(state: State<'_, AppState>) -> Result<(), String> {
+pub(crate) async fn clear_search_history(state: State<'_, AppState>) -> Result<(), String> {
     tracing::info!("Command: clear_search_history");
 
     let manager = UserDataManager::new(state.database.pool().clone());

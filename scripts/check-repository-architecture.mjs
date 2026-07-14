@@ -3,6 +3,7 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { checkRustSourceOwnership } from "./harness/checks/rust-source-ownership.mjs";
 
 const scriptPath = fileURLToPath(import.meta.url);
 const defaultRoot = resolve(dirname(scriptPath), "..");
@@ -258,11 +259,13 @@ function checkCoreBoundary(root, violations) {
     "crates/jobsentinel-core/src/core/credentials/mod.rs",
     "crates/jobsentinel-core/src/core/db/mod.rs",
     "crates/jobsentinel-core/src/core/db/integrity/mod.rs",
+    "crates/jobsentinel-core/src/core/deeplinks/mod.rs",
     "crates/jobsentinel-core/src/core/import/mod.rs",
     "crates/jobsentinel-core/src/core/market_intelligence/mod.rs",
     "crates/jobsentinel-core/src/core/notify/mod.rs",
     "crates/jobsentinel-core/src/core/resume/mod.rs",
     "crates/jobsentinel-core/src/core/salary/mod.rs",
+    "crates/jobsentinel-core/src/core/scheduler/workers/mod.rs",
     "crates/jobsentinel-core/src/core/scrapers/mod.rs",
     "crates/jobsentinel-core/src/core/scrapers/source_adapters/mod.rs",
   ]) {
@@ -444,6 +447,7 @@ export function checkRepositoryArchitecture(root = defaultRoot) {
   }
   checkCoreBoundary(root, violations);
   checkTauriShell(root, violations);
+  violations.push(...checkRustSourceOwnership(root, discoveredMembers));
 
   return violations;
 }

@@ -25,13 +25,13 @@ const MAX_BOOKMARKLET_PORT: u32 = u16::MAX as u32;
 
 /// Bookmarklet configuration returned to frontend
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct BookmarkletConfigResponse {
+pub(crate) struct BookmarkletConfigResponse {
     pub port: u16,
     pub enabled: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct DiscardBookmarkletImportsResponse {
+pub(crate) struct DiscardBookmarkletImportsResponse {
     pub discarded: usize,
 }
 
@@ -95,7 +95,7 @@ async fn persist_bookmarklet_port(state: &AppState, port: u16) -> Result<(), Str
 /// Get current bookmarklet configuration
 #[tauri::command]
 #[tracing::instrument(skip(state))]
-pub async fn get_bookmarklet_config(
+pub(crate) async fn get_bookmarklet_config(
     state: State<'_, AppState>,
 ) -> Result<BookmarkletConfigResponse, String> {
     tracing::debug!("Getting bookmarklet configuration");
@@ -113,7 +113,7 @@ pub async fn get_bookmarklet_config(
 /// Copy browser import button code without exposing the import token to the renderer
 #[tauri::command]
 #[tracing::instrument(skip(state))]
-pub async fn copy_bookmarklet_code(state: State<'_, AppState>) -> Result<(), String> {
+pub(crate) async fn copy_bookmarklet_code(state: State<'_, AppState>) -> Result<(), String> {
     tracing::debug!("Copying browser import button");
 
     let mut server_guard = state.bookmarklet_server.write().await;
@@ -132,7 +132,7 @@ pub async fn copy_bookmarklet_code(state: State<'_, AppState>) -> Result<(), Str
 /// List browser imports waiting for user review.
 #[tauri::command]
 #[tracing::instrument(skip(state))]
-pub async fn get_pending_bookmarklet_imports(
+pub(crate) async fn get_pending_bookmarklet_imports(
     state: State<'_, AppState>,
 ) -> Result<Vec<PendingBookmarkletImportPreview>, String> {
     let server_guard = state.bookmarklet_server.read().await;
@@ -142,7 +142,7 @@ pub async fn get_pending_bookmarklet_imports(
 /// Save reviewed browser imports as durable jobs.
 #[tauri::command]
 #[tracing::instrument(skip(state, ids), fields(count = ids.len()))]
-pub async fn confirm_pending_bookmarklet_imports(
+pub(crate) async fn confirm_pending_bookmarklet_imports(
     state: State<'_, AppState>,
     ids: Vec<String>,
 ) -> Result<BookmarkletImportConfirmResult, String> {
@@ -161,7 +161,7 @@ pub async fn confirm_pending_bookmarklet_imports(
 /// Remove reviewed browser imports without saving.
 #[tauri::command]
 #[tracing::instrument(skip(state, ids), fields(count = ids.len()))]
-pub async fn discard_pending_bookmarklet_imports(
+pub(crate) async fn discard_pending_bookmarklet_imports(
     state: State<'_, AppState>,
     ids: Vec<String>,
 ) -> Result<DiscardBookmarkletImportsResponse, String> {
@@ -181,7 +181,7 @@ pub async fn discard_pending_bookmarklet_imports(
 /// Start the bookmarklet server
 #[tauri::command]
 #[tracing::instrument(skip(state), fields(port))]
-pub async fn start_bookmarklet_server(
+pub(crate) async fn start_bookmarklet_server(
     state: State<'_, AppState>,
     port: u32,
 ) -> Result<BookmarkletConfigResponse, String> {
@@ -238,7 +238,7 @@ pub async fn start_bookmarklet_server(
 /// Stop the bookmarklet server
 #[tauri::command]
 #[tracing::instrument(skip(state))]
-pub async fn stop_bookmarklet_server(state: State<'_, AppState>) -> Result<(), String> {
+pub(crate) async fn stop_bookmarklet_server(state: State<'_, AppState>) -> Result<(), String> {
     tracing::info!("Stopping bookmarklet server");
 
     let mut server_guard = state.bookmarklet_server.write().await;
@@ -260,7 +260,10 @@ pub async fn stop_bookmarklet_server(state: State<'_, AppState>) -> Result<(), S
 /// Set bookmarklet server port (only when server is stopped)
 #[tauri::command]
 #[tracing::instrument(skip(state), fields(port))]
-pub async fn set_bookmarklet_port(state: State<'_, AppState>, port: u32) -> Result<(), String> {
+pub(crate) async fn set_bookmarklet_port(
+    state: State<'_, AppState>,
+    port: u32,
+) -> Result<(), String> {
     let port = validate_bookmarklet_port(port)?;
     tracing::debug!(port = port, "Setting bookmarklet port");
 

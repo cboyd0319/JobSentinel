@@ -186,7 +186,7 @@ fn row_to_alert(r: &sqlx::sqlite::SqliteRow) -> Result<MarketAlert> {
 }
 
 /// Get all unread market alerts
-pub async fn get_unread_alerts(db: &SqlitePool) -> Result<Vec<MarketAlert>> {
+pub(super) async fn get_unread_alerts(db: &SqlitePool) -> Result<Vec<MarketAlert>> {
     let rows = sqlx::query(
         r#"
         SELECT
@@ -205,7 +205,7 @@ pub async fn get_unread_alerts(db: &SqlitePool) -> Result<Vec<MarketAlert>> {
 }
 
 /// Mark all alerts as read
-pub async fn mark_all_read(db: &SqlitePool) -> Result<u64> {
+pub(super) async fn mark_all_read(db: &SqlitePool) -> Result<u64> {
     let result = sqlx::query("UPDATE market_alerts SET is_read = 1 WHERE is_read = 0")
         .execute(db)
         .await?;
@@ -214,7 +214,7 @@ pub async fn mark_all_read(db: &SqlitePool) -> Result<u64> {
 }
 
 /// Mark a single alert as read by ID
-pub async fn mark_alert_read(db: &SqlitePool, id: i64) -> Result<bool> {
+pub(super) async fn mark_alert_read(db: &SqlitePool, id: i64) -> Result<bool> {
     let result = sqlx::query("UPDATE market_alerts SET is_read = 1 WHERE id = ?")
         .bind(id)
         .execute(db)

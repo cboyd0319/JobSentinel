@@ -32,7 +32,7 @@ use resume_file_commands::{
 const MAX_RESUME_TEXT_PREVIEW_CHARS: usize = 6_000;
 
 #[derive(Debug, Clone, Serialize)]
-pub struct ResumeSummary {
+pub(crate) struct ResumeSummary {
     pub id: i64,
     pub name: String,
     pub is_active: bool,
@@ -90,7 +90,7 @@ fn resume_format_label(resume: &Resume) -> String {
 }
 
 #[derive(Debug, Clone, Serialize)]
-pub struct ResumeTextPreview {
+pub(crate) struct ResumeTextPreview {
     pub resume_id: i64,
     pub name: String,
     pub has_text: bool,
@@ -122,7 +122,7 @@ impl From<Resume> for ResumeTextPreview {
 
 /// Get active resume
 #[tauri::command]
-pub async fn get_active_resume(
+pub(crate) async fn get_active_resume(
     state: State<'_, AppState>,
 ) -> Result<Option<ResumeSummary>, String> {
     tracing::info!("Command: get_active_resume");
@@ -137,7 +137,7 @@ pub async fn get_active_resume(
 
 /// Get an explicit local preview of readable resume text without file paths.
 #[tauri::command]
-pub async fn get_resume_text_preview(
+pub(crate) async fn get_resume_text_preview(
     resume_id: i64,
     state: State<'_, AppState>,
 ) -> Result<ResumeTextPreview, String> {
@@ -153,7 +153,10 @@ pub async fn get_resume_text_preview(
 
 /// Set active resume
 #[tauri::command]
-pub async fn set_active_resume(resume_id: i64, state: State<'_, AppState>) -> Result<(), String> {
+pub(crate) async fn set_active_resume(
+    resume_id: i64,
+    state: State<'_, AppState>,
+) -> Result<(), String> {
     tracing::info!("Command: set_active_resume (id: {})", resume_id);
 
     let matcher = ResumeMatcher::new(state.database.pool().clone());
@@ -165,7 +168,7 @@ pub async fn set_active_resume(resume_id: i64, state: State<'_, AppState>) -> Re
 
 /// Get user skills from active resume
 #[tauri::command]
-pub async fn get_user_skills(
+pub(crate) async fn get_user_skills(
     resume_id: i64,
     state: State<'_, AppState>,
 ) -> Result<Vec<UserSkill>, String> {
@@ -180,7 +183,7 @@ pub async fn get_user_skills(
 
 /// Match resume to a job
 #[tauri::command]
-pub async fn match_resume_to_job(
+pub(crate) async fn match_resume_to_job(
     resume_id: i64,
     job_hash: String,
     state: State<'_, AppState>,
@@ -197,7 +200,7 @@ pub async fn match_resume_to_job(
 
 /// Get existing match result
 #[tauri::command]
-pub async fn get_match_result(
+pub(crate) async fn get_match_result(
     resume_id: i64,
     job_hash: String,
     state: State<'_, AppState>,
@@ -214,7 +217,7 @@ pub async fn get_match_result(
 
 /// Get recent match results for a resume
 #[tauri::command]
-pub async fn get_recent_matches(
+pub(crate) async fn get_recent_matches(
     resume_id: i64,
     limit: Option<i64>,
     state: State<'_, AppState>,
@@ -239,7 +242,7 @@ pub async fn get_recent_matches(
 
 /// Update an existing user skill
 #[tauri::command]
-pub async fn update_user_skill(
+pub(crate) async fn update_user_skill(
     skill_id: i64,
     updates: SkillUpdate,
     state: State<'_, AppState>,
@@ -255,7 +258,10 @@ pub async fn update_user_skill(
 
 /// Delete a user skill
 #[tauri::command]
-pub async fn delete_user_skill(skill_id: i64, state: State<'_, AppState>) -> Result<(), String> {
+pub(crate) async fn delete_user_skill(
+    skill_id: i64,
+    state: State<'_, AppState>,
+) -> Result<(), String> {
     tracing::info!("Command: delete_user_skill (id: {})", skill_id);
 
     let matcher = ResumeMatcher::new(state.database.pool().clone());
@@ -267,7 +273,7 @@ pub async fn delete_user_skill(skill_id: i64, state: State<'_, AppState>) -> Res
 
 /// Add a new skill manually
 #[tauri::command]
-pub async fn add_user_skill(
+pub(crate) async fn add_user_skill(
     resume_id: i64,
     skill: NewSkill,
     state: State<'_, AppState>,
@@ -288,7 +294,9 @@ pub async fn add_user_skill(
 
 /// List all resumes
 #[tauri::command]
-pub async fn list_all_resumes(state: State<'_, AppState>) -> Result<Vec<ResumeSummary>, String> {
+pub(crate) async fn list_all_resumes(
+    state: State<'_, AppState>,
+) -> Result<Vec<ResumeSummary>, String> {
     tracing::info!("Command: list_all_resumes");
 
     let matcher = ResumeMatcher::new(state.database.pool().clone());
@@ -305,14 +313,14 @@ pub async fn list_all_resumes(state: State<'_, AppState>) -> Result<Vec<ResumeSu
 
 /// List available resume templates
 #[tauri::command]
-pub fn list_resume_templates() -> Vec<Template> {
+pub(crate) fn list_resume_templates() -> Vec<Template> {
     tracing::info!("Command: list_resume_templates");
     TemplateRenderer::list_templates()
 }
 
 /// Render resume to HTML using a template
 #[tauri::command]
-pub fn render_resume_html(
+pub(crate) fn render_resume_html(
     resume: crate::core::resume::ResumeData,
     template_id: TemplateId,
 ) -> String {
@@ -322,7 +330,7 @@ pub fn render_resume_html(
 
 /// Render resume to plain text
 #[tauri::command]
-pub fn render_resume_text(resume: crate::core::resume::ResumeData) -> String {
+pub(crate) fn render_resume_text(resume: crate::core::resume::ResumeData) -> String {
     tracing::info!("Command: render_resume_text");
     TemplateRenderer::render_plain_text(&resume)
 }
@@ -333,7 +341,7 @@ pub fn render_resume_text(resume: crate::core::resume::ResumeData) -> String {
 
 /// Export resume to DOCX format
 #[tauri::command]
-pub fn export_resume_docx(
+pub(crate) fn export_resume_docx(
     resume: ExportResumeData,
     template: crate::core::resume::ExportTemplateId,
 ) -> Result<Vec<u8>, String> {
@@ -344,7 +352,7 @@ pub fn export_resume_docx(
 
 /// Export resume to HTML format for browser-based PDF generation
 #[tauri::command]
-pub fn export_resume_html(
+pub(crate) fn export_resume_html(
     resume: ExportResumeData,
     template: crate::core::resume::ExportTemplateId,
 ) -> String {
@@ -354,7 +362,7 @@ pub fn export_resume_html(
 
 /// Export resume to plain text
 #[tauri::command]
-pub fn export_resume_text(resume: ExportResumeData) -> String {
+pub(crate) fn export_resume_text(resume: ExportResumeData) -> String {
     tracing::info!("Command: export_resume_text");
     ResumeExporter::export_text(&resume)
 }
@@ -365,14 +373,17 @@ pub fn export_resume_text(resume: ExportResumeData) -> String {
 
 /// Analyze resume against a job description for application readability
 #[tauri::command]
-pub fn analyze_resume_for_job(resume: AtsResumeData, job_description: String) -> AtsAnalysisResult {
+pub(crate) fn analyze_resume_for_job(
+    resume: AtsResumeData,
+    job_description: String,
+) -> AtsAnalysisResult {
     tracing::info!("Command: analyze_resume_for_job");
     AtsAnalyzer::analyze_for_job(&resume, &job_description)
 }
 
 /// Analyze the active saved resume against a job description without returning raw resume text.
 #[tauri::command]
-pub async fn analyze_active_resume_for_job(
+pub(crate) async fn analyze_active_resume_for_job(
     job_description: String,
     state: State<'_, AppState>,
 ) -> Result<AtsAnalysisResult, String> {
@@ -417,14 +428,14 @@ pub async fn analyze_active_resume_for_job(
 
 /// Analyze resume format without job context
 #[tauri::command]
-pub fn analyze_resume_format(resume: AtsResumeData) -> AtsAnalysisResult {
+pub(crate) fn analyze_resume_format(resume: AtsResumeData) -> AtsAnalysisResult {
     tracing::info!("Command: analyze_resume_format");
     AtsAnalyzer::analyze_format(&resume)
 }
 
 /// Extract keywords from a job description
 #[tauri::command]
-pub fn extract_job_keywords(
+pub(crate) fn extract_job_keywords(
     job_description: String,
 ) -> Vec<(String, crate::core::resume::KeywordImportance)> {
     tracing::info!("Command: extract_job_keywords");
@@ -433,14 +444,14 @@ pub fn extract_job_keywords(
 
 /// Get ATS power words for bullet points
 #[tauri::command]
-pub fn get_ats_power_words() -> Vec<&'static str> {
+pub(crate) fn get_ats_power_words() -> Vec<&'static str> {
     tracing::info!("Command: get_ats_power_words");
     AtsAnalyzer::get_power_words()
 }
 
 /// Improve a bullet point with ATS suggestions
 #[tauri::command]
-pub fn improve_bullet_point(bullet: String, job_context: Option<String>) -> String {
+pub(crate) fn improve_bullet_point(bullet: String, job_context: Option<String>) -> String {
     tracing::info!("Command: improve_bullet_point");
     AtsAnalyzer::improve_bullet(&bullet, job_context.as_deref())
 }

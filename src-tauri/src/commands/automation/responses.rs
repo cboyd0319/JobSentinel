@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 /// Response type for application profile (frontend-friendly)
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct ApplicationProfileResponse {
+pub(crate) struct ApplicationProfileResponse {
     pub full_name: String,
     pub email: String,
     pub phone: Option<String>,
@@ -50,7 +50,7 @@ impl From<ApplicationProfile> for ApplicationProfileResponse {
 /// Minimal profile preview response for non-settings UI surfaces.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct ApplicationProfilePreviewResponse {
+pub(crate) struct ApplicationProfilePreviewResponse {
     pub full_name: String,
     pub email: String,
     pub phone: Option<String>,
@@ -81,7 +81,7 @@ impl From<ApplicationProfile> for ApplicationProfilePreviewResponse {
 /// Response type for screening answers (frontend-friendly)
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct ScreeningAnswerResponse {
+pub(crate) struct ScreeningAnswerResponse {
     pub id: i64,
     pub question_pattern: String,
     pub answer: String,
@@ -116,7 +116,7 @@ impl From<ScreeningAnswer> for ScreeningAnswerResponse {
 /// Response type for automation attempts (frontend-friendly)
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct AttemptResponse {
+pub(crate) struct AttemptResponse {
     pub id: i64,
     pub job_hash: String,
     pub application_id: Option<i64>,
@@ -157,7 +157,7 @@ impl From<ApplicationAttempt> for AttemptResponse {
 /// ATS detection response
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct AtsDetectionResponse {
+pub(crate) struct AtsDetectionResponse {
     pub platform: String,
     pub common_fields: Vec<String>,
     pub automation_notes: Option<String>,

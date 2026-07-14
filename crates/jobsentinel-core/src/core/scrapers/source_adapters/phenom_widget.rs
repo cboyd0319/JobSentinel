@@ -6,11 +6,11 @@ use url::Url;
 
 use super::contract::{CanonicalJobRecord, SourceAdapterLane};
 
-pub const DEFAULT_SIZE: u16 = 20;
-pub const DEFAULT_FROM_OFFSET: u32 = 0;
+pub(super) const DEFAULT_SIZE: u16 = 20;
+pub(super) const DEFAULT_FROM_OFFSET: u32 = 0;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct PhenomWidgetSource {
+pub(super) struct PhenomWidgetSource {
     pub rank: u16,
     pub company: String,
     pub widget_url: String,
@@ -21,7 +21,7 @@ pub struct PhenomWidgetSource {
 }
 
 impl PhenomWidgetSource {
-    pub fn referer(&self) -> Option<String> {
+    pub(super) fn referer(&self) -> Option<String> {
         Url::parse(&(self.base_url.trim_end_matches('/').to_string() + "/"))
             .ok()?
             .join("search-results")
@@ -31,7 +31,7 @@ impl PhenomWidgetSource {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct PhenomWidgetRequest {
+pub(super) struct PhenomWidgetRequest {
     pub widget_url: String,
     pub ref_num: String,
     pub locale: String,
@@ -43,7 +43,7 @@ pub struct PhenomWidgetRequest {
 }
 
 impl PhenomWidgetRequest {
-    pub fn new(
+    pub(super) fn new(
         widget_url: impl Into<String>,
         ref_num: impl Into<String>,
         locale: impl Into<String>,
@@ -60,7 +60,7 @@ impl PhenomWidgetRequest {
         }
     }
 
-    pub fn payload(&self) -> Value {
+    pub(super) fn payload(&self) -> Value {
         json!({
             "refNum": self.ref_num,
             "locale": self.locale,
@@ -84,7 +84,7 @@ impl PhenomWidgetRequest {
         })
     }
 
-    pub fn cache_key(&self) -> String {
+    pub(super) fn cache_key(&self) -> String {
         let payload = serde_json::to_vec(&self.payload()).unwrap_or_default();
         let digest = Sha256::digest(payload);
         let prefix = hex_prefix(&digest, 16);
@@ -103,13 +103,13 @@ impl PhenomWidgetRequest {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct PhenomWidgetListing {
+pub(super) struct PhenomWidgetListing {
     pub total: Option<u64>,
     pub jobs: Vec<CanonicalJobRecord>,
     pub parse_warnings: Vec<String>,
 }
 
-pub fn parse_phenom_widget_listing(
+pub(super) fn parse_phenom_widget_listing(
     payload: &Value,
     source: &PhenomWidgetSource,
 ) -> PhenomWidgetListing {

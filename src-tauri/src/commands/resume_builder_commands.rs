@@ -10,7 +10,7 @@ use tauri::State;
 
 /// Create a new empty resume draft
 #[tauri::command]
-pub async fn create_resume_draft(state: State<'_, AppState>) -> Result<i64, String> {
+pub(crate) async fn create_resume_draft(state: State<'_, AppState>) -> Result<i64, String> {
     tracing::info!("Command: create_resume_draft");
 
     let builder = ResumeBuilder::new(state.database.pool().clone());
@@ -22,7 +22,7 @@ pub async fn create_resume_draft(state: State<'_, AppState>) -> Result<i64, Stri
 
 /// Get a resume draft by ID
 #[tauri::command]
-pub async fn get_resume_draft(
+pub(crate) async fn get_resume_draft(
     resume_id: i64,
     state: State<'_, AppState>,
 ) -> Result<Option<BuilderResumeData>, String> {
@@ -37,7 +37,7 @@ pub async fn get_resume_draft(
 
 /// Update contact information in a resume draft
 #[tauri::command]
-pub async fn update_resume_contact(
+pub(crate) async fn update_resume_contact(
     resume_id: i64,
     contact: BuilderContactInfo,
     state: State<'_, AppState>,
@@ -53,7 +53,7 @@ pub async fn update_resume_contact(
 
 /// Update professional summary in a resume draft
 #[tauri::command]
-pub async fn update_resume_summary(
+pub(crate) async fn update_resume_summary(
     resume_id: i64,
     summary: String,
     state: State<'_, AppState>,
@@ -69,7 +69,7 @@ pub async fn update_resume_summary(
 
 /// Add work experience to a resume draft
 #[tauri::command]
-pub async fn add_resume_experience(
+pub(crate) async fn add_resume_experience(
     resume_id: i64,
     experience: BuilderExperience,
     state: State<'_, AppState>,
@@ -85,7 +85,7 @@ pub async fn add_resume_experience(
 
 /// Delete work experience from a resume draft
 #[tauri::command]
-pub async fn delete_resume_experience(
+pub(crate) async fn delete_resume_experience(
     resume_id: i64,
     experience_id: i64,
     state: State<'_, AppState>,
@@ -105,7 +105,7 @@ pub async fn delete_resume_experience(
 
 /// Add education to a resume draft
 #[tauri::command]
-pub async fn add_resume_education(
+pub(crate) async fn add_resume_education(
     resume_id: i64,
     education: BuilderEducation,
     state: State<'_, AppState>,
@@ -121,7 +121,7 @@ pub async fn add_resume_education(
 
 /// Delete education from a resume draft
 #[tauri::command]
-pub async fn delete_resume_education(
+pub(crate) async fn delete_resume_education(
     resume_id: i64,
     education_id: i64,
     state: State<'_, AppState>,
@@ -141,7 +141,7 @@ pub async fn delete_resume_education(
 
 /// Set skills for a resume draft (replaces existing)
 #[tauri::command]
-pub async fn set_resume_skills(
+pub(crate) async fn set_resume_skills(
     resume_id: i64,
     skills: Vec<SkillEntry>,
     state: State<'_, AppState>,
@@ -157,7 +157,10 @@ pub async fn set_resume_skills(
 
 /// Delete a resume draft
 #[tauri::command]
-pub async fn delete_resume_draft(resume_id: i64, state: State<'_, AppState>) -> Result<(), String> {
+pub(crate) async fn delete_resume_draft(
+    resume_id: i64,
+    state: State<'_, AppState>,
+) -> Result<(), String> {
     tracing::info!("Command: delete_resume_draft (id: {})", resume_id);
 
     let builder = ResumeBuilder::new(state.database.pool().clone());

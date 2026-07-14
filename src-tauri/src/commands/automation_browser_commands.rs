@@ -26,7 +26,7 @@ static BROWSER_MANAGER: LazyLock<Arc<Mutex<BrowserManager>>> =
 ///
 /// Opens a visible Chrome browser window that the user can observe.
 #[tauri::command]
-pub async fn launch_automation_browser() -> Result<(), String> {
+pub(crate) async fn launch_automation_browser() -> Result<(), String> {
     tracing::info!("Command: launch_automation_browser");
 
     let manager = BROWSER_MANAGER.lock().await;
@@ -38,7 +38,7 @@ pub async fn launch_automation_browser() -> Result<(), String> {
 
 /// Close the application review browser
 #[tauri::command]
-pub async fn close_automation_browser() -> Result<(), String> {
+pub(crate) async fn close_automation_browser() -> Result<(), String> {
     tracing::info!("Command: close_automation_browser");
 
     let manager = BROWSER_MANAGER.lock().await;
@@ -50,7 +50,7 @@ pub async fn close_automation_browser() -> Result<(), String> {
 
 /// Check if browser is running
 #[tauri::command]
-pub async fn is_browser_running() -> Result<bool, String> {
+pub(crate) async fn is_browser_running() -> Result<bool, String> {
     let manager = BROWSER_MANAGER.lock().await;
     Ok(manager.is_running().await)
 }
@@ -123,7 +123,7 @@ async fn verify_application_form_page_url(
 /// 5. Returns what was filled
 /// 6. User reviews and clicks submit manually
 #[tauri::command]
-pub async fn fill_application_form(
+pub(crate) async fn fill_application_form(
     job_url: String,
     job_hash: Option<String>,
     state: State<'_, AppState>,
@@ -250,7 +250,7 @@ pub async fn fill_application_form(
 /// Extended fill result with tracking info
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct FillResultWithAttempt {
+pub(crate) struct FillResultWithAttempt {
     #[serde(flatten)]
     pub fill_result: FillResult,
     /// Automation attempt ID for tracking (if job_hash was provided)
@@ -265,7 +265,7 @@ pub struct FillResultWithAttempt {
 ///
 /// Called when user confirms they clicked the submit button on the form.
 #[tauri::command]
-pub async fn mark_attempt_submitted(
+pub(crate) async fn mark_attempt_submitted(
     attempt_id: i64,
     state: State<'_, AppState>,
 ) -> Result<(), String> {
@@ -283,7 +283,7 @@ pub async fn mark_attempt_submitted(
 /// OPTIMIZATION: Added LIMIT clause to prevent unbounded result sets.
 /// Most jobs will have 1-3 attempts; cap at 100 for safety.
 #[tauri::command]
-pub async fn get_attempts_for_job(
+pub(crate) async fn get_attempts_for_job(
     job_hash: String,
     state: State<'_, AppState>,
 ) -> Result<Vec<AttemptResponse>, String> {

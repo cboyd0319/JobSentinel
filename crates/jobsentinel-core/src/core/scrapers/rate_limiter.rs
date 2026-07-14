@@ -12,7 +12,7 @@ static SHARED_RATE_LIMITER: LazyLock<RateLimiter> = LazyLock::new(RateLimiter::n
 
 /// Rate limiter using token bucket algorithm
 #[derive(Debug, Clone)]
-pub struct RateLimiter {
+pub(crate) struct RateLimiter {
     buckets: Arc<Mutex<HashMap<String, TokenBucket>>>,
 }
 
@@ -31,7 +31,7 @@ struct TokenBucket {
 
 impl RateLimiter {
     #[must_use]
-    pub fn new() -> Self {
+    pub(crate) fn new() -> Self {
         Self {
             buckets: Arc::new(Mutex::new(HashMap::new())),
         }
@@ -39,7 +39,7 @@ impl RateLimiter {
 
     /// Return the process-wide limiter used by production scraper instances.
     #[must_use]
-    pub fn shared() -> Self {
+    pub(crate) fn shared() -> Self {
         SHARED_RATE_LIMITER.clone()
     }
 
@@ -52,7 +52,7 @@ impl RateLimiter {
     /// The scraper owner supplies a stable source identifier and an hourly
     /// request limit for each call.
     #[tracing::instrument(skip(self))]
-    pub async fn wait(&self, scraper_name: &str, max_requests_per_hour: u32) {
+    pub(crate) async fn wait(&self, scraper_name: &str, max_requests_per_hour: u32) {
         tracing::debug!("Acquiring rate limit token for scraper");
 
         loop {
@@ -76,7 +76,7 @@ impl RateLimiter {
     /// Check if request is allowed without waiting
     #[must_use]
     #[cfg(test)]
-    pub async fn is_allowed(&self, scraper_name: &str, max_requests_per_hour: u32) -> bool {
+    pub(crate) async fn is_allowed(&self, scraper_name: &str, max_requests_per_hour: u32) -> bool {
         let mut buckets = self.buckets.lock().await;
 
         let bucket = buckets
@@ -89,7 +89,7 @@ impl RateLimiter {
 
     /// Reset rate limiter for a scraper (useful for testing)
     #[cfg(test)]
-    pub async fn reset(&self, scraper_name: &str) {
+    pub(crate) async fn reset(&self, scraper_name: &str) {
         let mut buckets = self.buckets.lock().await;
         buckets.remove(scraper_name);
     }
@@ -151,49 +151,49 @@ impl TokenBucket {
 }
 
 /// Scraper-specific rate limits (requests per hour)
-pub mod limits {
+pub(crate) mod limits {
     /// LinkedIn: 100 requests/hour (conservative to avoid detection)
     #[cfg(test)]
-    pub const LINKEDIN: u32 = 100;
+    pub(crate) const LINKEDIN: u32 = 100;
 
     /// Indeed: 500 requests/hour (more generous, has public API)
-    pub const INDEED: u32 = 500;
+    pub(crate) const INDEED: u32 = 500;
 
     /// Greenhouse: 1000 requests/hour (official API)
-    pub const GREENHOUSE: u32 = 1000;
+    pub(crate) const GREENHOUSE: u32 = 1000;
 
     /// Lever: 1000 requests/hour (official API)
-    pub const LEVER: u32 = 1000;
+    pub(crate) const LEVER: u32 = 1000;
 
     /// JobsWithGPT: 10,000 requests/hour (MCP server)
-    pub const JOBSWITHGPT: u32 = 10_000;
+    pub(crate) const JOBSWITHGPT: u32 = 10_000;
 
     /// Dice: 500 requests/hour (public job board)
-    pub const DICE: u32 = 500;
+    pub(crate) const DICE: u32 = 500;
 
     /// RemoteOK: 500 requests/hour (public API)
-    pub const REMOTEOK: u32 = 500;
+    pub(crate) const REMOTEOK: u32 = 500;
 
     /// Glassdoor: 200 requests/hour (conservative due to Cloudflare)
-    pub const GLASSDOOR: u32 = 200;
+    pub(crate) const GLASSDOOR: u32 = 200;
 
     /// SimplyHired: 200 requests/hour (conservative due to Cloudflare)
-    pub const SIMPLYHIRED: u32 = 200;
+    pub(crate) const SIMPLYHIRED: u32 = 200;
 
     /// USAJobs: 1000 requests/hour (official government API)
-    pub const USAJOBS: u32 = 1000;
+    pub(crate) const USAJOBS: u32 = 1000;
 
     /// WeWorkRemotely: 300 requests/hour (RSS feed)
-    pub const WEWORKREMOTELY: u32 = 300;
+    pub(crate) const WEWORKREMOTELY: u32 = 300;
 
     /// HN Hiring: 500 requests/hour (Algolia API)
-    pub const HN_HIRING: u32 = 500;
+    pub(crate) const HN_HIRING: u32 = 500;
 
     /// YC Startup: 300 requests/hour (job board)
-    pub const YC_STARTUP: u32 = 300;
+    pub(crate) const YC_STARTUP: u32 = 300;
 
     /// BuiltIn: 300 requests/hour (job board)
-    pub const BUILTIN: u32 = 300;
+    pub(crate) const BUILTIN: u32 = 300;
 }
 
 #[cfg(test)]

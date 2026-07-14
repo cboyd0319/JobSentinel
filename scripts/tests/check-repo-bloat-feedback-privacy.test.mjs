@@ -70,7 +70,7 @@ test("checkRepoBloat rejects unsanitized structured feedback debug events", () =
       root,
       "src-tauri/src/commands/feedback/debug_log.rs",
       [
-        "pub fn get_debug_log() -> Vec<TimestampedEvent> {",
+        "pub(super) fn get_debug_log() -> Vec<TimestampedEvent> {",
         "    DEBUG_LOG",
         "        .read()",
         "        .map(|buffer| buffer.get_all())",
@@ -117,7 +117,7 @@ test("checkRepoBloat accepts disabled feedback activity collection", () => {
         "    Vec::new()",
         "}",
         "",
-        "pub fn get_recent_events(_limit: usize) -> Vec<TimestampedEvent> {",
+        "pub(super) fn get_recent_events(_limit: usize) -> Vec<TimestampedEvent> {",
         "    Vec::new()",
         "}",
         "",

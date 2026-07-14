@@ -130,7 +130,10 @@ fn build_teams_payload(notification: &Notification) -> serde_json::Value {
 ///
 /// Uses the MessageCard format for compatibility with most Teams setups.
 /// Newer Adaptive Cards format could be added in the future.
-pub async fn send_teams_notification(webhook_url: &str, notification: &Notification) -> Result<()> {
+pub(super) async fn send_teams_notification(
+    webhook_url: &str,
+    notification: &Notification,
+) -> Result<()> {
     // Validate webhook URL before sending
     validate_webhook_url(webhook_url)?;
 

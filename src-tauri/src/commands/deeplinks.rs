@@ -14,7 +14,7 @@ use tauri::Emitter;
 /// Generate deep links for all supported sites
 #[tauri::command]
 #[tracing::instrument(skip(_app, criteria))]
-pub async fn generate_deep_links(
+pub(crate) async fn generate_deep_links(
     _app: tauri::AppHandle,
     criteria: SearchCriteria,
 ) -> Result<Vec<DeepLink>, String> {
@@ -30,7 +30,7 @@ pub async fn generate_deep_links(
 /// Generate deep link for a specific site
 #[tauri::command]
 #[tracing::instrument(skip(_app, criteria), fields(site_id = %site_id))]
-pub async fn generate_deep_link(
+pub(crate) async fn generate_deep_link(
     _app: tauri::AppHandle,
     site_id: String,
     criteria: SearchCriteria,
@@ -47,7 +47,7 @@ pub async fn generate_deep_link(
 /// Get all supported job sites
 #[tauri::command]
 #[tracing::instrument(skip(_app))]
-pub async fn get_supported_sites(_app: tauri::AppHandle) -> Result<Vec<SiteInfo>, String> {
+pub(crate) async fn get_supported_sites(_app: tauri::AppHandle) -> Result<Vec<SiteInfo>, String> {
     tracing::debug!("Fetching all supported sites");
     Ok(get_all_sites())
 }
@@ -55,7 +55,7 @@ pub async fn get_supported_sites(_app: tauri::AppHandle) -> Result<Vec<SiteInfo>
 /// Get sites by category
 #[tauri::command]
 #[tracing::instrument(skip(_app))]
-pub async fn get_sites_by_category_cmd(
+pub(crate) async fn get_sites_by_category_cmd(
     _app: tauri::AppHandle,
     category: SiteCategory,
 ) -> Result<Vec<SiteInfo>, String> {
@@ -72,7 +72,7 @@ async fn validate_deep_link_url(url: &str) -> Result<(), String> {
 /// Open a deep link URL in the default browser
 #[tauri::command]
 #[tracing::instrument(skip(app))]
-pub async fn open_deep_link(app: tauri::AppHandle, url: String) -> Result<(), String> {
+pub(crate) async fn open_deep_link(app: tauri::AppHandle, url: String) -> Result<(), String> {
     use tauri_plugin_shell::ShellExt;
 
     validate_deep_link_url(&url).await?;

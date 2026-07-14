@@ -13,7 +13,7 @@ use serde::{Deserialize, Serialize};
 #[cfg(test)]
 use std::fmt;
 
-pub const LINKEDIN_AUTOMATION_DISABLED_MESSAGE: &str =
+pub(crate) const LINKEDIN_AUTOMATION_DISABLED_MESSAGE: &str =
     "JobSentinel does not run hidden LinkedIn monitoring. Use LinkedIn when you choose, \
      then use JobSentinel to keep a local record of jobs you save, apply to, \
      track, or review. JobSentinel will not click for you, read LinkedIn pages \
@@ -23,7 +23,7 @@ pub const LINKEDIN_AUTOMATION_DISABLED_MESSAGE: &str =
 
 #[cfg(test)]
 #[derive(Clone, Serialize, Deserialize)]
-pub struct LinkedInScraper {
+pub(super) struct LinkedInScraper {
     pub query: String,
     pub location: String,
     pub remote_only: bool,
@@ -44,7 +44,7 @@ impl fmt::Debug for LinkedInScraper {
 
 #[cfg(test)]
 impl LinkedInScraper {
-    pub fn new(query: impl Into<String>, location: impl Into<String>) -> Self {
+    pub(super) fn new(query: impl Into<String>, location: impl Into<String>) -> Self {
         Self {
             query: query.into(),
             location: location.into(),
@@ -53,7 +53,7 @@ impl LinkedInScraper {
         }
     }
 
-    pub fn with_limit(mut self, limit: usize) -> Self {
+    pub(super) fn with_limit(mut self, limit: usize) -> Self {
         self.limit = limit.min(100);
         self
     }

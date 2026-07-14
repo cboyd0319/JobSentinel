@@ -139,7 +139,10 @@ fn build_slack_payload(notification: &Notification) -> serde_json::Value {
 }
 
 /// Send Slack notification
-pub async fn send_slack_notification(webhook_url: &str, notification: &Notification) -> Result<()> {
+pub(super) async fn send_slack_notification(
+    webhook_url: &str,
+    notification: &Notification,
+) -> Result<()> {
     // Validate webhook URL before sending
     validate_webhook_url(webhook_url)?;
 

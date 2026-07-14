@@ -19,7 +19,7 @@ use crate::core::geo::{detect_location as core_detect_location, LocationInfo};
 /// - Sends the public IP address visible to that provider
 /// - User can override/ignore the suggestion
 #[tauri::command]
-pub async fn detect_location() -> Result<LocationInfo, String> {
+pub(crate) async fn detect_location() -> Result<LocationInfo, String> {
     core_detect_location()
         .await
         .map_err(|e| user_friendly_error("Failed to detect location", e))

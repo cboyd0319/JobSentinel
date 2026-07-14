@@ -10,7 +10,7 @@ use serde::{Deserialize, Serialize};
 /// Debug event types - ONLY metadata, never content
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type")]
-pub enum DebugEvent {
+pub(crate) enum DebugEvent {
     /// App startup event
     AppStarted { version: String },
 
@@ -48,7 +48,7 @@ pub enum DebugEvent {
 
 /// Timestamped event wrapper
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct TimestampedEvent {
+pub(crate) struct TimestampedEvent {
     pub timestamp: DateTime<Utc>,
     pub event: DebugEvent,
 }
@@ -57,12 +57,12 @@ pub struct TimestampedEvent {
 ///
 /// JobSentinel does not collect background activity. The support report keeps
 /// this stable empty field so renderer responses remain predictable.
-pub fn get_debug_log() -> Vec<TimestampedEvent> {
+pub(super) fn get_debug_log() -> Vec<TimestampedEvent> {
     Vec::new()
 }
 
 /// Return at most the requested number of recorded activity events.
-pub fn get_recent_events(_limit: usize) -> Vec<TimestampedEvent> {
+pub(super) fn get_recent_events(_limit: usize) -> Vec<TimestampedEvent> {
     Vec::new()
 }
 
@@ -82,7 +82,7 @@ fn support_status(success: bool) -> &'static str {
     }
 }
 
-pub fn format_event_for_support(event: &DebugEvent) -> String {
+pub(super) fn format_event_for_support(event: &DebugEvent) -> String {
     match event {
         DebugEvent::AppStarted { version } => {
             format!("App opened: Version {}", Sanitizer::sanitize(version))
@@ -144,10 +144,10 @@ pub fn format_event_for_support(event: &DebugEvent) -> String {
 }
 
 /// Clear recorded activity. No background activity is collected.
-pub fn clear_debug_log() {}
+pub(super) fn clear_debug_log() {}
 
 /// Format debug log as a human-readable string (sanitized)
-pub fn format_debug_log() -> String {
+pub(super) fn format_debug_log() -> String {
     let events = get_debug_log();
 
     if events.is_empty() {

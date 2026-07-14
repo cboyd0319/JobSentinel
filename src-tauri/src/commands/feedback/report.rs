@@ -15,14 +15,14 @@ use crate::commands::AppState;
 /// Feedback category
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "lowercase")]
-pub enum FeedbackCategory {
+pub(super) enum FeedbackCategory {
     Bug,
     Feature,
     Question,
 }
 
 impl FeedbackCategory {
-    pub fn as_str(&self) -> &str {
+    pub(super) fn as_str(&self) -> &str {
         match self {
             Self::Bug => "Problem Report",
             Self::Feature => "Improvement Idea",

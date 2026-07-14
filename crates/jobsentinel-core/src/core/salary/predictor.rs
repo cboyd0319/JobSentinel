@@ -8,17 +8,17 @@ use chrono::Utc;
 use sqlx::{Row, SqlitePool};
 
 /// Salary predictor
-pub struct SalaryPredictor {
+pub(super) struct SalaryPredictor {
     db: SqlitePool,
 }
 
 impl SalaryPredictor {
-    pub fn new(db: SqlitePool) -> Self {
+    pub(super) fn new(db: SqlitePool) -> Self {
         Self { db }
     }
 
     /// Predict salary for a job
-    pub async fn predict_for_job(
+    pub(super) async fn predict_for_job(
         &self,
         job_hash: &str,
         years_of_experience: Option<i32>,
@@ -168,7 +168,7 @@ impl SalaryPredictor {
     }
 
     /// Get existing prediction for a job
-    pub async fn get_prediction(&self, job_hash: &str) -> Result<Option<SalaryPrediction>> {
+    pub(super) async fn get_prediction(&self, job_hash: &str) -> Result<Option<SalaryPrediction>> {
         let record = sqlx::query(
             r#"
             SELECT job_hash, predicted_min, predicted_max, predicted_median,

@@ -348,8 +348,12 @@ export function hasUnsanitizedStructuredDebugLogEvents(root, path) {
 
   const text = readFileSync(join(root, path), "utf8");
   const collectionDisabled =
-    /pub fn get_debug_log\(\) -> Vec<TimestampedEvent> \{\s*Vec::new\(\)\s*\}/.test(text) &&
-    /pub fn get_recent_events\([^)]*\) -> Vec<TimestampedEvent> \{\s*Vec::new\(\)\s*\}/.test(text);
+    /pub(?:\([^)]*\))?\s+fn get_debug_log\(\) -> Vec<TimestampedEvent> \{\s*Vec::new\(\)\s*\}/.test(
+      text,
+    ) &&
+    /pub(?:\([^)]*\))?\s+fn get_recent_events\([^)]*\) -> Vec<TimestampedEvent> \{\s*Vec::new\(\)\s*\}/.test(
+      text,
+    );
 
   if (collectionDisabled) {
     return false;
@@ -357,10 +361,10 @@ export function hasUnsanitizedStructuredDebugLogEvents(root, path) {
 
   return (
     !text.includes("sanitize_timestamped_event") ||
-    /pub fn get_debug_log\(\)[\s\S]*?\.map\(\|buffer\| buffer\.get_all\(\)\)/.test(
+    /pub(?:\([^)]*\))?\s+fn get_debug_log\(\)[\s\S]*?\.map\(\|buffer\| buffer\.get_all\(\)\)/.test(
       text,
     ) ||
-    /pub fn get_recent_events\([^)]*\)[\s\S]*?\.map\(\|buffer\| buffer\.get_recent\(n\)\)/.test(
+    /pub(?:\([^)]*\))?\s+fn get_recent_events\([^)]*\)[\s\S]*?\.map\(\|buffer\| buffer\.get_recent\(n\)\)/.test(
       text,
     )
   );

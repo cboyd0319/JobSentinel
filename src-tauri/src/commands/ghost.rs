@@ -24,7 +24,7 @@ fn validate_ghost_threshold(threshold: Option<f64>) -> Result<f64, String> {
 ///
 /// Returns jobs with ghost_score >= threshold (default 0.5)
 #[tauri::command]
-pub async fn get_ghost_jobs(
+pub(crate) async fn get_ghost_jobs(
     threshold: Option<f64>,
     limit: Option<i64>,
     state: State<'_, AppState>,
@@ -57,7 +57,7 @@ pub async fn get_ghost_jobs(
 ///
 /// Returns counts of jobs by ghost score ranges and top reasons
 #[tauri::command]
-pub async fn get_ghost_statistics(state: State<'_, AppState>) -> Result<Value, String> {
+pub(crate) async fn get_ghost_statistics(state: State<'_, AppState>) -> Result<Value, String> {
     tracing::info!("Command: get_ghost_statistics");
 
     match state.database.get_ghost_statistics().await {
@@ -75,7 +75,7 @@ pub async fn get_ghost_statistics(state: State<'_, AppState>) -> Result<Value, S
 ///
 /// When `exclude_ghost` is true, jobs with ghost_score >= 0.5 are excluded.
 #[tauri::command]
-pub async fn get_recent_jobs_filtered(
+pub(crate) async fn get_recent_jobs_filtered(
     limit: i64,
     exclude_ghost: bool,
     state: State<'_, AppState>,
@@ -112,7 +112,7 @@ pub async fn get_recent_jobs_filtered(
 
 /// Get current ghost detection configuration
 #[tauri::command]
-pub async fn get_ghost_config(state: State<'_, AppState>) -> Result<Value, String> {
+pub(crate) async fn get_ghost_config(state: State<'_, AppState>) -> Result<Value, String> {
     tracing::info!("Command: get_ghost_config");
 
     // Get from main config, or use default if not present
@@ -128,7 +128,10 @@ pub async fn get_ghost_config(state: State<'_, AppState>) -> Result<Value, Strin
 
 /// Update ghost detection configuration
 #[tauri::command]
-pub async fn set_ghost_config(config: Value, state: State<'_, AppState>) -> Result<(), String> {
+pub(crate) async fn set_ghost_config(
+    config: Value,
+    state: State<'_, AppState>,
+) -> Result<(), String> {
     tracing::info!("Command: set_ghost_config");
 
     // Parse GhostConfig from JSON
@@ -196,7 +199,7 @@ pub async fn set_ghost_config(config: Value, state: State<'_, AppState>) -> Resu
 
 /// Reset ghost detection configuration to defaults
 #[tauri::command]
-pub async fn reset_ghost_config(state: State<'_, AppState>) -> Result<(), String> {
+pub(crate) async fn reset_ghost_config(state: State<'_, AppState>) -> Result<(), String> {
     tracing::info!("Command: reset_ghost_config");
 
     // Load current config
@@ -244,7 +247,10 @@ pub async fn reset_ghost_config(state: State<'_, AppState>) -> Result<(), String
 
 /// Mark a job as real (user confirms it's not a ghost job)
 #[tauri::command]
-pub async fn mark_job_as_real(job_id: i64, state: State<'_, AppState>) -> Result<(), String> {
+pub(crate) async fn mark_job_as_real(
+    job_id: i64,
+    state: State<'_, AppState>,
+) -> Result<(), String> {
     tracing::info!("Command: mark_job_as_real (job_id: {})", job_id);
 
     state.database.mark_job_as_real(job_id).await.map_err(|e| {
@@ -256,7 +262,10 @@ pub async fn mark_job_as_real(job_id: i64, state: State<'_, AppState>) -> Result
 
 /// Mark a job as ghost (user confirms it's a fake/ghost job)
 #[tauri::command]
-pub async fn mark_job_as_ghost(job_id: i64, state: State<'_, AppState>) -> Result<(), String> {
+pub(crate) async fn mark_job_as_ghost(
+    job_id: i64,
+    state: State<'_, AppState>,
+) -> Result<(), String> {
     tracing::info!("Command: mark_job_as_ghost (job_id: {})", job_id);
 
     state.database.mark_job_as_ghost(job_id).await.map_err(|e| {
@@ -270,7 +279,7 @@ pub async fn mark_job_as_ghost(job_id: i64, state: State<'_, AppState>) -> Resul
 ///
 /// Returns: "real", "ghost", or null if no feedback given
 #[tauri::command]
-pub async fn get_ghost_feedback(
+pub(crate) async fn get_ghost_feedback(
     job_id: i64,
     state: State<'_, AppState>,
 ) -> Result<Option<String>, String> {
@@ -289,7 +298,10 @@ pub async fn get_ghost_feedback(
 
 /// Clear user feedback for a job
 #[tauri::command]
-pub async fn clear_ghost_feedback(job_id: i64, state: State<'_, AppState>) -> Result<(), String> {
+pub(crate) async fn clear_ghost_feedback(
+    job_id: i64,
+    state: State<'_, AppState>,
+) -> Result<(), String> {
     tracing::info!("Command: clear_ghost_feedback (job_id: {})", job_id);
 
     state

@@ -113,7 +113,7 @@ fn record_restricted_source_acknowledgement_missing(
 
 /// Run all configured scrapers and return jobs and errors
 #[tracing::instrument(skip_all)]
-pub async fn run_scrapers(
+pub(crate) async fn run_scrapers(
     config: &Arc<Config>,
     db: &Arc<Database>,
     credentials: &CredentialService,

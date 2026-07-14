@@ -3,7 +3,8 @@
 #[cfg(test)]
 mod validation_tests {
     use crate::core::config::{
-        types::*, validation::validate_config, ValidationError, ValidationErrors,
+        types::*, validation::validate_config, ExternalAiProvider, LinkedInConfig, ValidationError,
+        ValidationErrors,
     };
 
     fn validation_error_fields(result: Result<(), Box<dyn std::error::Error>>) -> Vec<String> {

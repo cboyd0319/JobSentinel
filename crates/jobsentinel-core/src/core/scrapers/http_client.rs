@@ -18,14 +18,14 @@ mod retry_policy;
 use retry_policy::bounded_retry_after_secs;
 use retry_policy::{calculate_backoff_delay, is_retryable_request_error, is_retryable_status};
 
-pub use crate::core::http_body::{read_json_with_limit, read_text_with_limit};
+pub(super) use crate::core::http_body::{read_json_with_limit, read_text_with_limit};
 
 /// Default user agent for scraper requests
-pub const DEFAULT_USER_AGENT: &str =
+pub(crate) const DEFAULT_USER_AGENT: &str =
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
 
 /// Default request timeout in seconds
-pub const DEFAULT_TIMEOUT_SECS: u64 = 30;
+pub(super) const DEFAULT_TIMEOUT_SECS: u64 = 30;
 
 /// Shared HTTP client for all scrapers
 ///
@@ -86,7 +86,7 @@ fn build_client_for_resolved_target(target: &ResolvedExternalUrl) -> Result<reqw
 ///     client.get("https://example.com")
 /// }).await?;
 /// ```
-pub fn get_client() -> &'static reqwest::Client {
+pub(super) fn get_client() -> &'static reqwest::Client {
     SHARED_CLIENT.get_or_init(|| {
         match init_shared_client() {
             Ok(client) => client,
@@ -126,7 +126,7 @@ pub fn get_client() -> &'static reqwest::Client {
 /// ```
 #[must_use = "this constructs a new HTTP client"]
 #[cfg(test)]
-pub fn create_custom_client(user_agent: &str, timeout_secs: u64) -> Result<reqwest::Client> {
+pub(super) fn create_custom_client(user_agent: &str, timeout_secs: u64) -> Result<reqwest::Client> {
     let client = scraper_client_builder()
         .user_agent(user_agent)
         .timeout(Duration::from_secs(timeout_secs))
@@ -174,7 +174,7 @@ const MAX_RETRY_AFTER_DELAY_SECS: u64 = 60;
 /// let jobs = read_json_with_limit::<Vec<Job>>(response, "https://example.com/api/jobs").await?;
 /// ```
 #[must_use = "this returns the HTTP response"]
-pub async fn get_with_retry(url: &str) -> Result<reqwest::Response> {
+pub(super) async fn get_with_retry(url: &str) -> Result<reqwest::Response> {
     let response = send_with_retry(url, |client| client.get(url)).await?;
     let status = response.status();
 
@@ -194,7 +194,7 @@ pub async fn get_with_retry(url: &str) -> Result<reqwest::Response> {
 /// The builder closure runs once per attempt so callers can keep custom
 /// headers, query parameters, or JSON bodies without bypassing shared retry
 /// handling.
-pub async fn send_with_retry<F>(url: &str, build_request: F) -> Result<reqwest::Response>
+pub(super) async fn send_with_retry<F>(url: &str, build_request: F) -> Result<reqwest::Response>
 where
     F: FnMut(&reqwest::Client) -> reqwest::RequestBuilder,
 {

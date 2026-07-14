@@ -26,7 +26,7 @@ fn validate_historical_snapshot_days(days: i64) -> Result<usize, String> {
 
 /// Get trending skills
 #[tauri::command]
-pub async fn get_trending_skills(
+pub(crate) async fn get_trending_skills(
     limit: usize,
     state: State<'_, AppState>,
 ) -> Result<Vec<SkillTrend>, String> {
@@ -42,7 +42,7 @@ pub async fn get_trending_skills(
 
 /// Get most active hiring companies
 #[tauri::command]
-pub async fn get_active_companies(
+pub(crate) async fn get_active_companies(
     limit: usize,
     state: State<'_, AppState>,
 ) -> Result<Vec<CompanyActivity>, String> {
@@ -58,7 +58,7 @@ pub async fn get_active_companies(
 
 /// Get hottest job market locations
 #[tauri::command]
-pub async fn get_hottest_locations(
+pub(crate) async fn get_hottest_locations(
     limit: usize,
     state: State<'_, AppState>,
 ) -> Result<Vec<LocationHeat>, String> {
@@ -74,7 +74,9 @@ pub async fn get_hottest_locations(
 
 /// Get unread market alerts
 #[tauri::command]
-pub async fn get_market_alerts(state: State<'_, AppState>) -> Result<Vec<MarketAlert>, String> {
+pub(crate) async fn get_market_alerts(
+    state: State<'_, AppState>,
+) -> Result<Vec<MarketAlert>, String> {
     tracing::info!("Command: get_market_alerts");
 
     let intel = MarketIntelligence::new(state.database.pool().clone());
@@ -86,7 +88,7 @@ pub async fn get_market_alerts(state: State<'_, AppState>) -> Result<Vec<MarketA
 
 /// Run market analysis (manual trigger)
 #[tauri::command]
-pub async fn run_market_analysis(state: State<'_, AppState>) -> Result<Value, String> {
+pub(crate) async fn run_market_analysis(state: State<'_, AppState>) -> Result<Value, String> {
     tracing::info!("Command: run_market_analysis");
 
     let intel = MarketIntelligence::new(state.database.pool().clone());
@@ -99,7 +101,7 @@ pub async fn run_market_analysis(state: State<'_, AppState>) -> Result<Value, St
 
 /// Get current market snapshot
 #[tauri::command]
-pub async fn get_market_snapshot(
+pub(crate) async fn get_market_snapshot(
     state: State<'_, AppState>,
 ) -> Result<Option<MarketSnapshot>, String> {
     tracing::info!("Command: get_market_snapshot");
@@ -113,7 +115,7 @@ pub async fn get_market_snapshot(
 
 /// Get historical market snapshots
 #[tauri::command]
-pub async fn get_historical_snapshots(
+pub(crate) async fn get_historical_snapshots(
     days: i64,
     state: State<'_, AppState>,
 ) -> Result<Vec<MarketSnapshot>, String> {
@@ -129,7 +131,7 @@ pub async fn get_historical_snapshots(
 
 /// Mark a single alert as read
 #[tauri::command]
-pub async fn mark_alert_read(id: i64, state: State<'_, AppState>) -> Result<bool, String> {
+pub(crate) async fn mark_alert_read(id: i64, state: State<'_, AppState>) -> Result<bool, String> {
     tracing::info!("Command: mark_alert_read (id: {})", id);
 
     let intel = MarketIntelligence::new(state.database.pool().clone());
@@ -141,7 +143,7 @@ pub async fn mark_alert_read(id: i64, state: State<'_, AppState>) -> Result<bool
 
 /// Mark all alerts as read
 #[tauri::command]
-pub async fn mark_all_alerts_read(state: State<'_, AppState>) -> Result<u64, String> {
+pub(crate) async fn mark_all_alerts_read(state: State<'_, AppState>) -> Result<u64, String> {
     tracing::info!("Command: mark_all_alerts_read");
 
     let intel = MarketIntelligence::new(state.database.pool().clone());

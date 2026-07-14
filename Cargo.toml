@@ -69,6 +69,7 @@ zip = { version = "=8.6.0", default-features = false, features = ["deflate"] }
 
 [workspace.lints.rust]
 unsafe_code = "deny"
+unreachable_pub = "deny"
 
 [workspace.lints.clippy]
 pedantic = { level = "warn", priority = -1 }

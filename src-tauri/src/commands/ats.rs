@@ -12,7 +12,7 @@ use tauri::State;
 
 /// Create a new application from a job
 #[tauri::command]
-pub async fn create_application(
+pub(crate) async fn create_application(
     job_hash: String,
     state: State<'_, AppState>,
 ) -> Result<i64, String> {
@@ -28,7 +28,7 @@ pub async fn create_application(
 
 /// Get applications grouped by status (for Kanban board)
 #[tauri::command]
-pub async fn get_applications_kanban(
+pub(crate) async fn get_applications_kanban(
     state: State<'_, AppState>,
 ) -> Result<ApplicationsByStatus, String> {
     tracing::info!("Command: get_applications_kanban");
@@ -42,7 +42,7 @@ pub async fn get_applications_kanban(
 
 /// Update application status
 #[tauri::command]
-pub async fn update_application_status(
+pub(crate) async fn update_application_status(
     application_id: i64,
     status: String,
     state: State<'_, AppState>,
@@ -67,7 +67,7 @@ pub async fn update_application_status(
 
 /// Add notes to an application
 #[tauri::command]
-pub async fn add_application_notes(
+pub(crate) async fn add_application_notes(
     application_id: i64,
     notes: String,
     state: State<'_, AppState>,
@@ -83,7 +83,7 @@ pub async fn add_application_notes(
 
 /// Get pending reminders
 #[tauri::command]
-pub async fn get_pending_reminders(
+pub(crate) async fn get_pending_reminders(
     state: State<'_, AppState>,
 ) -> Result<Vec<PendingReminder>, String> {
     tracing::info!("Command: get_pending_reminders");
@@ -97,7 +97,10 @@ pub async fn get_pending_reminders(
 
 /// Mark reminder as completed
 #[tauri::command]
-pub async fn complete_reminder(reminder_id: i64, state: State<'_, AppState>) -> Result<(), String> {
+pub(crate) async fn complete_reminder(
+    reminder_id: i64,
+    state: State<'_, AppState>,
+) -> Result<(), String> {
     tracing::info!("Command: complete_reminder (id: {})", reminder_id);
 
     let tracker = ApplicationTracker::new(state.database.pool().clone());
@@ -109,7 +112,9 @@ pub async fn complete_reminder(reminder_id: i64, state: State<'_, AppState>) -> 
 
 /// Auto-detect ghosted applications
 #[tauri::command]
-pub async fn detect_ghosted_applications(state: State<'_, AppState>) -> Result<usize, String> {
+pub(crate) async fn detect_ghosted_applications(
+    state: State<'_, AppState>,
+) -> Result<usize, String> {
     tracing::info!("Command: detect_ghosted_applications");
 
     let tracker = ApplicationTracker::new(state.database.pool().clone());
@@ -121,7 +126,9 @@ pub async fn detect_ghosted_applications(state: State<'_, AppState>) -> Result<u
 
 /// Get application statistics for analytics dashboard
 #[tauri::command]
-pub async fn get_application_stats(state: State<'_, AppState>) -> Result<ApplicationStats, String> {
+pub(crate) async fn get_application_stats(
+    state: State<'_, AppState>,
+) -> Result<ApplicationStats, String> {
     tracing::info!("Command: get_application_stats");
 
     let tracker = ApplicationTracker::new(state.database.pool().clone());
@@ -133,7 +140,7 @@ pub async fn get_application_stats(state: State<'_, AppState>) -> Result<Applica
 
 /// Schedule a new interview
 #[tauri::command]
-pub async fn schedule_interview(
+pub(crate) async fn schedule_interview(
     application_id: i64,
     interview_type: String,
     scheduled_at: String,
@@ -176,7 +183,7 @@ pub async fn schedule_interview(
 
 /// Get upcoming interviews
 #[tauri::command]
-pub async fn get_upcoming_interviews(
+pub(crate) async fn get_upcoming_interviews(
     state: State<'_, AppState>,
 ) -> Result<Vec<InterviewWithJob>, String> {
     tracing::info!("Command: get_upcoming_interviews");
@@ -190,7 +197,7 @@ pub async fn get_upcoming_interviews(
 
 /// Get past interviews (completed, last 90 days)
 #[tauri::command]
-pub async fn get_past_interviews(
+pub(crate) async fn get_past_interviews(
     state: State<'_, AppState>,
 ) -> Result<Vec<InterviewWithJob>, String> {
     tracing::info!("Command: get_past_interviews");
@@ -204,7 +211,7 @@ pub async fn get_past_interviews(
 
 /// Complete an interview with outcome
 #[tauri::command]
-pub async fn complete_interview(
+pub(crate) async fn complete_interview(
     interview_id: i64,
     outcome: String,
     notes: Option<String>,
@@ -227,7 +234,10 @@ pub async fn complete_interview(
 
 /// Delete an interview
 #[tauri::command]
-pub async fn delete_interview(interview_id: i64, state: State<'_, AppState>) -> Result<(), String> {
+pub(crate) async fn delete_interview(
+    interview_id: i64,
+    state: State<'_, AppState>,
+) -> Result<(), String> {
     tracing::info!("Command: delete_interview (id: {})", interview_id);
 
     let tracker = ApplicationTracker::new(state.database.pool().clone());

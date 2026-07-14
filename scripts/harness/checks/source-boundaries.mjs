@@ -392,7 +392,7 @@ export function hasJobsWithGptMissingRequestLedger(root, path) {
   }
 
   if (path === "src-tauri/src/commands/health.rs") {
-    return !/pub async fn get_latest_source_request/.test(text);
+    return !/pub(?:\([^)]*\))?\s+async fn get_latest_source_request/.test(text);
   }
 
   if (

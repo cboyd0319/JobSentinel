@@ -14,7 +14,7 @@ use chrono::Utc;
 
 /// RemoteOK job scraper
 #[derive(Debug, Clone)]
-pub struct RemoteOkScraper {
+pub(crate) struct RemoteOkScraper {
     /// Search tags to filter jobs (e.g., "rust", "python", "engineer")
     pub tags: Vec<String>,
     /// Maximum results to return
@@ -24,7 +24,7 @@ pub struct RemoteOkScraper {
 }
 
 impl RemoteOkScraper {
-    pub fn new(tags: Vec<String>, limit: usize) -> Self {
+    pub(crate) fn new(tags: Vec<String>, limit: usize) -> Self {
         Self {
             tags,
             limit,

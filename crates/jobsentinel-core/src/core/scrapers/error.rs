@@ -8,7 +8,7 @@ use std::fmt;
 
 /// Comprehensive error type for scraper operations
 #[derive(Debug)]
-pub enum ScraperError {
+pub(crate) enum ScraperError {
     /// HTTP request failed
     HttpRequest { url: String, source: reqwest::Error },
 
@@ -151,7 +151,7 @@ impl ScraperError {
     ///
     /// This is a migration helper for converting anyhow errors to ScraperError.
     /// Use specific constructors (http_request, parse, etc.) when possible.
-    pub fn from_anyhow(scraper: impl Into<String>, error: anyhow::Error) -> Self {
+    pub(crate) fn from_anyhow(scraper: impl Into<String>, error: anyhow::Error) -> Self {
         Self::Generic {
             scraper: scraper.into(),
             message: Self::safe_anyhow_message(&error),
@@ -191,7 +191,11 @@ impl ScraperError {
     }
 
     /// Create an HTTP status error
-    pub fn http_status(status: u16, url: impl Into<String>, message: impl Into<String>) -> Self {
+    pub(crate) fn http_status(
+        status: u16,
+        url: impl Into<String>,
+        message: impl Into<String>,
+    ) -> Self {
         Self::HttpStatus {
             status,
             url: url.into(),
@@ -200,7 +204,7 @@ impl ScraperError {
     }
 
     /// Create a parse error
-    pub fn parse<E>(format: impl Into<String>, url: impl Into<String>, source: E) -> Self
+    pub(crate) fn parse<E>(format: impl Into<String>, url: impl Into<String>, source: E) -> Self
     where
         E: std::error::Error + Send + Sync + 'static,
     {
