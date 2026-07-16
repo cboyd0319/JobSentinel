@@ -1,0 +1,37 @@
+[package]
+name = "jobsentinel-local-ai"
+description = "Optional governed local inference for JobSentinel"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+keywords.workspace = true
+categories.workspace = true
+
+[features]
+default = []
+embedded-ml = ["basic-toml", "candle-core", "candle-nn", "hf-hub", "tokenizers"]
+
+[dependencies]
+anyhow.workspace = true
+basic-toml = { workspace = true, optional = true }
+candle-core = { workspace = true, optional = true }
+candle-nn = { workspace = true, optional = true }
+chrono.workspace = true
+hex.workspace = true
+hf-hub = { workspace = true, optional = true }
+jobsentinel-security.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+thiserror.workspace = true
+tokenizers = { workspace = true, optional = true }
+tracing.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true
+tokio.workspace = true
+
+[lints]
+workspace = true

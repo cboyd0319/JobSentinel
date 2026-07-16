@@ -156,7 +156,7 @@ test("checkRepoBloat rejects notifications doc glyph markers", () => {
       "docs/features/notifications.md",
       [
         '2. Click "Create New App" → "From Scratch"',
-        "crates/jobsentinel-core/src/core/notify/",
+        "crates/jobsentinel-notifications/src/",
         "├── mod.rs",
         "",
       ].join("\n"),

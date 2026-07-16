@@ -22,50 +22,50 @@ export const frontendDirectErrorLoggingPaths = new Set([
 export const rawPrivateQueryLoggingPaths = new Set([
   "src-tauri/src/commands/automation.rs",
   "src-tauri/src/commands/jobs.rs",
-  "crates/jobsentinel-core/src/core/db/queries.rs",
+  "crates/jobsentinel-storage/src/queries.rs",
 ]);
 
 export const rawScraperLoggingPaths = new Set([
-  "crates/jobsentinel-core/src/core/scrapers/dice.rs",
-  "crates/jobsentinel-core/src/core/scrapers/glassdoor.rs",
-  "crates/jobsentinel-core/src/core/scrapers/greenhouse.rs",
-  "crates/jobsentinel-core/src/core/scrapers/http_client.rs",
-  "crates/jobsentinel-core/src/core/scrapers/jobswithgpt.rs",
-  "crates/jobsentinel-core/src/core/scrapers/lever/mod.rs",
-  "crates/jobsentinel-core/src/core/scrapers/linkedin.rs",
-  "crates/jobsentinel-core/src/core/scrapers/simplyhired.rs",
-  "crates/jobsentinel-core/src/core/scrapers/usajobs.rs",
+  "crates/jobsentinel-sources/src/scrapers/dice.rs",
+  "crates/jobsentinel-sources/src/scrapers/glassdoor.rs",
+  "crates/jobsentinel-sources/src/scrapers/greenhouse.rs",
+  "crates/jobsentinel-network/src/external_request.rs",
+  "crates/jobsentinel-sources/src/scrapers/jobswithgpt.rs",
+  "crates/jobsentinel-sources/src/scrapers/lever/mod.rs",
+  "crates/jobsentinel-sources/src/scrapers/linkedin.rs",
+  "crates/jobsentinel-sources/src/scrapers/simplyhired.rs",
+  "crates/jobsentinel-sources/src/scrapers/usajobs.rs",
 ]);
 
 export const scraperLoopErrorLoggingPaths = new Set([
-  "crates/jobsentinel-core/src/core/scrapers/greenhouse.rs",
-  "crates/jobsentinel-core/src/core/scrapers/lever/mod.rs",
+  "crates/jobsentinel-sources/src/scrapers/greenhouse.rs",
+  "crates/jobsentinel-sources/src/scrapers/lever/mod.rs",
 ]);
 
 export const rawLocalPathLoggingPaths = new Set([
   "src-tauri/src/commands/ml.rs",
   "src-tauri/src/commands/resume.rs",
-  "crates/jobsentinel-core/src/core/automation/browser/page.rs",
-  "crates/jobsentinel-core/src/core/automation/form_filler.rs",
-  "crates/jobsentinel-core/src/core/db/connection.rs",
-  "crates/jobsentinel-core/src/core/db/connection/backups.rs",
+  "crates/jobsentinel-assistance/src/automation/browser/page.rs",
+  "crates/jobsentinel-assistance/src/automation/form_filler.rs",
+  "crates/jobsentinel-storage/src/connection.rs",
+  "crates/jobsentinel-storage/src/connection/backups.rs",
   "src-tauri/src/app.rs",
-  "crates/jobsentinel-core/src/platforms/linux/mod.rs",
-  "crates/jobsentinel-core/src/platforms/macos/mod.rs",
-  "crates/jobsentinel-core/src/platforms/windows/mod.rs",
+  "crates/jobsentinel-platform/src/linux/mod.rs",
+  "crates/jobsentinel-platform/src/macos/mod.rs",
+  "crates/jobsentinel-platform/src/windows/mod.rs",
 ]);
 
 export const rawBackupPathErrorPaths = new Set([
-  "crates/jobsentinel-core/src/core/db/connection/backups.rs",
+  "crates/jobsentinel-storage/src/connection/backups.rs",
 ]);
 
 export const mlRawLocalPathExposurePaths = new Set([
   "src-tauri/src/commands/ml.rs",
-  "crates/jobsentinel-core/src/core/ml/model.rs",
+  "crates/jobsentinel-local-ai/src/model.rs",
 ]);
 
 export const mlErrorDisplayPrivacyPaths = new Set([
-  "crates/jobsentinel-core/src/core/ml/mod.rs",
+  "crates/jobsentinel-local-ai/src/lib.rs",
 ]);
 
 export const mlRawLocalPathDocPaths = new Set([
@@ -74,10 +74,10 @@ export const mlRawLocalPathDocPaths = new Set([
 ]);
 
 export const jobsWithGptPrivacyPaths = new Set([
-  "crates/jobsentinel-core/src/core/scrapers/jobswithgpt.rs",
+  "crates/jobsentinel-sources/src/scrapers/jobswithgpt.rs",
 ]);
 export const linkedInPrivacyPaths = new Set([
-  "crates/jobsentinel-core/src/core/scrapers/linkedin.rs",
+  "crates/jobsentinel-sources/src/scrapers/linkedin.rs",
 ]);
 export const linkedInAuthPrivacyPaths = new Set([
   "src-tauri/src/commands/linkedin_auth.rs",
@@ -88,11 +88,11 @@ export const emailCommandPrivacyPaths = new Set([
 
 export const credentialCommandPrivacyPaths = new Set([
   "src-tauri/src/commands/credentials.rs",
-  "crates/jobsentinel-core/src/core/credentials/mod.rs",
+  "crates/jobsentinel-credentials/src/lib.rs",
 ]);
 
 export const credentialStorageErrorPrivacyPaths = new Set([
-  "crates/jobsentinel-core/src/core/credentials/mod.rs",
+  "crates/jobsentinel-credentials/src/lib.rs",
 ]);
 
 export const credentialSecretReadIpcPaths = new Set([
@@ -101,7 +101,7 @@ export const credentialSecretReadIpcPaths = new Set([
   "src-tauri/src/app.rs",
   "src/features/settings/sources/SettingsJobSourcesSection.tsx",
   "src/features/settings/SettingsPage.tsx",
-  "src/mocks/handlers.ts",
+  "src/test-support/mocks/handlers.ts",
   "src/features/settings/mocks/commands.ts",
   "docs/security/KEYRING.md",
   "docs/features/saved-secrets.md",
@@ -123,53 +123,53 @@ export const feedbackCommandPaths = new Set([
 ]);
 
 export const telegramNotificationPrivacyPaths = new Set([
-  "crates/jobsentinel-core/src/core/notify/telegram.rs",
+  "crates/jobsentinel-notifications/src/telegram.rs",
 ]);
 
 export const webhookNotificationPrivacyPaths = new Set([
-  "crates/jobsentinel-core/src/core/notify/discord.rs",
-  "crates/jobsentinel-core/src/core/notify/slack.rs",
-  "crates/jobsentinel-core/src/core/notify/teams.rs",
+  "crates/jobsentinel-notifications/src/discord.rs",
+  "crates/jobsentinel-notifications/src/slack.rs",
+  "crates/jobsentinel-notifications/src/teams.rs",
 ]);
 
 export const notificationProviderErrorBodyPaths = new Set([
-  "crates/jobsentinel-core/src/core/notify/discord.rs",
-  "crates/jobsentinel-core/src/core/notify/teams.rs",
-  "crates/jobsentinel-core/src/core/notify/telegram.rs",
+  "crates/jobsentinel-notifications/src/discord.rs",
+  "crates/jobsentinel-notifications/src/teams.rs",
+  "crates/jobsentinel-notifications/src/telegram.rs",
 ]);
 
 export const externalAlertMatchReasonPaths = new Set([
-  "crates/jobsentinel-core/src/core/notify/discord.rs",
-  "crates/jobsentinel-core/src/core/notify/email.rs",
-  "crates/jobsentinel-core/src/core/notify/slack.rs",
-  "crates/jobsentinel-core/src/core/notify/teams.rs",
-  "crates/jobsentinel-core/src/core/notify/telegram.rs",
+  "crates/jobsentinel-notifications/src/discord.rs",
+  "crates/jobsentinel-notifications/src/email.rs",
+  "crates/jobsentinel-notifications/src/slack.rs",
+  "crates/jobsentinel-notifications/src/teams.rs",
+  "crates/jobsentinel-notifications/src/telegram.rs",
 ]);
 
 export const notificationServicePrivacyPaths = new Set([
-  "crates/jobsentinel-core/src/core/notify/mod.rs",
+  "crates/jobsentinel-application/src/notify/mod.rs",
 ]);
 export const frontendDesktopNotificationPrivacyPaths = new Set([
   "src/features/dashboard/notifications.ts",
 ]);
 export const healthSmokePrivacyPaths = new Set([
-  "crates/jobsentinel-core/src/core/health/smoke_checks/mod.rs",
-  "crates/jobsentinel-core/src/core/health/smoke_checks/sources.rs",
+  "crates/jobsentinel-application/src/health/smoke_checks/mod.rs",
+  "crates/jobsentinel-application/src/health/smoke_checks/sources.rs",
 ]);
 
 export const rawUrlLoggingPaths = new Set([
   "src-tauri/src/commands/linkedin_auth.rs",
-  "crates/jobsentinel-core/src/core/automation/browser/manager.rs",
+  "crates/jobsentinel-assistance/src/automation/browser/manager.rs",
 ]);
 
 export const rawUrlErrorDisplayPaths = new Set([
-  "crates/jobsentinel-core/src/core/automation/error.rs",
-  "crates/jobsentinel-core/src/core/http_body.rs",
-  "crates/jobsentinel-core/src/core/scrapers/error.rs",
+  "crates/jobsentinel-assistance/src/automation/error.rs",
+  "crates/jobsentinel-network/src/body.rs",
+  "crates/jobsentinel-sources/src/scrapers/error.rs",
 ]);
 
 export const rawResumeParserPathDisplayPaths = new Set([
-  "crates/jobsentinel-core/src/core/resume/parser.rs",
+  "crates/jobsentinel-documents/src/parser.rs",
 ]);
 export const rawResumeNameLoggingPaths = new Set([
   "src-tauri/src/commands/resume.rs",
@@ -179,9 +179,8 @@ export const resumeCommandDtoPrivacyPaths = new Set([
   "src-tauri/src/commands/resume.rs",
   "src/features/resumes/library/ResumeLibraryPage.tsx",
   "src/features/resumes/builder/ResumeBuilderPage.tsx",
-  "src/mocks/handlers.ts",
+  "src/test-support/mocks/handlers.ts",
   "src/features/resumes/mocks/resumeCommands.ts",
-  "docs/developer/ARCHITECTURE.md",
 ]);
 
 export const resumeCommandErrorPrivacyPaths = new Set([
@@ -191,8 +190,8 @@ export const atsCommandErrorPrivacyPaths = new Set([
   "src-tauri/src/commands/ats.rs",
 ]);
 export const atsTimelineEventPrivacyPaths = new Set([
-  "crates/jobsentinel-core/src/core/ats/tracker.rs",
-  "crates/jobsentinel-core/src/core/ats/reminders.rs",
+  "crates/jobsentinel-storage/src/application_tracking/tracker.rs",
+  "crates/jobsentinel-storage/src/application_tracking/reminders.rs",
 ]);
 export const automationCommandErrorPrivacyPaths = new Set([
   "src-tauri/src/commands/automation.rs",
@@ -220,7 +219,7 @@ export const rawCommandSetupErrorDisplayPaths = new Set([
 ]);
 
 export const configValidationPrivacyPaths = new Set([
-  "crates/jobsentinel-core/src/core/config/validation_error.rs",
+  "crates/jobsentinel-application/src/config/validation_error.rs",
 ]);
 
 export const rawJobImportLoggingPaths = new Set([
@@ -230,10 +229,10 @@ export const importCommandPrivacyPaths = new Set([
   "src-tauri/src/commands/import.rs",
 ]);
 export const rawImportRedirectDisplayPaths = new Set([
-  "crates/jobsentinel-core/src/core/import/types.rs",
+  "crates/jobsentinel-application/src/types.rs",
 ]);
 export const urlSecurityPrivacyPaths = new Set([
-  "crates/jobsentinel-core/src/core/url_security.rs",
+  "crates/jobsentinel-security/src/url.rs",
 ]);
 
 export const importBookmarkletCommandPrivacyPaths = new Set([
@@ -241,11 +240,11 @@ export const importBookmarkletCommandPrivacyPaths = new Set([
   "src-tauri/src/commands/user_data.rs",
   "src-tauri/src/commands/scoring.rs",
   "src-tauri/src/commands/bookmarklet.rs",
-  "crates/jobsentinel-core/src/core/bookmarklet/server.rs",
+  "crates/jobsentinel-assistance/src/bookmarklet/server.rs",
 ]);
 
 export const rawBookmarkletLoggingPaths = new Set([
-  "crates/jobsentinel-core/src/core/bookmarklet/server.rs",
+  "crates/jobsentinel-assistance/src/bookmarklet/server.rs",
 ]);
 export const bookmarkletGeneratorPaths = new Set([
   "src/features/settings/sources/browser-import/BrowserImportSection.tsx",
@@ -253,61 +252,61 @@ export const bookmarkletGeneratorPaths = new Set([
 
 export const userDataPrivacyLoggingPaths = new Set([
   "src-tauri/src/commands/user_data.rs",
-  "crates/jobsentinel-core/src/core/user_data/mod.rs",
+  "crates/jobsentinel-application/src/user_data/mod.rs",
 ]);
 
 export const rawSchedulerJobContentLoggingPaths = new Set([
-  "crates/jobsentinel-core/src/core/db/crud.rs",
-  "crates/jobsentinel-core/src/core/scheduler/workers/persistence.rs",
+  "crates/jobsentinel-storage/src/crud.rs",
+  "crates/jobsentinel-application/src/scheduler/workers/persistence.rs",
 ]);
 
 export const schedulerScraperWorkerPrivacyPaths = new Set([
-  "crates/jobsentinel-core/src/core/scheduler/workers/scrapers.rs",
+  "crates/jobsentinel-application/src/scheduler/workers/scrapers.rs",
 ]);
 
 export const schedulerScoringPrivacyPaths = new Set([
-  "crates/jobsentinel-core/src/core/scheduler/workers/scoring.rs",
-  "crates/jobsentinel-core/src/core/scoring/db.rs",
+  "crates/jobsentinel-application/src/scheduler/workers/scoring.rs",
+  "crates/jobsentinel-storage/src/scoring_config.rs",
 ]);
 
 export const scoringCachePrivacyPaths = new Set([
-  "crates/jobsentinel-core/src/core/scoring/cache.rs",
+  "crates/jobsentinel-application/src/scoring/cache.rs",
 ]);
 
 export const residualCorePrivacyPaths = new Set([
-  "crates/jobsentinel-core/src/core/automation/browser/manager.rs",
-  "crates/jobsentinel-core/src/core/config/io.rs",
-  "crates/jobsentinel-core/src/core/db/connection.rs",
-  "crates/jobsentinel-core/src/core/import/schema_org.rs",
-  "crates/jobsentinel-core/src/core/ml/model.rs",
-  "crates/jobsentinel-core/src/core/resume/parser.rs",
-  "crates/jobsentinel-core/src/core/resume/templates.rs",
-  "crates/jobsentinel-core/src/core/scheduler/mod.rs",
-  "crates/jobsentinel-core/src/core/scrapers/mod.rs",
-  "crates/jobsentinel-core/src/core/scrapers/usajobs.rs",
-  "crates/jobsentinel-core/src/core/scrapers/yc_startup.rs",
+  "crates/jobsentinel-assistance/src/automation/browser/manager.rs",
+  "crates/jobsentinel-application/src/config/io.rs",
+  "crates/jobsentinel-storage/src/connection.rs",
+  "crates/jobsentinel-sources/src/job_page/mod.rs",
+  "crates/jobsentinel-local-ai/src/model.rs",
+  "crates/jobsentinel-documents/src/parser.rs",
+  "crates/jobsentinel-documents/src/templates.rs",
+  "crates/jobsentinel-application/src/scheduler/mod.rs",
+  "crates/jobsentinel-sources/src/scrapers/mod.rs",
+  "crates/jobsentinel-sources/src/scrapers/usajobs.rs",
+  "crates/jobsentinel-sources/src/scrapers/yc_startup.rs",
 ]);
 
 export const rawAutomationQuestionLoggingPaths = new Set([
-  "crates/jobsentinel-core/src/core/automation/form_filler.rs",
+  "crates/jobsentinel-assistance/src/automation/form_filler.rs",
 ]);
 
 export const automationFormPrivacyPaths = new Set([
-  "crates/jobsentinel-core/src/core/automation/form_filler.rs",
-  "src/mocks/handlers.ts",
+  "crates/jobsentinel-assistance/src/automation/form_filler.rs",
+  "src/test-support/mocks/handlers.ts",
   "src/features/application-assist/mocks/commands.ts",
 ]);
 
 export const automationBrowserErrorPrivacyPaths = new Set([
-  "crates/jobsentinel-core/src/core/automation/browser/manager.rs",
-  "crates/jobsentinel-core/src/core/automation/browser/page.rs",
+  "crates/jobsentinel-assistance/src/automation/browser/manager.rs",
+  "crates/jobsentinel-assistance/src/automation/browser/page.rs",
 ]);
 
 export const screeningAnswerCommandLoggingPaths = new Set([
   "src-tauri/src/commands/automation.rs",
 ]);
 export const rawNotificationJobTitleLoggingPaths = new Set([
-  "crates/jobsentinel-core/src/core/notify/mod.rs",
+  "crates/jobsentinel-application/src/notify/mod.rs",
 ]);
 
 export function stripRustTestModules(text) {

@@ -3,14 +3,14 @@
 //! Commands for resume upload, skill extraction, job-resume matching,
 //! resume builder, and ATS analysis.
 
+use crate::application::resume::{
+    AtsAnalysisResult, AtsAnalyzer, AtsResumeData, ExportResumeData, MatchResult,
+    MatchResultWithJob, NewSkill, Resume, ResumeExporter, SkillUpdate, Template, TemplateId,
+    TemplateRenderer, UserSkill,
+};
 use crate::commands::errors::user_friendly_error;
 use crate::commands::limits::validate_optional_command_limit_i64;
 use crate::commands::AppState;
-use crate::core::resume::{
-    AtsAnalysisResult, AtsAnalyzer, AtsResumeData, ExportResumeData, MatchResult,
-    MatchResultWithJob, NewSkill, Resume, ResumeExporter, ResumeMatcher, SkillUpdate, Template,
-    TemplateId, TemplateRenderer, UserSkill,
-};
 use chrono::{DateTime, Utc};
 use serde::Serialize;
 use std::path::Path;
@@ -127,7 +127,7 @@ pub(crate) async fn get_active_resume(
 ) -> Result<Option<ResumeSummary>, String> {
     tracing::info!("Command: get_active_resume");
 
-    let matcher = ResumeMatcher::new(state.database.pool().clone());
+    let matcher = state.database.resume_matcher();
     matcher
         .get_active_resume()
         .await
@@ -143,7 +143,7 @@ pub(crate) async fn get_resume_text_preview(
 ) -> Result<ResumeTextPreview, String> {
     tracing::info!(resume_id, "Command: get_resume_text_preview");
 
-    let matcher = ResumeMatcher::new(state.database.pool().clone());
+    let matcher = state.database.resume_matcher();
     matcher
         .get_resume(resume_id)
         .await
@@ -159,7 +159,7 @@ pub(crate) async fn set_active_resume(
 ) -> Result<(), String> {
     tracing::info!("Command: set_active_resume (id: {})", resume_id);
 
-    let matcher = ResumeMatcher::new(state.database.pool().clone());
+    let matcher = state.database.resume_matcher();
     matcher
         .set_active_resume(resume_id)
         .await
@@ -174,7 +174,7 @@ pub(crate) async fn get_user_skills(
 ) -> Result<Vec<UserSkill>, String> {
     tracing::info!("Command: get_user_skills (resume_id: {})", resume_id);
 
-    let matcher = ResumeMatcher::new(state.database.pool().clone());
+    let matcher = state.database.resume_matcher();
     matcher
         .get_user_skills(resume_id)
         .await
@@ -191,7 +191,7 @@ pub(crate) async fn match_resume_to_job(
     let job_hash_chars = job_hash.chars().count();
     tracing::info!(resume_id, job_hash_chars, "Command: match_resume_to_job");
 
-    let matcher = ResumeMatcher::new(state.database.pool().clone());
+    let matcher = state.database.resume_matcher();
     matcher
         .match_resume_to_job(resume_id, &job_hash)
         .await
@@ -208,7 +208,7 @@ pub(crate) async fn get_match_result(
     let job_hash_chars = job_hash.chars().count();
     tracing::info!(resume_id, job_hash_chars, "Command: get_match_result");
 
-    let matcher = ResumeMatcher::new(state.database.pool().clone());
+    let matcher = state.database.resume_matcher();
     matcher
         .get_match_result(resume_id, &job_hash)
         .await
@@ -229,7 +229,7 @@ pub(crate) async fn get_recent_matches(
     );
 
     let limit = validate_optional_command_limit_i64(limit, 10)?;
-    let matcher = ResumeMatcher::new(state.database.pool().clone());
+    let matcher = state.database.resume_matcher();
     matcher
         .get_recent_matches(resume_id, limit)
         .await
@@ -249,7 +249,7 @@ pub(crate) async fn update_user_skill(
 ) -> Result<(), String> {
     tracing::info!("Command: update_user_skill (id: {})", skill_id);
 
-    let matcher = ResumeMatcher::new(state.database.pool().clone());
+    let matcher = state.database.resume_matcher();
     matcher
         .update_user_skill(skill_id, updates)
         .await
@@ -264,7 +264,7 @@ pub(crate) async fn delete_user_skill(
 ) -> Result<(), String> {
     tracing::info!("Command: delete_user_skill (id: {})", skill_id);
 
-    let matcher = ResumeMatcher::new(state.database.pool().clone());
+    let matcher = state.database.resume_matcher();
     matcher
         .delete_user_skill(skill_id)
         .await
@@ -281,7 +281,7 @@ pub(crate) async fn add_user_skill(
     let skill_name_chars = skill.skill_name.chars().count();
     tracing::info!(resume_id, skill_name_chars, "Command: add_user_skill");
 
-    let matcher = ResumeMatcher::new(state.database.pool().clone());
+    let matcher = state.database.resume_matcher();
     matcher
         .add_user_skill(resume_id, skill)
         .await
@@ -299,7 +299,7 @@ pub(crate) async fn list_all_resumes(
 ) -> Result<Vec<ResumeSummary>, String> {
     tracing::info!("Command: list_all_resumes");
 
-    let matcher = ResumeMatcher::new(state.database.pool().clone());
+    let matcher = state.database.resume_matcher();
     matcher
         .list_all_resumes()
         .await
@@ -321,7 +321,7 @@ pub(crate) fn list_resume_templates() -> Vec<Template> {
 /// Render resume to HTML using a template
 #[tauri::command]
 pub(crate) fn render_resume_html(
-    resume: crate::core::resume::ResumeData,
+    resume: crate::application::resume::ResumeData,
     template_id: TemplateId,
 ) -> String {
     tracing::info!("Command: render_resume_html (template: {:?})", template_id);
@@ -330,7 +330,7 @@ pub(crate) fn render_resume_html(
 
 /// Render resume to plain text
 #[tauri::command]
-pub(crate) fn render_resume_text(resume: crate::core::resume::ResumeData) -> String {
+pub(crate) fn render_resume_text(resume: crate::application::resume::ResumeData) -> String {
     tracing::info!("Command: render_resume_text");
     TemplateRenderer::render_plain_text(&resume)
 }
@@ -343,7 +343,7 @@ pub(crate) fn render_resume_text(resume: crate::core::resume::ResumeData) -> Str
 #[tauri::command]
 pub(crate) fn export_resume_docx(
     resume: ExportResumeData,
-    template: crate::core::resume::ExportTemplateId,
+    template: crate::application::resume::ExportTemplateId,
 ) -> Result<Vec<u8>, String> {
     tracing::info!("Command: export_resume_docx");
     ResumeExporter::export_docx(&resume, template)
@@ -354,7 +354,7 @@ pub(crate) fn export_resume_docx(
 #[tauri::command]
 pub(crate) fn export_resume_html(
     resume: ExportResumeData,
-    template: crate::core::resume::ExportTemplateId,
+    template: crate::application::resume::ExportTemplateId,
 ) -> String {
     tracing::info!("Command: export_resume_html (template: {:?})", template);
     ResumeExporter::export_html(resume, template)
@@ -393,7 +393,7 @@ pub(crate) async fn analyze_active_resume_for_job(
         return Err("Paste the job post, then review again.".to_string());
     }
 
-    let matcher = ResumeMatcher::new(state.database.pool().clone());
+    let matcher = state.database.resume_matcher();
     let resume = matcher
         .get_active_resume()
         .await
@@ -437,7 +437,7 @@ pub(crate) fn analyze_resume_format(resume: AtsResumeData) -> AtsAnalysisResult 
 #[tauri::command]
 pub(crate) fn extract_job_keywords(
     job_description: String,
-) -> Vec<(String, crate::core::resume::KeywordImportance)> {
+) -> Vec<(String, crate::application::resume::KeywordImportance)> {
     tracing::info!("Command: extract_job_keywords");
     AtsAnalyzer::extract_job_keywords(&job_description)
 }

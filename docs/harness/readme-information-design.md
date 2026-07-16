@@ -190,7 +190,7 @@ Keep the first screen crisp and proof-bearing:
 ## Badge Policy
 
 Badges should prove current trust signals without creating visual noise. Keep
-badges for CI, docs harness, release, MIT license, Rule 0, local-first privacy,
+badges for source version, release, MIT license, Rule 0, local-first privacy,
 no telemetry, optional external AI, and research backing. The release badge
 should use the current GitHub release signal rather than a static version
 string. Put free-forever and Rule 0 commitments in the abstract where they can

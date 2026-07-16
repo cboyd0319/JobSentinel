@@ -3,7 +3,7 @@ import {
   getArg,
   getNumericArg,
   getStringArg,
-} from "../../../mocks/handlers/commandHelpers";
+} from "../../../test-support/mocks/handlers/commandHelpers";
 
 export interface MockSavedSearch {
   id: string;

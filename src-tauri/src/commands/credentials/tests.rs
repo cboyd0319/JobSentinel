@@ -1,17 +1,17 @@
 use super::*;
-use crate::core::db::Database;
+use crate::desktop::Database;
 
 async fn test_credentials() -> CredentialService {
     let database = Database::connect_memory().await.unwrap();
     database.migrate().await.unwrap();
-    CredentialService::with_fixed_master_key(database.pool().clone(), [17_u8; 32], false)
+    CredentialService::with_fixed_master_key(database.credentials(), [17_u8; 32], false)
 }
 
 async fn test_credentials_with_pool() -> (Database, CredentialService) {
     let database = Database::connect_memory().await.unwrap();
     database.migrate().await.unwrap();
     let credentials =
-        CredentialService::with_fixed_master_key(database.pool().clone(), [17_u8; 32], false);
+        CredentialService::with_fixed_master_key(database.credentials(), [17_u8; 32], false);
     (database, credentials)
 }
 
@@ -111,7 +111,7 @@ async fn passphrase_mode_locks_restarted_service_until_unlock() {
         .unwrap();
 
     let restarted =
-        CredentialService::with_fixed_master_key(database.pool().clone(), [17_u8; 32], false);
+        CredentialService::with_fixed_master_key(database.credentials(), [17_u8; 32], false);
     let locked_status = get_credential_unlock_status_with_service(&restarted)
         .await
         .unwrap();
@@ -154,7 +154,7 @@ async fn wrong_passphrase_error_does_not_echo_input() {
         .unwrap();
 
     let restarted =
-        CredentialService::with_fixed_master_key(database.pool().clone(), [17_u8; 32], false);
+        CredentialService::with_fixed_master_key(database.credentials(), [17_u8; 32], false);
     let err = unlock_credential_vault_with_service("wrong secret value".to_string(), &restarted)
         .await
         .unwrap_err();
@@ -175,7 +175,7 @@ async fn passphrase_mode_can_return_to_system_locking() {
         .unwrap();
 
     let restarted =
-        CredentialService::with_fixed_master_key(database.pool().clone(), [17_u8; 32], false);
+        CredentialService::with_fixed_master_key(database.credentials(), [17_u8; 32], false);
     let status = get_credential_unlock_status_with_service(&restarted)
         .await
         .unwrap();

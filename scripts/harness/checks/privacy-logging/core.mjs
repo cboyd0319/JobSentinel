@@ -158,11 +158,11 @@ export function hasRawScraperLoopErrorLogging(root, path) {
 export function hasUnboundedExternalResponseBodyRead(root, path) {
   const rustSource =
     path.startsWith("src-tauri/src/") ||
-    path.startsWith("crates/jobsentinel-core/src/");
+    path.startsWith("crates/");
   if (
     !rustSource ||
     !path.endsWith(".rs") ||
-    path === "crates/jobsentinel-core/src/core/http_body.rs"
+    path === "crates/jobsentinel-network/src/body.rs"
   ) {
     return false;
   }
@@ -297,7 +297,7 @@ export function hasRawUrlErrorDisplay(root, path) {
     return true;
   }
 
-  if (path !== "crates/jobsentinel-core/src/core/scrapers/error.rs") {
+  if (path !== "crates/jobsentinel-sources/src/scrapers/error.rs") {
     return false;
   }
 

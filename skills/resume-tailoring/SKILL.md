@@ -1,6 +1,6 @@
 ---
 name: resume-tailoring
-description: Compare a resume with a job post, separate required/preferred/other role language, identify truthful evidence, and draft readable ATS-friendly resume edits. Use for resume review, resume matching, parser/readability checks, bullet improvement, hard-requirement checks, or tailoring without fabricating experience.
+description: Compare a resume with a job post and draft truthful ATS-readable edits. Use for matching, requirement checks, readability, or bullet improvement.
 license: MIT
 metadata:
   jobsentinel_version_target: "2.9.0"

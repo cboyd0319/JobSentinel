@@ -1,0 +1,42 @@
+{
+  "schema": "jobsentinel.feature_evidence.v1",
+  "feature_id": "harness-standard-contract",
+  "behavior": "A fresh session can initialize the repository, see one current objective, select the next task, route its diff, and verify completion without contradictory owners.",
+  "verified_at": "2026-07-15T00:46:28Z",
+  "revision": "099f90a7",
+  "platform": "macOS; PowerShell was cross-shell evidence only",
+  "result": "passing",
+  "source": "docs/harness/evidence/harness-standard-contract-2026-07-14.md",
+  "commands": [
+    {
+      "command": "npm run harness:check",
+      "exit_status": 0,
+      "relevant_result": "Covered by the recorded complete local gate.",
+      "caveat": "The historical local gate encoded disabled hosted workflows."
+    },
+    {
+      "command": "npm run lint:file-size",
+      "exit_status": 0,
+      "relevant_result": "Covered by the recorded complete local gate.",
+      "caveat": "The historical policy used noncanonical ceilings."
+    },
+    {
+      "command": "npm run test:scripts",
+      "exit_status": 0,
+      "relevant_result": "The recorded complete gate reported 779 script and contract tests.",
+      "caveat": "This is retained historical evidence, not current canonical proof."
+    },
+    {
+      "command": "npm run test:smoke",
+      "exit_status": 0,
+      "relevant_result": "The recorded initializer ran the baseline smoke path.",
+      "caveat": "The run used Node.js 26.5.0 and npm 11.17.0 rather than the pinned baselines."
+    },
+    {
+      "command": "npm run verify:full",
+      "exit_status": 0,
+      "relevant_result": "The recorded local completion gate passed.",
+      "caveat": "No native Windows 11 or authoritative hosted CI run occurred."
+    }
+  ]
+}

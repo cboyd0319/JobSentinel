@@ -147,7 +147,7 @@ test("security docs reject stale keyring docs and credential comments", () => {
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/credentials/mod.rs",
+      "crates/jobsentinel-credentials/src/lib.rs",
       'tauri-plugin-secure-storage` JS API\nprintln!("Got password: {}", password);\n',
     );
 
@@ -157,7 +157,7 @@ test("security docs reject stale keyring docs and credential comments", () => {
       true,
     );
     assert.equal(
-      hasStaleCredentialArchitectureComments(root, "crates/jobsentinel-core/src/core/credentials/mod.rs"),
+      hasStaleCredentialArchitectureComments(root, "crates/jobsentinel-credentials/src/lib.rs"),
       true,
     );
   });
@@ -242,34 +242,15 @@ test("security docs reject stale notification preference docs", () => {
   });
 });
 
-test("security docs keep notification preference shape in developer docs", () => {
+test("security docs reject notification implementation shapes in user-data docs", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
       "docs/features/user-data-management.md",
       "Notification settings control which saved searches and job sources can create alerts.\n",
     );
-    writeFixtureFile(
-      root,
-      "docs/developer/ARCHITECTURE.md",
-      [
-        'invoke("save_notification_preferences", {',
-        "  prefs: {",
-        "    indeed: { enabled: true, minScoreThreshold: 70, soundEnabled: true },",
-        "    global: { desktopEnabled: true },",
-        "    advancedFilters: {},",
-        "  },",
-        "});",
-        "",
-      ].join("\n"),
-    );
-
     assert.equal(
       hasStaleNotificationPreferenceDocs(root, "docs/features/user-data-management.md"),
-      false,
-    );
-    assert.equal(
-      hasStaleNotificationPreferenceDocs(root, "docs/developer/ARCHITECTURE.md"),
       false,
     );
   });

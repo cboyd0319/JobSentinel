@@ -253,7 +253,7 @@ test("product copy rejects technical provider setup shortcuts", () => {
         "Parallel Sending",
         "Connection Link Checks",
         "Module Structure",
-        "crates/jobsentinel-core/src/core/notify/",
+        "crates/jobsentinel-notifications/src/",
         "https://hooks.slack.com/services/...",
         "https://discord.com/api/webhooks/...",
         "https://discordapp.com/api/webhooks/...",

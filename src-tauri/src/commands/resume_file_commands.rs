@@ -1,8 +1,8 @@
+use crate::application::resume::ResumeMatcher;
 use crate::commands::errors::user_friendly_error;
 use crate::commands::AppState;
-use crate::core::logging::path_label_for_logging;
-use crate::core::resume::ResumeMatcher;
-use crate::platforms;
+use crate::desktop;
+use crate::desktop::path_label_for_logging;
 use std::path::{Path, PathBuf};
 use tauri::State;
 use tauri_plugin_dialog::DialogExt;
@@ -58,7 +58,7 @@ async fn upload_resume_from_managed_path(
         "Command: upload_resume"
     );
 
-    let matcher = ResumeMatcher::new(state.database.pool().clone());
+    let matcher = state.database.resume_matcher();
     matcher
         .upload_resume(&name, &file_path.to_string_lossy())
         .await
@@ -78,7 +78,7 @@ pub(crate) async fn import_json_resume(
         "Command: import_json_resume"
     );
 
-    let matcher = ResumeMatcher::new(state.database.pool().clone());
+    let matcher = state.database.resume_matcher();
     matcher
         .import_json_resume(name, &json_string)
         .await
@@ -155,7 +155,7 @@ async fn import_json_resume_from_selected_path(
         "Command: import_json_resume_file loaded local file"
     );
 
-    let matcher = ResumeMatcher::new(state.database.pool().clone());
+    let matcher = state.database.resume_matcher();
     matcher
         .import_json_resume(name, &json_string)
         .await
@@ -176,7 +176,7 @@ pub(super) fn supported_resume_extension(path: &Path) -> Option<String> {
 }
 
 fn managed_resume_upload_dir() -> PathBuf {
-    platforms::get_data_dir().join(MANAGED_RESUME_UPLOAD_DIR)
+    desktop::get_data_dir().join(MANAGED_RESUME_UPLOAD_DIR)
 }
 
 fn selected_resume_name(path: &Path, fallback: &str) -> String {
@@ -329,7 +329,7 @@ pub(crate) async fn delete_resume(
 ) -> Result<(), String> {
     tracing::info!("Command: delete_resume (id: {})", resume_id);
 
-    let matcher = ResumeMatcher::new(state.database.pool().clone());
+    let matcher = state.database.resume_matcher();
     delete_resume_with_file_cleanup(resume_id, &matcher, &managed_resume_upload_dir()).await
 }
 

@@ -1,5 +1,5 @@
 use super::*;
-use crate::core::automation::{
+use crate::application::automation::{
     AnswerSource, AnswerStatistics, AnswerSuggestion, ApplicationProfile, ModificationExample,
 };
 

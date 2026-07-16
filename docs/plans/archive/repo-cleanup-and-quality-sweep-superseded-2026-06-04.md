@@ -203,7 +203,7 @@ product-function priority after the no-account macOS path is locked down:
   src-tauri/Cargo.toml -- --check`, `cargo clippy --manifest-path
   src-tauri/Cargo.toml -- -D warnings`, `npx vitest run
   src/pages/Resume.test.tsx src/utils/errorMessages.test.ts
-  src/mocks/handlers.test.ts`, `npm run lint -- --quiet`, `npm run test:run`,
+  src/test-support/mocks/handlers.test.ts`, `npm run lint -- --quiet`, `npm run test:run`,
   `npm run build`, `npm run lint:docs`, `npm run lint:bloat`, and `git diff
   --check`.
 - Current local no-account macOS checksum follow-up makes

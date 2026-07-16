@@ -4,7 +4,7 @@ import type {
   MockResumeData,
   MockResumeDraft,
   MockUserSkill,
-} from "../../../mocks/handlers/types";
+} from "../../../test-support/mocks/handlers/types";
 
 export interface MockResumeCommandState {
   jobs: MockJob[];

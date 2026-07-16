@@ -2,9 +2,9 @@
 //!
 //! Commands for salary prediction, benchmarking, and offer comparison.
 
+use crate::application::salary::{OfferComparison, SalaryPrediction, SeniorityLevel};
 use crate::commands::errors::user_friendly_error;
 use crate::commands::AppState;
-use crate::core::salary::{OfferComparison, SalaryAnalyzer, SalaryPrediction, SeniorityLevel};
 use serde_json::Value;
 use std::collections::HashMap;
 use tauri::State;
@@ -22,7 +22,7 @@ pub(crate) async fn predict_salary(
         "Command: predict_salary"
     );
 
-    let analyzer = SalaryAnalyzer::new(state.database.pool().clone());
+    let analyzer = state.database.salary_analyzer();
     analyzer
         .predict_salary_for_job(&job_hash, years_experience)
         .await
@@ -46,7 +46,7 @@ pub(crate) async fn get_salary_benchmark(
         "Command: get_salary_benchmark"
     );
 
-    let analyzer = SalaryAnalyzer::new(state.database.pool().clone());
+    let analyzer = state.database.salary_analyzer();
     let seniority_level = years_experience
         .map(SeniorityLevel::from_years_of_experience)
         .unwrap_or_else(|| SeniorityLevel::parse(&seniority));
@@ -75,7 +75,7 @@ pub(crate) async fn generate_negotiation_script(
         "Command: generate_negotiation_script"
     );
 
-    let analyzer = SalaryAnalyzer::new(state.database.pool().clone());
+    let analyzer = state.database.salary_analyzer();
     analyzer
         .generate_negotiation_script(&scenario, params)
         .await
@@ -90,7 +90,7 @@ pub(crate) async fn compare_offers(
 ) -> Result<Vec<OfferComparison>, String> {
     tracing::info!("Command: compare_offers (count: {})", offer_ids.len());
 
-    let analyzer = SalaryAnalyzer::new(state.database.pool().clone());
+    let analyzer = state.database.salary_analyzer();
     analyzer
         .compare_offers(offer_ids)
         .await

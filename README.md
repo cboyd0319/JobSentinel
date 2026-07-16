@@ -9,13 +9,12 @@ application, and protect your pay goals from one private desktop workspace.
 Core workflows work locally. JobSentinel is free, will always stay free, and
 will always remain MIT licensed.
 
-[![CI](https://github.com/cboyd0319/JobSentinel/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/cboyd0319/JobSentinel/actions/workflows/ci.yml)
 [![Source version](https://img.shields.io/badge/source-2.9.5-2563eb)](docs/releases/v2.9.5.md)
 [![Release](https://img.shields.io/github/v/release/cboyd0319/JobSentinel?label=release&color=2563eb)](https://github.com/cboyd0319/JobSentinel/releases/latest)
 [![MIT License](https://img.shields.io/badge/license-MIT-111827)](LICENSE)
 [![Rule 0](https://img.shields.io/badge/rule%200-privacy%20%26%20security-991b1b)](PRIVACY.md)
 [![Local First](https://img.shields.io/badge/data-local--first-0f766e)](PRIVACY.md)
-[![External AI Optional](https://img.shields.io/badge/external%20AI-optional-2563eb)](docs/architecture/privacy-first-ai-gateway.md)
+[![External AI Optional](https://img.shields.io/badge/external%20AI-optional-2563eb)](docs/security/privacy-first-ai-gateway.md)
 
 **Start here:** [Download](#download) |
 [Capabilities](docs/features/capabilities.md) |
@@ -153,7 +152,7 @@ Developer ID signing, notarization, stapling, and Gatekeeper acceptance.
 
 External AI, including OpenAI or another provider, is optional, disabled by
 default, and routed through the
-[privacy-first AI gateway](docs/architecture/privacy-first-ai-gateway.md).
+[privacy-first AI gateway](docs/security/privacy-first-ai-gateway.md).
 External requests send only needed details, show those details before anything
 leaves the device, and provide redaction, cancellation, approval, and local
 request logging.
@@ -357,8 +356,7 @@ Current backend surface: **207 registered Tauri commands**.
 ```bash
 git clone https://github.com/cboyd0319/JobSentinel
 cd JobSentinel
-node scripts/install-pinned-npm.mjs
-npm ci --ignore-scripts
+./init.sh
 npm run tauri:build
 ```
 

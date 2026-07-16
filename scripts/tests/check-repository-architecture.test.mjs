@@ -3,7 +3,11 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import test from "node:test";
-import { checkRepositoryArchitecture } from "../check-repository-architecture.mjs";
+import { checkRepositoryArchitecture as checkRepositoryArchitectureWithTopology } from "../check-repository-architecture.mjs";
+
+function checkRepositoryArchitecture(root) {
+  return checkRepositoryArchitectureWithTopology(root, { skipTopology: true });
+}
 
 function writeFixtureFile(root, path, content = "") {
   const fullPath = join(root, path);
@@ -27,7 +31,7 @@ function writeTargetWorkspace(root, rootManifest = targetRootManifest()) {
   writeFixtureFile(root, "Cargo.toml", rootManifest);
   writeFixtureFile(
     root,
-    "crates/jobsentinel-core/Cargo.toml",
+    "crates/jobsentinel-domain/Cargo.toml",
     `${inheritedPackage()}
 [dependencies]
 serde.workspace = true
@@ -38,12 +42,12 @@ workspace = true
   );
   writeFixtureFile(
     root,
-    "crates/jobsentinel-core/src/lib.rs",
+    "crates/jobsentinel-domain/src/lib.rs",
     "mod search;\npub use search::Search;\n",
   );
   writeFixtureFile(
     root,
-    "crates/jobsentinel-core/src/search.rs",
+    "crates/jobsentinel-domain/src/search.rs",
     "pub struct Search;\n",
   );
   writeFixtureFile(
@@ -51,7 +55,7 @@ workspace = true
     "src-tauri/Cargo.toml",
     `${inheritedPackage()}
 [dependencies]
-jobsentinel-core.workspace = true
+jobsentinel-domain.workspace = true
 tauri.workspace = true
 
 [lints]
@@ -84,7 +88,7 @@ categories.workspace = true
 }
 
 function targetRootManifest(
-  members = '["crates/jobsentinel-core", "src-tauri"]',
+  members = '["crates/jobsentinel-domain", "src-tauri"]',
 ) {
   return `[workspace]
 members = ${members}
@@ -100,7 +104,7 @@ keywords = ["fixture"]
 categories = ["development-tools"]
 
 [workspace.dependencies]
-jobsentinel-core = { path = "crates/jobsentinel-core" }
+jobsentinel-domain = { path = "crates/jobsentinel-domain" }
 serde = "1"
 tauri = "2"
 
@@ -130,48 +134,17 @@ test("checkRepositoryArchitecture permits the pre-workspace migration state", ()
   });
 });
 
-test("checkRepositoryArchitecture rejects cyclic core module imports before extraction", () => {
+test("integrated architecture check fails closed without the topology contract", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
       "src-tauri/Cargo.toml",
       '[package]\nname = "jobsentinel"\n',
     );
-    writeFixtureFile(
-      root,
-      "crates/jobsentinel-core/src/core/db/encryption.rs",
-      "use crate::core::credentials::SecretVault;\n",
-    );
-    writeFixtureFile(
-      root,
-      "crates/jobsentinel-core/src/core/scrapers/example.rs",
-      "use crate::core::db::Job;\n",
-    );
-    writeFixtureFile(
-      root,
-      "crates/jobsentinel-core/src/core/job_hash.rs",
-      "use crate::core::scrapers::normalize_url;\n",
-    );
 
-    const violations = checkRepositoryArchitecture(root);
-
-    assert.ok(
-      violations.includes(
-        "crates/jobsentinel-core/src/core/db/encryption.rs: database modules must not import credential modules",
-      ),
-      violations.join("\n"),
-    );
-    assert.ok(
-      violations.includes(
-        "crates/jobsentinel-core/src/core/scrapers/example.rs: source adapters must not import database modules",
-      ),
-      violations.join("\n"),
-    );
-    assert.ok(
-      violations.includes(
-        "crates/jobsentinel-core/src/core/job_hash.rs: job identity must not import source adapter modules",
-      ),
-      violations.join("\n"),
+    assert.match(
+      checkRepositoryArchitectureWithTopology(root).join("\n"),
+      /add repository architecture contract/,
     );
   });
 });
@@ -216,7 +189,7 @@ test("checkRepositoryArchitecture rejects workspace members without manifests", 
     writeTargetWorkspace(
       root,
       targetRootManifest(
-        '["crates/jobsentinel-core", "crates/jobsentinel-missing", "src-tauri"]',
+        '["crates/jobsentinel-domain", "crates/jobsentinel-missing", "src-tauri"]',
       ),
     );
 
@@ -257,9 +230,9 @@ test("checkRepositoryArchitecture requires workspace package and lint inheritanc
     writeTargetWorkspace(root);
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/Cargo.toml",
+      "crates/jobsentinel-domain/Cargo.toml",
       `[package]
-name = "jobsentinel-core"
+name = "jobsentinel-domain"
 version = "2.9.1"
 edition = "2021"
 `,
@@ -269,13 +242,13 @@ edition = "2021"
 
     assert.ok(
       violations.includes(
-        "crates/jobsentinel-core/Cargo.toml must inherit package version from the workspace",
+        "crates/jobsentinel-domain/Cargo.toml must inherit package version from the workspace",
       ),
       violations.join("\n"),
     );
     assert.ok(
       violations.includes(
-        "crates/jobsentinel-core/Cargo.toml must set [lints] workspace = true",
+        "crates/jobsentinel-domain/Cargo.toml must set [lints] workspace = true",
       ),
       violations.join("\n"),
     );
@@ -287,7 +260,7 @@ test("checkRepositoryArchitecture rejects member-owned workspace lint and releas
     writeTargetWorkspace(root);
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/Cargo.toml",
+      "crates/jobsentinel-domain/Cargo.toml",
       `${inheritedPackage()}
 [lints]
 workspace = true
@@ -304,13 +277,13 @@ panic = "abort"
 
     assert.ok(
       violations.includes(
-        "crates/jobsentinel-core/Cargo.toml must inherit lint policy instead of defining [lints.rust]",
+        "crates/jobsentinel-domain/Cargo.toml must inherit lint policy instead of defining [lints.rust]",
       ),
       violations.join("\n"),
     );
     assert.ok(
       violations.includes(
-        "crates/jobsentinel-core/Cargo.toml must inherit release policy instead of defining [profile.release]",
+        "crates/jobsentinel-domain/Cargo.toml must inherit release policy instead of defining [profile.release]",
       ),
       violations.join("\n"),
     );
@@ -322,7 +295,7 @@ test("checkRepositoryArchitecture rejects crate-root lint policy", () => {
     writeTargetWorkspace(root);
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/lib.rs",
+      "crates/jobsentinel-domain/src/lib.rs",
       "#![deny(unsafe_code)]\n#![allow(clippy::too_many_lines)]\nmod search;\n",
     );
 
@@ -330,145 +303,15 @@ test("checkRepositoryArchitecture rejects crate-root lint policy", () => {
 
     assert.ok(
       violations.includes(
-        "crates/jobsentinel-core/src/lib.rs must inherit unsafe_code policy from Cargo.toml",
+        "crates/jobsentinel-domain/src/lib.rs must inherit unsafe_code policy from Cargo.toml",
       ),
       violations.join("\n"),
     );
     assert.ok(
       violations.includes(
-        "crates/jobsentinel-core/src/lib.rs must inherit Clippy policy from Cargo.toml",
+        "crates/jobsentinel-domain/src/lib.rs must inherit Clippy policy from Cargo.toml",
       ),
       violations.join("\n"),
-    );
-  });
-});
-
-test("checkRepositoryArchitecture rejects Tauri dependencies and imports in core", () => {
-  withFixture((root) => {
-    writeTargetWorkspace(root);
-    writeFixtureFile(
-      root,
-      "crates/jobsentinel-core/Cargo.toml",
-      `${inheritedPackage()}
-[dependencies]
-tauri.workspace = true
-
-[lints]
-workspace = true
-`,
-    );
-    writeFixtureFile(
-      root,
-      "crates/jobsentinel-core/src/lib.rs",
-      "use tauri::Manager;\n",
-    );
-
-    const violations = checkRepositoryArchitecture(root);
-
-    assert.ok(
-      violations.includes(
-        "crates/jobsentinel-core/Cargo.toml must not depend on Tauri packages",
-      ),
-      violations.join("\n"),
-    );
-    assert.ok(
-      violations.includes(
-        "crates/jobsentinel-core/src/lib.rs must not import Tauri; core is Tauri-free",
-      ),
-      violations.join("\n"),
-    );
-  });
-});
-
-test("checkRepositoryArchitecture rejects wildcard core facade exports", () => {
-  withFixture((root) => {
-    writeTargetWorkspace(root);
-    writeFixtureFile(
-      root,
-      "crates/jobsentinel-core/src/lib.rs",
-      "mod core;\npub use core::*;\n",
-    );
-
-    const violations = checkRepositoryArchitecture(root);
-
-    assert.ok(
-      violations.includes(
-        "crates/jobsentinel-core/src/lib.rs must export an explicit bounded core facade",
-      ),
-      violations.join("\n"),
-    );
-  });
-});
-
-test("checkRepositoryArchitecture rejects public implementation leaf modules", () => {
-  withFixture((root) => {
-    writeTargetWorkspace(root);
-    for (const path of [
-      "crates/jobsentinel-core/src/core/automation/mod.rs",
-      "crates/jobsentinel-core/src/core/credentials/mod.rs",
-      "crates/jobsentinel-core/src/core/db/mod.rs",
-      "crates/jobsentinel-core/src/core/db/integrity/mod.rs",
-      "crates/jobsentinel-core/src/core/deeplinks/mod.rs",
-      "crates/jobsentinel-core/src/core/import/mod.rs",
-      "crates/jobsentinel-core/src/core/market_intelligence/mod.rs",
-      "crates/jobsentinel-core/src/core/notify/mod.rs",
-      "crates/jobsentinel-core/src/core/resume/mod.rs",
-      "crates/jobsentinel-core/src/core/salary/mod.rs",
-      "crates/jobsentinel-core/src/core/scheduler/workers/mod.rs",
-      "crates/jobsentinel-core/src/core/scrapers/mod.rs",
-      "crates/jobsentinel-core/src/core/scrapers/source_adapters/mod.rs",
-    ]) {
-      writeFixtureFile(
-        root,
-        path,
-        path.includes("credentials")
-          ? "pub mod implementation;\npub struct CredentialStore;\n"
-          : "pub mod implementation;\n",
-      );
-    }
-
-    const violations = checkRepositoryArchitecture(root);
-
-    for (const path of [
-      "crates/jobsentinel-core/src/core/automation/mod.rs",
-      "crates/jobsentinel-core/src/core/credentials/mod.rs",
-      "crates/jobsentinel-core/src/core/db/mod.rs",
-      "crates/jobsentinel-core/src/core/db/integrity/mod.rs",
-      "crates/jobsentinel-core/src/core/deeplinks/mod.rs",
-      "crates/jobsentinel-core/src/core/import/mod.rs",
-      "crates/jobsentinel-core/src/core/market_intelligence/mod.rs",
-      "crates/jobsentinel-core/src/core/notify/mod.rs",
-      "crates/jobsentinel-core/src/core/resume/mod.rs",
-      "crates/jobsentinel-core/src/core/salary/mod.rs",
-      "crates/jobsentinel-core/src/core/scheduler/workers/mod.rs",
-      "crates/jobsentinel-core/src/core/scrapers/mod.rs",
-      "crates/jobsentinel-core/src/core/scrapers/source_adapters/mod.rs",
-    ]) {
-      assert.ok(
-        violations.includes(
-          `${path} must keep implementation modules private and re-export a bounded facade`,
-        ),
-        violations.join("\n"),
-      );
-    }
-    assert.ok(
-      violations.includes(
-        "crates/jobsentinel-core/src/core/credentials/mod.rs must keep the legacy OS credential adapter private",
-      ),
-      violations.join("\n"),
-    );
-    writeFixtureFile(
-      root,
-      "crates/jobsentinel-core/src/core/mod.rs",
-      "pub mod scrapers;\n",
-    );
-
-    const coreModuleViolations = checkRepositoryArchitecture(root);
-    assert.ok(
-      coreModuleViolations.includes(
-        "crates/jobsentinel-core/src/core/mod.rs must keep scraper implementations core-internal",
-      ),
-      coreModuleViolations.join("\n"),
     );
   });
 });
@@ -478,7 +321,7 @@ test("checkRepositoryArchitecture rejects Rust source outside the module graph",
     writeTargetWorkspace(root);
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/unowned.rs",
+      "crates/jobsentinel-domain/src/unowned.rs",
       "pub struct Unowned;\n",
     );
 
@@ -486,34 +329,10 @@ test("checkRepositoryArchitecture rejects Rust source outside the module graph",
 
     assert.ok(
       violations.includes(
-        "crates/jobsentinel-core/src/unowned.rs must be reachable from a Rust crate root",
+        "crates/jobsentinel-domain/src/unowned.rs must be reachable from a Rust crate root",
       ),
       violations.join("\n"),
     );
-  });
-});
-
-test("checkRepositoryArchitecture keeps scraper tests with their source owner", () => {
-  withFixture((root) => {
-    writeTargetWorkspace(root);
-    for (const path of [
-      "crates/jobsentinel-core/tests/live_scraper_test.rs",
-      "crates/jobsentinel-core/tests/scraper_integration_test.rs",
-    ]) {
-      writeFixtureFile(root, path, "#[test]\nfn scraper_contract() {}\n");
-    }
-
-    const violations = checkRepositoryArchitecture(root);
-
-    for (const path of [
-      "crates/jobsentinel-core/tests/live_scraper_test.rs",
-      "crates/jobsentinel-core/tests/scraper_integration_test.rs",
-    ]) {
-      assert.ok(
-        violations.includes(`${path} must live under the scraper source owner`),
-        violations.join("\n"),
-      );
-    }
   });
 });
 
@@ -551,7 +370,7 @@ test("checkRepositoryArchitecture enforces thin private Tauri entrypoints", () =
   });
 });
 
-test("checkRepositoryArchitecture keeps import orchestration in core", () => {
+test("checkRepositoryArchitecture keeps import orchestration in the application crate", () => {
   withFixture((root) => {
     writeTargetWorkspace(root);
     writeFixtureFile(
@@ -576,14 +395,14 @@ test("checkRepositoryArchitecture keeps import orchestration in core", () => {
     );
     assert.ok(
       violations.includes(
-        "src-tauri/src/commands/import.rs must delegate import orchestration and storage to jobsentinel-core",
+        "src-tauri/src/commands/import.rs must delegate import orchestration and storage to jobsentinel-application",
       ),
       violations.join("\n"),
     );
   });
 });
 
-test("checkRepositoryArchitecture accepts the deliberate two-member workspace", () => {
+test("checkRepositoryArchitecture accepts an explicit sorted workspace", () => {
   withFixture((root) => {
     writeTargetWorkspace(root);
 

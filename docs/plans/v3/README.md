@@ -125,7 +125,7 @@ Internal references:
 
 - [Job Sources](../../features/job-sources.md)
 - [Browser Import](../../features/browser-import.md)
-- [Privacy-First AI Gateway](../../architecture/privacy-first-ai-gateway.md)
+- [Privacy-First AI Gateway](../../security/privacy-first-ai-gateway.md)
 - [Local Semantic Matching](../../developer/LOCAL_SEMANTIC_MATCHING.md)
 - [Semantic Resume-Job Matching Research](../../research/semantic-resume-job-matching.md)
 - [Job Seeker Platform Research](job-seeker-platform-research.md)

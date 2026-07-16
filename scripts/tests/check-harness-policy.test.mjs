@@ -1,176 +1,237 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { dirname, join, resolve } from "node:path";
 import test from "node:test";
-import { collectProductionExternalAiRequestFeatureIds } from "../harness-external-ai-features.mjs";
 
-const manifestPath = "docs/harness/manifest.json";
-const featurePrivacyLabelsPath = "docs/harness/feature-privacy-labels.json";
+import { checkHarness } from "../checks/harness.mjs";
+import { noCiExceptionId, validateHostedWorkflows } from "../harness/contract.mjs";
+import { collectProductionExternalAiRequestFeatureIds } from "../harness-external-ai-features.mjs";
+import { collectStateViolations, validateFeatureList } from "../harness/state.mjs";
+
+const root = resolve(".");
 
 function readJson(path) {
   return JSON.parse(readFileSync(path, "utf8"));
 }
 
-test("harness policy manifest owns required docs and source policy", () => {
-  const manifest = readJson(manifestPath);
+function writeFixtureFile(fixtureRoot, path, content) {
+  const fullPath = join(fixtureRoot, path);
+  mkdirSync(dirname(fullPath), { recursive: true });
+  writeFileSync(fullPath, content, "utf8");
+}
 
-  assert.equal(manifest.version, 1);
-  assert.ok(manifest.requiredFiles.includes("AGENTS.md"));
-  assert.ok(manifest.requiredFiles.includes(".github/PULL_REQUEST_TEMPLATE.md"));
-  assert.ok(manifest.requiredFiles.includes(manifestPath));
-  assert.ok(manifest.requiredFiles.includes(featurePrivacyLabelsPath));
-  assert.ok(manifest.requiredHarnessSnippets["README.md"].includes("Core workflows work locally."));
-  assert.ok(
-    manifest.requiredHarnessSnippets[".github/PULL_REQUEST_TEMPLATE.md"].includes(
-      "Rule 0: user privacy and security are non-negotiable.",
-    ),
-  );
-  assert.ok(
-    manifest.requiredHarnessSnippets["AGENTS.md"].includes(
-      "Rule 0: user privacy and security are non-negotiable.",
-    ),
-  );
-  assert.ok(
-    manifest.requiredHarnessSnippets["CLAUDE.md"].includes(
-      "Rule 0: user privacy and security are non-negotiable.",
-    ),
-  );
-  assert.ok(
-    manifest.requiredHarnessSnippets[".github/copilot-instructions.md"].includes(
-      "Rule 0: user privacy and security are non-negotiable.",
-    ),
-  );
-  assert.ok(manifest.requiredFiles.includes("docs/references.md"));
-  assert.ok(manifest.requiredFiles.includes("docs/developer/DESIGN_SPEC.md"));
-  assert.ok(
-    manifest.requiredHarnessSnippets["docs/plans/index.json"].includes(
-      "Quiet Shield redesign",
-    ),
-  );
-  assert.ok(
-    manifest.requiredHarnessSnippets["docs/plans/index.json"].includes(
-      "Computer Use or Playwright screenshot proof",
-    ),
-  );
-  assert.ok(
-    manifest.requiredHarnessSnippets["docs/plans/active/status.md"].includes(
-      "Quiet Shield redesign is now part of the active repo-wide goal and the repo harness.",
-    ),
-  );
-  assert.ok(
-    manifest.requiredHarnessSnippets["docs/plans/active/current-work.md"].includes(
-      "Locked redesign:",
-    ),
-  );
-  assert.ok(
-    manifest.requiredHarnessSnippets["DESIGN.md"].includes(
-      "theme tokens, contrast checks, screenshots, and native Computer Use validation",
-    ),
-  );
-  assert.ok(
-    manifest.requiredHarnessSnippets["docs/design/design-spec.md"].includes(
-      "full migration until all major routes are verified",
-    ),
-  );
-  assert.ok(
-    manifest.requiredHarnessSnippets["docs/developer/DESIGN_SPEC.md"].includes(
-      "Harness checks require this file to stay a pointer",
-    ),
-  );
-  assert.equal(manifest.readmeReferences.path, "docs/references.md");
-  assert.equal(manifest.readmeReferences.heading, "## References and external sources");
-  assert.equal(manifest.readmeReferences.indexHeading, "# References and External Sources");
-  assert.equal(manifest.readmeReferences.excludedTestUrlExplanation, "Security test payloads");
-  assert.equal(manifest.publicWiki.url, "https://github.com/cboyd0319/JobSentinel/wiki");
-  assert.equal(manifest.publicWiki.remote, "https://github.com/cboyd0319/JobSentinel.wiki.git");
-  assert.equal(manifest.publicWiki.defaultBranch, "master");
-  assert.deepEqual(manifest.publicWiki.requiredPages, ["Home.md", "Capabilities.md"]);
-  assert.ok(manifest.publicWiki.mustStayCurrentWhen.includes("capabilities"));
-  assert.ok(manifest.publicWiki.mustStayCurrentWhen.includes("user-facing copy"));
-  assert.ok(
-    manifest.readmeReferences.requiredUrls.length > 100,
-    "README source policy should stay in the manifest, not in the checker script",
-  );
+function withFixture(callback) {
+  const fixtureRoot = mkdtempSync(join(tmpdir(), "jobsentinel-harness-state-"));
+  try {
+    callback(fixtureRoot);
+  } finally {
+    rmSync(fixtureRoot, { recursive: true, force: true });
+  }
+}
+
+function validFeatureList() {
+  return {
+    schema: "jobsentinel.feature_list.v1",
+    project: "Fixture",
+    last_updated: "2026-07-14",
+    active_status: "active",
+    features: [
+      {
+        id: "one",
+        priority: 1,
+        area: "harness",
+        title: "One feature",
+        behavior: "One observable behavior.",
+        user_visible_behavior: "One visible outcome.",
+        status: "active",
+        verification: ["npm test"],
+        evidence: [],
+        blocker: "",
+        next_trigger: "Verify it.",
+      },
+    ],
+  };
+}
+
+test("live harness satisfies the canonical semantic contract", () => {
+  assert.deepEqual(checkHarness(root), []);
 });
 
-test("feature privacy label manifest records core local-first boundaries", () => {
-  const labels = readJson(featurePrivacyLabelsPath);
-  const featureIds = new Set(labels.features.map((feature) => feature.id));
-
-  assert.equal(labels.version, 1);
-  assert.ok(labels.labels.includes("Local only"));
-  assert.ok(labels.labels.includes("External AI optional"));
-  assert.ok(labels.labels.includes("Sensitive"));
-  assert.ok(featureIds.has("job-tracking"));
-  assert.ok(featureIds.has("resume-job-fit-explanation"));
-  assert.ok(featureIds.has("safe-support-report"));
-  assert.ok(labels.features.length >= 13);
-  assert.equal(
-    labels.features.some(
-      (feature) =>
-        feature.id === "resume-job-fit-explanation" &&
-        feature.labels.includes("Sensitive") &&
-        feature.externalAi.allowed === true &&
-        feature.externalAi.required === false,
-    ),
-    true,
-  );
+test("harness manifest names one owner per required subsystem and retired paths", () => {
+  const manifest = readJson("harness-manifest.json");
+  assert.equal(manifest.schema_version, 1);
+  assert.deepEqual(Object.keys(manifest.owners).sort(), [
+    "architecture", "environment", "feedback", "instructions", "state", "tools",
+  ]);
+  assert.ok(manifest.required_pack.includes("PROGRESS.md"));
+  assert.ok(manifest.required_pack.includes("feature_list.json"));
+  assert.ok(manifest.required_pack.includes("init.sh"));
+  assert.ok(manifest.required_pack.includes("init.ps1"));
+  assert.ok(manifest.retired_commands.includes("harness:score"));
+  assert.equal(manifest.hosted_workflows.ci_enabled, false);
+  assert.equal(manifest.hosted_workflows.authoritative_ci.length, 0);
+  assert.equal(manifest.canonical_requirement_exceptions[0].id, noCiExceptionId);
+  assert.match(manifest.canonical_requirement_exceptions[0].canonical_status, /nonconforming user override/);
 });
 
-test("feature privacy label manifest covers shipped external AI requests", () => {
-  const labels = readJson(featurePrivacyLabelsPath);
-  const featuresById = new Map(
-    labels.features.map((feature) => [feature.id, feature]),
-  );
+test("hosted workflow policy rejects incomplete enabled CI", () => {
+  withFixture((fixtureRoot) => {
+    const path = ".github/workflows/ci.yml";
+    writeFixtureFile(
+      fixtureRoot,
+      path,
+      `name: CI
 
+on:
+  workflow_dispatch:
+
+env:
+  HOSTED_EXECUTION_DISABLED: "true"
+
+jobs:
+  unsafe:
+    runs-on: ubuntu-latest
+    steps:
+      - if: \${{ false }}
+        run: exit 0
+`,
+    );
+    const violations = [];
+    validateHostedWorkflows(
+      fixtureRoot,
+      { hosted_workflows: { ci_enabled: true, authoritative_ci: [path], manual_release: [] } },
+      violations,
+    );
+    assert.match(violations.join("\n"), /must enable pull_request verification/);
+    assert.match(violations.join("\n"), /must not contain a hosted-execution disable guard/);
+  });
+});
+
+test("hosted workflow policy accepts only the exact active no-CI exception", () => {
+  withFixture((fixtureRoot) => {
+    writeFixtureFile(
+      fixtureRoot,
+      "docs/developer/CI_CD.md",
+      "# Verification\n\nNo hosted continuous integration is configured.\n",
+    );
+    const liveManifest = readJson("harness-manifest.json");
+    const violations = [];
+    validateHostedWorkflows(
+      fixtureRoot,
+      {
+        owners: { feedback: { hosted_workflow_root: ".github/workflows" } },
+        hosted_workflows: {
+          ci_enabled: false,
+          authoritative_ci: [],
+          manual_release: [],
+          no_ci_projections: ["docs/developer/CI_CD.md"],
+        },
+        canonical_requirement_exceptions: liveManifest.canonical_requirement_exceptions,
+      },
+      violations,
+    );
+    assert.deepEqual(violations, []);
+  });
+});
+
+test("hosted workflow policy rejects automatic CI while the exception is active", () => {
+  withFixture((fixtureRoot) => {
+    writeFixtureFile(
+      fixtureRoot,
+      ".github/workflows/rogue.yml",
+      "name: Rogue\non:\n  pull_request:\njobs: {}\n",
+    );
+    const liveManifest = readJson("harness-manifest.json");
+    const violations = [];
+    validateHostedWorkflows(
+      fixtureRoot,
+      {
+        owners: { feedback: { hosted_workflow_root: ".github/workflows" } },
+        hosted_workflows: { ci_enabled: false, authoritative_ci: [], manual_release: [] },
+        canonical_requirement_exceptions: liveManifest.canonical_requirement_exceptions,
+      },
+      violations,
+    );
+    assert.match(violations.join("\n"), /must not define automatic CI triggers/);
+  });
+});
+
+test("hosted workflow policy rejects stale current CI documentation", () => {
+  withFixture((fixtureRoot) => {
+    writeFixtureFile(
+      fixtureRoot,
+      "docs/developer/TESTING.md",
+      "# Testing\n\nTests run in CI with two retries.\n",
+    );
+    const liveManifest = readJson("harness-manifest.json");
+    const violations = [];
+    validateHostedWorkflows(
+      fixtureRoot,
+      {
+        owners: { feedback: { hosted_workflow_root: ".github/workflows" } },
+        hosted_workflows: {
+          ci_enabled: false,
+          authoritative_ci: [],
+          manual_release: [],
+          no_ci_projections: ["docs/developer/TESTING.md"],
+        },
+        canonical_requirement_exceptions: liveManifest.canonical_requirement_exceptions,
+      },
+      violations,
+    );
+    assert.match(violations.join("\n"), /must state the active pre-alpha-private-no-ci posture/);
+    assert.match(violations.join("\n"), /must not claim tests run in hosted CI/);
+  });
+});
+
+test("feature validator rejects ambiguous, unsupported, and unevidenced state", () => {
+  const noActive = validFeatureList();
+  noActive.features[0].status = "not_started";
+  assert.match(validateFeatureList(root, noActive).join("\n"), /exactly one active feature; found 0/);
+
+  const duplicate = validFeatureList();
+  duplicate.features.push({ ...duplicate.features[0] });
+  assert.match(validateFeatureList(root, duplicate).join("\n"), /feature id must be unique/);
+
+  const passing = validFeatureList();
+  passing.features[0].status = "passing";
+  assert.match(validateFeatureList(root, passing).join("\n"), /passing requires evidence/);
+
+  const blocked = validFeatureList();
+  blocked.features[0].status = "blocked";
+  blocked.features.push({ ...validFeatureList().features[0], id: "active-two" });
+  assert.match(validateFeatureList(root, blocked).join("\n"), /blocked status requires blocker/);
+});
+
+test("progress markers must agree with the feature ledger", () => {
+  withFixture((fixtureRoot) => {
+    writeFixtureFile(fixtureRoot, "feature_list.json", `${JSON.stringify(validFeatureList(), null, 2)}\n`);
+    writeFixtureFile(
+      fixtureRoot,
+      "PROGRESS.md",
+      "# Progress\n\nLast updated: 2026-07-13\n\n- Active feature: `wrong`\n- Status: `active`\n",
+    );
+    const violations = collectStateViolations(fixtureRoot).join("\n");
+    assert.match(violations, /active feature must match/);
+    assert.match(violations, /last-updated dates must match/);
+  });
+});
+
+test("feature privacy labels cover shipped external AI requests", () => {
+  const labels = readJson("docs/harness/feature-privacy-labels.json");
+  const featuresById = new Map(labels.features.map((feature) => [feature.id, feature]));
   for (const featureId of collectProductionExternalAiRequestFeatureIds()) {
     const feature = featuresById.get(featureId);
-
     assert.ok(feature, `missing privacy label manifest entry for ${featureId}`);
-    assert.equal(
-      feature.externalAi.allowed,
-      true,
-      `${featureId} must be marked as external-AI allowed`,
-    );
-    assert.ok(
-      feature.labels.includes("External AI optional") ||
-        feature.labels.includes("External AI required"),
-      `${featureId} must carry an external-AI label`,
-    );
+    assert.equal(feature.externalAi.allowed, true);
+    assert.ok(feature.labels.includes("External AI optional") || feature.labels.includes("External AI required"));
   }
 });
 
-test("harness policy manifest stays portable and reviewable", () => {
-  const manifestText = readFileSync(manifestPath, "utf8");
-  const manifest = JSON.parse(manifestText);
-  const localHomePathPrefix = ["", "Users", ""].join("/");
-
-  assert.equal(manifestText.includes(localHomePathPrefix), false);
-  assert.equal(manifestText.includes("jobsentinel_openai_grant_application_packet"), false);
-  assert.ok(Array.isArray(manifest.requiredFiles));
-  assert.ok(typeof manifest.requiredHarnessSnippets === "object");
-  assert.ok(Array.isArray(manifest.readmeReferences.requiredUrls));
-  assert.ok(Array.isArray(manifest.publicWiki.requiredPages));
-});
-
-test("check-harness consumes manifest instead of hardcoding large policy tables", () => {
-  const checker = [
-    "scripts/checks/harness.mjs",
-    "scripts/checks/harness/contracts.mjs",
-    "scripts/checks/harness/repository-files.mjs",
-  ]
+test("canonical state and manifest contain no local home paths", () => {
+  const text = ["PROGRESS.md", "feature_list.json", "harness-manifest.json"]
     .map((path) => readFileSync(path, "utf8"))
     .join("\n");
-
-  assert.ok(checker.includes(manifestPath));
-  assert.ok(checker.includes(featurePrivacyLabelsPath));
-  assert.ok(checker.includes("machineSpecificLocalPathNeedles"));
-  assert.ok(checker.includes("docLocalAbsolutePathPattern"));
-  assert.ok(checker.includes("<repo-root>/<home> placeholders"));
-  assert.ok(checker.includes("const publicWiki"));
-  assert.ok(checker.includes("publicWiki.requiredPages"));
-  assert.ok(checker.includes("startupContextBudgets"));
-  assert.ok(checker.includes("startup context budget"));
-  assert.ok(checker.includes("checkAgentSkills"));
-  assert.equal(checker.includes("const requiredHarnessSnippets = {"), false);
-  assert.equal(checker.includes("const requiredReadmeReferenceUrls = ["), false);
+  assert.doesNotMatch(text, /(?:\/Users\/[^/<\s]+\/|[A-Za-z]:\\Users\\[^\\<\s]+\\)/);
 });

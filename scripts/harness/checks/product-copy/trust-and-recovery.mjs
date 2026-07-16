@@ -60,8 +60,8 @@ const feedbackLocalReportPaths = new Set([
   "src-tauri/src/commands/feedback/mod.rs",
   "src-tauri/src/commands/feedback/debug_log.rs",
   "src-tauri/src/commands/feedback/report.rs",
-  "crates/jobsentinel-core/src/core/health/smoke_checks/mod.rs",
-  "src/mocks/handlers.ts",
+  "crates/jobsentinel-application/src/health/smoke_checks/mod.rs",
+  "src/test-support/mocks/handlers.ts",
   "src/shared/errorReporting/messages.ts",
 ]);
 

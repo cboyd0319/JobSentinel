@@ -1,6 +1,6 @@
 ---
 name: application-tracking
-description: Track a job-search pipeline, application statuses, follow-up calendar, interviews, contacts, material versions, salary notes, no-response reviews, and next actions. Use when organizing an active search, creating a tracker, updating application status, or deciding what to do next.
+description: Track applications, follow-ups, interviews, contacts, and next actions. Use when organizing or updating an active job-search pipeline.
 license: MIT
 metadata:
   jobsentinel_version_target: "2.9.0"

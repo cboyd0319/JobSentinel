@@ -1,126 +1,83 @@
 {
-  "schema": "jobsentinel.file_size_contract.v1",
-  "docs_checked_on": "2026-07-13",
-  "policy": "Every maintained file must stay within its scope limit. Exceptions require a named owner, a specific reason, and a removal trigger.",
+  "schema": "jobsentinel.file_size_contract.v3",
+  "projection_of": "repository-structure-policy.json",
+  "baseline": {
+    "measured_on": "2026-07-14",
+    "owner": "repository maintainers",
+    "method": "Tracked and untracked nonignored source and configuration; physical lines and raw bytes."
+  },
+  "coverage": {
+    "extensions": [
+      ".cs", ".csproj", ".cjs", ".css", ".hcl", ".js", ".json", ".jsx",
+      ".mjs", ".php", ".props", ".ps1", ".py", ".rs", ".sh", ".slnx",
+      ".sql", ".targets", ".tf", ".tfvars", ".toml", ".ts", ".tsx",
+      ".yaml", ".yml"
+    ],
+    "filenames": []
+  },
   "scopes": [
     {
       "id": "frontend-source",
-      "globs": ["src/**/*.ts", "src/**/*.tsx"],
-      "exclude_globs": [
-        "src/**/*.test.ts",
-        "src/**/*.test.tsx",
-        "src/mocks/**",
-        "src/shared/*Taxonomy.ts",
-        "src/shared/*Taxonomy.json",
-        "src/shared/*Entries.ts"
-      ],
+      "globs": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.css"],
       "max_lines": 500,
-      "reason": "frontend modules should stay small enough for focused review and agent editing"
+      "max_bytes": 65536,
+      "max_line_bytes": 65536
     },
     {
-      "id": "frontend-tests-and-mocks",
-      "globs": ["src/**/*.test.ts", "src/**/*.test.tsx", "src/mocks/**/*.ts"],
-      "max_lines": 800,
-      "reason": "frontend tests and mocks should stay grouped by behavior or user surface"
-    },
-    {
-      "id": "shared-taxonomies",
-      "globs": [
-        "src/shared/*Taxonomy.ts",
-        "src/shared/*Taxonomy.json",
-        "src/shared/*Entries.ts"
-      ],
-      "max_lines": 2000,
-      "reason": "taxonomy files are structured data lists and may be larger than logic modules"
+      "id": "end-to-end-tests",
+      "globs": ["tests/**/*.ts", "tests/**/*.tsx"],
+      "max_lines": 500,
+      "max_bytes": 65536,
+      "max_line_bytes": 65536
     },
     {
       "id": "rust-source",
-      "globs": ["src-tauri/src/**/*.rs", "crates/**/*.rs"],
-      "exclude_globs": [
-        "src-tauri/src/**/*test*.rs",
-        "src-tauri/src/**/tests.rs",
-        "src-tauri/src/**/tests/**/*.rs",
-        "src-tauri/src/**/*tests/**/*.rs",
-        "crates/**/*test*.rs",
-        "crates/**/tests.rs",
-        "crates/**/tests/**/*.rs",
-        "crates/**/*tests/**/*.rs"
-      ],
+      "globs": ["src-tauri/**/*.rs", "crates/**/*.rs"],
       "max_lines": 500,
-      "reason": "Rust modules should stay cohesive and split before becoming hard to review"
-    },
-    {
-      "id": "rust-tests",
-      "globs": [
-        "src-tauri/src/**/*test*.rs",
-        "src-tauri/src/**/tests.rs",
-        "src-tauri/src/**/tests/**/*.rs",
-        "src-tauri/src/**/*tests/**/*.rs",
-        "src-tauri/tests/**/*.rs",
-        "crates/**/*test*.rs",
-        "crates/**/tests.rs",
-        "crates/**/tests/**/*.rs",
-        "crates/**/*tests/**/*.rs",
-        "crates/*/tests/**/*.rs"
-      ],
-      "max_lines": 800,
-      "reason": "Rust tests should stay focused by behavior or platform surface"
-    },
-    {
-      "id": "cross-runtime-resources",
-      "globs": ["resources/**/*.json"],
-      "max_lines": 2000,
-      "reason": "canonical cross-runtime structured data may be larger than logic modules"
+      "max_bytes": 65536,
+      "max_line_bytes": 65536
     },
     {
       "id": "scripts",
-      "globs": ["scripts/**/*.mjs"],
-      "exclude_globs": ["scripts/tests/**"],
+      "globs": ["scripts/**/*.mjs", "scripts/**/*.js", "scripts/**/*.sh", "scripts/**/*.ps1"],
       "max_lines": 500,
-      "reason": "scripts should be small or split into named checks and helpers"
+      "max_bytes": 65536,
+      "max_line_bytes": 65536
     },
     {
-      "id": "script-tests",
-      "globs": ["scripts/tests/**/*.mjs"],
-      "max_lines": 800,
-      "reason": "script tests should stay focused by checked rule family"
+      "id": "workflows-and-config",
+      "globs": [
+        "*.json", "*.toml", "*.yml", "*.yaml", "*.js", "*.ts", ".cargo/**",
+        ".github/**/*.yml", ".github/**/*.yaml", ".storybook/**", "config/**",
+        "validation/**", "crates/**/Cargo.toml", "src-tauri/**/*.json",
+        "src-tauri/**/*.toml", "skills/**/*.yaml", "skills/**/*.json"
+      ],
+      "max_lines": 500,
+      "max_bytes": 65536,
+      "max_line_bytes": 65536
     },
     {
-      "id": "docs",
-      "globs": ["*.md", "docs/**/*.md"],
-      "exclude_globs": ["docs/plans/archive/**"],
-      "max_lines": 700,
-      "reason": "large active docs should be split by product boundary and linked from an index"
+      "id": "database-migrations",
+      "globs": ["crates/**/migrations/**/*.sql", "src-tauri/migrations/**/*.sql"],
+      "max_lines": 500,
+      "max_bytes": 65536,
+      "max_line_bytes": 65536
     },
     {
-      "id": "config",
-      "globs": ["*.json", "*.toml", "*.yml", "*.yaml", ".cargo/**/*.toml", "crates/*/Cargo.toml", "src-tauri/Cargo.toml", ".github/**/*.yml", ".github/**/*.yaml"],
-      "exclude_globs": ["package-lock.json", "Cargo.lock"],
-      "max_lines": 1200,
-      "reason": "configuration should stay compact and explicit"
+      "id": "resources-and-skill-assets",
+      "globs": ["resources/**", "skills/**/assets/**", "examples/**", "public/**"],
+      "max_lines": 500,
+      "max_bytes": 65536,
+      "max_line_bytes": 65536
     },
     {
-      "id": "sql-migrations",
-      "globs": ["crates/jobsentinel-core/migrations/**/*.sql", "crates/*/migrations/**/*.sql"],
-      "max_lines": 2000,
-      "reason": "checked-in schema migrations may be longer than logic modules"
-    },
-    {
-      "id": "skill-entrypoints",
-      "globs": ["skills/*/SKILL.md"],
-      "max_lines": 180,
-      "reason": "Agent Skill entrypoints stay short and use progressive disclosure references"
+      "id": "maintained-source-fallback",
+      "globs": ["**/*"],
+      "max_lines": 500,
+      "max_bytes": 65536,
+      "max_line_bytes": 65536
     }
   ],
-  "ignore_globs": [
-    ".git/**",
-    "node_modules/**",
-    "target/**",
-    "crates/**/target/**",
-    "package-lock.json",
-    "Cargo.lock",
-    "src-tauri/gen/**",
-    "docs/plans/archive/**"
-  ],
+  "coverage_exclusions": [],
   "exceptions": []
 }

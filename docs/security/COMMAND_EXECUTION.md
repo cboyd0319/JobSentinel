@@ -41,7 +41,7 @@ paths.
 PDF file -> pdftoppm -> PNG images -> tesseract -> extracted text
 ```
 
-**File**: `crates/jobsentinel-core/src/core/resume/parser.rs`
+**File**: `crates/jobsentinel-documents/src/parser.rs`
 
 Local resume parsing rejects files over 10 MB before PDF, DOCX, TXT, Markdown,
 HTML, or optional OCR parsing begins. DOCX parsing also bounds `word/document.xml`

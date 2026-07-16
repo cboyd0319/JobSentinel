@@ -31,7 +31,7 @@ test("checkRepoBloat rejects raw URL logging outside approved sanitizers", () =>
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/automation/browser/manager.rs",
+      "crates/jobsentinel-assistance/src/automation/browser/manager.rs",
       [
         'tracing::warn!("Failed to parse URL for navigation: {}", url_str);',
         '#[tracing::instrument(skip(self), fields(url = %url), level = "info")]',
@@ -49,7 +49,7 @@ test("checkRepoBloat rejects raw URL logging outside approved sanitizers", () =>
       [
         "add",
         "package.json",
-        "crates/jobsentinel-core/src/core/automation/browser/manager.rs",
+        "crates/jobsentinel-assistance/src/automation/browser/manager.rs",
         "src-tauri/src/commands/linkedin_auth.rs",
       ],
       { cwd: root },
@@ -59,7 +59,7 @@ test("checkRepoBloat rejects raw URL logging outside approved sanitizers", () =>
 
     assert.ok(
       violations.includes(
-        "replace raw URL logging: crates/jobsentinel-core/src/core/automation/browser/manager.rs",
+        "replace raw URL logging: crates/jobsentinel-assistance/src/automation/browser/manager.rs",
       ),
       violations.join("\n"),
     );
@@ -141,7 +141,7 @@ test("checkRepoBloat rejects non-public IP validation error echo", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/url_security.rs",
+      "crates/jobsentinel-security/src/url.rs",
       [
         "return Err(format!(\"Blocked non-public IP address '{}'\", host));",
         "",
@@ -150,7 +150,7 @@ test("checkRepoBloat rejects non-public IP validation error echo", () => {
 
     execFileSync(
       "git",
-      ["add", "package.json", "crates/jobsentinel-core/src/core/url_security.rs"],
+      ["add", "package.json", "crates/jobsentinel-security/src/url.rs"],
       {
         cwd: root,
       },
@@ -160,7 +160,7 @@ test("checkRepoBloat rejects non-public IP validation error echo", () => {
 
     assert.ok(
       violations.includes(
-        "sanitize non-public IP validation errors: crates/jobsentinel-core/src/core/url_security.rs",
+        "sanitize non-public IP validation errors: crates/jobsentinel-security/src/url.rs",
       ),
       violations.join("\n"),
     );

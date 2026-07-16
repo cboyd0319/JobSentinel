@@ -5,8 +5,8 @@ import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-export { npmExecutable, npmInvocation } from "./dependency/npm-invocation.mjs";
-import { npmInvocation } from "./dependency/npm-invocation.mjs";
+export { npmExecutable, npmInvocation } from "./lib/dependency/npm-invocation.mjs";
+import { npmInvocation } from "./lib/dependency/npm-invocation.mjs";
 
 const scriptPath = fileURLToPath(import.meta.url);
 const defaultRoot = resolve(dirname(scriptPath), "..");
@@ -35,6 +35,12 @@ export function installPinnedNpm(options = {}) {
     return { changed: false, currentVersion, pinnedVersion };
   }
 
+  if (env.CI !== "true") {
+    throw new Error(
+      `refusing to install npm ${pinnedVersion} globally outside an ephemeral hosted runner; use the platform init command with a supported Node.js installation`,
+    );
+  }
+
   const install = npmInvocation(
     ["install", "--global", `npm@${pinnedVersion}`, "--no-audit", "--no-fund"],
     platform,
@@ -51,7 +57,7 @@ export function installPinnedNpm(options = {}) {
 if (process.argv[1] === scriptPath) {
   const result = installPinnedNpm();
   if (result.changed) {
-    console.log(`Installed pinned npm ${result.pinnedVersion}; previous npm was ${result.currentVersion}.`);
+    console.log(`Installed pinned npm ${result.pinnedVersion} on the ephemeral hosted runner; previous npm was ${result.currentVersion}.`);
   } else {
     console.log(`Pinned npm ${result.pinnedVersion} already active.`);
   }

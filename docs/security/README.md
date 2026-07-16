@@ -137,14 +137,14 @@ cargo test --workspace
 npm run lint:security
 
 # Run security-specific tests
-cargo test -p jobsentinel-core --lib url_security
-cargo test -p jobsentinel-core --lib validation
-cargo test -p jobsentinel-core --lib credentials
+cargo test -p jobsentinel-security url
+cargo test -p jobsentinel-application config::validation
+cargo test -p jobsentinel-credentials
 ```
 
 `npm run lint:security` checks that required security docs exist, that the
-verification matrix preserves security-specific sensors, that CI plus CI/CD
-docs keep dependency audit, Rust supply-chain, and scheduled drift gates visible,
+verification matrix preserves security-specific sensors, that the local-gate
+and hosted-release docs keep dependency audit and Rust supply-chain gates visible,
 that browser-extension manifests avoid broad host and high-risk permissions,
 that browser automation script inputs are JSON-encoded before evaluation,
 that the Tauri renderer CSP keeps external network calls out of the frontend,

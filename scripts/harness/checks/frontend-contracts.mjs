@@ -3,8 +3,8 @@ import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { listTrackedFiles } from "./repo-artifacts.mjs";
 
-const mockCommandRegistryPath = "src/mocks/commandRegistry.ts";
-const legacyMockCommandRegistryPath = "src/mocks/handlers.ts";
+const mockCommandRegistryPath = "src/test-support/mocks/commandRegistry.ts";
+const legacyMockCommandRegistryPath = "src/test-support/mocks/handlers.ts";
 
 function activeMockCommandRegistryPath(root) {
   return existsSync(join(root, mockCommandRegistryPath))
@@ -152,7 +152,7 @@ export function hasStaleAtsKeywordMatchFrontendShape(root, path) {
 }
 
 const resumeSuggestionCategoryPaths = new Set([
-  "crates/jobsentinel-core/src/core/resume/ats_analyzer.rs",
+  "crates/jobsentinel-documents/src/ats_analyzer.rs",
   "src/features/resumes/matching/ResumeMatchPage.tsx",
   "src/features/resumes/matching/resumeMatchModel.ts",
   "src/features/resumes/builder/AtsLiveScorePanel.tsx",
@@ -175,7 +175,7 @@ function readOptionalFile(root, path) {
 }
 
 function collectBackendResumeSuggestionCategories(root) {
-  const text = readOptionalFile(root, "crates/jobsentinel-core/src/core/resume/ats_analyzer.rs");
+  const text = readOptionalFile(root, "crates/jobsentinel-documents/src/ats_analyzer.rs");
   const enumBody = /pub\s+enum\s+SuggestionCategory\s*\{(?<body>[\s\S]*?)\n\}/.exec(text)
     ?.groups?.body;
 
@@ -272,7 +272,7 @@ function isRuntimeFrontendSource(path) {
     !path.endsWith(".d.ts") &&
     !/\.test\.(ts|tsx)$/.test(path) &&
     !/\.stories\.(ts|tsx)$/.test(path) &&
-    path !== "src/mocks/handlers.ts"
+    path !== "src/test-support/mocks/handlers.ts"
   );
 }
 

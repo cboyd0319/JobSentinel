@@ -1,0 +1,127 @@
+{
+  "schema": "jobsentinel.harness_effectiveness.v1",
+  "feature_id": "harness-canonical-remediation",
+  "recorded_at": "2026-07-15T03:21:02Z",
+  "starting_revision": "099f90a77ceee59bd5d815477720b089e1437e4e",
+  "platform": "macOS Darwin 27.0.0 arm64",
+  "representative_task": {
+    "goal": "For one privileged workflow, one Playwright configuration, and one repository-local skill change, select the smallest complete verification lanes that can disprove security, TypeScript project-graph, and skill-package regressions.",
+    "changed_files": [
+      ".github/workflows/release.yml",
+      "playwright.config.ts",
+      "skills/resume-tailoring/SKILL.md"
+    ],
+    "required_commands": [
+      "npm run lint:security",
+      "npm run lint:skills",
+      "npm run typecheck"
+    ]
+  },
+  "held_constant": {
+    "revision": "099f90a77ceee59bd5d815477720b089e1437e4e",
+    "permissions": "local read-only planner execution with no network access",
+    "environment": "same macOS host, Node runtime, evaluator code, changed paths, and acceptance predicate",
+    "evaluator": "summarizeHarnessPlan output contains every required command",
+    "before_reconstruction": {
+      "method": "HEAD archive plus the preserved pre-implementation worktree patch and untracked-file archive in a fresh directory outside the repository",
+      "worktree_patch_sha256": "3d13058975d10cc8332cde96dd0e632758ff52898353bab5a34bac64dc7e21cc",
+      "untracked_archive_sha256": "6c68b2c010350786ba3a89a521d601a6e35037b441e7ae909c89385f70ad7a81"
+    }
+  },
+  "before": {
+    "success": false,
+    "commands": [
+      "npm run harness:check",
+      "npm run lint:file-size",
+      "npm run lint:docs",
+      "npm run test:scripts",
+      "npm run doctor:e2e",
+      "npm run test:e2e:smoke"
+    ],
+    "missing_required_commands": [
+      "npm run lint:security",
+      "npm run lint:skills",
+      "npm run typecheck"
+    ],
+    "planner_latency_ms": [0.336, 0.031, 0.021, 0.029, 0.013],
+    "startup_bytes": 7836,
+    "state_reads": 2,
+    "retries": 0,
+    "false_completion_claims": 0,
+    "evaluator_corrections_required": 3,
+    "first_material_failure_cause": "feedback routing"
+  },
+  "after": {
+    "success": true,
+    "commands": [
+      "npm run harness:check",
+      "npm run lint:file-size",
+      "npm run lint:docs",
+      "npm run test:scripts",
+      "npm run lint:architecture",
+      "npm run typecheck",
+      "npm run lint",
+      "npm run test:run",
+      "npm run doctor:e2e",
+      "npm run test:e2e:smoke",
+      "npm run lint:security",
+      "npm run lint:skills"
+    ],
+    "missing_required_commands": [],
+    "planner_latency_ms": [0.383, 0.030, 0.038, 0.026, 0.022],
+    "startup_bytes": 9060,
+    "state_reads": 2,
+    "retries": 0,
+    "false_completion_claims": 0,
+    "evaluator_corrections_required": 0,
+    "first_material_failure_cause": null
+  },
+  "interpretation": {
+    "observed": "The current planner selected all three required lanes; the reconstructed pre-implementation planner selected none of them.",
+    "tradeoff": "Startup context increased by 1224 bytes and remains below the 26000-byte enforced budget.",
+    "not_proven": [
+      "native Windows 11 behavior",
+      "native macOS 26 hosted-runner behavior",
+      "product behavior outside this representative feedback-routing task"
+    ]
+  },
+  "verification": {
+    "result": "macOS local gate passed with a named native Windows 11 gap and the explicit nonconforming no-CI user override",
+    "host": {
+      "product": "macOS",
+      "version": "27.0",
+      "build": "26A5378j",
+      "architecture": "arm64"
+    },
+    "commands": [
+      {
+        "command": "npm run verify:full",
+        "exit_status": 0,
+        "evidence": "807 harness and script tests, 2,933 frontend tests, production and Storybook builds, 10 Playwright smoke tests within the 30-second budget, Rust formatting and Clippy, and the complete Rust workspace test lane passed."
+      },
+      {
+        "command": "python3 /Users/c/.agents/skills/harness-engineering/scripts/audit_repository_harness.py --target . --format text",
+        "exit_status": 0,
+        "evidence": "The installed read-only audit inventoried instructions, environment, state, and feedback, reported zero tool candidates, and emitted only informational local-hook leads. The live manifest, package registry, and declared script and skill roots independently establish the Tools owner; the audit's zero count is not treated as absence."
+      },
+      {
+        "command": "npm run clean:generated",
+        "exit_status": 0,
+        "evidence": "Removed dist, storybook-static, and test-results created by the full local gate; the bounded cleanup excludes target and source paths."
+      }
+    ],
+    "warnings": [
+      "The host ran Node.js 26.5.0 instead of the .nvmrc-owned 24.18.0 baseline.",
+      "The host ran npm 11.17.0 instead of the package.json-owned 12.0.1 release baseline."
+    ],
+    "native_windows_11_gap": {
+      "missing_evidence": "No native Windows 11 run from this working tree.",
+      "smallest_validation": "Run pwsh -File ./init.ps1 and npm run test:scripts on a native Windows 11 host."
+    },
+    "hosted_ci": {
+      "status": "absent by explicit user direction",
+      "exception_id": "pre-alpha-private-no-ci",
+      "canonical_status": "nonconforming user override; no claim of canonical CI compliance"
+    }
+  }
+}

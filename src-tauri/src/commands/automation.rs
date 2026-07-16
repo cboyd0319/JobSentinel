@@ -8,16 +8,15 @@
 //! - Automation attempt tracking
 //! - ATS platform detection
 
+#[cfg(test)]
+use crate::application::automation::AutomationStatus;
+use crate::application::automation::{
+    ApplicationProfileInput, AtsDetector, AtsPlatform, AutomationStats, ProfileManager,
+};
 use crate::commands::errors::user_friendly_error;
 use crate::commands::limits::validate_optional_command_limit_usize;
 use crate::commands::AppState;
-#[cfg(test)]
-use crate::core::automation::AutomationStatus;
-use crate::core::automation::{
-    ApplicationProfileInput, AtsDetector, AtsPlatform, AutomationManager, AutomationStats,
-    ProfileManager,
-};
-use crate::core::url_security::sanitize_url_for_logging;
+use crate::desktop::sanitize_url_for_logging;
 use std::path::Path;
 use tauri::State;
 
@@ -67,7 +66,7 @@ pub(crate) async fn upsert_application_profile(
 ) -> Result<i64, String> {
     tracing::info!("Command: upsert_application_profile");
 
-    let manager = ProfileManager::new(state.database.pool().clone());
+    let manager = state.database.profile_manager();
     let managed_resume_dir = application_resume_dir();
     upsert_application_profile_with_resume_cleanup(input, &manager, &managed_resume_dir).await
 }
@@ -116,7 +115,7 @@ pub(crate) async fn get_application_profile(
 ) -> Result<Option<ApplicationProfileResponse>, String> {
     tracing::info!("Command: get_application_profile");
 
-    let manager = ProfileManager::new(state.database.pool().clone());
+    let manager = state.database.profile_manager();
     match manager.get_profile().await {
         Ok(Some(profile)) => Ok(Some(ApplicationProfileResponse::from(profile))),
         Ok(None) => Ok(None),
@@ -129,7 +128,7 @@ pub(crate) async fn get_application_profile(
 pub(crate) async fn has_application_profile(state: State<'_, AppState>) -> Result<bool, String> {
     tracing::info!("Command: has_application_profile");
 
-    let manager = ProfileManager::new(state.database.pool().clone());
+    let manager = state.database.profile_manager();
     manager
         .has_profile()
         .await
@@ -143,7 +142,7 @@ pub(crate) async fn get_application_profile_preview(
 ) -> Result<Option<ApplicationProfilePreviewResponse>, String> {
     tracing::info!("Command: get_application_profile_preview");
 
-    let manager = ProfileManager::new(state.database.pool().clone());
+    let manager = state.database.profile_manager();
     match manager.get_profile().await {
         Ok(Some(profile)) => Ok(Some(ApplicationProfilePreviewResponse::from(profile))),
         Ok(None) => Ok(None),
@@ -171,7 +170,7 @@ pub(crate) async fn upsert_screening_answer(
         "Command: upsert_screening_answer"
     );
 
-    let manager = ProfileManager::new(state.database.pool().clone());
+    let manager = state.database.profile_manager();
     manager
         .upsert_screening_answer(&question_pattern, &answer, &answer_type, notes.as_deref())
         .await
@@ -185,7 +184,7 @@ pub(crate) async fn get_screening_answers(
 ) -> Result<Vec<ScreeningAnswerResponse>, String> {
     tracing::info!("Command: get_screening_answers");
 
-    let manager = ProfileManager::new(state.database.pool().clone());
+    let manager = state.database.profile_manager();
     match manager.get_screening_answers().await {
         Ok(answers) => Ok(answers
             .into_iter()
@@ -206,7 +205,7 @@ pub(crate) async fn find_answer_for_question(
         "Command: find_answer_for_question"
     );
 
-    let manager = ProfileManager::new(state.database.pool().clone());
+    let manager = state.database.profile_manager();
     manager
         .find_answer_for_question(&question)
         .await
@@ -232,7 +231,7 @@ pub(crate) async fn create_automation_attempt(
         "Command: create_automation_attempt"
     );
 
-    let manager = AutomationManager::new(state.database.pool().clone());
+    let manager = state.database.automation_manager();
 
     manager
         .create_attempt(&job_hash, platform)
@@ -248,7 +247,7 @@ pub(crate) async fn get_automation_attempt(
 ) -> Result<AttemptResponse, String> {
     tracing::info!("Command: get_automation_attempt (id: {})", attempt_id);
 
-    let manager = AutomationManager::new(state.database.pool().clone());
+    let manager = state.database.automation_manager();
     match manager.get_attempt(attempt_id).await {
         Ok(attempt) => Ok(AttemptResponse::from(attempt)),
         Err(e) => Err(user_friendly_error("Failed to get attempt", e)),
@@ -263,7 +262,7 @@ pub(crate) async fn approve_automation_attempt(
 ) -> Result<(), String> {
     tracing::info!("Command: approve_automation_attempt (id: {})", attempt_id);
 
-    let manager = AutomationManager::new(state.database.pool().clone());
+    let manager = state.database.automation_manager();
     manager
         .approve_attempt(attempt_id)
         .await
@@ -278,11 +277,11 @@ pub(crate) async fn cancel_automation_attempt(
 ) -> Result<(), String> {
     tracing::info!("Command: cancel_automation_attempt (id: {})", attempt_id);
 
-    let manager = AutomationManager::new(state.database.pool().clone());
+    let manager = state.database.automation_manager();
     manager
         .update_status(
             attempt_id,
-            crate::core::automation::AutomationStatus::Cancelled,
+            crate::application::automation::AutomationStatus::Cancelled,
             Some("Cancelled by user"),
         )
         .await
@@ -298,7 +297,7 @@ pub(crate) async fn get_pending_attempts(
     tracing::info!("Command: get_pending_attempts");
 
     let limit = validate_optional_command_limit_usize(limit, 10)?;
-    let manager = AutomationManager::new(state.database.pool().clone());
+    let manager = state.database.automation_manager();
     match manager.get_pending_attempts(limit).await {
         Ok(attempts) => Ok(attempts.into_iter().map(AttemptResponse::from).collect()),
         Err(e) => Err(user_friendly_error("Failed to get pending attempts", e)),
@@ -312,7 +311,7 @@ pub(crate) async fn get_automation_stats(
 ) -> Result<AutomationStats, String> {
     tracing::info!("Command: get_automation_stats");
 
-    let manager = AutomationManager::new(state.database.pool().clone());
+    let manager = state.database.automation_manager();
     manager
         .get_stats()
         .await

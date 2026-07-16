@@ -2,14 +2,14 @@
 
 #[cfg(test)]
 mod tests {
-    use crate::commands::AppState;
-    use crate::core::{
+    use crate::application::{
         config::{AlertConfig, Config, LocationPreferences},
         credentials::CredentialService,
-        db::Database,
-        Job,
     };
+    use crate::commands::AppState;
+    use crate::desktop::Database;
     use chrono::Utc;
+    use jobsentinel_application::Job;
     use std::sync::Arc;
     use tokio::sync::RwLock;
 
@@ -65,7 +65,7 @@ mod tests {
             .expect("Failed to create test database");
         database.migrate().await.expect("Failed to run migrations");
 
-        use crate::core::bookmarklet::{BookmarkletConfig, BookmarkletServer};
+        use crate::desktop::{BookmarkletConfig, BookmarkletServer};
 
         let bookmarklet_config = BookmarkletConfig {
             port: 9528,
@@ -76,7 +76,7 @@ mod tests {
         AppState {
             config: Arc::new(RwLock::new(config)),
             credentials: Arc::new(CredentialService::with_fixed_master_key(
-                database.pool().clone(),
+                database.credentials(),
                 [23_u8; 32],
                 false,
             )),

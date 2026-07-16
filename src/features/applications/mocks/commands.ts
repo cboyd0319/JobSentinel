@@ -1,12 +1,12 @@
 import {
   mockApplicationStats,
   mockStatistics,
-} from "../../../mocks/data";
+} from "../../../test-support/mocks/data";
 import {
   APPLICATION_STATUS_KEYS,
   getArg,
   getNumericArg,
-} from "../../../mocks/handlers/commandHelpers";
+} from "../../../test-support/mocks/handlers/commandHelpers";
 import type {
   MockApplication,
   MockApplications,
@@ -14,7 +14,7 @@ import type {
   MockInterview,
   MockJob,
   MockPendingReminder,
-} from "../../../mocks/handlers/types";
+} from "../../../test-support/mocks/handlers/types";
 
 export interface MockApplicationsCommandState {
   jobs: MockJob[];

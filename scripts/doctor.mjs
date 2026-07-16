@@ -5,6 +5,8 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { repositoryToolchainEnvironment } from "./lib/rust-toolchain.mjs";
+
 const scriptPath = fileURLToPath(import.meta.url);
 const defaultRoot = resolve(dirname(scriptPath), "..");
 const nodeBaselineVersion = "24.18.0";
@@ -277,7 +279,7 @@ function checkPlaywrightReadiness(results, root, options = {}) {
       results,
       options.strict ? "fail" : "warn",
       "Playwright package",
-      "node_modules/@playwright/test is missing. Run node scripts/install-pinned-npm.mjs, then npm ci --ignore-scripts",
+      "node_modules/@playwright/test is missing. Run the platform init command",
     );
     return;
   }
@@ -332,13 +334,13 @@ export function runDoctor(options = {}) {
     results.push({
       status: "warn",
       label: "Node.js release baseline",
-      detail: `${nodeVersion}; CI uses Node ${nodeBaselineVersion}. Use ${nodeBaselineVersion} if behavior differs.`,
+      detail: `${nodeVersion}; .nvmrc owns Node ${nodeBaselineVersion}. Use that version if behavior differs.`,
     });
   }
 
   checkPath(results, root, ".nvmrc", "Node version file", {
     mustContain: nodeBaselineVersion,
-    fix: `Set .nvmrc to Node ${nodeBaselineVersion} to match CI`,
+    fix: `Set .nvmrc to the owned Node baseline ${nodeBaselineVersion}`,
   });
 
   const npm = runVersionCheck(results, "npm", ["--version"], "npm CLI", {
@@ -358,7 +360,7 @@ export function runDoctor(options = {}) {
     results.push({
       status: "warn",
       label: "npm package-manager baseline",
-      detail: `${npm.output}; package.json pins npm ${pinnedNpmVersion}. CI runs node scripts/install-pinned-npm.mjs before npm commands.`,
+      detail: `${npm.output}; package.json pins npm ${pinnedNpmVersion}. Hosted release automation activates the exact pin; local setup does not mutate global npm.`,
     });
   }
 
@@ -389,13 +391,13 @@ export function runDoctor(options = {}) {
     results.push({
       status: "warn",
       label: "Rust release baseline",
-      detail: `${rustc.output}; CI uses Rust ${rustBaselineVersion}.`,
+      detail: `${rustc.output}; rust-toolchain.toml owns Rust ${rustBaselineVersion}.`,
     });
   }
 
   checkPath(results, root, "rust-toolchain.toml", "Rust toolchain file", {
     mustContain: `channel = "${rustBaselineVersion}"`,
-    fix: `Set rust-toolchain.toml to Rust ${rustBaselineVersion} to match CI`,
+    fix: `Set rust-toolchain.toml to the owned Rust baseline ${rustBaselineVersion}`,
   });
 
   runVersionCheck(results, "cargo", ["fmt", "--version"], "Rust formatter", {
@@ -418,16 +420,18 @@ export function runDoctor(options = {}) {
   });
 
   checkPath(results, root, "package-lock.json", "npm lockfile");
-  checkPath(results, root, "node_modules", "npm dependencies", {
-    fix: "Run node scripts/install-pinned-npm.mjs, then npm ci --ignore-scripts",
-  });
-  checkPath(
-    results,
-    root,
-    platform === "win32" ? "node_modules/.bin/tauri.cmd" : "node_modules/.bin/tauri",
-    "Tauri CLI bin",
-    { fix: "Run node scripts/install-pinned-npm.mjs, then npm ci --ignore-scripts" },
-  );
+  if (!options.preflight) {
+    checkPath(results, root, "node_modules", "npm dependencies", {
+      fix: "Run ./init.sh, or pwsh -File ./init.ps1 on Windows",
+    });
+    checkPath(
+      results,
+      root,
+      platform === "win32" ? "node_modules/.bin/tauri.cmd" : "node_modules/.bin/tauri",
+      "Tauri CLI bin",
+      { fix: "Run ./init.sh, or pwsh -File ./init.ps1 on Windows" },
+    );
+  }
   checkPath(results, root, "Cargo.lock", "Cargo lockfile");
   checkPath(results, root, ".sqlx", "SQLx offline cache", {
     mustHaveEntries: true,
@@ -441,11 +445,13 @@ export function runDoctor(options = {}) {
     { mustContain: 'SQLX_OFFLINE = "true"' },
   );
 
-  checkPlaywrightReadiness(results, root, {
-    platform,
-    execFileSync: options.execFileSync,
-    strict: options.strictPlaywright ?? false,
-  });
+  if (!options.preflight) {
+    checkPlaywrightReadiness(results, root, {
+      platform,
+      execFileSync: options.execFileSync,
+      strict: options.strictPlaywright ?? false,
+    });
+  }
 
   return results;
 }
@@ -484,7 +490,11 @@ export function formatDoctorResults(results) {
 }
 
 if (process.argv[1] === scriptPath) {
-  const results = runDoctor({ strictPlaywright: process.argv.includes("--e2e") });
+  process.env.PATH = repositoryToolchainEnvironment(defaultRoot).PATH;
+  const results = runDoctor({
+    preflight: process.argv.includes("--preflight"),
+    strictPlaywright: process.argv.includes("--e2e"),
+  });
   console.log(formatDoctorResults(results));
   process.exitCode = summarizeDoctorResults(results).exitCode;
 }

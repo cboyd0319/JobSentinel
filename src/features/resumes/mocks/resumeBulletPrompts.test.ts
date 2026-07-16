@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { mockInvoke, resetMockData } from "../../../mocks/handlers";
+import { mockInvoke, resetMockData } from "../../../test-support/mocks/handlers";
 
 async function improveBullet(bullet: string, jobContext: string) {
   return mockInvoke<string>("improve_bullet_point", {

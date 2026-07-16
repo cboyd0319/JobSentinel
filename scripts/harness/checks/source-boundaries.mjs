@@ -2,17 +2,17 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 const linkedInCredentialDocsPaths = new Set([
-  "crates/jobsentinel-core/src/core/scrapers/linkedin.rs",
+  "crates/jobsentinel-sources/src/scrapers/linkedin.rs",
   "docs/features/job-sources.md",
   "docs/features/job-source-status.md",
 ]);
 
 const linkedInAutomationBoundaryPaths = new Set([
   "Cargo.toml",
-  "crates/jobsentinel-core/src/core/config/types.rs",
-  "crates/jobsentinel-core/src/core/scrapers/linkedin.rs",
-  "crates/jobsentinel-core/src/core/scheduler/workers/scrapers.rs",
-  "crates/jobsentinel-core/src/core/health/smoke_checks/sources.rs",
+  "crates/jobsentinel-application/src/config/types.rs",
+  "crates/jobsentinel-sources/src/scrapers/linkedin.rs",
+  "crates/jobsentinel-application/src/scheduler/workers/scrapers.rs",
+  "crates/jobsentinel-application/src/health/smoke_checks/sources.rs",
   "src/features/settings/sources/SettingsJobSourcesSection.tsx",
   "src/features/settings/SettingsPage.tsx",
   "docs/features/job-sources.md",
@@ -24,13 +24,11 @@ const linkedInAutomationBoundaryPaths = new Set([
 const linkedInNotificationBoundaryPaths = new Set([
   "src/features/settings/notifications/notificationPreferencesStore.ts",
   "src/features/settings/notifications/NotificationPreferences.tsx",
-  "src/mocks/handlers.ts",
+  "src/test-support/mocks/handlers.ts",
   "src/features/settings/notifications/mockCommands.ts",
   "docs/features/user-data-management.md",
-  "crates/jobsentinel-core/src/core/user_data/mod.rs",
+  "crates/jobsentinel-application/src/user_data/mod.rs",
 ]);
-
-const cacheUsageDocPaths = new Set(["docs/developer/SCRAPER_CACHE.md"]);
 
 const frontendJobUrlOpenPaths = new Set([
   "src/features/dashboard/components/JobCard.tsx",
@@ -39,13 +37,13 @@ const frontendJobUrlOpenPaths = new Set([
 
 const staleStackOverflowJobsPaths = new Set([
   "docs/user/DEEP_LINKS.md",
-  "src/mocks/handlers.ts",
+  "src/test-support/mocks/handlers.ts",
   "src/features/search-links/mocks/commands.ts",
   "src/shared/search-links/model.ts",
-  "crates/jobsentinel-core/src/core/deeplinks/generator.rs",
-  "crates/jobsentinel-core/src/core/deeplinks/mod.rs",
-  "crates/jobsentinel-core/src/core/deeplinks/sites.rs",
-  "crates/jobsentinel-core/src/core/deeplinks/types.rs",
+  "crates/jobsentinel-assistance/src/deeplinks/generator.rs",
+  "crates/jobsentinel-assistance/src/deeplinks/mod.rs",
+  "crates/jobsentinel-assistance/src/deeplinks/sites.rs",
+  "crates/jobsentinel-assistance/src/deeplinks/types.rs",
 ]);
 
 const userFacingSourceAddressCopyPaths = new Set([
@@ -56,23 +54,23 @@ const userFacingSourceAddressCopyPaths = new Set([
 ]);
 
 const jobsWithGptApprovalPaths = new Set([
-  "crates/jobsentinel-core/src/core/scheduler/workers/scrapers.rs",
-  "crates/jobsentinel-core/src/core/health/smoke_checks/sources.rs",
+  "crates/jobsentinel-application/src/scheduler/workers/scrapers.rs",
+  "crates/jobsentinel-application/src/health/smoke_checks/sources.rs",
   "src/features/settings/sources/SettingsConnectedJobSource.tsx",
   "src/features/settings/sources/SettingsJobSourcesSection.tsx",
   "src/features/settings/SettingsPage.tsx",
-  "src/mocks/handlers.ts",
+  "src/test-support/mocks/handlers.ts",
   "src/features/settings/mocks/commands.ts",
   "src/features/settings/sources/mocks/commands.ts",
   "src/features/settings/sources/mocks/scraperHealth.ts",
 ]);
 
 const jobsWithGptRequestLedgerPaths = new Set([
-  "crates/jobsentinel-core/migrations/00000000000006_source_request_log.sql",
-  "crates/jobsentinel-core/src/core/health/tracking.rs",
+  "crates/jobsentinel-storage/migrations/00000000000006_source_request_log.sql",
+  "crates/jobsentinel-storage/src/health/tracking.rs",
   "src-tauri/src/commands/health.rs",
-  "crates/jobsentinel-core/src/core/scheduler/workers/scrapers.rs",
-  "crates/jobsentinel-core/src/core/scheduler/workers/scrapers/jobswithgpt_worker.rs",
+  "crates/jobsentinel-application/src/scheduler/workers/scrapers.rs",
+  "crates/jobsentinel-application/src/scheduler/workers/scrapers/jobswithgpt_worker.rs",
   "src-tauri/src/command_handlers.rs",
   "src-tauri/src/app.rs",
   "src/features/settings/sources/SettingsConnectedJobSource.tsx",
@@ -140,7 +138,7 @@ export function hasStaleScraperHealthCoverage(root, path) {
     path !== "docs/style-guide/WRITING-FOR-JOB-SEEKERS.md" &&
     path !== "docs/developer/WHY_TAURI.md" &&
     path !== "docs/releases/v2.1.md" &&
-    path !== "src/mocks/handlers.ts" &&
+    path !== "src/test-support/mocks/handlers.ts" &&
     path !== "src/features/settings/sources/mocks/commands.ts" &&
     path !== "src/features/settings/sources/mocks/scraperHealth.ts" &&
     path !== "src/features/dashboard/DashboardPage.tsx" &&
@@ -276,25 +274,6 @@ export function hasLinkedInNotificationBoundaryDrift(root, path) {
   );
 }
 
-export function hasStaleCacheUsageDoc(root, path) {
-  if (!cacheUsageDocPaths.has(path)) {
-    return false;
-  }
-
-  const text = readFileSync(join(root, path), "utf8");
-  return (
-    /tracing::info!\("Cache hit for: \{\}",\s*url\)/.test(text) ||
-    /reqwest::get\(url\)/.test(text) ||
-    /response\.(?:text|bytes|chunk)\(\)\s*\.await|response\.json(?:::<[^)]*>)?\(\)\s*\.await/.test(
-      text,
-    ) ||
-    /Disable in Production|disable caching in production|Cache disabled for production/.test(
-      text,
-    ) ||
-    /[✅❌⚠️]/u.test(text)
-  );
-}
-
 export function hasFrontendDirectOpenDeepLinkFallback(root, path) {
   if (!frontendJobUrlOpenPaths.has(path)) {
     return false;
@@ -322,14 +301,14 @@ export function hasJobsWithGptUnapprovedEndpointFlow(root, path) {
 
   const text = readFileSync(join(root, path), "utf8");
 
-  if (path === "crates/jobsentinel-core/src/core/scheduler/workers/scrapers.rs") {
+  if (path === "crates/jobsentinel-application/src/scheduler/workers/scrapers.rs") {
     return (
       /JobsWithGptScraper::new/.test(text) &&
       !/jobswithgpt_payload_approved\(\)/.test(text)
     );
   }
 
-  if (path === "crates/jobsentinel-core/src/core/health/smoke_checks/sources.rs") {
+  if (path === "crates/jobsentinel-application/src/health/smoke_checks/sources.rs") {
     return (
       /validate_external_http_url_for_fetch\(&config\.jobswithgpt_endpoint\)/.test(text) ||
       (/async fn test_jobswithgpt/.test(text) &&
@@ -357,7 +336,7 @@ export function hasJobsWithGptUnapprovedEndpointFlow(root, path) {
   }
 
   if (
-    path === "src/mocks/handlers.ts" ||
+    path === "src/test-support/mocks/handlers.ts" ||
     path === "src/features/settings/mocks/commands.ts" ||
     path === "src/features/settings/sources/mocks/commands.ts" ||
     path === "src/features/settings/sources/mocks/scraperHealth.ts"
@@ -377,7 +356,7 @@ export function hasJobsWithGptMissingRequestLedger(root, path) {
 
   const text = readFileSync(join(root, path), "utf8");
 
-  if (path === "crates/jobsentinel-core/migrations/00000000000006_source_request_log.sql") {
+  if (path === "crates/jobsentinel-storage/migrations/00000000000006_source_request_log.sql") {
     return (
       !/source_request_log/.test(text) ||
       /title_text|raw_title|location_value|salary_floor|private_notes/.test(
@@ -386,7 +365,7 @@ export function hasJobsWithGptMissingRequestLedger(root, path) {
     );
   }
 
-  if (path === "crates/jobsentinel-core/src/core/health/tracking.rs") {
+  if (path === "crates/jobsentinel-storage/src/health/tracking.rs") {
     return (
       !/record_source_request_started/.test(text) ||
       !/get_latest_source_request/.test(text)
@@ -398,9 +377,9 @@ export function hasJobsWithGptMissingRequestLedger(root, path) {
   }
 
   if (
-    path === "crates/jobsentinel-core/src/core/scheduler/workers/scrapers.rs" ||
+    path === "crates/jobsentinel-application/src/scheduler/workers/scrapers.rs" ||
     path ===
-      "crates/jobsentinel-core/src/core/scheduler/workers/scrapers/jobswithgpt_worker.rs"
+      "crates/jobsentinel-application/src/scheduler/workers/scrapers/jobswithgpt_worker.rs"
   ) {
     return (
       /JobsWithGptScraper::new/.test(text) &&

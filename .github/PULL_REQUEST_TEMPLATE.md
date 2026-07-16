@@ -9,7 +9,7 @@
 - [ ] Breaking change (fix or feature that would cause existing functionality to change)
 - [ ] Documentation update
 - [ ] Refactoring (no functional changes)
-- [ ] CI/CD or build changes
+- [ ] Verification, release automation, or build changes
 - [ ] Dependency update
 
 ## Rule 0 Privacy And Security

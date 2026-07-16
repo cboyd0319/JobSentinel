@@ -1,45 +1,47 @@
 import assert from "node:assert/strict";
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, unlinkSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import test from "node:test";
-
 import { checkSecuritySensors } from "../checks/security-sensors.mjs";
-
 import {
   mkdtempRoot,
   readBaseReleaseWorkflowWithout,
   writeBaseRepo,
   writeSelfOnlyBaseRepo,
 } from "./check-security-sensors.fixtures.mjs";
-
 test("checkSecuritySensors accepts self-only renderer connect CSP", () => {
   const root = mkdtempRoot("jobsentinel-security-sensors-good-");
   writeSelfOnlyBaseRepo(root);
-
   assert.deepEqual(checkSecuritySensors(root), []);
 });
-
+test("checkSecuritySensors accepts the manifest-owned no-CI mode", () => {
+  const root = mkdtempRoot("jobsentinel-security-sensors-no-ci-");
+  writeSelfOnlyBaseRepo(root);
+  unlinkSync(join(root, ".github/workflows/ci.yml"));
+  writeFileSync(
+    join(root, "harness-manifest.json"),
+    `${JSON.stringify({ hosted_workflows: { ci_enabled: false } }, null, 2)}\n`,
+  );
+  assert.deepEqual(checkSecuritySensors(root), []);
+});
 test("checkSecuritySensors rejects renderer external connect hosts", () => {
   const root = mkdtempRoot("jobsentinel-security-sensors-csp-");
   writeBaseRepo(
     root,
     "default-src 'self'; connect-src 'self' https://hooks.slack.com; img-src 'self' data:; font-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'",
   );
-
   assert(
     checkSecuritySensors(root).includes(
       "Tauri renderer CSP must not allow external connect host: https://hooks.slack.com",
     ),
   );
 });
-
 test("checkSecuritySensors rejects renderer CSP drift", () => {
   const root = mkdtempRoot("jobsentinel-security-sensors-csp-drift-");
   writeBaseRepo(
     root,
     "default-src 'self'; connect-src 'self'; img-src 'self' data: https://cdn.example.test; font-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-eval'; object-src 'none'; form-action 'none'; frame-src 'self'",
   );
-
   const violations = checkSecuritySensors(root);
   assert(
     violations.includes(
@@ -62,7 +64,6 @@ test("checkSecuritySensors rejects renderer CSP drift", () => {
     ),
   );
 });
-
 test("checkSecuritySensors rejects external renderer font and style imports", () => {
   const root = mkdtempRoot("jobsentinel-security-sensors-renderer-assets-");
   writeSelfOnlyBaseRepo(root);
@@ -70,7 +71,6 @@ test("checkSecuritySensors rejects external renderer font and style imports", ()
     join(root, "src/index.css"),
     '@import url(\'https://fonts.googleapis.com/css2?family=Inter:wght@400&display=swap\');\n@import "https://cdn.example.test/app.css";\n@import "tailwindcss";\n',
   );
-
   const violations = checkSecuritySensors(root);
   assert(
     violations.includes(
@@ -83,7 +83,6 @@ test("checkSecuritySensors rejects external renderer font and style imports", ()
     ),
   );
 });
-
 test("checkSecuritySensors rejects frontend shell capability grants", () => {
   const root = mkdtempRoot("jobsentinel-security-sensors-shell-capability-");
   writeSelfOnlyBaseRepo(root);
@@ -95,14 +94,12 @@ test("checkSecuritySensors rejects frontend shell capability grants", () => {
       permissions: ["core:default", "shell:allow-open"],
     }),
   );
-
   assert(
     checkSecuritySensors(root).includes(
       "src-tauri/capabilities/default.json must not grant frontend shell permissions; route browser opens through validated Rust IPC",
     ),
   );
 });
-
 test("checkSecuritySensors rejects frontend dialog capability grants", () => {
   const root = mkdtempRoot("jobsentinel-security-sensors-dialog-capability-");
   writeSelfOnlyBaseRepo(root);
@@ -114,14 +111,12 @@ test("checkSecuritySensors rejects frontend dialog capability grants", () => {
       permissions: ["core:default", "dialog:default"],
     }),
   );
-
   assert(
     checkSecuritySensors(root).includes(
       "src-tauri/capabilities/default.json must not grant frontend dialog permissions; open native file dialogs through validated Rust IPC commands",
     ),
   );
 });
-
 test("checkSecuritySensors rejects broad or unused frontend notification grants", () => {
   const root = mkdtempRoot(
     "jobsentinel-security-sensors-notification-capability-",
@@ -139,7 +134,6 @@ test("checkSecuritySensors rejects broad or unused frontend notification grants"
       ],
     }),
   );
-
   const violations = checkSecuritySensors(root);
   assert(
     violations.includes(
@@ -152,7 +146,6 @@ test("checkSecuritySensors rejects broad or unused frontend notification grants"
     ),
   );
 });
-
 test("checkSecuritySensors rejects macOS release gates without launch smoke", () => {
   const root = mkdtempRoot("jobsentinel-security-sensors-release-");
   writeSelfOnlyBaseRepo(root);
@@ -160,14 +153,12 @@ test("checkSecuritySensors rejects macOS release gates without launch smoke", ()
     join(root, ".github/workflows/release.yml"),
     "jobs:\n  release:\n    steps:\n      - run: npm run tauri:verify:macos -- --require-gatekeeper\n",
   );
-
   assert(
     checkSecuritySensors(root).includes(
       "release workflow is missing package gate: macOS launch smoke gate",
     ),
   );
 });
-
 test("checkSecuritySensors rejects release preflight without frontend unit tests", () => {
   const root = mkdtempRoot("jobsentinel-security-sensors-release-preflight-");
   writeSelfOnlyBaseRepo(root);
@@ -175,14 +166,12 @@ test("checkSecuritySensors rejects release preflight without frontend unit tests
     join(root, ".github/workflows/release.yml"),
     readBaseReleaseWorkflowWithout("      - run: npm test -- --run\n"),
   );
-
   assert(
     checkSecuritySensors(root).includes(
       "release workflow preflight is missing gate: frontend unit tests",
     ),
   );
 });
-
 test("checkSecuritySensors rejects release workflow without tag ref guard", () => {
   const root = mkdtempRoot("jobsentinel-security-sensors-release-tag-ref-");
   writeSelfOnlyBaseRepo(root);
@@ -192,14 +181,12 @@ test("checkSecuritySensors rejects release workflow without tag ref guard", () =
       '          expected_ref="refs/tags/v${version}"\n          if [ "${GITHUB_REF:-}" != "$expected_ref" ]; then\n            printf \'Manual release dispatch must run from %s. Select the existing release tag as the workflow ref. Found: %s\\n\' "$expected_ref" "${GITHUB_REF:-<unset>}"\n            exit 1\n          fi\n',
     ),
   );
-
   assert(
     checkSecuritySensors(root).includes(
       "release workflow is missing package gate: release tag ref guard",
     ),
   );
 });
-
 test("checkSecuritySensors rejects release workflow without release environment", () => {
   const root = mkdtempRoot("jobsentinel-security-sensors-release-environment-");
   writeSelfOnlyBaseRepo(root);
@@ -207,14 +194,12 @@ test("checkSecuritySensors rejects release workflow without release environment"
     join(root, ".github/workflows/release.yml"),
     'jobs:\n  release:\n    steps:\n      - run: |\n          keychain_password="$(openssl rand -hex 24)"\n          printf \'::add-mask::%s\\n\' "$keychain_password"\n          JOBSENTINEL_MACOS_NO_ACCOUNT=true\n          labeled_name=JobSentinel_1.2.3_no-account_universal.dmg\n          npm run tauri:verify:macos -- --launch-smoke --install-smoke --require-checksum --require-gatekeeper --expected-bundle-id com.jobsentinel.main --expected-product-name JobSentinel --expected-version 1.2.3 --expected-icon-file icon.icns --expected-minimum-system-version 13.0\n',
   );
-
   assert(
     checkSecuritySensors(root).includes(
       "release workflow is missing package gate: release environment gate",
     ),
   );
 });
-
 test("checkSecuritySensors rejects release attestation permissions on the wrong job", () => {
   const root = mkdtempRoot(
     "jobsentinel-security-sensors-release-attestation-job-",
@@ -256,14 +241,12 @@ test("checkSecuritySensors rejects release attestation permissions on the wrong 
       "          sbom-path: release-assets/public/JobSentinel-1.2.3-macos.sbom.spdx.json",
     ].join("\n"),
   );
-
   assert(
     checkSecuritySensors(root).includes(
       "release workflow build-release job is missing attestation permissions",
     ),
   );
 });
-
 test("checkSecuritySensors rejects release workflow without keychain password mask", () => {
   const root = mkdtempRoot("jobsentinel-security-sensors-keychain-mask-");
   writeSelfOnlyBaseRepo(root);
@@ -271,14 +254,12 @@ test("checkSecuritySensors rejects release workflow without keychain password ma
     join(root, ".github/workflows/release.yml"),
     'jobs:\n  release:\n    environment:\n      name: release\n    steps:\n      - run: |\n          keychain_password="$(openssl rand -hex 24)"\n          JOBSENTINEL_MACOS_NO_ACCOUNT=true\n          labeled_name=JobSentinel_1.2.3_no-account_universal.dmg\n          npm run tauri:verify:macos -- --launch-smoke --install-smoke --require-checksum --require-gatekeeper --expected-bundle-id com.jobsentinel.main --expected-product-name JobSentinel --expected-version 1.2.3 --expected-icon-file icon.icns --expected-minimum-system-version 13.0\n',
   );
-
   assert(
     checkSecuritySensors(root).includes(
       "release workflow is missing package gate: macOS keychain password mask",
     ),
   );
 });
-
 test("checkSecuritySensors rejects release workflow without Windows signing setup", () => {
   const root = mkdtempRoot("jobsentinel-security-sensors-windows-signing-");
   writeSelfOnlyBaseRepo(root);
@@ -286,14 +267,12 @@ test("checkSecuritySensors rejects release workflow without Windows signing setu
     join(root, ".github/workflows/release.yml"),
     readBaseReleaseWorkflowWithout("          Import-PfxCertificate\n"),
   );
-
   assert(
     checkSecuritySensors(root).includes(
       "release workflow is missing package gate: Windows signing setup",
     ),
   );
 });
-
 test("checkSecuritySensors rejects release workflow without Windows key cleanup", () => {
   const root = mkdtempRoot("jobsentinel-security-sensors-windows-key-cleanup-");
   writeSelfOnlyBaseRepo(root);
@@ -303,14 +282,12 @@ test("checkSecuritySensors rejects release workflow without Windows key cleanup"
       "          Remove-Item -LiteralPath $certificate.PSPath -DeleteKey\n",
     ),
   );
-
   assert(
     checkSecuritySensors(root).includes(
       "release workflow is missing package gate: Windows signing setup",
     ),
   );
 });
-
 test("checkSecuritySensors rejects release workflow without macOS signing material cleanup", () => {
   const root = mkdtempRoot(
     "jobsentinel-security-sensors-macos-signing-cleanup-",
@@ -322,14 +299,12 @@ test("checkSecuritySensors rejects release workflow without macOS signing materi
       '          security delete-keychain "$RUNNER_TEMP/jobsentinel-signing.keychain-db" >/dev/null 2>&1 || :\n',
     ),
   );
-
   assert(
     checkSecuritySensors(root).includes(
       "release workflow is missing package gate: macOS signing material cleanup",
     ),
   );
 });
-
 test("checkSecuritySensors rejects workflow token defaults that are not disabled", () => {
   const root = mkdtempRoot(
     "jobsentinel-security-sensors-workflow-permissions-",
@@ -339,14 +314,12 @@ test("checkSecuritySensors rejects workflow token defaults that are not disabled
     join(root, ".github/workflows/ci.yml"),
     "jobs:\n  security:\n    steps:\n      - run: npm audit --audit-level=moderate\n      - run: cargo deny check advisories bans licenses sources\n",
   );
-
   assert(
     checkSecuritySensors(root).includes(
       ".github/workflows/ci.yml must disable default workflow token permissions with top-level permissions: {}",
     ),
   );
 });
-
 test("checkSecuritySensors rejects CI Node security job without GitHub Actions static analysis", () => {
   const root = mkdtempRoot("jobsentinel-security-sensors-zizmor-");
   writeSelfOnlyBaseRepo(root);
@@ -358,7 +331,6 @@ test("checkSecuritySensors rejects CI Node security job without GitHub Actions s
       "",
     ),
   );
-
   assert(
     checkSecuritySensors(root).includes(
       "CI workflow is missing security gate: GitHub Actions static analysis",
@@ -484,45 +456,52 @@ test("checkSecuritySensors rejects release workflow without Linux AppImage compa
   );
 });
 
-test("checkSecuritySensors rejects raw notification reqwest clients", () => {
+test("rejects raw notification clients", () => {
   const root = mkdtempRoot("jobsentinel-security-sensors-notification-egress-");
   writeSelfOnlyBaseRepo(root);
-  mkdirSync(join(root, "crates/jobsentinel-core/src/core/notify"), { recursive: true });
+  mkdirSync(join(root, "crates/jobsentinel-notifications/src"), { recursive: true });
+  mkdirSync(join(root, "crates/jobsentinel-network/src"), { recursive: true });
   writeFileSync(
-    join(root, "crates/jobsentinel-core/src/core/notify/mod.rs"),
+    join(root, "crates/jobsentinel-notifications/src/lib.rs"),
+    "NOTIFICATION_HTTP_TIMEOUT\n",
+  );
+  writeFileSync(
+    join(root, "crates/jobsentinel-network/src/lib.rs"),
     [
-      "use crate::core::url_security::resolve_external_https_url_for_fetch;",
-      "use reqwest::redirect::Policy;",
-      "const NOTIFICATION_HTTP_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(10);",
-      "async fn notification_http_client_for_url(url: &str) {",
-      "  let target = resolve_external_https_url_for_fetch(url).await;",
-      '  reqwest::Client::builder().redirect(Policy::none()).resolve_to_addrs("example.com", &[]);',
-      "}",
+      "resolve_external_https_url_for_fetch",
+      "redirect(reqwest::redirect::Policy::none())",
+      "resolve_to_addrs",
+      "post_external_https_json",
     ].join("\n"),
   );
   writeFileSync(
-    join(root, "crates/jobsentinel-core/src/core/notify/slack.rs"),
+    join(root, "crates/jobsentinel-notifications/src/slack.rs"),
     "async fn send() { let client = reqwest::Client::builder().build().unwrap(); }\n",
   );
 
   assert(
     checkSecuritySensors(root).includes(
-      "crates/jobsentinel-core/src/core/notify/slack.rs must use notification_http_client_for_url instead of raw reqwest clients",
+      "crates/jobsentinel-notifications/src/slack.rs must use jobsentinel_network::post_external_https_json instead of raw HTTP clients",
     ),
   );
 });
 
-test("checkSecuritySensors rejects incomplete notification egress helper", () => {
+test("checkSecuritySensors rejects incomplete notification egress", () => {
   const root = mkdtempRoot("jobsentinel-security-sensors-notification-helper-");
   writeSelfOnlyBaseRepo(root);
-  mkdirSync(join(root, "crates/jobsentinel-core/src/core/notify"), { recursive: true });
+  mkdirSync(join(root, "crates/jobsentinel-notifications/src"), { recursive: true });
+  mkdirSync(join(root, "crates/jobsentinel-network/src"), { recursive: true });
   writeFileSync(
-    join(root, "crates/jobsentinel-core/src/core/notify/mod.rs"),
-    "async fn notification_http_client_for_url(url: &str) { reqwest::Client::new(); }\n",
+    join(root, "crates/jobsentinel-notifications/src/lib.rs"),
+    "NOTIFICATION_HTTP_TIMEOUT\n",
   );
   writeFileSync(
-    join(root, "crates/jobsentinel-core/src/core/notify/slack.rs"),
-    'async fn send() { notification_http_client_for_url("https://hooks.slack.com/services/x").await; }\n',
+    join(root, "crates/jobsentinel-network/src/lib.rs"),
+    "async fn post_external_https_json() { reqwest::Client::new(); }\n",
+  );
+  writeFileSync(
+    join(root, "crates/jobsentinel-notifications/src/slack.rs"),
+    'async fn send() { jobsentinel_network::post_external_https_json("https://hooks.slack.com/services/x").await; }\n',
   );
 
   assert(

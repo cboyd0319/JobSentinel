@@ -1,0 +1,174 @@
+{
+  "schema_version": 1,
+  "repository": "JobSentinel",
+  "owners": {
+    "instructions": {
+      "canonical": "AGENTS.md",
+      "projections": [
+        "CLAUDE.md",
+        ".github/copilot-instructions.md",
+        "docs/CLAUDE.md"
+      ]
+    },
+    "tools": {
+      "registry": "package.json",
+      "roots": ["scripts", "skills"],
+      "skill_discovery": {
+        "baseline_date": "2026-07-14",
+        "baseline_packages": 8,
+        "max_total_description_bytes": 1600,
+        "reason": "Keep always-available skill routing below the measured eight-package baseline plus bounded wording growth."
+      }
+    },
+    "environment": {
+      "manifest": "package.json",
+      "bootstrap": ["init.sh"],
+      "native_equivalents": ["init.ps1"],
+      "doctor": "npm run doctor"
+    },
+    "state": {
+      "current": "PROGRESS.md",
+      "features": "feature_list.json",
+      "evidence": "docs/harness/evidence"
+    },
+    "feedback": {
+      "sensor_registry": "docs/harness/harness-map.md",
+      "acceptance_contract": "docs/harness/verification-matrix.md",
+      "local_hook_root": ".husky/_",
+      "hosted_workflow_root": ".github/workflows"
+    },
+    "architecture": {
+      "documentation": "ARCHITECTURE.md",
+      "policy": "repository-structure-policy.json",
+      "structure_policy": "repository-structure-policy.json",
+      "rust_graph": "validation/repository_architecture_contract.json",
+      "check": "npm run lint:architecture"
+    }
+  },
+  "startup": {
+    "files": ["AGENTS.md", "PROGRESS.md", "feature_list.json"],
+    "max_bytes": 26000,
+    "max_hops": 1,
+    "max_state_reads": 2,
+    "state_budgets": {
+      "max_feature_items": 25,
+      "max_feature_record_bytes": 6000
+    },
+    "per_file_budgets": {
+      "AGENTS.md": { "max_lines": 100, "max_bytes": 6000, "max_line_bytes": 120 },
+      "PROGRESS.md": { "max_lines": 60, "max_bytes": 4000, "max_line_bytes": 120 },
+      "feature_list.json": { "max_lines": 160, "max_bytes": 16000, "max_line_bytes": 240 }
+    }
+  },
+  "verification": {
+    "fast": ["npm run harness:check", "npm run test:smoke"],
+    "targeted": ["npm run harness:plan -- --since <valid-ref>"],
+    "full": ["npm run verify:full"],
+    "runtime": ["npm run test:e2e:smoke:budget"]
+  },
+  "state_update_triggers": [
+    "session_start",
+    "verified_transition",
+    "blocker_change",
+    "session_end"
+  ],
+  "platforms": {
+    "required": ["Windows 11", "macOS 26+"],
+    "shared_core": "scripts/harness-init.mjs",
+    "wrappers": ["init.sh", "init.ps1"],
+    "native_validation": {
+      "Windows 11": {
+        "status": "gap",
+        "smallest_validation": "Run pwsh -File ./init.ps1 and npm run test:scripts on a native Windows 11 host."
+      },
+      "macOS 26+": {
+        "status": "local_host",
+        "smallest_validation": "Run ./init.sh and npm run verify:full on the current native macOS 26+ host."
+      }
+    }
+  },
+  "required_pack": [
+    "AGENTS.md",
+    "ARCHITECTURE.md",
+    "repository-structure-policy.json",
+    "PROGRESS.md",
+    "feature_list.json",
+    "init.sh",
+    "init.ps1"
+  ],
+  "hosted_workflows": {
+    "ci_enabled": false,
+    "authoritative_ci": [],
+    "no_ci_projections": [
+      "docs/developer/CI_CD.md",
+      "docs/developer/MUTATION_TESTING.md",
+      "docs/developer/TESTING.md",
+      "tests/e2e/README.md"
+    ],
+    "manual_release": [
+      ".github/workflows/release.yml",
+      ".github/workflows/verify-release-artifacts.yml"
+    ]
+  },
+  "canonical_requirement_exceptions": [
+    {
+      "id": "pre-alpha-private-no-ci",
+      "status": "active",
+      "authority": "explicit user directive",
+      "authorized_on": "2026-07-14",
+      "condition": "JobSentinel remains a private pre-alpha repository with no hosted continuous integration.",
+      "scope": "Hosted continuous integration only. Local verification and separately authorized release workflows remain in force.",
+      "canonical_status": "nonconforming user override; harness-engineering defines no pre-alpha or private-repository CI exception",
+      "affected_requirements": [
+        "HE-SK-WC-11",
+        "HE-SK-BD-09",
+        "HE-SK-BD-17",
+        "HE-SK-BD-18",
+        "HE-SHC-GA-07",
+        "HE-SHC-RP-01",
+        "HE-RS-TS-05",
+        "HE-ET-PV-02",
+        "HE-VF-FD-06",
+        "HE-VF-CI-01",
+        "HE-VF-CI-02",
+        "HE-VF-CI-04",
+        "HE-VF-CI-05"
+      ],
+      "local_controls": [
+        "npm run harness:check",
+        "npm run lint:architecture",
+        "npm run lint:file-size",
+        "npm run typecheck",
+        "npm run verify:full"
+      ],
+      "review_trigger": "Before public alpha, external contributor access, protected shared-history reliance, or any claim of canonical CI compliance.",
+      "retirement_condition": "Remove this exception and restore authoritative CI before any review trigger occurs."
+    }
+  ],
+  "retired_paths": [
+    "docs/harness/manifest.json",
+    "docs/harness/evidence-log.md",
+    "scripts/checks/harness/contracts.mjs",
+    "scripts/checks/harness/repository-files.mjs",
+    "scripts/harness-score.mjs",
+    "scripts/harness-benchmark.mjs",
+    "scripts/harness/score-frameworks.mjs",
+    "scripts/harness/score-utils.mjs",
+    "scripts/tests/harness-score.test.mjs",
+    "scripts/tests/harness-benchmark.test.mjs",
+    ".github/workflows/ci.yml"
+  ],
+  "retired_commands": ["harness:score", "harness:benchmark", "test:e2e:ci"],
+  "canonical_reference_paths": [
+    "AGENTS.md",
+    "PROGRESS.md",
+    "feature_list.json",
+    "package.json",
+    "docs/harness/README.md",
+    "docs/harness/harness-map.md",
+    "docs/harness/verification-matrix.md",
+    "docs/plans/active/status.md",
+    "docs/plans/active/current-work.md"
+  ],
+  "budget_exceptions": []
+}

@@ -1,6 +1,6 @@
 ---
 name: job-search-plan
-description: Build a focused weekly job-search plan, role lanes, source mix, outreach plan, and application pacing. Use when a user needs urgent job-search structure, search strategy, source selection, daily tasks, weekly review, or a sustainable plan for technical and non-technical roles.
+description: Build a focused job-search plan with role lanes, sources, outreach, and pacing. Use when a search needs structure or a weekly strategy.
 license: MIT
 metadata:
   jobsentinel_version_target: "2.9.0"

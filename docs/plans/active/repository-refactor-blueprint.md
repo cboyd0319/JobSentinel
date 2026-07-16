@@ -1,7 +1,10 @@
 # Repository Refactor Blueprint
 
-Last updated: 2026-07-14. Locked by the planning milestone. Later changes require
-measured evidence and an entry in the active plan's decision log.
+Last updated: 2026-07-14. Locked by the planning milestone. The executable
+projection is
+[`validation/repository_architecture_contract.json`](../../../validation/repository_architecture_contract.json).
+Later changes require measured evidence, a contract-test update, and an entry
+in the active plan's decision log.
 
 ## Baseline Evidence
 
@@ -36,7 +39,7 @@ examples/           reviewed, non-sensitive example inputs
 resources/          runtime-owned static data
 validation/         machine-readable repository policy contracts
 public/             renderer assets copied by Vite
-.github/             ownership, dependency automation, and blocking workflows
+.github/             ownership, dependency automation, and explicit release workflows
 .storybook/          UI component development and accessibility configuration
 .sqlx/               checked-in SQLx offline metadata
 ```
@@ -57,15 +60,15 @@ dependencies are selected per owner. A crate may omit an allowed edge.
 | `jobsentinel-domain` | Serialized business models, identifiers, job normalization, hashes, settings value types | `security` |
 | `jobsentinel-network` | DNS-safe outbound requests, HTTP limits, redirect policy, shared transport | `security` |
 | `jobsentinel-platform` | OS paths, database-key retrieval and creation, keyring adapters, local authentication, target-gated behavior | `security` |
-| `jobsentinel-storage` | SQLCipher connection, migrations, backup, integrity, transactions, repositories | `domain`, `security` |
+| `jobsentinel-storage` | SQLCipher connection, migrations, backup, integrity, transactions, repositories | `documents`, `domain`, `platform`, `security` |
 | `jobsentinel-credentials` | Credential service, passphrase lifecycle, encrypted vault orchestration | `security`, `platform`, `storage` |
 | `jobsentinel-sources` | Job-source adapters, imports, rate limits, source health, network location lookup | `domain`, `security`, `network` |
-| `jobsentinel-documents` | Resume and cover-letter parse, analyze, build, render, and export | `domain`, `security` |
+| `jobsentinel-documents` | Resume and cover-letter parse, analyze, build, render, and export | `domain`, `local-ai`, `security` |
 | `jobsentinel-intelligence` | Job scoring, salary, market, ghost detection, and ranking rules | `domain` |
 | `jobsentinel-local-ai` | Optional local model manifests, approved download, loading, inference, and evaluation | `domain`, `security`, `network` |
-| `jobsentinel-assistance` | ATS detection, browser assistance, answer learning, bookmarklet, deep links, workbench | `domain`, `security`, `network`, `documents` |
+| `jobsentinel-assistance` | ATS detection, browser assistance, answer learning, bookmarklet, deep links, workbench | `documents`, `domain`, `network`, `platform`, `security` |
 | `jobsentinel-ai` | Reviewed external-AI requests, provider selection, payload policy, transport | `domain`, `security`, `network` |
-| `jobsentinel-notifications` | Explicit email and webhook sends plus channel validation | `domain`, `security`, `network` |
+| `jobsentinel-notifications` | Explicit email and webhook sends plus channel validation | `domain`, `intelligence`, `network`, `security` |
 | `jobsentinel-application` | Configuration, use cases, scheduling, health aggregation, startup, and composition | All crates above |
 
 The desktop crate depends on `jobsentinel-application` only for product behavior.
@@ -84,8 +87,8 @@ keyring implementation, model runtime, or Tauri type.
 
 ## Rust Move Map
 
-| Current owner | Final owner and split |
-| ------------- | --------------------- |
+| Pre-refactor behavior | Current owner and split |
+| --------------------- | ----------------------- |
 | `job`, `job_hash`, `normalization`, pure config values | `domain` |
 | `url_security`, logging sanitizers, secret-safe values | pure policy to `security`; DNS and body reads to `network` |
 | `platforms` | `platform` |
@@ -138,11 +141,11 @@ changes require additive forward migrations and verified restore behavior.
 
 Before the first source move, replace path-specific architecture checks with a
 workspace-metadata sensor for allowed crate edges and technology owners. Wire it
-into `harness:check` and CI. Legacy checks must fail with a missing-owner error,
+into `harness:check`. Legacy checks must fail with a missing-owner error,
 not pass because `jobsentinel-core` disappeared. Every milestone updates the
 allowed graph and path rules atomically with the move.
 
-Milestone 2 records Linux CI, macOS-host, and Windows-runner compile evidence for
+Milestone 2 records Linux-host, macOS-host, and Windows 11 host compile evidence for
 default and all-feature configurations. Platform code cannot move on Linux-only
 evidence. Later milestones rerun the affected platform matrix.
 
@@ -197,8 +200,8 @@ may import it, but production features may not.
 Current feature directories remain only when they represent a user-facing
 owner. Shared taxonomies, scoring, company, source, and assistance logic move to
 their feature unless at least two independent features consume the same
-contract. `src/types`, `src/mocks`, and `src/test` are removed after their files
-move. `src/ui` remains a distinct dependency layer and cannot import product
+contract. The retired `src/types`, `src/mocks`, and `src/test` roots are
+forbidden. `src/ui` remains a distinct dependency layer and cannot import product
 features. Feature-to-feature imports are forbidden; `app` composes features.
 
 `App.tsx` becomes a thin router and shell. Routes own lazy loading and route
@@ -227,7 +230,7 @@ remain beside the behavior they prove; reusable test-only code lives in
 ```text
 scripts/
   checks/             architecture, dependencies, content, repository, security
-  harness/            plan, session, score, composition, and evidence helpers
+  harness/            plan, session, composition, and evidence helpers
   dev/                doctor, E2E launcher, screenshot, and local setup tools
   platform/           platform build and package helpers
   release/            release-only validation, SBOM, and public verification
@@ -236,7 +239,7 @@ scripts/
 ```
 
 Root-level scripts move to an owner. The overlapping `dependency`, `security`,
-and `checks` helpers consolidate without forwarding files. `package.json`, CI,
+and `checks` helpers consolidate without forwarding files. `package.json`,
 release workflows, docs, and tests call the final paths directly.
 
 One cross-platform development launcher owns port selection for Vite, Tauri,
@@ -246,10 +249,11 @@ never accepts a different app because a common port responds. An explicit
 environment override remains for automation. Ephemeral port/config state stays
 outside tracked files and is cleaned on exit.
 
-CI calls the same checked-in commands used locally. The focused harness blocks
-on repository architecture, bidirectional IPC, all-path file caps, generated
-artifacts, language, privacy, security, and feature-matrix checks. Release CI
-adds packaging and public-asset gates rather than replacing normal CI.
+The full local gate owns repository architecture, canonical source limits,
+bidirectional IPC, generated artifacts, language, privacy, security, and
+feature-matrix checks. Hosted CI is absent under the named
+`pre-alpha-private-no-ci` exception. An authorized release adds packaging and
+public-asset gates rather than replacing normal verification.
 
 Local model downloads are explicit user actions, send no user content, use the
 shared outbound policy, accept only locked HTTPS model sources and revisions,
@@ -268,8 +272,8 @@ storage. Those controls receive contract tests before the move.
 
 ## Documentation And Repository Support
 
-- `docs/developer/` becomes the single engineering home; the separate
-  `docs/architecture/` content merges there by topic.
+- `docs/developer/` is the single engineering home; the retired
+  `docs/architecture/` root is forbidden.
 - `docs/features/` documents shipped behavior and privacy boundaries;
   `docs/user/` contains user tasks; `docs/design/` contains the locked visual
   system; `docs/security/` contains threat and control contracts.
@@ -290,11 +294,17 @@ storage. Those controls receive contract tests before the move.
 
 ## File And Dependency Policy
 
-The final all-path sensor enforces 500 lines for production and scripts, 800 for
-tests, and 700 for maintained documents, with lower byte caps where generated
-or data files need separate treatment. Archive and generated exceptions are
-explicit, path-scoped, and tested. A file is split by responsibility, never by
-numbered parts or names such as `more`.
+The all-path sensor projects the canonical root policy into
+`validation/file_size_contract.json`. Every hand-authored source and
+configuration file enters review above 300 physical lines or 32,768 bytes and
+fails above 500 physical lines or 65,536 bytes. Archive and generated exclusions
+are explicit, owned, path-scoped, and tested. Oversized exceptions are exact-path
+measured no-growth ratchets. A file is split by responsibility, never by numbered
+parts or names such as `more`.
+
+The architecture contract forbids `more.rs`, numbered continuation files,
+nested `tests/tests`, and every retired source, script, and documentation path.
+The target phase contains no legacy architecture allowlist.
 
 Workspace dependency versions and package metadata remain centralized. Each
 crate declares only used dependencies and inherits workspace lints. Architecture

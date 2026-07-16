@@ -6,7 +6,6 @@ const selfOnlyCsp =
   "default-src 'self'; connect-src 'self'; img-src 'self' data:; font-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'";
 export function writeBaseRepo(root, csp) {
   mkdirSync(join(root, "docs/security"), { recursive: true });
-  mkdirSync(join(root, "docs/architecture"), { recursive: true });
   mkdirSync(join(root, "docs/harness"), { recursive: true });
   mkdirSync(join(root, "docs/developer"), { recursive: true });
   mkdirSync(join(root, ".github/workflows"), { recursive: true });
@@ -14,7 +13,7 @@ export function writeBaseRepo(root, csp) {
   mkdirSync(join(root, "scripts/release"), { recursive: true });
   mkdirSync(join(root, "src-tauri"), { recursive: true });
   mkdirSync(join(root, "src-tauri/capabilities"), { recursive: true });
-  mkdirSync(join(root, "crates/jobsentinel-core/src/core/automation/browser"), {
+  mkdirSync(join(root, "crates/jobsentinel-assistance/src/automation/browser"), {
     recursive: true,
   });
   mkdirSync(join(root, "src/features/resumes/builder"), { recursive: true });
@@ -43,7 +42,7 @@ export function writeBaseRepo(root, csp) {
     ].join("\n"),
   );
   writeFileSync(
-    join(root, "docs/architecture/privacy-first-ai-gateway.md"),
+    join(root, "docs/security/privacy-first-ai-gateway.md"),
     [
       "# AI Gateway",
       "Reviewed outgoing text with obvious prompt-like instructions",
@@ -220,7 +219,7 @@ export function writeBaseRepo(root, csp) {
       "scripts/checks/dependency-pins.mjs @cboyd0319",
       "scripts/checks/security-sensors.mjs @cboyd0319",
       "scripts/tests/check-security-sensors.test.mjs @cboyd0319",
-      "scripts/security/ @cboyd0319",
+      "scripts/checks/security/ @cboyd0319",
       "Cargo.toml @cboyd0319",
       "Cargo.lock @cboyd0319",
       ".cargo/ @cboyd0319",
@@ -240,9 +239,9 @@ export function writeBaseRepo(root, csp) {
       "docs/security/ @cboyd0319",
       "src-tauri/capabilities/ @cboyd0319",
       "src-tauri/tauri.conf.json @cboyd0319",
-      "crates/jobsentinel-core/src/core/bookmarklet/ @cboyd0319",
-      "crates/jobsentinel-core/src/core/credentials/ @cboyd0319",
-      "crates/jobsentinel-core/src/core/url_security.rs @cboyd0319",
+      "crates/jobsentinel-assistance/src/bookmarklet/ @cboyd0319",
+      "crates/jobsentinel-credentials/src/ @cboyd0319",
+      "crates/jobsentinel-security/src/url.rs @cboyd0319",
     ].join("\n"),
   );
   writeFileSync(
@@ -263,7 +262,7 @@ export function writeBaseRepo(root, csp) {
     }),
   );
   writeFileSync(
-    join(root, "crates/jobsentinel-core/src/core/automation/browser/page.rs"),
+    join(root, "crates/jobsentinel-assistance/src/automation/browser/page.rs"),
     "fn javascript_string_literal(value: &str) { serde_json::to_string(value); }\nfn dropdown_select_script(selector: &str, value: &str) {\n  document.querySelector({selector});\n  select.value = {value};\n}\n",
   );
   writeFileSync(

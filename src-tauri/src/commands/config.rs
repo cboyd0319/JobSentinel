@@ -2,14 +2,14 @@
 //!
 //! Commands for saving, retrieving, and validating app configuration.
 
-use crate::commands::errors::user_friendly_error;
-use crate::commands::AppState;
-use crate::core::config::{AutoRefreshConfig, Config, EmailConfig};
-use crate::core::credentials::{
+use crate::application::config::{AutoRefreshConfig, Config, EmailConfig};
+use crate::application::credentials::{
     decode_smtp_password_for_binding, CredentialKey, CredentialService, SmtpCredentialBinding,
 };
-use crate::core::db::Database;
-use crate::core::logging::path_label_for_logging;
+use crate::commands::errors::user_friendly_error;
+use crate::commands::AppState;
+use crate::desktop::path_label_for_logging;
+use crate::desktop::Database;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::{fmt, path::Path};
@@ -170,11 +170,11 @@ async fn complete_setup_to_runtime_and_paths(
     Ok(())
 }
 
-async fn connect_setup_database(_db_path: &Path) -> Result<Database, sqlx::Error> {
+async fn connect_setup_database(_db_path: &Path) -> anyhow::Result<Database> {
     #[cfg(test)]
-    return Database::connect_memory().await;
+    return Ok(Database::connect_memory().await?);
     #[cfg(not(test))]
-    Database::connect(_db_path).await
+    Ok(Database::connect(_db_path).await?)
 }
 
 /// Save user configuration
@@ -311,7 +311,7 @@ pub(crate) async fn validate_slack_webhook(
     let webhook_url =
         resolve_slack_webhook_for_test(webhook_url, state.credentials.as_ref()).await?;
 
-    match crate::core::notify::validate_slack_webhook(&webhook_url).await {
+    match crate::application::notify::validate_slack_webhook(&webhook_url).await {
         Ok(valid) => Ok(valid),
         Err(e) => {
             let message = user_friendly_error("Validation failed", &e);
@@ -373,7 +373,7 @@ pub(crate) async fn test_email_notification(
         use_starttls: email_config.use_starttls,
     };
 
-    crate::core::notify::validate_email_config(&config)
+    crate::application::notify::validate_email_config(&config)
         .await
         .map_err(|e| user_friendly_error("Failed to send test email", &e))?;
 

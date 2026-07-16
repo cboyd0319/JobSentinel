@@ -27,7 +27,7 @@ function stripRustTestModules(text) {
 export function hasNonSettingsFullApplicationProfileInvoke(root, path) {
   if (
     !path.startsWith("src/") ||
-    path.startsWith("src/mocks/") ||
+    path.startsWith("src/test-support/mocks/") ||
     path.includes("/mocks/") ||
     /\.test\.[tj]sx?$/.test(path) ||
     /\.spec\.[tj]sx?$/.test(path) ||
@@ -79,9 +79,9 @@ export function hasFullImportedJobReturn(root, path) {
 }
 
 export function hasStaleJobImportMockHandlers(root, path) {
-  const registryPath = existsSync(join(root, "src/mocks/commandRegistry.ts"))
-    ? "src/mocks/commandRegistry.ts"
-    : "src/mocks/handlers.ts";
+  const registryPath = existsSync(join(root, "src/test-support/mocks/commandRegistry.ts"))
+    ? "src/test-support/mocks/commandRegistry.ts"
+    : "src/test-support/mocks/handlers.ts";
   const ownerPath = "src/features/dashboard/mocks/jobImportCommands.ts";
   if (path !== registryPath && path !== ownerPath) {
     return false;
@@ -107,9 +107,9 @@ export function hasStaleJobImportMockHandlers(root, path) {
 }
 
 export function hasStaleProfilePreviewMock(root, path) {
-  const registryPath = existsSync(join(root, "src/mocks/commandRegistry.ts"))
-    ? "src/mocks/commandRegistry.ts"
-    : "src/mocks/handlers.ts";
+  const registryPath = existsSync(join(root, "src/test-support/mocks/commandRegistry.ts"))
+    ? "src/test-support/mocks/commandRegistry.ts"
+    : "src/test-support/mocks/handlers.ts";
   const profileOwnerPath = "src/features/application-assist/mockProfile.ts";
   const hasProfileOwner = existsSync(join(root, profileOwnerPath));
   if (
@@ -141,7 +141,7 @@ export function hasBookmarkletTokenIpcExposure(root, path) {
     path !==
       "src/features/settings/sources/browser-import/BrowserImportSection.tsx" &&
     path !== "src/features/settings/mocks/commands.ts" &&
-    path !== "src/mocks/handlers.ts"
+    path !== "src/test-support/mocks/handlers.ts"
   ) {
     return false;
   }
@@ -174,7 +174,7 @@ export function hasApplicationProfileResumePathExposure(root, path) {
     path !== "src/features/application-assist/ProfileForm.tsx" &&
     path !== "src/features/application-assist/mockProfile.ts" &&
     path !== "src/features/application-assist/mocks/commands.ts" &&
-    path !== "src/mocks/handlers.ts"
+    path !== "src/test-support/mocks/handlers.ts"
   ) {
     return false;
   }
@@ -264,7 +264,7 @@ export function hasAutomationScreenshotPathIpcExposure(root, path) {
 export function hasAnswerHistoryRendererInvoke(root, path) {
   if (
     !path.startsWith("src/") ||
-    path.startsWith("src/mocks/") ||
+    path.startsWith("src/test-support/mocks/") ||
     /\.test\.[tj]sx?$/.test(path) ||
     /\.spec\.[tj]sx?$/.test(path)
   ) {
@@ -280,7 +280,7 @@ export function hasRawAnswerHistoryIpcExposure(root, path) {
     path !== "src-tauri/src/commands/automation.rs" &&
     path !== "src/features/application-assist/ScreeningAnswerSuggestions.tsx" &&
     path !== "src/features/application-assist/mocks/commands.ts" &&
-    path !== "src/mocks/handlers.ts"
+    path !== "src/test-support/mocks/handlers.ts"
   ) {
     return false;
   }

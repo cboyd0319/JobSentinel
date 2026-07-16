@@ -78,27 +78,27 @@ application history, or job-search records.
 
 Do not confuse this feature with external AI. External AI remains optional,
 disabled by default, and routed through
-[the privacy-first AI gateway](../architecture/privacy-first-ai-gateway.md).
+[the privacy-first AI gateway](../security/privacy-first-ai-gateway.md).
 
 ## Code map
 
 | Path | Purpose |
 | ---- | ------- |
-| `crates/jobsentinel-core/src/core/ml/mod.rs` | Feature-gated module entry and error types |
-| `crates/jobsentinel-core/src/core/ml/contracts.rs` | Typed contracts for role families, generated-advice separation, skill graph relationships, evidence explanations, adversarial posting signals, and modular matching stages |
-| `crates/jobsentinel-core/src/core/ml/manifest.rs` | Checked-in model lock parsing and validation |
-| `crates/jobsentinel-core/src/core/ml/model.rs` | Thin model management entrypoint |
-| `crates/jobsentinel-core/src/core/ml/model/` | Cache verification, download, metadata, loading, device selection, integrity checks, and legacy baseline inference |
-| `crates/jobsentinel-core/src/core/ml/qwen3.rs` | Thin Qwen3 module entry |
-| `crates/jobsentinel-core/src/core/ml/qwen3/` | Governed Qwen3 embedding, reranker, model, pooling, and tokenization implementation |
-| `crates/jobsentinel-core/src/core/ml/runtime.rs` | Backend traits, runtime compatibility, vector provenance, and stale-vector keys |
-| `crates/jobsentinel-core/src/core/ml/evaluation.rs` | Evidence labels, hard negatives, feedback, blockers, and future training data contracts |
-| `crates/jobsentinel-core/src/core/ml/hybrid.rs` | Deterministic hybrid ranking, blocker caps, and retrieval provenance |
-| `crates/jobsentinel-core/src/core/ml/eval_fixtures/seed_v1.json` | Seed labels, hard negatives, and preference pairs for regression tests |
-| `crates/jobsentinel-core/src/core/ml/embeddings.rs` | Embedding generation and vector similarity |
-| `crates/jobsentinel-core/src/core/ml/matcher.rs` | Semantic skill matching logic |
-| `crates/jobsentinel-core/src/core/resume/matcher/hybrid_score.rs` | Resume/job scoring bridge for hybrid matching and legacy fallback |
-| `crates/jobsentinel-core/src/core/ml/tests.rs` | Feature-gated tests |
+| `crates/jobsentinel-local-ai/src/mod.rs` | Feature-gated module entry and error types |
+| `crates/jobsentinel-local-ai/src/contracts.rs` | Typed contracts for role families, generated-advice separation, skill graph relationships, evidence explanations, adversarial posting signals, and modular matching stages |
+| `crates/jobsentinel-local-ai/src/manifest.rs` | Checked-in model lock parsing and validation |
+| `crates/jobsentinel-local-ai/src/model.rs` | Thin model management entrypoint |
+| `crates/jobsentinel-local-ai/src/model/` | Cache verification, download, metadata, loading, device selection, integrity checks, and legacy baseline inference |
+| `crates/jobsentinel-local-ai/src/qwen3.rs` | Thin Qwen3 module entry |
+| `crates/jobsentinel-local-ai/src/qwen3/` | Governed Qwen3 embedding, reranker, model, pooling, and tokenization implementation |
+| `crates/jobsentinel-local-ai/src/runtime.rs` | Backend traits, runtime compatibility, vector provenance, and stale-vector keys |
+| `crates/jobsentinel-local-ai/src/evaluation.rs` | Evidence labels, hard negatives, feedback, blockers, and future training data contracts |
+| `crates/jobsentinel-local-ai/src/hybrid.rs` | Deterministic hybrid ranking, blocker caps, and retrieval provenance |
+| `crates/jobsentinel-local-ai/src/eval_fixtures/seed_v1.json` | Seed labels, hard negatives, and preference pairs for regression tests |
+| `crates/jobsentinel-local-ai/src/embeddings.rs` | Embedding generation and vector similarity |
+| `crates/jobsentinel-local-ai/src/matcher.rs` | Semantic skill matching logic |
+| `crates/jobsentinel-storage/src/resume/matcher/hybrid_score.rs` | Resume/job scoring bridge for hybrid matching and legacy fallback |
+| `crates/jobsentinel-local-ai/src/tests.rs` | Feature-gated tests |
 | `src-tauri/src/commands/ml.rs` | Feature-gated Tauri commands |
 | `models.lock.toml` | Model supply-chain lockfile |
 
@@ -147,7 +147,7 @@ evaluation still needs larger reviewed sets for:
 - gap analysis
 
 The current repo-native eval pack is
-`crates/jobsentinel-core/src/core/ml/eval_fixtures/seed_v1.json`, backed by typed contracts
+`crates/jobsentinel-local-ai/src/eval_fixtures/seed_v1.json`, backed by typed contracts
 and unit tests. If JobSentinel adds a standalone CLI later, the command surface
 should map to retrieval, reranker, fairness, self-preference, and explanation
 evals without changing the underlying fixture schema.

@@ -132,7 +132,7 @@ export function hasBroadAudienceProfileExampleDrift(path, text) {
     }
   }
 
-  if (path === "src/mocks/handlers.ts") {
+  if (path === "src/test-support/mocks/handlers.ts") {
     const marketMockPatterns = [
       /TypeScript demand is surging/i,
       /skill_name:\s*["']Kubernetes["']/i,
@@ -150,7 +150,7 @@ export function hasBroadAudienceProfileExampleDrift(path, text) {
     }
   }
 
-  if (path === "crates/jobsentinel-core/tests/scraping_pipeline_integration.rs") {
+  if (path === "crates/jobsentinel-application/tests/scraping_pipeline_integration.rs") {
     const pipelineIntegrationPatterns = [
       /Security Engineer/i,
       /Rust Developer/i,
@@ -170,7 +170,7 @@ export function hasBroadAudienceProfileExampleDrift(path, text) {
     }
   }
 
-  if (path === "crates/jobsentinel-core/tests/scheduler_integration_test.rs") {
+  if (path === "crates/jobsentinel-application/tests/scheduler_integration_test.rs") {
     const schedulerIntegrationPatterns = [
       /Security Engineer/i,
       /Rust Developer/i,
@@ -195,7 +195,7 @@ export function hasBroadAudienceProfileExampleDrift(path, text) {
     }
   }
 
-  if (path === "crates/jobsentinel-core/tests/database_integration_test.rs") {
+  if (path === "crates/jobsentinel-storage/tests/database_integration_test.rs") {
     const databaseIntegrationPatterns = [
       /TestCorp/i,
       /Senior Rust Engineer/i,
@@ -214,13 +214,13 @@ export function hasBroadAudienceProfileExampleDrift(path, text) {
     }
   }
 
-  if (path === "crates/jobsentinel-core/tests/api_contract_test.rs") {
+  if (path === "crates/jobsentinel-application/tests/api_contract_test.rs") {
     if (/add_search_history\(["']rust developer["']\)/i.test(text)) {
       return true;
     }
   }
 
-  if (path === "crates/jobsentinel-core/tests/cow_zero_copy_tests.rs") {
+  if (path === "crates/jobsentinel-application/tests/cow_zero_copy_tests.rs") {
     const cowFixturePatterns = [
       /jobs\/senior-engineer/i,
       /department=engineering/i,

@@ -1,122 +1,75 @@
-export function isMarkdown(path) {
-  return path.endsWith(".md");
+export function normalizeRepoPath(path) {
+  return path.replace(/\\/g, "/").replace(/^\.\//, "").trim();
 }
 
-export function isSourceFile(path) {
-  return /\.(ts|tsx)$/.test(path);
-}
+export function classifyVerificationPath(inputPath) {
+  const path = normalizeRepoPath(inputPath);
+  const flags = new Set(["harness"]);
+  const reasons = [];
 
-export function isFrontendTest(path) {
-  return /\.(test|spec)\.(ts|tsx)$/.test(path);
-}
-
-export function isRustSource(path) {
-  return (
-    (path.startsWith("src-tauri/src/") || /^crates\/[^/]+\/src\//.test(path)) &&
-    path.endsWith(".rs")
-  );
-}
-
-export function rustPackageForPath(path) {
-  return path.match(/^crates\/([^/]+)\//)?.[1] ?? "jobsentinel";
-}
-
-export function isE2ePath(path) {
-  return (
-    path.startsWith("tests/e2e/") ||
-    path.startsWith("e2e/") ||
+  const isDocs = path.endsWith(".md") || path.startsWith("docs/");
+  const isScript = path.startsWith("scripts/");
+  const isFrontend =
+    path.startsWith("src/") || path.startsWith("public/") || path === "index.html" ||
     path === "playwright.config.ts" ||
-    path === "scripts/run-playwright.mjs" ||
-    path === "scripts/tests/run-playwright.test.mjs"
-  );
-}
-
-export function isHarnessPath(path) {
-  return (
-    [
-      "AGENTS.md",
-      "CLAUDE.md",
-      ".github/copilot-instructions.md",
-      "README.md",
-      "DESIGN.md",
-      "package.json",
-      "package-lock.json",
-    ].includes(path) ||
-    path.startsWith("docs/design/") ||
-    path.startsWith("docs/harness/") ||
-    path.startsWith("docs/plans/") ||
+    path === "package.json" || path === "package-lock.json" ||
+    /^(?:eslint|postcss|tailwind|vite|vitest)\.config\./.test(path) ||
+    path.startsWith(".storybook/") || path.startsWith("tsconfig");
+  const isE2e = path.startsWith("tests/e2e/") || path === "playwright.config.ts" || path.includes("run-playwright");
+  const isRust =
+    path === "Cargo.toml" || path === "Cargo.lock" || path === "rust-toolchain.toml" ||
+    path === "clippy.toml" || path === "deny.toml" || path.startsWith(".cargo/") ||
+    path.startsWith("crates/") || path.startsWith("src-tauri/") || path.startsWith(".sqlx/") ||
+    path.startsWith("resources/");
+  const isDependency = ["package.json", "package-lock.json", ".nvmrc"].includes(path) || /Cargo\.toml$/.test(path);
+  const isSecurity =
+    path === ".github/CODEOWNERS" || path === ".github/dependabot.yml" ||
     path.startsWith(".github/workflows/") ||
-    path.startsWith(".github/ISSUE_TEMPLATE/") ||
-    path.startsWith("scripts/")
-  );
+    ["docs/developer/CI_CD.md", "docs/developer/RELEASING.md"].includes(path) ||
+    path.startsWith(".husky/") || /(?:security|privacy|credential|secret|auth|token)/i.test(path) ||
+    ["PRIVACY.md", "RESPONSIBLE_AI.md", "SECURITY.md", "deny.toml"].includes(path);
+  const isSkills = path.startsWith("skills/");
+  const isHarness =
+    [".gitattributes", "AGENTS.md", "ARCHITECTURE.md", "PROGRESS.md", "feature_list.json", "harness-manifest.json", "init.sh", "init.ps1", "repository-structure-policy.json"].includes(path) ||
+    path.startsWith("docs/harness/") || path.startsWith("docs/plans/") ||
+    path.startsWith("validation/") || path.startsWith(".github/workflows/") || isScript;
+
+  if (isDocs) flags.add("docs");
+  if (isScript) flags.add("scripts");
+  if (isFrontend) flags.add("frontend");
+  if (isE2e) flags.add("e2e");
+  if (isRust) flags.add("rust");
+  if (isDependency) flags.add("dependencies");
+  if (isSecurity) flags.add("security");
+  if (isSkills) flags.add("skills");
+  if (isHarness) {
+    flags.add("contracts");
+    reasons.push("Harness or durable repository contract changed.");
+  }
+
+  const knownTopLevel = [
+    ".cargo/", ".github/", ".husky/", ".sqlx/", ".storybook/", ".vale/", "config/",
+    "crates/", "docs/", "examples/", "profiles/", "public/", "resources/", "scripts/",
+    "skills/", "src/", "src-tauri/", "tests/", "validation/",
+  ].some((prefix) => path.startsWith(prefix));
+  const knownRoot = new Set([
+    ".claudeignore", ".env.example", ".gitattributes", ".gitignore", ".lintstagedrc.json", ".markdownlint.json",
+    ".nvmrc", ".vale.ini", "AGENTS.md", "ARCHITECTURE.md", "Cargo.lock", "Cargo.toml", "CHANGELOG.md",
+    "CLAUDE.md", "CODE_OF_CONDUCT.md", "DESIGN.md", "LICENSE", "PRIVACY.md", "PROGRESS.md",
+    "README.md", "RESPONSIBLE_AI.md", "ROADMAP.md", "SECURITY.md", "clippy.toml", "deny.toml",
+    "eslint.config.js", "feature_list.json", "harness-manifest.json", "index.html", "init.ps1", "init.sh", "models.lock.toml",
+    "package-lock.json", "package.json", "playwright.config.ts", "postcss.config.js", "repository-structure-policy.json",
+    "rust-toolchain.toml", "tailwind.config.js", "tsconfig.json", "tsconfig.node.json",
+    "vite.config.ts", "vitest.config.ts",
+  ]).has(path);
+  if (!knownTopLevel && !knownRoot) {
+    flags.add("full");
+    reasons.push("Path has no verified owner; fail closed with the full lane.");
+  }
+  return { path, flags: [...flags].sort(), reasons };
 }
 
-export function isUserFacingPath(path) {
-  return (
-    ["README.md", "DESIGN.md"].includes(path) ||
-    path.startsWith("docs/design/") ||
-    path.startsWith("docs/user/") ||
-    path.startsWith("docs/features/") ||
-    path.startsWith(".github/ISSUE_TEMPLATE/") ||
-    path.startsWith("examples/profiles/") ||
-    path.startsWith("src/features/") ||
-    path.startsWith("src/ui/")
-  );
-}
-
-export function isDesignOrVisualPath(path) {
-  return (
-    path === "DESIGN.md" ||
-    path.startsWith("docs/design/") ||
-    path.startsWith("src/features/") ||
-    path.startsWith("src/ui/")
-  );
-}
-
-export function isPrivacyOrSecurityPath(path) {
-  const lowerPath = path.toLowerCase();
-  return (
-    ["PRIVACY.md", "RESPONSIBLE_AI.md", "SECURITY.md"].includes(path) ||
-    path.startsWith("src/shared/externalAi/") ||
-    path === "scripts/check-external-ai-gateway.mjs" ||
-    path === "scripts/checks/security-sensors.mjs" ||
-    path.startsWith("scripts/checks/security-sensors/") ||
-    path.startsWith("docs/security/") ||
-    path.startsWith("docs/architecture/privacy-first-ai-gateway.md") ||
-    ["credential", "privacy", "security", "auth", "token"].some((part) =>
-      lowerPath.includes(part),
-    )
-  );
-}
-
-export function isTauriInvokePath(path) {
-  return (
-    path === "src-tauri/src/main.rs" ||
-    path === "src-tauri/src/command_handlers.rs" ||
-    path.startsWith("src-tauri/src/commands/") ||
-    path === "scripts/checks/tauri-invokes.mjs" ||
-    path.startsWith("scripts/checks/tauri-invokes/") ||
-    path === "scripts/tests/check-tauri-invokes.test.mjs" ||
-    path.startsWith("src/mocks/") ||
-    path.startsWith("src/shared/tauri/commandClient") ||
-    path.startsWith("src/shared/errorReporting/supportReport") ||
-    path.startsWith("src/features/settings/support/feedback/feedbackClient") ||
-    path.startsWith("src/shared/search-links")
-  );
-}
-
-export function isDependencyPolicyPath(path) {
-  return (
-    path === "scripts/checks/dependency-pins.mjs" ||
-    path.startsWith("scripts/checks/dependencies/") ||
-    path.startsWith("scripts/dependency/")
-  );
-}
-
-export function isRepoBloatPolicyPath(path) {
-  return (
-    path === "scripts/checks/repo-bloat.mjs" ||
-    path.startsWith("scripts/checks/repo-bloat/") ||
-    path.startsWith("scripts/harness/checks/")
-  );
+export function workflowFlags(classifications) {
+  const names = ["harness", "frontend", "rust", "security", "skills", "e2e", "full"];
+  return Object.fromEntries(names.map((name) => [name, classifications.some((row) => row.flags.includes(name))]));
 }

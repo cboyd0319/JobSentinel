@@ -1,8 +1,8 @@
 import { readFileSync } from "node:fs";
 
-import { cargoLatestStableException } from "../../dependency/cargo-latest-exceptions.mjs";
-import { npmLatestStableException } from "../../dependency/npm-latest-exceptions.mjs";
-import { npmOverrideDependencyPins } from "../../dependency/npm-overrides.mjs";
+import { cargoLatestStableException } from "../../lib/dependency/cargo-latest-exceptions.mjs";
+import { npmLatestStableException } from "../../lib/dependency/npm-latest-exceptions.mjs";
+import { npmOverrideDependencyPins } from "../../lib/dependency/npm-overrides.mjs";
 import { collectCargoDependencySpecs } from "./cargo-pins.mjs";
 import {
   directNpmDependencies,

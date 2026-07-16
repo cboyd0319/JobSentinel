@@ -2,10 +2,10 @@
 //!
 //! Commands for secure credential storage using the runtime credential service.
 
-use crate::commands::AppState;
-use crate::core::credentials::{
+use crate::application::credentials::{
     encode_smtp_password, CredentialKey, CredentialService, SmtpCredentialBinding,
 };
+use crate::commands::AppState;
 use serde::{Deserialize, Serialize};
 use tauri::State;
 use zeroize::Zeroizing;
@@ -193,8 +193,10 @@ pub(crate) async fn store_credential(
     let smtp_binding = match parse_credential_key(&key) {
         Ok(CredentialKey::SmtpPassword) => {
             let config = state.config.read().await;
-            Some(SmtpCredentialBinding::from_email_config(
-                &config.alerts.email,
+            Some(SmtpCredentialBinding::new(
+                &config.alerts.email.smtp_server,
+                config.alerts.email.smtp_port,
+                &config.alerts.email.smtp_username,
             ))
         }
         _ => None,

@@ -1,13 +1,11 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { mockInvoke, resetMockData } from "../../../mocks/handlers";
+import { mockInvoke, resetMockData } from "../../../test-support/mocks/handlers";
 import { atsResume } from "./resumeAnalysisTestData";
 import type { AtsAnalysisResult } from "./resumeAnalysisTestData";
-
 describe("mock resume evidence quality handlers", () => {
   beforeEach(() => {
     resetMockData();
   });
-
   it("treats metric-backed current experience as strong mock evidence", async () => {
     const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
@@ -25,7 +23,6 @@ describe("mock resume evidence quality handlers", () => {
       },
       jobDescription: "Required: scheduling",
     });
-
     expect(result.requirement_reviews).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -36,7 +33,6 @@ describe("mock resume evidence quality handlers", () => {
       ]),
     );
   });
-
   it("treats scope-backed current experience as strong mock evidence", async () => {
     const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
@@ -54,7 +50,6 @@ describe("mock resume evidence quality handlers", () => {
       },
       jobDescription: "Required: scheduling",
     });
-
     expect(result.requirement_reviews).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -65,7 +60,6 @@ describe("mock resume evidence quality handlers", () => {
       ]),
     );
   });
-
   it("treats responsibility-backed current experience as strong mock evidence", async () => {
     const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
@@ -83,7 +77,6 @@ describe("mock resume evidence quality handlers", () => {
       },
       jobDescription: "Required: scheduling",
     });
-
     expect(result.requirement_reviews).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -94,7 +87,6 @@ describe("mock resume evidence quality handlers", () => {
       ]),
     );
   });
-
   it("treats duty-backed past experience as strong mock evidence", async () => {
     const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
@@ -114,7 +106,6 @@ describe("mock resume evidence quality handlers", () => {
       },
       jobDescription: "Required: scheduling",
     });
-
     expect(result.requirement_reviews).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -125,7 +116,6 @@ describe("mock resume evidence quality handlers", () => {
       ]),
     );
   });
-
   it("treats calendar-management scheduling terms as equivalent mock evidence", async () => {
     const schedulingResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
@@ -152,7 +142,6 @@ describe("mock resume evidence quality handlers", () => {
         }),
       ]),
     );
-
     const calendarResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
         ...atsResume,
@@ -179,7 +168,6 @@ describe("mock resume evidence quality handlers", () => {
       ]),
     );
   });
-
   it("treats QA quality-assurance terms as equivalent mock evidence", async () => {
     const qualityResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
@@ -206,7 +194,6 @@ describe("mock resume evidence quality handlers", () => {
         }),
       ]),
     );
-
     const qaResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
         ...atsResume,
@@ -233,7 +220,6 @@ describe("mock resume evidence quality handlers", () => {
       ]),
     );
   });
-
   it("treats patient-care hyphen terms as equivalent mock evidence", async () => {
     const patientCareResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
@@ -260,7 +246,6 @@ describe("mock resume evidence quality handlers", () => {
         }),
       ]),
     );
-
     const hyphenResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
         ...atsResume,

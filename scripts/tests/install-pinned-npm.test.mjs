@@ -61,6 +61,7 @@ test("installPinnedNpm skips install when pinned npm is active", () => {
     const result = installPinnedNpm({
       root,
       platform: "darwin",
+      env: { CI: "true" },
       execFileSync: (command, args) => {
         calls.push([command, args]);
         return "11.17.0\n";
@@ -111,6 +112,7 @@ test("installPinnedNpm installs the exact pinned npm version when needed", () =>
     const result = installPinnedNpm({
       root,
       platform: "darwin",
+      env: { CI: "true" },
       execFileSync: (command, args) => {
         calls.push([command, args]);
         return "11.16.0\n";
@@ -136,7 +138,7 @@ test("installPinnedNpm installs pinned npm through cmd on Windows", () => {
     const result = installPinnedNpm({
       root,
       platform: "win32",
-      env: { ComSpec: "C:\\Windows\\System32\\cmd.exe" },
+      env: { CI: "true", ComSpec: "C:\\Windows\\System32\\cmd.exe" },
       execFileSync: (command, args) => {
         calls.push([command, args]);
         return calls.length === 1 ? "11.16.0\n" : "";
@@ -183,6 +185,16 @@ test("installPinnedNpm rejects missing exact package-manager pins", () => {
           execFileSync: () => "11.17.0\n",
         }),
       /packageManager must be an exact npm@x\.y\.z pin/,
+    );
+  });
+});
+
+test("installPinnedNpm refuses persistent global mutation outside CI", () => {
+  withFixture((root) => {
+    writePackageJson(root);
+    assert.throws(
+      () => installPinnedNpm({ root, execFileSync: () => "11.16.0\n", env: {} }),
+      /refusing to install npm .* globally outside an ephemeral hosted runner/,
     );
   });
 });

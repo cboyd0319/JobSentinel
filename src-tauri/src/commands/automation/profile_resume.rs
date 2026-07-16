@@ -1,5 +1,5 @@
-use crate::core::automation::ApplicationProfileInput;
-use crate::platforms;
+use crate::application::automation::ApplicationProfileInput;
+use crate::desktop;
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 use tauri_plugin_dialog::DialogExt;
@@ -35,7 +35,7 @@ fn resume_reselect_error() -> String {
 }
 
 pub(super) fn application_resume_dir() -> PathBuf {
-    platforms::get_data_dir().join(APPLICATION_RESUME_DIR)
+    desktop::get_data_dir().join(APPLICATION_RESUME_DIR)
 }
 
 fn allowed_application_resume_extension(path: &Path) -> Result<&'static str, String> {

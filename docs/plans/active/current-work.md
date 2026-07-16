@@ -1,6 +1,6 @@
 # Full Repository Refactor
 
-Last updated: 2026-07-14.
+Last updated: 2026-07-15.
 
 ## Purpose
 
@@ -10,17 +10,20 @@ module paths, crate APIs, IPC commands, tests, scripts, and documentation do not
 need compatibility layers.
 
 The locked ownership and dependency decisions are in the
-[repository refactor blueprint](repository-refactor-blueprint.md). Changes to
-that blueprint require evidence and a new decision-log entry.
+[repository refactor blueprint](repository-refactor-blueprint.md). The
+executable phase, workspace graph, technology owners, target directories,
+retiring paths, and modularization ratchets are in
+[`validation/repository_architecture_contract.json`](../../../validation/repository_architecture_contract.json).
+Changes to either contract require evidence and a new decision-log entry.
 
-## Problem
+## Baseline Problem
 
-The source candidate at `c644995d` passes its prior readiness gates, but the
-repository still concentrates 412 Rust files under `jobsentinel-core`, exposes
-database implementation details to callers, keeps runtime behavior in Tauri
-commands, and has frontend, test, script, CI, and documentation layouts shaped
-by prior incremental work. Those facts invalidate the previous full-refactor
-completion claim.
+At baseline commit `c644995d`, the repository concentrated 412 Rust files under
+`jobsentinel-core`, exposed database implementation details to callers, and kept
+runtime behavior in Tauri commands. The current working tree removes that crate,
+the raw dependency escapes, and direct product ownership from Tauri. Local
+verification is complete; final cross-platform evidence still requires a native
+Windows 11 run.
 
 ## Scope
 
@@ -32,7 +35,8 @@ In scope:
   wrappers, duplicate fixtures, generated residue, and stale documentation.
 - Safe migration of persistent user data when a schema or storage format must
   change.
-- Milestone commits after focused verification passes.
+- Milestone checkpoints after focused verification passes. Commits require
+  separate user authorization.
 
 Out of scope:
 
@@ -89,10 +93,11 @@ user-gated restricted-source paths before final readiness.
 1. Lock this plan and the blueprint, incorporate adversarial review, block
    release execution, pass focused documentation and harness checks, and commit
    only the planning milestone.
-2. First make generic crate-edge and technology-ownership sensors blocking in
-   the harness and CI. Then extract domain, security, network, platform, storage,
-   credentials, and application ownership; remove raw pool and Tauri SQL access;
-   and preserve encryption, backup, integrity, and migration behavior.
+2. Keep generic crate-edge and technology-ownership sensors blocking in the
+   local harness. Then extract domain,
+   security, network, platform, storage, credentials, and application ownership;
+   remove raw pool and Tauri SQL access; and preserve encryption, backup,
+   integrity, and migration behavior.
 3. Extract source, document, assistance, intelligence, local-AI, external-AI,
    and notification owners. Move persistence fragments to storage and keep
    optional heavy dependencies out of the default desktop build.
@@ -102,12 +107,13 @@ user-gated restricted-source paths before final readiness.
 5. Reorganize the frontend by feature ownership. Move misplaced shared domain
    code and test support, delete orphan production files, and preserve all
    interaction and accessibility states.
-6. Reorganize tests, fixtures, scripts, workflows, packaging, docs, examples,
-   resources, validation policy, and tracked generated assets. Make local and CI
-   commands use the same blocking architecture sensors.
+6. Reorganize tests, fixtures, scripts, release workflows, packaging, docs,
+   examples, resources, validation policy, and tracked generated assets. Keep
+   local commands on the same architecture sensors.
 7. Run the layered completion gate, clean ignored and generated residue, update
-   public wiki sources, and commit a verified v2.9.5 source candidate. Release
-   execution remains separate and requires explicit authorization.
+   repository documentation, and commit a verified v2.9.5 source candidate.
+   External publication and release execution remain separate and require
+   explicit authorization.
 
 ## Milestone Gates
 
@@ -118,14 +124,15 @@ Every milestone requires:
   text changes, and file-cap checks for every moved path.
 - No new dependency cycle, raw storage escape, unreviewed external send, secret
   probe, machine-specific path, unregistered invoke, or unused registration.
-- Evidence recorded in `docs/harness/evidence-log.md` before the milestone commit.
+- Evidence recorded under `docs/harness/evidence/` before a milestone transitions
+  to `passing`.
 - A clean index after the commit. Unrelated user changes remain untouched.
 
 Milestone 2 uses separate gated commits for enforcement, foundational crates,
 storage/key cutover, and pool removal. It requires database snapshots, migration
 tests, SQLx metadata, integrity and restore tests, plus Linux, macOS, and Windows
 compile evidence. Milestones 4 and 5 require IPC and affected UI/E2E checks.
-Milestones 6 and 7 require all CI-equivalent and release-readiness checks.
+Milestones 6 and 7 require the full local and release-readiness checks.
 
 ## Acceptance Criteria
 
@@ -139,7 +146,7 @@ Milestones 6 and 7 require all CI-equivalent and release-readiness checks.
 - Production, test, script, and maintained-document caps scan all owned paths
   without spot-check exclusions.
 - Frontend, Rust, artifact, terminology, security, privacy, migration, and
-  platform checks block through the focused harness and CI.
+  platform checks block through the focused and full local harness lanes.
 - No tracked or ignored build residue, machine-specific path, obsolete source,
   duplicate fixture, stale architecture claim, or release overclaim remains.
 
@@ -149,14 +156,15 @@ Use the smallest relevant checks for each milestone, then broaden:
 
 ```bash
 npm run harness:check
-npm run harness:score
+npm run lint:file-size
+npm run lint:architecture
 npm run lint:language
 npm run lint
 npm run test:run
 npm run build
 cargo fmt --all -- --check
-cargo clippy --workspace --all-targets --all-features -- -D warnings
-cargo test --workspace --all-features
+cargo clippy --workspace -- -D warnings
+cargo test --workspace
 git diff --check
 ```
 
@@ -178,19 +186,42 @@ UI checks when their owners change.
 
 - [x] Internal and external adversarial repository reviews completed.
 - [x] Milestone 1: locked plan committed with passing gates.
-- [ ] Milestone 2: storage and application boundaries committed.
-- [ ] Milestone 3: remaining Rust owners committed.
-- [ ] Milestone 4: thin Tauri adapter committed.
-- [ ] Milestone 5: frontend ownership committed.
-- [ ] Milestone 6: support surfaces committed.
-- [ ] Milestone 7: full verification and cleanup committed.
+- [ ] Milestone 2: storage and application boundaries implemented and locally
+  verified; the required native Windows evidence is pending.
+- [x] Milestone 3: remaining Rust owners implemented and verified.
+- [x] Milestone 4: thin Tauri adapter implemented and verified.
+- [x] Milestone 5: frontend ownership implemented and verified.
+- [x] Milestone 6: support surfaces implemented and verified.
+- [ ] Milestone 7: full local verification and cleanup completed; final
+  cross-platform evidence is pending.
+
+Complete ownership checkpoint:
+
+- `jobsentinel-security` owns URL policy and path-safe logging labels.
+- `jobsentinel-domain` owns `Job`, hashes, and normalization without SQLx.
+- `jobsentinel-network` owns DNS-pinned targets and bounded response bodies.
+- `jobsentinel-platform` owns native paths, private-file policy, and database
+  key retrieval.
+- `jobsentinel-storage` owns the unchanged migration chain, SQLCipher
+  connection, integrity checks, backup, and job repositories.
+- `jobsentinel-intelligence` owns pure posting-quality analysis.
+- `jobsentinel-sources`, `jobsentinel-application`, `jobsentinel-assistance`,
+  `jobsentinel-local-ai`, `jobsentinel-documents`, `jobsentinel-credentials`,
+  `jobsentinel-notifications`, and `jobsentinel-ai` own the remaining target
+  domains without a compatibility mega-crate.
+- Tauri depends on `jobsentinel-application` for internal product behavior. The
+  raw storage-pool escape and provider transport in the desktop adapter are
+  removed.
+- The full local gate, Chromium and WebKit E2E lane, and Rust all-features lane
+  pass on the native macOS host. Native Windows 11 remains an explicit evidence
+  gap.
 
 ## Surprises
 
 - The earlier workspace refactor produced only one reusable Rust crate, while
   Tauri retained direct database and network responsibilities.
-- Existing architecture checks are available but are not all blocking through
-  the focused harness and CI.
+- Architecture, source-limit, phase, and modularization checks block through
+  the shared local harness core.
 - Registered and consumed IPC surfaces differ materially, so command count alone
   is not evidence of an intentional API.
 
@@ -204,17 +235,47 @@ UI checks when their owners change.
   database and application ownership.
 - 2026-07-14: The plan and blueprint must be committed before source execution.
   Later boundary changes require evidence and a recorded decision.
-- 2026-07-14: Claude Fable blocked the first draft on nine concrete gaps. The
-  locked revision assigns database keys, early enforcement, platform compile
-  gates, runtime mocks, model downloads, Storybook, and the inbound listener.
+- 2026-07-14: The user required removal of hosted CI during private pre-alpha
+  development. `pre-alpha-private-no-ci` records the resulting nonconforming
+  user override, the affected canonical requirements, and its restoration
+  triggers.
+- 2026-07-14: Adversarial review blocked the first draft on nine concrete gaps.
+  The locked revision assigns database keys, early enforcement, platform
+  compile gates, runtime mocks, model downloads, Storybook, and the inbound
+  listener.
+- 2026-07-14-executable-repository-topology: The machine-readable architecture
+  contract is the blocking projection of this plan and the blueprint. The
+  legacy workspace is exact, migration additions are restricted to locked
+  target owners, final dependency edges and technology owners are exhaustive,
+  and pre-contract `more.rs`, nested test, and retiring-layout paths are frozen
+  as explicit no-growth exceptions.
+- 2026-07-15-foundational-rust-owners: Extracted real security, domain,
+  network, platform, storage, and intelligence crates without forwarding
+  facades. `Job` no longer derives or exposes SQLx. Storage retains an explicit
+  platform edge because it must apply the canonical private-file policy to
+  databases, sidecars, backups, and encryption-upgrade artifacts; duplicating
+  that OS behavior or weakening permissions was rejected. Deleted tracked paths
+  are now excluded from live topology enumeration, with a regression test.
+- 2026-07-15-complete-ownership-cutover: Completed the target 14-crate ownership
+  graph, deleted `jobsentinel-core`, removed the raw storage-pool escape, reduced
+  Tauri to an application adapter, and retired obsolete source and support
+  paths. The exact local full gate, cross-browser E2E lane, and Rust all-features
+  lane passed. Final transition remains withheld pending native Windows 11
+  evidence; hosted CI remains intentionally absent and canonically
+  nonconforming under `pre-alpha-private-no-ci`.
 
 ## Outcomes
 
-Not complete. v2.9.5 source readiness is blocked until all milestones and gates
-pass.
+The clean-cutover implementation and local completion gates are complete in the
+current working tree. The feature remains `active` because native Windows 11
+evidence is missing. Hosted CI is deliberately absent by user direction, so the
+repository does not claim full canonical harness compliance.
 
 ## Handoff
 
-Read [status.md](status.md) and the
-[blueprint](repository-refactor-blueprint.md), then continue the first unchecked
-milestone. Completed plans are historical evidence, not current architecture.
+Read root `PROGRESS.md`, root `feature_list.json`, this plan, the
+[blueprint](repository-refactor-blueprint.md), and the executable architecture
+contract. Continue only the single active root feature. Completed plans are
+historical evidence, not current architecture. The next bounded action is the
+native Windows 11 initializer and script-contract run recorded in root state;
+do not reintroduce hosted CI unless the user withdraws the named override.

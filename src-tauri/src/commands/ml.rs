@@ -6,9 +6,9 @@
 
 use crate::commands::errors::user_friendly_error;
 use crate::commands::AppState;
-use crate::core::logging::path_label_for_logging;
-use crate::core::ml::{ModelManager, ModelStatus, SemanticMatcher};
-use crate::platforms;
+use crate::desktop;
+use crate::desktop::path_label_for_logging;
+use crate::desktop::{ModelManager, ModelStatus, SemanticMatcher};
 use tauri::State;
 
 /// Download the default local semantic models from HuggingFace Hub.
@@ -16,7 +16,7 @@ use tauri::State;
 pub(crate) async fn download_ml_model() -> Result<String, String> {
     tracing::info!("Command: download_ml_model");
 
-    let app_data_dir = platforms::get_data_dir();
+    let app_data_dir = desktop::get_data_dir();
     let manager = ModelManager::new(app_data_dir);
 
     if manager.is_default_semantic_runtime_downloaded() {
@@ -43,7 +43,7 @@ pub(crate) async fn download_ml_model() -> Result<String, String> {
 pub(crate) async fn get_ml_status() -> Result<ModelStatus, String> {
     tracing::info!("Command: get_ml_status");
 
-    let app_data_dir = platforms::get_data_dir();
+    let app_data_dir = desktop::get_data_dir();
     let manager = ModelManager::new(app_data_dir);
     Ok(manager.get_status())
 }
@@ -60,7 +60,7 @@ pub(crate) async fn semantic_match_skills(
         job_requirements.len()
     );
 
-    let app_data_dir = platforms::get_data_dir();
+    let app_data_dir = desktop::get_data_dir();
     let matcher = SemanticMatcher::new(app_data_dir)
         .map_err(|e| user_friendly_error("Failed to create matcher", e))?;
 
@@ -85,7 +85,7 @@ pub(crate) async fn match_resume_semantic(
     );
 
     // Get app data directory
-    let app_data_dir = platforms::get_data_dir();
+    let app_data_dir = desktop::get_data_dir();
 
     // Check if ML is available
     let manager = ModelManager::new(app_data_dir.clone());
@@ -93,31 +93,19 @@ pub(crate) async fn match_resume_semantic(
         return Err("ML model not downloaded. Call download_ml_model() first.".to_string());
     }
 
-    // Get user skills from resume
-    let user_skills = sqlx::query_scalar::<_, String>(
-        r#"
-        SELECT skill_name
-        FROM user_skills
-        WHERE resume_id = ?
-        "#,
-    )
-    .bind(resume_id)
-    .fetch_all(state.database.pool())
-    .await
-    .map_err(|e| user_friendly_error("Failed to fetch user skills", e))?;
+    let resume_matcher = state.database.resume_matcher();
+    let user_skills = resume_matcher
+        .get_user_skills(resume_id)
+        .await
+        .map_err(|e| user_friendly_error("Failed to fetch user skills", e))?
+        .into_iter()
+        .map(|skill| skill.skill_name)
+        .collect::<Vec<_>>();
 
-    // Get job requirements
-    let job_skills = sqlx::query_scalar::<_, String>(
-        r#"
-        SELECT skill_name
-        FROM job_skills
-        WHERE job_hash = ?
-        "#,
-    )
-    .bind(&job_hash)
-    .fetch_all(state.database.pool())
-    .await
-    .map_err(|e| user_friendly_error("Failed to fetch job skills", e))?;
+    let job_skills = resume_matcher
+        .get_job_skill_names(&job_hash)
+        .await
+        .map_err(|e| user_friendly_error("Failed to fetch job skills", e))?;
 
     // Perform semantic matching
     let matcher = SemanticMatcher::new(app_data_dir)

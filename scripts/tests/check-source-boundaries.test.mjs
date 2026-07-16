@@ -11,7 +11,6 @@ import {
   hasLinkedInNotificationBoundaryDrift,
   hasScraperDocEmojiMarkers,
   hasScraperHealthDocEmojiMarkers,
-  hasStaleCacheUsageDoc,
   hasStaleLinkedInCredentialDocs,
   hasStaleScraperDocReliabilityClaim,
   hasStaleScraperHealthCoverage,
@@ -199,7 +198,7 @@ test("source boundaries reject LinkedIn credential and automation drift", () => 
     writeFixtureFile(root, "docs/security/KEYRING.md", "voyager/api\n");
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/config/types.rs",
+      "crates/jobsentinel-application/src/config/types.rs",
       "pub struct LinkedInConfig {\n  pub session_cookie: String,\n}\n",
     );
     writeFixtureFile(
@@ -209,7 +208,7 @@ test("source boundaries reject LinkedIn credential and automation drift", () => 
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/scrapers/linkedin.rs",
+      "crates/jobsentinel-sources/src/scrapers/linkedin.rs",
       'debug.field("session_cookie_configured", &true);\n',
     );
     writeFixtureFile(
@@ -229,7 +228,7 @@ test("source boundaries reject LinkedIn credential and automation drift", () => 
     assert.equal(
       hasLinkedInAutomationBoundaryDrift(
         root,
-        "crates/jobsentinel-core/src/core/config/types.rs",
+        "crates/jobsentinel-application/src/config/types.rs",
       ),
       true,
     );
@@ -240,7 +239,7 @@ test("source boundaries reject LinkedIn credential and automation drift", () => 
     assert.equal(
       hasLinkedInAutomationBoundaryDrift(
         root,
-        "crates/jobsentinel-core/src/core/scrapers/linkedin.rs",
+        "crates/jobsentinel-sources/src/scrapers/linkedin.rs",
       ),
       true,
     );
@@ -254,23 +253,14 @@ test("source boundaries reject LinkedIn credential and automation drift", () => 
   });
 });
 
-test("source boundaries reject cache docs and direct-open fallbacks", () => {
+test("source boundaries reject direct-open fallbacks", () => {
   withFixture((root) => {
-    writeFixtureFile(
-      root,
-      "docs/developer/SCRAPER_CACHE.md",
-      'tracing::info!("Cache hit for: {}", url)\n',
-    );
     writeFixtureFile(
       root,
       "src/features/dashboard/components/JobCard.tsx",
       "openDeepLink(job.url); window.open(job.url);\n",
     );
 
-    assert.equal(
-      hasStaleCacheUsageDoc(root, "docs/developer/SCRAPER_CACHE.md"),
-      true,
-    );
     assert.equal(
       hasFrontendDirectOpenDeepLinkFallback(
         root,
@@ -304,12 +294,12 @@ test("source boundaries reject unapproved JobsWithGPT endpoint flows", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/scheduler/workers/scrapers.rs",
+      "crates/jobsentinel-application/src/scheduler/workers/scrapers.rs",
       "let jobswithgpt = JobsWithGptScraper::new(config.jobswithgpt_endpoint.clone(), query);\n",
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/health/smoke_checks/sources.rs",
+      "crates/jobsentinel-application/src/health/smoke_checks/sources.rs",
       "let endpoint = validate_external_http_url_for_fetch(&config.jobswithgpt_endpoint).await?;\n",
     );
     writeFixtureFile(
@@ -324,21 +314,21 @@ test("source boundaries reject unapproved JobsWithGPT endpoint flows", () => {
     );
     writeFixtureFile(
       root,
-      "src/mocks/handlers.ts",
+      "src/test-support/mocks/handlers.ts",
       "const endpoint = configRecord.jobswithgpt_endpoint;\n",
     );
 
     assert.equal(
       hasJobsWithGptUnapprovedEndpointFlow(
         root,
-        "crates/jobsentinel-core/src/core/scheduler/workers/scrapers.rs",
+        "crates/jobsentinel-application/src/scheduler/workers/scrapers.rs",
       ),
       true,
     );
     assert.equal(
       hasJobsWithGptUnapprovedEndpointFlow(
         root,
-        "crates/jobsentinel-core/src/core/health/smoke_checks/sources.rs",
+        "crates/jobsentinel-application/src/health/smoke_checks/sources.rs",
       ),
       true,
     );
@@ -357,7 +347,7 @@ test("source boundaries reject unapproved JobsWithGPT endpoint flows", () => {
       true,
     );
     assert.equal(
-      hasJobsWithGptUnapprovedEndpointFlow(root, "src/mocks/handlers.ts"),
+      hasJobsWithGptUnapprovedEndpointFlow(root, "src/test-support/mocks/handlers.ts"),
       true,
     );
     assert.equal(
@@ -374,12 +364,12 @@ test("source boundaries reject missing JobsWithGPT request ledger", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/migrations/00000000000006_source_request_log.sql",
+      "crates/jobsentinel-storage/migrations/00000000000006_source_request_log.sql",
       "CREATE TABLE source_request_log (id INTEGER, raw_title TEXT);\n",
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/health/tracking.rs",
+      "crates/jobsentinel-storage/src/health/tracking.rs",
       "pub async fn start_run() {}\n",
     );
     writeFixtureFile(
@@ -389,7 +379,7 @@ test("source boundaries reject missing JobsWithGPT request ledger", () => {
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/scheduler/workers/scrapers.rs",
+      "crates/jobsentinel-application/src/scheduler/workers/scrapers.rs",
       "let jobswithgpt = JobsWithGptScraper::new(endpoint, query);\n",
     );
     writeFixtureFile(
@@ -411,14 +401,14 @@ test("source boundaries reject missing JobsWithGPT request ledger", () => {
     assert.equal(
       hasJobsWithGptMissingRequestLedger(
         root,
-        "crates/jobsentinel-core/migrations/00000000000006_source_request_log.sql",
+        "crates/jobsentinel-storage/migrations/00000000000006_source_request_log.sql",
       ),
       true,
     );
     assert.equal(
       hasJobsWithGptMissingRequestLedger(
         root,
-        "crates/jobsentinel-core/src/core/health/tracking.rs",
+        "crates/jobsentinel-storage/src/health/tracking.rs",
       ),
       true,
     );
@@ -432,7 +422,7 @@ test("source boundaries reject missing JobsWithGPT request ledger", () => {
     assert.equal(
       hasJobsWithGptMissingRequestLedger(
         root,
-        "crates/jobsentinel-core/src/core/scheduler/workers/scrapers.rs",
+        "crates/jobsentinel-application/src/scheduler/workers/scrapers.rs",
       ),
       true,
     );

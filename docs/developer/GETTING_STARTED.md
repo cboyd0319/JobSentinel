@@ -21,7 +21,7 @@
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
 # Install Node.js 24.18.0 (https://nodejs.org/)
-# `.nvmrc` pins the local baseline used by CI.
+# `.nvmrc` pins the repository's local and release-automation baseline.
 # `package.json` pins npm 12.0.1.
 
 # Tauri CLI
@@ -63,9 +63,8 @@ xcode-select --install
 git clone https://github.com/cboyd0319/JobSentinel
 cd JobSentinel
 
-# Activate the repo-pinned npm, then install dependencies from the lockfile
-node scripts/install-pinned-npm.mjs
-npm ci --ignore-scripts
+# Synchronize locked dependencies and prove the baseline
+./init.sh
 
 # Run in development mode (hot reload enabled)
 npm run tauri:dev
@@ -104,13 +103,14 @@ JobSentinel/
   - features/: product slices with private implementation modules
   - shared/: product-neutral contracts used by multiple owners
   - ui/: reusable visual primitives
-  - test/: Vitest setup and shared test helpers
+  - test-support/: Vitest setup and shared test helpers
   - main.tsx: thin entry point
-- crates/jobsentinel-core/: Tauri-free Rust core
-  - src/core/: business logic modules
-  - src/platforms/: Windows, macOS, and Linux adapters
-  - migrations/: SQLite migrations
-  - tests/: core integration tests
+- crates/: Tauri-free Rust libraries with one bounded owner each
+  - jobsentinel-application/: use cases and composition
+  - jobsentinel-storage/: SQLCipher, migrations, and repositories
+  - jobsentinel-platform/: Windows, macOS, and Linux adapters
+  - jobsentinel-network/, jobsentinel-security/: external request policy
+  - jobsentinel-sources/, jobsentinel-documents/: source and document adapters
 - src-tauri/: thin Tauri desktop shell
   - src/main.rs: minimal app entry
   - src/lib.rs: private shell composition and public run function
@@ -166,27 +166,20 @@ npm run lint:fix
 
 ## Architecture Overview
 
-### Core Business Logic (Platform-Agnostic)
+### Rust Ownership
 
-All core functionality is in `crates/jobsentinel-core/src/core/` and works identically on all platforms:
-
-- **ats**: Application Tracking System with interview scheduler
-- **config**: JSON-based user preferences
-- **db**: SQLite database with async support (70+ queries)
-- **ghost**: Ghost job detection with repost tracking and stale detection
-- **market_intelligence**: Market analytics with trends and location insights
-- **notify**: Multi-channel notifications (Slack, Discord, Teams, Email, Telegram, Desktop)
-- **resume**: local resume fit review with skill extraction
-- **salary**: Pay protection, salary-floor review, and compensation range checks
-- **scheduler**: Periodic source checks with configurable interval and auto-refresh
-- **scoring**: Multi-factor job scoring (0-1 scale)
-- **scrapers**: Scheduled source adapters with parallel execution (Greenhouse,
-  Lever, RemoteOK, WeWorkRemotely, BuiltIn, HN Who's Hiring, JobsWithGPT, Dice,
-  YC Startup Jobs, USAJobs, SimplyHired, Glassdoor)
+Platform-agnostic behavior is split across explicit crates. Application owns
+configuration, use cases, scheduling, and composition. Storage owns SQLCipher,
+migrations, application tracking, resume persistence, salary data, and market
+queries. Sources owns scheduled adapters and job-page parsing. Documents owns
+resume parsing, ATS analysis, templates, and export. Assistance owns visible
+browser preparation and deep links. Notifications owns approved delivery, and
+network owns all reqwest transport. See
+[Rust Architecture](ARCHITECTURE_CORE.md) for the complete ownership map.
 
 ### Platform-Specific Code
 
-Platform code is in `crates/jobsentinel-core/src/platforms/` and uses conditional compilation:
+Platform code is in `crates/jobsentinel-platform/src/` and uses conditional compilation:
 
 - **Windows**: Windows 11+ platform features
 - **macOS**: macOS platform features. Packaging declares macOS 13.0 as the
@@ -273,9 +266,8 @@ npm cache clean --force
 # Delete installed packages, but keep package-lock.json
 rm -rf node_modules
 
-# Reinstall from the lockfile with the repo-pinned npm
-node scripts/install-pinned-npm.mjs
-npm ci --ignore-scripts
+# Reinstall from the lockfile and prove the baseline
+./init.sh
 ```
 
 ### "Build fails on Windows"

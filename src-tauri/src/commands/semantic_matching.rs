@@ -3,9 +3,9 @@
 #[cfg(feature = "embedded-ml")]
 use crate::commands::errors::user_friendly_error;
 #[cfg(feature = "embedded-ml")]
-use crate::core::ml::{load_model_manifest, model_lock_hash, ModelKind, ModelManager, ModelSpec};
+use crate::desktop;
 #[cfg(feature = "embedded-ml")]
-use crate::platforms;
+use crate::desktop::{load_model_manifest, model_lock_hash, ModelKind, ModelManager, ModelSpec};
 
 #[derive(Debug, Clone, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -84,7 +84,7 @@ fn semantic_matching_diagnostics() -> Result<SemanticMatchingDiagnostics, String
 fn semantic_matching_diagnostics() -> Result<SemanticMatchingDiagnostics, String> {
     let manifest = load_model_manifest()
         .map_err(|error| user_friendly_error("Failed to read local model lock", error))?;
-    let manager = ModelManager::new(platforms::get_data_dir());
+    let manager = ModelManager::new(desktop::get_data_dir());
 
     let mut models = Vec::new();
     for model in &manifest.models {
@@ -123,7 +123,7 @@ fn semantic_matching_diagnostics() -> Result<SemanticMatchingDiagnostics, String
 #[cfg(feature = "embedded-ml")]
 fn model_diagnostic(
     manager: &ModelManager,
-    manifest: &crate::core::ml::ModelManifest,
+    manifest: &crate::desktop::ModelManifest,
     model: &ModelSpec,
 ) -> SemanticMatchingModelDiagnostic {
     let required_files = model.required_files().count();
@@ -149,7 +149,7 @@ fn model_diagnostic(
 }
 
 #[cfg(feature = "embedded-ml")]
-fn model_role(manifest: &crate::core::ml::ModelManifest, model: &ModelSpec) -> &'static str {
+fn model_role(manifest: &crate::desktop::ModelManifest, model: &ModelSpec) -> &'static str {
     if model.id == manifest.defaults.embedding {
         "Default embedding"
     } else if model.id == manifest.defaults.reranker {

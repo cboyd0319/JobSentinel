@@ -139,7 +139,7 @@ validate_webhook_url("https://hooks.slack.com.evil.com/webhook")
 
 ### External Job URLs And Imports
 
-**File**: `crates/jobsentinel-core/src/core/url_security.rs`
+**File**: `crates/jobsentinel-security/src/url.rs`
 
 `validate_external_http_url` is the shared low-level backend guard for
 user-controlled external HTTP(S) URLs. `validate_external_https_url` and
@@ -148,14 +148,14 @@ destinations, so job links must be public HTTPS.
 
 These guards are used by:
 
-- `crates/jobsentinel-core/src/core/db/crud.rs` before a job link is stored in SQLite.
+- `crates/jobsentinel-storage/src/crud.rs` before a job link is stored in SQLite.
 - `src-tauri/src/commands/automation.rs` before Application Assist opens a
   visible review browser and loads local profile data.
 - `src-tauri/src/commands/deeplinks.rs` before opening a job URL in the user's browser.
-- `crates/jobsentinel-core/src/core/scrapers/http_client.rs` before shared scraper HTTP
+- `crates/jobsentinel-network/src/external_request.rs` before shared scraper HTTP
   retry helpers fetch a source URL.
-- `crates/jobsentinel-core/src/core/config/validation.rs`, `crates/jobsentinel-core/src/core/scrapers/jobswithgpt.rs`,
-  and `crates/jobsentinel-core/src/core/health/smoke_checks/sources.rs` before using a configured JobsWithGPT endpoint.
+- `crates/jobsentinel-application/src/config/validation.rs`, `crates/jobsentinel-sources/src/scrapers/jobswithgpt.rs`,
+  and `crates/jobsentinel-application/src/health/smoke_checks/sources.rs` before using a configured JobsWithGPT endpoint.
 
 Saved jobs now use this shared canonicalization path instead of a string prefix
 check, so stored job links cannot target localhost, private networks, embedded
@@ -216,8 +216,8 @@ renderer CSP.
 ### Browser Import Local Receiver
 
 **Files**: `src-tauri/src/commands/bookmarklet.rs`,
-`crates/jobsentinel-core/src/core/bookmarklet/server.rs`, and
-`crates/jobsentinel-core/src/core/bookmarklet/server/listener.rs`
+`crates/jobsentinel-assistance/src/bookmarklet/server.rs`, and
+`crates/jobsentinel-assistance/src/bookmarklet/server/listener.rs`
 
 Browser Import uses a loopback-only HTTP receiver and a generated browser button
 instead of account cookies or background site monitoring. The receiver binds to

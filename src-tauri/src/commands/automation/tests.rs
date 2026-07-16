@@ -1,5 +1,5 @@
 use super::*;
-use crate::core::automation::ApplicationAttempt;
+use crate::application::automation::ApplicationAttempt;
 
 fn valid_application_profile_input() -> ApplicationProfileInput {
     ApplicationProfileInput {
@@ -146,11 +146,11 @@ fn attempt_response_exposes_screenshot_presence_not_paths() {
 
 #[tokio::test]
 async fn upsert_application_profile_cleans_replaced_and_cleared_managed_resume_files() {
-    let database = crate::core::db::Database::connect_memory()
+    let database = crate::desktop::Database::connect_memory()
         .await
         .expect("test database");
     database.migrate().await.expect("migrations");
-    let manager = ProfileManager::new(database.pool().clone());
+    let manager = database.profile_manager();
     let managed_dir = tempfile::tempdir().unwrap();
 
     let old_token = "7d9d16a1-2e5d-4b32-9eb2-bfbffb4ee871--old-resume.pdf";

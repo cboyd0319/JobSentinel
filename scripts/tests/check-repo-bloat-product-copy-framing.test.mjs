@@ -68,7 +68,7 @@ test("checkRepoBloat rejects stale Resume Optimizer framing", () => {
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/resume/templates.rs",
+      "crates/jobsentinel-documents/src/templates.rs",
       [
         "//! ATS-optimized resume templates for HTML rendering",
         "//! to ATS-parseable HTML. All templates follow ATS-safe design rules:",
@@ -106,7 +106,7 @@ test("checkRepoBloat rejects stale Resume Optimizer framing", () => {
         "src/features/resumes/builder/AtsLiveScorePanel.tsx",
         "src/features/resumes/library/ResumeLibraryPage.tsx",
         "src/features/resumes/builder/ResumeBuilderPage.tsx",
-        "crates/jobsentinel-core/src/core/resume/templates.rs",
+        "crates/jobsentinel-documents/src/templates.rs",
         "docs/user/QUICK_START.md",
         "docs/releases/v2.0.md",
         "docs/releases/v2.4.md",
@@ -125,7 +125,7 @@ test("checkRepoBloat rejects stale Resume Optimizer framing", () => {
       "src/features/resumes/builder/AtsLiveScorePanel.tsx",
       "src/features/resumes/library/ResumeLibraryPage.tsx",
       "src/features/resumes/builder/ResumeBuilderPage.tsx",
-      "crates/jobsentinel-core/src/core/resume/templates.rs",
+      "crates/jobsentinel-documents/src/templates.rs",
       "docs/user/QUICK_START.md",
       "docs/releases/v2.0.md",
       "docs/releases/v2.4.md",

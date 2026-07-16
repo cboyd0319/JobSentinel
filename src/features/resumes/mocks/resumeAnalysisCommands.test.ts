@@ -1,20 +1,16 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { mockInvoke, resetMockData } from "../../../mocks/handlers";
+import { mockInvoke, resetMockData } from "../../../test-support/mocks/handlers";
 import { atsResume } from "./resumeAnalysisTestData";
 import type { AtsAnalysisResult } from "./resumeAnalysisTestData";
-
 describe("mock resume analysis command handlers", () => {
   beforeEach(() => {
     resetMockData();
   });
-
   it("analyzes resumes with the real ATS backend command names", async () => {
     const powerWords = await mockInvoke<string[]>("get_ats_power_words");
-
     expect(powerWords).toEqual(
       expect.arrayContaining(["led", "coordinated", "improved", "supported"]),
     );
-
     const formatResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_format", {
       resume: atsResume,
     });
@@ -29,7 +25,6 @@ describe("mock resume analysis command handlers", () => {
       format_issues: expect.any(Array),
       suggestions: expect.any(Array),
     });
-
     const keywordListFormatResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_format", {
       resume: {
         ...atsResume,
@@ -48,7 +43,6 @@ describe("mock resume analysis command handlers", () => {
         }),
       ]),
     );
-
     const jobResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: atsResume,
       jobDescription: "Required: scheduling, case management, bilingual. Preferred: client intake.",
@@ -114,7 +108,6 @@ describe("mock resume analysis command handlers", () => {
         }),
       ]),
     );
-
     const crmResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
         ...atsResume,
@@ -140,7 +133,6 @@ describe("mock resume analysis command handlers", () => {
         }),
       ]),
     );
-
     const customerServiceResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
         ...atsResume,
@@ -164,7 +156,6 @@ describe("mock resume analysis command handlers", () => {
         }),
       ]),
     );
-
     const guestServiceResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
         ...atsResume,
@@ -188,7 +179,6 @@ describe("mock resume analysis command handlers", () => {
         }),
       ]),
     );
-
     const frontDeskResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
         ...atsResume,
@@ -214,7 +204,6 @@ describe("mock resume analysis command handlers", () => {
         }),
       ]),
     );
-
     const caseManagementResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
         ...atsResume,
@@ -240,7 +229,6 @@ describe("mock resume analysis command handlers", () => {
         }),
       ]),
     );
-
     const caseCoordinationResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
         ...atsResume,
@@ -266,7 +254,6 @@ describe("mock resume analysis command handlers", () => {
         }),
       ]),
     );
-
     const dataEntryResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
         ...atsResume,
@@ -290,7 +277,6 @@ describe("mock resume analysis command handlers", () => {
         }),
       ]),
     );
-
     const dataAnalysisResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
         ...atsResume,
@@ -316,7 +302,6 @@ describe("mock resume analysis command handlers", () => {
         }),
       ]),
     );
-
     const onboardingResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
         ...atsResume,

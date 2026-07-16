@@ -2,12 +2,12 @@
 //!
 //! Commands for skill trends, company activity, location analysis, and market alerts.
 
+use crate::application::market_intelligence::{
+    CompanyActivity, LocationHeat, MarketAlert, MarketSnapshot, SkillTrend,
+};
 use crate::commands::errors::user_friendly_error;
 use crate::commands::limits::validate_command_limit_usize;
 use crate::commands::AppState;
-use crate::core::market_intelligence::{
-    CompanyActivity, LocationHeat, MarketAlert, MarketIntelligence, MarketSnapshot, SkillTrend,
-};
 use serde_json::Value;
 use tauri::State;
 
@@ -33,7 +33,7 @@ pub(crate) async fn get_trending_skills(
     tracing::info!("Command: get_trending_skills (limit: {})", limit);
 
     let limit = validate_command_limit_usize(limit)?;
-    let intel = MarketIntelligence::new(state.database.pool().clone());
+    let intel = state.database.market_intelligence();
     intel
         .get_trending_skills(limit)
         .await
@@ -49,7 +49,7 @@ pub(crate) async fn get_active_companies(
     tracing::info!("Command: get_active_companies (limit: {})", limit);
 
     let limit = validate_command_limit_usize(limit)?;
-    let intel = MarketIntelligence::new(state.database.pool().clone());
+    let intel = state.database.market_intelligence();
     intel
         .get_most_active_companies(limit)
         .await
@@ -65,7 +65,7 @@ pub(crate) async fn get_hottest_locations(
     tracing::info!("Command: get_hottest_locations (limit: {})", limit);
 
     let limit = validate_command_limit_usize(limit)?;
-    let intel = MarketIntelligence::new(state.database.pool().clone());
+    let intel = state.database.market_intelligence();
     intel
         .get_hottest_locations(limit)
         .await
@@ -79,7 +79,7 @@ pub(crate) async fn get_market_alerts(
 ) -> Result<Vec<MarketAlert>, String> {
     tracing::info!("Command: get_market_alerts");
 
-    let intel = MarketIntelligence::new(state.database.pool().clone());
+    let intel = state.database.market_intelligence();
     intel
         .get_unread_alerts()
         .await
@@ -91,7 +91,7 @@ pub(crate) async fn get_market_alerts(
 pub(crate) async fn run_market_analysis(state: State<'_, AppState>) -> Result<Value, String> {
     tracing::info!("Command: run_market_analysis");
 
-    let intel = MarketIntelligence::new(state.database.pool().clone());
+    let intel = state.database.market_intelligence();
     match intel.run_daily_analysis().await {
         Ok(snapshot) => serde_json::to_value(&snapshot)
             .map_err(|e| user_friendly_error("Failed to serialize snapshot", e)),
@@ -106,7 +106,7 @@ pub(crate) async fn get_market_snapshot(
 ) -> Result<Option<MarketSnapshot>, String> {
     tracing::info!("Command: get_market_snapshot");
 
-    let intel = MarketIntelligence::new(state.database.pool().clone());
+    let intel = state.database.market_intelligence();
     intel
         .get_market_snapshot()
         .await
@@ -122,7 +122,7 @@ pub(crate) async fn get_historical_snapshots(
     tracing::info!("Command: get_historical_snapshots (days: {})", days);
 
     let days = validate_historical_snapshot_days(days)?;
-    let intel = MarketIntelligence::new(state.database.pool().clone());
+    let intel = state.database.market_intelligence();
     intel
         .get_historical_snapshots(days)
         .await
@@ -134,7 +134,7 @@ pub(crate) async fn get_historical_snapshots(
 pub(crate) async fn mark_alert_read(id: i64, state: State<'_, AppState>) -> Result<bool, String> {
     tracing::info!("Command: mark_alert_read (id: {})", id);
 
-    let intel = MarketIntelligence::new(state.database.pool().clone());
+    let intel = state.database.market_intelligence();
     intel
         .mark_alert_read(id)
         .await
@@ -146,7 +146,7 @@ pub(crate) async fn mark_alert_read(id: i64, state: State<'_, AppState>) -> Resu
 pub(crate) async fn mark_all_alerts_read(state: State<'_, AppState>) -> Result<u64, String> {
     tracing::info!("Command: mark_all_alerts_read");
 
-    let intel = MarketIntelligence::new(state.database.pool().clone());
+    let intel = state.database.market_intelligence();
     intel
         .mark_all_alerts_read()
         .await

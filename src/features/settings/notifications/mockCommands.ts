@@ -1,4 +1,4 @@
-import { getArg } from "../../../mocks/handlers/commandHelpers";
+import { getArg } from "../../../test-support/mocks/handlers/commandHelpers";
 import type {
   NotificationPreferences,
   SourceNotificationConfig,

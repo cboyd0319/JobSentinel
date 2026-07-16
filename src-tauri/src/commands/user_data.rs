@@ -2,13 +2,13 @@
 //!
 //! Commands for cover letter templates, interview prep, saved searches, and notification preferences.
 
+use crate::application::user_data::{
+    CoverLetterTemplate, FollowUpReminder, NotificationPreferences, PrepChecklistItem, SavedSearch,
+    TemplateCategory,
+};
 use crate::commands::errors::user_friendly_error;
 use crate::commands::limits::validate_command_limit_i64;
 use crate::commands::AppState;
-use crate::core::user_data::{
-    CoverLetterTemplate, FollowUpReminder, NotificationPreferences, PrepChecklistItem, SavedSearch,
-    TemplateCategory, UserDataManager,
-};
 use tauri::State;
 
 // ============================================================================
@@ -22,7 +22,7 @@ pub(crate) async fn list_cover_letter_templates(
 ) -> Result<Vec<CoverLetterTemplate>, String> {
     tracing::info!("Command: list_cover_letter_templates");
 
-    let manager = UserDataManager::new(state.database.pool().clone());
+    let manager = state.database.user_data_manager();
     manager
         .list_templates()
         .await
@@ -37,7 +37,7 @@ pub(crate) async fn get_cover_letter_template(
 ) -> Result<Option<CoverLetterTemplate>, String> {
     tracing::info!("Command: get_cover_letter_template (id: {})", id);
 
-    let manager = UserDataManager::new(state.database.pool().clone());
+    let manager = state.database.user_data_manager();
     manager
         .get_template(&id)
         .await
@@ -61,7 +61,7 @@ pub(crate) async fn create_cover_letter_template(
         "Command: create_cover_letter_template"
     );
 
-    let manager = UserDataManager::new(state.database.pool().clone());
+    let manager = state.database.user_data_manager();
     manager
         .create_template(&name, &content, category)
         .await
@@ -83,7 +83,7 @@ pub(crate) async fn update_cover_letter_template(
         "Invalid category. Choose an available template category.".to_string()
     })?;
 
-    let manager = UserDataManager::new(state.database.pool().clone());
+    let manager = state.database.user_data_manager();
     manager
         .update_template(&id, &name, &content, category)
         .await
@@ -98,7 +98,7 @@ pub(crate) async fn delete_cover_letter_template(
 ) -> Result<bool, String> {
     tracing::info!("Command: delete_cover_letter_template (id: {})", id);
 
-    let manager = UserDataManager::new(state.database.pool().clone());
+    let manager = state.database.user_data_manager();
     manager
         .delete_template(&id)
         .await
@@ -111,7 +111,7 @@ pub(crate) async fn delete_cover_letter_template(
 pub(crate) async fn seed_default_templates(state: State<'_, AppState>) -> Result<usize, String> {
     tracing::info!("Command: seed_default_templates");
 
-    let manager = UserDataManager::new(state.database.pool().clone());
+    let manager = state.database.user_data_manager();
     manager
         .seed_default_templates()
         .await
@@ -129,7 +129,7 @@ pub(crate) async fn import_cover_letter_templates(
         templates.len()
     );
 
-    let manager = UserDataManager::new(state.database.pool().clone());
+    let manager = state.database.user_data_manager();
     manager
         .import_templates(templates)
         .await
@@ -151,7 +151,7 @@ pub(crate) async fn get_interview_prep_checklist(
         interview_id
     );
 
-    let manager = UserDataManager::new(state.database.pool().clone());
+    let manager = state.database.user_data_manager();
     manager
         .get_prep_checklist(interview_id)
         .await
@@ -173,7 +173,7 @@ pub(crate) async fn save_interview_prep_item(
         completed
     );
 
-    let manager = UserDataManager::new(state.database.pool().clone());
+    let manager = state.database.user_data_manager();
     manager
         .save_prep_item(interview_id, &item_id, completed)
         .await
@@ -195,7 +195,7 @@ pub(crate) async fn get_interview_followup(
         interview_id
     );
 
-    let manager = UserDataManager::new(state.database.pool().clone());
+    let manager = state.database.user_data_manager();
     manager
         .get_followup(interview_id)
         .await
@@ -215,7 +215,7 @@ pub(crate) async fn save_interview_followup(
         thank_you_sent
     );
 
-    let manager = UserDataManager::new(state.database.pool().clone());
+    let manager = state.database.user_data_manager();
     manager
         .save_followup(interview_id, thank_you_sent)
         .await
@@ -233,7 +233,7 @@ pub(crate) async fn list_saved_searches(
 ) -> Result<Vec<SavedSearch>, String> {
     tracing::info!("Command: list_saved_searches");
 
-    let manager = UserDataManager::new(state.database.pool().clone());
+    let manager = state.database.user_data_manager();
     manager
         .list_saved_searches()
         .await
@@ -255,7 +255,7 @@ pub(crate) async fn create_saved_search(
         "Command: create_saved_search"
     );
 
-    let manager = UserDataManager::new(state.database.pool().clone());
+    let manager = state.database.user_data_manager();
     manager
         .create_saved_search(search)
         .await
@@ -270,7 +270,7 @@ pub(crate) async fn use_saved_search(
 ) -> Result<bool, String> {
     tracing::info!("Command: use_saved_search (id: {})", id);
 
-    let manager = UserDataManager::new(state.database.pool().clone());
+    let manager = state.database.user_data_manager();
     manager
         .use_saved_search(&id)
         .await
@@ -285,7 +285,7 @@ pub(crate) async fn delete_saved_search(
 ) -> Result<bool, String> {
     tracing::info!("Command: delete_saved_search (id: {})", id);
 
-    let manager = UserDataManager::new(state.database.pool().clone());
+    let manager = state.database.user_data_manager();
     manager
         .delete_saved_search(&id)
         .await
@@ -303,7 +303,7 @@ pub(crate) async fn import_saved_searches(
         searches.len()
     );
 
-    let manager = UserDataManager::new(state.database.pool().clone());
+    let manager = state.database.user_data_manager();
     manager
         .import_saved_searches(searches)
         .await
@@ -321,7 +321,7 @@ pub(crate) async fn get_notification_preferences(
 ) -> Result<NotificationPreferences, String> {
     tracing::info!("Command: get_notification_preferences");
 
-    let manager = UserDataManager::new(state.database.pool().clone());
+    let manager = state.database.user_data_manager();
     manager
         .get_notification_preferences()
         .await
@@ -336,7 +336,7 @@ pub(crate) async fn save_notification_preferences(
 ) -> Result<(), String> {
     tracing::info!("Command: save_notification_preferences");
 
-    let manager = UserDataManager::new(state.database.pool().clone());
+    let manager = state.database.user_data_manager();
     manager
         .save_notification_preferences(&prefs)
         .await
@@ -355,7 +355,7 @@ pub(crate) async fn add_search_history(
 ) -> Result<(), String> {
     tracing::info!("Command: add_search_history");
 
-    let manager = UserDataManager::new(state.database.pool().clone());
+    let manager = state.database.user_data_manager();
     manager
         .add_search_history(&query)
         .await
@@ -371,7 +371,7 @@ pub(crate) async fn get_search_history(
     tracing::info!("Command: get_search_history (limit: {})", limit);
 
     let limit = validate_command_limit_i64(limit)?;
-    let manager = UserDataManager::new(state.database.pool().clone());
+    let manager = state.database.user_data_manager();
     manager
         .get_search_history(limit)
         .await
@@ -383,7 +383,7 @@ pub(crate) async fn get_search_history(
 pub(crate) async fn clear_search_history(state: State<'_, AppState>) -> Result<(), String> {
     tracing::info!("Command: clear_search_history");
 
-    let manager = UserDataManager::new(state.database.pool().clone());
+    let manager = state.database.user_data_manager();
     manager
         .clear_search_history()
         .await

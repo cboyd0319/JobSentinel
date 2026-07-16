@@ -147,7 +147,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
-      "src/mocks/data.ts",
+      "src/test-support/mocks/data.ts",
       [
         'export const mockConfig = { linkedin: { query: "software engineer" } };',
         'export const mockJobs = [{ title: "Senior Software Engineer" }];',
@@ -156,7 +156,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/market_intelligence/tests.rs",
+      "crates/jobsentinel-storage/src/market_intelligence/tests.rs",
       [
         'let title = "Software Engineer";',
         'let company = "TechCorp";',
@@ -166,7 +166,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/scrapers/simplyhired.rs",
+      "crates/jobsentinel-sources/src/scrapers/simplyhired.rs",
       [
         '/// Search query (e.g., "rust developer")',
         'let company = scraper.extract_company("Software Engineer - Acme Corp", None);',
@@ -175,7 +175,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/scrapers/jobswithgpt.rs",
+      "crates/jobsentinel-sources/src/scrapers/jobswithgpt.rs",
       [
         'titles: vec!["Rust Developer".to_string()],',
         '"company": "TechCorp",',
@@ -183,12 +183,12 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
       ].join("\n"),
     );
     for (const path of [
-      "crates/jobsentinel-core/src/core/scrapers/glassdoor.rs",
-      "crates/jobsentinel-core/src/core/scrapers/greenhouse.rs",
-      "crates/jobsentinel-core/src/core/scrapers/http_client.rs",
-      "crates/jobsentinel-core/src/core/scrapers/lever/tests.rs",
-      "crates/jobsentinel-core/src/core/scrapers/usajobs.rs",
-      "crates/jobsentinel-core/src/core/scrapers/weworkremotely.rs",
+      "crates/jobsentinel-sources/src/scrapers/glassdoor.rs",
+      "crates/jobsentinel-sources/src/scrapers/greenhouse.rs",
+      "crates/jobsentinel-network/src/external_request.rs",
+      "crates/jobsentinel-sources/src/scrapers/lever/tests.rs",
+      "crates/jobsentinel-sources/src/scrapers/usajobs.rs",
+      "crates/jobsentinel-sources/src/scrapers/weworkremotely.rs",
     ]) {
       writeFixtureFile(
         root,
@@ -203,7 +203,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     }
     writeFixtureFile(
       root,
-      "src/mocks/handlers.ts",
+      "src/test-support/mocks/handlers.ts",
       [
         '"TypeScript demand is surging"',
         '{ skill_name: "Kubernetes" }',
@@ -214,7 +214,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/resume/templates.rs",
+      "crates/jobsentinel-documents/src/templates.rs",
       '"Technical Skills-First"; "Perfect for engineering roles";\n',
     );
     writeFixtureFile(
@@ -334,12 +334,12 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/health/smoke_checks/mod.rs",
+      "crates/jobsentinel-application/src/health/smoke_checks/mod.rs",
       '"https://www.indeed.com/jobs?q=software+engineer&l=remote";\n',
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/deeplinks/generator.rs",
+      "crates/jobsentinel-assistance/src/deeplinks/generator.rs",
       'query: "Software Engineer"; location: "San Francisco, CA";\n',
     );
     writeFixtureFile(
@@ -369,12 +369,12 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/tests/api_contract_test.rs",
+      "crates/jobsentinel-application/tests/api_contract_test.rs",
       'create_test_job("salary_test", "Software Engineer", "TestCorp");\n',
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/tests/database_integration_test.rs",
+      "crates/jobsentinel-storage/tests/database_integration_test.rs",
       [
         'let job = create_test_job("idempotent_001", "Test Job", "TestCorp");',
         'title: "Senior Rust Engineer".to_string(),',
@@ -385,7 +385,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/tests/scraping_pipeline_integration.rs",
+      "crates/jobsentinel-application/tests/scraping_pipeline_integration.rs",
       [
         'title: "Senior Rust Security Engineer".to_string(),',
         'company: "TechCorp".to_string(),',
@@ -396,7 +396,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/tests/scheduler_integration_test.rs",
+      "crates/jobsentinel-application/tests/scheduler_integration_test.rs",
       [
         'title_allowlist: vec!["Security Engineer".to_string()],',
         'keywords_boost: vec!["Rust".to_string()],',
@@ -408,17 +408,17 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/import/README.md",
+      "crates/jobsentinel-application/src/service.rs",
       'title: "Software Engineer"; "San Francisco, CA";\n',
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/import/schema_org.rs",
+      "crates/jobsentinel-sources/src/job_page/mod.rs",
       'title: "Software Engineer"; "San Francisco, CA";\n',
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/import/tests.rs",
+      "crates/jobsentinel-application/src/service.rs",
       'title: "Software Engineer"; "San Francisco, CA";\n',
     );
     writeFixtureFile(
@@ -433,57 +433,57 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/resume/ats_analyzer.rs",
+      "crates/jobsentinel-documents/src/ats_analyzer.rs",
       '"John Doe"; "Senior Software Engineer"; "Tech Corp";\n',
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/resume/builder.rs",
+      "crates/jobsentinel-storage/src/resume/builder.rs",
       '"John Doe"; "TechCorp"; "Senior Software Engineer";\n',
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/resume/export.rs",
+      "crates/jobsentinel-documents/src/export.rs",
       '"John Doe"; "Tech Corp"; "Senior Software Engineer";\n',
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/resume/json_resume.rs",
+      "crates/jobsentinel-storage/src/resume/json_resume.rs",
       '"John Doe"; "Tech Corp"; "Software Engineer";\n',
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/resume/matcher.rs",
+      "crates/jobsentinel-storage/src/resume/matcher.rs",
       'title: "Software Engineer", company: "TechCorp";\n',
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/resume/parser.rs",
+      "crates/jobsentinel-documents/src/parser.rs",
       '"John Doe"; "Software Engineer"; "TechCorp";\n',
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/resume/tests.rs",
+      "crates/jobsentinel-storage/src/resume/tests.rs",
       'title: "Software Engineer", company: "TechCorp";\n',
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/bookmarklet/mod.rs",
+      "crates/jobsentinel-assistance/src/bookmarklet/mod.rs",
       'title: "Software Engineer", company: "Google";\n',
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/bookmarklet/server.rs",
+      "crates/jobsentinel-assistance/src/bookmarklet/server.rs",
       'calculate_job_hash("Google", "Software Engineer", "https://example.com/job/1");\n',
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/scoring/mod.rs",
+      "crates/jobsentinel-application/src/scoring/mod.rs",
       'job.location = Some("San Francisco, CA (Hybrid)".to_string());\n',
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/scoring/remote.rs",
+      "crates/jobsentinel-application/src/scoring/remote.rs",
       'create_test_job("Engineer", Some("Remote - US"), None, None);\n',
     );
     writeFixtureFile(
@@ -558,7 +558,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
-      "src/mocks/handlers.test.ts",
+      "src/test-support/mocks/handlers.test.ts",
       [
         'name: "Remote Rust",',
         'jobTitle: "Senior Software Engineer",',
@@ -607,7 +607,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/deeplinks/types.rs",
+      "crates/jobsentinel-assistance/src/deeplinks/types.rs",
       '/// Job title or keywords (e.g., "Software Engineer")\n',
     );
     writeFixtureFile(
@@ -617,7 +617,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/migrations/00000000000000_initial_schema.sql",
+      "crates/jobsentinel-storage/migrations/00000000000000_initial_schema.sql",
       'job_title_normalized TEXT NOT NULL, -- Normalized title (e.g., "Software Engineer")\n',
     );
 
@@ -634,10 +634,10 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "src/features/company-research/CompanyResearchPanel.tsx",
         "src/features/applications/CoverLetterTemplates.tsx",
         "src/features/dashboard/components/JobImportModal.tsx",
-        "src/mocks/data.ts",
-        "src/mocks/handlers.ts",
-        "src/mocks/handlers.test.ts",
-        "crates/jobsentinel-core/src/core/resume/templates.rs",
+        "src/test-support/mocks/data.ts",
+        "src/test-support/mocks/handlers.ts",
+        "src/test-support/mocks/handlers.test.ts",
+        "crates/jobsentinel-documents/src/templates.rs",
         "src/features/resumes/builder/ResumeBuilderPage.tsx",
         "src/features/resumes/matching/ResumeMatchPage.tsx",
         "src/features/resumes/matching/ResumeMatchPage.test.tsx",
@@ -661,42 +661,42 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "src/features/applications/InterviewScheduler.test.tsx",
         "src/shared/validation/contactFieldValidation.test.ts",
         "src/features/dashboard/jobCsvExport.test.ts",
-        "crates/jobsentinel-core/src/core/health/smoke_checks/mod.rs",
-        "crates/jobsentinel-core/src/core/deeplinks/generator.rs",
+        "crates/jobsentinel-application/src/health/smoke_checks/mod.rs",
+        "crates/jobsentinel-assistance/src/deeplinks/generator.rs",
         "src-tauri/src/commands/deeplinks.rs",
         "src-tauri/src/commands/feedback/debug_log.rs",
         "src-tauri/src/commands/feedback/sanitizer.rs",
         "src-tauri/src/commands/import.rs",
         "src-tauri/src/commands/tests.rs",
-        "crates/jobsentinel-core/src/core/market_intelligence/tests.rs",
-        "crates/jobsentinel-core/src/core/scrapers/glassdoor.rs",
-        "crates/jobsentinel-core/src/core/scrapers/greenhouse.rs",
-        "crates/jobsentinel-core/src/core/scrapers/http_client.rs",
-        "crates/jobsentinel-core/src/core/scrapers/jobswithgpt.rs",
-        "crates/jobsentinel-core/src/core/scrapers/lever/tests.rs",
-        "crates/jobsentinel-core/src/core/scrapers/simplyhired.rs",
-        "crates/jobsentinel-core/src/core/scrapers/usajobs.rs",
-        "crates/jobsentinel-core/src/core/scrapers/weworkremotely.rs",
-        "crates/jobsentinel-core/tests/api_contract_test.rs",
-        "crates/jobsentinel-core/tests/database_integration_test.rs",
-        "crates/jobsentinel-core/tests/scraping_pipeline_integration.rs",
-        "crates/jobsentinel-core/tests/scheduler_integration_test.rs",
-        "crates/jobsentinel-core/src/core/import/README.md",
-        "crates/jobsentinel-core/src/core/import/schema_org.rs",
-        "crates/jobsentinel-core/src/core/import/tests.rs",
+        "crates/jobsentinel-storage/src/market_intelligence/tests.rs",
+        "crates/jobsentinel-sources/src/scrapers/glassdoor.rs",
+        "crates/jobsentinel-sources/src/scrapers/greenhouse.rs",
+        "crates/jobsentinel-network/src/external_request.rs",
+        "crates/jobsentinel-sources/src/scrapers/jobswithgpt.rs",
+        "crates/jobsentinel-sources/src/scrapers/lever/tests.rs",
+        "crates/jobsentinel-sources/src/scrapers/simplyhired.rs",
+        "crates/jobsentinel-sources/src/scrapers/usajobs.rs",
+        "crates/jobsentinel-sources/src/scrapers/weworkremotely.rs",
+        "crates/jobsentinel-application/tests/api_contract_test.rs",
+        "crates/jobsentinel-storage/tests/database_integration_test.rs",
+        "crates/jobsentinel-application/tests/scraping_pipeline_integration.rs",
+        "crates/jobsentinel-application/tests/scheduler_integration_test.rs",
+        "crates/jobsentinel-application/src/service.rs",
+        "crates/jobsentinel-sources/src/job_page/mod.rs",
+        "crates/jobsentinel-application/src/service.rs",
         "docs/security/dompurify-test-examples.js",
         "docs/security/XSS_PREVENTION.md",
-        "crates/jobsentinel-core/src/core/resume/ats_analyzer.rs",
-        "crates/jobsentinel-core/src/core/resume/builder.rs",
-        "crates/jobsentinel-core/src/core/resume/export.rs",
-        "crates/jobsentinel-core/src/core/resume/json_resume.rs",
-        "crates/jobsentinel-core/src/core/resume/matcher.rs",
-        "crates/jobsentinel-core/src/core/resume/parser.rs",
-        "crates/jobsentinel-core/src/core/resume/tests.rs",
-        "crates/jobsentinel-core/src/core/bookmarklet/mod.rs",
-        "crates/jobsentinel-core/src/core/bookmarklet/server.rs",
-        "crates/jobsentinel-core/src/core/scoring/mod.rs",
-        "crates/jobsentinel-core/src/core/scoring/remote.rs",
+        "crates/jobsentinel-documents/src/ats_analyzer.rs",
+        "crates/jobsentinel-storage/src/resume/builder.rs",
+        "crates/jobsentinel-documents/src/export.rs",
+        "crates/jobsentinel-storage/src/resume/json_resume.rs",
+        "crates/jobsentinel-storage/src/resume/matcher.rs",
+        "crates/jobsentinel-documents/src/parser.rs",
+        "crates/jobsentinel-storage/src/resume/tests.rs",
+        "crates/jobsentinel-assistance/src/bookmarklet/mod.rs",
+        "crates/jobsentinel-assistance/src/bookmarklet/server.rs",
+        "crates/jobsentinel-application/src/scoring/mod.rs",
+        "crates/jobsentinel-application/src/scoring/remote.rs",
         "src/features/dashboard/hooks/useDashboardFilters.test.ts",
         "src/features/dashboard/hooks/useDashboardJobOps.test.ts",
         "src/features/dashboard/hooks/useDashboardSavedSearches.test.ts",
@@ -719,9 +719,9 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "docs/style-guide/WRITING-FOR-JOB-SEEKERS.md",
         "docs/developer/FRONTEND_TESTING.md",
         "docs/developer/INTEGRATION_TESTING.md",
-        "crates/jobsentinel-core/src/core/deeplinks/types.rs",
+        "crates/jobsentinel-assistance/src/deeplinks/types.rs",
         "src-tauri/src/app.rs",
-        "crates/jobsentinel-core/migrations/00000000000000_initial_schema.sql",
+        "crates/jobsentinel-storage/migrations/00000000000000_initial_schema.sql",
       ],
       { cwd: root },
     );
@@ -743,7 +743,7 @@ test("checkRepoBloat rejects salary audience example drift", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/salary/tests.rs",
+      "crates/jobsentinel-storage/src/salary/tests.rs",
       [
         'SeniorityLevel::from_job_title("Junior Software Engineer");',
         'SeniorityLevel::from_job_title("Software Architect");',
@@ -753,7 +753,7 @@ test("checkRepoBloat rejects salary audience example drift", () => {
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/salary/predictor.rs",
+      "crates/jobsentinel-storage/src/salary/predictor.rs",
       [
         'insert_test_job(&pool, "job_entry", "Junior Developer", "Remote").await;',
         'predictor.normalize_title("DevOps Engineer");',
@@ -766,8 +766,8 @@ test("checkRepoBloat rejects salary audience example drift", () => {
       [
         "add",
         "package.json",
-        "crates/jobsentinel-core/src/core/salary/tests.rs",
-        "crates/jobsentinel-core/src/core/salary/predictor.rs",
+        "crates/jobsentinel-storage/src/salary/tests.rs",
+        "crates/jobsentinel-storage/src/salary/predictor.rs",
       ],
       { cwd: root },
     );
@@ -775,8 +775,8 @@ test("checkRepoBloat rejects salary audience example drift", () => {
     const violations = checkRepoBloat(root);
 
     for (const path of [
-      "crates/jobsentinel-core/src/core/salary/tests.rs",
-      "crates/jobsentinel-core/src/core/salary/predictor.rs",
+      "crates/jobsentinel-storage/src/salary/tests.rs",
+      "crates/jobsentinel-storage/src/salary/predictor.rs",
     ]) {
       assert.ok(
         violations.includes(`replace salary audience example: ${path}`),

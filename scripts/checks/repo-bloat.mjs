@@ -10,9 +10,8 @@ import {
 } from "../harness/checks/docs-drift.mjs";
 import { collectPrivacyLoggingViolations } from "../harness/checks/privacy-logging.mjs";
 import {
-  collectFileSizeContractGlobalViolations,
   collectFilesystemBloat,
-  collectTrackedFileSizeViolations,
+  collectRepositoryFileSizeViolations,
   collectUnexpectedRootEntries,
   isTrackedBloat,
   listTrackedFiles,
@@ -38,13 +37,12 @@ export function checkRepoBloat(root = defaultRoot) {
   for (const artifact of collectFilesystemBloat(root)) {
     violations.push(`remove local artifact: ${artifact}`);
   }
-  violations.push(...collectFileSizeContractGlobalViolations(root));
+  violations.push(...collectRepositoryFileSizeViolations(root));
 
   for (const path of listTrackedFiles(root)) {
     if (isTrackedBloat(path)) {
       violations.push(`remove tracked generated or disposable file: ${path}`);
     }
-    violations.push(...collectTrackedFileSizeViolations(root, path));
     violations.push(...collectDocsDriftViolations(root, path));
     violations.push(...collectPrivacyLoggingViolations(root, path));
     violations.push(...collectProductPolicyViolations(root, path));

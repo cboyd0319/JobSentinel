@@ -1,0 +1,364 @@
+//! Market Analytics Engine
+//!
+//! Computes daily market snapshots and provides analytics queries.
+
+use anyhow::Result;
+use chrono::{NaiveDate, Utc};
+use serde::{Deserialize, Serialize};
+use sqlx::{Row, SqlitePool};
+
+/// Market analyzer
+pub(super) struct MarketAnalyzer {
+    db: SqlitePool,
+}
+
+/// Compute median from a vector of values (SQLite doesn't have MEDIAN())
+fn compute_median(values: &mut [f64]) -> Option<f64> {
+    if values.is_empty() {
+        return None;
+    }
+    values.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
+    let len = values.len();
+    if len.is_multiple_of(2) {
+        Some((values[len / 2 - 1] + values[len / 2]) / 2.0)
+    } else {
+        Some(values[len / 2])
+    }
+}
+
+impl MarketAnalyzer {
+    pub(super) fn new(db: SqlitePool) -> Self {
+        Self { db }
+    }
+
+    /// Create daily market snapshot
+    pub(super) async fn create_daily_snapshot(&self) -> Result<MarketSnapshot> {
+        let today = Utc::now().date_naive();
+
+        // Total jobs in database
+        let total_jobs = sqlx::query_scalar::<_, i64>("SELECT COUNT(*) FROM jobs")
+            .fetch_one(&self.db)
+            .await?;
+
+        // New jobs today
+        let new_jobs_today = sqlx::query_scalar::<_, i64>(
+            "SELECT COUNT(*) FROM jobs WHERE DATE(created_at) = DATE('now')",
+        )
+        .fetch_one(&self.db)
+        .await?;
+
+        // Current jobs schema has no closure status. Keep sentiment neutral here
+        // until a real source-backed closure signal exists.
+        let jobs_filled_today = 0;
+
+        // Average salary
+        let avg_salary = sqlx::query_scalar::<_, Option<f64>>(
+            "SELECT AVG(predicted_median) FROM job_salary_predictions",
+        )
+        .fetch_one(&self.db)
+        .await?;
+
+        // Median salary - fetch all values and compute in Rust
+        let salary_rows = sqlx::query("SELECT predicted_median FROM job_salary_predictions")
+            .fetch_all(&self.db)
+            .await?;
+        let mut salaries: Vec<f64> = salary_rows
+            .iter()
+            .filter_map(|r| r.try_get::<f64, _>("predicted_median").ok())
+            .collect();
+        let median_salary = compute_median(&mut salaries);
+
+        // Remote job percentage
+        let remote_count = sqlx::query_scalar::<_, i64>(
+            "SELECT COUNT(*) FROM jobs WHERE LOWER(location) LIKE '%remote%'",
+        )
+        .fetch_one(&self.db)
+        .await?;
+
+        let remote_pct = if total_jobs > 0 {
+            (remote_count as f64 / total_jobs as f64) * 100.0
+        } else {
+            0.0
+        };
+
+        // Top skill
+        let top_skill = sqlx::query_scalar::<_, String>(
+            r#"
+            SELECT skill_name
+            FROM job_skills
+            GROUP BY skill_name
+            ORDER BY COUNT(*) DESC
+            LIMIT 1
+            "#,
+        )
+        .fetch_optional(&self.db)
+        .await?;
+
+        // Top company (most active)
+        let top_company = sqlx::query_scalar::<_, String>(
+            r#"
+            SELECT company
+            FROM jobs
+            WHERE company IS NOT NULL AND company != ''
+            GROUP BY company
+            ORDER BY COUNT(*) DESC
+            LIMIT 1
+            "#,
+        )
+        .fetch_optional(&self.db)
+        .await?;
+
+        // Top location
+        let top_location = sqlx::query_scalar::<_, String>(
+            r#"
+            SELECT location
+            FROM jobs
+            WHERE location IS NOT NULL AND location != ''
+            GROUP BY location
+            ORDER BY COUNT(*) DESC
+            LIMIT 1
+            "#,
+        )
+        .fetch_optional(&self.db)
+        .await?;
+
+        // Total companies represented in local market evidence. Hidden jobs are
+        // user-dismissed, not source-closed, so keep them in market analytics.
+        let total_companies_hiring = sqlx::query_scalar::<_, i64>(
+            r#"
+            SELECT COUNT(DISTINCT company)
+            FROM jobs
+            WHERE company IS NOT NULL AND company != ''
+            "#,
+        )
+        .fetch_one(&self.db)
+        .await?;
+
+        // Determine market sentiment
+        let market_sentiment = self
+            .calculate_market_sentiment(new_jobs_today, jobs_filled_today)
+            .await?;
+
+        // Create snapshot
+        let snapshot = MarketSnapshot {
+            date: today,
+            total_jobs,
+            new_jobs_today,
+            jobs_filled_today,
+            avg_salary: avg_salary.map(|v| v as i64),
+            median_salary: median_salary.map(|v| v as i64),
+            remote_job_percentage: remote_pct,
+            top_skill,
+            top_company,
+            top_location,
+            total_companies_hiring,
+            market_sentiment,
+            notes: None,
+        };
+
+        // Store in database
+        self.store_snapshot(&snapshot).await?;
+
+        Ok(snapshot)
+    }
+
+    /// Store market snapshot in database
+    async fn store_snapshot(&self, snapshot: &MarketSnapshot) -> Result<()> {
+        sqlx::query(
+            r#"
+            INSERT INTO market_snapshots (
+                date, total_jobs, new_jobs_today, jobs_filled_today,
+                avg_salary, median_salary, remote_job_percentage,
+                top_skill, top_company, top_location,
+                total_companies_hiring, market_sentiment, notes
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(date) DO UPDATE SET
+                total_jobs = excluded.total_jobs,
+                new_jobs_today = excluded.new_jobs_today,
+                jobs_filled_today = excluded.jobs_filled_today,
+                avg_salary = excluded.avg_salary,
+                median_salary = excluded.median_salary,
+                remote_job_percentage = excluded.remote_job_percentage,
+                top_skill = excluded.top_skill,
+                top_company = excluded.top_company,
+                top_location = excluded.top_location,
+                total_companies_hiring = excluded.total_companies_hiring,
+                market_sentiment = excluded.market_sentiment,
+                notes = excluded.notes
+            "#,
+        )
+        .bind(snapshot.date.to_string())
+        .bind(snapshot.total_jobs)
+        .bind(snapshot.new_jobs_today)
+        .bind(snapshot.jobs_filled_today)
+        .bind(snapshot.avg_salary)
+        .bind(snapshot.median_salary)
+        .bind(snapshot.remote_job_percentage)
+        .bind(&snapshot.top_skill)
+        .bind(&snapshot.top_company)
+        .bind(&snapshot.top_location)
+        .bind(snapshot.total_companies_hiring)
+        .bind(&snapshot.market_sentiment)
+        .bind(&snapshot.notes)
+        .execute(&self.db)
+        .await?;
+
+        Ok(())
+    }
+
+    /// Calculate market sentiment based on job posting activity
+    #[allow(unused_variables)]
+    async fn calculate_market_sentiment(&self, new_jobs: i64, jobs_filled: i64) -> Result<String> {
+        // Get previous week's average
+        let prev_avg = sqlx::query_scalar::<_, Option<f64>>(
+            r#"
+            SELECT AVG(new_jobs_today)
+            FROM market_snapshots
+            WHERE date >= date('now', '-7 days')
+            "#,
+        )
+        .fetch_one(&self.db)
+        .await?
+        .unwrap_or(0.0);
+
+        if prev_avg == 0.0 {
+            return Ok("neutral".to_string());
+        }
+
+        let change_pct = ((new_jobs as f64 - prev_avg) / prev_avg) * 100.0;
+
+        if change_pct >= 20.0 {
+            Ok("bullish".to_string())
+        } else if change_pct <= -20.0 {
+            Ok("bearish".to_string())
+        } else {
+            Ok("neutral".to_string())
+        }
+    }
+
+    /// Get latest market snapshot
+    pub(super) async fn get_latest_snapshot(&self) -> Result<Option<MarketSnapshot>> {
+        let row = sqlx::query(
+            r#"
+            SELECT
+                date, total_jobs, new_jobs_today, jobs_filled_today,
+                avg_salary, median_salary, remote_job_percentage,
+                top_skill, top_company, top_location,
+                total_companies_hiring, market_sentiment, notes
+            FROM market_snapshots
+            ORDER BY date DESC
+            LIMIT 1
+            "#,
+        )
+        .fetch_optional(&self.db)
+        .await?;
+
+        match row {
+            Some(r) => Ok(Some(row_to_snapshot(&r)?)),
+            None => Ok(None),
+        }
+    }
+
+    /// Get historical snapshots (last N days)
+    pub(super) async fn get_historical_snapshots(
+        &self,
+        days: usize,
+    ) -> Result<Vec<MarketSnapshot>> {
+        let modifier = format!("-{days} days");
+        let rows = sqlx::query(
+            r#"
+            SELECT
+                date, total_jobs, new_jobs_today, jobs_filled_today,
+                avg_salary, median_salary, remote_job_percentage,
+                top_skill, top_company, top_location,
+                total_companies_hiring, market_sentiment, notes
+            FROM market_snapshots
+            WHERE date >= date('now', ?)
+            ORDER BY date DESC
+            "#,
+        )
+        .bind(modifier)
+        .fetch_all(&self.db)
+        .await?;
+
+        rows.into_iter()
+            .map(|r| row_to_snapshot(&r))
+            .collect::<Result<Vec<_>>>()
+    }
+}
+
+fn row_to_snapshot(r: &sqlx::sqlite::SqliteRow) -> Result<MarketSnapshot> {
+    let date_str: String = r.try_get("date")?;
+
+    // Helper to convert empty strings to None
+    let optional_string = |col: &str| -> Option<String> {
+        r.try_get::<String, _>(col).ok().filter(|s| !s.is_empty())
+    };
+
+    Ok(MarketSnapshot {
+        date: NaiveDate::parse_from_str(&date_str, "%Y-%m-%d")?,
+        total_jobs: r.try_get("total_jobs")?,
+        new_jobs_today: r.try_get("new_jobs_today")?,
+        jobs_filled_today: r.try_get("jobs_filled_today")?,
+        avg_salary: r.try_get("avg_salary").ok(),
+        median_salary: r.try_get("median_salary").ok(),
+        remote_job_percentage: r.try_get("remote_job_percentage")?,
+        top_skill: optional_string("top_skill"),
+        top_company: optional_string("top_company"),
+        top_location: optional_string("top_location"),
+        total_companies_hiring: r.try_get("total_companies_hiring")?,
+        market_sentiment: r.try_get("market_sentiment")?,
+        notes: optional_string("notes"),
+    })
+}
+
+/// Market snapshot (daily aggregate statistics)
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct MarketSnapshot {
+    pub date: NaiveDate,
+    pub total_jobs: i64,
+    pub new_jobs_today: i64,
+    pub jobs_filled_today: i64,
+    pub avg_salary: Option<i64>,
+    pub median_salary: Option<i64>,
+    pub remote_job_percentage: f64,
+    pub top_skill: Option<String>,
+    pub top_company: Option<String>,
+    pub top_location: Option<String>,
+    pub total_companies_hiring: i64,
+    pub market_sentiment: String, // 'bullish', 'neutral', 'bearish'
+    pub notes: Option<String>,
+}
+
+impl MarketSnapshot {
+    /// Format summary description
+    pub fn summary(&self) -> String {
+        format!(
+            "{} new jobs posted today ({} total). Market sentiment: {}. Top skill: {}",
+            self.new_jobs_today,
+            self.total_jobs,
+            self.market_sentiment,
+            self.top_skill.as_deref().unwrap_or("N/A")
+        )
+    }
+
+    /// Is market healthy?
+    pub fn is_healthy(&self) -> bool {
+        self.market_sentiment == "bullish"
+            || (self.market_sentiment == "neutral" && self.new_jobs_today > 0)
+    }
+
+    /// Get sentiment indicator
+    pub fn sentiment_indicator(&self) -> &str {
+        match self.market_sentiment.as_str() {
+            "bullish" => "[UP]",
+            "bearish" => "[DOWN]",
+            _ => "[FLAT]",
+        }
+    }
+}
+
+#[cfg(test)]
+#[path = "analytics_tests.rs"]
+mod tests;

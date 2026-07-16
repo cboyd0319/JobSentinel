@@ -125,8 +125,7 @@ npm run test:e2e:all
 npm run test:e2e:all:budget
 ```
 
-Runs Chromium and WebKit functional E2E tests. `npm run test:e2e:ci` is the
-same full-suite command for CI-oriented runs. Use the budget command when
+Runs Chromium and WebKit functional E2E tests. Use the budget command when
 checking that the full suite has not drifted back into slow local feedback
 loops. The maintained full-suite budget is four minutes.
 
@@ -187,7 +186,7 @@ Tests are configured in `playwright.config.ts`:
 - Local workers: 4 by default, override with `PLAYWRIGHT_WORKERS`
 - Reporter: line by default, HTML when `PLAYWRIGHT_HTML_REPORT=1`
 - Reduced motion: enabled to avoid waiting on hover animations and transitions
-- Retries: 2 (CI), 0 (local)
+- Retries: 2 when `CI=true`, 0 otherwise
 - Mock data: Uses `npm run dev:mock`
 
 ## Test Patterns
@@ -230,21 +229,20 @@ await card.bookmark();
 
 ### Mock Data
 
-Tests run against mock data defined in `src/mocks/`:
+Tests run against mock data defined in `src/test-support/mocks/`:
 
 - Mock job listings
 - Mock applications
 - Mock settings
 - Mock resumes, skills, builder drafts, templates, previews, and match results
 
-## CI/CD Integration
+## Automation Profile
 
-Tests run in CI with:
-
-- Retry on failure (2 retries)
-- Serial execution (workers: 1)
-- HTML report generation
-- Screenshot/video on failure
+JobSentinel has no hosted continuous integration during private pre-alpha
+development. Setting `CI=true` explicitly selects the conservative automation
+profile: two retries and one worker. HTML reports remain opt-in through
+`PLAYWRIGHT_HTML_REPORT=1`; screenshots, video, and traces are retained on
+failure according to `playwright.config.ts`.
 
 ## Best Practices
 

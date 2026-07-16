@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { mockInvoke, resetMockData } from "../../../mocks/handlers";
+import { mockInvoke, resetMockData } from "../../../test-support/mocks/handlers";
 
 type MockJobSummary = {
   hash: string;

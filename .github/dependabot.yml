@@ -74,6 +74,6 @@ updates:
           - "patch"
     labels:
       - "dependencies"
-      - "ci"
+      - "automation"
     commit-message:
-      prefix: "chore(ci):"
+      prefix: "chore(automation):"

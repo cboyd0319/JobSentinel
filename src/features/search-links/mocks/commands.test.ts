@@ -9,7 +9,7 @@ import type {
   SearchCriteria,
   SiteInfo,
 } from "../../../shared/search-links";
-import { mockInvoke, resetMockData } from "../../../mocks/handlers";
+import { mockInvoke, resetMockData } from "../../../test-support/mocks/handlers";
 import { handleMockSearchLinksCommand } from "./commands";
 
 const deepLinkCriteria: SearchCriteria = {

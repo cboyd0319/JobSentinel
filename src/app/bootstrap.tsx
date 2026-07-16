@@ -12,7 +12,7 @@ async function prepareDevelopmentRuntime() {
   void import("./vitals").then(({ reportWebVitals }) => {
     reportWebVitals();
   });
-  const { setupMocking } = await import("../mocks");
+  const { setupMocking } = await import("../test-support/mocks");
   await setupMocking();
 }
 

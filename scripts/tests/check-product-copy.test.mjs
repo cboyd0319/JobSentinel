@@ -21,23 +21,19 @@ import {
   hasTechnicalRecoveryCopy,
   hasTechnicalFirstUserCopy,
 } from "../harness/checks/product-copy.mjs";
-
 function writeFixtureFile(root, path, content = "") {
   const fullPath = join(root, path);
   mkdirSync(dirname(fullPath), { recursive: true });
   writeFileSync(fullPath, content, "utf8");
 }
-
 function withFixture(callback) {
   const root = mkdtempSync(join(tmpdir(), "jobsentinel-product-copy-"));
-
   try {
     callback(root);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
 }
-
 test("product copy rejects stale Resume Optimizer framing", () => {
   withFixture((root) => {
     writeFixtureFile(
@@ -60,7 +56,6 @@ test("product copy rejects stale Resume Optimizer framing", () => {
       "src/features/resumes/builder/AtsLiveScorePanel.tsx",
       "Only add these words when they honestly fit your experience.\n",
     );
-
     assert.equal(
       hasStaleResumeOptimizerFraming(root, "docs/features/resume-matcher.md"),
       true,
@@ -92,7 +87,6 @@ test("product copy rejects stale Resume Optimizer framing", () => {
     );
   });
 });
-
 test("product copy rejects local resume upload wording in resume match", () => {
   withFixture((root) => {
     writeFixtureFile(
@@ -403,7 +397,7 @@ test("product copy rejects debug-report roadmap wording", () => {
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/health/smoke_checks/mod.rs",
+      "crates/jobsentinel-application/src/health/smoke_checks/mod.rs",
       "This source check could not finish. Try again later or attach a safe debug report.\n",
     );
     writeFixtureFile(
@@ -473,7 +467,7 @@ test("product copy rejects debug-report roadmap wording", () => {
     assert.equal(
       hasFeedbackLocalReportDrift(
         root,
-        "crates/jobsentinel-core/src/core/health/smoke_checks/mod.rs",
+        "crates/jobsentinel-application/src/health/smoke_checks/mod.rs",
       ),
       true,
     );

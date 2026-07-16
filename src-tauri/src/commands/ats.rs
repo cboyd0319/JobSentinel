@@ -2,12 +2,11 @@
 //!
 //! Commands for managing job applications, interviews, reminders, and ghosting detection.
 
+use crate::application::ats::{
+    ApplicationStats, ApplicationStatus, ApplicationsByStatus, InterviewWithJob, PendingReminder,
+};
 use crate::commands::errors::user_friendly_error;
 use crate::commands::AppState;
-use crate::core::ats::{
-    ApplicationStats, ApplicationStatus, ApplicationTracker, ApplicationsByStatus,
-    InterviewWithJob, PendingReminder,
-};
 use tauri::State;
 
 /// Create a new application from a job
@@ -19,7 +18,7 @@ pub(crate) async fn create_application(
     let job_hash_chars = job_hash.chars().count();
     tracing::info!(job_hash_chars, "Command: create_application");
 
-    let tracker = ApplicationTracker::new(state.database.pool().clone());
+    let tracker = state.database.application_tracker();
     tracker
         .create_application(&job_hash)
         .await
@@ -33,7 +32,7 @@ pub(crate) async fn get_applications_kanban(
 ) -> Result<ApplicationsByStatus, String> {
     tracing::info!("Command: get_applications_kanban");
 
-    let tracker = ApplicationTracker::new(state.database.pool().clone());
+    let tracker = state.database.application_tracker();
     tracker
         .get_applications_by_status()
         .await
@@ -54,7 +53,7 @@ pub(crate) async fn update_application_status(
         "Command: update_application_status"
     );
 
-    let tracker = ApplicationTracker::new(state.database.pool().clone());
+    let tracker = state.database.application_tracker();
     let new_status: ApplicationStatus = status
         .parse()
         .map_err(|e| user_friendly_error("Invalid status", e))?;
@@ -74,7 +73,7 @@ pub(crate) async fn add_application_notes(
 ) -> Result<(), String> {
     tracing::info!("Command: add_application_notes (id: {})", application_id);
 
-    let tracker = ApplicationTracker::new(state.database.pool().clone());
+    let tracker = state.database.application_tracker();
     tracker
         .add_notes(application_id, &notes)
         .await
@@ -88,7 +87,7 @@ pub(crate) async fn get_pending_reminders(
 ) -> Result<Vec<PendingReminder>, String> {
     tracing::info!("Command: get_pending_reminders");
 
-    let tracker = ApplicationTracker::new(state.database.pool().clone());
+    let tracker = state.database.application_tracker();
     tracker
         .get_pending_reminders()
         .await
@@ -103,7 +102,7 @@ pub(crate) async fn complete_reminder(
 ) -> Result<(), String> {
     tracing::info!("Command: complete_reminder (id: {})", reminder_id);
 
-    let tracker = ApplicationTracker::new(state.database.pool().clone());
+    let tracker = state.database.application_tracker();
     tracker
         .complete_reminder(reminder_id)
         .await
@@ -117,7 +116,7 @@ pub(crate) async fn detect_ghosted_applications(
 ) -> Result<usize, String> {
     tracing::info!("Command: detect_ghosted_applications");
 
-    let tracker = ApplicationTracker::new(state.database.pool().clone());
+    let tracker = state.database.application_tracker();
     tracker
         .auto_detect_ghosted()
         .await
@@ -131,7 +130,7 @@ pub(crate) async fn get_application_stats(
 ) -> Result<ApplicationStats, String> {
     tracing::info!("Command: get_application_stats");
 
-    let tracker = ApplicationTracker::new(state.database.pool().clone());
+    let tracker = state.database.application_tracker();
     tracker
         .get_application_stats()
         .await
@@ -165,7 +164,7 @@ pub(crate) async fn schedule_interview(
         "Command: schedule_interview"
     );
 
-    let tracker = ApplicationTracker::new(state.database.pool().clone());
+    let tracker = state.database.application_tracker();
     tracker
         .schedule_interview(
             application_id,
@@ -188,7 +187,7 @@ pub(crate) async fn get_upcoming_interviews(
 ) -> Result<Vec<InterviewWithJob>, String> {
     tracing::info!("Command: get_upcoming_interviews");
 
-    let tracker = ApplicationTracker::new(state.database.pool().clone());
+    let tracker = state.database.application_tracker();
     tracker
         .get_upcoming_interviews()
         .await
@@ -202,7 +201,7 @@ pub(crate) async fn get_past_interviews(
 ) -> Result<Vec<InterviewWithJob>, String> {
     tracing::info!("Command: get_past_interviews");
 
-    let tracker = ApplicationTracker::new(state.database.pool().clone());
+    let tracker = state.database.application_tracker();
     tracker
         .get_past_interviews()
         .await
@@ -225,7 +224,7 @@ pub(crate) async fn complete_interview(
         "Command: complete_interview"
     );
 
-    let tracker = ApplicationTracker::new(state.database.pool().clone());
+    let tracker = state.database.application_tracker();
     tracker
         .complete_interview(interview_id, &outcome, notes.as_deref())
         .await
@@ -240,7 +239,7 @@ pub(crate) async fn delete_interview(
 ) -> Result<(), String> {
     tracing::info!("Command: delete_interview (id: {})", interview_id);
 
-    let tracker = ApplicationTracker::new(state.database.pool().clone());
+    let tracker = state.database.application_tracker();
     tracker
         .delete_interview(interview_id)
         .await

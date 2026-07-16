@@ -1,0 +1,55 @@
+[package]
+name = "jobsentinel-application"
+description = "JobSentinel application use cases and orchestration"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+keywords.workspace = true
+categories.workspace = true
+
+[features]
+default = []
+ocr = ["jobsentinel-documents/ocr"]
+embedded-ml = ["jobsentinel-documents/embedded-ml", "jobsentinel-local-ai/embedded-ml"]
+
+[dependencies]
+anyhow.workspace = true
+async-trait.workspace = true
+chrono.workspace = true
+hex.workspace = true
+jobsentinel-assistance.workspace = true
+jobsentinel-ai.workspace = true
+jobsentinel-credentials.workspace = true
+jobsentinel-documents.workspace = true
+jobsentinel-domain.workspace = true
+jobsentinel-intelligence.workspace = true
+jobsentinel-local-ai.workspace = true
+jobsentinel-network.workspace = true
+jobsentinel-notifications.workspace = true
+jobsentinel-platform.workspace = true
+jobsentinel-security.workspace = true
+jobsentinel-sources.workspace = true
+jobsentinel-storage.workspace = true
+regex.workspace = true
+scopeguard.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+tempfile.workspace = true
+thiserror.workspace = true
+tokio.workspace = true
+tracing.workspace = true
+url.workspace = true
+urlencoding.workspace = true
+uuid.workspace = true
+zeroize.workspace = true
+
+[dev-dependencies]
+futures.workspace = true
+jobsentinel-network = { workspace = true, features = ["test-support"] }
+proptest.workspace = true
+
+[lints]
+workspace = true

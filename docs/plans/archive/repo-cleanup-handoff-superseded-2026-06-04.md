@@ -111,7 +111,7 @@ Recent local verification evidence:
   src-tauri/Cargo.toml -- --check`, `cargo clippy --manifest-path
   src-tauri/Cargo.toml -- -D warnings`, `npx vitest run
   src/pages/Resume.test.tsx src/utils/errorMessages.test.ts
-  src/mocks/handlers.test.ts`, `npm run lint -- --quiet`, `npm run test:run`,
+  src/test-support/mocks/handlers.test.ts`, `npm run lint -- --quiet`, `npm run test:run`,
   `npm run build`, `npm run lint:docs`, `npm run lint:bloat`, and `git diff
   --check`.
 - Current local resume-assistance follow-up makes **Review Match** usable with
@@ -129,7 +129,7 @@ Recent local verification evidence:
   `cargo test --lib
   test_update_user_skill_clears_optional_fields_and_trims_name
   --manifest-path src-tauri/Cargo.toml`, and `npx vitest run
-  src/pages/ResumeOptimizer.test.tsx src/mocks/handlers.test.ts`. Broader
+  src/pages/ResumeOptimizer.test.tsx src/test-support/mocks/handlers.test.ts`. Broader
   verification passed: `cargo check --manifest-path src-tauri/Cargo.toml`,
   `cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`,
   `cargo test --lib resume --manifest-path src-tauri/Cargo.toml`, `cargo test
@@ -266,7 +266,7 @@ Recent local verification evidence:
   button. Verification then passed: `cargo test --lib resume_text_preview
   --manifest-path src-tauri/Cargo.toml` passed 2 focused tests, `cargo test
   --lib resume --manifest-path src-tauri/Cargo.toml` passed 182 resume tests,
-  `npx vitest run src/pages/Resume.test.tsx src/mocks/handlers.test.ts`
+  `npx vitest run src/pages/Resume.test.tsx src/test-support/mocks/handlers.test.ts`
   passed 25 tests, `npm run test:run` passed 2637 tests, `npm run
   test:scripts` passed 507 tests, targeted Playwright resume smoke
   `node scripts/run-playwright.mjs test
@@ -304,9 +304,9 @@ Recent local verification evidence:
   job-search details like salary floors, resume excerpts, private notes,
   screening answers, location preferences, names, phone numbers, raw URLs, and
   job-search narratives the same way the backend support-report sanitizer does.
-  Verification passed: `npx vitest run src/mocks/handlers.test.ts` passed 13
+  Verification passed: `npx vitest run src/test-support/mocks/handlers.test.ts` passed 13
   tests, `npm run lint -- --quiet` passed, `npx vitest run
-  src/mocks/handlers.test.ts src/services/feedbackService.test.ts
+  src/test-support/mocks/handlers.test.ts src/services/feedbackService.test.ts
   src/utils/errorReporting.test.ts` passed 39 tests, and `cargo test --lib
   feedback` passed 52 tests. Broader checks passed: `npm run test:run`
   passed 2630 tests, `npm run build`, `npm run lint:docs`, `npm run
@@ -570,8 +570,8 @@ Recent local verification evidence:
   `match_resume_to_job` command now returns `0.0` to `1.0` fit fractions
   instead of `0` to `100` values, preventing mock/dev Resume Match views from
   showing inflated percentages. Verification passed: `npx vitest run
-  src/mocks/handlers.test.ts` passed 12 tests, `npx vitest run
-  src/pages/Resume.test.tsx src/mocks/handlers.test.ts` passed 17 tests,
+  src/test-support/mocks/handlers.test.ts` passed 12 tests, `npx vitest run
+  src/pages/Resume.test.tsx src/test-support/mocks/handlers.test.ts` passed 17 tests,
   `npm run lint`, `npm run lint:bloat`, `npm run test:run` passed 2658
   tests, `npm run build`, `npm run lint:docs`, `npm run test:scripts` passed
   503 tests, and `git diff --check`.
@@ -604,7 +604,7 @@ Recent local verification evidence:
   fields so users can remove stale skill details without hidden renderer
   assumptions. Mock skill handling now mirrors the same trim and clear behavior.
   Verification passed: focused Rust skill-edit and serde contract tests,
-  `npx vitest run src/pages/Resume.test.tsx src/mocks/handlers.test.ts`
+  `npx vitest run src/pages/Resume.test.tsx src/test-support/mocks/handlers.test.ts`
   passed 20 tests, `npm run lint`, `npm run build`, `npm run test:run` passed
   2629 tests, `cargo test --lib resume` passed 174 tests,
   `cargo clippy -- -D warnings`, `cargo fmt --all -- --check`,
@@ -616,7 +616,7 @@ Recent local verification evidence:
   skill edits fail instead of reporting success. Browser/dev mocks now mirror
   those stale-id failures so tests cannot depend on silent no-op behavior.
   Verification passed: focused Rust stale activation and stale skill-update
-  tests, `npx vitest run src/pages/Resume.test.tsx src/mocks/handlers.test.ts`
+  tests, `npx vitest run src/pages/Resume.test.tsx src/test-support/mocks/handlers.test.ts`
   passed 20 tests, `npm run lint`, `npm run build`, `npm run test:run` passed
   2629 tests, `cargo test --lib resume` passed 175 tests,
   `cargo clippy -- -D warnings`, and `npm run test:scripts` passed 503 tests.
@@ -629,7 +629,7 @@ Recent local verification evidence:
   concurrent missing drafts cannot report success. Browser/dev mocks now mirror
   missing draft and missing nested-entry failures. Verification passed:
   `cargo test --lib resume::builder` passed 9 tests,
-  `npx vitest run src/mocks/handlers.test.ts` passed 12 tests, `npm run
+  `npx vitest run src/test-support/mocks/handlers.test.ts` passed 12 tests, `npm run
   lint`, `npm run build`, `npm run test:run` passed 2629 tests,
   `cargo test --lib resume` passed 178 tests, `cargo clippy -- -D warnings`,
   and `npm run test:scripts` passed 503 tests. Follow-up repo checks passed:
@@ -654,7 +654,7 @@ Recent local verification evidence:
   of adding words, and changes bullet draft hints away from `consider adding`
   phrasing. Verification passed: `npx vitest run
   src/components/AtsLiveScorePanel.test.tsx
-  src/pages/ResumeOptimizer.test.tsx src/mocks/handlers.test.ts` passed 69
+  src/pages/ResumeOptimizer.test.tsx src/test-support/mocks/handlers.test.ts` passed 69
   tests, `cargo test --lib ats_analyzer` passed 23 tests, `node --test
   scripts/check-product-copy.test.mjs` passed 43 tests, `cargo fmt --all --
   --check`, `npm run lint`, `npm run lint:docs`, `npm run harness:check`,
@@ -880,7 +880,7 @@ Recent local verification evidence:
 - Current local application-profile IPC minimization trims the edit-profile
   response and mock response to fields the profile form needs, removing unused
   backend metadata such as ids, default template fields, and timestamps. Red
-  tests failed before the fix, then `npx vitest run src/mocks/handlers.test.ts
+  tests failed before the fix, then `npx vitest run src/test-support/mocks/handlers.test.ts
   src/components/automation/ProfileForm.test.tsx` passed 24 tests, `cargo test
   --lib application_profile_response` passed 4 tests, `npm run
   lint:tauri-invokes` passed, `cargo fmt --all -- --check` passed, `npm run
@@ -2324,7 +2324,7 @@ Latest zero-technical and broad-audience UX slice checks on 2026-05-31:
 
 - `npm run test:run -- src/components/BookmarkletGenerator.test.tsx
   src/components/CompanyAutocomplete.test.tsx src/pages/Settings.test.tsx
-  src/pages/Resume.test.tsx src/mocks/handlers.test.ts`
+  src/pages/Resume.test.tsx src/test-support/mocks/handlers.test.ts`
 - `npm run lint:docs`
 - `npm run lint:bloat`
 - `npm run lint`
@@ -2370,7 +2370,7 @@ Latest UX support-recovery slice checks on 2026-05-31:
   src/components/ModalErrorBoundary.test.tsx`
 - `npm run test:run -- src/components/ErrorLogPanel.test.tsx
   src/components/feedback/SuccessScreen.test.tsx
-  src/services/feedbackService.test.ts src/mocks/handlers.test.ts`
+  src/services/feedbackService.test.ts src/test-support/mocks/handlers.test.ts`
 - `cd src-tauri && cargo test --lib commands::feedback`
 - `npm run lint:bloat`
 - `npm run lint:docs`

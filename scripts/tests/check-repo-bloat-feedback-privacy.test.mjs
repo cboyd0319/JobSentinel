@@ -25,44 +25,6 @@ function withGitFixture(callback) {
   }
 }
 
-test("checkRepoBloat rejects stale notification preference docs", () => {
-  withGitFixture((root) => {
-    writeFixtureFile(root, "package.json", "{}\n");
-    writeFixtureFile(
-      root,
-      "docs/features/user-data-management.md",
-      [
-        'invoke("save_notification_preferences", {',
-        "  per_source_settings: {",
-        "    linkedin: { enabled: true, min_score: 0.9, include_ghosts: false },",
-        "  },",
-        "  keyword_rules: { include: ['Rust'] },",
-        "  thresholds: { slack: 0.9 },",
-        "Minimum score - Only notify for jobs scoring at or above the threshold",
-        "});",
-        "",
-      ].join("\n"),
-    );
-
-    execFileSync(
-      "git",
-      ["add", "package.json", "docs/features/user-data-management.md"],
-      {
-        cwd: root,
-      },
-    );
-
-    const violations = checkRepoBloat(root);
-
-    assert.ok(
-      violations.includes(
-        "sync notification preference docs with backend shape: docs/features/user-data-management.md",
-      ),
-      violations.join("\n"),
-    );
-  });
-});
-
 test("checkRepoBloat rejects unsanitized structured feedback debug events", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
@@ -235,7 +197,7 @@ test("checkRepoBloat rejects raw user-data privacy logging", () => {
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/user_data/mod.rs",
+      "crates/jobsentinel-application/src/user_data/mod.rs",
       [
         "#[instrument(skip(self, content))]",
         "pub async fn create_template(&self, name: &str, content: &str) -> Result<(), Error> {",
@@ -266,7 +228,7 @@ test("checkRepoBloat rejects raw user-data privacy logging", () => {
         "add",
         "package.json",
         "src-tauri/src/commands/user_data.rs",
-        "crates/jobsentinel-core/src/core/user_data/mod.rs",
+        "crates/jobsentinel-application/src/user_data/mod.rs",
       ],
       {
         cwd: root,
@@ -283,7 +245,7 @@ test("checkRepoBloat rejects raw user-data privacy logging", () => {
     );
     assert.ok(
       violations.includes(
-        "replace raw user-data privacy logging: crates/jobsentinel-core/src/core/user_data/mod.rs",
+        "replace raw user-data privacy logging: crates/jobsentinel-application/src/user_data/mod.rs",
       ),
       violations.join("\n"),
     );
@@ -295,7 +257,7 @@ test("checkRepoBloat rejects raw scheduler job content logging", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/db/crud.rs",
+      "crates/jobsentinel-storage/src/crud.rs",
       [
         "#[tracing::instrument(skip(self, job), fields(",
         "    job_hash = %job.hash,",
@@ -310,7 +272,7 @@ test("checkRepoBloat rejects raw scheduler job content logging", () => {
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/scheduler/workers/persistence.rs",
+      "crates/jobsentinel-application/src/scheduler/workers/persistence.rs",
       [
         "pub async fn persist_and_notify(job: Job) {",
         '    tracing::error!(job_title = %job.title, job_company = %job.company, "Failed");',
@@ -325,8 +287,8 @@ test("checkRepoBloat rejects raw scheduler job content logging", () => {
       [
         "add",
         "package.json",
-        "crates/jobsentinel-core/src/core/db/crud.rs",
-        "crates/jobsentinel-core/src/core/scheduler/workers/persistence.rs",
+        "crates/jobsentinel-storage/src/crud.rs",
+        "crates/jobsentinel-application/src/scheduler/workers/persistence.rs",
       ],
       {
         cwd: root,
@@ -337,13 +299,13 @@ test("checkRepoBloat rejects raw scheduler job content logging", () => {
 
     assert.ok(
       violations.includes(
-        "sanitize scheduler job content logging: crates/jobsentinel-core/src/core/db/crud.rs",
+        "sanitize scheduler job content logging: crates/jobsentinel-storage/src/crud.rs",
       ),
       violations.join("\n"),
     );
     assert.ok(
       violations.includes(
-        "sanitize scheduler job content logging: crates/jobsentinel-core/src/core/scheduler/workers/persistence.rs",
+        "sanitize scheduler job content logging: crates/jobsentinel-application/src/scheduler/workers/persistence.rs",
       ),
       violations.join("\n"),
     );
@@ -355,7 +317,7 @@ test("checkRepoBloat rejects raw scheduler scraper error details", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/scheduler/workers/scrapers.rs",
+      "crates/jobsentinel-application/src/scheduler/workers/scrapers.rs",
       [
         "async fn run_scrapers() {",
         "  let _ = crate::core::health::fail_run(db, _tid, _dur, &e.to_string(), None).await;",
@@ -373,7 +335,7 @@ test("checkRepoBloat rejects raw scheduler scraper error details", () => {
       [
         "add",
         "package.json",
-        "crates/jobsentinel-core/src/core/scheduler/workers/scrapers.rs",
+        "crates/jobsentinel-application/src/scheduler/workers/scrapers.rs",
       ],
       {
         cwd: root,
@@ -384,7 +346,7 @@ test("checkRepoBloat rejects raw scheduler scraper error details", () => {
 
     assert.ok(
       violations.includes(
-        "sanitize scheduler scraper error details: crates/jobsentinel-core/src/core/scheduler/workers/scrapers.rs",
+        "sanitize scheduler scraper error details: crates/jobsentinel-application/src/scheduler/workers/scrapers.rs",
       ),
       violations.join("\n"),
     );
@@ -396,7 +358,7 @@ test("checkRepoBloat rejects stale user-data mock handlers", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src/mocks/handlers.ts",
+      "src/test-support/mocks/handlers.ts",
       [
         "export async function mockInvoke(cmd) {",
         "  switch (cmd) {",
@@ -416,7 +378,7 @@ test("checkRepoBloat rejects stale user-data mock handlers", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "src/mocks/handlers.ts"], {
+    execFileSync("git", ["add", "package.json", "src/test-support/mocks/handlers.ts"], {
       cwd: root,
     });
 
@@ -424,7 +386,7 @@ test("checkRepoBloat rejects stale user-data mock handlers", () => {
 
     assert.ok(
       violations.includes(
-        "sync user-data mock command handlers: src/mocks/handlers.ts",
+        "sync user-data mock command handlers: src/test-support/mocks/handlers.ts",
       ),
       violations.join("\n"),
     );
@@ -436,7 +398,7 @@ test("checkRepoBloat rejects stale deep-link mock handlers", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src/mocks/handlers.ts",
+      "src/test-support/mocks/handlers.ts",
       [
         "export async function mockInvoke(cmd) {",
         "  switch (cmd) {",
@@ -450,7 +412,7 @@ test("checkRepoBloat rejects stale deep-link mock handlers", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "src/mocks/handlers.ts"], {
+    execFileSync("git", ["add", "package.json", "src/test-support/mocks/handlers.ts"], {
       cwd: root,
     });
 
@@ -458,7 +420,7 @@ test("checkRepoBloat rejects stale deep-link mock handlers", () => {
 
     assert.ok(
       violations.includes(
-        "sync deep-link mock command handlers: src/mocks/handlers.ts",
+        "sync deep-link mock command handlers: src/test-support/mocks/handlers.ts",
       ),
       violations.join("\n"),
     );
@@ -470,7 +432,7 @@ test("checkRepoBloat rejects stale job-import mock handlers", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src/mocks/handlers.ts",
+      "src/test-support/mocks/handlers.ts",
       [
         "export async function mockInvoke(cmd) {",
         "  switch (cmd) {",
@@ -484,7 +446,7 @@ test("checkRepoBloat rejects stale job-import mock handlers", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "src/mocks/handlers.ts"], {
+    execFileSync("git", ["add", "package.json", "src/test-support/mocks/handlers.ts"], {
       cwd: root,
     });
 
@@ -492,7 +454,7 @@ test("checkRepoBloat rejects stale job-import mock handlers", () => {
 
     assert.ok(
       violations.includes(
-        "sync job-import mock command handlers: src/mocks/handlers.ts",
+        "sync job-import mock command handlers: src/test-support/mocks/handlers.ts",
       ),
       violations.join("\n"),
     );
@@ -590,7 +552,7 @@ test("checkRepoBloat rejects stale feedback mock handlers", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src/mocks/handlers.ts",
+      "src/test-support/mocks/handlers.ts",
       [
         "export async function mockInvoke(cmd) {",
         "  switch (cmd) {",
@@ -604,7 +566,7 @@ test("checkRepoBloat rejects stale feedback mock handlers", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "src/mocks/handlers.ts"], {
+    execFileSync("git", ["add", "package.json", "src/test-support/mocks/handlers.ts"], {
       cwd: root,
     });
 
@@ -612,7 +574,7 @@ test("checkRepoBloat rejects stale feedback mock handlers", () => {
 
     assert.ok(
       violations.includes(
-        "sync feedback mock command handlers: src/mocks/handlers.ts",
+        "sync feedback mock command handlers: src/test-support/mocks/handlers.ts",
       ),
       violations.join("\n"),
     );

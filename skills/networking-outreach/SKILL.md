@@ -1,6 +1,6 @@
 ---
 name: networking-outreach
-description: Draft truthful recruiter, referral, alumni, community, LinkedIn, email, and warm-contact outreach for a job search. Use when asking for introductions, following up on conversations, replying to recruiters, requesting role context, or writing concise networking messages without spam or exaggeration.
+description: Draft truthful recruiter, referral, alumni, and warm-contact outreach. Use for introductions, follow-ups, recruiter replies, or role questions.
 license: MIT
 metadata:
   jobsentinel_version_target: "2.9.0"

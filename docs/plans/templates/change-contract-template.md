@@ -26,7 +26,7 @@
 ## Source-Of-Truth Docs
 
 - Path.
-- Public GitHub wiki pages from `docs/harness/manifest.json` to update, or
+- Public GitHub wiki pages affected by the change to update, or
   reason no wiki page is affected:
 
 ## Orchestration

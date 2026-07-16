@@ -1,13 +1,11 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { mockInvoke, resetMockData } from "../../../mocks/handlers";
+import { mockInvoke, resetMockData } from "../../../test-support/mocks/handlers";
 import { atsResume } from "./resumeAnalysisTestData";
 import type { AtsAnalysisResult } from "./resumeAnalysisTestData";
-
 describe("mock resume hard-constraint handlers", () => {
   beforeEach(() => {
     resetMockData();
   });
-
   it("matches lift-weight pounds and lbs in mock hard constraints", async () => {
     const liftResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
@@ -23,7 +21,6 @@ describe("mock resume hard-constraint handlers", () => {
       },
       jobDescription: "Required: lift 50 lbs",
     });
-
     expect(liftResult.requirement_reviews).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -42,7 +39,6 @@ describe("mock resume hard-constraint handlers", () => {
       ]),
     );
   });
-
   it("matches lift-and-carry weighted mock hard constraints", async () => {
     const liftCarryResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
@@ -58,7 +54,6 @@ describe("mock resume hard-constraint handlers", () => {
       },
       jobDescription: "Required: lift and carry 50 lbs",
     });
-
     expect(liftCarryResult.requirement_reviews).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -77,7 +72,6 @@ describe("mock resume hard-constraint handlers", () => {
       ]),
     );
   });
-
   it("matches stand and standing long-period mock hard constraints", async () => {
     const standingResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
@@ -93,7 +87,6 @@ describe("mock resume hard-constraint handlers", () => {
       },
       jobDescription: "Required: stand for long periods",
     });
-
     expect(standingResult.requirement_reviews).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -112,7 +105,6 @@ describe("mock resume hard-constraint handlers", () => {
       ]),
     );
   });
-
   it("matches climb and climbing ladder mock hard constraints", async () => {
     const climbingResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
@@ -128,7 +120,6 @@ describe("mock resume hard-constraint handlers", () => {
       },
       jobDescription: "Required: climb ladders",
     });
-
     expect(climbingResult.requirement_reviews).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -147,7 +138,6 @@ describe("mock resume hard-constraint handlers", () => {
       ]),
     );
   });
-
   it("matches background screening wording in mock hard constraints", async () => {
     const backgroundResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
@@ -157,7 +147,6 @@ describe("mock resume hard-constraint handlers", () => {
       },
       jobDescription: "Required: background check",
     });
-
     expect(backgroundResult.requirement_reviews).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -176,7 +165,6 @@ describe("mock resume hard-constraint handlers", () => {
       ]),
     );
   });
-
   it("matches drug test wording in mock hard constraints", async () => {
     const drugScreenResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
@@ -186,7 +174,6 @@ describe("mock resume hard-constraint handlers", () => {
       },
       jobDescription: "Required: drug screen",
     });
-
     expect(drugScreenResult.requirement_reviews).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -205,7 +192,6 @@ describe("mock resume hard-constraint handlers", () => {
       ]),
     );
   });
-
   it("matches driver's license wording variants in mock hard constraints", async () => {
     const licenseResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
@@ -221,7 +207,6 @@ describe("mock resume hard-constraint handlers", () => {
       },
       jobDescription: "Required: driver's license",
     });
-
     expect(licenseResult.requirement_reviews).toEqual(
       expect.arrayContaining([
         expect.objectContaining({

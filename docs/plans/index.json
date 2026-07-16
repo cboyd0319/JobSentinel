@@ -1,89 +1,9 @@
 {
-  "version": 1,
-  "lastUpdated": "2026-07-14",
-  "goal": "Complete a clean-cutover full-repository refactor across Rust, Tauri, frontend, tests, scripts, workflows, packaging, documentation, and harnesses; remove obsolete structure; prove the final tree; and reach v2.9.5 source readiness while preserving immutable privacy guarantees and the Quiet Shield redesign in DESIGN.md, docs/design/README.md, and docs/design/design-spec.md.",
-  "designVerification": "For redesign changes, require Computer Use or Playwright screenshot proof across touched routes, modals, toasts, settings, keyboard flow, and narrow-width states.",
-  "activeWorkstreams": [
-    {
-      "id": "active-status",
-      "path": "docs/plans/active/status.md",
-      "state": "active",
-      "nextStep": "Read first for the active refactor milestone, immutable privacy guarantees, current evidence, and Rule 0 constraints.",
-      "verification": "npm run harness:session"
-    },
-    {
-      "id": "full-repository-refactor",
-      "path": "docs/plans/active/current-work.md",
-      "state": "active",
-      "nextStep": "Build the generic workspace architecture sensor, make it blocking in the focused harness and CI, then begin the storage-first cutover.",
-      "verification": "npm run harness:check; for redesign changes, add Computer Use or Playwright screenshot proof across touched routes, modals, toasts, settings, keyboard flow, and narrow-width states."
-    },
-    {
-      "id": "repository-refactor-blueprint",
-      "path": "docs/plans/active/repository-refactor-blueprint.md",
-      "state": "active",
-      "nextStep": "Keep the final ownership map and dependency rules locked; record measured changes in the active plan decision log.",
-      "verification": "npm run harness:check; npm run lint:md; npm run lint:language"
-    }
-  ],
-  "completedWorkstreams": [
-    {
-      "id": "repository-architecture-reorganization",
-      "path": "docs/plans/completed/repository-architecture-reorganization.md",
-      "state": "completed"
-    },
-    {
-      "id": "v2.9.1-maintenance-and-repo-cleanup",
-      "path": "docs/plans/completed/v2.9.1-maintenance-and-repo-cleanup.md",
-      "state": "completed"
-    },
-    {
-      "id": "v2.9.0-completion-and-full-feature-roadmap",
-      "path": "docs/plans/completed/v2.9.0-completion-and-full-feature-roadmap.md",
-      "state": "completed"
-    }
-  ],
-  "deferredWorkstreams": [
-    {
-      "id": "release-pipeline-audit-and-optimization",
-      "path": "docs/plans/archive/release-pipeline-audit-and-optimization-deferred-2026-07-13.md",
-      "state": "deferred",
-      "nextStep": "Re-evaluate the prior release-pipeline decisions against the final workspace during v2.9.5 readiness.",
-      "verification": "Use the final release verification matrix after the repository refactor and cleanup are complete."
-    },
-    {
-      "id": "v3-foundation",
-      "path": "docs/plans/v3/foundation-exec-plan.md",
-      "state": "deferred",
-      "nextStep": "Resume only after the full repository refactor, cleanup, and v2.9.5 readiness work or when the user explicitly reopens v3 feature implementation.",
-      "verification": "npm run harness:check; npm run lint:docs; cargo test --workspace --all-features"
-    }
-  ],
-  "archivedWorkstreams": [
-    {
-      "id": "active-status-history",
-      "path": "docs/plans/archive/active-status-history-2026-06-17.md",
-      "state": "archived"
-    },
-    {
-      "id": "guided-job-search-intake",
-      "path": "docs/plans/archive/guided-job-search-intake-superseded-2026-06-04.md",
-      "state": "superseded"
-    },
-    {
-      "id": "repo-cleanup-and-quality-sweep",
-      "path": "docs/plans/archive/repo-cleanup-and-quality-sweep-superseded-2026-06-04.md",
-      "state": "superseded"
-    },
-    {
-      "id": "repo-cleanup-handoff",
-      "path": "docs/plans/archive/repo-cleanup-handoff-superseded-2026-06-04.md",
-      "state": "superseded"
-    },
-    {
-      "id": "research-backed-product-improvements",
-      "path": "docs/plans/archive/research-backed-product-improvements-superseded-2026-06-04.md",
-      "state": "superseded"
-    }
-  ]
+  "schema": "jobsentinel.plan_index.v2",
+  "purpose": "Detailed plan discovery only. Root feature_list.json owns work selection and state.",
+  "active_plan": "docs/plans/active/current-work.md",
+  "active_blueprint": "docs/plans/active/repository-refactor-blueprint.md",
+  "completed_plan_directory": "docs/plans/completed",
+  "archive_directory": "docs/plans/archive",
+  "technical_debt": "docs/plans/tech-debt-tracker.md"
 }

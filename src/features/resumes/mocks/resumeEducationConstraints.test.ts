@@ -1,13 +1,11 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { mockInvoke, resetMockData } from "../../../mocks/handlers";
+import { mockInvoke, resetMockData } from "../../../test-support/mocks/handlers";
 import { atsResume } from "./resumeAnalysisTestData";
 import type { AtsAnalysisResult } from "./resumeAnalysisTestData";
-
 describe("mock resume education hard-constraint handlers", () => {
   beforeEach(() => {
     resetMockData();
   });
-
   it("matches Master of Business Administration as master's degree evidence in mock hard constraints", async () => {
     const degreeResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
@@ -28,7 +26,6 @@ describe("mock resume education hard-constraint handlers", () => {
       },
       jobDescription: "Required: master's degree",
     });
-
     expect(degreeResult.requirement_reviews).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -54,7 +51,6 @@ describe("mock resume education hard-constraint handlers", () => {
       ]),
     );
   });
-
   it("matches Master of Engineering as master's degree evidence in mock hard constraints", async () => {
     const degreeResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
@@ -75,7 +71,6 @@ describe("mock resume education hard-constraint handlers", () => {
       },
       jobDescription: "Required: master's degree",
     });
-
     expect(degreeResult.requirement_reviews).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -101,7 +96,6 @@ describe("mock resume education hard-constraint handlers", () => {
       ]),
     );
   });
-
   it("does not turn Master of Engineering job wording into a generic master's degree mock hard constraint", async () => {
     const degreeResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
@@ -113,7 +107,6 @@ describe("mock resume education hard-constraint handlers", () => {
       },
       jobDescription: "Required: Master of Engineering",
     });
-
     expect(degreeResult.requirement_reviews).not.toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -129,7 +122,6 @@ describe("mock resume education hard-constraint handlers", () => {
       ]),
     );
   });
-
   it("matches Master of Education as master's degree evidence in mock hard constraints", async () => {
     const degreeResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
@@ -150,7 +142,6 @@ describe("mock resume education hard-constraint handlers", () => {
       },
       jobDescription: "Required: master's degree",
     });
-
     expect(degreeResult.requirement_reviews).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -176,7 +167,6 @@ describe("mock resume education hard-constraint handlers", () => {
       ]),
     );
   });
-
   it("does not turn Master of Education job wording into a generic master's degree mock hard constraint", async () => {
     const degreeResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
@@ -188,7 +178,6 @@ describe("mock resume education hard-constraint handlers", () => {
       },
       jobDescription: "Required: Master of Education",
     });
-
     expect(degreeResult.requirement_reviews).not.toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -204,7 +193,6 @@ describe("mock resume education hard-constraint handlers", () => {
       ]),
     );
   });
-
   it("matches Master of Fine Arts as master's degree evidence in mock hard constraints", async () => {
     const degreeResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
@@ -225,7 +213,6 @@ describe("mock resume education hard-constraint handlers", () => {
       },
       jobDescription: "Required: master's degree",
     });
-
     expect(degreeResult.requirement_reviews).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -251,7 +238,6 @@ describe("mock resume education hard-constraint handlers", () => {
       ]),
     );
   });
-
   it("does not turn Master of Fine Arts job wording into a generic master's degree mock hard constraint", async () => {
     const degreeResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
@@ -263,7 +249,6 @@ describe("mock resume education hard-constraint handlers", () => {
       },
       jobDescription: "Required: Master of Fine Arts",
     });
-
     expect(degreeResult.requirement_reviews).not.toEqual(
       expect.arrayContaining([
         expect.objectContaining({

@@ -68,7 +68,7 @@ import {
 } from "./shared.mjs";
 
 export function hasRawAutomationDropdownValueLogging(root, path) {
-  if (path !== "crates/jobsentinel-core/src/core/automation/browser/page.rs") {
+  if (path !== "crates/jobsentinel-assistance/src/automation/browser/page.rs") {
     return false;
   }
 
@@ -236,7 +236,7 @@ export function hasRawResumeCommandDtoExposure(root, path) {
     return /interface\s+Resume\s*\{[\s\S]{0,320}\b(?:file_path|parsed_text)\b/.test(text);
   }
 
-  if (path === "src/mocks/handlers.ts") {
+  if (path === "src/test-support/mocks/handlers.ts") {
     if (existsSync(join(root, "src/features/resumes/mocks/resumeCommands.ts"))) {
       return false;
     }
@@ -433,7 +433,7 @@ export function hasRawAutomationFormResultData(root, path) {
     ? stripRustTestModules(readFileSync(join(root, path), "utf8"))
     : readFileSync(join(root, path), "utf8");
 
-  if (path === "crates/jobsentinel-core/src/core/automation/form_filler.rs") {
+  if (path === "crates/jobsentinel-assistance/src/automation/form_filler.rs") {
     return (
       /format!\(\s*"screening:\{\}"\s*,\s*(?:field_name|question_text)/.test(text) ||
       /truncate_question\(&question_text/.test(text) ||

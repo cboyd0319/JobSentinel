@@ -147,7 +147,7 @@ test("checkRepoBloat rejects stale scraper health coverage", () => {
     );
     writeFixtureFile(
       root,
-      "src/mocks/handlers.ts",
+      "src/test-support/mocks/handlers.ts",
       [
         "interface MockSmokeTestResult {",
         "  scraper_name: string;",
@@ -186,7 +186,7 @@ test("checkRepoBloat rejects stale scraper health coverage", () => {
         "add",
         "package.json",
         "docs/features/job-source-status.md",
-        "src/mocks/handlers.ts",
+        "src/test-support/mocks/handlers.ts",
         "src/features/dashboard/DashboardPage.tsx",
         "docs/user/QUICK_START.md",
         "docs/style-guide/WRITING-FOR-JOB-SEEKERS.md",
@@ -206,7 +206,7 @@ test("checkRepoBloat rejects stale scraper health coverage", () => {
     );
     assert.ok(
       violations.includes(
-        "sync scraper health source coverage: src/mocks/handlers.ts",
+        "sync scraper health source coverage: src/test-support/mocks/handlers.ts",
       ),
       violations.join("\n"),
     );

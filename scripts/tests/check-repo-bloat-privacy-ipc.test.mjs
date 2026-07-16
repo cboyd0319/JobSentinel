@@ -123,7 +123,7 @@ test("checkRepoBloat rejects resume renderer DTO path exposure", () => {
     );
     writeFixtureFile(
       root,
-      "src/mocks/handlers.ts",
+      "src/test-support/mocks/handlers.ts",
       [
         'case "get_active_resume":',
         "  return getActiveResume() as T;",
@@ -132,12 +132,6 @@ test("checkRepoBloat rejects resume renderer DTO path exposure", () => {
         "",
       ].join("\n"),
     );
-    writeFixtureFile(
-      root,
-      "docs/developer/ARCHITECTURE.md",
-      'const activeResume = await invoke<Resume>("get_active_resume");\n',
-    );
-
     execFileSync(
       "git",
       [
@@ -146,8 +140,7 @@ test("checkRepoBloat rejects resume renderer DTO path exposure", () => {
         "src-tauri/src/commands/resume.rs",
         "src/features/resumes/library/ResumeLibraryPage.tsx",
         "src/features/resumes/builder/ResumeBuilderPage.tsx",
-        "src/mocks/handlers.ts",
-        "docs/developer/ARCHITECTURE.md",
+        "src/test-support/mocks/handlers.ts",
       ],
       { cwd: root },
     );
@@ -158,8 +151,7 @@ test("checkRepoBloat rejects resume renderer DTO path exposure", () => {
       "src-tauri/src/commands/resume.rs",
       "src/features/resumes/library/ResumeLibraryPage.tsx",
       "src/features/resumes/builder/ResumeBuilderPage.tsx",
-      "src/mocks/handlers.ts",
-      "docs/developer/ARCHITECTURE.md",
+      "src/test-support/mocks/handlers.ts",
     ]) {
       assert.ok(
         violations.includes(
@@ -214,7 +206,7 @@ test("checkRepoBloat rejects raw Telegram bot-token request errors", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/notify/telegram.rs",
+      "crates/jobsentinel-notifications/src/telegram.rs",
       [
         'let api_url = format!("https://api.telegram.org/bot{}/sendMessage", config.bot_token);',
         "let response = client.post(&api_url).json(&payload).send().await?;",
@@ -224,7 +216,7 @@ test("checkRepoBloat rejects raw Telegram bot-token request errors", () => {
 
     execFileSync(
       "git",
-      ["add", "package.json", "crates/jobsentinel-core/src/core/notify/telegram.rs"],
+      ["add", "package.json", "crates/jobsentinel-notifications/src/telegram.rs"],
       {
         cwd: root,
       },
@@ -234,7 +226,7 @@ test("checkRepoBloat rejects raw Telegram bot-token request errors", () => {
 
     assert.ok(
       violations.includes(
-        "remove Telegram bot-token URLs from request errors: crates/jobsentinel-core/src/core/notify/telegram.rs",
+        "remove Telegram bot-token URLs from request errors: crates/jobsentinel-notifications/src/telegram.rs",
       ),
       violations.join("\n"),
     );
@@ -245,9 +237,9 @@ test("checkRepoBloat rejects raw webhook token request errors", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
     for (const path of [
-      "crates/jobsentinel-core/src/core/notify/slack.rs",
-      "crates/jobsentinel-core/src/core/notify/discord.rs",
-      "crates/jobsentinel-core/src/core/notify/teams.rs",
+      "crates/jobsentinel-notifications/src/slack.rs",
+      "crates/jobsentinel-notifications/src/discord.rs",
+      "crates/jobsentinel-notifications/src/teams.rs",
     ]) {
       writeFixtureFile(
         root,
@@ -267,9 +259,9 @@ test("checkRepoBloat rejects raw webhook token request errors", () => {
       [
         "add",
         "package.json",
-        "crates/jobsentinel-core/src/core/notify/slack.rs",
-        "crates/jobsentinel-core/src/core/notify/discord.rs",
-        "crates/jobsentinel-core/src/core/notify/teams.rs",
+        "crates/jobsentinel-notifications/src/slack.rs",
+        "crates/jobsentinel-notifications/src/discord.rs",
+        "crates/jobsentinel-notifications/src/teams.rs",
       ],
       { cwd: root },
     );
@@ -277,9 +269,9 @@ test("checkRepoBloat rejects raw webhook token request errors", () => {
     const violations = checkRepoBloat(root);
 
     for (const path of [
-      "crates/jobsentinel-core/src/core/notify/slack.rs",
-      "crates/jobsentinel-core/src/core/notify/discord.rs",
-      "crates/jobsentinel-core/src/core/notify/teams.rs",
+      "crates/jobsentinel-notifications/src/slack.rs",
+      "crates/jobsentinel-notifications/src/discord.rs",
+      "crates/jobsentinel-notifications/src/teams.rs",
     ]) {
       assert.ok(
         violations.includes(
@@ -295,9 +287,9 @@ test("checkRepoBloat rejects notification provider error body exposure", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
     for (const path of [
-      "crates/jobsentinel-core/src/core/notify/discord.rs",
-      "crates/jobsentinel-core/src/core/notify/teams.rs",
-      "crates/jobsentinel-core/src/core/notify/telegram.rs",
+      "crates/jobsentinel-notifications/src/discord.rs",
+      "crates/jobsentinel-notifications/src/teams.rs",
+      "crates/jobsentinel-notifications/src/telegram.rs",
     ]) {
       writeFixtureFile(
         root,
@@ -317,9 +309,9 @@ test("checkRepoBloat rejects notification provider error body exposure", () => {
       [
         "add",
         "package.json",
-        "crates/jobsentinel-core/src/core/notify/discord.rs",
-        "crates/jobsentinel-core/src/core/notify/teams.rs",
-        "crates/jobsentinel-core/src/core/notify/telegram.rs",
+        "crates/jobsentinel-notifications/src/discord.rs",
+        "crates/jobsentinel-notifications/src/teams.rs",
+        "crates/jobsentinel-notifications/src/telegram.rs",
       ],
       { cwd: root },
     );
@@ -327,9 +319,9 @@ test("checkRepoBloat rejects notification provider error body exposure", () => {
     const violations = checkRepoBloat(root);
 
     for (const path of [
-      "crates/jobsentinel-core/src/core/notify/discord.rs",
-      "crates/jobsentinel-core/src/core/notify/teams.rs",
-      "crates/jobsentinel-core/src/core/notify/telegram.rs",
+      "crates/jobsentinel-notifications/src/discord.rs",
+      "crates/jobsentinel-notifications/src/teams.rs",
+      "crates/jobsentinel-notifications/src/telegram.rs",
     ]) {
       assert.ok(
         violations.includes(
@@ -346,7 +338,7 @@ test("checkRepoBloat rejects raw notification service error details", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/notify/mod.rs",
+      "crates/jobsentinel-application/src/notify/mod.rs",
       [
         "pub async fn send_immediate_alert() -> anyhow::Result<()> {",
         "  if let Err(e) = send_slack().await {",
@@ -365,7 +357,7 @@ test("checkRepoBloat rejects raw notification service error details", () => {
 
     execFileSync(
       "git",
-      ["add", "package.json", "crates/jobsentinel-core/src/core/notify/mod.rs"],
+      ["add", "package.json", "crates/jobsentinel-application/src/notify/mod.rs"],
       {
         cwd: root,
       },
@@ -375,7 +367,7 @@ test("checkRepoBloat rejects raw notification service error details", () => {
 
     assert.ok(
       violations.includes(
-        "sanitize notification service error details: crates/jobsentinel-core/src/core/notify/mod.rs",
+        "sanitize notification service error details: crates/jobsentinel-application/src/notify/mod.rs",
       ),
       violations.join("\n"),
     );
@@ -387,7 +379,7 @@ test("checkRepoBloat rejects raw JobsWithGPT smoke-test endpoint errors", () => 
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/health/smoke_checks/sources.rs",
+      "crates/jobsentinel-application/src/health/smoke_checks/sources.rs",
       [
         "match resp {",
         "  Err(e) if e.is_connect() => Ok(serde_json::json!({",
@@ -402,7 +394,7 @@ test("checkRepoBloat rejects raw JobsWithGPT smoke-test endpoint errors", () => 
 
     execFileSync(
       "git",
-      ["add", "package.json", "crates/jobsentinel-core/src/core/health/smoke_checks/sources.rs"],
+      ["add", "package.json", "crates/jobsentinel-application/src/health/smoke_checks/sources.rs"],
       {
         cwd: root,
       },
@@ -412,7 +404,7 @@ test("checkRepoBloat rejects raw JobsWithGPT smoke-test endpoint errors", () => 
 
     assert.ok(
       violations.includes(
-        "sanitize JobsWithGPT smoke-test endpoint errors: crates/jobsentinel-core/src/core/health/smoke_checks/sources.rs",
+        "sanitize JobsWithGPT smoke-test endpoint errors: crates/jobsentinel-application/src/health/smoke_checks/sources.rs",
       ),
       violations.join("\n"),
     );
@@ -424,7 +416,7 @@ test("checkRepoBloat rejects missing JobsWithGPT request ledger", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/scheduler/workers/scrapers.rs",
+      "crates/jobsentinel-application/src/scheduler/workers/scrapers.rs",
       "let jobswithgpt = JobsWithGptScraper::new(endpoint, query);\n",
     );
 
@@ -433,7 +425,7 @@ test("checkRepoBloat rejects missing JobsWithGPT request ledger", () => {
       [
         "add",
         "package.json",
-        "crates/jobsentinel-core/src/core/scheduler/workers/scrapers.rs",
+        "crates/jobsentinel-application/src/scheduler/workers/scrapers.rs",
       ],
       { cwd: root },
     );
@@ -442,7 +434,7 @@ test("checkRepoBloat rejects missing JobsWithGPT request ledger", () => {
 
     assert.ok(
       violations.includes(
-        "record minimized JobsWithGPT source request history: crates/jobsentinel-core/src/core/scheduler/workers/scrapers.rs",
+        "record minimized JobsWithGPT source request history: crates/jobsentinel-application/src/scheduler/workers/scrapers.rs",
       ),
       violations.join("\n"),
     );
@@ -454,7 +446,7 @@ test("checkRepoBloat rejects raw source-check result errors", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/health/smoke_checks/mod.rs",
+      "crates/jobsentinel-application/src/health/smoke_checks/mod.rs",
       [
         "let smoke_result = match result {",
         "  Err(e) => SmokeTestResult {",
@@ -471,7 +463,7 @@ test("checkRepoBloat rejects raw source-check result errors", () => {
 
     execFileSync(
       "git",
-      ["add", "package.json", "crates/jobsentinel-core/src/core/health/smoke_checks/mod.rs"],
+      ["add", "package.json", "crates/jobsentinel-application/src/health/smoke_checks/mod.rs"],
       {
         cwd: root,
       },
@@ -481,7 +473,7 @@ test("checkRepoBloat rejects raw source-check result errors", () => {
 
     assert.ok(
       violations.includes(
-        "sanitize source-check result errors: crates/jobsentinel-core/src/core/health/smoke_checks/mod.rs",
+        "sanitize source-check result errors: crates/jobsentinel-application/src/health/smoke_checks/mod.rs",
       ),
       violations.join("\n"),
     );
@@ -493,7 +485,7 @@ test("checkRepoBloat rejects stale LinkedIn credential docs", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/scrapers/linkedin.rs",
+      "crates/jobsentinel-sources/src/scrapers/linkedin.rs",
       [
         "//! The user must provide their LinkedIn session cookie",
         "//! via the config file.",
@@ -530,7 +522,7 @@ test("checkRepoBloat rejects stale LinkedIn credential docs", () => {
       [
         "add",
         "package.json",
-        "crates/jobsentinel-core/src/core/scrapers/linkedin.rs",
+        "crates/jobsentinel-sources/src/scrapers/linkedin.rs",
         "docs/features/job-sources.md",
         "docs/features/job-source-status.md",
       ],
@@ -541,7 +533,7 @@ test("checkRepoBloat rejects stale LinkedIn credential docs", () => {
 
     assert.ok(
       violations.includes(
-        "sync LinkedIn credential docs with keyring login flow: crates/jobsentinel-core/src/core/scrapers/linkedin.rs",
+        "sync LinkedIn credential docs with keyring login flow: crates/jobsentinel-sources/src/scrapers/linkedin.rs",
       ),
       violations.join("\n"),
     );
@@ -565,7 +557,7 @@ test("checkRepoBloat rejects automated LinkedIn collection drift", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/scrapers/linkedin.rs",
+      "crates/jobsentinel-sources/src/scrapers/linkedin.rs",
       'const URL: &str = "https://www.linkedin.com/voyager/api/example";\n',
     );
     writeFixtureFile(
@@ -585,7 +577,7 @@ test("checkRepoBloat rejects automated LinkedIn collection drift", () => {
     );
     writeFixtureFile(
       root,
-      "src/mocks/handlers.ts",
+      "src/test-support/mocks/handlers.ts",
       "function defaults() { return { linkedin: { enabled: true } }; }\n",
     );
     writeFixtureFile(
@@ -595,7 +587,7 @@ test("checkRepoBloat rejects automated LinkedIn collection drift", () => {
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/user_data/mod.rs",
+      "crates/jobsentinel-application/src/user_data/mod.rs",
       "let linkedin = SourceNotificationConfig { enabled: true, min_score_threshold: 70, sound_enabled: true };\n",
     );
     writeFixtureFile(
@@ -609,13 +601,13 @@ test("checkRepoBloat rejects automated LinkedIn collection drift", () => {
       [
         "add",
         "package.json",
-        "crates/jobsentinel-core/src/core/scrapers/linkedin.rs",
+        "crates/jobsentinel-sources/src/scrapers/linkedin.rs",
         "src/features/settings/SettingsPage.tsx",
         "src/features/settings/notifications/notificationPreferencesStore.ts",
         "src/features/settings/notifications/NotificationPreferences.tsx",
-        "src/mocks/handlers.ts",
+        "src/test-support/mocks/handlers.ts",
         "docs/features/user-data-management.md",
-        "crates/jobsentinel-core/src/core/user_data/mod.rs",
+        "crates/jobsentinel-application/src/user_data/mod.rs",
         "docs/features/job-sources.md",
       ],
       { cwd: root },
@@ -625,7 +617,7 @@ test("checkRepoBloat rejects automated LinkedIn collection drift", () => {
 
     assert.ok(
       violations.includes(
-        "remove automated LinkedIn collection boundary drift: crates/jobsentinel-core/src/core/scrapers/linkedin.rs",
+        "remove automated LinkedIn collection boundary drift: crates/jobsentinel-sources/src/scrapers/linkedin.rs",
       ),
       violations.join("\n"),
     );
@@ -649,7 +641,7 @@ test("checkRepoBloat rejects automated LinkedIn collection drift", () => {
     );
     assert.ok(
       violations.includes(
-        "remove LinkedIn notification source drift: src/mocks/handlers.ts",
+        "remove LinkedIn notification source drift: src/test-support/mocks/handlers.ts",
       ),
       violations.join("\n"),
     );
@@ -661,7 +653,7 @@ test("checkRepoBloat rejects automated LinkedIn collection drift", () => {
     );
     assert.ok(
       violations.includes(
-        "remove LinkedIn notification source drift: crates/jobsentinel-core/src/core/user_data/mod.rs",
+        "remove LinkedIn notification source drift: crates/jobsentinel-application/src/user_data/mod.rs",
       ),
       violations.join("\n"),
     );
@@ -679,7 +671,7 @@ test("checkRepoBloat rejects database log emoji markers", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/db/connection.rs",
+      "crates/jobsentinel-storage/src/connection.rs",
       [
         'tracing::info!("🔧 Configuring SQLite with maximum protections and performance...");',
         'tracing::debug!("  ✓ WAL mode verified ✅");',
@@ -689,7 +681,7 @@ test("checkRepoBloat rejects database log emoji markers", () => {
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/db/integrity/mod.rs",
+      "crates/jobsentinel-storage/src/integrity/mod.rs",
       [
         'tracing::info!("🔍 Running database integrity check...");',
         'tracing::error!("❌ Quick check failed: {}", quick_result.message);',
@@ -699,7 +691,7 @@ test("checkRepoBloat rejects database log emoji markers", () => {
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/db/connection/backups.rs",
+      "crates/jobsentinel-storage/src/connection/backups.rs",
       'tracing::info!("✅ Database backup created");\n',
     );
 
@@ -708,9 +700,9 @@ test("checkRepoBloat rejects database log emoji markers", () => {
       [
         "add",
         "package.json",
-        "crates/jobsentinel-core/src/core/db/connection.rs",
-        "crates/jobsentinel-core/src/core/db/connection/backups.rs",
-        "crates/jobsentinel-core/src/core/db/integrity/mod.rs",
+        "crates/jobsentinel-storage/src/connection.rs",
+        "crates/jobsentinel-storage/src/connection/backups.rs",
+        "crates/jobsentinel-storage/src/integrity/mod.rs",
       ],
       { cwd: root },
     );
@@ -719,19 +711,19 @@ test("checkRepoBloat rejects database log emoji markers", () => {
 
     assert.ok(
       violations.includes(
-        "replace database log emoji markers: crates/jobsentinel-core/src/core/db/connection.rs",
+        "replace database log emoji markers: crates/jobsentinel-storage/src/connection.rs",
       ),
       violations.join("\n"),
     );
     assert.ok(
       violations.includes(
-        "replace database log emoji markers: crates/jobsentinel-core/src/core/db/integrity/mod.rs",
+        "replace database log emoji markers: crates/jobsentinel-storage/src/integrity/mod.rs",
       ),
       violations.join("\n"),
     );
     assert.ok(
       violations.includes(
-        "replace database log emoji markers: crates/jobsentinel-core/src/core/db/connection/backups.rs",
+        "replace database log emoji markers: crates/jobsentinel-storage/src/connection/backups.rs",
       ),
       violations.join("\n"),
     );

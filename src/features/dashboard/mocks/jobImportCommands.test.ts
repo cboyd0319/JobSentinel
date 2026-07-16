@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { mockJobs } from "../../../mocks/data";
-import { mockInvoke, resetMockData } from "../../../mocks/handlers";
+import { mockJobs } from "../../../test-support/mocks/data";
+import { mockInvoke, resetMockData } from "../../../test-support/mocks/handlers";
 import {
   handleMockJobImportCommand,
   type MockJobImportPreview,

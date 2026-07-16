@@ -385,7 +385,7 @@ feature wiring remain local where ownership differs.
   `scripts/lib/` only after two real consumers exist.
 - Split large checks by policy family under `scripts/checks/`, not by arbitrary
   line count.
-- Preserve `scripts/harness/`, `scripts/security/`, and `scripts/dependency/`
+- Preserve `scripts/harness/`, `scripts/checks/security/`, and `scripts/lib/dependency/`
   as real ownership boundaries.
 - Put platform packaging under `scripts/platform/` and release assembly or
   public-asset verification under `scripts/release/`.
@@ -472,7 +472,8 @@ must belong to this plan and no build output or one-off report may be added.
 - [x] Verify a clean macOS 26+ package path and the Windows 11 and Linux package
   contracts required by the release process. Record unavailable live hosts.
 - [x] Update the public GitHub wiki from the final commands and architecture.
-- [x] Record all readiness evidence in `docs/harness/evidence-log.md`.
+- [x] Record all readiness evidence in the pre-standard harness ledger, now at
+  `docs/harness/archive/evidence-log-pre-standard-2026-07-14.md`.
 - [x] Move this plan to `docs/plans/completed/` only when readiness passes and
   no required work remains.
 - [x] Stop before tagging, publishing, uploading, or dispatching a release. Ask

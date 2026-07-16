@@ -1,13 +1,12 @@
-use crate::commands::{self, AppState, SchedulerStatus};
-use crate::core::bookmarklet::{BookmarkletConfig, BookmarkletServer};
-use crate::core::credentials::{
+use crate::application::credentials::{
     clear_config_credentials, extract_plaintext_credentials, is_migrated, set_migrated,
     CredentialService,
 };
-use crate::core::logging::path_label_for_logging;
-use crate::core::scheduler::Scheduler;
-use crate::core::{Config, Database};
-use crate::platforms;
+use crate::application::scheduler::Scheduler;
+use crate::application::Config;
+use crate::commands::{self, AppState, SchedulerStatus};
+use crate::desktop;
+use crate::desktop::{path_label_for_logging, BookmarkletConfig, BookmarkletServer, Database};
 
 use chrono::{Duration, Utc};
 use std::{path::Path, sync::Arc};
@@ -105,7 +104,7 @@ pub(crate) fn run() {
         .init();
 
     // Initialize platform-specific features
-    if let Err(e) = platforms::initialize() {
+    if let Err(e) = desktop::initialize() {
         eprintln!("Failed to initialize platform: {}", e);
         std::process::exit(1);
     }
@@ -114,7 +113,6 @@ pub(crate) fn run() {
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_dialog::init())
-        .plugin(tauri_plugin_secure_storage::init())
         .invoke_handler(crate::command_handlers::jobsentinel_command_handlers!())
         .setup(|app| {
             // Initialize configuration
@@ -147,7 +145,7 @@ pub(crate) fn run() {
                     title_blocklist: vec![],
                     keywords_boost: vec![],
                     keywords_exclude: vec![],
-                    location_preferences: crate::core::config::LocationPreferences {
+                    location_preferences: crate::application::config::LocationPreferences {
                         allow_remote: true,
                         allow_hybrid: false,
                         allow_onsite: false,
@@ -218,7 +216,7 @@ pub(crate) fn run() {
             tracing::info!("Database initialized successfully");
 
             let database_arc = Arc::new(database);
-            let credentials_arc = Arc::new(CredentialService::new(database_arc.pool().clone()));
+            let credentials_arc = Arc::new(CredentialService::new(database_arc.credentials()));
             let reload_config_after_migration =
                 tauri::async_runtime::block_on(migrate_plaintext_credentials_to_secure_storage(
                     &config_path,

@@ -1,244 +1,66 @@
-# Releases
+# Release Contract
 
-Production assets can be produced either by the manual
-[`release.yml`](../../.github/workflows/release.yml) workflow, run from an
-existing version tag, or by verified local builds from the target platform,
-then attached to
-[GitHub Releases](https://github.com/cboyd0319/JobSentinel/releases).
-The workflow remains the easiest full cross-platform proof path. For
-no-account releases, local macOS build and upload is preferred when hosted
-macOS proof is not needed; use hosted `windows-linux` packaging after the local
-Mac asset is attached. Local build plus manual upload is a supported release
-path when it runs the same version, docs, package, SBOM, and artifact gates
-before publication.
+Release execution is separate from normal development and requires explicit user
+authority. GitHub-hosted release, publication, and public-verification workflows
+are manual. Their existence does not authorize dispatch, signing, upload,
+attestation, or publication.
 
-## macOS public release status
+## Preconditions
 
-JobSentinel does not currently have an Apple Developer Account. That means a
-zero-friction public macOS DMG cannot be Developer ID signed, notarized,
-stapled, or accepted by Gatekeeper yet.
+Before tagging, building release assets, uploading, or publishing:
 
-The no-account macOS path is still useful and verified. Use it for development,
-testing, internal checks, and clearly labeled no-account public packages. For
-`2.9.0` and newer public no-account Mac packages, the release must include the
-`.dmg` and matching `.dmg.sha256` checksum, the DMG filename must include
-`_no-account_`, the release must include the generated macOS SBOM plus SBOM
-manifest, and `npm run tauri:verify:macos:latest` must pass after publication.
-For locally built macOS artifacts, use
-`npm run tauri:verify:macos:latest -- --no-require-supply-chain` and record
-that hosted GitHub Actions build-provenance attestations do not apply to the
-Mac asset.
-Historical `v2.7.x` public assets predate these current public verifier gates.
-Do not publish a macOS package as zero-friction or Gatekeeper-ready until the
-project has an Apple Developer Account, the release secrets below are
-configured, and the public artifact passes
-`npm run tauri:verify:macos:latest -- --require-gatekeeper`.
+1. Close or explicitly rescope the active work in root `PROGRESS.md` and
+   `feature_list.json`.
+2. Confirm one source revision and exact `X.Y.Z` version across Cargo, npm,
+   Tauri, lockfiles, changelog, and `docs/releases/vX.Y.Z.md`.
+3. Obtain explicit authority for every external mutation: tag push, release
+   creation, asset deletion, upload, publication, signing, or notarization.
+4. Use only local or explicitly authorized hosted or native runners. Workflow
+   configuration is not evidence; retain the actual run and artifact evidence.
 
-## Creating a Release
+## Local Release Gate
 
-Before creating a release tag, uploading assets, or publishing a draft release,
-close the current active release or maintenance checklist in `docs/plans/active/`
-or get an explicit rescoped release decision from the user. The package version
-can be staged locally while the checklist remains open, but release publication
-cannot start.
-
-Review code, documentation, comments, examples, and release artifacts against
-the complete [JobSentinel language policy](../style-guide/README.md) and
-Google's
-[inclusive open-source release preparation](https://opensource.google/documentation/reference/releasing/preparing#inclusive)
-check. The language sensor covers deterministic prohibited terminology only;
-human review covers context, tone, global audience, claims, and precise wording.
-
-JobSentinel does not use Tauri's updater plugin in the current release line:
-there is no
-`tauri-plugin-updater` dependency, no updater public key, no updater endpoint,
-and no updater artifact setting in `src-tauri/tauri.conf.json`. The supported
-update path is manual GitHub Releases downloads with matching
-`.sha256` checksums and the user rollback guide in
-[`docs/user/UPDATES.md`](../user/UPDATES.md).
-
-### 1. Prepare and tag
-
-Update the package version, changelog, and `docs/releases/vX.Y.Z.md`, then
-commit and push `main`. The hosted release workflow copies that checked-in
-versioned release note into the GitHub Release body and appends package status
-for the installer signing path. Run the local release gate before tagging or
-uploading artifacts:
+Run from the repository root:
 
 ```bash
-node scripts/install-pinned-npm.mjs
+./init.sh
 npm run release:check-version -- vX.Y.Z
 npm run release:check-env
 npm run release:readiness -- --version vX.Y.Z
-npm run harness:check
 npm run release:check-deps
-npm run doctor
-npm run doctor:e2e
-npm run lint:language
-npm run lint:docs
-npm run lint
-npm run test:run
+npm run verify:full
+npm run lint:sqlx
 npm run test:e2e:all
-npm run build
-cargo fmt --all -- --check
-cargo clippy --workspace -- -D warnings
-cargo test --workspace
+node scripts/run-cargo.mjs clippy --workspace --all-features -- -D warnings
+node scripts/run-cargo.mjs test --workspace --all-features
 ```
 
-Create and push the version tag:
+Online advisory checks are required when network access is available:
 
 ```bash
-git tag vX.Y.Z
-git push origin vX.Y.Z
+npm audit --audit-level=moderate
+cargo deny check advisories bans licenses sources
 ```
 
-Pushing the tag does not publish a release by itself. Run **Actions > Release >
-Run workflow** from the matching `vX.Y.Z` tag ref. Use `platform=all` for a
-full hosted Windows, macOS, and Linux release proof. Use `platform=windows-linux`
-only after the macOS DMG was built, verified, and uploaded locally to the same
-draft release.
+Record an unavailable host, tool, credential, or network check as a gap. Do not
+convert a skipped gate into a pass.
 
-The workflow resolves release inputs, runs parallel preflight checks, creates a
-staged release only after those checks pass, verifies the release tag before
-creating a new hosted release, packages the downloadable Agent Skills archives,
-builds the requested platform packages, verifies the macOS package before
-upload when macOS is selected, generates platform SBOMs, creates GitHub
-provenance and SBOM attestations for hosted artifacts, and attaches release
-assets. After all requested platform upload jobs succeed, the workflow
-publishes the release automatically.
+## Native Platform Assets
 
-Manual release dispatch uses the same workflow but must be launched from the
-existing matching `vX.Y.Z` tag ref. If the selected workflow ref is `main`,
-another branch, or a different tag, the release workflow fails before creating
-or editing a staged release.
+Build every advertised platform from the same source revision.
 
-For a local-first release, build each platform on that platform or VM, attach
-the verified artifacts to the matching staged release, and run the public
-artifact verifier before sharing the release. Do not mix artifacts from
-different source commits under one tag, and do not claim GitHub Actions build
-provenance for a locally built artifact.
+### macOS
 
-Package the downloadable Agent Skills archives from the tagged source before
-publishing:
+JobSentinel currently has no Apple Developer Account.
+A zero-friction public macOS DMG cannot be produced under that constraint. A
+public no-account DMG must be visibly labeled `_no-account_`, use a universal
+`x86_64,arm64` binary,
+include its `.dmg.sha256`, and include the generated macOS SBOM and manifest. It
+is not Developer ID signed, notarized, stapled, or Gatekeeper-ready.
 
 ```bash
-npm run release:skills -- --version X.Y.Z --out-dir release-assets/public
-```
-
-Upload `JobSentinel-X.Y.Z-agent-skills.tar.gz`,
-`JobSentinel-X.Y.Z-agent-skills.zip`, and both `.sha256` sidecars. The
-archives are not installers, but hosted releases still attest them before
-upload.
-
-`npm run release:check-env` is non-interactive and checks only environment
-variable presence and value shape. It does not call GitHub, read secret values,
-or print secret values. With no Windows signing inputs, the hosted release
-builds explicitly `_unsigned` Windows MSI and NSIS setup assets. Add
-`-- --require-windows-signing` only when the release must be Authenticode
-signed. Add `-- --require-macos-gatekeeper` only when the release is intended
-to be Developer ID signed, notarized, and Gatekeeper-ready.
-
-### 2. macOS signing mode
-
-If no Apple Developer Account secrets are configured, the release workflow
-builds a no-account macOS DMG, ad-hoc signs the app bundle if needed, runs the
-local no-account verifier, labels the public asset filename with
-`_no-account_`, creates a matching `.dmg.sha256` after the rename, and uploads
-both files without claiming Gatekeeper readiness.
-
-For a zero-friction public macOS release, configure the Developer ID signing and
-notarization secrets before tagging:
-
-Prefer GitHub `release` environment secrets with required reviewers over
-repository-wide secrets. The hosted release workflow targets that environment
-for staged release creation, asset upload, publication, and macOS signing.
-
-```bash
-export APPLE_CERTIFICATE="base64-encoded-p12"
-export APPLE_CERTIFICATE_PASSWORD="p12-export-password"
-export APPLE_SIGNING_IDENTITY="Developer ID Application: Name (TEAMID)"
-export APPLE_ID="developer@example.com"
-export APPLE_PASSWORD="app-specific-password"
-export APPLE_TEAM_ID="TEAMID"
-```
-
-If only some Apple secrets are configured, the macOS job fails before building.
-If all required Apple secrets are configured, the workflow signs, notarizes,
-staples, validates, and requires `--require-gatekeeper` before upload.
-The hosted release job deletes the temporary signing keychain, decoded `.p12`
-certificate, and materialized App Store Connect `.p8` key after macOS build
-verification.
-
-### 3. Local macOS verification and upload
-
-Use local builds when testing the macOS package path, reducing release-runner
-cost, or replacing a broken public Mac asset outside normal tag CI:
-
-```bash
-# macOS (from Mac)
-npm run tauri:build:macos
-# Output: target/release/bundle/dmg/JobSentinel_*.dmg
-# Checksum: target/release/bundle/dmg/JobSentinel_*.dmg.sha256
-
-# macOS universal binary (Intel + Apple Silicon)
 rustup target add aarch64-apple-darwin x86_64-apple-darwin
-npm run tauri:build:macos -- --target universal-apple-darwin
-# Output: target/universal-apple-darwin/release/bundle/dmg/JobSentinel_*_universal.dmg
-# Checksum: target/universal-apple-darwin/release/bundle/dmg/JobSentinel_*_universal.dmg.sha256
-
-# Verify macOS package integrity locally
-npm run tauri:verify:macos -- \
-  --dmg target/universal-apple-darwin/release/bundle/dmg/JobSentinel_*_universal.dmg \
-  --expected-architectures x86_64,arm64 \
-  --expected-bundle-id com.jobsentinel.main \
-  --expected-product-name JobSentinel \
-  --expected-version X.Y.Z \
-  --expected-icon-file icon.icns \
-  --expected-minimum-system-version 13.0 \
-  --launch-smoke \
-  --install-smoke \
-  --require-checksum
-
-# Developer ID public macOS release gate
-npm run tauri:verify:macos -- \
-  --dmg target/universal-apple-darwin/release/bundle/dmg/JobSentinel_*_universal.dmg \
-  --expected-architectures x86_64,arm64 \
-  --expected-bundle-id com.jobsentinel.main \
-  --expected-product-name JobSentinel \
-  --expected-version X.Y.Z \
-  --expected-icon-file icon.icns \
-  --expected-minimum-system-version 13.0 \
-  --launch-smoke \
-  --install-smoke \
-  --require-checksum \
-  --require-gatekeeper
-
-# After publishing, verify the downloaded public macOS artifact.
-# Current no-account release path:
-npm run tauri:verify:macos:latest
-
-# Developer ID signed and notarized release path:
-npm run tauri:verify:macos:latest -- --require-gatekeeper
-
-# Verify the public Windows, macOS, Linux, and Agent Skills asset set.
-npm run release:verify:public -- --tag vX.Y.Z --platforms windows,macos,linux
-
-# Legacy releases without SBOM or attestation assets only:
-npm run tauri:verify:macos:latest -- --tag vX.Y.Z --no-require-supply-chain
-```
-
-For local upload, use a unique no-account filename such as
-`JobSentinel_X.Y.Z_no-account_universal.dmg`. Reusing a previous
-browser-download filename can leave stale CDN content behind. Build with the
-no-account filename label, verify the package, create or update a draft release
-for the tag, generate the local macOS SBOM assets, delete any old Mac `.dmg`,
-`.dmg.sha256`, and macOS SBOM assets from that tag, upload exactly one
-replacement `.dmg`, its matching checksum, and the matching macOS SBOM files,
-and then run the public verifier:
-
-```bash
 JOBSENTINEL_MACOS_NO_ACCOUNT=true npm run tauri:build:macos -- --target universal-apple-darwin
-
 npm run tauri:verify:macos -- \
   --dmg target/universal-apple-darwin/release/bundle/dmg/JobSentinel_X.Y.Z_no-account_universal.dmg \
   --expected-architectures x86_64,arm64 \
@@ -250,156 +72,95 @@ npm run tauri:verify:macos -- \
   --launch-smoke \
   --install-smoke \
   --require-checksum
+```
 
-mkdir -p release-assets/public
-cp target/universal-apple-darwin/release/bundle/dmg/JobSentinel_X.Y.Z_no-account_universal.dmg release-assets/public/
-cp target/universal-apple-darwin/release/bundle/dmg/JobSentinel_X.Y.Z_no-account_universal.dmg.sha256 release-assets/public/
+Developer ID mode requires separately authorized signing and notarization
+credentials. Keep certificate, password, App Store Connect key, and temporary
+keychain material outside the repository. Require Gatekeeper verification before
+calling that artifact ready.
+
+Do not publish a Mac package without its checksum.
+Do not publish a macOS package as zero-friction or Gatekeeper-ready until
+`--require-gatekeeper` passes.
+
+### Windows
+
+Build on Windows 11 or an explicitly selected Windows VM:
+
+```powershell
+npm run tauri build
+Get-AuthenticodeSignature target/release/bundle/msi/JobSentinel_*.msi
+Get-AuthenticodeSignature target/release/bundle/nsis/JobSentinel_*.exe
+```
+
+Public Windows MSI and NSIS setup upload is signed with locally supplied Windows
+signing secrets or visibly renamed with `_unsigned`. Both paths require matching
+SHA-256 sidecars. Signing material must remain outside the repository and must be
+removed from temporary stores after verification.
+
+Windows signing secrets stay outside the repository and require explicit use.
+
+### Linux
+
+Build on the supported Linux target:
+
+```bash
+APPIMAGE_EXTRACT_AND_RUN=1 npx --no-install tauri build --target x86_64-unknown-linux-gnu
+file target/x86_64-unknown-linux-gnu/release/bundle/appimage/*.AppImage
+dpkg-deb --info target/x86_64-unknown-linux-gnu/release/bundle/deb/*.deb
+dpkg-deb --contents target/x86_64-unknown-linux-gnu/release/bundle/deb/*.deb >/dev/null
+```
+
+Public Linux upload is blocked unless the advertised set contains exactly one
+non-empty AppImage and one non-empty Debian package, versioned filenames, and
+matching SHA-256 sidecars.
+
+## SBOM And Staging
+
+Generate release assets outside tracked source paths:
+
+```bash
+npm run release:skills -- --version X.Y.Z --out-dir release-assets/public
 npm run release:sbom -- \
-  --platform macos \
+  --platform <windows|macos|linux> \
   --version X.Y.Z \
   --out-dir release-assets/public \
   --checksums-out release-assets/attestation-subjects.sha256 \
   --require-artifacts
-
-gh release view vX.Y.Z >/dev/null 2>&1 || \
-  gh release create vX.Y.Z --draft --verify-tag --title "JobSentinel X.Y.Z" --notes-file docs/releases/vX.Y.Z.md
-
-for asset in $(gh release view vX.Y.Z --json assets --jq '.assets[].name' | grep -E '(\.dmg(\.sha256)?|macos\.sbom-(manifest\.json|spdx\.json))$'); do
-  gh release delete-asset vX.Y.Z "$asset" -y
-done
-
-gh release upload vX.Y.Z \
-  release-assets/public/JobSentinel_X.Y.Z_no-account_universal.dmg \
-  release-assets/public/JobSentinel_X.Y.Z_no-account_universal.dmg.sha256 \
-  release-assets/public/JobSentinel-X.Y.Z-macos.sbom-manifest.json \
-  release-assets/public/JobSentinel-X.Y.Z-macos.sbom.spdx.json
-
-# Then verify the downloaded public asset. Use the no-supply-chain flag only
-# for locally built macOS artifacts that do not have GitHub Actions
-# build-provenance attestations.
-npm run tauri:verify:macos:latest -- --tag vX.Y.Z --no-require-supply-chain
 ```
 
-Do not publish a Mac package without its checksum, and do not leave multiple Mac
-DMGs attached to the same release tag. After this local Mac upload, dispatch the
-Release workflow from the same `vX.Y.Z` tag with `platform=windows-linux` to
-build, attest, upload, and publish hosted Windows, Linux, and Agent Skills
-assets.
+Inspect the exact staged asset list. Reject duplicate installers, stale versions,
+missing checksums, mismatched digests, incomplete SBOM manifests, or artifacts
+from a different revision.
 
-### 4. Local Windows and Linux builds
+Upload `JobSentinel-X.Y.Z-agent-skills.tar.gz`,
+`JobSentinel-X.Y.Z-agent-skills.zip`, and both `.sha256` sidecars. Upload only
+after the local archive verifier passes.
 
-Use native Windows and Linux hosts or VMs for local release assets. The
-workflow path is still available when local access to a target platform is not
-ready.
+## Publication And Public Verification
 
-```bash
-# Windows (from Windows machine or VM)
-npm run tauri build
-# Output: target/release/bundle/msi/JobSentinel_*.msi
-# Output: target/release/bundle/nsis/JobSentinel_*.exe
-Get-AuthenticodeSignature target/release/bundle/msi/JobSentinel_*.msi
-Get-AuthenticodeSignature target/release/bundle/nsis/JobSentinel_*.exe
+Tagging, pushing, creating a GitHub Release, deleting assets, uploading, and
+publishing are external mutations and need explicit authority at execution time.
+The authorized operator may use `gh` after reviewing the exact tag and asset
+list. Do not dispatch a workflow as a release shortcut without that authority.
 
-# Linux (from Linux)
-APPIMAGE_EXTRACT_AND_RUN=1 npx --no-install tauri build --target x86_64-unknown-linux-gnu
-# Output: target/x86_64-unknown-linux-gnu/release/bundle/
-file target/x86_64-unknown-linux-gnu/release/bundle/appimage/*.AppImage
-dpkg-deb --info target/x86_64-unknown-linux-gnu/release/bundle/deb/*.deb
-dpkg-deb --contents target/x86_64-unknown-linux-gnu/release/bundle/deb/*.deb >/dev/null
-for asset in \
-  target/x86_64-unknown-linux-gnu/release/bundle/appimage/*.AppImage \
-  target/x86_64-unknown-linux-gnu/release/bundle/deb/*.deb; do
-  sha256sum "$asset" > "$asset.sha256"
-done
-```
-
-Public Windows MSI and NSIS setup upload is signed when Windows signing secrets
-are available and explicitly unsigned-labeled when they are not. Hosted signed
-Windows release builds require `WINDOWS_CERTIFICATE`,
-`WINDOWS_CERTIFICATE_PASSWORD`, `WINDOWS_CERTIFICATE_THUMBPRINT`, and
-`WINDOWS_TIMESTAMP_URL` in the GitHub `release` environment; the workflow
-imports the PFX, writes a temporary `tauri.windows.conf.json`, removes the
-temporary PFX file, removes the imported certificate and private key from the
-runner certificate store after the build, and creates `.sha256` sidecars only
-after signature verification passes. If all Windows signing secrets are
-missing, the workflow builds the MSI and NSIS setup EXE, renames both with
-`_unsigned`, checks that the unsigned labels are present, writes checksums,
-generates SBOM and attestation assets, and leaves the release notes and docs
-responsible for the expected SmartScreen warning.
-For local Windows builds, configure equivalent local code-signing material
-outside the repo before running `tauri build`.
-
-Before tagging a signed Windows release, run:
-
-```bash
-npm run release:check-env -- --platforms windows --require-windows-signing
-```
-
-Public Linux upload is blocked unless exactly one `.AppImage` and one `.deb`
-exist, both filenames include the release version, both files are non-empty,
-the `.deb` passes `dpkg-deb --info` and `dpkg-deb --contents`, and matching
-`.sha256` files are generated. The release workflow enforces those checks
-before upload, including manual release dispatch for `platform=linux`.
-
-The `Verify Release Artifacts` GitHub Actions workflow can be run manually
-after a release is published. Its Linux job verifies the public Windows, macOS,
-and Linux asset set from GitHub Releases: exactly the expected installer and
-checksum assets for verified platforms, exact release-version filename
-segments, matching `.sha256` files, non-empty downloads, public SBOM manifest
-binding, SBOM digest verification, and GitHub artifact attestations for SLSA
-provenance plus the SPDX SBOM predicate. Its macOS job then verifies the public
-macOS DMG with no-account defaults: universal `x86_64,arm64` architecture
-checks, checksum verification, signature verification, bundle identity,
-release-tag version, icon metadata and resource file, macOS 13.0
-minimum-system metadata, mounted-app launch smoke, installed-app launch smoke,
-isolated local database creation, and a visible `_no-account_` filename label.
-Gatekeeper acceptance is opt-in with the `require_gatekeeper` workflow input or
-`JOBSENTINEL_MACOS_REQUIRE_GATEKEEPER` repository variable, and should be used
-for Developer ID signed and notarized releases. In that mode, the verifier
-rejects `_no-account_` filenames. If this workflow fails, the public DMG should
-be replaced before sharing the release.
-
-The local macOS package smoke launches the app through `open -F -n` with
-`ApplePersistenceIgnoreState=YES`, so it starts fresh instead of reopening a
-previous crashed session. The smoke path passes a verifier-only temporary data
-root and verifier-only database key; it must not read or write the user's live
-JobSentinel data or prompt for the user's Keychain.
-
-### 5. Verify publication
-
-After the hosted release workflow publishes the release, verify the published
-tag explicitly. For a full hosted release, run the public verifier with supply
-chain checks:
+After publication, verify the downloadable assets locally:
 
 ```bash
 npm run release:verify:public -- --tag vX.Y.Z --platforms windows,macos,linux
-npm run tauri:verify:macos:latest -- --tag vX.Y.Z
-```
-
-For a local-macOS plus hosted-Windows/Linux release, keep hosted supply-chain
-checks for Windows, Linux, and Agent Skills, then verify the local Mac asset
-with the documented provenance exception:
-
-```bash
-npm run release:verify:public -- --tag vX.Y.Z --platforms windows,linux
 npm run tauri:verify:macos:latest -- --tag vX.Y.Z --no-require-supply-chain
 ```
 
-You can also run **Actions > Verify Release Artifacts > Run workflow** manually.
-Set `platforms=windows,linux` for a local-macOS release to avoid spending a
-hosted macOS verifier run that is expected to fail supply-chain attestation
-checks for the local Mac artifact.
+The no-supply-chain flag is required for locally built assets because they have
+no GitHub Actions provenance. Never claim hosted provenance, SLSA attestation,
+or GitHub-generated SBOM attestation for local builds.
 
-For hosted releases, do not pass `--no-require-supply-chain`; that flag exists
-only for legacy releases or current local artifacts that intentionally do not
-have GitHub Actions build-provenance attestations.
+## Rollback
 
-## Supported Platforms
-
-| Platform | Architecture          | Format      | Status   |
-| -------- | --------------------- | ----------- | -------- |
-| macOS    | universal             | `.dmg`      | No-account package uses `_no-account_`, ships with checksum, and requires first-open Privacy & Security approval until Developer ID signing and notarization exist |
-| Windows  | x86_64                | `.msi` / setup `.exe` | Signed when credentials exist; otherwise `_unsigned`-labeled with checksums |
-| Linux    | x86_64                | `.AppImage` / `.deb` | Built and verified through the release workflow before publication |
-
-See [CHANGELOG.md](../../CHANGELOG.md) for full history.
+- Source changes roll back through a reviewed Git revert.
+- Published assets are replaced only with explicit authority and the same
+  version/revision contract.
+- Database migrations never roll back by deleting user data. Use a forward
+  repair or a verified backup restore.
+- Preserve failed local artifacts outside tracked paths until the failure is
+  understood, then remove them before completion.

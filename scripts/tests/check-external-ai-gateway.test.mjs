@@ -114,7 +114,7 @@ test("checkExternalAiGateway rejects external AI package dependencies", () => {
   });
 });
 
-test("checkExternalAiGateway allows provider code inside the gateway boundary", () => {
+test("checkExternalAiGateway rejects provider code inside the frontend policy boundary", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
@@ -126,21 +126,43 @@ const endpoint = "https://api.openai.com/v1/responses";
 `,
     );
 
-    assert.deepEqual(checkExternalAiGateway(root), []);
+    assert.ok(
+      checkExternalAiGateway(root).some((violation) =>
+        violation.includes("src/shared/externalAi/internal/aiGateway.ts:"),
+      ),
+    );
   });
 });
 
-test("checkExternalAiGateway allows provider endpoints inside the Tauri gateway command", () => {
+test("checkExternalAiGateway allows provider endpoints inside the Rust AI owner", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/external_ai/provider.rs",
+      "crates/jobsentinel-ai/src/provider.rs",
       `
 const ENDPOINT: &str = "https://api.openai.com/v1/responses";
 `,
     );
 
     assert.deepEqual(checkExternalAiGateway(root), []);
+  });
+});
+
+test("checkExternalAiGateway rejects provider endpoints inside the Tauri adapter", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src-tauri/src/commands/external_ai.rs",
+      `
+const ENDPOINT: &str = "https://api.openai.com/v1/responses";
+`,
+    );
+
+    assert.ok(
+      checkExternalAiGateway(root).some((violation) =>
+        violation.includes("src-tauri/src/commands/external_ai.rs:2"),
+      ),
+    );
   });
 });
 

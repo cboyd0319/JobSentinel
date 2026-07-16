@@ -52,16 +52,10 @@ cross-browser E2E uses:
 npm run test:e2e:all
 ```
 
-The CI-oriented alias uses the same full Playwright suite when invoked:
-
-```bash
-npm run test:e2e:ci
-```
-
 List the current full E2E test count with:
 
 ```bash
-npm run test:e2e:ci -- --list
+npm run test:e2e:all -- --list
 ```
 
 Run one file:

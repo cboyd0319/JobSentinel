@@ -8,7 +8,7 @@ URL, redirect, and server-side request forgery boundaries.
 
 ### Slack Webhooks
 
-**File**: `crates/jobsentinel-core/src/core/notify/slack.rs`
+**File**: `crates/jobsentinel-notifications/src/slack.rs`
 
 ```rust
 fn validate_webhook_url(url: &str) -> Result<()> {
@@ -49,7 +49,7 @@ https://hooks.slack.com/other/...         (wrong path)
 
 ### Discord Webhooks
 
-**File**: `crates/jobsentinel-core/src/core/notify/discord.rs`
+**File**: `crates/jobsentinel-notifications/src/discord.rs`
 
 ```rust
 fn validate_webhook_url(url: &str) -> Result<()> {
@@ -89,7 +89,7 @@ https://hooks.discord.com/api/webhooks/123456789/ABCDEFG
 
 ### Microsoft Teams Webhooks
 
-**File**: `crates/jobsentinel-core/src/core/notify/teams.rs`
+**File**: `crates/jobsentinel-notifications/src/teams.rs`
 
 ```rust
 fn validate_webhook_url(url: &str) -> Result<()> {

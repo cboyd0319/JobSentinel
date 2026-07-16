@@ -2,9 +2,9 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 const databaseLogEmojiPaths = new Set([
-  "crates/jobsentinel-core/src/core/db/connection.rs",
-  "crates/jobsentinel-core/src/core/db/connection/backups.rs",
-  "crates/jobsentinel-core/src/core/db/integrity/mod.rs",
+  "crates/jobsentinel-storage/src/connection.rs",
+  "crates/jobsentinel-storage/src/connection/backups.rs",
+  "crates/jobsentinel-storage/src/integrity/mod.rs",
 ]);
 
 const scoreReasonJsonParserPaths = new Set([
@@ -47,18 +47,18 @@ const rawSalaryCommandLoggingPaths = new Set([
 ]);
 
 const backendScoringReasonPaths = new Set([
-  "crates/jobsentinel-core/src/core/resume/matcher.rs",
-  "crates/jobsentinel-core/src/core/scoring/mod.rs",
-  "crates/jobsentinel-core/src/core/scoring/remote.rs",
+  "crates/jobsentinel-storage/src/resume/matcher.rs",
+  "crates/jobsentinel-application/src/scoring/mod.rs",
+  "crates/jobsentinel-application/src/scoring/remote.rs",
 ]);
 
 const notificationScoringReasonPaths = new Set([
-  "crates/jobsentinel-core/src/core/notify/discord.rs",
-  "crates/jobsentinel-core/src/core/notify/email.rs",
-  "crates/jobsentinel-core/src/core/notify/mod.rs",
-  "crates/jobsentinel-core/src/core/notify/slack.rs",
-  "crates/jobsentinel-core/src/core/notify/teams.rs",
-  "crates/jobsentinel-core/src/core/notify/telegram.rs",
+  "crates/jobsentinel-notifications/src/discord.rs",
+  "crates/jobsentinel-notifications/src/email.rs",
+  "crates/jobsentinel-application/src/notify/mod.rs",
+  "crates/jobsentinel-notifications/src/slack.rs",
+  "crates/jobsentinel-notifications/src/teams.rs",
+  "crates/jobsentinel-notifications/src/telegram.rs",
 ]);
 
 export function hasRawSalaryCommandLogging(root, path) {
@@ -83,7 +83,7 @@ function isRuntimeFrontendSource(path) {
     !path.endsWith(".d.ts") &&
     !/\.test\.(ts|tsx)$/.test(path) &&
     !/\.stories\.(ts|tsx)$/.test(path) &&
-    path !== "src/mocks/handlers.ts"
+    path !== "src/test-support/mocks/handlers.ts"
   );
 }
 
@@ -124,7 +124,7 @@ export function hasFrontendStatusEmojiMarkers(root, path) {
 }
 
 export function hasStaleScrapeAllStub(root, path) {
-  if (path !== "crates/jobsentinel-core/src/core/scrapers/mod.rs") {
+  if (path !== "crates/jobsentinel-sources/src/scrapers/mod.rs") {
     return false;
   }
 
@@ -136,7 +136,7 @@ export function hasStaleScrapeAllStub(root, path) {
 }
 
 export function hasStaleResumeExportPdfStub(root, path) {
-  if (path !== "crates/jobsentinel-core/src/core/resume/export.rs") {
+  if (path !== "crates/jobsentinel-documents/src/export.rs") {
     return false;
   }
 
@@ -169,7 +169,7 @@ export function hasDatabaseLogEmojiMarkers(root, path) {
 }
 
 export function hasUnverifiedPreMigrationBackup(root, path) {
-  if (path !== "crates/jobsentinel-core/src/core/db/connection.rs") {
+  if (path !== "crates/jobsentinel-storage/src/connection.rs") {
     return false;
   }
 

@@ -22,9 +22,8 @@ const keyringSecurityDocsPaths = new Set([
 ]);
 
 const keyringMigrationPaths = new Set(["src-tauri/src/app.rs"]);
-const credentialArchitecturePaths = new Set(["crates/jobsentinel-core/src/core/credentials/mod.rs"]);
+const credentialArchitecturePaths = new Set(["crates/jobsentinel-credentials/src/lib.rs"]);
 const userDataFeatureDocsPaths = new Set(["docs/features/user-data-management.md"]);
-const userDataDeveloperDocsPaths = new Set(["docs/developer/ARCHITECTURE.md"]);
 
 export function hasStaleNotificationWebhookDocs(root, path) {
   if (!notificationDocsPaths.has(path)) {
@@ -160,7 +159,7 @@ export function hasStaleCredentialArchitectureComments(root, path) {
 }
 
 export function hasStaleNotificationPreferenceDocs(root, path) {
-  if (!userDataFeatureDocsPaths.has(path) && !userDataDeveloperDocsPaths.has(path)) {
+  if (!userDataFeatureDocsPaths.has(path)) {
     return false;
   }
 
@@ -172,15 +171,5 @@ export function hasStaleNotificationPreferenceDocs(root, path) {
       text,
     );
 
-  if (userDataFeatureDocsPaths.has(path)) {
-    return staleShape || /save_notification_preferences|advancedFilters|minScoreThreshold/.test(text);
-  }
-
-  return (
-    staleShape ||
-    !/indeed:\s*\{\s*enabled:\s*true,\s*minScoreThreshold:\s*70,\s*soundEnabled:\s*true\s*\}/.test(
-      text,
-    ) ||
-    !/prefs:\s*\{[\s\S]*advancedFilters:/m.test(text)
-  );
+  return staleShape || /save_notification_preferences|advancedFilters|minScoreThreshold/.test(text);
 }

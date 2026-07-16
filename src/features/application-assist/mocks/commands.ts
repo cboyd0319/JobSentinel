@@ -1,14 +1,14 @@
-import { isSafeExternalHttpsUrl } from "../../../mocks/externalUrlSafety";
+import { isSafeExternalHttpsUrl } from "../../../test-support/mocks/externalUrlSafety";
 import {
   getArg,
   getStringArg,
   normalizeProfileInput,
-} from "../../../mocks/handlers/commandHelpers";
+} from "../../../test-support/mocks/handlers/commandHelpers";
 import type {
   MockApplicationProfile,
   MockFillResultWithAttempt,
   MockScreeningAnswer,
-} from "../../../mocks/handlers/types";
+} from "../../../test-support/mocks/handlers/types";
 import {
   buildMockApplicationProfileFromInput,
   getMockApplicationProfileEdit,

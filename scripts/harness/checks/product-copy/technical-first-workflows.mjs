@@ -115,8 +115,8 @@ export function getTechnicalFirstWorkflowResult(path, text) {
   }
 
   if (
-    path === "crates/jobsentinel-core/src/core/automation/error.rs" ||
-    path === "crates/jobsentinel-core/src/core/scrapers/error.rs"
+    path === "crates/jobsentinel-assistance/src/automation/error.rs" ||
+    path === "crates/jobsentinel-sources/src/scrapers/error.rs"
   ) {
     const start = text.indexOf("pub fn user_message");
     const end = text.indexOf("/// Sanitize", start);
@@ -209,11 +209,11 @@ export function getTechnicalFirstWorkflowResult(path, text) {
   }
 
   if (
-    path === "crates/jobsentinel-core/src/core/resume/matcher.rs" ||
-    path === "crates/jobsentinel-core/src/core/resume/ats_analyzer.rs" ||
-    path === "src/mocks/handlers.ts" ||
-    path === "crates/jobsentinel-core/src/core/salary/analyzer.rs" ||
-    path === "crates/jobsentinel-core/migrations/00000000000000_initial_schema.sql"
+    path === "crates/jobsentinel-storage/src/resume/matcher.rs" ||
+    path === "crates/jobsentinel-documents/src/ats_analyzer.rs" ||
+    path === "src/test-support/mocks/handlers.ts" ||
+    path === "crates/jobsentinel-storage/src/salary/analyzer.rs" ||
+    path === "crates/jobsentinel-storage/migrations/00000000000000_initial_schema.sql"
   ) {
     const advisoryGuidancePatterns = [
       /Apply immediately/i,

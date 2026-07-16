@@ -46,7 +46,7 @@ export function collectCargoDependencySpecs(cargoTomlText) {
     }
     if (!cargoDependencySectionPattern.test(currentSection)) return;
 
-    const dependency = line.match(/^([A-Za-z0-9_-]+)\s*=\s*(.+)$/);
+    const dependency = line.match(/^([A-Za-z0-9_-]+)(?:\.workspace)?\s*=\s*(.+)$/);
     if (!dependency) return;
     dependencies.push({
       name: dependency[1],

@@ -15,8 +15,8 @@ const staleResumeOptimizerFramingPaths = new Set([
   "src/features/resumes/matching/ResumeMatchJobWordsOverview.tsx",
   "src/features/resumes/matching/ResumeMatchResultsPanel.tsx",
   "src/features/resumes/matching/resumeMatchModel.ts",
-  "crates/jobsentinel-core/src/core/resume/mod.rs",
-  "crates/jobsentinel-core/src/core/resume/templates.rs",
+  "crates/jobsentinel-application/src/resume/mod.rs",
+  "crates/jobsentinel-documents/src/templates.rs",
   "tests/e2e/playwright/resume-upload-matching.spec.ts",
   "docs/README.md",
   "docs/ROADMAP.md",
@@ -30,8 +30,8 @@ const staleResumeOptimizerFramingPaths = new Set([
 ]);
 
 const resumeTemplateAudiencePaths = new Set([
-  "crates/jobsentinel-core/src/core/resume/templates.rs",
-  "src/mocks/handlers.ts",
+  "crates/jobsentinel-documents/src/templates.rs",
+  "src/test-support/mocks/handlers.ts",
   "src/features/resumes/builder/ResumeBuilderPage.tsx",
   "src/features/resumes/builder/ResumeBuilderPreviewStep.tsx",
   "src/features/resumes/builder/ResumeBuilderVisuals.tsx",
@@ -59,7 +59,7 @@ const applicationAssistFramingPaths = new Set([
   "src-tauri/Cargo.toml",
   "src-tauri/src/commands/automation.rs",
   "src-tauri/src/commands/errors.rs",
-  "crates/jobsentinel-core/src/core/mod.rs",
+  "crates/jobsentinel-assistance/src/automation/mod.rs",
   "src/app/Navigation.tsx",
   "src/features/application-assist/ApplicationPreview.tsx",
   "src/features/application-assist/ApplyButton.tsx",

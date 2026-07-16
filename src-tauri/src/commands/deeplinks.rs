@@ -3,11 +3,12 @@
 //! Tauri commands for generating job search deep links.
 
 use crate::commands::errors::user_friendly_error;
-use crate::core::deeplinks::{
+use crate::desktop::sanitize_url_for_logging;
+use crate::desktop::validate_external_https_url_for_fetch;
+use crate::desktop::{
     generate_all_links, generate_link_for_site, get_all_sites, DeepLink, SearchCriteria,
     SiteCategory, SiteInfo,
 };
-use crate::core::url_security::{sanitize_url_for_logging, validate_external_https_url_for_fetch};
 use serde::{Deserialize, Serialize};
 use tauri::Emitter;
 
@@ -60,7 +61,7 @@ pub(crate) async fn get_sites_by_category_cmd(
     category: SiteCategory,
 ) -> Result<Vec<SiteInfo>, String> {
     tracing::debug!("Fetching sites for category: {}", category);
-    Ok(crate::core::deeplinks::get_sites_by_category(category))
+    Ok(crate::desktop::get_sites_by_category(category))
 }
 
 /// Validate that a URL is safe to open in the user's browser.
@@ -105,7 +106,7 @@ struct DeepLinkOpenedEvent {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::core::deeplinks::RemoteType;
+    use crate::desktop::RemoteType;
 
     #[test]
     fn test_generate_deep_links_basic() {

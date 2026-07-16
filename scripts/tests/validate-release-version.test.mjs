@@ -23,11 +23,11 @@ function makeReleaseFixture(version) {
   );
   writeFileSync(
     join(root, "Cargo.toml"),
-    `[workspace.package]\nversion = "${version}"\n[workspace.dependencies]\njobsentinel-core = { path = "crates/jobsentinel-core", version = "=${version}" }\n`,
+    `[workspace.package]\nversion = "${version}"\n[workspace.dependencies]\njobsentinel-domain = { path = "crates/jobsentinel-domain", version = "=${version}" }\n`,
   );
   writeFileSync(
     join(root, "Cargo.lock"),
-    `[[package]]\nname = "jobsentinel"\nversion = "${version}"\n\n[[package]]\nname = "jobsentinel-core"\nversion = "${version}"\n`,
+    `[[package]]\nname = "jobsentinel"\nversion = "${version}"\n\n[[package]]\nname = "jobsentinel-domain"\nversion = "${version}"\n`,
   );
   return root;
 }
@@ -47,9 +47,9 @@ test("readReleaseVersions reads the complete version contract", () => {
     "package-lock.json root package": "2.6.4",
     "src-tauri/tauri.conf.json": "2.6.4",
     "Cargo.toml": "2.6.4",
-    "Cargo.toml jobsentinel-core dependency": "2.6.4",
+    "Cargo.toml jobsentinel-domain dependency": "2.6.4",
     "Cargo.lock jobsentinel": "2.6.4",
-    "Cargo.lock jobsentinel-core": "2.6.4",
+    "Cargo.lock jobsentinel-domain": "2.6.4",
   });
 });
 

@@ -2,7 +2,7 @@ import type {
   MockResumeData,
   MockResumeSummary,
   MockResumeTextPreview,
-} from "../../../mocks/handlers/types";
+} from "../../../test-support/mocks/handlers/types";
 
 const MAX_MOCK_RESUME_TEXT_PREVIEW_CHARS = 6000;
 

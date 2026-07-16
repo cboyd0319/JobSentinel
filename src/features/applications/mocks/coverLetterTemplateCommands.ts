@@ -1,4 +1,4 @@
-import { getArg, getStringArg } from "../../../mocks/handlers/commandHelpers";
+import { getArg, getStringArg } from "../../../test-support/mocks/handlers/commandHelpers";
 
 export type MockTemplateCategory =
   | "general"

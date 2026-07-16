@@ -1,10 +1,10 @@
 //! LinkedIn Workbench commands.
 
-use crate::commands::errors::user_friendly_error;
-use crate::commands::AppState;
-use crate::core::linkedin_workbench::{
+use crate::application::linkedin_workbench::{
     record_event, LinkedInWorkbenchEventInput, LinkedInWorkbenchEventResult,
 };
+use crate::commands::errors::user_friendly_error;
+use crate::commands::AppState;
 use tauri::State;
 
 #[tauri::command]

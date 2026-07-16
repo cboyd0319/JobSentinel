@@ -1,6 +1,6 @@
 ---
 name: offer-pay-review
-description: Review written offers, listed pay, salary floors, benefits, schedule, level, scope, risks, pay-equity concerns, and negotiation notes. Use when comparing offers, checking below-floor pay, preparing a counteroffer, or deciding whether to accept, decline, or ask questions.
+description: Review offers, pay, benefits, schedule, scope, and negotiation risks. Use when comparing, countering, accepting, or declining an offer.
 license: MIT
 metadata:
   jobsentinel_version_target: "2.9.0"

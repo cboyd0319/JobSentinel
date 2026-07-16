@@ -50,10 +50,10 @@ export const releaseCacheMarkers = [
   "cache: npm",
 ];
 export const notificationProviderPaths = [
-  "crates/jobsentinel-core/src/core/notify/slack.rs",
-  "crates/jobsentinel-core/src/core/notify/discord.rs",
-  "crates/jobsentinel-core/src/core/notify/teams.rs",
-  "crates/jobsentinel-core/src/core/notify/telegram.rs",
+  "crates/jobsentinel-notifications/src/slack.rs",
+  "crates/jobsentinel-notifications/src/discord.rs",
+  "crates/jobsentinel-notifications/src/teams.rs",
+  "crates/jobsentinel-notifications/src/telegram.rs",
 ];
 
 export const releaseWorkflowChecks = [
@@ -119,15 +119,15 @@ export const requiredCodeownersEntries = [
   "*", ".github/CODEOWNERS", ".github/dependabot.yml", ".github/workflows/",
   "package.json", "package-lock.json", "scripts/check-action-pins.mjs",
   "scripts/checks/dependency-pins.mjs", "scripts/checks/security-sensors.mjs",
-  "scripts/tests/check-security-sensors.test.mjs", "scripts/security/", "Cargo.toml",
+  "scripts/tests/check-security-sensors.test.mjs", "scripts/checks/security/", "Cargo.toml",
   "Cargo.lock", ".cargo/", "clippy.toml", "deny.toml", "crates/",
   "scripts/checks/", "scripts/platform/", "scripts/release/",
   "scripts/check-repository-architecture.mjs", "src-tauri/Cargo.toml", "AGENTS.md",
   "CLAUDE.md", "docs/CLAUDE.md", "src/shared/externalAi/", "SECURITY.md",
   "docs/security/", "src-tauri/capabilities/", "src-tauri/tauri.conf.json",
-  "crates/jobsentinel-core/src/core/bookmarklet/",
-  "crates/jobsentinel-core/src/core/credentials/",
-  "crates/jobsentinel-core/src/core/url_security.rs",
+  "crates/jobsentinel-assistance/src/bookmarklet/",
+  "crates/jobsentinel-credentials/src/",
+  "crates/jobsentinel-security/src/url.rs",
 ];
 export const requiredCodeowner = "@cboyd0319";
 

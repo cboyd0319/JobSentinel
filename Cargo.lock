@@ -105,7 +105,7 @@ checksum = "797f94b6a53d7d10b56dc18290e0d40a2158352f108bb4ff32350825081a9f29"
 dependencies = [
  "keyring-core",
  "log",
- "security-framework 3.7.0",
+ "security-framework",
 ]
 
 [[package]]
@@ -1410,16 +1410,6 @@ dependencies = [
  "libc",
  "libdbus-sys",
  "windows-sys 0.61.2",
-]
-
-[[package]]
-name = "dbus-secret-service"
-version = "4.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "708b509edf7889e53d7efb0ffadd994cc6c2345ccb62f55cfd6b0682165e4fa6"
-dependencies = [
- "dbus",
- "zeroize",
 ]
 
 [[package]]
@@ -3294,18 +3284,14 @@ dependencies = [
  "anyhow",
  "arboard",
  "chrono",
- "jobsentinel-core",
- "keyring 4.1.4",
+ "jobsentinel-application",
  "regex",
- "reqwest",
  "serde",
  "serde_json",
- "sqlx",
  "tauri",
  "tauri-build",
  "tauri-plugin-dialog",
  "tauri-plugin-notification",
- "tauri-plugin-secure-storage",
  "tauri-plugin-shell",
  "tempfile",
  "tokio",
@@ -3317,54 +3303,268 @@ dependencies = [
 ]
 
 [[package]]
-name = "jobsentinel-core"
+name = "jobsentinel-ai"
+version = "2.9.5"
+dependencies = [
+ "jobsentinel-domain",
+ "jobsentinel-network",
+ "jobsentinel-security",
+ "serde",
+ "serde_json",
+ "tracing",
+ "urlencoding",
+]
+
+[[package]]
+name = "jobsentinel-application"
 version = "2.9.5"
 dependencies = [
  "anyhow",
- "argon2",
  "async-trait",
- "basic-toml",
- "candle-core",
- "candle-nn",
- "chacha20poly1305",
- "chromiumoxide",
  "chrono",
- "dirs",
- "docx-rs",
  "futures",
- "futures-util",
  "hex",
- "hf-hub",
- "keyring 4.1.4",
- "lettre",
- "libsqlite3-sys",
- "objc2",
- "objc2-foundation",
- "objc2-local-authentication",
- "pdf-extract",
+ "jobsentinel-ai",
+ "jobsentinel-assistance",
+ "jobsentinel-credentials",
+ "jobsentinel-documents",
+ "jobsentinel-domain",
+ "jobsentinel-intelligence",
+ "jobsentinel-local-ai",
+ "jobsentinel-network",
+ "jobsentinel-notifications",
+ "jobsentinel-platform",
+ "jobsentinel-security",
+ "jobsentinel-sources",
+ "jobsentinel-storage",
  "proptest",
- "quick-xml 0.41.0",
  "regex",
- "reqwest",
  "scopeguard",
- "scraper",
- "security-framework 3.7.0",
  "serde",
  "serde_json",
  "sha2 0.11.0",
- "sqlx",
  "tempfile",
  "thiserror 2.0.18",
- "tokenizers 0.23.1",
  "tokio",
  "tracing",
  "url",
  "urlencoding",
  "uuid",
- "windows 0.62.2",
- "wiremock",
  "zeroize",
+]
+
+[[package]]
+name = "jobsentinel-assistance"
+version = "2.9.5"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "chromiumoxide",
+ "chrono",
+ "futures-util",
+ "jobsentinel-domain",
+ "jobsentinel-platform",
+ "jobsentinel-security",
+ "serde",
+ "serde_json",
+ "tempfile",
+ "thiserror 2.0.18",
+ "tokio",
+ "tracing",
+ "url",
+ "urlencoding",
+ "uuid",
+]
+
+[[package]]
+name = "jobsentinel-credentials"
+version = "2.9.5"
+dependencies = [
+ "argon2",
+ "chacha20poly1305",
+ "hex",
+ "jobsentinel-platform",
+ "jobsentinel-storage",
+ "serde",
+ "serde_json",
+ "tempfile",
+ "tokio",
+ "tracing",
+ "url",
+ "zeroize",
+]
+
+[[package]]
+name = "jobsentinel-documents"
+version = "2.9.5"
+dependencies = [
+ "anyhow",
+ "chrono",
+ "docx-rs",
+ "jobsentinel-local-ai",
+ "pdf-extract",
+ "quick-xml 0.41.0",
+ "regex",
+ "scopeguard",
+ "serde",
+ "serde_json",
+ "tempfile",
+ "tracing",
+ "uuid",
  "zip 8.6.0",
+]
+
+[[package]]
+name = "jobsentinel-domain"
+version = "2.9.5"
+dependencies = [
+ "chrono",
+ "hex",
+ "jobsentinel-security",
+ "proptest",
+ "regex",
+ "serde",
+ "serde_json",
+ "sha2 0.11.0",
+ "tracing",
+ "url",
+]
+
+[[package]]
+name = "jobsentinel-intelligence"
+version = "2.9.5"
+dependencies = [
+ "chrono",
+ "regex",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "jobsentinel-local-ai"
+version = "2.9.5"
+dependencies = [
+ "anyhow",
+ "basic-toml",
+ "candle-core",
+ "candle-nn",
+ "chrono",
+ "hex",
+ "hf-hub",
+ "jobsentinel-security",
+ "serde",
+ "serde_json",
+ "sha2 0.11.0",
+ "tempfile",
+ "thiserror 2.0.18",
+ "tokenizers 0.23.1",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "jobsentinel-network"
+version = "2.9.5"
+dependencies = [
+ "jobsentinel-security",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.18",
+ "tokio",
+ "url",
+ "wiremock",
+]
+
+[[package]]
+name = "jobsentinel-notifications"
+version = "2.9.5"
+dependencies = [
+ "anyhow",
+ "chrono",
+ "jobsentinel-domain",
+ "jobsentinel-intelligence",
+ "jobsentinel-network",
+ "jobsentinel-security",
+ "lettre",
+ "serde",
+ "serde_json",
+ "url",
+]
+
+[[package]]
+name = "jobsentinel-platform"
+version = "2.9.5"
+dependencies = [
+ "chacha20poly1305",
+ "dirs",
+ "hex",
+ "jobsentinel-security",
+ "keyring",
+ "objc2",
+ "objc2-foundation",
+ "objc2-local-authentication",
+ "security-framework",
+ "tempfile",
+ "tokio",
+ "tracing",
+ "zeroize",
+]
+
+[[package]]
+name = "jobsentinel-security"
+version = "2.9.5"
+dependencies = [
+ "url",
+]
+
+[[package]]
+name = "jobsentinel-sources"
+version = "2.9.5"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "chrono",
+ "jobsentinel-domain",
+ "jobsentinel-network",
+ "jobsentinel-security",
+ "proptest",
+ "quick-xml 0.41.0",
+ "regex",
+ "scraper",
+ "serde",
+ "serde_json",
+ "sha2 0.11.0",
+ "thiserror 2.0.18",
+ "tokio",
+ "tracing",
+ "url",
+ "urlencoding",
+ "wiremock",
+]
+
+[[package]]
+name = "jobsentinel-storage"
+version = "2.9.5"
+dependencies = [
+ "anyhow",
+ "chrono",
+ "futures",
+ "hex",
+ "jobsentinel-documents",
+ "jobsentinel-domain",
+ "jobsentinel-platform",
+ "jobsentinel-security",
+ "libsqlite3-sys",
+ "regex",
+ "serde",
+ "serde_json",
+ "sqlx",
+ "tempfile",
+ "tokio",
+ "tracing",
+ "uuid",
+ "zeroize",
 ]
 
 [[package]]
@@ -3419,21 +3619,6 @@ dependencies = [
  "bitflags 2.13.0",
  "serde",
  "unicode-segmentation",
-]
-
-[[package]]
-name = "keyring"
-version = "3.6.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "eebcc3aff044e5944a8fbaf69eb277d11986064cba30c468730e8b9909fb551c"
-dependencies = [
- "byteorder",
- "dbus-secret-service",
- "log",
- "security-framework 2.11.1",
- "security-framework 3.7.0",
- "windows-sys 0.60.2",
- "zeroize",
 ]
 
 [[package]]
@@ -5301,7 +5486,7 @@ dependencies = [
  "openssl-probe",
  "rustls-pki-types",
  "schannel",
- "security-framework 3.7.0",
+ "security-framework",
 ]
 
 [[package]]
@@ -5329,7 +5514,7 @@ dependencies = [
  "rustls-native-certs",
  "rustls-platform-verifier-android",
  "rustls-webpki",
- "security-framework 3.7.0",
+ "security-framework",
  "security-framework-sys",
  "webpki-root-certs",
  "windows-sys 0.61.2",
@@ -5503,19 +5688,6 @@ dependencies = [
  "serde",
  "sha2 0.10.9",
  "zbus",
-]
-
-[[package]]
-name = "security-framework"
-version = "2.11.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "897b2245f0b511c87893af39b033e5ca9cce68824c4d7e7630b5a1d339658d02"
-dependencies = [
- "bitflags 2.13.0",
- "core-foundation 0.9.4",
- "core-foundation-sys",
- "libc",
- "security-framework-sys",
 ]
 
 [[package]]
@@ -6620,19 +6792,6 @@ dependencies = [
  "thiserror 2.0.18",
  "time",
  "url",
-]
-
-[[package]]
-name = "tauri-plugin-secure-storage"
-version = "1.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "351c59992cf555bd310c01da30727b6beb36a7083e73ae0d74adb7c7b53fb445"
-dependencies = [
- "keyring 3.6.3",
- "serde",
- "tauri",
- "tauri-plugin",
- "thiserror 2.0.18",
 ]
 
 [[package]]
@@ -8879,20 +9038,6 @@ name = "zeroize"
 version = "1.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e13c156562582aa81c60cb29407084cdb54c4164760106ab78e6c5b0858cf64e"
-dependencies = [
- "zeroize_derive",
-]
-
-[[package]]
-name = "zeroize_derive"
-version = "1.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3c50655cbb0fe3fc43170059e702f1ce5e19b84cec58dc87b037a09935c2f328"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 2.0.118",
-]
 
 [[package]]
 name = "zerotrie"

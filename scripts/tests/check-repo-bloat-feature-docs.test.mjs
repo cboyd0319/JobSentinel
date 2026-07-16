@@ -5,16 +5,13 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import test from "node:test";
 import { checkRepoBloat } from "../checks/repo-bloat.mjs";
-
 function writeFixtureFile(root, path, content = "") {
   const fullPath = join(root, path);
   mkdirSync(dirname(fullPath), { recursive: true });
   writeFileSync(fullPath, content, "utf8");
 }
-
 function withGitFixture(callback) {
   const root = mkdtempSync(join(tmpdir(), "jobsentinel-repo-bloat-feature-docs-"));
-
   try {
     execFileSync("git", ["init", "--quiet"], { cwd: root });
     callback(root);
@@ -22,7 +19,6 @@ function withGitFixture(callback) {
     rmSync(root, { recursive: true, force: true });
   }
 }
-
 test("checkRepoBloat rejects overbroad localStorage migration claims", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
@@ -466,7 +462,7 @@ test("checkRepoBloat rejects synonym and remote preference doc drift", () => {
       [
         "| Hybrid | 0.5 | ⚠ Prefer remote-only |",
         "- All preference × job type combinations",
-        "**Module:** `crates/jobsentinel-core/src/core/scoring/remote.rs`",
+        "**Module:** `crates/jobsentinel-application/src/scoring/remote.rs`",
         "### User Preference Modes",
         "### Graduated Scoring Matrix",
         "### Scoring Weight",

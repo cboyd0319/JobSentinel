@@ -5,15 +5,13 @@
 //! stores can prompt the user.
 
 use super::disconnect_linkedin_with_credentials;
-use crate::core::credentials::{CredentialKey, CredentialService};
-use keyring::{Entry, Error as KeyringError};
+use crate::application::credentials::{CredentialKey, CredentialService};
 
 const SECURE_STORAGE_UNAVAILABLE: &str =
     "JobSentinel could not use your device's secure storage. Check system permission prompts, then try again.";
 const LINKEDIN_CREDENTIAL_STORAGE_DISABLED: &str =
     "JobSentinel does not collect LinkedIn login details or session cookies";
 const LIVE_KEYRING_TESTS_ENV: &str = "JOBSENTINEL_LIVE_KEYRING_TESTS";
-const SERVICE_NAME: &str = "JobSentinel";
 
 struct LegacyLinkedInCleanup;
 
@@ -46,29 +44,20 @@ fn require_live_keyring_test(label: &str) -> bool {
     }
 }
 
-fn raw_legacy_entry(key: CredentialKey) -> Result<Entry, String> {
-    Entry::new(SERVICE_NAME, key.as_str()).map_err(|_| SECURE_STORAGE_UNAVAILABLE.to_string())
-}
-
 fn seed_raw_legacy_credential(key: CredentialKey, value: &str) -> Result<(), String> {
-    raw_legacy_entry(key)?
-        .set_password(value)
+    crate::desktop::store_device_secret(key.as_str(), value)
         .map_err(|_| SECURE_STORAGE_UNAVAILABLE.to_string())
 }
 
 fn raw_legacy_credential_exists(key: CredentialKey) -> Result<bool, String> {
-    match raw_legacy_entry(key)?.get_password() {
-        Ok(_) => Ok(true),
-        Err(KeyringError::NoEntry) => Ok(false),
-        Err(_) => Err(SECURE_STORAGE_UNAVAILABLE.to_string()),
-    }
+    crate::desktop::retrieve_device_secret(key.as_str())
+        .map(|value| value.is_some())
+        .map_err(|_| SECURE_STORAGE_UNAVAILABLE.to_string())
 }
 
 fn delete_raw_legacy_credential(key: CredentialKey) -> Result<(), String> {
-    match raw_legacy_entry(key)?.delete_credential() {
-        Ok(()) | Err(KeyringError::NoEntry) => Ok(()),
-        Err(_) => Err(SECURE_STORAGE_UNAVAILABLE.to_string()),
-    }
+    crate::desktop::delete_device_secret(key.as_str())
+        .map_err(|_| SECURE_STORAGE_UNAVAILABLE.to_string())
 }
 
 async fn roundtrip_or_accept_locked_store(key: CredentialKey, test_value: &str, label: &str) {

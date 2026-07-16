@@ -142,7 +142,7 @@ test("ipc minimization rejects stale import and profile mocks", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src/mocks/handlers.ts",
+      "src/test-support/mocks/handlers.ts",
       [
         "function getMockApplicationProfilePreview() {",
         "  return { fullName: 'Jordan', resumeFilePath: '/private/resume.pdf' };",
@@ -180,7 +180,7 @@ test("ipc minimization rejects stale import and profile mocks", () => {
     );
 
     assert.equal(
-      hasStaleJobImportMockHandlers(root, "src/mocks/handlers.ts"),
+      hasStaleJobImportMockHandlers(root, "src/test-support/mocks/handlers.ts"),
       true,
     );
     assert.equal(
@@ -191,7 +191,7 @@ test("ipc minimization rejects stale import and profile mocks", () => {
       true,
     );
     assert.equal(
-      hasStaleProfilePreviewMock(root, "src/mocks/handlers.ts"),
+      hasStaleProfilePreviewMock(root, "src/test-support/mocks/handlers.ts"),
       true,
     );
   });
@@ -217,14 +217,14 @@ test("ipc minimization rejects bookmarklet token exposure across renderer IPC", 
     );
     writeFixtureFile(
       root,
-      "src/mocks/handlers.ts",
+      "src/test-support/mocks/handlers.ts",
       "const bookmarkletConfig = { authToken: 'mock-token' };\n",
     );
 
     for (const path of [
       "src-tauri/src/commands/bookmarklet.rs",
       "src/features/settings/sources/browser-import/BrowserImportSection.tsx",
-      "src/mocks/handlers.ts",
+      "src/test-support/mocks/handlers.ts",
     ]) {
       assert.equal(hasBookmarkletTokenIpcExposure(root, path), true);
     }
@@ -256,14 +256,14 @@ test("ipc minimization rejects application resume path exposure across renderer 
     );
     writeFixtureFile(
       root,
-      "src/mocks/handlers.ts",
+      "src/test-support/mocks/handlers.ts",
       "const applicationProfile = { resume_file_path: '<local-private-resume>' };\n",
     );
 
     for (const path of [
       "src-tauri/src/commands/automation.rs",
       "src/features/application-assist/ProfileForm.tsx",
-      "src/mocks/handlers.ts",
+      "src/test-support/mocks/handlers.ts",
     ]) {
       assert.equal(hasApplicationProfileResumePathExposure(root, path), true);
     }
@@ -399,7 +399,7 @@ test("ipc minimization rejects raw screening answer history IPC", () => {
     );
     writeFixtureFile(
       root,
-      "src/mocks/handlers.ts",
+      "src/test-support/mocks/handlers.ts",
       "const suggestion = { source: { type: 'historical', originalQuestion: 'What salary?' } };\n",
     );
 
@@ -418,7 +418,7 @@ test("ipc minimization rejects raw screening answer history IPC", () => {
       true,
     );
     assert.equal(
-      hasRawAnswerHistoryIpcExposure(root, "src/mocks/handlers.ts"),
+      hasRawAnswerHistoryIpcExposure(root, "src/test-support/mocks/handlers.ts"),
       true,
     );
   });

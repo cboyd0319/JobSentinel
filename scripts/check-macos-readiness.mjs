@@ -117,7 +117,7 @@ export function evaluateMacosReadiness({ root = defaultRoot, env = process.env }
       "release workflow builds universal macOS package",
       8,
       releaseWorkflowBuildsUniversalMacosPackage(releaseWorkflow),
-      "Release CI must build one universal Intel plus Apple silicon DMG.",
+      "Hosted release automation must build one universal Intel plus Apple silicon DMG.",
     ),
     criterion(
       "release workflow enforces no-account artifact identity",
@@ -153,7 +153,7 @@ export function evaluateMacosReadiness({ root = defaultRoot, env = process.env }
         "JOBSENTINEL_MACOS_REQUIRE_GATEKEEPER=true",
         "--require-gatekeeper",
       ]),
-      "When Apple credentials exist, CI must require signing, notarization, and Gatekeeper.",
+      "When Apple credentials exist, hosted release automation must require signing, notarization, and Gatekeeper.",
     ),
     criterion(
       "local DMG builder signs, notarizes, staples, and checksums",

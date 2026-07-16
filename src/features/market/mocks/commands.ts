@@ -4,8 +4,8 @@ import {
   getMockMarketSnapshot,
   getMockTrendingSkills,
 } from "../mockHandlers";
-import { getNumericArg } from "../../../mocks/handlers/commandHelpers";
-import type { MockMarketAlert } from "../../../mocks/handlers/types";
+import { getNumericArg } from "../../../test-support/mocks/handlers/commandHelpers";
+import type { MockMarketAlert } from "../../../test-support/mocks/handlers/types";
 
 interface MockMarketState {
   marketAlerts: MockMarketAlert[];

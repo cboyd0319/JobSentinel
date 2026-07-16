@@ -1,6 +1,6 @@
 ---
 name: application-form-review
-description: Prepare and review job application form answers before the user submits manually. Use for screening or knockout questions, saved answers, work authorization, salary-history or expectations, schedule, location, travel, certifications, background checks, and application-form consistency with the resume.
+description: Review job-application answers for truth, consistency, and risk. Use for screening, authorization, pay, schedule, or location questions.
 license: MIT
 metadata:
   jobsentinel_version_target: "2.9.0"

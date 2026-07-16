@@ -44,18 +44,7 @@ const scannedFileNames = new Set([
 ]);
 
 const allowedGatewayPaths = new Set([
-  "src-tauri/src/commands/external_ai/provider.rs",
-  "src-tauri/src/commands/external_ai.rs",
-  "src/shared/externalAi/internal/aiGateway.ts",
-  "src/shared/externalAi/internal/aiGateway.test.ts",
-  "src/shared/externalAi/externalAiBackendTransport.ts",
-  "src/shared/externalAi/externalAiBackendTransport.test.ts",
-  "src/shared/externalAi/externalAiPayloadPolicy.ts",
-  "src/shared/externalAi/internal/promptInspection.ts",
-  "src/shared/externalAi/externalAiTypes.ts",
-  "src/shared/externalAi/internal/requestValidation.ts",
-  "src/shared/externalAi/externalAiRequestLog.ts",
-  "src/shared/externalAi/externalAiRequestLog.test.ts",
+  "crates/jobsentinel-ai/src/provider.rs",
   "scripts/check-external-ai-gateway.mjs",
   "scripts/tests/check-external-ai-gateway.test.mjs",
 ]);

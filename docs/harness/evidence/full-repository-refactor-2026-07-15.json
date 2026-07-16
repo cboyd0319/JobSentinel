@@ -1,0 +1,70 @@
+{
+  "schema": "jobsentinel.repository_refactor_evidence.v1",
+  "feature_id": "full-repository-refactor",
+  "recorded_at": "2026-07-15T07:22:55Z",
+  "starting_revision": "099f90a77ceee59bd5d815477720b089e1437e4e",
+  "checkpoint": "uncommitted working tree with pre-existing dirty state preserved",
+  "platform": {
+    "product": "macOS",
+    "version": "27.0",
+    "build": "26A5378j",
+    "architecture": "arm64"
+  },
+  "scope": "Complete repository ownership cutover and local completion verification",
+  "observed_implementation": [
+    "The explicit workspace contains the 14 target owner crates and no jobsentinel-core crate.",
+    "Storage owns migrations and repositories without exposing a raw SQLx pool to application or Tauri callers.",
+    "The Tauri crate delegates internal product behavior through jobsentinel-application and no longer owns provider transport.",
+    "Frontend test support, script libraries and checks, security documentation, and shared type paths use their target owners.",
+    "The repository topology contract blocks retired paths and enforces the exact workspace dependency graph.",
+    "Hosted CI is absent under pre-alpha-private-no-ci; release workflows are not general push or pull-request CI."
+  ],
+  "verification": [
+    {
+      "command": "./init.sh --skip-install",
+      "exit_status": 0,
+      "result": "Environment diagnosis, harness validation, and all 3 baseline smoke checks passed."
+    },
+    {
+      "command": "npm run verify:full",
+      "exit_status": 0,
+      "result": "807 script and harness tests, 2,933 frontend tests across 213 files, production and Storybook builds, 10 Playwright smoke tests, Rust formatting and Clippy, the complete Rust workspace tests, and diff validation passed."
+    },
+    {
+      "command": "npm run test:e2e:all",
+      "exit_status": 0,
+      "result": "286 Playwright tests passed across Chromium and WebKit. Three transient Vite WebKit module-import server messages did not produce failed, flaky, or skipped tests."
+    },
+    {
+      "command": "node scripts/run-cargo.mjs test --workspace --all-features",
+      "exit_status": 0,
+      "result": "All workspace unit, integration, and documentation test binaries completed successfully with all features enabled; explicitly ignored tests remained reported as ignored."
+    },
+    {
+      "command": "npm run lint:sqlx",
+      "exit_status": 0,
+      "result": "SQLx offline metadata is current after the repository generator removed one stale query record."
+    }
+  ],
+  "runtime_warnings": [
+    "The host ran Node.js 26.5.0 instead of the .nvmrc-owned 24.18.0 baseline.",
+    "The host ran npm 11.17.0 instead of the package.json-owned 12.0.1 baseline."
+  ],
+  "not_proven": [
+    "native Windows 11 behavior",
+    "hosted CI effectiveness because hosted CI is intentionally absent"
+  ],
+  "native_windows_11_gap": {
+    "missing_evidence": "No native Windows 11 run from this working tree.",
+    "smallest_validation": "Run pwsh -File ./init.ps1 and npm run test:scripts on a native Windows 11 host."
+  },
+  "hosted_ci": {
+    "status": "absent by explicit user direction",
+    "exception_id": "pre-alpha-private-no-ci",
+    "canonical_status": "nonconforming user override; no claim of canonical CI compliance"
+  },
+  "pre_existing_dirty_state": {
+    "preserved": true,
+    "committed": false
+  }
+}

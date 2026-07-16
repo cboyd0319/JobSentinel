@@ -56,7 +56,7 @@ test("checkRepoBloat rejects raw import and bookmarklet command error details", 
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/bookmarklet/server.rs",
+      "crates/jobsentinel-assistance/src/bookmarklet/server.rs",
       [
         'tracing::error!("Failed to parse job data: {}", e);',
         'json_error_response(format!("Failed to import job: {e}"));',
@@ -73,7 +73,7 @@ test("checkRepoBloat rejects raw import and bookmarklet command error details", 
         "src-tauri/src/commands/user_data.rs",
         "src-tauri/src/commands/scoring.rs",
         "src-tauri/src/commands/bookmarklet.rs",
-        "crates/jobsentinel-core/src/core/bookmarklet/server.rs",
+        "crates/jobsentinel-assistance/src/bookmarklet/server.rs",
       ],
       { cwd: root },
     );
@@ -85,7 +85,7 @@ test("checkRepoBloat rejects raw import and bookmarklet command error details", 
       "src-tauri/src/commands/user_data.rs",
       "src-tauri/src/commands/scoring.rs",
       "src-tauri/src/commands/bookmarklet.rs",
-      "crates/jobsentinel-core/src/core/bookmarklet/server.rs",
+      "crates/jobsentinel-assistance/src/bookmarklet/server.rs",
     ]) {
       assert.ok(
         violations.includes(`sanitize import and bookmarklet command error details: ${path}`),
@@ -159,7 +159,7 @@ test("checkRepoBloat rejects raw config validation URL display", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/config/validation_error.rs",
+      "crates/jobsentinel-application/src/config/validation_error.rs",
       [
         "match self {",
         "  Self::InvalidUrl { field, url, reason } => {",
@@ -176,7 +176,7 @@ test("checkRepoBloat rejects raw config validation URL display", () => {
 
     execFileSync(
       "git",
-      ["add", "package.json", "crates/jobsentinel-core/src/core/config/validation_error.rs"],
+      ["add", "package.json", "crates/jobsentinel-application/src/config/validation_error.rs"],
       { cwd: root },
     );
 
@@ -184,7 +184,7 @@ test("checkRepoBloat rejects raw config validation URL display", () => {
 
     assert.ok(
       violations.includes(
-        "sanitize config validation URL display: crates/jobsentinel-core/src/core/config/validation_error.rs",
+        "sanitize config validation URL display: crates/jobsentinel-application/src/config/validation_error.rs",
       ),
       violations.join("\n"),
     );
@@ -196,7 +196,7 @@ test("checkRepoBloat rejects raw import redirect display", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/import/types.rs",
+      "crates/jobsentinel-application/src/types.rs",
       [
         "#[derive(thiserror::Error, Debug)]",
         "pub enum ImportError {",
@@ -211,14 +211,14 @@ test("checkRepoBloat rejects raw import redirect display", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "crates/jobsentinel-core/src/core/import/types.rs"], {
+    execFileSync("git", ["add", "package.json", "crates/jobsentinel-application/src/types.rs"], {
       cwd: root,
     });
 
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("replace raw import redirect display: crates/jobsentinel-core/src/core/import/types.rs"),
+      violations.includes("replace raw import redirect display: crates/jobsentinel-application/src/types.rs"),
       violations.join("\n"),
     );
   });
@@ -229,7 +229,7 @@ test("checkRepoBloat rejects raw bookmarklet import metadata logging", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/bookmarklet/server.rs",
+      "crates/jobsentinel-assistance/src/bookmarklet/server.rs",
       [
         "tracing::info!(",
         "    title = %title,",
@@ -240,7 +240,7 @@ test("checkRepoBloat rejects raw bookmarklet import metadata logging", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "crates/jobsentinel-core/src/core/bookmarklet/server.rs"], {
+    execFileSync("git", ["add", "package.json", "crates/jobsentinel-assistance/src/bookmarklet/server.rs"], {
       cwd: root,
     });
 
@@ -248,7 +248,7 @@ test("checkRepoBloat rejects raw bookmarklet import metadata logging", () => {
 
     assert.ok(
       violations.includes(
-        "replace raw bookmarklet import metadata logging: crates/jobsentinel-core/src/core/bookmarklet/server.rs",
+        "replace raw bookmarklet import metadata logging: crates/jobsentinel-assistance/src/bookmarklet/server.rs",
       ),
       violations.join("\n"),
     );
@@ -260,7 +260,7 @@ test("checkRepoBloat rejects raw scoring cache job hash logging", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/scoring/cache.rs",
+      "crates/jobsentinel-application/src/scoring/cache.rs",
       [
         'tracing::debug!("Score cache HIT for job_hash={}", key.job_hash);',
         'tracing::info!(job_hash = %job_hash, "Invalidated cached score");',
@@ -268,7 +268,7 @@ test("checkRepoBloat rejects raw scoring cache job hash logging", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "crates/jobsentinel-core/src/core/scoring/cache.rs"], {
+    execFileSync("git", ["add", "package.json", "crates/jobsentinel-application/src/scoring/cache.rs"], {
       cwd: root,
     });
 
@@ -276,7 +276,7 @@ test("checkRepoBloat rejects raw scoring cache job hash logging", () => {
 
     assert.ok(
       violations.includes(
-        "replace raw scoring cache job hash logging: crates/jobsentinel-core/src/core/scoring/cache.rs",
+        "replace raw scoring cache job hash logging: crates/jobsentinel-application/src/scoring/cache.rs",
       ),
       violations.join("\n"),
     );
@@ -288,7 +288,7 @@ test("checkRepoBloat rejects raw scheduler scoring privacy leaks", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/scheduler/workers/scoring.rs",
+      "crates/jobsentinel-application/src/scheduler/workers/scoring.rs",
       [
         'tracing::warn!(error = %e, job_hash = %job.hash, "Failed to serialize score reasons");',
         'tracing::debug!("Ghost indicator for \'{}\' at {}: score={:.2}", job.title, job.company, analysis.score);',
@@ -297,7 +297,7 @@ test("checkRepoBloat rejects raw scheduler scoring privacy leaks", () => {
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/scoring/db.rs",
+      "crates/jobsentinel-storage/src/scoring_config.rs",
       'sqlx_call.map_err(|e| format!("Failed to load scoring config: {}", e));\n',
     );
 
@@ -306,8 +306,8 @@ test("checkRepoBloat rejects raw scheduler scoring privacy leaks", () => {
       [
         "add",
         "package.json",
-        "crates/jobsentinel-core/src/core/scheduler/workers/scoring.rs",
-        "crates/jobsentinel-core/src/core/scoring/db.rs",
+        "crates/jobsentinel-application/src/scheduler/workers/scoring.rs",
+        "crates/jobsentinel-storage/src/scoring_config.rs",
       ],
       { cwd: root },
     );
@@ -316,12 +316,12 @@ test("checkRepoBloat rejects raw scheduler scoring privacy leaks", () => {
 
     assert.ok(
       violations.includes(
-        "replace raw scheduler scoring privacy leaks: crates/jobsentinel-core/src/core/scheduler/workers/scoring.rs",
+        "replace raw scheduler scoring privacy leaks: crates/jobsentinel-application/src/scheduler/workers/scoring.rs",
       ),
       violations.join("\n"),
     );
     assert.ok(
-      violations.includes("replace raw scheduler scoring privacy leaks: crates/jobsentinel-core/src/core/scoring/db.rs"),
+      violations.includes("replace raw scheduler scoring privacy leaks: crates/jobsentinel-storage/src/scoring_config.rs"),
       violations.join("\n"),
     );
   });
@@ -332,47 +332,47 @@ test("checkRepoBloat rejects residual core privacy leaks", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     const fixtures = new Map([
       [
-        "crates/jobsentinel-core/src/core/automation/browser/manager.rs",
+        "crates/jobsentinel-assistance/src/automation/browser/manager.rs",
         'tracing::debug!(error = %e, "Browser handler event error");\n',
       ],
       [
-        "crates/jobsentinel-core/src/core/config/io.rs",
+        "crates/jobsentinel-application/src/config/io.rs",
         'std::fs::create_dir_all(parent).map_err(|e| format!("Failed to create config directory: {}", e))?;\n',
       ],
       [
-        "crates/jobsentinel-core/src/core/db/connection.rs",
+        "crates/jobsentinel-storage/src/connection.rs",
         'tracing::warn!("Failed to create database directory: {}", e);\n',
       ],
       [
-        "crates/jobsentinel-core/src/core/import/schema_org.rs",
+        "crates/jobsentinel-sources/src/job_page/mod.rs",
         'tracing::debug!(error = %e, "Skipping invalid JSON-LD script tag");\n',
       ],
       [
-        "crates/jobsentinel-core/src/core/ml/model.rs",
+        "crates/jobsentinel-local-ai/src/model.rs",
         'let api = Api::new().map_err(|e| MlError::DownloadFailed(e.to_string()))?;\n',
       ],
       [
-        "crates/jobsentinel-core/src/core/resume/parser.rs",
+        "crates/jobsentinel-documents/src/parser.rs",
         'tracing::warn!("OCR extraction failed: {}", e);\n',
       ],
       [
-        "crates/jobsentinel-core/src/core/resume/templates.rs",
+        "crates/jobsentinel-documents/src/templates.rs",
         'Err(format!("Invalid template ID: {}", s))\n',
       ],
       [
-        "crates/jobsentinel-core/src/core/scheduler/mod.rs",
+        "crates/jobsentinel-application/src/scheduler/mod.rs",
         'tracing::error!("Scraping cycle failed: {}", e);\n',
       ],
       [
-        "crates/jobsentinel-core/src/core/scrapers/mod.rs",
+        "crates/jobsentinel-sources/src/scrapers/mod.rs",
         'tracing::error!(error = %e, "Scraper task panicked");\n',
       ],
       [
-        "crates/jobsentinel-core/src/core/scrapers/usajobs.rs",
+        "crates/jobsentinel-sources/src/scrapers/usajobs.rs",
         'message: format!("Invalid API key: {}", e),\n',
       ],
       [
-        "crates/jobsentinel-core/src/core/scrapers/yc_startup.rs",
+        "crates/jobsentinel-sources/src/scrapers/yc_startup.rs",
         'tracing::warn!("YC scraper: failed to parse Inertia JSON: {}", e);\n',
       ],
     ]);
@@ -399,7 +399,7 @@ test("checkRepoBloat rejects manual bookmarklet JSON error responses", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/bookmarklet/server.rs",
+      "crates/jobsentinel-assistance/src/bookmarklet/server.rs",
       [
         'format!(r#"{{"error":"{}"}}"#, e),',
         'format!(r#"{{"error":"Failed to import job: {}"}}"#, e),',
@@ -407,7 +407,7 @@ test("checkRepoBloat rejects manual bookmarklet JSON error responses", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "crates/jobsentinel-core/src/core/bookmarklet/server.rs"], {
+    execFileSync("git", ["add", "package.json", "crates/jobsentinel-assistance/src/bookmarklet/server.rs"], {
       cwd: root,
     });
 
@@ -415,7 +415,7 @@ test("checkRepoBloat rejects manual bookmarklet JSON error responses", () => {
 
     assert.ok(
       violations.includes(
-        "replace manual bookmarklet JSON error responses: crates/jobsentinel-core/src/core/bookmarklet/server.rs",
+        "replace manual bookmarklet JSON error responses: crates/jobsentinel-assistance/src/bookmarklet/server.rs",
       ),
       violations.join("\n"),
     );
@@ -455,7 +455,7 @@ test("checkRepoBloat rejects unauthenticated bookmarklet imports", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/bookmarklet/server.rs",
+      "crates/jobsentinel-assistance/src/bookmarklet/server.rs",
       [
         'if request.starts_with("POST /api/bookmarklet/import") {',
         "    handle_import_request(&request, database).await",
@@ -466,7 +466,7 @@ test("checkRepoBloat rejects unauthenticated bookmarklet imports", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "crates/jobsentinel-core/src/core/bookmarklet/server.rs"], {
+    execFileSync("git", ["add", "package.json", "crates/jobsentinel-assistance/src/bookmarklet/server.rs"], {
       cwd: root,
     });
 
@@ -474,7 +474,7 @@ test("checkRepoBloat rejects unauthenticated bookmarklet imports", () => {
 
     assert.ok(
       violations.includes(
-        "require bookmarklet import auth token: crates/jobsentinel-core/src/core/bookmarklet/server.rs",
+        "require bookmarklet import auth token: crates/jobsentinel-assistance/src/bookmarklet/server.rs",
       ),
       violations.join("\n"),
     );

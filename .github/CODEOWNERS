@@ -14,7 +14,7 @@ Cargo.lock @cboyd0319
 clippy.toml @cboyd0319
 deny.toml @cboyd0319
 crates/ @cboyd0319
-crates/jobsentinel-core/migrations/ @cboyd0319
+crates/jobsentinel-storage/migrations/ @cboyd0319
 scripts/checks/ @cboyd0319
 scripts/platform/ @cboyd0319
 scripts/release/ @cboyd0319
@@ -23,7 +23,7 @@ scripts/checks/dependency-pins.mjs @cboyd0319
 scripts/check-repository-architecture.mjs @cboyd0319
 scripts/checks/security-sensors.mjs @cboyd0319
 scripts/tests/check-security-sensors.test.mjs @cboyd0319
-scripts/security/ @cboyd0319
+scripts/checks/security/ @cboyd0319
 src-tauri/Cargo.toml @cboyd0319
 src-tauri/src/command_handlers.rs @cboyd0319
 validation/ @cboyd0319
@@ -33,12 +33,17 @@ AGENTS.md @cboyd0319
 CLAUDE.md @cboyd0319
 docs/CLAUDE.md @cboyd0319
 src/shared/externalAi/ @cboyd0319
+crates/jobsentinel-ai/ @cboyd0319
 
 # Desktop security boundaries.
 SECURITY.md @cboyd0319
 docs/security/ @cboyd0319
 src-tauri/capabilities/ @cboyd0319
 src-tauri/tauri.conf.json @cboyd0319
-crates/jobsentinel-core/src/core/bookmarklet/ @cboyd0319
-crates/jobsentinel-core/src/core/credentials/ @cboyd0319
-crates/jobsentinel-core/src/core/url_security.rs @cboyd0319
+crates/jobsentinel-assistance/src/bookmarklet/ @cboyd0319
+crates/jobsentinel-credentials/ @cboyd0319
+crates/jobsentinel-credentials/src/ @cboyd0319
+crates/jobsentinel-network/ @cboyd0319
+crates/jobsentinel-platform/ @cboyd0319
+crates/jobsentinel-security/ @cboyd0319
+crates/jobsentinel-security/src/url.rs @cboyd0319

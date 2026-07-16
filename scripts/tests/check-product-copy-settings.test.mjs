@@ -554,7 +554,7 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/scrapers/error.rs",
+      "crates/jobsentinel-sources/src/scrapers/error.rs",
       [
         "pub fn user_message(&self) -> String {",
         '  "CAPTCHA detected. Please complete the challenge in your browser.".to_string()',
@@ -566,7 +566,7 @@ test("product copy rejects technical-first settings copy", () => {
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/automation/error.rs",
+      "crates/jobsentinel-assistance/src/automation/error.rs",
       [
         "pub fn user_message(&self) -> String {",
         '  "Failed to launch browser. Please ensure Chrome is installed.".to_string()',

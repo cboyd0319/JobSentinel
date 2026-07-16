@@ -1,11 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { mockInvoke, resetMockData } from "../../../mocks/handlers";
+import { mockInvoke, resetMockData } from "../../../test-support/mocks/handlers";
 import { atsResume } from "./resumeAnalysisTestData";
 import type { AtsAnalysisResult } from "./resumeAnalysisTestData";
-
 describe("mock resume runtime commands", () => {
   let localStore: Record<string, string>;
-
   beforeEach(() => {
     vi.useRealTimers();
     localStore = {};
@@ -23,7 +21,6 @@ describe("mock resume runtime commands", () => {
     });
     resetMockData();
   });
-
   it("does not cap degree-or-equivalent experience requirements in mock resume review", async () => {
     const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
@@ -40,7 +37,6 @@ describe("mock resume runtime commands", () => {
       },
       jobDescription: "Required: bachelor's degree or equivalent experience",
     });
-
     expect(result.requirement_reviews).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -59,7 +55,6 @@ describe("mock resume runtime commands", () => {
       ]),
     );
   });
-
   it("does not cap degree-or-equivalent combination requirements in mock resume review", async () => {
     const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
@@ -77,7 +72,6 @@ describe("mock resume runtime commands", () => {
       jobDescription:
         "Required: bachelor's degree or equivalent combination of education and experience",
     });
-
     expect(result.requirement_reviews).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -96,7 +90,6 @@ describe("mock resume runtime commands", () => {
       ]),
     );
   });
-
   it("does not cap associate-degree-or-equivalent experience requirements in mock resume review", async () => {
     const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
@@ -113,7 +106,6 @@ describe("mock resume runtime commands", () => {
       },
       jobDescription: "Required: associate degree or equivalent experience",
     });
-
     expect(result.requirement_reviews).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -132,7 +124,6 @@ describe("mock resume runtime commands", () => {
       ]),
     );
   });
-
   it("does not cap doctorate-degree-or-equivalent experience requirements in mock resume review", async () => {
     const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
@@ -149,7 +140,6 @@ describe("mock resume runtime commands", () => {
       },
       jobDescription: "Required: doctorate degree or equivalent experience",
     });
-
     expect(result.requirement_reviews).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -168,7 +158,6 @@ describe("mock resume runtime commands", () => {
       ]),
     );
   });
-
   it("recognizes GED as high-school diploma evidence in mock resume review", async () => {
     const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
@@ -186,7 +175,6 @@ describe("mock resume runtime commands", () => {
       },
       jobDescription: "Required: high school diploma",
     });
-
     expect(result.requirement_reviews).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -205,7 +193,6 @@ describe("mock resume runtime commands", () => {
       ]),
     );
   });
-
   it("matches high-school hyphen variants in mock hard constraints", async () => {
     const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
@@ -223,7 +210,6 @@ describe("mock resume runtime commands", () => {
       },
       jobDescription: "Required: high-school diploma",
     });
-
     expect(result.requirement_reviews).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -242,7 +228,6 @@ describe("mock resume runtime commands", () => {
       ]),
     );
   });
-
   it("recognizes Certified Nursing Assistant as CNA evidence in mock resume review", async () => {
     const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {

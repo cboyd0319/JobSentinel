@@ -9,9 +9,9 @@ export const technicalFirstSettingsPaths = [
       "docs/features/smart-scoring.md",
       "docs/user/DEEP_LINKS.md",
       "docs/user/QUICK_START.md",
-      "crates/jobsentinel-core/src/core/automation/error.rs",
-      "crates/jobsentinel-core/src/core/resume/ats_analyzer.rs",
-      "crates/jobsentinel-core/src/core/scrapers/error.rs",
+      "crates/jobsentinel-assistance/src/automation/error.rs",
+      "crates/jobsentinel-documents/src/ats_analyzer.rs",
+      "crates/jobsentinel-sources/src/scrapers/error.rs",
       "src/features/applications/AnalyticsPanel.tsx",
       "src/features/resumes/builder/AtsLiveScorePanel.tsx",
       "src/features/settings/sources/browser-import/BrowserImportSection.tsx",
@@ -96,7 +96,7 @@ export function writeResumeReviewSettingsFixtures(root, writeFixtureFile) {
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/resume/ats_analyzer.rs",
+      "crates/jobsentinel-documents/src/ats_analyzer.rs",
       [
         'impact: "High".to_string(),',
         'suggestion: format!("Start bullet with action verb: {}", bullet),',

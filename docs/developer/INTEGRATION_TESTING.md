@@ -51,7 +51,7 @@ real dependencies.
 ### Directory Structure
 
 ```text
-crates/jobsentinel-core/tests/
+crates/jobsentinel-application/tests/
 - api_contract_test.rs: public core application contracts
 - automation_integration_test.rs: Application Assist
 - cow_zero_copy_tests.rs: Cow zero-copy behavior
@@ -59,7 +59,7 @@ crates/jobsentinel-core/tests/
 - scheduler_integration_test.rs: scheduling workflow
 - scraping_pipeline_integration.rs: full pipeline
 
-crates/jobsentinel-core/src/core/scrapers/tests/
+crates/jobsentinel-sources/src/scrapers/tests/
 - integration.rs: scraper owner contract tests
 - live.rs: ignored live scraper smoke tests
 ```
@@ -118,16 +118,16 @@ cargo test --workspace --tests
 
 ```bash
 # Test database integration
-cargo test -p jobsentinel-core --test database_integration_test
+cargo test -p jobsentinel-storage --test database_integration_test
 
 # Test scheduler
-cargo test -p jobsentinel-core --test scheduler_integration_test
+cargo test -p jobsentinel-application --test scheduler_integration_test
 
 # Test scrapers
-cargo test -p jobsentinel-core core::scrapers::integration_tests
+cargo test -p jobsentinel-sources scrapers::integration_tests
 
 # Run ignored live scraper checks manually
-cargo test -p jobsentinel-core core::scrapers::live_tests -- --ignored --nocapture
+cargo test -p jobsentinel-sources scrapers::live_tests -- --ignored --nocapture
 ```
 
 Credential-store roundtrips can prompt on macOS Keychain and equivalent OS
@@ -142,14 +142,14 @@ JOBSENTINEL_LIVE_KEYRING_TESTS=1 cargo test -p jobsentinel --lib credential_inte
 ### Run Specific Test
 
 ```bash
-cargo test -p jobsentinel-core --test database_integration_test test_migrations_run_successfully -- --exact
+cargo test -p jobsentinel-storage --test database_integration_test test_migrations_run_successfully -- --exact
 ```
 
 ### Run with Output and Single Thread
 
 ```bash
 # Single-threaded execution (useful for debugging)
-cargo test -p jobsentinel-core --test database_integration_test -- --test-threads=1 --nocapture
+cargo test -p jobsentinel-storage --test database_integration_test -- --test-threads=1 --nocapture
 ```
 
 ### List Available Integration Tests
@@ -530,7 +530,7 @@ let db_path = temp_dir.path().join("unique.db");
 
 ```bash
 # Single thread for easier debugging
-cargo test -p jobsentinel-core --test database_integration_test -- --test-threads=1 --nocapture
+cargo test -p jobsentinel-storage --test database_integration_test -- --test-threads=1 --nocapture
 ```
 
 Check for missing `.await`:
@@ -571,7 +571,7 @@ let mock_server = MockServer::start().await; // Must await
 let url = mock_server.uri(); // Use this URL in scraper
 ```
 
-### Integration Tests Pass Locally But Fail in CI
+### Integration Tests Pass On One Host But Fail On Another
 
 **Problem**: Timing assumptions, resource limits, or platform differences.
 

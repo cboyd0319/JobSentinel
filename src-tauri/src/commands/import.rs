@@ -1,12 +1,10 @@
 //! Thin Tauri adapter for reviewed job-page imports.
 
 use crate::commands::{errors::user_friendly_error, AppState};
-use crate::core::{
-    import::{
-        confirm_job_import as confirm_reviewed_job_import, preview_job_import as stage_job_import,
-        ImportError, ImportedJobSummary, JobImportPreview,
-    },
-    url_security::sanitize_url_for_logging,
+use crate::desktop::sanitize_url_for_logging;
+use jobsentinel_application::{
+    confirm_job_import as confirm_reviewed_job_import, preview_job_import as stage_job_import,
+    ImportError, ImportedJobSummary, JobImportPreview,
 };
 use tauri::State;
 
@@ -71,22 +69,13 @@ fn format_import_error(error: &ImportError) -> String {
         ImportError::RedirectBlocked { .. } => {
             "The job link redirects to another page. Paste the final public job posting link from your browser address bar.".to_string()
         }
-        ImportError::HttpError(error) if error.is_connect() => {
-            "Could not connect to the website. Please check your internet connection.".to_string()
+        ImportError::HttpStatus(status) => {
+            format!("The website returned an error: {status}")
         }
-        ImportError::HttpError(error) if error.is_timeout() => {
-            "The request timed out. Please try again.".to_string()
-        }
-        ImportError::HttpError(error) if error.is_status() => format!(
-            "The website returned an error: {}",
-            error
-                .status()
-                .map_or_else(|| "Unknown".to_string(), |status| status.to_string())
-        ),
-        ImportError::HttpError(_) => {
+        ImportError::HttpRequest => {
             "Failed to fetch the page. Please check the URL and try again.".to_string()
         }
-        ImportError::HttpBodyRead(crate::core::http_body::HttpBodyReadError::ResponseTooLarge {
+        ImportError::HttpBodyRead(crate::desktop::HttpBodyReadError::ResponseTooLarge {
             max_bytes,
             ..
         }) => format!(

@@ -53,21 +53,21 @@ test("broad audience fixtures reject generic technical scraper examples", () => 
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/scrapers/glassdoor.rs",
+      "crates/jobsentinel-sources/src/scrapers/glassdoor.rs",
       "Senior Rust Engineer at TechCorp",
     );
 
     assert.equal(
       hasEngineerFirstAudienceExamples(
         root,
-        "crates/jobsentinel-core/src/core/scrapers/glassdoor.rs",
+        "crates/jobsentinel-sources/src/scrapers/glassdoor.rs",
       ),
       true,
     );
     assert.equal(
       hasEngineerFirstAudienceExamples(
         root,
-        "crates/jobsentinel-core/src/core/scrapers/linkedin.rs",
+        "crates/jobsentinel-sources/src/scrapers/linkedin.rs",
       ),
       false,
     );
@@ -96,23 +96,23 @@ test("broad audience fixtures reject narrow mock defaults and profile examples",
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src/mocks/data.ts",
+      "src/test-support/mocks/data.ts",
       'cities: ["Remote", "San Francisco", "New York"]',
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/automation/profile.rs",
+      "crates/jobsentinel-storage/src/automation/profile.rs",
       '"John Doe".to_string()\n"https://github.com/johndoe".to_string()',
     );
 
     assert.equal(
-      hasEngineerFirstAudienceExamples(root, "src/mocks/data.ts"),
+      hasEngineerFirstAudienceExamples(root, "src/test-support/mocks/data.ts"),
       true,
     );
     assert.equal(
       hasEngineerFirstAudienceExamples(
         root,
-        "crates/jobsentinel-core/src/core/automation/profile.rs",
+        "crates/jobsentinel-storage/src/automation/profile.rs",
       ),
       true,
     );
@@ -123,25 +123,25 @@ test("broad audience fixtures reject narrow integration defaults", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/tests/api_contract_test.rs",
+      "crates/jobsentinel-application/tests/api_contract_test.rs",
       'manager.add_search_history("rust developer").await.unwrap();',
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/tests/cow_zero_copy_tests.rs",
+      "crates/jobsentinel-application/tests/cow_zero_copy_tests.rs",
       '"https://example.com/jobs/senior-engineer"\nlet title = "Software Engineer";',
     );
     assert.equal(
       hasEngineerFirstAudienceExamples(
         root,
-        "crates/jobsentinel-core/tests/api_contract_test.rs",
+        "crates/jobsentinel-application/tests/api_contract_test.rs",
       ),
       true,
     );
     assert.equal(
       hasEngineerFirstAudienceExamples(
         root,
-        "crates/jobsentinel-core/tests/cow_zero_copy_tests.rs",
+        "crates/jobsentinel-application/tests/cow_zero_copy_tests.rs",
       ),
       true,
     );
@@ -298,52 +298,52 @@ test("salary audience fixtures reject engineer-centered salary examples", () => 
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/salary/benchmarks.rs",
+      "crates/jobsentinel-storage/src/salary/benchmarks.rs",
       'benchmark.location = "San Francisco, CA".to_string();',
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/salary/negotiation.rs",
+      "crates/jobsentinel-storage/src/salary/negotiation.rs",
       'params.insert("location".to_string(), "Seattle, WA".to_string());',
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/salary/predictor.rs",
+      "crates/jobsentinel-storage/src/salary/predictor.rs",
       'predictor.normalize_title("DevOps Engineer")',
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/salary/tests.rs",
+      "crates/jobsentinel-storage/src/salary/tests.rs",
       'SeniorityLevel::from_job_title("Software Architect")',
     );
 
     assert.equal(
       hasSalaryAudienceExampleDrift(
         root,
-        "crates/jobsentinel-core/src/core/salary/benchmarks.rs",
+        "crates/jobsentinel-storage/src/salary/benchmarks.rs",
       ),
       true,
     );
     assert.equal(
       hasSalaryAudienceExampleDrift(
         root,
-        "crates/jobsentinel-core/src/core/salary/negotiation.rs",
+        "crates/jobsentinel-storage/src/salary/negotiation.rs",
       ),
       true,
     );
     assert.equal(
       hasSalaryAudienceExampleDrift(
         root,
-        "crates/jobsentinel-core/src/core/salary/predictor.rs",
+        "crates/jobsentinel-storage/src/salary/predictor.rs",
       ),
       true,
     );
     assert.equal(
-      hasSalaryAudienceExampleDrift(root, "crates/jobsentinel-core/src/core/salary/tests.rs"),
+      hasSalaryAudienceExampleDrift(root, "crates/jobsentinel-storage/src/salary/tests.rs"),
       true,
     );
     assert.equal(
-      hasSalaryAudienceExampleDrift(root, "crates/jobsentinel-core/src/core/salary/mod.rs"),
+      hasSalaryAudienceExampleDrift(root, "crates/jobsentinel-application/src/salary/mod.rs"),
       false,
     );
   });
@@ -353,12 +353,12 @@ test("broad audience fixtures reject tech-hub scoring location defaults", () => 
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/scoring/mod.rs",
+      "crates/jobsentinel-application/src/scoring/mod.rs",
       'job.location = Some("San Francisco, CA (Hybrid)".to_string());',
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/scoring/remote.rs",
+      "crates/jobsentinel-application/src/scoring/remote.rs",
       [
         'let job = create_test_job("Care Coordinator", Some("New York, NY"), None, None);',
         'let fallback = create_test_job("Engineer", Some("Remote - US"), None, None);',
@@ -369,14 +369,14 @@ test("broad audience fixtures reject tech-hub scoring location defaults", () => 
     assert.equal(
       hasEngineerFirstAudienceExamples(
         root,
-        "crates/jobsentinel-core/src/core/scoring/mod.rs",
+        "crates/jobsentinel-application/src/scoring/mod.rs",
       ),
       true,
     );
     assert.equal(
       hasEngineerFirstAudienceExamples(
         root,
-        "crates/jobsentinel-core/src/core/scoring/remote.rs",
+        "crates/jobsentinel-application/src/scoring/remote.rs",
       ),
       true,
     );
@@ -387,7 +387,7 @@ test("broad audience fixtures reject tech-first synonym ordering", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/scoring/synonyms.rs",
+      "crates/jobsentinel-application/src/scoring/synonyms.rs",
       [
         "// Programming Languages",
         'map.add_synonym_group(&["Rust", "rust"]);',
@@ -400,7 +400,7 @@ test("broad audience fixtures reject tech-first synonym ordering", () => {
     assert.equal(
       hasEngineerFirstAudienceExamples(
         root,
-        "crates/jobsentinel-core/src/core/scoring/synonyms.rs",
+        "crates/jobsentinel-application/src/scoring/synonyms.rs",
       ),
       true,
     );

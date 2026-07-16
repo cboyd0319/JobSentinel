@@ -73,28 +73,28 @@ function readCredentialStoragePolicyText(root, path) {
   );
   const validationPath = join(
     root,
-    "crates/jobsentinel-core/src/core/credentials/validation.rs",
+    "crates/jobsentinel-credentials/src/validation.rs",
   );
 
-  return path === "crates/jobsentinel-core/src/core/credentials/mod.rs" &&
+  return path === "crates/jobsentinel-credentials/src/lib.rs" &&
     existsSync(validationPath)
     ? `${productionText}\n${stripRustTestModules(readFileSync(validationPath, "utf8"))}`
     : productionText;
 }
 
 const activeSecretStorageWordingPaths = new Set([
-  "docs/architecture/privacy-first-ai-gateway.md",
+  "docs/security/privacy-first-ai-gateway.md",
   "docs/developer/ARCHITECTURE.md",
   "docs/developer/MACOS_DEVELOPMENT.md",
   "src/features/settings/config/SettingsConfig.ts",
   "src/features/onboarding/SetupWizard.tsx",
-  "crates/jobsentinel-core/src/core/config/types.rs",
+  "crates/jobsentinel-application/src/config/types.rs",
 ]);
 
 function isActiveSecretStorageWordingPath(path) {
   return (
     activeSecretStorageWordingPaths.has(path) ||
-    path.startsWith("crates/jobsentinel-core/src/core/config/tests/")
+    path.startsWith("crates/jobsentinel-application/src/config/tests/")
   );
 }
 
@@ -164,7 +164,7 @@ export function hasRawSlackWebhookValidationErrorReturn(root, path) {
 export function hasSecretBearingDebugDerive(root, path) {
   const rustSource =
     path.startsWith("src-tauri/src/") ||
-    path.startsWith("crates/jobsentinel-core/src/");
+    path.startsWith("crates/");
   if (!rustSource || !path.endsWith(".rs")) {
     return false;
   }
@@ -227,7 +227,7 @@ export function hasMissingLinkedInCredentialStorageDisable(root, path) {
 
   const productionText = readCredentialStoragePolicyText(root, path);
 
-  if (path === "crates/jobsentinel-core/src/core/credentials/mod.rs") {
+  if (path === "crates/jobsentinel-credentials/src/lib.rs") {
     return (
       !productionText.includes("LINKEDIN_CREDENTIAL_STORAGE_DISABLED") ||
       !/fn\s+reject_disabled_credential_storage/.test(productionText) ||
@@ -254,7 +254,7 @@ export function hasMissingLinkedInCredentialStorageDisable(root, path) {
 }
 
 export function hasMissingWebhookCredentialStorageValidation(root, path) {
-  if (path !== "crates/jobsentinel-core/src/core/credentials/mod.rs") {
+  if (path !== "crates/jobsentinel-credentials/src/lib.rs") {
     return false;
   }
 

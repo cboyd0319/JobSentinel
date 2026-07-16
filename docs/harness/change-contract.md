@@ -57,7 +57,7 @@ Design contract:
 Source-of-truth docs:
 - Existing docs that must stay accurate.
 - New docs to create or update.
-- Public GitHub wiki pages from `docs/harness/manifest.json` to update, or
+- Public GitHub wiki pages affected by the change to update, or
   reason no wiki page is affected.
 
 Orchestration:
@@ -86,7 +86,7 @@ Sensors:
 
 Harness impact:
 - Docs, scripts, tests, templates, or recurring checks to update.
-- Whether `docs/harness/manifest.json` needs new required files or snippets to
+- Whether `harness-manifest.json` needs an owner, startup, platform, or retired-path update to
   keep the design contract from drifting.
 - New gap to record if this change exposes missing harness coverage.
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { mockConfig } from "../../../../mocks/data";
+import { mockConfig } from "../../../../test-support/mocks/data";
 import { handleMockSupportCommand } from "./commands";
 
 describe("Settings support mock commands", () => {

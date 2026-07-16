@@ -28,7 +28,7 @@ test("checkRepoBloat rejects raw automation screening question logging", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/automation/form_filler.rs",
+      "crates/jobsentinel-assistance/src/automation/form_filler.rs",
       [
         'tracing::debug!("Filled screening question \'{}\' with answer", question_text);',
         'tracing::debug!("Selected screening answer for \'{}\'", question_text);',
@@ -38,7 +38,7 @@ test("checkRepoBloat rejects raw automation screening question logging", () => {
 
     execFileSync(
       "git",
-      ["add", "package.json", "crates/jobsentinel-core/src/core/automation/form_filler.rs"],
+      ["add", "package.json", "crates/jobsentinel-assistance/src/automation/form_filler.rs"],
       { cwd: root },
     );
 
@@ -46,7 +46,7 @@ test("checkRepoBloat rejects raw automation screening question logging", () => {
 
     assert.ok(
       violations.includes(
-        "replace raw automation screening question logging: crates/jobsentinel-core/src/core/automation/form_filler.rs",
+        "replace raw automation screening question logging: crates/jobsentinel-assistance/src/automation/form_filler.rs",
       ),
       violations.join("\n"),
     );
@@ -58,7 +58,7 @@ test("checkRepoBloat rejects raw automation form result data", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/automation/form_filler.rs",
+      "crates/jobsentinel-assistance/src/automation/form_filler.rs",
       [
         "let field_name = Self::truncate_question(&question_text, 30);",
         'result.filled_fields.push(format!("screening:{}", field_name));',
@@ -69,7 +69,7 @@ test("checkRepoBloat rejects raw automation form result data", () => {
     );
     writeFixtureFile(
       root,
-      "src/mocks/handlers.ts",
+      "src/test-support/mocks/handlers.ts",
       [
         "const screeningFields = screeningAnswers.slice(0, 2).map((answer) =>",
         "  `screening:${answer.questionPattern}`,",
@@ -83,8 +83,8 @@ test("checkRepoBloat rejects raw automation form result data", () => {
       [
         "add",
         "package.json",
-        "crates/jobsentinel-core/src/core/automation/form_filler.rs",
-        "src/mocks/handlers.ts",
+        "crates/jobsentinel-assistance/src/automation/form_filler.rs",
+        "src/test-support/mocks/handlers.ts",
       ],
       { cwd: root },
     );
@@ -93,12 +93,12 @@ test("checkRepoBloat rejects raw automation form result data", () => {
 
     assert.ok(
       violations.includes(
-        "sanitize automation form result data: crates/jobsentinel-core/src/core/automation/form_filler.rs",
+        "sanitize automation form result data: crates/jobsentinel-assistance/src/automation/form_filler.rs",
       ),
       violations.join("\n"),
     );
     assert.ok(
-      violations.includes("sanitize automation form result data: src/mocks/handlers.ts"),
+      violations.includes("sanitize automation form result data: src/test-support/mocks/handlers.ts"),
       violations.join("\n"),
     );
   });
@@ -109,7 +109,7 @@ test("checkRepoBloat rejects raw automation browser errors", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/automation/browser/manager.rs",
+      "crates/jobsentinel-assistance/src/automation/browser/manager.rs",
       [
         'BrowserConfig::builder().build().map_err(|e| anyhow::anyhow!("Failed to build browser config: {}", e))?;',
         "",
@@ -117,7 +117,7 @@ test("checkRepoBloat rejects raw automation browser errors", () => {
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/automation/browser/page.rs",
+      "crates/jobsentinel-assistance/src/automation/browser/page.rs",
       [
         'return Err(anyhow::anyhow!("File does not exist: {:?}", file_path));',
         'let path_str = file_path.to_str().context("Invalid file path encoding")?;',
@@ -131,8 +131,8 @@ test("checkRepoBloat rejects raw automation browser errors", () => {
       [
         "add",
         "package.json",
-        "crates/jobsentinel-core/src/core/automation/browser/manager.rs",
-        "crates/jobsentinel-core/src/core/automation/browser/page.rs",
+        "crates/jobsentinel-assistance/src/automation/browser/manager.rs",
+        "crates/jobsentinel-assistance/src/automation/browser/page.rs",
       ],
       { cwd: root },
     );
@@ -141,13 +141,13 @@ test("checkRepoBloat rejects raw automation browser errors", () => {
 
     assert.ok(
       violations.includes(
-        "sanitize automation browser errors: crates/jobsentinel-core/src/core/automation/browser/manager.rs",
+        "sanitize automation browser errors: crates/jobsentinel-assistance/src/automation/browser/manager.rs",
       ),
       violations.join("\n"),
     );
     assert.ok(
       violations.includes(
-        "sanitize automation browser errors: crates/jobsentinel-core/src/core/automation/browser/page.rs",
+        "sanitize automation browser errors: crates/jobsentinel-assistance/src/automation/browser/page.rs",
       ),
       violations.join("\n"),
     );
@@ -159,14 +159,14 @@ test("checkRepoBloat rejects raw automation dropdown value logging", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/automation/browser/page.rs",
+      "crates/jobsentinel-assistance/src/automation/browser/page.rs",
       [
         'tracing::debug!("Selected option \'{}\' in dropdown \'{}\'", value, selector);',
         "",
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "crates/jobsentinel-core/src/core/automation/browser/page.rs"], {
+    execFileSync("git", ["add", "package.json", "crates/jobsentinel-assistance/src/automation/browser/page.rs"], {
       cwd: root,
     });
 
@@ -174,7 +174,7 @@ test("checkRepoBloat rejects raw automation dropdown value logging", () => {
 
     assert.ok(
       violations.includes(
-        "remove raw automation dropdown value logging: crates/jobsentinel-core/src/core/automation/browser/page.rs",
+        "remove raw automation dropdown value logging: crates/jobsentinel-assistance/src/automation/browser/page.rs",
       ),
       violations.join("\n"),
     );
@@ -186,7 +186,7 @@ test("checkRepoBloat rejects raw notification job title logging", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/notify/mod.rs",
+      "crates/jobsentinel-application/src/notify/mod.rs",
       [
         'tracing::info!("Sent Slack notification for: {}", notification.job.title);',
         'tracing::info!("Sent Teams notification for: {}", notification.job.title);',
@@ -194,7 +194,7 @@ test("checkRepoBloat rejects raw notification job title logging", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "crates/jobsentinel-core/src/core/notify/mod.rs"], {
+    execFileSync("git", ["add", "package.json", "crates/jobsentinel-application/src/notify/mod.rs"], {
       cwd: root,
     });
 
@@ -202,7 +202,7 @@ test("checkRepoBloat rejects raw notification job title logging", () => {
 
     assert.ok(
       violations.includes(
-        "replace raw notification job title logging: crates/jobsentinel-core/src/core/notify/mod.rs",
+        "replace raw notification job title logging: crates/jobsentinel-application/src/notify/mod.rs",
       ),
       violations.join("\n"),
     );
@@ -214,7 +214,7 @@ test("checkRepoBloat rejects raw URL error display", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/automation/error.rs",
+      "crates/jobsentinel-assistance/src/automation/error.rs",
       [
         "#[derive(thiserror::Error, Debug)]",
         "pub enum AutomationError {",
@@ -226,7 +226,7 @@ test("checkRepoBloat rejects raw URL error display", () => {
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/scrapers/error.rs",
+      "crates/jobsentinel-sources/src/scrapers/error.rs",
       [
         "impl std::fmt::Display for ScraperError {",
         "  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {",
@@ -254,7 +254,7 @@ test("checkRepoBloat rejects raw URL error display", () => {
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/http_body.rs",
+      "crates/jobsentinel-network/src/body.rs",
       [
         "#[derive(Debug, Error)]",
         "pub enum HttpBodyReadError {",
@@ -274,9 +274,9 @@ test("checkRepoBloat rejects raw URL error display", () => {
       [
         "add",
         "package.json",
-        "crates/jobsentinel-core/src/core/automation/error.rs",
-        "crates/jobsentinel-core/src/core/http_body.rs",
-        "crates/jobsentinel-core/src/core/scrapers/error.rs",
+        "crates/jobsentinel-assistance/src/automation/error.rs",
+        "crates/jobsentinel-network/src/body.rs",
+        "crates/jobsentinel-sources/src/scrapers/error.rs",
       ],
       {
         cwd: root,
@@ -287,16 +287,16 @@ test("checkRepoBloat rejects raw URL error display", () => {
 
     assert.ok(
       violations.includes(
-        "replace raw URL error display: crates/jobsentinel-core/src/core/automation/error.rs",
+        "replace raw URL error display: crates/jobsentinel-assistance/src/automation/error.rs",
       ),
       violations.join("\n"),
     );
     assert.ok(
-      violations.includes("replace raw URL error display: crates/jobsentinel-core/src/core/scrapers/error.rs"),
+      violations.includes("replace raw URL error display: crates/jobsentinel-sources/src/scrapers/error.rs"),
       violations.join("\n"),
     );
     assert.ok(
-      violations.includes("replace raw URL error display: crates/jobsentinel-core/src/core/http_body.rs"),
+      violations.includes("replace raw URL error display: crates/jobsentinel-network/src/body.rs"),
       violations.join("\n"),
     );
   });
@@ -307,7 +307,7 @@ test("checkRepoBloat rejects raw path or query error display", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/db/connection.rs",
+      "crates/jobsentinel-storage/src/connection.rs",
       [
         "#[derive(thiserror::Error, Debug)]",
         "pub enum DatabaseError {",
@@ -320,14 +320,14 @@ test("checkRepoBloat rejects raw path or query error display", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "crates/jobsentinel-core/src/core/db/connection.rs"], {
+    execFileSync("git", ["add", "package.json", "crates/jobsentinel-storage/src/connection.rs"], {
       cwd: root,
     });
 
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("replace raw path/query error display: crates/jobsentinel-core/src/core/db/connection.rs"),
+      violations.includes("replace raw path/query error display: crates/jobsentinel-storage/src/connection.rs"),
       violations.join("\n"),
     );
   });
@@ -338,7 +338,7 @@ test("checkRepoBloat rejects raw resume parser path error display", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/resume/parser.rs",
+      "crates/jobsentinel-documents/src/parser.rs",
       [
         'let canonical_path = file_path.canonicalize().context(format!("Invalid path: {}", file_path.display()))?;',
         'return Err(anyhow::anyhow!("File must be a PDF. Got: {}", canonical_path.display()));',
@@ -346,7 +346,7 @@ test("checkRepoBloat rejects raw resume parser path error display", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "crates/jobsentinel-core/src/core/resume/parser.rs"], {
+    execFileSync("git", ["add", "package.json", "crates/jobsentinel-documents/src/parser.rs"], {
       cwd: root,
     });
 
@@ -354,7 +354,7 @@ test("checkRepoBloat rejects raw resume parser path error display", () => {
 
     assert.ok(
       violations.includes(
-        "sanitize resume parser path error display: crates/jobsentinel-core/src/core/resume/parser.rs",
+        "sanitize resume parser path error display: crates/jobsentinel-documents/src/parser.rs",
       ),
       violations.join("\n"),
     );

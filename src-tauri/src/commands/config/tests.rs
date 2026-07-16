@@ -1,12 +1,12 @@
 use super::*;
-use crate::core::{
+use crate::application::{
     config::{AlertConfig, LocationPreferences},
     credentials::{
         encode_smtp_password, CredentialService, SmtpCredentialBinding,
         SMTP_CREDENTIAL_REENTRY_REQUIRED,
     },
-    db::Database,
 };
+use crate::desktop::Database;
 
 fn create_dashboard_test_config() -> Config {
     Config {
@@ -56,7 +56,7 @@ fn create_dashboard_test_config() -> Config {
 async fn test_credentials() -> CredentialService {
     let database = Database::connect_memory().await.unwrap();
     database.migrate().await.unwrap();
-    CredentialService::with_fixed_master_key(database.pool().clone(), [21_u8; 32], false)
+    CredentialService::with_fixed_master_key(database.credentials(), [21_u8; 32], false)
 }
 
 fn test_email_config_for(server: &str, username: &str) -> TestEmailConfig {

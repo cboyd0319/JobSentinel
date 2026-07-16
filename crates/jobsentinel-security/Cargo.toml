@@ -1,0 +1,16 @@
+[package]
+name = "jobsentinel-security"
+description = "Pure privacy, redaction, and untrusted URL policy for JobSentinel"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+keywords.workspace = true
+categories.workspace = true
+
+[dependencies]
+url.workspace = true
+
+[lints]
+workspace = true

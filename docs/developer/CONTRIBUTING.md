@@ -123,9 +123,8 @@ git checkout -b feature/your-feature-name
 ### Install Dependencies
 
 ```bash
-# Activate pinned npm, then install dependencies from the lockfile
-node scripts/install-pinned-npm.mjs
-npm ci --ignore-scripts
+# Synchronize locked dependencies and prove the baseline
+./init.sh
 
 # Check Rust compilation
 cargo check --workspace
@@ -162,8 +161,8 @@ git rebase main
 **Follow the project structure:**
 
 - `src/` - React frontend (TypeScript + TailwindCSS)
-- `crates/jobsentinel-core/src/core/` - Platform-agnostic business logic
-- `crates/jobsentinel-core/src/platforms/` - OS-specific code
+- `crates/jobsentinel-*/src/` - Platform-agnostic code by bounded owner
+- `crates/jobsentinel-platform/src/` - OS-specific code
 - `src-tauri/src/commands/` - Tauri RPC handlers
 
 Use modules before crates. Keep implementation leaves private and expose one
@@ -383,7 +382,7 @@ mod tests;
 cargo test --workspace
 
 # Specific test
-cargo test -p jobsentinel-core test_scrape_greenhouse
+cargo test -p jobsentinel-sources test_scrape_greenhouse
 
 # With output
 cargo test --workspace -- --nocapture
@@ -490,7 +489,7 @@ Closes #123
 1. Confirm the source permits the planned access pattern and document any rate,
    authentication, or user-consent boundary.
 2. Add a private adapter under
-   `crates/jobsentinel-core/src/core/scrapers/` and register it through the
+   `crates/jobsentinel-sources/src/scrapers/` and register it through the
    scraper facade. Do not expose the adapter module publicly.
 3. Reuse the bounded HTTP and URL-validation owners. Do not create an ad hoc
    client or bypass redirect, DNS, response-size, or rate-limit controls.
@@ -504,7 +503,7 @@ Closes #123
 ### Changing a Platform Adapter
 
 Windows 11+, macOS, and Linux are the supported platform owners. Keep target
-implementations under `crates/jobsentinel-core/src/platforms/`, selected by the
+implementations under `crates/jobsentinel-platform/src/`, selected by the
 private facade with `cfg` attributes.
 
 1. Change the smallest target-specific module and preserve the shared facade.

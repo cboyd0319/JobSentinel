@@ -1,0 +1,74 @@
+{
+  "schema": "jobsentinel.feature_list.v1",
+  "project": "JobSentinel",
+  "last_updated": "2026-07-15",
+  "active_status": "active",
+  "rules": {
+    "single_active_feature": true,
+    "passing_requires_evidence": true,
+    "passing_is_irreversible": true
+  },
+  "features": [
+    {
+      "id": "harness-standard-contract",
+      "priority": 1,
+      "area": "repository harness",
+      "title": "Standard repository harness",
+      "behavior": "A fresh session can initialize the repository, see one current objective, select the next task, route its diff, and verify completion without contradictory owners.",
+      "user_visible_behavior": "Repository work preserves JobSentinel behavior while becoming resumable and verifiable across supported platforms.",
+      "status": "passing",
+      "verification": [
+        "npm run harness:check",
+        "npm run lint:file-size",
+        "npm run test:scripts",
+        "npm run test:smoke",
+        "npm run verify:full"
+      ],
+      "evidence": [
+        "docs/harness/evidence/harness-standard-contract-2026-07-14.json",
+        "docs/harness/evidence/harness-standard-contract-2026-07-14.md"
+      ],
+      "blocker": "",
+      "next_trigger": "A regression against the recorded contract requires a new corrective feature."
+    },
+    {
+      "id": "harness-canonical-remediation",
+      "priority": 2,
+      "area": "repository harness",
+      "title": "Canonical harness remediation",
+      "behavior": "The repository harness conforms to the installed harness-engineering package except for the exact user-authorized pre-alpha-private-no-ci requirement exception.",
+      "user_visible_behavior": "Repository work is resumable, growth-ready, and locally verifiable while hosted CI remains explicitly absent during private pre-alpha development.",
+      "status": "blocked",
+      "verification": [
+        "npm run harness:check",
+        "npm run test:scripts",
+        "npm run verify:full"
+      ],
+      "evidence": [
+        "docs/harness/evidence/harness-canonical-remediation-effectiveness-2026-07-15.json"
+      ],
+      "blocker": "Native Windows 11 validation has not run from this working tree; macOS and portable contract evidence cannot prove Windows file, junction, launcher, or ACL behavior.",
+      "next_trigger": "On a native Windows 11 host, run pwsh -File ./init.ps1 and npm run test:scripts, then attach the host-bound evidence."
+    },
+    {
+      "id": "full-repository-refactor",
+      "priority": 3,
+      "area": "repository architecture",
+      "title": "Full repository ownership refactor",
+      "behavior": "The Rust, Tauri, frontend, test, script, workflow, packaging, and documentation trees match the locked ownership blueprint without obsolete compatibility layers.",
+      "user_visible_behavior": "JobSentinel retains its privacy, security, accessibility, and platform behavior while internal ownership becomes explicit.",
+      "status": "active",
+      "verification": [
+        "npm run verify:full",
+        "npm run test:e2e:all",
+        "node scripts/run-cargo.mjs test --workspace --all-features"
+      ],
+      "evidence": [
+        "docs/harness/evidence/repository-foundational-rust-owners-2026-07-15.json",
+        "docs/harness/evidence/full-repository-refactor-2026-07-15.json"
+      ],
+      "blocker": "Native Windows 11 validation has not run from this working tree. Hosted CI is also intentionally absent under pre-alpha-private-no-ci, which is a user override rather than canonical harness compliance.",
+      "next_trigger": "On a native Windows 11 host, run pwsh -File ./init.ps1 and npm run test:scripts, attach host-bound evidence, then make the final feature transition without claiming canonical CI compliance."
+    }
+  ]
+}

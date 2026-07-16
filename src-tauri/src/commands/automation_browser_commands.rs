@@ -1,19 +1,19 @@
+use crate::application::automation::{
+    AtsDetector, AtsPlatform, AutomationStatus, BrowserManager, FillResult, FormFiller,
+};
 use crate::commands::errors::user_friendly_error;
 use crate::commands::AppState;
-use crate::core::automation::{
-    AtsDetector, AtsPlatform, AutomationManager, AutomationStatus, BrowserManager, FillResult,
-    FormFiller, ProfileManager,
-};
+use crate::desktop::sanitize_url_for_logging;
 #[cfg(test)]
-use crate::core::url_security::validate_external_https_url;
-use crate::core::url_security::{sanitize_url_for_logging, validate_external_https_url_for_fetch};
+use crate::desktop::validate_external_https_url;
+use crate::desktop::validate_external_https_url_for_fetch;
 use serde::{Deserialize, Serialize};
 use std::sync::{Arc, LazyLock};
 use tauri::State;
 use tokio::sync::Mutex;
 
 use super::profile_resume::{application_resume_dir, trusted_application_resume_path};
-use super::{has_stored_path, AttemptResponse};
+use super::AttemptResponse;
 
 const UNSUPPORTED_PREPARE_FORM_TARGET: &str =
     "Prepare Form only works on recognized application sites. Open this page yourself, or apply manually.";
@@ -158,7 +158,7 @@ pub(crate) async fn fill_application_form(
     .await?;
 
     let attempt_id = if let Some(ref hash) = job_hash {
-        let automation_manager = AutomationManager::new(state.database.pool().clone());
+        let automation_manager = state.database.automation_manager();
         match automation_manager
             .create_attempt(hash, platform.clone())
             .await
@@ -179,7 +179,7 @@ pub(crate) async fn fill_application_form(
         None
     };
 
-    let profile_manager = ProfileManager::new(state.database.pool().clone());
+    let profile_manager = state.database.profile_manager();
     let profile = profile_manager
         .get_profile()
         .await
@@ -227,7 +227,7 @@ pub(crate) async fn fill_application_form(
     );
 
     if let Some(id) = attempt_id {
-        let automation_manager = AutomationManager::new(state.database.pool().clone());
+        let automation_manager = state.database.automation_manager();
         let status = if result.captcha_detected || result.ready_for_review {
             AutomationStatus::AwaitingApproval
         } else {
@@ -271,7 +271,7 @@ pub(crate) async fn mark_attempt_submitted(
 ) -> Result<(), String> {
     tracing::info!("Command: mark_attempt_submitted (id: {})", attempt_id);
 
-    let manager = AutomationManager::new(state.database.pool().clone());
+    let manager = state.database.automation_manager();
     manager
         .mark_submitted(attempt_id)
         .await
@@ -292,48 +292,13 @@ pub(crate) async fn get_attempts_for_job(
         "Command: get_attempts_for_job"
     );
 
-    let rows = sqlx::query(
-        r#"
-        SELECT id, job_hash, application_id, status, ats_platform,
-               error_message, screenshot_path, confirmation_screenshot_path,
-               automation_duration_ms, user_approved, submitted_at, created_at
-        FROM application_attempts
-        WHERE job_hash = ?
-        ORDER BY created_at DESC
-        LIMIT 100
-        "#,
-    )
-    .bind(&job_hash)
-    .fetch_all(state.database.pool())
-    .await
-    .map_err(|e| user_friendly_error("Failed to get attempts", e))?;
-
-    use sqlx::Row;
-    let attempts: Vec<AttemptResponse> = rows
+    let manager = state.database.automation_manager();
+    let attempts = manager
+        .get_attempts_for_job(&job_hash, 100)
+        .await
+        .map_err(|e| user_friendly_error("Failed to get attempts", e))?
         .into_iter()
-        .map(|row| {
-            let submitted_at: Option<String> = row.get("submitted_at");
-            let created_at: String = row.get("created_at");
-            let screenshot_path: Option<String> = row.get("screenshot_path");
-            let confirmation_screenshot_path: Option<String> =
-                row.get("confirmation_screenshot_path");
-            AttemptResponse {
-                id: row.get("id"),
-                job_hash: row.get("job_hash"),
-                application_id: row.get("application_id"),
-                status: row.get("status"),
-                ats_platform: row.get("ats_platform"),
-                error_message: row.get("error_message"),
-                has_screenshot: has_stored_path(screenshot_path.as_deref()),
-                has_confirmation_screenshot: has_stored_path(
-                    confirmation_screenshot_path.as_deref(),
-                ),
-                automation_duration_ms: row.get("automation_duration_ms"),
-                user_approved: row.get::<i32, _>("user_approved") != 0,
-                submitted_at,
-                created_at,
-            }
-        })
+        .map(AttemptResponse::from)
         .collect();
 
     Ok(attempts)

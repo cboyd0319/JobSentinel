@@ -33,7 +33,7 @@ test("product framing requires the grant-facing README definition", () => {
   });
 });
 
-test("product framing requires free-forever MIT wording in maintained docs", () => {
+test("product framing keeps marketing promises in product-facing docs", () => {
   withFixture((root) => {
     writeFixtureFile(root, "README.md", "# JobSentinel\n");
     writeFixtureFile(
@@ -44,7 +44,7 @@ test("product framing requires free-forever MIT wording in maintained docs", () 
     writeFixtureFile(root, "docs/user/QUICK_START.md", "# Quick Start\n");
 
     assert.equal(hasMissingFreeForeverEthos(root, "README.md"), true);
-    assert.equal(hasMissingFreeForeverEthos(root, "docs/harness/README.md"), true);
+    assert.equal(hasMissingFreeForeverEthos(root, "docs/harness/README.md"), false);
     assert.equal(hasMissingFreeForeverEthos(root, "docs/user/QUICK_START.md"), true);
   });
 });

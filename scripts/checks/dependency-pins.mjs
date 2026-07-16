@@ -2,13 +2,13 @@
 
 import { pathToFileURL } from "node:url";
 
-import { collectCargoCompatibleUpdateViolations } from "../dependency/cargo-compatible-updates.mjs";
+import { collectCargoCompatibleUpdateViolations } from "../lib/dependency/cargo-compatible-updates.mjs";
 import {
   collectNpmCompatibleOutdatedViolations,
   collectNpmCompatibleUpdateViolations,
-} from "../dependency/npm-compatible-updates.mjs";
-import { npmOverrideDependencyPins } from "../dependency/npm-overrides.mjs";
-import { collectTauriLinuxDebDependencyViolations } from "../dependency/tauri-linux-deb.mjs";
+} from "../lib/dependency/npm-compatible-updates.mjs";
+import { npmOverrideDependencyPins } from "../lib/dependency/npm-overrides.mjs";
+import { collectTauriLinuxDebDependencyViolations } from "../lib/dependency/tauri-linux-deb.mjs";
 import { collectCargoPinViolations } from "./dependencies/cargo-pins.mjs";
 import {
   collectCargoLatestStableViolations,

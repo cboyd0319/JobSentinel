@@ -3,7 +3,7 @@
 
 [advisories]
 # Advisories below are inherited through upstream dependency chains. Keep this
-# list narrow so stale ignores surface during local and CI checks.
+# list narrow so stale ignores surface during local and hosted release checks.
 #
 # GTK3 bindings (RUSTSEC-2024-04xx): Required by Tauri for Linux via wry/tao/gtk.
 # Cannot be replaced until Tauri migrates to GTK4.

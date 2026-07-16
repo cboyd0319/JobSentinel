@@ -4,19 +4,17 @@
 //! from a browser bookmarklet. This allows users to import jobs from any
 //! website by clicking a bookmark while viewing a job posting.
 
+use crate::desktop::path_label_for_logging;
+use crate::desktop::{
+    discard_pending_bookmarklet_imports as discard_pending_bookmarklet_import_jobs,
+    BookmarkletConfig, BookmarkletImportConfirmResult, PendingBookmarkletImportPreview,
+};
 use crate::{
+    application::config::Config,
     commands::{errors::user_friendly_error, AppState},
-    core::{
-        bookmarklet::{
-            confirm_pending_bookmarklet_imports as confirm_pending_bookmarklet_import_jobs,
-            discard_pending_bookmarklet_imports as discard_pending_bookmarklet_import_jobs,
-            BookmarkletConfig, BookmarkletImportConfirmResult, PendingBookmarkletImportPreview,
-        },
-        config::Config,
-        logging::path_label_for_logging,
-    },
 };
 use arboard::Clipboard;
+use jobsentinel_application::{bookmarklet_repository, confirm_bookmarklet_imports};
 use serde::{Deserialize, Serialize};
 use tauri::State;
 
@@ -155,7 +153,7 @@ pub(crate) async fn confirm_pending_bookmarklet_imports(
         server_guard.pending_import_store()
     };
 
-    confirm_pending_bookmarklet_import_jobs(state.database.as_ref(), &pending_imports, &ids).await
+    confirm_bookmarklet_imports(state.database.clone(), &pending_imports, &ids).await
 }
 
 /// Remove reviewed browser imports without saving.
@@ -200,7 +198,7 @@ pub(crate) async fn start_bookmarklet_server(
 
     // Start the server
     let selected_port = server_guard
-        .start(config, state.database.clone())
+        .start(config, bookmarklet_repository(state.database.clone()))
         .await
         .map_err(|e| {
             let message = user_friendly_error("Failed to start bookmarklet server", &e);

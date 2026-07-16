@@ -1,6 +1,7 @@
 #!/bin/bash
-# Setup script for documentation linting tools
-# Run this after cloning the repo: ./scripts/setup-docs-linting.sh
+# Explicit setup for documentation linting tools.
+# This syncs Vale packages and project dependencies. Set INSTALL_HOOKS=1 to
+# install the optional repository hook.
 
 set -e
 
@@ -18,7 +19,7 @@ if ! command -v vale &> /dev/null; then
     exit 1
 fi
 
-echo "✓ Vale found: $(vale --version)"
+echo "Vale found: $(vale --version)"
 
 # Sync Vale packages
 echo ""
@@ -27,25 +28,25 @@ cd "$(dirname "$0")/.."
 vale sync
 
 echo ""
-echo "✓ Vale styles synced"
+echo "Vale styles synced"
 
-# Install npm dependencies
+# Install npm dependencies through the standard repository initializer
 echo ""
 echo "Installing npm dependencies..."
-node scripts/install-pinned-npm.mjs
-npm ci --ignore-scripts
+./init.sh
 
 echo ""
-echo "✓ npm dependencies installed (including husky, lint-staged, markdownlint-cli)"
+echo "npm dependencies installed (including husky, lint-staged, markdownlint-cli)"
 
-# Set up husky
-echo ""
-echo "Setting up git hooks..."
-npx --no-install husky
+if [ "${INSTALL_HOOKS:-0}" = "1" ]; then
+    echo ""
+    echo "Installing the optional repository hook..."
+    npx --no-install husky
+fi
 
 echo ""
 echo "============================================"
-echo "✓ Setup complete!"
+echo "Setup complete."
 echo ""
 echo "Available commands:"
 echo "  npm run lint:md      - Check Markdown formatting"
@@ -53,5 +54,9 @@ echo "  npm run lint:md:fix  - Fix Markdown issues"
 echo "  npm run lint:prose   - Check writing style (docs)"
 echo "  npm run lint:docs    - Run all documentation checks"
 echo ""
-echo "Pre-commit hooks are now active."
+if [ "${INSTALL_HOOKS:-0}" = "1" ]; then
+    echo "Pre-commit hooks are active. Recovery bypass: HUSKY=0 git commit ..."
+else
+    echo "Pre-commit hooks were not installed. Set INSTALL_HOOKS=1 to opt in."
+fi
 echo "============================================"

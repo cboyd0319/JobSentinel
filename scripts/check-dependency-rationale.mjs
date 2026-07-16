@@ -40,6 +40,30 @@ function directCargoDependencies(root) {
   );
 }
 
+function unusedCargoWorkspaceDependencies(root) {
+  const cargoToml = join(root, "Cargo.toml");
+  const policyFile = join(root, "repository-structure-policy.json");
+  if (!existsSync(cargoToml) || !existsSync(policyFile)) return [];
+
+  const registry = collectCargoDependencySpecs(readFileSync(cargoToml, "utf8"))
+    .filter((spec) => spec.section === "workspace.dependencies")
+    .map((spec) => spec.name);
+  const policy = readJson(root, "repository-structure-policy.json");
+  const manifests = (policy.structure?.units ?? [])
+    .map((unit) => unit.manifest)
+    .filter((path) => path !== "Cargo.toml" && existsSync(join(root, path)));
+  const used = new Set(
+    manifests.flatMap((path) =>
+      collectCargoDependencySpecs(readFileSync(join(root, path), "utf8")).map(
+        (spec) => spec.name,
+      ),
+    ),
+  );
+  return registry
+    .filter((name) => !used.has(name))
+    .map((name) => `remove unused Cargo workspace dependency from Cargo.toml: ${name}`);
+}
+
 function hasReason(reasons, name) {
   return typeof reasons[name] === "string" && reasons[name].trim() !== "";
 }
@@ -75,6 +99,7 @@ export function checkDependencyRationale(root = defaultRoot) {
   return [
     ...reconcile(directNpmDependencies(root), contract.npm ?? {}, "npm"),
     ...reconcile(directCargoDependencies(root), contract.cargo ?? {}, "cargo"),
+    ...unusedCargoWorkspaceDependencies(root),
   ];
 }
 

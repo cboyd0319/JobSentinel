@@ -140,9 +140,9 @@ copy durable findings back into this plan or the active status surface.
   conservative evidence group to guest service and guest services for
   hospitality, front-desk, retail, and service roles. Verification passed:
   `cargo test --lib customer_support_service_equivalence --manifest-path
-  src-tauri/Cargo.toml`, `npx vitest run src/mocks/handlers.test.ts -t
+  src-tauri/Cargo.toml`, `npx vitest run src/test-support/mocks/handlers.test.ts -t
   "analyzes resumes"`, `cargo test --lib ats_analyzer --manifest-path
-  src-tauri/Cargo.toml`, `npx vitest run src/mocks/handlers.test.ts`, `npx tsc
+  src-tauri/Cargo.toml`, `npx vitest run src/test-support/mocks/handlers.test.ts`, `npx tsc
   --noEmit`, `npm run lint -- --quiet`, `cargo fmt --all --manifest-path
   src-tauri/Cargo.toml -- --check`, `cargo clippy --manifest-path
   src-tauri/Cargo.toml -- -D warnings`, and `git diff --check`.
@@ -150,9 +150,9 @@ copy durable findings back into this plan or the active status surface.
   front-desk, reception, and receptionist wording as equivalent local evidence
   for service, hospitality, clinic, school, and office support roles.
   Verification passed: `cargo test --lib front_desk_reception --manifest-path
-  src-tauri/Cargo.toml`, `npx vitest run src/mocks/handlers.test.ts -t
+  src-tauri/Cargo.toml`, `npx vitest run src/test-support/mocks/handlers.test.ts -t
   "analyzes resumes"`, `cargo test --lib ats_analyzer --manifest-path
-  src-tauri/Cargo.toml`, `npx vitest run src/mocks/handlers.test.ts`, `npx tsc
+  src-tauri/Cargo.toml`, `npx vitest run src/test-support/mocks/handlers.test.ts`, `npx tsc
   --noEmit`, `npm run lint -- --quiet`, `cargo fmt --all --manifest-path
   src-tauri/Cargo.toml -- --check`, `cargo clippy --manifest-path
   src-tauri/Cargo.toml -- -D warnings`, and `git diff --check`.
@@ -167,9 +167,9 @@ copy durable findings back into this plan or the active status surface.
   service, HR, or training evidence in backend and dev/browser mocks without
   broad fuzzy matching. Verification passed: `cargo test --lib
   onboarding_orientation --manifest-path src-tauri/Cargo.toml`, `npx vitest run
-  src/mocks/handlers.test.ts -t "analyzes resumes"`, `cargo test --lib
+  src/test-support/mocks/handlers.test.ts -t "analyzes resumes"`, `cargo test --lib
   ats_analyzer --manifest-path src-tauri/Cargo.toml`, `npx vitest run
-  src/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
+  src/test-support/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
   `cargo fmt --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo
   clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff
   --check`.
@@ -178,9 +178,9 @@ copy durable findings back into this plan or the active status surface.
   local training evidence in backend and dev/browser mocks without broad fuzzy
   matching. Verification passed: `cargo test --lib training_trained
   --manifest-path src-tauri/Cargo.toml`, `npx vitest run
-  src/mocks/handlers.test.ts -t "analyzes resumes"`, `cargo test --lib
+  src/test-support/mocks/handlers.test.ts -t "analyzes resumes"`, `cargo test --lib
   ats_analyzer --manifest-path src-tauri/Cargo.toml`, `npx vitest run
-  src/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
+  src/test-support/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
   `cargo fmt --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo
   clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff
   --check`.
@@ -192,9 +192,9 @@ copy durable findings back into this plan or the active status surface.
   and student services as equivalent local education evidence in backend and
   dev/browser mocks without broad fuzzy matching. Verification passed: `cargo
   test --lib student_support_services --manifest-path src-tauri/Cargo.toml`,
-  `npx vitest run src/mocks/handlers.test.ts -t "student support and student
+  `npx vitest run src/test-support/mocks/handlers.test.ts -t "student support and student
   services"`, `cargo test --lib ats_analyzer --manifest-path
-  src-tauri/Cargo.toml`, `npx vitest run src/mocks/handlers.test.ts`, `npx tsc
+  src-tauri/Cargo.toml`, `npx vitest run src/test-support/mocks/handlers.test.ts`, `npx tsc
   --noEmit`, `npm run lint -- --quiet`, `cargo fmt --all --manifest-path
   src-tauri/Cargo.toml -- --check`, `cargo clippy --manifest-path
   src-tauri/Cargo.toml -- -D warnings`, and `git diff --check`.
@@ -203,9 +203,9 @@ copy durable findings back into this plan or the active status surface.
   equivalent local education evidence in backend and dev/browser mocks without
   broad fuzzy matching. Verification passed: `cargo test --lib
   parent_family_communication --manifest-path src-tauri/Cargo.toml`, `npx
-  vitest run src/mocks/handlers.test.ts -t "parent and family communication"`,
+  vitest run src/test-support/mocks/handlers.test.ts -t "parent and family communication"`,
   `cargo test --lib ats_analyzer --manifest-path src-tauri/Cargo.toml`, `npx
-  vitest run src/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint --
+  vitest run src/test-support/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint --
   --quiet`, `cargo fmt --all --manifest-path src-tauri/Cargo.toml -- --check`,
   `cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git
   diff --check`.
@@ -238,9 +238,9 @@ copy durable findings back into this plan or the active status surface.
   data evidence in backend and dev/browser mocks without broad fuzzy matching.
   Verification passed: `cargo test --lib data_analysis_analytics
   --manifest-path src-tauri/Cargo.toml`, `npx vitest run
-  src/mocks/handlers.test.ts -t "analyzes resumes"`, `cargo test --lib
+  src/test-support/mocks/handlers.test.ts -t "analyzes resumes"`, `cargo test --lib
   ats_analyzer --manifest-path src-tauri/Cargo.toml`, `npx vitest run
-  src/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
+  src/test-support/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
   `cargo fmt --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo
   clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff
   --check`.
@@ -268,9 +268,9 @@ copy durable findings back into this plan or the active status surface.
   invoicing as equivalent local finance evidence in backend and dev/browser
   mocks without broad fuzzy matching. Verification passed: `cargo test --lib
   billing_invoicing --manifest-path src-tauri/Cargo.toml`, `npx vitest run
-  src/mocks/handlers.test.ts -t "billing and invoicing"`, `cargo test --lib
+  src/test-support/mocks/handlers.test.ts -t "billing and invoicing"`, `cargo test --lib
   ats_analyzer --manifest-path src-tauri/Cargo.toml`, `npx vitest run
-  src/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
+  src/test-support/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
   `cargo fmt --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo
   clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff
   --check`.
@@ -278,10 +278,10 @@ copy durable findings back into this plan or the active status surface.
   bookkeeping and bookkeeper as equivalent local finance evidence in backend
   and dev/browser mocks without broad fuzzy matching. Verification passed:
   `cargo test --lib bookkeeping_bookkeeper --manifest-path
-  src-tauri/Cargo.toml`, `npx vitest run src/mocks/handlers.test.ts -t
+  src-tauri/Cargo.toml`, `npx vitest run src/test-support/mocks/handlers.test.ts -t
   "bookkeeping and bookkeeper"`, `cargo test --lib ats_analyzer
   --manifest-path src-tauri/Cargo.toml`, `npx vitest run
-  src/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
+  src/test-support/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
   `cargo fmt --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo
   clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff
   --check`.
@@ -289,9 +289,9 @@ copy durable findings back into this plan or the active status surface.
   `QBO` as equivalent local finance evidence in backend and dev/browser mocks
   without broad acronym matching. Verification passed: `cargo test --lib
   quickbooks_qbo --manifest-path src-tauri/Cargo.toml`, `npx vitest run
-  src/mocks/handlers.test.ts -t "QuickBooks and QBO"`, `cargo test --lib
+  src/test-support/mocks/handlers.test.ts -t "QuickBooks and QBO"`, `cargo test --lib
   ats_analyzer --manifest-path src-tauri/Cargo.toml`, `npx vitest run
-  src/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
+  src/test-support/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
   `cargo fmt --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo
   clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff
   --check`.
@@ -300,9 +300,9 @@ copy durable findings back into this plan or the active status surface.
   backend and dev/browser mocks without matching bare POS initials.
   Verification passed: `cargo test --lib point_of_sale_pos_system
   --manifest-path src-tauri/Cargo.toml`, `npx vitest run
-  src/mocks/handlers.test.ts -t "point of sale and POS system"`, `cargo test
+  src/test-support/mocks/handlers.test.ts -t "point of sale and POS system"`, `cargo test
   --lib ats_analyzer --manifest-path src-tauri/Cargo.toml`, `npx vitest run
-  src/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
+  src/test-support/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
   `cargo fmt --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo
   clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff
   --check`.
@@ -311,9 +311,9 @@ copy durable findings back into this plan or the active status surface.
   receivable in backend and dev/browser mocks without broad acronym matching.
   Verification passed: `cargo test --lib accounts_payable_receivable
   --manifest-path src-tauri/Cargo.toml`, `npx vitest run
-  src/mocks/handlers.test.ts -t "A/P and A/R"`, `cargo test --lib
+  src/test-support/mocks/handlers.test.ts -t "A/P and A/R"`, `cargo test --lib
   ats_analyzer --manifest-path src-tauri/Cargo.toml`, `npx vitest run
-  src/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
+  src/test-support/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
   `cargo fmt --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo
   clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff
   --check`.
@@ -321,9 +321,9 @@ copy durable findings back into this plan or the active status surface.
   and cash handling as equivalent local retail/service evidence in backend and
   dev/browser mocks without broad fuzzy matching. Verification passed: `cargo
   test --lib cashier_cash --manifest-path src-tauri/Cargo.toml`, `npx vitest
-  run src/mocks/handlers.test.ts -t "cashier and cash handling"`, `cargo test
+  run src/test-support/mocks/handlers.test.ts -t "cashier and cash handling"`, `cargo test
   --lib ats_analyzer --manifest-path src-tauri/Cargo.toml`, `npx vitest run
-  src/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
+  src/test-support/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
   `cargo fmt --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo
   clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff
   --check`.
@@ -331,10 +331,10 @@ copy durable findings back into this plan or the active status surface.
   budgeting and budget tracking as equivalent local finance and operations
   evidence in backend and dev/browser mocks without broad fuzzy matching.
   Verification passed: `cargo test --lib budgeting_budget --manifest-path
-  src-tauri/Cargo.toml`, `npx vitest run src/mocks/handlers.test.ts -t
+  src-tauri/Cargo.toml`, `npx vitest run src/test-support/mocks/handlers.test.ts -t
   "budgeting and budget tracking"`, `cargo test --lib ats_analyzer
   --manifest-path src-tauri/Cargo.toml`, `npx vitest run
-  src/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
+  src/test-support/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
   `cargo fmt --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo
   clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff
   --check`.
@@ -343,9 +343,9 @@ copy durable findings back into this plan or the active status surface.
   stockroom as equivalent local operations evidence in backend and dev/browser
   mocks without broad fuzzy matching. Verification passed: `cargo test --lib
   inventory_stockroom --manifest-path src-tauri/Cargo.toml`, `npx vitest run
-  src/mocks/handlers.test.ts -t "inventory and stockroom"`, `cargo test --lib
+  src/test-support/mocks/handlers.test.ts -t "inventory and stockroom"`, `cargo test --lib
   ats_analyzer --manifest-path src-tauri/Cargo.toml`, `npx vitest run
-  src/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
+  src/test-support/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
   `cargo fmt --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo
   clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff
   --check`.
@@ -354,9 +354,9 @@ copy durable findings back into this plan or the active status surface.
   evidence in backend and dev/browser mocks without broad fuzzy matching.
   Verification passed: `cargo test --lib logistics_shipping_receiving
   --manifest-path src-tauri/Cargo.toml`, `npx vitest run
-  src/mocks/handlers.test.ts -t "logistics and shipping"`, `cargo test --lib
+  src/test-support/mocks/handlers.test.ts -t "logistics and shipping"`, `cargo test --lib
   ats_analyzer --manifest-path src-tauri/Cargo.toml`, `npx vitest run
-  src/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
+  src/test-support/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
   `cargo fmt --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo
   clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff
   --check`.
@@ -364,9 +364,9 @@ copy durable findings back into this plan or the active status surface.
   procurement and purchasing as equivalent local operations evidence in backend
   and dev/browser mocks without broad fuzzy matching. Verification passed:
   `cargo test --lib procurement_purchasing --manifest-path
-  src-tauri/Cargo.toml`, `npx vitest run src/mocks/handlers.test.ts -t
+  src-tauri/Cargo.toml`, `npx vitest run src/test-support/mocks/handlers.test.ts -t
   "procurement and purchasing"`, `cargo test --lib ats_analyzer --manifest-path
-  src-tauri/Cargo.toml`, `npx vitest run src/mocks/handlers.test.ts`, `npx tsc
+  src-tauri/Cargo.toml`, `npx vitest run src/test-support/mocks/handlers.test.ts`, `npx tsc
   --noEmit`, `npm run lint -- --quiet`, `cargo fmt --all --manifest-path
   src-tauri/Cargo.toml -- --check`, `cargo clippy --manifest-path
   src-tauri/Cargo.toml -- -D warnings`, and `git diff --check`.
@@ -374,9 +374,9 @@ copy durable findings back into this plan or the active status surface.
   vendor management and supplier management as equivalent local operations
   evidence in backend and dev/browser mocks without broad fuzzy matching.
   Verification passed: `cargo test --lib vendor_supplier --manifest-path
-  src-tauri/Cargo.toml`, `npx vitest run src/mocks/handlers.test.ts -t "vendor
+  src-tauri/Cargo.toml`, `npx vitest run src/test-support/mocks/handlers.test.ts -t "vendor
   and supplier"`, `cargo test --lib ats_analyzer --manifest-path
-  src-tauri/Cargo.toml`, `npx vitest run src/mocks/handlers.test.ts`, `npx tsc
+  src-tauri/Cargo.toml`, `npx vitest run src/test-support/mocks/handlers.test.ts`, `npx tsc
   --noEmit`, `npm run lint -- --quiet`, `cargo fmt --all --manifest-path
   src-tauri/Cargo.toml -- --check`, `cargo clippy --manifest-path
   src-tauri/Cargo.toml -- -D warnings`, and `git diff --check`.
@@ -833,8 +833,8 @@ copy durable findings back into this plan or the active status surface.
   labeling structured roles ending in the current or previous calendar year as
   `recent experience`, boosting the same single hit over older role evidence,
   and keeping older role evidence as `experience`. Verification passed: `npx
-  vitest run src/mocks/handlers.test.ts -t "recently ended"`, `npx vitest run
-  src/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
+  vitest run src/test-support/mocks/handlers.test.ts -t "recently ended"`, `npx vitest run
+  src/test-support/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
   and `git diff --check`.
 - Current local metric-backed evidence-strength follow-up treats work or
   project evidence with visible metrics such as percentages, counts, or dollar
@@ -935,9 +935,9 @@ copy durable findings back into this plan or the active status surface.
   that lower-title or fewer-years evidence may not satisfy a higher seniority
   requirement. Verification passed: `cargo test --lib higher_seniority
   --manifest-path src-tauri/Cargo.toml`, `npx vitest run
-  src/mocks/handlers.test.ts -t "analyzes resumes"`, `cargo test --lib
+  src/test-support/mocks/handlers.test.ts -t "analyzes resumes"`, `cargo test --lib
   ats_analyzer --manifest-path src-tauri/Cargo.toml`, `npx vitest run
-  src/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
+  src/test-support/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
   `cargo fmt --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo
   clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff
   --check`.
@@ -1094,9 +1094,9 @@ copy durable findings back into this plan or the active status surface.
   `mso-hide` markers in backend and dev/browser mock resume safety review.
   Verification passed: `cargo test --lib css_like_hidden_resume_text
   --manifest-path src-tauri/Cargo.toml`, `npx vitest run
-  src/mocks/handlers.test.ts -t "CSS-like hidden"`, `cargo test --lib
+  src/test-support/mocks/handlers.test.ts -t "CSS-like hidden"`, `cargo test --lib
   ats_analyzer --manifest-path src-tauri/Cargo.toml`, `npx vitest run
-  src/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
+  src/test-support/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
   `cargo fmt --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo
   clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff
   --check`.
@@ -1104,9 +1104,9 @@ copy durable findings back into this plan or the active status surface.
   comments and metadata tags in backend and dev/browser mock resume safety
   review. Verification passed: `cargo test --lib
   html_comment_hidden_resume_text --manifest-path src-tauri/Cargo.toml`, `npx
-  vitest run src/mocks/handlers.test.ts -t "HTML comment hidden"`, `cargo test
+  vitest run src/test-support/mocks/handlers.test.ts -t "HTML comment hidden"`, `cargo test
   --lib ats_analyzer --manifest-path src-tauri/Cargo.toml`, `npx vitest run
-  src/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
+  src/test-support/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
   `cargo fmt --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo
   clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff
   --check`.
@@ -1163,9 +1163,9 @@ copy durable findings back into this plan or the active status surface.
   to check equipment or tools used, safety rules, work orders, impact, and
   required licenses before using drafted alternative bullets. Verification
   passed: `cargo test --lib trades_field --manifest-path src-tauri/Cargo.toml`,
-  `npx vitest run src/mocks/handlers.test.ts -t "analyzes resumes"`, `cargo
+  `npx vitest run src/test-support/mocks/handlers.test.ts -t "analyzes resumes"`, `cargo
   test --lib ats_analyzer --manifest-path src-tauri/Cargo.toml`, `npx vitest
-  run src/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint --
+  run src/test-support/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint --
   --quiet`, `cargo fmt --all --manifest-path src-tauri/Cargo.toml -- --check`,
   `cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git
   diff --check`.
@@ -1175,9 +1175,9 @@ copy durable findings back into this plan or the active status surface.
   projects or volunteer work, supervised responsibilities, and truthful
   transitions before using drafted alternative bullets. Verification passed:
   `cargo test --lib "career_" --manifest-path src-tauri/Cargo.toml`, `npx
-  vitest run src/mocks/handlers.test.ts -t "analyzes resumes"`, `cargo test
+  vitest run src/test-support/mocks/handlers.test.ts -t "analyzes resumes"`, `cargo test
   --lib ats_analyzer --manifest-path src-tauri/Cargo.toml`, `npx vitest run
-  src/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
+  src/test-support/mocks/handlers.test.ts`, `npx tsc --noEmit`, `npm run lint -- --quiet`,
   `cargo fmt --all --manifest-path src-tauri/Cargo.toml -- --check`, `cargo
   clippy --manifest-path src-tauri/Cargo.toml -- -D warnings`, and `git diff
   --check`.
@@ -2371,7 +2371,7 @@ Likely files:
 - `src/pages/ResumeBuilder.tsx`
 - `src/contexts/KeyboardShortcutsContext.tsx`
 - `src/pages/ResumeOptimizer.tsx`
-- `src/mocks/handlers.ts`
+- `src/test-support/mocks/handlers.ts`
 - `docs/user/QUICK_START.md`
 - `docs/features/resume-builder.md`
 - `docs/features/resume-matcher.md`

@@ -28,7 +28,7 @@ test("checkRepoBloat rejects stale Rust export and scraper stubs", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/scrapers/mod.rs",
+      "crates/jobsentinel-sources/src/scrapers/mod.rs",
       [
         "use crate::core::db::Job;",
         "/// Run all enabled scrapers (legacy function, use scrape_all_parallel for new code)",
@@ -41,7 +41,7 @@ test("checkRepoBloat rejects stale Rust export and scraper stubs", () => {
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/resume/export.rs",
+      "crates/jobsentinel-documents/src/export.rs",
       [
         "//! Resume export functionality - PDF, DOCX, and plain text formats",
         "//! printpdf = \"0.7\"",
@@ -59,8 +59,8 @@ test("checkRepoBloat rejects stale Rust export and scraper stubs", () => {
       [
         "add",
         "package.json",
-        "crates/jobsentinel-core/src/core/scrapers/mod.rs",
-        "crates/jobsentinel-core/src/core/resume/export.rs",
+        "crates/jobsentinel-sources/src/scrapers/mod.rs",
+        "crates/jobsentinel-documents/src/export.rs",
       ],
       { cwd: root },
     );
@@ -69,13 +69,13 @@ test("checkRepoBloat rejects stale Rust export and scraper stubs", () => {
 
     assert.ok(
       violations.includes(
-        "remove stale scrape_all scraper stub: crates/jobsentinel-core/src/core/scrapers/mod.rs",
+        "remove stale scrape_all scraper stub: crates/jobsentinel-sources/src/scrapers/mod.rs",
       ),
       violations.join("\n"),
     );
     assert.ok(
       violations.includes(
-        "remove stale resume PDF export stub: crates/jobsentinel-core/src/core/resume/export.rs",
+        "remove stale resume PDF export stub: crates/jobsentinel-documents/src/export.rs",
       ),
       violations.join("\n"),
     );
@@ -97,7 +97,7 @@ test("checkRepoBloat rejects raw private query logging", () => {
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/db/queries.rs",
+      "crates/jobsentinel-storage/src/queries.rs",
       'tracing::debug!("Performing full-text search with query: \'{}\'", query);\n',
     );
 
@@ -108,7 +108,7 @@ test("checkRepoBloat rejects raw private query logging", () => {
         "package.json",
         "src-tauri/src/commands/jobs.rs",
         "src-tauri/src/commands/automation.rs",
-        "crates/jobsentinel-core/src/core/db/queries.rs",
+        "crates/jobsentinel-storage/src/queries.rs",
       ],
       { cwd: root },
     );
@@ -126,7 +126,7 @@ test("checkRepoBloat rejects raw private query logging", () => {
       violations.join("\n"),
     );
     assert.ok(
-      violations.includes("replace raw private query logging: crates/jobsentinel-core/src/core/db/queries.rs"),
+      violations.includes("replace raw private query logging: crates/jobsentinel-storage/src/queries.rs"),
       violations.join("\n"),
     );
   });
@@ -137,12 +137,12 @@ test("checkRepoBloat rejects raw scraper URL and query logging", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/scrapers/greenhouse.rs",
+      "crates/jobsentinel-sources/src/scrapers/greenhouse.rs",
       'tracing::debug!("Cache HIT for URL: {}", url);\n',
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/scrapers/http_client.rs",
+      "crates/jobsentinel-network/src/external_request.rs",
       [
         'tracing::debug!("Cache miss, fetching: {}", url);',
         'return Err(error).with_context(|| format!("Failed to send request: {url}"));',
@@ -151,17 +151,17 @@ test("checkRepoBloat rejects raw scraper URL and query logging", () => {
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/scrapers/dice.rs",
+      "crates/jobsentinel-sources/src/scrapers/dice.rs",
       'tracing::info!("Fetching jobs from Dice for query: {}", self.query);\n',
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/scrapers/linkedin.rs",
+      "crates/jobsentinel-sources/src/scrapers/linkedin.rs",
       "#[tracing::instrument(skip(self), fields(query = %self.query, location = %self.location))]\n",
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/scrapers/jobswithgpt.rs",
+      "crates/jobsentinel-sources/src/scrapers/jobswithgpt.rs",
       [
         'tracing::debug!("MCP request: {}", request);',
         'message: format!("MCP error: {}", error),',
@@ -170,7 +170,7 @@ test("checkRepoBloat rejects raw scraper URL and query logging", () => {
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/scrapers/usajobs.rs",
+      "crates/jobsentinel-sources/src/scrapers/usajobs.rs",
       'format!("USAJobs API error: {} - {}", status, body)\n',
     );
 
@@ -179,12 +179,12 @@ test("checkRepoBloat rejects raw scraper URL and query logging", () => {
       [
         "add",
         "package.json",
-        "crates/jobsentinel-core/src/core/scrapers/greenhouse.rs",
-        "crates/jobsentinel-core/src/core/scrapers/http_client.rs",
-        "crates/jobsentinel-core/src/core/scrapers/dice.rs",
-        "crates/jobsentinel-core/src/core/scrapers/linkedin.rs",
-        "crates/jobsentinel-core/src/core/scrapers/jobswithgpt.rs",
-        "crates/jobsentinel-core/src/core/scrapers/usajobs.rs",
+        "crates/jobsentinel-sources/src/scrapers/greenhouse.rs",
+        "crates/jobsentinel-network/src/external_request.rs",
+        "crates/jobsentinel-sources/src/scrapers/dice.rs",
+        "crates/jobsentinel-sources/src/scrapers/linkedin.rs",
+        "crates/jobsentinel-sources/src/scrapers/jobswithgpt.rs",
+        "crates/jobsentinel-sources/src/scrapers/usajobs.rs",
       ],
       { cwd: root },
     );
@@ -192,33 +192,33 @@ test("checkRepoBloat rejects raw scraper URL and query logging", () => {
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("replace raw scraper URL/query logging: crates/jobsentinel-core/src/core/scrapers/greenhouse.rs"),
+      violations.includes("replace raw scraper URL/query logging: crates/jobsentinel-sources/src/scrapers/greenhouse.rs"),
       violations.join("\n"),
     );
     assert.ok(
       violations.includes(
-        "replace raw scraper URL/query logging: crates/jobsentinel-core/src/core/scrapers/http_client.rs",
+        "replace raw scraper URL/query logging: crates/jobsentinel-network/src/external_request.rs",
       ),
       violations.join("\n"),
     );
     assert.ok(
-      violations.includes("replace raw scraper URL/query logging: crates/jobsentinel-core/src/core/scrapers/dice.rs"),
+      violations.includes("replace raw scraper URL/query logging: crates/jobsentinel-sources/src/scrapers/dice.rs"),
       violations.join("\n"),
     );
     assert.ok(
       violations.includes(
-        "replace raw scraper URL/query logging: crates/jobsentinel-core/src/core/scrapers/linkedin.rs",
+        "replace raw scraper URL/query logging: crates/jobsentinel-sources/src/scrapers/linkedin.rs",
       ),
       violations.join("\n"),
     );
     assert.ok(
       violations.includes(
-        "replace raw scraper URL/query logging: crates/jobsentinel-core/src/core/scrapers/jobswithgpt.rs",
+        "replace raw scraper URL/query logging: crates/jobsentinel-sources/src/scrapers/jobswithgpt.rs",
       ),
       violations.join("\n"),
     );
     assert.ok(
-      violations.includes("replace raw scraper URL/query logging: crates/jobsentinel-core/src/core/scrapers/usajobs.rs"),
+      violations.includes("replace raw scraper URL/query logging: crates/jobsentinel-sources/src/scrapers/usajobs.rs"),
       violations.join("\n"),
     );
   });
@@ -229,12 +229,12 @@ test("checkRepoBloat rejects raw scraper loop error logging", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/scrapers/greenhouse.rs",
+      "crates/jobsentinel-sources/src/scrapers/greenhouse.rs",
       'tracing::error!("Failed to scrape {}: {}", company.name, e);\n',
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/scrapers/lever/mod.rs",
+      "crates/jobsentinel-sources/src/scrapers/lever/mod.rs",
       'tracing::warn!("Failed to scrape {}: {}", company.name, e);\n',
     );
 
@@ -243,8 +243,8 @@ test("checkRepoBloat rejects raw scraper loop error logging", () => {
       [
         "add",
         "package.json",
-        "crates/jobsentinel-core/src/core/scrapers/greenhouse.rs",
-        "crates/jobsentinel-core/src/core/scrapers/lever/mod.rs",
+        "crates/jobsentinel-sources/src/scrapers/greenhouse.rs",
+        "crates/jobsentinel-sources/src/scrapers/lever/mod.rs",
       ],
       { cwd: root },
     );
@@ -253,13 +253,13 @@ test("checkRepoBloat rejects raw scraper loop error logging", () => {
 
     assert.ok(
       violations.includes(
-        "sanitize scraper loop error logging: crates/jobsentinel-core/src/core/scrapers/greenhouse.rs",
+        "sanitize scraper loop error logging: crates/jobsentinel-sources/src/scrapers/greenhouse.rs",
       ),
       violations.join("\n"),
     );
     assert.ok(
       violations.includes(
-        "sanitize scraper loop error logging: crates/jobsentinel-core/src/core/scrapers/lever/mod.rs",
+        "sanitize scraper loop error logging: crates/jobsentinel-sources/src/scrapers/lever/mod.rs",
       ),
       violations.join("\n"),
     );
@@ -271,22 +271,22 @@ test("checkRepoBloat rejects unbounded external response body reads", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/geo/mod.rs",
+      "crates/jobsentinel-sources/src/lib.rs",
       "let body = response.text().await?;\n",
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/scrapers/remoteok.rs",
+      "crates/jobsentinel-sources/src/scrapers/remoteok.rs",
       "let json: serde_json::Value = response.json().await?;\n",
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/notify/telegram.rs",
+      "crates/jobsentinel-notifications/src/telegram.rs",
       "let bytes = response.bytes().await?;\n",
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/scrapers/http_client.rs",
+      "crates/jobsentinel-network/src/external_request.rs",
       [
         "pub async fn production() {}",
         "#[cfg(test)]",
@@ -300,7 +300,7 @@ test("checkRepoBloat rejects unbounded external response body reads", () => {
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/http_body.rs",
+      "crates/jobsentinel-network/src/body.rs",
       "while let Some(chunk) = response.chunk().await? { body.extend_from_slice(&chunk); }\n",
     );
 
@@ -309,11 +309,11 @@ test("checkRepoBloat rejects unbounded external response body reads", () => {
       [
         "add",
         "package.json",
-        "crates/jobsentinel-core/src/core/geo/mod.rs",
-        "crates/jobsentinel-core/src/core/scrapers/remoteok.rs",
-        "crates/jobsentinel-core/src/core/notify/telegram.rs",
-        "crates/jobsentinel-core/src/core/scrapers/http_client.rs",
-        "crates/jobsentinel-core/src/core/http_body.rs",
+        "crates/jobsentinel-sources/src/lib.rs",
+        "crates/jobsentinel-sources/src/scrapers/remoteok.rs",
+        "crates/jobsentinel-notifications/src/telegram.rs",
+        "crates/jobsentinel-network/src/external_request.rs",
+        "crates/jobsentinel-network/src/body.rs",
       ],
       { cwd: root },
     );
@@ -322,59 +322,32 @@ test("checkRepoBloat rejects unbounded external response body reads", () => {
 
     assert.ok(
       violations.includes(
-        "replace unbounded external response body read: crates/jobsentinel-core/src/core/geo/mod.rs",
+        "replace unbounded external response body read: crates/jobsentinel-sources/src/lib.rs",
       ),
       violations.join("\n"),
     );
     assert.ok(
       violations.includes(
-        "replace unbounded external response body read: crates/jobsentinel-core/src/core/scrapers/remoteok.rs",
+        "replace unbounded external response body read: crates/jobsentinel-sources/src/scrapers/remoteok.rs",
       ),
       violations.join("\n"),
     );
     assert.ok(
       violations.includes(
-        "replace unbounded external response body read: crates/jobsentinel-core/src/core/notify/telegram.rs",
+        "replace unbounded external response body read: crates/jobsentinel-notifications/src/telegram.rs",
       ),
       violations.join("\n"),
     );
     assert.ok(
       !violations.includes(
-        "replace unbounded external response body read: crates/jobsentinel-core/src/core/scrapers/http_client.rs",
+        "replace unbounded external response body read: crates/jobsentinel-network/src/external_request.rs",
       ),
       violations.join("\n"),
     );
     assert.ok(
       !violations.includes(
-        "replace unbounded external response body read: crates/jobsentinel-core/src/core/http_body.rs",
+        "replace unbounded external response body read: crates/jobsentinel-network/src/body.rs",
       ),
-      violations.join("\n"),
-    );
-  });
-});
-
-test("checkRepoBloat rejects stale cache usage documentation", () => {
-  withGitFixture((root) => {
-    writeFixtureFile(root, "package.json", "{}\n");
-    writeFixtureFile(
-      root,
-      "docs/developer/SCRAPER_CACHE.md",
-      [
-        'tracing::info!("Cache hit for: {}", url);',
-        "let response = reqwest::get(url).await?;",
-        "let body = response.text().await?;",
-        "Disable in Production",
-        "- ✅ `get_with_cache(url)`",
-        "",
-      ].join("\n"),
-    );
-
-    execFileSync("git", ["add", "package.json", "docs/developer/SCRAPER_CACHE.md"], { cwd: root });
-
-    const violations = checkRepoBloat(root);
-
-    assert.ok(
-      violations.includes("sync cache usage doc with scraper HTTP client: docs/developer/SCRAPER_CACHE.md"),
       violations.join("\n"),
     );
   });
@@ -428,12 +401,12 @@ test("checkRepoBloat rejects raw local path logging", () => {
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/automation/form_filler.rs",
+      "crates/jobsentinel-assistance/src/automation/form_filler.rs",
       'tracing::debug!(resume_path = %resume_path.display(), "Uploading resume");\n',
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/db/connection.rs",
+      "crates/jobsentinel-storage/src/connection.rs",
       'tracing::info!("Pre-migration backup created: {}", backup_path.display());\n',
     );
 
@@ -443,8 +416,8 @@ test("checkRepoBloat rejects raw local path logging", () => {
         "add",
         "package.json",
         "src-tauri/src/commands/resume.rs",
-        "crates/jobsentinel-core/src/core/automation/form_filler.rs",
-        "crates/jobsentinel-core/src/core/db/connection.rs",
+        "crates/jobsentinel-assistance/src/automation/form_filler.rs",
+        "crates/jobsentinel-storage/src/connection.rs",
       ],
       { cwd: root },
     );
@@ -457,12 +430,12 @@ test("checkRepoBloat rejects raw local path logging", () => {
     );
     assert.ok(
       violations.includes(
-        "replace raw local path logging: crates/jobsentinel-core/src/core/automation/form_filler.rs",
+        "replace raw local path logging: crates/jobsentinel-assistance/src/automation/form_filler.rs",
       ),
       violations.join("\n"),
     );
     assert.ok(
-      violations.includes("replace raw local path logging: crates/jobsentinel-core/src/core/db/connection.rs"),
+      violations.includes("replace raw local path logging: crates/jobsentinel-storage/src/connection.rs"),
       violations.join("\n"),
     );
   });
@@ -473,14 +446,14 @@ test("checkRepoBloat rejects raw backup path error display", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/db/connection/backups.rs",
+      "crates/jobsentinel-storage/src/connection/backups.rs",
       [
         'return Err(anyhow::anyhow!("Backup file not found: {}", backup_path.display()));',
         "",
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "crates/jobsentinel-core/src/core/db/connection/backups.rs"], {
+    execFileSync("git", ["add", "package.json", "crates/jobsentinel-storage/src/connection/backups.rs"], {
       cwd: root,
     });
 
@@ -488,7 +461,7 @@ test("checkRepoBloat rejects raw backup path error display", () => {
 
     assert.ok(
       violations.includes(
-        "sanitize backup path error display: crates/jobsentinel-core/src/core/db/connection/backups.rs",
+        "sanitize backup path error display: crates/jobsentinel-storage/src/connection/backups.rs",
       ),
       violations.join("\n"),
     );
@@ -505,7 +478,7 @@ test("checkRepoBloat rejects ML raw local path exposure", () => {
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/ml/model.rs",
+      "crates/jobsentinel-local-ai/src/model.rs",
       [
         "use std::path::PathBuf;",
         "pub struct ModelStatus {",
@@ -532,7 +505,7 @@ test("checkRepoBloat rejects ML raw local path exposure", () => {
         "add",
         "package.json",
         "src-tauri/src/commands/ml.rs",
-        "crates/jobsentinel-core/src/core/ml/model.rs",
+        "crates/jobsentinel-local-ai/src/model.rs",
         "docs/developer/LOCAL_SEMANTIC_MATCHING.md",
         "docs/developer/LOCAL_SEMANTIC_MATCHING_QUICKSTART.md",
       ],
@@ -546,7 +519,7 @@ test("checkRepoBloat rejects ML raw local path exposure", () => {
       violations.join("\n"),
     );
     assert.ok(
-      violations.includes("remove ML raw local path exposure: crates/jobsentinel-core/src/core/ml/model.rs"),
+      violations.includes("remove ML raw local path exposure: crates/jobsentinel-local-ai/src/model.rs"),
       violations.join("\n"),
     );
     assert.ok(
@@ -565,7 +538,7 @@ test("checkRepoBloat rejects raw ML error display", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/ml/mod.rs",
+      "crates/jobsentinel-local-ai/src/lib.rs",
       [
         "#[derive(Error, Debug)]",
         "pub enum MlError {",
@@ -578,14 +551,14 @@ test("checkRepoBloat rejects raw ML error display", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "crates/jobsentinel-core/src/core/ml/mod.rs"], {
+    execFileSync("git", ["add", "package.json", "crates/jobsentinel-local-ai/src/lib.rs"], {
       cwd: root,
     });
 
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("sanitize ML error display: crates/jobsentinel-core/src/core/ml/mod.rs"),
+      violations.includes("sanitize ML error display: crates/jobsentinel-local-ai/src/lib.rs"),
       violations.join("\n"),
     );
   });
@@ -596,7 +569,7 @@ test("checkRepoBloat rejects raw JobsWithGPT Debug derives", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/scrapers/jobswithgpt.rs",
+      "crates/jobsentinel-sources/src/scrapers/jobswithgpt.rs",
       [
         "#[derive(Debug, Clone)]",
         "pub struct JobsWithGptScraper {",
@@ -614,7 +587,7 @@ test("checkRepoBloat rejects raw JobsWithGPT Debug derives", () => {
 
     execFileSync(
       "git",
-      ["add", "package.json", "crates/jobsentinel-core/src/core/scrapers/jobswithgpt.rs"],
+      ["add", "package.json", "crates/jobsentinel-sources/src/scrapers/jobswithgpt.rs"],
       { cwd: root },
     );
 
@@ -622,7 +595,7 @@ test("checkRepoBloat rejects raw JobsWithGPT Debug derives", () => {
 
     assert.ok(
       violations.includes(
-        "sanitize JobsWithGPT debug output: crates/jobsentinel-core/src/core/scrapers/jobswithgpt.rs",
+        "sanitize JobsWithGPT debug output: crates/jobsentinel-sources/src/scrapers/jobswithgpt.rs",
       ),
       violations.join("\n"),
     );
@@ -634,7 +607,7 @@ test("checkRepoBloat rejects raw legacy LinkedIn source Debug derive", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/scrapers/linkedin.rs",
+      "crates/jobsentinel-sources/src/scrapers/linkedin.rs",
       [
         "#[derive(Debug, Clone, Serialize, Deserialize)]",
         "pub struct LinkedInScraper {",
@@ -646,7 +619,7 @@ test("checkRepoBloat rejects raw legacy LinkedIn source Debug derive", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "crates/jobsentinel-core/src/core/scrapers/linkedin.rs"], {
+    execFileSync("git", ["add", "package.json", "crates/jobsentinel-sources/src/scrapers/linkedin.rs"], {
       cwd: root,
     });
 
@@ -654,7 +627,7 @@ test("checkRepoBloat rejects raw legacy LinkedIn source Debug derive", () => {
 
     assert.ok(
       violations.includes(
-        "sanitize legacy LinkedIn source debug output: crates/jobsentinel-core/src/core/scrapers/linkedin.rs",
+        "sanitize legacy LinkedIn source debug output: crates/jobsentinel-sources/src/scrapers/linkedin.rs",
       ),
       violations.join("\n"),
     );

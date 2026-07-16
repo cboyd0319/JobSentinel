@@ -9,7 +9,7 @@ import {
   getStringArg,
   hasConfiguredUrlList,
   isCredentialKey,
-} from "../../../mocks/handlers/commandHelpers";
+} from "../../../test-support/mocks/handlers/commandHelpers";
 import type {
   MockBookmarkletConfig,
   MockConfig,
@@ -18,7 +18,7 @@ import type {
   MockDashboardPreferences,
   MockGhostConfig,
   MockPendingBookmarkletImport,
-} from "../../../mocks/handlers/types";
+} from "../../../test-support/mocks/handlers/types";
 
 export interface MockSettingsCommandState {
   config: MockConfig;

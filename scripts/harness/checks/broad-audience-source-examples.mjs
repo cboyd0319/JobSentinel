@@ -17,7 +17,7 @@ export function hasBroadAudienceSourceExampleDrift(root, path, text) {
     return sampleJsonResumePatterns.some((pattern) => pattern.test(text));
   }
 
-  if (path === "crates/jobsentinel-core/src/core/market_intelligence/tests.rs") {
+  if (path === "crates/jobsentinel-storage/src/market_intelligence/tests.rs") {
     const marketIntelligenceTestPatterns = [
       /Software Engineer/i,
       /Data Scientist/i,
@@ -31,8 +31,8 @@ export function hasBroadAudienceSourceExampleDrift(root, path, text) {
   }
 
   if (
-    path === "crates/jobsentinel-core/src/core/scoring/mod.rs" ||
-    path === "crates/jobsentinel-core/src/core/scoring/remote.rs"
+    path === "crates/jobsentinel-application/src/scoring/mod.rs" ||
+    path === "crates/jobsentinel-application/src/scoring/remote.rs"
   ) {
     const scoringLocationFixturePatterns = [
       /create_test_job\(["']Engineer["']/i,
@@ -45,7 +45,7 @@ export function hasBroadAudienceSourceExampleDrift(root, path, text) {
     return scoringLocationFixturePatterns.some((pattern) => pattern.test(text));
   }
 
-  if (path === "crates/jobsentinel-core/src/core/scoring/synonyms.rs") {
+  if (path === "crates/jobsentinel-application/src/scoring/synonyms.rs") {
     if (text.includes("job-scoring-synonyms.json")) {
       const taxonomy = JSON.parse(
         readFileSync(

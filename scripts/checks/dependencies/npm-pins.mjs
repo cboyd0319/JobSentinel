@@ -1,6 +1,6 @@
 import { existsSync } from "node:fs";
 
-import { npmOverrideDependencyPins } from "../../dependency/npm-overrides.mjs";
+import { npmOverrideDependencyPins } from "../../lib/dependency/npm-overrides.mjs";
 import {
   defaultRoot,
   exactStableVersion,

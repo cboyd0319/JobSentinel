@@ -30,9 +30,10 @@ export function readReleaseVersions(root = defaultRoot) {
   const cargoToml = readFileSync(join(root, "Cargo.toml"), "utf8");
   const cargoLock = readFileSync(join(root, "Cargo.lock"), "utf8");
   const cargoVersion = cargoToml.match(/^version\s*=\s*"([^"]+)"/m)?.[1];
-  const coreDependencyVersion = cargoToml.match(
-    /^jobsentinel-core\s*=\s*\{[^}]*version\s*=\s*"=([^"]+)"[^}]*\}/m,
-  )?.[1];
+  const workspacePackageVersions = Object.fromEntries(
+    [...cargoToml.matchAll(/^(jobsentinel-[a-z-]+)\s*=\s*\{[^}]*version\s*=\s*"=([^"]+)"[^}]*\}/gm)]
+      .map(([, packageName, version]) => [packageName, version]),
+  );
 
   return {
     "package.json": packageJson.version,
@@ -40,9 +41,13 @@ export function readReleaseVersions(root = defaultRoot) {
     "package-lock.json root package": packageLock.packages?.[""]?.version,
     "src-tauri/tauri.conf.json": tauriConfig.version,
     "Cargo.toml": cargoVersion,
-    "Cargo.toml jobsentinel-core dependency": coreDependencyVersion,
     "Cargo.lock jobsentinel": cargoLockPackageVersion(cargoLock, "jobsentinel"),
-    "Cargo.lock jobsentinel-core": cargoLockPackageVersion(cargoLock, "jobsentinel-core"),
+    ...Object.fromEntries(
+      Object.entries(workspacePackageVersions).flatMap(([packageName, version]) => [
+        [`Cargo.toml ${packageName} dependency`, version],
+        [`Cargo.lock ${packageName}`, cargoLockPackageVersion(cargoLock, packageName)],
+      ]),
+    ),
   };
 }
 

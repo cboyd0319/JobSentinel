@@ -257,7 +257,7 @@ export function hasStaleRefactoringPriorityTable(root, path) {
 }
 
 export function hasStaleLinuxPlatformStubMarkers(root, path) {
-  if (path !== "crates/jobsentinel-core/src/platforms/linux/mod.rs") {
+  if (path !== "crates/jobsentinel-platform/src/linux/mod.rs") {
     return false;
   }
 

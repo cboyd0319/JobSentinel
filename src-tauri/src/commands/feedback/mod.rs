@@ -51,7 +51,7 @@ fn validate_reveal_path(path: &str) -> Result<PathBuf, String> {
         .or_else(|_| std::env::var("USERPROFILE"))
         .map(PathBuf::from)
         .ok();
-    let data_dir = crate::platforms::get_data_dir();
+    let data_dir = crate::desktop::get_data_dir();
 
     let is_allowed = [home_dir.as_ref(), Some(&data_dir)]
         .iter()

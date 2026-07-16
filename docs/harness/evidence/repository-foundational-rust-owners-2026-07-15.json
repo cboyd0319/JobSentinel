@@ -1,0 +1,106 @@
+{
+  "schema": "jobsentinel.repository_refactor_evidence.v1",
+  "feature_id": "full-repository-refactor",
+  "recorded_at": "2026-07-15T04:06:47Z",
+  "starting_revision": "099f90a77ceee59bd5d815477720b089e1437e4e",
+  "platform": {
+    "product": "macOS",
+    "version": "27.0",
+    "build": "26A5378j",
+    "architecture": "arm64"
+  },
+  "scope": "Foundational Rust ownership extraction without compatibility facades",
+  "observed_owners": [
+    {
+      "crate": "jobsentinel-security",
+      "responsibility": "external URL policy, resolved-address policy, and privacy-safe log labels"
+    },
+    {
+      "crate": "jobsentinel-domain",
+      "responsibility": "Job values, canonical normalization, and hashes without SQLx types"
+    },
+    {
+      "crate": "jobsentinel-network",
+      "responsibility": "DNS-pinned outbound targets and bounded response-body reads"
+    },
+    {
+      "crate": "jobsentinel-platform",
+      "responsibility": "native paths, private file modes, package-smoke isolation, and database-key retrieval"
+    },
+    {
+      "crate": "jobsentinel-storage",
+      "responsibility": "unchanged migrations, SQLCipher connection, integrity, backup, and job repositories"
+    },
+    {
+      "crate": "jobsentinel-intelligence",
+      "responsibility": "pure posting-quality analysis"
+    }
+  ],
+  "verification": [
+    {
+      "command": "cargo test -p jobsentinel-security -p jobsentinel-network",
+      "exit_status": 0,
+      "result": "Security policy tests and the initial network target-resolution tests passed. The expanded network crate was then rerun independently."
+    },
+    {
+      "command": "cargo test -p jobsentinel-domain",
+      "exit_status": 0,
+      "result": "51 unit tests and 5 documentation tests passed after Job, normalization, and hash ownership moved."
+    },
+    {
+      "command": "cargo test -p jobsentinel-platform",
+      "exit_status": 0,
+      "result": "22 tests passed and one pre-existing environment-isolation test remained ignored; database-key validation and native path policy were included."
+    },
+    {
+      "command": "cargo test -p jobsentinel-storage",
+      "exit_status": 0,
+      "result": "189 tests passed, including encrypted connection, plaintext upgrade, migration, backup, integrity, permissions, CRUD, search, and concurrency behavior."
+    },
+    {
+      "command": "cargo test -p jobsentinel-intelligence",
+      "exit_status": 0,
+      "result": "18 posting-quality analysis tests passed."
+    },
+    {
+      "command": "cargo test -p jobsentinel-network",
+      "exit_status": 0,
+      "result": "8 DNS-resolution, body-limit, JSON, and error-redaction tests passed after bounded body reading moved."
+    },
+    {
+      "command": "cargo check --workspace",
+      "exit_status": 0,
+      "result": "The current explicit workspace and migration dependency graph compiled on the recorded macOS host."
+    },
+    {
+      "command": "npm run lint:architecture",
+      "exit_status": 0,
+      "result": "Frontend and repository architecture contracts passed with the new units and edges."
+    },
+    {
+      "command": "node --test scripts/tests/repository-topology.test.mjs",
+      "exit_status": 0,
+      "result": "8 topology contract tests passed, including the new deleted-index-path regression."
+    },
+    {
+      "command": "npm run lint:file-size",
+      "exit_status": 0,
+      "result": "Every hard source and configuration limit passed; modularization review candidates remain reported as review work, not passes."
+    }
+  ],
+  "not_proven": [
+    "removal of every raw SQLx pool consumer",
+    "completion of the application facade or remaining target crates",
+    "full workspace tests after the foundational extraction",
+    "native Windows 11 behavior"
+  ],
+  "native_windows_11_gap": {
+    "missing_evidence": "No native Windows 11 run from this working tree.",
+    "smallest_validation": "Run pwsh -File ./init.ps1 and npm run test:scripts on a native Windows 11 host."
+  },
+  "hosted_ci": {
+    "status": "absent by explicit user direction",
+    "exception_id": "pre-alpha-private-no-ci",
+    "canonical_status": "nonconforming user override; no claim of canonical CI compliance"
+  }
+}

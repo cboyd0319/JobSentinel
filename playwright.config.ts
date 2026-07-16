@@ -21,7 +21,9 @@ export default defineConfig({
   reporter,
   use: {
     baseURL,
-    reducedMotion: "reduce",
+    contextOptions: {
+      reducedMotion: "reduce",
+    },
     trace: "on-first-retry",
   },
 

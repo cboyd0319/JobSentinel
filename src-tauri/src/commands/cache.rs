@@ -2,7 +2,7 @@
 //!
 //! Expose cache statistics and management endpoints to frontend
 
-use crate::core::scoring::{clear_score_cache, score_cache_stats, ScoreCacheStats};
+use crate::application::scoring::{clear_score_cache, score_cache_stats, ScoreCacheStats};
 
 /// Get scoring cache statistics
 ///

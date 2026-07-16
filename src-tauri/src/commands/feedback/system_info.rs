@@ -2,7 +2,7 @@
 //!
 //! Collects anonymized system info (app version, OS, arch, config summary).
 
-use crate::core::config::Config;
+use crate::application::config::Config;
 use serde::Serialize;
 
 use super::sanitizer::ConfigSummary;

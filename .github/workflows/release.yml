@@ -149,6 +149,9 @@ jobs:
       - name: Run harness checks
         run: npm run harness:check
 
+      - name: Run environment doctor
+        run: npm run doctor
+
       - name: Check latest stable dependency pins
         run: npm run release:check-deps
 
@@ -157,6 +160,9 @@ jobs:
 
       - name: Run markdown lint
         run: npm run lint:md
+
+      - name: Run prose lint
+        run: npm run lint:prose
 
   preflight-frontend:
     needs: release-inputs
@@ -192,6 +198,15 @@ jobs:
       - name: Run frontend build
         run: npm run build
 
+      - name: Install Playwright Chromium
+        run: ./node_modules/.bin/playwright install --with-deps chromium
+
+      - name: Check end-to-end readiness
+        run: npm run doctor:e2e
+
+      - name: Run complete end-to-end suite
+        run: npm run test:e2e:all
+
   preflight-rust:
     needs: release-inputs
     runs-on: ubuntu-24.04
@@ -204,6 +219,18 @@ jobs:
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "24.18.0"
+          package-manager-cache: false
+
+      - name: Install pinned npm
+        run: node scripts/install-pinned-npm.mjs
+
+      - name: Install Node dependencies
+        run: npm ci --ignore-scripts --prefer-offline --no-audit --no-fund
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@4be7066ada62dd38de10e7b70166bc74ed198c30 # stable
@@ -230,6 +257,9 @@ jobs:
 
       - name: Run Rust tests
         run: cargo test --workspace
+
+      - name: Check SQLx offline metadata
+        run: npm run lint:sqlx
 
   preflight-security-node:
     needs: release-inputs

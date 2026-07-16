@@ -1,7 +1,7 @@
 extern crate self as jobsentinel;
 
-use jobsentinel_core as core;
-use jobsentinel_core::platforms;
+use jobsentinel_application as application;
+use jobsentinel_application::desktop;
 
 mod app;
 mod command_handlers;

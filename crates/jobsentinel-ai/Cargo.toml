@@ -1,0 +1,22 @@
+[package]
+name = "jobsentinel-ai"
+description = "Reviewed external-AI policy and provider transport for JobSentinel"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+keywords.workspace = true
+categories.workspace = true
+
+[dependencies]
+jobsentinel-domain.workspace = true
+jobsentinel-network.workspace = true
+jobsentinel-security.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tracing.workspace = true
+urlencoding.workspace = true
+
+[lints]
+workspace = true

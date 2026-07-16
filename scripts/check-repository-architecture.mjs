@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 
 import { existsSync, readdirSync, readFileSync } from "node:fs";
-import { dirname, join, relative, resolve } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { checkRustSourceOwnership } from "./harness/checks/rust-source-ownership.mjs";
+import { collectRepositoryTopologyViolations } from "./harness/checks/repository-topology.mjs";
+import { collectCanonicalRepositoryStructureViolations } from "./harness/checks/canonical-repository-structure.mjs";
 
 const scriptPath = fileURLToPath(import.meta.url);
 const defaultRoot = resolve(dirname(scriptPath), "..");
@@ -27,10 +29,6 @@ const requiredWorkspaceSections = [
 
 function read(root, path) {
   return readFileSync(join(root, path), "utf8");
-}
-
-function normalizePath(path) {
-  return path.split(/[\\/]/).join("/");
 }
 
 function stripTomlComments(text) {
@@ -105,26 +103,6 @@ function discoverMemberPaths(root) {
   return members.sort();
 }
 
-function collectRustFiles(root, path) {
-  const directory = join(root, path);
-  if (!existsSync(directory)) {
-    return [];
-  }
-
-  const files = [];
-  for (const entry of readdirSync(directory, { withFileTypes: true })) {
-    const child = join(directory, entry.name);
-    if (entry.isDirectory()) {
-      files.push(
-        ...collectRustFiles(root, normalizePath(relative(root, child))),
-      );
-    } else if (entry.isFile() && entry.name.endsWith(".rs")) {
-      files.push(normalizePath(relative(root, child)));
-    }
-  }
-  return files.sort();
-}
-
 function countLines(text) {
   if (text.length === 0) {
     return 0;
@@ -134,41 +112,6 @@ function countLines(text) {
     lines.pop();
   }
   return lines.length;
-}
-
-function checkCoreModuleBoundaries(root, violations) {
-  const boundaries = [
-    {
-      directory: "crates/jobsentinel-core/src/core/db",
-      forbidden: /(?:^|\n)\s*use\s+crate::core::credentials(?:::|\s*::|;)/,
-      message: "database modules must not import credential modules",
-    },
-    {
-      directory: "crates/jobsentinel-core/src/core/scrapers",
-      forbidden: /(?:^|\n)\s*use\s+crate::core::db(?:::|\s*::|;)/,
-      message: "source adapters must not import database modules",
-    },
-  ];
-
-  for (const boundary of boundaries) {
-    for (const path of collectRustFiles(root, boundary.directory)) {
-      if (boundary.forbidden.test(read(root, path))) {
-        violations.push(`${path}: ${boundary.message}`);
-      }
-    }
-  }
-
-  const jobHashPath = "crates/jobsentinel-core/src/core/job_hash.rs";
-  if (
-    existsSync(join(root, jobHashPath)) &&
-    /(?:^|\n)\s*use\s+crate::core::scrapers(?:::|\s*::|;)/.test(
-      read(root, jobHashPath),
-    )
-  ) {
-    violations.push(
-      `${jobHashPath}: job identity must not import source adapter modules`,
-    );
-  }
 }
 
 function checkMemberManifest(root, member, violations) {
@@ -220,93 +163,6 @@ function checkMemberCrateRootLintPolicy(root, member, violations) {
     }
     if (/#!\[(?:allow|warn|deny|forbid)\(clippy::/.test(text)) {
       violations.push(`${path} must inherit Clippy policy from Cargo.toml`);
-    }
-  }
-}
-
-function checkCoreBoundary(root, violations) {
-  const manifestPath = "crates/jobsentinel-core/Cargo.toml";
-  if (!existsSync(join(root, manifestPath))) {
-    return;
-  }
-
-  const manifest = stripTomlComments(read(root, manifestPath));
-  if (/(?:^|\n)\s*tauri(?:-[\w-]+)?(?:\.workspace)?\s*=/.test(manifest)) {
-    violations.push(`${manifestPath} must not depend on Tauri packages`);
-  }
-
-  for (const path of collectRustFiles(root, "crates/jobsentinel-core/src")) {
-    if (/\btauri::|#\[tauri(?:::|\])/.test(read(root, path))) {
-      violations.push(`${path} must not import Tauri; core is Tauri-free`);
-    }
-  }
-
-  const libPath = "crates/jobsentinel-core/src/lib.rs";
-  if (existsSync(join(root, libPath))) {
-    const text = read(root, libPath);
-    const lines = countLines(text);
-    if (lines > 100) {
-      violations.push(
-        `${libPath} must stay at or below 100 lines; found ${lines}`,
-      );
-    }
-    if (/\bpub\s+use\s+(?:crate::)?core::\*\s*;/.test(text)) {
-      violations.push(`${libPath} must export an explicit bounded core facade`);
-    }
-  }
-
-  for (const path of [
-    "crates/jobsentinel-core/src/core/automation/mod.rs",
-    "crates/jobsentinel-core/src/core/credentials/mod.rs",
-    "crates/jobsentinel-core/src/core/db/mod.rs",
-    "crates/jobsentinel-core/src/core/db/integrity/mod.rs",
-    "crates/jobsentinel-core/src/core/deeplinks/mod.rs",
-    "crates/jobsentinel-core/src/core/import/mod.rs",
-    "crates/jobsentinel-core/src/core/market_intelligence/mod.rs",
-    "crates/jobsentinel-core/src/core/notify/mod.rs",
-    "crates/jobsentinel-core/src/core/resume/mod.rs",
-    "crates/jobsentinel-core/src/core/salary/mod.rs",
-    "crates/jobsentinel-core/src/core/scheduler/workers/mod.rs",
-    "crates/jobsentinel-core/src/core/scrapers/mod.rs",
-    "crates/jobsentinel-core/src/core/scrapers/source_adapters/mod.rs",
-  ]) {
-    if (!existsSync(join(root, path))) {
-      continue;
-    }
-
-    if (/(?:^|\n)\s*pub\s+mod\s+\w+/.test(read(root, path))) {
-      violations.push(
-        `${path} must keep implementation modules private and re-export a bounded facade`,
-      );
-    }
-  }
-
-  const coreModulePath = "crates/jobsentinel-core/src/core/mod.rs";
-  if (
-    existsSync(join(root, coreModulePath)) &&
-    /(?:^|\n)\s*pub\s+mod\s+scrapers\s*;/.test(read(root, coreModulePath))
-  ) {
-    violations.push(
-      `${coreModulePath} must keep scraper implementations core-internal`,
-    );
-  }
-
-  const credentialsPath = "crates/jobsentinel-core/src/core/credentials/mod.rs";
-  if (
-    existsSync(join(root, credentialsPath)) &&
-    /\bpub\s+struct\s+CredentialStore\b/.test(read(root, credentialsPath))
-  ) {
-    violations.push(
-      `${credentialsPath} must keep the legacy OS credential adapter private`,
-    );
-  }
-
-  for (const path of [
-    "crates/jobsentinel-core/tests/live_scraper_test.rs",
-    "crates/jobsentinel-core/tests/scraper_integration_test.rs",
-  ]) {
-    if (existsSync(join(root, path))) {
-      violations.push(`${path} must live under the scraper source owner`);
     }
   }
 }
@@ -363,21 +219,27 @@ function checkTauriShell(root, violations) {
       )
     ) {
       violations.push(
-        `${importCommandPath} must delegate import orchestration and storage to jobsentinel-core`,
+        `${importCommandPath} must delegate import orchestration and storage to jobsentinel-application`,
       );
     }
   }
 }
 
-export function checkRepositoryArchitecture(root = defaultRoot) {
+export function checkRepositoryArchitecture(root = defaultRoot, options = {}) {
   const rootManifestPath = join(root, "Cargo.toml");
   const discoveredMembers = discoverMemberPaths(root);
   const violations = [];
-  checkCoreModuleBoundaries(root, violations);
+  if (!options.skipTopology) {
+    violations.push(...collectCanonicalRepositoryStructureViolations(root, options));
+  }
   if (!existsSync(rootManifestPath)) {
-    return discoveredMembers.some((member) => member.startsWith("crates/"))
-      ? [...violations, "add root Cargo.toml before adding workspace crates"]
-      : violations;
+    if (discoveredMembers.some((member) => member.startsWith("crates/"))) {
+      violations.push("add root Cargo.toml before adding workspace crates");
+    }
+    if (!options.skipTopology) {
+      violations.push(...collectRepositoryTopologyViolations(root, options));
+    }
+    return [...new Set(violations)].sort();
   }
 
   const rootManifest = stripTomlComments(read(root, "Cargo.toml"));
@@ -388,7 +250,10 @@ export function checkRepositoryArchitecture(root = defaultRoot) {
   const workspace = section(rootManifest, "workspace");
   if (workspace === null) {
     violations.push("Cargo.toml must define [workspace]");
-    return violations;
+    if (!options.skipTopology) {
+      violations.push(...collectRepositoryTopologyViolations(root, options));
+    }
+    return [...new Set(violations)].sort();
   }
 
   const parsedMembers = parseWorkspaceMembers(workspace);
@@ -446,11 +311,13 @@ export function checkRepositoryArchitecture(root = defaultRoot) {
     checkMemberManifest(root, member, violations);
     checkMemberCrateRootLintPolicy(root, member, violations);
   }
-  checkCoreBoundary(root, violations);
   checkTauriShell(root, violations);
   violations.push(...checkRustSourceOwnership(root, discoveredMembers));
+  if (!options.skipTopology) {
+    violations.push(...collectRepositoryTopologyViolations(root, options));
+  }
 
-  return violations;
+  return [...new Set(violations)].sort();
 }
 
 if (

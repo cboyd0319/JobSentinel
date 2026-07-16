@@ -224,9 +224,9 @@ exclude_functions = [
 ]
 ```
 
-### 5. Run in CI (Selectively)
+### 5. Run Selectively
 
-Don't run all mutations in CI (too slow). Instead:
+Do not run all mutations in a routine local lane. Instead:
 
 ```bash
 # Only test files changed in this PR
@@ -314,7 +314,7 @@ const MAX: i64 = 0;
 ### 1. Run Mutation Tests
 
 ```bash
-cargo mutants -p jobsentinel-core --file crates/jobsentinel-core/src/core/config/mod.rs
+cargo mutants -p jobsentinel-application --file crates/jobsentinel-application/src/config/mod.rs
 ```
 
 ### 2. Review Missed Mutants
@@ -349,46 +349,14 @@ CAUGHT src/core/config/mod.rs:156: replaced 168 with 169
 
 ---
 
-## CI Integration
+## Local Integration
 
-### GitHub Actions Example
+JobSentinel has no hosted continuous integration during private pre-alpha
+development. Run the changed-file mutation lane locally when `cargo-mutants` is
+already installed:
 
-```yaml
-name: Mutation Testing
-
-on:
-  pull_request:
-    paths:
-      - "src-tauri/src/**"
-
-jobs:
-  mutants:
-    runs-on: ubuntu-24.04
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-        with:
-          persist-credentials: false
-
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8 # stable
-        with:
-          toolchain: "1.97.0"
-
-      - name: Install cargo-mutants
-        run: cargo install cargo-mutants --version 27.1.0 --locked
-
-      - name: Run mutation tests on changed files
-        run: cargo mutants --workspace --in-diff
-
-      - name: Check mutation score
-        run: |
-          # Fail if catch rate < 90%
-          if [ "$(cargo mutants --json | jq '.caught_percent')" -lt 90 ]; then
-            echo "Mutation catch rate below 90%"
-            exit 1
-          fi
+```bash
+cargo mutants --workspace --in-diff
 ```
 
 ---

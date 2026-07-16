@@ -1,8 +1,8 @@
 # SQLite Configuration
 
-> **Source:** `crates/jobsentinel-core/src/core/db/connection.rs`,
-> `crates/jobsentinel-core/src/core/db/encryption.rs`, and
-> `crates/jobsentinel-core/src/core/db/integrity/`
+> **Source:** `crates/jobsentinel-storage/src/connection.rs`,
+> `crates/jobsentinel-storage/src/encryption.rs`, and
+> `crates/jobsentinel-storage/src/integrity/`
 
 JobSentinel uses SQLite with SQLx and an on-disk database by default. The
 connection layer opens file-backed databases through SQLCipher, then applies
@@ -124,8 +124,8 @@ Use focused tests to verify:
 Run focused Rust checks after SQLite configuration changes:
 
 ```bash
-cargo test -p jobsentinel-core --lib db
-cargo test -p jobsentinel-core --test database_integration_test
+cargo test -p jobsentinel-storage
+cargo test -p jobsentinel-storage --test database_integration_test
 npm run lint:sqlx
 ```
 

@@ -5,18 +5,15 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import test from "node:test";
 import { checkRepoBloat } from "../checks/repo-bloat.mjs";
-
-function writeFixtureFile(root, path, content = "") {
+function writeFixtureFile(root,path,content="") {
   const fullPath = join(root, path);
   mkdirSync(dirname(fullPath), { recursive: true });
   writeFileSync(fullPath, content, "utf8");
 }
-
 function withGitFixture(callback) {
   const root = mkdtempSync(
-    join(tmpdir(), "jobsentinel-repo-bloat-product-copy-"),
+    join(tmpdir(), "jb-copy-"),
   );
-
   try {
     execFileSync("git", ["init", "--quiet"], { cwd: root });
     callback(root);
@@ -24,7 +21,6 @@ function withGitFixture(callback) {
     rmSync(root, { recursive: true, force: true });
   }
 }
-
 test("checkRepoBloat rejects banned job-search framing", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
@@ -40,7 +36,6 @@ test("checkRepoBloat rejects banned job-search framing", () => {
         "",
       ].join("\n"),
     );
-
     execFileSync(
       "git",
       ["add", "package.json", "docs/features/application-positioning.md"],
@@ -48,9 +43,7 @@ test("checkRepoBloat rejects banned job-search framing", () => {
         cwd: root,
       },
     );
-
     const violations = checkRepoBloat(root);
-
     assert.ok(
       violations.includes(
         "replace banned job-search framing: docs/features/application-positioning.md",
@@ -59,7 +52,6 @@ test("checkRepoBloat rejects banned job-search framing", () => {
     );
   });
 });
-
 test("checkRepoBloat rejects technical-first user copy", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
@@ -307,7 +299,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/mocks/handlers.ts",
+      "src/test-support/mocks/handlers.ts",
       [
         '"Blocked unsafe deep link URL"',
         '"Blocked unsafe job import URL"',
@@ -544,7 +536,6 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         "",
       ].join("\n"),
     );
-
     execFileSync(
       "git",
       [
@@ -591,7 +582,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         "src/features/settings/support/feedback/FeedbackModal.tsx",
         "src/features/settings/support/feedback/SuccessScreen.tsx",
         "src/app/keyboard/KeyboardShortcutsProvider.tsx",
-        "src/mocks/handlers.ts",
+        "src/test-support/mocks/handlers.ts",
         "src/features/application-assist/mocks/atsPlatform.ts",
         "src/features/application-assist/applicationFormValidation.ts",
         "src/features/settings/credentials/notificationConnectionValidation.ts",
@@ -607,9 +598,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       ],
       { cwd: root },
     );
-
     const violations = checkRepoBloat(root);
-
     for (const path of [
       "src/features/resumes/library/ResumeLibraryPage.tsx",
       "src/features/resumes/matching/ResumeMatchPage.tsx",
@@ -650,7 +639,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "src/features/settings/support/feedback/FeedbackModal.tsx",
       "src/features/settings/support/feedback/SuccessScreen.tsx",
       "src/app/keyboard/KeyboardShortcutsProvider.tsx",
-      "src/mocks/handlers.ts",
+      "src/test-support/mocks/handlers.ts",
       "src/features/application-assist/mocks/atsPlatform.ts",
       "src/features/application-assist/applicationFormValidation.ts",
       "src/features/settings/credentials/notificationConnectionValidation.ts",

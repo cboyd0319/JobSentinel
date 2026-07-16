@@ -4,15 +4,15 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { dirname, extname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
-import { checkExternalAiGatewayBoundary, checkResumeHtmlSinkBoundary } from "../security/ai-html-boundaries.mjs";
-import { checkBrowserAutomationBoundary } from "../security/automation-boundaries.mjs";
+import { checkExternalAiGatewayBoundary, checkResumeHtmlSinkBoundary } from "./security/ai-html-boundaries.mjs";
+import { checkBrowserAutomationBoundary } from "./security/automation-boundaries.mjs";
 import {
   checkBrowserExtensionManifestBoundary,
   checkTauriCapabilityBoundary,
   checkWorkflowInstallBoundary,
-} from "../security/permission-boundaries.mjs";
-import { checkRendererCspBoundary as checkTauriRendererCsp } from "../security/renderer-csp.mjs";
-import { checkWorkflowRunExpressionBoundary } from "../security/workflow-boundaries.mjs";
+} from "./security/permission-boundaries.mjs";
+import { checkRendererCspBoundary as checkTauriRendererCsp } from "./security/renderer-csp.mjs";
+import { checkWorkflowRunExpressionBoundary } from "./security/workflow-boundaries.mjs";
 import {
   agentInstructionFilePatterns,
   allowedAgentInstructionFiles,
@@ -49,6 +49,16 @@ function readIfExists(root, path, violations) {
     return "";
   }
   return readFileSync(fullPath, "utf8");
+}
+
+function hostedCiEnabled(root) {
+  const path = repoPath(root, "harness-manifest.json");
+  if (!existsSync(path)) return true;
+  try {
+    return JSON.parse(readFileSync(path, "utf8"))?.hosted_workflows?.ci_enabled !== false;
+  } catch {
+    return true;
+  }
 }
 
 function includesAll(text, phrases) {
@@ -103,18 +113,21 @@ function checkSetupNodeCacheDisabled(path, text, violations) {
 }
 
 function checkNotificationEgressBoundary(root, violations) {
-  const notifyDir = "crates/jobsentinel-core/src/core/notify";
+  const notifyDir = "crates/jobsentinel-notifications/src";
   if (!existsSync(repoPath(root, notifyDir))) return;
 
-  const notifyMod = readIfExists(root, `${notifyDir}/mod.rs`, violations);
+  const notifyMod = readIfExists(root, `${notifyDir}/lib.rs`, violations);
+  const network = readIfExists(root, "crates/jobsentinel-network/src/lib.rs", violations);
   if (
-    !includesAll(notifyMod, [
+    !includesAll(network, [
       "resolve_external_https_url_for_fetch",
-      "notification_http_client_for_url",
-      "redirect(Policy::none())",
+      "redirect(reqwest::redirect::Policy::none())",
       "resolve_to_addrs",
+      "post_external_https_json",
+    ]) ||
+    !notifyMod.includes(
       "NOTIFICATION_HTTP_TIMEOUT",
-    ])
+    )
   ) {
     violations.push(
       "notification HTTP egress must resolve HTTPS destinations, pin checked DNS answers, disable redirects, and use a timeout",
@@ -123,9 +136,13 @@ function checkNotificationEgressBoundary(root, violations) {
 
   for (const path of notificationProviderPaths) {
     if (!existsSync(repoPath(root, path))) continue;
-    if (/\breqwest::Client::(?:builder|new)\s*\(/.test(readIfExists(root, path, violations))) {
+    const provider = readIfExists(root, path, violations);
+    if (
+      /\breqwest::Client::(?:builder|new)\s*\(/.test(provider) ||
+      !provider.includes("jobsentinel_network::post_external_https_json")
+    ) {
       violations.push(
-        `${path} must use notification_http_client_for_url instead of raw reqwest clients`,
+        `${path} must use jobsentinel_network::post_external_https_json instead of raw HTTP clients`,
       );
     }
   }
@@ -221,7 +238,7 @@ function checkRendererAssetBoundary(root, violations) {
   }
 }
 
-export function formatSecuritySensorSummary() {
+export function formatSecuritySensorSummary({ ciEnabled = true } = {}) {
   return [
     "Security sensors:",
     `docs=${requiredSecurityDocs.length}`,
@@ -231,7 +248,7 @@ export function formatSecuritySensorSummary() {
     `release-preflight=${releasePreflightChecks.length}`,
     `published-release-workflow=${publishedReleaseWorkflowChecks.length}`,
     `public-release-verifier=${publicReleaseVerifierChecks.length}`,
-    `ci=${ciWorkflowChecks.length}`,
+    ciEnabled ? `ci=${ciWorkflowChecks.length}` : "ci=disabled-by-pre-alpha-private-no-ci",
     `ci-docs=${ciDocsChecks.length}`,
     `dependabot=${dependabotGovernanceChecks.length}`,
     `codeowners=${requiredCodeownersEntries.length}`,
@@ -243,6 +260,7 @@ export function formatSecuritySensorSummary() {
 
 export function checkSecuritySensors(root = defaultRoot) {
   const violations = [];
+  const ciEnabled = hostedCiEnabled(root);
 
   for (const path of requiredSecurityDocs) {
     if (!existsSync(repoPath(root, path))) {
@@ -280,13 +298,15 @@ export function checkSecuritySensors(root = defaultRoot) {
   checkResumeHtmlSinkBoundary(root, violations);
   checkNotificationEgressBoundary(root, violations);
 
-  const ciWorkflow = readIfExists(root, ".github/workflows/ci.yml", violations);
-  checkPhrasePolicies(
-    ciWorkflow,
-    ciWorkflowChecks,
-    "CI workflow is missing security gate",
-    violations,
-  );
+  if (ciEnabled) {
+    const ciWorkflow = readIfExists(root, ".github/workflows/ci.yml", violations);
+    checkPhrasePolicies(
+      ciWorkflow,
+      ciWorkflowChecks,
+      "CI workflow is missing security gate",
+      violations,
+    );
+  }
 
   const releaseWorkflow = readIfExists(root, ".github/workflows/release.yml", violations);
   if (releaseCacheMarkers.some((marker) => releaseWorkflow.includes(marker))) {
@@ -419,5 +439,5 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     process.exit(1);
   }
   console.log("Security sensor check passed.");
-  console.log(formatSecuritySensorSummary());
+  console.log(formatSecuritySensorSummary({ ciEnabled: hostedCiEnabled(root) }));
 }

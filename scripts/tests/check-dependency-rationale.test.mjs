@@ -77,3 +77,38 @@ test("fails on an empty rationale and on a stale entry", () => {
     );
   });
 });
+
+test("fails on an unused Cargo workspace dependency", () => {
+  withFixture((root) => {
+    write(root, "package.json", '{"dependencies":{}}\n');
+    write(
+      root,
+      "Cargo.toml",
+      '[workspace.dependencies]\ntokio = "=1.0.0"\nunused = "=1.0.0"\n',
+    );
+    write(root, "crates/app/Cargo.toml", "[dependencies]\ntokio.workspace = true\n");
+    write(
+      root,
+      "repository-structure-policy.json",
+      JSON.stringify({
+        structure: {
+          units: [{ manifest: "crates/app/Cargo.toml" }],
+        },
+      }),
+    );
+    write(
+      root,
+      "validation/dependency_rationale.json",
+      JSON.stringify({
+        npm: {},
+        cargo: { tokio: "Async runtime.", unused: "Not actually used." },
+      }),
+    );
+
+    assert.ok(
+      checkDependencyRationale(root).includes(
+        "remove unused Cargo workspace dependency from Cargo.toml: unused",
+      ),
+    );
+  });
+});

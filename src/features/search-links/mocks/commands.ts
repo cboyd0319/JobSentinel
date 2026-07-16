@@ -8,8 +8,8 @@ import type { DeepLink, SearchCriteria, SiteInfo } from "../../../shared/search-
 import {
   getArg,
   getStringArg,
-} from "../../../mocks/handlers/commandHelpers";
-import { isSafeExternalHttpsUrl } from "../../../mocks/externalUrlSafety";
+} from "../../../test-support/mocks/handlers/commandHelpers";
+import { isSafeExternalHttpsUrl } from "../../../test-support/mocks/externalUrlSafety";
 
 export interface MockSearchLinksCommandResult {
   handled: boolean;

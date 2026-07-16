@@ -1,11 +1,10 @@
 //! Resume Builder Tauri commands.
 
+use crate::application::resume::{
+    BuilderContactInfo, BuilderEducation, BuilderExperience, BuilderResumeData, SkillEntry,
+};
 use crate::commands::errors::user_friendly_error;
 use crate::commands::AppState;
-use crate::core::resume::{
-    BuilderContactInfo, BuilderEducation, BuilderExperience, BuilderResumeData, ResumeBuilder,
-    SkillEntry,
-};
 use tauri::State;
 
 /// Create a new empty resume draft
@@ -13,7 +12,7 @@ use tauri::State;
 pub(crate) async fn create_resume_draft(state: State<'_, AppState>) -> Result<i64, String> {
     tracing::info!("Command: create_resume_draft");
 
-    let builder = ResumeBuilder::new(state.database.pool().clone());
+    let builder = state.database.resume_builder();
     builder
         .create_resume()
         .await
@@ -28,7 +27,7 @@ pub(crate) async fn get_resume_draft(
 ) -> Result<Option<BuilderResumeData>, String> {
     tracing::info!("Command: get_resume_draft (id: {})", resume_id);
 
-    let builder = ResumeBuilder::new(state.database.pool().clone());
+    let builder = state.database.resume_builder();
     builder
         .get_resume(resume_id)
         .await
@@ -44,7 +43,7 @@ pub(crate) async fn update_resume_contact(
 ) -> Result<(), String> {
     tracing::info!("Command: update_resume_contact (id: {})", resume_id);
 
-    let builder = ResumeBuilder::new(state.database.pool().clone());
+    let builder = state.database.resume_builder();
     builder
         .update_contact(resume_id, contact)
         .await
@@ -60,7 +59,7 @@ pub(crate) async fn update_resume_summary(
 ) -> Result<(), String> {
     tracing::info!("Command: update_resume_summary (id: {})", resume_id);
 
-    let builder = ResumeBuilder::new(state.database.pool().clone());
+    let builder = state.database.resume_builder();
     builder
         .update_summary(resume_id, summary)
         .await
@@ -76,7 +75,7 @@ pub(crate) async fn add_resume_experience(
 ) -> Result<i64, String> {
     tracing::info!("Command: add_resume_experience (id: {})", resume_id);
 
-    let builder = ResumeBuilder::new(state.database.pool().clone());
+    let builder = state.database.resume_builder();
     builder
         .add_experience(resume_id, experience)
         .await
@@ -96,7 +95,7 @@ pub(crate) async fn delete_resume_experience(
         experience_id
     );
 
-    let builder = ResumeBuilder::new(state.database.pool().clone());
+    let builder = state.database.resume_builder();
     builder
         .delete_experience(resume_id, experience_id)
         .await
@@ -112,7 +111,7 @@ pub(crate) async fn add_resume_education(
 ) -> Result<i64, String> {
     tracing::info!("Command: add_resume_education (id: {})", resume_id);
 
-    let builder = ResumeBuilder::new(state.database.pool().clone());
+    let builder = state.database.resume_builder();
     builder
         .add_education(resume_id, education)
         .await
@@ -132,7 +131,7 @@ pub(crate) async fn delete_resume_education(
         education_id
     );
 
-    let builder = ResumeBuilder::new(state.database.pool().clone());
+    let builder = state.database.resume_builder();
     builder
         .delete_education(resume_id, education_id)
         .await
@@ -148,7 +147,7 @@ pub(crate) async fn set_resume_skills(
 ) -> Result<(), String> {
     tracing::info!("Command: set_resume_skills (id: {})", resume_id);
 
-    let builder = ResumeBuilder::new(state.database.pool().clone());
+    let builder = state.database.resume_builder();
     builder
         .set_skills(resume_id, skills)
         .await
@@ -163,7 +162,7 @@ pub(crate) async fn delete_resume_draft(
 ) -> Result<(), String> {
     tracing::info!("Command: delete_resume_draft (id: {})", resume_id);
 
-    let builder = ResumeBuilder::new(state.database.pool().clone());
+    let builder = state.database.resume_builder();
     builder
         .delete_resume(resume_id)
         .await

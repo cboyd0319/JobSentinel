@@ -17,7 +17,7 @@ import {
   skillYearsOrNull,
   toScoreFraction,
   trimmedStringOrNull,
-} from "../../../mocks/handlers/commandHelpers";
+} from "../../../test-support/mocks/handlers/commandHelpers";
 import { toMockResumeTextPreview } from "./resumeSummaryViews";
 import type {
   MockBuilderSkill,
@@ -25,7 +25,7 @@ import type {
   MockResumeData,
   MockResumeDraft,
   MockUserSkill,
-} from "../../../mocks/handlers/types";
+} from "../../../test-support/mocks/handlers/types";
 import type {
   MockResumeCommandResult,
   MockResumeCommandState,

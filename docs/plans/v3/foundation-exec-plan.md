@@ -64,7 +64,7 @@ Out of scope:
 
 ### 3. Migration And Rust Implementation
 
-- Add the next SQLite migration under `crates/jobsentinel-core/migrations/`.
+- Add the next SQLite migration under `crates/jobsentinel-storage/migrations/`.
 - Add a focused database module for v3 foundation operations.
 - Add public database types only where downstream modules need them.
 - Keep methods typed and parameterized.
@@ -75,7 +75,7 @@ Out of scope:
 Targeted:
 
 ```bash
-cargo test -p jobsentinel-core --lib core::db::tests::tests::v3_foundation_tests
+cargo test -p jobsentinel-storage v3_foundation_tests
 ```
 
 Broader:
@@ -86,7 +86,7 @@ npm run lint:bloat
 npm run harness:check
 npm run lint:docs
 cargo fmt --all -- --check
-cargo test -p jobsentinel-core --lib core::db
+cargo test -p jobsentinel-storage
 ```
 
 Run `cargo clippy --workspace -- -D warnings` if the Rust diff touches

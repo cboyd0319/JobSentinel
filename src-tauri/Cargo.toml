@@ -11,8 +11,8 @@ categories.workspace = true
 
 [features]
 default = []
-ocr = ["jobsentinel-core/ocr"]
-embedded-ml = ["jobsentinel-core/embedded-ml"]
+ocr = ["jobsentinel-application/ocr"]
+embedded-ml = ["jobsentinel-application/embedded-ml"]
 
 [build-dependencies]
 tauri-build.workspace = true
@@ -21,16 +21,13 @@ tauri-build.workspace = true
 anyhow.workspace = true
 arboard.workspace = true
 chrono.workspace = true
-jobsentinel-core.workspace = true
+jobsentinel-application.workspace = true
 regex.workspace = true
-reqwest.workspace = true
 serde.workspace = true
 serde_json.workspace = true
-sqlx.workspace = true
 tauri.workspace = true
 tauri-plugin-dialog.workspace = true
 tauri-plugin-notification.workspace = true
-tauri-plugin-secure-storage.workspace = true
 tauri-plugin-shell.workspace = true
 tokio.workspace = true
 tracing.workspace = true
@@ -40,7 +37,6 @@ uuid.workspace = true
 zeroize.workspace = true
 
 [dev-dependencies]
-keyring.workspace = true
 tempfile.workspace = true
 
 [lints]

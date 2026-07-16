@@ -1,17 +1,6 @@
-# JobSentinel Claude Notes
+# JobSentinel Claude Compatibility Entry Point
 
-Read [../AGENTS.md](../AGENTS.md) first.
+Read [../AGENTS.md](../AGENTS.md). It is the sole repository instruction owner.
 
-This file is a compatibility pointer for older Claude workflows. The durable
-agent guidance now lives in:
-
-- [Harness engineering](harness/README.md)
-- [Engineering principles](harness/engineering-principles.md)
-- [Change contract](harness/change-contract.md)
-- [Verification matrix](harness/verification-matrix.md)
-- [Exec plans](exec-plans.md)
-- [Architecture](developer/ARCHITECTURE.md)
-- [Testing](developer/TESTING.md)
-
-If this file conflicts with `AGENTS.md` or `docs/harness/`, use `AGENTS.md`
-and `docs/harness/`.
+This compatibility file intentionally adds no repository guidance. Its content
+is contract-tested against the canonical pointer.

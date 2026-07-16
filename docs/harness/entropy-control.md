@@ -59,5 +59,5 @@ When the same problem appears twice, do not only fix the instance. Improve one
 of these:
 
 - Guide: docs, template, `AGENTS.md`, feature contract.
-- Sensor: test, lint, script, CI job, PR checklist.
+- Sensor: test, lint, script, local gate, or review checklist.
 - Topology: file layout, module boundary, generated artifact.

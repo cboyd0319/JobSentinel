@@ -2,6 +2,12 @@
 
 Date: 2026-05-31.
 
+Historical evidence only. This audit describes the repository as it existed on
+its recorded dates and is not a current harness owner. The canonical current
+owners are `harness-manifest.json`, `PROGRESS.md`, and `feature_list.json`.
+Hosted CI and `docs/harness/manifest.json` were retired on 2026-07-14; references
+to them below are preserved as dated evidence, not current instructions.
+
 Scope:
 
 - `AGENTS.md`, `CLAUDE.md`, and `.github/copilot-instructions.md`
@@ -13,7 +19,7 @@ Scope:
 - GitHub workflows, PR template, issue templates, and Dependabot config
 - README reference anchor, references doc, and harness source policy
 
-## Current Health
+## Health At Audit Date
 
 The harness is already strong. It has a short root agent map, a deeper harness
 system under `docs/harness/`, local-first and Rule 0 policy, source-backed
@@ -45,7 +51,7 @@ recommendations stay tracked here and in `docs/plans/tech-debt-tracker.md`.
 
 Follow-up on 2026-06-24: a WalkingLabs Lecture 07-12 and advanced-SOP pass closed
 the two remaining open recommendations above. The run-evidence ledger
-(`docs/harness/evidence-log.md`, HE-017) closes the State And Interoperability P1,
+(`docs/harness/archive/evidence-log-pre-standard-2026-07-14.md`, HE-017) closes the State And Interoperability P1,
 and the harness architecture map plus sensor registry
 (`docs/harness/harness-map.md`, HE-018) closes the Documentation P1 and P2. The
 same pass added course-grounded docs not previously tracked as debt:
@@ -97,7 +103,7 @@ checklist), and `docs/harness/product-sense.md`. All are registered in
 
 | Priority | Improvement | Evidence | Risk | Recommended fix |
 | -------- | ----------- | -------- | ---- | --------------- |
-| P1 | Add a compact run-evidence ledger | Current handoffs list many historical checks, but there is no small current evidence ledger with command, scope, exit code, and date. | Completion claims require reading long plans and chat, which weakens restart reliability. | Add `docs/harness/evidence-log.md` or a JSON ledger with no raw output and no sensitive data. |
+| P1 | Add a compact run-evidence ledger | Current handoffs list many historical checks, but there is no small current evidence ledger with command, scope, exit code, and date. | Completion claims require reading long plans and chat, which weakens restart reliability. | Add a revision-bound evidence file under `docs/harness/evidence/` with no raw output or sensitive data. |
 | P1 | Build a generic harness adapter | Walking Labs `harness-creator` validator scored JobSentinel low because it expects root `feature_list.json`, `progress.md`, `session-handoff.md`, and `init.sh`. | External harness tools cannot read JobSentinel's richer docs without adapters. | Generate temporary compatibility files from `docs/plans/` and `docs/harness/`, then run external validators against the generated view. |
 | P2 | Add machine-readable plan index | Closed: `docs/plans/index.json` records active plan IDs, status, focus, next steps, dependencies, and verification posture. | Closed for active-plan discovery; future risk is stale index data when plan files change without updating it. | Keep the plan index updated with active-plan changes and keep `harness:session` pointed at the compact status surface. |
 | P2 | Keep compatibility wrappers under harness check | Closed: `AGENTS.md`, `CLAUDE.md`, and `.github/copilot-instructions.md` now carry Rule 0 and external-AI gateway reminders, and `docs/harness/manifest.json` plus `scripts/check-harness-policy.test.mjs` assert wrapper snippets. | Closed for current wrappers; future wrapper files must be added to the manifest. | Keep compatibility wrappers short and add snippet checks when a new agent entrypoint is introduced. |

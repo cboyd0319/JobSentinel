@@ -2,12 +2,10 @@
 // Screening Answer Learning Commands
 // ============================================================================
 
+use crate::application::automation::{AnswerSource, AnswerStatistics, AnswerSuggestion};
 use crate::commands::errors::user_friendly_error;
 use crate::commands::limits::validate_optional_command_limit_usize;
 use crate::commands::AppState;
-use crate::core::automation::{
-    AnswerLearningManager, AnswerSource, AnswerStatistics, AnswerSuggestion,
-};
 use serde::{Deserialize, Serialize};
 use tauri::State;
 
@@ -29,7 +27,7 @@ pub(super) async fn get_suggested_answers(
     );
 
     let limit = validate_optional_command_limit_usize(limit, 5)?;
-    let manager = AnswerLearningManager::new(state.database.pool().clone());
+    let manager = state.database.answer_learning_manager();
     let suggestions = manager
         .get_suggested_answers(&question, limit)
         .await
@@ -61,7 +59,7 @@ pub(super) async fn record_answer_usage(
         was_modified
     );
 
-    let manager = AnswerLearningManager::new(state.database.pool().clone());
+    let manager = state.database.answer_learning_manager();
     manager
         .record_answer_usage(
             screening_answer_id,
@@ -88,7 +86,7 @@ pub(super) async fn get_answer_statistics(
         "Command: get_answer_statistics"
     );
 
-    let manager = AnswerLearningManager::new(state.database.pool().clone());
+    let manager = state.database.answer_learning_manager();
     match manager.get_answer_statistics(&pattern).await {
         Ok(Some(statistics)) => Ok(Some(AnswerStatisticsResponse::from(statistics))),
         Ok(None) => Ok(None),
@@ -112,7 +110,7 @@ pub(super) async fn clear_answer_history(
         "Command: clear_answer_history"
     );
 
-    let manager = AnswerLearningManager::new(state.database.pool().clone());
+    let manager = state.database.answer_learning_manager();
     manager
         .clear_answer_history(pattern.as_deref())
         .await
@@ -210,8 +208,8 @@ pub(crate) struct ModificationExampleResponse {
     pub modified_at: String,
 }
 
-impl From<crate::core::automation::ModificationExample> for ModificationExampleResponse {
-    fn from(ex: crate::core::automation::ModificationExample) -> Self {
+impl From<crate::application::automation::ModificationExample> for ModificationExampleResponse {
+    fn from(ex: crate::application::automation::ModificationExample) -> Self {
         Self {
             before_chars: ex.original_answer.chars().count(),
             after_chars: ex.modified_to.chars().count(),

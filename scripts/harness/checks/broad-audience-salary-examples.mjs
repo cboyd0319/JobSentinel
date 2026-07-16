@@ -10,8 +10,8 @@ export function hasSalaryAudienceExampleDrift(root, path) {
   const text = readFileSync(join(root, path), "utf8");
 
   if (
-    path === "crates/jobsentinel-core/src/core/salary/benchmarks.rs" ||
-    path === "crates/jobsentinel-core/src/core/salary/negotiation.rs"
+    path === "crates/jobsentinel-storage/src/salary/benchmarks.rs" ||
+    path === "crates/jobsentinel-storage/src/salary/negotiation.rs"
   ) {
     const salaryLocationPatterns = [
       /location:\s*["']San Francisco,\s*CA["']/i,
@@ -30,7 +30,7 @@ export function hasSalaryAudienceExampleDrift(root, path) {
     }
   }
 
-  if (path === "crates/jobsentinel-core/src/core/salary/predictor.rs") {
+  if (path === "crates/jobsentinel-storage/src/salary/predictor.rs") {
     const predictorPatterns = [
       /insert_test_job\([^)]*["'](?:Junior Developer|Staff Engineer|Principal Engineer|Backend Engineer|DevOps Engineer|ML Engineer)["']/i,
       /predictor\.normalize_title\(["'](?:DevOps Engineer|Machine Learning Engineer|Frontend Developer|C\+\+ Developer|ML\/AI Engineer)["']\)/i,

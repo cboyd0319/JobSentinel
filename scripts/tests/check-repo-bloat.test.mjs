@@ -5,16 +5,14 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import test from "node:test";
 import { checkRepoBloat } from "../checks/repo-bloat.mjs";
-
-function writeFixtureFile(root, path, content = "") {
+import { oversizedLine, writeCanonicalFileSizePolicy } from "./repo-bloat-file-size-fixtures.mjs";
+function writeFixtureFile(root,path,content="") {
   const fullPath = join(root, path);
   mkdirSync(dirname(fullPath), { recursive: true });
   writeFileSync(fullPath, content, "utf8");
 }
-
 function withGitFixture(callback) {
-  const root = mkdtempSync(join(tmpdir(), "jobsentinel-repo-bloat-"));
-
+  const root = mkdtempSync(join(tmpdir(), "js-bloat-"));
   try {
     execFileSync("git", ["init", "--quiet"], { cwd: root });
     callback(root);
@@ -22,62 +20,49 @@ function withGitFixture(callback) {
     rmSync(root, { recursive: true, force: true });
   }
 }
-
 function lineFixture(count) {
   return Array.from(
     { length: count },
     (_, index) => `const fixtureLine${index} = ${index};`,
   ).join("\n");
 }
-
 test("checkRepoBloat rejects new oversized maintainable source files", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
+    writeCanonicalFileSizePolicy(root);
     writeFixtureFile(root, "src/pages/Oversized.tsx", lineFixture(501));
-
     execFileSync("git", ["add", "package.json", "src/pages/Oversized.tsx"], {
       cwd: root,
     });
-
     const violations = checkRepoBloat(root);
-
     assert.ok(
       violations.includes(
-        "split oversized tracked file: src/pages/Oversized.tsx has 501 lines (file-size contract max 500, scope frontend-source)",
+        oversizedLine("src/pages/Oversized.tsx"),
       ),
       violations.join("\n"),
     );
   });
 });
-
-test("checkRepoBloat requires the file-size contract in the JobSentinel repo", () => {
+test("checkRepoBloat requires the canonical file-size owners in the JobSentinel repo", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", '{ "name": "jobsentinel" }\n');
-
     execFileSync("git", ["add", "package.json"], {
       cwd: root,
     });
-
     const violations = checkRepoBloat(root);
-
-    assert.ok(
-      violations.includes(
-        "add file-size contract: validation/file_size_contract.json",
-      ),
-      violations.join("\n"),
-    );
+    assert.ok(violations.includes("add canonical structure policy: repository-structure-policy.json"));
+    assert.ok(violations.includes("add file-coverage projection: validation/file_size_contract.json"));
   });
 });
-
 test("checkRepoBloat rejects formerly grandfathered oversized files at the hard cap", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
+    writeCanonicalFileSizePolicy(root);
     writeFixtureFile(
       root,
       "src/features/resumes/builder/ResumeBuilderPage.tsx",
       lineFixture(501),
     );
-
     execFileSync(
       "git",
       [
@@ -89,27 +74,24 @@ test("checkRepoBloat rejects formerly grandfathered oversized files at the hard 
         cwd: root,
       },
     );
-
     const violations = checkRepoBloat(root);
-
     assert.ok(
       violations.includes(
-        "split oversized tracked file: src/features/resumes/builder/ResumeBuilderPage.tsx has 501 lines (file-size contract max 500, scope frontend-source)",
+        oversizedLine("src/features/resumes/builder/ResumeBuilderPage.tsx"),
       ),
       violations.join("\n"),
     );
   });
 });
-
-test("checkRepoBloat applies the shared taxonomy data cap", () => {
+test("checkRepoBloat applies the production cap to shared taxonomy source", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
+    writeCanonicalFileSizePolicy(root);
     writeFixtureFile(
       root,
       "src/shared/careerProfileTaxonomy.ts",
-      lineFixture(2001),
+      lineFixture(501),
     );
-
     execFileSync(
       "git",
       ["add", "package.json", "src/shared/careerProfileTaxonomy.ts"],
@@ -117,44 +99,38 @@ test("checkRepoBloat applies the shared taxonomy data cap", () => {
         cwd: root,
       },
     );
-
     const violations = checkRepoBloat(root);
-
     assert.ok(
       violations.includes(
-        "split oversized tracked file: src/shared/careerProfileTaxonomy.ts has 2001 lines (file-size contract max 2000, scope shared-taxonomies)",
+        oversizedLine("src/shared/careerProfileTaxonomy.ts"),
       ),
       violations.join("\n"),
     );
   });
 });
-
-test("checkRepoBloat applies the Rust source cap under workspace crates", () => {
+test("applies the Rust source cap under workspace crates", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
+    writeCanonicalFileSizePolicy(root);
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/lib.rs",
+      "crates/jobsentinel-domain/src/lib.rs",
       lineFixture(501),
     );
-
     execFileSync(
       "git",
-      ["add", "package.json", "crates/jobsentinel-core/src/lib.rs"],
+      ["add", "package.json", "crates/jobsentinel-domain/src/lib.rs"],
       { cwd: root },
     );
-
     const violations = checkRepoBloat(root);
-
     assert.ok(
       violations.includes(
-        "split oversized tracked file: crates/jobsentinel-core/src/lib.rs has 501 lines (file-size contract max 500, scope rust-source)",
+        oversizedLine("crates/jobsentinel-domain/src/lib.rs"),
       ),
       violations.join("\n"),
     );
   });
 });
-
 test("checkRepoBloat rejects reserved E2E fixture placeholders", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
@@ -164,7 +140,6 @@ test("checkRepoBloat rejects reserved E2E fixture placeholders", () => {
       "tests/e2e/fixtures/README.md",
       "This directory is reserved for future tests.\n",
     );
-
     execFileSync(
       "git",
       [
@@ -175,9 +150,7 @@ test("checkRepoBloat rejects reserved E2E fixture placeholders", () => {
       ],
       { cwd: root },
     );
-
     const violations = checkRepoBloat(root);
-
     assert.ok(
       violations.includes(
         "remove tracked generated or disposable file: tests/e2e/fixtures/.gitkeep",
@@ -192,7 +165,6 @@ test("checkRepoBloat rejects reserved E2E fixture placeholders", () => {
     );
   });
 });
-
 test("checkRepoBloat rejects tracked gitkeep placeholders", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
@@ -208,7 +180,6 @@ test("checkRepoBloat rejects tracked gitkeep placeholders", () => {
       "docs/plans/completed/done-plan.md",
       "# Done Plan\n",
     );
-
     execFileSync(
       "git",
       [
@@ -221,9 +192,7 @@ test("checkRepoBloat rejects tracked gitkeep placeholders", () => {
       ],
       { cwd: root },
     );
-
     const violations = checkRepoBloat(root);
-
     assert.ok(
       violations.includes(
         "remove tracked generated or disposable file: docs/plans/active/.gitkeep",
@@ -238,7 +207,6 @@ test("checkRepoBloat rejects tracked gitkeep placeholders", () => {
     );
   });
 });
-
 test("checkRepoBloat rejects one-off implementation report docs", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
@@ -247,13 +215,10 @@ test("checkRepoBloat rejects one-off implementation report docs", () => {
       "docs/intel-mac-support.md",
       "# Intel Mac Support - Universal Binary\n\nOne-off implementation report.\n",
     );
-
     execFileSync("git", ["add", "package.json", "docs/intel-mac-support.md"], {
       cwd: root,
     });
-
     const violations = checkRepoBloat(root);
-
     assert.ok(
       violations.includes(
         "remove tracked generated or disposable file: docs/intel-mac-support.md",
@@ -262,7 +227,6 @@ test("checkRepoBloat rejects one-off implementation report docs", () => {
     );
   });
 });
-
 test("checkRepoBloat rejects tracked source-tree markdown notes", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
@@ -272,7 +236,6 @@ test("checkRepoBloat rejects tracked source-tree markdown notes", () => {
       "# Component Notes\n",
     );
     writeFixtureFile(root, "src/hooks/USAGE.md", "# Hook Usage\n");
-
     execFileSync(
       "git",
       [
@@ -283,9 +246,7 @@ test("checkRepoBloat rejects tracked source-tree markdown notes", () => {
       ],
       { cwd: root },
     );
-
     const violations = checkRepoBloat(root);
-
     assert.ok(
       violations.includes(
         "remove tracked generated or disposable file: src/components/settings/README.md",
@@ -300,14 +261,11 @@ test("checkRepoBloat rejects tracked source-tree markdown notes", () => {
     );
   });
 });
-
 test("checkRepoBloat rejects empty source directories", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
     mkdirSync(join(root, "src/components/settings"), { recursive: true });
-
     const violations = checkRepoBloat(root);
-
     assert.ok(
       violations.includes(
         "remove local artifact: src/components/settings/ is an empty local directory",
@@ -316,7 +274,6 @@ test("checkRepoBloat rejects empty source directories", () => {
     );
   });
 });
-
 test("checkRepoBloat rejects unreferenced docs images", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
@@ -331,7 +288,6 @@ test("checkRepoBloat rejects unreferenced docs images", () => {
       "docs/images/keyboard-shortcuts.png",
       "unused image fixture\n",
     );
-
     execFileSync(
       "git",
       [
@@ -343,9 +299,7 @@ test("checkRepoBloat rejects unreferenced docs images", () => {
       ],
       { cwd: root },
     );
-
     const violations = checkRepoBloat(root);
-
     assert.ok(
       violations.includes(
         "remove unreferenced docs image: docs/images/keyboard-shortcuts.png",
@@ -360,7 +314,6 @@ test("checkRepoBloat rejects unreferenced docs images", () => {
     );
   });
 });
-
 test("checkRepoBloat rejects duplicate docs screenshot targets", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
@@ -372,7 +325,6 @@ await page.screenshot({ path: screenshotPath(testInfo, "dashboard.png") });
 await page.screenshot({ path: screenshotPath(testInfo, "dashboard.png") });
 `,
     );
-
     execFileSync(
       "git",
       ["add", "package.json", "tests/e2e/playwright/screenshots.spec.ts"],
@@ -380,9 +332,7 @@ await page.screenshot({ path: screenshotPath(testInfo, "dashboard.png") });
         cwd: root,
       },
     );
-
     const violations = checkRepoBloat(root);
-
     assert.ok(
       violations.includes(
         "remove duplicate docs screenshot capture: tests/e2e/playwright/screenshots.spec.ts",
@@ -391,7 +341,6 @@ await page.screenshot({ path: screenshotPath(testInfo, "dashboard.png") });
     );
   });
 });
-
 test("checkRepoBloat requires README product definition", () => {
   withGitFixture((root) => {
     writeFixtureFile(
@@ -399,18 +348,14 @@ test("checkRepoBloat requires README product definition", () => {
       "README.md",
       "# JobSentinel\n\nLocal job search app.\n",
     );
-
     execFileSync("git", ["add", "README.md"], { cwd: root });
-
     const violations = checkRepoBloat(root);
-
     assert.ok(
       violations.includes("add required README product definition: README.md"),
       violations.join("\n"),
     );
   });
 });
-
 test("checkRepoBloat requires free-forever MIT wording", () => {
   withGitFixture((root) => {
     writeFixtureFile(
@@ -433,7 +378,6 @@ test("checkRepoBloat requires free-forever MIT wording", () => {
       "docs/user/QUICK_START.md",
       "# Getting Started\n\nDownload the installer.\n",
     );
-
     execFileSync(
       "git",
       [
@@ -444,17 +388,9 @@ test("checkRepoBloat requires free-forever MIT wording", () => {
       ],
       { cwd: root },
     );
-
     const violations = checkRepoBloat(root);
-
     assert.ok(
       violations.includes("add free-forever MIT wording: README.md"),
-      violations.join("\n"),
-    );
-    assert.ok(
-      violations.includes(
-        "add free-forever MIT wording: docs/harness/README.md",
-      ),
       violations.join("\n"),
     );
     assert.ok(
@@ -465,14 +401,11 @@ test("checkRepoBloat requires free-forever MIT wording", () => {
     );
   });
 });
-
 test("checkRepoBloat requires grant-facing docs in the main repo", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", '{ "name": "jobsentinel" }\n');
     execFileSync("git", ["add", "package.json"], { cwd: root });
-
     const violations = checkRepoBloat(root);
-
     assert.ok(
       violations.includes("add required grant-facing doc: PRIVACY.md"),
       violations.join("\n"),
@@ -489,7 +422,6 @@ test("checkRepoBloat requires grant-facing docs in the main repo", () => {
     );
   });
 });
-
 test("checkRepoBloat rejects legacy preference-list docs copy", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
@@ -512,7 +444,6 @@ test("checkRepoBloat rejects legacy preference-list docs copy", () => {
       "docs/features/application-tracking.md",
       "- [ ] **Job-word boost** - Increase a title score\n",
     );
-
     execFileSync(
       "git",
       [
@@ -523,9 +454,7 @@ test("checkRepoBloat rejects legacy preference-list docs copy", () => {
       ],
       { cwd: root },
     );
-
     const violations = checkRepoBloat(root);
-
     assert.ok(
       violations.includes(
         "keep job-search docs plain-language: docs/features/smart-scoring.md",
@@ -540,7 +469,6 @@ test("checkRepoBloat rejects legacy preference-list docs copy", () => {
     );
   });
 });
-
 test("checkRepoBloat rejects discontinued Stack Overflow Jobs deep links", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
@@ -551,29 +479,26 @@ test("checkRepoBloat rejects discontinued Stack Overflow Jobs deep links", () =>
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/deeplinks/generator.rs",
+      "crates/jobsentinel-assistance/src/deeplinks/generator.rs",
       '"stackoverflow" => "https://stackoverflow.com/jobs?q=test";\n',
     );
     writeFixtureFile(
       root,
-      "src/mocks/handlers.ts",
+      "src/test-support/mocks/handlers.ts",
       'const id = "stackoverflow";\n',
     );
-
     execFileSync(
       "git",
       [
         "add",
         "package.json",
         "docs/user/DEEP_LINKS.md",
-        "crates/jobsentinel-core/src/core/deeplinks/generator.rs",
-        "src/mocks/handlers.ts",
+        "crates/jobsentinel-assistance/src/deeplinks/generator.rs",
+        "src/test-support/mocks/handlers.ts",
       ],
       { cwd: root },
     );
-
     const violations = checkRepoBloat(root);
-
     assert.ok(
       violations.includes(
         "remove discontinued Stack Overflow Jobs deep link: docs/user/DEEP_LINKS.md",
@@ -582,25 +507,24 @@ test("checkRepoBloat rejects discontinued Stack Overflow Jobs deep links", () =>
     );
     assert.ok(
       violations.includes(
-        "remove discontinued Stack Overflow Jobs deep link: crates/jobsentinel-core/src/core/deeplinks/generator.rs",
+        "remove discontinued Stack Overflow Jobs deep link: crates/jobsentinel-assistance/src/deeplinks/generator.rs",
       ),
       violations.join("\n"),
     );
     assert.ok(
       violations.includes(
-        "remove discontinued Stack Overflow Jobs deep link: src/mocks/handlers.ts",
+        "remove discontinued Stack Overflow Jobs deep link: src/test-support/mocks/handlers.ts",
       ),
       violations.join("\n"),
     );
   });
 });
-
 test("checkRepoBloat rejects stale resume optimizer mock handlers", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src/mocks/handlers.ts",
+      "src/test-support/mocks/handlers.ts",
       [
         "export async function mockInvoke(cmd) {",
         "  switch (cmd) {",
@@ -613,27 +537,23 @@ test("checkRepoBloat rejects stale resume optimizer mock handlers", () => {
         "",
       ].join("\n"),
     );
-
-    execFileSync("git", ["add", "package.json", "src/mocks/handlers.ts"], {
+    execFileSync("git", ["add", "package.json", "src/test-support/mocks/handlers.ts"], {
       cwd: root,
     });
-
     const violations = checkRepoBloat(root);
-
     assert.ok(
       violations.includes(
-        "sync resume optimizer mock command handlers: src/mocks/handlers.ts",
+        "sync resume optimizer mock command handlers: src/test-support/mocks/handlers.ts",
       ),
       violations.join("\n"),
     );
   });
 });
-
 test("checkRepoBloat rejects stale resume suggestion category labels", () => {
   withGitFixture((root) => {
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/resume/ats_analyzer.rs",
+      "crates/jobsentinel-documents/src/ats_analyzer.rs",
       `
 pub enum SuggestionCategory {
     AddKeyword,
@@ -656,24 +576,21 @@ pub enum SuggestionCategory {
     );
     writeFixtureFile(
       root,
-      "src/mocks/handlers.ts",
+      "src/test-support/mocks/handlers.ts",
       'type MockSuggestionCategory = "AddKeyword" | "RewordBullet" | "AddSection";\n',
     );
-
     execFileSync(
       "git",
       [
         "add",
-        "crates/jobsentinel-core/src/core/resume/ats_analyzer.rs",
+        "crates/jobsentinel-documents/src/ats_analyzer.rs",
         "src/features/resumes/matching/resumeMatchModel.ts",
         "src/features/resumes/builder/AtsLiveScorePanel.tsx",
-        "src/mocks/handlers.ts",
+        "src/test-support/mocks/handlers.ts",
       ],
       { cwd: root },
     );
-
     const violations = checkRepoBloat(root);
-
     assert.ok(
       violations.includes(
         "sync resume suggestion category labels: src/features/resumes/matching/resumeMatchModel.ts",
@@ -682,13 +599,12 @@ pub enum SuggestionCategory {
     );
     assert.ok(
       violations.includes(
-        "sync resume suggestion category labels: src/mocks/handlers.ts",
+        "sync resume suggestion category labels: src/test-support/mocks/handlers.ts",
       ),
       violations.join("\n"),
     );
   });
 });
-
 test("checkRepoBloat rejects stale ATS keyword match frontend shape", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
@@ -716,7 +632,6 @@ test("checkRepoBloat rejects stale ATS keyword match frontend shape", () => {
         "",
       ].join("\n"),
     );
-
     execFileSync(
       "git",
       [
@@ -727,9 +642,7 @@ test("checkRepoBloat rejects stale ATS keyword match frontend shape", () => {
       ],
       { cwd: root },
     );
-
     const violations = checkRepoBloat(root);
-
     assert.ok(
       violations.includes(
         "sync ATS keyword match frontend shape: src/features/resumes/matching/resumeMatchModel.ts",
@@ -744,7 +657,6 @@ test("checkRepoBloat rejects stale ATS keyword match frontend shape", () => {
     );
   });
 });
-
 test("checkRepoBloat rejects unsafe Resume Match JSON parsing", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
@@ -759,7 +671,6 @@ test("checkRepoBloat rejects unsafe Resume Match JSON parsing", () => {
         "",
       ].join("\n"),
     );
-
     execFileSync(
       "git",
       [
@@ -771,9 +682,7 @@ test("checkRepoBloat rejects unsafe Resume Match JSON parsing", () => {
         cwd: root,
       },
     );
-
     const violations = checkRepoBloat(root);
-
     assert.ok(
       violations.includes(
         "validate Resume Match JSON before invoke: src/features/resumes/matching/ResumeMatchPage.tsx",

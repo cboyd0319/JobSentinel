@@ -1,0 +1,25 @@
+[package]
+name = "jobsentinel-notifications"
+description = "Bounded notification formatting and delivery transports for JobSentinel"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+keywords.workspace = true
+categories.workspace = true
+
+[dependencies]
+anyhow.workspace = true
+chrono.workspace = true
+jobsentinel-domain.workspace = true
+jobsentinel-intelligence.workspace = true
+jobsentinel-network.workspace = true
+jobsentinel-security.workspace = true
+lettre.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+url.workspace = true
+
+[lints]
+workspace = true

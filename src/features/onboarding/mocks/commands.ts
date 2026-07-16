@@ -1,5 +1,5 @@
-import { getArg } from "../../../mocks/handlers/commandHelpers";
-import type { MockConfig } from "../../../mocks/handlers/types";
+import { getArg } from "../../../test-support/mocks/handlers/commandHelpers";
+import type { MockConfig } from "../../../test-support/mocks/handlers/types";
 
 interface MockOnboardingCommandState {
   config: MockConfig;

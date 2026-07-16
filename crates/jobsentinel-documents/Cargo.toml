@@ -1,0 +1,36 @@
+[package]
+name = "jobsentinel-documents"
+description = "Local document parsing, analysis, rendering, and export for JobSentinel"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+keywords.workspace = true
+categories.workspace = true
+
+[features]
+default = []
+embedded-ml = ["dep:jobsentinel-local-ai", "jobsentinel-local-ai/embedded-ml"]
+ocr = []
+
+[dependencies]
+anyhow.workspace = true
+chrono.workspace = true
+docx-rs.workspace = true
+jobsentinel-local-ai = { workspace = true, optional = true }
+pdf-extract.workspace = true
+quick-xml.workspace = true
+regex.workspace = true
+scopeguard.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tracing.workspace = true
+uuid.workspace = true
+zip.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true
+
+[lints]
+workspace = true

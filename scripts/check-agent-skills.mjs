@@ -234,6 +234,7 @@ export function validateSkillPackage(skillRoot) {
   const allowedTools = frontmatter.fields.get("allowed-tools");
   const versionTarget = frontmatter.metadataFields.get("jobsentinel_version_target");
   const body = text.slice(frontmatter.bodyStart).trim();
+  const coreBody = body.replace(/## Handoff\r?\n[\s\S]*?(?=\r?\n## |\s*$)/, "");
 
   if (!skillNamePattern.test(name) || name.includes("--")) {
     errors.push(`${skillDirName}/SKILL.md name must be lowercase alphanumeric hyphen format`);
@@ -243,8 +244,8 @@ export function validateSkillPackage(skillRoot) {
     errors.push(`${skillDirName}/SKILL.md name must match parent directory`);
   }
 
-  if (description.length === 0 || description.length > 1024) {
-    errors.push(`${skillDirName}/SKILL.md description must be 1-1024 characters`);
+  if (description.length === 0 || description.length > 150) {
+    errors.push(`${skillDirName}/SKILL.md description must be 1-150 characters`);
   }
 
   if (license !== "MIT") {
@@ -267,6 +268,13 @@ export function validateSkillPackage(skillRoot) {
 
   if (body.length === 0) {
     errors.push(`${skillDirName}/SKILL.md must include body instructions`);
+  }
+
+  if (/\$[a-z0-9][a-z0-9-]*/i.test(coreBody)) {
+    errors.push(`${skillDirName}/SKILL.md core procedure must not require another skill; cross-skill routes belong only in Handoff`);
+  }
+  if (/(?:\/Users\/[^\s]+|[A-Za-z]:\\Users\\|(?:^|[\s`])\.\.\/|\b(?:user-global|global profile|remembered state|sibling checkout)\b)/i.test(coreBody)) {
+    errors.push(`${skillDirName}/SKILL.md core procedure must be self-contained and repository-independent`);
   }
 
   if (countLines(text) > 500) {
@@ -340,8 +348,24 @@ export function checkAgentSkills(root = repoRoot) {
     .map((entry) => entry.name)
     .sort();
 
-  if (skillDirs.length < 8) {
-    errors.push("skills/ must include at least eight job-search skill packages");
+  let discoveryBudget;
+  try {
+    const manifest = JSON.parse(readFileSync(join(root, "harness-manifest.json"), "utf8"));
+    discoveryBudget = manifest.owners?.tools?.skill_discovery;
+  } catch (error) {
+    errors.push(`harness-manifest.json must own the skill discovery budget: ${error instanceof Error ? error.message : String(error)}`);
+  }
+  const totalDescriptionBytes = skillDirs.reduce((total, skillDir) => {
+    const path = join(skillsRoot, skillDir, "SKILL.md");
+    if (!existsSync(path)) return total;
+    const frontmatter = parseFrontmatter(readText(path));
+    return total + Buffer.byteLength(frontmatter?.fields.get("description") ?? "");
+  }, 0);
+  if (!/^20\d{2}-\d{2}-\d{2}$/.test(String(discoveryBudget?.baseline_date ?? "")) || !Number.isInteger(discoveryBudget?.baseline_packages) || typeof discoveryBudget?.reason !== "string" || !discoveryBudget.reason.trim()) {
+    errors.push("harness-manifest.json skill discovery budget requires a measured baseline date, package count, and reason");
+  }
+  if (!Number.isInteger(discoveryBudget?.max_total_description_bytes) || totalDescriptionBytes > discoveryBudget.max_total_description_bytes) {
+    errors.push(`skill discovery descriptions use ${totalDescriptionBytes} bytes; measured budget is ${String(discoveryBudget?.max_total_description_bytes)}`);
   }
 
   for (const entry of entries) {

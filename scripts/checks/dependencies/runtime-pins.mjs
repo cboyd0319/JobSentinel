@@ -1,9 +1,9 @@
 import { existsSync } from "node:fs";
 
-import { collectNpmCommandGuardViolations } from "../../dependency/npm-command-guards.mjs";
-import { collectTauriLinuxDebDependencyViolations } from "../../dependency/tauri-linux-deb.mjs";
-import { collectWorkflowEnvironmentPinViolations } from "../../dependency/workflow-environment-pins.mjs";
-import { collectWorkflowPinnedNpmViolations } from "../../dependency/workflow-npm-pins.mjs";
+import { collectNpmCommandGuardViolations } from "../../lib/dependency/npm-command-guards.mjs";
+import { collectTauriLinuxDebDependencyViolations } from "../../lib/dependency/tauri-linux-deb.mjs";
+import { collectWorkflowEnvironmentPinViolations } from "../../lib/dependency/workflow-environment-pins.mjs";
+import { collectWorkflowPinnedNpmViolations } from "../../lib/dependency/workflow-npm-pins.mjs";
 import {
   defaultRoot,
   exactStableVersion,

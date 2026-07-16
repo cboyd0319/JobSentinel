@@ -2,19 +2,19 @@ import {
   sanitizeLinkedInWorkbenchTextForStorage,
   sanitizeLinkedInWorkbenchUrl,
 } from "../linkedinWorkbenchPolicy";
-import { isSafeExternalHttpsUrl } from "../../../mocks/externalUrlSafety";
+import { isSafeExternalHttpsUrl } from "../../../test-support/mocks/externalUrlSafety";
 import {
   APPLICATION_STATUS_KEYS,
   cloneApplications,
   getArg,
   getNextId,
-} from "../../../mocks/handlers/commandHelpers";
+} from "../../../test-support/mocks/handlers/commandHelpers";
 import type {
   MockApplications,
   MockApplicationStatus,
   MockJob,
   MockPendingReminder,
-} from "../../../mocks/handlers/types";
+} from "../../../test-support/mocks/handlers/types";
 
 const LINKEDIN_WORKBENCH_DEFAULT_TITLE = "LinkedIn application";
 const LINKEDIN_WORKBENCH_DEFAULT_COMPANY = "Company needs details";

@@ -1,9 +1,9 @@
-import { mockStatistics } from "../../../mocks/data";
+import { mockStatistics } from "../../../test-support/mocks/data";
 import {
   getArg,
   getJobId,
-} from "../../../mocks/handlers/commandHelpers";
-import type { MockJob } from "../../../mocks/handlers/types";
+} from "../../../test-support/mocks/handlers/commandHelpers";
+import type { MockJob } from "../../../test-support/mocks/handlers/types";
 
 export interface MockDashboardCommandState {
   jobs: MockJob[];

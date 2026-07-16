@@ -1,6 +1,6 @@
 ---
 name: interview-prep
-description: Build interview preparation briefs, STAR evidence stories, answer outlines, questions to ask, follow-up notes, and decision criteria. Use when preparing for recruiter screens, phone interviews, panels, work samples, take-homes, case interviews, or final conversations.
+description: Build interview briefs, evidence stories, answer outlines, and questions. Use for recruiter screens, panels, work samples, or final interviews.
 license: MIT
 metadata:
   jobsentinel_version_target: "2.9.0"

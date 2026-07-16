@@ -1,6 +1,6 @@
 ---
 name: job-posting-risk-review
-description: Review job postings for stale, reposted, ghost job, low-detail, scam-like, weak-source, unclear-location, hard-requirement, and missing-pay risks before tailoring. Use when deciding whether to apply, verify first, save, or skip a job post.
+description: Review job posts for stale, scam, source, location, requirement, and pay risks. Use when deciding to apply, verify, save, or skip.
 license: MIT
 metadata:
   jobsentinel_version_target: "2.9.0"

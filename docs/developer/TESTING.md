@@ -13,7 +13,7 @@ Complete guide to testing in JobSentinel.
 - [Writing New Tests](#writing-new-tests)
 - [Test Coverage](#test-coverage)
 - [End-to-End Tests](#end-to-end-tests)
-- [CI/CD Integration](#cicd-integration)
+- [Local Verification](#local-verification)
 
 ---
 
@@ -50,19 +50,19 @@ cargo test --workspace
 
 ```bash
 # Test only config module
-cargo test -p jobsentinel-core --lib core::config
+cargo test -p jobsentinel-application config
 
 # Test only database module
-cargo test -p jobsentinel-core --lib core::db
+cargo test -p jobsentinel-storage
 
 # Test only Slack notifications
-cargo test -p jobsentinel-core --lib core::notify::slack
+cargo test -p jobsentinel-notifications slack
 ```
 
 ### Run a Specific Test
 
 ```bash
-cargo test -p jobsentinel-core test_negative_salary_floor_fails
+cargo test -p jobsentinel-storage test_negative_salary_floor_fails
 ```
 
 ### Run Tests with Output
@@ -90,10 +90,9 @@ cargo test --workspace -- --test-threads=1
 ### Directory Structure
 
 ```text
-crates/jobsentinel-core/
-- src/core/: core logic and adjacent tests
-- src/platforms/: target-gated platform adapters and tests
-- tests/: core integration test crates
+crates/jobsentinel-*/
+- src/: owner implementation and adjacent tests
+- tests/: owner-specific integration test crates where needed
 src-tauri/
 - src/commands/: private Tauri RPC handlers and command tests
 ```
@@ -110,9 +109,9 @@ Test counts change as features move. Use fresh command output as source of truth
 
 | Area | Coverage |
 | ---- | -------- |
-| `core/config` | Validation and defaults |
-| `core/db` | CRUD, queries, analytics, integrity checks |
-| `core/notify/*` | Slack, Discord, Teams, Telegram, email |
+| `jobsentinel-application/config` | Validation and defaults |
+| `jobsentinel-storage` | CRUD, queries, analytics, integrity checks |
+| `jobsentinel-notifications` | Slack, Discord, Teams, Telegram, email |
 | `commands` | Tauri RPC handler behavior |
 | `core/scoring` | Scoring config and score calculations |
 | `core/scheduler` | Lifecycle, workers, shutdown |
@@ -368,28 +367,16 @@ Open `coverage/index.html` to view detailed coverage.
 
 ---
 
-## CI/CD Integration
+## Local Verification
 
-### GitHub Actions workflow
+Hosted CI is absent under the named `pre-alpha-private-no-ci` exception. Local
+commands are the only integration feedback during private pre-alpha development,
+so retain the actual command, result, platform, and caveat.
 
-CI runs on every push and pull request targeting `main`. Jobs run on
-`ubuntu-24.04` with Rust 1.97.0; there is no OS matrix and no beta toolchain
-run. CI first classifies changed files, then runs only the relevant harness,
-frontend, Rust, Node security, and Rust security jobs.
-
-The main CI jobs are:
-
-- **harness** — runs `npm run harness:check`, dependency/action pin checks,
-  harness script tests, and markdown lint for docs/harness changes
-- **test-rust** — runs `cargo fmt --all -- --check`, `cargo clippy --workspace -- -D warnings`, and `cargo test --workspace`
-- **test-frontend** — runs `npx --no-install tsc --noEmit`, `npm run lint`, and `npm test -- --run`
-- **security-node** — runs security sensors, workflow static analysis,
-  `npm audit --audit-level=moderate`, and scheduled/manual dependency drift checks
-- **security-rust** — runs `cargo deny check advisories bans licenses sources`
-
-CI runs the complete workspace suite, including normal integration tests.
-Ignored or live integration tests remain opt-in and use targeted commands such
-as `cargo test -p jobsentinel-core core::scrapers::live_tests -- --ignored --nocapture`.
+Run `npm run harness:plan -- --since <valid-ref>` for a targeted lane or
+`npm run verify:full` for the complete local suite. Ignored or live integration
+tests remain opt-in and use targeted commands such as
+`cargo test -p jobsentinel-sources scrapers::live_tests -- --ignored --nocapture`.
 
 Credential-store roundtrips are opt-in because macOS Keychain and equivalent
 stores can prompt for user approval. Default credential tests stay
@@ -399,20 +386,17 @@ non-interactive. Run live keyring checks only when you are ready for OS prompts:
 JOBSENTINEL_LIVE_KEYRING_TESTS=1 cargo test -p jobsentinel --lib credential_integration_tests -- --nocapture
 ```
 
-For full CI/CD documentation see [CI_CD.md](./CI_CD.md).
+For the no-CI exception and separately authorized release automation, see
+[CI_CD.md](./CI_CD.md).
 
 ### Pre-commit Hook
 
-Add to `.git/hooks/pre-commit`:
-
-```bash
-#!/bin/sh
-cargo test --workspace --quiet
-if [ $? -ne 0 ]; then
-    echo "Tests failed! Commit aborted."
-    exit 1
-fi
-```
+The tracked Husky hook delegates to `scripts/harness/pre-commit.mjs`. It runs
+secret scanning and staged-file checks only after a developer explicitly enables
+Husky. The standard initializer disables dependency lifecycle scripts, so it
+does not install hooks. Use `HUSKY=0` or `git commit --no-verify` only for
+recovery, then run the applicable local verification before relying on that
+commit.
 
 ---
 
@@ -478,7 +462,7 @@ E2E tests use Playwright against the Vite mock dev server to test complete
 browser workflows.
 
 The `test:e2e*` npm scripts run Playwright through
-`scripts/run-playwright.mjs`. That wrapper keeps local and CI output readable
+`scripts/run-playwright.mjs`. That wrapper keeps local and hosted-release output readable
 on current Node versions by removing conflicting color environment settings and
 silencing the known upstream `DEP0205` deprecation warning from Playwright or
 Tailwind internals. It also selects an available loopback port and never reuses

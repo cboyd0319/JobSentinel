@@ -32,9 +32,8 @@ launch checks.
 
 3. **Use the repo-local Tauri CLI:**
 
-   Run `node scripts/install-pinned-npm.mjs` before `npm ci --ignore-scripts`.
-   The install uses the repo-pinned npm, installs `@tauri-apps/cli`, and skips
-   third-party lifecycle scripts. Use `npm run tauri:*` scripts or
+   Run `./init.sh`. It synchronizes the lockfile without lifecycle scripts,
+   installs no global tools or hooks, and proves the baseline. Use `npm run tauri:*` scripts or
    `npx --no-install tauri` from the repo root.
 
 ### Development Setup
@@ -43,8 +42,7 @@ launch checks.
 
    ```bash
    cd <repo-root>
-   node scripts/install-pinned-npm.mjs
-   npm ci --ignore-scripts
+   ./init.sh
    ```
 
 2. **Run in development mode:**
@@ -149,9 +147,9 @@ The packaging script builds the Tauri `.app`, verifies or ad-hoc signs the app
 bundle when no signing identity is configured, creates a drag-to-Applications
 DMG with `hdiutil`, verifies the disk image, and writes a matching
 `.dmg.sha256` checksum file. It avoids Finder AppleScript so the package path
-works in local shells and CI runners with Command Line Tools. When notarization
-credentials are available, it also signs, notarizes, staples, and validates the
-custom DMG before returning.
+works in local shells and hosted release runners with Command Line Tools. When
+notarization credentials are available, it also signs, notarizes, staples, and
+validates the custom DMG before returning.
 
 JobSentinel does not currently have an Apple Developer Account. Without that
 account, the app cannot be Developer ID signed, notarized, stapled, or accepted
@@ -223,14 +221,14 @@ with `JOBSENTINEL_MACOS_NO_ACCOUNT=true`. The builder writes
 `JobSentinel_<version>_no-account_universal.dmg` and a matching `.sha256`
 sidecar directly, so the checksum is created for the public filename.
 
-This local upload path is supported for macOS release work when it is cheaper
-or faster than hosted release CI. It still needs the same release-version,
+This local upload path is the supported macOS release path while hosted release
+jobs remain disabled. It still needs the release-version,
 harness, package-verification, checksum, local SBOM, and public-artifact
 verification gates before users should treat the DMG as current. For
-no-account releases, local macOS build and upload is the preferred process
-when hosted macOS proof is not needed. Do not claim GitHub Actions build
-provenance for a local Mac artifact; use hosted macOS when that provenance or
-Developer ID/Gatekeeper proof is required.
+no-account releases, local macOS build and upload is the preferred process.
+Do not claim GitHub Actions build provenance for a local Mac artifact. Developer
+ID and Gatekeeper proof require separately authorized local signing and
+notarization credentials.
 
 After publishing a current release, verify the downloaded public artifact too:
 
@@ -312,8 +310,7 @@ lsof -ti:1420 | xargs kill -9
 ```bash
 # Clear installed packages and reinstall from the lockfile
 rm -rf node_modules
-node scripts/install-pinned-npm.mjs
-npm ci --ignore-scripts
+./init.sh
 ```
 
 ---
@@ -390,14 +387,14 @@ npm ci --ignore-scripts
 env -u JOBSENTINEL_LIVE_KEYRING_TESTS cargo test --workspace
 
 # Run tests for a specific module
-cargo test -p jobsentinel-core --lib core::db
-cargo test -p jobsentinel-core --lib platforms::macos
+cargo test -p jobsentinel-storage
+cargo test -p jobsentinel-platform macos
 
 # Run with output
 cargo test --workspace -- --nocapture
 
 # Run macOS platform tests specifically
-cargo test -p jobsentinel-core --lib platforms::macos
+cargo test -p jobsentinel-platform macos
 ```
 
 ### Debugging

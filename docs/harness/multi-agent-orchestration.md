@@ -50,6 +50,11 @@ The coordinator owns:
 - Final verification.
 - Active plan, handoff, and harness updates.
 
+The repository still has one active feature. Each delegated slice records a
+unique parent/child task-lineage identifier under that feature. Only the
+coordinator updates `PROGRESS.md`, `feature_list.json`, shared plans, or
+integration evidence.
+
 The coordinator remains accountable for correctness. A sub-agent success report
 is evidence to review, not proof to accept blindly.
 
@@ -77,6 +82,9 @@ must not revert work they did not create.
 - Use reviewer agents after a coherent slice lands, not as a substitute for
   tests.
 - Close completed agents promptly.
+- Use an isolated worktree or private writable root whenever write sets can
+  collide or a tool can generate shared output. Integrate one reviewed slice at
+  a time, then run coordinator-owned graph verification.
 
 If scopes collide, stop delegation for that slice and integrate locally.
 

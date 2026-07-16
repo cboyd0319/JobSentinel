@@ -87,7 +87,7 @@ providers such as OpenAI, but external AI is an assistive layer, not the
 foundation of the product.
 
 All external AI calls must use the AI gateway described in
-[docs/architecture/privacy-first-ai-gateway.md](docs/architecture/privacy-first-ai-gateway.md).
+[docs/security/privacy-first-ai-gateway.md](docs/security/privacy-first-ai-gateway.md).
 That gateway must enforce:
 
 - Explicit user opt-in before any external AI request.

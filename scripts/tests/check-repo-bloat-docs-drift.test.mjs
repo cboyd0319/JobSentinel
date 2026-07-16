@@ -100,7 +100,7 @@ test("checkRepoBloat rejects top-level active doc glyph markers", () => {
     writeFixtureFile(
       root,
       "docs/developer/LOCAL_SEMANTIC_MATCHING.md",
-      ["crates/jobsentinel-core/src/core/ml/", "├── mod.rs", "└── tests.rs", ""].join("\n"),
+      ["crates/jobsentinel-local-ai/src/", "├── mod.rs", "└── tests.rs", ""].join("\n"),
     );
     writeFixtureFile(
       root,
@@ -730,7 +730,7 @@ test("checkRepoBloat rejects stale Linux platform stub markers", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/platforms/linux/mod.rs",
+      "crates/jobsentinel-platform/src/linux/mod.rs",
       [
         "//! Linux-Specific Implementation (v2.0 - Coming Soon)",
         "//! This module will contain Linux-specific code for JobSentinel v2.0.",
@@ -739,7 +739,7 @@ test("checkRepoBloat rejects stale Linux platform stub markers", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "crates/jobsentinel-core/src/platforms/linux/mod.rs"], {
+    execFileSync("git", ["add", "package.json", "crates/jobsentinel-platform/src/linux/mod.rs"], {
       cwd: root,
     });
 
@@ -747,7 +747,7 @@ test("checkRepoBloat rejects stale Linux platform stub markers", () => {
 
     assert.ok(
       violations.includes(
-        "replace stale Linux platform stub markers: crates/jobsentinel-core/src/platforms/linux/mod.rs",
+        "replace stale Linux platform stub markers: crates/jobsentinel-platform/src/linux/mod.rs",
       ),
       violations.join("\n"),
     );

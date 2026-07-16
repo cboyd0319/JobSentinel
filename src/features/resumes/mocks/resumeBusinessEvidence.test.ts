@@ -1,13 +1,11 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { mockInvoke, resetMockData } from "../../../mocks/handlers";
+import { mockInvoke, resetMockData } from "../../../test-support/mocks/handlers";
 import { atsResume } from "./resumeAnalysisTestData";
 import type { AtsAnalysisResult } from "./resumeAnalysisTestData";
-
 describe("mock resume business evidence handlers", () => {
   beforeEach(() => {
     resetMockData();
   });
-
   it("treats A/P and A/R as accounts payable and receivable mock evidence", async () => {
     const payableResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
@@ -34,7 +32,6 @@ describe("mock resume business evidence handlers", () => {
         }),
       ]),
     );
-
     const receivableResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
         ...atsResume,
@@ -61,7 +58,6 @@ describe("mock resume business evidence handlers", () => {
       ]),
     );
   });
-
   it("treats bookkeeping and bookkeeper as equivalent mock evidence", async () => {
     const bookkeepingResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
@@ -88,7 +84,6 @@ describe("mock resume business evidence handlers", () => {
         }),
       ]),
     );
-
     const bookkeeperResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
         ...atsResume,
@@ -115,7 +110,6 @@ describe("mock resume business evidence handlers", () => {
       ]),
     );
   });
-
   it("treats QuickBooks and QBO as equivalent mock evidence", async () => {
     const quickbooksResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
@@ -142,7 +136,6 @@ describe("mock resume business evidence handlers", () => {
         }),
       ]),
     );
-
     const qboResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
         ...atsResume,
@@ -169,7 +162,6 @@ describe("mock resume business evidence handlers", () => {
       ]),
     );
   });
-
   it("uses shared supplemental keyword taxonomy for mock business evidence", async () => {
     const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
@@ -189,7 +181,6 @@ describe("mock resume business evidence handlers", () => {
       },
       jobDescription: "Required: Microsoft Office, expense reports, risk management, KPIs",
     });
-
     for (const keyword of ["microsoft office", "expense reports", "risk management", "kpis"]) {
       const review = result.requirement_reviews.find((candidate) => candidate.keyword === keyword);
       expect(review).toMatchObject({
@@ -199,7 +190,6 @@ describe("mock resume business evidence handlers", () => {
       expect(["Direct", "Strong"]).toContain(review?.match_state);
     }
   });
-
   it("treats point of sale and POS system as equivalent mock evidence", async () => {
     const pointOfSaleResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
@@ -226,7 +216,6 @@ describe("mock resume business evidence handlers", () => {
         }),
       ]),
     );
-
     const posSystemResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
         ...atsResume,
@@ -253,7 +242,6 @@ describe("mock resume business evidence handlers", () => {
       ]),
     );
   });
-
   it("treats cashier and cash handling as equivalent mock evidence", async () => {
     const cashierResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
@@ -280,7 +268,6 @@ describe("mock resume business evidence handlers", () => {
         }),
       ]),
     );
-
     const cashHandlingResult = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
         ...atsResume,
@@ -307,7 +294,6 @@ describe("mock resume business evidence handlers", () => {
       ]),
     );
   });
-
   it("treats logistics and shipping or receiving as equivalent mock evidence", async () => {
     const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {
@@ -335,7 +321,6 @@ describe("mock resume business evidence handlers", () => {
       ]),
     );
   });
-
   it("treats inventory and stockroom wording as equivalent mock evidence", async () => {
     const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {

@@ -72,44 +72,44 @@ test("product copy rejects non-advisory resume and pay guidance", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/resume/matcher.rs",
+      "crates/jobsentinel-storage/src/resume/matcher.rs",
       "Recommendation: Strong match. Apply immediately.\nStudy the missing skills.\nConsider upskilling.\n",
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/resume/ats_analyzer.rs",
+      "crates/jobsentinel-documents/src/ats_analyzer.rs",
       'improved.push_str(" (add specific metrics)");\n',
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/salary/analyzer.rs",
+      "crates/jobsentinel-storage/src/salary/analyzer.rs",
       "Excellent offer! Accept or negotiate equity.\n",
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/migrations/00000000000000_initial_schema.sql",
+      "crates/jobsentinel-storage/migrations/00000000000000_initial_schema.sql",
       "I was hoping for a compensation package. Make this an easy decision. I would love to have more skin in the game.\n",
     );
 
     assert.equal(
-      hasTechnicalFirstUserCopy(root, "crates/jobsentinel-core/src/core/resume/matcher.rs"),
+      hasTechnicalFirstUserCopy(root, "crates/jobsentinel-storage/src/resume/matcher.rs"),
       true,
     );
     assert.equal(
       hasTechnicalFirstUserCopy(
         root,
-        "crates/jobsentinel-core/src/core/resume/ats_analyzer.rs",
+        "crates/jobsentinel-documents/src/ats_analyzer.rs",
       ),
       true,
     );
     assert.equal(
-      hasTechnicalFirstUserCopy(root, "crates/jobsentinel-core/src/core/salary/analyzer.rs"),
+      hasTechnicalFirstUserCopy(root, "crates/jobsentinel-storage/src/salary/analyzer.rs"),
       true,
     );
     assert.equal(
       hasTechnicalFirstUserCopy(
         root,
-        "crates/jobsentinel-core/migrations/00000000000000_initial_schema.sql",
+        "crates/jobsentinel-storage/migrations/00000000000000_initial_schema.sql",
       ),
       true,
     );

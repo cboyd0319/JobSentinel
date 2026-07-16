@@ -295,7 +295,7 @@ describe("GhostIndicator", () => {
 
 ### Pattern 1: Mocking `invoke()` Calls
 
-Tauri commands are automatically mocked in `src/test/setup.ts`. Use `vi.mocked()` to configure responses:
+Tauri commands are automatically mocked in `src/test-support/setup.ts`. Use `vi.mocked()` to configure responses:
 
 ```typescript
 import { describe, it, expect, vi, beforeEach } from "vitest";

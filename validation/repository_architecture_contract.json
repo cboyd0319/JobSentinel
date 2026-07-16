@@ -1,0 +1,136 @@
+{
+  "schema": "jobsentinel.repository_architecture.v2",
+  "owner": "validation/repository_architecture_contract.json",
+  "active_plan": "docs/plans/active/current-work.md",
+  "architecture_doc": "ARCHITECTURE.md",
+  "decision_log_id": "2026-07-14-executable-repository-topology",
+    "members": {
+      "jobsentinel": "src-tauri",
+      "jobsentinel-ai": "crates/jobsentinel-ai",
+      "jobsentinel-application": "crates/jobsentinel-application",
+      "jobsentinel-assistance": "crates/jobsentinel-assistance",
+      "jobsentinel-credentials": "crates/jobsentinel-credentials",
+      "jobsentinel-documents": "crates/jobsentinel-documents",
+      "jobsentinel-domain": "crates/jobsentinel-domain",
+      "jobsentinel-intelligence": "crates/jobsentinel-intelligence",
+      "jobsentinel-local-ai": "crates/jobsentinel-local-ai",
+      "jobsentinel-network": "crates/jobsentinel-network",
+      "jobsentinel-notifications": "crates/jobsentinel-notifications",
+      "jobsentinel-platform": "crates/jobsentinel-platform",
+      "jobsentinel-security": "crates/jobsentinel-security",
+      "jobsentinel-sources": "crates/jobsentinel-sources",
+      "jobsentinel-storage": "crates/jobsentinel-storage"
+    },
+    "allowed_internal_dependencies": {
+      "jobsentinel": ["jobsentinel-application"],
+      "jobsentinel-ai": ["jobsentinel-domain", "jobsentinel-network", "jobsentinel-security"],
+      "jobsentinel-application": [
+        "jobsentinel-ai",
+        "jobsentinel-assistance",
+        "jobsentinel-credentials",
+        "jobsentinel-documents",
+        "jobsentinel-domain",
+        "jobsentinel-intelligence",
+        "jobsentinel-local-ai",
+        "jobsentinel-network",
+        "jobsentinel-notifications",
+        "jobsentinel-platform",
+        "jobsentinel-security",
+        "jobsentinel-sources",
+        "jobsentinel-storage"
+      ],
+      "jobsentinel-assistance": ["jobsentinel-documents", "jobsentinel-domain", "jobsentinel-network", "jobsentinel-platform", "jobsentinel-security"],
+      "jobsentinel-credentials": ["jobsentinel-platform", "jobsentinel-security", "jobsentinel-storage"],
+      "jobsentinel-documents": ["jobsentinel-domain", "jobsentinel-local-ai", "jobsentinel-security"],
+      "jobsentinel-domain": ["jobsentinel-security"],
+      "jobsentinel-intelligence": ["jobsentinel-domain"],
+      "jobsentinel-local-ai": ["jobsentinel-domain", "jobsentinel-network", "jobsentinel-security"],
+      "jobsentinel-network": ["jobsentinel-security"],
+      "jobsentinel-notifications": ["jobsentinel-domain", "jobsentinel-intelligence", "jobsentinel-network", "jobsentinel-security"],
+      "jobsentinel-platform": ["jobsentinel-security"],
+      "jobsentinel-security": [],
+      "jobsentinel-sources": ["jobsentinel-domain", "jobsentinel-network", "jobsentinel-security"],
+      "jobsentinel-storage": ["jobsentinel-documents", "jobsentinel-domain", "jobsentinel-platform", "jobsentinel-security"]
+    },
+    "top_level_directories": [
+      ".github",
+      ".sqlx",
+      ".storybook",
+      "crates",
+      "docs",
+      "examples",
+      "public",
+      "resources",
+      "scripts",
+      "skills",
+      "src",
+      "src-tauri",
+      "tests",
+      "validation"
+    ],
+    "frontend_directories": [
+      "app",
+      "dev-runtime",
+      "features",
+      "platform",
+      "shared",
+      "test-support",
+      "ui"
+    ],
+    "script_directories": ["checks", "dev", "harness", "lib", "platform", "release", "tests"],
+    "forbidden_paths": [
+      "docs/architecture",
+      "scripts/dependency",
+      "scripts/security",
+      "src/mocks",
+      "src/test",
+      "src/types"
+    ],
+    "forbidden_dependencies": ["tauri-plugin-secure-storage"]
+  ,
+  "technology_owners": {
+    "arboard": "jobsentinel",
+    "candle-core": "jobsentinel-local-ai",
+    "candle-nn": "jobsentinel-local-ai",
+    "chromiumoxide": "jobsentinel-assistance",
+    "dirs": "jobsentinel-platform",
+    "docx-rs": "jobsentinel-documents",
+    "hf-hub": "jobsentinel-local-ai",
+    "keyring": "jobsentinel-platform",
+    "lettre": "jobsentinel-notifications",
+    "libsqlite3-sys": "jobsentinel-storage",
+    "objc2": "jobsentinel-platform",
+    "objc2-foundation": "jobsentinel-platform",
+    "objc2-local-authentication": "jobsentinel-platform",
+    "pdf-extract": "jobsentinel-documents",
+    "quick-xml": ["jobsentinel-documents", "jobsentinel-sources"],
+    "reqwest": "jobsentinel-network",
+    "scraper": "jobsentinel-sources",
+    "security-framework": "jobsentinel-platform",
+    "sqlx": "jobsentinel-storage",
+    "tauri": "jobsentinel",
+    "tauri-build": "jobsentinel",
+    "tauri-plugin-dialog": "jobsentinel",
+    "tauri-plugin-notification": "jobsentinel",
+    "tauri-plugin-shell": "jobsentinel",
+    "tokenizers": "jobsentinel-local-ai",
+    "zip": "jobsentinel-documents"
+  },
+  "modularization": {
+    "rule": "Use a private module until independent runtime, dependency, release, or security ownership justifies a crate.",
+    "forbidden_path_patterns": [
+      {
+        "pattern": "(^|/)more\\.(js|mjs|rs|ts|tsx)$",
+        "reason": "Split files by behavior or aggregate owner, never by a catch-all continuation name."
+      },
+      {
+        "pattern": "(^|/)part[0-9]+\\.(js|mjs|rs|ts|tsx)$",
+        "reason": "Split files by behavior or aggregate owner, never by numbered parts."
+      },
+      {
+        "pattern": "/tests/tests/",
+        "reason": "Tests have one behavior owner and must not use nested catch-all test directories."
+      }
+    ]
+  }
+}

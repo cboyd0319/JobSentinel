@@ -44,7 +44,7 @@ import {
   getResumeIdArg,
   getSkillIdArg,
   getStringArg,
-} from "../../../mocks/handlers/commandHelpers";
+} from "../../../test-support/mocks/handlers/commandHelpers";
 import { extractMockAtsKeywords } from "./resumeKeywordMatching";
 import { toMockResumeSummary } from "./resumeSummaryViews";
 

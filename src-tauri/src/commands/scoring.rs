@@ -2,10 +2,8 @@
 //!
 //! Commands for managing user-configurable scoring weights.
 
+use crate::application::scoring::ScoringConfig;
 use crate::commands::{errors::user_friendly_error, AppState};
-use crate::core::scoring::{
-    load_scoring_config, reset_scoring_config, save_scoring_config, ScoringConfig,
-};
 use tauri::State;
 
 /// Get current scoring configuration
@@ -15,13 +13,11 @@ pub(crate) async fn get_scoring_config(
 ) -> Result<ScoringConfig, String> {
     tracing::info!("Command: get_scoring_config");
 
-    load_scoring_config(state.database.pool())
-        .await
-        .map_err(|e| {
-            let message = user_friendly_error("Failed to load scoring config", &e);
-            tracing::error!(error = %message, "Failed to load scoring config");
-            message
-        })
+    state.database.load_scoring_config().await.map_err(|e| {
+        let message = user_friendly_error("Failed to load scoring config", &e);
+        tracing::error!(error = %message, "Failed to load scoring config");
+        message
+    })
 }
 
 /// Update scoring configuration
@@ -40,7 +36,9 @@ pub(crate) async fn update_scoring_config(
     })?;
 
     // Save to database
-    save_scoring_config(state.database.pool(), &config)
+    state
+        .database
+        .save_scoring_config(&config)
         .await
         .map_err(|e| {
             let message = user_friendly_error("Failed to save scoring config", &e);
@@ -66,13 +64,11 @@ pub(crate) async fn reset_scoring_config_cmd(
 ) -> Result<ScoringConfig, String> {
     tracing::info!("Command: reset_scoring_config");
 
-    reset_scoring_config(state.database.pool())
-        .await
-        .map_err(|e| {
-            let message = user_friendly_error("Failed to reset scoring config", &e);
-            tracing::error!(error = %message, "Failed to reset scoring config");
-            message
-        })?;
+    state.database.reset_scoring_config().await.map_err(|e| {
+        let message = user_friendly_error("Failed to reset scoring config", &e);
+        tracing::error!(error = %message, "Failed to reset scoring config");
+        message
+    })?;
 
     // Return the default config
     Ok(ScoringConfig::default())

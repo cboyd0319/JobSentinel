@@ -34,7 +34,7 @@ For broad UI changes, also read:
 ## Harness Lock
 
 The Quiet Shield redesign is a harness-controlled active-goal acceptance gate.
-`docs/harness/manifest.json` requires this design directory, root
+`harness-manifest.json` records the harness owners; this design directory and root
 `DESIGN.md`, and the compatibility pointer under `docs/developer/` to stay
 present and aligned.
 

@@ -161,7 +161,7 @@ React settings and setup UI
 src-tauri/src/commands/credentials.rs
     |
     v
-crates/jobsentinel-core/src/core/credentials/mod.rs
+crates/jobsentinel-credentials/src/mod.rs
     |
     v
 CredentialService
@@ -192,10 +192,9 @@ acknowledgement before scheduled checks or Browser Import, but they do not
 create an authenticated session and must not write source cookies, tokens,
 browser storage, or account state into the vault.
 
-`tauri-plugin-secure-storage` remains registered with the app, but the current
-React credential flow uses Tauri commands backed by `CredentialService`.
-`CredentialStore` remains as a legacy fallback path and for opt-in live
-keyring integration tests.
+The desktop registers no second secure-storage plugin. React credential flows
+use Tauri commands backed by `CredentialService`. `CredentialStore` remains
+only for opt-in live operating-system keyring integration tests.
 
 Vault migration keeps public command names stable. Renderer code should still
 call command APIs and must not depend on whether the backend resolves a secret
@@ -203,7 +202,7 @@ from the encrypted local vault or the legacy OS item.
 
 ## Code Modules
 
-### `crates/jobsentinel-core/src/core/credentials/vault.rs`
+### `crates/jobsentinel-credentials/src/vault.rs`
 
 ```rust
 pub struct SecretVault;
@@ -221,7 +220,7 @@ The vault uses `XChaCha20Poly1305`, per-row random 24-byte nonces, and
 associated data shaped as `jobsentinel.secret-vault.v1:<credential-key>`.
 Disabled LinkedIn credential keys are rejected before storage.
 
-### `crates/jobsentinel-core/src/core/credentials/mod.rs`
+### `crates/jobsentinel-credentials/src/mod.rs`
 
 ```rust
 pub enum CredentialKey {
@@ -234,7 +233,7 @@ pub enum CredentialKey {
 }
 ```
 
-### `crates/jobsentinel-core/src/core/credentials/service.rs`
+### `crates/jobsentinel-credentials/src/service.rs`
 
 ```rust
 pub struct CredentialService;
@@ -482,7 +481,7 @@ entries owned by `JobSentinel`.
 
 ## Adding New Credentials
 
-1. Add a `CredentialKey` variant in `crates/jobsentinel-core/src/core/credentials/mod.rs`.
+1. Add a `CredentialKey` variant in `crates/jobsentinel-credentials/src/mod.rs`.
 2. Add its `jobsentinel_*` storage key in `CredentialKey::as_str`.
 3. Add parsing aliases in `FromStr`.
 4. Update migration extraction and config clearing when the credential can
@@ -493,7 +492,7 @@ entries owned by `JobSentinel`.
 ## Testing
 
 ```bash
-cargo test -p jobsentinel-core --lib credentials
+cargo test -p jobsentinel-credentials
 env -u JOBSENTINEL_LIVE_KEYRING_TESTS cargo test -p jobsentinel --lib commands::credentials
 ```
 
@@ -515,7 +514,6 @@ Current compatibility path:
 argon2 = { version = "=0.5.3", default-features = false, features = ["alloc", "zeroize"] }
 chacha20poly1305 = "=0.10.1"
 zeroize = "=1.9.0"
-tauri-plugin-secure-storage = "=1.5.0"
 keyring = "=4.1.1"
 libsqlite3-sys = { version = "=0.37.0", default-features = false, features = ["bundled-sqlcipher-vendored-openssl"] }
 ```

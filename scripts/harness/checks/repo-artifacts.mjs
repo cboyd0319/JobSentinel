@@ -6,6 +6,7 @@ import { normalizeRepoPath } from "./repo-file-size.mjs";
 
 export {
   collectFileSizeContractGlobalViolations,
+  collectRepositoryFileSizeViolations,
   collectTrackedFileSizeViolations,
   normalizeRepoPath,
 } from "./repo-file-size.mjs";
@@ -16,66 +17,6 @@ const ignoredTraversalPaths = new Set([
   ".husky/_",
   "node_modules",
   "target",
-]);
-
-const allowedRootEntries = new Set([
-  ".cargo",
-  ".sqlx",
-  ".claudeignore",
-  ".env.example",
-  ".github",
-  ".gitignore",
-  ".husky",
-  ".lintstagedrc.json",
-  ".markdownlint.json",
-  ".nvmrc",
-  ".storybook",
-  ".vale",
-  ".vale.ini",
-  "AGENTS.md",
-  "Cargo.lock",
-  "Cargo.toml",
-  "CHANGELOG.md",
-  "CLAUDE.md",
-  "CODE_OF_CONDUCT.md",
-  "DESIGN.md",
-  "LICENSE",
-  "models.lock.toml",
-  "PRIVACY.md",
-  "README.md",
-  "RESPONSIBLE_AI.md",
-  "ROADMAP.md",
-  "SECURITY.md",
-  "clippy.toml",
-  "config",
-  "crates",
-  "docs",
-  "deny.toml",
-  "eslint.config.js",
-  "examples",
-  "index.html",
-  "package-lock.json",
-  "package.json",
-  "playwright.config.ts",
-  "postcss.config.js",
-  "profiles",
-  "public",
-  "resources",
-  "rust-toolchain.toml",
-  "rust-toolchain.toml",
-  "scripts",
-  "skills",
-  "src",
-  "src-tauri",
-  "tailwind.config.js",
-  "tests",
-  "tsconfig.json",
-  "tsconfig.node.json",
-  "vite.config.ts",
-  "vitest.config.ts",
-  "validation",
-  "clippy.toml",
-  "deny.toml",
 ]);
 
 const allowedTrackedGeneratedPaths = new Set([
@@ -199,6 +140,16 @@ function isForbiddenEmptyDirectory(path) {
 
 export function collectUnexpectedRootEntries(root) {
   const violations = [];
+  let allowedRootEntries = new Set();
+  try {
+    const policy = JSON.parse(readFileSync(join(root, "repository-structure-policy.json"), "utf8"));
+    allowedRootEntries = new Set([
+      ...(policy.structure?.allowed_root_files ?? []),
+      ...(policy.structure?.allowed_top_level_directories ?? []),
+    ]);
+  } catch {
+    return ["repository-structure-policy.json does not provide the root allowlist"];
+  }
 
   for (const entry of readdirSync(root, { withFileTypes: true })) {
     const rel = normalizeRepoPath(entry.name);

@@ -1,0 +1,126 @@
+//! SQLCipher-backed local storage for JobSentinel.
+//!
+//! Handles local database operations through a bounded SQLx-backed facade.
+
+mod integrity;
+mod scoring_config;
+
+pub mod application_tracking;
+pub mod automation;
+pub mod health;
+pub mod market_intelligence;
+pub mod resume;
+pub mod salary;
+pub mod user_data;
+
+// Internal modules
+mod analytics;
+mod connection;
+mod credentials;
+mod crud;
+mod encryption;
+mod ghost;
+mod interactions;
+mod queries;
+mod types;
+
+// Tests
+#[cfg(test)]
+mod tests;
+
+// Re-export public types
+pub use types::{DuplicateGroup, GhostStatistics, Statistics};
+
+// Re-export Database struct
+pub use connection::Database;
+pub use credentials::{
+    CredentialKeyWrapRecord, CredentialRepository, CredentialSecretRecord, CredentialStorageError,
+};
+
+/// Stable, non-sensitive classification for storage errors used by callers.
+pub fn database_error_kind(error: &sqlx::Error) -> &'static str {
+    match error {
+        sqlx::Error::Database(_) => "database",
+        sqlx::Error::Decode(_) => "decode",
+        sqlx::Error::Encode(_) => "encode",
+        sqlx::Error::Io(_) => "io",
+        sqlx::Error::PoolClosed => "pool_closed",
+        sqlx::Error::PoolTimedOut => "pool_timed_out",
+        sqlx::Error::Protocol(_) => "protocol",
+        sqlx::Error::RowNotFound => "row_not_found",
+        sqlx::Error::Tls(_) => "tls",
+        sqlx::Error::TypeNotFound { .. } => "type_not_found",
+        sqlx::Error::ColumnIndexOutOfBounds { .. }
+        | sqlx::Error::ColumnNotFound(_)
+        | sqlx::Error::ColumnDecode { .. } => "column",
+        _ => "unknown",
+    }
+}
+
+impl Database {
+    #[must_use]
+    pub fn application_tracker(&self) -> application_tracking::ApplicationTracker {
+        application_tracking::ApplicationTracker::new(self.pool().clone())
+    }
+
+    #[must_use]
+    pub fn automation_manager(&self) -> automation::AutomationManager {
+        automation::AutomationManager::new(self.pool().clone())
+    }
+
+    #[must_use]
+    pub fn profile_manager(&self) -> automation::ProfileManager {
+        automation::ProfileManager::new(self.pool().clone())
+    }
+
+    #[must_use]
+    pub fn answer_learning_manager(&self) -> automation::AnswerLearningManager {
+        automation::AnswerLearningManager::new(self.pool().clone())
+    }
+
+    #[must_use]
+    pub fn market_intelligence(&self) -> market_intelligence::MarketIntelligence {
+        market_intelligence::MarketIntelligence::new(self.pool().clone())
+    }
+
+    /// Create the bounded resume repository and document workflow for this database.
+    #[must_use]
+    pub fn resume_matcher(&self) -> resume::ResumeMatcher {
+        resume::ResumeMatcher::new(self.pool().clone())
+    }
+
+    #[must_use]
+    pub fn resume_builder(&self) -> resume::ResumeBuilder {
+        resume::ResumeBuilder::new(self.pool().clone())
+    }
+
+    #[must_use]
+    pub fn salary_analyzer(&self) -> salary::SalaryAnalyzer {
+        salary::SalaryAnalyzer::new(self.pool().clone())
+    }
+
+    #[must_use]
+    pub fn user_data_manager(&self) -> user_data::UserDataManager {
+        user_data::UserDataManager::new(self.pool().clone())
+    }
+
+    pub async fn load_scoring_config(&self) -> Result<jobsentinel_domain::ScoringConfig, String> {
+        scoring_config::load_scoring_config(self.pool()).await
+    }
+
+    pub async fn save_scoring_config(
+        &self,
+        config: &jobsentinel_domain::ScoringConfig,
+    ) -> Result<(), String> {
+        scoring_config::save_scoring_config(self.pool(), config).await
+    }
+
+    pub async fn reset_scoring_config(&self) -> Result<(), String> {
+        scoring_config::reset_scoring_config(self.pool()).await
+    }
+
+    /// Close all database connections after in-flight work completes.
+    pub async fn close(&self) {
+        self.pool().close().await;
+    }
+}

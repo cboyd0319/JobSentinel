@@ -27,13 +27,6 @@ const requiredFreeForeverText = new Map([
     ],
   ],
   [
-    "docs/harness/README.md",
-    [
-      "JobSentinel is free, will always stay free, and will always remain MIT licensed",
-      "fork this code, adapt it, and help more job seekers",
-    ],
-  ],
-  [
     "docs/user/QUICK_START.md",
     [
       "JobSentinel is free, will always stay free, and will always remain MIT licensed",

@@ -1,12 +1,12 @@
 import {
   getNextId,
   getStringArg,
-} from "../../../mocks/handlers/commandHelpers";
-import type { MockJob } from "../../../mocks/handlers/types";
+} from "../../../test-support/mocks/handlers/commandHelpers";
+import type { MockJob } from "../../../test-support/mocks/handlers/types";
 import {
   isLocalOrPrivateHost,
   isSafeExternalHttpsUrl,
-} from "../../../mocks/externalUrlSafety";
+} from "../../../test-support/mocks/externalUrlSafety";
 
 export interface MockJobImportPreview {
   import_id: string | null;

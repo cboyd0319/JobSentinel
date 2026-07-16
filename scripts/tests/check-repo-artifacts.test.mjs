@@ -23,6 +23,26 @@ function withGitFixture(callback) {
 
   try {
     execFileSync("git", ["init", "--quiet"], { cwd: root });
+    writeFixtureFile(
+      root,
+      "repository-structure-policy.json",
+      `${JSON.stringify(
+        {
+          structure: {
+            allowed_root_files: [
+              ".nvmrc",
+              "README.md",
+              "package.json",
+              "repository-structure-policy.json",
+              "rust-toolchain.toml",
+            ],
+            allowed_top_level_directories: [".claude", "src"],
+          },
+        },
+        null,
+        2,
+      )}\n`,
+    );
     callback(root);
   } finally {
     rmSync(root, { recursive: true, force: true });

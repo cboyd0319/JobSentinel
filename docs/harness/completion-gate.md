@@ -1,77 +1,39 @@
-# Completion Gate And Clean State
+# Completion Gate
 
-This file names two things that were previously implicit across the harness: the
-layered gate a change must clear before it can be called done, and the clean
-state a session must leave behind.
+Use this checklist before a feature transitions to `passing` or a broad session
+claims completion.
 
-Source frameworks: WalkingLabs learn-harness-engineering, Lecture 09 (three-layer
-termination validation) and Lecture 12 (leave a clean state). See
-<https://walkinglabs.github.io/learn-harness-engineering/>.
+## Behavior And Verification
 
-## Three-Layer Completion Gate
+- [ ] Observable acceptance behavior is proven.
+- [ ] Static, focused, boundary, integration, and runtime levels required by the
+      claim passed with fresh results.
+- [ ] `npm run harness:plan -- --since <valid-ref>` accounts for committed,
+      staged, unstaged, deleted, and untracked nonignored paths.
+- [ ] `npm run harness:check`, `npm run lint:file-size`, and `git diff --check`
+      pass.
+- [ ] The implementation did not weaken its own tests, budgets, or evaluator.
 
-A change is not done until the layers relevant to its surface pass. Pick the
-exact commands from `verification-matrix.md`; the lists below are the model, not
-a replacement for the matrix. Record the runs in `evidence-log.md`.
+## State And Evidence
 
-### Layer 1: Static And Syntax
+- [ ] `PROGRESS.md` and `feature_list.json` name the same single active feature,
+      status, and update date.
+- [ ] A `passing` transition points to fresh evidence under
+      `docs/harness/evidence/` and retains the original evidence permanently.
+- [ ] A blocked item names its blocker, risk, and next trigger.
+- [ ] Evidence identifies revision, command, exit status, relevant result,
+      platform, timestamp, and caveat without secrets or local paths.
 
-Code shape, types, style, and harness integrity.
+## Clean State
 
-- `npm run lint`
-- `npm run lint:md` for docs
-- `npm run harness:check`
-- `cargo fmt --all -- --check`
-- `cargo clippy --workspace -- -D warnings`
+- [ ] Required build and tests pass.
+- [ ] Temporary, generated, and stale artifacts are removed.
+- [ ] The dirty working tree is understood and unrelated user changes are
+      preserved.
+- [ ] The standard init command and `npm run tauri:dev` remain discoverable and
+      runnable.
+- [ ] Windows, macOS, and Linux evidence is live, fixture-based with a named live
+      gap, or explicitly incomplete.
 
-### Layer 2: Runtime Behavior
-
-The changed behavior runs and is proven by execution.
-
-- `npm run test:run` for frontend logic
-- `cargo test --workspace` for backend logic and integration contracts
-- Focused Tauri command or migration tests for IPC and storage changes
-
-### Layer 3: System And Journey
-
-The behavior works end to end as a user would reach it.
-
-- `npm run test:e2e` or `npm run test:e2e:all` for cross-component flows
-- Manual UI validation from `full-manual-validation-v2.9.1.md` for exposed
-  surfaces
-- Computer Use or Playwright screenshot proof for redesign and major visual
-  changes
-
-A change scoped to one layer still states which layers it did and did not prove.
-Do not claim system health from a single static run.
-
-## Clean State Exit Checklist
-
-Before ending a session, leave the repo in a state the next session can resume
-without repair. All five dimensions must hold:
-
-- [ ] Build passes for the changed surface (`npm run build`, and a Rust build
-      when Rust changed).
-- [ ] Relevant tests pass, including pre-existing tests near the change.
-- [ ] State is current: `docs/plans/active/status.md`, `docs/plans/index.json`,
-      and `evidence-log.md` reflect what is actually verified.
-- [ ] No stale artifacts: `npm run lint:bloat` is clean, `git diff --check`
-      passes, and no debug, scratch, or machine-specific local paths remain.
-- [ ] The standard startup path still works (`npm run doctor`, documented run
-      command).
-
-## Relationship To Other Gates
-
-- `verification-matrix.md` is the source of truth for which command proves which
-  change. This file groups those commands into named layers.
-- `evidence-log.md` records that the gate actually ran.
-- `reliability.md` defines the restart and journey expectations Layer 3 leans on.
-- For release, `verification-matrix.md` "Full Local Gates" and the release
-  preflight remain the binding lists.
-
-## Related Harness Docs
-
-- [Verification matrix](verification-matrix.md)
-- [Evidence log](evidence-log.md)
-- [Reliability](reliability.md)
-- [Entropy control](entropy-control.md)
+If any required item is unchecked, the feature is not `passing`. Repair the
+state, roll back to a consistent checkpoint, or leave it explicitly blocked.

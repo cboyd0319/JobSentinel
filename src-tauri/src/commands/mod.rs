@@ -5,10 +5,10 @@ use std::sync::Arc;
 use chrono::{DateTime, Utc};
 use tokio::sync::RwLock;
 
-use crate::core::{
-    bookmarklet::BookmarkletServer, config::Config, credentials::CredentialService, db::Database,
-    import::PendingUrlImports, scheduler::Scheduler,
-};
+use crate::application::{config::Config, credentials::CredentialService, scheduler::Scheduler};
+use crate::desktop::BookmarkletServer;
+use crate::desktop::Database;
+use jobsentinel_application::PendingUrlImports;
 
 pub(crate) mod ats;
 pub(crate) mod automation;

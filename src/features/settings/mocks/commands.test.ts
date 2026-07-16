@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { mockConfig } from "../../../mocks/data";
-import { getDefaultGhostConfig } from "../../../mocks/handlers/commandHelpers";
+import { mockConfig } from "../../../test-support/mocks/data";
+import { getDefaultGhostConfig } from "../../../test-support/mocks/handlers/commandHelpers";
 import { handleMockSettingsCommand } from "./commands";
 
 function createState() {

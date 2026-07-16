@@ -5,9 +5,9 @@
 //! cookies. User-directed search links, manual entry, and Browser Import remain
 //! separate paths.
 
+use crate::application::credentials::{CredentialKey, CredentialService};
 use crate::commands::errors::user_friendly_error;
 use crate::commands::AppState;
-use crate::core::credentials::{CredentialKey, CredentialService};
 use tauri::{AppHandle, Manager, State};
 
 pub(crate) const LINKEDIN_AUTH_DISABLED_MESSAGE: &str =

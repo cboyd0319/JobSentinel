@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { mockJobs } from "../../../mocks/data";
+import { mockJobs } from "../../../test-support/mocks/data";
 import { handleMockDashboardCommand } from "./commands";
 
 describe("Dashboard mock commands", () => {

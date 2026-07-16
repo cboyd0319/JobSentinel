@@ -27,7 +27,7 @@ test("checkRepoBloat accepts split mock resume suggestion category labels", () =
   withGitFixture((root) => {
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/resume/ats_analyzer.rs",
+      "crates/jobsentinel-documents/src/ats_analyzer.rs",
       `
 pub enum SuggestionCategory {
     AddKeyword,
@@ -53,7 +53,7 @@ function label(category: SuggestionCategory): string {
 `;
     writeFixtureFile(root, "src/features/resumes/matching/ResumeMatchPage.tsx", frontendText);
     writeFixtureFile(root, "src/features/resumes/builder/AtsLiveScorePanelModel.ts", frontendText);
-    writeFixtureFile(root, "src/mocks/handlers.ts", "export {}\n");
+    writeFixtureFile(root, "src/test-support/mocks/handlers.ts", "export {}\n");
     writeFixtureFile(
       root,
       "src/features/resumes/mocks/resumeAnalysis.ts",
@@ -64,10 +64,10 @@ function label(category: SuggestionCategory): string {
       "git",
       [
         "add",
-        "crates/jobsentinel-core/src/core/resume/ats_analyzer.rs",
+        "crates/jobsentinel-documents/src/ats_analyzer.rs",
         "src/features/resumes/matching/ResumeMatchPage.tsx",
         "src/features/resumes/builder/AtsLiveScorePanelModel.ts",
-        "src/mocks/handlers.ts",
+        "src/test-support/mocks/handlers.ts",
         "src/features/resumes/mocks/resumeAnalysis.ts",
       ],
       { cwd: root },

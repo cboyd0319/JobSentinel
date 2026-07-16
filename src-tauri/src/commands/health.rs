@@ -3,11 +3,8 @@
 //! Provides frontend access to scraper health metrics, run history,
 //! smoke tests, and credential health.
 
-use crate::commands::errors::user_friendly_error;
-use crate::commands::limits::validate_optional_command_limit_i32;
-use crate::commands::AppState;
-use crate::core::config::Config;
-use crate::core::health::{
+use crate::application::config::Config;
+use crate::application::health::{
     check_linkedin_cookie_health, get_all_scraper_health,
     get_expiring_credentials as fetch_expiring_credentials, get_health_summary as health_summary,
     get_latest_source_request as latest_source_request, get_scraper_configs as scraper_configs,
@@ -17,7 +14,10 @@ use crate::core::health::{
     set_scraper_enabled as scraper_enabled, CredentialHealth, HealthSummary, ScraperConfig,
     ScraperHealthMetrics, ScraperRun, SmokeTestResult, SourceRequestSummary,
 };
-use crate::core::logging::path_label_for_logging;
+use crate::commands::errors::user_friendly_error;
+use crate::commands::limits::validate_optional_command_limit_i32;
+use crate::commands::AppState;
+use crate::desktop::path_label_for_logging;
 use std::path::Path;
 use tauri::State;
 use tokio::sync::RwLock;
@@ -296,7 +296,7 @@ pub(crate) async fn get_expiring_credentials(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::core::config::{AlertConfig, AutoRefreshConfig, LocationPreferences};
+    use crate::application::config::{AlertConfig, AutoRefreshConfig, LocationPreferences};
 
     fn create_health_toggle_test_config() -> Config {
         Config {

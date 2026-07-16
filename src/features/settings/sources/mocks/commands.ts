@@ -1,4 +1,4 @@
-import type { MockConfig } from "../../../../mocks/handlers/types";
+import type { MockConfig } from "../../../../test-support/mocks/handlers/types";
 import {
   getAllMockSmokeTestResults,
   getMockExpiringCredentials,

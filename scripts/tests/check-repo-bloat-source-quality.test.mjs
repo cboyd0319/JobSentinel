@@ -223,13 +223,13 @@ test("checkRepoBloat rejects backend scoring reason glyph markers", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/scoring/mod.rs",
+      "crates/jobsentinel-application/src/scoring/mod.rs",
       'reasons.push(format!("✓ Title matches: {}", job.title));\n',
     );
 
     execFileSync(
       "git",
-      ["add", "package.json", "crates/jobsentinel-core/src/core/scoring/mod.rs"],
+      ["add", "package.json", "crates/jobsentinel-application/src/scoring/mod.rs"],
       {
         cwd: root,
       },
@@ -239,7 +239,7 @@ test("checkRepoBloat rejects backend scoring reason glyph markers", () => {
 
     assert.ok(
       violations.includes(
-        "replace backend scoring reason glyph markers: crates/jobsentinel-core/src/core/scoring/mod.rs",
+        "replace backend scoring reason glyph markers: crates/jobsentinel-application/src/scoring/mod.rs",
       ),
       violations.join("\n"),
     );
@@ -251,13 +251,13 @@ test("checkRepoBloat rejects notification scoring reason glyph markers", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/notify/slack.rs",
+      "crates/jobsentinel-notifications/src/slack.rs",
       'reasons: vec!["✓ Title matches".to_string()],\n',
     );
 
     execFileSync(
       "git",
-      ["add", "package.json", "crates/jobsentinel-core/src/core/notify/slack.rs"],
+      ["add", "package.json", "crates/jobsentinel-notifications/src/slack.rs"],
       {
         cwd: root,
       },
@@ -267,7 +267,7 @@ test("checkRepoBloat rejects notification scoring reason glyph markers", () => {
 
     assert.ok(
       violations.includes(
-        "replace notification scoring reason glyph markers: crates/jobsentinel-core/src/core/notify/slack.rs",
+        "replace notification scoring reason glyph markers: crates/jobsentinel-notifications/src/slack.rs",
       ),
       violations.join("\n"),
     );

@@ -25,7 +25,7 @@ test("checkTestQuality rejects no-op Rust assertions", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/browser.rs",
+      "crates/jobsentinel-assistance/src/automation/browser.rs",
       `
 #[cfg(test)]
 mod tests {
@@ -40,7 +40,7 @@ mod tests {
     const violations = checkTestQuality(root);
 
     assert.deepEqual(violations, [
-      "crates/jobsentinel-core/src/core/browser.rs:6 contains no-op true assertion",
+      "crates/jobsentinel-assistance/src/automation/browser.rs:6 contains no-op true assertion",
     ]);
   });
 });
@@ -52,7 +52,7 @@ test("checkTestQuality rejects temporarily disabled test blocks", () => {
     const reenableMarker = "Re-enable after " + "implementing";
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/scoring/mod.rs",
+      "crates/jobsentinel-application/src/scoring/mod.rs",
       `
 #[cfg(test)]
 mod tests {
@@ -70,8 +70,8 @@ mod tests {
     const violations = checkTestQuality(root);
 
     assert.deepEqual(violations, [
-      "crates/jobsentinel-core/src/core/scoring/mod.rs:4 contains temporarily disabled test block",
-      "crates/jobsentinel-core/src/core/scoring/mod.rs:5 contains temporarily disabled test block",
+      "crates/jobsentinel-application/src/scoring/mod.rs:4 contains temporarily disabled test block",
+      "crates/jobsentinel-application/src/scoring/mod.rs:5 contains temporarily disabled test block",
     ]);
   });
 });
@@ -126,7 +126,7 @@ test("checkTestQuality rejects empty Rust test bodies", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/empty_test.rs",
+      "crates/jobsentinel-domain/src/empty_test.rs",
       `
 #[cfg(test)]
 mod tests {
@@ -139,7 +139,7 @@ mod tests {
     const violations = checkTestQuality(root);
 
     assert.deepEqual(violations, [
-      "crates/jobsentinel-core/src/core/empty_test.rs:4 contains empty test body",
+      "crates/jobsentinel-domain/src/empty_test.rs:4 contains empty test body",
     ]);
   });
 });
@@ -148,7 +148,7 @@ test("checkTestQuality scans Rust tests under workspace crates", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/search/tests.rs",
+      "crates/jobsentinel-domain/src/search/tests.rs",
       `
 #[test]
 fn search_contract() {
@@ -160,7 +160,7 @@ fn search_contract() {
     const violations = checkTestQuality(root);
 
     assert.deepEqual(violations, [
-      "crates/jobsentinel-core/src/search/tests.rs:4 contains no-op true assertion",
+      "crates/jobsentinel-domain/src/search/tests.rs:4 contains no-op true assertion",
     ]);
   });
 });

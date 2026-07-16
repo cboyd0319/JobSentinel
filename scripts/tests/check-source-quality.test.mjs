@@ -119,7 +119,7 @@ test("source quality rejects frontend glyphs and lint suppressions", () => {
 
 test("source quality ignores test and mock frontend files for production source checks", () => {
   withFixture((root) => {
-    writeFixtureFile(root, "src/mocks/handlers.ts", 'icon: "📊";\n');
+    writeFixtureFile(root, "src/test-support/mocks/handlers.ts", 'icon: "📊";\n');
     writeFixtureFile(
       root,
       "src/components/Example.test.tsx",
@@ -127,7 +127,7 @@ test("source quality ignores test and mock frontend files for production source 
     );
 
     assert.equal(
-      hasProductionSourceGlyphMarkers(root, "src/mocks/handlers.ts"),
+      hasProductionSourceGlyphMarkers(root, "src/test-support/mocks/handlers.ts"),
       false,
     );
     assert.equal(
@@ -144,54 +144,54 @@ test("source quality rejects backend glyphs and stale Rust stubs", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/scoring/mod.rs",
+      "crates/jobsentinel-application/src/scoring/mod.rs",
       '"✓ Title matches";\n',
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/notify/slack.rs",
+      "crates/jobsentinel-notifications/src/slack.rs",
       '"✓ Title matches";\n',
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/db/connection.rs",
+      "crates/jobsentinel-storage/src/connection.rs",
       'info!("✅ connected");\n',
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/scrapers/mod.rs",
+      "crates/jobsentinel-sources/src/scrapers/mod.rs",
       "pub async fn scrape_all() -> Vec<Job> {}\n",
     );
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/resume/export.rs",
+      "crates/jobsentinel-documents/src/export.rs",
       "pub fn export_pdf() {}\n",
     );
 
     assert.equal(
       hasBackendScoringReasonGlyphMarkers(
         root,
-        "crates/jobsentinel-core/src/core/scoring/mod.rs",
+        "crates/jobsentinel-application/src/scoring/mod.rs",
       ),
       true,
     );
     assert.equal(
       hasNotificationScoringReasonGlyphMarkers(
         root,
-        "crates/jobsentinel-core/src/core/notify/slack.rs",
+        "crates/jobsentinel-notifications/src/slack.rs",
       ),
       true,
     );
     assert.equal(
-      hasDatabaseLogEmojiMarkers(root, "crates/jobsentinel-core/src/core/db/connection.rs"),
+      hasDatabaseLogEmojiMarkers(root, "crates/jobsentinel-storage/src/connection.rs"),
       true,
     );
     assert.equal(
-      hasStaleScrapeAllStub(root, "crates/jobsentinel-core/src/core/scrapers/mod.rs"),
+      hasStaleScrapeAllStub(root, "crates/jobsentinel-sources/src/scrapers/mod.rs"),
       true,
     );
     assert.equal(
-      hasStaleResumeExportPdfStub(root, "crates/jobsentinel-core/src/core/resume/export.rs"),
+      hasStaleResumeExportPdfStub(root, "crates/jobsentinel-documents/src/export.rs"),
       true,
     );
   });
@@ -225,21 +225,21 @@ test("source quality requires verified pre-migration SQLite backups", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/db/connection.rs",
+      "crates/jobsentinel-storage/src/connection.rs",
       'sqlx::query("VACUUM INTO ?").execute(pool).await?;\n',
     );
 
     assert.equal(
       hasUnverifiedPreMigrationBackup(
         root,
-        "crates/jobsentinel-core/src/core/db/connection.rs",
+        "crates/jobsentinel-storage/src/connection.rs",
       ),
       true,
     );
 
     writeFixtureFile(
       root,
-      "crates/jobsentinel-core/src/core/db/connection.rs",
+      "crates/jobsentinel-storage/src/connection.rs",
       [
         'sqlx::query("VACUUM INTO ?").execute(pool).await?;',
         "Self::verify_pre_migration_backup(pool, backup_path_str).await?;",
@@ -253,7 +253,7 @@ test("source quality requires verified pre-migration SQLite backups", () => {
     assert.equal(
       hasUnverifiedPreMigrationBackup(
         root,
-        "crates/jobsentinel-core/src/core/db/connection.rs",
+        "crates/jobsentinel-storage/src/connection.rs",
       ),
       false,
     );

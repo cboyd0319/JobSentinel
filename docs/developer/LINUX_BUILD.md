@@ -42,9 +42,8 @@ sudo apt-get install -y \
 ### 1. Install Dependencies
 
 ```bash
-# Activate pinned npm, then install frontend dependencies
-node scripts/install-pinned-npm.mjs
-npm ci --ignore-scripts
+# Synchronize locked dependencies and prove the baseline
+./init.sh
 
 # Fetch Rust dependencies
 cargo fetch --target x86_64-unknown-linux-gnu
@@ -70,26 +69,26 @@ Build outputs are located at:
 - **AppImage**: `target/x86_64-unknown-linux-gnu/release/bundle/appimage/`
 - **Debian**: `target/x86_64-unknown-linux-gnu/release/bundle/deb/`
 
-## GitHub Build Workflow
+## GitHub Release Workflow
 
-JobSentinel builds Linux packages through the consolidated Release workflow.
+The consolidated Release workflow is executable only by manual dispatch. It can
+build or upload Linux packages only after separate release and publication
+authority. A local Linux host or explicitly selected Linux VM remains valid.
 
 ### Manual Release Dispatch
 
-`.github/workflows/release.yml` runs through `workflow_dispatch` with a
-required `version` input and a `platform` choice. Select `linux` to build only
-Linux assets, `windows-linux` to build hosted Windows and Linux assets after a
-local macOS upload, or `all` to build Windows, macOS, and Linux assets.
+`.github/workflows/release.yml` uses `workflow_dispatch`. Dispatching can consume
+hosted runner time and reach release mutation stages; inspect inputs, source
+revision, environment approvals, and permissions before authorizing it.
 
-Before packaging, the workflow validates the requested version and runs harness
-checks, harness script tests, markdown linting, the frontend build, Rust
-formatting, Rust clippy, and Rust unit tests. AppImage and Debian artifacts are
-attached to the staged release with matching checksums.
+Before local packaging, run the release gate in
+[Releasing](RELEASING.md). Attach artifacts only with separate publication
+authority and matching checksums.
 
 ### Release Workflow
 
-`.github/workflows/release.yml` runs by manual dispatch from an existing
-`vX.Y.Z` tag. Pushing a tag does not publish a release by itself.
+Pushing a tag does not dispatch the workflow. An authorized manual dispatch may
+publish only after the protected release environment and preflight gates pass.
 
 Releases include:
 
@@ -196,7 +195,8 @@ chmod +x JobSentinel-Linux-*.AppImage
 
 ### Build Fails on Non-Ubuntu Systems
 
-JobSentinel CI builds on **Ubuntu 24.04** for glibc compatibility.
+The supported Linux packaging baseline is **Ubuntu 24.04** for glibc
+compatibility. Hosted CI is not configured during private pre-alpha development.
 
 If building on a newer system, the binary may not run on older distributions.
 
@@ -213,8 +213,7 @@ docker run -it --rm \
     apt-get install -y nodejs && \
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y && \
     source ~/.cargo/env && \
-    node scripts/install-pinned-npm.mjs && \
-    npm ci --ignore-scripts && node scripts/platform/build-linux-appimage.mjs --target x86_64-unknown-linux-gnu"
+    ./init.sh && node scripts/platform/build-linux-appimage.mjs --target x86_64-unknown-linux-gnu"
 ```
 
 ## Signing and Auto-Updates

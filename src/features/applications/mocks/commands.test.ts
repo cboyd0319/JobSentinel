@@ -4,8 +4,8 @@ import {
   mockJobs,
   mockPendingReminders,
   mockUpcomingInterviews,
-} from "../../../mocks/data";
-import { cloneApplications } from "../../../mocks/handlers/commandHelpers";
+} from "../../../test-support/mocks/data";
+import { cloneApplications } from "../../../test-support/mocks/handlers/commandHelpers";
 import { handleMockApplicationsCommand } from "./commands";
 
 function createState() {

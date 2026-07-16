@@ -5,8 +5,8 @@
 use crate::commands::errors::user_friendly_error;
 use crate::commands::limits::{validate_command_limit_i64, validate_optional_command_limit_i64};
 use crate::commands::AppState;
-use crate::core::ghost::GhostConfig;
-use crate::core::logging::path_label_for_logging;
+use crate::desktop::path_label_for_logging;
+use crate::desktop::GhostConfig;
 use serde_json::Value;
 use tauri::State;
 
@@ -159,9 +159,9 @@ pub(crate) async fn set_ghost_config(
     }
 
     // Load current config
-    let config_path = crate::core::config::Config::default_path();
+    let config_path = crate::application::config::Config::default_path();
     let mut current_config = if config_path.exists() {
-        crate::core::config::Config::load(&config_path).map_err(|e| {
+        crate::application::config::Config::load(&config_path).map_err(|e| {
             let message = user_friendly_error("Failed to load configuration", &e);
             tracing::error!(
                 config_path = %path_label_for_logging(&config_path),
@@ -203,9 +203,9 @@ pub(crate) async fn reset_ghost_config(state: State<'_, AppState>) -> Result<(),
     tracing::info!("Command: reset_ghost_config");
 
     // Load current config
-    let config_path = crate::core::config::Config::default_path();
+    let config_path = crate::application::config::Config::default_path();
     let mut current_config = if config_path.exists() {
-        crate::core::config::Config::load(&config_path).map_err(|e| {
+        crate::application::config::Config::load(&config_path).map_err(|e| {
             let message = user_friendly_error("Failed to load configuration", &e);
             tracing::error!(
                 config_path = %path_label_for_logging(&config_path),

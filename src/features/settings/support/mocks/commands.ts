@@ -6,8 +6,8 @@ import {
   sanitizeMockFeedbackText,
   saveMockFeedbackFile,
 } from "../../../../shared/errorReporting/mocks/supportReports";
-import { getStringArg } from "../../../../mocks/handlers/commandHelpers";
-import type { MockConfig } from "../../../../mocks/handlers/types";
+import { getStringArg } from "../../../../test-support/mocks/handlers/commandHelpers";
+import type { MockConfig } from "../../../../test-support/mocks/handlers/types";
 
 export interface MockSupportCommandResult {
   handled: boolean;

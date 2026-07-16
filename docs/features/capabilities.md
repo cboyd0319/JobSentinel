@@ -79,7 +79,7 @@ Use [active status](../plans/active/status.md) for current release gates and
 | Notifications | Send optional desktop, email, Slack, Discord, Teams, or Telegram alerts after user configuration | Desktop local; external channels receive only alert details the user enabled | [Notifications](notifications.md), [Saved Secrets](saved-secrets.md) |
 | Safe support and backups | Create sanitized support reports, local settings backups, and recovery guidance | Local by default; user reviews before sharing | [Local Job-Search Data](user-data-management.md), [Privacy](../../PRIVACY.md) |
 | Saved secrets | Store alert passwords, connection links, and source access codes in a local encrypted vault | Local vault protected by the operating system password store or passphrase mode | [Saved Secrets](saved-secrets.md), [Keyring](../security/KEYRING.md) |
-| External AI gateway | Let users configure OpenAI, Anthropic, Google Gemini, GitHub Copilot, or custom HTTPS providers for approved optional actions | Disabled by default; preview, edit, cancel, approval, redaction, and metadata-only logs | [Privacy-first AI Gateway](../architecture/privacy-first-ai-gateway.md), [Responsible AI](../../RESPONSIBLE_AI.md) |
+| External AI gateway | Let users configure OpenAI, Anthropic, Google Gemini, GitHub Copilot, or custom HTTPS providers for approved optional actions | Disabled by default; preview, edit, cancel, approval, redaction, and metadata-only logs | [Privacy-first AI Gateway](../security/privacy-first-ai-gateway.md), [Responsible AI](../../RESPONSIBLE_AI.md) |
 | Local semantic matching | Optional Qwen3-Embedding-0.6B retrieval, Qwen3-Reranker-0.6B bounded reranking, exact skill/BM25 scoring, blocker caps, evidence labels, governed model manifests, and deterministic fallback | Local only when enabled; no provider required | [Local Semantic Matching](../developer/LOCAL_SEMANTIC_MATCHING.md) |
 | Agent Skills | Downloadable skill packages for job search planning, posting-risk review, resume tailoring, application review, tracking, outreach, interview prep, and offer/pay review | Skill files are static local content | [Agent Skills](../../skills/README.md) |
 
@@ -215,7 +215,7 @@ preview, edit, cancel, approval, redaction, and tests before it can be enabled.
 - Keep privacy labels synchronized with
   `docs/harness/feature-privacy-labels.json`.
 - Keep current release status synchronized with
-  `docs/plans/active/status.md`.
+  root `PROGRESS.md` and `feature_list.json`.
 - Run focused docs checks after changes:
 
 ```bash
