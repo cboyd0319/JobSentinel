@@ -1,0 +1,64 @@
+{
+  "schema": "jobsentinel.repository_refactor_evidence.v1",
+  "feature_id": "full-repository-refactor",
+  "recorded_at": "2026-07-16T22:34:56Z",
+  "starting_revision": "0fa4052f",
+  "checkpoint": "uncommitted structural exception eighth follow-up with the active feature still in progress",
+  "platform": {
+    "product": "macOS",
+    "version": "27.0",
+    "architecture": "arm64"
+  },
+  "scope": "Owner-preserving Rust test modularization with exact no-growth exception reduction",
+  "observed_implementation": [
+    "The final three Rust test exceptions were split into focused child modules without changing production behavior.",
+    "The new modules own resume database matching and edge cases, extended public API command contracts, and notification service and failure cases.",
+    "Every changed parent and new child owner stays below the canonical 500-line hard ceiling.",
+    "The repository exact no-growth exception count fell by 3, from 32 to 29."
+  ],
+  "verification": [
+    {
+      "command": "cargo fmt --all -- --check",
+      "exit_status": 0,
+      "result": "Rust formatting passed."
+    },
+    {
+      "command": "cargo test -p jobsentinel-storage resume::tests::database_coverage_tests",
+      "exit_status": 0,
+      "result": "All 23 focused resume database tests passed."
+    },
+    {
+      "command": "cargo test -p jobsentinel-application --test api_contract_test",
+      "exit_status": 0,
+      "result": "All 33 public API contract tests passed."
+    },
+    {
+      "command": "cargo test -p jobsentinel-application notify::tests",
+      "exit_status": 0,
+      "result": "All 47 focused notification tests passed."
+    },
+    {
+      "command": "npm run lint:file-size",
+      "exit_status": 0,
+      "result": "Every governed source and configuration file passed the canonical hard limits; 29 exact temporary exceptions remain."
+    },
+    {
+      "command": "git diff --check",
+      "exit_status": 0,
+      "result": "Patch whitespace validation passed."
+    },
+    {
+      "command": "npm run verify:full",
+      "exit_status": 0,
+      "result": "With disposable desktop metadata removed during the run, the complete local gate passed, including harness, policy, security, script, frontend, build, smoke, Rust workspace, integration, and documentation checks."
+    }
+  ],
+  "remaining_implementation": [
+    "The remaining 29 structural exceptions still require prioritized reduction or justified retention.",
+    "The final whole-repository audit and active feature transition have not occurred."
+  ],
+  "completion_status": {
+    "feature_complete": false,
+    "committed": false
+  }
+}

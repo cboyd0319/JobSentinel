@@ -1,0 +1,57 @@
+{
+  "schema": "jobsentinel.repository_refactor_evidence.v1",
+  "feature_id": "full-repository-refactor",
+  "recorded_at": "2026-07-16T19:45:21Z",
+  "starting_revision": "0fa4052f",
+  "checkpoint": "uncommitted structural exception reduction with the active feature still in progress",
+  "platform": {
+    "product": "macOS",
+    "version": "27.0",
+    "architecture": "arm64"
+  },
+  "scope": "Owner-preserving test modularization, taxonomy compaction, and exact no-growth exception reduction",
+  "observed_implementation": [
+    "Fourteen Rust test owners were split into focused child or sibling modules without changing production behavior.",
+    "Ten frontend and development-runtime test owners were split or deduplicated while retaining their existing test coverage.",
+    "Six script-test owners were split below the canonical hard ceilings after the complete script-test tree moved under owner-mirrored directories.",
+    "The job-scoring synonym taxonomy was compacted without changing its parsed data.",
+    "Seventeen retained script-test exceptions moved to owner-mirrored paths without increasing their exact line or byte ceilings.",
+    "The repository exact no-growth exception count fell by 31 net exceptions, from 109 to 78.",
+    "The security sensor CODEOWNERS boundary now points to the owner-mirrored security test path."
+  ],
+  "verification": [
+    {
+      "command": "cargo test -p jobsentinel-notifications",
+      "exit_status": 0,
+      "result": "All 390 notification tests and crate documentation tests passed."
+    },
+    {
+      "command": "cargo test -p jobsentinel-application config::tests --lib",
+      "exit_status": 0,
+      "result": "All 125 application configuration tests passed."
+    },
+    {
+      "command": "npm run lint:file-size",
+      "exit_status": 0,
+      "result": "Every changed owner stayed below its canonical ceiling or retained exact no-growth ceiling."
+    },
+    {
+      "command": "node --test scripts/tests/checks/check-security-sensors.test.mjs && npm run lint:security",
+      "exit_status": 0,
+      "result": "All 41 focused security sensor tests, the security policy check, and the secret scan passed."
+    },
+    {
+      "command": "npm run verify:full",
+      "exit_status": 0,
+      "result": "Repository contracts, security checks, 817 script tests, 2933 frontend tests, production and Storybook builds, the 10-test smoke journey, Rust formatting, Clippy with warnings denied, the full Rust workspace tests, documentation tests, and patch whitespace checks passed."
+    }
+  ],
+  "remaining_implementation": [
+    "The remaining 78 structural exceptions still require prioritized reduction or justified retention.",
+    "The final whole-repository audit and active feature transition have not occurred."
+  ],
+  "completion_status": {
+    "feature_complete": false,
+    "committed": false
+  }
+}

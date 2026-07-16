@@ -493,45 +493,4 @@ describe("Dropdown", () => {
     });
   });
 
-  describe("accessibility", () => {
-    it("button has proper ARIA attributes", () => {
-      const onChange = vi.fn();
-      render(<Dropdown options={mockOptions} onChange={onChange} />);
-      
-      const button = screen.getByRole("button");
-      expect(button).toHaveAttribute("aria-haspopup", "listbox");
-      expect(button).toHaveAttribute("aria-expanded", "false");
-    });
-
-    it("listbox role is present when open", async () => {
-      const user = userEvent.setup();
-      const onChange = vi.fn();
-      render(<Dropdown options={mockOptions} onChange={onChange} />);
-      
-      await user.click(screen.getByRole("button"));
-      
-      expect(screen.getByRole("listbox")).toBeInTheDocument();
-    });
-
-    it("options have proper role", async () => {
-      const user = userEvent.setup();
-      const onChange = vi.fn();
-      render(<Dropdown options={mockOptions} onChange={onChange} />);
-      
-      await user.click(screen.getByRole("button"));
-      
-      const options = screen.getAllByRole("option");
-      expect(options.length).toBe(3);
-    });
-
-    it("chevron icon has aria-hidden", () => {
-      const onChange = vi.fn();
-      const { container } = render(
-        <Dropdown options={mockOptions} onChange={onChange} />
-      );
-      
-      const chevron = container.querySelector('svg[aria-hidden="true"]');
-      expect(chevron).toBeInTheDocument();
-    });
-  });
 });

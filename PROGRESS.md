@@ -12,17 +12,16 @@ Last updated: 2026-07-16
 - An adversarial review found that the checkpoint encoded local exceptions to
   the canonical `harness-engineering` contract. A corrective feature now owns
   the canonical remediation without rewriting the historical transition.
-- The corrective harness implementation and full local gate passed for its
-  completed scope.
+- The corrective harness implementation and full local gate passed.
 - The target Rust ownership graph is implemented across security, domain,
   network, platform, storage, intelligence, sources, application, assistance,
   local AI, documents, credentials, notifications, and external AI crates.
   `jobsentinel-core` is deleted, storage no longer exposes a raw SQLx pool, and
   the Tauri crate delegates product behavior through `jobsentinel-application`.
 - The Rust crate graph, desktop application composition, frontend platform
-  routing, and development-runtime ownership are implemented. The active
-  blueprint still requires script-test ownership, structural exception
-  reduction, and a final whole-repository audit.
+  routing, development-runtime ownership, root-script placement, and
+  script-test ownership are implemented. The active blueprint still requires
+  structural exception reduction and a final whole-repository audit.
 
 ## In Progress
 
@@ -42,8 +41,14 @@ Last updated: 2026-07-16
   live under explicit `checks`, `dev`, `harness`, or `release` owners, and the
   topology contract rejects future root-level scripts. The source duplication
   ceiling fell from 810 lines across 40 regions to 778 lines across 38 regions.
-- Next action: reorganize script tests under matching owner directories, reduce
-  structural debt and exceptions, then run the final whole-repository audit.
+  All 95 formerly flat script-test and fixture files now mirror the `checks`,
+  `dev`, `harness`, `lib`, `platform`, or `release` owners, with topology
+  enforcement and 817 passing script tests. Focused test and taxonomy splits
+  removed 80 net no-growth exceptions, reducing the total from 109 to 29. The
+  latest Rust test split passed focused verification and the full local
+  repository gate.
+- Next action: reduce the remaining 29 structural exceptions, then run the
+  final whole-repository audit.
 
 ## Deferred
 

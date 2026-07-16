@@ -385,106 +385,29 @@ describe("CareerProfileSelector", () => {
   });
 
   describe("all profiles", () => {
-    it("renders Office & Admin profile", () => {
+    it.each([
+      ["Office & Admin", "Administrative assistants, office managers, and coordinators"],
+      ["Retail & Hospitality", "Store, food service, guest service, and shift leads"],
+      ["Trades & Field", "Technicians, drivers, installers, and field service roles"],
+      ["Product & Design", "Product managers, designers, and UX researchers"],
+      ["Marketing & SEO", undefined],
+      ["Sales & Business", undefined],
+      ["HR & People", undefined],
+      ["Finance & Accounting", undefined],
+      ["Operations & PM", undefined],
+      ["Content & Writing", undefined],
+      ["Healthcare", undefined],
+      ["Legal", undefined],
+      ["Education", undefined],
+      ["Customer Success", undefined],
+      ["Creative & Media", undefined],
+    ])("renders the %s profile", (name, description) => {
       render(<CareerProfileSelector {...defaultProps} />);
 
-      expect(screen.getByText("Office & Admin")).toBeInTheDocument();
-      expect(
-        screen.getByText("Administrative assistants, office managers, and coordinators")
-      ).toBeInTheDocument();
-    });
-
-    it("renders Retail & Hospitality profile", () => {
-      render(<CareerProfileSelector {...defaultProps} />);
-
-      expect(screen.getByText("Retail & Hospitality")).toBeInTheDocument();
-      expect(
-        screen.getByText("Store, food service, guest service, and shift leads")
-      ).toBeInTheDocument();
-    });
-
-    it("renders Trades & Field profile", () => {
-      render(<CareerProfileSelector {...defaultProps} />);
-
-      expect(screen.getByText("Trades & Field")).toBeInTheDocument();
-      expect(
-        screen.getByText("Technicians, drivers, installers, and field service roles")
-      ).toBeInTheDocument();
-    });
-
-    it("renders Product & Design profile", () => {
-      render(<CareerProfileSelector {...defaultProps} />);
-
-      expect(screen.getByText("Product & Design")).toBeInTheDocument();
-      expect(
-        screen.getByText("Product managers, designers, and UX researchers")
-      ).toBeInTheDocument();
-    });
-
-    it("renders Marketing & SEO profile", () => {
-      render(<CareerProfileSelector {...defaultProps} />);
-
-      expect(screen.getByText("Marketing & SEO")).toBeInTheDocument();
-    });
-
-    it("renders Sales & Business profile", () => {
-      render(<CareerProfileSelector {...defaultProps} />);
-
-      expect(screen.getByText("Sales & Business")).toBeInTheDocument();
-    });
-
-    it("renders HR & People profile", () => {
-      render(<CareerProfileSelector {...defaultProps} />);
-
-      expect(screen.getByText("HR & People")).toBeInTheDocument();
-    });
-
-    it("renders Finance & Accounting profile", () => {
-      render(<CareerProfileSelector {...defaultProps} />);
-
-      expect(screen.getByText("Finance & Accounting")).toBeInTheDocument();
-    });
-
-    it("renders Operations & PM profile", () => {
-      render(<CareerProfileSelector {...defaultProps} />);
-
-      expect(screen.getByText("Operations & PM")).toBeInTheDocument();
-    });
-
-    it("renders Content & Writing profile", () => {
-      render(<CareerProfileSelector {...defaultProps} />);
-
-      expect(screen.getByText("Content & Writing")).toBeInTheDocument();
-    });
-
-    it("renders Healthcare profile", () => {
-      render(<CareerProfileSelector {...defaultProps} />);
-
-      expect(screen.getByText("Healthcare")).toBeInTheDocument();
-    });
-
-    it("renders Legal profile", () => {
-      render(<CareerProfileSelector {...defaultProps} />);
-
-      expect(screen.getByText("Legal")).toBeInTheDocument();
-    });
-
-    it("renders Education profile", () => {
-      render(<CareerProfileSelector {...defaultProps} />);
-
-      expect(screen.getByText("Education")).toBeInTheDocument();
-    });
-
-    it("renders Customer Success profile", () => {
-      render(<CareerProfileSelector {...defaultProps} />);
-
-      expect(screen.getByText("Customer Success")).toBeInTheDocument();
-    });
-
-    it("renders Creative & Media profile", () => {
-      render(<CareerProfileSelector {...defaultProps} />);
-
-      expect(screen.getByText("Creative & Media")).toBeInTheDocument();
+      expect(screen.getByText(name)).toBeInTheDocument();
+      if (description) {
+        expect(screen.getByText(description)).toBeInTheDocument();
+      }
     });
   });
 

@@ -66,10 +66,21 @@
       "evidence": [
         "docs/harness/evidence/repository-foundational-rust-owners-2026-07-15.json",
         "docs/harness/evidence/full-repository-refactor-2026-07-15.json",
-        "docs/harness/evidence/repository-layout-cutovers-2026-07-16.json"
+        "docs/harness/evidence/repository-layout-cutovers-2026-07-16.json",
+        "docs/harness/evidence/script-test-owner-cutover-2026-07-16.json",
+        "docs/harness/evidence/structural-exception-reduction-2026-07-16.json",
+        "docs/harness/evidence/structural-exception-batch-2026-07-16.json",
+        "docs/harness/evidence/structural-exception-followup-2026-07-16.json",
+        "docs/harness/evidence/structural-exception-second-followup-2026-07-16.json",
+        "docs/harness/evidence/structural-exception-third-followup-2026-07-16.json",
+        "docs/harness/evidence/structural-exception-fourth-followup-2026-07-16.json",
+        "docs/harness/evidence/structural-exception-fifth-followup-2026-07-16.json",
+        "docs/harness/evidence/structural-exception-sixth-followup-2026-07-16.json",
+        "docs/harness/evidence/structural-exception-seventh-followup-2026-07-16.json",
+        "docs/harness/evidence/structural-exception-eighth-followup-2026-07-16.json"
       ],
       "blocker": "",
-      "next_trigger": "Reorganize script tests by owner, reduce structural debt and exceptions, then run the final whole-repository audit."
+      "next_trigger": "Reduce the remaining 29 structural exceptions, then run the final whole-repository audit."
     }
   ]
 }

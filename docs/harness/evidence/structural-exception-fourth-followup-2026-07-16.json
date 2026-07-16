@@ -1,0 +1,90 @@
+{
+  "schema": "jobsentinel.repository_refactor_evidence.v1",
+  "feature_id": "full-repository-refactor",
+  "recorded_at": "2026-07-16T21:51:48Z",
+  "starting_revision": "0fa4052f",
+  "checkpoint": "uncommitted structural exception fourth follow-up with the active feature still in progress",
+  "platform": {
+    "product": "macOS",
+    "version": "27.0",
+    "architecture": "arm64"
+  },
+  "scope": "Owner-preserving Rust, frontend, and script test modularization with exact no-growth exception reduction",
+  "observed_implementation": [
+    "Two Rust test owners were split into focused child modules without changing production behavior.",
+    "Two frontend test owners were split into focused sibling tests while retaining their existing coverage.",
+    "One script-test owner was split into a focused sibling test while retaining its existing coverage.",
+    "Every changed parent and new child owner stays below the canonical 500-line hard ceiling.",
+    "The repository exact no-growth exception count fell by 5, from 52 to 47."
+  ],
+  "verification": [
+    {
+      "command": "node --test scripts/tests/harness/check-privacy-logging.test.mjs scripts/tests/harness/check-privacy-logging-storage-and-scrapers.test.mjs",
+      "exit_status": 0,
+      "result": "All 26 focused privacy-logging script tests passed."
+    },
+    {
+      "command": "npx vitest run src/features/applications/AnalyticsPanel.test.tsx src/features/applications/AnalyticsPanel.goals-and-empty-states.test.tsx src/features/settings/sources/health/ScraperHealthDashboard.test.tsx src/features/settings/sources/health/ScraperHealthDashboard.sources-and-history.test.tsx",
+      "exit_status": 0,
+      "result": "All 95 focused frontend tests passed."
+    },
+    {
+      "command": "cargo fmt --all -- --check",
+      "exit_status": 0,
+      "result": "Rust formatting passed."
+    },
+    {
+      "command": "cargo test -p jobsentinel-application --test scheduler_integration_test",
+      "exit_status": 0,
+      "result": "The scheduler integration owner passed 18 tests with its existing SQLite-corruption test intentionally ignored."
+    },
+    {
+      "command": "cargo test -p jobsentinel-documents degree_requirement",
+      "exit_status": 0,
+      "result": "All 28 focused degree-requirement tests passed."
+    },
+    {
+      "command": "npm run lint:file-size",
+      "exit_status": 0,
+      "result": "Every governed source and configuration file passed the canonical hard limits; 47 exact temporary exceptions remain."
+    },
+    {
+      "command": "npm run typecheck",
+      "exit_status": 0,
+      "result": "The TypeScript build type check passed."
+    },
+    {
+      "command": "npm run lint",
+      "exit_status": 0,
+      "result": "The frontend ESLint lane passed."
+    },
+    {
+      "command": "git diff --check",
+      "exit_status": 0,
+      "result": "Patch whitespace validation passed."
+    },
+    {
+      "command": "npm run verify:full",
+      "exit_status": "interrupted",
+      "result": "Repository, security, dependency, documentation, type, lint, 817 script-test, 2934 frontend-test, production-build, Storybook-build, 10-test smoke, Rust formatting, and Clippy stages passed. The parallel Rust workspace stopped producing output in the storage migration-idempotency integration test and was interrupted after the test reported running for more than 60 seconds."
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test -p jobsentinel-storage --test database_integration_test test_migrations_are_idempotent -- --exact --nocapture --test-threads=1",
+      "exit_status": 0,
+      "result": "The previously stalled migration-idempotency test passed in isolation."
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --workspace -- --test-threads=1",
+      "exit_status": 0,
+      "result": "The complete Rust workspace and documentation test lane passed serially."
+    }
+  ],
+  "remaining_implementation": [
+    "The remaining 47 structural exceptions still require prioritized reduction or justified retention.",
+    "The final whole-repository audit and active feature transition have not occurred."
+  ],
+  "completion_status": {
+    "feature_complete": false,
+    "committed": false
+  }
+}

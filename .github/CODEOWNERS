@@ -22,7 +22,7 @@ scripts/checks/action-pins.mjs @cboyd0319
 scripts/checks/dependency-pins.mjs @cboyd0319
 scripts/checks/repository-architecture.mjs @cboyd0319
 scripts/checks/security-sensors.mjs @cboyd0319
-scripts/tests/check-security-sensors.test.mjs @cboyd0319
+scripts/tests/checks/check-security-sensors.test.mjs @cboyd0319
 scripts/checks/security/ @cboyd0319
 src-tauri/Cargo.toml @cboyd0319
 src-tauri/src/ipc/registry.rs @cboyd0319

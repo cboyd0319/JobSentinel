@@ -224,6 +224,9 @@ function listRepositoryFiles(root, options, violations) {
 
 function validatePaths(contract, files, violations) {
   const scriptOwners = new Set(contract.script_directories);
+  const scriptTestOwners = new Set(
+    contract.script_directories.filter((owner) => owner !== "tests"),
+  );
   for (const path of files) {
     const scriptPath = path.match(/^scripts\/([^/]+)(?:\/(.+))?$/);
     if (!scriptPath) continue;
@@ -231,6 +234,14 @@ function validatePaths(contract, files, violations) {
       violations.push(`root-level script is forbidden: ${path}`);
     } else if (!scriptOwners.has(scriptPath[1])) {
       violations.push(`undeclared script owner directory: ${path}`);
+    }
+
+    const scriptTestPath = path.match(/^scripts\/tests\/([^/]+)(?:\/(.+))?$/);
+    if (!scriptTestPath) continue;
+    if (!scriptTestPath[2]) {
+      violations.push(`flat script test support file is forbidden: ${path}`);
+    } else if (!scriptTestOwners.has(scriptTestPath[1])) {
+      violations.push(`undeclared script test owner directory: ${path}`);
     }
   }
 

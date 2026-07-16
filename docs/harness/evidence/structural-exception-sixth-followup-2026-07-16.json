@@ -1,0 +1,74 @@
+{
+  "schema": "jobsentinel.repository_refactor_evidence.v1",
+  "feature_id": "full-repository-refactor",
+  "recorded_at": "2026-07-16T22:19:28Z",
+  "starting_revision": "0fa4052f",
+  "checkpoint": "uncommitted structural exception sixth follow-up with the active feature still in progress",
+  "platform": {
+    "product": "macOS",
+    "version": "27.0",
+    "architecture": "arm64"
+  },
+  "scope": "Owner-preserving Rust test modularization with exact no-growth exception reduction",
+  "observed_implementation": [
+    "Five Rust test owners were split into focused child modules without changing production behavior.",
+    "The new modules own retail and operations requirement equivalences, JobsWithGPT property and edge tests, HN additional cases, scheduler lifecycle and error cases, and core storage database tests.",
+    "Every changed parent and new child owner stays below the canonical 500-line hard ceiling.",
+    "The repository exact no-growth exception count fell by 5, from 42 to 37."
+  ],
+  "verification": [
+    {
+      "command": "cargo fmt --all -- --check",
+      "exit_status": 0,
+      "result": "Rust formatting passed."
+    },
+    {
+      "command": "cargo test -p jobsentinel-documents business_requirement",
+      "exit_status": 0,
+      "result": "All 21 focused business-requirement tests passed."
+    },
+    {
+      "command": "cargo test -p jobsentinel-sources jobswithgpt",
+      "exit_status": 0,
+      "result": "The JobsWithGPT lane passed 41 tests with its configured live check intentionally ignored."
+    },
+    {
+      "command": "cargo test -p jobsentinel-sources hn_hiring",
+      "exit_status": 0,
+      "result": "The HN lane passed 59 tests with its live network check intentionally ignored."
+    },
+    {
+      "command": "cargo test -p jobsentinel-application scheduler",
+      "exit_status": 0,
+      "result": "The scheduler lane passed 109 unit tests, intentionally ignored one HTTP integration check, and passed 3 matching integration tests."
+    },
+    {
+      "command": "cargo test -p jobsentinel-storage core_database_tests",
+      "exit_status": 0,
+      "result": "All 23 focused core database tests passed."
+    },
+    {
+      "command": "npm run lint:file-size",
+      "exit_status": 0,
+      "result": "Every governed source and configuration file passed the canonical hard limits; 37 exact temporary exceptions remain."
+    },
+    {
+      "command": "git diff --check",
+      "exit_status": 0,
+      "result": "Patch whitespace validation passed."
+    },
+    {
+      "command": "npm run verify:full",
+      "exit_status": 0,
+      "result": "The complete local gate passed, including harness, policy, security, script, frontend, build, smoke, Rust workspace, integration, and documentation checks."
+    }
+  ],
+  "remaining_implementation": [
+    "The remaining 37 structural exceptions still require prioritized reduction or justified retention.",
+    "The final whole-repository audit and active feature transition have not occurred."
+  ],
+  "completion_status": {
+    "feature_complete": false,
+    "committed": false
+  }
+}

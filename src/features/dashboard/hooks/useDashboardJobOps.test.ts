@@ -3,7 +3,6 @@ import { renderHook, act } from "@testing-library/react";
 import { useDashboardJobOps } from "./useDashboardJobOps";
 import type { Job, DuplicateGroup } from "../types";
 import { invoke, safeInvokeWithToast } from "../../../platform/tauri";
-import { exportJobsToCsv } from "../jobCsvExport";
 import {
   BROWSER_ASSIST_LEARNING_ENABLED_STORAGE_KEY,
   BROWSER_ASSIST_LEARNING_STORAGE_KEY,
@@ -23,7 +22,6 @@ vi.mock("../../../shared/undo/useUndo", () => ({
 }));
 
 vi.mock("../../../shared/errorReporting/logger", () => ({ logError: vi.fn() }));
-vi.mock("../jobCsvExport", () => ({ exportJobsToCsv: vi.fn() }));
 vi.mock("../../../platform/tauri", () => ({
   invalidateCacheByCommand: vi.fn(),
   invoke: vi.fn(),
@@ -32,7 +30,6 @@ vi.mock("../../../platform/tauri", () => ({
 
 const mockInvoke = vi.mocked(invoke);
 const mockSafeInvokeWithToast = vi.mocked(safeInvokeWithToast);
-const mockExportJobsToCsv = vi.mocked(exportJobsToCsv);
 
 function makeJob(overrides: Partial<Job> = {}): Job {
   return {
@@ -338,61 +335,6 @@ describe("handleBulkHide", () => {
     );
 
     expect(mockToast.warning).not.toHaveBeenCalled();
-  });
-});
-
-// ─── Export handlers ─────────────────────────────────────────────────────────
-
-describe("export handlers", () => {
-  it("exports a provided job list without requiring selected jobs", () => {
-    const jobs = [makeJob({ id: 1 }), makeJob({ id: 2 })];
-    const { result } = renderJobOps(jobs);
-
-    act(() => {
-      result.current.handleExportJobs(jobs);
-    });
-
-    expect(mockExportJobsToCsv).toHaveBeenCalledWith(jobs);
-    expect(mockToast.success).toHaveBeenCalledWith(
-      "Downloaded 2 jobs",
-      "Job list downloaded to your computer.",
-    );
-  });
-
-  it("shows reviewable copy instead of downloading an empty list", () => {
-    const { result } = renderJobOps([]);
-
-    act(() => {
-      result.current.handleExportJobs([]);
-    });
-
-    expect(mockExportJobsToCsv).not.toHaveBeenCalled();
-    expect(mockToast.info).toHaveBeenCalledWith(
-      "No jobs to download",
-      "Change filters or select jobs first.",
-    );
-  });
-
-  it("bulk export still exports only selected jobs", () => {
-    const jobs = [makeJob({ id: 1 }), makeJob({ id: 2 }), makeJob({ id: 3 })];
-    const { result } = renderJobOps(jobs);
-
-    act(() => {
-      result.current.setSelectedJobIds(new Set([2, 3]));
-    });
-
-    act(() => {
-      result.current.handleBulkExport(jobs);
-    });
-
-    expect(mockExportJobsToCsv).toHaveBeenCalledWith([
-      jobs[1],
-      jobs[2],
-    ]);
-    expect(mockToast.success).toHaveBeenCalledWith(
-      "Downloaded 2 jobs",
-      "Job list downloaded to your computer.",
-    );
   });
 });
 

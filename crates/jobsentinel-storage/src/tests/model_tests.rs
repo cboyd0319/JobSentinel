@@ -1,5 +1,8 @@
 use super::*;
 
+#[path = "model_tests/database_path_tests.rs"]
+mod database_path_tests;
+
 mod job_struct_tests {
     use super::*;
 
@@ -492,21 +495,5 @@ mod duplicate_group_tests {
 
         assert_eq!(group.jobs.len(), 0);
         assert_eq!(group.sources.len(), 0);
-    }
-}
-
-mod database_path_tests {
-    use super::*;
-
-    #[test]
-    fn test_default_path() {
-        let path = Database::default_path();
-        assert!(path.to_string_lossy().contains("jobs.db"));
-    }
-
-    #[test]
-    fn test_default_backup_dir() {
-        let path = Database::default_backup_dir();
-        assert!(path.to_string_lossy().contains("backups"));
     }
 }

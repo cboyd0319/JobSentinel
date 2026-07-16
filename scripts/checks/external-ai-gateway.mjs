@@ -46,7 +46,7 @@ const scannedFileNames = new Set([
 const allowedGatewayPaths = new Set([
   "crates/jobsentinel-ai/src/provider.rs",
   "scripts/checks/external-ai-gateway.mjs",
-  "scripts/tests/check-external-ai-gateway.test.mjs",
+  "scripts/tests/checks/check-external-ai-gateway.test.mjs",
 ]);
 
 const providerPatterns = [

@@ -166,3 +166,19 @@ fn test_save_invalid_bookmarklet_port_fails() {
         "Saving reserved Browser Import port should fail"
     );
 }
+
+#[test]
+fn test_save_preserves_formatting() {
+    let temp_dir = TempDir::new().expect("Failed to create temp dir");
+    let config_path = temp_dir.path().join("formatted.json");
+
+    let config = create_valid_config();
+    config.save(&config_path).expect("Failed to save config");
+
+    let content = fs::read_to_string(&config_path).expect("Failed to read config file");
+    assert!(
+        content.contains('\n'),
+        "Config should be pretty-printed with newlines"
+    );
+    assert!(content.contains("  "), "Config should be indented");
+}

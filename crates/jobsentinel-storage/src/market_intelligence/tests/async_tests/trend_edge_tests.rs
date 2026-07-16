@@ -1,5 +1,8 @@
 use super::*;
 
+#[path = "trend_edge_tests/location_parsing_tests.rs"]
+mod location_parsing_tests;
+
 #[tokio::test]
 async fn test_compute_salary_trends_with_growth() {
     let pool = setup_test_db().await;
@@ -472,52 +475,4 @@ async fn test_run_daily_analysis_integration() {
         .await
         .unwrap();
     assert!(location_density > 0, "Should have location density data");
-}
-
-#[tokio::test]
-async fn test_normalize_location_edge_cases() {
-    let pool = setup_test_db().await;
-    let mi = MarketIntelligence::new(pool);
-
-    // Test various SF variations
-    assert_eq!(mi.normalize_location("SF Bay Area"), "san francisco, ca");
-    assert_eq!(mi.normalize_location("SAN FRANCISCO"), "san francisco, ca");
-    assert_eq!(mi.normalize_location("sf"), "san francisco, ca");
-
-    // Test NYC variations
-    assert_eq!(mi.normalize_location("NYC, New York"), "new york, ny");
-    assert_eq!(mi.normalize_location("new york city"), "new york, ny");
-
-    // Test remote variations
-    assert_eq!(mi.normalize_location("REMOTE - Anywhere"), "remote");
-    assert_eq!(mi.normalize_location("Remote US"), "remote");
-
-    // Test passthrough (non-remote, non-SF, non-NYC)
-    assert_eq!(mi.normalize_location("Chicago, IL"), "chicago, il");
-}
-
-#[tokio::test]
-async fn test_parse_location_edge_cases() {
-    let pool = setup_test_db().await;
-    let mi = MarketIntelligence::new(pool);
-
-    // Multiple commas
-    let (city, state) = mi.parse_location("New York, NY, USA");
-    assert_eq!(city, Some("New York".to_string()));
-    assert_eq!(state, Some("NY".to_string()));
-
-    // No comma
-    let (city2, state2) = mi.parse_location("Berlin");
-    assert_eq!(city2, Some("Berlin".to_string()));
-    assert_eq!(state2, None);
-
-    // Empty string
-    let (city3, state3) = mi.parse_location("");
-    assert_eq!(city3, Some("".to_string()));
-    assert_eq!(state3, None);
-
-    // Whitespace handling
-    let (city4, state4) = mi.parse_location("  Seattle  ,  WA  ");
-    assert_eq!(city4, Some("Seattle".to_string()));
-    assert_eq!(state4, Some("WA".to_string()));
 }

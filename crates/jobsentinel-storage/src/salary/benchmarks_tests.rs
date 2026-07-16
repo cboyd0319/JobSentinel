@@ -1,5 +1,8 @@
 use super::*;
 
+#[path = "benchmarks_tests/location_comparison_tests.rs"]
+mod location_comparison_tests;
+
 #[test]
 fn test_salary_formatting() {
     assert_eq!(SalaryBenchmark::format_salary(150000), "150,000");
@@ -494,40 +497,4 @@ fn test_negotiation_incremental_offers() {
             "Negotiation target should be at least the current offer"
         );
     }
-}
-
-#[test]
-fn test_different_locations_same_title() {
-    let sf_benchmark = SalaryBenchmark {
-        job_title: "Case Manager".to_string(),
-        location: "Chicago, IL".to_string(),
-        seniority_level: SeniorityLevel::Mid,
-        min_salary: 140000,
-        p25_salary: 160000,
-        median_salary: 180000,
-        p75_salary: 220000,
-        max_salary: 300000,
-        average_salary: 190000,
-        sample_size: 1000,
-        last_updated: Utc::now(),
-    };
-
-    let austin_benchmark = SalaryBenchmark {
-        job_title: "Case Manager".to_string(),
-        location: "Atlanta, GA".to_string(),
-        seniority_level: SeniorityLevel::Mid,
-        min_salary: 90000,
-        p25_salary: 110000,
-        median_salary: 130000,
-        p75_salary: 150000,
-        max_salary: 200000,
-        average_salary: 135000,
-        sample_size: 500,
-        last_updated: Utc::now(),
-    };
-
-    // Same offer, different competitiveness based on location
-    let offer = 140000;
-    assert_eq!(sf_benchmark.is_competitive(offer), "below_market");
-    assert_eq!(austin_benchmark.is_competitive(offer), "competitive");
 }

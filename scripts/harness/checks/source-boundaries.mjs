@@ -388,11 +388,11 @@ export function hasJobsWithGptMissingRequestLedger(root, path) {
   }
 
   if (path === "src-tauri/src/ipc/registry.rs") {
-    return !/commands::health::get_latest_source_request/.test(text);
+    return !/jobsentinel::ipc::health::get_latest_source_request/.test(text);
   }
 
   if (path === "src-tauri/src/bootstrap/mod.rs") {
-    return !/command_handlers::jobsentinel_command_handlers!\(\)/.test(text);
+    return !/crate::ipc::jobsentinel_command_handlers!\(\)/.test(text);
   }
 
   if (

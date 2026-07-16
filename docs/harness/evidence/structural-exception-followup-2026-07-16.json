@@ -1,0 +1,55 @@
+{
+  "schema": "jobsentinel.repository_refactor_evidence.v1",
+  "feature_id": "full-repository-refactor",
+  "recorded_at": "2026-07-16T20:20:32Z",
+  "starting_revision": "0fa4052f",
+  "checkpoint": "uncommitted structural exception follow-up with the active feature still in progress",
+  "platform": {
+    "product": "macOS",
+    "version": "27.0",
+    "architecture": "arm64"
+  },
+  "scope": "Owner-preserving test modularization and exact no-growth exception reduction",
+  "observed_implementation": [
+    "Three Rust test owners were split into focused child modules without changing production behavior.",
+    "Seven frontend and development-runtime test owners were split into focused sibling tests while retaining their existing coverage.",
+    "Five repository-tooling test owners were split into focused siblings below the canonical hard ceilings.",
+    "The repository exact no-growth exception count fell by 15, from 78 to 63.",
+    "All new and retained owner files stay below the canonical hard ceilings."
+  ],
+  "verification": [
+    {
+      "command": "focused Vitest, Node test, and Cargo test lanes for each split owner",
+      "exit_status": 0,
+      "result": "Every moved test passed in its original and new owner files."
+    },
+    {
+      "command": "npm run lint:file-size",
+      "exit_status": 0,
+      "result": "Every changed owner stayed below the canonical hard ceilings."
+    },
+    {
+      "command": "npm run verify:full",
+      "exit_status": "interrupted",
+      "result": "All repository, security, dependency, documentation, type, lint, 817 script-test, 2934 frontend-test, production-build, Storybook-build, and 10-test smoke stages passed. The parallel Rust stage was stopped after the storage migration-idempotency test slept without CPU activity for several minutes."
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test -p jobsentinel-storage --test database_integration_test test_migrations_are_idempotent -- --exact --nocapture --test-threads=1",
+      "exit_status": 0,
+      "result": "The previously stuck migration-idempotency test passed in isolation."
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --workspace -- --test-threads=1",
+      "exit_status": 0,
+      "result": "The complete Rust workspace and documentation test lane passed serially."
+    }
+  ],
+  "remaining_implementation": [
+    "The remaining 63 structural exceptions still require prioritized reduction or justified retention.",
+    "The final whole-repository audit and active feature transition have not occurred."
+  ],
+  "completion_status": {
+    "feature_complete": false,
+    "committed": false
+  }
+}

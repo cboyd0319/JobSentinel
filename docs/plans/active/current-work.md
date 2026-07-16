@@ -23,8 +23,8 @@ At baseline commit `c644995d`, the repository concentrated 412 Rust files under
 runtime behavior in Tauri commands. The current tree removes that crate and the
 raw dependency escapes. A fresh completion audit found that desktop composition,
 frontend platform ownership, development-runtime ownership, and root-script
-placement are now cut over. Script-test ownership and structural debt still do
-not match the locked blueprint.
+placement are now cut over. Script tests now mirror their script owners.
+Structural debt still does not match the locked blueprint.
 
 ## Scope
 
@@ -193,8 +193,7 @@ UI checks when their owners change.
   cut over.
 - [x] Milestone 5: production desktop API routing and development-runtime
   ownership are cut over.
-- [ ] Milestone 6: root-level scripts are cut over; script-test ownership,
-  exceptions, duplication, and stale path assumptions remain.
+- [x] Milestone 6: root-level scripts and script-test ownership are cut over.
 - [ ] Milestone 7: final whole-repository cleanup and verification remain.
 
 Implemented ownership checkpoint:
@@ -228,6 +227,16 @@ Implemented ownership checkpoint:
   release workflows, maintained docs, and tests call those final paths
   directly. The architecture sensor rejects root-level scripts and undeclared
   script owner directories.
+- All 95 formerly flat files under `scripts/tests` now live under matching
+  `checks`, `dev`, `harness`, `lib`, `platform`, or `release` owners. Recursive
+  discovery remains deterministic, path-sensitive policy consumers use the new
+  locations, and the architecture sensor rejects flat or undeclared script-test
+  owners.
+- Focused Rust test modules, frontend and development-runtime tests, script
+  tests, and two taxonomy files now stay below the canonical hard ceilings
+  without 80 prior no-growth exceptions. Seventeen script-test exceptions moved
+  to their owner-mirrored paths without increasing their ceilings, leaving 29
+  repository exceptions.
 - The earlier full local gate, Chromium and WebKit E2E lane, and Rust
   all-features lane passed for the initial crate cutover. Those results do not
   prove that the full repository blueprint is complete.
@@ -301,12 +310,58 @@ Implemented ownership checkpoint:
   owners without forwarding files, updated every maintained caller, and added
   a topology regression that rejects root-level scripts or undeclared script
   directories. The canonical initializer and all 815 script tests passed.
+- 2026-07-16-script-test-owner-cutover: Moved all 95 flat script tests and
+  fixtures under directories that mirror their script owners, updated
+  path-sensitive release and security checks, preserved every no-growth
+  file-size ratchet, and added a topology regression that rejects flat or
+  undeclared script-test owners. All 817 script tests passed.
+- 2026-07-16-first-exception-reduction: Split Teams webhook-validation tests
+  into their own notification test module, kept both files below canonical hard
+  limits, and removed the obsolete exact-path exception. Notifications Clippy,
+  all 390 notification tests, and repository contracts passed.
+- 2026-07-16-structural-exception-batch: Split 14 Rust test owners, 10 frontend
+  and development-runtime test owners, six script-test owners, and one taxonomy
+  file below the canonical hard ceilings. The net exception count fell from 109
+  to 78. The full local verification lane passed.
+- 2026-07-16-structural-exception-followup: Split three Rust test owners, seven
+  frontend and development-runtime test owners, and five script-test owners
+  below the canonical hard ceilings. The exception count fell from 78 to 63.
+  Broad verification passed after replacing one parallel storage-test deadlock
+  with a successful isolated test and serial Rust workspace run.
+- 2026-07-16-structural-exception-second-followup: Split three Rust test owners,
+  one development-runtime test owner, and one script-test owner below the
+  canonical hard ceilings. Compacted the resume-skills taxonomy without
+  changing its parsed data. The exception count fell from 63 to 57. Focused
+  verification and the full local repository gate passed.
+- 2026-07-16-structural-exception-third-followup: Split two Rust test owners and
+  three frontend test owners below the canonical hard ceilings. The exception
+  count fell from 57 to 52. Focused and broad verification passed. The parallel
+  storage migration test stalled, then passed in isolation and in the complete
+  serial Rust workspace.
+- 2026-07-16-structural-exception-fourth-followup: Split two Rust test owners,
+  two frontend test owners, and one script-test owner below the canonical hard
+  ceilings. The exception count fell from 52 to 47. Focused and broad
+  verification passed after replacing the stalled parallel storage migration
+  test with a successful isolated test and serial Rust workspace run.
+- 2026-07-16-structural-exception-fifth-followup: Split five Rust test owners
+  below the canonical hard ceilings. The exception count fell from 47 to 42.
+  Focused verification and the full local repository gate passed.
+- 2026-07-16-structural-exception-sixth-followup: Split five Rust test owners
+  below the canonical hard ceilings. The exception count fell from 42 to 37,
+  and focused verification and the full local repository gate passed.
+- 2026-07-16-structural-exception-seventh-followup: Split five Rust test owners
+  below the canonical hard ceilings. The exception count fell from 37 to 32,
+  and focused verification and the full local repository gate passed.
+- 2026-07-16-structural-exception-eighth-followup: Split the final three Rust
+  test exceptions below the canonical hard ceilings. The exception count fell
+  from 32 to 29, and focused verification and the full local repository gate
+  passed.
 
 ## Outcomes
 
 The Rust and desktop ownership cutovers are implemented, but the clean-cutover
-repository refactor is not complete. The feature remains `active` while script
-test ownership, structural debt, and the final repository audit remain.
+repository refactor is not complete. The feature remains `active` while
+structural debt and the final repository audit remain.
 
 ## Handoff
 
@@ -314,4 +369,4 @@ Read root `PROGRESS.md`, root `feature_list.json`, this plan, the
 [blueprint](repository-refactor-blueprint.md), and the executable architecture
 contract. Continue only the single active root feature. Completed plans are
 historical evidence, not current architecture. The next bounded action is to
-move flat script tests under directories that mirror their script owners.
+reduce the remaining 29 structural exceptions before the final repository audit.

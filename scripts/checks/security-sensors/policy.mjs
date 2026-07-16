@@ -119,7 +119,7 @@ export const requiredCodeownersEntries = [
   "*", ".github/CODEOWNERS", ".github/dependabot.yml", ".github/workflows/",
   "package.json", "package-lock.json", "scripts/checks/action-pins.mjs",
   "scripts/checks/dependency-pins.mjs", "scripts/checks/security-sensors.mjs",
-  "scripts/tests/check-security-sensors.test.mjs", "scripts/checks/security/", "Cargo.toml",
+  "scripts/tests/checks/check-security-sensors.test.mjs", "scripts/checks/security/", "Cargo.toml",
   "Cargo.lock", ".cargo/", "clippy.toml", "deny.toml", "crates/",
   "scripts/checks/", "scripts/platform/", "scripts/release/",
   "scripts/checks/repository-architecture.mjs", "src-tauri/Cargo.toml", "AGENTS.md",

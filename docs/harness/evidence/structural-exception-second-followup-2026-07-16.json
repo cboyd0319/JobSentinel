@@ -1,0 +1,55 @@
+{
+  "schema": "jobsentinel.repository_refactor_evidence.v1",
+  "feature_id": "full-repository-refactor",
+  "recorded_at": "2026-07-16T21:12:09Z",
+  "starting_revision": "0fa4052f",
+  "checkpoint": "uncommitted structural exception second follow-up with the active feature still in progress",
+  "platform": {
+    "product": "macOS",
+    "version": "27.0",
+    "architecture": "arm64"
+  },
+  "scope": "Owner-preserving test modularization, taxonomy compaction, and exact no-growth exception reduction",
+  "observed_implementation": [
+    "Three Rust test owners were split into focused child modules without changing production behavior.",
+    "One development-runtime test owner and one repository-tooling test owner were split into focused sibling tests while retaining their existing coverage.",
+    "The resume-skills taxonomy was compacted from 636 to 486 lines without changing its parsed-data SHA-256 hash.",
+    "Every changed parent and new child owner stays below the canonical 500-line hard ceiling.",
+    "The repository exact no-growth exception count fell by 6, from 63 to 57."
+  ],
+  "verification": [
+    {
+      "command": "node --test scripts/tests/checks/check-repo-bloat.test.mjs scripts/tests/checks/check-repo-bloat-resume-contracts.test.mjs scripts/tests/checks/check-repo-bloat-retired-product-contracts.test.mjs",
+      "exit_status": 0,
+      "result": "All 21 focused repository-bloat tests passed."
+    },
+    {
+      "command": "npx vitest run src/dev-runtime/features/resumes/resumeHardConstraints.test.ts src/dev-runtime/features/resumes/resumeHardConstraintCredentialEvidence.test.ts src/dev-runtime/features/resumes/resumeHardConstraintVehicleEvidence.test.ts",
+      "exit_status": 0,
+      "result": "All 21 focused development-runtime tests passed."
+    },
+    {
+      "command": "cargo test -p jobsentinel-notifications slack; cargo test -p jobsentinel-documents ats_analyzer; cargo test -p jobsentinel-sources weworkremotely",
+      "exit_status": 0,
+      "result": "All 99 Slack tests, 238 ATS analyzer tests, and 49 WeWorkRemotely tests passed; one live-network source test remained intentionally ignored."
+    },
+    {
+      "command": "npm run lint:file-size",
+      "exit_status": 0,
+      "result": "Every governed source and configuration file passed the canonical hard limits."
+    },
+    {
+      "command": "npm run verify:full",
+      "exit_status": 0,
+      "result": "Repository, security, dependency, documentation, type, lint, 817 script-test, 2934 frontend-test, production-build, Storybook-build, 10-test smoke, Rust formatting, Clippy, full parallel Rust workspace, documentation-test, and patch-whitespace stages passed."
+    }
+  ],
+  "remaining_implementation": [
+    "The remaining 57 structural exceptions still require prioritized reduction or justified retention.",
+    "The final whole-repository audit and active feature transition have not occurred."
+  ],
+  "completion_status": {
+    "feature_complete": false,
+    "committed": false
+  }
+}

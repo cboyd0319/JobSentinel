@@ -1,0 +1,74 @@
+{
+  "schema": "jobsentinel.repository_refactor_evidence.v1",
+  "feature_id": "full-repository-refactor",
+  "recorded_at": "2026-07-16T22:28:08Z",
+  "starting_revision": "0fa4052f",
+  "checkpoint": "uncommitted structural exception seventh follow-up with the active feature still in progress",
+  "platform": {
+    "product": "macOS",
+    "version": "27.0",
+    "architecture": "arm64"
+  },
+  "scope": "Owner-preserving Rust test modularization with exact no-growth exception reduction",
+  "observed_implementation": [
+    "Five Rust test owners were split into focused child modules without changing production behavior.",
+    "The new modules own notification formatting boundaries, scoring boundaries, application ghosting and statistics, storage query and integrity integration, and pipeline concurrency and scoring.",
+    "Every changed parent and new child owner stays below the canonical 500-line hard ceiling.",
+    "The repository exact no-growth exception count fell by 5, from 37 to 32."
+  ],
+  "verification": [
+    {
+      "command": "cargo fmt --all -- --check",
+      "exit_status": 0,
+      "result": "Rust formatting passed."
+    },
+    {
+      "command": "cargo test -p jobsentinel-notifications discord",
+      "exit_status": 0,
+      "result": "All 95 focused notification tests passed."
+    },
+    {
+      "command": "cargo test -p jobsentinel-application scoring::tests",
+      "exit_status": 0,
+      "result": "All 65 focused scoring tests passed."
+    },
+    {
+      "command": "cargo test -p jobsentinel-storage application_tracking",
+      "exit_status": 0,
+      "result": "All 45 focused application-tracking tests passed."
+    },
+    {
+      "command": "cargo test -p jobsentinel-storage --test database_integration_test",
+      "exit_status": 0,
+      "result": "The database integration lane passed 22 tests with the existing aggressive locking stress test intentionally ignored."
+    },
+    {
+      "command": "cargo test -p jobsentinel-application --test scraping_pipeline_integration",
+      "exit_status": 0,
+      "result": "All 12 pipeline integration tests passed."
+    },
+    {
+      "command": "npm run lint:file-size",
+      "exit_status": 0,
+      "result": "Every governed source and configuration file passed the canonical hard limits; 32 exact temporary exceptions remain."
+    },
+    {
+      "command": "git diff --check",
+      "exit_status": 0,
+      "result": "Patch whitespace validation passed."
+    },
+    {
+      "command": "npm run verify:full",
+      "exit_status": 0,
+      "result": "After disposable desktop metadata was removed during the run, the complete local gate passed, including harness, policy, security, script, frontend, build, smoke, Rust workspace, integration, and documentation checks."
+    }
+  ],
+  "remaining_implementation": [
+    "The remaining 32 structural exceptions still require prioritized reduction or justified retention.",
+    "The final whole-repository audit and active feature transition have not occurred."
+  ],
+  "completion_status": {
+    "feature_complete": false,
+    "committed": false
+  }
+}

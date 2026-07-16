@@ -86,9 +86,15 @@ export function evaluateMacosReadiness({ root = defaultRoot, env = process.env }
   const latestVerifier = read(root, "scripts/release/verify-latest-macos-release.mjs");
   const releaseDocs = read(root, "docs/developer/RELEASING.md");
   const macDocs = read(root, "docs/developer/MACOS_DEVELOPMENT.md");
-  const buildTests = read(root, "scripts/tests/build-macos-dmg.test.mjs");
-  const latestVerifierTests = read(root, "scripts/tests/verify-latest-macos-release.test.mjs");
-  const packageVerifierTests = read(root, "scripts/tests/verify-macos-package.test.mjs");
+  const buildTests = read(root, "scripts/tests/platform/build-macos-dmg.test.mjs");
+  const latestVerifierTests = read(
+    root,
+    "scripts/tests/release/verify-latest-macos-release.test.mjs",
+  );
+  const packageVerifierTests = read(
+    root,
+    "scripts/tests/release/verify-macos-package.test.mjs",
+  );
 
   const scripts = packageJson.scripts ?? {};
   const criteria = [

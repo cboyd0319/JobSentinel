@@ -1,0 +1,59 @@
+{
+  "schema": "jobsentinel.repository_refactor_evidence.v1",
+  "feature_id": "full-repository-refactor",
+  "recorded_at": "2026-07-16T19:09:34Z",
+  "starting_revision": "0fa4052f",
+  "checkpoint": "uncommitted first structural exception reduction with the active feature still in progress",
+  "platform": {
+    "product": "macOS",
+    "version": "27.0",
+    "architecture": "arm64"
+  },
+  "scope": "Notification test modularization and exact no-growth exception removal",
+  "observed_implementation": [
+    "Teams webhook validation and bypass cases moved from the 503-line parent test file into a focused child module.",
+    "The parent is 373 lines and the new child module is 129 lines, both below the canonical 500-line and 65536-byte hard ceilings.",
+    "The obsolete teams_tests.rs exact-path exception was removed from repository-structure-policy.json.",
+    "The repository exact no-growth exception count fell from 109 to 108."
+  ],
+  "verification": [
+    {
+      "command": "cargo fmt --all -- --check",
+      "exit_status": 0,
+      "result": "Rust formatting passed for the split test modules."
+    },
+    {
+      "command": "cargo clippy -p jobsentinel-notifications -- -D warnings",
+      "exit_status": 0,
+      "result": "The notifications crate passed Clippy with warnings denied."
+    },
+    {
+      "command": "cargo test -p jobsentinel-notifications",
+      "exit_status": 0,
+      "result": "All 390 notification tests and crate documentation tests passed."
+    },
+    {
+      "command": "npm run lint:file-size",
+      "exit_status": 0,
+      "result": "The new module and reduced parent passed without a file-size exception."
+    },
+    {
+      "command": "npm run test:scripts",
+      "exit_status": 0,
+      "result": "All 817 script and harness tests passed after the policy exception was removed."
+    },
+    {
+      "command": "npm run harness:check && npm run lint:architecture && npm run lint:bloat && npm run lint:dup && npm run lint:secrets",
+      "exit_status": 0,
+      "result": "State, architecture, residue, the 778-line duplication baseline, and secret contracts passed."
+    }
+  ],
+  "remaining_implementation": [
+    "The remaining 108 structural exceptions still require prioritized reduction or justified retention.",
+    "The final whole-repository audit and active feature transition have not occurred."
+  ],
+  "completion_status": {
+    "feature_complete": false,
+    "committed": false
+  }
+}

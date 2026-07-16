@@ -1,0 +1,71 @@
+{
+  "schema": "jobsentinel.repository_refactor_evidence.v1",
+  "feature_id": "full-repository-refactor",
+  "recorded_at": "2026-07-16T19:06:45Z",
+  "starting_revision": "0fa4052f",
+  "checkpoint": "uncommitted script-test owner cutover with the active feature still in progress",
+  "platform": {
+    "product": "macOS",
+    "version": "27.0",
+    "architecture": "arm64"
+  },
+  "scope": "Script-test and fixture ownership under scripts/tests",
+  "observed_implementation": [
+    "All 95 formerly flat files under scripts/tests moved under checks, dev, harness, lib, platform, or release directories that mirror their production script owners.",
+    "The recursive script-test runner still discovers every nested test deterministically.",
+    "The repository topology contract rejects flat script-test support files and undeclared script-test owner directories.",
+    "Path-sensitive release, external AI, security sensor, CODEOWNERS fixture, documentation, and file-size policy consumers use the owner-mirrored paths.",
+    "Existing no-growth file-size exception ceilings were preserved without increases.",
+    "The live source-boundary sensor now recognizes the current desktop bootstrap and IPC request-ledger registrations instead of retired paths."
+  ],
+  "verification": [
+    {
+      "command": "node --test scripts/tests/repository-topology.test.mjs",
+      "exit_status": 1,
+      "result": "The new owner-mirroring regression failed before implementation because flat and arbitrary script-test paths were accepted."
+    },
+    {
+      "command": "node --test scripts/tests/repository-topology.test.mjs",
+      "exit_status": 0,
+      "result": "All 11 topology tests passed after the owner-mirroring rule was added."
+    },
+    {
+      "command": "node --test scripts/tests/release/package-agent-skills.test.mjs scripts/tests/release/verify-public-release-assets.test.mjs",
+      "exit_status": 0,
+      "result": "All 24 focused release packaging and public artifact tests passed after repository-root resolution was updated for the nested owner."
+    },
+    {
+      "command": "npm run lint:file-size",
+      "exit_status": 0,
+      "result": "Every governed file remained within its existing hard limit or exact no-growth exception."
+    },
+    {
+      "command": "npm run test:scripts",
+      "exit_status": 0,
+      "result": "All 817 script and harness tests passed in the owner-mirrored layout."
+    },
+    {
+      "command": "npm run harness:check && npm run lint:architecture && npm run lint:tests",
+      "exit_status": 0,
+      "result": "Canonical state, file coverage, repository topology, frontend boundaries, and test-quality contracts passed."
+    },
+    {
+      "command": "npm run lint:bloat && npm run lint:dup && npm run lint:secrets",
+      "exit_status": 0,
+      "result": "Repository residue, the 778-line duplication baseline, and secret scanning passed after the stale desktop registration sensor was corrected."
+    },
+    {
+      "command": "npm run lint:docs && git diff --check",
+      "exit_status": 0,
+      "result": "Markdown, prose, state documentation, and patch whitespace checks passed."
+    }
+  ],
+  "remaining_implementation": [
+    "Remaining structural debt and explicit exceptions still require cleanup.",
+    "The final whole-repository audit and active feature transition have not occurred."
+  ],
+  "completion_status": {
+    "feature_complete": false,
+    "committed": false
+  }
+}

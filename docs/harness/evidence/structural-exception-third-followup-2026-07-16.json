@@ -1,0 +1,69 @@
+{
+  "schema": "jobsentinel.repository_refactor_evidence.v1",
+  "feature_id": "full-repository-refactor",
+  "recorded_at": "2026-07-16T21:28:39Z",
+  "starting_revision": "0fa4052f",
+  "checkpoint": "uncommitted structural exception third follow-up with the active feature still in progress",
+  "platform": {
+    "product": "macOS",
+    "version": "27.0",
+    "architecture": "arm64"
+  },
+  "scope": "Owner-preserving Rust and frontend test modularization with exact no-growth exception reduction",
+  "observed_implementation": [
+    "Two Rust test owners were split into focused child modules without changing production behavior.",
+    "Three frontend test owners were split into focused sibling tests while retaining their existing coverage.",
+    "Every changed parent and new child owner stays below the canonical 500-line hard ceiling.",
+    "The repository exact no-growth exception count fell by 5, from 57 to 52."
+  ],
+  "verification": [
+    {
+      "command": "cargo test -p jobsentinel-storage resume",
+      "exit_status": 0,
+      "result": "All 94 focused storage resume tests passed."
+    },
+    {
+      "command": "cargo test -p jobsentinel-intelligence",
+      "exit_status": 0,
+      "result": "All 18 intelligence tests passed; the documentation example remained intentionally ignored."
+    },
+    {
+      "command": "npx vitest run src/features/resumes/builder/AtsLiveScorePanel.test.tsx src/features/resumes/builder/AtsLiveScorePanel.context-and-tips.test.tsx src/features/onboarding/SetupWizard.test.tsx src/features/onboarding/SetupWizard.alerts-and-sources.test.tsx src/features/application-assist/ApplicationPreview.test.tsx src/features/application-assist/ApplicationPreview.accessibility-and-recovery.test.tsx",
+      "exit_status": 0,
+      "result": "All 109 focused frontend tests passed."
+    },
+    {
+      "command": "npm run lint:file-size",
+      "exit_status": 0,
+      "result": "Every governed source and configuration file passed the canonical hard limits; 52 exact temporary exceptions remain."
+    },
+    {
+      "command": "npm run verify:full",
+      "exit_status": "interrupted",
+      "result": "Repository, security, dependency, documentation, type, lint, 817 script-test, 2934 frontend-test, production-build, Storybook-build, 10-test smoke, Rust formatting, and Clippy stages passed. The parallel Rust workspace stopped producing output in the storage migration-idempotency integration test and was interrupted after the test binary remained idle."
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test -p jobsentinel-storage --test database_integration_test test_migrations_are_idempotent -- --exact --nocapture --test-threads=1",
+      "exit_status": 0,
+      "result": "The previously stalled migration-idempotency test passed in isolation."
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --workspace -- --test-threads=1",
+      "exit_status": 0,
+      "result": "The complete Rust workspace and documentation test lane passed serially."
+    },
+    {
+      "command": "npx eslint src/features/application-assist/ApplicationPreview.test.tsx src/features/application-assist/ApplicationPreview.accessibility-and-recovery.test.tsx && npx vitest run src/features/application-assist/ApplicationPreview.test.tsx src/features/application-assist/ApplicationPreview.accessibility-and-recovery.test.tsx && git diff --check",
+      "exit_status": 0,
+      "result": "The post-gate unused import cleanup passed focused lint, all 52 ApplicationPreview tests, and patch whitespace validation."
+    }
+  ],
+  "remaining_implementation": [
+    "The remaining 52 structural exceptions still require prioritized reduction or justified retention.",
+    "The final whole-repository audit and active feature transition have not occurred."
+  ],
+  "completion_status": {
+    "feature_complete": false,
+    "committed": false
+  }
+}

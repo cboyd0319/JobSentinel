@@ -479,10 +479,7 @@
       "appsec",
       "application security"
     ],
-    [
-      "DevSecOps",
-      "devsecops"
-    ],
+    ["DevSecOps", "devsecops"],
     [
       "Test",
       "Testing",

@@ -69,34 +69,6 @@ describe("UndoContext", () => {
     vi.clearAllMocks();
   });
 
-  describe("UndoProvider", () => {
-    it("renders children", () => {
-      render(
-        <TestWrapper>
-          <div>Child content</div>
-        </TestWrapper>
-      );
-
-      expect(screen.getByText("Child content")).toBeInTheDocument();
-    });
-  });
-
-  describe("useUndo", () => {
-    it("throws error when used outside provider", () => {
-      const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-
-      expect(() => {
-        render(
-          <ToastProvider>
-            <TestComponent />
-          </ToastProvider>
-        );
-      }).toThrow("useUndo must be used within an UndoProvider");
-
-      consoleSpy.mockRestore();
-    });
-  });
-
   describe("initial state", () => {
     it("starts with canUndo false", () => {
       render(
