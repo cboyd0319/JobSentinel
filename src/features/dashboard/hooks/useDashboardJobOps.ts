@@ -2,13 +2,16 @@
 // Manages hide, bookmark, notes, bulk operations, duplicates, and comparison
 
 import { useState, useCallback } from "react";
-import { invoke } from "@tauri-apps/api/core";
 import type { Job } from "../types";
 import { useToast } from "../../../shared/toast/useToast";
 import { useUndo } from "../../../shared/undo/useUndo";
 import { logError } from "../../../shared/errorReporting/logger";
 import { exportJobsToCsv } from "../jobCsvExport";
-import { invalidateCacheByCommand, safeInvokeWithToast } from "../../../shared/tauri/commandClient";
+import {
+  invalidateCacheByCommand,
+  invoke,
+  safeInvokeWithToast,
+} from "../../../platform/tauri";
 import { getSafeErrorToastCopy } from "../../../shared/errorReporting/safeToastCopy";
 import { recordJobLearningSignal } from "../dashboardJobLearning";
 import { useDashboardNotes } from "./useDashboardNotes";

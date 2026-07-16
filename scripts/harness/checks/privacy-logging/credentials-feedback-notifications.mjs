@@ -239,7 +239,7 @@ export function hasMissingLinkedInCredentialStorageDisable(root, path) {
     );
   }
 
-  if (path === "src-tauri/src/commands/credentials.rs") {
+  if (path === "src-tauri/src/ipc/credentials.rs") {
     return (
       !productionText.includes("LINKEDIN_CREDENTIALS_DISABLED") ||
       !/fn\s+reject_disabled_credential_storage/.test(productionText) ||

@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 function generatedBrowserButtonCode(): string {
   const source = readFileSync(
-    resolve(process.cwd(), "src-tauri/src/commands/bookmarklet.rs"),
+    resolve(process.cwd(), "src-tauri/src/ipc/bookmarklet.rs"),
     "utf8",
   );
   const match = source.match(

@@ -10,7 +10,7 @@ import {
   platformBin,
   runDoctor,
   summarizeDoctorResults,
-} from "../doctor.mjs";
+} from "../dev/doctor.mjs";
 
 function writeFixtureFile(root, path, content = "") {
   const fullPath = join(root, path);
@@ -150,14 +150,14 @@ test("formatDoctorResults prints actionable status lines", () => {
     {
       status: "fail",
       label: "npm dependencies",
-      detail: "Run node scripts/install-pinned-npm.mjs, then npm ci --ignore-scripts",
+      detail: "Run node scripts/harness/npm-pin.mjs, then npm ci --ignore-scripts",
     },
   ]);
 
   assert.match(output, /PASS Node\.js runtime: v22\.21\.1/);
   assert.match(
     output,
-    /FAIL npm dependencies: Run node scripts\/install-pinned-npm\.mjs, then npm ci --ignore-scripts/,
+    /FAIL npm dependencies: Run node scripts\/harness\/npm-pin\.mjs, then npm ci --ignore-scripts/,
   );
   assert.match(output, /Environment not ready: 1 failure\(s\), 0 warning\(s\)\./);
 });

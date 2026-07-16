@@ -47,7 +47,7 @@ test("checkRepoBloat rejects runtime frontend invokes missing dev mock cases", (
     );
     writeFixtureFile(
       root,
-      "src/test-support/mocks/handlers.ts",
+      "src/dev-runtime/mocks/handlers.ts",
       [
         "export async function mockInvoke(cmd) {",
         "  switch (cmd) {",
@@ -67,7 +67,7 @@ test("checkRepoBloat rejects runtime frontend invokes missing dev mock cases", (
         "add",
         "package.json",
         "src/components/RuntimeInvoke.tsx",
-        "src/test-support/mocks/handlers.ts",
+        "src/dev-runtime/mocks/handlers.ts",
       ],
       { cwd: root },
     );
@@ -76,7 +76,7 @@ test("checkRepoBloat rejects runtime frontend invokes missing dev mock cases", (
 
     assert.ok(
       violations.includes(
-        "sync dev mock handlers for runtime invokes: src/test-support/mocks/handlers.ts missing missing_runtime_command",
+        "sync dev mock handlers for runtime invokes: src/dev-runtime/mocks/handlers.ts missing missing_runtime_command",
       ),
       violations.join("\n"),
     );

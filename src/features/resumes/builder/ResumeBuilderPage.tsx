@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { useToast } from "../../../shared/toast/useToast";
-import { safeInvoke, safeInvokeWithToast } from "../../../shared/tauri/commandClient";
+import { safeInvoke, safeInvokeWithToast } from "../../../platform/tauri";
 import { getSafeErrorToastCopy } from "../../../shared/errorReporting/safeToastCopy";
 import { hasStoredResumeJobContext } from "../shared/resumeJobContext";
 import { mapSkillProficiencyLevel } from "../shared/resumeSkillUiTaxonomy";

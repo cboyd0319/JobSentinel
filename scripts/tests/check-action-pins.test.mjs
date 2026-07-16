@@ -9,7 +9,7 @@ import {
   collectActionPinViolations,
   parseLsRemoteTags,
   parseWorkflowActionUses,
-} from "../check-action-pins.mjs";
+} from "../checks/action-pins.mjs";
 
 const checkoutSha = "9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0";
 const setupNodeSha = "48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e";

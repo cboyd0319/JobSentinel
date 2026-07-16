@@ -4,7 +4,7 @@
  * Typed access to the private Tauri command names used for search links.
  */
 
-import { invoke } from "@tauri-apps/api/core";
+import { invoke } from "../../platform/tauri";
 import type {
   DeepLink,
   SearchCriteria,

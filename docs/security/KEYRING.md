@@ -158,7 +158,7 @@ React settings and setup UI
   invoke("get_credential_status") only for diagnostics
     |
     v
-src-tauri/src/commands/credentials.rs
+src-tauri/src/ipc/credentials.rs
     |
     v
 crates/jobsentinel-credentials/src/mod.rs
@@ -274,7 +274,7 @@ impl CredentialStore {
 `CredentialStore` is retained for legacy fallback and opt-in live keyring
 integration tests. New runtime code should not call it directly.
 
-### `src-tauri/src/commands/credentials.rs`
+### `src-tauri/src/ipc/credentials.rs`
 
 ```rust
 #[tauri::command]

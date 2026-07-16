@@ -1,6 +1,6 @@
 # Active Plan Status Projection
 
-Last updated: 2026-07-15.
+Last updated: 2026-07-16.
 
 Current state is owned by the root `PROGRESS.md` and `feature_list.json`. Read
 those files first. The detailed active execution plan is `current-work.md`, and

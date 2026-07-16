@@ -1,4 +1,4 @@
-import { invoke } from "@tauri-apps/api/core";
+import { invoke } from "../../../platform/tauri";
 import type { Dispatch, SetStateAction } from "react";
 import { useState } from "react";
 import { Button } from "../../../ui/Button";

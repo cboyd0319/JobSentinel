@@ -111,8 +111,13 @@ function validateContract(root, contract, violations) {
     if (!nonEmpty(dependency) || !uniqueStrings(owners) || owners.some((name) => !memberNames.includes(name))) violations.push(`technology owner ${dependency} must name one or more unique workspace members`);
   }
 
-  for (const field of ["top_level_directories", "frontend_directories", "script_directories", "forbidden_paths", "forbidden_dependencies"]) {
+  for (const field of ["top_level_directories", "frontend_directories", "script_directories", "required_paths", "forbidden_paths", "forbidden_dependencies"]) {
     if (!uniqueStrings(contract[field])) violations.push(`${field} must be a unique string list`);
+  }
+  for (const path of contract.required_paths ?? []) {
+    if (!existsSync(join(root, path))) {
+      violations.push(`required architecture path is missing: ${path}`);
+    }
   }
   const modularization = contract.modularization;
   if (!nonEmpty(modularization?.rule)) violations.push("modularization must define its rule");
@@ -218,6 +223,17 @@ function listRepositoryFiles(root, options, violations) {
 }
 
 function validatePaths(contract, files, violations) {
+  const scriptOwners = new Set(contract.script_directories);
+  for (const path of files) {
+    const scriptPath = path.match(/^scripts\/([^/]+)(?:\/(.+))?$/);
+    if (!scriptPath) continue;
+    if (!scriptPath[2]) {
+      violations.push(`root-level script is forbidden: ${path}`);
+    } else if (!scriptOwners.has(scriptPath[1])) {
+      violations.push(`undeclared script owner directory: ${path}`);
+    }
+  }
+
   for (const path of files) for (const row of contract.modularization.forbidden_path_patterns) {
     if (new RegExp(row.pattern).test(path)) violations.push(`${path}: ${row.reason}`);
   }

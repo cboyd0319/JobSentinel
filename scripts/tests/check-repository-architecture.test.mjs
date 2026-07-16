@@ -3,7 +3,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import test from "node:test";
-import { checkRepositoryArchitecture as checkRepositoryArchitectureWithTopology } from "../check-repository-architecture.mjs";
+import { checkRepositoryArchitecture as checkRepositoryArchitectureWithTopology } from "../checks/repository-architecture.mjs";
 
 function checkRepositoryArchitecture(root) {
   return checkRepositoryArchitectureWithTopology(root, { skipTopology: true });
@@ -70,7 +70,7 @@ workspace = true
   writeFixtureFile(
     root,
     "src-tauri/src/lib.rs",
-    "mod commands;\npub fn run() {}\n",
+    "mod ipc;\npub fn run() {}\n",
   );
 }
 
@@ -350,7 +350,7 @@ test("checkRepositoryArchitecture enforces thin private Tauri entrypoints", () =
     writeFixtureFile(
       root,
       "src-tauri/src/lib.rs",
-      "pub mod commands;\npub fn run() {}\n",
+      "pub mod ipc;\npub fn run() {}\n",
     );
 
     const violations = checkRepositoryArchitecture(root);
@@ -363,7 +363,34 @@ test("checkRepositoryArchitecture enforces thin private Tauri entrypoints", () =
     );
     assert.ok(
       violations.includes(
-        "src-tauri/src/lib.rs must keep commands private; use mod commands instead of pub mod commands",
+        "src-tauri/src/lib.rs must keep IPC adapters private; use mod ipc instead of pub mod ipc",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepositoryArchitecture keeps desktop service construction in the application crate", () => {
+  withFixture((root) => {
+    writeTargetWorkspace(root);
+    writeFixtureFile(
+      root,
+      "src-tauri/src/bootstrap/mod.rs",
+      [
+        "fn setup() {",
+        "  let database = Database::connect(&Database::default_path());",
+        "  let credentials = CredentialService::new(database.credentials());",
+        "  let scheduler = Scheduler::new_shared_with_credentials();",
+        "  let bookmarklet = BookmarkletServer::new(Default::default());",
+        "}",
+      ].join("\n"),
+    );
+
+    const violations = checkRepositoryArchitecture(root);
+
+    assert.ok(
+      violations.includes(
+        "src-tauri/src/bootstrap/mod.rs must delegate desktop service construction to jobsentinel-application",
       ),
       violations.join("\n"),
     );
@@ -375,7 +402,7 @@ test("checkRepositoryArchitecture keeps import orchestration in the application 
     writeTargetWorkspace(root);
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/import.rs",
+      "src-tauri/src/ipc/import.rs",
       [
         'async fn import_job() { sqlx::query("SELECT 1"); }',
         ...Array.from(
@@ -389,13 +416,13 @@ test("checkRepositoryArchitecture keeps import orchestration in the application 
 
     assert.ok(
       violations.includes(
-        "src-tauri/src/commands/import.rs must stay at or below 200 lines; found 201",
+        "src-tauri/src/ipc/import.rs must stay at or below 200 lines; found 201",
       ),
       violations.join("\n"),
     );
     assert.ok(
       violations.includes(
-        "src-tauri/src/commands/import.rs must delegate import orchestration and storage to jobsentinel-application",
+        "src-tauri/src/ipc/import.rs must delegate import orchestration and storage to jobsentinel-application",
       ),
       violations.join("\n"),
     );

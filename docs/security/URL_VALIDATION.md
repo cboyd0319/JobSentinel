@@ -149,9 +149,9 @@ destinations, so job links must be public HTTPS.
 These guards are used by:
 
 - `crates/jobsentinel-storage/src/crud.rs` before a job link is stored in SQLite.
-- `src-tauri/src/commands/automation.rs` before Application Assist opens a
+- `src-tauri/src/ipc/automation.rs` before Application Assist opens a
   visible review browser and loads local profile data.
-- `src-tauri/src/commands/deeplinks.rs` before opening a job URL in the user's browser.
+- `src-tauri/src/ipc/deeplinks.rs` before opening a job URL in the user's browser.
 - `crates/jobsentinel-network/src/external_request.rs` before shared scraper HTTP
   retry helpers fetch a source URL.
 - `crates/jobsentinel-application/src/config/validation.rs`, `crates/jobsentinel-sources/src/scrapers/jobswithgpt.rs`,
@@ -215,7 +215,7 @@ renderer CSP.
 
 ### Browser Import Local Receiver
 
-**Files**: `src-tauri/src/commands/bookmarklet.rs`,
+**Files**: `src-tauri/src/ipc/bookmarklet.rs`,
 `crates/jobsentinel-assistance/src/bookmarklet/server.rs`, and
 `crates/jobsentinel-assistance/src/bookmarklet/server/listener.rs`
 

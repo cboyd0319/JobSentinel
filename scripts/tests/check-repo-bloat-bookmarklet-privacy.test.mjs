@@ -28,7 +28,7 @@ test("checkRepoBloat rejects raw import and bookmarklet command error details", 
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/import.rs",
+      "src-tauri/src/ipc/import.rs",
       [
         "fn format_import_error(error: ImportError) -> String {",
         "    format!(\"Failed to read the job page response: {}\", error)",
@@ -41,17 +41,17 @@ test("checkRepoBloat rejects raw import and bookmarklet command error details", 
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/user_data.rs",
+      "src-tauri/src/ipc/user_data.rs",
       'category.parse().map_err(|e: String| format!("Invalid category: {}", e))?;\n',
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/scoring.rs",
+      "src-tauri/src/ipc/scoring.rs",
       'tracing::error!("Failed to load scoring config: {}", e);\n',
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/bookmarklet.rs",
+      "src-tauri/src/ipc/bookmarklet.rs",
       'tracing::error!(error = %e, "Failed to start bookmarklet server");\n',
     );
     writeFixtureFile(
@@ -69,10 +69,10 @@ test("checkRepoBloat rejects raw import and bookmarklet command error details", 
       [
         "add",
         "package.json",
-        "src-tauri/src/commands/import.rs",
-        "src-tauri/src/commands/user_data.rs",
-        "src-tauri/src/commands/scoring.rs",
-        "src-tauri/src/commands/bookmarklet.rs",
+        "src-tauri/src/ipc/import.rs",
+        "src-tauri/src/ipc/user_data.rs",
+        "src-tauri/src/ipc/scoring.rs",
+        "src-tauri/src/ipc/bookmarklet.rs",
         "crates/jobsentinel-assistance/src/bookmarklet/server.rs",
       ],
       { cwd: root },
@@ -81,10 +81,10 @@ test("checkRepoBloat rejects raw import and bookmarklet command error details", 
     const violations = checkRepoBloat(root);
 
     for (const path of [
-      "src-tauri/src/commands/import.rs",
-      "src-tauri/src/commands/user_data.rs",
-      "src-tauri/src/commands/scoring.rs",
-      "src-tauri/src/commands/bookmarklet.rs",
+      "src-tauri/src/ipc/import.rs",
+      "src-tauri/src/ipc/user_data.rs",
+      "src-tauri/src/ipc/scoring.rs",
+      "src-tauri/src/ipc/bookmarklet.rs",
       "crates/jobsentinel-assistance/src/bookmarklet/server.rs",
     ]) {
       assert.ok(
@@ -100,7 +100,7 @@ test("checkRepoBloat rejects raw command setup error display", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/config.rs",
+      "src-tauri/src/ipc/config.rs",
       [
         "pub async fn complete_setup() -> Result<(), String> {",
         "    Database::connect(&db_path)",
@@ -113,7 +113,7 @@ test("checkRepoBloat rejects raw command setup error display", () => {
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/app.rs",
+      "src-tauri/src/bootstrap/mod.rs",
       [
         "fn main() {",
         "    match Config::load(&config_path) {",
@@ -133,8 +133,8 @@ test("checkRepoBloat rejects raw command setup error display", () => {
       [
         "add",
         "package.json",
-        "src-tauri/src/commands/config.rs",
-        "src-tauri/src/app.rs",
+        "src-tauri/src/ipc/config.rs",
+        "src-tauri/src/bootstrap/mod.rs",
       ],
       { cwd: root },
     );
@@ -143,12 +143,12 @@ test("checkRepoBloat rejects raw command setup error display", () => {
 
     assert.ok(
       violations.includes(
-        "replace raw command setup error display: src-tauri/src/commands/config.rs",
+        "replace raw command setup error display: src-tauri/src/ipc/config.rs",
       ),
       violations.join("\n"),
     );
     assert.ok(
-      violations.includes("replace raw command setup error display: src-tauri/src/app.rs"),
+      violations.includes("replace raw command setup error display: src-tauri/src/bootstrap/mod.rs"),
       violations.join("\n"),
     );
   });
@@ -427,7 +427,7 @@ test("checkRepoBloat rejects opaque command unit errors", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/cache.rs",
+      "src-tauri/src/ipc/cache.rs",
       [
         "#[tauri::command]",
         "pub async fn get_cache_health() -> Result<serde_json::Value, ()> {",
@@ -437,14 +437,14 @@ test("checkRepoBloat rejects opaque command unit errors", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "src-tauri/src/commands/cache.rs"], {
+    execFileSync("git", ["add", "package.json", "src-tauri/src/ipc/cache.rs"], {
       cwd: root,
     });
 
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("replace opaque command unit errors: src-tauri/src/commands/cache.rs"),
+      violations.includes("replace opaque command unit errors: src-tauri/src/ipc/cache.rs"),
       violations.join("\n"),
     );
   });

@@ -1,13 +1,13 @@
 extern crate self as jobsentinel;
 
 use jobsentinel_application as application;
-use jobsentinel_application::desktop;
 
-mod app;
-mod command_handlers;
-mod commands;
+mod bootstrap;
+mod desktop;
+mod ipc;
+mod policy;
 
 /// Start the JobSentinel desktop application.
 pub fn run() {
-    app::run();
+    bootstrap::run();
 }

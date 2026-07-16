@@ -6,7 +6,7 @@ import {
   extractJsonObject,
   formatE2eBudgetSummary,
   summarizePlaywrightReport,
-} from "../e2e-budget.mjs";
+} from "../dev/e2e-budget.mjs";
 
 const report = {
   stats: {

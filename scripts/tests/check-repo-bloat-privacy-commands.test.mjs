@@ -69,7 +69,7 @@ test("checkRepoBloat rejects raw automation form result data", () => {
     );
     writeFixtureFile(
       root,
-      "src/test-support/mocks/handlers.ts",
+      "src/dev-runtime/mocks/handlers.ts",
       [
         "const screeningFields = screeningAnswers.slice(0, 2).map((answer) =>",
         "  `screening:${answer.questionPattern}`,",
@@ -84,7 +84,7 @@ test("checkRepoBloat rejects raw automation form result data", () => {
         "add",
         "package.json",
         "crates/jobsentinel-assistance/src/automation/form_filler.rs",
-        "src/test-support/mocks/handlers.ts",
+        "src/dev-runtime/mocks/handlers.ts",
       ],
       { cwd: root },
     );
@@ -98,7 +98,7 @@ test("checkRepoBloat rejects raw automation form result data", () => {
       violations.join("\n"),
     );
     assert.ok(
-      violations.includes("sanitize automation form result data: src/test-support/mocks/handlers.ts"),
+      violations.includes("sanitize automation form result data: src/dev-runtime/mocks/handlers.ts"),
       violations.join("\n"),
     );
   });
@@ -366,7 +366,7 @@ test("checkRepoBloat rejects raw resume import name logging", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/resume.rs",
+      "src-tauri/src/ipc/resume.rs",
       [
         'tracing::info!("Command: import_json_resume (name: {})", name);',
         'tracing::info!(name = %name, "Command: import_json_resume");',
@@ -374,14 +374,14 @@ test("checkRepoBloat rejects raw resume import name logging", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "src-tauri/src/commands/resume.rs"], {
+    execFileSync("git", ["add", "package.json", "src-tauri/src/ipc/resume.rs"], {
       cwd: root,
     });
 
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("sanitize resume import name logging: src-tauri/src/commands/resume.rs"),
+      violations.includes("sanitize resume import name logging: src-tauri/src/ipc/resume.rs"),
       violations.join("\n"),
     );
   });
@@ -392,7 +392,7 @@ test("checkRepoBloat rejects raw resume command error details", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/resume.rs",
+      "src-tauri/src/ipc/resume.rs",
       [
         "pub async fn upload_resume() -> Result<i64, String> {",
         "    matcher.upload_resume().await.map_err(|e| format!(\"Failed to upload resume: {}\", e))",
@@ -411,14 +411,14 @@ test("checkRepoBloat rejects raw resume command error details", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "src-tauri/src/commands/resume.rs"], {
+    execFileSync("git", ["add", "package.json", "src-tauri/src/ipc/resume.rs"], {
       cwd: root,
     });
 
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("sanitize resume command error details: src-tauri/src/commands/resume.rs"),
+      violations.includes("sanitize resume command error details: src-tauri/src/ipc/resume.rs"),
       violations.join("\n"),
     );
   });
@@ -429,7 +429,7 @@ test("checkRepoBloat rejects raw application tracking command error details", ()
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/ats.rs",
+      "src-tauri/src/ipc/ats.rs",
       [
         "pub async fn create_application(job_hash: String) -> Result<i64, String> {",
         "    tracing::info!(\"Command: create_application (job_hash: {})\", job_hash);",
@@ -450,7 +450,7 @@ test("checkRepoBloat rejects raw application tracking command error details", ()
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "src-tauri/src/commands/ats.rs"], {
+    execFileSync("git", ["add", "package.json", "src-tauri/src/ipc/ats.rs"], {
       cwd: root,
     });
 
@@ -458,7 +458,7 @@ test("checkRepoBloat rejects raw application tracking command error details", ()
 
     assert.ok(
       violations.includes(
-        "sanitize application tracking command error details: src-tauri/src/commands/ats.rs",
+        "sanitize application tracking command error details: src-tauri/src/ipc/ats.rs",
       ),
       violations.join("\n"),
     );
@@ -470,7 +470,7 @@ test("checkRepoBloat rejects raw automation command error details", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/automation.rs",
+      "src-tauri/src/ipc/automation.rs",
       [
         "pub async fn create_automation_attempt(job_hash: String) -> Result<i64, String> {",
         "    tracing::info!(\"Command: create_automation_attempt (job: {})\", job_hash);",
@@ -492,7 +492,7 @@ test("checkRepoBloat rejects raw automation command error details", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "src-tauri/src/commands/automation.rs"], {
+    execFileSync("git", ["add", "package.json", "src-tauri/src/ipc/automation.rs"], {
       cwd: root,
     });
 
@@ -500,7 +500,7 @@ test("checkRepoBloat rejects raw automation command error details", () => {
 
     assert.ok(
       violations.includes(
-        "sanitize automation command error details: src-tauri/src/commands/automation.rs",
+        "sanitize automation command error details: src-tauri/src/ipc/automation.rs",
       ),
       violations.join("\n"),
     );
@@ -512,7 +512,7 @@ test("checkRepoBloat rejects raw sensitive command error details", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/ml.rs",
+      "src-tauri/src/ipc/ml.rs",
       [
         "pub async fn match_resume_semantic(job_hash: String) -> Result<(), String> {",
         "    tracing::info!(\"Command: match_resume_semantic (job: {})\", job_hash);",
@@ -523,7 +523,7 @@ test("checkRepoBloat rejects raw sensitive command error details", () => {
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/salary.rs",
+      "src-tauri/src/ipc/salary.rs",
       [
         "pub async fn generate_negotiation_script(scenario: String) -> Result<(), String> {",
         "    tracing::info!(\"Command: generate_negotiation_script (scenario: {})\", scenario);",
@@ -534,7 +534,7 @@ test("checkRepoBloat rejects raw sensitive command error details", () => {
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/market.rs",
+      "src-tauri/src/ipc/market.rs",
       [
         "pub async fn run_market_analysis() -> Result<(), String> {",
         "    Err(e) => Err(format!(\"Failed to run market analysis: {}\", e)),",
@@ -548,9 +548,9 @@ test("checkRepoBloat rejects raw sensitive command error details", () => {
       [
         "add",
         "package.json",
-        "src-tauri/src/commands/ml.rs",
-        "src-tauri/src/commands/salary.rs",
-        "src-tauri/src/commands/market.rs",
+        "src-tauri/src/ipc/ml.rs",
+        "src-tauri/src/ipc/salary.rs",
+        "src-tauri/src/ipc/market.rs",
       ],
       { cwd: root },
     );
@@ -558,9 +558,9 @@ test("checkRepoBloat rejects raw sensitive command error details", () => {
     const violations = checkRepoBloat(root);
 
     for (const path of [
-      "src-tauri/src/commands/ml.rs",
-      "src-tauri/src/commands/salary.rs",
-      "src-tauri/src/commands/market.rs",
+      "src-tauri/src/ipc/ml.rs",
+      "src-tauri/src/ipc/salary.rs",
+      "src-tauri/src/ipc/market.rs",
     ]) {
       assert.ok(
         violations.includes(`sanitize sensitive command error details: ${path}`),
@@ -575,7 +575,7 @@ test("checkRepoBloat rejects raw utility command error details", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/jobs.rs",
+      "src-tauri/src/ipc/jobs.rs",
       [
         "pub async fn search_jobs() -> Result<(), String> {",
         "    tracing::error!(error = %e, \"Manual search failed\");",
@@ -590,7 +590,7 @@ test("checkRepoBloat rejects raw utility command error details", () => {
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/ghost.rs",
+      "src-tauri/src/ipc/ghost.rs",
       [
         "pub async fn get_ghost_jobs() -> Result<(), String> {",
         "    tracing::error!(\"Failed to get ghost jobs: {}\", e);",
@@ -601,7 +601,7 @@ test("checkRepoBloat rejects raw utility command error details", () => {
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/deeplinks.rs",
+      "src-tauri/src/ipc/deeplinks.rs",
       [
         "pub async fn open_deep_link(url: String) -> Result<(), String> {",
         "    app.emit(\"deep-link-opened\", DeepLinkOpenedEvent { url: url.clone() });",
@@ -617,9 +617,9 @@ test("checkRepoBloat rejects raw utility command error details", () => {
       [
         "add",
         "package.json",
-        "src-tauri/src/commands/jobs.rs",
-        "src-tauri/src/commands/ghost.rs",
-        "src-tauri/src/commands/deeplinks.rs",
+        "src-tauri/src/ipc/jobs.rs",
+        "src-tauri/src/ipc/ghost.rs",
+        "src-tauri/src/ipc/deeplinks.rs",
       ],
       { cwd: root },
     );
@@ -627,9 +627,9 @@ test("checkRepoBloat rejects raw utility command error details", () => {
     const violations = checkRepoBloat(root);
 
     for (const path of [
-      "src-tauri/src/commands/jobs.rs",
-      "src-tauri/src/commands/ghost.rs",
-      "src-tauri/src/commands/deeplinks.rs",
+      "src-tauri/src/ipc/jobs.rs",
+      "src-tauri/src/ipc/ghost.rs",
+      "src-tauri/src/ipc/deeplinks.rs",
     ]) {
       assert.ok(
         violations.includes(`sanitize utility command error details: ${path}`),

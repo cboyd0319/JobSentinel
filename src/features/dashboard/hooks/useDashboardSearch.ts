@@ -2,7 +2,7 @@
 // Manages search history persistence and query handling
 
 import { useState, useEffect, useCallback } from "react";
-import { invoke } from "@tauri-apps/api/core";
+import { invoke } from "../../../platform/tauri";
 import { logError } from "../../../shared/errorReporting/logger";
 
 const SEARCH_HISTORY_LIMIT = 20;

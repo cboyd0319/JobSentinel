@@ -28,7 +28,7 @@ test("checkRepoBloat rejects secret-bearing Debug derives", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/config.rs",
+      "src-tauri/src/ipc/config.rs",
       [
         "#[derive(Debug, Clone, Serialize, Deserialize)]",
         "pub struct TestEmailConfig {",
@@ -38,14 +38,14 @@ test("checkRepoBloat rejects secret-bearing Debug derives", () => {
         "",
       ].join("\n"),
     );
-    execFileSync("git", ["add", "package.json", "src-tauri/src/commands/config.rs"], {
+    execFileSync("git", ["add", "package.json", "src-tauri/src/ipc/config.rs"], {
       cwd: root,
     });
 
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("sanitize secret-bearing debug derive: src-tauri/src/commands/config.rs"),
+      violations.includes("sanitize secret-bearing debug derive: src-tauri/src/ipc/config.rs"),
       violations.join("\n"),
     );
   });
@@ -56,7 +56,7 @@ test("checkRepoBloat rejects raw test email command errors", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/config.rs",
+      "src-tauri/src/ipc/config.rs",
       [
         "pub async fn test_email_notification() -> Result<(), String> {",
         '  validate_email_config().await.map_err(|e| format!("Failed to send test email: {}", e))?;',
@@ -65,14 +65,14 @@ test("checkRepoBloat rejects raw test email command errors", () => {
         "",
       ].join("\n"),
     );
-    execFileSync("git", ["add", "package.json", "src-tauri/src/commands/config.rs"], {
+    execFileSync("git", ["add", "package.json", "src-tauri/src/ipc/config.rs"], {
       cwd: root,
     });
 
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("sanitize test email command errors: src-tauri/src/commands/config.rs"),
+      violations.includes("sanitize test email command errors: src-tauri/src/ipc/config.rs"),
       violations.join("\n"),
     );
   });
@@ -83,7 +83,7 @@ test("checkRepoBloat rejects raw Slack webhook validation command errors", () =>
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/config.rs",
+      "src-tauri/src/ipc/config.rs",
       [
         "pub async fn validate_slack_webhook(webhook_url: String) -> Result<bool, String> {",
         "  match validate_webhook(&webhook_url).await {",
@@ -94,7 +94,7 @@ test("checkRepoBloat rejects raw Slack webhook validation command errors", () =>
         "",
       ].join("\n"),
     );
-    execFileSync("git", ["add", "package.json", "src-tauri/src/commands/config.rs"], {
+    execFileSync("git", ["add", "package.json", "src-tauri/src/ipc/config.rs"], {
       cwd: root,
     });
 
@@ -102,7 +102,7 @@ test("checkRepoBloat rejects raw Slack webhook validation command errors", () =>
 
     assert.ok(
       violations.includes(
-        "sanitize Slack webhook validation command errors: src-tauri/src/commands/config.rs",
+        "sanitize Slack webhook validation command errors: src-tauri/src/ipc/config.rs",
       ),
       violations.join("\n"),
     );
@@ -114,7 +114,7 @@ test("checkRepoBloat rejects credential key input echo", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/credentials.rs",
+      "src-tauri/src/ipc/credentials.rs",
       [
         'let cred_key = key.parse::<CredentialKey>().map_err(|_| format!("Unknown credential key: {key}"))?;',
         "",
@@ -134,7 +134,7 @@ test("checkRepoBloat rejects credential key input echo", () => {
       [
         "add",
         "package.json",
-        "src-tauri/src/commands/credentials.rs",
+        "src-tauri/src/ipc/credentials.rs",
         "crates/jobsentinel-credentials/src/lib.rs",
       ],
       { cwd: root },
@@ -143,7 +143,7 @@ test("checkRepoBloat rejects credential key input echo", () => {
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("avoid echoing credential key input: src-tauri/src/commands/credentials.rs"),
+      violations.includes("avoid echoing credential key input: src-tauri/src/ipc/credentials.rs"),
       violations.join("\n"),
     );
     assert.ok(
@@ -192,7 +192,7 @@ test("checkRepoBloat rejects enabled LinkedIn credential storage", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/credentials.rs",
+      "src-tauri/src/ipc/credentials.rs",
       [
         "pub async fn store_credential(key: String, value: String) -> Result<(), String> {",
         "  let cred_key = parse_credential_key(&key)?;",
@@ -219,7 +219,7 @@ test("checkRepoBloat rejects enabled LinkedIn credential storage", () => {
       [
         "add",
         "package.json",
-        "src-tauri/src/commands/credentials.rs",
+        "src-tauri/src/ipc/credentials.rs",
         "crates/jobsentinel-credentials/src/lib.rs",
       ],
       { cwd: root },
@@ -229,7 +229,7 @@ test("checkRepoBloat rejects enabled LinkedIn credential storage", () => {
 
     assert.ok(
       violations.includes(
-        "disable LinkedIn credential storage: src-tauri/src/commands/credentials.rs",
+        "disable LinkedIn credential storage: src-tauri/src/ipc/credentials.rs",
       ),
       violations.join("\n"),
     );

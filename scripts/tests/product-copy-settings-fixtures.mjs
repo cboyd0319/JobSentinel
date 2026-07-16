@@ -52,7 +52,7 @@ export const technicalFirstSettingsPaths = [
       "src/features/dashboard/hooks/useDashboardAutoRefresh.ts",
       "src/features/dashboard/hooks/useDashboardJobOps.ts",
       "src/shared/externalAi/internal/aiGateway.ts",
-      "src/shared/tauri/commandClient.ts",
+      "src/platform/tauri/commandClient.ts",
       "src/shared/errorReporting/messages.ts",
       "src/features/settings/support/settingsBackupFile.test.ts",
       "src/features/settings/support/settingsBackupFile.ts",

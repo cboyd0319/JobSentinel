@@ -76,7 +76,7 @@ access, or external side effects the user did not choose.
 
 Evidence:
 
-- `src-tauri/src/commands/linkedin_auth.rs` disables legacy login and cookie
+- `src-tauri/src/ipc/linkedin_auth.rs` disables legacy login and cookie
   storage, returns disconnected status, exposes policy only, and tests that no
   auth material is stored.
 - `crates/jobsentinel-sources/src/scrapers/linkedin.rs` returns an invalid-configuration

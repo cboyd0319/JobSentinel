@@ -122,7 +122,7 @@ test("checkRepoBloat rejects production TypeScript error suppressions", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src/app/vitals.ts",
+      "src/dev-runtime/vitals.ts",
       [
         "export function getPerformanceSummary() {",
         "  // @ts-expect-error - memory is non-standard",
@@ -132,16 +132,12 @@ test("checkRepoBloat rejects production TypeScript error suppressions", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "src/app/vitals.ts"], {
-      cwd: root,
-    });
+    execFileSync("git", ["add", "package.json", "src/dev-runtime/vitals.ts"], { cwd: root });
 
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes(
-        "remove production TypeScript error suppression: src/app/vitals.ts",
-      ),
+      violations.includes("remove production TypeScript error suppression: src/dev-runtime/vitals.ts"),
       violations.join("\n"),
     );
   });
@@ -455,7 +451,7 @@ test("checkRepoBloat rejects direct Playwright E2E scripts", () => {
           scripts: {
             "test:e2e": "playwright test --project=chromium",
             "test:e2e:smoke":
-              "node scripts/run-playwright.mjs test --grep @smoke",
+              "node scripts/dev/run-playwright.mjs test --grep @smoke",
           },
         },
         null,

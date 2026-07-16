@@ -43,9 +43,9 @@ with `npm run tauri:dev`.
 
 - Current state: `PROGRESS.md`
 - Work selection and pass transitions: `feature_list.json`
-- Initialization: `init.sh`, `init.ps1`, and `scripts/harness-init.mjs`
+- Initialization: `init.sh`, `init.ps1`, and `scripts/harness/init.mjs`
 - Harness ownership and retired paths: `harness-manifest.json`
-- Verification routing: `scripts/harness-plan.mjs`
+- Verification routing: `scripts/harness/plan.mjs`
 - Source roots, units, and file-size policy: `repository-structure-policy.json`
 - Rust graph, technology owners, and retired architecture paths:
   `validation/repository_architecture_contract.json`

@@ -1,12 +1,14 @@
 import assert from "node:assert/strict";
 import { createServer } from "node:net";
+import { resolve } from "node:path";
 import test from "node:test";
 import {
   createPlaywrightEnv,
   findAvailablePlaywrightPort,
   mergeNodeOptions,
+  playwrightCliPath,
   preparePlaywrightEnv,
-} from "../run-playwright.mjs";
+} from "../dev/run-playwright.mjs";
 
 async function listenOnLoopback() {
   const server = createServer();
@@ -27,6 +29,13 @@ async function closeServer(server) {
 
 test("mergeNodeOptions suppresses only known upstream Node warnings", () => {
   assert.equal(mergeNodeOptions(""), "--disable-warning=DEP0205");
+});
+
+test("playwrightCliPath resolves from the repository root", () => {
+  assert.equal(
+    playwrightCliPath(),
+    resolve("node_modules/playwright/cli.js"),
+  );
 });
 
 test("mergeNodeOptions preserves existing options without duplicating warning flags", () => {

@@ -9,11 +9,8 @@ import { UndoProvider } from "./providers/UndoProvider";
 async function prepareDevelopmentRuntime() {
   if (!import.meta.env.DEV) return;
 
-  void import("./vitals").then(({ reportWebVitals }) => {
-    reportWebVitals();
-  });
-  const { setupMocking } = await import("../test-support/mocks");
-  await setupMocking();
+  const runtime = await import("../dev-runtime/prepare");
+  await runtime.prepareDevelopmentRuntime();
 }
 
 export async function startApp(root: HTMLElement) {

@@ -163,7 +163,7 @@ git rebase main
 - `src/` - React frontend (TypeScript + TailwindCSS)
 - `crates/jobsentinel-*/src/` - Platform-agnostic code by bounded owner
 - `crates/jobsentinel-platform/src/` - OS-specific code
-- `src-tauri/src/commands/` - Tauri RPC handlers
+- `src-tauri/src/ipc/` - Tauri RPC handlers
 
 Use modules before crates. Keep implementation leaves private and expose one
 owner facade. Add a workspace member only for a distinct runtime, dependency

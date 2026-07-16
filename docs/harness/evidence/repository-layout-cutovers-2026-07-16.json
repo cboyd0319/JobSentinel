@@ -1,0 +1,144 @@
+{
+  "schema": "jobsentinel.repository_refactor_evidence.v1",
+  "feature_id": "full-repository-refactor",
+  "recorded_at": "2026-07-16T18:56:43Z",
+  "starting_revision": "ee805fc4c33120822b88467fa5df2f66738fe84a",
+  "checkpoint": "verified repository cleanup checkpoint prepared for commit with the active feature still in progress",
+  "platform": {
+    "product": "macOS",
+    "version": "27.0",
+    "architecture": "arm64"
+  },
+  "scope": "Desktop composition, desktop adapter layout, frontend platform, development-runtime, and root-script cutovers",
+  "observed_implementation": [
+    "jobsentinel-application constructs configuration, storage, credentials, scheduler, and browser-import services for desktop startup.",
+    "The desktop adapter is split into bootstrap, desktop behavior, IPC, and policy owners; retired app, command handler, and commands paths are contractually forbidden.",
+    "Every production renderer import of desktop command, event, and notification APIs routes through thin entrypoints under src/platform/tauri.",
+    "The central mock registry, mock state, notification mock commands, development-only vitals, and environment-gated loader are owned by src/dev-runtime.",
+    "All 12 feature-owned mock directories moved under src/dev-runtime/features, and the frontend boundary recursively rejects new src/features mock directories.",
+    "Production code cannot import test support, and development-runtime loading is restricted to an explicit development-gated dynamic import.",
+    "All 24 former root-level scripts moved under declared checks, dev, harness, or release owners with no compatibility wrappers; package commands, launchers, workflows, maintained docs, and tests use the final paths.",
+    "The repository topology contract rejects future root-level scripts and undeclared script owner directories.",
+    "The source duplication ratchet fell from 810 lines across 40 regions to 778 lines across 38 regions; the non-production development runtime is excluded consistently with the former mock-directory policy."
+  ],
+  "verification": [
+    {
+      "command": "npm run test:run -- src/features/settings/sources/browser-import/BrowserImportButtonScript.test.ts",
+      "exit_status": 0,
+      "result": "The path-sensitive browser import script test passed after reading the command from its new IPC owner."
+    },
+    {
+      "command": "npm run verify:full",
+      "exit_status": 1,
+      "result": "Harness, architecture, security, dependency, SQLx, duplication, documentation, type, lint, 815 script tests, 2,933 frontend tests, and production and Storybook builds passed. The runtime smoke budget exposed a stale Playwright CLI path after the script-owner cutover; focused tests, the corrected runtime lane, and the remaining Rust lane passed separately."
+    },
+    {
+      "command": "npm run clean:generated",
+      "exit_status": 0,
+      "result": "Generated production, Storybook, and runtime-test outputs were removed after verification."
+    },
+    {
+      "command": "npm run lint:dup -- --update-baseline --date=2026-07-16",
+      "exit_status": 0,
+      "result": "The duplication contract was ratcheted down to 778 duplicated lines across 38 regions."
+    },
+    {
+      "command": "npm run harness:plan -- --since ee805fc4",
+      "exit_status": 0,
+      "result": "The planner selected the full repository, frontend, runtime, architecture, security, and Rust verification lanes for the cutover."
+    },
+    {
+      "command": "npm run test:run -- src/dev-runtime/features",
+      "exit_status": 0,
+      "result": "All 202 relocated development-runtime tests across 32 files passed."
+    },
+    {
+      "command": "npm run test:scripts",
+      "exit_status": 0,
+      "result": "All 816 script and harness contract tests passed, including the production platform, feature mock-directory, script-owner topology, and Playwright CLI path regressions."
+    },
+    {
+      "command": "node --test scripts/tests/run-playwright.test.mjs scripts/tests/e2e-budget.test.mjs",
+      "exit_status": 0,
+      "result": "All 15 focused development-script tests passed after both Playwright callers were routed through the repository-root CLI path helper."
+    },
+    {
+      "command": "npm run test:e2e:smoke:budget",
+      "exit_status": 0,
+      "result": "All 10 runtime smoke tests passed within the 30-second budget with no unexpected, flaky, or skipped tests."
+    },
+    {
+      "command": "npm run verify:rust",
+      "exit_status": 0,
+      "result": "Rust formatting, Clippy with warnings denied, workspace tests, and documentation tests passed."
+    },
+    {
+      "command": "npm run typecheck",
+      "exit_status": 0,
+      "result": "Strict TypeScript checking passed after all feature simulators moved."
+    },
+    {
+      "command": "npm run lint -- --quiet",
+      "exit_status": 0,
+      "result": "Frontend lint passed after all feature simulators moved."
+    },
+    {
+      "command": "npm run test:run",
+      "exit_status": 0,
+      "result": "All 2,933 frontend tests across 213 files passed after feature simulators moved to the development-runtime owner."
+    },
+    {
+      "command": "npm run build",
+      "exit_status": 0,
+      "result": "The production frontend build passed with platform-owned desktop APIs and no production dependency on development-runtime code."
+    },
+    {
+      "command": "npm run harness:check",
+      "exit_status": 0,
+      "result": "Canonical state, architecture, hosted-workflow policy, and file-size coverage passed."
+    },
+    {
+      "command": "npm run lint:architecture",
+      "exit_status": 0,
+      "result": "Frontend ownership boundaries and the repository architecture contract passed."
+    },
+    {
+      "command": "npm run lint:file-size",
+      "exit_status": 0,
+      "result": "Hard source limits passed; the path-sensitive product-copy test remained below its no-growth byte ceiling."
+    },
+    {
+      "command": "npm run lint:bloat",
+      "exit_status": 0,
+      "result": "The repository bloat and maintained-path checks passed."
+    },
+    {
+      "command": "npm run lint:dup",
+      "exit_status": 0,
+      "result": "Production duplication remained at the 778-line, 38-region baseline."
+    },
+    {
+      "command": "./init.sh --skip-install",
+      "exit_status": 0,
+      "result": "The canonical initializer used the relocated harness and development owners, passed environment diagnosis, the harness contract, and the three-test application startup smoke."
+    },
+    {
+      "command": "npm run lint:actions",
+      "exit_status": 0,
+      "result": "Release workflows passed action pin validation after the package-manager pin helper moved under the harness owner."
+    }
+  ],
+  "runtime_warnings": [
+    "The host ran Node.js 26.5.0 instead of the .nvmrc-owned 24.18.0 baseline.",
+    "The host ran npm 11.17.0 instead of the package.json-owned 12.0.1 baseline."
+  ],
+  "remaining_implementation": [
+    "Flat script tests still need directories that mirror their script owners.",
+    "Remaining structural debt and exceptions still require cleanup.",
+    "The final whole-repository audit and active feature transition have not occurred."
+  ],
+  "completion_status": {
+    "feature_complete": false,
+    "committed": true
+  }
+}

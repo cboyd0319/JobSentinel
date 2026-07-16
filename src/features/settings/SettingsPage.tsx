@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { invoke } from "@tauri-apps/api/core";
+import { invoke } from "../../platform/tauri";
 import { Button } from "../../ui/Button";
 import { HelpIcon } from "../../ui/HelpIcon";
 import { Modal } from "../../ui/Modal";

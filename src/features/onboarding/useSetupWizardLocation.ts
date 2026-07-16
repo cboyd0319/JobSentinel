@@ -1,6 +1,6 @@
 import { useCallback, useState, type Dispatch, type SetStateAction } from "react";
 import { useToast } from "../../shared/toast/useToast";
-import { safeInvoke } from "../../shared/tauri/commandClient";
+import { safeInvoke } from "../../platform/tauri";
 import {
   cacheDetectedLocation,
   readCachedDetectedLocation,

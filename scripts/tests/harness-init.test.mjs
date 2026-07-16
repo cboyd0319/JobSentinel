@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 
-import { initializationSteps, npmCommand, parseInitArgs, runInitialization } from "../harness-init.mjs";
+import { initializationSteps, npmCommand, parseInitArgs, runInitialization } from "../harness/init.mjs";
 
 test("native init arguments keep mutation explicit", () => {
   assert.deepEqual(parseInitArgs([]), { install: true, offline: false, runStart: false });
@@ -17,13 +17,13 @@ test("native init arguments keep mutation explicit", () => {
 test("initializer synchronizes only project dependencies and runs baseline checks", () => {
   const steps = initializationSteps({ install: true, platform: "linux" });
   assert.deepEqual(steps[0], { command: "npm", args: ["--version"] });
-  assert.deepEqual(steps[1], { command: process.execPath, args: ["scripts/doctor.mjs", "--preflight"] });
+  assert.deepEqual(steps[1], { command: process.execPath, args: ["scripts/dev/doctor.mjs", "--preflight"] });
   assert.deepEqual(steps[2], {
     command: "npm",
     args: ["ci", "--ignore-scripts", "--prefer-offline", "--no-audit", "--no-fund"],
   });
   assert.deepEqual(steps.slice(3).map((step) => step.args.join(" ")), [
-    "scripts/doctor.mjs",
+    "scripts/dev/doctor.mjs",
     "run harness:check",
     "run test:smoke",
   ]);

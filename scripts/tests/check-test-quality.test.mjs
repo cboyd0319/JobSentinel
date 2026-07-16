@@ -3,7 +3,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import test from "node:test";
-import { checkTestQuality } from "../check-test-quality.mjs";
+import { checkTestQuality } from "../checks/test-quality.mjs";
 
 function writeFixtureFile(root, path, content) {
   const fullPath = join(root, path);

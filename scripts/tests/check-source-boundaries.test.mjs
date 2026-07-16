@@ -314,7 +314,7 @@ test("source boundaries reject unapproved JobsWithGPT endpoint flows", () => {
     );
     writeFixtureFile(
       root,
-      "src/test-support/mocks/handlers.ts",
+      "src/dev-runtime/mocks/handlers.ts",
       "const endpoint = configRecord.jobswithgpt_endpoint;\n",
     );
 
@@ -347,7 +347,7 @@ test("source boundaries reject unapproved JobsWithGPT endpoint flows", () => {
       true,
     );
     assert.equal(
-      hasJobsWithGptUnapprovedEndpointFlow(root, "src/test-support/mocks/handlers.ts"),
+      hasJobsWithGptUnapprovedEndpointFlow(root, "src/dev-runtime/mocks/handlers.ts"),
       true,
     );
     assert.equal(
@@ -374,7 +374,7 @@ test("source boundaries reject missing JobsWithGPT request ledger", () => {
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/health.rs",
+      "src-tauri/src/ipc/health.rs",
       "pub async fn get_scraper_runs() {}\n",
     );
     writeFixtureFile(
@@ -384,8 +384,8 @@ test("source boundaries reject missing JobsWithGPT request ledger", () => {
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/app.rs",
-      "commands::health::get_scraper_runs,\n",
+      "src-tauri/src/bootstrap/mod.rs",
+      "ipc::health::get_scraper_runs,\n",
     );
     writeFixtureFile(
       root,
@@ -415,7 +415,7 @@ test("source boundaries reject missing JobsWithGPT request ledger", () => {
     assert.equal(
       hasJobsWithGptMissingRequestLedger(
         root,
-        "src-tauri/src/commands/health.rs",
+        "src-tauri/src/ipc/health.rs",
       ),
       true,
     );
@@ -427,7 +427,7 @@ test("source boundaries reject missing JobsWithGPT request ledger", () => {
       true,
     );
     assert.equal(
-      hasJobsWithGptMissingRequestLedger(root, "src-tauri/src/app.rs"),
+      hasJobsWithGptMissingRequestLedger(root, "src-tauri/src/bootstrap/mod.rs"),
       true,
     );
     assert.equal(

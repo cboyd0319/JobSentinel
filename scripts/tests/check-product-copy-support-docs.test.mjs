@@ -40,7 +40,7 @@ test("product copy rejects support troubleshooting jargon", () => {
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/bookmarklet.rs",
+      "src-tauri/src/ipc/bookmarklet.rs",
       '"Could not copy browser button. Allow clipboard access and try again.".to_string()\nalert("Turn on the import helper in Settings.")',
     );
     writeFixtureFile(
@@ -97,7 +97,7 @@ test("product copy rejects support troubleshooting jargon", () => {
       true,
     );
     assert.equal(
-      hasTechnicalFirstUserCopy(root, "src-tauri/src/commands/bookmarklet.rs"),
+      hasTechnicalFirstUserCopy(root, "src-tauri/src/ipc/bookmarklet.rs"),
       true,
     );
     assert.equal(
@@ -679,7 +679,7 @@ test("product copy rejects technical backend error labels", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/errors.rs",
+      "src-tauri/src/ipc/errors.rs",
       [
         'Self::Database => "Database Error",',
         'Self::Configuration => "Configuration Error",',
@@ -691,7 +691,7 @@ test("product copy rejects technical backend error labels", () => {
       ].join("\n"),
     );
     assert.equal(
-      hasTechnicalFirstUserCopy(root, "src-tauri/src/commands/errors.rs"),
+      hasTechnicalFirstUserCopy(root, "src-tauri/src/ipc/errors.rs"),
       true,
     );
   });

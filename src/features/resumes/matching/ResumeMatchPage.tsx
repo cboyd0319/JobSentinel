@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import { invoke } from "@tauri-apps/api/core";
+import { invoke } from "../../../platform/tauri";
 import { Button } from "../../../ui/Button";
 import { Card, CardHeader } from "../../../ui/Card";
 import { Badge } from "../../../ui/Badge";

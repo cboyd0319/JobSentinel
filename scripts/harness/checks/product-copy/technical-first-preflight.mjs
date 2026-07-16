@@ -69,7 +69,7 @@ const publicIssueTemplatePrivacyPaths = new Set([
 ]);
 
 export function getTechnicalFirstPreflightResult(root, path) {
-  if (path === "src/app/vitals.ts") {
+  if (path === "src/dev-runtime/vitals.ts") {
     const text = readFileSync(join(root, path), "utf8");
     return /analytics service|analytics services|custom reporting|sendToAnalytics|telemetry/i.test(text);
   }

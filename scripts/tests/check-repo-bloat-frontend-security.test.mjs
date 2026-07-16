@@ -692,7 +692,7 @@ test("checkRepoBloat rejects stale feedback webhook sanitizer patterns", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/feedback/sanitizer.rs",
+      "src-tauri/src/ipc/feedback/sanitizer.rs",
       [
         "static WEBHOOK_REGEX: Lazy<Regex> = Lazy::new(|| {",
         '    Regex::new(r"https://hooks\\.(slack|discord|teams)\\.com/[^\\s]+")',
@@ -704,7 +704,7 @@ test("checkRepoBloat rejects stale feedback webhook sanitizer patterns", () => {
 
     execFileSync(
       "git",
-      ["add", "package.json", "src-tauri/src/commands/feedback/sanitizer.rs"],
+      ["add", "package.json", "src-tauri/src/ipc/feedback/sanitizer.rs"],
       {
         cwd: root,
       },
@@ -714,7 +714,7 @@ test("checkRepoBloat rejects stale feedback webhook sanitizer patterns", () => {
 
     assert.ok(
       violations.includes(
-        "redact provider webhook URLs in feedback sanitizer: src-tauri/src/commands/feedback/sanitizer.rs",
+        "redact provider webhook URLs in feedback sanitizer: src-tauri/src/ipc/feedback/sanitizer.rs",
       ),
       violations.join("\n"),
     );

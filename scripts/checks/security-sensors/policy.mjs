@@ -117,12 +117,12 @@ export const publicReleaseVerifierChecks = [
 
 export const requiredCodeownersEntries = [
   "*", ".github/CODEOWNERS", ".github/dependabot.yml", ".github/workflows/",
-  "package.json", "package-lock.json", "scripts/check-action-pins.mjs",
+  "package.json", "package-lock.json", "scripts/checks/action-pins.mjs",
   "scripts/checks/dependency-pins.mjs", "scripts/checks/security-sensors.mjs",
   "scripts/tests/check-security-sensors.test.mjs", "scripts/checks/security/", "Cargo.toml",
   "Cargo.lock", ".cargo/", "clippy.toml", "deny.toml", "crates/",
   "scripts/checks/", "scripts/platform/", "scripts/release/",
-  "scripts/check-repository-architecture.mjs", "src-tauri/Cargo.toml", "AGENTS.md",
+  "scripts/checks/repository-architecture.mjs", "src-tauri/Cargo.toml", "AGENTS.md",
   "CLAUDE.md", "docs/CLAUDE.md", "src/shared/externalAi/", "SECURITY.md",
   "docs/security/", "src-tauri/capabilities/", "src-tauri/tauri.conf.json",
   "crates/jobsentinel-assistance/src/bookmarklet/",

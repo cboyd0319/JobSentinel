@@ -46,7 +46,7 @@ test("checkRepoBloat rejects stale feedback system-info architecture field", () 
     );
     writeFixtureFile(
       root,
-      "src/test-support/mocks/handlers.ts",
+      "src/dev-runtime/mocks/handlers.ts",
       [
         "export async function mockInvoke(cmd) {",
         "  switch (cmd) {",
@@ -67,7 +67,7 @@ test("checkRepoBloat rejects stale feedback system-info architecture field", () 
         "package.json",
         "src/features/settings/support/feedback/feedbackClient.ts",
         "src/features/settings/support/feedback/DebugInfoPreview.tsx",
-        "src/test-support/mocks/handlers.ts",
+        "src/dev-runtime/mocks/handlers.ts",
       ],
       { cwd: root },
     );
@@ -88,7 +88,7 @@ test("checkRepoBloat rejects stale feedback system-info architecture field", () 
     );
     assert.ok(
       violations.includes(
-        "sync feedback system-info architecture field: src/test-support/mocks/handlers.ts",
+        "sync feedback system-info architecture field: src/dev-runtime/mocks/handlers.ts",
       ),
       violations.join("\n"),
     );

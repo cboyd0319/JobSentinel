@@ -30,7 +30,7 @@ test("checkRepoBloat rejects unsanitized structured feedback debug events", () =
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/feedback/debug_log.rs",
+      "src-tauri/src/ipc/feedback/debug_log.rs",
       [
         "pub(super) fn get_debug_log() -> Vec<TimestampedEvent> {",
         "    DEBUG_LOG",
@@ -51,7 +51,7 @@ test("checkRepoBloat rejects unsanitized structured feedback debug events", () =
 
     execFileSync(
       "git",
-      ["add", "package.json", "src-tauri/src/commands/feedback/debug_log.rs"],
+      ["add", "package.json", "src-tauri/src/ipc/feedback/debug_log.rs"],
       {
         cwd: root,
       },
@@ -61,7 +61,7 @@ test("checkRepoBloat rejects unsanitized structured feedback debug events", () =
 
     assert.ok(
       violations.includes(
-        "sanitize structured feedback debug events: src-tauri/src/commands/feedback/debug_log.rs",
+        "sanitize structured feedback debug events: src-tauri/src/ipc/feedback/debug_log.rs",
       ),
       violations.join("\n"),
     );
@@ -73,7 +73,7 @@ test("checkRepoBloat accepts disabled feedback activity collection", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/feedback/debug_log.rs",
+      "src-tauri/src/ipc/feedback/debug_log.rs",
       [
         "pub fn get_debug_log() -> Vec<TimestampedEvent> {",
         "    Vec::new()",
@@ -88,7 +88,7 @@ test("checkRepoBloat accepts disabled feedback activity collection", () => {
 
     execFileSync(
       "git",
-      ["add", "package.json", "src-tauri/src/commands/feedback/debug_log.rs"],
+      ["add", "package.json", "src-tauri/src/ipc/feedback/debug_log.rs"],
       {
         cwd: root,
       },
@@ -96,7 +96,7 @@ test("checkRepoBloat accepts disabled feedback activity collection", () => {
 
     assert.equal(
       checkRepoBloat(root).includes(
-        "sanitize structured feedback debug events: src-tauri/src/commands/feedback/debug_log.rs",
+        "sanitize structured feedback debug events: src-tauri/src/ipc/feedback/debug_log.rs",
       ),
       false,
     );
@@ -108,7 +108,7 @@ test("checkRepoBloat rejects unsanitized feedback file saves", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/feedback/mod.rs",
+      "src-tauri/src/ipc/feedback/mod.rs",
       [
         "pub async fn save_feedback_file(content: String) -> Result<(), String> {",
         '    std::fs::write(&path, content).map_err(|e| format!("{e}"))?;',
@@ -121,7 +121,7 @@ test("checkRepoBloat rejects unsanitized feedback file saves", () => {
 
     execFileSync(
       "git",
-      ["add", "package.json", "src-tauri/src/commands/feedback/mod.rs"],
+      ["add", "package.json", "src-tauri/src/ipc/feedback/mod.rs"],
       {
         cwd: root,
       },
@@ -131,7 +131,7 @@ test("checkRepoBloat rejects unsanitized feedback file saves", () => {
 
     assert.ok(
       violations.includes(
-        "sanitize feedback file content before saving: src-tauri/src/commands/feedback/mod.rs",
+        "sanitize feedback file content before saving: src-tauri/src/ipc/feedback/mod.rs",
       ),
       violations.join("\n"),
     );
@@ -143,7 +143,7 @@ test("checkRepoBloat rejects raw feedback support-open errors", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/feedback/mod.rs",
+      "src-tauri/src/ipc/feedback/mod.rs",
       [
         "pub async fn open_github_issues() -> Result<(), String> {",
         '    app.shell().open(url, None).map_err(|e| format!("Failed to open browser: {e}"))?;',
@@ -159,7 +159,7 @@ test("checkRepoBloat rejects raw feedback support-open errors", () => {
 
     execFileSync(
       "git",
-      ["add", "package.json", "src-tauri/src/commands/feedback/mod.rs"],
+      ["add", "package.json", "src-tauri/src/ipc/feedback/mod.rs"],
       {
         cwd: root,
       },
@@ -169,7 +169,7 @@ test("checkRepoBloat rejects raw feedback support-open errors", () => {
 
     assert.ok(
       violations.includes(
-        "sanitize feedback support-open errors: src-tauri/src/commands/feedback/mod.rs",
+        "sanitize feedback support-open errors: src-tauri/src/ipc/feedback/mod.rs",
       ),
       violations.join("\n"),
     );
@@ -181,7 +181,7 @@ test("checkRepoBloat rejects raw user-data privacy logging", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/user_data.rs",
+      "src-tauri/src/ipc/user_data.rs",
       [
         "pub async fn create_cover_letter_template(name: String) -> Result<(), String> {",
         '    tracing::info!("Command: create_cover_letter_template (name: {})", name);',
@@ -227,7 +227,7 @@ test("checkRepoBloat rejects raw user-data privacy logging", () => {
       [
         "add",
         "package.json",
-        "src-tauri/src/commands/user_data.rs",
+        "src-tauri/src/ipc/user_data.rs",
         "crates/jobsentinel-application/src/user_data/mod.rs",
       ],
       {
@@ -239,7 +239,7 @@ test("checkRepoBloat rejects raw user-data privacy logging", () => {
 
     assert.ok(
       violations.includes(
-        "replace raw user-data privacy logging: src-tauri/src/commands/user_data.rs",
+        "replace raw user-data privacy logging: src-tauri/src/ipc/user_data.rs",
       ),
       violations.join("\n"),
     );
@@ -358,7 +358,7 @@ test("checkRepoBloat rejects stale user-data mock handlers", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src/test-support/mocks/handlers.ts",
+      "src/dev-runtime/mocks/handlers.ts",
       [
         "export async function mockInvoke(cmd) {",
         "  switch (cmd) {",
@@ -378,7 +378,7 @@ test("checkRepoBloat rejects stale user-data mock handlers", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "src/test-support/mocks/handlers.ts"], {
+    execFileSync("git", ["add", "package.json", "src/dev-runtime/mocks/handlers.ts"], {
       cwd: root,
     });
 
@@ -386,7 +386,7 @@ test("checkRepoBloat rejects stale user-data mock handlers", () => {
 
     assert.ok(
       violations.includes(
-        "sync user-data mock command handlers: src/test-support/mocks/handlers.ts",
+        "sync user-data mock command handlers: src/dev-runtime/mocks/handlers.ts",
       ),
       violations.join("\n"),
     );
@@ -398,7 +398,7 @@ test("checkRepoBloat rejects stale deep-link mock handlers", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src/test-support/mocks/handlers.ts",
+      "src/dev-runtime/mocks/handlers.ts",
       [
         "export async function mockInvoke(cmd) {",
         "  switch (cmd) {",
@@ -412,7 +412,7 @@ test("checkRepoBloat rejects stale deep-link mock handlers", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "src/test-support/mocks/handlers.ts"], {
+    execFileSync("git", ["add", "package.json", "src/dev-runtime/mocks/handlers.ts"], {
       cwd: root,
     });
 
@@ -420,7 +420,7 @@ test("checkRepoBloat rejects stale deep-link mock handlers", () => {
 
     assert.ok(
       violations.includes(
-        "sync deep-link mock command handlers: src/test-support/mocks/handlers.ts",
+        "sync deep-link mock command handlers: src/dev-runtime/mocks/handlers.ts",
       ),
       violations.join("\n"),
     );
@@ -432,7 +432,7 @@ test("checkRepoBloat rejects stale job-import mock handlers", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src/test-support/mocks/handlers.ts",
+      "src/dev-runtime/mocks/handlers.ts",
       [
         "export async function mockInvoke(cmd) {",
         "  switch (cmd) {",
@@ -446,7 +446,7 @@ test("checkRepoBloat rejects stale job-import mock handlers", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "src/test-support/mocks/handlers.ts"], {
+    execFileSync("git", ["add", "package.json", "src/dev-runtime/mocks/handlers.ts"], {
       cwd: root,
     });
 
@@ -454,7 +454,7 @@ test("checkRepoBloat rejects stale job-import mock handlers", () => {
 
     assert.ok(
       violations.includes(
-        "sync job-import mock command handlers: src/test-support/mocks/handlers.ts",
+        "sync job-import mock command handlers: src/dev-runtime/mocks/handlers.ts",
       ),
       violations.join("\n"),
     );
@@ -466,7 +466,7 @@ test("checkRepoBloat rejects job-import mocks returning full jobs", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src/features/dashboard/mocks/jobImportCommands.ts",
+      "src/dev-runtime/features/dashboard/jobImportCommands.ts",
       [
         "function importMockJobFromUrl(command) {",
         "  const job = { id: 1, title: 'Care Coordinator' };",
@@ -488,7 +488,7 @@ test("checkRepoBloat rejects job-import mocks returning full jobs", () => {
       [
         "add",
         "package.json",
-        "src/features/dashboard/mocks/jobImportCommands.ts",
+        "src/dev-runtime/features/dashboard/jobImportCommands.ts",
       ],
       { cwd: root },
     );
@@ -497,7 +497,7 @@ test("checkRepoBloat rejects job-import mocks returning full jobs", () => {
 
     assert.ok(
       violations.includes(
-        "sync job-import mock command handlers: src/features/dashboard/mocks/jobImportCommands.ts",
+        "sync job-import mock command handlers: src/dev-runtime/features/dashboard/jobImportCommands.ts",
       ),
       violations.join("\n"),
     );
@@ -509,7 +509,7 @@ test("checkRepoBloat accepts job-import mocks returning only job id", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src/features/dashboard/mocks/jobImportCommands.ts",
+      "src/dev-runtime/features/dashboard/jobImportCommands.ts",
       [
         "function importMockJobFromUrl(command) {",
         "  const job = { id: 1, title: 'Care Coordinator' };",
@@ -531,7 +531,7 @@ test("checkRepoBloat accepts job-import mocks returning only job id", () => {
       [
         "add",
         "package.json",
-        "src/features/dashboard/mocks/jobImportCommands.ts",
+        "src/dev-runtime/features/dashboard/jobImportCommands.ts",
       ],
       { cwd: root },
     );
@@ -540,7 +540,7 @@ test("checkRepoBloat accepts job-import mocks returning only job id", () => {
 
     assert.ok(
       !violations.includes(
-        "sync job-import mock command handlers: src/features/dashboard/mocks/jobImportCommands.ts",
+        "sync job-import mock command handlers: src/dev-runtime/features/dashboard/jobImportCommands.ts",
       ),
       violations.join("\n"),
     );
@@ -552,7 +552,7 @@ test("checkRepoBloat rejects stale feedback mock handlers", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src/test-support/mocks/handlers.ts",
+      "src/dev-runtime/mocks/handlers.ts",
       [
         "export async function mockInvoke(cmd) {",
         "  switch (cmd) {",
@@ -566,7 +566,7 @@ test("checkRepoBloat rejects stale feedback mock handlers", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "src/test-support/mocks/handlers.ts"], {
+    execFileSync("git", ["add", "package.json", "src/dev-runtime/mocks/handlers.ts"], {
       cwd: root,
     });
 
@@ -574,7 +574,7 @@ test("checkRepoBloat rejects stale feedback mock handlers", () => {
 
     assert.ok(
       violations.includes(
-        "sync feedback mock command handlers: src/test-support/mocks/handlers.ts",
+        "sync feedback mock command handlers: src/dev-runtime/mocks/handlers.ts",
       ),
       violations.join("\n"),
     );

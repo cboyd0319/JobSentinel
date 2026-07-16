@@ -211,7 +211,7 @@ export function getTechnicalFirstWorkflowResult(path, text) {
   if (
     path === "crates/jobsentinel-storage/src/resume/matcher.rs" ||
     path === "crates/jobsentinel-documents/src/ats_analyzer.rs" ||
-    path === "src/test-support/mocks/handlers.ts" ||
+    path === "src/dev-runtime/mocks/handlers.ts" ||
     path === "crates/jobsentinel-storage/src/salary/analyzer.rs" ||
     path === "crates/jobsentinel-storage/migrations/00000000000000_initial_schema.sql"
   ) {

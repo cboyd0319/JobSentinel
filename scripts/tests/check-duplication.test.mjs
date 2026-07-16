@@ -8,7 +8,7 @@ import {
   checkDuplication,
   measureDuplication,
   significantLines,
-} from "../check-duplication.mjs";
+} from "../checks/duplication.mjs";
 
 function sharedBlock() {
   return Array.from(

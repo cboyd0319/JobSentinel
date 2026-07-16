@@ -462,7 +462,7 @@ E2E tests use Playwright against the Vite mock dev server to test complete
 browser workflows.
 
 The `test:e2e*` npm scripts run Playwright through
-`scripts/run-playwright.mjs`. That wrapper keeps local and hosted-release output readable
+`scripts/dev/run-playwright.mjs`. That wrapper keeps local and hosted-release output readable
 on current Node versions by removing conflicting color environment settings and
 silencing the known upstream `DEP0205` deprecation warning from Playwright or
 Tailwind internals. It also selects an available loopback port and never reuses

@@ -31,7 +31,7 @@ const staleResumeOptimizerFramingPaths = new Set([
 
 const resumeTemplateAudiencePaths = new Set([
   "crates/jobsentinel-documents/src/templates.rs",
-  "src/test-support/mocks/handlers.ts",
+  "src/dev-runtime/mocks/handlers.ts",
   "src/features/resumes/builder/ResumeBuilderPage.tsx",
   "src/features/resumes/builder/ResumeBuilderPreviewStep.tsx",
   "src/features/resumes/builder/ResumeBuilderVisuals.tsx",
@@ -57,8 +57,8 @@ const applicationAssistFramingPaths = new Set([
   "package.json",
   "src/app/App.tsx",
   "src-tauri/Cargo.toml",
-  "src-tauri/src/commands/automation.rs",
-  "src-tauri/src/commands/errors.rs",
+  "src-tauri/src/ipc/automation.rs",
+  "src-tauri/src/ipc/errors.rs",
   "crates/jobsentinel-assistance/src/automation/mod.rs",
   "src/app/Navigation.tsx",
   "src/features/application-assist/ApplicationPreview.tsx",

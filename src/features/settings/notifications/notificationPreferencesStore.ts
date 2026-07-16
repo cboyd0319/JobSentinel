@@ -1,4 +1,4 @@
-import { safeInvoke } from "../../../shared/tauri/commandClient";
+import { safeInvoke } from "../../../platform/tauri";
 
 const SALARY_INPUT_MULTIPLIER = 1000;
 

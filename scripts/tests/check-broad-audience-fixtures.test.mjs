@@ -96,7 +96,7 @@ test("broad audience fixtures reject narrow mock defaults and profile examples",
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src/test-support/mocks/data.ts",
+      "src/dev-runtime/mocks/data.ts",
       'cities: ["Remote", "San Francisco", "New York"]',
     );
     writeFixtureFile(
@@ -106,7 +106,7 @@ test("broad audience fixtures reject narrow mock defaults and profile examples",
     );
 
     assert.equal(
-      hasEngineerFirstAudienceExamples(root, "src/test-support/mocks/data.ts"),
+      hasEngineerFirstAudienceExamples(root, "src/dev-runtime/mocks/data.ts"),
       true,
     );
     assert.equal(

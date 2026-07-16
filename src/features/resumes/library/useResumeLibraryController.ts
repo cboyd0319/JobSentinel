@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useToast } from "../../../shared/toast/useToast";
-import { safeInvoke, safeInvokeWithToast } from "../../../shared/tauri/commandClient";
+import { safeInvoke, safeInvokeWithToast } from "../../../platform/tauri";
 import { getSafeErrorToastCopy } from "../../../shared/errorReporting/safeToastCopy";
 import {
   DEFAULT_SKILL_STRENGTH,

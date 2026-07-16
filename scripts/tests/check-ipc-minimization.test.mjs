@@ -67,7 +67,7 @@ test("ipc minimization rejects full profile calls outside the profile editor", (
 
 test("ipc minimization ignores feature-owned mock command handlers", () => {
   withFixture((root) => {
-    const path = "src/features/application-assist/mocks/commands.ts";
+    const path = "src/dev-runtime/features/application-assist/commands.ts";
     writeFixtureFile(root, path, 'case "get_application_profile":\n');
 
     assert.equal(hasNonSettingsFullApplicationProfileInvoke(root, path), false);
@@ -121,7 +121,7 @@ test("ipc minimization rejects backend full imported job returns", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/import.rs",
+      "src-tauri/src/ipc/import.rs",
       [
         "pub async fn confirm_job_import(import_id: String) -> Result<Value, String> {",
         "  let job = state.database.get_job_by_id(job_id).await?;",
@@ -132,7 +132,7 @@ test("ipc minimization rejects backend full imported job returns", () => {
     );
 
     assert.equal(
-      hasFullImportedJobReturn(root, "src-tauri/src/commands/import.rs"),
+      hasFullImportedJobReturn(root, "src-tauri/src/ipc/import.rs"),
       true,
     );
   });
@@ -142,7 +142,7 @@ test("ipc minimization rejects stale import and profile mocks", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src/test-support/mocks/handlers.ts",
+      "src/dev-runtime/mocks/handlers.ts",
       [
         "function getMockApplicationProfilePreview() {",
         "  return { fullName: 'Jordan', resumeFilePath: '/private/resume.pdf' };",
@@ -162,7 +162,7 @@ test("ipc minimization rejects stale import and profile mocks", () => {
     );
     writeFixtureFile(
       root,
-      "src/features/dashboard/mocks/jobImportCommands.ts",
+      "src/dev-runtime/features/dashboard/jobImportCommands.ts",
       [
         "function importMockJobFromUrl(command) {",
         "  const job = { id: 1, title: 'Care Coordinator' };",
@@ -180,18 +180,18 @@ test("ipc minimization rejects stale import and profile mocks", () => {
     );
 
     assert.equal(
-      hasStaleJobImportMockHandlers(root, "src/test-support/mocks/handlers.ts"),
+      hasStaleJobImportMockHandlers(root, "src/dev-runtime/mocks/handlers.ts"),
       true,
     );
     assert.equal(
       hasStaleJobImportMockHandlers(
         root,
-        "src/features/dashboard/mocks/jobImportCommands.ts",
+        "src/dev-runtime/features/dashboard/jobImportCommands.ts",
       ),
       true,
     );
     assert.equal(
-      hasStaleProfilePreviewMock(root, "src/test-support/mocks/handlers.ts"),
+      hasStaleProfilePreviewMock(root, "src/dev-runtime/mocks/handlers.ts"),
       true,
     );
   });
@@ -201,7 +201,7 @@ test("ipc minimization rejects bookmarklet token exposure across renderer IPC", 
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/bookmarklet.rs",
+      "src-tauri/src/ipc/bookmarklet.rs",
       [
         "pub struct BookmarkletConfigResponse {",
         '  #[serde(rename = "authToken")]',
@@ -217,14 +217,14 @@ test("ipc minimization rejects bookmarklet token exposure across renderer IPC", 
     );
     writeFixtureFile(
       root,
-      "src/test-support/mocks/handlers.ts",
+      "src/dev-runtime/mocks/handlers.ts",
       "const bookmarkletConfig = { authToken: 'mock-token' };\n",
     );
 
     for (const path of [
-      "src-tauri/src/commands/bookmarklet.rs",
+      "src-tauri/src/ipc/bookmarklet.rs",
       "src/features/settings/sources/browser-import/BrowserImportSection.tsx",
-      "src/test-support/mocks/handlers.ts",
+      "src/dev-runtime/mocks/handlers.ts",
     ]) {
       assert.equal(hasBookmarkletTokenIpcExposure(root, path), true);
     }
@@ -235,7 +235,7 @@ test("ipc minimization rejects application resume path exposure across renderer 
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/automation.rs",
+      "src-tauri/src/ipc/automation.rs",
       [
         "pub struct ApplicationProfileResponse {",
         "  pub resume_file_path: Option<String>,",
@@ -256,14 +256,14 @@ test("ipc minimization rejects application resume path exposure across renderer 
     );
     writeFixtureFile(
       root,
-      "src/test-support/mocks/handlers.ts",
+      "src/dev-runtime/mocks/handlers.ts",
       "const applicationProfile = { resume_file_path: '<local-private-resume>' };\n",
     );
 
     for (const path of [
-      "src-tauri/src/commands/automation.rs",
+      "src-tauri/src/ipc/automation.rs",
       "src/features/application-assist/ProfileForm.tsx",
-      "src/test-support/mocks/handlers.ts",
+      "src/dev-runtime/mocks/handlers.ts",
     ]) {
       assert.equal(hasApplicationProfileResumePathExposure(root, path), true);
     }
@@ -274,7 +274,7 @@ test("ipc minimization rejects automatic resume uploads from Application Assist"
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/automation.rs",
+      "src-tauri/src/ipc/automation.rs",
       [
         "let resume_path = trusted_application_resume_path(profile.resume_file_path.as_deref(), dir)?;",
         "let filler = FormFiller::new(profile, resume_path).with_screening_answers(screening_answers);",
@@ -285,14 +285,14 @@ test("ipc minimization rejects automatic resume uploads from Application Assist"
     assert.equal(
       hasApplicationAssistAutomaticResumeUpload(
         root,
-        "src-tauri/src/commands/automation.rs",
+        "src-tauri/src/ipc/automation.rs",
       ),
       true,
     );
     assert.equal(
       hasApplicationAssistAutomaticResumeUpload(
         root,
-        "src-tauri/src/commands/jobs.rs",
+        "src-tauri/src/ipc/jobs.rs",
       ),
       false,
     );
@@ -303,7 +303,7 @@ test("ipc minimization rejects Application Assist profile load before target tru
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/automation.rs",
+      "src-tauri/src/ipc/automation.rs",
       [
         "pub async fn fill_application_form(job_url: String) -> Result<(), String> {",
         "  let profile_manager = ProfileManager::new(state.database.pool().clone());",
@@ -317,14 +317,14 @@ test("ipc minimization rejects Application Assist profile load before target tru
     assert.equal(
       hasApplicationAssistUntrustedFormTarget(
         root,
-        "src-tauri/src/commands/automation.rs",
+        "src-tauri/src/ipc/automation.rs",
       ),
       true,
     );
 
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/automation.rs",
+      "src-tauri/src/ipc/automation.rs",
       [
         "pub async fn fill_application_form(job_url: String) -> Result<(), String> {",
         "  let (job_url, platform) = prepare_form_target_for_fill(&job_url).await?;",
@@ -338,7 +338,7 @@ test("ipc minimization rejects Application Assist profile load before target tru
     assert.equal(
       hasApplicationAssistUntrustedFormTarget(
         root,
-        "src-tauri/src/commands/automation.rs",
+        "src-tauri/src/ipc/automation.rs",
       ),
       false,
     );
@@ -349,7 +349,7 @@ test("ipc minimization rejects automation screenshot path IPC", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/automation.rs",
+      "src-tauri/src/ipc/automation.rs",
       [
         "pub struct AttemptResponse {",
         "  pub screenshot_path: Option<String>,",
@@ -363,7 +363,7 @@ test("ipc minimization rejects automation screenshot path IPC", () => {
     assert.equal(
       hasAutomationScreenshotPathIpcExposure(
         root,
-        "src-tauri/src/commands/automation.rs",
+        "src-tauri/src/ipc/automation.rs",
       ),
       true,
     );
@@ -374,7 +374,7 @@ test("ipc minimization rejects raw screening answer history IPC", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/automation.rs",
+      "src-tauri/src/ipc/automation.rs",
       [
         "pub struct AnswerStatisticsResponse {",
         "  pub pattern: String,",
@@ -399,14 +399,14 @@ test("ipc minimization rejects raw screening answer history IPC", () => {
     );
     writeFixtureFile(
       root,
-      "src/test-support/mocks/handlers.ts",
+      "src/dev-runtime/mocks/handlers.ts",
       "const suggestion = { source: { type: 'historical', originalQuestion: 'What salary?' } };\n",
     );
 
     assert.equal(
       hasRawAnswerHistoryIpcExposure(
         root,
-        "src-tauri/src/commands/automation.rs",
+        "src-tauri/src/ipc/automation.rs",
       ),
       true,
     );
@@ -418,7 +418,7 @@ test("ipc minimization rejects raw screening answer history IPC", () => {
       true,
     );
     assert.equal(
-      hasRawAnswerHistoryIpcExposure(root, "src/test-support/mocks/handlers.ts"),
+      hasRawAnswerHistoryIpcExposure(root, "src/dev-runtime/mocks/handlers.ts"),
       true,
     );
   });

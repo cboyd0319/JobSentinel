@@ -9,7 +9,7 @@ import {
   isPermissionGranted,
   requestPermission,
   sendNotification,
-} from "@tauri-apps/plugin-notification";
+} from "../../platform/tauri/notifications";
 import { logError } from "../../shared/errorReporting/logger";
 
 /**

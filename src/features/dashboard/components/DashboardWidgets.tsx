@@ -2,7 +2,7 @@
 // Uses Recharts for charts
 
 import { memo, useEffect, useState, useCallback, useMemo } from 'react';
-import { invoke } from '@tauri-apps/api/core';
+import { invoke } from '../../../platform/tauri';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend, AreaChart, Area, FunnelChart, Funnel, LabelList

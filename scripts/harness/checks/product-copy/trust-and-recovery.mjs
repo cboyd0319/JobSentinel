@@ -57,11 +57,11 @@ const feedbackLocalReportPaths = new Set([
   "src/shared/errorReporting/supportReport.ts",
   "src/features/settings/support/feedback/feedbackClient.ts",
   "src/features/settings/support/feedback/feedbackReportFormatting.ts",
-  "src-tauri/src/commands/feedback/mod.rs",
-  "src-tauri/src/commands/feedback/debug_log.rs",
-  "src-tauri/src/commands/feedback/report.rs",
+  "src-tauri/src/ipc/feedback/mod.rs",
+  "src-tauri/src/ipc/feedback/debug_log.rs",
+  "src-tauri/src/ipc/feedback/report.rs",
   "crates/jobsentinel-application/src/health/smoke_checks/mod.rs",
-  "src/test-support/mocks/handlers.ts",
+  "src/dev-runtime/mocks/handlers.ts",
   "src/shared/errorReporting/messages.ts",
 ]);
 

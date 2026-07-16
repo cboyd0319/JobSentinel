@@ -3,7 +3,7 @@ import { Badge } from "../../ui/Badge";
 import { Button } from "../../ui/Button";
 import { Card } from "../../ui/Card";
 import { Skeleton } from "../../ui/Skeleton";
-import { invoke } from "@tauri-apps/api/core";
+import { invoke } from "../../platform/tauri";
 import { logError } from "../../shared/errorReporting/logger";
 import { getHardScreeningAnswerGuidance } from "./screeningReviewGuidance";
 

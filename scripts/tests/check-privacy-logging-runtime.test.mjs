@@ -66,7 +66,7 @@ test("privacy logging rejects raw email and webhook errors", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/config.rs",
+      "src-tauri/src/ipc/config.rs",
       [
         'format!("Failed to send test email: {}", e);',
         'tracing::error!("Webhook validation failed: {}", e);',
@@ -74,18 +74,18 @@ test("privacy logging rejects raw email and webhook errors", () => {
     );
 
     assert.equal(
-      hasRawEmailTestErrorReturn(root, "src-tauri/src/commands/config.rs"),
+      hasRawEmailTestErrorReturn(root, "src-tauri/src/ipc/config.rs"),
       true,
     );
     assert.equal(
       hasRawSlackWebhookValidationErrorReturn(
         root,
-        "src-tauri/src/commands/config.rs",
+        "src-tauri/src/ipc/config.rs",
       ),
       true,
     );
     assert.equal(
-      hasRawEmailTestErrorReturn(root, "src-tauri/src/commands/jobs.rs"),
+      hasRawEmailTestErrorReturn(root, "src-tauri/src/ipc/jobs.rs"),
       false,
     );
   });
@@ -253,17 +253,17 @@ test("privacy logging rejects unsanitized feedback report handling", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/feedback/sanitizer.rs",
+      "src-tauri/src/ipc/feedback/sanitizer.rs",
       'let stale = "hooks\\.(slack|discord|teams)\\.com";',
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/feedback/debug_log.rs",
+      "src-tauri/src/ipc/feedback/debug_log.rs",
       "pub fn get_debug_log() { DEBUG_LOG.lock().ok().map(|buffer| buffer.get_all()) }",
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/feedback/mod.rs",
+      "src-tauri/src/ipc/feedback/mod.rs",
       [
         "pub fn save_feedback_file(content: String) -> Result<Option<String>, String> {",
         "  std::fs::write(&path, content);",
@@ -277,37 +277,37 @@ test("privacy logging rejects unsanitized feedback report handling", () => {
     assert.equal(
       hasStaleFeedbackWebhookSanitizer(
         root,
-        "src-tauri/src/commands/feedback/sanitizer.rs",
+        "src-tauri/src/ipc/feedback/sanitizer.rs",
       ),
       true,
     );
     assert.equal(
       hasIncompleteFeedbackJobSearchSanitizer(
         root,
-        "src-tauri/src/commands/feedback/sanitizer.rs",
+        "src-tauri/src/ipc/feedback/sanitizer.rs",
       ),
       true,
     );
     assert.equal(
       hasUnsanitizedStructuredDebugLogEvents(
         root,
-        "src-tauri/src/commands/feedback/debug_log.rs",
+        "src-tauri/src/ipc/feedback/debug_log.rs",
       ),
       true,
     );
     assert.equal(
       hasUnsanitizedFeedbackFileSave(
         root,
-        "src-tauri/src/commands/feedback/mod.rs",
+        "src-tauri/src/ipc/feedback/mod.rs",
       ),
       true,
     );
     assert.equal(
-      hasRawFeedbackOpenErrors(root, "src-tauri/src/commands/feedback/mod.rs"),
+      hasRawFeedbackOpenErrors(root, "src-tauri/src/ipc/feedback/mod.rs"),
       true,
     );
     assert.equal(
-      hasRawFeedbackOpenErrors(root, "src-tauri/src/commands/jobs.rs"),
+      hasRawFeedbackOpenErrors(root, "src-tauri/src/ipc/jobs.rs"),
       false,
     );
   });
@@ -459,7 +459,7 @@ test("privacy logging rejects raw path, query, and config URL displays", () => {
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/config.rs",
+      "src-tauri/src/ipc/config.rs",
       'map_err(|e| format!("Failed to load config: {}", e));',
     );
     writeFixtureFile(
@@ -473,7 +473,7 @@ test("privacy logging rejects raw path, query, and config URL displays", () => {
       true,
     );
     assert.equal(
-      hasRawCommandSetupErrorDisplay(root, "src-tauri/src/commands/config.rs"),
+      hasRawCommandSetupErrorDisplay(root, "src-tauri/src/ipc/config.rs"),
       true,
     );
     assert.equal(
@@ -484,7 +484,7 @@ test("privacy logging rejects raw path, query, and config URL displays", () => {
       true,
     );
     assert.equal(
-      hasRawCommandSetupErrorDisplay(root, "src-tauri/src/commands/jobs.rs"),
+      hasRawCommandSetupErrorDisplay(root, "src-tauri/src/ipc/jobs.rs"),
       false,
     );
   });
@@ -499,7 +499,7 @@ test("privacy logging rejects raw resume command details", () => {
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/resume.rs",
+      "src-tauri/src/ipc/resume.rs",
       [
         'tracing::info!("import_json_resume name={}", name);',
         'map_err(|e| format!("Failed to export resume: {}", e))?',
@@ -518,19 +518,19 @@ test("privacy logging rejects raw resume command details", () => {
       true,
     );
     assert.equal(
-      hasRawResumeNameLogging(root, "src-tauri/src/commands/resume.rs"),
+      hasRawResumeNameLogging(root, "src-tauri/src/ipc/resume.rs"),
       true,
     );
     assert.equal(
-      hasRawResumeCommandErrorDetails(root, "src-tauri/src/commands/resume.rs"),
+      hasRawResumeCommandErrorDetails(root, "src-tauri/src/ipc/resume.rs"),
       true,
     );
     assert.equal(
-      hasRawResumeCommandDtoExposure(root, "src-tauri/src/commands/resume.rs"),
+      hasRawResumeCommandDtoExposure(root, "src-tauri/src/ipc/resume.rs"),
       true,
     );
     assert.equal(
-      hasRawResumeCommandDtoExposure(root, "src-tauri/src/commands/jobs.rs"),
+      hasRawResumeCommandDtoExposure(root, "src-tauri/src/ipc/jobs.rs"),
       false,
     );
   });
@@ -540,48 +540,48 @@ test("privacy logging rejects raw backend command error details", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/ats.rs",
+      "src-tauri/src/ipc/ats.rs",
       'map_err(|e| format!("Failed to save status: {}", e))?',
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/automation.rs",
+      "src-tauri/src/ipc/automation.rs",
       'Err(e) => Err(format!("Failed to fill form: {}", e)),',
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/ml.rs",
+      "src-tauri/src/ipc/ml.rs",
       'serde_json::to_value(value).map_err(|e| format!("Failed to serialize: {}", e))?',
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/jobs.rs",
+      "src-tauri/src/ipc/jobs.rs",
       'format!("Database error: {}", e);',
     );
 
     assert.equal(
-      hasRawAtsCommandErrorDetails(root, "src-tauri/src/commands/ats.rs"),
+      hasRawAtsCommandErrorDetails(root, "src-tauri/src/ipc/ats.rs"),
       true,
     );
     assert.equal(
       hasRawAutomationCommandErrorDetails(
         root,
-        "src-tauri/src/commands/automation.rs",
+        "src-tauri/src/ipc/automation.rs",
       ),
       true,
     );
     assert.equal(
-      hasRawSensitiveCommandErrorDetails(root, "src-tauri/src/commands/ml.rs"),
+      hasRawSensitiveCommandErrorDetails(root, "src-tauri/src/ipc/ml.rs"),
       true,
     );
     assert.equal(
-      hasRawUtilityCommandErrorDetails(root, "src-tauri/src/commands/jobs.rs"),
+      hasRawUtilityCommandErrorDetails(root, "src-tauri/src/ipc/jobs.rs"),
       true,
     );
     assert.equal(
       hasRawUtilityCommandErrorDetails(
         root,
-        "src-tauri/src/commands/resume.rs",
+        "src-tauri/src/ipc/resume.rs",
       ),
       false,
     );
@@ -597,7 +597,7 @@ test("privacy logging rejects raw import URL and HTTP errors", () => {
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/import.rs",
+      "src-tauri/src/ipc/import.rs",
       [
         "#[tracing::instrument(fields(url))]",
         "fn preview() {}",
@@ -610,15 +610,15 @@ test("privacy logging rejects raw import URL and HTTP errors", () => {
       true,
     );
     assert.equal(
-      hasRawJobImportLogging(root, "src-tauri/src/commands/import.rs"),
+      hasRawJobImportLogging(root, "src-tauri/src/ipc/import.rs"),
       true,
     );
     assert.equal(
-      hasRawImportHttpErrorReturn(root, "src-tauri/src/commands/import.rs"),
+      hasRawImportHttpErrorReturn(root, "src-tauri/src/ipc/import.rs"),
       true,
     );
     assert.equal(
-      hasRawJobImportLogging(root, "src-tauri/src/commands/jobs.rs"),
+      hasRawJobImportLogging(root, "src-tauri/src/ipc/jobs.rs"),
       false,
     );
   });

@@ -3,7 +3,7 @@ import { mkdtempSync, rmSync, writeFileSync, mkdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import test from "node:test";
-import { checkFrontendBoundaries } from "../check-frontend-boundaries.mjs";
+import { checkFrontendBoundaries } from "../checks/frontend-boundaries.mjs";
 
 function writeFixtureFile(root, path, content = "") {
   const fullPath = join(root, path);
@@ -268,5 +268,116 @@ test("checkFrontendBoundaries rejects shared dependencies on app, features, or u
       ),
       violations.join("\n"),
     );
+  });
+});
+
+test("checkFrontendBoundaries rejects production imports from test support", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src/app/bootstrap.tsx",
+      'import { setupMocking } from "../test-support/mocks";\nexport { setupMocking };\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/test-support/mocks/index.ts",
+      "export function setupMocking() {}\n",
+    );
+
+    const violations = checkFrontendBoundaries(root);
+
+    assert.ok(
+      violations.includes(
+        "src/app/bootstrap.tsx imports ../test-support/mocks across forbidden boundary (app -> test-support): production code must not depend on test support",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkFrontendBoundaries allows only app bootstrap and test support to import dev runtime", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src/app/bootstrap.tsx",
+      'if (!import.meta.env.DEV) return;\nvoid import("../dev-runtime/prepare");\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/features/dashboard/DashboardPage.tsx",
+      'import { prepareDevelopmentRuntime } from "../../dev-runtime/prepare";\nexport { prepareDevelopmentRuntime };\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/dev-runtime/prepare.ts",
+      "export function prepareDevelopmentRuntime() {}\n",
+    );
+
+    const violations = checkFrontendBoundaries(root);
+
+    assert.deepEqual(violations, [
+      "src/features/dashboard/DashboardPage.tsx imports ../../dev-runtime/prepare across forbidden boundary (features -> dev-runtime): only app bootstrap and test support may load the development runtime",
+    ]);
+  });
+});
+
+test("checkFrontendBoundaries requires an environment gate for app dev runtime loading", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src/app/bootstrap.tsx",
+      'void import("../dev-runtime/prepare");\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/dev-runtime/prepare.ts",
+      "export function prepareDevelopmentRuntime() {}\n",
+    );
+
+    const violations = checkFrontendBoundaries(root);
+
+    assert.ok(
+      violations.includes(
+        "src/app/bootstrap.tsx must guard its dynamic dev-runtime import with import.meta.env.DEV",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkFrontendBoundaries requires production desktop APIs to use the platform owner", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src/features/dashboard/DashboardPage.tsx",
+      'import { invoke } from "@tauri-apps/api/core";\nexport { invoke };\n',
+    );
+    writeFixtureFile(
+      root,
+      "src/platform/tauri/index.ts",
+      'export { invoke } from "@tauri-apps/api/core";\n',
+    );
+
+    const violations = checkFrontendBoundaries(root);
+
+    assert.deepEqual(violations, [
+      "src/features/dashboard/DashboardPage.tsx imports @tauri-apps/api/core outside src/platform: production desktop APIs must use the platform owner",
+    ]);
+  });
+});
+
+test("checkFrontendBoundaries rejects feature-owned mock directories", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src/features/dashboard/mocks/commands.ts",
+      "export function handleMockDashboardCommand() {}\n",
+    );
+
+    const violations = checkFrontendBoundaries(root);
+
+    assert.deepEqual(violations, [
+      "src/features/dashboard/mocks is retired: feature mock behavior belongs under src/dev-runtime/features",
+    ]);
   });
 });

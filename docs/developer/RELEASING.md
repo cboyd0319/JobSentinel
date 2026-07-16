@@ -31,8 +31,8 @@ npm run release:check-deps
 npm run verify:full
 npm run lint:sqlx
 npm run test:e2e:all
-node scripts/run-cargo.mjs clippy --workspace --all-features -- -D warnings
-node scripts/run-cargo.mjs test --workspace --all-features
+node scripts/dev/run-cargo.mjs clippy --workspace --all-features -- -D warnings
+node scripts/dev/run-cargo.mjs test --workspace --all-features
 ```
 
 Online advisory checks are required when network access is available:

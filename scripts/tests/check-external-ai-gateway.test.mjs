@@ -3,7 +3,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import test from "node:test";
-import { checkExternalAiGateway } from "../check-external-ai-gateway.mjs";
+import { checkExternalAiGateway } from "../checks/external-ai-gateway.mjs";
 
 function writeFixtureFile(root, path, content = "") {
   const fullPath = join(root, path);
@@ -152,7 +152,7 @@ test("checkExternalAiGateway rejects provider endpoints inside the Tauri adapter
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/external_ai.rs",
+      "src-tauri/src/ipc/external_ai.rs",
       `
 const ENDPOINT: &str = "https://api.openai.com/v1/responses";
 `,
@@ -160,7 +160,7 @@ const ENDPOINT: &str = "https://api.openai.com/v1/responses";
 
     assert.ok(
       checkExternalAiGateway(root).some((violation) =>
-        violation.includes("src-tauri/src/commands/external_ai.rs:2"),
+        violation.includes("src-tauri/src/ipc/external_ai.rs:2"),
       ),
     );
   });

@@ -693,11 +693,7 @@ test("product copy rejects technical-first settings copy", () => {
       "src/features/settings/support/feedback/useFeedback.ts",
       "Failed to load system information\nPlease try again or copy the report instead\nCould not open GitHub. Please save a safe support report instead.\n",
     );
-    writeFixtureFile(
-      root,
-      "src/shared/tauri/commandClient.ts",
-      "Operation Failed\nAn error occurred\nSupport details:\n",
-    );
+    writeFixtureFile(root, "src/platform/tauri/commandClient.ts", "Operation Failed\nAn error occurred\nSupport details:\n");
     writeFixtureFile(
       root,
       "src/features/dashboard/hooks/useDashboardJobOps.ts",

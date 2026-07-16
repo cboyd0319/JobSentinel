@@ -115,7 +115,7 @@ export function getTechnicalFirstUiResult(path, text) {
     );
   }
 
-  if (path === "src/shared/tauri/commandClient.ts") {
+  if (path === "src/platform/tauri/commandClient.ts") {
     return /Operation Failed|Support details:|An error occurred/i.test(text);
   }
 
@@ -176,7 +176,7 @@ export function getTechnicalFirstUiResult(path, text) {
     }
   }
 
-  if (path === "src-tauri/src/commands/bookmarklet.rs") {
+  if (path === "src-tauri/src/ipc/bookmarklet.rs") {
     return /Allow clipboard access and try again\.|import helper/i.test(text);
   }
 

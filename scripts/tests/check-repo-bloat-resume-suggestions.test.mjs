@@ -53,10 +53,10 @@ function label(category: SuggestionCategory): string {
 `;
     writeFixtureFile(root, "src/features/resumes/matching/ResumeMatchPage.tsx", frontendText);
     writeFixtureFile(root, "src/features/resumes/builder/AtsLiveScorePanelModel.ts", frontendText);
-    writeFixtureFile(root, "src/test-support/mocks/handlers.ts", "export {}\n");
+    writeFixtureFile(root, "src/dev-runtime/mocks/handlers.ts", "export {}\n");
     writeFixtureFile(
       root,
-      "src/features/resumes/mocks/resumeAnalysis.ts",
+      "src/dev-runtime/features/resumes/resumeAnalysis.ts",
       'export type MockSuggestionCategory = "AddKeyword" | "RewordBullet" | "AddSection" | "ReorderContent" | "FormatFix";\n',
     );
 
@@ -67,8 +67,8 @@ function label(category: SuggestionCategory): string {
         "crates/jobsentinel-documents/src/ats_analyzer.rs",
         "src/features/resumes/matching/ResumeMatchPage.tsx",
         "src/features/resumes/builder/AtsLiveScorePanelModel.ts",
-        "src/test-support/mocks/handlers.ts",
-        "src/features/resumes/mocks/resumeAnalysis.ts",
+        "src/dev-runtime/mocks/handlers.ts",
+        "src/dev-runtime/features/resumes/resumeAnalysis.ts",
       ],
       { cwd: root },
     );

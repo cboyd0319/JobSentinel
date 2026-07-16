@@ -8,7 +8,7 @@
  */
 
 import { memo, useState, useEffect, useCallback, useMemo } from "react";
-import { invoke } from "@tauri-apps/api/core";
+import { invoke } from "../../../platform/tauri";
 import { Badge } from "../../../ui/Badge";
 import { Button } from "../../../ui/Button";
 import { Tooltip } from "../../../ui/Tooltip";

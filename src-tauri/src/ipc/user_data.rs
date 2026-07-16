@@ -1,0 +1,391 @@
+//! User data persistence Tauri commands (E3: Backend Persistence)
+//!
+//! Commands for cover letter templates, interview prep, saved searches, and notification preferences.
+
+use crate::application::user_data::{
+    CoverLetterTemplate, FollowUpReminder, NotificationPreferences, PrepChecklistItem, SavedSearch,
+    TemplateCategory,
+};
+use crate::bootstrap::AppState;
+use crate::ipc::errors::user_friendly_error;
+use crate::ipc::limits::validate_command_limit_i64;
+use tauri::State;
+
+// ============================================================================
+// Cover Letter Templates
+// ============================================================================
+
+/// List all cover letter templates
+#[tauri::command]
+pub(crate) async fn list_cover_letter_templates(
+    state: State<'_, AppState>,
+) -> Result<Vec<CoverLetterTemplate>, String> {
+    tracing::info!("Command: list_cover_letter_templates");
+
+    let manager = state.database.user_data_manager();
+    manager
+        .list_templates()
+        .await
+        .map_err(|e| user_friendly_error("Database operation failed", e))
+}
+
+/// Get a single cover letter template by ID
+#[tauri::command]
+pub(crate) async fn get_cover_letter_template(
+    id: String,
+    state: State<'_, AppState>,
+) -> Result<Option<CoverLetterTemplate>, String> {
+    tracing::info!("Command: get_cover_letter_template (id: {})", id);
+
+    let manager = state.database.user_data_manager();
+    manager
+        .get_template(&id)
+        .await
+        .map_err(|e| user_friendly_error("Database operation failed", e))
+}
+
+/// Create a new cover letter template
+#[tauri::command]
+pub(crate) async fn create_cover_letter_template(
+    name: String,
+    content: String,
+    category: String,
+    state: State<'_, AppState>,
+) -> Result<CoverLetterTemplate, String> {
+    let category: TemplateCategory = category.parse().map_err(|_e: String| {
+        "Invalid category. Choose an available template category.".to_string()
+    })?;
+    tracing::info!(
+        name_len = name.chars().count(),
+        category = %category,
+        "Command: create_cover_letter_template"
+    );
+
+    let manager = state.database.user_data_manager();
+    manager
+        .create_template(&name, &content, category)
+        .await
+        .map_err(|e| user_friendly_error("Database operation failed", e))
+}
+
+/// Update an existing cover letter template
+#[tauri::command]
+pub(crate) async fn update_cover_letter_template(
+    id: String,
+    name: String,
+    content: String,
+    category: String,
+    state: State<'_, AppState>,
+) -> Result<Option<CoverLetterTemplate>, String> {
+    tracing::info!("Command: update_cover_letter_template (id: {})", id);
+
+    let category: TemplateCategory = category.parse().map_err(|_e: String| {
+        "Invalid category. Choose an available template category.".to_string()
+    })?;
+
+    let manager = state.database.user_data_manager();
+    manager
+        .update_template(&id, &name, &content, category)
+        .await
+        .map_err(|e| user_friendly_error("Database operation failed", e))
+}
+
+/// Delete a cover letter template
+#[tauri::command]
+pub(crate) async fn delete_cover_letter_template(
+    id: String,
+    state: State<'_, AppState>,
+) -> Result<bool, String> {
+    tracing::info!("Command: delete_cover_letter_template (id: {})", id);
+
+    let manager = state.database.user_data_manager();
+    manager
+        .delete_template(&id)
+        .await
+        .map_err(|e| user_friendly_error("Database operation failed", e))
+}
+
+/// Seed default templates if none exist
+/// Called on first app launch to provide starter templates
+#[tauri::command]
+pub(crate) async fn seed_default_templates(state: State<'_, AppState>) -> Result<usize, String> {
+    tracing::info!("Command: seed_default_templates");
+
+    let manager = state.database.user_data_manager();
+    manager
+        .seed_default_templates()
+        .await
+        .map_err(|e| user_friendly_error("Database operation failed", e))
+}
+
+/// Import cover letter templates from localStorage migration
+#[tauri::command]
+pub(crate) async fn import_cover_letter_templates(
+    templates: Vec<CoverLetterTemplate>,
+    state: State<'_, AppState>,
+) -> Result<usize, String> {
+    tracing::info!(
+        "Command: import_cover_letter_templates ({} templates)",
+        templates.len()
+    );
+
+    let manager = state.database.user_data_manager();
+    manager
+        .import_templates(templates)
+        .await
+        .map_err(|e| user_friendly_error("Database operation failed", e))
+}
+
+// ============================================================================
+// Interview Prep Checklists
+// ============================================================================
+
+/// Get interview prep checklist for an interview
+#[tauri::command]
+pub(crate) async fn get_interview_prep_checklist(
+    interview_id: i64,
+    state: State<'_, AppState>,
+) -> Result<Vec<PrepChecklistItem>, String> {
+    tracing::info!(
+        "Command: get_interview_prep_checklist (interview_id: {})",
+        interview_id
+    );
+
+    let manager = state.database.user_data_manager();
+    manager
+        .get_prep_checklist(interview_id)
+        .await
+        .map_err(|e| user_friendly_error("Database operation failed", e))
+}
+
+/// Save interview prep checklist item
+#[tauri::command]
+pub(crate) async fn save_interview_prep_item(
+    interview_id: i64,
+    item_id: String,
+    completed: bool,
+    state: State<'_, AppState>,
+) -> Result<(), String> {
+    tracing::info!(
+        "Command: save_interview_prep_item (interview_id: {}, item_id: {}, completed: {})",
+        interview_id,
+        item_id,
+        completed
+    );
+
+    let manager = state.database.user_data_manager();
+    manager
+        .save_prep_item(interview_id, &item_id, completed)
+        .await
+        .map_err(|e| user_friendly_error("Database operation failed", e))
+}
+
+// ============================================================================
+// Follow-up Reminders
+// ============================================================================
+
+/// Get interview follow-up reminder
+#[tauri::command]
+pub(crate) async fn get_interview_followup(
+    interview_id: i64,
+    state: State<'_, AppState>,
+) -> Result<Option<FollowUpReminder>, String> {
+    tracing::info!(
+        "Command: get_interview_followup (interview_id: {})",
+        interview_id
+    );
+
+    let manager = state.database.user_data_manager();
+    manager
+        .get_followup(interview_id)
+        .await
+        .map_err(|e| user_friendly_error("Database operation failed", e))
+}
+
+/// Save interview follow-up reminder
+#[tauri::command]
+pub(crate) async fn save_interview_followup(
+    interview_id: i64,
+    thank_you_sent: bool,
+    state: State<'_, AppState>,
+) -> Result<FollowUpReminder, String> {
+    tracing::info!(
+        "Command: save_interview_followup (interview_id: {}, thank_you_sent: {})",
+        interview_id,
+        thank_you_sent
+    );
+
+    let manager = state.database.user_data_manager();
+    manager
+        .save_followup(interview_id, thank_you_sent)
+        .await
+        .map_err(|e| user_friendly_error("Database operation failed", e))
+}
+
+// ============================================================================
+// Saved Searches
+// ============================================================================
+
+/// List all saved searches
+#[tauri::command]
+pub(crate) async fn list_saved_searches(
+    state: State<'_, AppState>,
+) -> Result<Vec<SavedSearch>, String> {
+    tracing::info!("Command: list_saved_searches");
+
+    let manager = state.database.user_data_manager();
+    manager
+        .list_saved_searches()
+        .await
+        .map_err(|e| user_friendly_error("Database operation failed", e))
+}
+
+/// Create a saved search
+#[tauri::command]
+pub(crate) async fn create_saved_search(
+    search: SavedSearch,
+    state: State<'_, AppState>,
+) -> Result<SavedSearch, String> {
+    tracing::info!(
+        name_len = search.name.chars().count(),
+        has_text_search = search
+            .text_search
+            .as_ref()
+            .is_some_and(|text| !text.trim().is_empty()),
+        "Command: create_saved_search"
+    );
+
+    let manager = state.database.user_data_manager();
+    manager
+        .create_saved_search(search)
+        .await
+        .map_err(|e| user_friendly_error("Database operation failed", e))
+}
+
+/// Mark a saved search as used (updates last_used_at)
+#[tauri::command]
+pub(crate) async fn use_saved_search(
+    id: String,
+    state: State<'_, AppState>,
+) -> Result<bool, String> {
+    tracing::info!("Command: use_saved_search (id: {})", id);
+
+    let manager = state.database.user_data_manager();
+    manager
+        .use_saved_search(&id)
+        .await
+        .map_err(|e| user_friendly_error("Database operation failed", e))
+}
+
+/// Delete a saved search
+#[tauri::command]
+pub(crate) async fn delete_saved_search(
+    id: String,
+    state: State<'_, AppState>,
+) -> Result<bool, String> {
+    tracing::info!("Command: delete_saved_search (id: {})", id);
+
+    let manager = state.database.user_data_manager();
+    manager
+        .delete_saved_search(&id)
+        .await
+        .map_err(|e| user_friendly_error("Database operation failed", e))
+}
+
+/// Import saved searches from localStorage migration
+#[tauri::command]
+pub(crate) async fn import_saved_searches(
+    searches: Vec<SavedSearch>,
+    state: State<'_, AppState>,
+) -> Result<usize, String> {
+    tracing::info!(
+        "Command: import_saved_searches ({} searches)",
+        searches.len()
+    );
+
+    let manager = state.database.user_data_manager();
+    manager
+        .import_saved_searches(searches)
+        .await
+        .map_err(|e| user_friendly_error("Database operation failed", e))
+}
+
+// ============================================================================
+// Notification Preferences
+// ============================================================================
+
+/// Get notification preferences
+#[tauri::command]
+pub(crate) async fn get_notification_preferences(
+    state: State<'_, AppState>,
+) -> Result<NotificationPreferences, String> {
+    tracing::info!("Command: get_notification_preferences");
+
+    let manager = state.database.user_data_manager();
+    manager
+        .get_notification_preferences()
+        .await
+        .map_err(|e| user_friendly_error("Database operation failed", e))
+}
+
+/// Save notification preferences
+#[tauri::command]
+pub(crate) async fn save_notification_preferences(
+    prefs: NotificationPreferences,
+    state: State<'_, AppState>,
+) -> Result<(), String> {
+    tracing::info!("Command: save_notification_preferences");
+
+    let manager = state.database.user_data_manager();
+    manager
+        .save_notification_preferences(&prefs)
+        .await
+        .map_err(|e| user_friendly_error("Database operation failed", e))
+}
+
+// ============================================================================
+// Search History
+// ============================================================================
+
+/// Add search query to history
+#[tauri::command]
+pub(crate) async fn add_search_history(
+    query: String,
+    state: State<'_, AppState>,
+) -> Result<(), String> {
+    tracing::info!("Command: add_search_history");
+
+    let manager = state.database.user_data_manager();
+    manager
+        .add_search_history(&query)
+        .await
+        .map_err(|e| user_friendly_error("Database operation failed", e))
+}
+
+/// Get search history
+#[tauri::command]
+pub(crate) async fn get_search_history(
+    limit: i64,
+    state: State<'_, AppState>,
+) -> Result<Vec<String>, String> {
+    tracing::info!("Command: get_search_history (limit: {})", limit);
+
+    let limit = validate_command_limit_i64(limit)?;
+    let manager = state.database.user_data_manager();
+    manager
+        .get_search_history(limit)
+        .await
+        .map_err(|e| user_friendly_error("Database operation failed", e))
+}
+
+/// Clear search history
+#[tauri::command]
+pub(crate) async fn clear_search_history(state: State<'_, AppState>) -> Result<(), String> {
+    tracing::info!("Command: clear_search_history");
+
+    let manager = state.database.user_data_manager();
+    manager
+        .clear_search_history()
+        .await
+        .map_err(|e| user_friendly_error("Database operation failed", e))
+}

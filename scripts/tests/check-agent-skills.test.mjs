@@ -3,7 +3,7 @@ import { mkdtempSync, mkdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
-import { checkAgentSkills, validateSkillPackage } from "../check-agent-skills.mjs";
+import { checkAgentSkills, validateSkillPackage } from "../checks/agent-skills.mjs";
 
 function writeSkill(
   root,

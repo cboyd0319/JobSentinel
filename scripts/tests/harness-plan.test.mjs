@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { collectChangedFiles, formatHarnessPlan, summarizeHarnessPlan } from "../harness-plan.mjs";
+import { collectChangedFiles, formatHarnessPlan, summarizeHarnessPlan } from "../harness/plan.mjs";
 import { classifyVerificationPath } from "../harness/plan-paths.mjs";
 
 function commandsFor(plan) {

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, waitFor, act } from "@testing-library/react";
 import { useDashboardSavedSearches } from "./useDashboardSavedSearches";
-import { safeInvoke } from "../../../shared/tauri/commandClient";
+import { safeInvoke } from "../../../platform/tauri";
 import {
   BROWSER_ASSIST_LEARNING_ENABLED_STORAGE_KEY,
   BROWSER_ASSIST_LEARNING_STORAGE_KEY,
@@ -22,7 +22,7 @@ vi.mock("../../../shared/undo/useUndo", () => ({
   useUndo: () => ({ pushAction: vi.fn() }),
 }));
 
-vi.mock("../../../shared/tauri/commandClient", () => ({
+vi.mock("../../../platform/tauri", () => ({
   safeInvoke: vi.fn(),
   safeInvokeWithToast: vi.fn(),
 }));

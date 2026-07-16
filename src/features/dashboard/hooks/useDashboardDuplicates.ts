@@ -1,7 +1,10 @@
 import { useCallback, useState, type Dispatch, type SetStateAction } from "react";
-import { invoke } from "@tauri-apps/api/core";
 import { useToast } from "../../../shared/toast/useToast";
-import { invalidateCacheByCommand, safeInvokeWithToast } from "../../../shared/tauri/commandClient";
+import {
+  invalidateCacheByCommand,
+  invoke,
+  safeInvokeWithToast,
+} from "../../../platform/tauri";
 import { logError } from "../../../shared/errorReporting/logger";
 import type { DuplicateGroup, Job } from "../types";
 

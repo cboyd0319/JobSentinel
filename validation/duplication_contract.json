@@ -21,12 +21,13 @@
     "tests\\.rs$",
     "/__tests__/",
     "/mocks/",
+    "^src/dev-runtime/",
     "Taxonomy\\.(ts|json)$",
     "Entries\\.ts$"
   ],
   "baseline": {
-    "duplicatedLines": 810,
-    "cloneRegions": 40
+    "duplicatedLines": 778,
+    "cloneRegions": 38
   },
-  "measuredOn": "2026-07-13"
+  "measuredOn": "2026-07-16"
 }

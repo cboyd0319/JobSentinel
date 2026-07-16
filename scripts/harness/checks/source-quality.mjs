@@ -43,7 +43,7 @@ const frontendStatusEmojiPaths = new Set([
 ]);
 
 const rawSalaryCommandLoggingPaths = new Set([
-  "src-tauri/src/commands/salary.rs",
+  "src-tauri/src/ipc/salary.rs",
 ]);
 
 const backendScoringReasonPaths = new Set([
@@ -83,7 +83,7 @@ function isRuntimeFrontendSource(path) {
     !path.endsWith(".d.ts") &&
     !/\.test\.(ts|tsx)$/.test(path) &&
     !/\.stories\.(ts|tsx)$/.test(path) &&
-    path !== "src/test-support/mocks/handlers.ts"
+    path !== "src/dev-runtime/mocks/handlers.ts"
   );
 }
 
@@ -184,7 +184,7 @@ export function hasUnverifiedPreMigrationBackup(root, path) {
 }
 
 export function hasOpaqueCommandUnitError(root, path) {
-  if (!path.startsWith("src-tauri/src/commands/") || !path.endsWith(".rs")) {
+  if (!path.startsWith("src-tauri/src/ipc/") || !path.endsWith(".rs")) {
     return false;
   }
 

@@ -8,7 +8,7 @@ function isRuntimeFrontendSource(path) {
     !path.endsWith(".d.ts") &&
     !/\.test\.(ts|tsx)$/.test(path) &&
     !/\.stories\.(ts|tsx)$/.test(path) &&
-    path !== "src/test-support/mocks/handlers.ts"
+    path !== "src/dev-runtime/mocks/handlers.ts"
   );
 }
 

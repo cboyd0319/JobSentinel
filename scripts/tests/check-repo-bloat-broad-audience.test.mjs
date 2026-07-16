@@ -147,7 +147,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
-      "src/test-support/mocks/data.ts",
+      "src/dev-runtime/mocks/data.ts",
       [
         'export const mockConfig = { linkedin: { query: "software engineer" } };',
         'export const mockJobs = [{ title: "Senior Software Engineer" }];',
@@ -203,7 +203,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     }
     writeFixtureFile(
       root,
-      "src/test-support/mocks/handlers.ts",
+      "src/dev-runtime/mocks/handlers.ts",
       [
         '"TypeScript demand is surging"',
         '{ skill_name: "Kubernetes" }',
@@ -344,27 +344,27 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/deeplinks.rs",
+      "src-tauri/src/ipc/deeplinks.rs",
       'query: "Software Engineer"; location: Some("San Francisco, CA".to_string());\n',
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/feedback/debug_log.rs",
+      "src-tauri/src/ipc/feedback/debug_log.rs",
       'let message = "Job title: Senior Rust Developer at AcmeCorp";\n',
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/feedback/sanitizer.rs",
+      "src-tauri/src/ipc/feedback/sanitizer.rs",
       'let input = "Failed to find job titled \\"Senior Software Engineer\\"";\n',
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/import.rs",
+      "src-tauri/src/ipc/import.rs",
       'calculate_job_hash("Google", "Software Engineer", "https://example.com/job/1");\n',
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/tests.rs",
+      "src-tauri/src/ipc/tests.rs",
       'create_test_job(2, "Backend Engineer", 0.85);\n',
     );
     writeFixtureFile(
@@ -558,7 +558,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
-      "src/test-support/mocks/handlers.test.ts",
+      "src/dev-runtime/mocks/handlers.test.ts",
       [
         'name: "Remote Rust",',
         'jobTitle: "Senior Software Engineer",',
@@ -612,7 +612,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/app.rs",
+      "src-tauri/src/bootstrap/mod.rs",
       "// Resume Matcher commands\n",
     );
     writeFixtureFile(
@@ -634,9 +634,9 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "src/features/company-research/CompanyResearchPanel.tsx",
         "src/features/applications/CoverLetterTemplates.tsx",
         "src/features/dashboard/components/JobImportModal.tsx",
-        "src/test-support/mocks/data.ts",
-        "src/test-support/mocks/handlers.ts",
-        "src/test-support/mocks/handlers.test.ts",
+        "src/dev-runtime/mocks/data.ts",
+        "src/dev-runtime/mocks/handlers.ts",
+        "src/dev-runtime/mocks/handlers.test.ts",
         "crates/jobsentinel-documents/src/templates.rs",
         "src/features/resumes/builder/ResumeBuilderPage.tsx",
         "src/features/resumes/matching/ResumeMatchPage.tsx",
@@ -663,11 +663,11 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "src/features/dashboard/jobCsvExport.test.ts",
         "crates/jobsentinel-application/src/health/smoke_checks/mod.rs",
         "crates/jobsentinel-assistance/src/deeplinks/generator.rs",
-        "src-tauri/src/commands/deeplinks.rs",
-        "src-tauri/src/commands/feedback/debug_log.rs",
-        "src-tauri/src/commands/feedback/sanitizer.rs",
-        "src-tauri/src/commands/import.rs",
-        "src-tauri/src/commands/tests.rs",
+        "src-tauri/src/ipc/deeplinks.rs",
+        "src-tauri/src/ipc/feedback/debug_log.rs",
+        "src-tauri/src/ipc/feedback/sanitizer.rs",
+        "src-tauri/src/ipc/import.rs",
+        "src-tauri/src/ipc/tests.rs",
         "crates/jobsentinel-storage/src/market_intelligence/tests.rs",
         "crates/jobsentinel-sources/src/scrapers/glassdoor.rs",
         "crates/jobsentinel-sources/src/scrapers/greenhouse.rs",
@@ -720,7 +720,7 @@ test("checkRepoBloat rejects engineer-first audience examples", () => {
         "docs/developer/FRONTEND_TESTING.md",
         "docs/developer/INTEGRATION_TESTING.md",
         "crates/jobsentinel-assistance/src/deeplinks/types.rs",
-        "src-tauri/src/app.rs",
+        "src-tauri/src/bootstrap/mod.rs",
         "crates/jobsentinel-storage/migrations/00000000000000_initial_schema.sql",
       ],
       { cwd: root },

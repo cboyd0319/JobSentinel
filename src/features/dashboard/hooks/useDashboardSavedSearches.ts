@@ -2,7 +2,6 @@
 // Manages saved search CRUD operations
 
 import { useState, useEffect, useCallback } from "react";
-import { invoke } from "@tauri-apps/api/core";
 import type {
   SavedSearch,
   SortOption,
@@ -12,7 +11,7 @@ import type {
 } from "../types";
 import { useToast } from "../../../shared/toast/useToast";
 import { useUndo } from "../../../shared/undo/useUndo";
-import { safeInvoke, safeInvokeWithToast } from "../../../shared/tauri/commandClient";
+import { invoke, safeInvoke, safeInvokeWithToast } from "../../../platform/tauri";
 import { getSafeErrorToastCopy } from "../../../shared/errorReporting/safeToastCopy";
 import { recordBrowserAssistLearningSignalIfEnabled } from "../../../shared/browserAssistLearning";
 

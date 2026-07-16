@@ -1,4 +1,4 @@
-import { invoke } from "@tauri-apps/api/core";
+import { invoke } from "../../../../platform/tauri";
 import { logError } from "../../../../shared/errorReporting/logger";
 import type { SavedFeedbackFile } from "../../../../shared/errorReporting/supportReport";
 

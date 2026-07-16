@@ -102,14 +102,14 @@ test("privacy logging collector returns repo-bloat violation messages", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/jobs.rs",
+      "src-tauri/src/ipc/jobs.rs",
       'tracing::info!("search query: {}", query);',
     );
-    writeFixtureFile(root, "src-tauri/src/commands/config.rs", "");
-    assert.deepEqual(collectPrivacyLoggingViolations(root, "src-tauri/src/commands/jobs.rs"), [
-      "replace raw private query logging: src-tauri/src/commands/jobs.rs",
+    writeFixtureFile(root, "src-tauri/src/ipc/config.rs", "");
+    assert.deepEqual(collectPrivacyLoggingViolations(root, "src-tauri/src/ipc/jobs.rs"), [
+      "replace raw private query logging: src-tauri/src/ipc/jobs.rs",
     ]);
-    assert.deepEqual(collectPrivacyLoggingViolations(root, "src-tauri/src/commands/config.rs"), []);
+    assert.deepEqual(collectPrivacyLoggingViolations(root, "src-tauri/src/ipc/config.rs"), []);
   });
 });
 test("privacy logging rejects raw automation dropdown selected values", () => {
@@ -147,7 +147,7 @@ test("privacy logging rejects raw automation question and form data", () => {
         "",
       ].join("\n"),
     );
-    writeFixtureFile(root, "src/test-support/mocks/handlers.ts", "`screening:${answer.questionPattern}`");
+    writeFixtureFile(root, "src/dev-runtime/mocks/handlers.ts", "`screening:${answer.questionPattern}`");
     assert.equal(
       hasRawAutomationQuestionLogging(root, "crates/jobsentinel-assistance/src/automation/form_filler.rs"),
       true,
@@ -156,7 +156,7 @@ test("privacy logging rejects raw automation question and form data", () => {
       hasRawAutomationFormResultData(root, "crates/jobsentinel-assistance/src/automation/form_filler.rs"),
       true,
     );
-    assert.equal(hasRawAutomationFormResultData(root, "src/test-support/mocks/handlers.ts"), true);
+    assert.equal(hasRawAutomationFormResultData(root, "src/dev-runtime/mocks/handlers.ts"), true);
     assert.equal(
       hasRawAutomationQuestionLogging(root, "crates/jobsentinel-assistance/src/automation/browser/page.rs"),
       false,
@@ -167,7 +167,7 @@ test("privacy logging rejects raw screening-answer command logs", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/automation.rs",
+      "src-tauri/src/ipc/automation.rs",
       [
         'tracing::info!("Command: find {}", question_text);',
         'tracing::info!(answer_filled, "Command: record_answer_usage");',
@@ -177,12 +177,12 @@ test("privacy logging rejects raw screening-answer command logs", () => {
       ].join("\n"),
     );
     assert.equal(
-      hasRawScreeningAnswerCommandLogging(root, "src-tauri/src/commands/automation.rs"),
+      hasRawScreeningAnswerCommandLogging(root, "src-tauri/src/ipc/automation.rs"),
       true,
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/automation.rs",
+      "src-tauri/src/ipc/automation.rs",
       [
         'tracing::info!(question_chars = question.chars().count(), "Command: get_suggested_answers");',
         'tracing::info!(question_pattern_chars = question_pattern.chars().count(), "Command: upsert_screening_answer");',
@@ -191,7 +191,7 @@ test("privacy logging rejects raw screening-answer command logs", () => {
       ].join("\n"),
     );
     assert.equal(
-      hasRawScreeningAnswerCommandLogging(root, "src-tauri/src/commands/automation.rs"),
+      hasRawScreeningAnswerCommandLogging(root, "src-tauri/src/ipc/automation.rs"),
       false,
     );
   });
@@ -396,7 +396,7 @@ test("privacy logging rejects raw frontend toast support details", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src/shared/tauri/commandClient.ts",
+      "src/platform/tauri/commandClient.ts",
       [
         "const fullMessage = options?.showTechnical && import.meta.env.DEV && enhancedError.message",
         '  ? `${message || "An error occurred"}\\n\\nTechnical: ${enhancedError.message}`',
@@ -413,12 +413,12 @@ test("privacy logging rejects raw frontend toast support details", () => {
       "const fullMessage = enhancedError.message;",
     );
     assert.equal(
-      hasRawFrontendToastSupportDetails(root, "src/shared/tauri/commandClient.ts"),
+      hasRawFrontendToastSupportDetails(root, "src/platform/tauri/commandClient.ts"),
       true,
     );
     assert.equal(hasRawFrontendToastSupportDetails(root, "src/shared/errorReporting/logger.ts"), false);
-    assert.deepEqual(collectPrivacyLoggingViolations(root, "src/shared/tauri/commandClient.ts"), [
-      "sanitize frontend toast support details: src/shared/tauri/commandClient.ts",
+    assert.deepEqual(collectPrivacyLoggingViolations(root, "src/platform/tauri/commandClient.ts"), [
+      "sanitize frontend toast support details: src/platform/tauri/commandClient.ts",
     ]);
   });
 });
@@ -426,10 +426,10 @@ test("privacy logging rejects raw private query fields", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/jobs.rs",
+      "src-tauri/src/ipc/jobs.rs",
       'tracing::debug!("search query: {}", query);',
     );
-    assert.equal(hasRawPrivateQueryLogging(root, "src-tauri/src/commands/jobs.rs"), true);
+    assert.equal(hasRawPrivateQueryLogging(root, "src-tauri/src/ipc/jobs.rs"), true);
     assert.equal(hasRawPrivateQueryLogging(root, "crates/jobsentinel-storage/src/lib.rs"), false);
   });
 });
@@ -437,7 +437,7 @@ test("privacy logging rejects raw user-data and scheduler logging", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/user_data.rs",
+      "src-tauri/src/ipc/user_data.rs",
       'tracing::info!("Creating saved search: {}", name);',
     );
     writeFixtureFile(
@@ -450,7 +450,7 @@ test("privacy logging rejects raw user-data and scheduler logging", () => {
       "crates/jobsentinel-application/src/scheduler/workers/scrapers.rs",
       "fail_run(db, scraper_run_id, &e.to_string()).await;",
     );
-    assert.equal(hasRawUserDataPrivacyLogging(root, "src-tauri/src/commands/user_data.rs"), true);
+    assert.equal(hasRawUserDataPrivacyLogging(root, "src-tauri/src/ipc/user_data.rs"), true);
     assert.equal(
       hasRawSchedulerJobContentLogging(
         root,
@@ -465,14 +465,14 @@ test("privacy logging rejects raw user-data and scheduler logging", () => {
       ),
       true,
     );
-    assert.equal(hasRawSchedulerScraperErrorDetails(root, "src-tauri/src/commands/jobs.rs"), false);
+    assert.equal(hasRawSchedulerScraperErrorDetails(root, "src-tauri/src/ipc/jobs.rs"), false);
   });
 });
 test("privacy logging rejects raw import and bookmarklet details", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/import.rs",
+      "src-tauri/src/ipc/import.rs",
       'format!("Invalid URL: {}", e);',
     );
     writeFixtureFile(
@@ -494,7 +494,7 @@ test("privacy logging rejects raw import and bookmarklet details", () => {
       'fetch("/api/bookmarklet/import", { method: "POST" });',
     );
     assert.equal(
-      hasRawImportBookmarkletCommandErrorDetails(root, "src-tauri/src/commands/import.rs"),
+      hasRawImportBookmarkletCommandErrorDetails(root, "src-tauri/src/ipc/import.rs"),
       true,
     );
     assert.equal(
@@ -517,7 +517,7 @@ test("privacy logging rejects raw import and bookmarklet details", () => {
       hasBookmarkletCodeWithoutTokenHeader(root, "src/features/settings/sources/browser-import/BrowserImportSection.tsx"),
       true,
     );
-    assert.equal(hasRawBookmarkletImportLogging(root, "src-tauri/src/commands/import.rs"), false);
+    assert.equal(hasRawBookmarkletImportLogging(root, "src-tauri/src/ipc/import.rs"), false);
   });
 });
 test("privacy logging rejects raw scheduler scoring and residual core leaks", () => {
@@ -549,7 +549,7 @@ test("privacy logging rejects raw scheduler scoring and residual core leaks", ()
       true,
     );
     assert.equal(hasResidualCorePrivacyLeak(root, "crates/jobsentinel-application/src/config/io.rs"), true);
-    assert.equal(hasResidualCorePrivacyLeak(root, "src-tauri/src/commands/import.rs"), false);
+    assert.equal(hasResidualCorePrivacyLeak(root, "src-tauri/src/ipc/import.rs"), false);
   });
 });
 test("privacy logging rejects raw scraper URL and query output", () => {
@@ -615,11 +615,11 @@ test("privacy logging rejects raw local path logging", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/resume.rs",
+      "src-tauri/src/ipc/resume.rs",
       'tracing::error!("resume path: {}", path.display());',
     );
-    assert.equal(hasRawLocalPathLogging(root, "src-tauri/src/commands/resume.rs"), true);
-    assert.equal(hasRawLocalPathLogging(root, "src-tauri/src/commands/jobs.rs"), false);
+    assert.equal(hasRawLocalPathLogging(root, "src-tauri/src/ipc/resume.rs"), true);
+    assert.equal(hasRawLocalPathLogging(root, "src-tauri/src/ipc/jobs.rs"), false);
   });
 });
 test("privacy logging rejects raw backup path errors", () => {
@@ -638,10 +638,10 @@ test("privacy logging rejects raw backup path errors", () => {
 });
 test("privacy logging rejects ML local path exposure", () => {
   withFixture((root) => {
-    writeFixtureFile(root, "src-tauri/src/commands/ml.rs", "pub model_path: PathBuf,\n");
+    writeFixtureFile(root, "src-tauri/src/ipc/ml.rs", "pub model_path: PathBuf,\n");
     writeFixtureFile(root, "docs/developer/LOCAL_SEMANTIC_MATCHING.md", "model_path: string\n");
-    assert.equal(hasMlRawLocalPathExposure(root, "src-tauri/src/commands/ml.rs"), true);
-    assert.equal(hasMlRawLocalPathExposure(root, "src-tauri/src/commands/jobs.rs"), false);
+    assert.equal(hasMlRawLocalPathExposure(root, "src-tauri/src/ipc/ml.rs"), true);
+    assert.equal(hasMlRawLocalPathExposure(root, "src-tauri/src/ipc/jobs.rs"), false);
     assert.equal(hasMlRawLocalPathDoc(root, "docs/developer/LOCAL_SEMANTIC_MATCHING.md"), true);
     assert.equal(hasMlRawLocalPathDoc(root, "docs/README.md"), false);
   });
@@ -682,15 +682,15 @@ test("privacy logging rejects LinkedIn cookie return", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/linkedin_auth.rs",
+      "src-tauri/src/ipc/linkedin_auth.rs",
       "tx.send(cookie_result.map(|(cookie, expires)| cookie))?;",
     );
     assert.equal(
-      hasLinkedInLoginCookieReturn(root, "src-tauri/src/commands/linkedin_auth.rs"),
+      hasLinkedInLoginCookieReturn(root, "src-tauri/src/ipc/linkedin_auth.rs"),
       true,
     );
     assert.equal(
-      hasLinkedInLoginCookieReturn(root, "src-tauri/src/commands/config.rs"),
+      hasLinkedInLoginCookieReturn(root, "src-tauri/src/ipc/config.rs"),
       false,
     );
   });

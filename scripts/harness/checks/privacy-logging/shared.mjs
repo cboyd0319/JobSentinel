@@ -6,7 +6,7 @@ export const frontendErrorReportingPaths = new Set([
 ]);
 export const frontendErrorLoggerPaths = new Set(["src/shared/errorReporting/logger.ts"]);
 export const frontendToastSupportDetailPaths = new Set([
-  "src/shared/tauri/commandClient.ts",
+  "src/platform/tauri/commandClient.ts",
 ]);
 export const frontendDirectErrorLoggingPaths = new Set([
   "src/features/settings/sources/browser-import/BrowserImportSection.tsx",
@@ -20,8 +20,8 @@ export const frontendDirectErrorLoggingPaths = new Set([
 ]);
 
 export const rawPrivateQueryLoggingPaths = new Set([
-  "src-tauri/src/commands/automation.rs",
-  "src-tauri/src/commands/jobs.rs",
+  "src-tauri/src/ipc/automation.rs",
+  "src-tauri/src/ipc/jobs.rs",
   "crates/jobsentinel-storage/src/queries.rs",
 ]);
 
@@ -43,13 +43,13 @@ export const scraperLoopErrorLoggingPaths = new Set([
 ]);
 
 export const rawLocalPathLoggingPaths = new Set([
-  "src-tauri/src/commands/ml.rs",
-  "src-tauri/src/commands/resume.rs",
+  "src-tauri/src/ipc/ml.rs",
+  "src-tauri/src/ipc/resume.rs",
   "crates/jobsentinel-assistance/src/automation/browser/page.rs",
   "crates/jobsentinel-assistance/src/automation/form_filler.rs",
   "crates/jobsentinel-storage/src/connection.rs",
   "crates/jobsentinel-storage/src/connection/backups.rs",
-  "src-tauri/src/app.rs",
+  "src-tauri/src/bootstrap/mod.rs",
   "crates/jobsentinel-platform/src/linux/mod.rs",
   "crates/jobsentinel-platform/src/macos/mod.rs",
   "crates/jobsentinel-platform/src/windows/mod.rs",
@@ -60,7 +60,7 @@ export const rawBackupPathErrorPaths = new Set([
 ]);
 
 export const mlRawLocalPathExposurePaths = new Set([
-  "src-tauri/src/commands/ml.rs",
+  "src-tauri/src/ipc/ml.rs",
   "crates/jobsentinel-local-ai/src/model.rs",
 ]);
 
@@ -80,14 +80,14 @@ export const linkedInPrivacyPaths = new Set([
   "crates/jobsentinel-sources/src/scrapers/linkedin.rs",
 ]);
 export const linkedInAuthPrivacyPaths = new Set([
-  "src-tauri/src/commands/linkedin_auth.rs",
+  "src-tauri/src/ipc/linkedin_auth.rs",
 ]);
 export const emailCommandPrivacyPaths = new Set([
-  "src-tauri/src/commands/config.rs",
+  "src-tauri/src/ipc/config.rs",
 ]);
 
 export const credentialCommandPrivacyPaths = new Set([
-  "src-tauri/src/commands/credentials.rs",
+  "src-tauri/src/ipc/credentials.rs",
   "crates/jobsentinel-credentials/src/lib.rs",
 ]);
 
@@ -96,13 +96,13 @@ export const credentialStorageErrorPrivacyPaths = new Set([
 ]);
 
 export const credentialSecretReadIpcPaths = new Set([
-  "src-tauri/src/commands/credentials.rs",
-  "src-tauri/src/commands/mod.rs",
-  "src-tauri/src/app.rs",
+  "src-tauri/src/ipc/credentials.rs",
+  "src-tauri/src/ipc/mod.rs",
+  "src-tauri/src/bootstrap/mod.rs",
   "src/features/settings/sources/SettingsJobSourcesSection.tsx",
   "src/features/settings/SettingsPage.tsx",
-  "src/test-support/mocks/handlers.ts",
-  "src/features/settings/mocks/commands.ts",
+  "src/dev-runtime/mocks/handlers.ts",
+  "src/dev-runtime/features/settings/commands.ts",
   "docs/security/KEYRING.md",
   "docs/features/saved-secrets.md",
   "docs/releases/v2.0.md",
@@ -113,13 +113,13 @@ export const configExportPrivacyPaths = new Set([
 ]);
 
 export const feedbackSanitizerPaths = new Set([
-  "src-tauri/src/commands/feedback/sanitizer.rs",
+  "src-tauri/src/ipc/feedback/sanitizer.rs",
 ]);
 export const structuredDebugLogPaths = new Set([
-  "src-tauri/src/commands/feedback/debug_log.rs",
+  "src-tauri/src/ipc/feedback/debug_log.rs",
 ]);
 export const feedbackCommandPaths = new Set([
-  "src-tauri/src/commands/feedback/mod.rs",
+  "src-tauri/src/ipc/feedback/mod.rs",
 ]);
 
 export const telegramNotificationPrivacyPaths = new Set([
@@ -158,7 +158,7 @@ export const healthSmokePrivacyPaths = new Set([
 ]);
 
 export const rawUrlLoggingPaths = new Set([
-  "src-tauri/src/commands/linkedin_auth.rs",
+  "src-tauri/src/ipc/linkedin_auth.rs",
   "crates/jobsentinel-assistance/src/automation/browser/manager.rs",
 ]);
 
@@ -172,50 +172,50 @@ export const rawResumeParserPathDisplayPaths = new Set([
   "crates/jobsentinel-documents/src/parser.rs",
 ]);
 export const rawResumeNameLoggingPaths = new Set([
-  "src-tauri/src/commands/resume.rs",
+  "src-tauri/src/ipc/resume.rs",
 ]);
 
 export const resumeCommandDtoPrivacyPaths = new Set([
-  "src-tauri/src/commands/resume.rs",
+  "src-tauri/src/ipc/resume.rs",
   "src/features/resumes/library/ResumeLibraryPage.tsx",
   "src/features/resumes/builder/ResumeBuilderPage.tsx",
-  "src/test-support/mocks/handlers.ts",
-  "src/features/resumes/mocks/resumeCommands.ts",
+  "src/dev-runtime/mocks/handlers.ts",
+  "src/dev-runtime/features/resumes/resumeCommands.ts",
 ]);
 
 export const resumeCommandErrorPrivacyPaths = new Set([
-  "src-tauri/src/commands/resume.rs",
+  "src-tauri/src/ipc/resume.rs",
 ]);
 export const atsCommandErrorPrivacyPaths = new Set([
-  "src-tauri/src/commands/ats.rs",
+  "src-tauri/src/ipc/ats.rs",
 ]);
 export const atsTimelineEventPrivacyPaths = new Set([
   "crates/jobsentinel-storage/src/application_tracking/tracker.rs",
   "crates/jobsentinel-storage/src/application_tracking/reminders.rs",
 ]);
 export const automationCommandErrorPrivacyPaths = new Set([
-  "src-tauri/src/commands/automation.rs",
+  "src-tauri/src/ipc/automation.rs",
 ]);
 
 export const sensitiveCommandErrorPrivacyPaths = new Set([
-  "src-tauri/src/commands/ml.rs",
-  "src-tauri/src/commands/salary.rs",
-  "src-tauri/src/commands/market.rs",
+  "src-tauri/src/ipc/ml.rs",
+  "src-tauri/src/ipc/salary.rs",
+  "src-tauri/src/ipc/market.rs",
 ]);
 
 export const utilityCommandErrorPrivacyPaths = new Set([
-  "src-tauri/src/commands/jobs.rs",
-  "src-tauri/src/commands/ghost.rs",
-  "src-tauri/src/commands/deeplinks.rs",
-  "src-tauri/src/commands/geo.rs",
-  "src-tauri/src/commands/config.rs",
-  "src-tauri/src/commands/linkedin_auth.rs",
+  "src-tauri/src/ipc/jobs.rs",
+  "src-tauri/src/ipc/ghost.rs",
+  "src-tauri/src/ipc/deeplinks.rs",
+  "src-tauri/src/ipc/geo.rs",
+  "src-tauri/src/ipc/config.rs",
+  "src-tauri/src/ipc/linkedin_auth.rs",
 ]);
 
 export const rawCommandSetupErrorDisplayPaths = new Set([
-  "src-tauri/src/commands/config.rs",
-  "src-tauri/src/commands/ghost.rs",
-  "src-tauri/src/app.rs",
+  "src-tauri/src/ipc/config.rs",
+  "src-tauri/src/ipc/ghost.rs",
+  "src-tauri/src/bootstrap/mod.rs",
 ]);
 
 export const configValidationPrivacyPaths = new Set([
@@ -223,10 +223,10 @@ export const configValidationPrivacyPaths = new Set([
 ]);
 
 export const rawJobImportLoggingPaths = new Set([
-  "src-tauri/src/commands/import.rs",
+  "src-tauri/src/ipc/import.rs",
 ]);
 export const importCommandPrivacyPaths = new Set([
-  "src-tauri/src/commands/import.rs",
+  "src-tauri/src/ipc/import.rs",
 ]);
 export const rawImportRedirectDisplayPaths = new Set([
   "crates/jobsentinel-application/src/types.rs",
@@ -236,10 +236,10 @@ export const urlSecurityPrivacyPaths = new Set([
 ]);
 
 export const importBookmarkletCommandPrivacyPaths = new Set([
-  "src-tauri/src/commands/import.rs",
-  "src-tauri/src/commands/user_data.rs",
-  "src-tauri/src/commands/scoring.rs",
-  "src-tauri/src/commands/bookmarklet.rs",
+  "src-tauri/src/ipc/import.rs",
+  "src-tauri/src/ipc/user_data.rs",
+  "src-tauri/src/ipc/scoring.rs",
+  "src-tauri/src/ipc/bookmarklet.rs",
   "crates/jobsentinel-assistance/src/bookmarklet/server.rs",
 ]);
 
@@ -251,7 +251,7 @@ export const bookmarkletGeneratorPaths = new Set([
 ]);
 
 export const userDataPrivacyLoggingPaths = new Set([
-  "src-tauri/src/commands/user_data.rs",
+  "src-tauri/src/ipc/user_data.rs",
   "crates/jobsentinel-application/src/user_data/mod.rs",
 ]);
 
@@ -293,8 +293,8 @@ export const rawAutomationQuestionLoggingPaths = new Set([
 
 export const automationFormPrivacyPaths = new Set([
   "crates/jobsentinel-assistance/src/automation/form_filler.rs",
-  "src/test-support/mocks/handlers.ts",
-  "src/features/application-assist/mocks/commands.ts",
+  "src/dev-runtime/mocks/handlers.ts",
+  "src/dev-runtime/features/application-assist/commands.ts",
 ]);
 
 export const automationBrowserErrorPrivacyPaths = new Set([
@@ -303,7 +303,7 @@ export const automationBrowserErrorPrivacyPaths = new Set([
 ]);
 
 export const screeningAnswerCommandLoggingPaths = new Set([
-  "src-tauri/src/commands/automation.rs",
+  "src-tauri/src/ipc/automation.rs",
 ]);
 export const rawNotificationJobTitleLoggingPaths = new Set([
   "crates/jobsentinel-application/src/notify/mod.rs",

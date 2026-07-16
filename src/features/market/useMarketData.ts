@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useToast } from "../../shared/toast/useToast";
-import { safeInvoke, safeInvokeWithToast } from "../../shared/tauri/commandClient";
+import { safeInvoke, safeInvokeWithToast } from "../../platform/tauri";
 import { getMarketDataErrorCopy } from "./errorCopy";
 import {
   marketDataHasInputs,

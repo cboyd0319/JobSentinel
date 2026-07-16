@@ -3,8 +3,8 @@ import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { listTrackedFiles } from "./repo-artifacts.mjs";
 
-const mockCommandRegistryPath = "src/test-support/mocks/commandRegistry.ts";
-const legacyMockCommandRegistryPath = "src/test-support/mocks/handlers.ts";
+const mockCommandRegistryPath = "src/dev-runtime/mocks/commandRegistry.ts";
+const legacyMockCommandRegistryPath = "src/dev-runtime/mocks/handlers.ts";
 
 function activeMockCommandRegistryPath(root) {
   return existsSync(join(root, mockCommandRegistryPath))
@@ -115,7 +115,7 @@ export function hasStaleResumeOptimizerMockHandlers(root, path) {
   const registryPath = activeMockCommandRegistryPath(root);
   if (
     path !== registryPath &&
-    path !== "src/features/resumes/mocks/resumeAnalysis.ts"
+    path !== "src/dev-runtime/features/resumes/resumeAnalysis.ts"
   ) {
     return false;
   }
@@ -158,7 +158,7 @@ const resumeSuggestionCategoryPaths = new Set([
   "src/features/resumes/builder/AtsLiveScorePanel.tsx",
   "src/features/resumes/builder/AtsLiveScorePanelModel.ts",
   legacyMockCommandRegistryPath,
-  "src/features/resumes/mocks/resumeAnalysis.ts",
+  "src/dev-runtime/features/resumes/resumeAnalysis.ts",
 ]);
 
 const fallbackResumeSuggestionCategories = [
@@ -228,7 +228,7 @@ export function hasResumeSuggestionCategoryDrift(root, path) {
   }
 
   const mockText = [
-    readOptionalFile(root, "src/features/resumes/mocks/resumeAnalysis.ts") ||
+    readOptionalFile(root, "src/dev-runtime/features/resumes/resumeAnalysis.ts") ||
       readOptionalFile(root, legacyMockCommandRegistryPath),
   ].join("\n");
   return Boolean(mockText) && hasMissingResumeSuggestionCategories(mockText, categories);
@@ -272,7 +272,7 @@ function isRuntimeFrontendSource(path) {
     !path.endsWith(".d.ts") &&
     !/\.test\.(ts|tsx)$/.test(path) &&
     !/\.stories\.(ts|tsx)$/.test(path) &&
-    path !== "src/test-support/mocks/handlers.ts"
+    path !== "src/dev-runtime/mocks/handlers.ts"
   );
 }
 

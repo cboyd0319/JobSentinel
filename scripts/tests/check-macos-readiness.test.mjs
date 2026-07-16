@@ -16,7 +16,7 @@ import {
   readReadmeMacosReadinessPercent,
   windowsInstallerUploadRequiresSignatureOrUnsignedLabel,
   linuxPackageUploadRequiresVerification,
-} from "../check-macos-readiness.mjs";
+} from "../release/check-macos-readiness.mjs";
 
 test("macOS readiness report separates public and no-account completion", () => {
   const report = {

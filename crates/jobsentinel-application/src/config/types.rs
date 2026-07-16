@@ -195,6 +195,52 @@ pub struct RestrictedSourceAcknowledgements {
 }
 
 impl Config {
+    #[must_use]
+    pub fn first_run() -> Self {
+        Self {
+            title_allowlist: vec![],
+            title_blocklist: vec![],
+            keywords_boost: vec![],
+            keywords_exclude: vec![],
+            location_preferences: LocationPreferences {
+                allow_remote: true,
+                allow_hybrid: false,
+                allow_onsite: false,
+                cities: vec![],
+                states: vec![],
+                country: "US".to_string(),
+            },
+            salary_floor_usd: 0,
+            salary_target_usd: None,
+            penalize_missing_salary: false,
+            auto_refresh: AutoRefreshConfig::default(),
+            bookmarklet_port: 4321,
+            immediate_alert_threshold: 0.9,
+            scraping_interval_hours: 2,
+            alerts: AlertConfig::default(),
+            greenhouse_urls: vec![],
+            lever_urls: vec![],
+            linkedin: LinkedInConfig::default(),
+            restricted_source_acknowledgements: RestrictedSourceAcknowledgements::default(),
+            remoteok: RemoteOkConfig::default(),
+            weworkremotely: WeWorkRemotelyConfig::default(),
+            builtin: BuiltInConfig::default(),
+            hn_hiring: HnHiringConfig::default(),
+            dice: DiceConfig::default(),
+            yc_startup: YcStartupConfig::default(),
+            usajobs: UsaJobsConfig::default(),
+            simplyhired: SimplyHiredConfig::default(),
+            glassdoor: GlassdoorConfig::default(),
+            jobswithgpt_endpoint: String::new(),
+            jobswithgpt_approval: JobsWithGptApproval::default(),
+            external_ai: ExternalAiConfig::default(),
+            preferred_companies: vec![],
+            blocked_companies: vec![],
+            use_resume_matching: false,
+            ghost_config: None,
+        }
+    }
+
     pub fn jobswithgpt_payload_preview(&self) -> Option<JobsWithGptPayload> {
         let endpoint = self.jobswithgpt_endpoint.trim().to_string();
         if endpoint.is_empty() {

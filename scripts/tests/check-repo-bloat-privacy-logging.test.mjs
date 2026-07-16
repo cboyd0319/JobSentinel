@@ -40,7 +40,7 @@ test("checkRepoBloat rejects raw URL logging outside approved sanitizers", () =>
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/linkedin_auth.rs",
+      "src-tauri/src/ipc/linkedin_auth.rs",
       'tracing::debug!("LinkedIn navigation: {}", url_str);\n',
     );
 
@@ -50,7 +50,7 @@ test("checkRepoBloat rejects raw URL logging outside approved sanitizers", () =>
         "add",
         "package.json",
         "crates/jobsentinel-assistance/src/automation/browser/manager.rs",
-        "src-tauri/src/commands/linkedin_auth.rs",
+        "src-tauri/src/ipc/linkedin_auth.rs",
       ],
       { cwd: root },
     );
@@ -65,7 +65,7 @@ test("checkRepoBloat rejects raw URL logging outside approved sanitizers", () =>
     );
     assert.ok(
       violations.includes(
-        "replace raw URL logging: src-tauri/src/commands/linkedin_auth.rs",
+        "replace raw URL logging: src-tauri/src/ipc/linkedin_auth.rs",
       ),
       violations.join("\n"),
     );
@@ -77,7 +77,7 @@ test("checkRepoBloat rejects raw job import logging", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/import.rs",
+      "src-tauri/src/ipc/import.rs",
       [
         '#[tracing::instrument(skip(state), fields(url), level = "info")]',
         "pub async fn preview_job_import(url: String) {}",
@@ -88,7 +88,7 @@ test("checkRepoBloat rejects raw job import logging", () => {
 
     execFileSync(
       "git",
-      ["add", "package.json", "src-tauri/src/commands/import.rs"],
+      ["add", "package.json", "src-tauri/src/ipc/import.rs"],
       {
         cwd: root,
       },
@@ -98,7 +98,7 @@ test("checkRepoBloat rejects raw job import logging", () => {
 
     assert.ok(
       violations.includes(
-        "replace raw job import logging: src-tauri/src/commands/import.rs",
+        "replace raw job import logging: src-tauri/src/ipc/import.rs",
       ),
       violations.join("\n"),
     );
@@ -110,7 +110,7 @@ test("checkRepoBloat rejects raw job import HTTP errors", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/import.rs",
+      "src-tauri/src/ipc/import.rs",
       [
         'ImportError::HttpError(e) => format!("Failed to fetch the page: {}", e),',
         "",
@@ -119,7 +119,7 @@ test("checkRepoBloat rejects raw job import HTTP errors", () => {
 
     execFileSync(
       "git",
-      ["add", "package.json", "src-tauri/src/commands/import.rs"],
+      ["add", "package.json", "src-tauri/src/ipc/import.rs"],
       {
         cwd: root,
       },
@@ -129,7 +129,7 @@ test("checkRepoBloat rejects raw job import HTTP errors", () => {
 
     assert.ok(
       violations.includes(
-        "sanitize job import HTTP errors: src-tauri/src/commands/import.rs",
+        "sanitize job import HTTP errors: src-tauri/src/ipc/import.rs",
       ),
       violations.join("\n"),
     );
@@ -172,13 +172,13 @@ test("checkRepoBloat rejects raw job import success metadata", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/import.rs",
+      "src-tauri/src/ipc/import.rs",
       'tracing::info!(job_id = job_id, title = %title, company = %company, "Job imported successfully");\n',
     );
 
     execFileSync(
       "git",
-      ["add", "package.json", "src-tauri/src/commands/import.rs"],
+      ["add", "package.json", "src-tauri/src/ipc/import.rs"],
       {
         cwd: root,
       },
@@ -188,7 +188,7 @@ test("checkRepoBloat rejects raw job import success metadata", () => {
 
     assert.ok(
       violations.includes(
-        "replace raw job import logging: src-tauri/src/commands/import.rs",
+        "replace raw job import logging: src-tauri/src/ipc/import.rs",
       ),
       violations.join("\n"),
     );

@@ -2,7 +2,7 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 const workflowDirectory = ".github/workflows";
-const installerPath = "scripts/install-pinned-npm.mjs";
+const installerPath = "scripts/harness/npm-pin.mjs";
 
 function repoPath(root, path) {
   return join(root, path);

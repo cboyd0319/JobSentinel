@@ -56,7 +56,7 @@ test("source quality rejects frontend glyphs and lint suppressions", () => {
     );
     writeFixtureFile(
       root,
-      "src/app/vitals.ts",
+      "src/dev-runtime/vitals.ts",
       "// @ts-expect-error\nperformance.memory;\n",
     );
     writeFixtureFile(
@@ -90,7 +90,7 @@ test("source quality rejects frontend glyphs and lint suppressions", () => {
       true,
     );
     assert.equal(
-      hasProductionTypeErrorSuppression(root, "src/app/vitals.ts"),
+      hasProductionTypeErrorSuppression(root, "src/dev-runtime/vitals.ts"),
       true,
     );
     assert.equal(
@@ -119,7 +119,7 @@ test("source quality rejects frontend glyphs and lint suppressions", () => {
 
 test("source quality ignores test and mock frontend files for production source checks", () => {
   withFixture((root) => {
-    writeFixtureFile(root, "src/test-support/mocks/handlers.ts", 'icon: "📊";\n');
+    writeFixtureFile(root, "src/dev-runtime/mocks/handlers.ts", 'icon: "📊";\n');
     writeFixtureFile(
       root,
       "src/components/Example.test.tsx",
@@ -127,7 +127,7 @@ test("source quality ignores test and mock frontend files for production source 
     );
 
     assert.equal(
-      hasProductionSourceGlyphMarkers(root, "src/test-support/mocks/handlers.ts"),
+      hasProductionSourceGlyphMarkers(root, "src/dev-runtime/mocks/handlers.ts"),
       false,
     );
     assert.equal(
@@ -201,21 +201,21 @@ test("source quality rejects opaque command unit errors outside Rust tests", () 
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/cache.rs",
+      "src-tauri/src/ipc/cache.rs",
       "#[tauri::command]\npub async fn get_cache_health() -> Result<serde_json::Value, ()> { Ok(json!({})) }\n",
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/test_only.rs",
+      "src-tauri/src/ipc/test_only.rs",
       "#[cfg(test)]\n#[tauri::command]\npub async fn test_command() -> Result<(), ()> { Ok(()) }\n",
     );
 
     assert.equal(
-      hasOpaqueCommandUnitError(root, "src-tauri/src/commands/cache.rs"),
+      hasOpaqueCommandUnitError(root, "src-tauri/src/ipc/cache.rs"),
       true,
     );
     assert.equal(
-      hasOpaqueCommandUnitError(root, "src-tauri/src/commands/test_only.rs"),
+      hasOpaqueCommandUnitError(root, "src-tauri/src/ipc/test_only.rs"),
       false,
     );
   });
@@ -483,7 +483,7 @@ test("source quality rejects unsafe settings saves and raw salary logging", () =
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/salary.rs",
+      "src-tauri/src/ipc/salary.rs",
       'tracing::info!("Command: get_salary_benchmark (title: {}, location: {})", job_title, location);\n',
     );
 
@@ -502,7 +502,7 @@ test("source quality rejects unsafe settings saves and raw salary logging", () =
       true,
     );
     assert.equal(
-      hasRawSalaryCommandLogging(root, "src-tauri/src/commands/salary.rs"),
+      hasRawSalaryCommandLogging(root, "src-tauri/src/ipc/salary.rs"),
       true,
     );
   });

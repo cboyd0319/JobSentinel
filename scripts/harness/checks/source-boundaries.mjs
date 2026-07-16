@@ -24,8 +24,8 @@ const linkedInAutomationBoundaryPaths = new Set([
 const linkedInNotificationBoundaryPaths = new Set([
   "src/features/settings/notifications/notificationPreferencesStore.ts",
   "src/features/settings/notifications/NotificationPreferences.tsx",
-  "src/test-support/mocks/handlers.ts",
-  "src/features/settings/notifications/mockCommands.ts",
+  "src/dev-runtime/mocks/handlers.ts",
+  "src/dev-runtime/features/settings/notificationCommands.ts",
   "docs/features/user-data-management.md",
   "crates/jobsentinel-application/src/user_data/mod.rs",
 ]);
@@ -37,8 +37,8 @@ const frontendJobUrlOpenPaths = new Set([
 
 const staleStackOverflowJobsPaths = new Set([
   "docs/user/DEEP_LINKS.md",
-  "src/test-support/mocks/handlers.ts",
-  "src/features/search-links/mocks/commands.ts",
+  "src/dev-runtime/mocks/handlers.ts",
+  "src/dev-runtime/features/search-links/commands.ts",
   "src/shared/search-links/model.ts",
   "crates/jobsentinel-assistance/src/deeplinks/generator.rs",
   "crates/jobsentinel-assistance/src/deeplinks/mod.rs",
@@ -59,20 +59,20 @@ const jobsWithGptApprovalPaths = new Set([
   "src/features/settings/sources/SettingsConnectedJobSource.tsx",
   "src/features/settings/sources/SettingsJobSourcesSection.tsx",
   "src/features/settings/SettingsPage.tsx",
-  "src/test-support/mocks/handlers.ts",
-  "src/features/settings/mocks/commands.ts",
-  "src/features/settings/sources/mocks/commands.ts",
-  "src/features/settings/sources/mocks/scraperHealth.ts",
+  "src/dev-runtime/mocks/handlers.ts",
+  "src/dev-runtime/features/settings/commands.ts",
+  "src/dev-runtime/features/settings/sources/commands.ts",
+  "src/dev-runtime/features/settings/sources/scraperHealth.ts",
 ]);
 
 const jobsWithGptRequestLedgerPaths = new Set([
   "crates/jobsentinel-storage/migrations/00000000000006_source_request_log.sql",
   "crates/jobsentinel-storage/src/health/tracking.rs",
-  "src-tauri/src/commands/health.rs",
+  "src-tauri/src/ipc/health.rs",
   "crates/jobsentinel-application/src/scheduler/workers/scrapers.rs",
   "crates/jobsentinel-application/src/scheduler/workers/scrapers/jobswithgpt_worker.rs",
-  "src-tauri/src/command_handlers.rs",
-  "src-tauri/src/app.rs",
+  "src-tauri/src/ipc/registry.rs",
+  "src-tauri/src/bootstrap/mod.rs",
   "src/features/settings/sources/SettingsConnectedJobSource.tsx",
   "src/features/settings/sources/SettingsJobSourcesSection.tsx",
   "src/features/settings/SettingsPage.tsx",
@@ -138,9 +138,9 @@ export function hasStaleScraperHealthCoverage(root, path) {
     path !== "docs/style-guide/WRITING-FOR-JOB-SEEKERS.md" &&
     path !== "docs/developer/WHY_TAURI.md" &&
     path !== "docs/releases/v2.1.md" &&
-    path !== "src/test-support/mocks/handlers.ts" &&
-    path !== "src/features/settings/sources/mocks/commands.ts" &&
-    path !== "src/features/settings/sources/mocks/scraperHealth.ts" &&
+    path !== "src/dev-runtime/mocks/handlers.ts" &&
+    path !== "src/dev-runtime/features/settings/sources/commands.ts" &&
+    path !== "src/dev-runtime/features/settings/sources/scraperHealth.ts" &&
     path !== "src/features/dashboard/DashboardPage.tsx" &&
     !scraperHealthDashboardPaths.has(path)
   ) {
@@ -336,10 +336,10 @@ export function hasJobsWithGptUnapprovedEndpointFlow(root, path) {
   }
 
   if (
-    path === "src/test-support/mocks/handlers.ts" ||
-    path === "src/features/settings/mocks/commands.ts" ||
-    path === "src/features/settings/sources/mocks/commands.ts" ||
-    path === "src/features/settings/sources/mocks/scraperHealth.ts"
+    path === "src/dev-runtime/mocks/handlers.ts" ||
+    path === "src/dev-runtime/features/settings/commands.ts" ||
+    path === "src/dev-runtime/features/settings/sources/commands.ts" ||
+    path === "src/dev-runtime/features/settings/sources/scraperHealth.ts"
   ) {
     return (
       /jobswithgpt_endpoint/.test(text) && !/jobswithgpt_approval/.test(text)
@@ -372,7 +372,7 @@ export function hasJobsWithGptMissingRequestLedger(root, path) {
     );
   }
 
-  if (path === "src-tauri/src/commands/health.rs") {
+  if (path === "src-tauri/src/ipc/health.rs") {
     return !/pub(?:\([^)]*\))?\s+async fn get_latest_source_request/.test(text);
   }
 
@@ -387,11 +387,11 @@ export function hasJobsWithGptMissingRequestLedger(root, path) {
     );
   }
 
-  if (path === "src-tauri/src/command_handlers.rs") {
+  if (path === "src-tauri/src/ipc/registry.rs") {
     return !/commands::health::get_latest_source_request/.test(text);
   }
 
-  if (path === "src-tauri/src/app.rs") {
+  if (path === "src-tauri/src/bootstrap/mod.rs") {
     return !/command_handlers::jobsentinel_command_handlers!\(\)/.test(text);
   }
 

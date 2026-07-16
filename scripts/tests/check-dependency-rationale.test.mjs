@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import test from "node:test";
 
-import { checkDependencyRationale } from "../check-dependency-rationale.mjs";
+import { checkDependencyRationale } from "../checks/dependency-rationale.mjs";
 
 function withFixture(callback) {
   const root = mkdtempSync(join(tmpdir(), "jobsentinel-dep-rationale-"));

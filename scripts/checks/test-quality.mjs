@@ -1,0 +1,156 @@
+#!/usr/bin/env node
+
+import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { dirname, extname, join, relative, resolve } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
+
+const scriptPath = fileURLToPath(import.meta.url);
+const defaultRoot = resolve(dirname(scriptPath), "../..");
+
+const checkedRoots = ["src", "src-tauri/src", "crates", "tests", "scripts"];
+const checkedExtensions = new Set([".js", ".jsx", ".mjs", ".rs", ".ts", ".tsx"]);
+const ignoredPathParts = new Set([
+  "node_modules",
+  "dist",
+  "coverage",
+  "playwright-report",
+  "test-results",
+]);
+
+const disabledTestBlockPattern = new RegExp(
+  [
+    "TEMPORARILY " + "DISABLED",
+    "NO" + "COMMIT",
+    "Re-enable after " + "implementing",
+  ].join("|"),
+);
+
+const qualityRules = [
+  {
+    label: "no-op true assertion",
+    pattern: /\bexpect\s*\(\s*true\s*\)/,
+    extensions: new Set([".js", ".jsx", ".mjs", ".ts", ".tsx"]),
+  },
+  {
+    label: "no-op true assertion",
+    pattern: /\bassert!\s*\(\s*true\s*(?:,|\))/,
+    extensions: new Set([".rs"]),
+  },
+  {
+    label: "always-true fallback",
+    pattern: /\|\|\s*true\b/,
+    extensions: new Set([".js", ".jsx", ".mjs", ".ts", ".tsx"]),
+  },
+  {
+    label: "focused test",
+    pattern: /\b(?:describe|it|test)\.only\s*\(/,
+    extensions: new Set([".js", ".jsx", ".mjs", ".ts", ".tsx"]),
+  },
+  {
+    label: "skipped unit test",
+    pattern: /\b(?:describe|it|test)\.skip\s*\(/,
+    extensions: new Set([".js", ".jsx", ".mjs", ".ts", ".tsx"]),
+  },
+  {
+    label: "temporarily disabled test block",
+    pattern: disabledTestBlockPattern,
+    extensions: new Set([".js", ".jsx", ".mjs", ".rs", ".ts", ".tsx"]),
+  },
+];
+
+const wholeFileQualityRules = [
+  {
+    label: "empty test body",
+    pattern:
+      /\b(?:describe|it|test)\s*\(\s*(["'`])(?:\\.|(?!\1)[\s\S])*?\1\s*,\s*(?:async\s*)?(?:\([^)]*\)|[A-Za-z_$][\w$]*)\s*=>\s*\{\s*\}\s*\)/g,
+    extensions: new Set([".js", ".jsx", ".mjs", ".ts", ".tsx"]),
+  },
+  {
+    label: "empty test body",
+    pattern: /#\s*\[\s*test\s*\]\s*fn\s+\w+\s*\([^)]*\)\s*\{\s*\}/g,
+    extensions: new Set([".rs"]),
+  },
+];
+
+function collectFiles(root, dir) {
+  const files = [];
+
+  if (!existsSync(dir)) {
+    return files;
+  }
+
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const fullPath = join(dir, entry.name);
+    const rel = relative(root, fullPath);
+    const parts = rel.split(/[\\/]/);
+
+    if (parts.some((part) => ignoredPathParts.has(part))) {
+      continue;
+    }
+
+    if (entry.isDirectory()) {
+      files.push(...collectFiles(root, fullPath));
+      continue;
+    }
+
+    if (entry.isFile() && checkedExtensions.has(extname(entry.name))) {
+      files.push(fullPath);
+    }
+  }
+
+  return files.sort();
+}
+
+export function checkTestQuality(root = defaultRoot) {
+  const violations = [];
+  const files = checkedRoots.flatMap((path) => collectFiles(root, join(root, path)));
+
+  for (const file of files) {
+    const rel = relative(root, file);
+    const extension = extname(file);
+    const lines = readFileSync(file, "utf8").split(/\r?\n/);
+
+    lines.forEach((line, index) => {
+      for (const rule of qualityRules) {
+        if (rule.extensions && !rule.extensions.has(extension)) {
+          continue;
+        }
+
+        if (rule.pattern.test(line)) {
+          violations.push(`${rel}:${index + 1} contains ${rule.label}`);
+        }
+      }
+    });
+
+    const text = lines.join("\n");
+    for (const rule of wholeFileQualityRules) {
+      if (rule.extensions && !rule.extensions.has(extension)) {
+        continue;
+      }
+
+      rule.pattern.lastIndex = 0;
+      let match;
+      while ((match = rule.pattern.exec(text)) !== null) {
+        const lineNumber = text.slice(0, match.index).split(/\n/).length;
+        violations.push(`${rel}:${lineNumber} contains ${rule.label}`);
+      }
+    }
+  }
+
+  return violations;
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  const root = process.argv[2] ? resolve(process.argv[2]) : defaultRoot;
+  const violations = checkTestQuality(root);
+
+  if (violations.length > 0) {
+    console.error("Test quality check failed:");
+    for (const violation of violations) {
+      console.error(`- ${violation}`);
+    }
+    process.exit(1);
+  }
+
+  console.log("Test quality check passed.");
+}

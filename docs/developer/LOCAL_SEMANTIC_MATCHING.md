@@ -99,7 +99,7 @@ disabled by default, and routed through
 | `crates/jobsentinel-local-ai/src/matcher.rs` | Semantic skill matching logic |
 | `crates/jobsentinel-storage/src/resume/matcher/hybrid_score.rs` | Resume/job scoring bridge for hybrid matching and legacy fallback |
 | `crates/jobsentinel-local-ai/src/tests.rs` | Feature-gated tests |
-| `src-tauri/src/commands/ml.rs` | Feature-gated Tauri commands |
+| `src-tauri/src/ipc/ml.rs` | Feature-gated Tauri commands |
 | `models.lock.toml` | Model supply-chain lockfile |
 
 ## Model Direction

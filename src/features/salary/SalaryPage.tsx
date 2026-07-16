@@ -1,4 +1,4 @@
-import { invoke } from "@tauri-apps/api/core";
+import { invoke } from "../../platform/tauri";
 import { useCallback, useState } from "react";
 import { useToast } from "../../shared/toast/useToast";
 import { getPayFloorBenchmarkGuidance } from "../../shared/payFloorBenchmarkGuidance";

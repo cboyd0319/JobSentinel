@@ -111,7 +111,7 @@ test("should maintain layout on mobile", async ({ page }) => {
 
 ### Running Playwright Tests
 
-The npm commands below route through `scripts/run-playwright.mjs`, which keeps
+The npm commands below route through `scripts/dev/run-playwright.mjs`, which keeps
 Playwright output clean on current Node versions without hiding test failures.
 The wrapper automatically selects an available loopback port and does not reuse
 an existing server unless `PLAYWRIGHT_REUSE_EXISTING_SERVER=1` is explicitly

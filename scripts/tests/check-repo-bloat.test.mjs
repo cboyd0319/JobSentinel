@@ -484,7 +484,7 @@ test("checkRepoBloat rejects discontinued Stack Overflow Jobs deep links", () =>
     );
     writeFixtureFile(
       root,
-      "src/test-support/mocks/handlers.ts",
+      "src/dev-runtime/mocks/handlers.ts",
       'const id = "stackoverflow";\n',
     );
     execFileSync(
@@ -494,7 +494,7 @@ test("checkRepoBloat rejects discontinued Stack Overflow Jobs deep links", () =>
         "package.json",
         "docs/user/DEEP_LINKS.md",
         "crates/jobsentinel-assistance/src/deeplinks/generator.rs",
-        "src/test-support/mocks/handlers.ts",
+        "src/dev-runtime/mocks/handlers.ts",
       ],
       { cwd: root },
     );
@@ -513,7 +513,7 @@ test("checkRepoBloat rejects discontinued Stack Overflow Jobs deep links", () =>
     );
     assert.ok(
       violations.includes(
-        "remove discontinued Stack Overflow Jobs deep link: src/test-support/mocks/handlers.ts",
+        "remove discontinued Stack Overflow Jobs deep link: src/dev-runtime/mocks/handlers.ts",
       ),
       violations.join("\n"),
     );
@@ -524,7 +524,7 @@ test("checkRepoBloat rejects stale resume optimizer mock handlers", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src/test-support/mocks/handlers.ts",
+      "src/dev-runtime/mocks/handlers.ts",
       [
         "export async function mockInvoke(cmd) {",
         "  switch (cmd) {",
@@ -537,13 +537,13 @@ test("checkRepoBloat rejects stale resume optimizer mock handlers", () => {
         "",
       ].join("\n"),
     );
-    execFileSync("git", ["add", "package.json", "src/test-support/mocks/handlers.ts"], {
+    execFileSync("git", ["add", "package.json", "src/dev-runtime/mocks/handlers.ts"], {
       cwd: root,
     });
     const violations = checkRepoBloat(root);
     assert.ok(
       violations.includes(
-        "sync resume optimizer mock command handlers: src/test-support/mocks/handlers.ts",
+        "sync resume optimizer mock command handlers: src/dev-runtime/mocks/handlers.ts",
       ),
       violations.join("\n"),
     );
@@ -576,7 +576,7 @@ pub enum SuggestionCategory {
     );
     writeFixtureFile(
       root,
-      "src/test-support/mocks/handlers.ts",
+      "src/dev-runtime/mocks/handlers.ts",
       'type MockSuggestionCategory = "AddKeyword" | "RewordBullet" | "AddSection";\n',
     );
     execFileSync(
@@ -586,7 +586,7 @@ pub enum SuggestionCategory {
         "crates/jobsentinel-documents/src/ats_analyzer.rs",
         "src/features/resumes/matching/resumeMatchModel.ts",
         "src/features/resumes/builder/AtsLiveScorePanel.tsx",
-        "src/test-support/mocks/handlers.ts",
+        "src/dev-runtime/mocks/handlers.ts",
       ],
       { cwd: root },
     );
@@ -599,7 +599,7 @@ pub enum SuggestionCategory {
     );
     assert.ok(
       violations.includes(
-        "sync resume suggestion category labels: src/test-support/mocks/handlers.ts",
+        "sync resume suggestion category labels: src/dev-runtime/mocks/handlers.ts",
       ),
       violations.join("\n"),
     );

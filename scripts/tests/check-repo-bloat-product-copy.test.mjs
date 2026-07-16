@@ -5,6 +5,8 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import test from "node:test";
 import { checkRepoBloat } from "../checks/repo-bloat.mjs";
+const APP_ASSIST_PLATFORM = "src/dev-runtime/features/application-assist/atsPlatform.ts";
+const DEV_RUNTIME_HANDLERS = "src/dev-runtime/mocks/handlers.ts";
 function writeFixtureFile(root,path,content="") {
   const fullPath = join(root, path);
   mkdirSync(dirname(fullPath), { recursive: true });
@@ -299,7 +301,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/test-support/mocks/handlers.ts",
+      DEV_RUNTIME_HANDLERS,
       [
         '"Blocked unsafe deep link URL"',
         '"Blocked unsafe job import URL"',
@@ -311,7 +313,7 @@ test("checkRepoBloat rejects technical-first user copy", () => {
     );
     writeFixtureFile(
       root,
-      "src/features/application-assist/mocks/atsPlatform.ts",
+      APP_ASSIST_PLATFORM,
       '"Unknown ATS. Review fields carefully before submitting."\n',
     );
     writeFixtureFile(
@@ -582,8 +584,8 @@ test("checkRepoBloat rejects technical-first user copy", () => {
         "src/features/settings/support/feedback/FeedbackModal.tsx",
         "src/features/settings/support/feedback/SuccessScreen.tsx",
         "src/app/keyboard/KeyboardShortcutsProvider.tsx",
-        "src/test-support/mocks/handlers.ts",
-        "src/features/application-assist/mocks/atsPlatform.ts",
+        DEV_RUNTIME_HANDLERS,
+        APP_ASSIST_PLATFORM,
         "src/features/application-assist/applicationFormValidation.ts",
         "src/features/settings/credentials/notificationConnectionValidation.ts",
         "src/shared/validation/contactFieldValidation.ts",
@@ -639,8 +641,8 @@ test("checkRepoBloat rejects technical-first user copy", () => {
       "src/features/settings/support/feedback/FeedbackModal.tsx",
       "src/features/settings/support/feedback/SuccessScreen.tsx",
       "src/app/keyboard/KeyboardShortcutsProvider.tsx",
-      "src/test-support/mocks/handlers.ts",
-      "src/features/application-assist/mocks/atsPlatform.ts",
+      DEV_RUNTIME_HANDLERS,
+      APP_ASSIST_PLATFORM,
       "src/features/application-assist/applicationFormValidation.ts",
       "src/features/settings/credentials/notificationConnectionValidation.ts",
       "src/shared/validation/contactFieldValidation.ts",

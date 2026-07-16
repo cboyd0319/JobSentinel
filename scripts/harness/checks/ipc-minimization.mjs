@@ -27,7 +27,7 @@ function stripRustTestModules(text) {
 export function hasNonSettingsFullApplicationProfileInvoke(root, path) {
   if (
     !path.startsWith("src/") ||
-    path.startsWith("src/test-support/mocks/") ||
+    path.startsWith("src/dev-runtime/") ||
     path.includes("/mocks/") ||
     /\.test\.[tj]sx?$/.test(path) ||
     /\.spec\.[tj]sx?$/.test(path) ||
@@ -64,7 +64,7 @@ export function hasRawJobImportUrlAfterPreview(root, path) {
 }
 
 export function hasFullImportedJobReturn(root, path) {
-  if (path !== "src-tauri/src/commands/import.rs") {
+  if (path !== "src-tauri/src/ipc/import.rs") {
     return false;
   }
 
@@ -79,10 +79,10 @@ export function hasFullImportedJobReturn(root, path) {
 }
 
 export function hasStaleJobImportMockHandlers(root, path) {
-  const registryPath = existsSync(join(root, "src/test-support/mocks/commandRegistry.ts"))
-    ? "src/test-support/mocks/commandRegistry.ts"
-    : "src/test-support/mocks/handlers.ts";
-  const ownerPath = "src/features/dashboard/mocks/jobImportCommands.ts";
+  const registryPath = existsSync(join(root, "src/dev-runtime/mocks/commandRegistry.ts"))
+    ? "src/dev-runtime/mocks/commandRegistry.ts"
+    : "src/dev-runtime/mocks/handlers.ts";
+  const ownerPath = "src/dev-runtime/features/dashboard/jobImportCommands.ts";
   if (path !== registryPath && path !== ownerPath) {
     return false;
   }
@@ -107,9 +107,9 @@ export function hasStaleJobImportMockHandlers(root, path) {
 }
 
 export function hasStaleProfilePreviewMock(root, path) {
-  const registryPath = existsSync(join(root, "src/test-support/mocks/commandRegistry.ts"))
-    ? "src/test-support/mocks/commandRegistry.ts"
-    : "src/test-support/mocks/handlers.ts";
+  const registryPath = existsSync(join(root, "src/dev-runtime/mocks/commandRegistry.ts"))
+    ? "src/dev-runtime/mocks/commandRegistry.ts"
+    : "src/dev-runtime/mocks/handlers.ts";
   const profileOwnerPath = "src/features/application-assist/mockProfile.ts";
   const hasProfileOwner = existsSync(join(root, profileOwnerPath));
   if (
@@ -137,11 +137,11 @@ export function hasStaleProfilePreviewMock(root, path) {
 
 export function hasBookmarkletTokenIpcExposure(root, path) {
   if (
-    path !== "src-tauri/src/commands/bookmarklet.rs" &&
+    path !== "src-tauri/src/ipc/bookmarklet.rs" &&
     path !==
       "src/features/settings/sources/browser-import/BrowserImportSection.tsx" &&
-    path !== "src/features/settings/mocks/commands.ts" &&
-    path !== "src/test-support/mocks/handlers.ts"
+    path !== "src/dev-runtime/features/settings/commands.ts" &&
+    path !== "src/dev-runtime/mocks/handlers.ts"
   ) {
     return false;
   }
@@ -150,7 +150,7 @@ export function hasBookmarkletTokenIpcExposure(root, path) {
     ? stripRustTestModules(readIfPresent(root, path))
     : stripTypeScriptComments(readIfPresent(root, path));
 
-  if (path === "src-tauri/src/commands/bookmarklet.rs") {
+  if (path === "src-tauri/src/ipc/bookmarklet.rs") {
     return (
       /pub\s+struct\s+BookmarkletConfigResponse\s*\{[^}]*\bauth_token\b[^}]*\}/.test(
         text,
@@ -170,11 +170,11 @@ export function hasBookmarkletTokenIpcExposure(root, path) {
 
 export function hasApplicationProfileResumePathExposure(root, path) {
   if (
-    path !== "src-tauri/src/commands/automation.rs" &&
+    path !== "src-tauri/src/ipc/automation.rs" &&
     path !== "src/features/application-assist/ProfileForm.tsx" &&
     path !== "src/features/application-assist/mockProfile.ts" &&
-    path !== "src/features/application-assist/mocks/commands.ts" &&
-    path !== "src/test-support/mocks/handlers.ts"
+    path !== "src/dev-runtime/features/application-assist/commands.ts" &&
+    path !== "src/dev-runtime/mocks/handlers.ts"
   ) {
     return false;
   }
@@ -183,7 +183,7 @@ export function hasApplicationProfileResumePathExposure(root, path) {
     ? stripRustTestModules(readIfPresent(root, path))
     : stripTypeScriptComments(readIfPresent(root, path));
 
-  if (path === "src-tauri/src/commands/automation.rs") {
+  if (path === "src-tauri/src/ipc/automation.rs") {
     return (
       /pub\s+struct\s+ApplicationProfileResponse\s*\{[^}]*\bresume_file_path\b[^}]*\}/.test(
         text,
@@ -209,7 +209,7 @@ export function hasApplicationProfileResumePathExposure(root, path) {
 }
 
 export function hasApplicationAssistAutomaticResumeUpload(root, path) {
-  if (path !== "src-tauri/src/commands/automation.rs") {
+  if (path !== "src-tauri/src/ipc/automation.rs") {
     return false;
   }
 
@@ -221,7 +221,7 @@ export function hasApplicationAssistAutomaticResumeUpload(root, path) {
 }
 
 export function hasApplicationAssistUntrustedFormTarget(root, path) {
-  if (path !== "src-tauri/src/commands/automation.rs") {
+  if (path !== "src-tauri/src/ipc/automation.rs") {
     return false;
   }
 
@@ -246,7 +246,7 @@ export function hasApplicationAssistUntrustedFormTarget(root, path) {
 }
 
 export function hasAutomationScreenshotPathIpcExposure(root, path) {
-  if (path !== "src-tauri/src/commands/automation.rs") {
+  if (path !== "src-tauri/src/ipc/automation.rs") {
     return false;
   }
 
@@ -264,7 +264,7 @@ export function hasAutomationScreenshotPathIpcExposure(root, path) {
 export function hasAnswerHistoryRendererInvoke(root, path) {
   if (
     !path.startsWith("src/") ||
-    path.startsWith("src/test-support/mocks/") ||
+    path.startsWith("src/dev-runtime/") ||
     /\.test\.[tj]sx?$/.test(path) ||
     /\.spec\.[tj]sx?$/.test(path)
   ) {
@@ -277,10 +277,10 @@ export function hasAnswerHistoryRendererInvoke(root, path) {
 
 export function hasRawAnswerHistoryIpcExposure(root, path) {
   if (
-    path !== "src-tauri/src/commands/automation.rs" &&
+    path !== "src-tauri/src/ipc/automation.rs" &&
     path !== "src/features/application-assist/ScreeningAnswerSuggestions.tsx" &&
-    path !== "src/features/application-assist/mocks/commands.ts" &&
-    path !== "src/test-support/mocks/handlers.ts"
+    path !== "src/dev-runtime/features/application-assist/commands.ts" &&
+    path !== "src/dev-runtime/mocks/handlers.ts"
   ) {
     return false;
   }
@@ -289,7 +289,7 @@ export function hasRawAnswerHistoryIpcExposure(root, path) {
     ? stripRustTestModules(readIfPresent(root, path))
     : stripTypeScriptComments(readIfPresent(root, path));
 
-  if (path === "src-tauri/src/commands/automation.rs") {
+  if (path === "src-tauri/src/ipc/automation.rs") {
     return (
       /pub\s+struct\s+AnswerStatisticsResponse\s*\{[^}]*\bpub\s+(?:pattern|answer)\s*:/.test(
         text,

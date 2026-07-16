@@ -87,12 +87,12 @@ test("checkRepoBloat rejects raw private query logging", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/jobs.rs",
+      "src-tauri/src/ipc/jobs.rs",
       'tracing::info!("Command: search_jobs_query (query: {}, limit: {})", query, limit);\n',
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/automation.rs",
+      "src-tauri/src/ipc/automation.rs",
       'tracing::info!("Command: find_answer_for_question (question: {})", question);\n',
     );
     writeFixtureFile(
@@ -106,8 +106,8 @@ test("checkRepoBloat rejects raw private query logging", () => {
       [
         "add",
         "package.json",
-        "src-tauri/src/commands/jobs.rs",
-        "src-tauri/src/commands/automation.rs",
+        "src-tauri/src/ipc/jobs.rs",
+        "src-tauri/src/ipc/automation.rs",
         "crates/jobsentinel-storage/src/queries.rs",
       ],
       { cwd: root },
@@ -116,12 +116,12 @@ test("checkRepoBloat rejects raw private query logging", () => {
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("replace raw private query logging: src-tauri/src/commands/jobs.rs"),
+      violations.includes("replace raw private query logging: src-tauri/src/ipc/jobs.rs"),
       violations.join("\n"),
     );
     assert.ok(
       violations.includes(
-        "replace raw private query logging: src-tauri/src/commands/automation.rs",
+        "replace raw private query logging: src-tauri/src/ipc/automation.rs",
       ),
       violations.join("\n"),
     );
@@ -396,7 +396,7 @@ test("checkRepoBloat rejects raw local path logging", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/resume.rs",
+      "src-tauri/src/ipc/resume.rs",
       'tracing::info!("Command: upload_resume (name: {}, path: {})", name, file_path);\n',
     );
     writeFixtureFile(
@@ -415,7 +415,7 @@ test("checkRepoBloat rejects raw local path logging", () => {
       [
         "add",
         "package.json",
-        "src-tauri/src/commands/resume.rs",
+        "src-tauri/src/ipc/resume.rs",
         "crates/jobsentinel-assistance/src/automation/form_filler.rs",
         "crates/jobsentinel-storage/src/connection.rs",
       ],
@@ -425,7 +425,7 @@ test("checkRepoBloat rejects raw local path logging", () => {
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("replace raw local path logging: src-tauri/src/commands/resume.rs"),
+      violations.includes("replace raw local path logging: src-tauri/src/ipc/resume.rs"),
       violations.join("\n"),
     );
     assert.ok(
@@ -473,7 +473,7 @@ test("checkRepoBloat rejects ML raw local path exposure", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/ml.rs",
+      "src-tauri/src/ipc/ml.rs",
       'Ok(format!("Model downloaded to {:?}", model_path))\n',
     );
     writeFixtureFile(
@@ -504,7 +504,7 @@ test("checkRepoBloat rejects ML raw local path exposure", () => {
       [
         "add",
         "package.json",
-        "src-tauri/src/commands/ml.rs",
+        "src-tauri/src/ipc/ml.rs",
         "crates/jobsentinel-local-ai/src/model.rs",
         "docs/developer/LOCAL_SEMANTIC_MATCHING.md",
         "docs/developer/LOCAL_SEMANTIC_MATCHING_QUICKSTART.md",
@@ -515,7 +515,7 @@ test("checkRepoBloat rejects ML raw local path exposure", () => {
     const violations = checkRepoBloat(root);
 
     assert.ok(
-      violations.includes("remove ML raw local path exposure: src-tauri/src/commands/ml.rs"),
+      violations.includes("remove ML raw local path exposure: src-tauri/src/ipc/ml.rs"),
       violations.join("\n"),
     );
     assert.ok(
@@ -639,7 +639,7 @@ test("checkRepoBloat rejects LinkedIn login cookie return", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/linkedin_auth.rs",
+      "src-tauri/src/ipc/linkedin_auth.rs",
       [
         "pub async fn linkedin_login() -> Result<String, String> {",
         "    let tx = get_sender();",
@@ -651,7 +651,7 @@ test("checkRepoBloat rejects LinkedIn login cookie return", () => {
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "src-tauri/src/commands/linkedin_auth.rs"], {
+    execFileSync("git", ["add", "package.json", "src-tauri/src/ipc/linkedin_auth.rs"], {
       cwd: root,
     });
 
@@ -659,7 +659,7 @@ test("checkRepoBloat rejects LinkedIn login cookie return", () => {
 
     assert.ok(
       violations.includes(
-        "keep LinkedIn login cookie out of renderer response: src-tauri/src/commands/linkedin_auth.rs",
+        "keep LinkedIn login cookie out of renderer response: src-tauri/src/ipc/linkedin_auth.rs",
       ),
       violations.join("\n"),
     );

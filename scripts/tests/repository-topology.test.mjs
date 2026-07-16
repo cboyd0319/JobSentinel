@@ -65,6 +65,9 @@ function withFixture(callback, mutate = () => {}) {
     }
     write(root, contract.active_plan, contractReference);
     write(root, contract.architecture_doc, contractReference);
+    for (const path of contract.required_paths ?? []) {
+      write(root, path, "");
+    }
     callback(root, contract);
   } finally {
     rmSync(root, { recursive: true, force: true });
@@ -151,6 +154,27 @@ test("repository topology forbids catch-all and retired paths", () => {
     const violations = check(root, contract, undefined, files).join("\n");
     assert.match(violations, /Split files by behavior or aggregate owner/);
     assert.match(violations, /retired architecture path is forbidden: src\/mocks\/newOwner.ts/);
+  });
+});
+
+test("repository topology requires scripts to live under declared owners", () => {
+  withFixture((root, contract) => {
+    const violations = check(root, contract, undefined, [
+      "scripts/orphan.mjs",
+      "scripts/misc/helper.mjs",
+    ]).join("\n");
+    assert.match(violations, /root-level script is forbidden: scripts\/orphan\.mjs/);
+    assert.match(violations, /undeclared script owner directory: scripts\/misc\/helper\.mjs/);
+  });
+});
+
+test("repository topology requires declared target entrypoints", () => {
+  withFixture((root, contract) => {
+    rmSync(join(root, "src-tauri/src/bootstrap/mod.rs"));
+    assert.match(
+      check(root, contract).join("\n"),
+      /required architecture path is missing: src-tauri\/src\/bootstrap\/mod\.rs/,
+    );
   });
 });
 

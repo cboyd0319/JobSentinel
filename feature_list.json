@@ -1,7 +1,7 @@
 {
   "schema": "jobsentinel.feature_list.v1",
   "project": "JobSentinel",
-  "last_updated": "2026-07-15",
+  "last_updated": "2026-07-16",
   "active_status": "active",
   "rules": {
     "single_active_feature": true,
@@ -47,8 +47,8 @@
       "evidence": [
         "docs/harness/evidence/harness-canonical-remediation-effectiveness-2026-07-15.json"
       ],
-      "blocker": "Native Windows 11 validation has not run from this working tree; macOS and portable contract evidence cannot prove Windows file, junction, launcher, or ACL behavior.",
-      "next_trigger": "On a native Windows 11 host, run pwsh -File ./init.ps1 and npm run test:scripts, then attach the host-bound evidence."
+      "blocker": "Final platform-specific validation is deferred until the active repository refactor has no remaining implementation or structural cleanup.",
+      "next_trigger": "Revisit only after full-repository-refactor has no remaining implementation work."
     },
     {
       "id": "full-repository-refactor",
@@ -61,14 +61,15 @@
       "verification": [
         "npm run verify:full",
         "npm run test:e2e:all",
-        "node scripts/run-cargo.mjs test --workspace --all-features"
+        "node scripts/dev/run-cargo.mjs test --workspace --all-features"
       ],
       "evidence": [
         "docs/harness/evidence/repository-foundational-rust-owners-2026-07-15.json",
-        "docs/harness/evidence/full-repository-refactor-2026-07-15.json"
+        "docs/harness/evidence/full-repository-refactor-2026-07-15.json",
+        "docs/harness/evidence/repository-layout-cutovers-2026-07-16.json"
       ],
-      "blocker": "Native Windows 11 validation has not run from this working tree. Hosted CI is also intentionally absent under pre-alpha-private-no-ci, which is a user override rather than canonical harness compliance.",
-      "next_trigger": "On a native Windows 11 host, run pwsh -File ./init.ps1 and npm run test:scripts, attach host-bound evidence, then make the final feature transition without claiming canonical CI compliance."
+      "blocker": "",
+      "next_trigger": "Reorganize script tests by owner, reduce structural debt and exceptions, then run the final whole-repository audit."
     }
   ]
 }

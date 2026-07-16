@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import test from "node:test";
 
-import { checkSecrets } from "../check-secrets.mjs";
+import { checkSecrets } from "../checks/secrets.mjs";
 
 function writeFixtureFile(root, path, content = "") {
   const fullPath = join(root, path);

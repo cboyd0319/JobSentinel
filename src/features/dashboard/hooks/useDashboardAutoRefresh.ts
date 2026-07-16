@@ -5,7 +5,7 @@ import { useState, useEffect, useRef } from "react";
 import type { Job, Statistics, ScrapingStatus } from "../types";
 import { useToast } from "../../../shared/toast/useToast";
 import { notifyScrapingComplete } from "../notifications";
-import { safeInvoke, invalidateCacheByCommand } from "../../../shared/tauri/commandClient";
+import { safeInvoke, invalidateCacheByCommand } from "../../../platform/tauri";
 
 interface AutoRefreshHookProps {
   searching: boolean;

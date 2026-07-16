@@ -198,7 +198,7 @@ describe("Dashboard handleSearchNow pre-flight check", () => {
         anyJobSourceEnabled: true,
       } satisfies DashboardPreferences);
 
-      const { safeInvoke } = await import("../../shared/tauri/commandClient");
+      const { safeInvoke } = await import("../../platform/tauri");
       const preferences = await safeInvoke<DashboardPreferences>(
         "get_dashboard_preferences",
       );
@@ -211,7 +211,7 @@ describe("Dashboard handleSearchNow pre-flight check", () => {
     it("pre-flight allows search when invoke throws (network/IPC error)", async () => {
       mockInvoke.mockRejectedValueOnce(new Error("Tauri backend unavailable"));
 
-      const { safeInvoke } = await import("../../shared/tauri/commandClient");
+      const { safeInvoke } = await import("../../platform/tauri");
       const warn = vi.fn();
 
       let result: "allowed" | "blocked" = "allowed";

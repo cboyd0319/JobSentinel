@@ -6,7 +6,7 @@ import test from "node:test";
 
 import { checkHarness } from "../checks/harness.mjs";
 import { noCiExceptionId, validateHostedWorkflows } from "../harness/contract.mjs";
-import { collectProductionExternalAiRequestFeatureIds } from "../harness-external-ai-features.mjs";
+import { collectProductionExternalAiRequestFeatureIds } from "../harness/external-ai-features.mjs";
 import { collectStateViolations, validateFeatureList } from "../harness/state.mjs";
 
 const root = resolve(".");

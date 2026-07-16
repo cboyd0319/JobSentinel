@@ -219,7 +219,7 @@ export function hasRawResumeCommandDtoExposure(root, path) {
 
   const text = readFileSync(join(root, path), "utf8");
 
-  if (path === "src-tauri/src/commands/resume.rs") {
+  if (path === "src-tauri/src/ipc/resume.rs") {
     const productionText = stripRustTestModules(text);
     return (
       /Result\s*<\s*Option\s*<\s*Resume\s*>\s*,\s*String\s*>/.test(productionText) ||
@@ -236,8 +236,8 @@ export function hasRawResumeCommandDtoExposure(root, path) {
     return /interface\s+Resume\s*\{[\s\S]{0,320}\b(?:file_path|parsed_text)\b/.test(text);
   }
 
-  if (path === "src/test-support/mocks/handlers.ts") {
-    if (existsSync(join(root, "src/features/resumes/mocks/resumeCommands.ts"))) {
+  if (path === "src/dev-runtime/mocks/handlers.ts") {
+    if (existsSync(join(root, "src/dev-runtime/features/resumes/resumeCommands.ts"))) {
       return false;
     }
     return (
@@ -249,7 +249,7 @@ export function hasRawResumeCommandDtoExposure(root, path) {
     );
   }
 
-  if (path === "src/features/resumes/mocks/resumeCommands.ts") {
+  if (path === "src/dev-runtime/features/resumes/resumeCommands.ts") {
     return (
       !/toMockResumeSummary/.test(text) ||
       /case\s+["']list_all_resumes["']:[\s\S]{0,160}return\s+withoutSave\(\s*state\s*,\s*state\.resumes\s*\)/.test(

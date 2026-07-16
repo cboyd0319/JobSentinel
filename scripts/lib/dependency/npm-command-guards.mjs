@@ -10,7 +10,7 @@ const scanRoots = [
   "tests/e2e/README.md",
   "README.md",
 ];
-const pinnedNpmCommand = "node scripts/install-pinned-npm.mjs";
+const pinnedNpmCommand = "node scripts/harness/npm-pin.mjs";
 
 function repoPath(root, path) {
   return join(root, path);

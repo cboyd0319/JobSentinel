@@ -74,7 +74,7 @@
   ],
   "platforms": {
     "required": ["Windows 11", "macOS 26+"],
-    "shared_core": "scripts/harness-init.mjs",
+    "shared_core": "scripts/harness/init.mjs",
     "wrappers": ["init.sh", "init.ps1"],
     "native_validation": {
       "Windows 11": {

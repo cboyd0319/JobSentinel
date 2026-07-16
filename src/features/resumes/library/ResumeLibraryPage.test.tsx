@@ -2,7 +2,7 @@ import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import ResumeLibraryPage from "./ResumeLibraryPage";
-import { safeInvoke, safeInvokeWithToast } from "../../../shared/tauri/commandClient";
+import { safeInvoke, safeInvokeWithToast } from "../../../platform/tauri";
 
 const mockToast = vi.hoisted(() => ({
   success: vi.fn(),
@@ -10,7 +10,7 @@ const mockToast = vi.hoisted(() => ({
   info: vi.fn(),
 }));
 
-vi.mock("../../../shared/tauri/commandClient", () => ({
+vi.mock("../../../platform/tauri", () => ({
   safeInvoke: vi.fn(),
   safeInvokeWithToast: vi.fn(),
 }));

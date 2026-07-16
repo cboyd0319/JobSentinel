@@ -3,7 +3,7 @@ import { extname, join } from "node:path";
 
 import { collectRepositoryFileSizeViolations } from "./checks/repo-file-size.mjs";
 import { collectStateViolations } from "./state.mjs";
-import { checkRepositoryArchitecture } from "../check-repository-architecture.mjs";
+import { checkRepositoryArchitecture } from "../checks/repository-architecture.mjs";
 
 export const harnessManifestPath = "harness-manifest.json";
 export const harnessManifestSchema = 1;
@@ -135,8 +135,8 @@ function validatePackageScripts(root, manifest, violations) {
 function validateNativeLaunchers(root, violations) {
   const shell = readFileSync(join(root, "init.sh"), "utf8");
   const powershell = readFileSync(join(root, "init.ps1"), "utf8");
-  if (!shell.includes('node scripts/harness-init.mjs "$@"')) violations.push("init.sh must be a thin harness-init.mjs launcher");
-  if (!powershell.includes("node scripts/harness-init.mjs @args")) violations.push("init.ps1 must be a thin harness-init.mjs launcher");
+  if (!shell.includes('node scripts/harness/init.mjs "$@"')) violations.push("init.sh must be a thin harness-init.mjs launcher");
+  if (!powershell.includes("node scripts/harness/init.mjs @args")) violations.push("init.ps1 must be a thin harness-init.mjs launcher");
   if (process.platform !== "win32" && (statSync(join(root, "init.sh")).mode & 0o111) === 0) {
     violations.push("init.sh must be executable");
   }

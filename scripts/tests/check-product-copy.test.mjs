@@ -387,12 +387,12 @@ test("product copy rejects debug-report roadmap wording", () => {
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/feedback/report.rs",
+      "src-tauri/src/ipc/feedback/report.rs",
       'Report type: Bug Report\nformat!("[{}] {:?}\\n")\n',
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/feedback/debug_log.rs",
+      "src-tauri/src/ipc/feedback/debug_log.rs",
       "Debug Log ({} events):\n[COMMAND]\n",
     );
     writeFixtureFile(
@@ -402,7 +402,7 @@ test("product copy rejects debug-report roadmap wording", () => {
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/feedback/mod.rs",
+      "src-tauri/src/ipc/feedback/mod.rs",
       "Could not show the saved debug report automatically.\n",
     );
 
@@ -453,14 +453,14 @@ test("product copy rejects debug-report roadmap wording", () => {
     assert.equal(
       hasFeedbackLocalReportDrift(
         root,
-        "src-tauri/src/commands/feedback/report.rs",
+        "src-tauri/src/ipc/feedback/report.rs",
       ),
       true,
     );
     assert.equal(
       hasFeedbackLocalReportDrift(
         root,
-        "src-tauri/src/commands/feedback/debug_log.rs",
+        "src-tauri/src/ipc/feedback/debug_log.rs",
       ),
       true,
     );
@@ -474,7 +474,7 @@ test("product copy rejects debug-report roadmap wording", () => {
     assert.equal(
       hasFeedbackLocalReportDrift(
         root,
-        "src-tauri/src/commands/feedback/mod.rs",
+        "src-tauri/src/ipc/feedback/mod.rs",
       ),
       true,
     );
@@ -522,7 +522,7 @@ test("product copy rejects technical recovery and raw error details", () => {
     );
     writeFixtureFile(
       root,
-      "src/app/vitals.ts",
+      "src/dev-runtime/vitals.ts",
       "In production, you could send to analytics service\nsendToAnalytics(metric)\nwith analytics services or custom reporting\n",
     );
 
@@ -549,7 +549,7 @@ test("product copy rejects technical recovery and raw error details", () => {
       hasTechnicalRecoveryCopy(root, "src/features/dashboard/errors/ModalErrorBoundary.tsx"),
       true,
     );
-    assert.equal(hasTechnicalFirstUserCopy(root, "src/app/vitals.ts"), true);
+    assert.equal(hasTechnicalFirstUserCopy(root, "src/dev-runtime/vitals.ts"), true);
     assert.equal(
       hasTechnicalRecoveryCopy(
         root,

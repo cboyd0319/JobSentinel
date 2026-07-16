@@ -1,16 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
-import { invoke } from "@tauri-apps/api/core";
 import { useDashboardJobOps } from "./useDashboardJobOps";
 import type { Job, DuplicateGroup } from "../types";
-import { safeInvokeWithToast } from "../../../shared/tauri/commandClient";
+import { invoke, safeInvokeWithToast } from "../../../platform/tauri";
 import { exportJobsToCsv } from "../jobCsvExport";
 import {
   BROWSER_ASSIST_LEARNING_ENABLED_STORAGE_KEY,
   BROWSER_ASSIST_LEARNING_STORAGE_KEY,
 } from "../../../shared/browserAssistLearning";
-
-vi.mock("@tauri-apps/api/core", () => ({ invoke: vi.fn() }));
 
 const mockToast = {
   error: vi.fn(),
@@ -27,8 +24,9 @@ vi.mock("../../../shared/undo/useUndo", () => ({
 
 vi.mock("../../../shared/errorReporting/logger", () => ({ logError: vi.fn() }));
 vi.mock("../jobCsvExport", () => ({ exportJobsToCsv: vi.fn() }));
-vi.mock("../../../shared/tauri/commandClient", () => ({
+vi.mock("../../../platform/tauri", () => ({
   invalidateCacheByCommand: vi.fn(),
+  invoke: vi.fn(),
   safeInvokeWithToast: vi.fn(),
 }));
 

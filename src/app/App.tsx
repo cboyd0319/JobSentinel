@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, lazy, Suspense } from "react";
-import { invoke } from "@tauri-apps/api/core";
+import { invoke } from "../platform/tauri";
 import type { Page } from "./routes";
 import { default as ErrorBoundary } from "./errors/ErrorBoundary";
 import { LoadingSpinner } from "../ui/LoadingSpinner";

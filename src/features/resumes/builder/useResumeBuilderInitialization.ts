@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useToast } from "../../../shared/toast/useToast";
-import { safeInvoke } from "../../../shared/tauri/commandClient";
+import { safeInvoke } from "../../../platform/tauri";
 import { getSafeErrorToastCopy } from "../../../shared/errorReporting/safeToastCopy";
 import type { Template } from "./resumeBuilderData";
 

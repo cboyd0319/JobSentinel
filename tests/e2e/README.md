@@ -179,7 +179,7 @@ npx --no-install playwright test --project=webkit
 
 Tests are configured in `playwright.config.ts`:
 
-- Base URL: an available loopback port selected by `scripts/run-playwright.mjs`
+- Base URL: an available loopback port selected by `scripts/dev/run-playwright.mjs`
 - Test directory: `tests/e2e/playwright`
 - Projects: Chromium, WebKit
 - Local default: Chromium functional tests, excluding `screenshots.spec.ts`
@@ -229,7 +229,7 @@ await card.bookmark();
 
 ### Mock Data
 
-Tests run against mock data defined in `src/test-support/mocks/`:
+Tests run against mock data defined in `src/dev-runtime/mocks/`:
 
 - Mock job listings
 - Mock applications

@@ -1,0 +1,446 @@
+//! Job-related Tauri commands
+//!
+//! Commands for job searching, retrieval, bookmarking, notes, and deduplication.
+
+use crate::bootstrap::AppState;
+use crate::desktop::DuplicateGroup;
+use crate::ipc::errors::user_friendly_error;
+use crate::ipc::limits::validate_command_limit_usize_as_i64;
+use serde_json::Value;
+use std::sync::Arc;
+use tauri::State;
+
+/// Search for jobs from all enabled sources
+///
+/// This triggers a full scraping cycle across Greenhouse, Lever, and JobsWithGPT.
+#[tauri::command]
+#[tracing::instrument(skip(state), level = "info")]
+pub(crate) async fn search_jobs(state: State<'_, AppState>) -> Result<Value, String> {
+    tracing::info!("Manual job search triggered via command");
+
+    let scheduler = state.scheduler.clone().unwrap_or_else(|| {
+        Arc::new(
+            crate::application::scheduler::Scheduler::new_shared_with_credentials(
+                state.config.clone(),
+                state.database.clone(),
+                state.credentials.clone(),
+            ),
+        )
+    });
+
+    // Run single scraping cycle
+    match scheduler.run_scraping_cycle().await {
+        Ok(result) => {
+            tracing::info!(
+                jobs_found = result.jobs_found,
+                jobs_new = result.jobs_new,
+                high_matches = result.high_matches,
+                "Manual search completed successfully"
+            );
+
+            Ok(serde_json::json!({
+                "success": true,
+                "jobs_found": result.jobs_found,
+                "jobs_new": result.jobs_new,
+                "jobs_updated": result.jobs_updated,
+                "high_matches": result.high_matches,
+                "alerts_sent": result.alerts_sent,
+                "errors": result.errors,
+            }))
+        }
+        Err(e) => {
+            let message = user_friendly_error("Search failed", e);
+            tracing::error!(error = %message, "Manual search failed");
+            Err(message)
+        }
+    }
+}
+
+/// Get recent jobs from database
+///
+/// Returns the most recent jobs, sorted by score (descending).
+#[tauri::command]
+#[tracing::instrument(skip(state), fields(limit), level = "debug")]
+pub(crate) async fn get_recent_jobs(
+    limit: usize,
+    state: State<'_, AppState>,
+) -> Result<Vec<Value>, String> {
+    tracing::debug!("Fetching recent jobs");
+
+    let limit = validate_command_limit_usize_as_i64(limit)?;
+    match state.database.get_recent_jobs(limit).await {
+        Ok(jobs) => {
+            let jobs_json: Vec<Value> = jobs
+                .into_iter()
+                .filter_map(|job| {
+                    serde_json::to_value(&job)
+                        .inspect_err(|e| {
+                            let message = user_friendly_error("Failed to serialize job", e);
+                            tracing::error!(
+                                job_id = job.id,
+                                error = %message,
+                                "Skipped job serialization"
+                            );
+                        })
+                        .ok()
+                })
+                .collect();
+
+            tracing::debug!(returned_count = jobs_json.len(), "Recent jobs fetched");
+            Ok(jobs_json)
+        }
+        Err(e) => {
+            tracing::error!(
+                error = %user_friendly_error("Failed to get recent jobs", &e),
+                "Failed to get recent jobs from database"
+            );
+            Err(user_friendly_error("Failed to load jobs", e))
+        }
+    }
+}
+
+/// Get job by ID
+#[tauri::command]
+#[tracing::instrument(skip(state), fields(job_id = id), level = "debug")]
+pub(crate) async fn get_job_by_id(
+    id: i64,
+    state: State<'_, AppState>,
+) -> Result<Option<Value>, String> {
+    match state.database.get_job_by_id(id).await {
+        Ok(job) => {
+            let found = job.is_some();
+            tracing::debug!(found, "Job lookup complete");
+            Ok(job.and_then(|j| {
+                serde_json::to_value(&j)
+                    .inspect_err(|e| {
+                        let message = user_friendly_error("Failed to serialize job", e);
+                        tracing::error!(
+                            job_id = j.id,
+                            error = %message,
+                            "Skipped job serialization"
+                        );
+                    })
+                    .ok()
+            }))
+        }
+        Err(e) => {
+            tracing::error!(
+                error = %user_friendly_error("Failed to get job", &e),
+                "Failed to get job from database"
+            );
+            Err(user_friendly_error("Failed to load job details", e))
+        }
+    }
+}
+
+/// Search jobs with filter
+#[tauri::command]
+#[tracing::instrument(skip(state))]
+pub(crate) async fn search_jobs_query(
+    query: String,
+    limit: usize,
+    state: State<'_, AppState>,
+) -> Result<Vec<Value>, String> {
+    tracing::info!(
+        query_chars = query.chars().count(),
+        limit,
+        "Command: search_jobs_query"
+    );
+
+    let limit = validate_command_limit_usize_as_i64(limit)?;
+    match state.database.search_jobs(&query, limit).await {
+        Ok(jobs) => {
+            let jobs_json: Vec<Value> = jobs
+                .into_iter()
+                .filter_map(|job| {
+                    serde_json::to_value(&job)
+                        .inspect_err(|e| {
+                            let message = user_friendly_error("Failed to serialize job", e);
+                            tracing::error!(
+                                job_id = job.id,
+                                error = %message,
+                                "Skipped job serialization"
+                            );
+                        })
+                        .ok()
+                })
+                .collect();
+
+            Ok(jobs_json)
+        }
+        Err(e) => {
+            tracing::error!(
+                error = %user_friendly_error("Search failed", &e),
+                "Search failed"
+            );
+            Err(user_friendly_error("Database operation failed", e))
+        }
+    }
+}
+
+/// Hide a job (mark as dismissed by user)
+#[tauri::command]
+pub(crate) async fn hide_job(id: i64, state: State<'_, AppState>) -> Result<(), String> {
+    tracing::info!("Command: hide_job (id: {})", id);
+
+    match state.database.hide_job(id).await {
+        Ok(_) => {
+            tracing::info!("Job {} hidden successfully", id);
+            Ok(())
+        }
+        Err(e) => {
+            tracing::error!(
+                error = %user_friendly_error("Failed to hide job", &e),
+                "Failed to hide job"
+            );
+            Err(user_friendly_error("Database operation failed", e))
+        }
+    }
+}
+
+/// Unhide a job (restore to visible)
+#[tauri::command]
+pub(crate) async fn unhide_job(id: i64, state: State<'_, AppState>) -> Result<(), String> {
+    tracing::info!("Command: unhide_job (id: {})", id);
+
+    match state.database.unhide_job(id).await {
+        Ok(_) => {
+            tracing::info!("Job {} unhidden successfully", id);
+            Ok(())
+        }
+        Err(e) => {
+            tracing::error!(
+                error = %user_friendly_error("Failed to unhide job", &e),
+                "Failed to unhide job"
+            );
+            Err(user_friendly_error("Database operation failed", e))
+        }
+    }
+}
+
+/// Toggle bookmark status for a job
+#[tauri::command]
+pub(crate) async fn toggle_bookmark(id: i64, state: State<'_, AppState>) -> Result<bool, String> {
+    tracing::info!("Command: toggle_bookmark (id: {})", id);
+
+    match state.database.toggle_bookmark(id).await {
+        Ok(new_state) => {
+            tracing::info!("Job {} bookmark toggled to {}", id, new_state);
+            Ok(new_state)
+        }
+        Err(e) => {
+            tracing::error!(
+                error = %user_friendly_error("Failed to toggle bookmark", &e),
+                "Failed to toggle bookmark"
+            );
+            Err(user_friendly_error("Database operation failed", e))
+        }
+    }
+}
+
+/// Get bookmarked jobs
+#[tauri::command]
+pub(crate) async fn get_bookmarked_jobs(
+    limit: usize,
+    state: State<'_, AppState>,
+) -> Result<Vec<Value>, String> {
+    tracing::info!("Command: get_bookmarked_jobs (limit: {})", limit);
+
+    let limit = validate_command_limit_usize_as_i64(limit)?;
+    match state.database.get_bookmarked_jobs(limit).await {
+        Ok(jobs) => {
+            let jobs_json: Vec<Value> = jobs
+                .into_iter()
+                .filter_map(|job| {
+                    serde_json::to_value(&job)
+                        .inspect_err(|e| {
+                            let message = user_friendly_error("Failed to serialize job", e);
+                            tracing::error!(
+                                job_id = job.id,
+                                error = %message,
+                                "Skipped job serialization"
+                            );
+                        })
+                        .ok()
+                })
+                .collect();
+
+            Ok(jobs_json)
+        }
+        Err(e) => {
+            tracing::error!(
+                error = %user_friendly_error("Failed to get bookmarked jobs", &e),
+                "Failed to get bookmarked jobs"
+            );
+            Err(user_friendly_error("Database operation failed", e))
+        }
+    }
+}
+
+/// Set notes for a job
+#[tauri::command]
+pub(crate) async fn set_job_notes(
+    id: i64,
+    notes: Option<String>,
+    state: State<'_, AppState>,
+) -> Result<(), String> {
+    tracing::info!(
+        "Command: set_job_notes (id: {}, has_notes: {})",
+        id,
+        notes.is_some()
+    );
+
+    match state.database.set_job_notes(id, notes.as_deref()).await {
+        Ok(_) => {
+            tracing::info!("Notes saved for job {}", id);
+            Ok(())
+        }
+        Err(e) => {
+            tracing::error!(
+                error = %user_friendly_error("Failed to save notes", &e),
+                "Failed to save notes"
+            );
+            Err(user_friendly_error("Database operation failed", e))
+        }
+    }
+}
+
+/// Get notes for a job
+#[tauri::command]
+pub(crate) async fn get_job_notes(
+    id: i64,
+    state: State<'_, AppState>,
+) -> Result<Option<String>, String> {
+    tracing::info!("Command: get_job_notes (id: {})", id);
+
+    match state.database.get_job_notes(id).await {
+        Ok(notes) => Ok(notes),
+        Err(e) => {
+            tracing::error!(
+                error = %user_friendly_error("Failed to get notes", &e),
+                "Failed to get notes"
+            );
+            Err(user_friendly_error("Database operation failed", e))
+        }
+    }
+}
+
+/// Get application statistics
+#[tauri::command]
+pub(crate) async fn get_statistics(state: State<'_, AppState>) -> Result<Value, String> {
+    tracing::info!("Command: get_statistics");
+
+    match state.database.get_statistics().await {
+        Ok(statistics) => serde_json::to_value(&statistics)
+            .map_err(|e| user_friendly_error("Failed to serialize stats", e)),
+        Err(e) => {
+            tracing::error!(
+                error = %user_friendly_error("Failed to get statistics", &e),
+                "Failed to get statistics"
+            );
+            Err(user_friendly_error("Database operation failed", e))
+        }
+    }
+}
+
+/// Get scraping status
+#[tauri::command]
+pub(crate) async fn get_scraping_status(state: State<'_, AppState>) -> Result<Value, String> {
+    tracing::info!("Command: get_scraping_status");
+
+    let status = state.scheduler_status.read().await;
+    let config = state.config.read().await;
+
+    Ok(serde_json::json!({
+        "is_running": status.is_running,
+        "last_scrape": status.last_run.map(|dt| dt.to_rfc3339()),
+        "next_scrape": status.next_run.map(|dt| dt.to_rfc3339()),
+        "interval_hours": config.scraping_interval_hours,
+    }))
+}
+
+/// Find duplicate job groups (same title + company from different sources)
+#[tauri::command]
+pub(crate) async fn find_duplicates(
+    state: State<'_, AppState>,
+) -> Result<Vec<DuplicateGroup>, String> {
+    tracing::info!("Command: find_duplicates");
+
+    state
+        .database
+        .find_duplicate_groups()
+        .await
+        .map_err(|e| user_friendly_error("Database operation failed", e))
+}
+
+/// Merge duplicate jobs: keep primary, hide duplicates
+#[tauri::command]
+pub(crate) async fn merge_duplicates(
+    primary_id: i64,
+    duplicate_ids: Vec<i64>,
+    state: State<'_, AppState>,
+) -> Result<(), String> {
+    tracing::info!(
+        primary_id,
+        duplicate_count = duplicate_ids.len(),
+        "Command: merge_duplicates"
+    );
+
+    state
+        .database
+        .merge_duplicates(primary_id, &duplicate_ids)
+        .await
+        .map_err(|e| user_friendly_error("Database operation failed", e))
+}
+
+/// Job count by source for analytics
+#[derive(serde::Serialize)]
+pub(crate) struct JobsBySource {
+    pub source: String,
+    pub count: i64,
+}
+
+/// Get job counts grouped by source
+#[tauri::command]
+pub(crate) async fn get_jobs_by_source(
+    state: State<'_, AppState>,
+) -> Result<Vec<JobsBySource>, String> {
+    tracing::info!("Command: get_jobs_by_source");
+
+    state
+        .database
+        .get_job_counts_by_source()
+        .await
+        .map(|rows| {
+            rows.into_iter()
+                .map(|(source, count)| JobsBySource { source, count })
+                .collect()
+        })
+        .map_err(|e| user_friendly_error("Database operation failed", e))
+}
+
+/// Salary range for analytics
+#[derive(serde::Serialize)]
+pub(crate) struct SalaryRange {
+    pub range: String,
+    pub count: i64,
+}
+
+/// Get salary distribution (jobs grouped by salary ranges)
+#[tauri::command]
+pub(crate) async fn get_salary_distribution(
+    state: State<'_, AppState>,
+) -> Result<Vec<SalaryRange>, String> {
+    tracing::info!("Command: get_salary_distribution");
+
+    state
+        .database
+        .get_salary_distribution()
+        .await
+        .map(|rows| {
+            rows.into_iter()
+                .map(|(range, count)| SalaryRange { range, count })
+                .collect()
+        })
+        .map_err(|e| user_friendly_error("Database operation failed", e))
+}

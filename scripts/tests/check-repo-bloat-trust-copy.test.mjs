@@ -305,7 +305,7 @@ test("checkRepoBloat rejects raw salary command logging", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/salary.rs",
+      "src-tauri/src/ipc/salary.rs",
       [
         'tracing::info!("Command: predict_salary (job: {}, years: {:?})", job_hash, years);',
         'tracing::info!("Command: get_salary_benchmark (title: {}, location: {})", job_title, location);',
@@ -315,7 +315,7 @@ test("checkRepoBloat rejects raw salary command logging", () => {
 
     execFileSync(
       "git",
-      ["add", "package.json", "src-tauri/src/commands/salary.rs"],
+      ["add", "package.json", "src-tauri/src/ipc/salary.rs"],
       {
         cwd: root,
       },
@@ -325,7 +325,7 @@ test("checkRepoBloat rejects raw salary command logging", () => {
 
     assert.ok(
       violations.includes(
-        "remove raw salary command logging: src-tauri/src/commands/salary.rs",
+        "remove raw salary command logging: src-tauri/src/ipc/salary.rs",
       ),
       violations.join("\n"),
     );

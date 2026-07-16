@@ -128,7 +128,7 @@ export function writeMinimalRuntimeFixture(root, options = {}) {
   const cargoDenyVersion = options.cargoDenyVersion ?? "0.19.9";
 
   writeFixtureFile(root, "package.json", JSON.stringify({ packageManager: "npm@11.17.0" }));
-  writeFixtureFile(root, "scripts/install-pinned-npm.mjs", "");
+  writeFixtureFile(root, "scripts/harness/npm-pin.mjs", "");
   writeFixtureFile(root, ".nvmrc", `${nodeVersion}\n`);
   writeFixtureFile(
     root,
@@ -144,7 +144,7 @@ export function writeMinimalRuntimeFixture(root, options = {}) {
       "    steps:",
       "      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0",
       `        with: { node-version: "${options.workflowNodeVersion ?? nodeVersion}" }`,
-      "      - run: node scripts/install-pinned-npm.mjs",
+      "      - run: node scripts/harness/npm-pin.mjs",
       "      - run: npm ci --ignore-scripts --prefer-offline --no-audit --no-fund",
       "      - uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8 # stable",
       `        with: { toolchain: "${options.workflowRustVersion ?? rustVersion}" }`,

@@ -8,7 +8,7 @@ import {
   formatHarnessSessionSummary,
   parseHarnessSessionArgs,
   summarizeHarnessSession,
-} from "../harness-session.mjs";
+} from "../harness/session.mjs";
 
 function writeFixtureFile(root, path, content) {
   const fullPath = join(root, path);

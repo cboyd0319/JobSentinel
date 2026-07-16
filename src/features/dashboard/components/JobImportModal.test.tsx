@@ -1,13 +1,13 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { invoke } from "@tauri-apps/api/core";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { ToastProvider } from "../../../app/providers/ToastProvider";
-import { invalidateCacheByCommand } from "../../../shared/tauri/commandClient";
+import { invalidateCacheByCommand, invoke } from "../../../platform/tauri";
 import { JobImportModal } from "./JobImportModal";
 
-vi.mock("../../../shared/tauri/commandClient", () => ({
+vi.mock("../../../platform/tauri", () => ({
   invalidateCacheByCommand: vi.fn(),
+  invoke: vi.fn(),
 }));
 
 const mockInvoke = vi.mocked(invoke);

@@ -78,13 +78,41 @@
       "ui"
     ],
     "script_directories": ["checks", "dev", "harness", "lib", "platform", "release", "tests"],
+    "required_paths": [
+      "crates/jobsentinel-application/src/desktop/mod.rs",
+      "crates/jobsentinel-application/src/desktop/startup.rs",
+      "scripts/checks/frontend-boundaries.mjs",
+      "scripts/dev/doctor.mjs",
+      "scripts/harness/init.mjs",
+      "scripts/release/check-macos-readiness.mjs",
+      "src/dev-runtime/features",
+      "src/dev-runtime/mocks/commandRegistry.ts",
+      "src/dev-runtime/prepare.ts",
+      "src/platform/tauri/commandClient.ts",
+      "src/platform/tauri/events.ts",
+      "src/platform/tauri/index.ts",
+      "src/platform/tauri/notifications.ts",
+      "src-tauri/src/bootstrap/mod.rs",
+      "src-tauri/src/desktop/mod.rs",
+      "src-tauri/src/ipc/mod.rs",
+      "src-tauri/src/ipc/registry.rs",
+      "src-tauri/src/policy/mod.rs"
+    ],
     "forbidden_paths": [
       "docs/architecture",
       "scripts/dependency",
       "scripts/security",
+      "src/app/vitals.ts",
+      "src/features/settings/notifications/mockCommands.ts",
       "src/mocks",
+      "src/shared/tauri",
       "src/test",
-      "src/types"
+      "src/test-support/mocks",
+      "src/types",
+      "crates/jobsentinel-application/src/desktop.rs",
+      "src-tauri/src/app.rs",
+      "src-tauri/src/command_handlers.rs",
+      "src-tauri/src/commands"
     ],
     "forbidden_dependencies": ["tauri-plugin-secure-storage"]
   ,

@@ -1,5 +1,5 @@
 import { vi } from "vitest";
-import { invoke } from "@tauri-apps/api/core";
+import { invoke } from "../../platform/tauri";
 import { DEFAULT_EXTERNAL_AI_CONFIG } from "./config/SettingsConfig";
 import {
   downloadPrivateSettingsBackup,

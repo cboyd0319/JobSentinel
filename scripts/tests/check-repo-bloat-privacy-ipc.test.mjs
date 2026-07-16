@@ -30,7 +30,7 @@ test("checkRepoBloat rejects renderer credential secret read IPC", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/credentials.rs",
+      "src-tauri/src/ipc/credentials.rs",
       [
         "pub async fn retrieve_credential(key: String) -> Result<Option<String>, String> {",
         "  CredentialStore::retrieve(parse_credential_key(&key)?)",
@@ -59,7 +59,7 @@ test("checkRepoBloat rejects renderer credential secret read IPC", () => {
       [
         "add",
         "package.json",
-        "src-tauri/src/commands/credentials.rs",
+        "src-tauri/src/ipc/credentials.rs",
         "src/features/settings/SettingsPage.tsx",
         "docs/security/KEYRING.md",
       ],
@@ -70,7 +70,7 @@ test("checkRepoBloat rejects renderer credential secret read IPC", () => {
 
     assert.ok(
       violations.includes(
-        "keep credential values out of renderer IPC: src-tauri/src/commands/credentials.rs",
+        "keep credential values out of renderer IPC: src-tauri/src/ipc/credentials.rs",
       ),
       violations.join("\n"),
     );
@@ -94,7 +94,7 @@ test("checkRepoBloat rejects resume renderer DTO path exposure", () => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/resume.rs",
+      "src-tauri/src/ipc/resume.rs",
       [
         "pub async fn get_active_resume() -> Result<Option<Resume>, String> { todo!() }",
         "pub async fn list_all_resumes() -> Result<Vec<Resume>, String> { todo!() }",
@@ -123,7 +123,7 @@ test("checkRepoBloat rejects resume renderer DTO path exposure", () => {
     );
     writeFixtureFile(
       root,
-      "src/test-support/mocks/handlers.ts",
+      "src/dev-runtime/mocks/handlers.ts",
       [
         'case "get_active_resume":',
         "  return getActiveResume() as T;",
@@ -137,10 +137,10 @@ test("checkRepoBloat rejects resume renderer DTO path exposure", () => {
       [
         "add",
         "package.json",
-        "src-tauri/src/commands/resume.rs",
+        "src-tauri/src/ipc/resume.rs",
         "src/features/resumes/library/ResumeLibraryPage.tsx",
         "src/features/resumes/builder/ResumeBuilderPage.tsx",
-        "src/test-support/mocks/handlers.ts",
+        "src/dev-runtime/mocks/handlers.ts",
       ],
       { cwd: root },
     );
@@ -148,10 +148,10 @@ test("checkRepoBloat rejects resume renderer DTO path exposure", () => {
     const violations = checkRepoBloat(root);
 
     for (const path of [
-      "src-tauri/src/commands/resume.rs",
+      "src-tauri/src/ipc/resume.rs",
       "src/features/resumes/library/ResumeLibraryPage.tsx",
       "src/features/resumes/builder/ResumeBuilderPage.tsx",
-      "src/test-support/mocks/handlers.ts",
+      "src/dev-runtime/mocks/handlers.ts",
     ]) {
       assert.ok(
         violations.includes(
@@ -577,7 +577,7 @@ test("checkRepoBloat rejects automated LinkedIn collection drift", () => {
     );
     writeFixtureFile(
       root,
-      "src/test-support/mocks/handlers.ts",
+      "src/dev-runtime/mocks/handlers.ts",
       "function defaults() { return { linkedin: { enabled: true } }; }\n",
     );
     writeFixtureFile(
@@ -605,7 +605,7 @@ test("checkRepoBloat rejects automated LinkedIn collection drift", () => {
         "src/features/settings/SettingsPage.tsx",
         "src/features/settings/notifications/notificationPreferencesStore.ts",
         "src/features/settings/notifications/NotificationPreferences.tsx",
-        "src/test-support/mocks/handlers.ts",
+        "src/dev-runtime/mocks/handlers.ts",
         "docs/features/user-data-management.md",
         "crates/jobsentinel-application/src/user_data/mod.rs",
         "docs/features/job-sources.md",
@@ -641,7 +641,7 @@ test("checkRepoBloat rejects automated LinkedIn collection drift", () => {
     );
     assert.ok(
       violations.includes(
-        "remove LinkedIn notification source drift: src/test-support/mocks/handlers.ts",
+        "remove LinkedIn notification source drift: src/dev-runtime/mocks/handlers.ts",
       ),
       violations.join("\n"),
     );

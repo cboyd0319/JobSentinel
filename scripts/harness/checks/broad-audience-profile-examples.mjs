@@ -132,7 +132,7 @@ export function hasBroadAudienceProfileExampleDrift(path, text) {
     }
   }
 
-  if (path === "src/test-support/mocks/handlers.ts") {
+  if (path === "src/dev-runtime/mocks/handlers.ts") {
     const marketMockPatterns = [
       /TypeScript demand is surging/i,
       /skill_name:\s*["']Kubernetes["']/i,
@@ -236,7 +236,7 @@ export function hasBroadAudienceProfileExampleDrift(path, text) {
     }
   }
 
-  if (path === "src-tauri/src/commands/feedback/debug_log.rs") {
+  if (path === "src-tauri/src/ipc/feedback/debug_log.rs") {
     const feedbackDebugLogPatterns = [/Senior Rust Developer/i, /AcmeCorp/i];
 
     if (feedbackDebugLogPatterns.some((pattern) => pattern.test(text))) {
@@ -244,7 +244,7 @@ export function hasBroadAudienceProfileExampleDrift(path, text) {
     }
   }
 
-  if (path === "src-tauri/src/commands/feedback/sanitizer.rs") {
+  if (path === "src-tauri/src/ipc/feedback/sanitizer.rs") {
     const feedbackSanitizerPatterns = [/Senior Software Engineer/i];
 
     if (feedbackSanitizerPatterns.some((pattern) => pattern.test(text))) {

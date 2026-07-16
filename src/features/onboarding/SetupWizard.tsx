@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Button } from "../../ui/Button";
 import { Card } from "../../ui/Card";
 import { useToast } from "../../shared/toast/useToast";
-import { invalidateCacheByCommand, safeInvokeWithToast } from "../../shared/tauri/commandClient";
+import { invalidateCacheByCommand, safeInvokeWithToast } from "../../platform/tauri";
 import {
   buildSetupConfigFromCareerProfile,
   findCareerProfileById,

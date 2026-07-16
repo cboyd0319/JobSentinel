@@ -1,4 +1,4 @@
-import { safeInvoke } from "../tauri/commandClient";
+import { safeInvoke } from "../../platform/tauri";
 import { createExternalAiGateway } from "./internal/aiGateway";
 import { appendExternalAiRequestLog } from "./externalAiRequestLog";
 import type {

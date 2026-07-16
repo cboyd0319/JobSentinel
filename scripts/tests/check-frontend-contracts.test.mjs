@@ -43,11 +43,11 @@ function trackFixtureFiles(root, paths) {
 
 test("frontend contracts reject stale user-data, deep-link, and feedback mock handlers", () => {
   withFixture((root) => {
-    writeFixtureFile(root, "src/test-support/mocks/handlers.ts", 'case "save_search": return null;\n');
+    writeFixtureFile(root, "src/dev-runtime/mocks/handlers.ts", 'case "save_search": return null;\n');
 
-    assert.equal(hasStaleUserDataMockHandlers(root, "src/test-support/mocks/handlers.ts"), true);
-    assert.equal(hasStaleDeepLinkMockHandlers(root, "src/test-support/mocks/handlers.ts"), true);
-    assert.equal(hasStaleFeedbackMockHandlers(root, "src/test-support/mocks/handlers.ts"), true);
+    assert.equal(hasStaleUserDataMockHandlers(root, "src/dev-runtime/mocks/handlers.ts"), true);
+    assert.equal(hasStaleDeepLinkMockHandlers(root, "src/dev-runtime/mocks/handlers.ts"), true);
+    assert.equal(hasStaleFeedbackMockHandlers(root, "src/dev-runtime/mocks/handlers.ts"), true);
   });
 });
 
@@ -58,7 +58,7 @@ test("frontend contracts reject stale feedback system-info architecture fields",
       "src/features/settings/support/feedback/feedbackReportFormatting.ts",
       "systemInfo.arch;\n",
     );
-    writeFixtureFile(root, "src/test-support/mocks/handlers.ts", 'case "get_system_info": return { arch: "x64" };\n');
+    writeFixtureFile(root, "src/dev-runtime/mocks/handlers.ts", 'case "get_system_info": return { arch: "x64" };\n');
 
     assert.equal(
       hasStaleFeedbackSystemInfoArchitecture(
@@ -68,7 +68,7 @@ test("frontend contracts reject stale feedback system-info architecture fields",
       true,
     );
     assert.equal(
-      hasStaleFeedbackSystemInfoArchitecture(root, "src/test-support/mocks/handlers.ts"),
+      hasStaleFeedbackSystemInfoArchitecture(root, "src/dev-runtime/mocks/handlers.ts"),
       true,
     );
     assert.equal(
@@ -82,7 +82,7 @@ test("frontend contracts reject stale resume optimizer and ATS shapes", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src/test-support/mocks/handlers.ts",
+      "src/dev-runtime/mocks/handlers.ts",
       'case "analyze_resume_format": return { issues: [] };\n',
     );
     writeFixtureFile(
@@ -101,7 +101,7 @@ test("frontend contracts reject stale resume optimizer and ATS shapes", () => {
       "type Keyword = { found_in: string; context: string; };\n",
     );
 
-    assert.equal(hasStaleResumeOptimizerMockHandlers(root, "src/test-support/mocks/handlers.ts"), true);
+    assert.equal(hasStaleResumeOptimizerMockHandlers(root, "src/dev-runtime/mocks/handlers.ts"), true);
     assert.equal(
       hasUnsafeResumeMatchJsonParsing(root, "src/features/resumes/matching/ResumeMatchPage.tsx"),
       true,
@@ -200,7 +200,7 @@ function formatSuggestionCategory(category: AtsSuggestion["category"]): string {
     );
     writeFixtureFile(
       root,
-      "src/test-support/mocks/handlers.ts",
+      "src/dev-runtime/mocks/handlers.ts",
       'type MockSuggestionCategory = "AddKeyword" | "RewordBullet" | "AddSection";\n',
     );
 
@@ -212,7 +212,7 @@ function formatSuggestionCategory(category: AtsSuggestion["category"]): string {
       hasResumeSuggestionCategoryDrift(root, "src/features/resumes/builder/AtsLiveScorePanelModel.ts"),
       true,
     );
-    assert.equal(hasResumeSuggestionCategoryDrift(root, "src/test-support/mocks/handlers.ts"), true);
+    assert.equal(hasResumeSuggestionCategoryDrift(root, "src/dev-runtime/mocks/handlers.ts"), true);
     assert.equal(hasResumeSuggestionCategoryDrift(root, "src/features/salary/SalaryPage.tsx"), false);
   });
 });
@@ -220,10 +220,10 @@ function formatSuggestionCategory(category: AtsSuggestion["category"]): string {
 test("frontend contracts detect runtime invokes missing dev mock cases", () => {
   withFixture((root) => {
     writeFixtureFile(root, "src/features/dashboard/DashboardPage.tsx", 'invoke("search_jobs");\n');
-    writeFixtureFile(root, "src/test-support/mocks/handlers.ts", 'case "get_jobs": return [];\n');
-    trackFixtureFiles(root, ["src/features/dashboard/DashboardPage.tsx", "src/test-support/mocks/handlers.ts"]);
+    writeFixtureFile(root, "src/dev-runtime/mocks/handlers.ts", 'case "get_jobs": return [];\n');
+    trackFixtureFiles(root, ["src/features/dashboard/DashboardPage.tsx", "src/dev-runtime/mocks/handlers.ts"]);
 
-    assert.deepEqual(missingRuntimeMockInvokeCases(root, "src/test-support/mocks/handlers.ts"), [
+    assert.deepEqual(missingRuntimeMockInvokeCases(root, "src/dev-runtime/mocks/handlers.ts"), [
       "search_jobs",
     ]);
     assert.deepEqual(missingRuntimeMockInvokeCases(root, "src/features/dashboard/DashboardPage.tsx"), []);
@@ -237,10 +237,10 @@ test("frontend contracts ignore commented runtime invokes when checking mock cas
       "src/features/dashboard/DashboardPage.tsx",
       '// invoke("commented_out");\nconst href = "https://example.com//not-a-comment";\n',
     );
-    writeFixtureFile(root, "src/test-support/mocks/handlers.ts", "");
-    trackFixtureFiles(root, ["src/features/dashboard/DashboardPage.tsx", "src/test-support/mocks/handlers.ts"]);
+    writeFixtureFile(root, "src/dev-runtime/mocks/handlers.ts", "");
+    trackFixtureFiles(root, ["src/features/dashboard/DashboardPage.tsx", "src/dev-runtime/mocks/handlers.ts"]);
 
-    assert.deepEqual(missingRuntimeMockInvokeCases(root, "src/test-support/mocks/handlers.ts"), []);
+    assert.deepEqual(missingRuntimeMockInvokeCases(root, "src/dev-runtime/mocks/handlers.ts"), []);
   });
 });
 

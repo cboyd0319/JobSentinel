@@ -9,10 +9,10 @@ instructions, tools, environment, state, and feedback.
 | Fact | Owner | Updated when | Enforced by |
 | ---- | ----- | ------------ | ----------- |
 | Startup contract | `AGENTS.md` | Commands or hard boundaries change | `npm run harness:check` |
-| Environment setup | `scripts/harness-init.mjs` | Setup or baseline changes | init launcher tests |
+| Environment setup | `scripts/harness/init.mjs` | Setup or baseline changes | init launcher tests |
 | Current objective | `PROGRESS.md` | Objective, blocker, baseline, or next action changes | state validator |
 | Work selection | `feature_list.json` | Feature status or verification changes | state validator |
-| Verification routing | `scripts/harness-plan.mjs` | Path ownership or commands change | routing fixtures |
+| Verification routing | `scripts/harness/plan.mjs` | Path ownership or commands change | routing fixtures |
 | File-size budgets | `repository-structure-policy.json` | Maintained path classes or baselines change | `npm run lint:file-size` |
 | Repository roots and units | `repository-structure-policy.json` | Source root, unit, entrypoint, or target layout changes | `npm run lint:architecture` |
 | Rust graph and technology ownership | `validation/repository_architecture_contract.json` | Rust member, edge, dependency owner, or retired path changes | `npm run lint:architecture` |

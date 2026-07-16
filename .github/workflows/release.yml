@@ -49,7 +49,7 @@ jobs:
           package-manager-cache: false
 
       - name: Install pinned npm
-        run: node scripts/install-pinned-npm.mjs
+        run: node scripts/harness/npm-pin.mjs
 
       - name: Resolve release inputs
         id: release_inputs
@@ -136,7 +136,7 @@ jobs:
           package-manager-cache: false
 
       - name: Install pinned npm
-        run: node scripts/install-pinned-npm.mjs
+        run: node scripts/harness/npm-pin.mjs
 
       - name: Run release readiness checks
         env:
@@ -184,7 +184,7 @@ jobs:
           package-manager-cache: false
 
       - name: Install pinned npm
-        run: node scripts/install-pinned-npm.mjs
+        run: node scripts/harness/npm-pin.mjs
 
       - name: Install dependencies
         run: npm ci --ignore-scripts --prefer-offline --no-audit --no-fund
@@ -227,7 +227,7 @@ jobs:
           package-manager-cache: false
 
       - name: Install pinned npm
-        run: node scripts/install-pinned-npm.mjs
+        run: node scripts/harness/npm-pin.mjs
 
       - name: Install Node dependencies
         run: npm ci --ignore-scripts --prefer-offline --no-audit --no-fund
@@ -282,7 +282,7 @@ jobs:
           package-manager-cache: false
 
       - name: Install pinned npm
-        run: node scripts/install-pinned-npm.mjs
+        run: node scripts/harness/npm-pin.mjs
 
       - name: Install dependencies
         run: npm ci --ignore-scripts --prefer-offline --no-audit --no-fund
@@ -434,7 +434,7 @@ jobs:
           package-manager-cache: false
 
       - name: Install pinned npm
-        run: node scripts/install-pinned-npm.mjs
+        run: node scripts/harness/npm-pin.mjs
 
       - name: Package Agent Skills
         env:
@@ -523,7 +523,7 @@ jobs:
           package-manager-cache: false
 
       - name: Install pinned npm
-        run: node scripts/install-pinned-npm.mjs
+        run: node scripts/harness/npm-pin.mjs
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@4be7066ada62dd38de10e7b70166bc74ed198c30 # stable

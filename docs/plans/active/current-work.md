@@ -1,6 +1,6 @@
 # Full Repository Refactor
 
-Last updated: 2026-07-15.
+Last updated: 2026-07-16.
 
 ## Purpose
 
@@ -20,10 +20,11 @@ Changes to either contract require evidence and a new decision-log entry.
 
 At baseline commit `c644995d`, the repository concentrated 412 Rust files under
 `jobsentinel-core`, exposed database implementation details to callers, and kept
-runtime behavior in Tauri commands. The current working tree removes that crate,
-the raw dependency escapes, and direct product ownership from Tauri. Local
-verification is complete; final cross-platform evidence still requires a native
-Windows 11 run.
+runtime behavior in Tauri commands. The current tree removes that crate and the
+raw dependency escapes. A fresh completion audit found that desktop composition,
+frontend platform ownership, development-runtime ownership, and root-script
+placement are now cut over. Script-test ownership and structural debt still do
+not match the locked blueprint.
 
 ## Scope
 
@@ -52,9 +53,8 @@ Out of scope:
   default. Secret reads remain action-driven.
 - Existing databases and user-owned files receive safe migrations with no
   silent loss. Internal source compatibility is not an invariant.
-- Windows 11, macOS 26+, and Linux behavior remains supported. Where a live host
-  is unavailable, target compilation and isolated contract tests provide the
-  evidence and the live gap stays explicit.
+- Supported platform behavior remains unchanged. Platform-specific validation
+  is deferred until implementation and structural cleanup are complete.
 - The workspace uses explicit members, inherited package metadata and lint
   policy, deterministic features, and no wildcard member discovery.
 - Crates follow independent ownership, dependency, runtime, or security
@@ -130,7 +130,7 @@ Every milestone requires:
 
 Milestone 2 uses separate gated commits for enforcement, foundational crates,
 storage/key cutover, and pool removal. It requires database snapshots, migration
-tests, SQLx metadata, integrity and restore tests, plus Linux, macOS, and Windows
+tests, SQLx metadata, integrity and restore tests, plus the applicable platform
 compile evidence. Milestones 4 and 5 require IPC and affected UI/E2E checks.
 Milestones 6 and 7 require the full local and release-readiness checks.
 
@@ -186,16 +186,18 @@ UI checks when their owners change.
 
 - [x] Internal and external adversarial repository reviews completed.
 - [x] Milestone 1: locked plan committed with passing gates.
-- [ ] Milestone 2: storage and application boundaries implemented and locally
-  verified; the required native Windows evidence is pending.
+- [x] Milestone 2: storage crate boundaries and application-owned desktop
+  service construction are implemented.
 - [x] Milestone 3: remaining Rust owners implemented and verified.
-- [x] Milestone 4: thin Tauri adapter implemented and verified.
-- [x] Milestone 5: frontend ownership implemented and verified.
-- [x] Milestone 6: support surfaces implemented and verified.
-- [ ] Milestone 7: full local verification and cleanup completed; final
-  cross-platform evidence is pending.
+- [x] Milestone 4: desktop adapter directories and application composition are
+  cut over.
+- [x] Milestone 5: production desktop API routing and development-runtime
+  ownership are cut over.
+- [ ] Milestone 6: root-level scripts are cut over; script-test ownership,
+  exceptions, duplication, and stale path assumptions remain.
+- [ ] Milestone 7: final whole-repository cleanup and verification remain.
 
-Complete ownership checkpoint:
+Implemented ownership checkpoint:
 
 - `jobsentinel-security` owns URL policy and path-safe logging labels.
 - `jobsentinel-domain` owns `Job`, hashes, and normalization without SQLx.
@@ -212,9 +214,23 @@ Complete ownership checkpoint:
 - Tauri depends on `jobsentinel-application` for internal product behavior. The
   raw storage-pool escape and provider transport in the desktop adapter are
   removed.
-- The full local gate, Chromium and WebKit E2E lane, and Rust all-features lane
-  pass on the native macOS host. Native Windows 11 remains an explicit evidence
-  gap.
+- `jobsentinel-application` owns desktop configuration, storage, credential,
+  scheduler, and browser-import service construction. Tauri owns only desktop
+  adaptation, event bridging, tray behavior, and window behavior.
+- `src/platform/tauri` owns all production renderer imports of desktop command,
+  event, and notification APIs through separate thin entrypoints.
+  `src/dev-runtime` owns the central mock registry and state, dev-only vitals,
+  the environment-gated development loader, and all feature-specific
+  simulators. Production bundles contain no development mock-state markers,
+  and feature-owned mock directories are rejected by the frontend boundary.
+- All executable scripts now live under the declared `checks`, `dev`, `harness`,
+  `platform`, or `release` owners. Package commands, initialization launchers,
+  release workflows, maintained docs, and tests call those final paths
+  directly. The architecture sensor rejects root-level scripts and undeclared
+  script owner directories.
+- The earlier full local gate, Chromium and WebKit E2E lane, and Rust
+  all-features lane passed for the initial crate cutover. Those results do not
+  prove that the full repository blueprint is complete.
 
 ## Surprises
 
@@ -260,22 +276,42 @@ Complete ownership checkpoint:
   graph, deleted `jobsentinel-core`, removed the raw storage-pool escape, reduced
   Tauri to an application adapter, and retired obsolete source and support
   paths. The exact local full gate, cross-browser E2E lane, and Rust all-features
-  lane passed. Final transition remains withheld pending native Windows 11
-  evidence; hosted CI remains intentionally absent and canonically
+  lane passed. Final transition remains withheld because the broader repository
+  cleanup is incomplete; hosted CI remains intentionally absent and canonically
   nonconforming under `pre-alpha-private-no-ci`.
+- 2026-07-16-completion-audit: Corrected the earlier completion interpretation.
+  The crate graph is complete, but the repository blueprint is not. Added
+  executable required-path enforcement and moved Tauri startup, IPC, tray,
+  state, and plugin policy under their target desktop directories. Remaining
+  work stays active and is implementation work, not final validation.
+- 2026-07-16-desktop-and-runtime-cutover: Moved desktop service construction
+  into `jobsentinel-application`, reduced the Tauri bootstrap to adaptation and
+  event bridging, moved the renderer command client to `platform/`, and moved
+  the central mock runtime and dev-only vitals to `dev-runtime/`. Added
+  executable retired-path, production-import, and development-gate checks.
+- 2026-07-16-platform-api-cutover: Routed every production renderer import of
+  desktop command, event, and notification APIs through `src/platform/tauri`.
+  Added a regression check that rejects new direct production imports.
+- 2026-07-16-feature-mock-cutover: Moved all 12 feature-owned mock directories
+  under `src/dev-runtime/features`, updated maintained path consumers, and
+  added a recursive boundary check that rejects future feature-owned mock
+  directories. The production duplication ratchet excludes the non-production
+  development runtime, matching the former mock-directory treatment.
+- 2026-07-16-root-script-cutover: Moved all 24 root-level scripts under explicit
+  owners without forwarding files, updated every maintained caller, and added
+  a topology regression that rejects root-level scripts or undeclared script
+  directories. The canonical initializer and all 815 script tests passed.
 
 ## Outcomes
 
-The clean-cutover implementation and local completion gates are complete in the
-current working tree. The feature remains `active` because native Windows 11
-evidence is missing. Hosted CI is deliberately absent by user direction, so the
-repository does not claim full canonical harness compliance.
+The Rust and desktop ownership cutovers are implemented, but the clean-cutover
+repository refactor is not complete. The feature remains `active` while script
+test ownership, structural debt, and the final repository audit remain.
 
 ## Handoff
 
 Read root `PROGRESS.md`, root `feature_list.json`, this plan, the
 [blueprint](repository-refactor-blueprint.md), and the executable architecture
 contract. Continue only the single active root feature. Completed plans are
-historical evidence, not current architecture. The next bounded action is the
-native Windows 11 initializer and script-contract run recorded in root state;
-do not reintroduce hosted CI unless the user withdraws the named override.
+historical evidence, not current architecture. The next bounded action is to
+move flat script tests under directories that mirror their script owners.

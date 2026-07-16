@@ -7,7 +7,7 @@ import test from "node:test";
 import {
   cleanGeneratedArtifacts,
   generatedArtifactDirectories,
-} from "../clean-generated-artifacts.mjs";
+} from "../dev/clean-generated-artifacts.mjs";
 
 test("generated artifact cleanup removes only the bounded allowlist", () => {
   const root = mkdtempSync(join(tmpdir(), "jobsentinel-clean-artifacts-"));

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type Dispatch, type SetStateAction } from "react";
 import { useToast } from "../../../shared/toast/useToast";
-import { invalidateCacheByCommand, safeInvoke } from "../../../shared/tauri/commandClient";
+import { invalidateCacheByCommand, safeInvoke } from "../../../platform/tauri";
 import { notifyScrapingComplete } from "../notifications";
 import { getDashboardSearchErrorCopy } from "../dashboardErrorCopy";
 import type {

@@ -22,8 +22,8 @@ function withFixture(callback) {
 fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
-            commands::jobs::search_jobs,
-            commands::config::get_config,
+            ipc::jobs::search_jobs,
+            ipc::config::get_config,
         ]);
 }
 `,
@@ -100,7 +100,7 @@ test("checkTauriInvokes rejects registered stub commands", () => {
 fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
-            commands::automation::take_automation_screenshot,
+            ipc::automation::take_automation_screenshot,
         ]);
 }
 `,
@@ -137,7 +137,7 @@ fn main() {
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/automation.rs",
+      "src-tauri/src/ipc/automation.rs",
       `
 #[tauri::command]
 pub async fn take_automation_screenshot(path: String) -> Result<(), String> {
@@ -169,7 +169,7 @@ test("checkTauriInvokes resolves nested command module paths", () => {
 fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
-            commands::resume::resume_builder_commands::update_resume_summary,
+            ipc::resume::resume_builder_ipc::update_resume_summary,
         ]);
 }
 `,
@@ -206,7 +206,7 @@ fn main() {
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/resume.rs",
+      "src-tauri/src/ipc/resume.rs",
       `
 #[path = "resume_builder_commands.rs"]
 pub mod resume_builder_commands;
@@ -214,7 +214,7 @@ pub mod resume_builder_commands;
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/resume_builder_commands.rs",
+      "src-tauri/src/ipc/resume_builder_commands.rs",
       `
 #[tauri::command]
 pub async fn update_resume_summary(resume_id: i64, summary: String) -> Result<(), String> {
@@ -249,7 +249,7 @@ test("checkTauriInvokes rejects signed-to-usize casts in command handlers", () =
 fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
-            commands::market::get_historical_snapshots,
+            ipc::market::get_historical_snapshots,
         ]);
 }
 `,
@@ -286,7 +286,7 @@ fn main() {
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/market.rs",
+      "src-tauri/src/ipc/market.rs",
       `
 #[tauri::command]
 pub async fn get_historical_snapshots(days: i64) -> Result<(), String> {
@@ -318,7 +318,7 @@ test("checkTauriInvokes rejects unvalidated command limits", () => {
 fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
-            commands::jobs::get_recent_jobs,
+            ipc::jobs::get_recent_jobs,
         ]);
 }
 `,
@@ -355,7 +355,7 @@ fn main() {
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/jobs.rs",
+      "src-tauri/src/ipc/jobs.rs",
       `
 #[tauri::command]
 pub async fn get_recent_jobs(limit: usize) -> Result<(), String> {
@@ -387,7 +387,7 @@ test("checkTauriInvokes rejects frontend get_search_history calls without limit"
 fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
-            commands::user_data::get_search_history,
+            ipc::user_data::get_search_history,
         ]);
 }
 `,
@@ -424,7 +424,7 @@ fn main() {
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/user_data.rs",
+      "src-tauri/src/ipc/user_data.rs",
       `
 #[tauri::command]
 pub async fn get_search_history(limit: i64) -> Result<(), String> {
@@ -465,7 +465,7 @@ test("checkTauriInvokes rejects frontend command calls missing required object a
 fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
-            commands::user_data::create_saved_search,
+            ipc::user_data::create_saved_search,
         ]);
 }
 `,
@@ -502,7 +502,7 @@ fn main() {
     );
     writeFixtureFile(
       root,
-      "src-tauri/src/commands/user_data.rs",
+      "src-tauri/src/ipc/user_data.rs",
       `
 #[tauri::command]
 pub async fn create_saved_search(search: SavedSearch) -> Result<(), String> {
@@ -514,7 +514,7 @@ pub async fn create_saved_search(search: SavedSearch) -> Result<(), String> {
       root,
       "src/features/dashboard/hooks/useDashboardSavedSearches.ts",
       `
-import { safeInvoke } from "../../../shared/tauri/commandClient";
+import { safeInvoke } from "../../../platform/tauri/commandClient";
 
 export async function saveSearch() {
   return safeInvoke("create_saved_search", { name: "Remote Rust" });
@@ -539,7 +539,7 @@ test("checkTauriInvokes rejects unregistered wrapper command calls", () => {
       root,
       "src/features/dashboard/DashboardPage.tsx",
       `
-import { cachedInvoke, safeInvoke } from "../../shared/tauri/commandClient";
+import { cachedInvoke, safeInvoke } from "../../platform/tauri/commandClient";
 
 export async function loadDashboard() {
   await cachedInvoke("missing_cached_command");

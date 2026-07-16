@@ -1,6 +1,10 @@
 import { useEffect, useState, useCallback, useId, useMemo, useRef } from "react";
-import { invoke } from "@tauri-apps/api/core";
-import { cachedInvoke, invalidateCacheByCommand, safeInvokeWithToast } from "../../shared/tauri/commandClient";
+import {
+  cachedInvoke,
+  invalidateCacheByCommand,
+  invoke,
+  safeInvokeWithToast,
+} from "../../platform/tauri";
 import {
   DndContext,
   DragOverlay,

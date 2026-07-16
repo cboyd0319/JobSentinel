@@ -17,7 +17,7 @@ import {
   releaseAssetUploadsStayDraft,
   releasePublishesAfterSuccessfulUploads,
   windowsInstallerUploadRequiresSignatureOrUnsignedLabel,
-} from "../check-macos-readiness.mjs";
+} from "./check-macos-readiness.mjs";
 
 const scriptPath = fileURLToPath(import.meta.url);
 const defaultRoot = resolve(dirname(scriptPath), "../..");
@@ -90,7 +90,7 @@ export function evaluateReleaseReadinessFromInputs(inputs) {
         inputs.packageJson.scripts?.["release:verify:public"] ===
           "node scripts/release/verify-public-release-assets.mjs" &&
         inputs.packageJson.scripts?.["macos:readiness"] ===
-          "node scripts/check-macos-readiness.mjs",
+          "node scripts/release/check-macos-readiness.mjs",
       "Release environment, readiness, public asset, and macOS readiness scripts must stay discoverable.",
     ),
     criterion(

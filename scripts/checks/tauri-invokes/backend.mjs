@@ -48,7 +48,7 @@ export function collectRegisteredCommands(root) {
 }
 
 export function collectRegisteredCommandEntries(root) {
-  const commandRegistryPath = join(root, "src-tauri/src/command_handlers.rs");
+  const commandRegistryPath = join(root, "src-tauri/src/ipc/registry.rs");
   const mainPath = join(root, "src-tauri/src/main.rs");
   const registryPath = existsSync(commandRegistryPath) ? commandRegistryPath : mainPath;
 
@@ -63,7 +63,7 @@ export function collectRegisteredCommandEntries(root) {
 
   return [
     ...generateHandlerMatch[1].matchAll(
-      /commands::((?:[a-zA-Z0-9_]+::)+)([a-zA-Z0-9_]+)/g,
+      /ipc::((?:[a-zA-Z0-9_]+::)+)([a-zA-Z0-9_]+)/g,
     ),
   ].map((match) => {
     const modulePath = match[1].split("::").filter(Boolean);
@@ -100,7 +100,7 @@ function resolveChildModulePath(parentPath, childModule) {
 
 export function resolveCommandSourcePath(root, entry) {
   const [rootModule, ...childModules] = entry.modulePath;
-  const commandRoot = join(root, "src-tauri/src/commands");
+  const commandRoot = join(root, "src-tauri/src/ipc");
   const flatRootPath = join(commandRoot, `${rootModule}.rs`);
   const modRootPath = join(commandRoot, rootModule, "mod.rs");
   let currentPath = existsSync(flatRootPath) ? flatRootPath : modRootPath;

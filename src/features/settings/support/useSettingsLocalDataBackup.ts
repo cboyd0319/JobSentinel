@@ -1,5 +1,5 @@
 import { useCallback, type Dispatch, type SetStateAction } from "react";
-import { invoke } from "@tauri-apps/api/core";
+import { invoke } from "../../../platform/tauri";
 import { logError } from "../../../shared/errorReporting/logger";
 import { getUserFriendlyError } from "../../../shared/errorReporting/messages";
 import {

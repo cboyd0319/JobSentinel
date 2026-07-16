@@ -9,7 +9,7 @@ import {
   npmExecutable,
   npmInvocation,
   parsePinnedNpmVersion,
-} from "../install-pinned-npm.mjs";
+} from "../harness/npm-pin.mjs";
 
 function withFixture(callback) {
   const root = mkdtempSync(join(tmpdir(), "jobsentinel-pinned-npm-"));

@@ -6,11 +6,10 @@
  */
 
 import { useState, useCallback, useEffect } from "react";
-import { invoke } from "@tauri-apps/api/core";
 import { Modal, ModalFooter } from "../../../ui/Modal";
 import { Button } from "../../../ui/Button";
 import { useToast } from "../../../shared/toast/useToast";
-import { invalidateCacheByCommand } from "../../../shared/tauri/commandClient";
+import { invalidateCacheByCommand, invoke } from "../../../platform/tauri";
 import {
   isRestrictedJobSourceUrl,
   RESTRICTED_JOB_SOURCE_WARNING,

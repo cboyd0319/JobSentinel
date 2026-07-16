@@ -133,3 +133,15 @@ fn test_email_config_debug_shows_non_secret_fields() {
         "Non-secret fields should still appear in Debug output"
     );
 }
+
+#[test]
+fn first_run_config_keeps_automatic_and_external_activity_disabled() {
+    let config = Config::first_run();
+
+    assert!(config.title_allowlist.is_empty());
+    assert!(!config.auto_refresh.enabled);
+    assert!(!config.external_ai.enabled);
+    assert!(config.external_ai.require_payload_preview);
+    assert!(!config.external_ai.allow_sensitive_payloads);
+    assert_eq!(config.bookmarklet_port, 4321);
+}

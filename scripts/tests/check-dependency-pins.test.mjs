@@ -431,7 +431,7 @@ test("runtime pin check rejects floating runner labels and unpinned apt packages
   });
 });
 
-test("runtime pin check rejects npm commands before pinned npm activation", () => {
+test("runtime pin check rejects npm commands before npm activation", () => {
   withFixture((root) => {
     writeMinimalRuntimeFixture(root);
     writeFixtureFile(
@@ -451,7 +451,7 @@ test("runtime pin check rejects npm commands before pinned npm activation", () =
 
     assert.equal(
       violations.some((violation) =>
-        violation.includes("npm commands after setup-node must first run `node scripts/install-pinned-npm.mjs`"),
+        violation.includes("npm commands after setup-node must first run `node scripts/harness/npm-pin.mjs`"),
       ),
       true,
     );
@@ -485,18 +485,18 @@ test("runtime pin check rejects install-capable npx commands", () => {
 test("runtime pin check rejects local npm installs without pinned npm activation", () => {
   withFixture((root) => {
     writeMinimalRuntimeFixture(root);
-    writeFixtureFile(root, "scripts/setup-docs-linting.sh", "npm ci\n");
+    writeFixtureFile(root, "scripts/dev/setup-docs-linting.sh", "npm ci\n");
     writeFixtureFile(
       root,
       "docs/developer/GETTING_STARTED.md",
-      ["node scripts/install-pinned-npm.mjs", "npm ci --ignore-scripts"].join("\n"),
+      ["node scripts/harness/npm-pin.mjs", "npm ci --ignore-scripts"].join("\n"),
     );
 
     const violations = collectRuntimePinViolations(root);
 
     assert.equal(
       violations.some((violation) =>
-        violation.includes("scripts/setup-docs-linting.sh:1 npm install commands must run after"),
+        violation.includes("scripts/dev/setup-docs-linting.sh:1 npm install commands must run after"),
       ),
       true,
     );
