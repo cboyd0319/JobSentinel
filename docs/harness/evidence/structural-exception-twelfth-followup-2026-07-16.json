@@ -1,0 +1,50 @@
+{
+  "schema": "jobsentinel.repository_refactor_evidence.v1",
+  "feature_id": "full-repository-refactor",
+  "recorded_at": "2026-07-16T23:31:55Z",
+  "starting_revision": "b19ab5a7",
+  "checkpoint": "uncommitted structural exception twelfth follow-up with the active feature still in progress",
+  "platform": {
+    "product": "macOS",
+    "version": "27.0",
+    "architecture": "arm64"
+  },
+  "scope": "Frontend test-suite modularization at existing behavioral boundaries",
+  "observed_implementation": [
+    "CoverLetterTemplates editor, filter, and use-for-job tests move to a focused sibling while the remaining suites stay under the original owner.",
+    "JobCard salary, date, and action tests move to a focused sibling while rendering, content, and interaction suites stay under the original owner.",
+    "NotificationPreferences filtering-policy tests move to a focused sibling while component behavior stays under the original owner.",
+    "The six resulting files preserve the original 53, 63, and 46 test totals and stay below the canonical 500-line hard ceiling.",
+    "The repository exact no-growth exception count fell by 3, from 21 to 18."
+  ],
+  "verification": [
+    {
+      "command": "npx vitest run src/features/applications/CoverLetterTemplates.test.tsx src/features/applications/CoverLetterTemplates.editor-and-filters.test.tsx src/features/dashboard/components/JobCard.test.tsx src/features/dashboard/components/JobCard.formatting-actions.test.tsx src/features/settings/notifications/NotificationPreferences.test.tsx src/features/settings/notifications/NotificationPreferences.filtering.test.tsx",
+      "exit_status": 0,
+      "result": "All 162 focused frontend tests passed across the six resulting owners."
+    },
+    {
+      "command": "npm run typecheck",
+      "exit_status": 0,
+      "result": "The strict TypeScript project build passed with the split test owners."
+    },
+    {
+      "command": "npm run lint:file-size",
+      "exit_status": 0,
+      "result": "Every governed source and configuration file passed the canonical hard limits; 18 exact temporary exceptions remain."
+    },
+    {
+      "command": "npm run clean:generated && npm run verify:full",
+      "exit_status": 0,
+      "result": "The complete local gate passed, including harness, policy, security, 817 script tests, 2934 frontend tests, production and Storybook builds, 10 smoke journeys, Rust workspace checks, integration tests, and documentation checks."
+    }
+  ],
+  "remaining_implementation": [
+    "The remaining 18 structural exceptions still require prioritized reduction or justified retention.",
+    "The final whole-repository audit and active feature transition have not occurred."
+  ],
+  "completion_status": {
+    "feature_complete": false,
+    "committed": false
+  }
+}

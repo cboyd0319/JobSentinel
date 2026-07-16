@@ -80,10 +80,11 @@
         "docs/harness/evidence/structural-exception-eighth-followup-2026-07-16.json",
         "docs/harness/evidence/structural-exception-ninth-followup-2026-07-16.json",
         "docs/harness/evidence/structural-exception-tenth-followup-2026-07-16.json",
-        "docs/harness/evidence/structural-exception-eleventh-followup-2026-07-16.json"
+        "docs/harness/evidence/structural-exception-eleventh-followup-2026-07-16.json",
+        "docs/harness/evidence/structural-exception-twelfth-followup-2026-07-16.json"
       ],
       "blocker": "",
-      "next_trigger": "Reduce the remaining 21 structural exceptions, then run the final whole-repository audit."
+      "next_trigger": "Reduce the remaining 18 structural exceptions, then run the final whole-repository audit."
     }
   ]
 }

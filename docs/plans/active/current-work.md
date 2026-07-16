@@ -234,9 +234,9 @@ Implemented ownership checkpoint:
   owners.
 - Focused Rust test modules, frontend and development-runtime tests, script
   tests, and two taxonomy files now stay below the canonical hard ceilings
-  without 88 prior no-growth exceptions. Seventeen script-test exceptions moved
+  without 91 prior no-growth exceptions. Seventeen script-test exceptions moved
   to their owner-mirrored paths without increasing their ceilings. The
-  repository now has 21 exceptions.
+  repository now has 18 exceptions.
 - The earlier full local gate, Chromium and WebKit E2E lane, and Rust
   all-features lane passed for the initial crate cutover. Those results do not
   prove that the full repository blueprint is complete.
@@ -369,6 +369,10 @@ Implemented ownership checkpoint:
   ScreeningAnswersForm, and ApplyButton tests at existing nested suite
   boundaries. The exception count fell from 24 to 21, and all 92 focused tests
   plus the full local repository gate passed.
+- 2026-07-16-structural-exception-twelfth-followup: Split CoverLetterTemplates,
+  JobCard, and NotificationPreferences tests at existing suite boundaries. The
+  exception count fell from 21 to 18, and all 162 focused tests plus the full
+  local repository gate passed.
 
 ## Outcomes
 
@@ -382,4 +386,4 @@ Read root `PROGRESS.md`, root `feature_list.json`, this plan, the
 [blueprint](repository-refactor-blueprint.md), and the executable architecture
 contract. Continue only the single active root feature. Completed plans are
 historical evidence, not current architecture. The next bounded action is to
-reduce the remaining 21 structural exceptions before the final repository audit.
+reduce the remaining 18 structural exceptions before the final repository audit.
