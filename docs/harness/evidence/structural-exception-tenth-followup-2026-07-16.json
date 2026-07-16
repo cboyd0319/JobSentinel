@@ -1,0 +1,50 @@
+{
+  "schema": "jobsentinel.repository_refactor_evidence.v1",
+  "feature_id": "full-repository-refactor",
+  "recorded_at": "2026-07-16T23:08:30Z",
+  "starting_revision": "31834b0d",
+  "checkpoint": "uncommitted structural exception tenth follow-up with the active feature still in progress",
+  "platform": {
+    "product": "macOS",
+    "version": "27.0",
+    "architecture": "arm64"
+  },
+  "scope": "Owner-preserving shared discovery and career-profile registry modularization",
+  "observed_implementation": [
+    "The board registry retains broad, local, technical, and community entries while specialized remote, government, and sector entries move to a focused child module.",
+    "The sector registry retains broad regional, education, and technology entries while specialized professional and freelance entries move to a focused child module.",
+    "The career-profile public path retains CareerProfile, CAREER_PROFILES, and ProfileIconType while profile records move to four domain-focused child modules in their original order.",
+    "Every changed parent and new child owner stays below the canonical 500-line hard ceiling.",
+    "The repository exact no-growth exception count fell by 3, from 27 to 24."
+  ],
+  "verification": [
+    {
+      "command": "npm run typecheck",
+      "exit_status": 0,
+      "result": "The strict TypeScript project build passed with the split registries."
+    },
+    {
+      "command": "npm run test:run -- src/shared/jobSourceDiscoveryTaxonomy.test.ts src/features/onboarding/careerProfileSetup.test.ts src/features/onboarding/CareerProfileSelector.test.tsx",
+      "exit_status": 0,
+      "result": "All 78 focused taxonomy and onboarding tests passed."
+    },
+    {
+      "command": "npm run lint:file-size",
+      "exit_status": 0,
+      "result": "Every governed source and configuration file passed the canonical hard limits; 24 exact temporary exceptions remain."
+    },
+    {
+      "command": "npm run clean:generated && npm run verify:full",
+      "exit_status": 0,
+      "result": "The complete local gate passed, including harness, policy, security, 817 script tests, 2934 frontend tests, production and Storybook builds, 10 smoke journeys, Rust workspace checks, integration tests, and documentation checks."
+    }
+  ],
+  "remaining_implementation": [
+    "The remaining 24 structural exceptions still require prioritized reduction or justified retention.",
+    "The final whole-repository audit and active feature transition have not occurred."
+  ],
+  "completion_status": {
+    "feature_complete": false,
+    "committed": false
+  }
+}

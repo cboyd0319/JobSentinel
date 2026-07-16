@@ -356,6 +356,15 @@ Implemented ownership checkpoint:
   test exceptions below the canonical hard ceilings. The exception count fell
   from 32 to 29, and focused verification and the full local repository gate
   passed.
+- 2026-07-16-structural-exception-ninth-followup: Moved the root stylesheet's
+  utility layer to its own loaded owner and split non-ATS discovery entries
+  from the ATS platform registry. The exception count fell from 29 to 27, and
+  focused verification and the full local repository gate passed.
+- 2026-07-16-structural-exception-tenth-followup: Split the board and sector
+  discovery registries at specialized-source boundaries and split career
+  profiles into four domain-focused record owners behind the existing public
+  aggregate. The exception count fell from 27 to 24, and focused verification
+  and the full local repository gate passed.
 
 ## Outcomes
 
@@ -369,4 +378,4 @@ Read root `PROGRESS.md`, root `feature_list.json`, this plan, the
 [blueprint](repository-refactor-blueprint.md), and the executable architecture
 contract. Continue only the single active root feature. Completed plans are
 historical evidence, not current architecture. The next bounded action is to
-reduce the remaining 29 structural exceptions before the final repository audit.
+reduce the remaining 24 structural exceptions before the final repository audit.

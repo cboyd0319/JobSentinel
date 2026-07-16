@@ -1,0 +1,49 @@
+{
+  "schema": "jobsentinel.repository_refactor_evidence.v1",
+  "feature_id": "full-repository-refactor",
+  "recorded_at": "2026-07-16T22:48:08Z",
+  "starting_revision": "31834b0d",
+  "checkpoint": "uncommitted structural exception ninth follow-up with the active feature still in progress",
+  "platform": {
+    "product": "macOS",
+    "version": "27.0",
+    "architecture": "arm64"
+  },
+  "scope": "Owner-preserving frontend stylesheet and discovery-taxonomy modularization",
+  "observed_implementation": [
+    "The root stylesheet retains base and component styles while the utility layer is loaded immediately afterward from its own module.",
+    "The ATS platform registry retains its public export and entry order while six employer-owned or restricted non-ATS entries move to a focused child module.",
+    "Every changed parent and new child owner stays at or below the canonical 500-line hard ceiling.",
+    "The repository exact no-growth exception count fell by 2, from 29 to 27."
+  ],
+  "verification": [
+    {
+      "command": "npm run build",
+      "exit_status": 0,
+      "result": "TypeScript and the production Vite build passed with the extracted Tailwind utility layer."
+    },
+    {
+      "command": "npm run test:run -- src/shared/jobSourceDiscoveryTaxonomy.test.ts",
+      "exit_status": 0,
+      "result": "All 16 focused discovery-taxonomy tests passed."
+    },
+    {
+      "command": "npm run lint:file-size",
+      "exit_status": 0,
+      "result": "Every governed source and configuration file passed the canonical hard limits; 27 exact temporary exceptions remain."
+    },
+    {
+      "command": "npm run clean:generated && npm run verify:full",
+      "exit_status": 0,
+      "result": "The complete local gate passed, including harness, policy, security, 817 script tests, 2934 frontend tests, production and Storybook builds, 10 smoke journeys, Rust workspace checks, integration tests, and documentation checks."
+    }
+  ],
+  "remaining_implementation": [
+    "The remaining 27 structural exceptions still require prioritized reduction or justified retention.",
+    "The final whole-repository audit and active feature transition have not occurred."
+  ],
+  "completion_status": {
+    "feature_complete": false,
+    "committed": false
+  }
+}

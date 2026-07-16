@@ -43,11 +43,11 @@ Last updated: 2026-07-16
   ceiling fell from 810 lines across 40 regions to 778 lines across 38 regions.
   All 95 formerly flat script-test and fixture files now mirror the `checks`,
   `dev`, `harness`, `lib`, `platform`, or `release` owners, with topology
-  enforcement and 817 passing script tests. Focused test and taxonomy splits
-  removed 80 net no-growth exceptions, reducing the total from 109 to 29. The
-  latest Rust test split passed focused verification and the full local
-  repository gate.
-- Next action: reduce the remaining 29 structural exceptions, then run the
+  enforcement and 817 passing script tests. Focused ownership splits removed
+  85 net no-growth exceptions, reducing the total from 109 to 24. The latest
+  shared discovery and career-profile registry splits passed focused checks and
+  the full local repository gate.
+- Next action: reduce the remaining 24 structural exceptions, then run the
   final whole-repository audit.
 
 ## Deferred
