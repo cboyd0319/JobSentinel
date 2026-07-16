@@ -44,10 +44,10 @@ Last updated: 2026-07-16
   All 95 formerly flat script-test and fixture files now mirror the `checks`,
   `dev`, `harness`, `lib`, `platform`, or `release` owners, with topology
   enforcement and 817 passing script tests. Focused ownership splits removed
-  85 net no-growth exceptions, reducing the total from 109 to 24. The latest
-  shared discovery and career-profile registry splits passed focused checks and
-  the full local repository gate.
-- Next action: reduce the remaining 24 structural exceptions, then run the
+  88 net no-growth exceptions, reducing the total from 109 to 21. The latest
+  InterviewScheduler, ScreeningAnswersForm, and ApplyButton test-suite splits
+  passed focused checks and the full local repository gate.
+- Next action: reduce the remaining 21 structural exceptions, then run the
   final whole-repository audit.
 
 ## Deferred
