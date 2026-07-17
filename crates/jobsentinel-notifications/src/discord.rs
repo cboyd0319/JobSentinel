@@ -3,8 +3,8 @@
 //! Sends rich-formatted job alerts to Discord using webhooks with embeds.
 
 use super::{
-    notification_job_href, notification_provider_failure_summary, Notification,
-    LOCAL_MATCH_DETAILS_MESSAGE, NOTIFICATION_HTTP_TIMEOUT,
+    format_salary_range, notification_job_href, notification_provider_failure_summary,
+    Notification, LOCAL_MATCH_DETAILS_MESSAGE, NOTIFICATION_HTTP_TIMEOUT,
 };
 use crate::DiscordConfig;
 use anyhow::{anyhow, Result};
@@ -22,22 +22,8 @@ fn build_discord_payload(config: &DiscordConfig, notification: &Notification) ->
     let job = &notification.job;
     let score = &notification.score;
 
-    let color = if score.total >= 0.9 {
-        0x10b981 // Green
-    } else if score.total >= 0.8 {
-        0xf59e0b // Yellow/Amber
-    } else {
-        0x3b82f6 // Blue
-    };
-
-    // Format salary display
-    let salary_display = if let (Some(min), Some(max)) = (job.salary_min, job.salary_max) {
-        format!("${},000 - ${},000", min / 1000, max / 1000)
-    } else if let Some(min) = job.salary_min {
-        format!("${},000+", min / 1000)
-    } else {
-        "Not specified".to_string()
-    };
+    let color = discord_embed_color(score.total);
+    let salary_display = format_salary_range(job.salary_min, job.salary_max);
 
     let mut embed = json!({
         "title": format!("🎯 {} - {}", job.title, job.company),
@@ -84,6 +70,16 @@ fn build_discord_payload(config: &DiscordConfig, notification: &Notification) ->
     }
 
     payload
+}
+
+fn discord_embed_color(score: f64) -> u32 {
+    if score >= 0.9 {
+        0x10b981
+    } else if score >= 0.8 {
+        0xf59e0b
+    } else {
+        0x3b82f6
+    }
 }
 
 /// Send Discord notification via webhook

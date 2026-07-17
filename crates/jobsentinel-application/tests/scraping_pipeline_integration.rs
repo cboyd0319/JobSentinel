@@ -2,62 +2,13 @@
 //!
 //! Exercises the scraper, scorer, storage, and notification pipeline.
 
-use jobsentinel_application::{
-    config::{Config, LocationPreferences},
-    scheduler::Scheduler,
-    scoring::ScoringEngine,
-};
+mod support;
+
+use jobsentinel_application::{scheduler::Scheduler, scoring::ScoringEngine};
 use jobsentinel_domain::Job;
 use jobsentinel_storage::Database;
 use std::sync::Arc;
-
-fn create_test_config() -> Config {
-    Config {
-        title_allowlist: vec![
-            "Care Coordinator".to_string(),
-            "Customer Support Lead".to_string(),
-        ],
-        title_blocklist: vec!["Manager".to_string()],
-        keywords_boost: vec!["CRM".to_string(), "case management".to_string()],
-        keywords_exclude: vec!["commission-only".to_string()],
-        location_preferences: LocationPreferences {
-            allow_remote: true,
-            allow_hybrid: false,
-            allow_onsite: false,
-            cities: vec!["Chicago".to_string()],
-            states: vec!["IL".to_string()],
-            country: "US".to_string(),
-        },
-        salary_floor_usd: 50000,
-        salary_target_usd: None,
-        penalize_missing_salary: false,
-        auto_refresh: Default::default(),
-        immediate_alert_threshold: 0.85,
-        scraping_interval_hours: 2,
-        bookmarklet_port: 4321,
-        alerts: Default::default(),
-        external_ai: Default::default(),
-        greenhouse_urls: vec![],
-        lever_urls: vec![],
-        linkedin: Default::default(),
-        restricted_source_acknowledgements: Default::default(),
-        jobswithgpt_endpoint: "https://api.jobswithgpt.com/mcp".to_string(),
-        jobswithgpt_approval: Default::default(),
-        remoteok: Default::default(),
-        weworkremotely: Default::default(),
-        builtin: Default::default(),
-        hn_hiring: Default::default(),
-        dice: Default::default(),
-        yc_startup: Default::default(),
-        usajobs: Default::default(),
-        simplyhired: Default::default(),
-        glassdoor: Default::default(),
-        ghost_config: None,
-        use_resume_matching: false,
-        preferred_companies: vec![],
-        blocked_companies: vec![],
-    }
-}
+use support::{test_config as create_test_config, test_job};
 
 // ========================================
 // Scraping Pipeline Integration Tests
@@ -91,33 +42,11 @@ async fn test_scoring_engine_integration() {
     let scoring_engine = ScoringEngine::new(Arc::clone(&config));
 
     let job = Job {
-        id: 0,
-        hash: "test123".to_string(),
-        title: "Senior Care Coordinator".to_string(),
-        company: "CareBridge".to_string(),
-        url: "https://example.com/job".to_string(),
         location: Some("Remote".to_string()),
         description: Some("Coordinate care plans with CRM and case management".to_string()),
-        score: None,
-        score_reasons: None,
-        source: "test".to_string(),
-        remote: Some(true),
         salary_min: Some(65000),
         salary_max: Some(85000),
-        currency: Some("USD".to_string()),
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
-        last_seen: chrono::Utc::now(),
-        times_seen: 1,
-        immediate_alert_sent: false,
-        hidden: false,
-        included_in_digest: false,
-        bookmarked: false,
-        notes: None,
-        ghost_score: None,
-        ghost_reasons: None,
-        first_seen: None,
-        repost_count: 0,
+        ..test_job("test123", "Senior Care Coordinator", "CareBridge")
     };
 
     let score = scoring_engine.score(&job);
@@ -132,33 +61,13 @@ async fn test_database_upsert_pipeline() {
     db.migrate().await.unwrap();
 
     let mut job = Job {
-        id: 0,
-        hash: "unique_hash_123".to_string(),
-        title: "Test Coordinator".to_string(),
-        company: "Example Services".to_string(),
         url: "https://example.com/job".to_string(),
         location: Some("Chicago".to_string()),
         description: None,
         score: Some(0.75),
-        score_reasons: None,
-        source: "test".to_string(),
         remote: None,
-        salary_min: None,
-        salary_max: None,
         currency: None,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
-        last_seen: chrono::Utc::now(),
-        times_seen: 1,
-        immediate_alert_sent: false,
-        hidden: false,
-        included_in_digest: false,
-        bookmarked: false,
-        notes: None,
-        ghost_score: None,
-        ghost_reasons: None,
-        first_seen: None,
-        repost_count: 0,
+        ..test_job("unique_hash_123", "Test Coordinator", "Example Services")
     };
 
     // First insert
@@ -189,33 +98,13 @@ async fn test_pipeline_job_deduplication() {
 
     // Create identical jobs (same hash)
     let job1 = Job {
-        id: 0,
-        hash: "duplicate_hash_456".to_string(),
-        title: "Duplicate Job".to_string(),
-        company: "Company".to_string(),
         url: "https://example.com/job".to_string(),
         location: None,
         description: None,
         score: Some(0.6),
-        score_reasons: None,
-        source: "test".to_string(),
         remote: None,
-        salary_min: None,
-        salary_max: None,
         currency: None,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
-        last_seen: chrono::Utc::now(),
-        times_seen: 1,
-        immediate_alert_sent: false,
-        hidden: false,
-        included_in_digest: false,
-        bookmarked: false,
-        notes: None,
-        ghost_score: None,
-        ghost_reasons: None,
-        first_seen: None,
-        repost_count: 0,
+        ..test_job("duplicate_hash_456", "Duplicate Job", "Company")
     };
 
     let mut job2 = job1.clone();
@@ -246,63 +135,23 @@ async fn test_pipeline_high_score_filtering() {
 
     // Insert jobs with different scores
     let high_score_job = Job {
-        id: 0,
-        hash: "high_score_1".to_string(),
-        title: "High Score Job".to_string(),
-        company: "Company".to_string(),
         url: "https://example.com/high".to_string(),
         location: None,
         description: None,
         score: Some(0.95),
-        score_reasons: None,
-        source: "test".to_string(),
         remote: None,
-        salary_min: None,
-        salary_max: None,
         currency: None,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
-        last_seen: chrono::Utc::now(),
-        times_seen: 1,
-        immediate_alert_sent: false,
-        hidden: false,
-        included_in_digest: false,
-        bookmarked: false,
-        notes: None,
-        ghost_score: None,
-        ghost_reasons: None,
-        first_seen: None,
-        repost_count: 0,
+        ..test_job("high_score_1", "High Score Job", "Company")
     };
 
     let low_score_job = Job {
-        id: 0,
-        hash: "low_score_1".to_string(),
-        title: "Low Score Job".to_string(),
-        company: "Company".to_string(),
         url: "https://example.com/low".to_string(),
         location: None,
         description: None,
         score: Some(0.35),
-        score_reasons: None,
-        source: "test".to_string(),
         remote: None,
-        salary_min: None,
-        salary_max: None,
         currency: None,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
-        last_seen: chrono::Utc::now(),
-        times_seen: 1,
-        immediate_alert_sent: false,
-        hidden: false,
-        included_in_digest: false,
-        bookmarked: false,
-        notes: None,
-        ghost_score: None,
-        ghost_reasons: None,
-        first_seen: None,
-        repost_count: 0,
+        ..test_job("low_score_1", "Low Score Job", "Company")
     };
 
     database.upsert_job(&high_score_job).await.unwrap();
@@ -328,33 +177,11 @@ async fn test_pipeline_full_cycle_statistics() {
     // Insert multiple jobs
     for i in 0..10 {
         let job = Job {
-            id: 0,
-            hash: format!("job_hash_{}", i),
-            title: format!("Job {}", i),
-            company: "Company".to_string(),
-            url: format!("https://example.com/job/{}", i),
-            location: Some("Remote".to_string()),
             description: None,
             score: Some(0.5 + (i as f64 * 0.05)),
-            score_reasons: None,
-            source: "test".to_string(),
-            remote: Some(true),
             salary_min: Some(100000 + (i * 10000)),
             salary_max: Some(150000 + (i * 10000)),
-            currency: Some("USD".to_string()),
-            created_at: chrono::Utc::now(),
-            updated_at: chrono::Utc::now(),
-            last_seen: chrono::Utc::now(),
-            times_seen: 1,
-            immediate_alert_sent: false,
-            hidden: false,
-            included_in_digest: false,
-            bookmarked: false,
-            notes: None,
-            ghost_score: None,
-            ghost_reasons: None,
-            first_seen: None,
-            repost_count: 0,
+            ..test_job(&format!("job_hash_{i}"), &format!("Job {i}"), "Company")
         };
 
         database.upsert_job(&job).await.unwrap();
@@ -375,63 +202,23 @@ async fn test_pipeline_search_functionality() {
 
     // Insert test jobs with searchable content
     let job1 = Job {
-        id: 0,
-        hash: "search_job_1".to_string(),
-        title: "Senior Care Coordinator".to_string(),
-        company: "CareBridge".to_string(),
         url: "https://example.com/care".to_string(),
-        location: Some("Remote".to_string()),
         description: Some("Coordinate care plans with CRM".to_string()),
         score: Some(0.9),
-        score_reasons: None,
-        source: "test".to_string(),
-        remote: Some(true),
         salary_min: Some(65000),
         salary_max: Some(85000),
-        currency: Some("USD".to_string()),
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
-        last_seen: chrono::Utc::now(),
-        times_seen: 1,
-        immediate_alert_sent: false,
-        hidden: false,
-        included_in_digest: false,
-        bookmarked: false,
-        notes: None,
-        ghost_score: None,
-        ghost_reasons: None,
-        first_seen: None,
-        repost_count: 0,
+        ..test_job("search_job_1", "Senior Care Coordinator", "CareBridge")
     };
 
     let job2 = Job {
-        id: 0,
-        hash: "search_job_2".to_string(),
-        title: "Customer Support Lead".to_string(),
-        company: "SupportWorks".to_string(),
         url: "https://example.com/support".to_string(),
         location: Some("Chicago".to_string()),
         description: Some("Resolve customer issues and coach support staff".to_string()),
         score: Some(0.85),
-        score_reasons: None,
-        source: "test".to_string(),
         remote: None,
         salary_min: Some(55000),
         salary_max: Some(75000),
-        currency: Some("USD".to_string()),
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
-        last_seen: chrono::Utc::now(),
-        times_seen: 1,
-        immediate_alert_sent: false,
-        hidden: false,
-        included_in_digest: false,
-        bookmarked: false,
-        notes: None,
-        ghost_score: None,
-        ghost_reasons: None,
-        first_seen: None,
-        repost_count: 0,
+        ..test_job("search_job_2", "Customer Support Lead", "SupportWorks")
     };
 
     db.upsert_job(&job1).await.unwrap();

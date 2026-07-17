@@ -1,72 +1,10 @@
 use super::super::*;
-use super::create_test_notification;
+use super::notification_fixture;
 
 #[test]
 fn test_full_message_card_payload_structure() {
-    let notification = create_test_notification();
-    let job = &notification.job;
-    let score = &notification.score;
-
-    let theme_color = if score.total >= 0.9 {
-        "00FF00"
-    } else if score.total >= 0.8 {
-        "FFA500"
-    } else {
-        "0078D4"
-    };
-
-    let salary_display = if let (Some(min), Some(max)) = (job.salary_min, job.salary_max) {
-        format!("${},000 - ${},000", min / 1000, max / 1000)
-    } else if let Some(min) = job.salary_min {
-        format!("${},000+", min / 1000)
-    } else {
-        "Not specified".to_string()
-    };
-
-    let payload = json!({
-        "@type": "MessageCard",
-        "@context": "https://schema.org/extensions",
-        "summary": format!("New job alert: {} at {}", job.title, job.company),
-        "themeColor": theme_color,
-        "title": format!("🎯 High Match Job Alert ({}% Match)", (score.total * 100.0).round()),
-        "sections": [
-            {
-                "activityTitle": format!("**{}**", job.title),
-                "activitySubtitle": format!("{} • {}", job.company, job.source),
-                "facts": [
-                    {
-                        "name": "Location:",
-                        "value": job.location.as_deref().unwrap_or("N/A")
-                    },
-                    {
-                        "name": "Salary:",
-                        "value": salary_display
-                    },
-                    {
-                        "name": "Remote:",
-                        "value": if job.remote.unwrap_or(false) { "✅ Yes" } else { "❌ No" }
-                    },
-                    {
-                        "name": "Match Score:",
-                        "value": format!("{}%", (score.total * 100.0).round())
-                    }
-                ],
-                "text": format!("**Why this matches:**\n\n{}", score.reasons.join("\n\n"))
-            }
-        ],
-        "potentialAction": [
-            {
-                "@type": "OpenUri",
-                "name": "View Full Job Posting",
-                "targets": [
-                    {
-                        "os": "default",
-                        "uri": job.url
-                    }
-                ]
-            }
-        ]
-    });
+    let notification = notification_fixture();
+    let payload = build_teams_payload(&notification);
 
     assert_eq!(payload["@type"], "MessageCard");
     assert_eq!(payload["@context"], "https://schema.org/extensions");
@@ -103,7 +41,7 @@ fn test_full_message_card_payload_structure() {
     assert!(sections[0]["text"]
         .as_str()
         .unwrap()
-        .contains("Title matches"));
+        .contains(LOCAL_MATCH_DETAILS_MESSAGE));
 
     let actions = payload["potentialAction"].as_array().unwrap();
     assert_eq!(actions.len(), 1);
@@ -117,7 +55,7 @@ fn test_full_message_card_payload_structure() {
 
 #[test]
 fn test_message_card_with_no_location() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.job.location = None;
 
     let location_value = notification.job.location.as_deref().unwrap_or("N/A");
@@ -126,7 +64,7 @@ fn test_message_card_with_no_location() {
 
 #[test]
 fn test_message_card_with_empty_location() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.job.location = Some("".to_string());
 
     let location_value = notification.job.location.as_deref().unwrap_or("N/A");
@@ -135,7 +73,7 @@ fn test_message_card_with_empty_location() {
 
 #[test]
 fn test_message_card_summary_format() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let summary = format!(
         "New job alert: {} at {}",
         notification.job.title, notification.job.company

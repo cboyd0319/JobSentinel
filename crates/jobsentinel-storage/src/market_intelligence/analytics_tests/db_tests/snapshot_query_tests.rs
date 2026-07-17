@@ -2,7 +2,7 @@ use super::*;
 
 #[tokio::test]
 async fn test_get_latest_snapshot() {
-    let pool = setup_test_db().await;
+    let pool = migrated_pool().await;
 
     sqlx::query(
         "INSERT INTO market_snapshots (date, total_jobs, new_jobs_today, jobs_filled_today, total_companies_hiring, market_sentiment) VALUES (?, ?, ?, ?, ?, ?)",
@@ -54,7 +54,7 @@ async fn test_get_latest_snapshot() {
 
 #[tokio::test]
 async fn test_get_latest_snapshot_empty() {
-    let pool = setup_test_db().await;
+    let pool = migrated_pool().await;
     let analyzer = MarketAnalyzer::new(pool);
 
     let snapshot = analyzer.get_latest_snapshot().await.unwrap();
@@ -63,7 +63,7 @@ async fn test_get_latest_snapshot_empty() {
 
 #[tokio::test]
 async fn test_get_historical_snapshots() {
-    let pool = setup_test_db().await;
+    let pool = migrated_pool().await;
     let today = Utc::now().date_naive();
 
     // Insert snapshots for last 10 days (from today backwards)
@@ -94,7 +94,7 @@ async fn test_get_historical_snapshots() {
 
 #[tokio::test]
 async fn test_get_historical_snapshots_empty() {
-    let pool = setup_test_db().await;
+    let pool = migrated_pool().await;
     let analyzer = MarketAnalyzer::new(pool);
 
     let snapshots = analyzer.get_historical_snapshots(30).await.unwrap();
@@ -103,7 +103,7 @@ async fn test_get_historical_snapshots_empty() {
 
 #[tokio::test]
 async fn test_row_to_snapshot_all_fields() {
-    let pool = setup_test_db().await;
+    let pool = migrated_pool().await;
 
     sqlx::query(
         r#"
@@ -153,7 +153,7 @@ async fn test_row_to_snapshot_all_fields() {
 
 #[tokio::test]
 async fn test_row_to_snapshot_nullable_fields() {
-    let pool = setup_test_db().await;
+    let pool = migrated_pool().await;
 
     // Test minimal snapshot with only required fields
     sqlx::query(
@@ -193,17 +193,16 @@ async fn test_row_to_snapshot_nullable_fields() {
 
 #[tokio::test]
 async fn test_create_daily_snapshot_with_empty_company_names() {
-    let pool = setup_test_db().await;
+    let pool = migrated_pool().await;
     let today = Utc::now().date_naive().to_string();
 
-    // Insert jobs with empty/null companies
+    // The canonical schema requires a company, but empty names remain possible.
     insert_test_job(
         &pool,
         "job1",
         "Coordinator",
         Some(""),
         Some("Remote"),
-        "active",
         &today,
     )
     .await;
@@ -211,9 +210,8 @@ async fn test_create_daily_snapshot_with_empty_company_names() {
         &pool,
         "job2",
         "Coordinator",
-        None,
+        Some(""),
         Some("San Francisco"),
-        "active",
         &today,
     )
     .await;
@@ -223,7 +221,6 @@ async fn test_create_daily_snapshot_with_empty_company_names() {
         "Coordinator",
         Some("CommunityCare"),
         Some("New York"),
-        "active",
         &today,
     )
     .await;
@@ -238,12 +235,12 @@ async fn test_create_daily_snapshot_with_empty_company_names() {
 
 #[tokio::test]
 async fn test_create_daily_snapshot_calculates_correct_median() {
-    let pool = setup_test_db().await;
+    let pool = migrated_pool().await;
     let today = Utc::now().date_naive().to_string();
 
-    insert_test_job(&pool, "job1", "Svc", Some("Co1"), None, "active", &today).await;
-    insert_test_job(&pool, "job2", "Svc", Some("Co2"), None, "active", &today).await;
-    insert_test_job(&pool, "job3", "Svc", Some("Co3"), None, "active", &today).await;
+    insert_test_job(&pool, "job1", "Svc", Some("Co1"), None, &today).await;
+    insert_test_job(&pool, "job2", "Svc", Some("Co2"), None, &today).await;
+    insert_test_job(&pool, "job3", "Svc", Some("Co3"), None, &today).await;
 
     insert_test_salary(&pool, "job1", 100000).await;
     insert_test_salary(&pool, "job2", 150000).await;
@@ -263,7 +260,7 @@ async fn test_create_daily_snapshot_calculates_correct_median() {
 
 #[tokio::test]
 async fn test_get_historical_snapshots_respects_limit() {
-    let pool = setup_test_db().await;
+    let pool = migrated_pool().await;
 
     // Insert 30 days of snapshots
     for i in 1..=30 {

@@ -130,7 +130,7 @@ pub fn score_remote_match(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chrono::Utc;
+    use crate::test_support::test_job;
     use jobsentinel_domain::Job;
 
     fn create_test_job(
@@ -141,32 +141,11 @@ mod tests {
     ) -> Job {
         Job {
             id: 1,
-            hash: "test".to_string(),
-            title: title.to_string(),
-            company: "Test Co".to_string(),
             url: "https://example.com".to_string(),
             location: location.map(|s| s.to_string()),
             description: description.map(|s| s.to_string()),
-            score: None,
-            score_reasons: None,
-            source: "test".to_string(),
             remote,
-            salary_min: None,
-            salary_max: None,
-            currency: None,
-            created_at: Utc::now(),
-            updated_at: Utc::now(),
-            last_seen: Utc::now(),
-            times_seen: 1,
-            immediate_alert_sent: false,
-            hidden: false,
-            bookmarked: false,
-            ghost_score: None,
-            ghost_reasons: None,
-            first_seen: None,
-            repost_count: 0,
-            notes: None,
-            included_in_digest: false,
+            ..test_job("test", title, "Test Co")
         }
     }
 

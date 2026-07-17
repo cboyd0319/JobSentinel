@@ -2,7 +2,7 @@ use super::*;
 
 #[test]
 fn test_html_email_score_boundary_values() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
 
     // Test boundary scores
     let test_cases = vec![
@@ -29,7 +29,7 @@ fn test_html_email_score_boundary_values() {
 
 #[test]
 fn test_text_email_score_boundary_values() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
 
     let test_cases = vec![(0.0, "0%"), (0.01, "1%"), (0.50, "50%"), (0.999, "100%")];
 
@@ -47,7 +47,7 @@ fn test_text_email_score_boundary_values() {
 
 #[test]
 fn test_html_email_url_with_query_params() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.job.url =
         "https://example.com/jobs/123?utm_source=jobsentinel&gh_jid=123&token=secret&candidate_email=person@example.com#private"
             .to_string();
@@ -64,7 +64,7 @@ fn test_html_email_url_with_query_params() {
 
 #[test]
 fn test_html_email_omits_invalid_job_href() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.job.url = "http://localhost:3000/private".to_string();
 
     let html = format_html_email(&notification.job, &notification.score);
@@ -75,7 +75,7 @@ fn test_html_email_omits_invalid_job_href() {
 
 #[test]
 fn test_text_email_url_with_fragments() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.job.url =
         "https://example.com/careers?gh_jid=123&token=secret#senior-engineer-role".to_string();
 
@@ -88,7 +88,7 @@ fn test_text_email_url_with_fragments() {
 
 #[test]
 fn test_html_email_multiple_reasons_formatting() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.score.reasons = vec![
         "First reason".to_string(),
         "Second reason".to_string(),
@@ -107,7 +107,7 @@ fn test_html_email_multiple_reasons_formatting() {
 
 #[test]
 fn test_text_email_multiple_reasons_formatting() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.score.reasons = vec![
         "First reason".to_string(),
         "Second reason".to_string(),
@@ -124,7 +124,7 @@ fn test_text_email_multiple_reasons_formatting() {
 
 #[test]
 fn test_html_email_single_reason() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.score.reasons = vec!["Only one reason".to_string()];
 
     let html = format_html_email(&notification.job, &notification.score);
@@ -135,7 +135,7 @@ fn test_html_email_single_reason() {
 
 #[test]
 fn test_text_email_single_reason() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.score.reasons = vec!["Only one reason".to_string()];
 
     let text = format_text_email(&notification.job, &notification.score);
@@ -146,7 +146,7 @@ fn test_text_email_single_reason() {
 
 #[test]
 fn test_html_email_contains_meta_tags() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let html = format_html_email(&notification.job, &notification.score);
 
     // Verify HTML meta tags for proper rendering
@@ -158,7 +158,7 @@ fn test_html_email_contains_meta_tags() {
 
 #[test]
 fn test_html_email_contains_styling() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let html = format_html_email(&notification.job, &notification.score);
 
     // Verify inline CSS styles are present
@@ -170,7 +170,7 @@ fn test_html_email_contains_styling() {
 
 #[test]
 fn test_html_email_gradient_header() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let html = format_html_email(&notification.job, &notification.score);
 
     // Verify gradient background is present
@@ -181,7 +181,7 @@ fn test_html_email_gradient_header() {
 
 #[test]
 fn test_html_email_call_to_action_button() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let html = format_html_email(&notification.job, &notification.score);
 
     // Verify CTA button is present with proper styling
@@ -192,7 +192,7 @@ fn test_html_email_call_to_action_button() {
 
 #[test]
 fn test_html_email_source_field() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.job.source = "linkedin".to_string();
 
     let html = format_html_email(&notification.job, &notification.score);
@@ -203,7 +203,7 @@ fn test_html_email_source_field() {
 
 #[test]
 fn test_text_email_source_field() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.job.source = "remoteok".to_string();
 
     let text = format_text_email(&notification.job, &notification.score);
@@ -213,7 +213,7 @@ fn test_text_email_source_field() {
 
 #[test]
 fn test_html_email_remote_badge_styling() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let html = format_html_email(&notification.job, &notification.score);
 
     // Verify remote badge has green background
@@ -223,7 +223,7 @@ fn test_html_email_remote_badge_styling() {
 
 #[test]
 fn test_html_email_match_score_badge() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let html = format_html_email(&notification.job, &notification.score);
 
     // Verify match score badge styling
@@ -233,7 +233,7 @@ fn test_html_email_match_score_badge() {
 
 #[test]
 fn test_text_email_formatting_separators() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let text = format_text_email(&notification.job, &notification.score);
 
     // Verify text formatting separators
@@ -245,7 +245,7 @@ fn test_text_email_formatting_separators() {
 
 #[test]
 fn test_html_email_table_structure() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let html = format_html_email(&notification.job, &notification.score);
 
     // Verify table structure for job details
@@ -259,7 +259,7 @@ fn test_html_email_table_structure() {
 
 #[test]
 fn test_html_email_footer_text() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let html = format_html_email(&notification.job, &notification.score);
 
     // Verify footer messaging
@@ -270,7 +270,7 @@ fn test_html_email_footer_text() {
 
 #[test]
 fn test_text_email_footer_text() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let text = format_text_email(&notification.job, &notification.score);
 
     // Verify footer messaging

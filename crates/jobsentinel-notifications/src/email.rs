@@ -93,13 +93,7 @@ fn format_html_email(
     let company = escape_html(&job.company);
     let location = escape_html(job.location.as_deref().unwrap_or("N/A"));
     let source = escape_html(&job.source);
-    let salary_display = if let (Some(min), Some(max)) = (job.salary_min, job.salary_max) {
-        format!("${},000 - ${},000", min / 1000, max / 1000)
-    } else if let Some(min) = job.salary_min {
-        format!("${},000+", min / 1000)
-    } else {
-        "Not specified".to_string()
-    };
+    let salary_display = super::format_salary_range(job.salary_min, job.salary_max);
     let salary_display = escape_html(&salary_display);
 
     let reason_items = format!("<li>{}</li>", escape_html(LOCAL_MATCH_DETAILS_MESSAGE));
@@ -227,13 +221,7 @@ fn format_text_email(
     job: &jobsentinel_domain::Job,
     score: &jobsentinel_intelligence::JobScore,
 ) -> String {
-    let salary_display = if let (Some(min), Some(max)) = (job.salary_min, job.salary_max) {
-        format!("${},000 - ${},000", min / 1000, max / 1000)
-    } else if let Some(min) = job.salary_min {
-        format!("${},000+", min / 1000)
-    } else {
-        "Not specified".to_string()
-    };
+    let salary_display = super::format_salary_range(job.salary_min, job.salary_max);
     let local_match_details = format!("  - {}", LOCAL_MATCH_DETAILS_MESSAGE);
     let job_link =
         validated_job_href(&job.url).unwrap_or_else(|| LOCAL_JOB_LINK_MESSAGE.to_string());

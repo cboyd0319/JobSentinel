@@ -29,6 +29,8 @@ mod types;
 
 // Tests
 #[cfg(test)]
+pub(crate) mod test_support;
+#[cfg(test)]
 mod tests;
 
 // Re-export public types

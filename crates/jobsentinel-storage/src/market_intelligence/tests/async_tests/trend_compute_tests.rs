@@ -2,7 +2,7 @@ use super::*;
 
 #[tokio::test]
 async fn test_compute_skill_demand_trends_no_data() {
-    let pool = setup_test_db().await;
+    let pool = migrated_pool().await;
     let mi = MarketIntelligence::new(pool.clone());
 
     // Should not error on empty database
@@ -19,18 +19,18 @@ async fn test_compute_skill_demand_trends_no_data() {
 
 #[tokio::test]
 async fn test_compute_skill_demand_trends_with_data() {
-    let pool = setup_test_db().await;
+    let pool = migrated_pool().await;
 
-    // Insert test jobs and skills
-    sqlx::query(
-        r#"
-        INSERT INTO jobs (hash, title, company, location, posted_at, updated_at)
-        VALUES ('job1', 'Care Coordinator', 'Community Care Network', 'Denver, CO', datetime('now'), datetime('now'))
-        "#,
+    insert_current_test_jobs(
+        &pool,
+        &[(
+            "job1",
+            "Care Coordinator",
+            "Community Care Network",
+            Some("Denver, CO"),
+        )],
     )
-    .execute(&pool)
-    .await
-    .unwrap();
+    .await;
 
     sqlx::query(
         r#"
@@ -71,7 +71,7 @@ async fn test_compute_skill_demand_trends_with_data() {
 
 #[tokio::test]
 async fn test_compute_salary_trends_no_data() {
-    let pool = setup_test_db().await;
+    let pool = migrated_pool().await;
     let mi = MarketIntelligence::new(pool.clone());
 
     let result = mi.compute_salary_trends().await;
@@ -86,7 +86,7 @@ async fn test_compute_salary_trends_no_data() {
 
 #[tokio::test]
 async fn test_compute_salary_trends_with_data() {
-    let pool = setup_test_db().await;
+    let pool = migrated_pool().await;
 
     // Insert benchmark data
     sqlx::query(
@@ -124,7 +124,7 @@ async fn test_compute_salary_trends_with_data() {
 
 #[tokio::test]
 async fn test_compute_company_hiring_velocity_no_data() {
-    let pool = setup_test_db().await;
+    let pool = migrated_pool().await;
     let mi = MarketIntelligence::new(pool.clone());
 
     let result = mi.compute_company_hiring_velocity().await;
@@ -139,20 +139,26 @@ async fn test_compute_company_hiring_velocity_no_data() {
 
 #[tokio::test]
 async fn test_compute_company_hiring_velocity_with_data() {
-    let pool = setup_test_db().await;
+    let pool = migrated_pool().await;
 
-    // Insert test jobs
-    sqlx::query(
-        r#"
-        INSERT INTO jobs (hash, title, company, location, posted_at, updated_at, status)
-        VALUES
-            ('job1', 'Care Coordinator', 'Community Care Network', 'Denver, CO', date('now'), datetime('now'), 'active'),
-            ('job2', 'Program Coordinator', 'Community Care Network', 'Denver, CO', date('now'), datetime('now'), 'active')
-        "#,
+    insert_current_test_jobs(
+        &pool,
+        &[
+            (
+                "job1",
+                "Care Coordinator",
+                "Community Care Network",
+                Some("Denver, CO"),
+            ),
+            (
+                "job2",
+                "Program Coordinator",
+                "Community Care Network",
+                Some("Denver, CO"),
+            ),
+        ],
     )
-    .execute(&pool)
-    .await
-    .unwrap();
+    .await;
 
     let mi = MarketIntelligence::new(pool.clone());
     let result = mi.compute_company_hiring_velocity().await;
@@ -172,7 +178,7 @@ async fn test_compute_company_hiring_velocity_with_data() {
 
 #[tokio::test]
 async fn test_compute_location_job_density_no_data() {
-    let pool = setup_test_db().await;
+    let pool = migrated_pool().await;
     let mi = MarketIntelligence::new(pool.clone());
 
     let result = mi.compute_location_job_density().await;
@@ -187,20 +193,26 @@ async fn test_compute_location_job_density_no_data() {
 
 #[tokio::test]
 async fn test_compute_location_job_density_with_data() {
-    let pool = setup_test_db().await;
+    let pool = migrated_pool().await;
 
-    // Insert test jobs
-    sqlx::query(
-        r#"
-        INSERT INTO jobs (hash, title, company, location, posted_at, updated_at)
-        VALUES
-            ('job1', 'Care Coordinator', 'Community Care Network', 'Seattle, WA', datetime('now'), datetime('now')),
-            ('job2', 'Inventory Planner', 'FreshMart', 'Seattle, WA', datetime('now'), datetime('now'))
-        "#,
+    insert_current_test_jobs(
+        &pool,
+        &[
+            (
+                "job1",
+                "Care Coordinator",
+                "Community Care Network",
+                Some("Seattle, WA"),
+            ),
+            (
+                "job2",
+                "Inventory Planner",
+                "FreshMart",
+                Some("Seattle, WA"),
+            ),
+        ],
     )
-    .execute(&pool)
-    .await
-    .unwrap();
+    .await;
 
     // Insert skills for the jobs
     sqlx::query(
@@ -238,7 +250,7 @@ async fn test_compute_location_job_density_with_data() {
 
 #[tokio::test]
 async fn test_compute_role_demand_trends_no_data() {
-    let pool = setup_test_db().await;
+    let pool = migrated_pool().await;
     let mi = MarketIntelligence::new(pool.clone());
 
     let result = mi.compute_role_demand_trends().await;
@@ -253,7 +265,7 @@ async fn test_compute_role_demand_trends_no_data() {
 
 #[tokio::test]
 async fn test_compute_role_demand_trends_with_data() {
-    let pool = setup_test_db().await;
+    let pool = migrated_pool().await;
 
     // Insert salary benchmark (source of normalized titles)
     sqlx::query(
@@ -269,16 +281,16 @@ async fn test_compute_role_demand_trends_with_data() {
     .await
     .unwrap();
 
-    // Insert job with matching title
-    sqlx::query(
-        r#"
-        INSERT INTO jobs (hash, title, company, location, posted_at, updated_at)
-        VALUES ('job1', 'Senior Care Coordinator', 'Community Care Network', 'Remote', datetime('now'), datetime('now'))
-        "#,
+    insert_current_test_jobs(
+        &pool,
+        &[(
+            "job1",
+            "Senior Care Coordinator",
+            "Community Care Network",
+            Some("Remote"),
+        )],
     )
-    .execute(&pool)
-    .await
-    .unwrap();
+    .await;
 
     let mi = MarketIntelligence::new(pool.clone());
     let result = mi.compute_role_demand_trends().await;
@@ -296,7 +308,7 @@ async fn test_compute_role_demand_trends_with_data() {
 
 #[tokio::test]
 async fn test_detect_market_alerts_skill_surge() {
-    let pool = setup_test_db().await;
+    let pool = migrated_pool().await;
 
     // Insert skill data with surge
     sqlx::query(
@@ -326,7 +338,7 @@ async fn test_detect_market_alerts_skill_surge() {
 
 #[tokio::test]
 async fn test_detect_market_alerts_salary_spike() {
-    let pool = setup_test_db().await;
+    let pool = migrated_pool().await;
 
     // Insert salary trend with spike
     sqlx::query(
@@ -358,7 +370,7 @@ async fn test_detect_market_alerts_salary_spike() {
 
 #[tokio::test]
 async fn test_detect_market_alerts_hiring_spree() {
-    let pool = setup_test_db().await;
+    let pool = migrated_pool().await;
 
     // Insert company with high velocity
     sqlx::query(
@@ -386,7 +398,7 @@ async fn test_detect_market_alerts_hiring_spree() {
 
 #[tokio::test]
 async fn test_get_unread_alerts_empty() {
-    let pool = setup_test_db().await;
+    let pool = migrated_pool().await;
     let mi = MarketIntelligence::new(pool);
 
     let alerts = mi.get_unread_alerts().await.unwrap();
@@ -395,7 +407,7 @@ async fn test_get_unread_alerts_empty() {
 
 #[tokio::test]
 async fn test_get_unread_alerts_with_data() {
-    let pool = setup_test_db().await;
+    let pool = migrated_pool().await;
 
     // Insert test alerts
     sqlx::query(

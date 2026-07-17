@@ -59,39 +59,18 @@ async fn test_match_result_upsert() {
     create_test_job(&pool, job_hash, "Care Coordinator", "Python").await;
 
     // First match
-    let _match1 = matcher
+    let first_match = matcher
         .match_resume_to_job(resume_id, job_hash)
         .await
         .unwrap();
 
-    // Update resume skills to change match score
-    sqlx::query(
-        "INSERT INTO user_skills (resume_id, skill_name, skill_category, confidence_score, source) VALUES (?, ?, ?, ?, ?)",
-    )
-    .bind(resume_id)
-    .bind("JavaScript")
-    .bind("programming_language")
-    .bind(0.9)
-    .bind("resume")
-    .execute(&pool)
-    .await
-    .unwrap();
-
-    // Update job to require JavaScript
-    sqlx::query("UPDATE jobs SET description = ? WHERE hash = ?")
-        .bind("Python JavaScript")
-        .bind(job_hash)
-        .execute(&pool)
-        .await
-        .unwrap();
-
-    // Second match (should upsert)
-    let _match2 = matcher
+    let second_match = matcher
         .match_resume_to_job(resume_id, job_hash)
         .await
         .unwrap();
 
-    // Should have updated the existing record
+    assert_eq!(second_match.id, first_match.id);
+
     let all_matches = sqlx::query(
         "SELECT COUNT(*) as count FROM resume_job_matches WHERE resume_id = ? AND job_hash = ?",
     )

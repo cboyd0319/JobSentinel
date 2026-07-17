@@ -42,12 +42,12 @@ Last updated: 2026-07-16
   under `crates/` one canonical owner, remove obsolete copies, and prevent
   recurrence in production and test code.
 - Branch: `refactor/full-repo-v2.9.5`
-- Current slice: Milestone 8 is complete. Rendering, export, ATS analysis,
-  storage, commands, and frontend callers use the documents-owned structured
-  resume model. Legacy Rust DTOs and temporary adapters are deleted, and an
-  exact round trip protects the flat stored-draft contract.
-- Next action: complete Milestone 9 by consolidating repeated Rust test fixtures
-  and migrated database setup without hiding assertions in shared helpers.
+- Current slice: Milestone 9 is complete. Crate-local test-support owners now
+  provide application status, notification, config, job, migrated database,
+  scraper parsing, and focused assertion fixtures. Maintained crate test
+  duplication is zero.
+- Next action: complete Milestone 10 by eliminating the five remaining
+  production clone regions and ratcheting the crate duplication baselines.
 
 ## Deferred
 

@@ -310,17 +310,17 @@ Commit boundary: `refactor(documents): complete resume model cutover`.
 
 ### Milestone 9: Consolidate Test Support
 
-- [ ] Replace the repeated 112-line application-status fixture with one local
+- [x] Replace the repeated 112-line application-status fixture with one local
   fixture builder and explicit per-test overrides.
-- [ ] Add one notification fixture owner for channel suites. Expose a minimal
+- [x] Add one notification fixture owner for channel suites. Expose a minimal
   feature-gated test-support API only where application tests consume the same
   public contract.
-- [ ] Replace manual database schema recreation in the 13 identified Rust test
+- [x] Replace manual database schema recreation in the 13 identified Rust test
   files with the migrated in-memory database helper when the full schema is the
   subject. Keep minimal-schema helpers only for deliberate repository isolation.
-- [ ] Consolidate repeated application config setup and source job fixtures at
+- [x] Consolidate repeated application config setup and source job fixtures at
   their crate-local owners.
-- [ ] Rerun the test duplication scope after each extraction. Reject helpers that
+- [x] Rerun the test duplication scope after each extraction. Reject helpers that
   hide assertions or create production dependency edges.
 
 Commit boundary: `test(rust): consolidate crate fixtures and database setup`.
@@ -405,6 +405,7 @@ gap and blocks `passing`.
 | 2026-07-16 | Rendered | Milestone 6 centralized document sections, byte-stable shared style fragments, ATS format-result assembly, plain-text bullet traversal, and requirement-taxonomy search terms. Production crate duplication fell to 98 lines across 5 regions; document production clones fell to zero. |
 | 2026-07-16 | Modeled | Milestone 7 added the canonical structured resume, one complete template identifier contract, exact boundary fixtures, and temporary analysis and persistence adapters. HTML, DOCX, ATS, JSON import, and storage round trips pass without increasing production duplication. |
 | 2026-07-16 | Cut over | Milestone 8 moved rendering, export, ATS analysis, storage, command, and frontend consumers to the canonical resume contract; deleted every temporary adapter and legacy Rust resume DTO; preserved the flat stored-draft contract with an exact round trip; and renamed the distinct local inference result to `ExtractedResume`. Production duplication remains 98 lines across 5 regions and test duplication remains 2,127 lines across 77 regions. |
+| 2026-07-16 | Test support | Milestone 9 centralized application status, notification, config, job, migrated database, scraper parsing, and focused assertion fixtures. Test duplication fell from 2,127 lines across 77 regions to zero; production remains 98 lines across 5 regions. |
 
 - [x] Milestone 0: activate the plan safely.
 - [x] Milestone 1: establish guardrails and characterization.
@@ -415,7 +416,7 @@ gap and blocks `passing`.
 - [x] Milestone 6: consolidate document rendering and ATS assembly.
 - [x] Milestone 7: introduce the canonical resume contract.
 - [x] Milestone 8: cut over resume consumers and delete duplicate models.
-- [ ] Milestone 9: consolidate test support.
+- [x] Milestone 9: consolidate test support.
 - [ ] Milestone 10: delete residue, ratchet baselines, and close.
 
 ## Surprises And Discoveries
@@ -465,12 +466,13 @@ dependency changes, verification evidence, and any follow-up debt.
 
 ## Handoff
 
-- Current state: Milestones 0 through 8 are complete; Milestone 9 is next.
-- Evidence: combined document, storage, application, and local inference
-  all-feature tests pass; 341 frontend resume tests, lint, typecheck, harness,
-  architecture, file-size hard limits, and duplication gates pass. The exact
-  stored-draft JSON round trip and canonical command tests cover the cutover.
-- Next step: consolidate repeated Rust test fixtures and migrated database setup,
-  beginning with the 112-line application-status fixture pair.
-- Open risk: test helpers can hide assertions or introduce production dependency
-  edges. Keep helpers crate-local and limited to setup data.
+- Current state: Milestones 0 through 9 are complete; Milestone 10 is next.
+- Evidence: the affected storage, notifications, application, sources, and
+  documents package tests pass. Workspace formatting and clippy, harness,
+  architecture, file-size hard limits, and duplication gates pass. Maintained
+  crate test duplication is zero; production remains 98 lines across 5 regions.
+- Next step: eliminate the five residual production clone regions, complete a
+  symbol-level sweep, and ratchet the crate baselines.
+- Open risk: the remaining production clones are selector and row-mapping
+  families. Preserve their distinct matching and persistence semantics while
+  assigning each shared operation one owner.

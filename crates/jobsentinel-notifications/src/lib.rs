@@ -24,6 +24,9 @@ pub use slack::{send_slack_notification, validate_webhook as validate_slack_webh
 pub use teams::send_teams_notification;
 pub use telegram::send_telegram_notification;
 
+#[cfg(any(test, feature = "test-support"))]
+pub mod test_support;
+
 /// A scored job ready for delivery through one or more alert channels.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Notification {
@@ -35,6 +38,14 @@ pub(crate) const LOCAL_MATCH_DETAILS_MESSAGE: &str =
     "Open JobSentinel to review match details saved on this computer.";
 pub(crate) const LOCAL_JOB_LINK_MESSAGE: &str = "Open JobSentinel to view the saved job link.";
 pub(crate) const NOTIFICATION_HTTP_TIMEOUT: Duration = Duration::from_secs(10);
+
+pub(crate) fn format_salary_range(min: Option<i64>, max: Option<i64>) -> String {
+    match (min, max) {
+        (Some(min), Some(max)) => format!("${},000 - ${},000", min / 1000, max / 1000),
+        (Some(min), None) => format!("${},000+", min / 1000),
+        (None, _) => "Not specified".to_string(),
+    }
+}
 
 #[must_use]
 pub fn notification_job_href(url: &str) -> Option<String> {
@@ -73,5 +84,15 @@ mod tests {
         );
         assert!(!summary.contains("Care Coordinator"));
         assert!(!summary.contains("Community Care Network"));
+    }
+
+    #[test]
+    fn salary_range_covers_range_minimum_and_missing_values() {
+        assert_eq!(
+            format_salary_range(Some(180_000), Some(220_000)),
+            "$180,000 - $220,000"
+        );
+        assert_eq!(format_salary_range(Some(180_000), None), "$180,000+");
+        assert_eq!(format_salary_range(None, None), "Not specified");
     }
 }

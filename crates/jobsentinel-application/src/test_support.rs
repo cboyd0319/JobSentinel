@@ -1,0 +1,81 @@
+use crate::config::{Config, LocationPreferences};
+use chrono::Utc;
+use jobsentinel_domain::Job;
+
+pub(crate) fn minimal_test_config() -> Config {
+    Config {
+        title_allowlist: vec!["Care Coordinator".to_string()],
+        title_blocklist: vec![],
+        keywords_boost: vec![],
+        keywords_exclude: vec![],
+        location_preferences: LocationPreferences {
+            allow_remote: true,
+            allow_hybrid: false,
+            allow_onsite: false,
+            cities: vec![],
+            states: vec![],
+            country: "US".to_string(),
+        },
+        salary_floor_usd: 100_000,
+        salary_target_usd: None,
+        penalize_missing_salary: false,
+        auto_refresh: Default::default(),
+        bookmarklet_port: 4321,
+        immediate_alert_threshold: 0.8,
+        scraping_interval_hours: 2,
+        alerts: Default::default(),
+        greenhouse_urls: vec![],
+        lever_urls: vec![],
+        linkedin: Default::default(),
+        restricted_source_acknowledgements: Default::default(),
+        jobswithgpt_endpoint: "https://api.jobswithgpt.com/mcp".to_string(),
+        jobswithgpt_approval: Default::default(),
+        external_ai: Default::default(),
+        remoteok: Default::default(),
+        weworkremotely: Default::default(),
+        builtin: Default::default(),
+        hn_hiring: Default::default(),
+        dice: Default::default(),
+        yc_startup: Default::default(),
+        usajobs: Default::default(),
+        simplyhired: Default::default(),
+        glassdoor: Default::default(),
+        ghost_config: None,
+        preferred_companies: vec![],
+        blocked_companies: vec![],
+        use_resume_matching: false,
+    }
+}
+
+pub(crate) fn test_job(hash: &str, title: &str, company: &str) -> Job {
+    let now = Utc::now();
+    Job {
+        id: 0,
+        hash: hash.to_string(),
+        title: title.to_string(),
+        company: company.to_string(),
+        url: format!("https://example.com/job/{hash}"),
+        location: Some("Remote".to_string()),
+        description: None,
+        score: None,
+        score_reasons: None,
+        source: "test".to_string(),
+        remote: Some(true),
+        salary_min: None,
+        salary_max: None,
+        currency: None,
+        created_at: now,
+        updated_at: now,
+        last_seen: now,
+        times_seen: 1,
+        immediate_alert_sent: false,
+        hidden: false,
+        included_in_digest: false,
+        bookmarked: false,
+        notes: None,
+        ghost_score: None,
+        ghost_reasons: None,
+        first_seen: None,
+        repost_count: 0,
+    }
+}

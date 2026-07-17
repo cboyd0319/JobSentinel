@@ -1,51 +1,10 @@
 use super::super::*;
-use super::create_test_notification;
+use super::notification_fixture;
 
 #[test]
 fn test_notification_all_blocks_have_correct_types() {
-    let notification = create_test_notification();
-
-    let payload = json!({
-        "blocks": [
-            {
-                "type": "header",
-                "text": {
-                    "type": "plain_text",
-                    "text": format!("🎯 High Match: {}", notification.job.title),
-                }
-            },
-            {
-                "type": "section",
-                "fields": [
-                    {"type": "mrkdwn", "text": format!("*Company:*\n{}", notification.job.company)},
-                    {"type": "mrkdwn", "text": format!("*Location:*\n{}", notification.job.location.as_deref().unwrap_or("N/A"))},
-                    {"type": "mrkdwn", "text": format!("*Score:*\n{:.0}%", notification.score.total * 100.0)},
-                    {"type": "mrkdwn", "text": format!("*Source:*\n{}", notification.job.source)},
-                ]
-            },
-            {
-                "type": "section",
-                "text": {
-                    "type": "mrkdwn",
-                    "text": format!("*Why this matches:*\n{}", notification.score.reasons.join("\n"))
-                }
-            },
-            {
-                "type": "actions",
-                "elements": [
-                    {
-                        "type": "button",
-                        "text": {
-                            "type": "plain_text",
-                            "text": "View Job"
-                        },
-                        "url": notification.job.url.clone(),
-                        "style": "primary"
-                    }
-                ]
-            }
-        ]
-    });
+    let notification = notification_fixture();
+    let payload = build_slack_payload(&notification);
 
     // Verify block types
     assert_eq!(payload["blocks"][0]["type"], "header");
@@ -69,7 +28,7 @@ fn test_notification_all_blocks_have_correct_types() {
 
 #[test]
 fn test_notification_button_text_exact_match() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
 
     let payload = json!({
         "blocks": [
@@ -98,7 +57,7 @@ fn test_notification_button_text_exact_match() {
 
 #[test]
 fn test_notification_header_emoji_preserved() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
 
     let payload = json!({
         "blocks": [
@@ -118,7 +77,7 @@ fn test_notification_header_emoji_preserved() {
 
 #[test]
 fn test_notification_source_field_formatting() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
 
     let payload = json!({
         "blocks": [
@@ -156,7 +115,7 @@ fn test_notification_with_different_sources() {
     ];
 
     for source in sources {
-        let mut notification = create_test_notification();
+        let mut notification = notification_fixture();
         notification.job.source = source.to_string();
 
         let payload = json!({
@@ -184,7 +143,7 @@ fn test_notification_with_different_sources() {
 
 #[test]
 fn test_notification_reasons_formatting_with_bullets() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.score.reasons = vec![
         "First reason".to_string(),
         "Second reason".to_string(),
@@ -276,49 +235,8 @@ fn test_webhook_url_localhost_fails() {
 
 #[test]
 fn test_notification_complete_payload_serializable() {
-    let notification = create_test_notification();
-
-    let payload = json!({
-        "blocks": [
-            {
-                "type": "header",
-                "text": {
-                    "type": "plain_text",
-                    "text": format!("🎯 High Match: {}", notification.job.title),
-                }
-            },
-            {
-                "type": "section",
-                "fields": [
-                    {"type": "mrkdwn", "text": format!("*Company:*\n{}", notification.job.company)},
-                    {"type": "mrkdwn", "text": format!("*Location:*\n{}", notification.job.location.as_deref().unwrap_or("N/A"))},
-                    {"type": "mrkdwn", "text": format!("*Score:*\n{:.0}%", notification.score.total * 100.0)},
-                    {"type": "mrkdwn", "text": format!("*Source:*\n{}", notification.job.source)},
-                ]
-            },
-            {
-                "type": "section",
-                "text": {
-                    "type": "mrkdwn",
-                    "text": format!("*Why this matches:*\n{}", notification.score.reasons.join("\n"))
-                }
-            },
-            {
-                "type": "actions",
-                "elements": [
-                    {
-                        "type": "button",
-                        "text": {
-                            "type": "plain_text",
-                            "text": "View Job"
-                        },
-                        "url": notification.job.url.clone(),
-                        "style": "primary"
-                    }
-                ]
-            }
-        ]
-    });
+    let notification = notification_fixture();
+    let payload = build_slack_payload(&notification);
 
     // Test that payload serializes to valid JSON
     let json_string = serde_json::to_string(&payload);
@@ -331,7 +249,7 @@ fn test_notification_complete_payload_serializable() {
 
 #[test]
 fn test_notification_with_empty_string_location() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.job.location = Some("".to_string());
 
     let location_display = notification.job.location.as_deref().unwrap_or("N/A");
@@ -341,7 +259,7 @@ fn test_notification_with_empty_string_location() {
 
 #[test]
 fn test_notification_with_whitespace_only_location() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.job.location = Some("   ".to_string());
 
     let location_display = notification.job.location.as_deref().unwrap_or("N/A");
@@ -389,7 +307,7 @@ fn test_webhook_url_double_slash_in_path() {
 
 #[test]
 fn test_notification_all_field_labels_bold() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
 
     let payload = json!({
         "blocks": [
@@ -417,7 +335,7 @@ fn test_notification_all_field_labels_bold() {
 
 #[test]
 fn test_notification_reasons_section_title_bold() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
 
     let payload = json!({
         "blocks": [

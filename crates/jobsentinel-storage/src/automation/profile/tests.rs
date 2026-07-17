@@ -1,57 +1,8 @@
 use super::*;
-use crate::Database;
-use tempfile::TempDir;
+use crate::test_support::migrated_pool;
 
-async fn setup_test_db() -> (SqlitePool, TempDir) {
-    let temp_dir = TempDir::new().unwrap();
-    let database = Database::connect_memory().await.unwrap();
-    database.migrate().await.unwrap();
-    let pool = database.pool().clone();
-
-    (pool, temp_dir)
-}
-
-#[tokio::test]
-async fn test_create_profile() {
-    let (pool, _temp_dir) = setup_test_db().await;
-    let manager = ProfileManager::new(pool);
-
-    let input = ApplicationProfileInput {
-        full_name: "Jordan Lee".to_string(),
-        email: "jordan@example.com".to_string(),
-        phone: Some("+1234567890".to_string()),
-        linkedin_url: Some("https://linkedin.com/in/jordanlee".to_string()),
-        github_url: None,
-        portfolio_url: None,
-        website_url: None,
-        default_resume_id: None,
-        resume_file_path: None,
-        resume_file_token: None,
-        clear_resume_file: None,
-        default_cover_letter_template: None,
-        us_work_authorized: true,
-        requires_sponsorship: false,
-        max_applications_per_day: 10,
-        require_manual_approval: true,
-    };
-
-    let profile_id = manager.upsert_profile(&input).await.unwrap();
-    assert!(profile_id > 0);
-
-    let profile = manager.get_profile().await.unwrap();
-    assert!(profile.is_some());
-    let profile = profile.unwrap();
-    assert_eq!(profile.full_name, "Jordan Lee");
-    assert_eq!(profile.email, "jordan@example.com");
-    assert!(profile.us_work_authorized);
-}
-
-#[tokio::test]
-async fn test_update_profile() {
-    let (pool, _temp_dir) = setup_test_db().await;
-    let manager = ProfileManager::new(pool);
-
-    let input1 = ApplicationProfileInput {
+fn profile_input() -> ApplicationProfileInput {
+    ApplicationProfileInput {
         full_name: "Jordan Lee".to_string(),
         email: "jordan@example.com".to_string(),
         phone: None,
@@ -68,7 +19,37 @@ async fn test_update_profile() {
         requires_sponsorship: false,
         max_applications_per_day: 10,
         require_manual_approval: true,
+    }
+}
+
+#[tokio::test]
+async fn test_create_profile() {
+    let pool = migrated_pool().await;
+    let manager = ProfileManager::new(pool);
+
+    let input = ApplicationProfileInput {
+        phone: Some("+1234567890".to_string()),
+        linkedin_url: Some("https://linkedin.com/in/jordanlee".to_string()),
+        ..profile_input()
     };
+
+    let profile_id = manager.upsert_profile(&input).await.unwrap();
+    assert!(profile_id > 0);
+
+    let profile = manager.get_profile().await.unwrap();
+    assert!(profile.is_some());
+    let profile = profile.unwrap();
+    assert_eq!(profile.full_name, "Jordan Lee");
+    assert_eq!(profile.email, "jordan@example.com");
+    assert!(profile.us_work_authorized);
+}
+
+#[tokio::test]
+async fn test_update_profile() {
+    let pool = migrated_pool().await;
+    let manager = ProfileManager::new(pool);
+
+    let input1 = profile_input();
 
     let id1 = manager.upsert_profile(&input1).await.unwrap();
 
@@ -91,26 +72,12 @@ async fn test_update_profile() {
 
 #[tokio::test]
 async fn test_update_profile_preserves_resume_file_without_explicit_change() {
-    let (pool, _temp_dir) = setup_test_db().await;
+    let pool = migrated_pool().await;
     let manager = ProfileManager::new(pool);
 
     let input1 = ApplicationProfileInput {
-        full_name: "Jordan Lee".to_string(),
-        email: "jordan@example.com".to_string(),
-        phone: None,
-        linkedin_url: None,
-        github_url: None,
-        portfolio_url: None,
-        website_url: None,
-        default_resume_id: None,
         resume_file_path: Some("<local-private-resume>".to_string()),
-        resume_file_token: None,
-        clear_resume_file: None,
-        default_cover_letter_template: None,
-        us_work_authorized: true,
-        requires_sponsorship: false,
-        max_applications_per_day: 10,
-        require_manual_approval: true,
+        ..profile_input()
     };
 
     manager.upsert_profile(&input1).await.unwrap();
@@ -133,26 +100,12 @@ async fn test_update_profile_preserves_resume_file_without_explicit_change() {
 
 #[tokio::test]
 async fn test_update_profile_replaces_and_clears_resume_file_explicitly() {
-    let (pool, _temp_dir) = setup_test_db().await;
+    let pool = migrated_pool().await;
     let manager = ProfileManager::new(pool);
 
     let input1 = ApplicationProfileInput {
-        full_name: "Jordan Lee".to_string(),
-        email: "jordan@example.com".to_string(),
-        phone: None,
-        linkedin_url: None,
-        github_url: None,
-        portfolio_url: None,
-        website_url: None,
-        default_resume_id: None,
         resume_file_path: Some("<local-private-resume>".to_string()),
-        resume_file_token: None,
-        clear_resume_file: None,
-        default_cover_letter_template: None,
-        us_work_authorized: true,
-        requires_sponsorship: false,
-        max_applications_per_day: 10,
-        require_manual_approval: true,
+        ..profile_input()
     };
 
     manager.upsert_profile(&input1).await.unwrap();
@@ -246,7 +199,7 @@ fn test_screening_question_matching_handles_plain_quick_add_aliases() {
 
 #[tokio::test]
 async fn test_screening_answers() {
-    let (pool, _temp_dir) = setup_test_db().await;
+    let pool = migrated_pool().await;
     let manager = ProfileManager::new(pool);
 
     manager
@@ -272,7 +225,7 @@ async fn test_screening_answers() {
 
 #[tokio::test]
 async fn test_screening_answer_legacy_boolean_type_is_normalized() {
-    let (pool, _temp_dir) = setup_test_db().await;
+    let pool = migrated_pool().await;
     let manager = ProfileManager::new(pool);
 
     manager
@@ -291,7 +244,7 @@ async fn test_screening_answer_legacy_boolean_type_is_normalized() {
 
 #[tokio::test]
 async fn test_screening_answer_invalid_type_is_rejected() {
-    let (pool, _temp_dir) = setup_test_db().await;
+    let pool = migrated_pool().await;
     let manager = ProfileManager::new(pool);
 
     let result = manager

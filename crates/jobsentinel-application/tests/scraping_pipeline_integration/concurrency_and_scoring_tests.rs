@@ -12,33 +12,16 @@ async fn test_pipeline_concurrent_upserts() {
         let db_clone = Arc::clone(&db);
         let handle = tokio::spawn(async move {
             let job = Job {
-                id: 0,
-                hash: format!("concurrent_job_{}", i),
-                title: format!("Job {}", i),
-                company: "Company".to_string(),
-                url: format!("https://example.com/job/{}", i),
                 location: None,
                 description: None,
                 score: Some(0.7),
-                score_reasons: None,
-                source: "test".to_string(),
                 remote: None,
-                salary_min: None,
-                salary_max: None,
                 currency: None,
-                created_at: chrono::Utc::now(),
-                updated_at: chrono::Utc::now(),
-                last_seen: chrono::Utc::now(),
-                times_seen: 1,
-                immediate_alert_sent: false,
-                hidden: false,
-                included_in_digest: false,
-                bookmarked: false,
-                notes: None,
-                ghost_score: None,
-                ghost_reasons: None,
-                first_seen: None,
-                repost_count: 0,
+                ..test_job(
+                    &format!("concurrent_job_{i}"),
+                    &format!("Job {i}"),
+                    "Company",
+                )
             };
 
             db_clone.upsert_job(&job).await
@@ -68,33 +51,12 @@ async fn test_pipeline_job_ordering_by_score() {
 
     for (i, score) in scores.iter().enumerate() {
         let job = Job {
-            id: 0,
-            hash: format!("ordered_job_{}", i),
-            title: format!("Job {}", i),
-            company: "Company".to_string(),
-            url: format!("https://example.com/job/{}", i),
             location: None,
             description: None,
             score: Some(*score),
-            score_reasons: None,
-            source: "test".to_string(),
             remote: None,
-            salary_min: None,
-            salary_max: None,
             currency: None,
-            created_at: chrono::Utc::now(),
-            updated_at: chrono::Utc::now(),
-            last_seen: chrono::Utc::now(),
-            times_seen: 1,
-            immediate_alert_sent: false,
-            hidden: false,
-            included_in_digest: false,
-            bookmarked: false,
-            notes: None,
-            ghost_score: None,
-            ghost_reasons: None,
-            first_seen: None,
-            repost_count: 0,
+            ..test_job(&format!("ordered_job_{i}"), &format!("Job {i}"), "Company")
         };
 
         db.upsert_job(&job).await.unwrap();
@@ -116,33 +78,13 @@ async fn test_pipeline_alert_sent_flag() {
     db.migrate().await.unwrap();
 
     let job = Job {
-        id: 0,
-        hash: "alert_test_job".to_string(),
-        title: "Test Job".to_string(),
-        company: "Company".to_string(),
         url: "https://example.com/job".to_string(),
         location: None,
         description: None,
         score: Some(0.95),
-        score_reasons: None,
-        source: "test".to_string(),
         remote: None,
-        salary_min: None,
-        salary_max: None,
         currency: None,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
-        last_seen: chrono::Utc::now(),
-        times_seen: 1,
-        immediate_alert_sent: false,
-        hidden: false,
-        included_in_digest: false,
-        bookmarked: false,
-        notes: None,
-        ghost_score: None,
-        ghost_reasons: None,
-        first_seen: None,
-        repost_count: 0,
+        ..test_job("alert_test_job", "Test Job", "Company")
     };
 
     let id = db.upsert_job(&job).await.unwrap();
@@ -165,63 +107,23 @@ async fn test_scoring_title_matching() {
     let scoring_engine = ScoringEngine::new(Arc::clone(&config));
 
     let matching_job = Job {
-        id: 0,
-        hash: "match_test".to_string(),
-        title: "Care Coordinator".to_string(), // Matches allowlist
-        company: "Company".to_string(),
-        url: "https://example.com/job".to_string(),
         location: None,
         description: Some("CRM case management and care planning".to_string()),
-        score: None,
-        score_reasons: None,
-        source: "test".to_string(),
         remote: None,
-        salary_min: None,
-        salary_max: None,
         currency: None,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
-        last_seen: chrono::Utc::now(),
-        times_seen: 1,
-        immediate_alert_sent: false,
-        hidden: false,
-        included_in_digest: false,
-        bookmarked: false,
-        notes: None,
-        ghost_score: None,
-        ghost_reasons: None,
-        first_seen: None,
-        repost_count: 0,
+        ..test_job("match_test", "Care Coordinator", "Company")
     };
 
     let non_matching_job = Job {
-        id: 0,
-        hash: "no_match_test".to_string(),
-        title: "Commission-Only Sales Representative".to_string(), // Contains excluded keyword
-        company: "Company".to_string(),
-        url: "https://example.com/job".to_string(),
         location: None,
         description: Some("commission-only sales territory role".to_string()),
-        score: None,
-        score_reasons: None,
-        source: "test".to_string(),
         remote: None,
-        salary_min: None,
-        salary_max: None,
         currency: None,
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
-        last_seen: chrono::Utc::now(),
-        times_seen: 1,
-        immediate_alert_sent: false,
-        hidden: false,
-        included_in_digest: false,
-        bookmarked: false,
-        notes: None,
-        ghost_score: None,
-        ghost_reasons: None,
-        first_seen: None,
-        repost_count: 0,
+        ..test_job(
+            "no_match_test",
+            "Commission-Only Sales Representative",
+            "Company",
+        )
     };
 
     let matching_score = scoring_engine.score(&matching_job);
@@ -239,63 +141,23 @@ async fn test_scoring_salary_influence() {
     let scoring_engine = ScoringEngine::new(Arc::clone(&config));
 
     let high_salary_job = Job {
-        id: 0,
-        hash: "high_salary".to_string(),
-        title: "Care Coordinator".to_string(),
-        company: "Company".to_string(),
         url: "https://example.com/high".to_string(),
         location: None,
         description: None,
-        score: None,
-        score_reasons: None,
-        source: "test".to_string(),
         remote: None,
         salary_min: Some(65000),
         salary_max: Some(85000),
-        currency: Some("USD".to_string()),
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
-        last_seen: chrono::Utc::now(),
-        times_seen: 1,
-        immediate_alert_sent: false,
-        hidden: false,
-        included_in_digest: false,
-        bookmarked: false,
-        notes: None,
-        ghost_score: None,
-        ghost_reasons: None,
-        first_seen: None,
-        repost_count: 0,
+        ..test_job("high_salary", "Care Coordinator", "Company")
     };
 
     let low_salary_job = Job {
-        id: 0,
-        hash: "low_salary".to_string(),
-        title: "Care Coordinator".to_string(),
-        company: "Company".to_string(),
         url: "https://example.com/low".to_string(),
         location: None,
         description: None,
-        score: None,
-        score_reasons: None,
-        source: "test".to_string(),
         remote: None,
         salary_min: Some(30000),
         salary_max: Some(35000),
-        currency: Some("USD".to_string()),
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
-        last_seen: chrono::Utc::now(),
-        times_seen: 1,
-        immediate_alert_sent: false,
-        hidden: false,
-        included_in_digest: false,
-        bookmarked: false,
-        notes: None,
-        ghost_score: None,
-        ghost_reasons: None,
-        first_seen: None,
-        repost_count: 0,
+        ..test_job("low_salary", "Care Coordinator", "Company")
     };
 
     let high_score = scoring_engine.score(&high_salary_job);

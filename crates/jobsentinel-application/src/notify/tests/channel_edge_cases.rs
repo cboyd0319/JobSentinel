@@ -2,7 +2,7 @@ use super::*;
 
 #[test]
 fn test_job_source_validation() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
 
     // Source should be a known scraper
     let valid_sources = [
@@ -26,7 +26,7 @@ fn test_job_source_validation() {
 
 #[test]
 fn test_notification_job_not_hidden() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
 
     assert!(
         !notification.job.hidden,
@@ -36,7 +36,7 @@ fn test_notification_job_not_hidden() {
 
 #[test]
 fn test_notification_alert_not_sent_initially() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
 
     assert!(
         !notification.job.immediate_alert_sent,
@@ -46,7 +46,7 @@ fn test_notification_alert_not_sent_initially() {
 
 #[test]
 fn test_notification_times_seen_positive() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
 
     assert!(
         notification.job.times_seen > 0,
@@ -56,7 +56,7 @@ fn test_notification_times_seen_positive() {
 
 #[test]
 fn test_notification_company_not_empty() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
 
     assert!(
         !notification.job.company.is_empty(),
@@ -66,7 +66,7 @@ fn test_notification_company_not_empty() {
 
 #[test]
 fn test_notification_title_not_empty() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
 
     assert!(
         !notification.job.title.is_empty(),

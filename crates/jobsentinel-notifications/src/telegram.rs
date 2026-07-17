@@ -160,13 +160,7 @@ fn format_telegram_message(
     let source = escape(&job.source);
 
     // Format salary
-    let salary_display = if let (Some(min), Some(max)) = (job.salary_min, job.salary_max) {
-        escape(&format!("${},000 - ${},000", min / 1000, max / 1000))
-    } else if let Some(min) = job.salary_min {
-        escape(&format!("${},000+", min / 1000))
-    } else {
-        escape("Not specified")
-    };
+    let salary_display = escape(&super::format_salary_range(job.salary_min, job.salary_max));
 
     let remote = if job.remote.unwrap_or(false) {
         "✅ Yes"

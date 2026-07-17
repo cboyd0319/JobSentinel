@@ -1,9 +1,9 @@
 use super::super::*;
-use super::create_test_notification;
+use super::notification_fixture;
 
 #[test]
 fn test_notification_with_perfect_score() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.score.total = 1.0;
 
     let score_text = format!("{:.0}%", notification.score.total * 100.0);
@@ -12,7 +12,7 @@ fn test_notification_with_perfect_score() {
 
 #[test]
 fn test_notification_empty_reasons_list() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.score.reasons = vec![];
 
     let reasons_text = notification.score.reasons.join("\n");
@@ -24,7 +24,7 @@ fn test_notification_empty_reasons_list() {
 
 #[test]
 fn test_notification_single_reason() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.score.reasons = vec!["Only one reason".to_string()];
 
     let reasons_text = notification.score.reasons.join("\n");
@@ -47,7 +47,7 @@ fn test_notification_score_boundary_values() {
 
 #[test]
 fn test_field_count_in_payload() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let payload = json!({
         "blocks": [
             {
@@ -67,7 +67,7 @@ fn test_field_count_in_payload() {
 
 #[test]
 fn test_notification_with_special_characters_in_title() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.job.title =
         "Care Coordinator @ \"Friendly\" Clinic <script>alert('xss')</script>".to_string();
 
@@ -92,7 +92,7 @@ fn test_notification_with_special_characters_in_title() {
 
 #[test]
 fn test_notification_with_unicode_characters() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.job.company = "🚀 Startup™ Inc. — São Paulo".to_string();
     notification.job.location = Some("Zürich 🇨🇭".to_string());
 
@@ -126,7 +126,7 @@ fn test_notification_with_unicode_characters() {
 
 #[test]
 fn test_notification_with_markdown_special_chars() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.score.reasons = vec![
         "Has *asterisks* and _underscores_".to_string(),
         "Contains `backticks` and ~tildes~".to_string(),
@@ -146,7 +146,7 @@ fn test_notification_with_markdown_special_chars() {
 
 #[test]
 fn test_notification_with_very_long_reason() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     let long_reason = "Very long reason text ".repeat(50);
     notification.score.reasons = vec![long_reason.clone()];
 
@@ -157,7 +157,7 @@ fn test_notification_with_very_long_reason() {
 
 #[test]
 fn test_notification_with_newlines_in_company_name() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.job.company = "Multi\nLine\nCompany".to_string();
 
     let payload = json!({

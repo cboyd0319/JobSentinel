@@ -1,61 +1,9 @@
 use super::*;
-use chrono::Utc;
-use jobsentinel_domain::Job;
-use jobsentinel_intelligence::{JobScore, ScoreBreakdown};
-
-fn create_test_notification() -> Notification {
-    Notification {
-        job: Job {
-            id: 1,
-            hash: "test123".to_string(),
-            title: "Care Coordinator".to_string(),
-            company: "Community Care Network".to_string(),
-            url: "https://example.com/jobs/123".to_string(),
-            location: Some("Remote".to_string()),
-            description: Some("Support patients and families with care planning".to_string()),
-            score: Some(0.95),
-            score_reasons: None,
-            source: "greenhouse".to_string(),
-            remote: Some(true),
-            salary_min: Some(180000),
-            salary_max: Some(220000),
-            currency: Some("USD".to_string()),
-            created_at: Utc::now(),
-            updated_at: Utc::now(),
-            last_seen: Utc::now(),
-            times_seen: 1,
-            immediate_alert_sent: false,
-            hidden: false,
-            bookmarked: false,
-            ghost_score: None,
-            ghost_reasons: None,
-            first_seen: None,
-            repost_count: 0,
-            notes: None,
-            included_in_digest: false,
-        },
-        score: JobScore {
-            total: 0.95,
-            breakdown: ScoreBreakdown {
-                skills: 0.40,
-                salary: 0.25,
-                location: 0.20,
-                company: 0.05,
-                recency: 0.05,
-            },
-            reasons: vec![
-                "Title matches: Care Coordinator".to_string(),
-                "Keyword match: case management".to_string(),
-                "Salary 120% of target (100% credit)".to_string(),
-                "Remote job (matches preference)".to_string(),
-            ],
-        },
-    }
-}
+use crate::test_support::notification_fixture;
 
 #[test]
 fn test_telegram_message_formatting() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let message = format_telegram_message(&notification.job, &notification.score);
 
     // Verify key components are present (with escaped special chars)
@@ -68,7 +16,7 @@ fn test_telegram_message_formatting() {
 
 #[test]
 fn test_telegram_escapes_special_characters() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.job.title = "Care Coordinator (Remote)".to_string();
 
     let message = format_telegram_message(&notification.job, &notification.score);
@@ -79,7 +27,7 @@ fn test_telegram_escapes_special_characters() {
 
 #[test]
 fn test_telegram_handles_missing_location() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.job.location = None;
 
     let message = format_telegram_message(&notification.job, &notification.score);
@@ -88,7 +36,7 @@ fn test_telegram_handles_missing_location() {
 
 #[test]
 fn test_telegram_handles_missing_salary() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.job.salary_min = None;
     notification.job.salary_max = None;
 
@@ -98,7 +46,7 @@ fn test_telegram_handles_missing_salary() {
 
 #[test]
 fn test_telegram_keeps_match_reasons_local() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let message = format_telegram_message(&notification.job, &notification.score);
 
     assert!(message.contains("Open JobSentinel to review match details saved on this computer"));
@@ -151,7 +99,7 @@ fn test_escape_function_preserves_normal_chars() {
 
 #[test]
 fn test_remote_badge_yes() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let message = format_telegram_message(&notification.job, &notification.score);
 
     assert!(message.contains("✅ Yes"));
@@ -159,7 +107,7 @@ fn test_remote_badge_yes() {
 
 #[test]
 fn test_remote_badge_no() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.job.remote = Some(false);
 
     let message = format_telegram_message(&notification.job, &notification.score);
@@ -293,7 +241,7 @@ fn test_validate_chat_id_alphanumeric() {
 
 #[test]
 fn test_telegram_message_structure() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let message = format_telegram_message(&notification.job, &notification.score);
 
     // Verify key sections are present
@@ -309,7 +257,7 @@ fn test_telegram_message_structure() {
 
 #[test]
 fn test_telegram_message_minimizes_job_url() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.job.url =
         "https://example.com/jobs?utm_source=alert&gh_jid=123&token=secret&candidate_email=person@example.com#private"
             .to_string();
@@ -326,7 +274,7 @@ fn test_telegram_message_minimizes_job_url() {
 
 #[test]
 fn test_telegram_message_salary_with_range() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let message = format_telegram_message(&notification.job, &notification.score);
 
     assert!(message.contains("$180,000 \\- $220,000") || message.contains("180,000"));
@@ -334,7 +282,7 @@ fn test_telegram_message_salary_with_range() {
 
 #[test]
 fn test_telegram_message_salary_min_only() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.job.salary_max = None;
 
     let message = format_telegram_message(&notification.job, &notification.score);
@@ -375,7 +323,7 @@ fn test_telegram_api_url_format() {
 
 #[test]
 fn test_remote_badge_with_none() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.job.remote = None;
 
     let message = format_telegram_message(&notification.job, &notification.score);
@@ -387,7 +335,7 @@ fn test_remote_badge_with_none() {
 
 #[test]
 fn test_telegram_message_empty_reasons() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.score.reasons = vec![];
 
     let message = format_telegram_message(&notification.job, &notification.score);
@@ -399,7 +347,7 @@ fn test_telegram_message_empty_reasons() {
 
 #[test]
 fn test_telegram_message_single_reason() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.score.reasons = vec!["Only one reason".to_string()];
 
     let message = format_telegram_message(&notification.job, &notification.score);

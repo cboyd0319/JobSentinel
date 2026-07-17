@@ -18,7 +18,7 @@ fn test_market_location_bucket_edge_cases() {
 
 #[tokio::test]
 async fn test_parse_location_edge_cases() {
-    let pool = setup_test_db().await;
+    let pool = migrated_pool().await;
     let mi = MarketIntelligence::new(pool);
 
     let (city, state) = mi.parse_location("New York, NY, USA");

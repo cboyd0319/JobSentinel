@@ -1,7 +1,5 @@
 use super::*;
-use chrono::Utc;
-use jobsentinel_domain::Job;
-use jobsentinel_intelligence::{JobScore, ScoreBreakdown};
+use crate::test_support::notification_fixture;
 
 #[path = "discord_tests/display_tests.rs"]
 mod display_tests;
@@ -9,56 +7,6 @@ mod display_tests;
 mod payload_tests;
 #[path = "discord_tests/webhook_url_tests.rs"]
 mod webhook_url_tests;
-
-fn create_test_notification() -> Notification {
-    Notification {
-        job: Job {
-            id: 1,
-            hash: "test123".to_string(),
-            title: "Care Coordinator".to_string(),
-            company: "Community Care Network".to_string(),
-            url: "https://example.com/jobs/123".to_string(),
-            location: Some("Remote".to_string()),
-            description: Some("Support patients and families with care planning".to_string()),
-            score: Some(0.95),
-            score_reasons: None,
-            source: "greenhouse".to_string(),
-            remote: Some(true),
-            salary_min: Some(180000),
-            salary_max: Some(220000),
-            currency: Some("USD".to_string()),
-            created_at: Utc::now(),
-            updated_at: Utc::now(),
-            last_seen: Utc::now(),
-            times_seen: 1,
-            immediate_alert_sent: false,
-            hidden: false,
-            bookmarked: false,
-            ghost_score: None,
-            ghost_reasons: None,
-            first_seen: None,
-            repost_count: 0,
-            notes: None,
-            included_in_digest: false,
-        },
-        score: JobScore {
-            total: 0.95,
-            breakdown: ScoreBreakdown {
-                skills: 0.40,
-                salary: 0.25,
-                location: 0.20,
-                company: 0.05,
-                recency: 0.05,
-            },
-            reasons: vec![
-                "Title matches: Care Coordinator".to_string(),
-                "Keyword match: case management".to_string(),
-                "Salary 120% of target (100% credit)".to_string(),
-                "Remote job (matches preference)".to_string(),
-            ],
-        },
-    }
-}
 
 #[test]
 fn test_webhook_url_with_query_params_passes() {
@@ -76,7 +24,7 @@ fn test_webhook_url_with_fragment_passes() {
 
 #[test]
 fn test_embed_fields_structure() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let salary_display = "$180,000 - $220,000";
 
     let fields = json!([
@@ -108,7 +56,7 @@ fn test_embed_timestamp_format() {
 
 #[test]
 fn test_remote_badge_with_none() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.job.remote = None;
 
     let remote_text = if notification.job.remote.unwrap_or(false) {
@@ -129,7 +77,7 @@ fn test_webhook_validation_no_host() {
 
 #[test]
 fn test_embed_description_format() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let description = format!(
         "**{}% Match** • {}",
         (notification.score.total * 100.0).round(),
@@ -144,7 +92,7 @@ fn test_embed_description_format() {
 
 #[test]
 fn test_embed_title_format() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let title = format!(
         "🎯 {} - {}",
         notification.job.title, notification.job.company
@@ -155,7 +103,7 @@ fn test_embed_title_format() {
 
 #[test]
 fn test_reasons_field_join() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let reasons_text = notification.score.reasons.join("\n");
 
     assert!(reasons_text.contains('\n'));
@@ -242,7 +190,7 @@ fn test_webhook_url_with_non_default_port_fails() {
 
 #[test]
 fn test_empty_reasons_handling() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.score.reasons = vec![];
 
     let reasons_text = notification.score.reasons.join("\n");
@@ -254,7 +202,7 @@ fn test_empty_reasons_handling() {
 
 #[test]
 fn test_location_fallback_na() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.job.location = None;
 
     let location_value = notification.job.location.as_deref().unwrap_or("N/A");
@@ -263,7 +211,7 @@ fn test_location_fallback_na() {
 
 #[test]
 fn test_complete_embed_structure() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let salary_display = "$180,000 - $220,000";
     let color = 0x10b981;
 
@@ -305,7 +253,7 @@ fn test_complete_embed_structure() {
 
 #[test]
 fn test_discord_payload_minimizes_job_url() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.job.url =
         "https://example.com/jobs?utm_source=alert&gh_jid=123&token=secret&candidate_email=person@example.com#private"
             .to_string();
@@ -356,7 +304,7 @@ fn test_payload_with_mention() {
 
 #[test]
 fn test_embed_url_field() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     assert_eq!(notification.job.url, "https://example.com/jobs/123");
 }
 

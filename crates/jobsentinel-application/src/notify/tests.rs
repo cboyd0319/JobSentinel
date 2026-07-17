@@ -5,149 +5,58 @@ use crate::{
         encode_smtp_password, CredentialKey, CredentialService, SmtpCredentialBinding,
         SMTP_CREDENTIAL_REENTRY_REQUIRED,
     },
-    scoring::{JobScore, ScoreBreakdown},
+    scoring::ScoreBreakdown,
 };
-use {chrono::Utc, jobsentinel_domain::Job, jobsentinel_storage::Database};
-
-/// Test notification.
-fn create_test_notification() -> Notification {
-    Notification {
-        job: Job {
-            id: 1,
-            hash: "test123".to_string(),
-            title: "Care Coordinator".to_string(),
-            company: "Community Care Network".to_string(),
-            url: "https://example.com/jobs/123".to_string(),
-            location: Some("Remote".to_string()),
-            description: Some("Support patients and families with care planning".to_string()),
-            score: Some(0.95),
-            score_reasons: None,
-            source: "greenhouse".to_string(),
-            remote: Some(true),
-            salary_min: Some(180000),
-            salary_max: Some(220000),
-            currency: Some("USD".to_string()),
-            created_at: Utc::now(),
-            updated_at: Utc::now(),
-            last_seen: Utc::now(),
-            times_seen: 1,
-            immediate_alert_sent: false,
-            hidden: false,
-            bookmarked: false,
-            ghost_score: None,
-            ghost_reasons: None,
-            first_seen: None,
-            repost_count: 0,
-            notes: None,
-            included_in_digest: false,
-        },
-        score: JobScore {
-            total: 0.95,
-            breakdown: ScoreBreakdown {
-                skills: 0.40,
-                salary: 0.25,
-                location: 0.20,
-                company: 0.05,
-                recency: 0.05,
-            },
-            reasons: vec![
-                "Title matches: Care Coordinator".to_string(),
-                "Keyword match: case management".to_string(),
-                "Salary 120% of target (100% credit)".to_string(),
-                "Remote job (matches preference)".to_string(),
-            ],
-        },
-    }
-}
+use jobsentinel_notifications::test_support::notification_fixture;
+use jobsentinel_storage::Database;
 
 /// Build a disabled config.
 fn create_disabled_config() -> Arc<Config> {
-    use crate::config::{AutoRefreshConfig, LinkedInConfig, LocationPreferences};
-
-    Arc::new(Config {
-        title_allowlist: vec!["Care Coordinator".to_string()],
-        title_blocklist: vec![],
-        keywords_boost: vec![],
-        keywords_exclude: vec![],
-        location_preferences: LocationPreferences {
-            allow_remote: true,
-            allow_hybrid: false,
-            allow_onsite: false,
-            cities: vec![],
-            states: vec![],
-            country: "US".to_string(),
-        },
-        salary_floor_usd: 100000,
-        auto_refresh: AutoRefreshConfig {
+    let mut config = crate::test_support::minimal_test_config();
+    config.auto_refresh.enabled = false;
+    config.immediate_alert_threshold = 0.9;
+    config.jobswithgpt_endpoint.clear();
+    config.alerts = AlertConfig {
+        slack: SlackConfig {
             enabled: false,
-            interval_minutes: 30,
+            webhook_url: String::new(),
         },
-        bookmarklet_port: 4321,
-        immediate_alert_threshold: 0.9,
-        scraping_interval_hours: 2,
-        alerts: AlertConfig {
-            slack: SlackConfig {
-                enabled: false,
-                webhook_url: String::new(),
-            },
-            email: EmailConfig {
-                enabled: false,
-                smtp_server: String::new(),
-                smtp_port: 587,
-                smtp_username: String::new(),
-                smtp_password: String::new(),
-                from_email: String::new(),
-                to_emails: vec![],
-                use_starttls: true,
-            },
-            discord: DiscordConfig {
-                enabled: false,
-                webhook_url: String::new(),
-                user_id_to_mention: None,
-            },
-            telegram: TelegramConfig {
-                enabled: false,
-                bot_token: String::new(),
-                chat_id: String::new(),
-            },
-            teams: TeamsConfig {
-                enabled: false,
-                webhook_url: String::new(),
-            },
-            desktop: crate::config::DesktopConfig {
-                enabled: false,
-                show_when_focused: false,
-                play_sound: false,
-            },
+        email: EmailConfig {
+            enabled: false,
+            smtp_server: String::new(),
+            smtp_port: 587,
+            smtp_username: String::new(),
+            smtp_password: String::new(),
+            from_email: String::new(),
+            to_emails: vec![],
+            use_starttls: true,
         },
-        greenhouse_urls: vec![],
-        lever_urls: vec![],
-        linkedin: LinkedInConfig::default(),
-        restricted_source_acknowledgements: Default::default(),
-        jobswithgpt_endpoint: String::new(),
-        jobswithgpt_approval: Default::default(),
-        external_ai: Default::default(),
-        remoteok: Default::default(),
-        weworkremotely: Default::default(),
-        builtin: Default::default(),
-        hn_hiring: Default::default(),
-        dice: Default::default(),
-        yc_startup: Default::default(),
-        usajobs: Default::default(),
-        simplyhired: Default::default(),
-        glassdoor: Default::default(),
-        ghost_config: None,
-        preferred_companies: vec![],
-        blocked_companies: vec![],
-        use_resume_matching: false,
-        salary_target_usd: None,
-        penalize_missing_salary: false,
-    })
+        discord: DiscordConfig {
+            enabled: false,
+            webhook_url: String::new(),
+            user_id_to_mention: None,
+        },
+        telegram: TelegramConfig {
+            enabled: false,
+            bot_token: String::new(),
+            chat_id: String::new(),
+        },
+        teams: TeamsConfig {
+            enabled: false,
+            webhook_url: String::new(),
+        },
+        desktop: crate::config::DesktopConfig {
+            enabled: false,
+            show_when_focused: false,
+            play_sound: false,
+        },
+    };
+    Arc::new(config)
 }
 
 #[test]
 fn test_notification_serialization() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
 
     // Test that Notification can be serialized to JSON
     let json = serde_json::to_string(&notification).expect("Should serialize");
@@ -171,7 +80,7 @@ fn test_notification_service_creation() {
 
 #[test]
 fn test_notification_with_missing_optional_fields() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.job.location = None;
     notification.job.description = None;
     notification.job.salary_min = None;
@@ -198,7 +107,7 @@ fn test_notification_with_missing_optional_fields() {
 
 #[test]
 fn test_score_breakdown_sums_correctly() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let breakdown = &notification.score.breakdown;
 
     let sum = breakdown.skills
@@ -219,7 +128,7 @@ fn test_score_breakdown_sums_correctly() {
 
 #[test]
 fn test_score_reasons_not_empty() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
 
     assert!(
         !notification.score.reasons.is_empty(),
@@ -233,8 +142,8 @@ fn test_score_reasons_not_empty() {
 
 #[test]
 fn test_job_hash_uniqueness() {
-    let notification1 = create_test_notification();
-    let mut notification2 = create_test_notification();
+    let notification1 = notification_fixture();
+    let mut notification2 = notification_fixture();
     notification2.job.hash = "different_hash".to_string();
 
     assert_ne!(
@@ -245,7 +154,7 @@ fn test_job_hash_uniqueness() {
 
 #[test]
 fn test_notification_clone() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let cloned = notification.clone();
 
     assert_eq!(notification.job.title, cloned.job.title);
@@ -255,7 +164,7 @@ fn test_notification_clone() {
 
 #[test]
 fn test_notification_debug_format() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let debug_str = format!("{:?}", notification);
 
     // Debug format should include key fields
@@ -264,7 +173,7 @@ fn test_notification_debug_format() {
 
 #[test]
 fn test_salary_range_validation() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
 
     if let (Some(min), Some(max)) = (notification.job.salary_min, notification.job.salary_max) {
         assert!(max >= min, "Max salary should be >= min salary");
@@ -273,7 +182,7 @@ fn test_salary_range_validation() {
 
 #[test]
 fn test_score_total_in_valid_range() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
 
     assert!(notification.score.total >= 0.0, "Score should be >= 0.0");
     assert!(notification.score.total <= 1.0, "Score should be <= 1.0");
@@ -281,7 +190,7 @@ fn test_score_total_in_valid_range() {
 
 #[test]
 fn test_score_breakdown_in_valid_ranges() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let breakdown = &notification.score.breakdown;
 
     assert!(breakdown.skills >= 0.0 && breakdown.skills <= 1.0);
@@ -293,7 +202,7 @@ fn test_score_breakdown_in_valid_ranges() {
 
 #[test]
 fn test_notification_with_zero_score() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.score.total = 0.0;
     notification.score.breakdown = ScoreBreakdown {
         skills: 0.0,
@@ -310,7 +219,7 @@ fn test_notification_with_zero_score() {
 
 #[test]
 fn test_notification_url_validation() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
 
     // URL should be parseable
     assert!(
@@ -342,7 +251,7 @@ fn test_notification_job_href_omits_non_public_links() {
 
 #[test]
 fn test_notification_timestamps_logical() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
 
     // created_at should be <= updated_at
     assert!(notification.job.created_at <= notification.job.updated_at);
@@ -355,7 +264,7 @@ fn test_notification_timestamps_logical() {
 async fn test_send_immediate_alert_all_channels_disabled() {
     let config = create_disabled_config();
     let service = NotificationService::new(config);
-    let notification = create_test_notification();
+    let notification = notification_fixture();
 
     // Should succeed when no channels are enabled (nothing to do)
     let result = service.send_immediate_alert(&notification).await;

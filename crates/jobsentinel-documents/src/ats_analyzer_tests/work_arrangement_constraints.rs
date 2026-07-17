@@ -4,6 +4,29 @@ use crate::{AtsAnalyzer, HardConstraintCategory, RequirementMatchState};
 #[path = "work_arrangement_constraints/language_mobility_constraints.rs"]
 mod language_mobility_constraints;
 
+fn assert_night_shift_evidence(evidence: &str) {
+    let result = AtsAnalyzer::analyze_text_for_job(
+        &format!("Jordan Lee\njordan@example.com\n\nExperience\n{evidence}"),
+        &[],
+        "Required: night shift",
+    );
+
+    let night_shift = result
+        .requirement_reviews
+        .iter()
+        .find(|review| review.keyword == "night shift")
+        .expect("night shift review");
+    assert_eq!(night_shift.match_state, RequirementMatchState::Direct);
+    assert!(night_shift.hard_constraint);
+    assert!(night_shift
+        .evidence_sections
+        .contains(&"experience".to_string()));
+    assert!(!result
+        .hard_constraint_risks
+        .iter()
+        .any(|risk| risk.requirement == "night shift"));
+}
+
 #[test]
 fn test_missing_required_availability_constraint_caps_overall_score() {
     let resume = sample_resume();
@@ -29,50 +52,12 @@ fn test_missing_required_availability_constraint_caps_overall_score() {
 
 #[test]
 fn test_night_shift_accepts_overnight_shift_evidence() {
-    let result = AtsAnalyzer::analyze_text_for_job(
-        "Jordan Lee\njordan@example.com\n\nExperience\nAvailable for overnight shift coverage.",
-        &[],
-        "Required: night shift",
-    );
-
-    let night_shift = result
-        .requirement_reviews
-        .iter()
-        .find(|review| review.keyword == "night shift")
-        .expect("night shift review");
-    assert_eq!(night_shift.match_state, RequirementMatchState::Direct);
-    assert!(night_shift.hard_constraint);
-    assert!(night_shift
-        .evidence_sections
-        .contains(&"experience".to_string()));
-    assert!(!result
-        .hard_constraint_risks
-        .iter()
-        .any(|risk| risk.requirement == "night shift"));
+    assert_night_shift_evidence("Available for overnight shift coverage.");
 }
 
 #[test]
 fn test_night_shift_accepts_third_shift_evidence() {
-    let result = AtsAnalyzer::analyze_text_for_job(
-        "Jordan Lee\njordan@example.com\n\nExperience\nAvailable for third shift coverage.",
-        &[],
-        "Required: night shift",
-    );
-
-    let night_shift = result
-        .requirement_reviews
-        .iter()
-        .find(|review| review.keyword == "night shift")
-        .expect("night shift review");
-    assert_eq!(night_shift.match_state, RequirementMatchState::Direct);
-    assert!(night_shift.hard_constraint);
-    assert!(night_shift
-        .evidence_sections
-        .contains(&"experience".to_string()));
-    assert!(!result
-        .hard_constraint_risks
-        .iter()
-        .any(|risk| risk.requirement == "night shift"));
+    assert_night_shift_evidence("Available for third shift coverage.");
 }
 
 #[test]

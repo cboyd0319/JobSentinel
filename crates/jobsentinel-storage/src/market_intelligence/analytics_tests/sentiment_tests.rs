@@ -1,8 +1,23 @@
 use super::*;
 
+async fn insert_historical_snapshots(pool: &SqlitePool, new_jobs_today: i64) {
+    let today = chrono::Utc::now().date_naive();
+    for days_ago in 1..=7 {
+        let date = today - chrono::Duration::days(days_ago);
+        sqlx::query(
+            "INSERT INTO market_snapshots (date, total_jobs, new_jobs_today, jobs_filled_today, total_companies_hiring, market_sentiment) VALUES (?, 100, ?, 10, 50, 'neutral')",
+        )
+        .bind(date.to_string())
+        .bind(new_jobs_today)
+        .execute(pool)
+        .await
+        .unwrap();
+    }
+}
+
 #[tokio::test]
 async fn test_calculate_market_sentiment_no_history() {
-    let pool = setup_test_db().await;
+    let pool = migrated_pool().await;
     let analyzer = MarketAnalyzer::new(pool);
 
     let sentiment = analyzer.calculate_market_sentiment(100, 50).await.unwrap();
@@ -11,25 +26,9 @@ async fn test_calculate_market_sentiment_no_history() {
 
 #[tokio::test]
 async fn test_calculate_market_sentiment_bullish() {
-    let pool = setup_test_db().await;
+    let pool = migrated_pool().await;
 
-    // Insert historical snapshots using relative dates (last 7 days)
-    let today = chrono::Utc::now().date_naive();
-    for i in 1..=7 {
-        let date = today - chrono::Duration::days(i);
-        sqlx::query(
-            "INSERT INTO market_snapshots (date, total_jobs, new_jobs_today, jobs_filled_today, total_companies_hiring, market_sentiment) VALUES (?, ?, ?, ?, ?, ?)",
-        )
-        .bind(date.to_string())
-        .bind(100)
-        .bind(50)
-        .bind(10)
-        .bind(50)
-        .bind("neutral")
-        .execute(&pool)
-        .await
-        .unwrap();
-    }
+    insert_historical_snapshots(&pool, 50).await;
 
     let analyzer = MarketAnalyzer::new(pool);
 
@@ -40,25 +39,9 @@ async fn test_calculate_market_sentiment_bullish() {
 
 #[tokio::test]
 async fn test_calculate_market_sentiment_bearish() {
-    let pool = setup_test_db().await;
+    let pool = migrated_pool().await;
 
-    // Insert historical snapshots using relative dates (last 7 days)
-    let today = chrono::Utc::now().date_naive();
-    for i in 1..=7 {
-        let date = today - chrono::Duration::days(i);
-        sqlx::query(
-            "INSERT INTO market_snapshots (date, total_jobs, new_jobs_today, jobs_filled_today, total_companies_hiring, market_sentiment) VALUES (?, ?, ?, ?, ?, ?)",
-        )
-        .bind(date.to_string())
-        .bind(100)
-        .bind(100)
-        .bind(10)
-        .bind(50)
-        .bind("neutral")
-        .execute(&pool)
-        .await
-        .unwrap();
-    }
+    insert_historical_snapshots(&pool, 100).await;
 
     let analyzer = MarketAnalyzer::new(pool);
 
@@ -69,25 +52,9 @@ async fn test_calculate_market_sentiment_bearish() {
 
 #[tokio::test]
 async fn test_calculate_market_sentiment_neutral() {
-    let pool = setup_test_db().await;
+    let pool = migrated_pool().await;
 
-    // Insert historical snapshots using relative dates (last 7 days)
-    let today = chrono::Utc::now().date_naive();
-    for i in 1..=7 {
-        let date = today - chrono::Duration::days(i);
-        sqlx::query(
-            "INSERT INTO market_snapshots (date, total_jobs, new_jobs_today, jobs_filled_today, total_companies_hiring, market_sentiment) VALUES (?, ?, ?, ?, ?, ?)",
-        )
-        .bind(date.to_string())
-        .bind(100)
-        .bind(100)
-        .bind(10)
-        .bind(50)
-        .bind("neutral")
-        .execute(&pool)
-        .await
-        .unwrap();
-    }
+    insert_historical_snapshots(&pool, 100).await;
 
     let analyzer = MarketAnalyzer::new(pool);
 

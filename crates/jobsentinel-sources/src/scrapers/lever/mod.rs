@@ -70,48 +70,7 @@ impl LeverScraper {
 
         let json: serde_json::Value = ScraperError::parse_json(&api_url, &response.body)?;
 
-        let jobs = if let Some(postings) = json.as_array() {
-            let mut jobs = Vec::with_capacity(postings.len());
-            for posting in postings {
-                let title = posting["text"].as_str().unwrap_or("").to_string();
-                let url = posting["hostedUrl"].as_str().unwrap_or("").to_string();
-                let location = posting["categories"]["location"]
-                    .as_str()
-                    .map(|s| s.to_string())
-                    .or_else(|| {
-                        posting["categories"]["team"]
-                            .as_str()
-                            .map(|s| s.to_string())
-                    });
-
-                // Extract description
-                let description = posting["description"]
-                    .as_str()
-                    .or_else(|| posting["descriptionPlain"].as_str())
-                    .map(|s| s.to_string());
-
-                // Infer remote from location or title
-                let remote = Self::infer_remote(&title, location.as_deref());
-
-                if !title.is_empty() && !url.is_empty() {
-                    jobs.push(Job {
-                        description,
-                        remote: Some(remote),
-                        ..Job::newly_discovered(
-                            title,
-                            company.name.clone(),
-                            url,
-                            location,
-                            "lever",
-                            Utc::now(),
-                        )
-                    });
-                }
-            }
-            jobs
-        } else {
-            Vec::new()
-        };
+        let jobs = Self::parse_postings(&json, company);
 
         tracing::info!("Found {} jobs from {}", jobs.len(), company.name);
         Ok(jobs)
@@ -120,6 +79,51 @@ impl LeverScraper {
     /// Infer if job is remote from title or location
     fn infer_remote(title: &str, location: Option<&str>) -> bool {
         infer_remote_status(&[title, location.unwrap_or("")]).is_remote()
+    }
+
+    fn parse_postings(json: &serde_json::Value, company: &LeverCompany) -> Vec<Job> {
+        let Some(postings) = json.as_array() else {
+            return Vec::new();
+        };
+
+        postings
+            .iter()
+            .filter_map(|posting| {
+                let title = posting["text"].as_str().unwrap_or("").to_string();
+                let url = posting["hostedUrl"].as_str().unwrap_or("").to_string();
+                if title.is_empty() || url.is_empty() {
+                    return None;
+                }
+
+                let location = Self::posting_location(posting);
+                Some(Job {
+                    description: Self::posting_description(posting),
+                    remote: Some(Self::infer_remote(&title, location.as_deref())),
+                    ..Job::newly_discovered(
+                        title,
+                        company.name.clone(),
+                        url,
+                        location,
+                        "lever",
+                        Utc::now(),
+                    )
+                })
+            })
+            .collect()
+    }
+
+    fn posting_location(posting: &serde_json::Value) -> Option<String> {
+        posting["categories"]["location"]
+            .as_str()
+            .or_else(|| posting["categories"]["team"].as_str())
+            .map(str::to_string)
+    }
+
+    fn posting_description(posting: &serde_json::Value) -> Option<String> {
+        posting["description"]
+            .as_str()
+            .or_else(|| posting["descriptionPlain"].as_str())
+            .map(str::to_string)
     }
 }
 

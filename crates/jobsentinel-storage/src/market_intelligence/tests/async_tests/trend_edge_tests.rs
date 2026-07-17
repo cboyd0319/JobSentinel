@@ -5,7 +5,7 @@ mod location_parsing_tests;
 
 #[tokio::test]
 async fn test_compute_salary_trends_with_growth() {
-    let pool = setup_test_db().await;
+    let pool = migrated_pool().await;
 
     // Insert previous salary trend
     sqlx::query(
@@ -54,7 +54,7 @@ async fn test_compute_salary_trends_with_growth() {
 
 #[tokio::test]
 async fn test_compute_salary_trends_zero_previous() {
-    let pool = setup_test_db().await;
+    let pool = migrated_pool().await;
 
     // Insert previous with zero median (edge case)
     sqlx::query(
@@ -100,7 +100,7 @@ async fn test_compute_salary_trends_zero_previous() {
 
 #[tokio::test]
 async fn test_compute_company_hiring_velocity_trends() {
-    let pool = setup_test_db().await;
+    let pool = migrated_pool().await;
 
     // Insert previous week velocity
     sqlx::query(
@@ -113,19 +113,30 @@ async fn test_compute_company_hiring_velocity_trends() {
     .await
     .unwrap();
 
-    // Insert current jobs
-    sqlx::query(
-        r#"
-        INSERT INTO jobs (hash, title, company, location, posted_at, updated_at, status)
-        VALUES
-            ('job1', 'Care Coordinator', 'Community Care Network', 'Denver, CO', date('now'), datetime('now'), 'active'),
-            ('job2', 'Program Coordinator', 'Community Care Network', 'Denver, CO', date('now'), datetime('now'), 'active'),
-            ('job3', 'Clinic Manager', 'Community Care Network', 'Denver, CO', date('now'), datetime('now'), 'active')
-        "#,
+    insert_current_test_jobs(
+        &pool,
+        &[
+            (
+                "job1",
+                "Care Coordinator",
+                "Community Care Network",
+                Some("Denver, CO"),
+            ),
+            (
+                "job2",
+                "Program Coordinator",
+                "Community Care Network",
+                Some("Denver, CO"),
+            ),
+            (
+                "job3",
+                "Clinic Manager",
+                "Community Care Network",
+                Some("Denver, CO"),
+            ),
+        ],
     )
-    .execute(&pool)
-    .await
-    .unwrap();
+    .await;
 
     let mi = MarketIntelligence::new(pool.clone());
     let result = mi.compute_company_hiring_velocity().await;
@@ -143,7 +154,7 @@ async fn test_compute_company_hiring_velocity_trends() {
 
 #[tokio::test]
 async fn test_compute_company_hiring_velocity_increasing() {
-    let pool = setup_test_db().await;
+    let pool = migrated_pool().await;
 
     // Previous week with fewer jobs
     sqlx::query(
@@ -156,19 +167,14 @@ async fn test_compute_company_hiring_velocity_increasing() {
     .await
     .unwrap();
 
-    // More jobs today
-    for i in 1..=5 {
-        sqlx::query(
-            r#"
-            INSERT INTO jobs (hash, title, company, location, posted_at, updated_at, status)
-            VALUES (?, 'Case Manager', 'Community Services Co-op', 'Austin', date('now'), datetime('now'), 'active')
-            "#,
-        )
-        .bind(format!("job{}", i))
-        .execute(&pool)
-        .await
-        .unwrap();
-    }
+    insert_numbered_current_test_jobs(
+        &pool,
+        5,
+        "Case Manager",
+        "Community Services Co-op",
+        Some("Austin"),
+    )
+    .await;
 
     let mi = MarketIntelligence::new(pool.clone());
     let result = mi.compute_company_hiring_velocity().await;
@@ -185,7 +191,7 @@ async fn test_compute_company_hiring_velocity_increasing() {
 
 #[tokio::test]
 async fn test_compute_company_hiring_velocity_stable() {
-    let pool = setup_test_db().await;
+    let pool = migrated_pool().await;
 
     // Previous week with same count
     sqlx::query(
@@ -198,19 +204,14 @@ async fn test_compute_company_hiring_velocity_stable() {
     .await
     .unwrap();
 
-    // Same number of jobs today
-    for i in 1..=3 {
-        sqlx::query(
-            r#"
-            INSERT INTO jobs (hash, title, company, location, posted_at, updated_at, status)
-            VALUES (?, 'Clinic Coordinator', 'StableCare Clinic', 'Seattle', date('now'), datetime('now'), 'active')
-            "#,
-        )
-        .bind(format!("job{}", i))
-        .execute(&pool)
-        .await
-        .unwrap();
-    }
+    insert_numbered_current_test_jobs(
+        &pool,
+        3,
+        "Clinic Coordinator",
+        "StableCare Clinic",
+        Some("Seattle"),
+    )
+    .await;
 
     let mi = MarketIntelligence::new(pool.clone());
     let result = mi.compute_company_hiring_velocity().await;
@@ -227,7 +228,7 @@ async fn test_compute_company_hiring_velocity_stable() {
 
 #[tokio::test]
 async fn test_compute_role_demand_trends_rising() {
-    let pool = setup_test_db().await;
+    let pool = migrated_pool().await;
 
     // Previous week demand
     sqlx::query(
@@ -257,19 +258,14 @@ async fn test_compute_role_demand_trends_rising() {
     .await
     .unwrap();
 
-    // More jobs today
-    for i in 1..=15 {
-        sqlx::query(
-            r#"
-            INSERT INTO jobs (hash, title, company, location, posted_at, updated_at)
-            VALUES (?, 'Senior Care Coordinator', 'Community Care Network', 'Remote', datetime('now'), datetime('now'))
-            "#,
-        )
-        .bind(format!("job{}", i))
-        .execute(&pool)
-        .await
-        .unwrap();
-    }
+    insert_numbered_current_test_jobs(
+        &pool,
+        15,
+        "Senior Care Coordinator",
+        "Community Care Network",
+        Some("Remote"),
+    )
+    .await;
 
     let mi = MarketIntelligence::new(pool.clone());
     let result = mi.compute_role_demand_trends().await;
@@ -286,7 +282,7 @@ async fn test_compute_role_demand_trends_rising() {
 
 #[tokio::test]
 async fn test_compute_role_demand_trends_falling() {
-    let pool = setup_test_db().await;
+    let pool = migrated_pool().await;
 
     // Previous week with high demand
     sqlx::query(
@@ -315,19 +311,7 @@ async fn test_compute_role_demand_trends_falling() {
     .await
     .unwrap();
 
-    // Fewer jobs today
-    for i in 1..=5 {
-        sqlx::query(
-            r#"
-            INSERT INTO jobs (hash, title, company, location, posted_at, updated_at)
-            VALUES (?, 'UX Designer', 'DesignCo', 'Remote', datetime('now'), datetime('now'))
-            "#,
-        )
-        .bind(format!("job{}", i))
-        .execute(&pool)
-        .await
-        .unwrap();
-    }
+    insert_numbered_current_test_jobs(&pool, 5, "UX Designer", "DesignCo", Some("Remote")).await;
 
     let mi = MarketIntelligence::new(pool.clone());
     let result = mi.compute_role_demand_trends().await;
@@ -344,21 +328,22 @@ async fn test_compute_role_demand_trends_falling() {
 
 #[tokio::test]
 async fn test_compute_location_job_density_remote_jobs() {
-    let pool = setup_test_db().await;
+    let pool = migrated_pool().await;
 
-    // Insert remote jobs
-    sqlx::query(
-        r#"
-        INSERT INTO jobs (hash, title, company, location, posted_at, updated_at)
-        VALUES
-            ('job1', 'Remote Care Coordinator', 'Org1', 'Remote - US', datetime('now'), datetime('now')),
-            ('job2', 'Care Coordinator', 'Org2', 'Remote', datetime('now'), datetime('now')),
-            ('job3', 'Program Coordinator', 'Org3', 'Austin, TX', datetime('now'), datetime('now'))
-        "#,
+    insert_current_test_jobs(
+        &pool,
+        &[
+            (
+                "job1",
+                "Remote Care Coordinator",
+                "Org1",
+                Some("Remote - US"),
+            ),
+            ("job2", "Care Coordinator", "Org2", Some("Remote")),
+            ("job3", "Program Coordinator", "Org3", Some("Austin, TX")),
+        ],
     )
-    .execute(&pool)
-    .await
-    .unwrap();
+    .await;
 
     sqlx::query(
         r#"
@@ -389,20 +374,26 @@ async fn test_compute_location_job_density_remote_jobs() {
 
 #[tokio::test]
 async fn test_run_daily_analysis_integration() {
-    let pool = setup_test_db().await;
+    let pool = migrated_pool().await;
 
-    // Insert comprehensive test data
-    sqlx::query(
-        r#"
-        INSERT INTO jobs (hash, title, company, location, posted_at, updated_at, status)
-        VALUES
-            ('job1', 'Care Coordinator', 'Community Care Network', 'Denver, CO', datetime('now'), datetime('now'), 'active'),
-            ('job2', 'Inventory Planner', 'FreshMart', 'Chicago, IL', datetime('now'), datetime('now'), 'active')
-        "#,
+    insert_current_test_jobs(
+        &pool,
+        &[
+            (
+                "job1",
+                "Care Coordinator",
+                "Community Care Network",
+                Some("Denver, CO"),
+            ),
+            (
+                "job2",
+                "Inventory Planner",
+                "FreshMart",
+                Some("Chicago, IL"),
+            ),
+        ],
     )
-    .execute(&pool)
-    .await
-    .unwrap();
+    .await;
 
     sqlx::query(
         r#"

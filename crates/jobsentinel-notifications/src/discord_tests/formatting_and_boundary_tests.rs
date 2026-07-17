@@ -9,7 +9,7 @@ fn test_webhook_url_subdomain() {
 
 #[test]
 fn test_score_reasons_with_special_characters() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.score.reasons = vec![
         "Case management & scheduling".to_string(),
         "$200k+ salary".to_string(),
@@ -24,7 +24,7 @@ fn test_score_reasons_with_special_characters() {
 
 #[test]
 fn test_salary_zero_values() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.job.salary_min = Some(0);
     notification.job.salary_max = Some(0);
 
@@ -43,7 +43,7 @@ fn test_salary_zero_values() {
 
 #[test]
 fn test_very_high_salary_formatting() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.job.salary_min = Some(500000);
     notification.job.salary_max = Some(1000000);
 
@@ -63,7 +63,7 @@ fn test_very_high_salary_formatting() {
 
 #[test]
 fn test_embed_inline_field_boolean() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
 
     let field = json!({
         "name": "📍 Location",
@@ -76,7 +76,7 @@ fn test_embed_inline_field_boolean() {
 
 #[test]
 fn test_embed_non_inline_field() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
 
     let field = json!({
         "name": "✨ Why this matches",
@@ -105,7 +105,7 @@ fn test_webhook_url_starts_with_validation() {
 
 #[test]
 fn test_score_boundary_just_below_80() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.score.total = 0.79;
 
     let color = if notification.score.total >= 0.9 {
@@ -121,7 +121,7 @@ fn test_score_boundary_just_below_80() {
 
 #[test]
 fn test_score_boundary_just_below_90() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.score.total = 0.89;
 
     let color = if notification.score.total >= 0.9 {
@@ -137,7 +137,7 @@ fn test_score_boundary_just_below_90() {
 
 #[test]
 fn test_perfect_score_color() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.score.total = 1.0;
 
     let color = if notification.score.total >= 0.9 {
@@ -153,7 +153,7 @@ fn test_perfect_score_color() {
 
 #[test]
 fn test_very_low_score_color() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.score.total = 0.5;
 
     let color = if notification.score.total >= 0.9 {
@@ -169,7 +169,7 @@ fn test_very_low_score_color() {
 
 #[test]
 fn test_company_name_with_special_chars() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.job.company = "Acme & Co. (USA)".to_string();
 
     let title = format!(
@@ -183,7 +183,7 @@ fn test_company_name_with_special_chars() {
 
 #[test]
 fn test_job_title_with_special_chars() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.job.title = "Sr. Case Manager / Team Lead".to_string();
 
     let title = format!(
@@ -196,7 +196,7 @@ fn test_job_title_with_special_chars() {
 
 #[test]
 fn test_remote_field_true() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let remote_text = if notification.job.remote.unwrap_or(false) {
         "✅ Yes"
     } else {
@@ -208,7 +208,7 @@ fn test_remote_field_true() {
 
 #[test]
 fn test_remote_field_false() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.job.remote = Some(false);
 
     let remote_text = if notification.job.remote.unwrap_or(false) {
@@ -229,7 +229,7 @@ fn test_webhook_url_with_username() {
 
 #[test]
 fn test_description_percentage_formatting() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let percentage = (notification.score.total * 100.0).round();
 
     assert_eq!(percentage, 95.0);
@@ -238,7 +238,7 @@ fn test_description_percentage_formatting() {
 
 #[test]
 fn test_reasons_single_item() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.score.reasons = vec!["Perfect match".to_string()];
 
     let reasons_text = notification.score.reasons.join("\n");
@@ -247,7 +247,7 @@ fn test_reasons_single_item() {
 
 #[test]
 fn test_reasons_multiple_items() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let reasons_text = notification.score.reasons.join("\n");
 
     let lines: Vec<&str> = reasons_text.split('\n').collect();
@@ -256,7 +256,7 @@ fn test_reasons_multiple_items() {
 
 #[test]
 fn test_location_empty_string() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.job.location = Some("".to_string());
 
     let location_value = notification.job.location.as_deref().unwrap_or("N/A");
@@ -272,7 +272,7 @@ fn test_webhook_validation_ftp_scheme() {
 
 #[test]
 fn test_source_field_in_description() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.job.source = "lever".to_string();
 
     let description = format!(
@@ -295,7 +295,7 @@ fn test_footer_structure() {
 
 #[test]
 fn test_embed_url_matches_job_url() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let embed_url = notification.job.url.clone();
 
     assert_eq!(embed_url, "https://example.com/jobs/123");
@@ -304,7 +304,7 @@ fn test_embed_url_matches_job_url() {
 
 #[test]
 fn test_salary_min_boundary() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.job.salary_min = Some(1000);
     notification.job.salary_max = None;
 
@@ -337,7 +337,7 @@ fn test_webhook_url_localhost() {
 
 #[test]
 fn test_embed_all_fields_present() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
 
     // Verify all required fields are present in notification
     assert!(notification.job.title.len() > 0);

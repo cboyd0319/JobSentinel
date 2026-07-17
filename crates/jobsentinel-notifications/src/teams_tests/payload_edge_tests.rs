@@ -1,5 +1,5 @@
 use super::super::*;
-use super::create_test_notification;
+use super::notification_fixture;
 
 #[test]
 fn test_theme_color_selection_comprehensive() {
@@ -87,7 +87,7 @@ fn test_salary_all_combinations() {
 
 #[test]
 fn test_message_card_summary_with_special_characters() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.job.title = "Care Coordinator (Bilingual/Weekend)".to_string();
     notification.job.company = "Community Health & Co.".to_string();
 
@@ -269,7 +269,7 @@ fn test_score_percentage_display_as_integer() {
 
 #[test]
 fn test_facts_array_complete_structure() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let salary_display = "$180,000 - $220,000";
 
     let facts = json!([
@@ -346,7 +346,7 @@ fn test_message_card_context_url() {
 
 #[test]
 fn test_sections_array_structure() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
 
     let sections = json!([
         {
@@ -368,7 +368,7 @@ fn test_sections_array_structure() {
 
 #[test]
 fn test_payload_omits_remote_activity_image() {
-    let payload = build_teams_payload(&create_test_notification());
+    let payload = build_teams_payload(&notification_fixture());
     let section = &payload["sections"][0];
 
     assert!(section.get("activityImage").is_none());
@@ -426,7 +426,7 @@ fn test_webhook_url_validation_error_messages_specificity() {
 
 #[test]
 fn test_complete_payload_json_serialization() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let job = &notification.job;
     let score = &notification.score;
 

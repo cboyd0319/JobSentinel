@@ -3,7 +3,7 @@ use crate::analytics_buckets::market_location_bucket;
 
 #[tokio::test]
 async fn test_market_intelligence_new() {
-    let pool = setup_test_db().await;
+    let pool = migrated_pool().await;
     let mi = MarketIntelligence::new(pool.clone());
 
     // Verify struct creation
@@ -31,7 +31,7 @@ fn test_market_location_bucket() {
 
 #[tokio::test]
 async fn test_parse_location_via_method() {
-    let pool = setup_test_db().await;
+    let pool = migrated_pool().await;
     let mi = MarketIntelligence::new(pool);
 
     let (city, state) = mi.parse_location("Seattle, WA");
@@ -49,7 +49,7 @@ async fn test_parse_location_via_method() {
 
 #[tokio::test]
 async fn test_get_trending_skills_empty() {
-    let pool = setup_test_db().await;
+    let pool = migrated_pool().await;
     let mi = MarketIntelligence::new(pool);
 
     let trends = mi.get_trending_skills(10).await.unwrap();
@@ -58,7 +58,7 @@ async fn test_get_trending_skills_empty() {
 
 #[tokio::test]
 async fn test_get_trending_skills_with_data() {
-    let pool = setup_test_db().await;
+    let pool = migrated_pool().await;
 
     // Insert test data
     sqlx::query(
@@ -86,7 +86,7 @@ async fn test_get_trending_skills_with_data() {
 
 #[tokio::test]
 async fn test_get_trending_skills_limit() {
-    let pool = setup_test_db().await;
+    let pool = migrated_pool().await;
 
     sqlx::query(
         r#"
@@ -112,7 +112,7 @@ async fn test_get_trending_skills_limit() {
 
 #[tokio::test]
 async fn test_get_most_active_companies_empty() {
-    let pool = setup_test_db().await;
+    let pool = migrated_pool().await;
     let mi = MarketIntelligence::new(pool);
 
     let companies = mi.get_most_active_companies(10).await.unwrap();
@@ -121,7 +121,7 @@ async fn test_get_most_active_companies_empty() {
 
 #[tokio::test]
 async fn test_get_most_active_companies_with_data() {
-    let pool = setup_test_db().await;
+    let pool = migrated_pool().await;
 
     sqlx::query(
         r#"
@@ -149,7 +149,7 @@ async fn test_get_most_active_companies_with_data() {
 
 #[tokio::test]
 async fn test_get_most_active_companies_limit() {
-    let pool = setup_test_db().await;
+    let pool = migrated_pool().await;
 
     sqlx::query(
         r#"
@@ -175,7 +175,7 @@ async fn test_get_most_active_companies_limit() {
 
 #[tokio::test]
 async fn test_get_hottest_locations_empty() {
-    let pool = setup_test_db().await;
+    let pool = migrated_pool().await;
     let mi = MarketIntelligence::new(pool);
 
     let locations = mi.get_hottest_locations(10).await.unwrap();
@@ -184,7 +184,7 @@ async fn test_get_hottest_locations_empty() {
 
 #[tokio::test]
 async fn test_get_hottest_locations_with_data() {
-    let pool = setup_test_db().await;
+    let pool = migrated_pool().await;
 
     sqlx::query(
         r#"
@@ -213,7 +213,7 @@ async fn test_get_hottest_locations_with_data() {
 
 #[tokio::test]
 async fn test_get_hottest_locations_limit() {
-    let pool = setup_test_db().await;
+    let pool = migrated_pool().await;
 
     sqlx::query(
         r#"

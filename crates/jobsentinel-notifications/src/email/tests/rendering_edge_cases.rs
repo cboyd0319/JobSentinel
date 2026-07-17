@@ -2,7 +2,7 @@ use super::*;
 
 #[test]
 fn test_html_email_with_empty_string_location() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.job.location = Some("".to_string());
 
     let html = format_html_email(&notification.job, &notification.score);
@@ -12,7 +12,7 @@ fn test_html_email_with_empty_string_location() {
 
 #[test]
 fn test_text_email_with_empty_string_location() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.job.location = Some("".to_string());
 
     let text = format_text_email(&notification.job, &notification.score);
@@ -22,7 +22,7 @@ fn test_text_email_with_empty_string_location() {
 
 #[test]
 fn test_salary_formatting_large_values() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.job.salary_min = Some(500000);
     notification.job.salary_max = Some(800000);
 
@@ -33,7 +33,7 @@ fn test_salary_formatting_large_values() {
 
 #[test]
 fn test_salary_formatting_small_values() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.job.salary_min = Some(30000);
     notification.job.salary_max = Some(50000);
 
@@ -44,7 +44,7 @@ fn test_salary_formatting_small_values() {
 
 #[test]
 fn test_html_email_reason_with_html_like_text() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.score.reasons = vec!["Matches <keyword>".to_string(), "Has & symbol".to_string()];
 
     let html = format_html_email(&notification.job, &notification.score);
@@ -56,7 +56,7 @@ fn test_html_email_reason_with_html_like_text() {
 
 #[test]
 fn test_text_email_preserves_exact_formatting() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let text = format_text_email(&notification.job, &notification.score);
 
     assert!(text.starts_with("🎯 HIGH MATCH JOB ALERT"));
@@ -66,7 +66,7 @@ fn test_text_email_preserves_exact_formatting() {
 
 #[test]
 fn test_html_email_with_zero_salary() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.job.salary_min = Some(0);
     notification.job.salary_max = Some(0);
 
@@ -77,7 +77,7 @@ fn test_html_email_with_zero_salary() {
 
 #[test]
 fn test_html_email_emojis_preserved() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let html = format_html_email(&notification.job, &notification.score);
 
     assert!(html.contains("🎯"));
@@ -85,7 +85,7 @@ fn test_html_email_emojis_preserved() {
 
 #[test]
 fn test_text_email_emojis_preserved() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let text = format_text_email(&notification.job, &notification.score);
 
     assert!(text.contains("🎯"));

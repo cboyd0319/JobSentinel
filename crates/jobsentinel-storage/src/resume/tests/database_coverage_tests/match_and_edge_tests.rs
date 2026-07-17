@@ -1,5 +1,28 @@
 use super::*;
 
+async fn set_match_subscores(
+    pool: &SqlitePool,
+    resume_id: i64,
+    job_hash: &str,
+    experience: f64,
+    education: f64,
+) {
+    sqlx::query(
+        r#"
+        UPDATE resume_job_matches
+        SET experience_match_score = ?, education_match_score = ?
+        WHERE resume_id = ? AND job_hash = ?
+        "#,
+    )
+    .bind(experience)
+    .bind(education)
+    .bind(resume_id)
+    .bind(job_hash)
+    .execute(pool)
+    .await
+    .unwrap();
+}
+
 #[tokio::test]
 async fn test_match_resume_to_job_with_null_skills_json() {
     let pool = setup_test_db().await;
@@ -139,20 +162,7 @@ async fn test_get_match_result_with_all_scores() {
         .await
         .unwrap();
 
-    sqlx::query(
-        r#"
-        UPDATE resume_job_matches
-        SET experience_match_score = ?, education_match_score = ?
-        WHERE resume_id = ? AND job_hash = ?
-        "#,
-    )
-    .bind(0.8)
-    .bind(0.75)
-    .bind(resume_id)
-    .bind(job_hash)
-    .execute(&pool)
-    .await
-    .unwrap();
+    set_match_subscores(&pool, resume_id, job_hash, 0.8, 0.75).await;
 
     let result = matcher.get_match_result(resume_id, job_hash).await.unwrap();
     assert!(result.is_some());
@@ -175,20 +185,7 @@ async fn test_recent_matches_include_all_sub_scores() {
         .await
         .unwrap();
 
-    sqlx::query(
-        r#"
-        UPDATE resume_job_matches
-        SET experience_match_score = ?, education_match_score = ?
-        WHERE resume_id = ? AND job_hash = ?
-        "#,
-    )
-    .bind(0.8)
-    .bind(0.75)
-    .bind(resume_id)
-    .bind(job_hash)
-    .execute(&pool)
-    .await
-    .unwrap();
+    set_match_subscores(&pool, resume_id, job_hash, 0.8, 0.75).await;
 
     let matches = matcher.get_recent_matches(resume_id, 10).await.unwrap();
     assert_eq!(matches.len(), 1);
@@ -220,7 +217,7 @@ async fn test_boundary_values_for_scores() {
         .bind(resume_id)
         .bind(skill)
         .bind(score)
-        .bind("test")
+        .bind("user_input")
         .execute(&pool)
         .await
         .unwrap();
@@ -288,7 +285,7 @@ async fn test_unicode_in_skill_names() {
     .bind(resume_id)
     .bind("日本語スキル")
     .bind(0.9)
-    .bind("test")
+    .bind("user_input")
     .execute(&pool)
     .await
     .unwrap();
@@ -322,7 +319,7 @@ async fn test_very_long_skill_names() {
     .bind(resume_id)
     .bind(&long_name)
     .bind(0.8)
-    .bind("test")
+    .bind("user_input")
     .execute(&pool)
     .await
     .unwrap();

@@ -1,5 +1,5 @@
 use super::super::*;
-use super::create_test_notification;
+use super::notification_fixture;
 
 #[test]
 fn test_build_header_block_structure() {
@@ -42,7 +42,7 @@ fn test_build_header_block_empty_title() {
 
 #[test]
 fn test_build_fields_section_block_structure() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let block = build_fields_section_block(&notification);
 
     assert_eq!(block["type"], "section");
@@ -52,7 +52,7 @@ fn test_build_fields_section_block_structure() {
 
 #[test]
 fn test_build_fields_section_block_company_field() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let block = build_fields_section_block(&notification);
 
     let company_field = &block["fields"][0];
@@ -64,7 +64,7 @@ fn test_build_fields_section_block_company_field() {
 
 #[test]
 fn test_build_fields_section_block_location_field() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let block = build_fields_section_block(&notification);
 
     let location_field = &block["fields"][1];
@@ -76,7 +76,7 @@ fn test_build_fields_section_block_location_field() {
 
 #[test]
 fn test_build_fields_section_block_location_none() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.job.location = None;
     let block = build_fields_section_block(&notification);
 
@@ -87,7 +87,7 @@ fn test_build_fields_section_block_location_none() {
 
 #[test]
 fn test_build_fields_section_block_score_field() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let block = build_fields_section_block(&notification);
 
     let score_field = &block["fields"][2];
@@ -99,7 +99,7 @@ fn test_build_fields_section_block_score_field() {
 
 #[test]
 fn test_build_fields_section_block_score_formatting() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.score.total = 0.876;
     let block = build_fields_section_block(&notification);
 
@@ -110,7 +110,7 @@ fn test_build_fields_section_block_score_formatting() {
 
 #[test]
 fn test_build_fields_section_block_source_field() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let block = build_fields_section_block(&notification);
 
     let source_field = &block["fields"][3];
@@ -122,7 +122,7 @@ fn test_build_fields_section_block_source_field() {
 
 #[test]
 fn test_build_fields_section_block_all_fields_mrkdwn() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let block = build_fields_section_block(&notification);
 
     for i in 0..4 {
@@ -246,7 +246,7 @@ fn test_build_actions_block_canonicalizes_query_encoding() {
 
 #[test]
 fn test_build_slack_payload_structure() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let payload = build_slack_payload(&notification);
 
     assert!(payload["blocks"].is_array());
@@ -255,7 +255,7 @@ fn test_build_slack_payload_structure() {
 
 #[test]
 fn test_build_slack_payload_block_types() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let payload = build_slack_payload(&notification);
 
     assert_eq!(payload["blocks"][0]["type"], "header");
@@ -266,7 +266,7 @@ fn test_build_slack_payload_block_types() {
 
 #[test]
 fn test_build_slack_payload_header_content() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let payload = build_slack_payload(&notification);
 
     let header_text = payload["blocks"][0]["text"]["text"].as_str().unwrap();
@@ -275,7 +275,7 @@ fn test_build_slack_payload_header_content() {
 
 #[test]
 fn test_build_slack_payload_fields_content() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let payload = build_slack_payload(&notification);
 
     let fields = &payload["blocks"][1]["fields"];
@@ -291,7 +291,7 @@ fn test_build_slack_payload_fields_content() {
 
 #[test]
 fn test_build_slack_payload_reasons_content() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let payload = build_slack_payload(&notification);
 
     let reasons_text = payload["blocks"][2]["text"]["text"].as_str().unwrap();
@@ -302,7 +302,7 @@ fn test_build_slack_payload_reasons_content() {
 
 #[test]
 fn test_build_slack_payload_actions_content() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let payload = build_slack_payload(&notification);
 
     let button_url = payload["blocks"][3]["elements"][0]["url"].as_str().unwrap();
@@ -311,7 +311,7 @@ fn test_build_slack_payload_actions_content() {
 
 #[test]
 fn test_build_slack_payload_minimizes_job_url() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.job.url =
         "https://example.com/jobs?utm_source=alert&gh_jid=123&token=secret&candidate_email=person@example.com#private"
             .to_string();
@@ -334,7 +334,7 @@ fn test_build_slack_payload_minimizes_job_url() {
 
 #[test]
 fn test_build_slack_payload_serializable() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let payload = build_slack_payload(&notification);
 
     let json_string = serde_json::to_string(&payload);
@@ -349,7 +349,7 @@ fn test_build_slack_payload_with_different_scores() {
     let test_scores = vec![0.0, 0.5, 0.95, 1.0];
 
     for score in test_scores {
-        let mut notification = create_test_notification();
+        let mut notification = notification_fixture();
         notification.score.total = score;
 
         let payload = build_slack_payload(&notification);
@@ -362,7 +362,7 @@ fn test_build_slack_payload_with_different_scores() {
 
 #[test]
 fn test_build_slack_payload_with_no_location() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.job.location = None;
 
     let payload = build_slack_payload(&notification);
@@ -372,7 +372,7 @@ fn test_build_slack_payload_with_no_location() {
 
 #[test]
 fn test_build_slack_payload_with_empty_reasons() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.score.reasons = vec![];
 
     let payload = build_slack_payload(&notification);
@@ -385,7 +385,7 @@ fn test_build_slack_payload_with_empty_reasons() {
 
 #[test]
 fn test_build_slack_payload_preserves_unicode() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.job.title = "🌟 Care Coordinator™".to_string();
     notification.job.company = "São Paulo Inc.".to_string();
     notification.job.location = Some("Zürich 🇨🇭".to_string());
@@ -416,7 +416,7 @@ fn test_build_header_block_with_long_title() {
 
 #[test]
 fn test_build_fields_section_with_unicode_company() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.job.company = "株式会社テスト".to_string();
 
     let block = build_fields_section_block(&notification);
@@ -444,7 +444,7 @@ fn test_build_actions_block_with_long_url() {
 
 #[test]
 fn test_builder_functions_integration() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
 
     // Test individual builders
     let header = build_header_block(&notification.job.title);

@@ -1,7 +1,5 @@
 use super::*;
-use chrono::Utc;
-use jobsentinel_domain::Job;
-use jobsentinel_intelligence::{JobScore, ScoreBreakdown};
+use crate::test_support::notification_fixture;
 
 #[path = "slack_tests/builder_tests.rs"]
 mod builder_tests;
@@ -9,57 +7,6 @@ mod builder_tests;
 mod content_edge_tests;
 #[path = "slack_tests/payload_edge_tests.rs"]
 mod payload_edge_tests;
-
-/// Build a test notification
-fn create_test_notification() -> Notification {
-    Notification {
-        job: Job {
-            id: 1,
-            hash: "test123".to_string(),
-            title: "Care Coordinator".to_string(),
-            company: "Community Care Network".to_string(),
-            url: "https://example.com/jobs/123".to_string(),
-            location: Some("Remote".to_string()),
-            description: Some("Support patients and families with care planning".to_string()),
-            score: Some(0.95),
-            score_reasons: None,
-            source: "greenhouse".to_string(),
-            remote: Some(true),
-            salary_min: Some(180000),
-            salary_max: Some(220000),
-            currency: Some("USD".to_string()),
-            created_at: Utc::now(),
-            updated_at: Utc::now(),
-            last_seen: Utc::now(),
-            times_seen: 1,
-            immediate_alert_sent: false,
-            hidden: false,
-            bookmarked: false,
-            ghost_score: None,
-            ghost_reasons: None,
-            first_seen: None,
-            repost_count: 0,
-            notes: None,
-            included_in_digest: false,
-        },
-        score: JobScore {
-            total: 0.95,
-            breakdown: ScoreBreakdown {
-                skills: 0.40,
-                salary: 0.25,
-                location: 0.20,
-                company: 0.05,
-                recency: 0.05,
-            },
-            reasons: vec![
-                "Title matches: Care Coordinator".to_string(),
-                "Keyword match: case management".to_string(),
-                "Salary 120% of target (100% credit)".to_string(),
-                "Remote job (matches preference)".to_string(),
-            ],
-        },
-    }
-}
 
 #[test]
 fn test_valid_webhook_url_passes() {
@@ -188,7 +135,7 @@ fn test_url_with_query_params_passes() {
 
 #[test]
 fn test_notification_json_structure() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
 
     // Build the payload (same as send_slack_notification)
     let payload = json!({
@@ -285,7 +232,7 @@ fn test_notification_json_structure() {
 
 #[test]
 fn test_notification_handles_missing_location() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.job.location = None;
 
     // Build payload
@@ -312,7 +259,7 @@ fn test_notification_handles_missing_location() {
 
 #[test]
 fn test_notification_score_formatting() {
-    let _notification = create_test_notification();
+    let _notification = notification_fixture();
 
     // Test various score values
     let test_cases = vec![
@@ -334,7 +281,7 @@ fn test_notification_score_formatting() {
 
 #[test]
 fn test_notification_reasons_join() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
 
     let reasons_text = notification.score.reasons.join("\n");
 
@@ -372,7 +319,7 @@ fn test_webhook_validation_case_sensitive() {
 
 #[test]
 fn test_payload_structure_has_required_fields() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let payload = json!({
         "blocks": [
             {
@@ -391,7 +338,7 @@ fn test_payload_structure_has_required_fields() {
 
 #[test]
 fn test_notification_includes_job_url() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let payload = json!({
         "blocks": [
             {
@@ -414,7 +361,7 @@ fn test_notification_includes_job_url() {
 
 #[test]
 fn test_notification_with_zero_score() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.score.total = 0.0;
 
     let score_text = format!("{:.0}%", notification.score.total * 100.0);

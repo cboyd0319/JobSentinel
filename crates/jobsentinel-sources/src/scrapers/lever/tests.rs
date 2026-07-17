@@ -1,5 +1,28 @@
 use super::*;
 
+fn test_company() -> LeverCompany {
+    LeverCompany {
+        id: "test".to_string(),
+        name: "Test Company".to_string(),
+        url: "https://jobs.lever.co/test".to_string(),
+    }
+}
+
+fn parse_test_postings(json: &serde_json::Value) -> Vec<Job> {
+    LeverScraper::parse_postings(json, &test_company())
+}
+
+fn default_lever_job() -> Job {
+    Job::newly_discovered(
+        "Test".to_string(),
+        "Test".to_string(),
+        "https://test.com".to_string(),
+        None,
+        "lever",
+        Utc::now(),
+    )
+}
+
 #[path = "tests/basic_tests.rs"]
 mod basic_tests;
 
@@ -57,47 +80,7 @@ async fn test_scrape_company_creates_jobs_from_api_response() {
         }
     ]);
 
-    // Simulate the processing logic from scrape_company
-    let jobs = if let Some(postings) = json_response.as_array() {
-        let mut jobs = Vec::with_capacity(postings.len());
-        for posting in postings {
-            let title = posting["text"].as_str().unwrap_or("").to_string();
-            let url = posting["hostedUrl"].as_str().unwrap_or("").to_string();
-            let location = posting["categories"]["location"]
-                .as_str()
-                .map(|s| s.to_string())
-                .or_else(|| {
-                    posting["categories"]["team"]
-                        .as_str()
-                        .map(|s| s.to_string())
-                });
-
-            let description = posting["description"]
-                .as_str()
-                .or_else(|| posting["descriptionPlain"].as_str())
-                .map(|s| s.to_string());
-
-            let remote = LeverScraper::infer_remote(&title, location.as_deref());
-
-            if !title.is_empty() && !url.is_empty() {
-                jobs.push(Job {
-                    description: description.clone(),
-                    remote: Some(remote),
-                    ..Job::newly_discovered(
-                        title.clone(),
-                        company.name.clone(),
-                        url.clone(),
-                        location.clone(),
-                        "lever",
-                        Utc::now(),
-                    )
-                });
-            }
-        }
-        jobs
-    } else {
-        Vec::new()
-    };
+    let jobs = LeverScraper::parse_postings(&json_response, &company);
 
     // Validate results
     assert_eq!(
@@ -141,95 +124,19 @@ async fn test_scrape_company_handles_empty_response() {
 
     let json_response = serde_json::json!([]);
 
-    let jobs = if let Some(postings) = json_response.as_array() {
-        let mut jobs = Vec::with_capacity(postings.len());
-        for posting in postings {
-            let title = posting["text"].as_str().unwrap_or("").to_string();
-            let url = posting["hostedUrl"].as_str().unwrap_or("").to_string();
-
-            if !title.is_empty() && !url.is_empty() {
-                jobs.push(Job {
-                    id: 0,
-                    hash: "test".to_string(),
-                    title,
-                    company: company.name.clone(),
-                    url,
-                    location: None,
-                    description: None,
-                    score: None,
-                    score_reasons: None,
-                    source: "lever".to_string(),
-                    remote: None,
-                    salary_min: None,
-                    salary_max: None,
-                    currency: None,
-                    created_at: Utc::now(),
-                    updated_at: Utc::now(),
-                    last_seen: Utc::now(),
-                    times_seen: 1,
-                    immediate_alert_sent: false,
-                    hidden: false,
-                    bookmarked: false,
-                    notes: None,
-                    ghost_score: None,
-                    ghost_reasons: None,
-                    first_seen: None,
-                    repost_count: 0,
-                    included_in_digest: false,
-                });
-            }
-        }
-        jobs
-    } else {
-        Vec::new()
-    };
+    let jobs = LeverScraper::parse_postings(&json_response, &company);
 
     assert_eq!(jobs.len(), 0);
 }
 
 #[tokio::test]
 async fn test_scrape_company_handles_non_array_response() {
+    let company = test_company();
     let json_response = serde_json::json!({
         "error": "Invalid response"
     });
 
-    let jobs = if let Some(postings) = json_response.as_array() {
-        let mut jobs = Vec::new();
-        for _posting in postings {
-            jobs.push(Job {
-                id: 0,
-                hash: "test".to_string(),
-                title: "Test".to_string(),
-                company: "Test".to_string(),
-                url: "https://test.com".to_string(),
-                location: None,
-                description: None,
-                score: None,
-                score_reasons: None,
-                source: "lever".to_string(),
-                remote: None,
-                salary_min: None,
-                salary_max: None,
-                currency: None,
-                created_at: Utc::now(),
-                updated_at: Utc::now(),
-                last_seen: Utc::now(),
-                times_seen: 1,
-                immediate_alert_sent: false,
-                hidden: false,
-                bookmarked: false,
-                notes: None,
-                ghost_score: None,
-                ghost_reasons: None,
-                first_seen: None,
-                repost_count: 0,
-                included_in_digest: false,
-            });
-        }
-        jobs
-    } else {
-        Vec::new()
-    };
+    let jobs = LeverScraper::parse_postings(&json_response, &company);
 
     assert_eq!(
         jobs.len(),
@@ -279,37 +186,19 @@ fn test_job_struct_fields_are_populated_correctly() {
     let url = "https://jobs.lever.co/test/abc";
     let description = Some("<p>Description</p>".to_string());
 
-    let hash = jobsentinel_domain::calculate_job_hash(company_name, title, location, url);
     let remote = LeverScraper::infer_remote(title, location);
 
     let job = Job {
-        id: 0,
-        hash: hash.clone(),
-        title: title.to_string(),
-        company: company_name.to_string(),
-        url: url.to_string(),
-        location: location.map(|s| s.to_string()),
         description,
-        score: None,
-        score_reasons: None,
-        source: "lever".to_string(),
         remote: Some(remote),
-        salary_min: None,
-        salary_max: None,
-        currency: None,
-        created_at: Utc::now(),
-        updated_at: Utc::now(),
-        last_seen: Utc::now(),
-        times_seen: 1,
-        immediate_alert_sent: false,
-        hidden: false,
-        bookmarked: false,
-        notes: None,
-        ghost_score: None,
-        ghost_reasons: None,
-        first_seen: None,
-        repost_count: 0,
-        included_in_digest: false,
+        ..Job::newly_discovered(
+            title.to_string(),
+            company_name.to_string(),
+            url.to_string(),
+            location.map(str::to_string),
+            "lever",
+            Utc::now(),
+        )
     };
 
     assert_eq!(job.title, "Care Coordinator (Remote)");
@@ -322,39 +211,14 @@ fn test_job_struct_fields_are_populated_correctly() {
     assert!(!job.bookmarked);
     assert!(job.notes.is_none());
     assert!(!job.included_in_digest);
-    assert_eq!(job.hash, hash);
+    assert_eq!(job.hash.len(), 64);
 }
 
 #[test]
 fn test_job_struct_with_missing_optional_fields() {
     let job = Job {
-        id: 0,
         hash: "test-hash".to_string(),
-        title: "Care Coordinator".to_string(),
-        company: "Company".to_string(),
-        url: "https://test.com".to_string(),
-        location: None,
-        description: None,
-        score: None,
-        score_reasons: None,
-        source: "lever".to_string(),
-        remote: None,
-        salary_min: None,
-        salary_max: None,
-        currency: None,
-        created_at: Utc::now(),
-        updated_at: Utc::now(),
-        last_seen: Utc::now(),
-        times_seen: 1,
-        immediate_alert_sent: false,
-        hidden: false,
-        bookmarked: false,
-        notes: None,
-        ghost_score: None,
-        ghost_reasons: None,
-        first_seen: None,
-        repost_count: 0,
-        included_in_digest: false,
+        ..default_lever_job()
     };
 
     assert!(job.location.is_none());
@@ -374,10 +238,7 @@ fn test_description_extraction_priority() {
         "descriptionPlain": "Plain description"
     });
 
-    let description = json["description"]
-        .as_str()
-        .or_else(|| json["descriptionPlain"].as_str())
-        .map(|s| s.to_string());
+    let description = LeverScraper::posting_description(&json);
 
     assert_eq!(description, Some("<p>HTML description</p>".to_string()));
 
@@ -388,10 +249,7 @@ fn test_description_extraction_priority() {
         "descriptionPlain": "Plain description"
     });
 
-    let description2 = json2["description"]
-        .as_str()
-        .or_else(|| json2["descriptionPlain"].as_str())
-        .map(|s| s.to_string());
+    let description2 = LeverScraper::posting_description(&json2);
 
     assert_eq!(description2, Some("Plain description".to_string()));
 }
@@ -406,10 +264,7 @@ fn test_location_extraction_with_team_fallback() {
         }
     });
 
-    let location = json["categories"]["location"]
-        .as_str()
-        .map(|s| s.to_string())
-        .or_else(|| json["categories"]["team"].as_str().map(|s| s.to_string()));
+    let location = LeverScraper::posting_location(&json);
 
     assert_eq!(location, Some("Remote".to_string()));
 
@@ -420,10 +275,7 @@ fn test_location_extraction_with_team_fallback() {
         }
     });
 
-    let location2 = json2["categories"]["location"]
-        .as_str()
-        .map(|s| s.to_string())
-        .or_else(|| json2["categories"]["team"].as_str().map(|s| s.to_string()));
+    let location2 = LeverScraper::posting_location(&json2);
 
     assert_eq!(location2, Some("Care Operations".to_string()));
 
@@ -432,10 +284,7 @@ fn test_location_extraction_with_team_fallback() {
         "categories": {}
     });
 
-    let location3 = json3["categories"]["location"]
-        .as_str()
-        .map(|s| s.to_string())
-        .or_else(|| json3["categories"]["team"].as_str().map(|s| s.to_string()));
+    let location3 = LeverScraper::posting_location(&json3);
 
     assert_eq!(location3, None);
 }

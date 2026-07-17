@@ -2,67 +2,34 @@
 //!
 //! Exercises scheduling, scoring, persistence, errors, and shutdown.
 
+mod support;
+
 use jobsentinel_application::{
-    config::{Config, LocationPreferences},
+    config::Config,
     scheduler::{ScheduleConfig, Scheduler},
 };
 use jobsentinel_domain::Job;
 use jobsentinel_storage::Database;
 use std::sync::Arc;
 use std::time::Duration;
+use support::{test_config, test_job};
 
 /// Helper to create a minimal test config
 fn create_test_config() -> Config {
-    Config {
-        title_allowlist: vec![
-            "Care Coordinator".to_string(),
-            "Customer Support Lead".to_string(),
-            "Program Coordinator".to_string(),
-        ],
-        title_blocklist: vec!["Manager".to_string(), "Director".to_string()],
-        keywords_boost: vec![
-            "CRM".to_string(),
-            "case management".to_string(),
-            "patient scheduling".to_string(),
-        ],
-        keywords_exclude: vec!["commission-only".to_string(), "unpaid trial".to_string()],
-        location_preferences: LocationPreferences {
-            allow_remote: true,
-            allow_hybrid: true,
-            allow_onsite: false,
-            cities: vec!["Chicago".to_string(), "Austin".to_string()],
-            states: vec!["IL".to_string(), "TX".to_string()],
-            country: "US".to_string(),
-        },
-        salary_floor_usd: 50000,
-        salary_target_usd: None,
-        penalize_missing_salary: false,
-        auto_refresh: Default::default(),
-        immediate_alert_threshold: 0.85,
-        scraping_interval_hours: 2,
-        bookmarklet_port: 4321,
-        alerts: Default::default(),
-        external_ai: Default::default(),
-        greenhouse_urls: vec![],
-        lever_urls: vec![],
-        linkedin: Default::default(),
-        restricted_source_acknowledgements: Default::default(),
-        jobswithgpt_endpoint: "https://api.jobswithgpt.com/mcp".to_string(),
-        jobswithgpt_approval: Default::default(),
-        remoteok: Default::default(),
-        weworkremotely: Default::default(),
-        builtin: Default::default(),
-        hn_hiring: Default::default(),
-        dice: Default::default(),
-        yc_startup: Default::default(),
-        usajobs: Default::default(),
-        simplyhired: Default::default(),
-        glassdoor: Default::default(),
-        ghost_config: None,
-        use_resume_matching: false,
-        preferred_companies: vec![],
-        blocked_companies: vec![],
-    }
+    let mut config = test_config();
+    config
+        .title_allowlist
+        .push("Program Coordinator".to_string());
+    config.title_blocklist.push("Director".to_string());
+    config.keywords_boost.push("patient scheduling".to_string());
+    config.keywords_exclude.push("unpaid trial".to_string());
+    config.location_preferences.allow_hybrid = true;
+    config
+        .location_preferences
+        .cities
+        .push("Austin".to_string());
+    config.location_preferences.states.push("TX".to_string());
+    config
 }
 
 /// Helper to create a test job with realistic data
@@ -74,38 +41,12 @@ fn create_test_job(
     salary_min: Option<i64>,
 ) -> Job {
     Job {
-        id: 0,
-        hash: hash.to_string(),
-        title: title.to_string(),
-        company: company.to_string(),
-        url: format!("https://example.com/job/{}", hash),
-        location: if remote {
-            Some("Remote".to_string())
-        } else {
-            Some("Chicago, IL".to_string())
-        },
-        // Use title-based description to avoid interfering with search tests
-        description: Some(format!("Job description for {} at {}.", title, company)),
-        score: None,
-        score_reasons: None,
-        source: "test".to_string(),
+        location: Some(if remote { "Remote" } else { "Chicago, IL" }.to_string()),
+        description: Some(format!("Job description for {title} at {company}.")),
         remote: Some(remote),
         salary_min,
-        salary_max: salary_min.map(|s| s + 50000),
-        currency: Some("USD".to_string()),
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
-        last_seen: chrono::Utc::now(),
-        times_seen: 1,
-        immediate_alert_sent: false,
-        hidden: false,
-        included_in_digest: false,
-        bookmarked: false,
-        notes: None,
-        ghost_score: None,
-        ghost_reasons: None,
-        first_seen: None,
-        repost_count: 0,
+        salary_max: salary_min.map(|salary| salary + 50000),
+        ..test_job(hash, title, company)
     }
 }
 

@@ -1,89 +1,10 @@
 use super::*;
-use sqlx::sqlite::SqlitePoolOptions;
 
 #[path = "matcher_tests/edge_case_tests.rs"]
 mod edge_case_tests;
 
 async fn setup_test_db() -> SqlitePool {
-    let pool = SqlitePoolOptions::new()
-        .connect("sqlite::memory:")
-        .await
-        .unwrap();
-
-    // Create schema inline for tests
-    sqlx::query(
-        r#"
-            CREATE TABLE IF NOT EXISTS jobs (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                hash TEXT NOT NULL UNIQUE,
-                title TEXT NOT NULL,
-                company TEXT NOT NULL,
-                url TEXT NOT NULL,
-                location TEXT,
-                description TEXT,
-                score REAL,
-                source TEXT NOT NULL,
-                created_at TEXT NOT NULL DEFAULT (datetime('now'))
-            )
-            "#,
-    )
-    .execute(&pool)
-    .await
-    .unwrap();
-
-    sqlx::query(
-        r#"
-            CREATE TABLE IF NOT EXISTS resumes (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
-                file_path TEXT NOT NULL,
-                parsed_text TEXT,
-                is_active INTEGER NOT NULL DEFAULT 0,
-                created_at TEXT NOT NULL DEFAULT (datetime('now')),
-                updated_at TEXT NOT NULL DEFAULT (datetime('now'))
-            )
-            "#,
-    )
-    .execute(&pool)
-    .await
-    .unwrap();
-
-    sqlx::query(
-        r#"
-            CREATE TABLE IF NOT EXISTS user_skills (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                resume_id INTEGER NOT NULL,
-                skill_name TEXT NOT NULL,
-                skill_category TEXT,
-                confidence_score REAL NOT NULL DEFAULT 0.0,
-                years_experience REAL,
-                proficiency_level TEXT,
-                source TEXT NOT NULL DEFAULT 'resume',
-                UNIQUE(resume_id, skill_name)
-            )
-            "#,
-    )
-    .execute(&pool)
-    .await
-    .unwrap();
-
-    sqlx::query(
-        r#"
-            CREATE TABLE IF NOT EXISTS job_skills (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                job_hash TEXT NOT NULL,
-                skill_name TEXT NOT NULL,
-                is_required INTEGER NOT NULL DEFAULT 1,
-                skill_category TEXT,
-                UNIQUE(job_hash, skill_name)
-            )
-            "#,
-    )
-    .execute(&pool)
-    .await
-    .unwrap();
-
-    pool
+    crate::test_support::migrated_pool().await
 }
 
 async fn create_test_job(pool: &SqlitePool, job_hash: &str) {
@@ -438,15 +359,16 @@ async fn test_calculate_match_errors_when_education_lookup_fails() {
     let matcher = JobMatcher::new(pool.clone());
 
     let job_hash = "job_requires_degree";
-    create_test_job(&pool, job_hash).await;
-    sqlx::query("UPDATE jobs SET description = ? WHERE hash = ?")
-        .bind("Bachelor's degree required. Looking for client-services coordinator.")
+    sqlx::query(
+        "INSERT INTO jobs (hash, title, company, description, url, source) VALUES (?, 'Client Support Coordinator', 'Harbor Community Services', ?, 'https://example.com/job', 'greenhouse')",
+    )
         .bind(job_hash)
+        .bind("Bachelor's degree required. Looking for client-services coordinator.")
         .execute(&pool)
         .await
         .unwrap();
 
-    sqlx::query("DROP TABLE resumes")
+    sqlx::query("ALTER TABLE resumes RENAME TO resumes_unavailable")
         .execute(&pool)
         .await
         .unwrap();

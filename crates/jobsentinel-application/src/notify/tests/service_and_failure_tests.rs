@@ -352,7 +352,7 @@ fn test_total_failure_condition() {
 
 #[test]
 fn test_notification_with_high_score() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.score.total = 0.98;
 
     assert!(notification.score.total > 0.9, "Should be high-scoring job");
@@ -364,7 +364,7 @@ fn test_notification_with_high_score() {
 
 #[test]
 fn test_notification_with_threshold_score() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     let config = create_disabled_config();
 
     notification.score.total = config.immediate_alert_threshold;
@@ -377,7 +377,7 @@ fn test_notification_with_threshold_score() {
 
 #[test]
 fn test_notification_above_threshold() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     let config = create_disabled_config();
 
     notification.score.total = config.immediate_alert_threshold + 0.01;
@@ -390,7 +390,7 @@ fn test_notification_above_threshold() {
 
 #[test]
 fn test_notification_below_threshold() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     let config = create_disabled_config();
 
     notification.score.total = config.immediate_alert_threshold - 0.01;

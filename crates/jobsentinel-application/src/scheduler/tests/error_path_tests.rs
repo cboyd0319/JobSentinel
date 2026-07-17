@@ -373,35 +373,11 @@ async fn test_scraping_cycle_was_existing_true_path() {
     let database = Arc::new(db);
 
     // Pre-populate with a job
-    let now = chrono::Utc::now();
     let existing_job = Job {
-        id: 0,
-        hash: "existing_hash".to_string(),
-        title: "Existing Job".to_string(),
-        company: "Test Corp".to_string(),
-        location: Some("Remote".to_string()),
         url: "https://example.com/job/existing".to_string(),
         description: Some("Test".to_string()),
         score: Some(0.7),
-        score_reasons: None,
-        source: "test".to_string(),
-        remote: Some(true),
-        salary_min: None,
-        salary_max: None,
-        currency: None,
-        created_at: now,
-        updated_at: now,
-        last_seen: now,
-        times_seen: 1,
-        immediate_alert_sent: false,
-        included_in_digest: false,
-        hidden: false,
-        bookmarked: false,
-        ghost_score: None,
-        ghost_reasons: None,
-        first_seen: None,
-        repost_count: 0,
-        notes: None,
+        ..test_job("existing_hash", "Existing Job", "Test Corp")
     };
     database.upsert_job(&existing_job).await.unwrap();
 

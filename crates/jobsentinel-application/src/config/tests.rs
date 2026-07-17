@@ -5,70 +5,32 @@ mod tests {
     use super::super::defaults::*;
     use super::super::types::*;
     use super::super::validation::validate_config;
-    use super::super::LinkedInConfig;
     use std::fs;
     use std::path::Path;
     use tempfile::TempDir;
 
     /// Helper function to create a valid test config
     fn create_valid_config() -> Config {
-        Config {
-            title_allowlist: vec!["Care Coordinator".to_string()],
-            title_blocklist: vec!["Manager".to_string()],
-            keywords_boost: vec![
-                "case management".to_string(),
-                "bilingual support".to_string(),
-            ],
-            keywords_exclude: vec!["sales".to_string()],
-            location_preferences: LocationPreferences {
-                allow_remote: true,
-                allow_hybrid: false,
-                allow_onsite: false,
-                cities: vec!["San Francisco".to_string()],
-                states: vec!["CA".to_string()],
-                country: "US".to_string(),
-            },
-            salary_floor_usd: 150000,
-            bookmarklet_port: 4321,
-            immediate_alert_threshold: 0.9,
-            scraping_interval_hours: 2,
-            alerts: AlertConfig {
-                slack: SlackConfig {
-                    enabled: true,
-                    webhook_url:
-                        "https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXX"
-                            .to_string(),
-                },
-                email: EmailConfig::default(),
-                discord: DiscordConfig::default(),
-                telegram: TelegramConfig::default(),
-                teams: TeamsConfig::default(),
-                desktop: DesktopConfig::default(),
-            },
-            greenhouse_urls: vec!["https://boards.greenhouse.io/cloudflare".to_string()],
-            lever_urls: vec!["https://jobs.lever.co/netflix".to_string()],
-            linkedin: LinkedInConfig::default(),
-            restricted_source_acknowledgements: Default::default(),
-            auto_refresh: Default::default(),
-            jobswithgpt_endpoint: "https://api.jobswithgpt.com/mcp".to_string(),
-            jobswithgpt_approval: Default::default(),
-            external_ai: Default::default(),
-            remoteok: Default::default(),
-            weworkremotely: Default::default(),
-            builtin: Default::default(),
-            hn_hiring: Default::default(),
-            dice: Default::default(),
-            yc_startup: Default::default(),
-            usajobs: Default::default(),
-            simplyhired: Default::default(),
-            glassdoor: Default::default(),
-            ghost_config: None,
-            preferred_companies: vec![],
-            blocked_companies: vec![],
-            use_resume_matching: false,
-            salary_target_usd: None,
-            penalize_missing_salary: false,
-        }
+        let mut config = crate::test_support::minimal_test_config();
+        config.title_blocklist = vec!["Manager".to_string()];
+        config.keywords_boost = vec![
+            "case management".to_string(),
+            "bilingual support".to_string(),
+        ];
+        config.keywords_exclude = vec!["sales".to_string()];
+        config.location_preferences.cities = vec!["San Francisco".to_string()];
+        config.location_preferences.states = vec!["CA".to_string()];
+        config.salary_floor_usd = 150000;
+        config.immediate_alert_threshold = 0.9;
+        config.alerts.slack = SlackConfig {
+            enabled: true,
+            webhook_url:
+                "https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXX"
+                    .to_string(),
+        };
+        config.greenhouse_urls = vec!["https://boards.greenhouse.io/cloudflare".to_string()];
+        config.lever_urls = vec!["https://jobs.lever.co/netflix".to_string()];
+        config
     }
 
     #[test]

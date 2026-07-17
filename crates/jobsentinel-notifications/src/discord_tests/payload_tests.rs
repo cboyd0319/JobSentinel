@@ -1,11 +1,11 @@
 use super::super::*;
-use super::create_test_notification;
+use super::notification_fixture;
 
 // Additional comprehensive tests
 
 #[test]
 fn test_complete_payload_structure_without_mention() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let salary_display = "$180,000 - $220,000";
     let color = 0x10b981;
 
@@ -173,7 +173,7 @@ fn test_embed_field_names_emojis() {
 
 #[test]
 fn test_title_emoji_format() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let title = format!(
         "🎯 {} - {}",
         notification.job.title, notification.job.company
@@ -184,7 +184,7 @@ fn test_title_emoji_format() {
 
 #[test]
 fn test_description_markdown_bold() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let description = format!(
         "**{}% Match** • {}",
         (notification.score.total * 100.0).round(),
@@ -263,7 +263,7 @@ fn test_timestamp_rfc3339_components() {
 #[test]
 fn test_payload_omits_remote_thumbnail() {
     let config = DiscordConfig::default();
-    let payload = build_discord_payload(&config, &create_test_notification());
+    let payload = build_discord_payload(&config, &notification_fixture());
     let embed = &payload["embeds"][0];
 
     assert!(embed.get("thumbnail").is_none());

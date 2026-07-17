@@ -3,8 +3,8 @@
 //! Sends formatted job alerts to Microsoft Teams using Incoming Webhooks.
 
 use super::{
-    notification_job_href, notification_provider_failure_summary, Notification,
-    LOCAL_MATCH_DETAILS_MESSAGE, NOTIFICATION_HTTP_TIMEOUT,
+    format_salary_range, notification_job_href, notification_provider_failure_summary,
+    Notification, LOCAL_MATCH_DETAILS_MESSAGE, NOTIFICATION_HTTP_TIMEOUT,
 };
 use anyhow::{anyhow, Result};
 use jobsentinel_security::{validate_webhook_target, WebhookTarget};
@@ -21,22 +21,8 @@ fn build_teams_payload(notification: &Notification) -> serde_json::Value {
     let job = &notification.job;
     let score = &notification.score;
 
-    let theme_color = if score.total >= 0.9 {
-        "00FF00" // Green
-    } else if score.total >= 0.8 {
-        "FFA500" // Orange
-    } else {
-        "0078D4" // Microsoft Blue
-    };
-
-    // Format salary display
-    let salary_display = if let (Some(min), Some(max)) = (job.salary_min, job.salary_max) {
-        format!("${},000 - ${},000", min / 1000, max / 1000)
-    } else if let Some(min) = job.salary_min {
-        format!("${},000+", min / 1000)
-    } else {
-        "Not specified".to_string()
-    };
+    let theme_color = teams_theme_color(score.total);
+    let salary_display = format_salary_range(job.salary_min, job.salary_max);
 
     let mut payload = json!({
         "@type": "MessageCard",
@@ -87,6 +73,16 @@ fn build_teams_payload(notification: &Notification) -> serde_json::Value {
     }
 
     payload
+}
+
+fn teams_theme_color(score: f64) -> &'static str {
+    if score >= 0.9 {
+        "00FF00"
+    } else if score >= 0.8 {
+        "FFA500"
+    } else {
+        "0078D4"
+    }
 }
 
 /// Send Teams notification via webhook

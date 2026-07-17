@@ -1,141 +1,69 @@
 use super::*;
 
+async fn tracker_with_each_application_status() -> ApplicationTracker {
+    let pool = create_test_db().await;
+    let status_paths: [&[ApplicationStatus]; 12] = [
+        &[],
+        &[ApplicationStatus::Applied],
+        &[ApplicationStatus::Applied, ApplicationStatus::ScreeningCall],
+        &[
+            ApplicationStatus::Applied,
+            ApplicationStatus::PhoneInterview,
+        ],
+        &[
+            ApplicationStatus::Applied,
+            ApplicationStatus::TechnicalInterview,
+        ],
+        &[
+            ApplicationStatus::Applied,
+            ApplicationStatus::OnsiteInterview,
+        ],
+        &[ApplicationStatus::Applied, ApplicationStatus::OfferReceived],
+        &[
+            ApplicationStatus::Applied,
+            ApplicationStatus::OfferReceived,
+            ApplicationStatus::OfferAccepted,
+        ],
+        &[
+            ApplicationStatus::Applied,
+            ApplicationStatus::OfferReceived,
+            ApplicationStatus::OfferRejected,
+        ],
+        &[ApplicationStatus::Applied, ApplicationStatus::Rejected],
+        &[ApplicationStatus::Applied, ApplicationStatus::Ghosted],
+        &[ApplicationStatus::Applied, ApplicationStatus::Withdrawn],
+    ];
+
+    for (index, path) in status_paths.into_iter().enumerate() {
+        let hash = format!("job{}", index + 1);
+        sqlx::query(
+            "INSERT INTO jobs (hash, title, company, url, source) VALUES (?, 'Case Manager', 'CommunityCare', 'http://test.com', 'test')",
+        )
+        .bind(&hash)
+        .execute(&pool)
+        .await
+        .unwrap();
+
+        let tracker = ApplicationTracker::new(pool.clone());
+        let application_id = tracker.create_application(&hash).await.unwrap();
+        for status in path {
+            tracker
+                .update_status(application_id, *status)
+                .await
+                .unwrap();
+        }
+    }
+
+    ApplicationTracker::new(pool)
+}
+
 // ========================================
 // Comprehensive status coverage tests (lines 371-382, 686-697)
 // ========================================
 
 #[tokio::test]
 async fn test_kanban_all_status_buckets() {
-    let pool = create_test_db().await;
-
-    // Create jobs for all statuses
-    for i in 1..=12 {
-        sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES (?, 'Case Manager', 'CommunityCare', 'http://test.com', 'test')")
-            .bind(format!("job{}", i))
-            .execute(&pool)
-            .await
-            .unwrap();
-    }
-
-    let tracker = ApplicationTracker::new(pool);
-
-    // Create applications for each status
-    let _app1 = tracker.create_application("job1").await.unwrap();
-    // to_apply - default status
-
-    let app2 = tracker.create_application("job2").await.unwrap();
-    tracker
-        .update_status(app2, ApplicationStatus::Applied)
-        .await
-        .unwrap();
-
-    let app3 = tracker.create_application("job3").await.unwrap();
-    tracker
-        .update_status(app3, ApplicationStatus::Applied)
-        .await
-        .unwrap();
-    tracker
-        .update_status(app3, ApplicationStatus::ScreeningCall)
-        .await
-        .unwrap();
-
-    let app4 = tracker.create_application("job4").await.unwrap();
-    tracker
-        .update_status(app4, ApplicationStatus::Applied)
-        .await
-        .unwrap();
-    tracker
-        .update_status(app4, ApplicationStatus::PhoneInterview)
-        .await
-        .unwrap();
-
-    let app5 = tracker.create_application("job5").await.unwrap();
-    tracker
-        .update_status(app5, ApplicationStatus::Applied)
-        .await
-        .unwrap();
-    tracker
-        .update_status(app5, ApplicationStatus::TechnicalInterview)
-        .await
-        .unwrap();
-
-    let app6 = tracker.create_application("job6").await.unwrap();
-    tracker
-        .update_status(app6, ApplicationStatus::Applied)
-        .await
-        .unwrap();
-    tracker
-        .update_status(app6, ApplicationStatus::OnsiteInterview)
-        .await
-        .unwrap();
-
-    let app7 = tracker.create_application("job7").await.unwrap();
-    tracker
-        .update_status(app7, ApplicationStatus::Applied)
-        .await
-        .unwrap();
-    tracker
-        .update_status(app7, ApplicationStatus::OfferReceived)
-        .await
-        .unwrap();
-
-    let app8 = tracker.create_application("job8").await.unwrap();
-    tracker
-        .update_status(app8, ApplicationStatus::Applied)
-        .await
-        .unwrap();
-    tracker
-        .update_status(app8, ApplicationStatus::OfferReceived)
-        .await
-        .unwrap();
-    tracker
-        .update_status(app8, ApplicationStatus::OfferAccepted)
-        .await
-        .unwrap();
-
-    let app9 = tracker.create_application("job9").await.unwrap();
-    tracker
-        .update_status(app9, ApplicationStatus::Applied)
-        .await
-        .unwrap();
-    tracker
-        .update_status(app9, ApplicationStatus::OfferReceived)
-        .await
-        .unwrap();
-    tracker
-        .update_status(app9, ApplicationStatus::OfferRejected)
-        .await
-        .unwrap();
-
-    let app10 = tracker.create_application("job10").await.unwrap();
-    tracker
-        .update_status(app10, ApplicationStatus::Applied)
-        .await
-        .unwrap();
-    tracker
-        .update_status(app10, ApplicationStatus::Rejected)
-        .await
-        .unwrap();
-
-    let app11 = tracker.create_application("job11").await.unwrap();
-    tracker
-        .update_status(app11, ApplicationStatus::Applied)
-        .await
-        .unwrap();
-    tracker
-        .update_status(app11, ApplicationStatus::Ghosted)
-        .await
-        .unwrap();
-
-    let app12 = tracker.create_application("job12").await.unwrap();
-    tracker
-        .update_status(app12, ApplicationStatus::Applied)
-        .await
-        .unwrap();
-    tracker
-        .update_status(app12, ApplicationStatus::Withdrawn)
-        .await
-        .unwrap();
+    let tracker = tracker_with_each_application_status().await;
 
     // Get Kanban board and verify all buckets are populated
     let kanban = tracker.get_applications_by_status().await.unwrap();
@@ -156,136 +84,7 @@ async fn test_kanban_all_status_buckets() {
 
 #[tokio::test]
 async fn test_application_stats_all_statuses() {
-    let pool = create_test_db().await;
-
-    // Create jobs for all statuses
-    for i in 1..=12 {
-        sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES (?, 'Case Manager', 'CommunityCare', 'http://test.com', 'test')")
-            .bind(format!("job{}", i))
-            .execute(&pool)
-            .await
-            .unwrap();
-    }
-
-    let tracker = ApplicationTracker::new(pool);
-
-    // Create applications for each status
-    let _app1 = tracker.create_application("job1").await.unwrap();
-    // to_apply - default
-
-    let app2 = tracker.create_application("job2").await.unwrap();
-    tracker
-        .update_status(app2, ApplicationStatus::Applied)
-        .await
-        .unwrap();
-
-    let app3 = tracker.create_application("job3").await.unwrap();
-    tracker
-        .update_status(app3, ApplicationStatus::Applied)
-        .await
-        .unwrap();
-    tracker
-        .update_status(app3, ApplicationStatus::ScreeningCall)
-        .await
-        .unwrap();
-
-    let app4 = tracker.create_application("job4").await.unwrap();
-    tracker
-        .update_status(app4, ApplicationStatus::Applied)
-        .await
-        .unwrap();
-    tracker
-        .update_status(app4, ApplicationStatus::PhoneInterview)
-        .await
-        .unwrap();
-
-    let app5 = tracker.create_application("job5").await.unwrap();
-    tracker
-        .update_status(app5, ApplicationStatus::Applied)
-        .await
-        .unwrap();
-    tracker
-        .update_status(app5, ApplicationStatus::TechnicalInterview)
-        .await
-        .unwrap();
-
-    let app6 = tracker.create_application("job6").await.unwrap();
-    tracker
-        .update_status(app6, ApplicationStatus::Applied)
-        .await
-        .unwrap();
-    tracker
-        .update_status(app6, ApplicationStatus::OnsiteInterview)
-        .await
-        .unwrap();
-
-    let app7 = tracker.create_application("job7").await.unwrap();
-    tracker
-        .update_status(app7, ApplicationStatus::Applied)
-        .await
-        .unwrap();
-    tracker
-        .update_status(app7, ApplicationStatus::OfferReceived)
-        .await
-        .unwrap();
-
-    let app8 = tracker.create_application("job8").await.unwrap();
-    tracker
-        .update_status(app8, ApplicationStatus::Applied)
-        .await
-        .unwrap();
-    tracker
-        .update_status(app8, ApplicationStatus::OfferReceived)
-        .await
-        .unwrap();
-    tracker
-        .update_status(app8, ApplicationStatus::OfferAccepted)
-        .await
-        .unwrap();
-
-    let app9 = tracker.create_application("job9").await.unwrap();
-    tracker
-        .update_status(app9, ApplicationStatus::Applied)
-        .await
-        .unwrap();
-    tracker
-        .update_status(app9, ApplicationStatus::OfferReceived)
-        .await
-        .unwrap();
-    tracker
-        .update_status(app9, ApplicationStatus::OfferRejected)
-        .await
-        .unwrap();
-
-    let app10 = tracker.create_application("job10").await.unwrap();
-    tracker
-        .update_status(app10, ApplicationStatus::Applied)
-        .await
-        .unwrap();
-    tracker
-        .update_status(app10, ApplicationStatus::Rejected)
-        .await
-        .unwrap();
-
-    let app11 = tracker.create_application("job11").await.unwrap();
-    tracker
-        .update_status(app11, ApplicationStatus::Applied)
-        .await
-        .unwrap();
-    tracker
-        .update_status(app11, ApplicationStatus::Ghosted)
-        .await
-        .unwrap();
-
-    let app12 = tracker.create_application("job12").await.unwrap();
-    tracker
-        .update_status(app12, ApplicationStatus::Applied)
-        .await
-        .unwrap();
-    tracker
-        .update_status(app12, ApplicationStatus::Withdrawn)
-        .await
-        .unwrap();
+    let tracker = tracker_with_each_application_status().await;
 
     // Get stats and verify all status counts
     let stats = tracker.get_application_stats().await.unwrap();

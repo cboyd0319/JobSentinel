@@ -9,6 +9,9 @@ repository.workspace = true
 keywords.workspace = true
 categories.workspace = true
 
+[features]
+test-support = []
+
 [dependencies]
 anyhow.workspace = true
 chrono.workspace = true

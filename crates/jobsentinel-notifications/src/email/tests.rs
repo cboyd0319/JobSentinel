@@ -1,61 +1,9 @@
 use super::*;
-use chrono::Utc;
-use jobsentinel_domain::Job;
-use jobsentinel_intelligence::{JobScore, ScoreBreakdown};
-
-fn create_test_notification() -> Notification {
-    Notification {
-        job: Job {
-            id: 1,
-            hash: "test123".to_string(),
-            title: "Care Coordinator".to_string(),
-            company: "Community Care Network".to_string(),
-            url: "https://example.com/jobs/123".to_string(),
-            location: Some("Remote".to_string()),
-            description: Some("Support patients and families with care planning".to_string()),
-            score: Some(0.95),
-            score_reasons: None,
-            source: "greenhouse".to_string(),
-            remote: Some(true),
-            salary_min: Some(180000),
-            salary_max: Some(220000),
-            currency: Some("USD".to_string()),
-            created_at: Utc::now(),
-            updated_at: Utc::now(),
-            last_seen: Utc::now(),
-            times_seen: 1,
-            immediate_alert_sent: false,
-            hidden: false,
-            bookmarked: false,
-            ghost_score: None,
-            ghost_reasons: None,
-            first_seen: None,
-            repost_count: 0,
-            notes: None,
-            included_in_digest: false,
-        },
-        score: JobScore {
-            total: 0.95,
-            breakdown: ScoreBreakdown {
-                skills: 0.40,
-                salary: 0.25,
-                location: 0.20,
-                company: 0.05,
-                recency: 0.05,
-            },
-            reasons: vec![
-                "Title matches: Care Coordinator".to_string(),
-                "Keyword match: case management".to_string(),
-                "Salary 120% of target (100% credit)".to_string(),
-                "Remote job (matches preference)".to_string(),
-            ],
-        },
-    }
-}
+use crate::test_support::notification_fixture;
 
 #[test]
 fn test_html_email_formatting() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let html = format_html_email(&notification.job, &notification.score);
 
     // Verify key components are present
@@ -72,7 +20,7 @@ fn test_html_email_formatting() {
 
 #[test]
 fn test_text_email_formatting() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let text = format_text_email(&notification.job, &notification.score);
 
     // Verify key components are present
@@ -87,7 +35,7 @@ fn test_text_email_formatting() {
 
 #[test]
 fn test_html_email_handles_missing_salary() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.job.salary_min = None;
     notification.job.salary_max = None;
 
@@ -97,7 +45,7 @@ fn test_html_email_handles_missing_salary() {
 
 #[test]
 fn test_html_email_handles_min_salary_only() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.job.salary_max = None;
 
     let html = format_html_email(&notification.job, &notification.score);
@@ -106,7 +54,7 @@ fn test_html_email_handles_min_salary_only() {
 
 #[test]
 fn test_html_email_handles_missing_location() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.job.location = None;
 
     let html = format_html_email(&notification.job, &notification.score);
@@ -115,7 +63,7 @@ fn test_html_email_handles_missing_location() {
 
 #[test]
 fn test_html_email_keeps_match_reasons_local() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let html = format_html_email(&notification.job, &notification.score);
 
     assert!(html.contains(LOCAL_MATCH_DETAILS_MESSAGE));
@@ -130,7 +78,7 @@ fn test_html_email_keeps_match_reasons_local() {
 
 #[test]
 fn test_text_email_keeps_match_reasons_local() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let text = format_text_email(&notification.job, &notification.score);
 
     assert!(text.contains(LOCAL_MATCH_DETAILS_MESSAGE));
@@ -145,7 +93,7 @@ fn test_text_email_keeps_match_reasons_local() {
 
 #[test]
 fn test_text_email_handles_missing_salary() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.job.salary_min = None;
     notification.job.salary_max = None;
 
@@ -155,7 +103,7 @@ fn test_text_email_handles_missing_salary() {
 
 #[test]
 fn test_text_email_handles_min_salary_only() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.job.salary_max = None;
 
     let text = format_text_email(&notification.job, &notification.score);
@@ -164,7 +112,7 @@ fn test_text_email_handles_min_salary_only() {
 
 #[test]
 fn test_text_email_handles_missing_location() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.job.location = None;
 
     let text = format_text_email(&notification.job, &notification.score);
@@ -173,7 +121,7 @@ fn test_text_email_handles_missing_location() {
 
 #[test]
 fn test_html_email_no_remote_badge() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.job.remote = Some(false);
 
     let html = format_html_email(&notification.job, &notification.score);
@@ -185,7 +133,7 @@ fn test_html_email_no_remote_badge() {
 
 #[test]
 fn test_html_email_handles_none_remote() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.job.remote = None;
 
     let html = format_html_email(&notification.job, &notification.score);
@@ -197,7 +145,7 @@ fn test_html_email_handles_none_remote() {
 
 #[test]
 fn test_text_email_remote_no() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.job.remote = Some(false);
 
     let text = format_text_email(&notification.job, &notification.score);
@@ -206,7 +154,7 @@ fn test_text_email_remote_no() {
 
 #[test]
 fn test_html_email_score_formatting() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
 
     // Test various scores
     for (score, expected) in [(0.95, "95"), (0.90, "90"), (1.00, "100"), (0.876, "88")] {
@@ -223,7 +171,7 @@ fn test_html_email_score_formatting() {
 
 #[test]
 fn test_text_email_score_formatting() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
 
     for (score, expected) in [(0.95, "95%"), (0.90, "90%"), (1.00, "100%")] {
         notification.score.total = score;
@@ -239,7 +187,7 @@ fn test_text_email_score_formatting() {
 
 #[test]
 fn test_html_email_structure() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let html = format_html_email(&notification.job, &notification.score);
 
     // Verify HTML structure
@@ -252,7 +200,7 @@ fn test_html_email_structure() {
 
 #[test]
 fn test_text_email_structure() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let text = format_text_email(&notification.job, &notification.score);
 
     // Verify plain text structure
@@ -266,7 +214,7 @@ fn test_text_email_structure() {
 
 #[test]
 fn test_html_email_empty_reasons() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.score.reasons = vec![];
 
     let html = format_html_email(&notification.job, &notification.score);
@@ -278,7 +226,7 @@ fn test_html_email_empty_reasons() {
 
 #[test]
 fn test_text_email_empty_reasons() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.score.reasons = vec![];
 
     let text = format_text_email(&notification.job, &notification.score);
@@ -290,7 +238,7 @@ fn test_text_email_empty_reasons() {
 
 #[test]
 fn test_html_email_url_appears_in_link() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let html = format_html_email(&notification.job, &notification.score);
 
     // URL should appear in the href attribute
@@ -299,7 +247,7 @@ fn test_html_email_url_appears_in_link() {
 
 #[test]
 fn test_text_email_url_appears() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let text = format_text_email(&notification.job, &notification.score);
 
     assert!(text.contains("VIEW JOB: https://example.com/jobs/123"));
@@ -329,7 +277,7 @@ fn test_salary_formatting_edge_cases() {
 
 #[test]
 fn test_html_email_with_special_characters() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.job.title = "Care Coordinator & Intake Lead".to_string();
     notification.job.company = "Community Care Network <North Clinic>".to_string();
 
@@ -341,7 +289,7 @@ fn test_html_email_with_special_characters() {
 
 #[test]
 fn test_text_email_with_special_characters() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.job.title = "Care Coordinator & Intake Lead".to_string();
     notification.job.company = "Community Care Network <North Clinic>".to_string();
 
@@ -353,7 +301,7 @@ fn test_text_email_with_special_characters() {
 
 #[test]
 fn test_html_email_with_unicode() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.job.title = "Développeur Senior 🚀".to_string();
     notification.job.company = "Société Française".to_string();
     notification.job.location = Some("Montréal, Québec".to_string());
@@ -367,7 +315,7 @@ fn test_html_email_with_unicode() {
 
 #[test]
 fn test_text_email_with_unicode() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.job.title = "Entwickler 中文 日本語".to_string();
     notification.job.company = "グローバル株式会社".to_string();
 
@@ -379,7 +327,7 @@ fn test_text_email_with_unicode() {
 
 #[test]
 fn test_html_email_with_long_title() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.job.title =
         "Regional Senior Lead Care Coordination Program Operations Support Services Director"
             .to_string();
@@ -391,7 +339,7 @@ fn test_html_email_with_long_title() {
 
 #[test]
 fn test_text_email_with_long_location() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.job.location = Some(
         "San Francisco Bay Area, California, United States (Remote within PST timezone)"
             .to_string(),
@@ -404,7 +352,7 @@ fn test_text_email_with_long_location() {
 
 #[test]
 fn test_html_email_with_newlines_in_reasons() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.score.reasons = vec![
         "Reason with\nnewline".to_string(),
         "Another reason".to_string(),
@@ -419,7 +367,7 @@ fn test_html_email_with_newlines_in_reasons() {
 
 #[test]
 fn test_text_email_with_quotes_in_reasons() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.score.reasons = vec![
         r#"Matches "preferred" keyword"#.to_string(),
         "Uses 'best practices'".to_string(),

@@ -1,117 +1,9 @@
 use super::super::*;
+use crate::test_support::{insert_test_job, migrated_pool};
 
 // ========================================================================
 // DATABASE INTEGRATION TESTS
 // ========================================================================
-
-async fn setup_test_db() -> SqlitePool {
-    let pool = SqlitePool::connect(":memory:").await.unwrap();
-
-    // Create tables
-    sqlx::query(
-        r#"
-        CREATE TABLE IF NOT EXISTS jobs (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            hash TEXT NOT NULL UNIQUE,
-            title TEXT NOT NULL,
-            company TEXT,
-            url TEXT NOT NULL,
-            location TEXT,
-            description TEXT,
-            status TEXT DEFAULT 'active',
-            posted_at TEXT NOT NULL DEFAULT (datetime('now')),
-            created_at TEXT NOT NULL DEFAULT (datetime('now')),
-            updated_at TEXT NOT NULL DEFAULT (datetime('now')),
-            hidden INTEGER NOT NULL DEFAULT 0
-        )
-        "#,
-    )
-    .execute(&pool)
-    .await
-    .unwrap();
-
-    sqlx::query(
-        r#"
-        CREATE TABLE IF NOT EXISTS job_salary_predictions (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            job_hash TEXT NOT NULL UNIQUE,
-            predicted_min INTEGER,
-            predicted_max INTEGER,
-            predicted_median INTEGER,
-            confidence_score REAL
-        )
-        "#,
-    )
-    .execute(&pool)
-    .await
-    .unwrap();
-
-    sqlx::query(
-        r#"
-        CREATE TABLE IF NOT EXISTS job_skills (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            job_hash TEXT NOT NULL,
-            skill_name TEXT NOT NULL,
-            is_required INTEGER NOT NULL DEFAULT 1
-        )
-        "#,
-    )
-    .execute(&pool)
-    .await
-    .unwrap();
-
-    sqlx::query(
-        r#"
-        CREATE TABLE IF NOT EXISTS market_snapshots (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            date DATE NOT NULL UNIQUE,
-            total_jobs INTEGER NOT NULL DEFAULT 0,
-            new_jobs_today INTEGER NOT NULL DEFAULT 0,
-            jobs_filled_today INTEGER NOT NULL DEFAULT 0,
-            avg_salary INTEGER,
-            median_salary INTEGER,
-            remote_job_percentage REAL,
-            top_skill TEXT,
-            top_company TEXT,
-            top_location TEXT,
-            total_companies_hiring INTEGER,
-            market_sentiment TEXT CHECK(market_sentiment IN ('bullish', 'neutral', 'bearish')),
-            notes TEXT,
-            created_at TIMESTAMP DEFAULT (datetime('now'))
-        )
-        "#,
-    )
-    .execute(&pool)
-    .await
-    .unwrap();
-
-    pool
-}
-
-async fn insert_test_job(
-    pool: &SqlitePool,
-    hash: &str,
-    title: &str,
-    company: Option<&str>,
-    location: Option<&str>,
-    status: &str,
-    posted_at: &str,
-) {
-    sqlx::query(
-        "INSERT INTO jobs (hash, title, company, url, location, status, posted_at, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-    )
-    .bind(hash)
-    .bind(title)
-    .bind(company)
-    .bind(format!("https://example.com/{}", hash))
-    .bind(location)
-    .bind(status)
-    .bind(posted_at)
-    .bind(posted_at)
-    .execute(pool)
-    .await
-    .unwrap();
-}
 
 async fn insert_test_salary(pool: &SqlitePool, job_hash: &str, median: i64) {
     sqlx::query("INSERT INTO job_salary_predictions (job_hash, predicted_median) VALUES (?, ?)")
@@ -133,14 +25,14 @@ async fn insert_test_skill(pool: &SqlitePool, job_hash: &str, skill_name: &str) 
 
 #[tokio::test]
 async fn test_market_analyzer_new() {
-    let pool = setup_test_db().await;
+    let pool = migrated_pool().await;
     let _analyzer = MarketAnalyzer::new(pool);
     // Constructor should work without panic
 }
 
 #[tokio::test]
 async fn test_create_daily_snapshot_empty_db() {
-    let pool = setup_test_db().await;
+    let pool = migrated_pool().await;
     let analyzer = MarketAnalyzer::new(pool);
 
     let snapshot = analyzer.create_daily_snapshot().await.unwrap();
@@ -162,7 +54,7 @@ async fn test_create_daily_snapshot_empty_db() {
 
 #[tokio::test]
 async fn test_create_daily_snapshot_with_jobs() {
-    let pool = setup_test_db().await;
+    let pool = migrated_pool().await;
     let today = Utc::now().date_naive().to_string();
     let yesterday = (Utc::now().date_naive() - chrono::Duration::days(1)).to_string();
 
@@ -173,7 +65,6 @@ async fn test_create_daily_snapshot_with_jobs() {
         "Case Manager",
         Some("CommunityCare"),
         Some("San Francisco, CA"),
-        "active",
         &today,
     )
     .await;
@@ -183,7 +74,6 @@ async fn test_create_daily_snapshot_with_jobs() {
         "Operations Coordinator",
         Some("Metro Transit"),
         Some("Remote"),
-        "active",
         &today,
     )
     .await;
@@ -193,7 +83,6 @@ async fn test_create_daily_snapshot_with_jobs() {
         "Customer Support Lead",
         Some("CommunityCare"),
         Some("New York, NY"),
-        "closed",
         &yesterday,
     )
     .await;
@@ -228,7 +117,7 @@ async fn test_create_daily_snapshot_with_jobs() {
 
 #[tokio::test]
 async fn test_create_daily_snapshot_remote_percentage() {
-    let pool = setup_test_db().await;
+    let pool = migrated_pool().await;
     let today = Utc::now().date_naive().to_string();
 
     insert_test_job(
@@ -237,7 +126,6 @@ async fn test_create_daily_snapshot_remote_percentage() {
         "Coordinator",
         Some("Co1"),
         Some("Remote"),
-        "active",
         &today,
     )
     .await;
@@ -247,7 +135,6 @@ async fn test_create_daily_snapshot_remote_percentage() {
         "Coordinator",
         Some("Co2"),
         Some("REMOTE - US"),
-        "active",
         &today,
     )
     .await;
@@ -257,7 +144,6 @@ async fn test_create_daily_snapshot_remote_percentage() {
         "Coordinator",
         Some("Co3"),
         Some("San Francisco, CA"),
-        "active",
         &today,
     )
     .await;
@@ -267,7 +153,6 @@ async fn test_create_daily_snapshot_remote_percentage() {
         "Coordinator",
         Some("Co4"),
         Some("New York, NY"),
-        "active",
         &today,
     )
     .await;
@@ -281,39 +166,12 @@ async fn test_create_daily_snapshot_remote_percentage() {
 
 #[tokio::test]
 async fn test_create_daily_snapshot_jobs_filled_today() {
-    let pool = setup_test_db().await;
+    let pool = migrated_pool().await;
     let today = Utc::now().date_naive().to_string();
     let yesterday = (Utc::now().date_naive() - chrono::Duration::days(1)).to_string();
 
-    // Insert job filled today
-    sqlx::query(
-        "INSERT INTO jobs (hash, title, company, url, status, posted_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
-    )
-    .bind("job1")
-    .bind("Coordinator")
-    .bind("Co1")
-    .bind("https://example.com/job1")
-    .bind("closed")
-    .bind(&yesterday)
-    .bind(&today) // Updated today
-    .execute(&pool)
-    .await
-    .unwrap();
-
-    // Insert job filled yesterday
-    sqlx::query(
-        "INSERT INTO jobs (hash, title, company, url, status, posted_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
-    )
-    .bind("job2")
-    .bind("Coordinator")
-    .bind("Co2")
-    .bind("https://example.com/job2")
-    .bind("filled")
-    .bind(&yesterday)
-    .bind(&yesterday)
-    .execute(&pool)
-    .await
-    .unwrap();
+    insert_test_job(&pool, "job1", "Coordinator", Some("Co1"), None, &today).await;
+    insert_test_job(&pool, "job2", "Coordinator", Some("Co2"), None, &yesterday).await;
 
     let analyzer = MarketAnalyzer::new(pool);
     let snapshot = analyzer.create_daily_snapshot().await.unwrap();
@@ -323,7 +181,7 @@ async fn test_create_daily_snapshot_jobs_filled_today() {
 
 #[tokio::test]
 async fn test_store_snapshot() {
-    let pool = setup_test_db().await;
+    let pool = migrated_pool().await;
     let analyzer = MarketAnalyzer::new(pool.clone());
 
     let snapshot = MarketSnapshot {
@@ -363,7 +221,7 @@ async fn test_store_snapshot() {
 
 #[tokio::test]
 async fn test_store_snapshot_upsert() {
-    let pool = setup_test_db().await;
+    let pool = migrated_pool().await;
     let analyzer = MarketAnalyzer::new(pool.clone());
 
     let snapshot1 = MarketSnapshot {

@@ -5,6 +5,8 @@ mod external_ai;
 mod fetcher;
 mod pending;
 mod service;
+#[cfg(test)]
+mod test_support;
 mod types;
 
 pub mod ats;

@@ -2,6 +2,33 @@ use super::sample_resume;
 use crate::{AtsAnalyzer, RequirementMatchState};
 use chrono::Datelike;
 
+fn assert_standard_experience_headings(headings: &[&str]) {
+    for heading in headings {
+        let resume_text = format!(
+            "Jordan Lee\njordan@example.com\n\n{heading}\nCoordinated records management for client services."
+        );
+        let result =
+            AtsAnalyzer::analyze_text_for_job(&resume_text, &[], "Required: records management");
+        let review = result
+            .requirement_reviews
+            .iter()
+            .find(|review| review.keyword == "records management")
+            .expect("records management review");
+
+        assert!(
+            review.evidence_sections.contains(&"experience".to_string()),
+            "{heading} should count as experience evidence"
+        );
+        assert!(
+            !result
+                .format_issues
+                .iter()
+                .any(|issue| issue.issue.contains("standard resume section headings")),
+            "{heading} should count as a standard heading"
+        );
+    }
+}
+
 #[test]
 fn test_plain_text_requirement_review_treats_skills_section_as_partial_evidence() {
     let result = AtsAnalyzer::analyze_text_for_job(
@@ -129,62 +156,20 @@ fn test_plain_text_service_headings_count_as_experience_evidence() {
 
 #[test]
 fn test_plain_text_history_headings_count_as_experience_evidence() {
-    for heading in ["Employment History", "Work History", "Professional History"] {
-        let resume_text = format!(
-                "Jordan Lee\njordan@example.com\n\n{heading}\nCoordinated records management for client services."
-            );
-        let result =
-            AtsAnalyzer::analyze_text_for_job(&resume_text, &[], "Required: records management");
-        let review = result
-            .requirement_reviews
-            .iter()
-            .find(|review| review.keyword == "records management")
-            .expect("records management review");
-
-        assert!(
-            review.evidence_sections.contains(&"experience".to_string()),
-            "{heading} should count as experience evidence"
-        );
-        assert!(
-            !result
-                .format_issues
-                .iter()
-                .any(|issue| issue.issue.contains("standard resume section headings")),
-            "{heading} should count as a standard heading"
-        );
-    }
+    assert_standard_experience_headings(&[
+        "Employment History",
+        "Work History",
+        "Professional History",
+    ]);
 }
 
 #[test]
 fn test_plain_text_qualified_experience_headings_count_as_experience_evidence() {
-    for heading in [
+    assert_standard_experience_headings(&[
         "Relevant Experience",
         "Selected Experience",
         "Additional Experience",
-    ] {
-        let resume_text = format!(
-                "Jordan Lee\njordan@example.com\n\n{heading}\nCoordinated records management for client services."
-            );
-        let result =
-            AtsAnalyzer::analyze_text_for_job(&resume_text, &[], "Required: records management");
-        let review = result
-            .requirement_reviews
-            .iter()
-            .find(|review| review.keyword == "records management")
-            .expect("records management review");
-
-        assert!(
-            review.evidence_sections.contains(&"experience".to_string()),
-            "{heading} should count as experience evidence"
-        );
-        assert!(
-            !result
-                .format_issues
-                .iter()
-                .any(|issue| issue.issue.contains("standard resume section headings")),
-            "{heading} should count as a standard heading"
-        );
-    }
+    ]);
 }
 
 #[test]

@@ -1,9 +1,9 @@
 use super::super::*;
-use super::create_test_notification;
+use super::notification_fixture;
 
 #[test]
 fn test_message_card_title_format() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let _title = format!(
         "🎯 High Match Job Alert ({}% Match)",
         (notification.score.total * 100.0).round()
@@ -13,14 +13,14 @@ fn test_message_card_title_format() {
 
 #[test]
 fn test_message_card_activity_title_format() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let activity_title = format!("**{}**", notification.job.title);
     assert_eq!(activity_title, "**Care Coordinator**");
 }
 
 #[test]
 fn test_message_card_activity_subtitle_format() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let subtitle = format!("{} • {}", notification.job.company, notification.job.source);
     assert_eq!(subtitle, "Community Care Network • greenhouse");
 }
@@ -59,7 +59,7 @@ fn test_validation_error_message_for_malformed_url() {
 
 #[test]
 fn test_score_breakdown_all_components() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     assert_eq!(notification.score.breakdown.skills, 0.40);
     assert_eq!(notification.score.breakdown.salary, 0.25);
     assert_eq!(notification.score.breakdown.location, 0.20);
@@ -77,7 +77,7 @@ fn test_score_breakdown_all_components() {
 
 #[test]
 fn test_score_reasons_all_present() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     assert_eq!(notification.score.reasons.len(), 4);
     assert!(notification.score.reasons[0].contains("Title matches"));
     assert!(notification.score.reasons[1].contains("Keyword match"));
@@ -87,7 +87,7 @@ fn test_score_reasons_all_present() {
 
 #[test]
 fn test_remote_job_display_true() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     assert_eq!(notification.job.remote, Some(true));
     let remote_text = if notification.job.remote.unwrap_or(false) {
         "✅ Yes"
@@ -99,7 +99,7 @@ fn test_remote_job_display_true() {
 
 #[test]
 fn test_remote_job_display_false() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.job.remote = Some(false);
     let remote_text = if notification.job.remote.unwrap_or(false) {
         "✅ Yes"
@@ -212,7 +212,7 @@ fn test_webhook_url_with_username_fails() {
 
 #[test]
 fn test_message_card_text_formatting() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     let text = format!(
         "**Why this matches:**\n\n{}",
         notification.score.reasons.join("\n\n")
@@ -256,7 +256,7 @@ fn test_validation_webhook_test_payload_structure() {
 
 #[test]
 fn test_empty_reasons_array() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.score.reasons = vec![];
     let text = notification.score.reasons.join("\n\n");
     assert_eq!(text, "");
@@ -264,7 +264,7 @@ fn test_empty_reasons_array() {
 
 #[test]
 fn test_single_reason() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.score.reasons = vec!["Only reason".to_string()];
     let text = notification.score.reasons.join("\n\n");
     assert_eq!(text, "Only reason");
@@ -316,7 +316,7 @@ fn test_salary_formatting_min_zero() {
 
 #[test]
 fn test_notification_job_fields_present() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     assert_eq!(notification.job.title, "Care Coordinator");
     assert_eq!(notification.job.company, "Community Care Network");
     assert_eq!(notification.job.source, "greenhouse");
@@ -326,7 +326,7 @@ fn test_notification_job_fields_present() {
 
 #[test]
 fn test_notification_score_fields_present() {
-    let notification = create_test_notification();
+    let notification = notification_fixture();
     assert_eq!(notification.score.total, 0.95);
     assert!(!notification.score.reasons.is_empty());
     assert_eq!(notification.score.breakdown.skills, 0.40);
@@ -334,76 +334,14 @@ fn test_notification_score_fields_present() {
 
 #[test]
 fn test_full_payload_with_all_none_optional_fields() {
-    let mut notification = create_test_notification();
+    let mut notification = notification_fixture();
     notification.job.location = None;
     notification.job.remote = None;
     notification.job.salary_min = None;
     notification.job.salary_max = None;
     notification.job.description = None;
 
-    let job = &notification.job;
-    let score = &notification.score;
-
-    let theme_color = if score.total >= 0.9 {
-        "00FF00"
-    } else if score.total >= 0.8 {
-        "FFA500"
-    } else {
-        "0078D4"
-    };
-
-    let salary_display = if let (Some(min), Some(max)) = (job.salary_min, job.salary_max) {
-        format!("${},000 - ${},000", min / 1000, max / 1000)
-    } else if let Some(min) = job.salary_min {
-        format!("${},000+", min / 1000)
-    } else {
-        "Not specified".to_string()
-    };
-
-    let payload = json!({
-        "@type": "MessageCard",
-        "@context": "https://schema.org/extensions",
-        "summary": format!("New job alert: {} at {}", job.title, job.company),
-        "themeColor": theme_color,
-        "title": format!("🎯 High Match Job Alert ({}% Match)", (score.total * 100.0).round()),
-        "sections": [
-            {
-                "activityTitle": format!("**{}**", job.title),
-                "activitySubtitle": format!("{} • {}", job.company, job.source),
-                "facts": [
-                    {
-                        "name": "Location:",
-                        "value": job.location.as_deref().unwrap_or("N/A")
-                    },
-                    {
-                        "name": "Salary:",
-                        "value": salary_display
-                    },
-                    {
-                        "name": "Remote:",
-                        "value": if job.remote.unwrap_or(false) { "✅ Yes" } else { "❌ No" }
-                    },
-                    {
-                        "name": "Match Score:",
-                        "value": format!("{}%", (score.total * 100.0).round())
-                    }
-                ],
-                "text": format!("**Why this matches:**\n\n{}", score.reasons.join("\n\n"))
-            }
-        ],
-        "potentialAction": [
-            {
-                "@type": "OpenUri",
-                "name": "View Full Job Posting",
-                "targets": [
-                    {
-                        "os": "default",
-                        "uri": job.url
-                    }
-                ]
-            }
-        ]
-    });
+    let payload = build_teams_payload(&notification);
 
     // Should handle all None fields gracefully
     assert_eq!(payload["sections"][0]["facts"][0]["value"], "N/A");

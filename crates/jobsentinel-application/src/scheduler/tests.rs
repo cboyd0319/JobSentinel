@@ -1,5 +1,8 @@
 use super::*;
-use crate::config::{AutoRefreshConfig, Config, LocationPreferences};
+use crate::{
+    config::{AutoRefreshConfig, Config},
+    test_support::{minimal_test_config, test_job},
+};
 use jobsentinel_domain::Job;
 use jobsentinel_storage::Database as Db;
 use std::sync::Arc;
@@ -7,51 +10,16 @@ use std::time::Duration;
 use tokio::sync::RwLock;
 
 fn create_test_config() -> Config {
-    Config {
-        title_allowlist: vec!["Security Engineer".to_string()],
-        title_blocklist: vec![],
-        keywords_boost: vec![],
-        keywords_exclude: vec![],
-        location_preferences: LocationPreferences {
-            allow_remote: true,
-            allow_hybrid: false,
-            allow_onsite: false,
-            cities: vec![],
-            states: vec![],
-            country: "US".to_string(),
-        },
-        salary_floor_usd: 0,
-        auto_refresh: AutoRefreshConfig {
-            enabled: true,
-            interval_minutes: 30,
-        },
-        bookmarklet_port: 4321,
-        immediate_alert_threshold: 0.9,
-        scraping_interval_hours: 2,
-        alerts: Default::default(),
-        greenhouse_urls: vec![],
-        lever_urls: vec![],
-        linkedin: Default::default(),
-        restricted_source_acknowledgements: Default::default(),
-        jobswithgpt_endpoint: String::new(),
-        jobswithgpt_approval: Default::default(),
-        external_ai: Default::default(),
-        remoteok: Default::default(),
-        weworkremotely: Default::default(),
-        builtin: Default::default(),
-        hn_hiring: Default::default(),
-        dice: Default::default(),
-        yc_startup: Default::default(),
-        usajobs: Default::default(),
-        simplyhired: Default::default(),
-        glassdoor: Default::default(),
-        ghost_config: None,
-        preferred_companies: vec![],
-        blocked_companies: vec![],
-        use_resume_matching: false,
-        salary_target_usd: None,
-        penalize_missing_salary: false,
-    }
+    let mut config = minimal_test_config();
+    config.title_allowlist = vec!["Security Engineer".to_string()];
+    config.salary_floor_usd = 0;
+    config.auto_refresh = AutoRefreshConfig {
+        enabled: true,
+        interval_minutes: 30,
+    };
+    config.immediate_alert_threshold = 0.9;
+    config.jobswithgpt_endpoint.clear();
+    config
 }
 
 type Database = Db;
@@ -86,35 +54,11 @@ async fn test_scraping_cycle_tracks_new_vs_updated_jobs() {
     let database = Arc::new(db);
 
     // Pre-populate database with a job
-    let now = chrono::Utc::now();
     let existing_job = Job {
-        id: 0,
-        hash: "test_hash_123".to_string(),
-        title: "Senior Rust Developer".to_string(),
-        company: "Test Corp".to_string(),
-        location: Some("Remote".to_string()),
         url: "https://example.com/job/1".to_string(),
         description: Some("Great job".to_string()),
         score: Some(0.8),
-        score_reasons: None,
-        source: "test".to_string(),
-        remote: Some(true),
-        salary_min: None,
-        salary_max: None,
-        currency: None,
-        created_at: now,
-        updated_at: now,
-        last_seen: now,
-        times_seen: 1,
-        immediate_alert_sent: false,
-        included_in_digest: false,
-        hidden: false,
-        bookmarked: false,
-        ghost_score: None,
-        ghost_reasons: None,
-        first_seen: None,
-        repost_count: 0,
-        notes: None,
+        ..test_job("test_hash_123", "Senior Rust Developer", "Test Corp")
     };
     database.upsert_job(&existing_job).await.unwrap();
 
@@ -239,35 +183,9 @@ async fn test_scraping_cycle_job_deduplication() {
     let database = Arc::new(db);
 
     // Insert same job twice with same hash
-    let now = chrono::Utc::now();
     let job = Job {
-        id: 0,
-        hash: "duplicate_hash".to_string(),
-        title: "Test Job".to_string(),
-        company: "Test Co".to_string(),
-        location: Some("Remote".to_string()),
         url: "https://example.com/job".to_string(),
-        description: None,
-        score: None,
-        score_reasons: None,
-        source: "test".to_string(),
-        remote: Some(true),
-        salary_min: None,
-        salary_max: None,
-        currency: None,
-        created_at: now,
-        updated_at: now,
-        last_seen: now,
-        times_seen: 1,
-        immediate_alert_sent: false,
-        included_in_digest: false,
-        hidden: false,
-        bookmarked: false,
-        ghost_score: None,
-        ghost_reasons: None,
-        first_seen: None,
-        repost_count: 0,
-        notes: None,
+        ..test_job("duplicate_hash", "Test Job", "Test Co")
     };
 
     database.upsert_job(&job).await.unwrap();
