@@ -3,8 +3,8 @@
   "feature_id": "harness-canonical-remediation",
   "behavior": "Every repository-root entry has a current owner, and maintained state, contracts, documentation, examples, and generated outputs live at their narrowest canonical owner.",
   "result": "passing",
-  "verified_at": "2026-07-17T00:55:27Z",
-  "revision": "dadf92c4",
+  "verified_at": "2026-07-17T01:42:45Z",
+  "revision": "880fca800436425451a2ba3431ac55539e274508",
   "platform": "macOS 27.0 arm64",
   "scope": "Complete repository-root ownership audit and reorganization",
   "moved_paths": {
@@ -58,7 +58,7 @@
       "command": "npm run verify:full",
       "exit_status": 0,
       "relevant_result": "The complete local gate passed, including 817 script tests, 2,934 frontend tests, production and Storybook builds, 10 smoke journeys, architecture, security, documentation, and Rust workspace checks.",
-      "caveat": "The verified batch remains uncommitted pending separate authorization."
+      "caveat": "The committed revision was reverified with the same full gate."
     },
     {
       "command": "cargo test -p jobsentinel-storage --test database_integration_test",
@@ -78,6 +78,6 @@
     "live_consumers_updated": true,
     "generated_artifacts_removed": true,
     "implementation_complete": true,
-    "committed": false
+    "committed": true
   }
 }

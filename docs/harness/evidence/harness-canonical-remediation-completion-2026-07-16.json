@@ -1,0 +1,29 @@
+{
+  "schema": "jobsentinel.feature_evidence.v1",
+  "feature_id": "harness-canonical-remediation",
+  "behavior": "The repository harness conforms to the installed harness-engineering package except for the exact user-authorized pre-alpha-private-no-ci requirement exception.",
+  "result": "passing",
+  "verified_at": "2026-07-17T01:42:45Z",
+  "revision": "880fca800436425451a2ba3431ac55539e274508",
+  "platform": "local arm64 development host",
+  "commands": [
+    {
+      "command": "npm run harness:check",
+      "exit_status": 0,
+      "relevant_result": "The committed harness ownership, state, structure, and policy contracts passed.",
+      "caveat": "The repository-owned runtime pins differ from the host runtime versions."
+    },
+    {
+      "command": "npm run test:scripts",
+      "exit_status": 0,
+      "relevant_result": "All 817 script and harness contract tests passed after the root ownership commit.",
+      "caveat": "None."
+    },
+    {
+      "command": "npm run verify:full",
+      "exit_status": 0,
+      "relevant_result": "The complete post-commit local gate passed, including 817 script tests, 2,934 frontend tests, production and Storybook builds, 10 smoke journeys, and the Rust workspace checks.",
+      "caveat": "Generated verification outputs were cleaned before the final run so the repository bloat sensor measured source state."
+    }
+  ]
+}

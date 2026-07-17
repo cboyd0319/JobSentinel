@@ -22,7 +22,7 @@ See [Exec Plans](../exec-plans.md) for required format.
 | Workstream | Document |
 | ---------- | -------- |
 | Current active status | [Compact status](active/status.md) |
-| Current product and quality work | [Active plan](active/current-work.md) |
+| Rust crate DRY remediation | [Active plan](active/crates-dry-remediation.md) |
 
 ## Major-Release Planning
 

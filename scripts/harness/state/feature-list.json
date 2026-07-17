@@ -38,18 +38,19 @@
       "title": "Canonical harness remediation",
       "behavior": "The repository harness conforms to the installed harness-engineering package except for the exact user-authorized pre-alpha-private-no-ci requirement exception.",
       "user_visible_behavior": "Repository work is resumable, growth-ready, and locally verifiable while hosted CI remains explicitly absent during private pre-alpha development.",
-      "status": "active",
+      "status": "passing",
       "verification": [
         "npm run harness:check",
         "npm run test:scripts",
         "npm run verify:full"
       ],
       "evidence": [
+        "docs/harness/evidence/harness-canonical-remediation-completion-2026-07-16.json",
         "docs/harness/evidence/harness-canonical-remediation-effectiveness-2026-07-15.json",
         "docs/harness/evidence/root-ownership-reorganization-2026-07-16.json"
       ],
       "blocker": "",
-      "next_trigger": "Commit the verified root ownership reorganization with explicit user authorization."
+      "next_trigger": "A regression against the recorded canonical harness contract requires a new corrective feature."
     },
     {
       "id": "full-repository-refactor",
@@ -87,6 +88,23 @@
       ],
       "blocker": "",
       "next_trigger": "A regression against the recorded ownership contract requires a new corrective feature."
+    },
+    {
+      "id": "crates-dry-remediation",
+      "priority": 4,
+      "area": "Rust workspace maintainability",
+      "title": "Crate DRY remediation",
+      "behavior": "Every confirmed actionable duplication and DRY violation under crates has one canonical owner, obsolete copies are removed, and maintained production and test sensors prevent recurrence.",
+      "user_visible_behavior": "JobSentinel preserves its behavior while shared policies, normalization, storage, sources, and document handling remain consistent across the Rust workspace.",
+      "status": "active",
+      "verification": [
+        "npm run verify:full",
+        "cargo test --workspace --all-features",
+        "npm run lint:dup -- --list"
+      ],
+      "evidence": [],
+      "blocker": "",
+      "next_trigger": "Complete Milestone 1 guardrails and characterization."
     }
   ]
 }

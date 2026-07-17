@@ -30,25 +30,23 @@ Last updated: 2026-07-16
   The full repository refactor is recorded as `passing`
   with fresh structured evidence in
   the canonical feature ledger.
+- Repository-root ownership was committed at `880fca80` and passed its complete
+  post-commit gate. Canonical state, contracts, plans, documents, examples, and
+  generated-output boundaries now live at their recorded owners.
 
 ## In Progress
 
-- Active feature: `harness-canonical-remediation`
+- Active feature: `crates-dry-remediation`
 - Status: `active`
-- Objective: Close the final canonical harness remediation while preserving the
-  exact user-authorized exception and all verified repository behavior.
+- Objective: Give every confirmed actionable duplication and DRY violation
+  under `crates/` one canonical owner, remove obsolete copies, and prevent
+  recurrence in production and test code.
 - Branch: `refactor/full-repo-v2.9.5`
-- Current slice: Repository-root ownership is complete in the working tree.
-  Harness state and contracts now live under `scripts/harness`, maintained
-  repository and design documents live under `docs`, and the local AI model
-  manifest lives in its owning crate. Stale environment, profile, and resume
-  examples are deleted; the live configuration example remains under `docs`.
-  Generated Rust cleanup reclaimed 184.5 GiB, and a single-connection test
-  database correction removed migration-test interference found by the full
-  gate. All 817 script tests, 2,934 frontend tests, 10 smoke journeys, and Rust
-  workspace checks pass. The batch is based on `dadf92c4` and remains uncommitted.
-- Next action: commit the verified root ownership reorganization only with
-  explicit user authorization.
+- Current slice: Milestone 1, establish independent crate production and test
+  duplication guardrails, characterize behavior-sensitive owners, and record
+  the measured baseline before source refactors.
+- Next action: add fail-first detector tests for Rust test classification,
+  independent scopes, and downward-only baselines.
 
 ## Deferred
 
