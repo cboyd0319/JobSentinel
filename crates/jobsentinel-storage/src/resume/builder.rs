@@ -2,8 +2,7 @@ use crate::sqlite_time::parse_sqlite_datetime;
 use anyhow::{Context, Result};
 use chrono::{DateTime, Utc};
 use jobsentinel_documents::{
-    ResumeCertification, ResumeEducation, ResumeExperience, ResumePersonalInfo, ResumeProject,
-    ResumeSkill, StructuredResume,
+    ResumeEducation, ResumeExperience, ResumePersonalInfo, ResumeSkill, StructuredResume,
 };
 use serde::{Deserialize, Serialize};
 use sqlx::SqlitePool;
@@ -128,17 +127,6 @@ impl ResumeBuilder {
         Ok(new_id)
     }
 
-    pub async fn update_experience(&self, resume_id: i64, entry: DraftExperience) -> Result<()> {
-        let mut draft = self.require_resume(resume_id).await?;
-        let index = draft
-            .experience_ids
-            .iter()
-            .position(|id| *id == entry.id)
-            .context("Experience entry not found")?;
-        draft.resume.experience[index] = entry.experience;
-        self.save_updated(resume_id, &mut draft).await
-    }
-
     pub async fn delete_experience(&self, resume_id: i64, entry_id: i64) -> Result<()> {
         let mut draft = self.require_resume(resume_id).await?;
         let index = draft
@@ -158,17 +146,6 @@ impl ResumeBuilder {
         draft.resume.education.push(entry.education);
         self.save_updated(resume_id, &mut draft).await?;
         Ok(new_id)
-    }
-
-    pub async fn update_education(&self, resume_id: i64, entry: DraftEducation) -> Result<()> {
-        let mut draft = self.require_resume(resume_id).await?;
-        let index = draft
-            .education_ids
-            .iter()
-            .position(|id| *id == entry.id)
-            .context("Education entry not found")?;
-        draft.resume.education[index] = entry.education;
-        self.save_updated(resume_id, &mut draft).await
     }
 
     pub async fn delete_education(&self, resume_id: i64, entry_id: i64) -> Result<()> {
@@ -199,26 +176,6 @@ impl ResumeBuilder {
         draft.education_ids = (1..=resume.education.len() as i64).collect();
         draft.resume = resume;
         self.save_updated(resume_id, &mut draft).await
-    }
-
-    pub async fn add_certification(
-        &self,
-        resume_id: i64,
-        certification: ResumeCertification,
-    ) -> Result<i64> {
-        let mut draft = self.require_resume(resume_id).await?;
-        draft.resume.certifications.push(certification);
-        let id = draft.resume.certifications.len() as i64;
-        self.save_updated(resume_id, &mut draft).await?;
-        Ok(id)
-    }
-
-    pub async fn add_project(&self, resume_id: i64, project: ResumeProject) -> Result<i64> {
-        let mut draft = self.require_resume(resume_id).await?;
-        draft.resume.projects.push(project);
-        let id = draft.resume.projects.len() as i64;
-        self.save_updated(resume_id, &mut draft).await?;
-        Ok(id)
     }
 
     pub async fn delete_resume(&self, resume_id: i64) -> Result<()> {

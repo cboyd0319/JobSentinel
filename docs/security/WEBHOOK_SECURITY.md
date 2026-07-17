@@ -1,554 +1,125 @@
 # Webhook Security Guide
 
-> JobSentinel Security Documentation
+Notification webhooks are both credentials and outbound data channels. A leaked
+value can permit unauthorized messages, while an unvalidated destination can
+send job-search information to an attacker-controlled service.
 
----
+## Security Objectives
 
-## Overview
+JobSentinel must:
 
-JobSentinel supports webhook notifications for Slack, Discord, and Microsoft Teams. Webhook URLs are sensitive
-credentials that, if compromised, allow attackers to send spam or steal data. This guide covers webhook security
-best practices and JobSentinel's protection mechanisms.
+- send only after explicit channel configuration
+- restrict each webhook to its supported provider target shape
+- require encrypted transport
+- keep webhook values out of logs, errors, analytics, and support reports
+- store configured secrets through the local credential owner
+- minimize notification content before it leaves the device
+- fail closed when validation or credential access fails
 
-## Why Webhook Security Matters
+## Canonical Owners
 
-### Data Exfiltration Risk
+| Concern | Owner |
+| ------- | ----- |
+| Provider host and path validation | `crates/jobsentinel-security/src/webhook.rs` |
+| Shared external URL policy | `crates/jobsentinel-security/src/url.rs` |
+| Notification payloads and delivery | `crates/jobsentinel-notifications/src/` |
+| Notification orchestration | `crates/jobsentinel-application/src/notify/` |
+| Secret storage | `crates/jobsentinel-credentials/src/` |
+| Desktop credential commands | `src-tauri/src/ipc/credentials/` |
 
-If an attacker can control webhook URLs, they can redirect job notifications to their own server:
+Provider rules are summarized in
+[Notification Webhook URL Validation](WEBHOOK_URL_VALIDATION.md).
 
-```text
-User configures: https://hooks.slack.com/services/T00/B00/XXX
-Attacker changes: https://evil.com/steal-jobs
-```
+## Threats And Controls
 
-Now all job alerts (which may contain salary data, company info, personal preferences) are sent to the
-attacker's server.
+### Destination substitution
 
-### Spam and Abuse
+An attacker may submit a deceptive domain, path, scheme, port, or embedded
+credential.
 
-Compromised webhooks allow attackers to:
+Control: every adapter calls
+`jobsentinel_security::validate_webhook_target` with the selected provider.
+Validation uses parsed components and a provider allowlist.
 
-- Spam channels with unwanted messages
-- Impersonate JobSentinel
-- Disrupt team communication
-- Trigger rate limiting/bans
+### Secret disclosure
 
-### Credential Theft
+Webhook URLs commonly contain bearer-like path or query values.
 
-Some webhook URLs contain authentication tokens in the path:
+Control: values use the credential storage boundary. Logging and errors use
+generic labels and never echo submitted webhook data.
 
-```text
-https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXX
-                                ^          ^          ^
-                              Workspace  Channel    Secret Token
-```
+### Excessive data export
 
-If leaked, this token allows anyone to post to that channel.
+Job titles, companies, match reasons, resumes, notes, and search criteria can be
+private.
 
-## JobSentinel Protection Mechanisms
+Control: payload builders send only the channel content explicitly supported by
+the product contract. Local scoring reasons are not exported. New outbound
+fields require privacy review and focused payload tests.
 
-### 1. URL Parsing (Not String Matching)
+### Transport downgrade
 
-JobSentinel uses proper URL parsing to validate webhooks, preventing bypass attacks.
+Control: the shared validator requires HTTPS and rejects non-default explicit
+ports.
 
-See: [URL Validation Security](./URL_VALIDATION.md) for detailed explanation.
+### Reuse after compromise
 
-#### Slack Webhook Validation
+Control: users can remove or replace the saved credential. A compromised
+provider webhook should also be revoked at the provider.
 
-```rust
-fn validate_webhook_url(url: &str) -> Result<()> {
-    let url_parsed = url::Url::parse(url)
-        .map_err(|e| anyhow!("Invalid URL format: {}", e))?;
+## Validation And Delivery Flow
 
-    if url_parsed.scheme() != "https" {
-        return Err(anyhow!("Webhook URL must use HTTPS"));
-    }
+1. The user supplies a provider webhook through settings.
+2. The desktop command validates the value before storage or use.
+3. The credential owner stores the secret locally.
+4. A notification request selects the matching provider adapter.
+5. The adapter validates the target again.
+6. The payload is minimized and sent over HTTPS.
+7. Errors identify the provider and recovery action without revealing the
+   credential.
 
-    if url_parsed.host_str() != Some("hooks.slack.com") {
-        return Err(anyhow!("Webhook URL must use hooks.slack.com domain"));
-    }
+Repeated validation is intentional because stored data and call-site arguments
+are not treated as permanently trusted.
 
-    if !url_parsed.path().starts_with("/services/") {
-        return Err(anyhow!("Invalid Slack webhook path"));
-    }
+## User Guidance
 
-    Ok(())
-}
-```
-
-**Valid**: `https://hooks.slack.com/services/T00/B00/XXX`  
-**Invalid**: All bypass attempts are rejected
-
-#### Discord Webhook Validation
-
-```rust
-fn validate_webhook_url(url: &str) -> Result<()> {
-    let url_parsed = url::Url::parse(url)?;
-
-    if url_parsed.scheme() != "https" {
-        return Err(anyhow!("Webhook URL must use HTTPS"));
-    }
-
-    let host = url_parsed.host_str()
-        .ok_or_else(|| anyhow!("Invalid webhook URL host"))?;
-
-    if !matches!(host, "discord.com" | "discordapp.com" | "hooks.discord.com") {
-        return Err(anyhow!("Invalid Discord host"));
-    }
-
-    if !url_parsed.path().starts_with("/api/webhooks/") {
-        return Err(anyhow!("Invalid Discord webhook path"));
-    }
-
-    Ok(())
-}
-```
-
-**Valid**:
-
-- `https://discord.com/api/webhooks/123/ABC`
-- `https://discordapp.com/api/webhooks/123/ABC`
-- `https://hooks.discord.com/api/webhooks/123/ABC`
-
-#### Teams Webhook Validation
-
-```rust
-fn validate_webhook_url(url: &str) -> Result<()> {
-    let url_parsed = url::Url::parse(url)?;
-
-    if url_parsed.scheme() != "https" {
-        return Err(anyhow!("Webhook URL must use HTTPS"));
-    }
-
-    let host = url_parsed.host_str()
-        .ok_or_else(|| anyhow!("Invalid webhook URL host"))?;
-
-    let has_generated_path = url_parsed.path().len() > 1;
-    let legacy_connector =
-        matches!(host, "outlook.office.com" | "outlook.office365.com")
-            && url_parsed.path().starts_with("/webhook/");
-    let current_connector = host.ends_with(".webhook.office.com")
-        && host != "webhook.office.com"
-        && has_generated_path;
-    let workflow_trigger =
-        host.ends_with(".logic.azure.com") && host != "logic.azure.com" && has_generated_path;
-
-    if !(legacy_connector || current_connector || workflow_trigger) {
-        return Err(anyhow!("Invalid Teams host"));
-    }
-
-    Ok(())
-}
-```
-
-**Valid**:
-
-- `https://outlook.office.com/webhook/...`
-- `https://outlook.office365.com/webhook/...`
-- `https://tenant.webhook.office.com/...`
-- `https://prod-12.westus.logic.azure.com:443/...`
-
-### 2. HTTPS-Only
-
-All webhook URLs must use HTTPS to prevent man-in-the-middle attacks:
-
-```rust
-if url_parsed.scheme() != "https" {
-    return Err(anyhow!("Webhook URL must use HTTPS"));
-}
-```
-
-**Why this matters**:
-
-- Prevents eavesdropping on notifications
-- Protects webhook tokens in transit
-- Required by most webhook providers
-
-### 3. Domain Allowlisting
-
-JobSentinel only allows webhooks to known, trusted domains:
-
-| Service | Allowed Hosts                                 |
-| ------- | --------------------------------------------- |
-| Slack   | `hooks.slack.com`                             |
-| Discord | `discord.com`, `discordapp.com`, `hooks.discord.com` |
-| Teams   | `outlook.office.com`, `outlook.office365.com`, `*.webhook.office.com`, `*.logic.azure.com` |
-
-**Denylisting doesn't work**:
-
-```rust
-// Bad: easy to bypass
-if !url.contains("evil.com") {
-    // Allow
-}
-
-// Good: explicit allowlist
-if url_parsed.host_str() == Some("hooks.slack.com") {
-    // Allow
-}
-```
-
-### 4. Path Validation
-
-Beyond domain checking, JobSentinel validates the URL path structure:
-
-```rust
-// Slack: Must start with /services/
-if !url_parsed.path().starts_with("/services/") {
-    return Err(anyhow!("Invalid Slack webhook path"));
-}
-
-// Discord: Must start with /api/webhooks/
-if !url_parsed.path().starts_with("/api/webhooks/") {
-    return Err(anyhow!("Invalid Discord webhook path"));
-}
-
-// Teams: legacy Outlook connector links must start with /webhook/.
-// Current Microsoft-hosted connector and workflow links must include a
-// generated non-root path from Teams or Power Automate.
-```
-
-### 5. Secure Credential Storage
-
-Webhook URLs are stored through JobSentinel's local secret-storage boundary,
-not plaintext config files. Current builds store active webhook secrets in the
-local SQLite `secret_vault` table as AEAD envelopes. The operating system
-credential store protects the vault master key and is used for legacy fallback
-only when a saved secret is explicitly retrieved.
-
-See: [Local Secret Vault And Keychain Integration](./KEYRING.md)
-
-**Benefits**:
-
-- Local encryption at rest
-- Access control (only JobSentinel can read)
-- Unlock protection before secret use
-- No accidental commits to Git
-
-### 6. Validation Before Use
-
-Webhooks are validated before every HTTP request. Delivery also resolves the
-provider host before sending, rejects loopback or private resolved IPs, disables
-redirect following, and pins the checked DNS answers on the `reqwest` client so
-a request cannot reconnect to a different address after validation:
-
-```rust
-pub async fn send_slack_notification(
-    webhook_url: &str,
-    notification: &Notification,
-) -> Result<()> {
-    // Validate before sending
-    validate_webhook_url(webhook_url)?;
-
-    // Build payload
-    let payload = build_slack_payload(notification);
-
-    // Send HTTP request through the notification egress guard.
-    let (client, webhook_url) = notification_http_client_for_url(webhook_url).await?;
-    let response = client.post(webhook_url)
-        .json(&payload)
-        .send()
-        .await
-        .map_err(|e| anyhow!("Webhook request failed: {}", e.without_url()))?;
-
-    // Check response
-    if !response.status().is_success() {
-        return Err(anyhow!("Webhook request failed: {}", response.status()));
-    }
-
-    Ok(())
-}
-```
-
-Request errors remove provider URLs before display so webhook tokens in path
-segments are not logged. Provider error bodies are not returned in notification
-send errors; errors keep status and body length only because providers can echo
-submitted job payload fields.
-
-## Webhook Provider Security
-
-### Slack
-
-**URL Format**:
-
-```text
-https://hooks.slack.com/services/T{workspace}/B{channel}/{token}
-```
-
-**Security Features**:
-
-- Token-based authentication in URL
-- Tokens are workspace-scoped
-- Rate limiting (1 message per second)
-- Webhook can be deleted/rotated in Slack UI
-
-**Best Practices**:
-
-- Rotate webhooks regularly
-- Use dedicated channels for alerts
-- Monitor for unexpected messages
-- Delete unused webhooks
-
-### Discord
-
-**URL Format**:
-
-```text
-https://discord.com/api/webhooks/{id}/{token}
-https://hooks.discord.com/api/webhooks/{id}/{token}
-```
-
-**Security Features**:
-
-- Token-based authentication
-- Per-channel webhooks
-- Rate limiting (30 requests/60 seconds)
-- Can be deleted in Discord UI
-
-**Best Practices**:
-
-- One webhook per integration
-- Use dedicated channels
-- Enable 2FA on Discord account
-- Delete compromised webhooks immediately
-
-### Microsoft Teams
-
-**URL Format**:
-
-```text
-https://outlook.office.com/webhook/{tenant}/IncomingWebhook/{channel}/{connector}
-https://{tenant}.webhook.office.com/{generated-path}
-https://{region}.logic.azure.com:443/{generated-path}
-```
-
-**Security Features**:
-
-- Tenant and channel scoped
-- Azure AD authentication
-- Rate limiting
-- Can be managed via Teams admin
-
-**Best Practices**:
-
-- Review webhook list regularly
-- Use team channels, not personal
-- Enable conditional access policies
-- Audit webhook usage logs
-
-## Attack Scenarios and Mitigations
-
-### Scenario 1: URL Manipulation
-
-**Attack**: User manually edits config file to change webhook URL.
-
-```json
-{
-  "alerts": {
-    "slack": {
-      "enabled": true,
-      "webhook_url": "https://evil.com/steal"
-    }
-  }
-}
-```
-
-**Mitigation**:
-
-1. Webhooks stored through the encrypted local secret vault, not config files
-2. URL validation on load and before use
-3. Error shown to user if validation fails
-
-### Scenario 2: Query Parameter Bypass
-
-**Attack**: Attacker tries to bypass validation with query parameters.
-
-```text
-https://evil.com/steal?url=https://hooks.slack.com/services/T/B/X
-```
-
-**Mitigation**:
-
-- URL parsing extracts host as `evil.com`
-- Validation rejects: host is not `hooks.slack.com`
-- Query parameters are irrelevant to validation
-
-### Scenario 3: Subdomain Hijacking
-
-**Attack**: Attacker uses a look-alike subdomain.
-
-```text
-https://hooks.slack.com.evil.com/services/T/B/X
-```
-
-**Mitigation**:
-
-- URL parser extracts full host: `hooks.slack.com.evil.com`
-- Exact comparison fails: `hooks.slack.com.evil.com` != `hooks.slack.com`
-- Request is rejected
-
-### Scenario 4: Credential Theft from Config
-
-**Attack**: Attacker gains file system access, reads webhook URLs from config.
-
-**Mitigation**:
-
-1. Current builds store active webhooks as encrypted local vault rows
-2. The OS credential store protects the vault master key
-3. No plaintext webhooks in config file
-4. Even with config-file access, attacker cannot read webhooks
-
-### Scenario 5: Man-in-the-Middle (MITM)
-
-**Attack**: Attacker intercepts HTTP traffic to steal webhook tokens.
-
-**Mitigation**:
-
-1. HTTPS required (TLS encryption)
-2. Webhook URLs must start with `https://`
-3. Rust's `rustls` provides strong TLS
-4. No HTTP fallback
-
-### Scenario 6: Phishing for Webhooks
-
-**Attack**: Attacker social engineers user to share webhook URL.
-
-**Mitigation** (User Education):
-
-1. Treat webhooks as passwords
-2. Never share in public channels
-3. Rotate if compromised
-4. Use read-only channels when possible
-
-## User Best Practices
-
-### 1. Protect Webhook URLs Like Passwords
-
-```text
-Avoid: sharing in Slack/Discord/Teams
-Avoid: committing to Git repositories
-Avoid: posting in public forums
-Use: JobSentinel secret-vault storage
-Use: rotation after compromise
-Use: deletion for unused webhooks
-```
-
-### 2. Use Dedicated Channels
-
-```text
-Use: create #jobsentinel-alerts channel
-Use: limit channel membership
-Use: monitor for unexpected messages
-Avoid: general or busy channels
-```
-
-### 3. Monitor Webhook Activity
-
-**Slack**: Check workspace audit logs  
-**Discord**: Review channel message history  
-**Teams**: Check Teams admin center logs
-
-### 4. Rotate Webhooks Regularly
-
-```text
-1. Create new webhook in service UI
-2. Update webhook URL in JobSentinel
-3. Test notification
-4. Delete old webhook
-```
-
-### 5. Enable Two-Factor Authentication
-
-- Slack: Settings -> Two-Factor Authentication
-- Discord: User Settings -> Enable 2FA
-- Teams: Azure AD -> Security Defaults
-
-## Testing Webhook Security
-
-### Unit Tests
-
-```rust
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_valid_slack_webhook() {
-        let url = "https://hooks.slack.com/services/T00/B00/XXX";
-        assert!(validate_webhook_url(url).is_ok());
-    }
-
-    #[test]
-    fn test_rejects_http() {
-        let url = "http://hooks.slack.com/services/T00/B00/XXX";
-        assert!(validate_webhook_url(url).is_err());
-    }
-
-    #[test]
-    fn test_rejects_wrong_domain() {
-        let url = "https://evil.com/services/T00/B00/XXX";
-        assert!(validate_webhook_url(url).is_err());
-    }
-
-    #[test]
-    fn test_rejects_subdomain_bypass() {
-        let url = "https://hooks.slack.com.evil.com/services/T00/B00/XXX";
-        assert!(validate_webhook_url(url).is_err());
-    }
-
-    #[test]
-    fn test_rejects_query_bypass() {
-        let url = "https://evil.com?url=https://hooks.slack.com/services/T00/B00/XXX";
-        assert!(validate_webhook_url(url).is_err());
-    }
-
-    #[test]
-    fn test_rejects_wrong_path() {
-        let url = "https://hooks.slack.com/api/webhook";
-        assert!(validate_webhook_url(url).is_err());
-    }
-}
-```
-
-### Manual Testing
-
-1. **Valid webhook**: Configure and send test notification
-2. **Invalid domain**: Try `https://evil.com/hook` -> should error
-3. **HTTP**: Try `http://hooks.slack.com/...` -> should error
-4. **Wrong path**: Try `https://hooks.slack.com/api/...` -> should error
-5. **Subdomain trick**: Try `https://hooks.slack.com.evil.com/...` -> should error
+- Use a dedicated provider channel when practical.
+- Limit channel membership.
+- Revoke a webhook that may have been copied or exposed.
+- Replace the saved value after provider-side rotation.
+- Review provider activity when unexpected messages appear.
+- Remove channels that are no longer used.
 
 ## Incident Response
 
-### If Webhook is Compromised
+If a webhook may be compromised:
 
-1. **Immediately delete** the webhook in the service UI
-2. **Create a new webhook** with a different URL
-3. **Update JobSentinel** with the new webhook
-4. **Test** to ensure notifications work
-5. **Review** recent messages for unauthorized activity
-6. **Rotate** any other credentials if needed
-7. **Document** the incident
+1. Revoke it at the provider.
+2. Remove or replace the saved credential in JobSentinel.
+3. Review provider-side activity and channel membership.
+4. Report unexpected JobSentinel behavior through the private security process
+   in [SECURITY.md](../../SECURITY.md).
 
-### If Spam is Sent
+Do not include the webhook value in a report, screenshot, issue, or log.
 
-1. Delete the compromised webhook
-2. Report to channel members
-3. Clear spam messages
-4. Create new webhook with new URL
-5. Consider restricting channel access
+## Verification
+
+```bash
+cargo test -p jobsentinel-security webhook
+cargo test -p jobsentinel-notifications
+cargo test -p jobsentinel-credentials
+npm run lint:security
+npm run lint:secrets
+```
+
+Required tests cover accepted provider targets, misleading hosts, wrong paths,
+embedded credentials, non-default ports, transport downgrade, redacted errors,
+and payload privacy.
 
 ## Related Documentation
 
-- [URL Validation Security](./URL_VALIDATION.md)
-- [Local Secret Vault And Keychain Integration](./KEYRING.md)
+- [URL Validation Security](URL_VALIDATION.md)
+- [Notification Webhook URL Validation](WEBHOOK_URL_VALIDATION.md)
+- [Local Secret Vault And Keychain Integration](KEYRING.md)
+- [Notifications](../features/notifications.md)
 - [Security Policy](../../SECURITY.md)
-- [Notifications Setup](../features/notifications.md)
-
-## References
-
-- [Slack Webhooks Security](https://api.slack.com/messaging/webhooks)
-- [Discord Webhooks Guide](https://discord.com/developers/docs/resources/webhook)
-- [Teams Incoming Webhooks](https://learn.microsoft.com/en-us/microsoftteams/platform/webhooks-and-connectors/how-to/add-incoming-webhook)
-- [Teams Workflow Webhooks](https://learn.microsoft.com/en-us/connectors/teams/)
-- [OWASP API Security](https://owasp.org/www-project-api-security/)

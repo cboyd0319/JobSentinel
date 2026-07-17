@@ -11,7 +11,7 @@ import {
   DEFAULT_PREFERENCES,
   loadNotificationPreferencesAsync,
   saveNotificationPreferencesAsync,
-} from "./notificationPreferencesStore";
+} from "../../../shared/notificationPreferences";
 
 // Type for source keys only (excluding global and advancedFilters)
 type AlertSourceKey = "indeed" | "greenhouse" | "lever" | "jobswithgpt";

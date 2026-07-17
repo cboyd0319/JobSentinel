@@ -20,6 +20,7 @@ models, and best practices.
 | [**URL_VALIDATION.md**](./URL_VALIDATION.md)       | Secure URL parsing              | URL parsing vs string matching, bypass prevention, SSRF protection |
 | [**COMMAND_EXECUTION.md**](./COMMAND_EXECUTION.md) | External command security       | Path canonicalization, command injection prevention, OCR security  |
 | [**WEBHOOK_SECURITY.md**](./WEBHOOK_SECURITY.md)   | Notification webhook security   | Slack/Discord/Teams validation, data exfiltration prevention       |
+| [**WEBHOOK_URL_VALIDATION.md**](./WEBHOOK_URL_VALIDATION.md) | Webhook provider policy | Shared validator ownership, provider host and path rules |
 
 ### Testing Resources
 
@@ -37,7 +38,7 @@ models, and best practices.
 | ------------------------- | ---------------------------------------------------- | ---------------------------------------------- |
 | **Resume Builder**        | DOMPurify sanitization, XSS prevention               | [XSS_PREVENTION.md](./XSS_PREVENTION.md)       |
 | **Credential Storage**    | SQLCipher database, encrypted local vault rows, OS-protected keys or passphrase wrapping, no plaintext secrets in config | [KEYRING.md](./KEYRING.md)                     |
-| **Webhook Notifications** | URL parsing, HTTPS-only, allowlisting                | [WEBHOOK_SECURITY.md](./WEBHOOK_SECURITY.md)   |
+| **Webhook Notifications** | Shared URL parsing, HTTPS-only, provider allowlisting | [WEBHOOK_URL_VALIDATION.md](./WEBHOOK_URL_VALIDATION.md) |
 | **OCR (Resume Parsing)**  | Path canonicalization, no shell invocation           | [COMMAND_EXECUTION.md](./COMMAND_EXECUTION.md) |
 | **Database**              | SQLCipher at rest, SQLx parameterized queries, SQL injection prevention | [KEYRING.md](./KEYRING.md)                     |
 | **Network**               | TLS, backend URL guards, exact renderer CSP, and no remote renderer style or font imports | [URL_VALIDATION.md](./URL_VALIDATION.md)       |

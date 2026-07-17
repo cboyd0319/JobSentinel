@@ -1,10 +1,12 @@
 //! SQLCipher-backed SQLite encryption.
 
 use sqlx::{
-    sqlite::{SqliteConnectOptions, SqlitePool, SqlitePoolOptions},
+    sqlite::{
+        SqliteConnectOptions, SqliteJournalMode, SqlitePool, SqlitePoolOptions, SqliteSynchronous,
+    },
     ConnectOptions,
 };
-use std::path::Path;
+use std::{path::Path, time::Duration};
 use zeroize::Zeroizing;
 
 #[cfg(test)]
@@ -34,9 +36,23 @@ pub(super) async fn connect_encrypted_pool(
     let options = SqliteConnectOptions::new()
         .filename(path)
         .pragma("key", sqlcipher_key_pragma_value(key))
+        .journal_mode(SqliteJournalMode::Wal)
+        .synchronous(SqliteSynchronous::Normal)
+        .foreign_keys(true)
+        .busy_timeout(Duration::from_secs(5))
+        .pragma("defer_foreign_keys", "OFF")
+        .pragma("cell_size_check", "ON")
+        .pragma("checksum_verification", "ON")
+        .pragma("trusted_schema", "OFF")
         .pragma("secure_delete", "ON")
+        .pragma("wal_autocheckpoint", "1000")
+        .pragma("cache_size", "-128000")
         .pragma("temp_store", "MEMORY")
+        .pragma("mmap_size", "268435456")
+        .pragma("locking_mode", "NORMAL")
         .create_if_missing(create_if_missing);
+    #[cfg(debug_assertions)]
+    let options = options.pragma("reverse_unordered_selects", "ON");
     let smoke_logging = package_smoke_logging_enabled();
     let pool = match SqlitePoolOptions::new().connect_with(options).await {
         Ok(pool) => {

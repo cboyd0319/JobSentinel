@@ -21,7 +21,7 @@ See [Exec Plans](../exec-plans.md) for required format.
 
 | Workstream | Document |
 | ---------- | -------- |
-| Repository residual cleanup | [Active plan](active/repository-residual-cleanup.md) |
+| V3 workstream selection | [V3 planning](v3/README.md) |
 
 ## Major-Release Planning
 
@@ -50,6 +50,9 @@ Each broad plan follows [the exec-plan template](templates/exec-plan-template.md
 
 | Version | Status | Document |
 | ------- | ------ | -------- |
+| Repository | Complete | [Post-cleanup corrections](completed/repository-post-cleanup-corrections.md) |
+| Repository | Complete | [Post-cleanup review](completed/repository-post-cleanup-review.md) |
+| Repository | Complete | [Residual cleanup](completed/repository-residual-cleanup.md) |
 | Frontend | Complete | [DRY remediation](completed/frontend-dry-remediation.md) |
 | Rust crates | Complete | [DRY remediation](completed/crates-dry-remediation.md) |
 | Repository | Complete | [Full refactor](completed/full-repository-refactor.md), [ownership blueprint](completed/repository-refactor-blueprint.md) |

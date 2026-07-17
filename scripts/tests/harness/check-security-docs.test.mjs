@@ -79,7 +79,7 @@ test("security docs reject stale security-doc marker patterns", () => {
   });
 });
 
-test("security docs require live URL validation sanitizer reference", () => {
+test("security docs require the current shared webhook validator", () => {
   withFixture((root) => {
     writeFixtureFile(root, "docs/security/URL_VALIDATION.md", "No live sanitizer call here.\n");
 
@@ -100,7 +100,7 @@ test("URL validation policy follows the webhook validation owner", () => {
     writeFixtureFile(
       root,
       "docs/security/WEBHOOK_URL_VALIDATION.md",
-      "validate_webhook_url_security_parts(&url_parsed)?\n",
+      "jobsentinel-security owns validate_webhook_target.\n",
     );
 
     assert.equal(
@@ -109,6 +109,29 @@ test("URL validation policy follows the webhook validation owner", () => {
         "docs/security/URL_VALIDATION.md",
       ),
       false,
+    );
+  });
+});
+
+test("URL validation docs reject copied provider implementations", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "docs/security/URL_VALIDATION.md",
+      "jobsentinel-security owns validate_webhook_target.\n",
+    );
+    writeFixtureFile(
+      root,
+      "docs/security/WEBHOOK_URL_VALIDATION.md",
+      "fn validate_webhook_url(value: &str) {}\n",
+    );
+
+    assert.equal(
+      hasStaleUrlValidationSecurityDocMarkers(
+        root,
+        "docs/security/URL_VALIDATION.md",
+      ),
+      true,
     );
   });
 });

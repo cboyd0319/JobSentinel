@@ -3,7 +3,6 @@ import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { ScraperHealthDashboard } from "./ScraperHealthDashboard";
 import {
-  mockCredentials,
   mockScrapers,
   mockSummary,
 } from "./ScraperHealthDashboard.testData";
@@ -95,8 +94,7 @@ describe("ScraperHealthDashboard", () => {
 
     it("retries loading when retry is clicked", async () => {
       const user = userEvent.setup();
-      // Initial load fails (all 3 parallel calls)
-      mockInvoke.mockRejectedValueOnce(new Error("Failed"));
+      // Initial load fails for both parallel calls.
       mockInvoke.mockRejectedValueOnce(new Error("Failed"));
       mockInvoke.mockRejectedValueOnce(new Error("Failed"));
 
@@ -110,7 +108,6 @@ describe("ScraperHealthDashboard", () => {
       mockInvoke.mockImplementation((cmd: string) => {
         if (cmd === "get_health_summary") return Promise.resolve(mockSummary);
         if (cmd === "get_scraper_health") return Promise.resolve(mockScrapers);
-        if (cmd === "get_expiring_credentials") return Promise.resolve([]);
         return Promise.resolve(null);
       });
 
@@ -141,7 +138,6 @@ describe("ScraperHealthDashboard", () => {
       mockInvoke.mockImplementation((cmd: string) => {
         if (cmd === "get_health_summary") return Promise.resolve(mockSummary);
         if (cmd === "get_scraper_health") return Promise.resolve(mockScrapers);
-        if (cmd === "get_expiring_credentials") return Promise.resolve([]);
         return Promise.resolve(null);
       });
     });
@@ -206,7 +202,6 @@ describe("ScraperHealthDashboard", () => {
       mockInvoke.mockImplementation((cmd: string) => {
         if (cmd === "get_health_summary") return Promise.resolve(mockSummary);
         if (cmd === "get_scraper_health") return Promise.resolve(mockScrapers);
-        if (cmd === "get_expiring_credentials") return Promise.resolve([]);
         return Promise.resolve(null);
       });
     });
@@ -280,63 +275,6 @@ describe("ScraperHealthDashboard", () => {
 
       await waitFor(() => {
         expect(screen.getByRole("region", { name: /job source summary/i })).toBeInTheDocument();
-      });
-    });
-  });
-
-  describe("credential warnings", () => {
-    it("shows credential warnings when present", async () => {
-      mockInvoke.mockImplementation((cmd: string) => {
-        if (cmd === "get_health_summary") return Promise.resolve(mockSummary);
-        if (cmd === "get_scraper_health") return Promise.resolve(mockScrapers);
-        if (cmd === "get_expiring_credentials") return Promise.resolve(mockCredentials);
-        return Promise.resolve(null);
-      });
-
-      render(<ScraperHealthDashboard onClose={onClose} />);
-
-      await waitFor(() => {
-        expect(screen.getByText("Connections Needing Attention")).toBeInTheDocument();
-      });
-      expect(screen.getByText(/update these saved connections/i)).toBeInTheDocument();
-      expect(screen.getByText("Email password")).toBeInTheDocument();
-      expect(screen.queryByText("smtp_password")).not.toBeInTheDocument();
-      expect(screen.getByText(/expires in 7 days/i)).toBeInTheDocument();
-    });
-
-    it("does not show credential warnings when empty", async () => {
-      mockInvoke.mockImplementation((cmd: string) => {
-        if (cmd === "get_health_summary") return Promise.resolve(mockSummary);
-        if (cmd === "get_scraper_health") return Promise.resolve(mockScrapers);
-        if (cmd === "get_expiring_credentials") return Promise.resolve([]);
-        return Promise.resolve(null);
-      });
-
-      render(<ScraperHealthDashboard onClose={onClose} />);
-
-      await waitFor(() => {
-        expect(screen.getByText("Job Sources")).toBeInTheDocument();
-      });
-      expect(screen.queryByText("Connections Needing Attention")).not.toBeInTheDocument();
-    });
-
-    it("shows expired credential status when provided", async () => {
-      const customCredential = {
-        ...mockCredentials[0],
-        status: "expired" as const,
-        days_until_expiry: 0,
-      };
-      mockInvoke.mockImplementation((cmd: string) => {
-        if (cmd === "get_health_summary") return Promise.resolve(mockSummary);
-        if (cmd === "get_scraper_health") return Promise.resolve(mockScrapers);
-        if (cmd === "get_expiring_credentials") return Promise.resolve([customCredential]);
-        return Promise.resolve(null);
-      });
-
-      render(<ScraperHealthDashboard onClose={onClose} />);
-
-      await waitFor(() => {
-        expect(screen.getByText("Expired")).toBeInTheDocument();
       });
     });
   });

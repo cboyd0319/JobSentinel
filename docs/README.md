@@ -16,7 +16,7 @@ skill to get value.
 - Core workflows must work locally without a hosted account, telemetry, cloud
   sync, or external AI provider.
 - External AI is optional, disabled by default, and must go through the
-  documented [privacy-first AI gateway](architecture/privacy-first-ai-gateway.md).
+  documented [privacy-first AI gateway](security/privacy-first-ai-gateway.md).
 - Sensitive job-search data stays local unless the user explicitly chooses,
   previews, and approves what will be sent.
 - JobSentinel must not send applications on the user's behalf, use deceptive
@@ -31,7 +31,7 @@ skill to get value.
 | Job seeker | [Quick Start](user/QUICK_START.md) | Install, set up, and get help without technical setup. |
 | Support request | [Safe support reports](features/user-data-management.md) | Save or copy a safe support report locally, review it, and share it only if you want help. |
 | Design reviewer | [Design System](design/design-system.md), [Design Spec](design/design-spec.md), [Style Guide](style-guide/README.md), [Frontend Testing](developer/FRONTEND_TESTING.md) | Review visual direction, UI tone, accessibility checks, and responsive expectations. |
-| Privacy reviewer | [Privacy](../PRIVACY.md), [Responsible AI](../RESPONSIBLE_AI.md), [AI gateway](architecture/privacy-first-ai-gateway.md) | Review data boundaries and external-AI gates. |
+| Privacy reviewer | [Privacy](../PRIVACY.md), [Responsible AI](../RESPONSIBLE_AI.md), [AI gateway](security/privacy-first-ai-gateway.md) | Review data boundaries and external-AI gates. |
 | Research or grant reviewer | [Research notes](research/README.md), [public roadmap](../ROADMAP.md), [v3 planning](plans/v3/README.md), [current status](harness/current-status.md) | Review evidence, evaluation boundaries, product pillars, and major-release ideas. |
 | Contributor | [Getting Started](developer/GETTING_STARTED.md), [Architecture](developer/ARCHITECTURE.md), [Testing](developer/TESTING.md) | Build, understand, and verify the app. |
 | Coding agent | [AGENTS.md](../AGENTS.md), [Harness](harness/README.md), [Verification Matrix](harness/verification-matrix.md) | Follow repo operating rules and required checks. |
@@ -117,7 +117,7 @@ The maintained external source index lives in
 | --- | --- |
 | Privacy philosophy and data boundaries | [PRIVACY.md](../PRIVACY.md) |
 | Responsible AI boundaries | [RESPONSIBLE_AI.md](../RESPONSIBLE_AI.md) |
-| External-AI gateway architecture | [Privacy-first AI Gateway](architecture/privacy-first-ai-gateway.md) |
+| External-AI gateway architecture | [Privacy-first AI Gateway](security/privacy-first-ai-gateway.md) |
 | Local secret storage | [Local Secret Vault And Keychain Integration](security/KEYRING.md) |
 | Security reporting | [SECURITY.md](../SECURITY.md) |
 

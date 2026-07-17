@@ -61,15 +61,6 @@ interface MockSourceRequestSummary {
   outcome: MockSourceRequestOutcome;
 }
 
-interface MockCredentialHealth {
-  key: string;
-  created_at: string | null;
-  last_validated: string | null;
-  expires_at: string | null;
-  status: "valid" | "expiring" | "expired" | "unknown";
-  days_until_expiry: number | null;
-}
-
 const MOCK_SCRAPERS: readonly MockScraperDefinition[] = [
   {
     scraper_name: "greenhouse",
@@ -314,10 +305,6 @@ export function getMockLatestSourceRequest(
     resultLimit: 100,
     outcome: "success",
   };
-}
-
-export function getMockExpiringCredentials(): MockCredentialHealth[] {
-  return [];
 }
 
 export function getMockSmokeTestResultForArgs(

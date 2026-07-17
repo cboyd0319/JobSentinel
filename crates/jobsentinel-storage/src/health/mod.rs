@@ -1,11 +1,9 @@
-//! SQL-backed health history, metrics, and credential status.
+//! SQL-backed source health history and metrics.
 
-mod credential_health;
 mod metrics;
 mod tracking;
 mod types;
 
-pub use credential_health::*;
 pub use metrics::*;
 pub use tracking::*;
 pub use types::*;

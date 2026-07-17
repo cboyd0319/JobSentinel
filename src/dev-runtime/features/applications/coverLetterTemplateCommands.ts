@@ -1,25 +1,13 @@
 import { getArg, getStringArg } from "../../mocks/handlers/commandHelpers";
+import type {
+  MockCoverLetterTemplate,
+  MockTemplateCategory,
+} from "../../mocks/handlers/types";
 
-export type MockTemplateCategory =
-  | "general"
-  | "tech"
-  | "creative"
-  | "finance"
-  | "healthcare"
-  | "sales"
-  | "custom"
-  | "thankyou"
-  | "followup"
-  | "withdrawal";
-
-export interface MockCoverLetterTemplate {
-  id: string;
-  name: string;
-  content: string;
-  category: MockTemplateCategory;
-  createdAt: string;
-  updatedAt: string;
-}
+export type {
+  MockCoverLetterTemplate,
+  MockTemplateCategory,
+} from "../../mocks/handlers/types";
 
 interface MockCoverLetterTemplateCommandState {
   coverLetterTemplates: MockCoverLetterTemplate[];

@@ -107,43 +107,6 @@ impl ScoringEngine {
         }
     }
 
-    /// Create a new scoring engine with a custom synonym map
-    #[must_use]
-    pub fn with_synonym_map(config: Arc<Config>, synonym_map: SynonymMap) -> Self {
-        Self {
-            config,
-            scoring_config: ScoringConfig::default(),
-            synonym_map,
-            database: None,
-        }
-    }
-
-    /// Create a new scoring engine with database and custom synonym map
-    #[must_use]
-    pub fn with_database_and_synonym_map(
-        config: Arc<Config>,
-        database: Arc<Database>,
-        synonym_map: SynonymMap,
-    ) -> Self {
-        Self {
-            config,
-            scoring_config: ScoringConfig::default(),
-            synonym_map,
-            database: Some(database),
-        }
-    }
-
-    /// Create a new scoring engine with custom scoring config
-    #[must_use]
-    pub fn with_scoring_config(config: Arc<Config>, scoring_config: ScoringConfig) -> Self {
-        Self {
-            config,
-            scoring_config,
-            synonym_map: SynonymMap::new(),
-            database: None,
-        }
-    }
-
     /// Get the current scoring configuration
     #[must_use]
     pub const fn scoring_config(&self) -> &ScoringConfig {

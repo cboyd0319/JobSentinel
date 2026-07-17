@@ -10,9 +10,6 @@ import {
   technicalAccessForJobSource,
 } from "../../../../shared/jobSourceDiscoveryTaxonomy";
 import {
-  formatCredentialLabel,
-  formatCredentialWarning,
-  type CredentialHealth,
   type HealthSummary,
   type ScraperHealthMetrics,
   type ScraperRun,
@@ -51,7 +48,6 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
   const [loading, setLoading] = useState(true);
   const [summary, setSummary] = useState<HealthSummary | null>(null);
   const [scrapers, setScrapers] = useState<ScraperHealthMetrics[]>([]);
-  const [credentials, setCredentials] = useState<CredentialHealth[]>([]);
   const [selectedScraper, setSelectedScraper] = useState<string | null>(null);
   const [runs, setRuns] = useState<ScraperRun[]>([]);
   const [runsLoading, setRunsLoading] = useState(false);
@@ -76,7 +72,7 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
       setLoading(true);
       setError(null);
 
-      const [summaryData, scrapersData, credentialsData] = await Promise.all([
+      const [summaryData, scrapersData] = await Promise.all([
         safeInvoke<HealthSummary>(
           "get_health_summary",
           {},
@@ -87,18 +83,12 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
           {},
           { logContext: "Load source status" },
         ),
-        safeInvoke<CredentialHealth[]>(
-          "get_expiring_credentials",
-          {},
-          { logContext: "Load credential health" },
-        ),
       ]);
 
       if (signal?.aborted) return;
 
       setSummary(summaryData);
       setScrapers(scrapersData);
-      setCredentials(credentialsData);
     } catch (err: unknown) {
       if (signal?.aborted) return;
       const friendly = getUserFriendlyError(err);
@@ -373,38 +363,6 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
                   value={summary.total_jobs_24h}
                   accentColor="sentinel"
                 />
-              </div>
-            )}
-
-            {/* Connection Warnings */}
-            {credentials.length > 0 && (
-              <div
-                className="mb-6 p-4 bg-alert-50 dark:bg-alert-900/20 rounded-lg border border-alert-200 dark:border-alert-800"
-                role="alert"
-                aria-live="polite"
-              >
-                <h3 className="font-medium text-alert-700 dark:text-alert-400 mb-2">
-                  Connections Needing Attention
-                </h3>
-                <p className="text-sm text-alert-600 dark:text-alert-300 mb-3">
-                  Open Settings and update these saved connections if alerts or
-                  job-site checks stop working.
-                </p>
-                <div className="space-y-2">
-                  {credentials.map((cred) => (
-                    <div
-                      key={cred.key}
-                      className="flex items-center justify-between text-sm"
-                    >
-                      <span className="text-alert-600 dark:text-alert-300">
-                        {formatCredentialLabel(cred.key)}
-                      </span>
-                      <span className="text-alert-500 dark:text-alert-400">
-                        {formatCredentialWarning(cred)}
-                      </span>
-                    </div>
-                  ))}
-                </div>
               </div>
             )}
 

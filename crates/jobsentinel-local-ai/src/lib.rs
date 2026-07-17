@@ -57,7 +57,6 @@ pub use runtime::{
     VectorFreshnessKey, VectorProvenance,
 };
 
-use anyhow::Result;
 use thiserror::Error;
 
 /// ML-related errors
@@ -80,10 +79,4 @@ pub enum MlError {
 
     #[error("local ML file operation failed")]
     Io(#[from] std::io::Error),
-}
-
-/// Check if ML is available and model is ready
-pub async fn is_ml_available(app_data_dir: &std::path::Path) -> Result<bool> {
-    let manager = ModelManager::new(app_data_dir.to_path_buf());
-    Ok(manager.is_default_semantic_runtime_downloaded() || manager.is_model_downloaded())
 }

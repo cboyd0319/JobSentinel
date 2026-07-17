@@ -3297,7 +3297,6 @@ dependencies = [
  "tokio",
  "tracing",
  "tracing-subscriber",
- "urlencoding",
  "uuid",
  "zeroize",
 ]
@@ -3339,7 +3338,6 @@ dependencies = [
  "jobsentinel-storage",
  "proptest",
  "regex",
- "scopeguard",
  "serde",
  "serde_json",
  "sha2 0.11.0",
@@ -3348,7 +3346,6 @@ dependencies = [
  "tokio",
  "tracing",
  "url",
- "urlencoding",
  "uuid",
  "zeroize",
 ]
@@ -3422,7 +3419,6 @@ dependencies = [
  "chrono",
  "hex",
  "jobsentinel-security",
- "proptest",
  "regex",
  "serde",
  "serde_json",

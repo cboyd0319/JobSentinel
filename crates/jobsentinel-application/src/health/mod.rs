@@ -7,10 +7,7 @@
 //!
 //! - **Run Tracking**: Record each scraper execution with timing, status, jobs found
 //! - **Health Metrics**: Calculate success rate, average duration, last success time
-//! - **Retry Logic**: Exponential backoff for transient failures (429, 503, timeouts)
 //! - **Smoke Tests**: Live API connectivity verification before scraping
-//! - **Credential Health**: Track user-configured external channel expiry where applicable
-//! - **Selector Monitoring**: Detect broken HTML selectors for HTML scrapers
 //!
 //! ## Architecture
 //!
@@ -50,14 +47,12 @@
 //! # }
 //! ```
 
-mod retry;
 mod smoke_checks;
 
 #[cfg(test)]
 mod tests;
 
 pub use jobsentinel_storage::health::*;
-pub use retry::*;
 pub use smoke_checks::*;
 
 use crate::Config;
@@ -90,20 +85,6 @@ impl HealthManager {
     /// Includes success rates, timing, job counts, and status information.
     pub async fn get_all_health(&self) -> Result<Vec<ScraperHealthMetrics>> {
         get_all_scraper_health(&self.database).await
-    }
-
-    /// Get recent execution history for a specific scraper.
-    ///
-    /// # Arguments
-    ///
-    /// * `scraper_name` - Scraper identifier (e.g. "greenhouse")
-    /// * `limit` - Maximum number of runs to return
-    ///
-    /// # Returns
-    ///
-    /// Vector of runs ordered by start time (newest first).
-    pub async fn get_runs(&self, scraper_name: &str, limit: i32) -> Result<Vec<ScraperRun>> {
-        get_scraper_runs(&self.database, scraper_name, limit).await
     }
 
     /// Run a live connectivity smoke test for a scraper.

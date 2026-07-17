@@ -1,133 +1,113 @@
 # Notification Webhook URL Validation
 
-This guide owns provider-specific webhook host and path validation. See
-[URL Validation Security](URL_VALIDATION.md) for the shared parsing, external
-URL, redirect, and server-side request forgery boundaries.
+This document is the canonical provider-rule summary for notification
+webhooks. [URL Validation Security](URL_VALIDATION.md) owns the shared parsing,
+public-address, canonicalization, and logging rules.
 
-## Provider Validation
+## Implementation Owner
 
-### Slack Webhooks
+`crates/jobsentinel-security/src/webhook.rs` owns provider validation through
+`jobsentinel_security::validate_webhook_target` and `WebhookTarget`.
 
-**File**: `crates/jobsentinel-notifications/src/slack.rs`
+The Slack, Discord, and Teams adapters under
+`crates/jobsentinel-notifications/src/` delegate to that shared owner. They map
+validation failures to user-safe provider guidance and do not expose the
+submitted webhook value.
 
-```rust
-fn validate_webhook_url(url: &str) -> Result<()> {
-    let url_parsed = url::Url::parse(url)
-        .map_err(|e| anyhow!("Invalid URL format: {}", e))?;
+## Shared Requirements
 
-    if url_parsed.scheme() != "https" {
-        return Err(anyhow!("Webhook URL must use HTTPS"));
-    }
+Every supported webhook must:
 
-    validate_webhook_url_security_parts(&url_parsed)?;
+- parse as a URL
+- use HTTPS
+- omit embedded user information
+- use a public destination allowed by the shared external URL policy
+- use port 443 when an explicit port is present
+- match the selected provider's host and path contract
 
-    if url_parsed.host_str() != Some("hooks.slack.com") {
-        return Err(anyhow!("Webhook URL must use hooks.slack.com domain"));
-    }
+Provider rules compare parsed host and path components. They do not use string
+prefixes against the complete submitted value.
 
-    if !url_parsed.path().starts_with("/services/") {
-        return Err(anyhow!("Invalid Slack webhook path"));
-    }
+## Slack
 
-    Ok(())
-}
-```
+Accepted shape:
 
-**Valid URLs**:
+- host is exactly `hooks.slack.com`
+- path begins with `/services/`
 
-```text
-https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXX
-```
-
-**Invalid URLs**:
+Examples:
 
 ```text
-http://hooks.slack.com/services/...       (not HTTPS)
-https://evil.com/hooks.slack.com/...      (wrong host)
-https://hooks.slack.com/other/...         (wrong path)
+https://hooks.slack.com/services/T00000000/B00000000/secret
 ```
 
-### Discord Webhooks
+Rejected shapes include alternate hosts, deceptive subdomains, non-HTTPS
+schemes, non-default ports, and paths outside `/services/`.
 
-**File**: `crates/jobsentinel-notifications/src/discord.rs`
+## Discord
 
-```rust
-fn validate_webhook_url(url: &str) -> Result<()> {
-    let url_parsed = url::Url::parse(url)
-        .map_err(|e| anyhow!("Invalid URL format: {}", e))?;
+Accepted shape:
 
-    if url_parsed.scheme() != "https" {
-        return Err(anyhow!("Webhook URL must use HTTPS"));
-    }
+- host is exactly `discord.com`, `discordapp.com`, or `hooks.discord.com`
+- path begins with `/api/webhooks/`
 
-    validate_webhook_url_security_parts(&url_parsed)?;
-
-    let host = url_parsed.host_str()
-        .ok_or_else(|| anyhow!("Invalid webhook URL host"))?;
-
-    if !matches!(host, "discord.com" | "discordapp.com" | "hooks.discord.com") {
-        return Err(anyhow!(
-            "Webhook URL must use a supported Discord webhook domain"
-        ));
-    }
-
-    if !url_parsed.path().starts_with("/api/webhooks/") {
-        return Err(anyhow!("Invalid Discord webhook path"));
-    }
-
-    Ok(())
-}
-```
-
-**Valid URLs**:
+Examples:
 
 ```text
-https://discord.com/api/webhooks/123456789/ABCDEFG
-https://discordapp.com/api/webhooks/123456789/ABCDEFG
-https://hooks.discord.com/api/webhooks/123456789/ABCDEFG
+https://discord.com/api/webhooks/123456789/secret
+https://hooks.discord.com/api/webhooks/123456789/secret
 ```
 
-### Microsoft Teams Webhooks
+Subdomains of the listed hosts are not accepted unless they are one of the
+three exact entries.
 
-**File**: `crates/jobsentinel-notifications/src/teams.rs`
+## Microsoft Teams
 
-```rust
-fn validate_webhook_url(url: &str) -> Result<()> {
-    let url_parsed = url::Url::parse(url)
-        .map_err(|e| anyhow!("Invalid URL format: {}", e))?;
+The shared owner accepts current Teams workflow targets and retained connector
+forms:
 
-    if url_parsed.scheme() != "https" {
-        return Err(anyhow!("Webhook URL must use HTTPS"));
-    }
+- `outlook.office.com` or `outlook.office365.com` with a path beginning
+  `/webhook/`
+- a generated subdomain of `.webhook.office.com` with a non-root path
+- a generated subdomain of `.logic.azure.com` with a non-root path
 
-    validate_webhook_url_security_parts(&url_parsed)?;
+The apex hosts `webhook.office.com` and `logic.azure.com` are not accepted.
+Arbitrary Microsoft-owned domains are not sufficient.
 
-    let host = url_parsed.host_str()
-        .ok_or_else(|| anyhow!("Invalid webhook URL host"))?;
-
-    let legacy_connector =
-        matches!(host, "outlook.office.com" | "outlook.office365.com")
-            && url_parsed.path().starts_with("/webhook/");
-    let current_connector = host.ends_with(".webhook.office.com")
-        && host != "webhook.office.com"
-        && url_parsed.path().len() > 1;
-    let workflow_trigger = host.ends_with(".logic.azure.com")
-        && host != "logic.azure.com"
-        && url_parsed.path().len() > 1;
-
-    if !(legacy_connector || current_connector || workflow_trigger) {
-        return Err(anyhow!("Invalid Teams webhook path"));
-    }
-
-    Ok(())
-}
-```
-
-**Valid URLs**:
+Examples:
 
 ```text
-https://outlook.office.com/webhook/...
-https://outlook.office365.com/webhook/...
-https://tenant.webhook.office.com/...
-https://prod-12.westus.logic.azure.com:443/...
+https://outlook.office.com/webhook/tenant/IncomingWebhook/key/group
+https://tenant.webhook.office.com/path/IncomingWebhook/key/group
+https://region.logic.azure.com/workflows/id/triggers/manual/paths/invoke
 ```
+
+## Adapter Contract
+
+Provider adapters may:
+
+- select the matching `WebhookTarget`
+- return concise setup guidance
+- build provider-specific payloads
+
+Provider adapters must not:
+
+- copy host or path allowlists
+- perform substring or full-string prefix validation
+- log webhook values
+- downgrade to HTTP
+- bypass the shared validator for test sends
+
+## Verification
+
+The shared contract tests cover accepted provider shapes and representative
+host, path, credential, scheme, and port bypasses:
+
+```bash
+cargo test -p jobsentinel-security webhook
+cargo test -p jobsentinel-notifications
+npm run lint:security
+```
+
+Any provider rule change must update the shared validator, its tests, this
+document, and user-facing setup guidance in the same change.

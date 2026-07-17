@@ -71,8 +71,8 @@ impl Database {
             }
         };
 
-        // Configure SQLite for better integrity and performance
-        Self::configure_pragmas(&pool).await?;
+        // Configure database-persistent settings and validate the connection.
+        Self::configure_database(&pool).await?;
         jobsentinel_platform::ensure_private_sqlite_files(path).map_err(sqlx::Error::Io)?;
 
         Ok(Database {
@@ -81,140 +81,9 @@ impl Database {
         })
     }
 
-    /// Configure SQLite PRAGMA settings for performance and integrity.
-    async fn configure_pragmas(pool: &SqlitePool) -> Result<(), sqlx::Error> {
-        tracing::info!("Configuring SQLite with integrity and performance settings");
-
-        // ============================================================
-        // JOURNAL & TRANSACTION SETTINGS
-        // ============================================================
-
-        // Enable WAL mode for better crash recovery and concurrent read/write access
-        // WAL = Write-Ahead Logging, allows readers to access DB while writer commits
-        sqlx::query("PRAGMA journal_mode = WAL")
-            .execute(pool)
-            .await?;
-        tracing::debug!("WAL mode enabled");
-
-        // Set synchronous mode (NORMAL = good balance between safety and speed)
-        // FULL = fsync after every write (safest, slowest)
-        // NORMAL = fsync at critical moments (good balance used here)
-        // OFF = no fsync (fastest, risky - data loss on crash)
-        sqlx::query("PRAGMA synchronous = NORMAL")
-            .execute(pool)
-            .await?;
-        tracing::debug!("Synchronous = NORMAL (balanced safety)");
-
-        // Automatic WAL checkpointing every 1000 pages (~4MB with default page size)
-        // Prevents WAL from growing too large
-        sqlx::query("PRAGMA wal_autocheckpoint = 1000")
-            .execute(pool)
-            .await?;
-        tracing::debug!("WAL autocheckpoint = 1000 pages");
-
-        // ============================================================
-        // INTEGRITY & SECURITY SETTINGS
-        // ============================================================
-
-        // CRITICAL: Enable foreign key constraints
-        sqlx::query("PRAGMA foreign_keys = ON")
-            .execute(pool)
-            .await?;
-        tracing::debug!("Foreign keys enforced");
-
-        // Enforce immediate foreign key constraint checking (no deferring)
-        sqlx::query("PRAGMA defer_foreign_keys = OFF")
-            .execute(pool)
-            .await?;
-        tracing::debug!("Immediate foreign key checks");
-
-        // Verify B-tree cell sizes for corruption detection
-        sqlx::query("PRAGMA cell_size_check = ON")
-            .execute(pool)
-            .await?;
-        tracing::debug!("Cell size verification enabled");
-
-        // Enable checksum verification (requires SQLite 3.37+, ignore if not supported)
-        if sqlx::query("PRAGMA checksum_verification = ON")
-            .execute(pool)
-            .await
-            .is_ok()
-        {
-            tracing::debug!("  - Checksum verification enabled (SQLite 3.37+)");
-        } else {
-            tracing::debug!("  - Checksum verification not supported (SQLite < 3.37)");
-        }
-
-        // Disable potentially unsafe schema features (SQLite 3.31+)
-        // Prevents malicious SQL from being executed via schema
-        if sqlx::query("PRAGMA trusted_schema = OFF")
-            .execute(pool)
-            .await
-            .is_ok()
-        {
-            tracing::debug!("  - Trusted schema disabled (SQLite 3.31+)");
-        } else {
-            tracing::debug!("  - Trusted schema setting not supported (SQLite < 3.31)");
-        }
-
-        // Enable full secure delete for local privacy data. This costs extra
-        // write I/O, but deleted rows should not remain recoverable in free cells.
-        sqlx::query("PRAGMA secure_delete = ON")
-            .execute(pool)
-            .await?;
-        tracing::debug!("Secure delete = ON");
-
-        // Help detect code relying on undefined ordering (useful for testing)
-        // Can be disabled in production if needed for performance
-        #[cfg(debug_assertions)]
-        {
-            sqlx::query("PRAGMA reverse_unordered_selects = ON")
-                .execute(pool)
-                .await
-                .ok();
-            tracing::debug!("Reverse unordered selects enabled (debug mode)");
-        }
-
-        // ============================================================
-        // PERFORMANCE SETTINGS
-        // ============================================================
-
-        // Set cache size to 128MB (negative = kilobytes, positive = pages)
-        // Larger cache = fewer disk reads = faster queries
-        // Using 128MB to ensure we have AT LEAST 64MB (with 2x safety margin)
-        sqlx::query("PRAGMA cache_size = -128000")
-            .execute(pool)
-            .await?;
-        tracing::debug!("Cache size = 128MB (at least 64MB required)");
-
-        // Use memory for temporary tables and indices (much faster)
-        // Options: DEFAULT (disk), FILE (disk), MEMORY (RAM). We use MEMORY.
-        sqlx::query("PRAGMA temp_store = MEMORY")
-            .execute(pool)
-            .await?;
-        tracing::debug!("Temp store = MEMORY");
-
-        // Enable memory-mapped I/O for faster reads (256MB)
-        // Reads from memory instead of system calls
-        // Set to 0 to disable if causing issues
-        sqlx::query("PRAGMA mmap_size = 268435456")
-            .execute(pool)
-            .await?;
-        tracing::debug!("Memory-mapped I/O = 256MB");
-
-        // Set locking mode to NORMAL (allows multiple connections)
-        // Options: NORMAL (multi-connection), EXCLUSIVE (single connection, faster)
-        sqlx::query("PRAGMA locking_mode = NORMAL")
-            .execute(pool)
-            .await?;
-        tracing::debug!("Locking mode = NORMAL (multi-connection)");
-
-        // Set busy timeout (wait up to 5 seconds for lock before failing)
-        // Prevents immediate failures when DB is locked by another connection
-        sqlx::query("PRAGMA busy_timeout = 5000")
-            .execute(pool)
-            .await?;
-        tracing::debug!("Busy timeout = 5000ms");
+    /// Configure database-persistent settings and log connection diagnostics.
+    async fn configure_database(pool: &SqlitePool) -> Result<(), sqlx::Error> {
+        tracing::info!("Configuring SQLite database");
 
         // Set page size to 4096 bytes (optimal for most systems)
         // MUST be set before any tables are created (only affects new databases)
@@ -224,10 +93,6 @@ impl Database {
             .await
             .ok(); // Ignore errors (can't change after DB created)
         tracing::debug!("Page size = 4096 bytes (if new DB)");
-
-        // ============================================================
-        // VACUUM & SPACE MANAGEMENT
-        // ============================================================
 
         // Enable auto_vacuum for automatic space reclamation
         // Options: NONE (manual), FULL (auto shrink), INCREMENTAL (auto but controlled)
@@ -244,10 +109,6 @@ impl Database {
             .ok(); // Ignore errors if no pages to free
         tracing::debug!("Incremental vacuum attempted (100 pages)");
 
-        // ============================================================
-        // APPLICATION METADATA
-        // ============================================================
-
         // Set application ID (unique identifier for JobSentinel)
         // Helps identify database files in forensic analysis
         // Using ASCII "JSDB" = 0x4A534442
@@ -262,18 +123,10 @@ impl Database {
         sqlx::query("PRAGMA user_version = 2").execute(pool).await?;
         tracing::debug!("User version = {}", SCHEMA_VERSION);
 
-        // ============================================================
-        // QUERY OPTIMIZER
-        // ============================================================
-
         // Run query optimizer analysis to update statistics
         // Helps SQLite choose better query plans
         sqlx::query("PRAGMA optimize").execute(pool).await?;
         tracing::debug!("Query optimizer statistics updated");
-
-        // ============================================================
-        // DIAGNOSTIC INFO (logged at startup)
-        // ============================================================
 
         // Log SQLite compile options (useful for debugging)
         if let Ok(rows) = sqlx::query("PRAGMA compile_options").fetch_all(pool).await {
@@ -305,10 +158,6 @@ impl Database {
                 tracing::info!("SQLite version: {}", version);
             }
         }
-
-        // ============================================================
-        // VALIDATION: Verify Critical Settings
-        // ============================================================
 
         // Verify cache size is AT LEAST 64MB
         if let Ok(row) = sqlx::query("PRAGMA cache_size").fetch_one(pool).await {
@@ -351,7 +200,7 @@ impl Database {
             }
         }
 
-        tracing::info!("Database configured with integrity and performance settings");
+        tracing::info!("Database configuration verified");
         Ok(())
     }
 

@@ -4,12 +4,16 @@
 import { useState, useEffect, useRef } from "react";
 import type { Job, Statistics, ScrapingStatus } from "../types";
 import { useToast } from "../../../shared/toast/useToast";
-import { notifyScrapingComplete } from "../notifications";
+import {
+  notifyScrapingComplete,
+  selectNotificationCandidates,
+} from "../notifications";
 import { safeInvoke, invalidateCacheByCommand } from "../../../platform/tauri";
 
 interface AutoRefreshHookProps {
   searching: boolean;
   showSettings: boolean;
+  jobs: Job[];
   statistics: Statistics;
   onDataUpdate: (data: {
     jobs: Job[];
@@ -21,6 +25,7 @@ interface AutoRefreshHookProps {
 export function useDashboardAutoRefresh({
   searching,
   showSettings,
+  jobs,
   statistics,
   onDataUpdate,
 }: AutoRefreshHookProps) {
@@ -34,9 +39,13 @@ export function useDashboardAutoRefresh({
 
   // Use ref to access current statistics value in interval callback (avoid stale closure)
   const statisticsRef = useRef(statistics);
+  const jobsRef = useRef(jobs);
   useEffect(() => {
     statisticsRef.current = statistics;
   }, [statistics]);
+  useEffect(() => {
+    jobsRef.current = jobs;
+  }, [jobs]);
 
   // Countdown display update effect - refreshes every second when auto-refresh is enabled
   useEffect(() => {
@@ -116,11 +125,15 @@ export function useDashboardAutoRefresh({
         const previousHighMatches = statisticsRef.current.high_matches;
         if (statsData.high_matches > previousHighMatches) {
           const newCount = statsData.high_matches - previousHighMatches;
+          const notificationCandidates = selectNotificationCandidates(
+            jobsRef.current,
+            jobsData,
+          );
           toast.success(
             "New matches found!",
             `${newCount} new high-match jobs`,
           );
-          notifyScrapingComplete(jobsData.length, newCount);
+          void notifyScrapingComplete(notificationCandidates);
         }
         setConsecutiveFailures(0);
       } catch {

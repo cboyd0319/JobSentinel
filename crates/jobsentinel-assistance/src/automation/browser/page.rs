@@ -10,8 +10,6 @@ use chromiumoxide::Page;
 use jobsentinel_security::path_label_for_logging;
 use serde::{Deserialize, Serialize};
 use std::path::Path;
-use std::time::Duration;
-use tokio::time::timeout;
 
 const FILE_UPLOAD_UNAVAILABLE: &str = "Could not attach the selected resume file";
 const FILE_UPLOAD_SETUP_ERROR: &str = "Could not prepare the resume upload field";
@@ -149,17 +147,6 @@ impl AutomationPage {
             .context("Failed to wait for navigation")?;
 
         Ok(())
-    }
-
-    /// Wait for a selector to appear (with timeout)
-    pub async fn wait_for_selector(&self, selector: &str, timeout_ms: u64) -> Result<bool> {
-        let wait_duration = Duration::from_millis(timeout_ms);
-
-        match timeout(wait_duration, self.page.find_element(selector)).await {
-            Ok(Ok(_)) => Ok(true),
-            Ok(Err(_)) => Ok(false),
-            Err(_) => Ok(false), // Timeout
-        }
     }
 
     /// Fill a text field by selector

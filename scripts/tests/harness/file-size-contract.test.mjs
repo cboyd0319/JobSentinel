@@ -165,6 +165,17 @@ test("review candidates include either canonical review threshold", () => {
   });
 });
 
+test("review candidates can be scoped to changed files", () => {
+  withFixture((root) => {
+    writeFixture(root, "src/changed.ts", "x\n".repeat(301));
+    writeFixture(root, "src/unchanged.ts", "x\n".repeat(301));
+    assert.deepEqual(collectRepositoryFileSizeReviewCandidates(root, {
+      paths: ["src/changed.ts"],
+      execFileSync: () => "src/changed.ts\0src/unchanged.ts\0",
+    }), ["src/changed.ts"]);
+  });
+});
+
 test("governed scans reject an intermediate junction or symlink escaping the repository", () => {
   withFixture((root) => {
     const outside = mkdtempSync(join(tmpdir(), "jobsentinel-file-size-outside-"));

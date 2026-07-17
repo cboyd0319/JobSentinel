@@ -1,594 +1,147 @@
 # URL Validation Security
 
-> JobSentinel Security Documentation
+JobSentinel treats every user-controlled or remotely supplied URL as untrusted.
+Validation is based on parsed URL components, not string prefixes or substring
+searches.
 
----
+## Canonical Owners
 
-## Overview
+| Concern | Owner |
+| ------- | ----- |
+| External URL parsing, host policy, canonicalization, and safe log labels | `crates/jobsentinel-security/src/url.rs` |
+| DNS resolution and public-address verification before fetches | `crates/jobsentinel-network/src/lib.rs` |
+| Notification webhook provider policy | `crates/jobsentinel-security/src/webhook.rs` |
+| User-supplied job URL normalization | `crates/jobsentinel-domain/src/normalization/url.rs` |
+| Renderer job-link checks | `src/features/dashboard/jobUrlValidation.ts` |
+| Safe browser download names | `src/shared/browserDownload.ts` |
+| CSV formula neutralization | `src/features/dashboard/jobCsvExport.ts` |
 
-Proper URL validation is critical for preventing security vulnerabilities. JobSentinel uses **URL parsing**
-instead of **string prefix matching** to validate webhook URLs, browser-open destinations, and user-supplied
-job import URLs.
+Provider-specific webhook rules are documented in
+[Notification Webhook URL Validation](WEBHOOK_URL_VALIDATION.md).
 
-## The Problem: String Prefix Matching
+## Why Parsing Is Required
 
-### Insecure Approach
+A text prefix such as `https://trusted.example` does not prove ownership of the
+destination. It can also match:
 
-```rust
-// INSECURE: String prefix check can be bypassed
-fn validate_webhook_url(url: &str) -> Result<()> {
-    if url.starts_with("https://hooks.slack.com/services/") {
-        Ok(())
-    } else {
-        Err(anyhow!("Invalid Slack webhook URL"))
-    }
-}
+- `https://trusted.example.attacker.invalid/`
+- a URL that embeds credentials before another host
+- a URL that hides a destination in a query or fragment
+- alternate textual forms of local or private IP addresses
+
+The `url` crate separates scheme, user information, host, port, path, query,
+and fragment before policy is evaluated.
+
+## External URL Contract
+
+`jobsentinel-security` provides the pure structural checks:
+
+- `validate_external_http_url` allows public HTTP or HTTPS destinations.
+- `validate_external_https_url` requires HTTPS.
+- `canonicalize_user_supplied_job_url` removes user information, fragments,
+  tracking parameters, and sensitive query values before storage.
+- `sanitize_url_for_logging` removes user information, query strings, and
+  fragments, then bounds the resulting label.
+- `validate_resolved_ips` rejects resolved non-public addresses.
+
+Structural validation rejects:
+
+- unsupported schemes such as `file`, `javascript`, and custom protocols
+- embedded user names or passwords
+- missing hosts
+- localhost names
+- internal hostname suffixes
+- loopback, private, link-local, shared-address, unspecified, multicast, and
+  other non-public literal IP destinations
+- hostnames that embed blocked IPv4 address shapes
+
+## Fetch-Time Validation
+
+Parsing a public-looking hostname is not enough for an outbound request. DNS can
+resolve that name to a blocked address.
+
+`jobsentinel-network` owns fetch-time validation:
+
+1. Apply the pure URL policy.
+2. Resolve the host.
+3. Validate every resolved address.
+4. Revalidate redirects through the same outbound request boundary.
+5. Send the request only after those checks pass.
+
+Code that performs an HTTP fetch must use the network owner rather than calling
+the pure parser and then constructing an independent client request.
+
+## Job URLs
+
+Job links can include candidate identifiers, session values, affiliate data,
+and private fragments. Canonicalization removes sensitive and unstable
+components before the URL is stored, hashed, logged, or included in an optional
+notification channel.
+
+The storage layer validates HTTPS again before accepting a job record. Desktop
+open and automation paths validate at their own trust boundaries because
+persisted data is not treated as inherently trusted.
+
+## Webhook URLs
+
+Webhook URLs are credentials and outbound destinations. They require both the
+external HTTPS policy and provider-specific host and path validation.
+
+All notification adapters delegate to
+`jobsentinel_security::validate_webhook_target`. Provider adapters must not
+carry independent host allowlists or copied URL-validation implementations.
+
+See:
+
+- [Notification Webhook URL Validation](WEBHOOK_URL_VALIDATION.md)
+- [Webhook Security Guide](WEBHOOK_SECURITY.md)
+
+## Logging
+
+Never log a complete user-supplied URL. Query strings, fragments, user
+information, path segments, and webhook values can contain secrets or private
+search criteria.
+
+Use `sanitize_url_for_logging` or a more restrictive non-sensitive label.
+Validation errors shown to users should explain the action to take without
+echoing secret-bearing input.
+
+## Downloads And CSV
+
+Browser download names are separate from URL validation but share the same
+untrusted-input boundary:
+
+- `sanitizeDownloadFilename` removes path components and unsafe filename
+  characters.
+- CSV export quotes fields and neutralizes spreadsheet formulas from untrusted
+  job content.
+- Callers supply a bounded fallback name.
+
+## Verification
+
+Run the focused policy and boundary checks:
+
+```bash
+cargo test -p jobsentinel-security url
+cargo test -p jobsentinel-security webhook
+cargo test -p jobsentinel-network
+npm run lint:security
+npm run lint:architecture
 ```
 
-### Why This Is Dangerous
-
-An attacker can bypass this validation using several techniques:
-
-#### 1. Query Parameter Bypass
-
-```text
-https://evil.com/steal?redirect=https://hooks.slack.com/services/T00/B00/XXX
-```
-
-- **Naive check**: passes because the URL contains the expected prefix
-- **Actual destination**: `evil.com`, not Slack
-
-#### 2. Fragment Bypass
-
-```text
-https://attacker.com/webhook#https://hooks.slack.com/services/T00/B00/XXX
-```
-
-- **Naive check**: passes
-- **Actual destination**: `attacker.com`
-
-#### 3. URL-Encoded Bypass
-
-```text
-https://evil.com/https%3A%2F%2Fhooks.slack.com%2Fservices%2F
-```
-
-- **Naive check**: passes after decoding
-- **Actual destination**: `evil.com`
-
-#### 4. Subdomain Bypass
-
-```text
-https://hooks.slack.com.evil.com/webhook
-```
-
-- **Naive check**: passes because the string contains `hooks.slack.com`
-- **Actual host**: `hooks.slack.com.evil.com`, not `hooks.slack.com`
-
-## The Solution: Proper URL Parsing
-
-### Secure Approach
-
-```rust
-use url::Url;
-use anyhow::{anyhow, Result};
-
-fn validate_webhook_url(url: &str) -> Result<()> {
-    // 1. Parse URL first
-    let url_parsed = Url::parse(url)
-        .map_err(|e| anyhow!("Invalid URL format: {}", e))?;
-
-    // 2. Validate scheme
-    if url_parsed.scheme() != "https" {
-        return Err(anyhow!("Webhook URL must use HTTPS"));
-    }
-
-    // 3. Reject embedded credentials and non-default HTTPS ports
-    if url_parsed.username() != "" || url_parsed.password().is_some() {
-        return Err(anyhow!("Webhook URL must not include credentials"));
-    }
-    if matches!(url_parsed.port(), Some(port) if port != 443) {
-        return Err(anyhow!("Webhook URL must use the default HTTPS port"));
-    }
-
-    // 4. Validate host (exact match)
-    if url_parsed.host_str() != Some("hooks.slack.com") {
-        return Err(anyhow!("Webhook URL must use hooks.slack.com domain"));
-    }
-
-    // 5. Validate path
-    if !url_parsed.path().starts_with("/services/") {
-        return Err(anyhow!("Invalid Slack webhook path"));
-    }
-
-    Ok(())
-}
-```
-
-### Why This Is Secure
-
-The `url::Url` parser correctly identifies URL components:
-
-```text
-https://hooks.slack.com:443/services/T00/B00/XXX?foo=bar#baz
-^      ^                ^   ^                       ^       ^
-|      |                |   |                       |       |
-scheme host            port path                  query  fragment
-```
-
-Now all bypass attempts fail:
-
-```rust
-// Query parameter bypass fails
-validate_webhook_url("https://evil.com?redirect=https://hooks.slack.com/services/T00/B00/XXX")
-// Error: "Webhook URL must use hooks.slack.com domain"
-// Host is correctly identified as "evil.com"
-
-// Fragment bypass fails
-validate_webhook_url("https://attacker.com/webhook#https://hooks.slack.com/services/T00/B00/XXX")
-// Error: "Webhook URL must use hooks.slack.com domain"
-// Host is correctly identified as "attacker.com"
-
-// Subdomain bypass fails
-validate_webhook_url("https://hooks.slack.com.evil.com/webhook")
-// Error: "Webhook URL must use hooks.slack.com domain"
-// Host is correctly identified as "hooks.slack.com.evil.com"
-```
-
-## Implementation in JobSentinel
-
-### External Job URLs And Imports
-
-**File**: `crates/jobsentinel-security/src/url.rs`
-
-`validate_external_http_url` is the shared low-level backend guard for
-user-controlled external HTTP(S) URLs. `validate_external_https_url` and
-`canonicalize_user_supplied_job_url` are used for stored or browser-opened job
-destinations, so job links must be public HTTPS.
-
-These guards are used by:
-
-- `crates/jobsentinel-storage/src/crud.rs` before a job link is stored in SQLite.
-- `src-tauri/src/ipc/automation.rs` before Application Assist opens a
-  visible review browser and loads local profile data.
-- `src-tauri/src/ipc/deeplinks.rs` before opening a job URL in the user's browser.
-- `crates/jobsentinel-network/src/external_request.rs` before shared scraper HTTP
-  retry helpers fetch a source URL.
-- `crates/jobsentinel-application/src/config/validation.rs`, `crates/jobsentinel-sources/src/scrapers/jobswithgpt.rs`,
-  and `crates/jobsentinel-application/src/health/smoke_checks/sources.rs` before using a configured JobsWithGPT endpoint.
-
-Saved jobs now use this shared canonicalization path instead of a string prefix
-check, so stored job links cannot target localhost, private networks, embedded
-credentials, non-HTTP schemes, or plain HTTP. Application Assist also validates
-the HTTPS job link before loading profile data or creating a browser page.
-
-Job import commands canonicalize the pasted URL before preview, fetch, duplicate
-hashing, and storage. Canonicalization removes embedded credentials, fragments,
-tracking parameters, and sensitive query parameters such as tokens, sessions,
-auth values, email fields, passwords, and candidate identifiers while preserving
-public job identifiers such as `gh_jid`. The import fetcher then uses
-`resolve_external_https_url_for_fetch`, so JobSentinel fetches and parses only
-HTTPS job pages. Plain HTTP job links can still be stored or opened after public
-URL validation, but they are not fetched into JobSentinel's import parser.
-
-The frontend guard in `src/features/dashboard/jobUrlValidation.ts` mirrors these external job
-URL rules before calling the backend open command.
-
-The import fetcher does not follow HTTP redirects. A redirect can move from a
-validated public URL to a different host or private-network target, so the user
-must paste the final public job posting URL directly.
-
-Shared scraper fetch helpers resolve production URLs before sending requests,
-reject localhost and non-public resolved IPs, and pin the checked DNS answers on
-reqwest clients when the target is a domain. Custom scraper clients, such as API
-clients with credential headers, must use the resolved-target retry helper after
-applying the DNS override to their client builder. Retry closures are checked so
-they cannot switch the scheme, host, port, or path after validation. Local
-WireMock servers are reachable only through test-only helper code.
-
-Notification webhooks use the same fetch-time boundary. After provider-specific
-host and path allowlisting, `notification_http_client_for_url` resolves the
-HTTPS destination, rejects loopback and non-public resolved IPs, disables
-redirect following, and pins the checked DNS answers before Slack, Discord,
-Teams, or Telegram requests are sent.
-
-**Rules**:
-
-- Parse with `url::Url` before checking components.
-- Allow only `http` and `https` for stored/opened external job links.
-- Require `https` for job-page import fetches.
-- Require a host.
-- Reject embedded username or password credentials.
-- Reject `localhost` and `*.localhost`.
-- Reject loopback, private, link-local, shared-address, unspecified, multicast, and IPv4-mapped private IPs.
-
-Frontend code calls `openDeepLink()` through Tauri IPC instead of importing
-`@tauri-apps/plugin-shell` directly or falling back to `window.open()`. The
-default Tauri capability does not grant frontend `shell:allow-open`; browser-open
-requests must pass the backend URL guard.
-
-The Tauri renderer Content Security Policy keeps `connect-src 'self'`. External
-network activity, such as job-source checks or notification delivery, belongs in
-validated Rust IPC paths instead of direct renderer `fetch()` calls. The security
-sensor fails if known external job-source or webhook hosts are added back to the
-renderer CSP.
-
-### Browser Import Local Receiver
-
-**Files**: `src-tauri/src/ipc/bookmarklet.rs`,
-`crates/jobsentinel-assistance/src/bookmarklet/server.rs`, and
-`crates/jobsentinel-assistance/src/bookmarklet/server/listener.rs`
-
-Browser Import uses a loopback-only HTTP receiver and a generated browser button
-instead of account cookies or background site monitoring. The receiver binds to
-`127.0.0.1`, requires the exact loopback `Host` header and selected port,
-limits request size and concurrent connections, and requires a short-lived
-single-use import token before any job data is stored. It does not advertise
-wildcard CORS headers.
-
-If the configured port is already in use, the receiver retries only that bind
-condition with an operating-system-selected loopback port. It persists the
-actual port through the private atomic configuration writer and tells Settings
-to request a fresh browser button. Permission and other bind failures still
-fail instead of weakening the listener boundary.
-
-Responses include defensive browser headers: `Cache-Control: no-store`,
-`X-Content-Type-Options: nosniff`, `Referrer-Policy: no-referrer`,
-`Cross-Origin-Resource-Policy: same-origin`, and `Connection: close`.
-
-### CSV And Download Filenames
-
-**Files**: `src/shared/browserDownload.ts` and
-`src/features/dashboard/jobCsvExport.ts`
-
-Downloaded filenames are reduced to a safe basename before assigning
-`HTMLAnchorElement.download`. CSV exports escape commas, quotes, and newlines,
-and prefix untrusted job fields that begin with spreadsheet formula characters
-(`=`, `+`, `-`, or `@`, including after whitespace) so opening an export in a
-spreadsheet does not execute remote job-posting content as a formula.
-
-### Notification Webhooks
-
-Provider-specific Slack, Discord, and Microsoft Teams host and path rules live in [Notification Webhook URL Validation](WEBHOOK_URL_VALIDATION.md).
-
-## Validation Rules
-
-### 1. Always parse URLs first
-
-```rust
-// Wrong: string manipulation before parsing
-if url.contains("@") || url.contains("..") {
-    return Err(anyhow!("Invalid URL"));
-}
-let parsed = Url::parse(url)?; // Too late!
-
-// Correct: parse first, then validate
-let parsed = Url::parse(url)?;
-if parsed.username() != "" || parsed.password().is_some() {
-    return Err(anyhow!("URL must not contain credentials"));
-}
-```
-
-### 2. Validate scheme (protocol)
-
-```rust
-// Require HTTPS for webhooks
-if url_parsed.scheme() != "https" {
-    return Err(anyhow!("Must use HTTPS"));
-}
-```
-
-### 3. Validate host (exact match)
-
-```rust
-// Use exact comparison, not contains()
-if url_parsed.host_str() != Some("hooks.slack.com") {
-    return Err(anyhow!("Invalid host"));
-}
-
-// For multiple valid hosts, use a list
-const VALID_HOSTS: &[&str] = &["discord.com", "discordapp.com", "hooks.discord.com"];
-if !VALID_HOSTS.contains(&url_parsed.host_str().unwrap_or("")) {
-    return Err(anyhow!("Invalid host"));
-}
-```
-
-### 4. Validate path
-
-```rust
-// Check path structure
-if !url_parsed.path().starts_with("/services/") {
-    return Err(anyhow!("Invalid path"));
-}
-
-// Additional path validation
-if url_parsed.path().contains("..") {
-    return Err(anyhow!("Path traversal detected"));
-}
-```
-
-### 5. Reject credentials in URLs
-
-```rust
-// Webhooks should never have embedded credentials
-if url_parsed.username() != "" || url_parsed.password().is_some() {
-    return Err(anyhow!("URL must not contain credentials"));
-}
-```
-
-### 6. Validate port (optional)
-
-```rust
-// Enforce standard HTTPS port or allow no port specified
-match url_parsed.port() {
-    None | Some(443) => Ok(()), // Default HTTPS or explicit 443
-    Some(port) => Err(anyhow!("Invalid port: {}", port))
-}
-```
-
-## Common Pitfalls
-
-### Pitfall 1: Case Sensitivity
-
-```rust
-// Case-sensitive comparison
-if url_parsed.host_str() == Some("Discord.com") {  // Won't match "discord.com"
-    // ...
-}
-
-// Case-insensitive comparison
-if url_parsed.host_str().map(|h| h.to_lowercase()) == Some("discord.com".to_string()) {
-    // ...
-}
-
-// Better: use url crate's domain normalization
-// The url crate normalizes domains to lowercase automatically
-if url_parsed.host_str() == Some("discord.com") {
-    // Works for "Discord.com", "DISCORD.COM", etc.
-}
-```
-
-### Pitfall 2: Forgetting Subdomains
-
-```rust
-// Allows any subdomain
-if url_parsed.host_str().unwrap_or("").ends_with("slack.com") {
-    // Matches "evil.slack.com", "hooks.slack.com.attacker.com"
-}
-
-// Exact match or explicit subdomain list
-if url_parsed.host_str() == Some("hooks.slack.com") {
-    // Only matches "hooks.slack.com"
-}
-```
-
-### Pitfall 3: Ignoring Query Parameters
-
-```rust
-// Query parameters are usually benign for webhooks, but validate if needed
-if url_parsed.query().is_some() {
-    // Decide: reject, warn, or allow
-}
-```
-
-## Testing URL Validation
-
-### Unit Tests
-
-```rust
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_valid_slack_webhook() {
-        let url = "https://hooks.slack.com/services/T00/B00/XXX";
-        assert!(validate_webhook_url(url).is_ok());
-    }
-
-    #[test]
-    fn test_rejects_wrong_scheme() {
-        let url = "http://hooks.slack.com/services/T00/B00/XXX";
-        assert!(validate_webhook_url(url).is_err());
-    }
-
-    #[test]
-    fn test_rejects_wrong_host() {
-        let url = "https://evil.com/services/T00/B00/XXX";
-        assert!(validate_webhook_url(url).is_err());
-    }
-
-    #[test]
-    fn test_rejects_subdomain_bypass() {
-        let url = "https://hooks.slack.com.evil.com/services/T00/B00/XXX";
-        assert!(validate_webhook_url(url).is_err());
-    }
-
-    #[test]
-    fn test_rejects_query_bypass() {
-        let url = "https://evil.com?url=https://hooks.slack.com/services/T00/B00/XXX";
-        assert!(validate_webhook_url(url).is_err());
-    }
-
-    #[test]
-    fn test_rejects_wrong_path() {
-        let url = "https://hooks.slack.com/api/v1/webhook";
-        assert!(validate_webhook_url(url).is_err());
-    }
-}
-```
-
-### Attack Simulation
-
-Test with realistic attack vectors:
-
-```rust
-#[test]
-fn test_attack_vectors() {
-    let attack_urls = vec![
-        // Data exfiltration attempts
-        "https://evil.com/steal?next=https://hooks.slack.com/services/T/B/X",
-        "https://attacker.com#https://hooks.slack.com/services/T/B/X",
-
-        // Subdomain tricks
-        "https://hooks.slack.com.attacker.com/services/T/B/X",
-        "https://fakehooks.slack.com/services/T/B/X",
-
-        // Encoding tricks
-        "https://evil.com/https%3A%2F%2Fhooks.slack.com%2Fservices%2F",
-
-        // Credentials in URL
-        "https://user:pass@hooks.slack.com/services/T/B/X",
-
-        // Path traversal
-        "https://hooks.slack.com/services/../admin/T/B/X",
-
-        // Port tricks
-        "https://hooks.slack.com:8080/services/T/B/X",
-
-        // Non-HTTPS
-        "http://hooks.slack.com/services/T/B/X",
-        "ftp://hooks.slack.com/services/T/B/X",
-    ];
-
-    for url in attack_urls {
-        assert!(
-            validate_webhook_url(url).is_err(),
-            "Failed to reject malicious URL: {}",
-            url
-        );
-    }
-}
-```
-
-## Additional URL Security
-
-### Preventing Open Redirects
-
-```rust
-// When redirecting users, validate the destination
-fn validate_redirect_url(url: &str, allowed_hosts: &[&str]) -> Result<()> {
-    let parsed = Url::parse(url)?;
-
-    let host = parsed.host_str()
-        .ok_or_else(|| anyhow!("Invalid host"))?;
-
-    if !allowed_hosts.contains(&host) {
-        return Err(anyhow!("Redirect to external site not allowed"));
-    }
-
-    Ok(())
-}
-```
-
-### Preventing SSRF (Server-Side Request Forgery)
-
-```rust
-// When making HTTP requests based on user input
-fn validate_external_url(url: &str) -> Result<()> {
-    let parsed = Url::parse(url)?;
-
-    // Reject internal/private IPs
-    if let Some(host) = parsed.host() {
-        match host {
-            url::Host::Ipv4(ip) => {
-                if ip.is_loopback() || ip.is_private() {
-                    return Err(anyhow!("Cannot access internal resources"));
-                }
-            }
-            url::Host::Ipv6(ip) => {
-                if ip.is_loopback() {
-                    return Err(anyhow!("Cannot access internal resources"));
-                }
-            }
-            url::Host::Domain(domain) => {
-                if domain == "localhost" || domain.ends_with(".local") {
-                    return Err(anyhow!("Cannot access local resources"));
-                }
-            }
-        }
-    }
-
-    Ok(())
-}
-```
-
-In JobSentinel, use `crate::core::url_security::validate_external_https_url` or
-`canonicalize_user_supplied_job_url` for stored or browser-opened job
-destinations. Use `validate_external_http_url` only when a caller explicitly
-allows public HTTP(S), and use `resolve_external_http_url_for_fetch` or
-`resolve_external_https_url_for_fetch` before backend fetches. Do not create
-one-off SSRF checks. Add unit tests for malicious input when touching URL, file
-path, command, or HTML input boundaries.
-
-## Best Practices
-
-### 1. Use the `url` crate
-
-```toml
-[dependencies]
-url = "2.5"  # Current version in JobSentinel
-```
-
-### 2. Parse early, validate thoroughly
-
-```rust
-// Parse URL as first step
-let url = Url::parse(user_input)?;
-
-// Then validate all components
-validate_scheme(&url)?;
-validate_host(&url)?;
-validate_path(&url)?;
-validate_security(&url)?;
-```
-
-### 3. Use allowlists, not denylists
-
-```rust
-// Good: explicit allowlist
-const ALLOWED_HOSTS: &[&str] = &["hooks.slack.com"];
-
-// Bad: denylist, easily bypassed
-const BLOCKED_HOSTS: &[&str] = &["evil.com", "attacker.com"];
-```
-
-### 4. Log sanitized validation failures
-
-```rust
-fn sanitized_url_label(url: &str) -> String {
-    let Ok(mut parsed) = Url::parse(url) else {
-        return "<invalid-url>".to_string();
-    };
-    let _ = parsed.set_username("");
-    let _ = parsed.set_password(None);
-    parsed.set_query(None);
-    parsed.set_fragment(None);
-    parsed.to_string()
-}
-
-fn validate_webhook_url(url: &str) -> Result<()> {
-    let parsed = Url::parse(url).map_err(|e| {
-        tracing::warn!("Invalid webhook URL: {} - {}", sanitized_url_label(url), e);
-        anyhow!("Invalid URL format: {}", e)
-    })?;
-
-    // ... rest of validation
-}
-```
-
-Do not log or display raw user-supplied URLs. Strip credentials, query strings,
-and fragments before logging or returning validation errors because job URLs,
-company-board URLs, and webhooks can carry tokens or private search context.
-
-## Related Documentation
-
-- [Webhook Security Guide](./WEBHOOK_SECURITY.md)
-- [Security Policy](../../SECURITY.md)
-- [Security Documentation Index](./README.md)
-
-## References
-
-- [OWASP URL Validation](https://cheatsheetseries.owasp.org/cheatsheets/Unvalidated_Redirects_and_Forwards_Cheat_Sheet.html)
-- [RFC 3986: URI Generic Syntax](https://www.rfc-editor.org/rfc/rfc3986)
-- [Rust `url` crate documentation](https://docs.rs/url/)
+Tests should include malformed URLs, misleading subdomains, embedded
+credentials, blocked address forms, DNS results containing blocked addresses,
+provider host and path mismatches, non-default webhook ports, and safe log
+redaction.
+
+## Review Checklist
+
+- Parse before policy checks.
+- Validate exact hosts or explicit subdomain suffixes with an excluded apex.
+- Validate paths independently from hosts.
+- Require HTTPS where private data or credentials may leave the device.
+- Resolve and verify addresses before outbound fetches.
+- Revalidate redirects.
+- Remove sensitive URL components before storage or logging.
+- Keep provider policies in the shared security crate.
+- Return generic user-safe errors for secret-bearing destinations.

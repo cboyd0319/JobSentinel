@@ -90,17 +90,6 @@ export const mockScrapers = [
   },
 ];
 
-export const mockCredentials = [
-  {
-    key: "smtp_password",
-    created_at: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-    last_validated: new Date().toISOString(),
-    expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-    status: "expiring" as const,
-    days_until_expiry: 7,
-  },
-];
-
 export const mockRuns = [
   {
     id: 1,

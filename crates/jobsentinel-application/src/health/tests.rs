@@ -105,23 +105,6 @@ fn test_scraper_type_deserialization() {
 }
 
 #[test]
-fn test_credential_status_deserialization() {
-    assert_eq!(CredentialStatus::from_str("valid"), CredentialStatus::Valid);
-    assert_eq!(
-        CredentialStatus::from_str("expiring"),
-        CredentialStatus::Expiring
-    );
-    assert_eq!(
-        CredentialStatus::from_str("expired"),
-        CredentialStatus::Expired
-    );
-    assert_eq!(
-        CredentialStatus::from_str("unknown"),
-        CredentialStatus::Unknown
-    );
-}
-
-#[test]
 fn test_smoke_test_type_serialization() {
     assert_eq!(SmokeTestType::Connectivity.as_str(), "connectivity");
     assert_eq!(SmokeTestType::Selector.as_str(), "selector");
@@ -148,30 +131,4 @@ fn test_known_scraper_validation() {
     assert!(is_known_scraper_name("usajobs"));
     assert!(!is_known_scraper_name("usa_jobs"));
     assert!(!is_known_scraper_name("unknown"));
-}
-
-#[test]
-fn test_retry_config_default() {
-    let config = RetryConfig::default();
-    assert_eq!(config.max_attempts, 3);
-    assert_eq!(config.initial_delay_ms, 1000);
-    assert_eq!(config.max_delay_ms, 30000);
-    assert_eq!(config.backoff_multiplier, 2.0);
-    assert!(config.retryable_status_codes.contains(&429));
-    assert!(config.retryable_status_codes.contains(&503));
-}
-
-#[test]
-fn test_retry_config_conservative() {
-    let config = RetryConfig::conservative();
-    assert_eq!(config.max_attempts, 3);
-    assert_eq!(config.initial_delay_ms, 2000);
-    assert!(config.max_delay_ms > RetryConfig::default().max_delay_ms);
-}
-
-#[test]
-fn test_retry_config_aggressive() {
-    let config = RetryConfig::aggressive();
-    assert_eq!(config.max_attempts, 5);
-    assert!(config.initial_delay_ms < RetryConfig::default().initial_delay_ms);
 }

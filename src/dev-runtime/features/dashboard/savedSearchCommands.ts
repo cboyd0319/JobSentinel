@@ -4,24 +4,9 @@ import {
   getNumericArg,
   getStringArg,
 } from "../../mocks/handlers/commandHelpers";
+import type { MockSavedSearch } from "../../mocks/handlers/types";
 
-export interface MockSavedSearch {
-  id: string;
-  name: string;
-  sortBy: SortOption;
-  scoreFilter: ScoreFilter;
-  sourceFilter: string;
-  remoteFilter: string;
-  bookmarkFilter: string;
-  notesFilter: string;
-  postedDateFilter: PostedDateFilter | null;
-  salaryMinFilter: number | null;
-  salaryMaxFilter: number | null;
-  ghostFilter: string | null;
-  textSearch: string | null;
-  createdAt: string;
-  lastUsedAt: string | null;
-}
+export type { MockSavedSearch } from "../../mocks/handlers/types";
 
 interface MockSavedSearchCommandState {
   savedSearches: MockSavedSearch[];

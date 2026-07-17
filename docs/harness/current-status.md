@@ -4,11 +4,6 @@ Last updated: 2026-07-17
 
 ## Done
 
-- The full repository refactor plan and ownership blueprint are preserved under
-  `docs/plans/completed/`.
-- The earlier local harness checkpoint remains preserved at
-  `docs/harness/evidence/harness-standard-contract-2026-07-14.md`.
-- The corrective harness implementation and full local gate passed.
 - The target Rust ownership graph is implemented across security, domain,
   network, platform, storage, intelligence, sources, application, assistance,
   local AI, documents, credentials, notifications, and external AI crates.
@@ -37,19 +32,24 @@ Last updated: 2026-07-17
   from 778 lines across 38 regions to zero. Shared resume, score, dashboard,
   market, feedback, error, and desktop-adapter behavior now has canonical owners,
   and the full local gate passed.
-- Residual cleanup is implementation-complete. Test and script fixtures,
-  file-size policy, stale records, dependencies, and Rust fixtures have
-  canonical owners. All maintained scopes are at zero duplication under the
-  14-line contract, the full gate passed, and generated outputs were removed.
+- Residual cleanup is complete. Fixtures, file-size policy, records,
+  dependencies, and Rust support have canonical owners. All maintained scopes
+  are at zero duplication under the 14-line contract, the full gate passed, and
+  the post-cleanup review recorded a bounded concerns verdict.
+- Post-cleanup corrections are complete. Pooled database settings now apply to
+  every connection, saved alert preferences govern real notifications,
+  maintained local links are checked, security documentation names its shared
+  validator, obsolete dependencies and APIs are removed, and advisory
+  file-size output is scoped to changed files. The complete local gate passed.
 
 ## In Progress
 
-- Active feature: `repository-residual-cleanup`
+- Active feature: `v3-workstream-selection`
 - Status: `active`
-- Objective: Select the next approved feature after this cleanup checkpoint.
+- Objective: Select and bound the first major v3 workstream.
 - Branch: `refactor/full-repo-v2.9.5`
-- Current slice: Implementation and verification complete.
-- Next action: Select and activate the next approved product feature.
+- Current slice: Review the ranked v3 candidates against the product priorities.
+- Next action: Select one major workstream and create its active execution plan.
 
 ## Deferred
 

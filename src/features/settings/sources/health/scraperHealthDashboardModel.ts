@@ -49,15 +49,6 @@ export interface SmokeTestResult {
   error: string | null;
 }
 
-export interface CredentialHealth {
-  key: string;
-  created_at: string | null;
-  last_validated: string | null;
-  expires_at: string | null;
-  status: "valid" | "expiring" | "expired" | "unknown";
-  days_until_expiry: number | null;
-}
-
 export const healthStatusConfig = {
   healthy: { variant: "success" as const, label: "Working", icon: "check" },
   degraded: { variant: "alert" as const, label: "Having trouble", icon: "warning" },
@@ -92,35 +83,6 @@ export function formatRelativeTime(dateStr: string | null): string {
   if (diffMins < 60) return `${diffMins}m ago`;
   if (diffHours < 24) return `${diffHours}h ago`;
   return `${diffDays}d ago`;
-}
-
-export function formatCredentialWarning(credential: CredentialHealth): string {
-  if (credential.status === "expired") {
-    return "Expired";
-  }
-
-  if (credential.status === "valid") {
-    return "Valid";
-  }
-
-  if (credential.days_until_expiry !== null) {
-    return `Expires in ${credential.days_until_expiry} days`;
-  }
-
-  return "Status unknown";
-}
-
-export function formatCredentialLabel(key: string): string {
-  const labels: Record<string, string> = {
-    discord_webhook: "Discord connection",
-    smtp_password: "Email password",
-    slack_webhook: "Slack connection",
-    teams_webhook: "Teams connection",
-    telegram_bot_token: "Telegram connection",
-    usajobs_api_key: "USAJobs access code",
-  };
-
-  return labels[key] ?? "Saved connection";
 }
 
 export function formatSourceType(type: ScraperHealthMetrics["scraper_type"]): string {

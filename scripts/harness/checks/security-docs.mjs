@@ -74,7 +74,9 @@ export function hasStaleUrlValidationSecurityDocMarkers(root, path) {
     : primaryText;
   return (
     /[✅❌⚠️]|\*\*(?:Last Updated|Version|Security Level)\*\*:/.test(text) ||
-    !text.includes("validate_webhook_url_security_parts(&url_parsed)?")
+    /fn\s+validate_webhook_url\s*\(/.test(text) ||
+    !text.includes("jobsentinel-security") ||
+    !text.includes("validate_webhook_target")
   );
 }
 

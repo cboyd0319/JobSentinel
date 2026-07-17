@@ -171,45 +171,6 @@ pub async fn set_scraper_enabled(db: &Database, scraper_name: &str, enabled: boo
     Ok(())
 }
 
-/// Update DOM selector health status for an HTML scraper.
-///
-/// Records the result of selector validation checks. Only applicable
-/// to HTML scrapers (API scrapers should remain `Unknown`).
-///
-/// # Arguments
-///
-/// * `db` - Database connection
-/// * `scraper_name` - Scraper identifier
-/// * `health` - New selector health status
-pub async fn update_selector_health(
-    db: &Database,
-    scraper_name: &str,
-    health: SelectorHealth,
-) -> Result<()> {
-    let health_str = match health {
-        SelectorHealth::Healthy => "healthy",
-        SelectorHealth::Degraded => "degraded",
-        SelectorHealth::Broken => "broken",
-        SelectorHealth::Unknown => "unknown",
-    };
-
-    sqlx::query!(
-        r#"
-        UPDATE scraper_config
-        SET selector_health = ?,
-            last_selector_check = datetime('now'),
-            updated_at = datetime('now')
-        WHERE scraper_name = ?
-        "#,
-        health_str,
-        scraper_name,
-    )
-    .execute(db.pool())
-    .await?;
-
-    Ok(())
-}
-
 /// Get aggregated summary statistics across all scrapers.
 ///
 /// Calculates counts for each health status level and total jobs found.

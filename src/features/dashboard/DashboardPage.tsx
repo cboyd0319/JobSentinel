@@ -119,6 +119,7 @@ export default function Dashboard({
   const savedSearches = useDashboardSavedSearches();
   const { cooldownSeconds, handleSearchNow, searchCooldown, searching } =
     useDashboardManualSearch({
+      jobs,
       setAnyJobSourceEnabled,
       setError,
       setJobs,
@@ -130,6 +131,7 @@ export default function Dashboard({
   const autoRefresh = useDashboardAutoRefresh({
     searching,
     showSettings,
+    jobs,
     statistics,
     onDataUpdate: handleDataUpdate,
   });

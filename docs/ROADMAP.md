@@ -42,7 +42,7 @@ current maintained surface at the time of the latest docs sweep.
 | Storage | Local SQLite with SQLx offline mode |
 | Source monitoring | 12 scheduled source adapters plus user-opened search links |
 | Source status | 15 source-status checks with plain help output |
-| Backend surface | 207 registered Tauri commands |
+| Backend surface | 205 registered Tauri commands |
 | Privacy posture | Local-first, no telemetry, external channels user-configured |
 | External AI posture | Optional, disabled by default, routed through `src/shared/externalAi/` |
 | Safe support reports | Reports can be copied or saved locally, reviewed, and shared only when the user chooses help |
@@ -59,7 +59,7 @@ current maintained surface at the time of the latest docs sweep.
 | Application tracking | [Application tracking](features/application-tracking.md) |
 | Application Assist | [Application Assist](features/application-assist.md) |
 | Saved data and recovery | [User data management](features/user-data-management.md), [privacy policy](../PRIVACY.md) |
-| Optional external AI | [AI gateway](architecture/privacy-first-ai-gateway.md), [Responsible AI](../RESPONSIBLE_AI.md) |
+| Optional external AI | [AI gateway](security/privacy-first-ai-gateway.md), [Responsible AI](../RESPONSIBLE_AI.md) |
 
 ## Source policy
 
@@ -88,14 +88,17 @@ Rule 0: user privacy and security are non-negotiable.
 
 See [PRIVACY.md](../PRIVACY.md),
 [RESPONSIBLE_AI.md](../RESPONSIBLE_AI.md), and
-[privacy-first AI gateway](architecture/privacy-first-ai-gateway.md).
+[privacy-first AI gateway](security/privacy-first-ai-gateway.md).
 
 ## Current and completed plans
 
 Current active plan docs are part of the repo goal:
 
 - [Current status](harness/current-status.md)
-- [Repository residual cleanup](plans/active/repository-residual-cleanup.md)
+- [V3 workstream selection](plans/v3/README.md)
+- [Completed repository post-cleanup corrections](plans/completed/repository-post-cleanup-corrections.md)
+- [Completed repository post-cleanup review](plans/completed/repository-post-cleanup-review.md)
+- [Completed repository residual cleanup](plans/completed/repository-residual-cleanup.md)
 - [Completed full repository refactor](plans/completed/full-repository-refactor.md)
 - [Completed full repository refactor and v2.9.5 readiness](plans/completed/repository-architecture-reorganization.md)
 

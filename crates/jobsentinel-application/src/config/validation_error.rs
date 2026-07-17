@@ -410,15 +410,6 @@ impl ValidationErrors {
     pub fn errors(&self) -> &[ValidationError] {
         &self.errors
     }
-
-    /// Convert to Result, returning Err if there are any errors
-    pub fn into_result(self) -> Result<(), Self> {
-        if self.is_empty() {
-            Ok(())
-        } else {
-            Err(self)
-        }
-    }
 }
 
 impl Default for ValidationErrors {

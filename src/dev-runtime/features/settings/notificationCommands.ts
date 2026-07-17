@@ -2,7 +2,7 @@ import { getArg } from "../../mocks/handlers/commandHelpers";
 import type {
   NotificationPreferences,
   SourceNotificationConfig,
-} from "../../../features/settings/notifications/notificationPreferencesStore";
+} from "../../../shared/notificationPreferences";
 
 interface MockNotificationCommandState {
   notificationPreferences: NotificationPreferences | null;

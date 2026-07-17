@@ -81,4 +81,4 @@ Full manual coverage and current evidence live in
 - [Completion gate](completion-gate.md)
 - [Harness map](harness-map.md)
 - [Quality grades](quality-grades.md)
-- [Full manual validation](full-manual-validation-v2.9.1.md)
+- [Full manual validation](archive/full-manual-validation-v2.9.1.md)

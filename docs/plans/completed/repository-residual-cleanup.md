@@ -1,6 +1,6 @@
 # Repository Residual Cleanup
 
-Status: Implementation complete; repository checkpoint authorized.
+Status: Complete.
 
 ## Problem
 
@@ -57,5 +57,4 @@ git diff --check
 - Generated outputs were removed after verification.
 - All maintained production and test duplication scopes are guarded at zero
   under the 14-significant-line contract.
-- Next action: select and activate the next approved product feature after the
-  repository checkpoint.
+- The post-cleanup adversarial review owns any newly discovered work.

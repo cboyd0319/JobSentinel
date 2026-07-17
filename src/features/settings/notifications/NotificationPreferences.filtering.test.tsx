@@ -5,7 +5,7 @@ import {
   shouldNotifyForJob,
   type NotificationPreferences,
   type JobForNotification,
-} from "./notificationPreferencesStore";
+} from "../../../shared/notificationPreferences";
 import { DEFAULT_PREFS } from "./notificationPreferences.testFixtures";
 
 describe("shouldNotifyForJob", () => {

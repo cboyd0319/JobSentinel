@@ -239,17 +239,6 @@ impl AutomationError {
         }
     }
 
-    /// Create a browser launch error with source
-    pub fn browser_launch_with_source<E>(reason: impl Into<String>, source: E) -> Self
-    where
-        E: std::error::Error + Send + Sync + 'static,
-    {
-        Self::BrowserLaunch {
-            reason: reason.into(),
-            source: Some(Box::new(source)),
-        }
-    }
-
     /// Create a navigation error
     pub fn navigation(url: impl Into<String>, reason: impl Into<String>) -> Self {
         Self::Navigation {
@@ -263,14 +252,6 @@ impl AutomationError {
         Self::ElementNotFound {
             selector: selector.into(),
             url: url.into(),
-        }
-    }
-
-    /// Create a fill field error
-    pub fn fill_field(field_name: impl Into<String>, reason: impl Into<String>) -> Self {
-        Self::FillFieldError {
-            field_name: field_name.into(),
-            reason: reason.into(),
         }
     }
 

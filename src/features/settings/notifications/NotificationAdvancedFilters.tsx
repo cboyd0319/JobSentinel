@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { CompanyAutocomplete } from "./CompanyAutocomplete";
 import { HelpIcon } from "../../../ui/HelpIcon";
-import type { AdvancedFilters } from "./notificationPreferencesStore";
+import type { AdvancedFilters } from "../../../shared/notificationPreferences";
 
 // Advanced Filters Section Component
 interface AdvancedFiltersSectionProps {

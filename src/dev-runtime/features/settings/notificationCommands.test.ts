@@ -3,7 +3,7 @@ import { mockInvoke, resetMockData } from "../../mocks/handlers";
 import {
   handleMockNotificationCommand,
 } from "./notificationCommands";
-import type { NotificationPreferences } from "../../../features/settings/notifications/notificationPreferencesStore";
+import type { NotificationPreferences } from "../../../shared/notificationPreferences";
 
 const notificationPreferencesInput: NotificationPreferences = {
   linkedin: { enabled: false, minScoreThreshold: 70, soundEnabled: false },

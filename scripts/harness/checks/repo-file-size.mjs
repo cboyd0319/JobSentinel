@@ -238,13 +238,28 @@ export function listGovernedFiles(root, exec = execFileSync) {
   return output.split("\0").map(normalizeRepoPath).filter(Boolean).sort();
 }
 
+export function listChangedFiles(root, exec = execFileSync) {
+  const options = { cwd: root, encoding: "utf8" };
+  const tracked = exec(
+    "git",
+    ["diff", "--name-only", "--diff-filter=ACMR", "-z", "HEAD", "--"],
+    options,
+  );
+  const untracked = exec(
+    "git",
+    ["ls-files", "--others", "--exclude-standard", "-z"],
+    options,
+  );
+  return [...new Set(`${tracked}${untracked}`.split("\0").map(normalizeRepoPath).filter(Boolean))].sort();
+}
+
 export function collectFileSizeContractGlobalViolations(root) {
   return validatePolicy(root, load(root));
 }
 
 export function collectRepositoryFileSizeReviewCandidates(root, options = {}) {
   const loaded = load(root);
-  const files = listGovernedFiles(root, options.execFileSync);
+  const files = options.paths ?? listGovernedFiles(root, options.execFileSync);
   return files.filter((path) => {
     if (!loaded.extensions.has(extname(path)) || excluded(path, loaded.exclusions) || !existsSync(join(root, path))) return false;
     const metrics = fileMetrics(root, path);

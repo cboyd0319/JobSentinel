@@ -46,7 +46,6 @@ describe("ScraperHealthDashboard source checks", () => {
       mockInvoke.mockImplementation((cmd: string) => {
         if (cmd === "get_health_summary") return Promise.resolve(mockSummary);
         if (cmd === "get_scraper_health") return Promise.resolve(mockScrapers);
-        if (cmd === "get_expiring_credentials") return Promise.resolve([]);
         if (cmd === "run_all_smoke_tests") return Promise.resolve(mockTestResults);
         return Promise.resolve(null);
       });
@@ -85,7 +84,6 @@ describe("ScraperHealthDashboard source checks", () => {
       mockInvoke.mockImplementation((cmd: string) => {
         if (cmd === "get_health_summary") return Promise.resolve(mockSummary);
         if (cmd === "get_scraper_health") return Promise.resolve(mockScrapers);
-        if (cmd === "get_expiring_credentials") return Promise.resolve([]);
         if (cmd === "run_all_smoke_tests") {
           return new Promise((resolve) => setTimeout(() => resolve(mockTestResults), 1000));
         }
@@ -141,7 +139,6 @@ describe("ScraperHealthDashboard source checks", () => {
       mockInvoke.mockImplementation((cmd: string) => {
         if (cmd === "get_health_summary") return Promise.resolve(mockSummary);
         if (cmd === "get_scraper_health") return Promise.resolve(mockScrapers);
-        if (cmd === "get_expiring_credentials") return Promise.resolve([]);
         if (cmd === "run_all_smoke_tests") {
           return Promise.resolve([
             {
@@ -238,7 +235,6 @@ describe("ScraperHealthDashboard source checks", () => {
       mockInvoke.mockImplementation((cmd: string) => {
         if (cmd === "get_health_summary") return Promise.resolve(mockSummary);
         if (cmd === "get_scraper_health") return Promise.resolve(mockScrapers);
-        if (cmd === "get_expiring_credentials") return Promise.resolve([]);
         return Promise.resolve(null);
       });
     });
@@ -255,7 +251,6 @@ describe("ScraperHealthDashboard source checks", () => {
       mockInvoke.mockImplementation((cmd: string) => {
         if (cmd === "get_health_summary") return Promise.resolve(mockSummary);
         if (cmd === "get_scraper_health") return Promise.resolve(mockScrapers);
-        if (cmd === "get_expiring_credentials") return Promise.resolve([]);
         return Promise.resolve(null);
       });
 
@@ -264,7 +259,6 @@ describe("ScraperHealthDashboard source checks", () => {
       await waitFor(() => {
         expect(mockInvoke).toHaveBeenCalledWith("get_health_summary", {});
         expect(mockInvoke).toHaveBeenCalledWith("get_scraper_health", {});
-        expect(mockInvoke).toHaveBeenCalledWith("get_expiring_credentials", {});
       });
     });
   });
@@ -281,7 +275,6 @@ describe("ScraperHealthDashboard source checks", () => {
             },
           ]);
         }
-        if (cmd === "get_expiring_credentials") return Promise.resolve([]);
         return Promise.resolve(null);
       });
     });
@@ -298,7 +291,6 @@ describe("ScraperHealthDashboard source checks", () => {
       mockInvoke.mockImplementation((cmd: string) => {
         if (cmd === "get_health_summary") return Promise.resolve(mockSummary);
         if (cmd === "get_scraper_health") return Promise.resolve([mockScrapers[2]]);
-        if (cmd === "get_expiring_credentials") return Promise.resolve([]);
         return Promise.resolve(null);
       });
 

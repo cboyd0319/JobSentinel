@@ -11,6 +11,11 @@ import {
   sendNotification,
 } from "../../platform/tauri/notifications";
 import { logError } from "../../shared/errorReporting/logger";
+import {
+  loadNotificationPreferencesAsync,
+  shouldNotifyForJob,
+} from "../../shared/notificationPreferences";
+import type { Job } from "./types";
 
 /**
  * Check if notification permissions are granted.
@@ -88,22 +93,50 @@ export async function notifyReminder(
 }
 
 /**
- * Send a desktop notification for a scraping cycle completion.
+ * Select jobs that are new or have a higher score than the prior snapshot.
+ */
+export function selectNotificationCandidates(
+  previousJobs: readonly Job[],
+  currentJobs: readonly Job[],
+): Job[] {
+  const previousScores = new Map(
+    previousJobs.map((job) => [job.id, job.score ?? 0]),
+  );
+
+  return currentJobs.filter((job) => {
+    if (!previousScores.has(job.id)) return true;
+    return (job.score ?? 0) > (previousScores.get(job.id) ?? 0);
+  });
+}
+
+/**
+ * Send a count-only desktop notification for jobs allowed by saved alert rules.
  */
 export async function notifyScrapingComplete(
-  _newJobs: number,
-  highMatches: number
+  jobs: readonly Job[],
 ): Promise<void> {
+  let matchingJobs: Job[];
+  try {
+    const preferences = await loadNotificationPreferencesAsync();
+    matchingJobs = jobs.filter(
+      (job) =>
+        job.score !== null &&
+        shouldNotifyForJob(job.source, job.score, preferences, job),
+    );
+  } catch (error: unknown) {
+    logError("Failed to load notification preferences:", error);
+    return;
+  }
+
+  if (matchingJobs.length === 0) return;
+
   const hasPermission = await hasNotificationPermission();
   if (!hasPermission) return;
-
-  // Only notify if there are new high matches
-  if (highMatches === 0) return;
 
   try {
     sendNotification({
       title: "JobSentinel update",
-      body: `New matches are ready to review. ${highMatches} need attention.`,
+      body: `New matches are ready to review. ${matchingJobs.length} need attention.`,
     });
   } catch (error: unknown) {
     logError("Failed to send notification:", error);

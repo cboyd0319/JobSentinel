@@ -1,4 +1,4 @@
-import type { NotificationPreferences } from "./notificationPreferencesStore";
+import type { NotificationPreferences } from "../../../shared/notificationPreferences";
 
 export const DEFAULT_PREFS: NotificationPreferences = {
   linkedin: { enabled: false, minScoreThreshold: 70, soundEnabled: false },

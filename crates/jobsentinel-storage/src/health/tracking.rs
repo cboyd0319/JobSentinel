@@ -280,29 +280,6 @@ pub async fn timeout_run(db: &Database, run_id: i64, duration_ms: i64) -> Result
     Ok(())
 }
 
-/// Increment the retry attempt counter for a run.
-///
-/// Used when retrying a failed run with exponential backoff.
-///
-/// # Arguments
-///
-/// * `db` - Database connection
-/// * `run_id` - Run ID to update
-pub async fn increment_retry(db: &Database, run_id: i64) -> Result<()> {
-    sqlx::query!(
-        r#"
-        UPDATE scraper_runs
-        SET retry_attempt = retry_attempt + 1
-        WHERE id = ?
-        "#,
-        run_id,
-    )
-    .execute(db.pool())
-    .await?;
-
-    Ok(())
-}
-
 /// Retrieve recent execution history for a scraper.
 ///
 /// Returns runs ordered by start time (newest first).

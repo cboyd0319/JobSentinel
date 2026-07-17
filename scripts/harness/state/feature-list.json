@@ -1,6 +1,5 @@
 {
-  "schema": "jobsentinel.feature_list.v1",
-  "project": "JobSentinel",
+  "schema": "jobsentinel.feature_list.v1", "project": "JobSentinel",
   "last_updated": "2026-07-17",
   "active_status": "active",
   "rules": {
@@ -17,17 +16,8 @@
       "behavior": "A fresh session can initialize the repository, see one current objective, select the next task, route its diff, and verify completion without contradictory owners.",
       "user_visible_behavior": "Repository work preserves JobSentinel behavior while becoming resumable and verifiable across supported platforms.",
       "status": "passing",
-      "verification": [
-        "npm run harness:check",
-        "npm run lint:file-size",
-        "npm run test:scripts",
-        "npm run test:smoke",
-        "npm run verify:full"
-      ],
-      "evidence": [
-        "docs/harness/evidence/harness-standard-contract-2026-07-14.json",
-        "docs/harness/evidence/harness-standard-contract-2026-07-14.md"
-      ],
+      "verification": ["npm run harness:check", "npm run lint:file-size", "npm run test:scripts", "npm run test:smoke", "npm run verify:full"],
+      "evidence": ["docs/harness/evidence/harness-standard-contract-2026-07-14.json", "docs/harness/evidence/harness-standard-contract-2026-07-14.md"],
       "blocker": "",
       "next_trigger": "A regression against the recorded contract requires a new corrective feature."
     },
@@ -39,11 +29,7 @@
       "behavior": "The repository harness conforms to the installed harness-engineering package except for the exact user-authorized pre-alpha-private-no-ci requirement exception.",
       "user_visible_behavior": "Repository work is resumable, growth-ready, and locally verifiable while hosted CI remains explicitly absent during private pre-alpha development.",
       "status": "passing",
-      "verification": [
-        "npm run harness:check",
-        "npm run test:scripts",
-        "npm run verify:full"
-      ],
+      "verification": ["npm run harness:check", "npm run test:scripts", "npm run verify:full"],
       "evidence": [
         "docs/harness/evidence/harness-canonical-remediation-completion-2026-07-16.json",
         "docs/harness/evidence/harness-canonical-remediation-effectiveness-2026-07-15.json",
@@ -136,18 +122,39 @@
       "title": "Repository residual cleanup",
       "behavior": "Frontend tests, scripts, plans, harness documents, generated artifacts, dependencies, and policy projections have one current owner with obsolete or duplicate material removed.",
       "user_visible_behavior": "JobSentinel preserves product behavior while the repository becomes smaller, easier to navigate, and harder to regress.",
-      "status": "active",
-      "verification": [
-        "npm run verify:full",
-        "npm run lint:dup -- --list",
-        "npm run test:scripts",
-        "npm run harness:check"
-      ],
-      "evidence": [
-        "docs/harness/evidence/repository-residual-cleanup-2026-07-17.json"
-      ],
+      "status": "passing",
+      "verification": ["npm run verify:full", "npm run lint:dup -- --list", "npm run test:scripts", "npm run harness:check"],
+      "evidence": ["docs/harness/evidence/repository-residual-cleanup-2026-07-17.json"],
       "blocker": "",
-      "next_trigger": "After the repository checkpoint, select the next approved product feature; a regression requires a new corrective feature."
+      "next_trigger": "A repository ownership, duplication, dependency, or generated-artifact regression requires a new corrective feature."
+    },
+    {
+      "id": "repository-post-cleanup-review",
+      "priority": 7,
+      "area": "repository assurance",
+      "title": "Repository post-cleanup adversarial review",
+      "behavior": "Maintained source, tests, scripts, manifests, and documentation are independently reviewed for missed correctness, ownership, dependency, duplication, and maintainability work before another major feature begins.",
+      "user_visible_behavior": "JobSentinel starts its next feature stream from a verified repository baseline with known maintenance risks made explicit.",
+      "status": "passing",
+      "verification": ["./init.sh", "npm run harness:check", "npm run lint:architecture", "npm run lint:dup -- --list", "npm run lint:file-size", "npm run lint",
+        "npm run typecheck", "npm run test:scripts", "cargo fmt --all -- --check", "cargo clippy --workspace -- -D warnings", "git diff --check"],
+      "evidence": ["docs/harness/evidence/repository-post-cleanup-review-2026-07-17.json", "docs/harness/evidence/repository-post-cleanup-review-2026-07-17.md"],
+      "blocker": "",
+      "next_trigger": "A new concern requires reproduction and a bounded correction before it changes this verdict."
+    },
+    {
+      "id": "repository-post-cleanup-corrections", "priority": 8, "area": "repository correctness and integrity", "title": "Repository post-cleanup corrections",
+      "behavior": "Confirmed database, notification, documentation, manifest, mock-graph, dead-API, and review-sensor findings are corrected without reopening a broad cleanup stream.",
+      "user_visible_behavior": "Saved alert choices and local data protections behave as described before new major feature work begins.",
+      "status": "passing", "verification": ["npm run verify:full", "npm run lint:bloat", "npm run lint:docs", "npm run lint:deps", "npm run lint:file-size", "git diff --check"],
+      "evidence": ["docs/harness/evidence/repository-post-cleanup-corrections-2026-07-17.json"], "blocker": "", "next_trigger": "A regression against the recorded corrected baseline requires a new bounded feature."
+    },
+    {
+      "id": "v3-workstream-selection", "priority": 9, "area": "product planning", "title": "Select the first v3 major workstream",
+      "behavior": "The ranked v3 planning package is reduced to one user-approved, bounded execution plan before implementation begins.",
+      "user_visible_behavior": "The next major investment targets a clear job-seeker burden with explicit privacy, usability, and verification boundaries.",
+      "status": "active", "verification": ["npm run harness:check", "npm run lint:docs"],
+      "evidence": [], "blocker": "", "next_trigger": "Select and approve one major workstream from docs/plans/v3/idea-index.md."
     }
   ]
 }

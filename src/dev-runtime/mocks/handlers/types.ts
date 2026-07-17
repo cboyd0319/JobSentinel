@@ -4,17 +4,16 @@ import type {
   mockJobs,
   mockPendingReminders,
 } from "../data";
-import type { NotificationPreferences } from "../../../features/settings/notifications/notificationPreferencesStore";
+import type { NotificationPreferences } from "../../../shared/notificationPreferences";
 import type {
   MockApplicationProfile,
   MockScreeningAnswer,
 } from "../../../features/application-assist/mockProfile";
 import type {
-  MockCoverLetterTemplate,
-} from "../../features/applications/coverLetterTemplateCommands";
-import type {
-  MockSavedSearch,
-} from "../../features/dashboard/savedSearchCommands";
+  PostedDateFilter,
+  ScoreFilter,
+  SortOption,
+} from "../../../features/dashboard/types";
 import type {
   MockInterviewFollowUpState,
   MockInterviewPrepState,
@@ -40,6 +39,45 @@ export interface MockApplication {
 
 export type MockApplications = Record<MockApplicationStatus, MockApplication[]>;
 export type MockPendingReminder = typeof mockPendingReminders[number];
+
+export type MockTemplateCategory =
+  | "general"
+  | "tech"
+  | "creative"
+  | "finance"
+  | "healthcare"
+  | "sales"
+  | "custom"
+  | "thankyou"
+  | "followup"
+  | "withdrawal";
+
+export interface MockCoverLetterTemplate {
+  id: string;
+  name: string;
+  content: string;
+  category: MockTemplateCategory;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MockSavedSearch {
+  id: string;
+  name: string;
+  sortBy: SortOption;
+  scoreFilter: ScoreFilter;
+  sourceFilter: string;
+  remoteFilter: string;
+  bookmarkFilter: string;
+  notesFilter: string;
+  postedDateFilter: PostedDateFilter | null;
+  salaryMinFilter: number | null;
+  salaryMaxFilter: number | null;
+  ghostFilter: string | null;
+  textSearch: string | null;
+  createdAt: string;
+  lastUsedAt: string | null;
+}
 
 export type MockCredentialKey =
   | "slack_webhook"
@@ -210,12 +248,10 @@ export interface MockState {
 export type {
   MockApplicationProfile,
   MockBuilderSkill,
-  MockCoverLetterTemplate,
   MockInterviewFollowUpState,
   MockInterviewPrepState,
   MockMarketAlert,
   MockResumeDraft,
-  MockSavedSearch,
   MockScreeningAnswer,
   MockScraperEnabledOverrides,
   NotificationPreferences,

@@ -1,0 +1,114 @@
+{
+  "schema": "jobsentinel.feature_evidence.v1",
+  "feature_id": "repository-post-cleanup-review",
+  "behavior": "Maintained source, tests, scripts, manifests, and documentation are independently reviewed for missed correctness, ownership, dependency, duplication, and maintainability work before another major feature begins.",
+  "result": "passing",
+  "verified_at": "2026-07-17T18:52:33Z",
+  "revision": "56dc56e06b89ffa71f417866f7a4af3270304848",
+  "revision_scope": "Read-only review of the committed cleanup baseline plus uncommitted state and evidence transitions.",
+  "platform": "local Darwin arm64 development host",
+  "measurements": {
+    "retained_findings": 8,
+    "major_correctness_findings": 2,
+    "broken_local_links": 6,
+    "unused_member_dependency_declarations": 4,
+    "maintained_duplication_scopes_at_zero": 6,
+    "script_tests_passed": 824,
+    "frontend_tests_passed": 2925
+  },
+  "changes": [
+    "Closed the residual cleanup plan with its existing full-gate evidence.",
+    "Inventoried maintained source, tests, scripts, manifests, and documentation.",
+    "Reproduced and prioritized two correctness defects and six bounded repository-integrity concerns.",
+    "Rejected startup-path, frontend-orphan, transitive-dependency, roadmap-ownership, and intentional-integration-lane false positives.",
+    "Recorded a finite corrective plan that blocks another major feature stream without reopening broad cleanup."
+  ],
+  "commands": [
+    {
+      "command": "./init.sh",
+      "exit_status": 0,
+      "relevant_result": "Locked dependency synchronization, harness checks, and three baseline smoke tests passed.",
+      "caveat": "The environment doctor reported local runtime-version differences from repository-owned baselines."
+    },
+    {
+      "command": "npm run harness:check",
+      "exit_status": 0,
+      "relevant_result": "Canonical state, plan, evidence, and startup-budget contracts passed after the review transition.",
+      "caveat": "None."
+    },
+    {
+      "command": "npm run lint:architecture",
+      "exit_status": 0,
+      "relevant_result": "Repository architecture and ownership contracts passed.",
+      "caveat": "The review still found behavior outside those structural assertions."
+    },
+    {
+      "command": "npm run lint:dup -- --list",
+      "exit_status": 0,
+      "relevant_result": "All six maintained production and test scopes reported zero duplicated lines and zero regions.",
+      "caveat": "The enforced window is 14 significant lines."
+    },
+    {
+      "command": "npm run test:scripts",
+      "exit_status": 0,
+      "relevant_result": "All 824 script contract tests passed with zero skipped.",
+      "caveat": "None."
+    },
+    {
+      "command": "npm run test:coverage",
+      "exit_status": 0,
+      "relevant_result": "All 2,925 frontend tests passed; the report exposed the untested dashboard notification call path.",
+      "caveat": "Coverage percentages are diagnostic and are not repository pass thresholds."
+    },
+    {
+      "command": "npm run lint",
+      "exit_status": 0,
+      "relevant_result": "Frontend and script lint checks passed.",
+      "caveat": "None."
+    },
+    {
+      "command": "npm run typecheck",
+      "exit_status": 0,
+      "relevant_result": "The composite TypeScript build passed.",
+      "caveat": "None."
+    },
+    {
+      "command": "cargo fmt --all -- --check",
+      "exit_status": 0,
+      "relevant_result": "Rust formatting checks passed.",
+      "caveat": "None."
+    },
+    {
+      "command": "cargo clippy --workspace -- -D warnings",
+      "exit_status": 0,
+      "relevant_result": "The standard strict Rust lint lane passed.",
+      "caveat": "A separate advisory complexity run identified the database initialization hotspot."
+    },
+    {
+      "command": "npm run lint:bloat",
+      "exit_status": 1,
+      "relevant_result": "The review detected generated coverage output and a disposable source-tree metadata artifact.",
+      "caveat": "Generated review output is removed after evidence capture; the source-tree artifact belongs to the active correction."
+    },
+    {
+      "command": "npm run lint:file-size",
+      "exit_status": 0,
+      "relevant_result": "Hard limits passed, but the advisory review list contained 407 files and was classified as saturated.",
+      "caveat": "No broad file splitting is recommended."
+    },
+    {
+      "command": "git diff --check",
+      "exit_status": 0,
+      "relevant_result": "The reviewed working diff had no whitespace errors before final evidence updates.",
+      "caveat": "Repeated after final evidence updates."
+    }
+  ],
+  "source": "docs/plans/completed/repository-post-cleanup-review.md",
+  "details": "docs/harness/evidence/repository-post-cleanup-review-2026-07-17.md",
+  "audit": {
+    "review_complete": true,
+    "verdict": "concerns",
+    "corrective_work_required": true,
+    "committed": false
+  }
+}

@@ -107,7 +107,7 @@
       "caveat": "None."
     }
   ],
-  "source": "docs/plans/active/repository-residual-cleanup.md",
+  "source": "docs/plans/completed/repository-residual-cleanup.md",
   "audit": {
     "implementation_complete": true,
     "generated_artifacts_removed": true,

@@ -218,13 +218,6 @@ pub async fn resolve_external_https_url_for_fetch(
     resolve_external_url_for_fetch(validate_external_https_url(url)?).await
 }
 
-/// Validate an external HTTP URL for a fetch and return its parsed form.
-pub async fn validate_external_http_url_for_fetch(url: &str) -> Result<Url, String> {
-    resolve_external_http_url_for_fetch(url)
-        .await
-        .map(ResolvedExternalUrl::into_url)
-}
-
 /// Validate an external HTTPS URL for a fetch and return its parsed form.
 pub async fn validate_external_https_url_for_fetch(url: &str) -> Result<Url, String> {
     resolve_external_https_url_for_fetch(url)

@@ -177,8 +177,6 @@ macro_rules! jobsentinel_command_handlers {
             jobsentinel::ipc::health::get_latest_source_request,
             jobsentinel::ipc::health::run_scraper_smoke_test,
             jobsentinel::ipc::health::run_all_smoke_tests,
-            jobsentinel::ipc::health::get_linkedin_cookie_health,
-            jobsentinel::ipc::health::get_expiring_credentials,
             jobsentinel::ipc::cache::get_score_cache_stats,
             jobsentinel::ipc::cache::clear_scoring_cache,
             jobsentinel::ipc::cache::get_cache_health,

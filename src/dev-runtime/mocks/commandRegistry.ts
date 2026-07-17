@@ -221,7 +221,6 @@ const commandGroups: readonly MockCommandGroup[] = [
     commands: [
       "get_health_summary",
       "get_scraper_health",
-      "get_expiring_credentials",
       "set_scraper_enabled",
       "get_scraper_runs",
       "get_latest_source_request",

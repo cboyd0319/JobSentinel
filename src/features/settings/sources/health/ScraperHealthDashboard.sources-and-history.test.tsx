@@ -30,7 +30,6 @@ describe("ScraperHealthDashboard sources and history", () => {
       mockInvoke.mockImplementation((cmd: string) => {
         if (cmd === "get_health_summary") return Promise.resolve(mockSummary);
         if (cmd === "get_scraper_health") return Promise.resolve(mockScrapers);
-        if (cmd === "get_expiring_credentials") return Promise.resolve([]);
         return Promise.resolve(null);
       });
     });
@@ -190,7 +189,6 @@ describe("ScraperHealthDashboard sources and history", () => {
       mockInvoke.mockImplementation((cmd: string) => {
         if (cmd === "get_health_summary") return Promise.resolve(mockSummary);
         if (cmd === "get_scraper_health") return Promise.resolve(mockScrapers);
-        if (cmd === "get_expiring_credentials") return Promise.resolve([]);
         if (cmd === "set_scraper_enabled") return Promise.resolve(undefined);
         if (cmd === "run_scraper_smoke_test") return Promise.resolve(mockTestResults[0]);
         return Promise.resolve(null);
@@ -244,7 +242,6 @@ describe("ScraperHealthDashboard sources and history", () => {
       mockInvoke.mockImplementation((cmd: string) => {
         if (cmd === "get_health_summary") return Promise.resolve(mockSummary);
         if (cmd === "get_scraper_health") return Promise.resolve(mockScrapers);
-        if (cmd === "get_expiring_credentials") return Promise.resolve([]);
         if (cmd === "get_scraper_runs") return Promise.resolve(mockRuns);
         return Promise.resolve(null);
       });
@@ -357,7 +354,6 @@ describe("ScraperHealthDashboard sources and history", () => {
       mockInvoke.mockImplementation((cmd: string) => {
         if (cmd === "get_health_summary") return Promise.resolve(mockSummary);
         if (cmd === "get_scraper_health") return Promise.resolve(mockScrapers);
-        if (cmd === "get_expiring_credentials") return Promise.resolve([]);
         if (cmd === "get_scraper_runs") return Promise.resolve([]);
         return Promise.resolve(null);
       });

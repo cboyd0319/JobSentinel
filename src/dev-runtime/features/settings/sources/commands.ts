@@ -1,7 +1,6 @@
 import type { MockConfig } from "../../../mocks/handlers/types";
 import {
   getAllMockSmokeTestResults,
-  getMockExpiringCredentials,
   getMockHealthSummary,
   getMockLatestSourceRequest,
   getMockScraperHealth,
@@ -33,8 +32,6 @@ export function handleMockSourceHealthCommand(
       return result(getMockHealthSummary(state.scraperEnabledOverrides), state);
     case "get_scraper_health":
       return result(getMockScraperHealth(state.scraperEnabledOverrides), state);
-    case "get_expiring_credentials":
-      return result(getMockExpiringCredentials(), state);
     case "set_scraper_enabled": {
       const scraperEnabledOverrides = updateMockScraperEnabled(
         args,

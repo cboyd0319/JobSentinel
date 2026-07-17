@@ -10,6 +10,33 @@ mod memory_tests {
 
         assert_eq!(database.pool().options().get_max_connections(), 1);
     }
+
+    #[tokio::test]
+    async fn every_pooled_connection_receives_connection_settings() {
+        let temp_dir = tempfile::tempdir().unwrap();
+        let database = Database::connect(&temp_dir.path().join("jobs.db"))
+            .await
+            .unwrap();
+        let _first_connection = database.pool().acquire().await.unwrap();
+        let mut second_connection = database.pool().acquire().await.unwrap();
+
+        let trusted_schema: i64 = sqlx::query_scalar("PRAGMA trusted_schema")
+            .fetch_one(&mut *second_connection)
+            .await
+            .unwrap();
+        let synchronous: i64 = sqlx::query_scalar("PRAGMA synchronous")
+            .fetch_one(&mut *second_connection)
+            .await
+            .unwrap();
+        let cache_size: i64 = sqlx::query_scalar("PRAGMA cache_size")
+            .fetch_one(&mut *second_connection)
+            .await
+            .unwrap();
+
+        assert_eq!(trusted_schema, 0);
+        assert_eq!(synchronous, 1);
+        assert_eq!(cache_size, -128_000);
+    }
 }
 
 #[cfg(test)]

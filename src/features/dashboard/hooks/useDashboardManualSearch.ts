@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState, type Dispatch, type SetStateAction } from "react";
 import { useToast } from "../../../shared/toast/useToast";
 import { invalidateCacheByCommand, safeInvoke } from "../../../platform/tauri";
-import { notifyScrapingComplete } from "../notifications";
+import {
+  notifyScrapingComplete,
+  selectNotificationCandidates,
+} from "../notifications";
 import { getDashboardSearchErrorCopy } from "../dashboardErrorCopy";
 import type {
   DashboardPreferences,
@@ -11,6 +14,7 @@ import type {
 } from "../types";
 
 interface DashboardManualSearchOptions {
+  jobs: Job[];
   setAnyJobSourceEnabled: Dispatch<SetStateAction<boolean | null>>;
   setError: Dispatch<SetStateAction<string | null>>;
   setJobs: Dispatch<SetStateAction<Job[]>>;
@@ -19,6 +23,7 @@ interface DashboardManualSearchOptions {
 }
 
 export function useDashboardManualSearch({
+  jobs,
   setAnyJobSourceEnabled,
   setError,
   setJobs,
@@ -99,6 +104,7 @@ export function useDashboardManualSearch({
         safeInvoke<Statistics>("get_statistics"),
         safeInvoke<ScrapingStatus>("get_scraping_status"),
       ]);
+      const notificationCandidates = selectNotificationCandidates(jobs, jobsData);
       setJobs(jobsData);
       setStatistics(statsData);
       setScrapingStatus(statusData);
@@ -112,7 +118,7 @@ export function useDashboardManualSearch({
       }
 
       if (statsData.high_matches > 0) {
-        notifyScrapingComplete(jobsData.length, statsData.high_matches);
+        void notifyScrapingComplete(notificationCandidates);
       }
 
       cooldownTimeoutRef.current = setTimeout(() => {

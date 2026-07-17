@@ -1,0 +1,77 @@
+{
+  "schema": "jobsentinel.feature_evidence.v1",
+  "feature_id": "repository-post-cleanup-corrections",
+  "behavior": "Confirmed database, notification, documentation, manifest, mock-graph, dead-API, and review-sensor findings are corrected without reopening a broad cleanup stream.",
+  "result": "passing",
+  "verified_at": "2026-07-17T19:32:35Z",
+  "revision": "56dc56e06b89ffa71f417866f7a4af3270304848",
+  "revision_scope": "Verified working tree based on the recorded revision.",
+  "platform": "local Darwin arm64 development host",
+  "measurements": {
+    "broken_local_links_repaired": 6,
+    "unused_member_dependencies_removed": 4,
+    "obsolete_tauri_commands_removed": 2,
+    "obsolete_sqlx_query_records_removed": 7,
+    "file_size_review_candidates_before": 407,
+    "changed_file_review_candidates_after": 18,
+    "script_tests_passed": 828,
+    "frontend_tests_passed": 2924,
+    "runtime_smoke_tests_passed": 10
+  },
+  "changes": [
+    "Moved connection-scoped SQLite settings into pool connection options and added a multi-connection regression test.",
+    "Applied saved notification preferences to real dashboard alerts, limited alerts to new or rescored jobs, and kept notification content count-only.",
+    "Added a maintained local Markdown link checker and repaired all six known broken links.",
+    "Replaced copied webhook validation implementations in security documentation with concise references to the shared security owner.",
+    "Removed four unused member dependency declarations and centralized development mock type ownership.",
+    "Deleted unowned definition-only Rust APIs and their dead support code, including speculative credential-expiry surfaces.",
+    "Regenerated SQLx offline metadata after deleting obsolete queries and updated the current backend command count.",
+    "Kept repository-wide file-size hard caps while scoping advisory review output to changed files.",
+    "Removed the disposable source-tree metadata artifact and all generated verification outputs."
+  ],
+  "commands": [
+    {
+      "command": "npm run verify:full",
+      "exit_status": 0,
+      "relevant_result": "The complete local gate passed with 828 script tests, 2,924 frontend tests across 246 files, production and component-library builds, 10 runtime smoke journeys within budget, SQLx metadata verification, strict linting, and the complete Rust workspace.",
+      "caveat": "The environment doctor reported that host Node and npm versions differ from repository-owned baselines; all checks passed."
+    },
+    {
+      "command": "npm run lint:bloat",
+      "exit_status": 0,
+      "relevant_result": "The repository artifact and bloat audit passed after the source-tree artifact and generated outputs were removed.",
+      "caveat": "Generated build and test directories are recreated by their owning commands."
+    },
+    {
+      "command": "npm run lint:docs",
+      "exit_status": 0,
+      "relevant_result": "Harness, Markdown, local-link, and prose checks passed for maintained documentation.",
+      "caveat": "Repeated after final state and evidence updates."
+    },
+    {
+      "command": "npm run lint:deps",
+      "exit_status": 0,
+      "relevant_result": "Exact dependency pins, lockfile policy, and workspace dependency declarations passed.",
+      "caveat": "None."
+    },
+    {
+      "command": "npm run lint:file-size",
+      "exit_status": 0,
+      "relevant_result": "Repository-wide hard caps passed and advisory output was reduced from 407 repository files to 18 changed files.",
+      "caveat": "The advisory list is informational and does not replace the repository-wide hard-cap scan."
+    },
+    {
+      "command": "git diff --check",
+      "exit_status": 0,
+      "relevant_result": "The verified working diff contains no whitespace errors.",
+      "caveat": "Repeated after final state and evidence updates."
+    }
+  ],
+  "source": "docs/plans/completed/repository-post-cleanup-corrections.md",
+  "audit": {
+    "implementation_complete": true,
+    "review_findings_closed": true,
+    "generated_artifacts_removed": true,
+    "committed": false
+  }
+}

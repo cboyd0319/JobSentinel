@@ -1,18 +1,17 @@
 //! Tauri commands for scraper health monitoring
 //!
 //! Provides frontend access to scraper health metrics, run history,
-//! smoke tests, and credential health.
+//! and smoke tests.
 
 use crate::application::config::Config;
 use crate::application::health::{
-    check_linkedin_cookie_health, get_all_scraper_health,
-    get_expiring_credentials as fetch_expiring_credentials, get_health_summary as health_summary,
+    get_all_scraper_health, get_health_summary as health_summary,
     get_latest_source_request as latest_source_request, get_scraper_configs as scraper_configs,
     get_scraper_runs as scraper_runs, is_known_scraper_name,
     run_all_smoke_tests_with_credentials_and_acknowledgement as all_smoke_tests,
     run_smoke_test_with_credentials_and_acknowledgement as run_smoke_test,
-    set_scraper_enabled as scraper_enabled, CredentialHealth, HealthSummary, ScraperConfig,
-    ScraperHealthMetrics, ScraperRun, SmokeTestResult, SourceRequestSummary,
+    set_scraper_enabled as scraper_enabled, HealthSummary, ScraperConfig, ScraperHealthMetrics,
+    ScraperRun, SmokeTestResult, SourceRequestSummary,
 };
 use crate::bootstrap::AppState;
 use crate::desktop::path_label_for_logging;
@@ -271,26 +270,6 @@ pub(crate) async fn run_all_smoke_tests(
     )
     .await
     .map_err(|e| health_command_error("Failed to run scraper smoke tests", e))
-}
-
-/// Get inactive legacy LinkedIn credential status.
-#[tauri::command]
-pub(crate) async fn get_linkedin_cookie_health(
-    state: State<'_, AppState>,
-) -> Result<CredentialHealth, String> {
-    check_linkedin_cookie_health(&state.database)
-        .await
-        .map_err(|e| health_command_error("Failed to load credential health", e))
-}
-
-/// Get all credentials that are expiring soon
-#[tauri::command]
-pub(crate) async fn get_expiring_credentials(
-    state: State<'_, AppState>,
-) -> Result<Vec<CredentialHealth>, String> {
-    fetch_expiring_credentials(&state.database)
-        .await
-        .map_err(|e| health_command_error("Failed to load expiring credentials", e))
 }
 
 #[cfg(test)]

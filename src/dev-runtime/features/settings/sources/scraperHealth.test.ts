@@ -62,8 +62,5 @@ describe("Settings source health mock commands", () => {
     >("run_all_smoke_tests");
     expect(allSmoke.length).toBeGreaterThanOrEqual(scrapers.length);
 
-    await expect(mockInvoke<Array<unknown>>("get_expiring_credentials")).resolves.toEqual(
-      expect.any(Array),
-    );
   });
 });
