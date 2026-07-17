@@ -2,7 +2,7 @@ use super::super::ats_types::{
     AtsAnalysisResult, AtsSuggestion, FormatIssue, IssueSeverity, SuggestionCategory,
 };
 use super::super::types::{ContactInfo, Education, Experience, ResumeData, Skill};
-use super::{bullet_prompts, plain_text_format};
+use super::{bullet_prompts, format_result, plain_text_format};
 
 mod text_rules;
 
@@ -23,31 +23,9 @@ pub(super) fn analyze_format(resume: &ResumeData) -> AtsAnalysisResult {
     check_capability_level_claims(resume, &mut format_issues, &mut suggestions);
     check_generic_filler_bullets(resume, &mut format_issues, &mut suggestions);
 
-    let critical_count = format_issues
-        .iter()
-        .filter(|i| i.severity == IssueSeverity::Critical)
-        .count();
-    let warning_count = format_issues
-        .iter()
-        .filter(|i| i.severity == IssueSeverity::Warning)
-        .count();
-    let format_score =
-        (100.0 - (critical_count as f64 * 20.0) - (warning_count as f64 * 5.0)).max(0.0);
     let completeness_score = calculate_completeness(resume);
 
-    AtsAnalysisResult {
-        overall_score: (format_score * 0.5) + (completeness_score * 0.5),
-        keyword_score: 0.0,
-        format_score,
-        completeness_score,
-        keyword_matches: Vec::new(),
-        missing_keywords: Vec::new(),
-        missing_keyword_details: Vec::new(),
-        format_issues,
-        requirement_reviews: Vec::new(),
-        hard_constraint_risks: Vec::new(),
-        suggestions,
-    }
+    format_result::build_format_result(format_issues, suggestions, completeness_score)
 }
 
 fn check_contact_info(

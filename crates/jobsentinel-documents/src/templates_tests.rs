@@ -1,5 +1,22 @@
 use super::*;
 
+const ALL_TEMPLATE_IDS: [TemplateId; 5] = [
+    TemplateId::Classic,
+    TemplateId::Modern,
+    TemplateId::Technical,
+    TemplateId::Executive,
+    TemplateId::Military,
+];
+
+fn snapshot_checksum(value: &str) -> u64 {
+    value
+        .as_bytes()
+        .iter()
+        .fold(0xcbf29ce484222325, |hash, byte| {
+            (hash ^ u64::from(*byte)).wrapping_mul(0x100000001b3)
+        })
+}
+
 fn create_test_resume() -> ResumeData {
     ResumeData {
         contact: ContactInfo {
@@ -51,6 +68,24 @@ fn create_test_resume() -> ResumeData {
         clearance: None,
         military_info: None,
     }
+}
+
+#[test]
+fn test_html_template_snapshots() {
+    let resume = create_test_resume();
+    let checksums = ALL_TEMPLATE_IDS
+        .map(|template| snapshot_checksum(&TemplateRenderer::render_html(&resume, template)));
+
+    assert_eq!(
+        checksums,
+        [
+            14_030_013_017_775_582_095,
+            7_057_356_738_133_148_167,
+            16_659_293_794_597_932_322,
+            1_008_463_178_470_160_577,
+            12_906_799_031_652_123_725,
+        ]
+    );
 }
 
 #[test]
@@ -237,13 +272,7 @@ fn test_all_html_templates_include_certifications_and_projects_once() {
         end_date: None,
     }];
 
-    for template in [
-        TemplateId::Classic,
-        TemplateId::Modern,
-        TemplateId::Technical,
-        TemplateId::Executive,
-        TemplateId::Military,
-    ] {
+    for template in ALL_TEMPLATE_IDS {
         let html = TemplateRenderer::render_html(&resume, template);
         assert_eq!(
             html.matches("Certified Community Health Worker").count(),
@@ -279,14 +308,16 @@ fn test_html_escaping() {
         military_info: None,
     };
 
-    let html = TemplateRenderer::render_html(&resume, TemplateId::Classic);
+    for template in ALL_TEMPLATE_IDS {
+        let html = TemplateRenderer::render_html(&resume, template);
 
-    assert!(!html.contains("<script>"));
-    assert!(html.contains("&lt;script&gt;"));
-    assert!(html.contains("&amp;"));
-    assert!(html.contains("&lt;"));
-    assert!(html.contains("&gt;"));
-    assert!(html.contains("&quot;"));
+        assert!(!html.contains("<script>"), "{template:?}");
+        assert!(html.contains("&lt;script&gt;"), "{template:?}");
+        assert!(html.contains("&amp;"), "{template:?}");
+        assert!(html.contains("&lt;"), "{template:?}");
+        assert!(html.contains("&gt;"), "{template:?}");
+        assert!(html.contains("&quot;"), "{template:?}");
+    }
 }
 
 #[test]
@@ -310,9 +341,10 @@ fn test_empty_sections() {
         military_info: None,
     };
 
-    let html = TemplateRenderer::render_html(&resume, TemplateId::Classic);
+    for template in ALL_TEMPLATE_IDS {
+        let html = TemplateRenderer::render_html(&resume, template);
 
-    assert!(html.contains("Jane Smith"));
-    assert!(!html.contains("SUMMARY"));
-    assert!(!html.contains("EXPERIENCE"));
+        assert!(html.contains("Jane Smith"), "{template:?}");
+        assert!(!html.contains("<h2>"), "{template:?}");
+    }
 }

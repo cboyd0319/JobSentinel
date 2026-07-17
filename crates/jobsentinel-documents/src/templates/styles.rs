@@ -1,5 +1,4 @@
-pub(super) fn classic() -> &'static str {
-    r#"
+const STANDARD_PAGE_AND_NAME: &str = r#"
 body {
     font-family: Arial, sans-serif;
     font-size: 11pt;
@@ -15,7 +14,12 @@ body {
     text-align: center;
     margin: 0 0 8pt 0;
 }
-.contact {
+"#;
+
+pub(super) fn classic() -> String {
+    [
+        STANDARD_PAGE_AND_NAME,
+        r#".contact {
     text-align: center;
     font-size: 10pt;
     margin-bottom: 16pt;
@@ -53,7 +57,9 @@ li {
 .skill-category {
     margin-bottom: 6pt;
 }
-    "#
+    "#,
+    ]
+    .concat()
 }
 
 pub(super) fn print() -> &'static str {
@@ -275,24 +281,10 @@ li {
 "#
 }
 
-pub(super) fn military() -> &'static str {
-    r#"
-body {
-    font-family: Arial, sans-serif;
-    font-size: 11pt;
-    line-height: 1.4;
-    color: #000;
-    max-width: 8.5in;
-    margin: 0 auto;
-    padding: 0.5in;
-}
-.name {
-    font-size: 24pt;
-    font-weight: bold;
-    text-align: center;
-    margin: 0 0 8pt 0;
-}
-.contact {
+pub(super) fn military() -> String {
+    [
+        STANDARD_PAGE_AND_NAME,
+        r#".contact {
     text-align: center;
     font-size: 10pt;
     margin-bottom: 12pt;
@@ -337,5 +329,7 @@ li {
 .skill-category {
     margin-bottom: 6pt;
 }
-"#
+"#,
+    ]
+    .concat()
 }

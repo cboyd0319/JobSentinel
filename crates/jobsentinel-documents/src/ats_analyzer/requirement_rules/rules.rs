@@ -210,19 +210,13 @@ pub(in crate::ats_analyzer) fn supplemental_keyword_catalog_terms() -> Vec<Strin
 pub(in crate::ats_analyzer) fn supplemental_keyword_search_terms(
     keyword_lower: &str,
 ) -> Vec<String> {
-    let Some(group) = TAXONOMY.supplemental_keyword_groups.iter().find(|group| {
-        group.canonical == keyword_lower || group.terms.iter().any(|term| term == keyword_lower)
-    }) else {
-        return Vec::new();
-    };
-
-    let mut terms = Vec::new();
-    for term in std::iter::once(&group.canonical).chain(group.terms.iter()) {
-        if !terms.iter().any(|existing| existing == term) {
-            terms.push(term.clone());
-        }
-    }
-    terms
+    keyword_group_search_terms(
+        keyword_lower,
+        TAXONOMY
+            .supplemental_keyword_groups
+            .iter()
+            .map(|group| (&group.canonical, group.terms.as_slice())),
+    )
 }
 
 pub(in crate::ats_analyzer) fn extract_credential_keywords(text: &str) -> Vec<String> {
@@ -253,14 +247,27 @@ pub(in crate::ats_analyzer) fn extract_credential_keywords(text: &str) -> Vec<St
 }
 
 pub(in crate::ats_analyzer) fn credential_keyword_search_terms(keyword_lower: &str) -> Vec<String> {
-    let Some(group) = TAXONOMY.credential_keyword_groups.iter().find(|group| {
-        group.canonical == keyword_lower || group.terms.iter().any(|term| term == keyword_lower)
+    keyword_group_search_terms(
+        keyword_lower,
+        TAXONOMY
+            .credential_keyword_groups
+            .iter()
+            .map(|group| (&group.canonical, group.terms.as_slice())),
+    )
+}
+
+fn keyword_group_search_terms<'a>(
+    keyword_lower: &str,
+    mut groups: impl Iterator<Item = (&'a String, &'a [String])>,
+) -> Vec<String> {
+    let Some((canonical, aliases)) = groups.find(|(canonical, aliases)| {
+        canonical.as_str() == keyword_lower || aliases.iter().any(|alias| alias == keyword_lower)
     }) else {
         return Vec::new();
     };
 
     let mut terms = Vec::new();
-    for term in std::iter::once(&group.canonical).chain(group.terms.iter()) {
+    for term in std::iter::once(canonical).chain(aliases) {
         if !terms.iter().any(|existing| existing == term) {
             terms.push(term.clone());
         }

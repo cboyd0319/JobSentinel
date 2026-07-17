@@ -10,6 +10,7 @@ use super::types::ResumeData;
 use super::types::{ContactInfo, Education, Experience, Skill};
 
 mod bullet_prompts;
+mod format_result;
 mod hard_constraints;
 mod keyword_catalog;
 mod matching;

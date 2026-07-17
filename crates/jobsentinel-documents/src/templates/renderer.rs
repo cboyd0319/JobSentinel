@@ -219,7 +219,7 @@ impl TemplateRenderer {
     }
 
     // HTML document structure
-    fn html_header(title: &str, styles: &str) -> String {
+    fn html_header(title: &str, styles: impl AsRef<str>) -> String {
         format!(
             r#"<!DOCTYPE html>
 <html lang="en">
@@ -235,7 +235,7 @@ impl TemplateRenderer {
 <body>
 "#,
             escape_html(title),
-            styles,
+            styles.as_ref(),
             styles::print()
         )
     }

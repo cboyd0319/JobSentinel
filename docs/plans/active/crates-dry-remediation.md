@@ -266,15 +266,15 @@ Commit boundary: `refactor(sources): share job and scraper lifecycle paths`.
 
 ### Milestone 6: Consolidate Document Rendering And ATS Assembly
 
-- [ ] Extract small contact, experience, education, and skills section renderers
+- [x] Extract small contact, experience, education, and skills section renderers
   from the five template variants. Pass only explicit style options.
-- [ ] Preserve generated HTML with fixture or snapshot comparisons, including
+- [x] Preserve generated HTML with fixture or snapshot comparisons, including
   absent sections and escaped untrusted text.
-- [ ] Extract a shared ATS result builder for score totals, issue construction,
+- [x] Extract a shared ATS result builder for score totals, issue construction,
   and common metadata. Keep rule-specific evidence generation explicit.
-- [ ] Consolidate repeated requirement-taxonomy lookup without introducing a
+- [x] Consolidate repeated requirement-taxonomy lookup without introducing a
   new rules engine.
-- [ ] Confirm exports remain deterministic and no new template dependency was
+- [x] Confirm exports remain deterministic and no new template dependency was
   added.
 
 Commit boundary: `refactor(documents): share rendering and ATS assembly`.
@@ -402,6 +402,7 @@ gap and blocks `passing`.
 | 2026-07-16 | Normalized | Milestone 3 centralized work-arrangement inference and separated canonical values from salary and market buckets. |
 | 2026-07-16 | Consolidated | Milestone 4 centralized SQLite time parsing, storage row mapping, user-skill queries, salary statistics, and alert insertion. Production crate duplication fell to 480 lines across 24 regions. |
 | 2026-07-16 | Orchestrated | Milestone 5 centralized new-job invariants, source-adapter helpers, shared user agents, canonical hash ownership, and scraper lifecycle handling. Production crate duplication fell to 266 lines across 13 regions; test duplication fell to 2,127 lines across 77 regions. |
+| 2026-07-16 | Rendered | Milestone 6 centralized document sections, byte-stable shared style fragments, ATS format-result assembly, plain-text bullet traversal, and requirement-taxonomy search terms. Production crate duplication fell to 98 lines across 5 regions; document production clones fell to zero. |
 
 - [x] Milestone 0: activate the plan safely.
 - [x] Milestone 1: establish guardrails and characterization.
@@ -409,7 +410,7 @@ gap and blocks `passing`.
 - [x] Milestone 3: separate normalization from analytics bucketing.
 - [x] Milestone 4: consolidate storage primitives and mappers.
 - [x] Milestone 5: consolidate job construction and scraper orchestration.
-- [ ] Milestone 6: consolidate document rendering and ATS assembly.
+- [x] Milestone 6: consolidate document rendering and ATS assembly.
 - [ ] Milestone 7: introduce the canonical resume contract.
 - [ ] Milestone 8: cut over resume consumers and delete duplicate models.
 - [ ] Milestone 9: consolidate test support.
@@ -456,11 +457,14 @@ dependency changes, verification evidence, and any follow-up debt.
 
 ## Handoff
 
-- Current state: Milestones 0 through 5 are complete; Milestone 6 is next.
-- Evidence: the canonical workspace Rust gate, harness, file-size, architecture,
-  and duplication checks pass. Production crate duplication is 266 lines across
-  13 regions; test duplication is 2,127 lines across 77 regions.
-- Next step: consolidate document section rendering, ATS result assembly, and
-  requirement-taxonomy lookups while preserving exact generated output.
-- Open risk: resume serialization remains the highest-risk migration. Keep the
-  Milestone 6 rendering refactor separate from the Milestone 7 model cutover.
+- Current state: Milestones 0 through 6 are complete; Milestone 7 is next.
+- Evidence: exact HTML snapshot checksums remained unchanged, all 304 document
+  tests passed, and the canonical workspace Rust gate passed. Production crate
+  duplication is 98 lines across 5 regions; test duplication remains 2,127
+  lines across 77 regions.
+- Next step: define the canonical documents-owned structured resume and template
+  identifier contracts with fixture-based boundary tests and temporary explicit
+  conversions.
+- Open risk: resume serialization remains the highest-risk migration. Preserve
+  every existing field name, optionality rule, and identifier while introducing
+  the Milestone 7 contract.

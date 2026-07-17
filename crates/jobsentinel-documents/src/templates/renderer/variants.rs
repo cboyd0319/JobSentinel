@@ -1,6 +1,118 @@
 use super::*;
+use crate::{ContactInfo, Education, Experience, SkillCategory};
+
+enum SkillsLayout {
+    Inline,
+    Block,
+}
 
 impl TemplateRenderer {
+    fn append_contact(html: &mut String, contact: &ContactInfo) {
+        html.push_str("<div class=\"contact\">\n");
+        html.push_str(&format!("{}", escape_html(&contact.email)));
+        if let Some(phone) = &contact.phone {
+            html.push_str(&format!(" • {}", escape_html(phone)));
+        }
+        if let Some(location) = &contact.location {
+            html.push_str(&format!(" • {}", escape_html(location)));
+        }
+        html.push_str("\n</div>\n\n");
+    }
+
+    fn append_experience(
+        html: &mut String,
+        experience: &[Experience],
+        heading: &str,
+        list_class: Option<&str>,
+    ) {
+        if experience.is_empty() {
+            return;
+        }
+
+        html.push_str(&format!("<h2>{heading}</h2>\n"));
+        for exp in experience {
+            html.push_str("<div class=\"experience-item\">\n");
+            html.push_str(&format!("<h3>{}</h3>\n", escape_html(&exp.title)));
+            html.push_str(&format!(
+                "<div class=\"company\">{}</div>\n",
+                escape_html(&exp.company)
+            ));
+            let end = exp.end_date.as_deref().unwrap_or("Present");
+            html.push_str(&format!(
+                "<div class=\"dates\">{} - {}</div>\n",
+                escape_html(&exp.start_date),
+                escape_html(end)
+            ));
+            match list_class {
+                Some(class) => html.push_str(&format!("<ul class=\"{class}\">\n")),
+                None => html.push_str("<ul>\n"),
+            }
+            for achievement in &exp.achievements {
+                html.push_str(&format!("<li>{}</li>\n", escape_html(achievement)));
+            }
+            html.push_str("</ul>\n</div>\n\n");
+        }
+    }
+
+    fn append_education(html: &mut String, education: &[Education], show_graduation_date: bool) {
+        if education.is_empty() {
+            return;
+        }
+
+        html.push_str("<h2>EDUCATION</h2>\n");
+        for edu in education {
+            html.push_str("<div class=\"education-item\">\n");
+            html.push_str(&format!("<h3>{}</h3>\n", escape_html(&edu.degree)));
+            html.push_str(&format!(
+                "<div class=\"institution\">{}</div>\n",
+                escape_html(&edu.institution)
+            ));
+            if show_graduation_date {
+                if let Some(grad) = &edu.graduation_date {
+                    html.push_str(&format!(
+                        "<div class=\"dates\">{}</div>\n",
+                        escape_html(grad)
+                    ));
+                }
+            }
+            html.push_str("</div>\n\n");
+        }
+    }
+
+    fn append_skills(
+        html: &mut String,
+        skills: &[SkillCategory],
+        heading: &str,
+        layout: SkillsLayout,
+    ) {
+        if skills.is_empty() {
+            return;
+        }
+
+        html.push_str(&format!("<h2>{heading}</h2>\n"));
+        for category in skills {
+            match layout {
+                SkillsLayout::Inline => html.push_str(&format!(
+                    "<div class=\"skill-category\"><strong>{}:</strong> {}</div>\n",
+                    escape_html(&category.name),
+                    escape_html(&category.skills.join(", "))
+                )),
+                SkillsLayout::Block => {
+                    html.push_str("<div class=\"skill-category\">\n");
+                    html.push_str(&format!(
+                        "<strong>{}:</strong> {}\n",
+                        escape_html(&category.name),
+                        escape_html(&category.skills.join(", "))
+                    ));
+                    html.push_str("</div>\n");
+                }
+            }
+        }
+        if matches!(layout, SkillsLayout::Block) {
+            html.push_str("\n");
+        }
+    }
+
     // Classic template: traditional chronological
     pub(super) fn render_classic(resume: &ResumeData) -> String {
         let mut html = Self::html_header("Classic Resume", styles::classic());
@@ -11,16 +123,7 @@ impl TemplateRenderer {
             escape_html(&resume.contact.name)
         ));
 
-        // Contact info
-        html.push_str("<div class=\"contact\">\n");
-        html.push_str(&format!("{}", escape_html(&resume.contact.email)));
-        if let Some(phone) = &resume.contact.phone {
-            html.push_str(&format!(" • {}", escape_html(phone)));
-        }
-        if let Some(location) = &resume.contact.location {
-            html.push_str(&format!(" • {}", escape_html(location)));
-        }
-        html.push_str("\n</div>\n\n");
+        Self::append_contact(&mut html, &resume.contact);
 
         // Summary
         if let Some(summary) = &resume.summary {
@@ -28,61 +131,11 @@ impl TemplateRenderer {
             html.push_str(&format!("<p>{}</p>\n\n", escape_html(summary)));
         }
 
-        // Experience
-        if !resume.experience.is_empty() {
-            html.push_str("<h2>EXPERIENCE</h2>\n");
-            for exp in &resume.experience {
-                html.push_str("<div class=\"experience-item\">\n");
-                html.push_str(&format!("<h3>{}</h3>\n", escape_html(&exp.title)));
-                html.push_str(&format!(
-                    "<div class=\"company\">{}</div>\n",
-                    escape_html(&exp.company)
-                ));
-                let end = exp.end_date.as_deref().unwrap_or("Present");
-                html.push_str(&format!(
-                    "<div class=\"dates\">{} - {}</div>\n",
-                    escape_html(&exp.start_date),
-                    escape_html(end)
-                ));
-                html.push_str("<ul>\n");
-                for achievement in &exp.achievements {
-                    html.push_str(&format!("<li>{}</li>\n", escape_html(achievement)));
-                }
-                html.push_str("</ul>\n</div>\n\n");
-            }
-        }
+        Self::append_experience(&mut html, &resume.experience, "EXPERIENCE", None);
 
-        // Education
-        if !resume.education.is_empty() {
-            html.push_str("<h2>EDUCATION</h2>\n");
-            for edu in &resume.education {
-                html.push_str("<div class=\"education-item\">\n");
-                html.push_str(&format!("<h3>{}</h3>\n", escape_html(&edu.degree)));
-                html.push_str(&format!(
-                    "<div class=\"institution\">{}</div>\n",
-                    escape_html(&edu.institution)
-                ));
-                if let Some(grad) = &edu.graduation_date {
-                    html.push_str(&format!(
-                        "<div class=\"dates\">{}</div>\n",
-                        escape_html(grad)
-                    ));
-                }
-                html.push_str("</div>\n\n");
-            }
-        }
+        Self::append_education(&mut html, &resume.education, true);
 
-        // Skills
-        if !resume.skills.is_empty() {
-            html.push_str("<h2>SKILLS</h2>\n");
-            for category in &resume.skills {
-                html.push_str(&format!(
-                    "<div class=\"skill-category\"><strong>{}:</strong> {}</div>\n",
-                    escape_html(&category.name),
-                    escape_html(&category.skills.join(", "))
-                ));
-            }
-        }
+        Self::append_skills(&mut html, &resume.skills, "SKILLS", SkillsLayout::Inline);
 
         Self::append_certifications(&mut html, resume);
         Self::append_projects(&mut html, resume);
@@ -101,16 +154,7 @@ impl TemplateRenderer {
             escape_html(&resume.contact.name)
         ));
 
-        // Contact info
-        html.push_str("<div class=\"contact\">\n");
-        html.push_str(&format!("{}", escape_html(&resume.contact.email)));
-        if let Some(phone) = &resume.contact.phone {
-            html.push_str(&format!(" • {}", escape_html(phone)));
-        }
-        if let Some(location) = &resume.contact.location {
-            html.push_str(&format!(" • {}", escape_html(location)));
-        }
-        html.push_str("\n</div>\n\n");
+        Self::append_contact(&mut html, &resume.contact);
 
         html.push_str("<hr class=\"section-divider\">\n\n");
 
@@ -123,61 +167,17 @@ impl TemplateRenderer {
 
         // Experience
         if !resume.experience.is_empty() {
-            html.push_str("<h2>EXPERIENCE</h2>\n");
-            for exp in &resume.experience {
-                html.push_str("<div class=\"experience-item\">\n");
-                html.push_str(&format!("<h3>{}</h3>\n", escape_html(&exp.title)));
-                html.push_str(&format!(
-                    "<div class=\"company\">{}</div>\n",
-                    escape_html(&exp.company)
-                ));
-                let end = exp.end_date.as_deref().unwrap_or("Present");
-                html.push_str(&format!(
-                    "<div class=\"dates\">{} - {}</div>\n",
-                    escape_html(&exp.start_date),
-                    escape_html(end)
-                ));
-                html.push_str("<ul>\n");
-                for achievement in &exp.achievements {
-                    html.push_str(&format!("<li>{}</li>\n", escape_html(achievement)));
-                }
-                html.push_str("</ul>\n</div>\n\n");
-            }
+            Self::append_experience(&mut html, &resume.experience, "EXPERIENCE", None);
             html.push_str("<hr class=\"section-divider\">\n\n");
         }
 
         // Education
         if !resume.education.is_empty() {
-            html.push_str("<h2>EDUCATION</h2>\n");
-            for edu in &resume.education {
-                html.push_str("<div class=\"education-item\">\n");
-                html.push_str(&format!("<h3>{}</h3>\n", escape_html(&edu.degree)));
-                html.push_str(&format!(
-                    "<div class=\"institution\">{}</div>\n",
-                    escape_html(&edu.institution)
-                ));
-                if let Some(grad) = &edu.graduation_date {
-                    html.push_str(&format!(
-                        "<div class=\"dates\">{}</div>\n",
-                        escape_html(grad)
-                    ));
-                }
-                html.push_str("</div>\n\n");
-            }
+            Self::append_education(&mut html, &resume.education, true);
             html.push_str("<hr class=\"section-divider\">\n\n");
         }
 
-        // Skills
-        if !resume.skills.is_empty() {
-            html.push_str("<h2>SKILLS</h2>\n");
-            for category in &resume.skills {
-                html.push_str(&format!(
-                    "<div class=\"skill-category\"><strong>{}:</strong> {}</div>\n",
-                    escape_html(&category.name),
-                    escape_html(&category.skills.join(", "))
-                ));
-            }
-        }
+        Self::append_skills(&mut html, &resume.skills, "SKILLS", SkillsLayout::Inline);
 
         Self::append_certifications(&mut html, resume);
         Self::append_projects(&mut html, resume);
@@ -196,16 +196,7 @@ impl TemplateRenderer {
             escape_html(&resume.contact.name)
         ));
 
-        // Contact
-        html.push_str("<div class=\"contact\">\n");
-        html.push_str(&format!("{}", escape_html(&resume.contact.email)));
-        if let Some(phone) = &resume.contact.phone {
-            html.push_str(&format!(" • {}", escape_html(phone)));
-        }
-        if let Some(location) = &resume.contact.location {
-            html.push_str(&format!(" • {}", escape_html(location)));
-        }
-        html.push_str("\n</div>\n\n");
+        Self::append_contact(&mut html, &resume.contact);
 
         // Summary
         if let Some(summary) = &resume.summary {
@@ -213,61 +204,19 @@ impl TemplateRenderer {
             html.push_str(&format!("<p>{}</p>\n\n", escape_html(summary)));
         }
 
-        // Skills FIRST (technical emphasis)
-        if !resume.skills.is_empty() {
-            html.push_str("<h2>TECHNICAL SKILLS</h2>\n");
-            for category in &resume.skills {
-                html.push_str("<div class=\"skill-category\">\n");
-                html.push_str(&format!(
-                    "<strong>{}:</strong> {}\n",
-                    escape_html(&category.name),
-                    escape_html(&category.skills.join(", "))
-                ));
-                html.push_str("</div>\n");
-            }
-            html.push_str("\n");
-        }
+        Self::append_skills(
+            &mut html,
+            &resume.skills,
+            "TECHNICAL SKILLS",
+            SkillsLayout::Block,
+        );
 
         Self::append_projects(&mut html, resume);
         Self::append_certifications(&mut html, resume);
 
-        // Experience
-        if !resume.experience.is_empty() {
-            html.push_str("<h2>EXPERIENCE</h2>\n");
-            for exp in &resume.experience {
-                html.push_str("<div class=\"experience-item\">\n");
-                html.push_str(&format!("<h3>{}</h3>\n", escape_html(&exp.title)));
-                html.push_str(&format!(
-                    "<div class=\"company\">{}</div>\n",
-                    escape_html(&exp.company)
-                ));
-                let end = exp.end_date.as_deref().unwrap_or("Present");
-                html.push_str(&format!(
-                    "<div class=\"dates\">{} - {}</div>\n",
-                    escape_html(&exp.start_date),
-                    escape_html(end)
-                ));
-                html.push_str("<ul>\n");
-                for achievement in &exp.achievements {
-                    html.push_str(&format!("<li>{}</li>\n", escape_html(achievement)));
-                }
-                html.push_str("</ul>\n</div>\n\n");
-            }
-        }
+        Self::append_experience(&mut html, &resume.experience, "EXPERIENCE", None);
 
-        // Education
-        if !resume.education.is_empty() {
-            html.push_str("<h2>EDUCATION</h2>\n");
-            for edu in &resume.education {
-                html.push_str("<div class=\"education-item\">\n");
-                html.push_str(&format!("<h3>{}</h3>\n", escape_html(&edu.degree)));
-                html.push_str(&format!(
-                    "<div class=\"institution\">{}</div>\n",
-                    escape_html(&edu.institution)
-                ));
-                html.push_str("</div>\n\n");
-            }
-        }
+        Self::append_education(&mut html, &resume.education, false);
 
         html.push_str("</body>\n</html>");
         html
@@ -283,16 +232,7 @@ impl TemplateRenderer {
             escape_html(&resume.contact.name)
         ));
 
-        // Contact
-        html.push_str("<div class=\"contact\">\n");
-        html.push_str(&format!("{}", escape_html(&resume.contact.email)));
-        if let Some(phone) = &resume.contact.phone {
-            html.push_str(&format!(" • {}", escape_html(phone)));
-        }
-        if let Some(location) = &resume.contact.location {
-            html.push_str(&format!(" • {}", escape_html(location)));
-        }
-        html.push_str("\n</div>\n\n");
+        Self::append_contact(&mut html, &resume.contact);
 
         // Summary (EMPHASIZED)
         if let Some(summary) = &resume.summary {
@@ -302,55 +242,21 @@ impl TemplateRenderer {
             html.push_str("</div>\n\n");
         }
 
-        // Experience
-        if !resume.experience.is_empty() {
-            html.push_str("<h2>LEADERSHIP EXPERIENCE</h2>\n");
-            for exp in &resume.experience {
-                html.push_str("<div class=\"experience-item\">\n");
-                html.push_str(&format!("<h3>{}</h3>\n", escape_html(&exp.title)));
-                html.push_str(&format!(
-                    "<div class=\"company\">{}</div>\n",
-                    escape_html(&exp.company)
-                ));
-                let end = exp.end_date.as_deref().unwrap_or("Present");
-                html.push_str(&format!(
-                    "<div class=\"dates\">{} - {}</div>\n",
-                    escape_html(&exp.start_date),
-                    escape_html(end)
-                ));
-                html.push_str("<ul class=\"achievements\">\n");
-                for achievement in &exp.achievements {
-                    html.push_str(&format!("<li>{}</li>\n", escape_html(achievement)));
-                }
-                html.push_str("</ul>\n</div>\n\n");
-            }
-        }
+        Self::append_experience(
+            &mut html,
+            &resume.experience,
+            "LEADERSHIP EXPERIENCE",
+            Some("achievements"),
+        );
 
-        // Education
-        if !resume.education.is_empty() {
-            html.push_str("<h2>EDUCATION</h2>\n");
-            for edu in &resume.education {
-                html.push_str("<div class=\"education-item\">\n");
-                html.push_str(&format!("<h3>{}</h3>\n", escape_html(&edu.degree)));
-                html.push_str(&format!(
-                    "<div class=\"institution\">{}</div>\n",
-                    escape_html(&edu.institution)
-                ));
-                html.push_str("</div>\n\n");
-            }
-        }
+        Self::append_education(&mut html, &resume.education, false);
 
-        // Skills
-        if !resume.skills.is_empty() {
-            html.push_str("<h2>CORE COMPETENCIES</h2>\n");
-            for category in &resume.skills {
-                html.push_str(&format!(
-                    "<div class=\"skill-category\"><strong>{}:</strong> {}</div>\n",
-                    escape_html(&category.name),
-                    escape_html(&category.skills.join(", "))
-                ));
-            }
-        }
+        Self::append_skills(
+            &mut html,
+            &resume.skills,
+            "CORE COMPETENCIES",
+            SkillsLayout::Inline,
+        );
 
         Self::append_certifications(&mut html, resume);
         Self::append_projects(&mut html, resume);
@@ -369,16 +275,7 @@ impl TemplateRenderer {
             escape_html(&resume.contact.name)
         ));
 
-        // Contact
-        html.push_str("<div class=\"contact\">\n");
-        html.push_str(&format!("{}", escape_html(&resume.contact.email)));
-        if let Some(phone) = &resume.contact.phone {
-            html.push_str(&format!(" • {}", escape_html(phone)));
-        }
-        if let Some(location) = &resume.contact.location {
-            html.push_str(&format!(" • {}", escape_html(location)));
-        }
-        html.push_str("\n</div>\n\n");
+        Self::append_contact(&mut html, &resume.contact);
 
         // Clearance (PROMINENT)
         if let Some(clearance) = &resume.clearance {
@@ -396,55 +293,16 @@ impl TemplateRenderer {
             html.push_str(&format!("<p>{}</p>\n\n", escape_html(summary)));
         }
 
-        // Experience (with military context)
-        if !resume.experience.is_empty() {
-            html.push_str("<h2>EXPERIENCE</h2>\n");
-            for exp in &resume.experience {
-                html.push_str("<div class=\"experience-item\">\n");
-                html.push_str(&format!("<h3>{}</h3>\n", escape_html(&exp.title)));
-                html.push_str(&format!(
-                    "<div class=\"company\">{}</div>\n",
-                    escape_html(&exp.company)
-                ));
-                let end = exp.end_date.as_deref().unwrap_or("Present");
-                html.push_str(&format!(
-                    "<div class=\"dates\">{} - {}</div>\n",
-                    escape_html(&exp.start_date),
-                    escape_html(end)
-                ));
-                html.push_str("<ul>\n");
-                for achievement in &exp.achievements {
-                    html.push_str(&format!("<li>{}</li>\n", escape_html(achievement)));
-                }
-                html.push_str("</ul>\n</div>\n\n");
-            }
-        }
+        Self::append_experience(&mut html, &resume.experience, "EXPERIENCE", None);
 
-        // Education
-        if !resume.education.is_empty() {
-            html.push_str("<h2>EDUCATION</h2>\n");
-            for edu in &resume.education {
-                html.push_str("<div class=\"education-item\">\n");
-                html.push_str(&format!("<h3>{}</h3>\n", escape_html(&edu.degree)));
-                html.push_str(&format!(
-                    "<div class=\"institution\">{}</div>\n",
-                    escape_html(&edu.institution)
-                ));
-                html.push_str("</div>\n\n");
-            }
-        }
+        Self::append_education(&mut html, &resume.education, false);
 
-        // Skills
-        if !resume.skills.is_empty() {
-            html.push_str("<h2>SKILLS & QUALIFICATIONS</h2>\n");
-            for category in &resume.skills {
-                html.push_str(&format!(
-                    "<div class=\"skill-category\"><strong>{}:</strong> {}</div>\n",
-                    escape_html(&category.name),
-                    escape_html(&category.skills.join(", "))
-                ));
-            }
-        }
+        Self::append_skills(
+            &mut html,
+            &resume.skills,
+            "SKILLS & QUALIFICATIONS",
+            SkillsLayout::Inline,
+        );
 
         Self::append_certifications(&mut html, resume);
         Self::append_projects(&mut html, resume);

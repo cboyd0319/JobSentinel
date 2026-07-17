@@ -2,8 +2,8 @@ use super::super::ats_types::{
     AtsAnalysisResult, AtsSuggestion, FormatIssue, IssueSeverity, SuggestionCategory,
 };
 use super::super::format_taxonomy::resume_format_taxonomy;
-use super::structured_format;
 use super::AtsAnalyzer;
+use super::{format_result, structured_format};
 
 mod html_source;
 
@@ -89,31 +89,9 @@ pub(super) fn analyze_plain_text_format_with_source(
         check_plain_text_layout_risks(readable_text, &mut format_issues, &mut suggestions);
     }
 
-    let critical_count = format_issues
-        .iter()
-        .filter(|i| i.severity == IssueSeverity::Critical)
-        .count();
-    let warning_count = format_issues
-        .iter()
-        .filter(|i| i.severity == IssueSeverity::Warning)
-        .count();
-    let format_score =
-        (100.0 - (critical_count as f64 * 20.0) - (warning_count as f64 * 5.0)).max(0.0);
     let completeness_score = if readable_text.is_empty() { 0.0 } else { 100.0 };
 
-    AtsAnalysisResult {
-        overall_score: (format_score * 0.5) + (completeness_score * 0.5),
-        keyword_score: 0.0,
-        format_score,
-        completeness_score,
-        keyword_matches: Vec::new(),
-        missing_keywords: Vec::new(),
-        missing_keyword_details: Vec::new(),
-        format_issues,
-        requirement_reviews: Vec::new(),
-        hard_constraint_risks: Vec::new(),
-        suggestions,
-    }
+    format_result::build_format_result(format_issues, suggestions, completeness_score)
 }
 
 fn check_plain_text_contact(
@@ -214,6 +192,10 @@ fn contains_email(text: &str) -> bool {
 }
 
 fn text_has_keyword_list_bullet(text: &str) -> bool {
+    text_has_reviewable_bullet(text, line_looks_like_keyword_list)
+}
+
+fn text_has_reviewable_bullet(text: &str, line_matches: fn(&str) -> bool) -> bool {
     let mut current_section = "resume text";
 
     for line in text.lines() {
@@ -237,7 +219,7 @@ fn text_has_keyword_list_bullet(text: &str) -> bool {
             continue;
         }
 
-        if line_looks_like_keyword_list(line) {
+        if line_matches(line) {
             return true;
         }
     }
@@ -284,35 +266,7 @@ pub(super) fn line_looks_like_keyword_list(line: &str) -> bool {
 }
 
 fn text_has_generic_filler_bullet(text: &str) -> bool {
-    let mut current_section = "resume text";
-
-    for line in text.lines() {
-        if let Some(section) = AtsAnalyzer::plain_text_section_label(line) {
-            current_section = section;
-            continue;
-        }
-
-        if matches!(
-            current_section,
-            "skills"
-                | "education"
-                | "certifications"
-                | "licenses"
-                | "languages"
-                | "awards"
-                | "publications"
-                | "references"
-                | "interests"
-        ) {
-            continue;
-        }
-
-        if line_looks_like_generic_resume_filler(line) {
-            return true;
-        }
-    }
-
-    false
+    text_has_reviewable_bullet(text, line_looks_like_generic_resume_filler)
 }
 
 pub(super) fn line_looks_like_generic_resume_filler(line: &str) -> bool {
