@@ -276,13 +276,13 @@ fn test_parse_job_comment_description_not_truncated_when_short() {
 fn test_compute_hash_location_variations() {
     // With normalization, "Remote (US)" and "Remote (EU)" both normalize to "remote"
     // This is expected behavior - they should produce the same hash
-    let hash1 = HnHiringScraper::compute_hash(
+    let hash1 = jobsentinel_domain::calculate_job_hash(
         "Company",
         "Engineer",
         Some("Remote (US)"),
         "https://news.ycombinator.com/item?id=1",
     );
-    let hash2 = HnHiringScraper::compute_hash(
+    let hash2 = jobsentinel_domain::calculate_job_hash(
         "Company",
         "Engineer",
         Some("Remote (EU)"),
@@ -293,7 +293,7 @@ fn test_compute_hash_location_variations() {
     assert_eq!(hash1, hash2);
 
     // But different cities should still produce different hashes
-    let hash3 = HnHiringScraper::compute_hash(
+    let hash3 = jobsentinel_domain::calculate_job_hash(
         "Company",
         "Engineer",
         Some("New York, NY"),

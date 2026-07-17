@@ -1,4 +1,3 @@
-use jobsentinel_domain::calculate_job_hash;
 use jobsentinel_domain::normalization::infer_remote_status;
 
 use super::GlassdoorScraper;
@@ -61,15 +60,5 @@ impl GlassdoorScraper {
 
         // Clean up whitespace
         result.split_whitespace().collect::<Vec<_>>().join(" ")
-    }
-
-    /// Compute SHA-256 hash for deduplication
-    pub(super) fn compute_hash(
-        company: &str,
-        title: &str,
-        location: Option<&str>,
-        url: &str,
-    ) -> String {
-        calculate_job_hash(company, title, location, url)
     }
 }

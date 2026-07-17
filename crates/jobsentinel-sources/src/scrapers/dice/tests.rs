@@ -24,13 +24,13 @@ fn test_scraper_name() {
 
 #[test]
 fn test_compute_hash_deterministic() {
-    let hash1 = DiceScraper::compute_hash(
+    let hash1 = jobsentinel_domain::calculate_job_hash(
         "TechCorp",
         "Rust Engineer",
         Some("Remote"),
         "https://dice.com/job/123",
     );
-    let hash2 = DiceScraper::compute_hash(
+    let hash2 = jobsentinel_domain::calculate_job_hash(
         "TechCorp",
         "Rust Engineer",
         Some("Remote"),
@@ -445,8 +445,18 @@ fn test_build_url_limit_capped_at_100() {
 
 #[test]
 fn test_compute_hash_with_none_location() {
-    let hash1 = DiceScraper::compute_hash("Company", "Engineer", None, "https://dice.com/job/123");
-    let hash2 = DiceScraper::compute_hash("Company", "Engineer", None, "https://dice.com/job/123");
+    let hash1 = jobsentinel_domain::calculate_job_hash(
+        "Company",
+        "Engineer",
+        None,
+        "https://dice.com/job/123",
+    );
+    let hash2 = jobsentinel_domain::calculate_job_hash(
+        "Company",
+        "Engineer",
+        None,
+        "https://dice.com/job/123",
+    );
 
     assert_eq!(hash1, hash2);
 }

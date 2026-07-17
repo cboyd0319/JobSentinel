@@ -9,7 +9,7 @@ use super::{JobScraper, ScraperResult};
 use crate::{is_safe_company_board_id, parse_greenhouse_company_url};
 use async_trait::async_trait;
 use chrono::Utc;
-use jobsentinel_domain::{calculate_job_hash, canonicalize_job_url, Job};
+use jobsentinel_domain::{canonicalize_job_url, Job};
 use jobsentinel_network::{send_external_http_text_with_retry, ExternalHttpRequest};
 use jobsentinel_security::sanitize_url_for_logging;
 use scraper::{Html, Selector};
@@ -185,37 +185,14 @@ impl GreenhouseScraper {
 
         // If we have required fields, create job
         if let (Some(title), Some(url)) = (title, url) {
-            let hash = Self::compute_hash(&company.name, &title, location.as_deref(), &url);
-
-            Ok(Some(Job {
-                id: 0, // Will be set by database
-                hash,
+            Ok(Some(Job::newly_discovered(
                 title,
-                company: company.name.clone(),
+                company.name.clone(),
                 url,
                 location,
-                description: None, // Will be fetched on-demand
-                score: None,
-                score_reasons: None,
-                source: "greenhouse".to_string(),
-                remote: None, // Will be inferred from location
-                salary_min: None,
-                salary_max: None,
-                currency: None,
-                created_at: Utc::now(),
-                updated_at: Utc::now(),
-                last_seen: Utc::now(),
-                times_seen: 1,
-                immediate_alert_sent: false,
-                hidden: false,
-                bookmarked: false,
-                notes: None,
-                included_in_digest: false,
-                ghost_score: None,
-                ghost_reasons: None,
-                first_seen: None,
-                repost_count: 0,
-            }))
+                "greenhouse",
+                Utc::now(),
+            )))
         } else {
             Ok(None)
         }
@@ -262,37 +239,14 @@ impl GreenhouseScraper {
                 let url = Self::api_job_url(company_id, job_id, job_data);
                 let location = job_data["location"]["name"].as_str().map(|s| s.to_string());
 
-                let hash = Self::compute_hash(&company.name, &title, location.as_deref(), &url);
-
-                jobs.push(Job {
-                    id: 0,
-                    hash,
+                jobs.push(Job::newly_discovered(
                     title,
-                    company: company.name.clone(),
+                    company.name.clone(),
                     url,
                     location,
-                    description: None,
-                    score: None,
-                    score_reasons: None,
-                    source: "greenhouse".to_string(),
-                    remote: None,
-                    salary_min: None,
-                    salary_max: None,
-                    currency: None,
-                    created_at: Utc::now(),
-                    updated_at: Utc::now(),
-                    last_seen: Utc::now(),
-                    times_seen: 1,
-                    immediate_alert_sent: false,
-                    hidden: false,
-                    bookmarked: false,
-                    notes: None,
-                    included_in_digest: false,
-                    ghost_score: None,
-                    ghost_reasons: None,
-                    first_seen: None,
-                    repost_count: 0,
-                });
+                    "greenhouse",
+                    Utc::now(),
+                ));
             }
             jobs
         } else {
@@ -300,11 +254,6 @@ impl GreenhouseScraper {
         };
 
         Ok(jobs)
-    }
-
-    /// Compute SHA-256 hash for deduplication
-    fn compute_hash(company: &str, title: &str, location: Option<&str>, url: &str) -> String {
-        calculate_job_hash(company, title, location, url)
     }
 
     fn api_job_url(company_id: &str, job_id: i64, job_data: &serde_json::Value) -> String {

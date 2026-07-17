@@ -11,7 +11,7 @@ use super::error::ScraperError;
 use super::rate_limiter::RateLimiter;
 use super::{JobScraper, ScraperResult};
 use jobsentinel_domain::normalization::{infer_remote_status, RemoteStatus};
-use jobsentinel_domain::{calculate_job_hash, Job};
+use jobsentinel_domain::Job;
 use jobsentinel_network::{send_external_http_text_with_retry, ExternalHttpRequest};
 
 use async_trait::async_trait;
@@ -218,19 +218,7 @@ impl BuiltInScraper {
             let remote = self.remote_only
                 || infer_remote_status(&[&title, location.as_deref().unwrap_or("")]).is_remote();
 
-            let hash = Self::compute_hash(&company, &title, location.as_deref(), &url);
-
             jobs.push(Job {
-                id: 0,
-                hash,
-                title,
-                company,
-                url,
-                location,
-                description: None,
-                score: None,
-                score_reasons: None,
-                source: "builtin".to_string(),
                 remote: Some(remote),
                 salary_min,
                 salary_max,
@@ -239,19 +227,7 @@ impl BuiltInScraper {
                 } else {
                     None
                 },
-                created_at: Utc::now(),
-                updated_at: Utc::now(),
-                last_seen: Utc::now(),
-                times_seen: 1,
-                immediate_alert_sent: false,
-                hidden: false,
-                bookmarked: false,
-                notes: None,
-                included_in_digest: false,
-                ghost_score: None,
-                ghost_reasons: None,
-                first_seen: None,
-                repost_count: 0,
+                ..Job::newly_discovered(title, company, url, location, "builtin", Utc::now())
             });
 
             if jobs.len() >= self.limit {
@@ -260,11 +236,6 @@ impl BuiltInScraper {
         }
 
         Ok(jobs)
-    }
-
-    /// Compute SHA-256 hash for deduplication
-    fn compute_hash(company: &str, title: &str, location: Option<&str>, url: &str) -> String {
-        calculate_job_hash(company, title, location, url)
     }
 }
 

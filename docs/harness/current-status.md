@@ -42,11 +42,11 @@ Last updated: 2026-07-16
   under `crates/` one canonical owner, remove obsolete copies, and prevent
   recurrence in production and test code.
 - Branch: `refactor/full-repo-v2.9.5`
-- Current slice: Milestone 4 is complete. Storage now has one private SQLite
-  datetime parser, owner-local row mappers and user-skill query, shared market
-  salary statistics, and one market-alert insertion path.
-- Next action: complete Milestone 5 by consolidating job construction, source
-  adapter helpers, hash wrappers, user-agent values, and scraper lifecycle code.
+- Current slice: Milestone 5 is complete. New jobs now use one domain
+  constructor, source adapters share narrow helpers and user-agent values, and
+  all scheduled scraper workers use one lifecycle runner.
+- Next action: complete Milestone 6 by consolidating document section rendering,
+  ATS result assembly, and repeated requirement-taxonomy lookup.
 
 ## Deferred
 

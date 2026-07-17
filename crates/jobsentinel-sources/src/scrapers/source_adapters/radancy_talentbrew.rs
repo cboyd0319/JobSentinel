@@ -7,6 +7,7 @@ use sha2::{Digest, Sha256};
 use url::Url;
 
 use super::contract::{CanonicalJobRecord, SourceAdapterLane};
+use super::support::{first_non_empty, hex_prefix, normalize_ws};
 
 pub(super) const DEFAULT_PAGE: u16 = 1;
 
@@ -385,45 +386,14 @@ fn is_sensitive_query_key(key: &str) -> bool {
         || lower.contains("key")
 }
 
-fn first_non_empty<'a>(values: impl IntoIterator<Item = Option<&'a str>>) -> Option<&'a str> {
-    values
-        .into_iter()
-        .flatten()
-        .find(|value| !value.trim().is_empty())
-}
-
 fn non_empty(value: Option<&str>) -> Option<String> {
     value
         .map(normalize_ws)
         .filter(|value| !value.trim().is_empty())
 }
 
-fn normalize_ws(value: &str) -> String {
-    value
-        .replace('\u{00a0}', " ")
-        .split_whitespace()
-        .collect::<Vec<_>>()
-        .join(" ")
-}
-
 fn parse_selector(pattern: &str) -> Option<Selector> {
     Selector::parse(pattern).ok()
-}
-
-fn hex_prefix(bytes: &[u8], length: usize) -> String {
-    const HEX: &[u8; 16] = b"0123456789abcdef";
-    let mut output = String::with_capacity(length);
-    for byte in bytes {
-        if output.len() >= length {
-            break;
-        }
-        output.push(HEX[(byte >> 4) as usize] as char);
-        if output.len() >= length {
-            break;
-        }
-        output.push(HEX[(byte & 0x0f) as usize] as char);
-    }
-    output
 }
 
 #[cfg(test)]

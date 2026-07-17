@@ -8,7 +8,7 @@
 
 use super::error::ScraperError;
 use super::rate_limiter::RateLimiter;
-use super::{JobScraper, ScraperResult};
+use super::{JobScraper, ScraperResult, BROWSER_USER_AGENT};
 use jobsentinel_domain::Job;
 #[cfg(test)]
 use jobsentinel_network::send_test_http_text_with_retry;
@@ -93,7 +93,7 @@ impl GlassdoorScraper {
 
     fn build_request(api_url: &str) -> ExternalHttpRequest {
         ExternalHttpRequest::get(api_url)
-            .user_agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36")
+            .user_agent(BROWSER_USER_AGENT)
             .header(
                 "Accept",
                 "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
@@ -268,36 +268,13 @@ impl GlassdoorScraper {
         let (salary_min, salary_max) = self.extract_salary(data);
 
         let is_remote = self.is_remote(location.as_deref());
-        let hash = Self::compute_hash(&company, &title, location.as_deref(), &url);
-
         Some(Job {
-            id: 0,
-            hash,
-            title,
-            company,
-            url,
-            location,
             description,
-            score: None,
-            score_reasons: None,
-            source: "glassdoor".to_string(),
             remote: is_remote,
             salary_min,
             salary_max,
             currency: Some("USD".to_string()),
-            created_at: Utc::now(),
-            updated_at: Utc::now(),
-            last_seen: Utc::now(),
-            times_seen: 1,
-            immediate_alert_sent: false,
-            hidden: false,
-            bookmarked: false,
-            notes: None,
-            included_in_digest: false,
-            ghost_score: None,
-            ghost_reasons: None,
-            first_seen: None,
-            repost_count: 0,
+            ..Job::newly_discovered(title, company, url, location, "glassdoor", Utc::now())
         })
     }
 
@@ -414,36 +391,13 @@ impl GlassdoorScraper {
         let (salary_min, salary_max) = self.extract_salary(data);
 
         let is_remote = self.is_remote(location.as_deref());
-        let hash = Self::compute_hash(&company, &title, location.as_deref(), &url);
-
         Some(Job {
-            id: 0,
-            hash,
-            title,
-            company,
-            url,
-            location,
             description,
-            score: None,
-            score_reasons: None,
-            source: "glassdoor".to_string(),
             remote: is_remote,
             salary_min,
             salary_max,
             currency: Some("USD".to_string()),
-            created_at: Utc::now(),
-            updated_at: Utc::now(),
-            last_seen: Utc::now(),
-            times_seen: 1,
-            immediate_alert_sent: false,
-            hidden: false,
-            bookmarked: false,
-            notes: None,
-            included_in_digest: false,
-            ghost_score: None,
-            ghost_reasons: None,
-            first_seen: None,
-            repost_count: 0,
+            ..Job::newly_discovered(title, company, url, location, "glassdoor", Utc::now())
         })
     }
 }

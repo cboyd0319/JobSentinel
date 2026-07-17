@@ -143,8 +143,8 @@ fn test_parse_rss_description_with_no_location_patterns() {
 
 #[test]
 fn test_compute_hash_with_different_locations() {
-    let hash1 = WeWorkRemotelyScraper::compute_hash("Company", "Job", Some("USA"), "url");
-    let hash2 = WeWorkRemotelyScraper::compute_hash("Company", "Job", Some("Europe"), "url");
+    let hash1 = jobsentinel_domain::calculate_job_hash("Company", "Job", Some("USA"), "url");
+    let hash2 = jobsentinel_domain::calculate_job_hash("Company", "Job", Some("Europe"), "url");
 
     assert_ne!(hash1, hash2);
 }

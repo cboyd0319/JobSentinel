@@ -101,14 +101,14 @@ fn test_parse_mcp_job_job_struct_defaults() {
 
 #[test]
 fn test_compute_hash_with_all_fields() {
-    let hash1 = JobsWithGptScraper::compute_hash(
+    let hash1 = jobsentinel_domain::calculate_job_hash(
         "Community Care Network",
         "Care Coordinator",
         Some("Remote - US"),
         "https://jobs.example.org/care-coordinator-123",
     );
 
-    let hash2 = JobsWithGptScraper::compute_hash(
+    let hash2 = jobsentinel_domain::calculate_job_hash(
         "Community Care Network",
         "Care Coordinator",
         Some("Remote - US"),

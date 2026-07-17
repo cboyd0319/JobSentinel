@@ -5,6 +5,7 @@ use sha2::{Digest, Sha256};
 use url::Url;
 
 use super::contract::{CanonicalJobRecord, SourceAdapterLane};
+use super::support::{first_non_empty, hex_prefix, is_absolute_http_url, normalize_ws};
 
 pub(super) const DEFAULT_LIMIT: u16 = 20;
 pub(super) const DEFAULT_OFFSET: u32 = 0;
@@ -238,13 +239,6 @@ fn first_string(item: &serde_json::Map<String, Value>, keys: &[&str]) -> Option<
         .map(normalize_ws)
 }
 
-fn first_non_empty<'a>(values: impl IntoIterator<Item = Option<&'a str>>) -> Option<&'a str> {
-    values
-        .into_iter()
-        .flatten()
-        .find(|value| !value.trim().is_empty())
-}
-
 fn looks_like_job_id(value: &str) -> bool {
     let normalized = value.trim();
     if normalized.is_empty() {
@@ -265,32 +259,6 @@ fn looks_like_job_id(value: &str) -> bool {
 fn path_tail(value: &str) -> Option<&str> {
     let path = value.split(['?', '#']).next().unwrap_or(value);
     path.trim_end_matches('/').rsplit('/').next()
-}
-
-fn is_absolute_http_url(value: &str) -> bool {
-    Url::parse(value)
-        .ok()
-        .is_some_and(|url| matches!(url.scheme(), "http" | "https") && url.host_str().is_some())
-}
-
-fn normalize_ws(value: &str) -> String {
-    value.split_whitespace().collect::<Vec<_>>().join(" ")
-}
-
-fn hex_prefix(bytes: &[u8], length: usize) -> String {
-    const HEX: &[u8; 16] = b"0123456789abcdef";
-    let mut output = String::with_capacity(length);
-    for byte in bytes {
-        if output.len() >= length {
-            break;
-        }
-        output.push(HEX[(byte >> 4) as usize] as char);
-        if output.len() >= length {
-            break;
-        }
-        output.push(HEX[(byte & 0x0f) as usize] as char);
-    }
-    output
 }
 
 #[cfg(test)]

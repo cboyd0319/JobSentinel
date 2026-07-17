@@ -64,13 +64,13 @@ fn test_is_remote_job() {
 
 #[test]
 fn test_compute_hash_deterministic() {
-    let hash1 = SimplyHiredScraper::compute_hash(
+    let hash1 = jobsentinel_domain::calculate_job_hash(
         "Company",
         "Care Coordinator",
         Some("NYC"),
         "https://simplyhired.com/job/123",
     );
-    let hash2 = SimplyHiredScraper::compute_hash(
+    let hash2 = jobsentinel_domain::calculate_job_hash(
         "Company",
         "Care Coordinator",
         Some("NYC"),

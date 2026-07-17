@@ -39,35 +39,36 @@ pub(super) struct JobRow {
 
 impl From<JobRow> for Job {
     fn from(row: JobRow) -> Self {
-        Self {
-            id: row.id,
-            hash: row.hash,
-            title: row.title,
-            company: row.company,
-            url: row.url,
-            location: row.location,
-            description: row.description,
-            score: row.score,
-            score_reasons: row.score_reasons,
-            source: row.source,
-            remote: row.remote,
-            salary_min: row.salary_min,
-            salary_max: row.salary_max,
-            currency: row.currency,
-            created_at: row.created_at,
-            updated_at: row.updated_at,
-            last_seen: row.last_seen,
-            times_seen: row.times_seen,
-            immediate_alert_sent: row.immediate_alert_sent,
-            included_in_digest: row.included_in_digest,
-            hidden: row.hidden,
-            bookmarked: row.bookmarked,
-            notes: row.notes,
-            ghost_score: row.ghost_score,
-            ghost_reasons: row.ghost_reasons,
-            first_seen: row.first_seen,
-            repost_count: row.repost_count,
-        }
+        let mut job = Self::newly_discovered(
+            row.title,
+            row.company,
+            row.url,
+            row.location,
+            row.source,
+            row.created_at,
+        );
+        job.id = row.id;
+        job.hash = row.hash;
+        job.description = row.description;
+        job.score = row.score;
+        job.score_reasons = row.score_reasons;
+        job.remote = row.remote;
+        job.salary_min = row.salary_min;
+        job.salary_max = row.salary_max;
+        job.currency = row.currency;
+        job.updated_at = row.updated_at;
+        job.last_seen = row.last_seen;
+        job.times_seen = row.times_seen;
+        job.immediate_alert_sent = row.immediate_alert_sent;
+        job.included_in_digest = row.included_in_digest;
+        job.hidden = row.hidden;
+        job.bookmarked = row.bookmarked;
+        job.notes = row.notes;
+        job.ghost_score = row.ghost_score;
+        job.ghost_reasons = row.ghost_reasons;
+        job.first_seen = row.first_seen;
+        job.repost_count = row.repost_count;
+        job
     }
 }
 

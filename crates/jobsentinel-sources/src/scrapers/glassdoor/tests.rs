@@ -32,13 +32,13 @@ fn test_strip_html() {
 
 #[test]
 fn test_compute_hash_deterministic() {
-    let hash1 = GlassdoorScraper::compute_hash(
+    let hash1 = jobsentinel_domain::calculate_job_hash(
         "Company",
         "Program Coordinator",
         Some("NYC"),
         "https://glassdoor.com/job/123",
     );
-    let hash2 = GlassdoorScraper::compute_hash(
+    let hash2 = jobsentinel_domain::calculate_job_hash(
         "Company",
         "Program Coordinator",
         Some("NYC"),

@@ -294,7 +294,7 @@ fn test_hash_consistency_across_runs() {
     let url = "https://jobs.lever.co/test/abc123?ref=linkedin";
 
     let hashes: Vec<String> = (0..10)
-        .map(|_| LeverScraper::compute_hash(company, title, location, url))
+        .map(|_| jobsentinel_domain::calculate_job_hash(company, title, location, url))
         .collect();
 
     // All hashes should be identical
@@ -307,19 +307,19 @@ fn test_hash_consistency_across_runs() {
 fn test_hash_with_query_parameters_normalized() {
     // With URL normalization, tracking params (ref, utm_*, etc.) are stripped
     // so URLs that differ only in tracking params should produce the SAME hash
-    let hash1 = LeverScraper::compute_hash(
+    let hash1 = jobsentinel_domain::calculate_job_hash(
         "Company",
         "Care Coordinator",
         None,
         "https://jobs.lever.co/company/job?ref=linkedin",
     );
-    let hash2 = LeverScraper::compute_hash(
+    let hash2 = jobsentinel_domain::calculate_job_hash(
         "Company",
         "Care Coordinator",
         None,
         "https://jobs.lever.co/company/job?ref=twitter",
     );
-    let hash3 = LeverScraper::compute_hash(
+    let hash3 = jobsentinel_domain::calculate_job_hash(
         "Company",
         "Care Coordinator",
         None,

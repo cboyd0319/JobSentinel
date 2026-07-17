@@ -7,9 +7,9 @@
 
 use super::error::ScraperError;
 use super::rate_limiter::RateLimiter;
-use super::{JobScraper, ScraperResult};
+use super::{JobScraper, ScraperResult, BROWSER_USER_AGENT};
 use jobsentinel_domain::normalization::infer_remote_status;
-use jobsentinel_domain::{calculate_job_hash, Job};
+use jobsentinel_domain::Job;
 use jobsentinel_network::{send_external_http_text_with_retry, ExternalHttpRequest};
 
 use async_trait::async_trait;
@@ -18,8 +18,6 @@ use scraper::{Html, Selector};
 
 const YC_BASE_URL: &str = "https://www.ycombinator.com";
 const YC_JOBS_URL: &str = "https://www.ycombinator.com/jobs";
-const SOURCE_USER_AGENT: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
-
 /// Y Combinator Work at a Startup scraper
 #[derive(Debug, Clone)]
 pub struct YcStartupScraper {
@@ -77,7 +75,7 @@ impl YcStartupScraper {
 
         let response = send_external_http_text_with_retry(
             ExternalHttpRequest::get(&url)
-                .user_agent(SOURCE_USER_AGENT)
+                .user_agent(BROWSER_USER_AGENT)
                 .header(
                     "Accept",
                     "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
@@ -242,36 +240,18 @@ impl YcStartupScraper {
                     .map(Self::parse_salary_range)
                     .unwrap_or((None, None));
 
-                let hash = Self::compute_hash(&company_name, &title, location.as_deref(), &url);
-
                 jobs.push(Job {
-                    id: 0,
-                    hash,
-                    title,
-                    company: company_name.clone(),
-                    url,
-                    location,
-                    description: None,
-                    score: None,
-                    score_reasons: None,
-                    source: "yc_startup".to_string(),
                     remote: Some(is_remote),
                     salary_min,
                     salary_max,
-                    currency: None,
-                    created_at: Utc::now(),
-                    updated_at: Utc::now(),
-                    last_seen: Utc::now(),
-                    times_seen: 1,
-                    immediate_alert_sent: false,
-                    hidden: false,
-                    bookmarked: false,
-                    notes: None,
-                    included_in_digest: false,
-                    ghost_score: None,
-                    ghost_reasons: None,
-                    first_seen: None,
-                    repost_count: 0,
+                    ..Job::newly_discovered(
+                        title,
+                        company_name.clone(),
+                        url,
+                        location,
+                        "yc_startup",
+                        Utc::now(),
+                    )
                 });
 
                 if jobs.len() >= self.limit {
@@ -348,11 +328,6 @@ impl YcStartupScraper {
     /// Check if job is remote based on title and location strings
     fn is_remote(title: &str, location: Option<&str>) -> bool {
         infer_remote_status(&[title, location.unwrap_or("")]).is_remote()
-    }
-
-    /// Compute SHA-256 hash for deduplication
-    fn compute_hash(company: &str, title: &str, location: Option<&str>, url: &str) -> String {
-        calculate_job_hash(company, title, location, url)
     }
 }
 

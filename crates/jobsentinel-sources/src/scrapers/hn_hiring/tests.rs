@@ -8,13 +8,13 @@ fn test_scraper_name() {
 
 #[test]
 fn test_compute_hash_deterministic() {
-    let hash1 = HnHiringScraper::compute_hash(
+    let hash1 = jobsentinel_domain::calculate_job_hash(
         "Startup",
         "Engineer",
         Some("Remote"),
         "https://news.ycombinator.com/item?id=123",
     );
-    let hash2 = HnHiringScraper::compute_hash(
+    let hash2 = jobsentinel_domain::calculate_job_hash(
         "Startup",
         "Engineer",
         Some("Remote"),
@@ -27,13 +27,13 @@ fn test_compute_hash_deterministic() {
 
 #[test]
 fn test_compute_hash_different_inputs() {
-    let hash1 = HnHiringScraper::compute_hash(
+    let hash1 = jobsentinel_domain::calculate_job_hash(
         "Company A",
         "Engineer",
         Some("Remote"),
         "https://news.ycombinator.com/item?id=123",
     );
-    let hash2 = HnHiringScraper::compute_hash(
+    let hash2 = jobsentinel_domain::calculate_job_hash(
         "Company B",
         "Engineer",
         Some("Remote"),
@@ -45,7 +45,7 @@ fn test_compute_hash_different_inputs() {
 
 #[test]
 fn test_compute_hash_without_location() {
-    let hash = HnHiringScraper::compute_hash(
+    let hash = jobsentinel_domain::calculate_job_hash(
         "Startup",
         "Engineer",
         None,

@@ -14,8 +14,8 @@ proptest! {
         location in proptest::option::of("\\PC{1,100}"),
         url in "https?://[a-z0-9./]+",
     ) {
-        let hash1 = LeverScraper::compute_hash(&company, &title, location.as_deref(), &url);
-        let hash2 = LeverScraper::compute_hash(&company, &title, location.as_deref(), &url);
+        let hash1 = jobsentinel_domain::calculate_job_hash(&company, &title, location.as_deref(), &url);
+        let hash2 = jobsentinel_domain::calculate_job_hash(&company, &title, location.as_deref(), &url);
 
         prop_assert_eq!(hash1.clone(), hash2);
         prop_assert_eq!(hash1.len(), 64);
@@ -31,8 +31,8 @@ proptest! {
     ) {
         prop_assume!(company1 != company2);
 
-        let hash1 = LeverScraper::compute_hash(&company1, &title, None, &url);
-        let hash2 = LeverScraper::compute_hash(&company2, &title, None, &url);
+        let hash1 = jobsentinel_domain::calculate_job_hash(&company1, &title, None, &url);
+        let hash2 = jobsentinel_domain::calculate_job_hash(&company2, &title, None, &url);
 
         prop_assert_ne!(hash1, hash2);
     }
@@ -75,7 +75,7 @@ proptest! {
         title in "[\\PC💼]{1,100}",
         url in "\\PC{10,200}",
     ) {
-        let hash = LeverScraper::compute_hash(&company, &title, None, &url);
+        let hash = jobsentinel_domain::calculate_job_hash(&company, &title, None, &url);
 
         prop_assert_eq!(hash.len(), 64);
         prop_assert!(hash.chars().all(|c| c.is_ascii_hexdigit()));

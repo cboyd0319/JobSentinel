@@ -53,37 +53,19 @@ async fn test_scrape_company_full_job_creation_with_all_fields() {
                 .map(|s| s.to_string());
 
             let remote = LeverScraper::infer_remote(&title, location.as_deref());
-            let hash = LeverScraper::compute_hash(&company.name, &title, location.as_deref(), &url);
 
             if !title.is_empty() && !url.is_empty() {
                 jobs.push(Job {
-                    id: 0,
-                    hash,
-                    title,
-                    company: company.name.clone(),
-                    url,
-                    location,
                     description,
-                    score: None,
-                    score_reasons: None,
-                    source: "lever".to_string(),
                     remote: Some(remote),
-                    salary_min: None,
-                    salary_max: None,
-                    currency: None,
-                    created_at: Utc::now(),
-                    updated_at: Utc::now(),
-                    last_seen: Utc::now(),
-                    times_seen: 1,
-                    immediate_alert_sent: false,
-                    hidden: false,
-                    bookmarked: false,
-                    notes: None,
-                    ghost_score: None,
-                    ghost_reasons: None,
-                    first_seen: None,
-                    repost_count: 0,
-                    included_in_digest: false,
+                    ..Job::newly_discovered(
+                        title,
+                        company.name.clone(),
+                        url,
+                        location,
+                        "lever",
+                        Utc::now(),
+                    )
                 });
             }
         }
@@ -278,7 +260,12 @@ async fn test_scrape_company_computes_hash_for_each_job() {
                 .as_str()
                 .map(|s| s.to_string());
 
-            let hash = LeverScraper::compute_hash(&company.name, &title, location.as_deref(), &url);
+            let hash = jobsentinel_domain::calculate_job_hash(
+                &company.name,
+                &title,
+                location.as_deref(),
+                &url,
+            );
             hashes.push(hash);
         }
     }

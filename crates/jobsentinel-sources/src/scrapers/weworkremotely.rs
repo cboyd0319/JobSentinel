@@ -8,8 +8,7 @@ use super::rate_limiter::RateLimiter;
 #[cfg(test)]
 use super::rss::extract_xml_tag;
 use super::rss::parse_rss_items;
-use super::{JobScraper, ScraperResult};
-use jobsentinel_domain::calculate_job_hash;
+use super::{JobScraper, ScraperResult, JOBSENTINEL_USER_AGENT};
 use jobsentinel_domain::Job;
 use jobsentinel_network::{send_external_http_text_with_retry, ExternalHttpRequest};
 
@@ -54,7 +53,7 @@ impl WeWorkRemotelyScraper {
         let url = self.build_url();
 
         let response = send_external_http_text_with_retry(
-            ExternalHttpRequest::get(&url).user_agent("JobSentinel/1.0"),
+            ExternalHttpRequest::get(&url).user_agent(JOBSENTINEL_USER_AGENT),
         )
         .await
         .map_err(|error| ScraperError::from_external("weworkremotely", error))?;
@@ -114,36 +113,17 @@ impl WeWorkRemotelyScraper {
             // Try to extract location from description
             let location = description.as_ref().and_then(|d| Self::extract_location(d));
 
-            let hash = Self::compute_hash(&company, &job_title, location.as_deref(), &url);
-
             jobs.push(Job {
-                id: 0,
-                hash,
-                title: job_title,
-                company,
-                url,
-                location,
                 description,
-                score: None,
-                score_reasons: None,
-                source: "weworkremotely".to_string(),
                 remote: Some(true), // All WeWorkRemotely jobs are remote
-                salary_min: None,
-                salary_max: None,
-                currency: None,
-                created_at: Utc::now(),
-                updated_at: Utc::now(),
-                last_seen: Utc::now(),
-                times_seen: 1,
-                immediate_alert_sent: false,
-                hidden: false,
-                bookmarked: false,
-                notes: None,
-                included_in_digest: false,
-                ghost_score: None,
-                ghost_reasons: None,
-                first_seen: None,
-                repost_count: 0,
+                ..Job::newly_discovered(
+                    job_title,
+                    company,
+                    url,
+                    location,
+                    "weworkremotely",
+                    Utc::now(),
+                )
             });
         }
 
@@ -203,11 +183,6 @@ impl WeWorkRemotelyScraper {
         }
 
         None
-    }
-
-    /// Compute SHA-256 hash for deduplication
-    fn compute_hash(company: &str, title: &str, location: Option<&str>, url: &str) -> String {
-        calculate_job_hash(company, title, location, url)
     }
 }
 

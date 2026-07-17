@@ -3,13 +3,13 @@ use super::*;
 // Hash computation tests
 #[test]
 fn test_compute_hash_deterministic() {
-    let hash1 = LeverScraper::compute_hash(
+    let hash1 = jobsentinel_domain::calculate_job_hash(
         "FreshMart",
         "Care Coordinator",
         Some("Remote"),
         "https://example.com/1",
     );
-    let hash2 = LeverScraper::compute_hash(
+    let hash2 = jobsentinel_domain::calculate_job_hash(
         "FreshMart",
         "Care Coordinator",
         Some("Remote"),
@@ -22,13 +22,13 @@ fn test_compute_hash_deterministic() {
 
 #[test]
 fn test_compute_hash_different_company() {
-    let hash1 = LeverScraper::compute_hash(
+    let hash1 = jobsentinel_domain::calculate_job_hash(
         "FreshMart",
         "Care Coordinator",
         None,
         "https://example.com/1",
     );
-    let hash2 = LeverScraper::compute_hash(
+    let hash2 = jobsentinel_domain::calculate_job_hash(
         "Community Care Network",
         "Care Coordinator",
         None,
@@ -43,13 +43,13 @@ fn test_compute_hash_different_company() {
 
 #[test]
 fn test_compute_hash_different_title() {
-    let hash1 = LeverScraper::compute_hash(
+    let hash1 = jobsentinel_domain::calculate_job_hash(
         "Company",
         "Customer Support Manager",
         None,
         "https://example.com/1",
     );
-    let hash2 = LeverScraper::compute_hash(
+    let hash2 = jobsentinel_domain::calculate_job_hash(
         "Company",
         "Inventory Planner",
         None,
@@ -64,13 +64,13 @@ fn test_compute_hash_different_title() {
 
 #[test]
 fn test_compute_hash_different_location() {
-    let hash1 = LeverScraper::compute_hash(
+    let hash1 = jobsentinel_domain::calculate_job_hash(
         "Company",
         "Care Coordinator",
         Some("Remote"),
         "https://example.com/1",
     );
-    let hash2 = LeverScraper::compute_hash(
+    let hash2 = jobsentinel_domain::calculate_job_hash(
         "Company",
         "Care Coordinator",
         Some("SF"),
@@ -85,9 +85,13 @@ fn test_compute_hash_different_location() {
 
 #[test]
 fn test_compute_hash_location_none_vs_some() {
-    let hash1 =
-        LeverScraper::compute_hash("Company", "Care Coordinator", None, "https://example.com/1");
-    let hash2 = LeverScraper::compute_hash(
+    let hash1 = jobsentinel_domain::calculate_job_hash(
+        "Company",
+        "Care Coordinator",
+        None,
+        "https://example.com/1",
+    );
+    let hash2 = jobsentinel_domain::calculate_job_hash(
         "Company",
         "Care Coordinator",
         Some("Remote"),
@@ -99,17 +103,25 @@ fn test_compute_hash_location_none_vs_some() {
 
 #[test]
 fn test_compute_hash_different_url() {
-    let hash1 =
-        LeverScraper::compute_hash("Company", "Care Coordinator", None, "https://example.com/1");
-    let hash2 =
-        LeverScraper::compute_hash("Company", "Care Coordinator", None, "https://example.com/2");
+    let hash1 = jobsentinel_domain::calculate_job_hash(
+        "Company",
+        "Care Coordinator",
+        None,
+        "https://example.com/1",
+    );
+    let hash2 = jobsentinel_domain::calculate_job_hash(
+        "Company",
+        "Care Coordinator",
+        None,
+        "https://example.com/2",
+    );
 
     assert_ne!(hash1, hash2, "Different URL should produce different hash");
 }
 
 #[test]
 fn test_compute_hash_empty_strings() {
-    let hash = LeverScraper::compute_hash("", "", None, "");
+    let hash = jobsentinel_domain::calculate_job_hash("", "", None, "");
     assert_eq!(
         hash.len(),
         64,
@@ -119,7 +131,7 @@ fn test_compute_hash_empty_strings() {
 
 #[test]
 fn test_compute_hash_special_characters() {
-    let hash = LeverScraper::compute_hash(
+    let hash = jobsentinel_domain::calculate_job_hash(
         "Company™",
         "Senior Care Coordinator (Remote) 🚀",
         Some("San Francisco, CA"),
@@ -406,7 +418,7 @@ fn test_hash_with_json_data() {
     let location = Some("Remote");
     let url = "https://jobs.lever.co/freshmart/abc123";
 
-    let hash = LeverScraper::compute_hash(company, title, location, url);
+    let hash = jobsentinel_domain::calculate_job_hash(company, title, location, url);
 
     assert_eq!(hash.len(), 64);
     assert!(hash.chars().all(|c| c.is_ascii_hexdigit()));
@@ -416,19 +428,19 @@ fn test_hash_with_json_data() {
 fn test_hash_remote_locations_normalized() {
     // With location normalization, "Remote" variants all normalize to "remote"
     // so they should produce the SAME hash (improved deduplication)
-    let hash1 = LeverScraper::compute_hash(
+    let hash1 = jobsentinel_domain::calculate_job_hash(
         "Company",
         "Care Coordinator",
         Some("Remote"),
         "https://example.com/1",
     );
-    let hash2 = LeverScraper::compute_hash(
+    let hash2 = jobsentinel_domain::calculate_job_hash(
         "Company",
         "Care Coordinator",
         Some("Remote - US"),
         "https://example.com/1",
     );
-    let hash3 = LeverScraper::compute_hash(
+    let hash3 = jobsentinel_domain::calculate_job_hash(
         "Company",
         "Care Coordinator",
         Some("Remote - Global"),

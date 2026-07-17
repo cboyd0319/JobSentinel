@@ -1,14 +1,12 @@
-use super::super::*;
-
 #[test]
 fn test_compute_hash_deterministic() {
-    let hash1 = RemoteOkScraper::compute_hash(
+    let hash1 = jobsentinel_domain::calculate_job_hash(
         "Company",
         "Remote Engineer",
         Some("Worldwide"),
         "https://remoteok.com/job/123",
     );
-    let hash2 = RemoteOkScraper::compute_hash(
+    let hash2 = jobsentinel_domain::calculate_job_hash(
         "Company",
         "Remote Engineer",
         Some("Worldwide"),
@@ -21,13 +19,13 @@ fn test_compute_hash_deterministic() {
 
 #[test]
 fn test_compute_hash_unique_for_different_inputs() {
-    let hash1 = RemoteOkScraper::compute_hash(
+    let hash1 = jobsentinel_domain::calculate_job_hash(
         "CompanyA",
         "Engineer",
         Some("Remote"),
         "https://remoteok.com/job/1",
     );
-    let hash2 = RemoteOkScraper::compute_hash(
+    let hash2 = jobsentinel_domain::calculate_job_hash(
         "CompanyB",
         "Engineer",
         Some("Remote"),
@@ -39,21 +37,25 @@ fn test_compute_hash_unique_for_different_inputs() {
 
 #[test]
 fn test_compute_hash_with_location_none() {
-    let hash =
-        RemoteOkScraper::compute_hash("Company", "Developer", None, "https://remoteok.com/job/1");
+    let hash = jobsentinel_domain::calculate_job_hash(
+        "Company",
+        "Developer",
+        None,
+        "https://remoteok.com/job/1",
+    );
 
     assert_eq!(hash.len(), 64);
 }
 
 #[test]
 fn test_compute_hash_canonicalizes_remote_location_synonyms() {
-    let hash1 = RemoteOkScraper::compute_hash(
+    let hash1 = jobsentinel_domain::calculate_job_hash(
         "Company",
         "Engineer",
         Some("Remote"),
         "https://example.com/job/1",
     );
-    let hash2 = RemoteOkScraper::compute_hash(
+    let hash2 = jobsentinel_domain::calculate_job_hash(
         "Company",
         "Engineer",
         Some("Worldwide"),
@@ -65,14 +67,18 @@ fn test_compute_hash_canonicalizes_remote_location_synonyms() {
 
 #[test]
 fn test_compute_hash_location_some_vs_none() {
-    let hash1 = RemoteOkScraper::compute_hash(
+    let hash1 = jobsentinel_domain::calculate_job_hash(
         "Company",
         "Engineer",
         Some("Remote"),
         "https://example.com/job/1",
     );
-    let hash2 =
-        RemoteOkScraper::compute_hash("Company", "Engineer", None, "https://example.com/job/1");
+    let hash2 = jobsentinel_domain::calculate_job_hash(
+        "Company",
+        "Engineer",
+        None,
+        "https://example.com/job/1",
+    );
 
     // Some(location) vs None should produce different hashes
     assert_ne!(hash1, hash2);

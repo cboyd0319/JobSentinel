@@ -5,10 +5,9 @@
 
 use super::error::ScraperError;
 use super::rate_limiter::RateLimiter;
-use super::{JobScraper, ScraperResult};
+use super::{JobScraper, ScraperResult, JOBSENTINEL_USER_AGENT};
 use async_trait::async_trait;
 use chrono::Utc;
-use jobsentinel_domain::calculate_job_hash;
 use jobsentinel_domain::Job;
 use jobsentinel_network::{send_external_http_text_with_retry, ExternalHttpRequest};
 
@@ -42,7 +41,7 @@ impl RemoteOkScraper {
         let url = "https://remoteok.com/api";
 
         let response = send_external_http_text_with_retry(
-            ExternalHttpRequest::get(url).user_agent("JobSentinel/1.0"),
+            ExternalHttpRequest::get(url).user_agent(JOBSENTINEL_USER_AGENT),
         )
         .await
         .map_err(|error| ScraperError::from_external("remoteok", error))?;
@@ -134,42 +133,14 @@ impl RemoteOkScraper {
         let salary_min = data["salary_min"].as_i64();
         let salary_max = data["salary_max"].as_i64();
 
-        let hash = Self::compute_hash(&company, &title, location.as_deref(), &url);
-
         Ok(Some(Job {
-            id: 0,
-            hash,
-            title,
-            company,
-            url,
-            location,
             description,
-            score: None,
-            score_reasons: None,
-            source: "remoteok".to_string(),
             remote: Some(true), // All RemoteOK jobs are remote
             salary_min,
             salary_max,
             currency: Some("USD".to_string()), // RemoteOK typically uses USD
-            created_at: Utc::now(),
-            updated_at: Utc::now(),
-            last_seen: Utc::now(),
-            times_seen: 1,
-            immediate_alert_sent: false,
-            hidden: false,
-            bookmarked: false,
-            notes: None,
-            included_in_digest: false,
-            ghost_score: None,
-            ghost_reasons: None,
-            first_seen: None,
-            repost_count: 0,
+            ..Job::newly_discovered(title, company, url, location, "remoteok", Utc::now())
         }))
-    }
-
-    /// Compute SHA-256 hash for deduplication
-    fn compute_hash(company: &str, title: &str, location: Option<&str>, url: &str) -> String {
-        calculate_job_hash(company, title, location, url)
     }
 }
 

@@ -290,7 +290,7 @@ fn test_hash_consistency_across_runs() {
     let url = "https://boards.greenhouse.io/test/jobs/123";
 
     let hashes: Vec<String> = (0..10)
-        .map(|_| GreenhouseScraper::compute_hash(company, title, location, url))
+        .map(|_| jobsentinel_domain::calculate_job_hash(company, title, location, url))
         .collect();
 
     for i in 1..hashes.len() {
@@ -300,19 +300,19 @@ fn test_hash_consistency_across_runs() {
 
 #[test]
 fn test_hash_with_query_parameters_normalized() {
-    let hash1 = GreenhouseScraper::compute_hash(
+    let hash1 = jobsentinel_domain::calculate_job_hash(
         "Company",
         "Program Coordinator",
         None,
         "https://boards.greenhouse.io/company/jobs/1?ref=linkedin",
     );
-    let hash2 = GreenhouseScraper::compute_hash(
+    let hash2 = jobsentinel_domain::calculate_job_hash(
         "Company",
         "Program Coordinator",
         None,
         "https://boards.greenhouse.io/company/jobs/1?ref=twitter",
     );
-    let hash3 = GreenhouseScraper::compute_hash(
+    let hash3 = jobsentinel_domain::calculate_job_hash(
         "Company",
         "Program Coordinator",
         None,

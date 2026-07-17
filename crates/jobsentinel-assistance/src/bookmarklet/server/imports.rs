@@ -253,33 +253,16 @@ async fn store_bookmarklet_job(
 
     let created_at = Utc::now();
     let job = Job {
-        id: 0,
-        hash: job_hash.clone(),
-        title: title.clone(),
-        company: company.clone(),
-        url: url.clone(),
-        location: location.clone(),
         description: description.clone(),
-        score: None,
-        score_reasons: None,
-        source: "bookmarklet".to_string(),
         remote: Some(remote),
-        salary_min: None,
-        salary_max: None,
-        currency: None,
-        created_at,
-        updated_at: created_at,
-        last_seen: created_at,
-        times_seen: 1,
-        immediate_alert_sent: false,
-        included_in_digest: false,
-        hidden: false,
-        bookmarked: false,
-        notes: None,
-        ghost_score: None,
-        ghost_reasons: None,
-        first_seen: Some(created_at),
-        repost_count: 0,
+        ..Job::newly_discovered(
+            title.clone(),
+            company.clone(),
+            url.clone(),
+            location.clone(),
+            "bookmarklet",
+            created_at,
+        )
     };
 
     match repository.upsert_job(&job).await {

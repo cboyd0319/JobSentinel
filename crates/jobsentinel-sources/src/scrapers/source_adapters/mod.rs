@@ -7,4 +7,5 @@
 mod contract;
 mod phenom_widget;
 mod radancy_talentbrew;
+mod support;
 mod workday_cxs;

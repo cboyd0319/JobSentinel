@@ -245,21 +245,21 @@ Commit boundary: `refactor(storage): consolidate row and analytics helpers`.
 
 ### Milestone 5: Consolidate Job Construction And Scraper Orchestration
 
-- [ ] Add a domain constructor for a newly discovered job that establishes all
+- [x] Add a domain constructor for a newly discovered job that establishes all
   required invariants. Do not add a permissive `Default` implementation.
-- [ ] Migrate all 17 production construction sites and storage row conversion,
+- [x] Migrate all 17 production construction sites and storage row conversion,
   retaining explicit source fields after construction.
-- [ ] Add a private source-adapter support module for `first_non_empty`, absolute
+- [x] Add a private source-adapter support module for `first_non_empty`, absolute
   HTTP URL checks, whitespace normalization, and hexadecimal prefixes. Migrate
   Phenom, Workday, and Radancy adapters.
-- [ ] Delete `compute_hash` forwarding wrappers and call the domain hash owner
+- [x] Delete `compute_hash` forwarding wrappers and call the domain hash owner
   directly.
-- [ ] Centralize identical browser user-agent values at the narrowest source or
+- [x] Centralize identical browser user-agent values at the narrowest source or
   network owner. Keep genuinely provider-required values explicit.
-- [ ] Extract one generic async scraper lifecycle runner for timer, logging,
+- [x] Extract one generic async scraper lifecycle runner for timer, logging,
   result accumulation, completion, and error handling. Keep credentials,
   acknowledgements, rate limits, and source configuration outside the runner.
-- [ ] Migrate the scheduler and browser, federal, and JobsWithGPT workers with
+- [x] Migrate the scheduler and browser, federal, and JobsWithGPT workers with
   success, partial-result, and error characterization tests.
 
 Commit boundary: `refactor(sources): share job and scraper lifecycle paths`.
@@ -401,13 +401,14 @@ gap and blocks `passing`.
 | 2026-07-16 | Secured | Milestone 2 centralized webhook, URL privacy, HTML encoding, provider job identity, and debug secret policy. |
 | 2026-07-16 | Normalized | Milestone 3 centralized work-arrangement inference and separated canonical values from salary and market buckets. |
 | 2026-07-16 | Consolidated | Milestone 4 centralized SQLite time parsing, storage row mapping, user-skill queries, salary statistics, and alert insertion. Production crate duplication fell to 480 lines across 24 regions. |
+| 2026-07-16 | Orchestrated | Milestone 5 centralized new-job invariants, source-adapter helpers, shared user agents, canonical hash ownership, and scraper lifecycle handling. Production crate duplication fell to 266 lines across 13 regions; test duplication fell to 2,127 lines across 77 regions. |
 
 - [x] Milestone 0: activate the plan safely.
 - [x] Milestone 1: establish guardrails and characterization.
 - [x] Milestone 2: consolidate security and output policies.
 - [x] Milestone 3: separate normalization from analytics bucketing.
 - [x] Milestone 4: consolidate storage primitives and mappers.
-- [ ] Milestone 5: consolidate job construction and scraper orchestration.
+- [x] Milestone 5: consolidate job construction and scraper orchestration.
 - [ ] Milestone 6: consolidate document rendering and ATS assembly.
 - [ ] Milestone 7: introduce the canonical resume contract.
 - [ ] Milestone 8: cut over resume consumers and delete duplicate models.
@@ -455,10 +456,11 @@ dependency changes, verification evidence, and any follow-up debt.
 
 ## Handoff
 
-- Current state: Milestones 0 through 3 complete; Milestone 4 is next.
-- Evidence: domain, application, sources, assistance, and storage tests pass with
-  table-driven normalization, remote fallback, and analytics bucket contracts.
-- Next step: centralize SQLite datetime parsing, row mappers, median helpers, and
-  market alert insertion inside storage.
-- Open risk: normalization and resume serialization are the two behavior-sensitive
-  migrations. Do not combine either with unrelated cleanup.
+- Current state: Milestones 0 through 5 are complete; Milestone 6 is next.
+- Evidence: the canonical workspace Rust gate, harness, file-size, architecture,
+  and duplication checks pass. Production crate duplication is 266 lines across
+  13 regions; test duplication is 2,127 lines across 77 regions.
+- Next step: consolidate document section rendering, ATS result assembly, and
+  requirement-taxonomy lookups while preserving exact generated output.
+- Open risk: resume serialization remains the highest-risk migration. Keep the
+  Milestone 6 rendering refactor separate from the Milestone 7 model cutover.

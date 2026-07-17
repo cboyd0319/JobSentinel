@@ -29,13 +29,13 @@ fn test_scraper_name() {
 
 #[test]
 fn test_compute_hash_deterministic() {
-    let hash1 = WeWorkRemotelyScraper::compute_hash(
+    let hash1 = jobsentinel_domain::calculate_job_hash(
         "Company",
         "Remote Care Coordinator",
         Some("Worldwide"),
         "https://weworkremotely.com/job/123",
     );
-    let hash2 = WeWorkRemotelyScraper::compute_hash(
+    let hash2 = jobsentinel_domain::calculate_job_hash(
         "Company",
         "Remote Care Coordinator",
         Some("Worldwide"),
@@ -422,13 +422,13 @@ fn test_extract_location_none() {
 
 #[test]
 fn test_hash_consistency() {
-    let hash1 = WeWorkRemotelyScraper::compute_hash(
+    let hash1 = jobsentinel_domain::calculate_job_hash(
         "City Health Department",
         "Public Health Analyst",
         Some("Worldwide"),
         "https://weworkremotely.com/jobs/123",
     );
-    let hash2 = WeWorkRemotelyScraper::compute_hash(
+    let hash2 = jobsentinel_domain::calculate_job_hash(
         "City Health Department",
         "Public Health Analyst",
         Some("Worldwide"),
@@ -441,13 +441,13 @@ fn test_hash_consistency() {
 
 #[test]
 fn test_hash_differs_with_different_location() {
-    let hash1 = WeWorkRemotelyScraper::compute_hash(
+    let hash1 = jobsentinel_domain::calculate_job_hash(
         "FreshMart",
         "Inventory Planner",
         Some("USA"),
         "https://weworkremotely.com/jobs/123",
     );
-    let hash2 = WeWorkRemotelyScraper::compute_hash(
+    let hash2 = jobsentinel_domain::calculate_job_hash(
         "FreshMart",
         "Inventory Planner",
         Some("Europe"),

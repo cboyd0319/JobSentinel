@@ -1,6 +1,6 @@
 use chrono::Utc;
 
-use jobsentinel_domain::{calculate_job_hash, canonicalize_job_url, Job};
+use jobsentinel_domain::{canonicalize_job_url, Job};
 use jobsentinel_sources::{parse_single_job_page, JobPageParseError, ParsedJobPage};
 use jobsentinel_storage::Database;
 
@@ -110,41 +110,22 @@ fn job_from_page(parsed: &ParsedJobPage, preview: &JobImportPreview) -> ImportRe
 
     let discovered_at = Utc::now();
     let created_at = preview.date_posted.unwrap_or(discovered_at);
-    let hash = calculate_job_hash(
-        &preview.company,
-        &preview.title,
-        preview.location.as_deref(),
-        &preview.url,
-    );
 
     Ok(Job {
-        id: 0,
-        hash,
-        title: preview.title.clone(),
-        company: preview.company.clone(),
-        url: preview.url.clone(),
-        location: preview.location.clone(),
         description: parsed.description.clone(),
-        score: None,
-        score_reasons: None,
-        source: "import".to_string(),
         remote: Some(preview.remote),
         salary_min: parsed.salary_min,
         salary_max: parsed.salary_max,
         currency: parsed.currency.clone(),
         created_at,
-        updated_at: discovered_at,
-        last_seen: discovered_at,
-        times_seen: 1,
-        immediate_alert_sent: false,
-        included_in_digest: false,
-        hidden: false,
-        bookmarked: false,
-        notes: None,
-        ghost_score: None,
-        ghost_reasons: None,
-        first_seen: Some(discovered_at),
-        repost_count: 0,
+        ..Job::newly_discovered(
+            preview.title.clone(),
+            preview.company.clone(),
+            preview.url.clone(),
+            preview.location.clone(),
+            "import",
+            discovered_at,
+        )
     })
 }
 

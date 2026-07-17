@@ -1,7 +1,7 @@
-use super::record_scraper_failure;
+use super::{run_scraper, ScraperRunOutcome};
 use crate::{config::Config, health::SourceRequestOutcome};
 use jobsentinel_domain::Job;
-use jobsentinel_sources::{JobQuery, JobScraper, JobsWithGptScraper, ScraperError};
+use jobsentinel_sources::{JobQuery, JobsWithGptScraper};
 use jobsentinel_storage::Database;
 use std::sync::Arc;
 
@@ -62,10 +62,6 @@ pub(super) async fn run_jobswithgpt_scraper(
         "JobsWithGPT source check approved; sending minimized payload"
     );
 
-    let run_id = crate::health::start_run(db, "jobswithgpt")
-        .await
-        .unwrap_or(0);
-    let started_at = std::time::Instant::now();
     let endpoint_host = endpoint_host_for_source_request(&jobswithgpt_payload.endpoint);
     let source_request_id = match crate::health::record_source_request_started(
         db,
@@ -88,30 +84,19 @@ pub(super) async fn run_jobswithgpt_scraper(
         }
     };
 
-    match jobswithgpt.scrape().await {
-        Ok(jobs) => {
-            let _ = crate::health::complete_run(
-                db,
-                run_id,
-                started_at.elapsed().as_millis() as i64,
-                jobs.len(),
-                0,
-            )
-            .await;
-            finish_source_request_if_recorded(db, source_request_id, SourceRequestOutcome::Success)
-                .await;
-            tracing::info!("JobsWithGPT: {} jobs found", jobs.len());
-            all_jobs.extend(jobs);
-        }
-        Err(error) => {
-            let duration_ms = started_at.elapsed().as_millis() as i64;
-            let source_request_outcome = if matches!(error, ScraperError::Timeout { .. }) {
-                SourceRequestOutcome::Timeout
-            } else {
-                SourceRequestOutcome::Failure
-            };
-            record_scraper_failure(db, run_id, duration_ms, "JobsWithGPT", &error, errors).await;
-            finish_source_request_if_recorded(db, source_request_id, source_request_outcome).await;
-        }
-    }
+    let outcome = run_scraper(
+        db,
+        &jobswithgpt,
+        "jobswithgpt",
+        "JobsWithGPT",
+        all_jobs,
+        errors,
+    )
+    .await;
+    let source_request_outcome = match outcome {
+        ScraperRunOutcome::Success { .. } => SourceRequestOutcome::Success,
+        ScraperRunOutcome::Timeout => SourceRequestOutcome::Timeout,
+        ScraperRunOutcome::Failure => SourceRequestOutcome::Failure,
+    };
+    finish_source_request_if_recorded(db, source_request_id, source_request_outcome).await;
 }

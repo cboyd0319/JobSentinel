@@ -5,16 +5,14 @@
 
 use super::error::ScraperError;
 use super::rate_limiter::{limits, RateLimiter};
-use super::{JobScraper, ScraperResult};
-use jobsentinel_domain::{calculate_job_hash, canonicalize_job_url, Job};
+use super::{JobScraper, ScraperResult, BROWSER_USER_AGENT};
+use jobsentinel_domain::{canonicalize_job_url, Job};
 
 use async_trait::async_trait;
 use chrono::Utc;
 use jobsentinel_network::{send_external_http_text_with_retry, ExternalHttpRequest};
 use jobsentinel_security::sanitize_url_for_logging;
 use std::fmt;
-
-const SOURCE_USER_AGENT: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
 
 /// JobsWithGPT MCP scraper
 #[derive(Clone)]
@@ -111,7 +109,7 @@ impl JobsWithGptScraper {
 
         let response = send_external_http_text_with_retry(
             ExternalHttpRequest::post(&endpoint_url)
-                .user_agent(SOURCE_USER_AGENT)
+                .user_agent(BROWSER_USER_AGENT)
                 .json(request),
         )
         .await
@@ -205,42 +203,14 @@ impl JobsWithGptScraper {
             }
         };
 
-        let hash = Self::compute_hash(&company, &title, location.as_deref(), &url);
-
         Ok(Some(Job {
-            id: 0,
-            hash,
-            title,
-            company,
-            url,
-            location,
             description,
-            score: None,
-            score_reasons: None,
-            source: "jobswithgpt".to_string(),
             remote,
             salary_min,
             salary_max,
             currency,
-            created_at: Utc::now(),
-            updated_at: Utc::now(),
-            last_seen: Utc::now(),
-            times_seen: 1,
-            immediate_alert_sent: false,
-            hidden: false,
-            bookmarked: false,
-            notes: None,
-            included_in_digest: false,
-            ghost_score: None,
-            ghost_reasons: None,
-            first_seen: None,
-            repost_count: 0,
+            ..Job::newly_discovered(title, company, url, location, "jobswithgpt", Utc::now())
         }))
-    }
-
-    /// Compute SHA-256 hash for deduplication
-    fn compute_hash(company: &str, title: &str, location: Option<&str>, url: &str) -> String {
-        calculate_job_hash(company, title, location, url)
     }
 }
 

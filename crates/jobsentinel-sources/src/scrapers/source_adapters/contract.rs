@@ -1,6 +1,6 @@
 use std::collections::{BTreeMap, HashSet};
 
-use url::Url;
+use super::support::is_absolute_http_url;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub(super) enum SourceAdapterLane {
@@ -227,12 +227,6 @@ pub(super) fn validate_canonical_records(records: &[CanonicalJobRecord]) -> Vec<
     }
 
     errors
-}
-
-fn is_absolute_http_url(value: &str) -> bool {
-    Url::parse(value)
-        .ok()
-        .is_some_and(|url| matches!(url.scheme(), "http" | "https") && url.host_str().is_some())
 }
 
 #[cfg(test)]

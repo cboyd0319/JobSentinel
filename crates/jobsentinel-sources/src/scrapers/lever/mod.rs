@@ -10,7 +10,7 @@ use crate::is_safe_company_board_id;
 use async_trait::async_trait;
 use chrono::Utc;
 use jobsentinel_domain::normalization::infer_remote_status;
-use jobsentinel_domain::{calculate_job_hash, Job};
+use jobsentinel_domain::Job;
 use jobsentinel_network::{send_external_http_text_with_retry, ExternalHttpRequest};
 use jobsentinel_security::sanitize_url_for_logging;
 
@@ -93,38 +93,18 @@ impl LeverScraper {
                 // Infer remote from location or title
                 let remote = Self::infer_remote(&title, location.as_deref());
 
-                // Compute hash for deduplication
-                let hash = Self::compute_hash(&company.name, &title, location.as_deref(), &url);
-
                 if !title.is_empty() && !url.is_empty() {
                     jobs.push(Job {
-                        id: 0,
-                        hash,
-                        title,
-                        company: company.name.clone(),
-                        url,
-                        location,
                         description,
-                        score: None,
-                        score_reasons: None,
-                        source: "lever".to_string(),
                         remote: Some(remote),
-                        salary_min: None,
-                        salary_max: None,
-                        currency: None,
-                        created_at: Utc::now(),
-                        updated_at: Utc::now(),
-                        last_seen: Utc::now(),
-                        times_seen: 1,
-                        immediate_alert_sent: false,
-                        hidden: false,
-                        bookmarked: false,
-                        notes: None,
-                        included_in_digest: false,
-                        ghost_score: None,
-                        ghost_reasons: None,
-                        first_seen: None,
-                        repost_count: 0,
+                        ..Job::newly_discovered(
+                            title,
+                            company.name.clone(),
+                            url,
+                            location,
+                            "lever",
+                            Utc::now(),
+                        )
                     });
                 }
             }
@@ -140,11 +120,6 @@ impl LeverScraper {
     /// Infer if job is remote from title or location
     fn infer_remote(title: &str, location: Option<&str>) -> bool {
         infer_remote_status(&[title, location.unwrap_or("")]).is_remote()
-    }
-
-    /// Compute SHA-256 hash for deduplication
-    fn compute_hash(company: &str, title: &str, location: Option<&str>, url: &str) -> String {
-        calculate_job_hash(company, title, location, url)
     }
 }
 

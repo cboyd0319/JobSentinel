@@ -20,13 +20,13 @@ fn test_scraper_name() {
 
 #[test]
 fn test_compute_hash_deterministic() {
-    let hash1 = BuiltInScraper::compute_hash(
+    let hash1 = jobsentinel_domain::calculate_job_hash(
         "TechCorp",
         "Senior Engineer",
         Some("New York, NY"),
         "https://builtin.com/job/123",
     );
-    let hash2 = BuiltInScraper::compute_hash(
+    let hash2 = jobsentinel_domain::calculate_job_hash(
         "TechCorp",
         "Senior Engineer",
         Some("New York, NY"),
@@ -238,13 +238,13 @@ fn test_parse_html_whitespace_trimming() {
 
 #[test]
 fn test_compute_hash_with_none_location() {
-    let hash1 = BuiltInScraper::compute_hash(
+    let hash1 = jobsentinel_domain::calculate_job_hash(
         "TechCorp",
         "Senior Engineer",
         None,
         "https://builtin.com/job/123",
     );
-    let hash2 = BuiltInScraper::compute_hash(
+    let hash2 = jobsentinel_domain::calculate_job_hash(
         "TechCorp",
         "Senior Engineer",
         None,
@@ -260,13 +260,13 @@ fn test_compute_hash_with_none_location() {
 
 #[test]
 fn test_compute_hash_location_affects_hash() {
-    let hash_with_loc = BuiltInScraper::compute_hash(
+    let hash_with_loc = jobsentinel_domain::calculate_job_hash(
         "TechCorp",
         "Senior Engineer",
         Some("New York, NY"),
         "https://builtin.com/job/123",
     );
-    let hash_without_loc = BuiltInScraper::compute_hash(
+    let hash_without_loc = jobsentinel_domain::calculate_job_hash(
         "TechCorp",
         "Senior Engineer",
         None,
@@ -328,19 +328,19 @@ fn test_parse_html_deduplication() {
 
 #[test]
 fn test_compute_hash_different_inputs() {
-    let hash1 = BuiltInScraper::compute_hash(
+    let hash1 = jobsentinel_domain::calculate_job_hash(
         "CompanyA",
         "Engineer",
         Some("NYC"),
         "https://builtin.com/job/1",
     );
-    let hash2 = BuiltInScraper::compute_hash(
+    let hash2 = jobsentinel_domain::calculate_job_hash(
         "CompanyB",
         "Engineer",
         Some("NYC"),
         "https://builtin.com/job/1",
     );
-    let hash3 = BuiltInScraper::compute_hash(
+    let hash3 = jobsentinel_domain::calculate_job_hash(
         "CompanyA",
         "Designer",
         Some("NYC"),

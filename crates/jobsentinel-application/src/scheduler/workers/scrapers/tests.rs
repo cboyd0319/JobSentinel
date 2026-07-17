@@ -1,5 +1,111 @@
 use super::*;
 
+enum StubOutcome {
+    Success(Vec<Job>),
+    Timeout,
+    Failure,
+}
+
+struct StubScraper {
+    outcome: StubOutcome,
+}
+
+#[async_trait::async_trait]
+impl JobScraper for StubScraper {
+    async fn scrape(&self) -> Result<Vec<Job>, ScraperError> {
+        match &self.outcome {
+            StubOutcome::Success(jobs) => Ok(jobs.clone()),
+            StubOutcome::Timeout => Err(ScraperError::Timeout { timeout_secs: 10 }),
+            StubOutcome::Failure => Err(ScraperError::Network),
+        }
+    }
+}
+
+async fn test_database() -> Arc<Database> {
+    let database = Database::connect_memory().await.unwrap();
+    database.migrate().await.unwrap();
+    Arc::new(database)
+}
+
+fn test_job() -> Job {
+    Job::newly_discovered(
+        "Care Coordinator",
+        "Community Care",
+        "https://example.com/jobs/1",
+        Some("Remote".to_string()),
+        "stub",
+        chrono::Utc::now(),
+    )
+}
+
+#[tokio::test]
+async fn scraper_runner_records_and_accumulates_success() {
+    let database = test_database().await;
+    let scraper = StubScraper {
+        outcome: StubOutcome::Success(vec![test_job()]),
+    };
+    let mut jobs = Vec::new();
+    let mut errors = Vec::new();
+
+    let outcome = run_scraper(&database, &scraper, "stub", "Stub", &mut jobs, &mut errors).await;
+
+    assert_eq!(outcome, ScraperRunOutcome::Success { jobs_found: 1 });
+    assert_eq!(jobs.len(), 1);
+    assert!(errors.is_empty());
+}
+
+#[tokio::test]
+async fn scraper_runner_preserves_partial_results_after_a_later_failure() {
+    let database = test_database().await;
+    let successful = StubScraper {
+        outcome: StubOutcome::Success(vec![test_job()]),
+    };
+    let failed = StubScraper {
+        outcome: StubOutcome::Failure,
+    };
+    let mut jobs = Vec::new();
+    let mut errors = Vec::new();
+
+    run_scraper(
+        &database,
+        &successful,
+        "first",
+        "First",
+        &mut jobs,
+        &mut errors,
+    )
+    .await;
+    let outcome = run_scraper(
+        &database,
+        &failed,
+        "second",
+        "Second",
+        &mut jobs,
+        &mut errors,
+    )
+    .await;
+
+    assert_eq!(outcome, ScraperRunOutcome::Failure);
+    assert_eq!(jobs.len(), 1);
+    assert_eq!(errors, ["Second source check failed (network)"]);
+}
+
+#[tokio::test]
+async fn scraper_runner_preserves_timeout_outcome() {
+    let database = test_database().await;
+    let scraper = StubScraper {
+        outcome: StubOutcome::Timeout,
+    };
+    let mut jobs = Vec::new();
+    let mut errors = Vec::new();
+
+    let outcome = run_scraper(&database, &scraper, "stub", "Stub", &mut jobs, &mut errors).await;
+
+    assert_eq!(outcome, ScraperRunOutcome::Timeout);
+    assert!(jobs.is_empty());
+    assert_eq!(errors, ["Stub source check failed (timeout)"]);
+}
+
 #[test]
 fn source_failure_message_omits_raw_scraper_error_details() {
     let error = ScraperError::Generic {

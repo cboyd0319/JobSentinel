@@ -3,6 +3,8 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
+use crate::calculate_job_hash;
+
 /// Canonical job record used across core business logic.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Job {
@@ -62,4 +64,102 @@ pub struct Job {
     /// Number of times this job has been reposted.
     #[serde(default)]
     pub repost_count: i64,
+}
+
+impl Job {
+    /// Create a job at the point it is first discovered by a source adapter.
+    pub fn newly_discovered(
+        title: impl Into<String>,
+        company: impl Into<String>,
+        url: impl Into<String>,
+        location: Option<String>,
+        source: impl Into<String>,
+        discovered_at: DateTime<Utc>,
+    ) -> Self {
+        let title = title.into();
+        let company = company.into();
+        let url = url.into();
+        let hash = calculate_job_hash(&company, &title, location.as_deref(), &url);
+
+        Self {
+            id: 0,
+            hash,
+            title,
+            company,
+            url,
+            location,
+            description: None,
+            score: None,
+            score_reasons: None,
+            source: source.into(),
+            remote: None,
+            salary_min: None,
+            salary_max: None,
+            currency: None,
+            created_at: discovered_at,
+            updated_at: discovered_at,
+            last_seen: discovered_at,
+            times_seen: 1,
+            immediate_alert_sent: false,
+            included_in_digest: false,
+            hidden: false,
+            bookmarked: false,
+            notes: None,
+            ghost_score: None,
+            ghost_reasons: None,
+            first_seen: Some(discovered_at),
+            repost_count: 0,
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::Job;
+    use crate::calculate_job_hash;
+    use chrono::{TimeZone, Utc};
+
+    #[test]
+    fn newly_discovered_establishes_job_invariants() {
+        let discovered_at = Utc.with_ymd_and_hms(2026, 7, 16, 12, 30, 0).unwrap();
+        let job = Job::newly_discovered(
+            "Care Coordinator",
+            "Community Care",
+            "https://example.com/jobs/1",
+            Some("Remote".to_string()),
+            "Example",
+            discovered_at,
+        );
+
+        assert_eq!(
+            job.hash,
+            calculate_job_hash(
+                "Community Care",
+                "Care Coordinator",
+                Some("Remote"),
+                "https://example.com/jobs/1",
+            )
+        );
+        assert_eq!(job.id, 0);
+        assert_eq!(job.times_seen, 1);
+        assert_eq!(job.created_at, discovered_at);
+        assert_eq!(job.updated_at, discovered_at);
+        assert_eq!(job.last_seen, discovered_at);
+        assert_eq!(job.first_seen, Some(discovered_at));
+        assert!(!job.immediate_alert_sent);
+        assert!(!job.included_in_digest);
+        assert!(!job.hidden);
+        assert!(!job.bookmarked);
+        assert_eq!(job.repost_count, 0);
+        assert!(job.description.is_none());
+        assert!(job.score.is_none());
+        assert!(job.score_reasons.is_none());
+        assert!(job.remote.is_none());
+        assert!(job.salary_min.is_none());
+        assert!(job.salary_max.is_none());
+        assert!(job.currency.is_none());
+        assert!(job.notes.is_none());
+        assert!(job.ghost_score.is_none());
+        assert!(job.ghost_reasons.is_none());
+    }
 }

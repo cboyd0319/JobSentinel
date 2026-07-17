@@ -2,12 +2,12 @@ use std::sync::Arc;
 
 use crate::config::Config;
 use jobsentinel_domain::Job;
-use jobsentinel_sources::{GlassdoorScraper, JobScraper, SimplyHiredScraper};
+use jobsentinel_sources::{GlassdoorScraper, SimplyHiredScraper};
 use jobsentinel_storage::Database;
 
 use super::{
-    record_restricted_source_acknowledgement_missing, record_scraper_failure,
-    restricted_source_acknowledged,
+    record_restricted_source_acknowledgement_missing, restricted_source_acknowledged, run_scraper,
+    ScraperRunOutcome,
 };
 
 pub(super) async fn run_restricted_browser_sources(
@@ -28,33 +28,19 @@ pub(super) async fn run_restricted_browser_sources(
                 config.simplyhired.limit,
             );
 
-            {
-                let _tid = crate::health::start_run(db, "simplyhired")
-                    .await
-                    .unwrap_or(0);
-                let _ts = std::time::Instant::now();
-                match simplyhired.scrape().await {
-                    Ok(jobs) => {
-                        let _ = crate::health::complete_run(
-                            db,
-                            _tid,
-                            _ts.elapsed().as_millis() as i64,
-                            jobs.len(),
-                            0,
-                        )
-                        .await;
-                        if jobs.is_empty() {
-                            tracing::warn!("SimplyHired: 0 jobs (may be Cloudflare blocked)");
-                        } else {
-                            tracing::info!("SimplyHired: {} jobs found", jobs.len());
-                        }
-                        all_jobs.extend(jobs);
-                    }
-                    Err(e) => {
-                        let _dur = _ts.elapsed().as_millis() as i64;
-                        record_scraper_failure(db, _tid, _dur, "SimplyHired", &e, errors).await;
-                    }
-                }
+            if matches!(
+                run_scraper(
+                    db,
+                    &simplyhired,
+                    "simplyhired",
+                    "SimplyHired",
+                    all_jobs,
+                    errors,
+                )
+                .await,
+                ScraperRunOutcome::Success { jobs_found: 0 }
+            ) {
+                tracing::warn!("SimplyHired: 0 jobs (may be Cloudflare blocked)");
             }
         }
     }
@@ -71,31 +57,11 @@ pub(super) async fn run_restricted_browser_sources(
                 config.glassdoor.limit,
             );
 
-            {
-                let _tid = crate::health::start_run(db, "glassdoor").await.unwrap_or(0);
-                let _ts = std::time::Instant::now();
-                match glassdoor.scrape().await {
-                    Ok(jobs) => {
-                        let _ = crate::health::complete_run(
-                            db,
-                            _tid,
-                            _ts.elapsed().as_millis() as i64,
-                            jobs.len(),
-                            0,
-                        )
-                        .await;
-                        if jobs.is_empty() {
-                            tracing::warn!("Glassdoor: 0 jobs (may be Cloudflare blocked)");
-                        } else {
-                            tracing::info!("Glassdoor: {} jobs found", jobs.len());
-                        }
-                        all_jobs.extend(jobs);
-                    }
-                    Err(e) => {
-                        let _dur = _ts.elapsed().as_millis() as i64;
-                        record_scraper_failure(db, _tid, _dur, "Glassdoor", &e, errors).await;
-                    }
-                }
+            if matches!(
+                run_scraper(db, &glassdoor, "glassdoor", "Glassdoor", all_jobs, errors,).await,
+                ScraperRunOutcome::Success { jobs_found: 0 }
+            ) {
+                tracing::warn!("Glassdoor: 0 jobs (may be Cloudflare blocked)");
             }
         }
     }

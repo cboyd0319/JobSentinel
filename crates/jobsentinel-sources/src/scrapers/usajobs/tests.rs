@@ -148,13 +148,13 @@ fn test_build_query_params_full() {
 
 #[test]
 fn test_compute_hash_deterministic() {
-    let hash1 = UsaJobsScraper::compute_hash(
+    let hash1 = jobsentinel_domain::calculate_job_hash(
         "Department of Health and Human Services",
         "Public Health Analyst",
         Some("Washington, DC"),
         "https://www.usajobs.gov/job/123456",
     );
-    let hash2 = UsaJobsScraper::compute_hash(
+    let hash2 = jobsentinel_domain::calculate_job_hash(
         "Department of Health and Human Services",
         "Public Health Analyst",
         Some("Washington, DC"),
@@ -167,13 +167,13 @@ fn test_compute_hash_deterministic() {
 
 #[test]
 fn test_compute_hash_unique() {
-    let hash1 = UsaJobsScraper::compute_hash(
+    let hash1 = jobsentinel_domain::calculate_job_hash(
         "City Health Department",
         "Care Coordinator",
         Some("DC"),
         "https://usajobs.gov/1",
     );
-    let hash2 = UsaJobsScraper::compute_hash(
+    let hash2 = jobsentinel_domain::calculate_job_hash(
         "City Health Department",
         "Public Health Analyst",
         Some("DC"),

@@ -7,7 +7,7 @@
 use crate::ats::{ApplicationStatus, ApplicationTracker};
 use anyhow::Result;
 use chrono::{Duration, Utc};
-use jobsentinel_domain::{calculate_job_hash, canonicalize_job_url, Job};
+use jobsentinel_domain::{canonicalize_job_url, Job};
 use jobsentinel_security::sanitize_url_for_logging;
 use jobsentinel_storage::Database;
 use regex::{Captures, Regex};
@@ -100,42 +100,17 @@ pub async fn record_event(
         None => DEFAULT_LINKEDIN_URL.to_string(),
     };
     let needs_details = title == DEFAULT_TITLE || company == DEFAULT_COMPANY || needs_url;
-    let job_hash = if user_url.is_some() {
-        calculate_job_hash(&company, &title, None, &url)
-    } else {
-        draft_hash()
-    };
     let now = Utc::now();
 
-    let job = Job {
-        id: 0,
-        hash: job_hash.clone(),
-        title,
-        company,
-        url,
-        location: None,
+    let mut job = Job {
         description: Some("Created from a user-controlled LinkedIn Workbench action.".to_string()),
-        score: None,
-        score_reasons: None,
-        source: SOURCE.to_string(),
-        remote: None,
-        salary_min: None,
-        salary_max: None,
         currency: Some("USD".to_string()),
-        created_at: now,
-        updated_at: now,
-        last_seen: now,
-        times_seen: 1,
-        immediate_alert_sent: false,
-        included_in_digest: false,
-        hidden: false,
-        bookmarked: false,
-        notes: None,
-        ghost_score: None,
-        ghost_reasons: None,
-        first_seen: Some(now),
-        repost_count: 0,
+        ..Job::newly_discovered(title, company, url, None, SOURCE, now)
     };
+    if user_url.is_none() {
+        job.hash = draft_hash();
+    }
+    let job_hash = job.hash.clone();
 
     let job_id = database.upsert_job(&job).await?;
     if let Some(notes) = notes.as_deref() {

@@ -123,13 +123,13 @@ mod tests {
 
     #[test]
     fn test_compute_hash_deterministic() {
-        let h1 = YcStartupScraper::compute_hash(
+        let h1 = jobsentinel_domain::calculate_job_hash(
             "Startup Inc",
             "Founding Engineer",
             Some("San Francisco"),
             "https://ycombinator.com/companies/startup/jobs/123",
         );
-        let h2 = YcStartupScraper::compute_hash(
+        let h2 = jobsentinel_domain::calculate_job_hash(
             "Startup Inc",
             "Founding Engineer",
             Some("San Francisco"),
@@ -141,13 +141,13 @@ mod tests {
 
     #[test]
     fn test_compute_hash_different_inputs() {
-        let h1 = YcStartupScraper::compute_hash(
+        let h1 = jobsentinel_domain::calculate_job_hash(
             "Startup A",
             "Engineer",
             Some("Remote"),
             "https://ycombinator.com/jobs/1",
         );
-        let h2 = YcStartupScraper::compute_hash(
+        let h2 = jobsentinel_domain::calculate_job_hash(
             "Startup B",
             "Engineer",
             Some("Remote"),
@@ -158,7 +158,7 @@ mod tests {
 
     #[test]
     fn test_compute_hash_without_location() {
-        let hash = YcStartupScraper::compute_hash(
+        let hash = jobsentinel_domain::calculate_job_hash(
             "Startup Inc",
             "Engineer",
             None,
@@ -169,8 +169,8 @@ mod tests {
 
     #[test]
     fn test_compute_hash_none_location_consistency() {
-        let h1 = YcStartupScraper::compute_hash("Company", "Title", None, "url");
-        let h2 = YcStartupScraper::compute_hash("Company", "Title", None, "url");
+        let h1 = jobsentinel_domain::calculate_job_hash("Company", "Title", None, "url");
+        let h2 = jobsentinel_domain::calculate_job_hash("Company", "Title", None, "url");
         assert_eq!(h1, h2);
     }
 

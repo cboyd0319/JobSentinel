@@ -9,7 +9,7 @@ use super::{JobScraper, ScraperResult};
 use async_trait::async_trait;
 use chrono::Utc;
 use jobsentinel_domain::normalization::infer_remote_status;
-use jobsentinel_domain::{calculate_job_hash, Job};
+use jobsentinel_domain::Job;
 use jobsentinel_network::{send_external_http_text_with_retry, ExternalHttpRequest};
 use scraper::{Html, Selector};
 
@@ -195,36 +195,9 @@ impl DiceScraper {
             // Determine if remote
             let is_remote = Self::is_remote(&title, location.as_deref());
 
-            let hash = Self::compute_hash(&company, &title, location.as_deref(), &url);
-
             jobs.push(Job {
-                id: 0,
-                hash,
-                title,
-                company,
-                url,
-                location,
-                description: None,
-                score: None,
-                score_reasons: None,
-                source: "dice".to_string(),
                 remote: Some(is_remote),
-                salary_min: None,
-                salary_max: None,
-                currency: None,
-                created_at: Utc::now(),
-                updated_at: Utc::now(),
-                last_seen: Utc::now(),
-                times_seen: 1,
-                immediate_alert_sent: false,
-                hidden: false,
-                bookmarked: false,
-                notes: None,
-                included_in_digest: false,
-                ghost_score: None,
-                ghost_reasons: None,
-                first_seen: None,
-                repost_count: 0,
+                ..Job::newly_discovered(title, company, url, location, "dice", Utc::now())
             });
         }
 
@@ -234,11 +207,6 @@ impl DiceScraper {
     /// Check if job is remote based on title and location
     fn is_remote(title: &str, location: Option<&str>) -> bool {
         infer_remote_status(&[title, location.unwrap_or("")]).is_remote()
-    }
-
-    /// Compute SHA-256 hash for deduplication
-    fn compute_hash(company: &str, title: &str, location: Option<&str>, url: &str) -> String {
-        calculate_job_hash(company, title, location, url)
     }
 }
 

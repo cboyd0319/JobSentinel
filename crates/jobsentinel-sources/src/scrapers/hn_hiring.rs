@@ -6,9 +6,9 @@
 
 use super::error::ScraperError;
 use super::rate_limiter::RateLimiter;
-use super::{JobScraper, ScraperResult};
+use super::{JobScraper, ScraperResult, JOBSENTINEL_USER_AGENT};
 use jobsentinel_domain::normalization::infer_remote_status;
-use jobsentinel_domain::{calculate_job_hash, Job};
+use jobsentinel_domain::Job;
 use jobsentinel_network::{send_external_http_text_with_retry, ExternalHttpRequest};
 
 use async_trait::async_trait;
@@ -46,7 +46,7 @@ impl HnHiringScraper {
             "https://hn.algolia.com/api/v1/search?query=who%20is%20hiring&tags=story,ask_hn&hitsPerPage=1";
 
         let response = send_external_http_text_with_retry(
-            ExternalHttpRequest::get(search_url).user_agent("JobSentinel/1.0"),
+            ExternalHttpRequest::get(search_url).user_agent(JOBSENTINEL_USER_AGENT),
         )
         .await
         .map_err(|error| ScraperError::from_external("hn_hiring", error))?;
@@ -78,7 +78,7 @@ impl HnHiringScraper {
         );
 
         let comments_response = send_external_http_text_with_retry(
-            ExternalHttpRequest::get(&comments_url).user_agent("JobSentinel/1.0"),
+            ExternalHttpRequest::get(&comments_url).user_agent(JOBSENTINEL_USER_AGENT),
         )
         .await
         .map_err(|error| ScraperError::from_external("hn_hiring", error))?;
@@ -184,36 +184,10 @@ impl HnHiringScraper {
             Some(clean_text.clone())
         };
 
-        let hash = Self::compute_hash(&company, &title, location.as_deref(), &url);
-
         Some(Job {
-            id: 0,
-            hash,
-            title,
-            company,
-            url,
-            location,
             description,
-            score: None,
-            score_reasons: None,
-            source: "hn_hiring".to_string(),
             remote: Some(is_remote),
-            salary_min: None,
-            salary_max: None,
-            currency: None,
-            created_at: Utc::now(),
-            updated_at: Utc::now(),
-            last_seen: Utc::now(),
-            times_seen: 1,
-            immediate_alert_sent: false,
-            hidden: false,
-            bookmarked: false,
-            notes: None,
-            included_in_digest: false,
-            ghost_score: None,
-            ghost_reasons: None,
-            first_seen: None,
-            repost_count: 0,
+            ..Job::newly_discovered(title, company, url, location, "hn_hiring", Utc::now())
         })
     }
 
@@ -374,11 +348,6 @@ impl HnHiringScraper {
     /// Check if job is remote
     fn is_remote(text: &str) -> bool {
         infer_remote_status(&[text]).is_remote()
-    }
-
-    /// Compute SHA-256 hash for deduplication
-    fn compute_hash(company: &str, title: &str, location: Option<&str>, url: &str) -> String {
-        calculate_job_hash(company, title, location, url)
     }
 }
 

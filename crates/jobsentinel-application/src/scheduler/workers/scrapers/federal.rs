@@ -5,10 +5,10 @@ use crate::{
     credentials::{CredentialKey, CredentialService},
 };
 use jobsentinel_domain::Job;
-use jobsentinel_sources::{JobScraper, UsaJobsScraper};
+use jobsentinel_sources::UsaJobsScraper;
 use jobsentinel_storage::Database;
 
-use super::{record_scraper_failure, record_source_credential_failure};
+use super::{record_source_credential_failure, run_scraper};
 
 pub(super) async fn run_usajobs(
     config: &Arc<Config>,
@@ -43,28 +43,7 @@ pub(super) async fn run_usajobs(
                     .posted_within_days(config.usajobs.date_posted_days)
                     .with_limit(config.usajobs.limit);
 
-                {
-                    let _tid = crate::health::start_run(db, "usajobs").await.unwrap_or(0);
-                    let _ts = std::time::Instant::now();
-                    match scraper.scrape().await {
-                        Ok(jobs) => {
-                            let _ = crate::health::complete_run(
-                                db,
-                                _tid,
-                                _ts.elapsed().as_millis() as i64,
-                                jobs.len(),
-                                0,
-                            )
-                            .await;
-                            tracing::info!("USAJobs: {} jobs found", jobs.len());
-                            all_jobs.extend(jobs);
-                        }
-                        Err(e) => {
-                            let _dur = _ts.elapsed().as_millis() as i64;
-                            record_scraper_failure(db, _tid, _dur, "USAJobs", &e, errors).await;
-                        }
-                    }
-                }
+                run_scraper(db, &scraper, "usajobs", "USAJobs", all_jobs, errors).await;
             }
             Ok(None) => {
                 tracing::warn!("USAJobs enabled but API key not configured in keyring");

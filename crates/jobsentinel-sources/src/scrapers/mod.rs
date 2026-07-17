@@ -5,6 +5,9 @@
 use async_trait::async_trait;
 use jobsentinel_domain::Job;
 
+const BROWSER_USER_AGENT: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
+const JOBSENTINEL_USER_AGENT: &str = "JobSentinel/1.0";
+
 mod builtin;
 mod dice;
 mod error;
