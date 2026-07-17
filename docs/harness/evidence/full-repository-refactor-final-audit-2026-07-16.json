@@ -1,0 +1,49 @@
+{
+  "schema": "jobsentinel.feature_evidence.v1",
+  "feature_id": "full-repository-refactor",
+  "behavior": "The Rust, Tauri, frontend, test, script, workflow, packaging, and documentation trees match the locked ownership blueprint without obsolete compatibility layers.",
+  "result": "passing",
+  "verified_at": "2026-07-17T00:08:53Z",
+  "revision": "dadf92c4",
+  "platform": "macOS 27.0 arm64",
+  "source": "docs/plans/active/current-work.md",
+  "scope": "Final whole-repository cleanup, structural exception audit, and acceptance verification",
+  "observed_implementation": [
+    "Five frontend and development-runtime suites were split at existing behavior boundaries while preserving all 86 test titles.",
+    "Seven script suites were split at existing policy boundaries while preserving all 137 test titles.",
+    "Three fixture-heavy script suites now use focused sibling fixture owners and stay below the canonical hard ceiling.",
+    "The resume-keyword taxonomy was compacted without changing its parsed JSON data.",
+    "Release staging and platform builds now use focused reusable workflows while the root workflow retains dispatch, preflight, matrix, and publication ownership.",
+    "Seventeen temporary exceptions were eliminated. The only retained exception is the unchanged applied SQLx migration with SHA-256 2f76def6f61436b55e49349b450898a6003673e7fd8709b08bb8d3b818fb5cbb.",
+    "The retained migration has an exact no-growth contract because modifying its recorded SQLx checksum would prevent existing databases from opening."
+  ],
+  "commands": [
+    {
+      "command": "npm run verify:full",
+      "exit_status": 0,
+      "relevant_result": "The complete local gate passed, including 817 script tests, 2,934 frontend tests, production and Storybook builds, 10 smoke journeys, architecture, security, documentation, and Rust workspace checks.",
+      "caveat": "The verified completion batch is based on revision dadf92c4 and remains uncommitted pending separate authorization."
+    },
+    {
+      "command": "npm run test:e2e:all",
+      "exit_status": 0,
+      "relevant_result": "The clean repeated all-browser run passed all 286 Chromium and WebKit journeys.",
+      "caveat": "The first run had one transient WebKit development-server module-load failure; the exact case then passed three repeated focused runs and the clean full rerun passed."
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --workspace --all-features",
+      "exit_status": 0,
+      "relevant_result": "The complete Rust workspace test and documentation-test lane passed with all features enabled.",
+      "caveat": "Executed on the recorded local host platform."
+    }
+  ],
+  "audit": {
+    "starting_exception_count": 18,
+    "temporary_exceptions_eliminated": 17,
+    "retained_immutable_exceptions": 1,
+    "migration_unchanged_from_revision": true,
+    "generated_artifacts_removed": true,
+    "implementation_complete": true,
+    "committed": false
+  }
+}

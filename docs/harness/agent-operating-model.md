@@ -5,7 +5,7 @@ without duplicating project policy.
 
 ## Start
 
-Confirm the root, read `PROGRESS.md` and `feature_list.json`, review recent
+Confirm the root, read `docs/harness/current-status.md` and `scripts/harness/state/feature-list.json`, review recent
 commits and dirty state, run the native init launcher, and repair the baseline
 before adding scope. The feature ledger chooses one active feature.
 
@@ -24,7 +24,7 @@ judgment. Runtime claims require a runtime journey. Broad claims require
 
 ## Finish
 
-Reconcile root state with fresh evidence, remove temporary artifacts, record
+Reconcile canonical state with fresh evidence, remove temporary artifacts, record
 platform gaps and risk, and leave the native init path runnable. Only verified
 evidence can move the active feature to irreversible `passing`. A later
 regression receives a new corrective feature.

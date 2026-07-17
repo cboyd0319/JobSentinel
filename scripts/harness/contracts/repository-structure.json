@@ -1,0 +1,267 @@
+{
+  "schema_version": 1,
+  "repository": "JobSentinel",
+  "scale_assumption": {
+    "lines": 2000000,
+    "files": 50000
+  },
+  "source_limits": {
+    "counting": "physical_lines_including_blank_and_comment_lines",
+    "review_lines": 300,
+    "hard_lines": 500,
+    "review_bytes": 32768,
+    "hard_bytes": 65536
+  },
+  "included_extensions": [
+    ".cs",
+    ".csproj",
+    ".cjs",
+    ".css",
+    ".hcl",
+    ".js",
+    ".json",
+    ".jsx",
+    ".mjs",
+    ".php",
+    ".props",
+    ".ps1",
+    ".py",
+    ".rs",
+    ".sh",
+    ".slnx",
+    ".sql",
+    ".targets",
+    ".tf",
+    ".tfvars",
+    ".toml",
+    ".ts",
+    ".tsx",
+    ".yaml",
+    ".yml"
+  ],
+  "structure": {
+    "allowed_source_roots": [
+      "src",
+      "src-tauri/src",
+      "crates",
+      "scripts",
+      "tests",
+      "skills",
+      ".github/workflows",
+      ".storybook"
+    ],
+    "allowed_configuration_roots": [
+      ".cargo",
+      ".claude",
+      ".github",
+      ".storybook",
+      "docs",
+      "public",
+      "resources",
+      "skills",
+      "src-tauri"
+    ],
+    "allowed_root_source_files": [
+      "init.ps1",
+      "init.sh"
+    ],
+    "allowed_root_configuration_files": [
+      ".gitattributes",
+      ".lintstagedrc.json",
+      ".markdownlint.json",
+      "Cargo.toml",
+      "clippy.toml",
+      "deny.toml",
+      "eslint.config.js",
+      "package.json",
+      "playwright.config.ts",
+      "postcss.config.js",
+      "rust-toolchain.toml",
+      "tailwind.config.js",
+      "tsconfig.json",
+      "tsconfig.node.json",
+      "vite.config.ts",
+      "vitest.config.ts"
+    ],
+    "allowed_root_files": [
+      ".claudeignore",
+      ".gitattributes",
+      ".gitignore",
+      ".lintstagedrc.json",
+      ".markdownlint.json",
+      ".nvmrc",
+      ".vale.ini",
+      "AGENTS.md",
+      "CHANGELOG.md",
+      "CLAUDE.md",
+      "CODE_OF_CONDUCT.md",
+      "Cargo.lock",
+      "Cargo.toml",
+      "LICENSE",
+      "PRIVACY.md",
+      "README.md",
+      "RESPONSIBLE_AI.md",
+      "ROADMAP.md",
+      "SECURITY.md",
+      "clippy.toml",
+      "deny.toml",
+      "eslint.config.js",
+      "index.html",
+      "init.ps1",
+      "init.sh",
+      "package-lock.json",
+      "package.json",
+      "playwright.config.ts",
+      "postcss.config.js",
+      "rust-toolchain.toml",
+      "tailwind.config.js",
+      "tsconfig.json",
+      "tsconfig.node.json",
+      "vite.config.ts",
+      "vitest.config.ts"
+    ],
+    "allowed_standalone_source_files": [
+      "docs/security/dompurify-test-examples.js",
+      "src-tauri/build.rs"
+    ],
+    "allowed_top_level_directories": [
+      ".cargo",
+      ".claude",
+      ".github",
+      ".husky",
+      ".sqlx",
+      ".storybook",
+      ".vale",
+      "crates",
+      "docs",
+      "public",
+      "resources",
+      "scripts",
+      "skills",
+      "src",
+      "src-tauri",
+      "tests"
+    ],
+    "units": [
+      {
+        "id": "web",
+        "root": "src",
+        "manifest": "package.json",
+        "public_entrypoint": "src/main.tsx",
+        "kind": "deployable"
+      },
+      {
+        "id": "jobsentinel",
+        "root": "src-tauri",
+        "manifest": "src-tauri/Cargo.toml",
+        "public_entrypoint": "src-tauri/src/main.rs",
+        "kind": "deployable"
+      },
+      {"id": "jobsentinel-ai", "root": "crates/jobsentinel-ai", "manifest": "crates/jobsentinel-ai/Cargo.toml", "public_entrypoint": "crates/jobsentinel-ai/src/lib.rs", "kind": "reusable"},
+      {"id": "jobsentinel-application", "root": "crates/jobsentinel-application", "manifest": "crates/jobsentinel-application/Cargo.toml", "public_entrypoint": "crates/jobsentinel-application/src/lib.rs", "kind": "reusable"},
+      {"id": "jobsentinel-assistance", "root": "crates/jobsentinel-assistance", "manifest": "crates/jobsentinel-assistance/Cargo.toml", "public_entrypoint": "crates/jobsentinel-assistance/src/lib.rs", "kind": "reusable"},
+      {"id": "jobsentinel-credentials", "root": "crates/jobsentinel-credentials", "manifest": "crates/jobsentinel-credentials/Cargo.toml", "public_entrypoint": "crates/jobsentinel-credentials/src/lib.rs", "kind": "reusable"},
+      {"id": "jobsentinel-documents", "root": "crates/jobsentinel-documents", "manifest": "crates/jobsentinel-documents/Cargo.toml", "public_entrypoint": "crates/jobsentinel-documents/src/lib.rs", "kind": "reusable"},
+      {"id": "jobsentinel-domain", "root": "crates/jobsentinel-domain", "manifest": "crates/jobsentinel-domain/Cargo.toml", "public_entrypoint": "crates/jobsentinel-domain/src/lib.rs", "kind": "reusable"},
+      {
+        "id": "jobsentinel-intelligence",
+        "root": "crates/jobsentinel-intelligence",
+        "manifest": "crates/jobsentinel-intelligence/Cargo.toml",
+        "public_entrypoint": "crates/jobsentinel-intelligence/src/lib.rs",
+        "kind": "reusable"
+      },
+      {"id": "jobsentinel-local-ai", "root": "crates/jobsentinel-local-ai", "manifest": "crates/jobsentinel-local-ai/Cargo.toml", "public_entrypoint": "crates/jobsentinel-local-ai/src/lib.rs", "kind": "reusable"},
+      {"id": "jobsentinel-notifications", "root": "crates/jobsentinel-notifications", "manifest": "crates/jobsentinel-notifications/Cargo.toml", "public_entrypoint": "crates/jobsentinel-notifications/src/lib.rs", "kind": "reusable"},
+      {
+        "id": "jobsentinel-network",
+        "root": "crates/jobsentinel-network",
+        "manifest": "crates/jobsentinel-network/Cargo.toml",
+        "public_entrypoint": "crates/jobsentinel-network/src/lib.rs",
+        "kind": "reusable"
+      },
+      {
+        "id": "jobsentinel-platform",
+        "root": "crates/jobsentinel-platform",
+        "manifest": "crates/jobsentinel-platform/Cargo.toml",
+        "public_entrypoint": "crates/jobsentinel-platform/src/lib.rs",
+        "kind": "reusable"
+      },
+      {
+        "id": "jobsentinel-security",
+        "root": "crates/jobsentinel-security",
+        "manifest": "crates/jobsentinel-security/Cargo.toml",
+        "public_entrypoint": "crates/jobsentinel-security/src/lib.rs",
+        "kind": "reusable"
+      },
+      {
+        "id": "jobsentinel-sources",
+        "root": "crates/jobsentinel-sources",
+        "manifest": "crates/jobsentinel-sources/Cargo.toml",
+        "public_entrypoint": "crates/jobsentinel-sources/src/lib.rs",
+        "kind": "reusable"
+      },
+      {
+        "id": "jobsentinel-storage",
+        "root": "crates/jobsentinel-storage",
+        "manifest": "crates/jobsentinel-storage/Cargo.toml",
+        "public_entrypoint": "crates/jobsentinel-storage/src/lib.rs",
+        "kind": "reusable"
+      },
+      {
+        "id": "repository-tooling",
+        "root": "scripts",
+        "manifest": "package.json",
+        "public_entrypoint": "package.json",
+        "kind": "tooling"
+      }
+    ],
+    "forbidden_root_source_files": true,
+    "forbidden_dependency_edges": [],
+    "architecture_check": "npm run lint:architecture",
+    "source_limit_check": "npm run lint:file-size",
+    "full_graph_check": "npm run verify:full"
+  },
+  "projections": {
+    "file_coverage": "scripts/harness/contracts/file-size.json"
+  },
+  "non_hand_authored_exclusions": [
+    {
+      "path": "package-lock.json",
+      "category": "lock",
+      "owner": "npm",
+      "reason": "Generated dependency lockfile.",
+      "refresh_trigger": "Refresh with the pinned npm workflow when package.json dependency metadata changes, then review the lock diff."
+    },
+    {
+      "path": "Cargo.lock",
+      "category": "lock",
+      "owner": "Cargo",
+      "reason": "Generated workspace dependency lockfile.",
+      "refresh_trigger": "Refresh with a locked Cargo dependency command when a Cargo manifest changes, then review the lock diff."
+    },
+    {
+      "path": ".sqlx",
+      "category": "generated",
+      "owner": "SQLx",
+      "reason": "Generated offline query metadata.",
+      "refresh_trigger": "Run npm run sqlx:prepare when checked SQL or migrations change, then review the metadata diff."
+    },
+    {
+      "path": "src-tauri/gen",
+      "category": "generated",
+      "owner": "Tauri",
+      "reason": "Generated platform schema and capability output.",
+      "refresh_trigger": "Regenerate after Tauri configuration or capability changes, then review the schema diff."
+    },
+    {
+      "path": ".vale/styles",
+      "category": "vendored",
+      "owner": "Vale",
+      "reason": "Vendored prose-linter styles.",
+      "refresh_trigger": "Refresh only when the pinned Vale style source changes, then review the vendored diff."
+    }
+  ],
+  "exceptions": [
+    {"path":"crates/jobsentinel-storage/migrations/00000000000000_initial_schema.sql","affected_rules":["hard_lines","hard_bytes"],"owner":"Rust storage owner","reason":"Applied SQLx migration history is immutable: splitting or reformatting this file changes its recorded checksum and prevents existing databases from opening. This exact no-growth ratchet preserves the shipped migration chain.","max_lines":1630,"max_bytes":70071,"approval_date":"2026-07-16","retirement_condition":"Remove only after a verified forward migration strategy retires checksum compatibility for every supported existing database; never split or reformat this applied migration in place."}
+  ]
+}

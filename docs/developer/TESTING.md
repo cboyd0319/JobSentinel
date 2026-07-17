@@ -101,7 +101,7 @@ src-tauri/
 feature-specific test subdirectories. This improves code organization and keeps
 module files easier to maintain under the current
 [harness file-size policy](../harness/README.md), enforced by
-`validation/file_size_contract.json` through `npm run lint:bloat`.
+`scripts/harness/contracts/file-size.json` through `npm run lint:bloat`.
 
 ### Test Coverage Map
 

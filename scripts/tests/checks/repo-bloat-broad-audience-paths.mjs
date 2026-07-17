@@ -1,5 +1,4 @@
 export const engineerFirstAudienceFixturePaths = [
-      "examples/resumes/sample-json-resume.json",
       "src/features/salary/SalaryPage.tsx",
       "src/features/dashboard/DashboardPage.tsx",
       "src/features/onboarding/SetupWizard.tsx",

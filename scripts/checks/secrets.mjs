@@ -42,7 +42,6 @@ const scannedExtensions = new Set([
 
 const scannedFileNames = new Set([
   ".env",
-  ".env.example",
   ".env.local",
   ".lintstagedrc.json",
   "Cargo.lock",

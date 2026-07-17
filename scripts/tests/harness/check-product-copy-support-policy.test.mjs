@@ -115,27 +115,3 @@ test("product copy rejects non-advisory resume and pay guidance", () => {
     );
   });
 });
-
-test("product copy rejects command-first profile docs", () => {
-  withFixture((root) => {
-    writeFixtureFile(
-      root,
-      "examples/profiles/README.md",
-      [
-        "Pre-configured job search profiles for different career paths. Copy one to use as your starting point.",
-        "Start with `examples/config/config.example.json` and fill in your own:",
-        "`title_allowlist`: Job titles you're targeting",
-        "",
-        "### Option 1: Use a Profile Directly",
-        "Direct scraping from Greenhouse company pages",
-        "**Company (10%)**: (Future: company allowlist)",
-        "",
-      ].join("\n"),
-    );
-
-    assert.equal(
-      hasTechnicalFirstUserCopy(root, "examples/profiles/README.md"),
-      true,
-    );
-  });
-});

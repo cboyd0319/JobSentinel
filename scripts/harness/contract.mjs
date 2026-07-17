@@ -5,7 +5,7 @@ import { collectRepositoryFileSizeViolations } from "./checks/repo-file-size.mjs
 import { collectStateViolations } from "./state.mjs";
 import { checkRepositoryArchitecture } from "../checks/repository-architecture.mjs";
 
-export const harnessManifestPath = "harness-manifest.json";
+export const harnessManifestPath = "scripts/harness/contracts/harness.json";
 export const harnessManifestSchema = 1;
 export const noCiExceptionId = "pre-alpha-private-no-ci";
 
@@ -51,9 +51,9 @@ function validateStartupBudgets(root, manifest, violations) {
   }
   if (!Number.isInteger(startup.max_bytes) || startup.max_bytes < 0) violations.push("startup.max_bytes must be a measured nonnegative integer budget");
   else if (totalBytes > startup.max_bytes) violations.push(`startup context exceeds total byte budget: ${totalBytes} > ${startup.max_bytes}`);
-  const stateReads = startupFiles.filter((path) => path === "PROGRESS.md" || path === "feature_list.json").length;
+  const stateReads = startupFiles.filter((path) => path === "docs/harness/current-status.md" || path === "scripts/harness/state/feature-list.json").length;
   if (!Number.isInteger(startup.max_state_reads) || stateReads > startup.max_state_reads) violations.push(`startup state reads exceed budget: ${stateReads} > ${String(startup.max_state_reads)}`);
-  const featureState = readJson(root, "feature_list.json", violations);
+  const featureState = readJson(root, "scripts/harness/state/feature-list.json", violations);
   const featureItems = Array.isArray(featureState?.features) ? featureState.features : [];
   const stateBudgets = startup.state_budgets ?? {};
   if (!Number.isInteger(stateBudgets.max_feature_items) || featureItems.length > stateBudgets.max_feature_items) {

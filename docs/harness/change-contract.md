@@ -46,7 +46,7 @@ Audience and ease:
   user-reviewed.
 
 Design contract:
-- Whether the change touches `DESIGN.md`, `docs/design/README.md`, or
+- Whether the change touches `docs/design/design-system.md`, `docs/design/README.md`, or
   `docs/design/design-spec.md`.
 - Whether the change affects the harness-controlled Quiet Shield redesign
   acceptance gate.
@@ -86,7 +86,7 @@ Sensors:
 
 Harness impact:
 - Docs, scripts, tests, templates, or recurring checks to update.
-- Whether `harness-manifest.json` needs an owner, startup, platform, or retired-path update to
+- Whether `scripts/harness/contracts/harness.json` needs an owner, startup, platform, or retired-path update to
   keep the design contract from drifting.
 - New gap to record if this change exposes missing harness coverage.
 

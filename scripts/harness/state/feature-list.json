@@ -38,17 +38,18 @@
       "title": "Canonical harness remediation",
       "behavior": "The repository harness conforms to the installed harness-engineering package except for the exact user-authorized pre-alpha-private-no-ci requirement exception.",
       "user_visible_behavior": "Repository work is resumable, growth-ready, and locally verifiable while hosted CI remains explicitly absent during private pre-alpha development.",
-      "status": "blocked",
+      "status": "active",
       "verification": [
         "npm run harness:check",
         "npm run test:scripts",
         "npm run verify:full"
       ],
       "evidence": [
-        "docs/harness/evidence/harness-canonical-remediation-effectiveness-2026-07-15.json"
+        "docs/harness/evidence/harness-canonical-remediation-effectiveness-2026-07-15.json",
+        "docs/harness/evidence/root-ownership-reorganization-2026-07-16.json"
       ],
-      "blocker": "Final platform-specific validation is deferred until the active repository refactor has no remaining implementation or structural cleanup.",
-      "next_trigger": "Revisit only after full-repository-refactor has no remaining implementation work."
+      "blocker": "",
+      "next_trigger": "Commit the verified root ownership reorganization with explicit user authorization."
     },
     {
       "id": "full-repository-refactor",
@@ -57,13 +58,14 @@
       "title": "Full repository ownership refactor",
       "behavior": "The Rust, Tauri, frontend, test, script, workflow, packaging, and documentation trees match the locked ownership blueprint without obsolete compatibility layers.",
       "user_visible_behavior": "JobSentinel retains its privacy, security, accessibility, and platform behavior while internal ownership becomes explicit.",
-      "status": "active",
+      "status": "passing",
       "verification": [
         "npm run verify:full",
         "npm run test:e2e:all",
         "node scripts/dev/run-cargo.mjs test --workspace --all-features"
       ],
       "evidence": [
+        "docs/harness/evidence/full-repository-refactor-final-audit-2026-07-16.json",
         "docs/harness/evidence/repository-foundational-rust-owners-2026-07-15.json",
         "docs/harness/evidence/full-repository-refactor-2026-07-15.json",
         "docs/harness/evidence/repository-layout-cutovers-2026-07-16.json",
@@ -84,7 +86,7 @@
         "docs/harness/evidence/structural-exception-twelfth-followup-2026-07-16.json"
       ],
       "blocker": "",
-      "next_trigger": "Reduce the remaining 18 structural exceptions, then run the final whole-repository audit."
+      "next_trigger": "A regression against the recorded ownership contract requires a new corrective feature."
     }
   ]
 }

@@ -13,7 +13,7 @@ import { collectCargoDependencySpecs } from "./dependency-pins.mjs";
 
 const scriptPath = fileURLToPath(import.meta.url);
 const defaultRoot = resolve(dirname(scriptPath), "../..");
-const rationalePath = "validation/dependency_rationale.json";
+const rationalePath = "scripts/harness/contracts/dependency-rationale.json";
 
 function readJson(root, path) {
   return JSON.parse(readFileSync(join(root, path), "utf8"));
@@ -42,13 +42,13 @@ function directCargoDependencies(root) {
 
 function unusedCargoWorkspaceDependencies(root) {
   const cargoToml = join(root, "Cargo.toml");
-  const policyFile = join(root, "repository-structure-policy.json");
+  const policyFile = join(root, "scripts/harness/contracts/repository-structure.json");
   if (!existsSync(cargoToml) || !existsSync(policyFile)) return [];
 
   const registry = collectCargoDependencySpecs(readFileSync(cargoToml, "utf8"))
     .filter((spec) => spec.section === "workspace.dependencies")
     .map((spec) => spec.name);
-  const policy = readJson(root, "repository-structure-policy.json");
+  const policy = readJson(root, "scripts/harness/contracts/repository-structure.json");
   const manifests = (policy.structure?.units ?? [])
     .map((unit) => unit.manifest)
     .filter((path) => path !== "Cargo.toml" && existsSync(join(root, path)));

@@ -1,8 +1,8 @@
 # Rust Architecture
 
 This document explains the Rust ownership model. The root
-[architecture](../../ARCHITECTURE.md) and
-`validation/repository_architecture_contract.json` own the complete graph.
+[architecture](../architecture/repository.md) and
+`scripts/harness/contracts/architecture.json` own the complete graph.
 
 ## Workspace Boundary
 

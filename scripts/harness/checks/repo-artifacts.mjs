@@ -142,13 +142,13 @@ export function collectUnexpectedRootEntries(root) {
   const violations = [];
   let allowedRootEntries = new Set();
   try {
-    const policy = JSON.parse(readFileSync(join(root, "repository-structure-policy.json"), "utf8"));
+    const policy = JSON.parse(readFileSync(join(root, "scripts/harness/contracts/repository-structure.json"), "utf8"));
     allowedRootEntries = new Set([
       ...(policy.structure?.allowed_root_files ?? []),
       ...(policy.structure?.allowed_top_level_directories ?? []),
     ]);
   } catch {
-    return ["repository-structure-policy.json does not provide the root allowlist"];
+    return ["scripts/harness/contracts/repository-structure.json does not provide the root allowlist"];
   }
 
   for (const entry of readdirSync(root, { withFileTypes: true })) {

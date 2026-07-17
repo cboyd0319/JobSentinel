@@ -27,8 +27,8 @@
       "doctor": "npm run doctor"
     },
     "state": {
-      "current": "PROGRESS.md",
-      "features": "feature_list.json",
+      "current": "docs/harness/current-status.md",
+      "features": "scripts/harness/state/feature-list.json",
       "evidence": "docs/harness/evidence"
     },
     "feedback": {
@@ -38,15 +38,15 @@
       "hosted_workflow_root": ".github/workflows"
     },
     "architecture": {
-      "documentation": "ARCHITECTURE.md",
-      "policy": "repository-structure-policy.json",
-      "structure_policy": "repository-structure-policy.json",
-      "rust_graph": "validation/repository_architecture_contract.json",
+      "documentation": "docs/architecture/repository.md",
+      "policy": "scripts/harness/contracts/repository-structure.json",
+      "structure_policy": "scripts/harness/contracts/repository-structure.json",
+      "rust_graph": "scripts/harness/contracts/architecture.json",
       "check": "npm run lint:architecture"
     }
   },
   "startup": {
-    "files": ["AGENTS.md", "PROGRESS.md", "feature_list.json"],
+    "files": ["AGENTS.md", "docs/harness/current-status.md", "scripts/harness/state/feature-list.json"],
     "max_bytes": 26000,
     "max_hops": 1,
     "max_state_reads": 2,
@@ -56,8 +56,8 @@
     },
     "per_file_budgets": {
       "AGENTS.md": { "max_lines": 100, "max_bytes": 6000, "max_line_bytes": 120 },
-      "PROGRESS.md": { "max_lines": 60, "max_bytes": 4000, "max_line_bytes": 120 },
-      "feature_list.json": { "max_lines": 160, "max_bytes": 16000, "max_line_bytes": 240 }
+      "docs/harness/current-status.md": { "max_lines": 60, "max_bytes": 4000, "max_line_bytes": 120 },
+      "scripts/harness/state/feature-list.json": { "max_lines": 160, "max_bytes": 16000, "max_line_bytes": 240 }
     }
   },
   "verification": {
@@ -89,10 +89,10 @@
   },
   "required_pack": [
     "AGENTS.md",
-    "ARCHITECTURE.md",
-    "repository-structure-policy.json",
-    "PROGRESS.md",
-    "feature_list.json",
+    "docs/architecture/repository.md",
+    "scripts/harness/contracts/repository-structure.json",
+    "docs/harness/current-status.md",
+    "scripts/harness/state/feature-list.json",
     "init.sh",
     "init.ps1"
   ],
@@ -161,8 +161,8 @@
   "retired_commands": ["harness:score", "harness:benchmark", "test:e2e:ci"],
   "canonical_reference_paths": [
     "AGENTS.md",
-    "PROGRESS.md",
-    "feature_list.json",
+    "docs/harness/current-status.md",
+    "scripts/harness/state/feature-list.json",
     "package.json",
     "docs/harness/README.md",
     "docs/harness/harness-map.md",

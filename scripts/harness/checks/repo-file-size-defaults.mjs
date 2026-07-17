@@ -1,6 +1,6 @@
-export const fileSizeContractPath = "validation/file_size_contract.json";
+export const fileSizeContractPath = "scripts/harness/contracts/file-size.json";
 export const fileSizeContractSchema = "jobsentinel.file_size_contract.v3";
-export const repositoryStructurePolicyPath = "repository-structure-policy.json";
+export const repositoryStructurePolicyPath = "scripts/harness/contracts/repository-structure.json";
 export const requiredBudgetFields = ["max_lines", "max_bytes", "max_line_bytes"];
 export const requiredExceptionFields = [
   "owner",

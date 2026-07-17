@@ -10,23 +10,23 @@ instructions, tools, environment, state, and feedback.
 | ---- | ----- | ------------ | ----------- |
 | Startup contract | `AGENTS.md` | Commands or hard boundaries change | `npm run harness:check` |
 | Environment setup | `scripts/harness/init.mjs` | Setup or baseline changes | init launcher tests |
-| Current objective | `PROGRESS.md` | Objective, blocker, baseline, or next action changes | state validator |
-| Work selection | `feature_list.json` | Feature status or verification changes | state validator |
+| Current objective | `docs/harness/current-status.md` | Objective, blocker, baseline, or next action changes | state validator |
+| Work selection | `scripts/harness/state/feature-list.json` | Feature status or verification changes | state validator |
 | Verification routing | `scripts/harness/plan.mjs` | Path ownership or commands change | routing fixtures |
-| File-size budgets | `repository-structure-policy.json` | Maintained path classes or baselines change | `npm run lint:file-size` |
-| Repository roots and units | `repository-structure-policy.json` | Source root, unit, entrypoint, or target layout changes | `npm run lint:architecture` |
-| Rust graph and technology ownership | `validation/repository_architecture_contract.json` | Rust member, edge, dependency owner, or retired path changes | `npm run lint:architecture` |
-| Architecture projection | `ARCHITECTURE.md` | Either executable architecture owner changes | `npm run lint:architecture` |
+| File-size budgets | `scripts/harness/contracts/repository-structure.json` | Maintained path classes or baselines change | `npm run lint:file-size` |
+| Repository roots and units | `scripts/harness/contracts/repository-structure.json` | Source root, unit, entrypoint, or target layout changes | `npm run lint:architecture` |
+| Rust graph and technology ownership | `scripts/harness/contracts/architecture.json` | Rust member, edge, dependency owner, or retired path changes | `npm run lint:architecture` |
+| Architecture projection | `docs/architecture/repository.md` | Either executable architecture owner changes | `npm run lint:architecture` |
 | Evidence | `docs/harness/evidence/` | A durable transition uses fresh results | state validator |
 | Sensor registry | `docs/harness/harness-map.md` | A repeated sensor is added or retired | review and harness tests |
 
 `docs/plans/` owns detailed execution plans, not current state. Compatibility
-status files may point to root state but may not copy it.
+status files may point to canonical state but may not copy it.
 
 ## Fixed Startup
 
 1. Confirm the repository root.
-2. Read `PROGRESS.md` and `feature_list.json`.
+2. Read `docs/harness/current-status.md` and `scripts/harness/state/feature-list.json`.
 3. Review recent commits and the dirty working tree.
 4. Run `./init.sh` on macOS or Linux, or `pwsh -File ./init.ps1` on Windows.
 5. Repair a failed baseline before adding scope.
@@ -52,7 +52,7 @@ states are `not_started`, `active`, `blocked`, and `passing`.
 - `passing` requires an existing evidence pointer and is irreversible.
 - A later regression creates a new corrective feature.
 - `blocked` requires a blocker and a next trigger.
-- `PROGRESS.md` must name the same active feature, status, and update date as the
+- `docs/harness/current-status.md` must name the same active feature, status, and update date as the
   ledger.
 - Long command output, screenshots, and history stay under
   `docs/harness/evidence/`, not in startup files.
@@ -76,7 +76,7 @@ Unknown paths select the full lane.
 ## Hosted Workflows
 
 Hosted continuous integration is disabled under the named
-`pre-alpha-private-no-ci` user exception in `harness-manifest.json`. The exception
+`pre-alpha-private-no-ci` user exception in `scripts/harness/contracts/harness.json`. The exception
 is a deliberate nonconformance because `harness-engineering` defines no private
 or pre-alpha CI waiver. The harness rejects push, pull-request, merge-group, and
 scheduled workflow triggers while the exception is active.
@@ -109,7 +109,7 @@ new measured reason.
 ## Clean Completion
 
 Completion requires applicable build, static, unit, integration, and runtime
-evidence; synchronized root state; removed temporary artifacts; an understood
+evidence; synchronized canonical state; removed temporary artifacts; an understood
 working tree; and a runnable standard init path. Missing evidence remains a gap.
 See `completion-gate.md` for the checklist and `verification-matrix.md` for exact
 lanes.

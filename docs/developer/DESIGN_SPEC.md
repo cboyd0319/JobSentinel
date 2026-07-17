@@ -1,6 +1,6 @@
 # Design Spec Compatibility Pointer
 
-Root [DESIGN.md](../../DESIGN.md) is the canonical design-system source for
+[Design System](../design/design-system.md) is the canonical design-system source for
 JobSentinel.
 
 The maintained product design spec lives at

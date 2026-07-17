@@ -59,13 +59,13 @@ test("live harness satisfies the canonical semantic contract", () => {
 });
 
 test("harness manifest names one owner per required subsystem and retired paths", () => {
-  const manifest = readJson("harness-manifest.json");
+  const manifest = readJson("scripts/harness/contracts/harness.json");
   assert.equal(manifest.schema_version, 1);
   assert.deepEqual(Object.keys(manifest.owners).sort(), [
     "architecture", "environment", "feedback", "instructions", "state", "tools",
   ]);
-  assert.ok(manifest.required_pack.includes("PROGRESS.md"));
-  assert.ok(manifest.required_pack.includes("feature_list.json"));
+  assert.ok(manifest.required_pack.includes("docs/harness/current-status.md"));
+  assert.ok(manifest.required_pack.includes("scripts/harness/state/feature-list.json"));
   assert.ok(manifest.required_pack.includes("init.sh"));
   assert.ok(manifest.required_pack.includes("init.ps1"));
   assert.ok(manifest.retired_commands.includes("harness:score"));
@@ -115,7 +115,7 @@ test("hosted workflow policy accepts only the exact active no-CI exception", () 
       "docs/developer/CI_CD.md",
       "# Verification\n\nNo hosted continuous integration is configured.\n",
     );
-    const liveManifest = readJson("harness-manifest.json");
+    const liveManifest = readJson("scripts/harness/contracts/harness.json");
     const violations = [];
     validateHostedWorkflows(
       fixtureRoot,
@@ -142,7 +142,7 @@ test("hosted workflow policy rejects automatic CI while the exception is active"
       ".github/workflows/rogue.yml",
       "name: Rogue\non:\n  pull_request:\njobs: {}\n",
     );
-    const liveManifest = readJson("harness-manifest.json");
+    const liveManifest = readJson("scripts/harness/contracts/harness.json");
     const violations = [];
     validateHostedWorkflows(
       fixtureRoot,
@@ -164,7 +164,7 @@ test("hosted workflow policy rejects stale current CI documentation", () => {
       "docs/developer/TESTING.md",
       "# Testing\n\nTests run in CI with two retries.\n",
     );
-    const liveManifest = readJson("harness-manifest.json");
+    const liveManifest = readJson("scripts/harness/contracts/harness.json");
     const violations = [];
     validateHostedWorkflows(
       fixtureRoot,
@@ -206,10 +206,10 @@ test("feature validator rejects ambiguous, unsupported, and unevidenced state", 
 
 test("progress markers must agree with the feature ledger", () => {
   withFixture((fixtureRoot) => {
-    writeFixtureFile(fixtureRoot, "feature_list.json", `${JSON.stringify(validFeatureList(), null, 2)}\n`);
+    writeFixtureFile(fixtureRoot, "scripts/harness/state/feature-list.json", `${JSON.stringify(validFeatureList(), null, 2)}\n`);
     writeFixtureFile(
       fixtureRoot,
-      "PROGRESS.md",
+      "docs/harness/current-status.md",
       "# Progress\n\nLast updated: 2026-07-13\n\n- Active feature: `wrong`\n- Status: `active`\n",
     );
     const violations = collectStateViolations(fixtureRoot).join("\n");
@@ -230,7 +230,7 @@ test("feature privacy labels cover shipped external AI requests", () => {
 });
 
 test("canonical state and manifest contain no local home paths", () => {
-  const text = ["PROGRESS.md", "feature_list.json", "harness-manifest.json"]
+  const text = ["docs/harness/current-status.md", "scripts/harness/state/feature-list.json", "scripts/harness/contracts/harness.json"]
     .map((path) => readFileSync(path, "utf8"))
     .join("\n");
   assert.doesNotMatch(text, /(?:\/Users\/[^/<\s]+\/|[A-Za-z]:\\Users\\[^\\<\s]+\\)/);

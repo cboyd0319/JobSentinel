@@ -350,10 +350,10 @@ export function checkAgentSkills(root = repoRoot) {
 
   let discoveryBudget;
   try {
-    const manifest = JSON.parse(readFileSync(join(root, "harness-manifest.json"), "utf8"));
+    const manifest = JSON.parse(readFileSync(join(root, "scripts/harness/contracts/harness.json"), "utf8"));
     discoveryBudget = manifest.owners?.tools?.skill_discovery;
   } catch (error) {
-    errors.push(`harness-manifest.json must own the skill discovery budget: ${error instanceof Error ? error.message : String(error)}`);
+    errors.push(`scripts/harness/contracts/harness.json must own the skill discovery budget: ${error instanceof Error ? error.message : String(error)}`);
   }
   const totalDescriptionBytes = skillDirs.reduce((total, skillDir) => {
     const path = join(skillsRoot, skillDir, "SKILL.md");
@@ -362,7 +362,7 @@ export function checkAgentSkills(root = repoRoot) {
     return total + Buffer.byteLength(frontmatter?.fields.get("description") ?? "");
   }, 0);
   if (!/^20\d{2}-\d{2}-\d{2}$/.test(String(discoveryBudget?.baseline_date ?? "")) || !Number.isInteger(discoveryBudget?.baseline_packages) || typeof discoveryBudget?.reason !== "string" || !discoveryBudget.reason.trim()) {
-    errors.push("harness-manifest.json skill discovery budget requires a measured baseline date, package count, and reason");
+    errors.push("scripts/harness/contracts/harness.json skill discovery budget requires a measured baseline date, package count, and reason");
   }
   if (!Number.isInteger(discoveryBudget?.max_total_description_bytes) || totalDescriptionBytes > discoveryBudget.max_total_description_bytes) {
     errors.push(`skill discovery descriptions use ${totalDescriptionBytes} bytes; measured budget is ${String(discoveryBudget?.max_total_description_bytes)}`);

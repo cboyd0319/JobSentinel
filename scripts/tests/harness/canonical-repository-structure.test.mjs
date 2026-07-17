@@ -15,12 +15,12 @@ function write(root, path, content = "") {
 function basePolicy(overrides = {}) {
   const structure = {
     allowed_source_roots: ["src"],
-    allowed_configuration_roots: ["validation"],
+    allowed_configuration_roots: ["docs", "scripts/harness/contracts"],
     allowed_root_source_files: [],
-    allowed_root_configuration_files: ["package.json", "repository-structure-policy.json"],
-    allowed_root_files: ["ARCHITECTURE.md", "package.json", "repository-structure-policy.json"],
+    allowed_root_configuration_files: ["package.json"],
+    allowed_root_files: ["package.json"],
     allowed_standalone_source_files: [],
-    allowed_top_level_directories: ["src", "validation"],
+    allowed_top_level_directories: ["docs", "scripts", "src"],
     units: [{ id: "web", root: "src", manifest: "package.json", public_entrypoint: "src/main.ts", kind: "deployable" }],
     architecture_check: "npm run lint:architecture",
     source_limit_check: "npm run lint:file-size",
@@ -33,7 +33,7 @@ function basePolicy(overrides = {}) {
     source_limits: { review_lines: 300, hard_lines: 500, review_bytes: 32768, hard_bytes: 65536 },
     included_extensions: [".json", ".ts"],
     structure,
-    projections: { file_coverage: "validation/file_size_contract.json" },
+    projections: { file_coverage: "scripts/harness/contracts/file-size.json" },
     non_hand_authored_exclusions: [],
     exceptions: [],
     ...overrides,
@@ -44,11 +44,11 @@ function basePolicy(overrides = {}) {
 function withFixture(callback, overrides = {}) {
   const root = mkdtempSync(join(tmpdir(), "jobsentinel-structure-"));
   try {
-    write(root, "ARCHITECTURE.md", "# Architecture\n");
+    write(root, "docs/architecture/repository.md", "# Repository Architecture\n");
     write(root, "package.json", "{}\n");
     write(root, "src/main.ts", "export {};\n");
-    write(root, "validation/architecture.json", '{"architecture_doc":"ARCHITECTURE.md"}\n');
-    write(root, "repository-structure-policy.json", `${JSON.stringify(basePolicy(overrides), null, 2)}\n`);
+    write(root, "scripts/harness/contracts/architecture.json", '{"architecture_doc":"docs/architecture/repository.md"}\n');
+    write(root, "scripts/harness/contracts/repository-structure.json", `${JSON.stringify(basePolicy(overrides), null, 2)}\n`);
     callback(root);
   } finally {
     rmSync(root, { recursive: true, force: true });
@@ -57,11 +57,11 @@ function withFixture(callback, overrides = {}) {
 
 function check(root, extraFiles = []) {
   const files = [
-    "ARCHITECTURE.md",
+    "docs/architecture/repository.md",
     "package.json",
-    "repository-structure-policy.json",
+    "scripts/harness/contracts/repository-structure.json",
     "src/main.ts",
-    "validation/architecture.json",
+    "scripts/harness/contracts/architecture.json",
     ...extraFiles,
   ];
   return collectCanonicalRepositoryStructureViolations(root, {
@@ -71,6 +71,10 @@ function check(root, extraFiles = []) {
 
 test("canonical repository structure accepts declared roots, units, and entrypoints", () => {
   withFixture((root) => assert.deepEqual(check(root), []));
+});
+
+test("canonical repository structure ignores paths deleted from the working tree", () => {
+  withFixture((root) => assert.deepEqual(check(root, ["removed.ts"]), []));
 });
 
 test("canonical repository structure rejects an unclassified root file", () => {
@@ -91,7 +95,7 @@ test("canonical repository structure classifies governed C# as source", () => {
   withFixture((root) => {
     const policy = basePolicy({ included_extensions: [".cs", ".json", ".ts"] });
     write(root, "docs/rogue.cs", "public class Rogue {}\n");
-    write(root, "repository-structure-policy.json", `${JSON.stringify(policy, null, 2)}\n`);
+    write(root, "scripts/harness/contracts/repository-structure.json", `${JSON.stringify(policy, null, 2)}\n`);
     assert.match(check(root, ["docs/rogue.cs"]).join("\n"), /move hand-authored source into an approved source root/);
   });
 });
@@ -104,7 +108,7 @@ test("canonical repository structure rejects missing unit manifests", () => {
         { id: "two", root: "src", manifest: "package.json", public_entrypoint: "src/main.ts", kind: "reusable" },
       ],
     } });
-    write(root, "repository-structure-policy.json", `${JSON.stringify(policy, null, 2)}\n`);
+    write(root, "scripts/harness/contracts/repository-structure.json", `${JSON.stringify(policy, null, 2)}\n`);
     const violations = check(root).join("\n");
     assert.match(violations, /manifest does not exist/);
   });
@@ -116,7 +120,7 @@ test("generated content cannot be excluded inside a hand-authored source root", 
       non_hand_authored_exclusions: [{ path: "src/generated", category: "generated", owner: "tests", reason: "fixture" }],
     });
     write(root, "src/generated/output.ts", "export {};\n");
-    write(root, "repository-structure-policy.json", `${JSON.stringify(policy, null, 2)}\n`);
+    write(root, "scripts/harness/contracts/repository-structure.json", `${JSON.stringify(policy, null, 2)}\n`);
     assert.match(check(root, ["src/generated/output.ts"]).join("\n"), /outside hand-authored source roots/);
   });
 });
@@ -149,6 +153,9 @@ test("repository structure rejects junctions or symlinks escaping the root", () 
 
 test("repository structure rejects case collisions and Windows-reserved paths", () => {
   withFixture((root) => {
+    write(root, "src/Case.ts", "export {};\n");
+    write(root, "src/case.ts", "export {};\n");
+    write(root, "src/CON.ts", "export {};\n");
     const violations = check(root, ["src/Case.ts", "src/case.ts", "src/CON.ts"]).join("\n");
     assert.match(violations, /collide on case-insensitive or Unicode-normalizing filesystems/);
     assert.match(violations, /not portable to Windows and macOS: src\/CON\.ts/);

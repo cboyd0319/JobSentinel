@@ -36,7 +36,6 @@ const scannedExtensions = new Set([
 
 const scannedFileNames = new Set([
   ".env",
-  ".env.example",
   ".env.local",
   "Cargo.toml",
   "package-lock.json",

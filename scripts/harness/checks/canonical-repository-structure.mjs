@@ -4,8 +4,8 @@ import ts from "typescript";
 
 import { listGovernedFiles, normalizeRepoPath } from "./repo-file-size.mjs";
 
-const policyPath = "repository-structure-policy.json";
-const architecturePath = "ARCHITECTURE.md";
+const policyPath = "scripts/harness/contracts/repository-structure.json";
+const architecturePath = "docs/architecture/repository.md";
 const sourceExtensions = new Set([
   ".cjs", ".cs", ".css", ".hcl", ".js", ".jsx", ".mjs", ".php", ".ps1", ".py",
   ".rs", ".sh", ".sql", ".tf", ".ts", ".tsx",
@@ -208,7 +208,8 @@ export function collectCanonicalRepositoryStructureViolations(root, options = {}
   validateUnits(root, structure, violations);
   let files;
   try {
-    files = listGovernedFiles(root, options.execFileSync);
+    files = listGovernedFiles(root, options.execFileSync)
+      .filter((path) => existsSync(join(root, path)));
   } catch (error) {
     violations.push(`repository structure scan could not enumerate tracked and untracked nonignored files: ${error instanceof Error ? error.message : String(error)}`);
     return violations;

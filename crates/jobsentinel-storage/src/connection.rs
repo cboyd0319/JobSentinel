@@ -4,7 +4,10 @@
 
 mod backups;
 
-use sqlx::{sqlite::SqlitePool, Row};
+use sqlx::{
+    sqlite::{SqlitePool, SqlitePoolOptions},
+    Row,
+};
 use std::path::PathBuf;
 
 use super::encryption::{
@@ -398,7 +401,10 @@ impl Database {
     /// Connect to in-memory SQLite database (for testing)
     /// Available in test builds and for integration tests
     pub async fn connect_memory() -> Result<Self, sqlx::Error> {
-        let pool = SqlitePool::connect("sqlite::memory:").await?;
+        let pool = SqlitePoolOptions::new()
+            .max_connections(1)
+            .connect("sqlite::memory:")
+            .await?;
         // Apply pragmas that are compatible with in-memory SQLite.
         // WAL journal mode, mmap_size, auto_vacuum, and WAL checkpointing
         // do not work with in-memory databases and are intentionally skipped.

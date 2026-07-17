@@ -14,7 +14,7 @@ export function oversizedLine(path) {
 export function writeCanonicalFileSizePolicy(root) {
   writeFixtureFile(
     root,
-    "repository-structure-policy.json",
+    "scripts/harness/contracts/repository-structure.json",
     `${JSON.stringify({
       schema_version: 1,
       source_limits: {
@@ -30,10 +30,10 @@ export function writeCanonicalFileSizePolicy(root) {
   );
   writeFixtureFile(
     root,
-    "validation/file_size_contract.json",
+    "scripts/harness/contracts/file-size.json",
     `${JSON.stringify({
       schema: "jobsentinel.file_size_contract.v3",
-      projection_of: "repository-structure-policy.json",
+      projection_of: "scripts/harness/contracts/repository-structure.json",
       coverage: { extensions: [".rs", ".ts", ".tsx"], filenames: [] },
       scopes: [
         {

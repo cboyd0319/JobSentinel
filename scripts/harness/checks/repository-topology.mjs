@@ -8,7 +8,7 @@ import {
 } from "../../lib/rust-toolchain.mjs";
 
 export const repositoryArchitectureContractPath =
-  "validation/repository_architecture_contract.json";
+  "scripts/harness/contracts/architecture.json";
 export const repositoryArchitectureContractSchema =
   "jobsentinel.repository_architecture.v2";
 

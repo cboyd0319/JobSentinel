@@ -30,7 +30,6 @@ const technicalFirstUserCopyPaths = new Set([
   ".github/ISSUE_TEMPLATE/question.yml",
   ".github/ISSUE_TEMPLATE/scraper_issue.yml",
   "docs/ROADMAP.md",
-  "examples/profiles/README.md",
   "README.md",
   "docs/features/browser-import.md",
   "src/features/settings/sources/browser-import/BrowserImportControls.tsx",

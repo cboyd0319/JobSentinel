@@ -30,7 +30,7 @@ skill to get value.
 | --- | --- | --- |
 | Job seeker | [Quick Start](user/QUICK_START.md) | Install, set up, and get help without technical setup. |
 | Support request | [Safe support reports](features/user-data-management.md) | Save or copy a safe support report locally, review it, and share it only if you want help. |
-| Design reviewer | [DESIGN.md](../DESIGN.md), [Design Spec](design/design-spec.md), [Style Guide](style-guide/README.md), [Frontend Testing](developer/FRONTEND_TESTING.md) | Review visual direction, UI tone, accessibility checks, and responsive expectations. |
+| Design reviewer | [Design System](design/design-system.md), [Design Spec](design/design-spec.md), [Style Guide](style-guide/README.md), [Frontend Testing](developer/FRONTEND_TESTING.md) | Review visual direction, UI tone, accessibility checks, and responsive expectations. |
 | Privacy reviewer | [Privacy](../PRIVACY.md), [Responsible AI](../RESPONSIBLE_AI.md), [AI gateway](architecture/privacy-first-ai-gateway.md) | Review data boundaries and external-AI gates. |
 | Research or grant reviewer | [Research notes](research/README.md), [public roadmap](../ROADMAP.md), [v3 planning](plans/v3/README.md), [current plan](plans/active/current-work.md) | Review evidence, evaluation boundaries, product pillars, and major-release ideas. |
 | Contributor | [Getting Started](developer/GETTING_STARTED.md), [Architecture](developer/ARCHITECTURE.md), [Testing](developer/TESTING.md) | Build, understand, and verify the app. |
@@ -106,7 +106,7 @@ The maintained external source index lives in
 | Need | Doc |
 | --- | --- |
 | Design docs hub | [Design Docs](design/README.md) |
-| Design-system source | [DESIGN.md](../DESIGN.md) |
+| Design-system source | [Design System](design/design-system.md) |
 | Product design spec | [Design Spec](design/design-spec.md) |
 | UI writing style | [Style Guide](style-guide/README.md) |
 | Frontend verification | [Frontend Testing](developer/FRONTEND_TESTING.md) |
@@ -142,6 +142,7 @@ profiles by default. Real user data requires explicit informed consent.
 | Local development setup | [Getting Started](developer/GETTING_STARTED.md) |
 | Architecture map | [Architecture](developer/ARCHITECTURE.md) |
 | Core module inventory | [Core Architecture](developer/ARCHITECTURE_CORE.md) |
+| Stored configuration example | [config.example.json](examples/config.example.json) |
 | Test strategy and commands | [Testing](developer/TESTING.md) |
 | Contributing workflow | [Contributing](developer/CONTRIBUTING.md) |
 | Release process | [Releasing](developer/RELEASING.md) |

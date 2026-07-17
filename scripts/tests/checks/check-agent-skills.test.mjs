@@ -74,7 +74,8 @@ test("downloadable skills use a measured discovery-byte budget, not a package-co
   const root = mkdtempSync(join(tmpdir(), "jobsentinel-skill-coverage-"));
   mkdirSync(join(root, "skills"), { recursive: true });
   writeSkill(root, "one");
-  writeFileSync(join(root, "harness-manifest.json"), JSON.stringify({
+  mkdirSync(join(root, "scripts/harness/contracts"), { recursive: true });
+  writeFileSync(join(root, "scripts/harness/contracts/harness.json"), JSON.stringify({
     owners: { tools: { skill_discovery: { max_total_description_bytes: 10 } } },
   }));
 

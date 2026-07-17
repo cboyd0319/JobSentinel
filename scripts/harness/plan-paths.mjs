@@ -30,9 +30,9 @@ export function classifyVerificationPath(inputPath) {
     ["PRIVACY.md", "RESPONSIBLE_AI.md", "SECURITY.md", "deny.toml"].includes(path);
   const isSkills = path.startsWith("skills/");
   const isHarness =
-    [".gitattributes", "AGENTS.md", "ARCHITECTURE.md", "PROGRESS.md", "feature_list.json", "harness-manifest.json", "init.sh", "init.ps1", "repository-structure-policy.json"].includes(path) ||
+    [".gitattributes", "AGENTS.md", "docs/architecture/repository.md", "docs/harness/current-status.md", "scripts/harness/state/feature-list.json", "scripts/harness/contracts/harness.json", "init.sh", "init.ps1", "scripts/harness/contracts/repository-structure.json"].includes(path) ||
     path.startsWith("docs/harness/") || path.startsWith("docs/plans/") ||
-    path.startsWith("validation/") || path.startsWith(".github/workflows/") || isScript;
+    path.startsWith(".github/workflows/") || isScript;
 
   if (isDocs) flags.add("docs");
   if (isScript) flags.add("scripts");
@@ -48,17 +48,16 @@ export function classifyVerificationPath(inputPath) {
   }
 
   const knownTopLevel = [
-    ".cargo/", ".github/", ".husky/", ".sqlx/", ".storybook/", ".vale/", "config/",
-    "crates/", "docs/", "examples/", "profiles/", "public/", "resources/", "scripts/",
-    "skills/", "src/", "src-tauri/", "tests/", "validation/",
+    ".cargo/", ".claude/", ".github/", ".husky/", ".sqlx/", ".storybook/", ".vale/",
+    "crates/", "docs/", "public/", "resources/", "scripts/", "skills/", "src/", "src-tauri/", "tests/",
   ].some((prefix) => path.startsWith(prefix));
   const knownRoot = new Set([
-    ".claudeignore", ".env.example", ".gitattributes", ".gitignore", ".lintstagedrc.json", ".markdownlint.json",
-    ".nvmrc", ".vale.ini", "AGENTS.md", "ARCHITECTURE.md", "Cargo.lock", "Cargo.toml", "CHANGELOG.md",
-    "CLAUDE.md", "CODE_OF_CONDUCT.md", "DESIGN.md", "LICENSE", "PRIVACY.md", "PROGRESS.md",
+    ".claudeignore", ".gitattributes", ".gitignore", ".lintstagedrc.json", ".markdownlint.json",
+    ".nvmrc", ".vale.ini", "AGENTS.md", "Cargo.lock", "Cargo.toml", "CHANGELOG.md",
+    "CLAUDE.md", "CODE_OF_CONDUCT.md", "LICENSE", "PRIVACY.md",
     "README.md", "RESPONSIBLE_AI.md", "ROADMAP.md", "SECURITY.md", "clippy.toml", "deny.toml",
-    "eslint.config.js", "feature_list.json", "harness-manifest.json", "index.html", "init.ps1", "init.sh", "models.lock.toml",
-    "package-lock.json", "package.json", "playwright.config.ts", "postcss.config.js", "repository-structure-policy.json",
+    "eslint.config.js", "index.html", "init.ps1", "init.sh",
+    "package-lock.json", "package.json", "playwright.config.ts", "postcss.config.js",
     "rust-toolchain.toml", "tailwind.config.js", "tsconfig.json", "tsconfig.node.json",
     "vite.config.ts", "vitest.config.ts",
   ]).has(path);

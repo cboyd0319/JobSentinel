@@ -1,42 +1,11 @@
 export function hasBroadAudienceProfileExampleDrift(path, text) {
-  if (path === "examples/config/config.example.json") {
+  if (path === "docs/examples/config.example.json") {
     const configExamplePatterns = [
       /"preferred_companies":\s*\[[^\]]*"Google"[^\]]*"Cloudflare"[^\]]*"GitHub"/is,
       /"_profiles_available":\s*"[^"]*software-engineering,\s*seo-digital-marketing/is,
     ];
 
     if (configExamplePatterns.some((pattern) => pattern.test(text))) {
-      return true;
-    }
-  }
-
-  if (path === "examples/profiles/README.md") {
-    const firstProfileRow = text.match(/\|\s*\*\*[^*]+\*\*\s*\|[^\n]+/);
-    if (
-      firstProfileRow &&
-      /Software Engineering|Cybersecurity|Data Science/i.test(
-        firstProfileRow[0],
-      )
-    ) {
-      return true;
-    }
-  }
-
-  if (
-    path === "examples/profiles/content-copywriting.json" ||
-    path === "examples/profiles/finance-accounting.json" ||
-    path === "examples/profiles/hr-recruiting.json" ||
-    path === "examples/profiles/product-management.json" ||
-    path === "examples/profiles/project-operations.json" ||
-    path === "examples/profiles/seo-digital-marketing.json" ||
-    path === "examples/profiles/sales-business-dev.json" ||
-    path === "examples/profiles/ux-design.json"
-  ) {
-    const profileSeedPatterns = [
-      /"(?:greenhouse_urls|lever_urls)"\s*:\s*\[[^\]]*"https?:\/\//is,
-    ];
-
-    if (profileSeedPatterns.some((pattern) => pattern.test(text))) {
       return true;
     }
   }

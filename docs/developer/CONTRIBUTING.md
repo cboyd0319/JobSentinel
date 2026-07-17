@@ -33,7 +33,7 @@ Before committing, ask: "Did I update all relevant docs?"
 
 Use the current maintainable file-size policy in
 [Harness Engineering](../harness/README.md). The enforceable caps live in
-`validation/file_size_contract.json`, and `npm run lint:bloat` fails when a
+`scripts/harness/contracts/file-size.json`, and `npm run lint:bloat` fails when a
 tracked file exceeds its scope cap or an exception grows past its frozen limit.
 
 **Test organization:** Move test modules to separate `tests.rs` files when

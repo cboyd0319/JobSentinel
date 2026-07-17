@@ -31,7 +31,7 @@ export function hasNoAccountMacosReleaseOrder(releaseWorkflow) {
       "shasum -a 256",
       "while IFS= read -r asset; do",
       "gh release delete-asset",
-      "cp target/${{ matrix.target }}/release/bundle/dmg/*.dmg.sha256 release-assets/public/",
+      "release/bundle/dmg/*.dmg.sha256 release-assets/public/",
       "npm run release:sbom",
       "--require-artifacts",
       "subject-path: release-assets/public/*",
@@ -121,9 +121,12 @@ export function releaseAssetUploadsStayDraft(releaseWorkflow) {
         hasAll(commonUpload, [
           "GH_TOKEN: ${{ github.token }}",
           "GH_REPO: ${{ github.repository }}",
-          "RELEASE_TAG: ${{ needs.create-release.outputs.tag }}",
           "assets=(release-assets/public/*)",
           'gh release upload "$RELEASE_TAG" "${assets[@]}" --clobber',
+        ]) &&
+        hasAny(commonUpload, [
+          "RELEASE_TAG: ${{ needs.create-release.outputs.tag }}",
+          "RELEASE_TAG: ${{ inputs.tag }}",
         ]))
     );
   }
@@ -141,10 +144,13 @@ export function releasePublishesAfterSuccessfulUploads(releaseWorkflow) {
     hasAll(publishStep, [
       "GH_TOKEN: ${{ github.token }}",
       "GH_REPO: ${{ github.repository }}",
-      "RELEASE_TAG: ${{ needs.create-release.outputs.tag }}",
       'gh release edit "$RELEASE_TAG"',
       "--draft=false",
       "--prerelease=false",
+    ]) &&
+    hasAny(publishStep, [
+      "RELEASE_TAG: ${{ needs.create-release.outputs.tag }}",
+      "RELEASE_TAG: ${{ needs.release-inputs.outputs.tag }}",
     ])
   );
 }

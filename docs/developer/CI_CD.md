@@ -1,7 +1,7 @@
 # Local Verification And Hosted Releases
 
 JobSentinel has no hosted continuous integration during private pre-alpha
-development. `harness-manifest.json` owns the named
+development. `scripts/harness/contracts/harness.json` owns the named
 `pre-alpha-private-no-ci` user exception and the exact canonical requirements it
 overrides. The installed `harness-engineering` standard defines no matching
 private-repository exception, so this repository must not claim full canonical
@@ -73,6 +73,6 @@ cross-shell evidence only.
 
 - Invalid comparison bases and owner maps fail closed with a useful error.
 - A hard-limit failure requires a cohesive split or a complete exact-path
-  temporary ratchet in `repository-structure-policy.json`.
+  temporary ratchet in `scripts/harness/contracts/repository-structure.json`.
 - A hook bypass leaves a local verification gap because no CI backstop exists.
 - A native platform check that did not run must remain recorded as a gap.

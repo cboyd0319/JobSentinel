@@ -4,10 +4,8 @@ use anyhow::{Context, Result};
 use sha2::{Digest, Sha256};
 use std::collections::BTreeMap;
 
-const MODEL_LOCK_TOML: &str = include_str!(concat!(
-    env!("CARGO_MANIFEST_DIR"),
-    "/../../models.lock.toml"
-));
+const MODEL_LOCK_TOML: &str =
+    include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/models.lock.toml"));
 
 #[derive(Debug, Clone, serde::Deserialize)]
 pub struct ModelManifest {

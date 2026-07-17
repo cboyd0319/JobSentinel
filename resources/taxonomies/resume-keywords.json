@@ -1,1540 +1,294 @@
 {
   "schemaVersion": 1,
-  "humanLanguages": [
-    "spanish",
-    "french",
-    "mandarin",
-    "cantonese",
-    "arabic",
-    "portuguese",
-    "german",
-    "japanese",
-    "korean"
-  ],
-  "bulletPowerWords": [
-    "led",
-    "managed",
-    "directed",
-    "coordinated",
-    "supervised",
-    "mentored",
-    "trained",
-    "achieved",
-    "accomplished",
-    "delivered",
-    "exceeded",
-    "surpassed",
-    "completed",
-    "developed",
-    "created",
-    "designed",
-    "built",
-    "implemented",
-    "launched",
-    "established",
-    "improved",
-    "optimized",
-    "enhanced",
-    "streamlined",
-    "modernized",
-    "automated",
-    "refactored",
-    "increased",
-    "reduced",
-    "decreased",
-    "saved",
-    "generated",
-    "accelerated",
-    "analyzed",
-    "researched",
-    "evaluated",
-    "assessed",
-    "investigated",
-    "identified",
-    "collaborated",
-    "partnered",
-    "contributed",
-    "participated",
-    "supported",
-    "facilitated"
-  ],
+  "humanLanguages": ["spanish","french","mandarin","cantonese","arabic","portuguese","german","japanese","korean"],
+  "bulletPowerWords": ["led","managed","directed","coordinated","supervised","mentored","trained","achieved","accomplished","delivered","exceeded","surpassed","completed","developed","created","designed","built","implemented","launched","established","improved","optimized","enhanced","streamlined","modernized","automated","refactored","increased","reduced","decreased","saved","generated","accelerated","analyzed","researched","evaluated","assessed","investigated","identified","collaborated","partnered","contributed","participated","supported","facilitated"],
   "physicalWeightRequirements": {
     "optionalAmountPrefixPattern": "(?:\\s+up\\s+to)?",
     "unitPattern": "(?:lbs?|pounds?)",
-    "searchUnits": ["lb", "lbs", "pound", "pounds"],
+    "searchUnits": ["lb","lbs","pound","pounds"],
     "families": [
-      {
-        "id": "lift_and_carry",
-        "requirementPattern": "lift\\s*(?:and/or|and|or|/)\\s*carry",
-        "evidencePrefixes": ["lift and carry", "lifting and carrying", "lifted and carried"]
-      },
-      {
-        "id": "lift",
-        "requirementPattern": "lift",
-        "evidencePrefixes": ["lift", "lifting", "lifted", "lift up to"]
-      },
-      {
-        "id": "carry",
-        "requirementPattern": "carry",
-        "evidencePrefixes": ["carry", "carrying", "carried"]
-      },
-      {
-        "id": "push_and_pull",
-        "requirementPattern": "push\\s*(?:and/or|and|or|/)\\s*pull",
-        "evidencePrefixes": ["push and pull", "pushing and pulling", "pushed and pulled"]
-      },
-      {
-        "id": "push",
-        "requirementPattern": "push",
-        "evidencePrefixes": ["push", "pushing", "pushed"]
-      },
-      {
-        "id": "pull",
-        "requirementPattern": "pull",
-        "evidencePrefixes": ["pull", "pulling", "pulled"]
-      }
+      {"id":"lift_and_carry","requirementPattern":"lift\\s*(?:and/or|and|or|/)\\s*carry","evidencePrefixes":["lift and carry","lifting and carrying","lifted and carried"]},
+      {"id":"lift","requirementPattern":"lift","evidencePrefixes":["lift","lifting","lifted","lift up to"]},
+      {"id":"carry","requirementPattern":"carry","evidencePrefixes":["carry","carrying","carried"]},
+      {"id":"push_and_pull","requirementPattern":"push\\s*(?:and/or|and|or|/)\\s*pull","evidencePrefixes":["push and pull","pushing and pulling","pushed and pulled"]},
+      {"id":"push","requirementPattern":"push","evidencePrefixes":["push","pushing","pushed"]},
+      {"id":"pull","requirementPattern":"pull","evidencePrefixes":["pull","pulling","pulled"]}
     ]
   },
   "conservativeSearchTermGroups": [
-    ["crm", "customer relationship management"],
-    ["security clearance", "clearance"],
-    ["us citizenship", "u.s. citizenship", "us citizen", "u.s. citizen"],
-    ["work authorization", "authorized to work"],
-    [
-      "customer service",
-      "customer support",
-      "client service",
-      "client services",
-      "client support",
-      "guest service",
-      "guest services"
-    ],
-    ["case management", "case coordination"],
-    ["scheduling", "calendar management", "appointment setting"],
-    ["onboarding", "new hire orientation", "employee orientation"],
-    ["training", "trained", "staff training", "employee training", "team training"],
-    ["quality assurance", "qa"],
-    ["front desk", "front-desk", "reception", "receptionist"],
-    ["cash handling", "cashier"],
-    ["point of sale", "pos system", "pos systems"],
-    ["buy online pick up in store", "buy online pickup in store", "bopis", "store pickup", "in-store pickup"],
-    ["curbside pickup", "curbside order", "curbside orders"],
-    ["ship from store", "ship-from-store", "store fulfillment"],
-    ["planogram", "planograms", "visual merchandising"],
-    ["shrink", "shrinkage", "loss prevention"],
-    ["patient care", "patient-care"],
-    ["medical record", "medical records", "medical-record", "medical-records"],
-    ["care plan", "care plans", "care-plan", "care-plans"],
-    ["vital sign", "vital signs", "vital-sign", "vital-signs"],
-    ["medication administration", "medication-administration"],
-    ["data entry", "data-entry"],
-    ["data analysis", "data analytics", "data-analysis", "data-analytics", "analytics"],
-    ["student support", "student services"],
-    ["parent communication", "family communication", "guardian communication"],
-    ["bookkeeping", "bookkeeper"],
-    ["quickbooks", "qbo"],
-    ["accounts payable", "a/p"],
-    ["accounts receivable", "a/r"],
-    [
-      "inventory",
-      "inventory control",
-      "inventory management",
-      "stock control",
-      "stock management",
-      "stockroom"
-    ],
-    ["budgeting", "budget tracking"],
-    ["logistics", "shipping", "receiving", "shipping and receiving"],
-    ["procurement", "purchasing"],
-    ["vendor management", "supplier management"],
-    ["billing", "invoicing"],
-    ["onsite", "on-site", "on site"],
-    [
-      "remote",
-      "remote work",
-      "remote-work",
-      "remote role",
-      "remote position",
-      "remote job"
-    ],
-    [
-      "reliable internet",
-      "reliable internet connection",
-      "high-speed internet",
-      "high speed internet",
-      "home office",
-      "quiet workspace",
-      "dedicated workspace"
-    ],
-    ["hybrid", "hybrid work", "hybrid-work", "hybrid role", "hybrid schedule", "hybrid position", "hybrid job"],
-    ["relocation", "relocate", "willing to relocate"],
-    ["reliable transportation", "own transportation"],
-    ["reliable vehicle", "insured vehicle"],
-    [
-      "proof of auto insurance",
-      "proof of insurance",
-      "auto insurance",
-      "car insurance",
-      "vehicle insurance",
-      "insured vehicle"
-    ],
-    ["commute", "commuting"],
-    ["night shift", "overnight shift", "third shift", "3rd shift"],
-    ["weekend availability", "weekend shift", "weekend shifts"],
-    ["evening shift", "second shift", "2nd shift"],
-    ["day shift", "first shift", "1st shift"],
-    ["overtime availability", "overtime", "overtime shift", "overtime shifts"],
-    ["holiday availability", "holiday", "holiday shift", "holiday shifts"],
-    ["background check", "background checks", "background screening", "background screenings"],
-    ["pre-employment screening", "pre employment screening", "employment screening"],
-    ["drug screen", "drug screens", "drug screening", "drug test", "drug tests", "drug testing"],
-    ["availability", "available"],
-    ["full-time availability", "full time availability", "full-time", "full time"],
-    ["part-time availability", "part time availability", "part-time", "part time"],
-    [
-      "bilingual spanish",
-      "bilingual",
-      "spanish fluency",
-      "fluent spanish",
-      "fluent in spanish",
-      "spanish language",
-      "english/spanish",
-      "english and spanish"
-    ],
-    [
-      "clean driving record",
-      "acceptable driving record",
-      "driving record",
-      "mvr",
-      "motor vehicle record"
-    ],
-    [
-      "high school diploma",
-      "high-school diploma",
-      "high school degree",
-      "high-school degree",
-      "ged",
-      "high school equivalency",
-      "high-school equivalency",
-      "general education development"
-    ],
-    [
-      "associate's degree",
-      "associate degree",
-      "associate of applied science",
-      "associate of arts",
-      "associate of science",
-      "associates degree"
-    ],
-    [
-      "bachelor's degree",
-      "baccalaureate degree",
-      "bachelor degree",
-      "bachelors degree",
-      "bachelor of applied science",
-      "bachelor of arts",
-      "bachelor of business administration",
-      "bachelor of education",
-      "bachelor of engineering",
-      "bachelor of fine arts",
-      "bachelor of science",
-      "bachelor of social work"
-    ],
-    [
-      "master's degree",
-      "master degree",
-      "masters degree",
-      "master of arts",
-      "master of business administration",
-      "master of education",
-      "master of engineering",
-      "master of fine arts",
-      "master of science",
-      "master of social work"
-    ],
-    [
-      "phd",
-      "ph.d",
-      "ph.d.",
-      "phd degree",
-      "ph.d degree",
-      "ph.d. degree",
-      "doctorate",
-      "doctorate degree",
-      "doctoral degree"
-    ],
-    [
-      "stand for long period",
-      "stand for long periods",
-      "standing for long period",
-      "standing for long periods"
-    ],
-    ["climb ladder", "climb ladders", "climbing ladder", "climbing ladders"]
+    ["crm","customer relationship management"],
+    ["security clearance","clearance"],
+    ["us citizenship","u.s. citizenship","us citizen","u.s. citizen"],
+    ["work authorization","authorized to work"],
+    ["customer service","customer support","client service","client services","client support","guest service","guest services"],
+    ["case management","case coordination"],
+    ["scheduling","calendar management","appointment setting"],
+    ["onboarding","new hire orientation","employee orientation"],
+    ["training","trained","staff training","employee training","team training"],
+    ["quality assurance","qa"],
+    ["front desk","front-desk","reception","receptionist"],
+    ["cash handling","cashier"],
+    ["point of sale","pos system","pos systems"],
+    ["buy online pick up in store","buy online pickup in store","bopis","store pickup","in-store pickup"],
+    ["curbside pickup","curbside order","curbside orders"],
+    ["ship from store","ship-from-store","store fulfillment"],
+    ["planogram","planograms","visual merchandising"],
+    ["shrink","shrinkage","loss prevention"],
+    ["patient care","patient-care"],
+    ["medical record","medical records","medical-record","medical-records"],
+    ["care plan","care plans","care-plan","care-plans"],
+    ["vital sign","vital signs","vital-sign","vital-signs"],
+    ["medication administration","medication-administration"],
+    ["data entry","data-entry"],
+    ["data analysis","data analytics","data-analysis","data-analytics","analytics"],
+    ["student support","student services"],
+    ["parent communication","family communication","guardian communication"],
+    ["bookkeeping","bookkeeper"],
+    ["quickbooks","qbo"],
+    ["accounts payable","a/p"],
+    ["accounts receivable","a/r"],
+    ["inventory","inventory control","inventory management","stock control","stock management","stockroom"],
+    ["budgeting","budget tracking"],
+    ["logistics","shipping","receiving","shipping and receiving"],
+    ["procurement","purchasing"],
+    ["vendor management","supplier management"],
+    ["billing","invoicing"],
+    ["onsite","on-site","on site"],
+    ["remote","remote work","remote-work","remote role","remote position","remote job"],
+    ["reliable internet","reliable internet connection","high-speed internet","high speed internet","home office","quiet workspace","dedicated workspace"],
+    ["hybrid","hybrid work","hybrid-work","hybrid role","hybrid schedule","hybrid position","hybrid job"],
+    ["relocation","relocate","willing to relocate"],
+    ["reliable transportation","own transportation"],
+    ["reliable vehicle","insured vehicle"],
+    ["proof of auto insurance","proof of insurance","auto insurance","car insurance","vehicle insurance","insured vehicle"],
+    ["commute","commuting"],
+    ["night shift","overnight shift","third shift","3rd shift"],
+    ["weekend availability","weekend shift","weekend shifts"],
+    ["evening shift","second shift","2nd shift"],
+    ["day shift","first shift","1st shift"],
+    ["overtime availability","overtime","overtime shift","overtime shifts"],
+    ["holiday availability","holiday","holiday shift","holiday shifts"],
+    ["background check","background checks","background screening","background screenings"],
+    ["pre-employment screening","pre employment screening","employment screening"],
+    ["drug screen","drug screens","drug screening","drug test","drug tests","drug testing"],
+    ["availability","available"],
+    ["full-time availability","full time availability","full-time","full time"],
+    ["part-time availability","part time availability","part-time","part time"],
+    ["bilingual spanish","bilingual","spanish fluency","fluent spanish","fluent in spanish","spanish language","english/spanish","english and spanish"],
+    ["clean driving record","acceptable driving record","driving record","mvr","motor vehicle record"],
+    ["high school diploma","high-school diploma","high school degree","high-school degree","ged","high school equivalency","high-school equivalency","general education development"],
+    ["associate's degree","associate degree","associate of applied science","associate of arts","associate of science","associates degree"],
+    ["bachelor's degree","baccalaureate degree","bachelor degree","bachelors degree","bachelor of applied science","bachelor of arts","bachelor of business administration","bachelor of education","bachelor of engineering","bachelor of fine arts","bachelor of science","bachelor of social work"],
+    ["master's degree","master degree","masters degree","master of arts","master of business administration","master of education","master of engineering","master of fine arts","master of science","master of social work"],
+    ["phd","ph.d","ph.d.","phd degree","ph.d degree","ph.d. degree","doctorate","doctorate degree","doctoral degree"],
+    ["stand for long period","stand for long periods","standing for long period","standing for long periods"],
+    ["climb ladder","climb ladders","climbing ladder","climbing ladders"]
   ],
   "canonicalRequirementKeywordAliases": [
-    { "canonical": "bookkeeping", "terms": ["bookkeeper"] },
-    { "canonical": "quickbooks", "terms": ["qbo"] },
-    { "canonical": "accounts payable", "terms": ["a/p"] },
-    { "canonical": "accounts receivable", "terms": ["a/r"] },
-    { "canonical": "point of sale", "terms": ["pos system", "pos systems"] }
+    {"canonical":"bookkeeping","terms":["bookkeeper"]},
+    {"canonical":"quickbooks","terms":["qbo"]},
+    {"canonical":"accounts payable","terms":["a/p"]},
+    {"canonical":"accounts receivable","terms":["a/r"]},
+    {"canonical":"point of sale","terms":["pos system","pos systems"]}
   ],
-  "baseIndustryCatalogTerms": [
-    "agile",
-    "scrum",
-    "ci/cd",
-    "devops",
-    "microservices",
-    "rest",
-    "graphql",
-    "api",
-    "aws",
-    "azure",
-    "gcp",
-    "cloud",
-    "docker",
-    "kubernetes",
-    "serverless",
-    "sql",
-    "nosql",
-    "database",
-    "data pipeline",
-    "etl",
-    "data analysis",
-    "data analytics",
-    "analytics",
-    "customer service",
-    "client services",
-    "guest service",
-    "guest services",
-    "front desk",
-    "front-desk",
-    "reception",
-    "receptionist",
-    "case management",
-    "scheduling",
-    "intake",
-    "training",
-    "onboarding",
-    "new hire orientation",
-    "employee orientation",
-    "sales",
-    "account management",
-    "crm",
-    "payroll",
-    "bookkeeping",
-    "bookkeeper",
-    "quickbooks",
-    "qbo",
-    "accounts payable",
-    "accounts receivable",
-    "a/p",
-    "a/r",
-    "inventory",
-    "inventory control",
-    "inventory management",
-    "stock control",
-    "stock management",
-    "stockroom",
-    "logistics",
-    "procurement",
-    "purchasing",
-    "vendor management",
-    "supplier management",
-    "reporting",
-    "budgeting",
-    "budget tracking",
-    "compliance",
-    "quality assurance",
-    "data entry",
-    "excel",
-    "patient care",
-    "medication administration",
-    "vital signs",
-    "care plans",
-    "medical records",
-    "charting",
-    "lesson planning",
-    "classroom management",
-    "curriculum",
-    "iep",
-    "student support",
-    "student services",
-    "parent communication",
-    "family communication",
-    "guardian communication",
-    "forklift",
-    "welding",
-    "equipment maintenance",
-    "safety inspections",
-    "point of sale",
-    "pos system",
-    "pos systems",
-    "cash handling",
-    "cashier",
-    "store operations",
-    "order fulfillment",
-    "buy online pick up in store",
-    "bopis",
-    "store pickup",
-    "curbside pickup",
-    "ship from store",
-    "planogram",
-    "shrink",
-    "sales floor",
-    "stocking",
-    "returns",
-    "visual merchandising",
-    "loss prevention",
-    "public benefits",
-    "reconciliation",
-    "billing",
-    "invoicing",
-    "financial reporting",
-    "tdd",
-    "testing",
-    "automation",
-    "performance",
-    "scalability",
-    "security"
-  ],
+  "baseIndustryCatalogTerms": ["agile","scrum","ci/cd","devops","microservices","rest","graphql","api","aws","azure","gcp","cloud","docker","kubernetes","serverless","sql","nosql","database","data pipeline","etl","data analysis","data analytics","analytics","customer service","client services","guest service","guest services","front desk","front-desk","reception","receptionist","case management","scheduling","intake","training","onboarding","new hire orientation","employee orientation","sales","account management","crm","payroll","bookkeeping","bookkeeper","quickbooks","qbo","accounts payable","accounts receivable","a/p","a/r","inventory","inventory control","inventory management","stock control","stock management","stockroom","logistics","procurement","purchasing","vendor management","supplier management","reporting","budgeting","budget tracking","compliance","quality assurance","data entry","excel","patient care","medication administration","vital signs","care plans","medical records","charting","lesson planning","classroom management","curriculum","iep","student support","student services","parent communication","family communication","guardian communication","forklift","welding","equipment maintenance","safety inspections","point of sale","pos system","pos systems","cash handling","cashier","store operations","order fulfillment","buy online pick up in store","bopis","store pickup","curbside pickup","ship from store","planogram","shrink","sales floor","stocking","returns","visual merchandising","loss prevention","public benefits","reconciliation","billing","invoicing","financial reporting","tdd","testing","automation","performance","scalability","security"],
   "roleSpecificEvidencePrompts": [
-    {
-      "id": "healthcare",
-      "prompt": "healthcare evidence to check: scope of practice, patient safety, documentation, and required credentials",
-      "terms": [
-        "patient care",
-        "healthcare",
-        "nursing",
-        "rn license",
-        "registered nurse",
-        "lpn",
-        "cna",
-        "medication administration",
-        "clinical",
-        "medical record",
-        "vital sign",
-        "care plan",
-        "home health",
-        "hospital",
-        "clinic"
-      ]
-    },
-    {
-      "id": "trades_field",
-      "prompt": "trades-field evidence to check: equipment or tools used, safety rules, work orders, downtime or quality impact, and required licenses",
-      "terms": [
-        "maintenance technician",
-        "equipment repair",
-        "field service",
-        "forklift",
-        "osha",
-        "work order",
-        "work orders",
-        "installation",
-        "installer",
-        "hvac",
-        "plumbing",
-        "electrical",
-        "welding",
-        "machine operator",
-        "warehouse safety"
-      ]
-    },
-    {
-      "id": "career_change",
-      "prompt": "career-change evidence to check: transferable work, training, adjacent experience, scope, and truthful gaps or transitions",
-      "terms": [
-        "career change",
-        "career-change",
-        "career transition",
-        "career-transition",
-        "transitioning careers",
-        "returnship",
-        "return to work",
-        "transferable skills",
-        "transferable experience"
-      ]
-    },
-    {
-      "id": "early_career",
-      "prompt": "early-career evidence to check: training or coursework, projects or volunteer work, supervised responsibilities, transferable skills, and readiness to learn",
-      "terms": [
-        "entry-level",
-        "entry level",
-        "new graduate",
-        "new grad",
-        "recent graduate",
-        "trainee",
-        "apprentice",
-        "apprenticeship",
-        "internship"
-      ]
-    },
-    {
-      "id": "education_academic",
-      "prompt": "education-academic evidence to check: learner or research audience, standards or methods, outcomes, collaboration, and ethics",
-      "terms": [
-        "teaching",
-        "teacher",
-        "classroom",
-        "student",
-        "curriculum",
-        "lesson plan",
-        "instructional design",
-        "academic",
-        "faculty",
-        "university",
-        "school counselor",
-        "research methods",
-        "publication",
-        "thesis",
-        "dissertation"
-      ]
-    },
-    {
-      "id": "federal",
-      "prompt": "federal evidence to check: specialized experience, grade level, announcement duties, dates and hours, citizenship or clearance, and required documents",
-      "terms": [
-        "federal",
-        "usajobs",
-        "specialized experience",
-        "grade level",
-        "gs-",
-        "public trust",
-        "occupational series",
-        "job announcement",
-        "announcement number",
-        "required documents"
-      ]
-    },
-    {
-      "id": "regulated_work",
-      "prompt": "regulated-work evidence to check: records accuracy, deadlines, confidentiality, compliance, and audit trail",
-      "terms": [
-        "legal research",
-        "case files",
-        "case file",
-        "document review",
-        "records management",
-        "policy analysis",
-        "grant administration",
-        "financial reconciliation",
-        "loan processing",
-        "compliance",
-        "audit",
-        "government",
-        "public sector"
-      ]
-    },
-    {
-      "id": "executive_leadership",
-      "prompt": "executive-leadership evidence to check: scope of ownership, team or budget size, decision authority, measurable business impact, and change risk",
-      "terms": [
-        "executive",
-        "director-level",
-        "director level",
-        "vice president",
-        "senior leadership",
-        "executive leadership",
-        "people management",
-        "budget ownership",
-        "p&l",
-        "organizational strategy",
-        "change management",
-        "board",
-        "chief",
-        "c-suite"
-      ]
-    },
-    {
-      "id": "security",
-      "prompt": "security evidence to check: authorized scope, risk reduced, controls or incidents handled, compliance context, and sensitive-data handling",
-      "terms": [
-        "cybersecurity",
-        "information security",
-        "security operations",
-        "soc analyst",
-        "incident response",
-        "vulnerability management",
-        "risk management framework",
-        "nist",
-        "fedramp",
-        "siem",
-        "threat detection"
-      ]
-    },
-    {
-      "id": "service_operations",
-      "prompt": "service-operations evidence to check: customer impact, volume, escalation path, documentation, and response quality",
-      "terms": [
-        "customer service",
-        "customer support",
-        "client service",
-        "client support",
-        "guest service",
-        "guest services",
-        "front desk",
-        "front-desk",
-        "reception",
-        "receptionist",
-        "case management",
-        "case coordination",
-        "scheduling",
-        "appointment setting",
-        "calendar management",
-        "client intake",
-        "store operations",
-        "order fulfillment",
-        "buy online pick up in store",
-        "bopis",
-        "curbside pickup",
-        "ship from store",
-        "visual merchandising",
-        "planogram",
-        "loss prevention",
-        "shrink",
-        "operations",
-        "escalation",
-        "service quality"
-      ]
-    },
-    {
-      "id": "design_creative",
-      "prompt": "design-creative evidence to check: user problem, audience, constraints, decisions, accessibility, and shipped outcome",
-      "terms": [
-        "product design",
-        "user experience",
-        "ux",
-        "ui design",
-        "interaction design",
-        "visual design",
-        "graphic design",
-        "content design",
-        "brand design",
-        "creative direction",
-        "design portfolio",
-        "designer",
-        "figma",
-        "prototype",
-        "accessibility"
-      ]
-    },
-    {
-      "id": "technical_data",
-      "prompt": "technical-data evidence to check: shipped work, users or decisions supported, reliability, data sources, and measurable outcomes",
-      "terms": [
-        "software",
-        "developer",
-        "engineering",
-        "data analysis",
-        "data analyst",
-        "machine learning",
-        "model monitoring",
-        "analytics",
-        "sql",
-        "python",
-        "dashboard",
-        "api",
-        "product"
-      ]
-    },
-    {
-      "id": "sales_marketing",
-      "prompt": "sales-marketing evidence to check: quota or pipeline, audience or account scope, conversion or revenue impact, retention, and budget",
-      "terms": [
-        "sales",
-        "pipeline",
-        "account",
-        "quota",
-        "renewal",
-        "retention",
-        "marketing",
-        "campaign",
-        "audience",
-        "conversion",
-        "revenue",
-        "lead generation",
-        "channel"
-      ]
-    }
+    {"id":"healthcare","prompt":"healthcare evidence to check: scope of practice, patient safety, documentation, and required credentials","terms":["patient care","healthcare","nursing","rn license","registered nurse","lpn","cna","medication administration","clinical","medical record","vital sign","care plan","home health","hospital","clinic"]},
+    {"id":"trades_field","prompt":"trades-field evidence to check: equipment or tools used, safety rules, work orders, downtime or quality impact, and required licenses","terms":["maintenance technician","equipment repair","field service","forklift","osha","work order","work orders","installation","installer","hvac","plumbing","electrical","welding","machine operator","warehouse safety"]},
+    {"id":"career_change","prompt":"career-change evidence to check: transferable work, training, adjacent experience, scope, and truthful gaps or transitions","terms":["career change","career-change","career transition","career-transition","transitioning careers","returnship","return to work","transferable skills","transferable experience"]},
+    {"id":"early_career","prompt":"early-career evidence to check: training or coursework, projects or volunteer work, supervised responsibilities, transferable skills, and readiness to learn","terms":["entry-level","entry level","new graduate","new grad","recent graduate","trainee","apprentice","apprenticeship","internship"]},
+    {"id":"education_academic","prompt":"education-academic evidence to check: learner or research audience, standards or methods, outcomes, collaboration, and ethics","terms":["teaching","teacher","classroom","student","curriculum","lesson plan","instructional design","academic","faculty","university","school counselor","research methods","publication","thesis","dissertation"]},
+    {"id":"federal","prompt":"federal evidence to check: specialized experience, grade level, announcement duties, dates and hours, citizenship or clearance, and required documents","terms":["federal","usajobs","specialized experience","grade level","gs-","public trust","occupational series","job announcement","announcement number","required documents"]},
+    {"id":"regulated_work","prompt":"regulated-work evidence to check: records accuracy, deadlines, confidentiality, compliance, and audit trail","terms":["legal research","case files","case file","document review","records management","policy analysis","grant administration","financial reconciliation","loan processing","compliance","audit","government","public sector"]},
+    {"id":"executive_leadership","prompt":"executive-leadership evidence to check: scope of ownership, team or budget size, decision authority, measurable business impact, and change risk","terms":["executive","director-level","director level","vice president","senior leadership","executive leadership","people management","budget ownership","p&l","organizational strategy","change management","board","chief","c-suite"]},
+    {"id":"security","prompt":"security evidence to check: authorized scope, risk reduced, controls or incidents handled, compliance context, and sensitive-data handling","terms":["cybersecurity","information security","security operations","soc analyst","incident response","vulnerability management","risk management framework","nist","fedramp","siem","threat detection"]},
+    {"id":"service_operations","prompt":"service-operations evidence to check: customer impact, volume, escalation path, documentation, and response quality","terms":["customer service","customer support","client service","client support","guest service","guest services","front desk","front-desk","reception","receptionist","case management","case coordination","scheduling","appointment setting","calendar management","client intake","store operations","order fulfillment","buy online pick up in store","bopis","curbside pickup","ship from store","visual merchandising","planogram","loss prevention","shrink","operations","escalation","service quality"]},
+    {"id":"design_creative","prompt":"design-creative evidence to check: user problem, audience, constraints, decisions, accessibility, and shipped outcome","terms":["product design","user experience","ux","ui design","interaction design","visual design","graphic design","content design","brand design","creative direction","design portfolio","designer","figma","prototype","accessibility"]},
+    {"id":"technical_data","prompt":"technical-data evidence to check: shipped work, users or decisions supported, reliability, data sources, and measurable outcomes","terms":["software","developer","engineering","data analysis","data analyst","machine learning","model monitoring","analytics","sql","python","dashboard","api","product"]},
+    {"id":"sales_marketing","prompt":"sales-marketing evidence to check: quota or pipeline, audience or account scope, conversion or revenue impact, retention, and budget","terms":["sales","pipeline","account","quota","renewal","retention","marketing","campaign","audience","conversion","revenue","lead generation","channel"]}
   ],
   "hardConstraintKeywordSets": {
-    "degreeEquivalentExclusion": {
-      "contains": ["equivalent experience"]
-    },
-    "citizenship": {
-      "contains": [
-        "us citizenship",
-        "u.s. citizenship",
-        "us citizen",
-        "u.s. citizen",
-        "citizenship required"
-      ]
-    },
-    "workAuthorization": {
-      "contains": [
-        "work authorization",
-        "authorized to work",
-        "visa sponsorship"
-      ]
-    },
-    "securityClearance": {
-      "contains": ["security clearance"],
-      "exact": ["clearance"]
-    },
-    "licenseOrCertification": {
-      "contains": ["license", "certification"]
-    },
-    "education": {
-      "contains": [
-        "degree",
-        "bachelor",
-        "master",
-        "phd",
-        "ph.d",
-        "doctorate",
-        "doctoral",
-        "high school",
-        "high-school",
-        "general education development"
-      ],
-      "exact": ["ged"]
-    },
-    "experience": {
-      "contains": ["year", "yrs", "level experience"],
-      "exact": ["management experience"]
-    },
-    "backgroundScreening": {
-      "contains": [
-        "background check",
-        "background screening",
-        "pre-employment screening",
-        "pre employment screening",
-        "drug screen",
-        "drug screening",
-        "drug test",
-        "drug testing"
-      ]
-    },
-    "physicalRequirement": {
-      "contains": [
-        "physical requirement",
-        "physical demand",
-        "stand for long",
-        "standing for long",
-        "climb ladder",
-        "climbing ladder"
-      ]
-    },
-    "location": {
-      "contains": [
-        "onsite",
-        "on-site",
-        "on site",
-        "remote",
-        "hybrid",
-        "reliable internet",
-        "high-speed internet",
-        "high speed internet",
-        "home office",
-        "quiet workspace",
-        "dedicated workspace",
-        "relocation",
-        "relocate",
-        "travel",
-        "transportation",
-        "commute",
-        "commuting",
-        "availability",
-        "available",
-        "schedule",
-        "full-time",
-        "full time",
-        "part-time",
-        "part time",
-        "weekend",
-        "night shift",
-        "overnight shift",
-        "third shift",
-        "3rd shift",
-        "second shift",
-        "2nd shift",
-        "day shift",
-        "first shift",
-        "1st shift",
-        "overtime",
-        "holiday",
-        "evening"
-      ]
-    },
-    "drivingRecord": {
-      "contains": ["driving record", "motor vehicle record"],
-      "exact": ["mvr"]
-    },
-    "vehicleInsurance": {
-      "contains": [
-        "proof of auto insurance",
-        "proof of insurance",
-        "auto insurance",
-        "car insurance",
-        "vehicle insurance",
-        "insured vehicle",
-        "reliable vehicle"
-      ]
-    },
-    "ageRequirement": {
-      "contains": [
-        "year of age",
-        "years of age",
-        "yr of age",
-        "yrs of age",
-        "year old",
-        "years old",
-        "yr old",
-        "yrs old",
-        "minimum age",
-        "age requirement",
-        "legal work age"
-      ]
-    },
-    "seniorityLevel": {
-      "exact": [
-        "senior-level experience",
-        "mid-level experience",
-        "lead-level experience",
-        "staff/principal-level experience",
-        "director-level experience",
-        "executive-level experience"
-      ]
-    }
+    "degreeEquivalentExclusion": {"contains":["equivalent experience"]},
+    "citizenship": {"contains":["us citizenship","u.s. citizenship","us citizen","u.s. citizen","citizenship required"]},
+    "workAuthorization": {"contains":["work authorization","authorized to work","visa sponsorship"]},
+    "securityClearance": {"contains":["security clearance"],"exact":["clearance"]},
+    "licenseOrCertification": {"contains":["license","certification"]},
+    "education": {"contains":["degree","bachelor","master","phd","ph.d","doctorate","doctoral","high school","high-school","general education development"],"exact":["ged"]},
+    "experience": {"contains":["year","yrs","level experience"],"exact":["management experience"]},
+    "backgroundScreening": {"contains":["background check","background screening","pre-employment screening","pre employment screening","drug screen","drug screening","drug test","drug testing"]},
+    "physicalRequirement": {"contains":["physical requirement","physical demand","stand for long","standing for long","climb ladder","climbing ladder"]},
+    "location": {"contains":["onsite","on-site","on site","remote","hybrid","reliable internet","high-speed internet","high speed internet","home office","quiet workspace","dedicated workspace","relocation","relocate","travel","transportation","commute","commuting","availability","available","schedule","full-time","full time","part-time","part time","weekend","night shift","overnight shift","third shift","3rd shift","second shift","2nd shift","day shift","first shift","1st shift","overtime","holiday","evening"]},
+    "drivingRecord": {"contains":["driving record","motor vehicle record"],"exact":["mvr"]},
+    "vehicleInsurance": {"contains":["proof of auto insurance","proof of insurance","auto insurance","car insurance","vehicle insurance","insured vehicle","reliable vehicle"]},
+    "ageRequirement": {"contains":["year of age","years of age","yr of age","yrs of age","year old","years old","yr old","yrs old","minimum age","age requirement","legal work age"]},
+    "seniorityLevel": {"exact":["senior-level experience","mid-level experience","lead-level experience","staff/principal-level experience","director-level experience","executive-level experience"]}
   },
   "credentialKeywordGroups": [
-    {
-      "canonical": "driver's license",
-      "terms": ["driver's license", "drivers license", "driver license"],
-      "catalogTerms": ["driver's license"]
-    },
-    {
-      "canonical": "cdl",
-      "terms": ["cdl", "commercial driver's license", "commercial drivers license", "commercial driver license"],
-      "catalogTerms": ["cdl", "commercial driver's license"]
-    },
-    {
-      "canonical": "rn",
-      "terms": ["rn license", "registered nurse license", "nursing license", "registered nurse", "rn"],
-      "catalogTerms": ["rn", "registered nurse", "rn license"]
-    },
-    {
-      "canonical": "lpn",
-      "terms": ["lpn", "licensed practical nurse", "lvn", "licensed vocational nurse"],
-      "catalogTerms": ["lpn", "licensed practical nurse", "lvn", "licensed vocational nurse"]
-    },
-    {
-      "canonical": "cna",
-      "terms": ["cna", "certified nursing assistant", "certified nurse assistant", "certified nurse aide"],
-      "catalogTerms": ["cna", "certified nursing assistant"]
-    },
-    {
-      "canonical": "bls",
-      "terms": ["bls", "basic life support"],
-      "catalogTerms": ["bls", "basic life support"]
-    },
-    {
-      "canonical": "acls",
-      "terms": ["acls", "advanced cardiovascular life support"],
-      "catalogTerms": ["acls", "advanced cardiovascular life support"]
-    },
-    {
-      "canonical": "cpr",
-      "terms": ["cpr", "cardiopulmonary resuscitation"],
-      "catalogTerms": ["cpr", "cardiopulmonary resuscitation"]
-    },
-    {
-      "canonical": "pals",
-      "terms": ["pals", "pediatric advanced life support", "pals certification", "pediatric advanced life support certification"],
-      "catalogTerms": ["pals", "pediatric advanced life support"]
-    },
-    {
-      "canonical": "certified medical assistant",
-      "terms": ["certified medical assistant", "medical assistant certification", "certified clinical medical assistant", "registered medical assistant"],
-      "catalogTerms": ["certified medical assistant", "medical assistant certification"]
-    },
-    {
-      "canonical": "cpc",
-      "terms": ["cpc", "cpc certification", "certified professional coder", "certified professional coder certification", "medical coding certification", "medical coder certification"],
-      "requirementTerms": ["cpc certification", "certified professional coder", "certified professional coder certification", "medical coding certification", "medical coder certification"],
-      "preserveRequirementText": false,
-      "catalogTerms": ["certified professional coder", "medical coding certification"]
-    },
-    {
-      "canonical": "arrt certification",
-      "terms": ["arrt", "arrt certification", "american registry of radiologic technologists", "radiologic technologist certification", "radiation therapy certification"],
-      "catalogTerms": ["arrt certification", "radiologic technologist certification"]
-    },
-    {
-      "canonical": "pharmacy technician certification",
-      "terms": ["pharmacy technician certification", "pharmacy tech certification", "certified pharmacy technician", "cpht", "ptcb certification", "excp certification"],
-      "catalogTerms": ["pharmacy technician certification", "certified pharmacy technician"]
-    },
-    {
-      "canonical": "nrp",
-      "terms": ["nrp", "neonatal resuscitation program", "nrp certification", "neonatal resuscitation program certification"],
-      "catalogTerms": ["nrp", "neonatal resuscitation program"]
-    },
-    {
-      "canonical": "home health aide certification",
-      "terms": ["home health aide certification", "hha certification", "certified home health aide", "home care aide certification"],
-      "catalogTerms": ["home health aide certification", "hha certification"]
-    },
-    {
-      "canonical": "pmp",
-      "terms": ["pmp", "project management professional", "pmp certification", "project management professional certification"],
-      "catalogTerms": ["pmp", "project management professional"]
-    },
-    {
-      "canonical": "security+",
-      "terms": ["security+", "security plus", "comptia security+", "comptia security plus", "security+ certification", "security plus certification"],
-      "catalogTerms": ["security+", "security plus"]
-    },
-    {
-      "canonical": "cissp",
-      "terms": ["cissp", "certified information systems security professional"],
-      "catalogTerms": ["cissp", "certified information systems security professional"]
-    },
-    {
-      "canonical": "cisa",
-      "terms": ["cisa", "certified information systems auditor"],
-      "catalogTerms": ["cisa", "certified information systems auditor"]
-    },
-    {
-      "canonical": "cism",
-      "terms": ["cism", "certified information security manager"],
-      "catalogTerms": ["cism", "certified information security manager"]
-    },
-    {
-      "canonical": "crisc",
-      "terms": ["crisc", "certified in risk and information systems control"],
-      "catalogTerms": ["crisc", "certified in risk and information systems control"]
-    },
-    {
-      "canonical": "ceh",
-      "terms": ["ceh", "certified ethical hacker"],
-      "catalogTerms": ["ceh", "certified ethical hacker"]
-    },
-    {
-      "canonical": "cpa",
-      "terms": ["certified public accountant", "cpa certification", "cpa license", "certified public accountant certification", "certified public accountant license"],
-      "requirementTerms": ["certified public accountant", "cpa certification", "cpa license", "certified public accountant certification", "certified public accountant license"],
-      "preserveRequirementText": false,
-      "catalogTerms": ["certified public accountant"]
-    },
-    {
-      "canonical": "cfa",
-      "terms": ["cfa", "chartered financial analyst", "cfa certification", "chartered financial analyst certification"],
-      "catalogTerms": ["cfa", "chartered financial analyst"]
-    },
-    {
-      "canonical": "cfp",
-      "terms": ["cfp", "certified financial planner", "cfp certification", "certified financial planner certification"],
-      "catalogTerms": ["cfp", "certified financial planner"]
-    },
-    {
-      "canonical": "cma",
-      "terms": ["cma", "certified management accountant", "cma certification", "certified management accountant certification"],
-      "catalogTerms": ["cma", "certified management accountant"]
-    },
-    {
-      "canonical": "cia",
-      "terms": ["cia", "certified internal auditor", "cia certification", "certified internal auditor certification"],
-      "catalogTerms": ["cia", "certified internal auditor"]
-    },
-    {
-      "canonical": "cfe",
-      "terms": ["cfe", "certified fraud examiner", "cfe certification", "certified fraud examiner certification"],
-      "catalogTerms": ["cfe", "certified fraud examiner"]
-    },
-    {
-      "canonical": "cams",
-      "terms": ["cams", "certified anti-money laundering specialist", "certified anti money laundering specialist"],
-      "catalogTerms": ["cams", "certified anti-money laundering specialist"]
-    },
-    {
-      "canonical": "frm",
-      "terms": ["frm", "financial risk manager", "frm certification", "financial risk manager certification"],
-      "catalogTerms": ["frm", "financial risk manager"]
-    },
-    {
-      "canonical": "shrm-cp",
-      "terms": ["shrm-cp", "shrm cp", "shrm certified professional", "shrm-cp certification", "shrm certified professional certification"],
-      "catalogTerms": ["shrm-cp", "shrm certified professional"]
-    },
-    {
-      "canonical": "shrm-scp",
-      "terms": ["shrm-scp", "shrm scp", "shrm senior certified professional", "shrm-scp certification", "shrm senior certified professional certification"],
-      "catalogTerms": ["shrm-scp", "shrm senior certified professional"]
-    },
-    {
-      "canonical": "phr",
-      "terms": ["phr", "professional in human resources", "phr certification", "professional in human resources certification"],
-      "catalogTerms": ["phr", "professional in human resources"]
-    },
-    {
-      "canonical": "sphr",
-      "terms": ["sphr", "senior professional in human resources", "sphr certification", "senior professional in human resources certification"],
-      "catalogTerms": ["sphr", "senior professional in human resources"]
-    },
-    {
-      "canonical": "child development associate",
-      "terms": ["child development associate", "cda credential", "cda certification", "child development associate credential", "child development associate certification"],
-      "requirementTerms": ["cda credential", "cda certification", "child development associate", "child development associate credential", "child development associate certification"],
-      "catalogTerms": ["child development associate", "cda credential"]
-    },
-    {
-      "canonical": "tefl",
-      "terms": ["tefl", "tefl certification", "teaching english as a foreign language", "teaching english as a foreign language certification"],
-      "catalogTerms": ["tefl", "teaching english as a foreign language"]
-    },
-    {
-      "canonical": "national board certification",
-      "terms": ["national board certification", "national board certified teacher", "nbct", "nbc teaching certification"],
-      "catalogTerms": ["national board certification", "national board certified teacher"]
-    },
-    {
-      "canonical": "google certified educator",
-      "terms": ["google certified educator", "google educator certification", "google certified educator level 1", "google certified educator level 2"],
-      "catalogTerms": ["google certified educator", "google educator certification"]
-    },
-    {
-      "canonical": "google analytics certification",
-      "terms": ["google analytics certification", "google analytics individual qualification", "gaiq", "ga4 certification", "google analytics 4 certification"],
-      "catalogTerms": ["google analytics certification", "google analytics individual qualification"]
-    },
-    {
-      "canonical": "hubspot content marketing certification",
-      "terms": ["hubspot content marketing certification", "hubspot certification", "hubspot inbound certification", "hubspot marketing certification"],
-      "catalogTerms": ["hubspot content marketing certification", "hubspot certification"]
-    },
-    {
-      "canonical": "professional certified marketer",
-      "terms": ["professional certified marketer", "pcm certification", "ama professional certified marketer"],
-      "catalogTerms": ["professional certified marketer", "pcm certification"]
-    },
-    {
-      "canonical": "aws certification",
-      "terms": ["aws certification", "aws certified", "aws certified cloud practitioner", "aws certified solutions architect", "aws certified developer", "aws certified sysops administrator"],
-      "catalogTerms": ["aws certification", "aws certified cloud practitioner", "aws certified solutions architect"]
-    },
-    {
-      "canonical": "comptia a+",
-      "terms": ["comptia a+", "comptia a plus", "a+ certification", "a plus certification"],
-      "catalogTerms": ["comptia a+", "comptia a plus"]
-    },
-    {
-      "canonical": "comptia network+",
-      "terms": ["comptia network+", "comptia network plus", "network+ certification", "network plus certification"],
-      "catalogTerms": ["comptia network+", "comptia network plus"]
-    },
-    {
-      "canonical": "six sigma certification",
-      "terms": ["six sigma certification", "six-sigma certification", "lean six sigma certification", "six sigma green belt", "six sigma black belt", "six sigma yellow belt", "lean six sigma green belt", "lean six sigma black belt", "lean six sigma yellow belt"],
-      "catalogTerms": ["six sigma certification", "six sigma green belt", "lean six sigma green belt"]
-    },
-    {
-      "canonical": "certified scrum master",
-      "terms": ["certified scrum master", "csm", "csm certification"],
-      "catalogTerms": ["certified scrum master", "csm"]
-    },
-    {
-      "canonical": "leed",
-      "terms": ["leed", "leed certification", "leed green associate", "leed ga", "leed accredited professional", "leed ap"],
-      "catalogTerms": ["leed", "leed green associate", "leed ap"]
-    },
-    {
-      "canonical": "professional engineer",
-      "terms": ["professional engineer", "pe license", "professional engineer license", "professional engineer licensure"],
-      "catalogTerms": ["professional engineer", "pe license"]
-    },
-    {
-      "canonical": "engineer in training",
-      "terms": ["engineer in training", "engineer-in-training", "eit", "eit certification", "engineer intern", "ei certification", "fe exam"],
-      "catalogTerms": ["engineer in training", "eit certification"]
-    },
-    {
-      "canonical": "ase certification",
-      "terms": ["ase certification", "automotive service excellence", "automotive service excellence certification", "ase certified"],
-      "catalogTerms": ["ase certification", "automotive service excellence"]
-    },
-    {
-      "canonical": "hvac certification",
-      "terms": ["hvac certification", "hvac technician certification", "epa 608 certification", "epa 608", "nate certification", "nate certified", "r-410a certification", "r-410a certified", "r410a certification", "r410a certified"],
-      "catalogTerms": ["hvac certification", "epa 608", "nate certification"]
-    },
-    {
-      "canonical": "food safety certification",
-      "terms": ["food safety certification", "food-handler certification", "food handler certification", "food-handler's certification", "food handler's certification", "food-handlers certification", "food handlers certification", "food-handler certificate", "food handler certificate", "food-handler's certificate", "food handler's certificate", "food-handlers certificate", "food handlers certificate", "food-handler permit", "food handler permit", "food-handler's permit", "food handler's permit", "food-handlers permit", "food handlers permit", "food-handler card", "food handler card", "food-handler's card", "food handler's card", "food-handlers card", "food handlers card", "servsafe", "food safety"],
-      "catalogTerms": ["food safety", "food safety certification", "servsafe", "food handler certification"]
-    },
-    {
-      "canonical": "first aid certification",
-      "terms": ["first aid certification", "first-aid certification", "first aid certified", "first-aid certified", "first aid certificate", "first-aid certificate", "first aid", "first-aid"],
-      "catalogTerms": ["first aid", "first aid certification"]
-    },
-    {
-      "canonical": "forklift certification",
-      "terms": ["forklift certification", "forklift certified", "forklift operator certification", "forklift operator certified", "forklift license", "forklift operator license", "forklift"],
-      "catalogTerms": ["forklift", "forklift certification"]
-    },
-    {
-      "canonical": "osha 10",
-      "terms": ["osha 10 certification", "osha10 certification", "osha 10-hour certification", "osha 10 hour certification", "osha 10-hour", "osha 10 hour", "osha 10", "osha10"],
-      "catalogTerms": ["osha 10", "osha 10 certification"]
-    },
-    {
-      "canonical": "osha 30",
-      "terms": ["osha 30 certification", "osha30 certification", "osha 30-hour certification", "osha 30 hour certification", "osha 30-hour", "osha 30 hour", "osha 30", "osha30"],
-      "catalogTerms": ["osha 30", "osha 30 certification"]
-    }
+    {"canonical":"driver's license","terms":["driver's license","drivers license","driver license"],"catalogTerms":["driver's license"]},
+    {"canonical":"cdl","terms":["cdl","commercial driver's license","commercial drivers license","commercial driver license"],"catalogTerms":["cdl","commercial driver's license"]},
+    {"canonical":"rn","terms":["rn license","registered nurse license","nursing license","registered nurse","rn"],"catalogTerms":["rn","registered nurse","rn license"]},
+    {"canonical":"lpn","terms":["lpn","licensed practical nurse","lvn","licensed vocational nurse"],"catalogTerms":["lpn","licensed practical nurse","lvn","licensed vocational nurse"]},
+    {"canonical":"cna","terms":["cna","certified nursing assistant","certified nurse assistant","certified nurse aide"],"catalogTerms":["cna","certified nursing assistant"]},
+    {"canonical":"bls","terms":["bls","basic life support"],"catalogTerms":["bls","basic life support"]},
+    {"canonical":"acls","terms":["acls","advanced cardiovascular life support"],"catalogTerms":["acls","advanced cardiovascular life support"]},
+    {"canonical":"cpr","terms":["cpr","cardiopulmonary resuscitation"],"catalogTerms":["cpr","cardiopulmonary resuscitation"]},
+    {"canonical":"pals","terms":["pals","pediatric advanced life support","pals certification","pediatric advanced life support certification"],"catalogTerms":["pals","pediatric advanced life support"]},
+    {"canonical":"certified medical assistant","terms":["certified medical assistant","medical assistant certification","certified clinical medical assistant","registered medical assistant"],"catalogTerms":["certified medical assistant","medical assistant certification"]},
+    {"canonical":"cpc","terms":["cpc","cpc certification","certified professional coder","certified professional coder certification","medical coding certification","medical coder certification"],"requirementTerms":["cpc certification","certified professional coder","certified professional coder certification","medical coding certification","medical coder certification"],"preserveRequirementText":false,"catalogTerms":["certified professional coder","medical coding certification"]},
+    {"canonical":"arrt certification","terms":["arrt","arrt certification","american registry of radiologic technologists","radiologic technologist certification","radiation therapy certification"],"catalogTerms":["arrt certification","radiologic technologist certification"]},
+    {"canonical":"pharmacy technician certification","terms":["pharmacy technician certification","pharmacy tech certification","certified pharmacy technician","cpht","ptcb certification","excp certification"],"catalogTerms":["pharmacy technician certification","certified pharmacy technician"]},
+    {"canonical":"nrp","terms":["nrp","neonatal resuscitation program","nrp certification","neonatal resuscitation program certification"],"catalogTerms":["nrp","neonatal resuscitation program"]},
+    {"canonical":"home health aide certification","terms":["home health aide certification","hha certification","certified home health aide","home care aide certification"],"catalogTerms":["home health aide certification","hha certification"]},
+    {"canonical":"pmp","terms":["pmp","project management professional","pmp certification","project management professional certification"],"catalogTerms":["pmp","project management professional"]},
+    {"canonical":"security+","terms":["security+","security plus","comptia security+","comptia security plus","security+ certification","security plus certification"],"catalogTerms":["security+","security plus"]},
+    {"canonical":"cissp","terms":["cissp","certified information systems security professional"],"catalogTerms":["cissp","certified information systems security professional"]},
+    {"canonical":"cisa","terms":["cisa","certified information systems auditor"],"catalogTerms":["cisa","certified information systems auditor"]},
+    {"canonical":"cism","terms":["cism","certified information security manager"],"catalogTerms":["cism","certified information security manager"]},
+    {"canonical":"crisc","terms":["crisc","certified in risk and information systems control"],"catalogTerms":["crisc","certified in risk and information systems control"]},
+    {"canonical":"ceh","terms":["ceh","certified ethical hacker"],"catalogTerms":["ceh","certified ethical hacker"]},
+    {"canonical":"cpa","terms":["certified public accountant","cpa certification","cpa license","certified public accountant certification","certified public accountant license"],"requirementTerms":["certified public accountant","cpa certification","cpa license","certified public accountant certification","certified public accountant license"],"preserveRequirementText":false,"catalogTerms":["certified public accountant"]},
+    {"canonical":"cfa","terms":["cfa","chartered financial analyst","cfa certification","chartered financial analyst certification"],"catalogTerms":["cfa","chartered financial analyst"]},
+    {"canonical":"cfp","terms":["cfp","certified financial planner","cfp certification","certified financial planner certification"],"catalogTerms":["cfp","certified financial planner"]},
+    {"canonical":"cma","terms":["cma","certified management accountant","cma certification","certified management accountant certification"],"catalogTerms":["cma","certified management accountant"]},
+    {"canonical":"cia","terms":["cia","certified internal auditor","cia certification","certified internal auditor certification"],"catalogTerms":["cia","certified internal auditor"]},
+    {"canonical":"cfe","terms":["cfe","certified fraud examiner","cfe certification","certified fraud examiner certification"],"catalogTerms":["cfe","certified fraud examiner"]},
+    {"canonical":"cams","terms":["cams","certified anti-money laundering specialist","certified anti money laundering specialist"],"catalogTerms":["cams","certified anti-money laundering specialist"]},
+    {"canonical":"frm","terms":["frm","financial risk manager","frm certification","financial risk manager certification"],"catalogTerms":["frm","financial risk manager"]},
+    {"canonical":"shrm-cp","terms":["shrm-cp","shrm cp","shrm certified professional","shrm-cp certification","shrm certified professional certification"],"catalogTerms":["shrm-cp","shrm certified professional"]},
+    {"canonical":"shrm-scp","terms":["shrm-scp","shrm scp","shrm senior certified professional","shrm-scp certification","shrm senior certified professional certification"],"catalogTerms":["shrm-scp","shrm senior certified professional"]},
+    {"canonical":"phr","terms":["phr","professional in human resources","phr certification","professional in human resources certification"],"catalogTerms":["phr","professional in human resources"]},
+    {"canonical":"sphr","terms":["sphr","senior professional in human resources","sphr certification","senior professional in human resources certification"],"catalogTerms":["sphr","senior professional in human resources"]},
+    {"canonical":"child development associate","terms":["child development associate","cda credential","cda certification","child development associate credential","child development associate certification"],"requirementTerms":["cda credential","cda certification","child development associate","child development associate credential","child development associate certification"],"catalogTerms":["child development associate","cda credential"]},
+    {"canonical":"tefl","terms":["tefl","tefl certification","teaching english as a foreign language","teaching english as a foreign language certification"],"catalogTerms":["tefl","teaching english as a foreign language"]},
+    {"canonical":"national board certification","terms":["national board certification","national board certified teacher","nbct","nbc teaching certification"],"catalogTerms":["national board certification","national board certified teacher"]},
+    {"canonical":"google certified educator","terms":["google certified educator","google educator certification","google certified educator level 1","google certified educator level 2"],"catalogTerms":["google certified educator","google educator certification"]},
+    {"canonical":"google analytics certification","terms":["google analytics certification","google analytics individual qualification","gaiq","ga4 certification","google analytics 4 certification"],"catalogTerms":["google analytics certification","google analytics individual qualification"]},
+    {"canonical":"hubspot content marketing certification","terms":["hubspot content marketing certification","hubspot certification","hubspot inbound certification","hubspot marketing certification"],"catalogTerms":["hubspot content marketing certification","hubspot certification"]},
+    {"canonical":"professional certified marketer","terms":["professional certified marketer","pcm certification","ama professional certified marketer"],"catalogTerms":["professional certified marketer","pcm certification"]},
+    {"canonical":"aws certification","terms":["aws certification","aws certified","aws certified cloud practitioner","aws certified solutions architect","aws certified developer","aws certified sysops administrator"],"catalogTerms":["aws certification","aws certified cloud practitioner","aws certified solutions architect"]},
+    {"canonical":"comptia a+","terms":["comptia a+","comptia a plus","a+ certification","a plus certification"],"catalogTerms":["comptia a+","comptia a plus"]},
+    {"canonical":"comptia network+","terms":["comptia network+","comptia network plus","network+ certification","network plus certification"],"catalogTerms":["comptia network+","comptia network plus"]},
+    {"canonical":"six sigma certification","terms":["six sigma certification","six-sigma certification","lean six sigma certification","six sigma green belt","six sigma black belt","six sigma yellow belt","lean six sigma green belt","lean six sigma black belt","lean six sigma yellow belt"],"catalogTerms":["six sigma certification","six sigma green belt","lean six sigma green belt"]},
+    {"canonical":"certified scrum master","terms":["certified scrum master","csm","csm certification"],"catalogTerms":["certified scrum master","csm"]},
+    {"canonical":"leed","terms":["leed","leed certification","leed green associate","leed ga","leed accredited professional","leed ap"],"catalogTerms":["leed","leed green associate","leed ap"]},
+    {"canonical":"professional engineer","terms":["professional engineer","pe license","professional engineer license","professional engineer licensure"],"catalogTerms":["professional engineer","pe license"]},
+    {"canonical":"engineer in training","terms":["engineer in training","engineer-in-training","eit","eit certification","engineer intern","ei certification","fe exam"],"catalogTerms":["engineer in training","eit certification"]},
+    {"canonical":"ase certification","terms":["ase certification","automotive service excellence","automotive service excellence certification","ase certified"],"catalogTerms":["ase certification","automotive service excellence"]},
+    {"canonical":"hvac certification","terms":["hvac certification","hvac technician certification","epa 608 certification","epa 608","nate certification","nate certified","r-410a certification","r-410a certified","r410a certification","r410a certified"],"catalogTerms":["hvac certification","epa 608","nate certification"]},
+    {"canonical":"food safety certification","terms":["food safety certification","food-handler certification","food handler certification","food-handler's certification","food handler's certification","food-handlers certification","food handlers certification","food-handler certificate","food handler certificate","food-handler's certificate","food handler's certificate","food-handlers certificate","food handlers certificate","food-handler permit","food handler permit","food-handler's permit","food handler's permit","food-handlers permit","food handlers permit","food-handler card","food handler card","food-handler's card","food handler's card","food-handlers card","food handlers card","servsafe","food safety"],"catalogTerms":["food safety","food safety certification","servsafe","food handler certification"]},
+    {"canonical":"first aid certification","terms":["first aid certification","first-aid certification","first aid certified","first-aid certified","first aid certificate","first-aid certificate","first aid","first-aid"],"catalogTerms":["first aid","first aid certification"]},
+    {"canonical":"forklift certification","terms":["forklift certification","forklift certified","forklift operator certification","forklift operator certified","forklift license","forklift operator license","forklift"],"catalogTerms":["forklift","forklift certification"]},
+    {"canonical":"osha 10","terms":["osha 10 certification","osha10 certification","osha 10-hour certification","osha 10 hour certification","osha 10-hour","osha 10 hour","osha 10","osha10"],"catalogTerms":["osha 10","osha 10 certification"]},
+    {"canonical":"osha 30","terms":["osha 30 certification","osha30 certification","osha 30-hour certification","osha 30 hour certification","osha 30-hour","osha 30 hour","osha 30","osha30"],"catalogTerms":["osha 30","osha 30 certification"]}
   ],
   "supplementalKeywordGroups": [
-    {
-      "canonical": "microsoft office",
-      "terms": ["microsoft office", "microsoft office suite", "ms office"]
-    },
-    {
-      "canonical": "outlook",
-      "terms": ["outlook", "microsoft outlook"]
-    },
-    {
-      "canonical": "google workspace",
-      "terms": ["google workspace", "google suite", "g suite"]
-    },
-    {
-      "canonical": "document management",
-      "terms": ["document management", "document-management"]
-    },
-    {
-      "canonical": "document preparation",
-      "terms": ["document preparation", "document-preparation"]
-    },
-    {
-      "canonical": "document review",
-      "terms": ["document review", "document-review"],
-      "catalogTerms": ["document review", "document-review"]
-    },
-    {
-      "canonical": "records management",
-      "terms": ["records management", "records-management"],
-      "catalogTerms": ["records management", "records-management"]
-    },
-    {
-      "canonical": "case files",
-      "terms": ["case files", "case-files"],
-      "catalogTerms": ["case files", "case-files"]
-    },
-    {
-      "canonical": "legal research",
-      "terms": ["legal research", "legal-research"],
-      "catalogTerms": ["legal research", "legal-research"]
-    },
-    {
-      "canonical": "policy analysis",
-      "terms": ["policy analysis", "policy-analysis"],
-      "catalogTerms": ["policy analysis", "policy-analysis"]
-    },
-    {
-      "canonical": "grant administration",
-      "terms": ["grant administration", "grant-administration"],
-      "catalogTerms": ["grant administration", "grant-administration"]
-    },
-    {
-      "canonical": "confidentiality",
-      "terms": ["confidentiality", "confidential information"]
-    },
-    {
-      "canonical": "travel coordination",
-      "terms": ["travel coordination", "travel-coordination"]
-    },
-    {
-      "canonical": "expense reports",
-      "terms": ["expense reports", "expense reporting", "expense report"]
-    },
-    {
-      "canonical": "meeting coordination",
-      "terms": ["meeting coordination", "meeting-coordination"]
-    },
-    {
-      "canonical": "office management",
-      "terms": ["office management", "office-management"]
-    },
-    {
-      "canonical": "stakeholder management",
-      "terms": ["stakeholder management", "stakeholder-management"]
-    },
-    {
-      "canonical": "risk management",
-      "terms": ["risk management", "risk-management"]
-    },
-    {
-      "canonical": "process improvement",
-      "terms": ["process improvement", "process-improvement"]
-    },
-    {
-      "canonical": "continuous improvement",
-      "terms": ["continuous improvement", "continuous-improvement"]
-    },
-    {
-      "canonical": "kpis",
-      "terms": ["kpis", "kpi", "key performance indicators", "key performance indicator"]
-    },
-    {
-      "canonical": "okrs",
-      "terms": ["okrs", "okr", "objectives and key results"]
-    },
-    {
-      "canonical": "jira",
-      "terms": ["jira"]
-    },
-    {
-      "canonical": "confluence",
-      "terms": ["confluence"]
-    },
-    {
-      "canonical": "kanban",
-      "terms": ["kanban"]
-    },
-    {
-      "canonical": "asana",
-      "terms": ["asana"]
-    },
-    {
-      "canonical": "microsoft project",
-      "terms": ["microsoft project", "ms project"]
-    },
-    {
-      "canonical": "seo",
-      "terms": ["seo", "search engine optimization"]
-    },
-    {
-      "canonical": "sem",
-      "terms": ["sem", "search engine marketing"]
-    },
-    {
-      "canonical": "google ads",
-      "terms": ["google ads", "google adwords", "adwords"]
-    },
-    {
-      "canonical": "paid social",
-      "terms": ["paid social", "paid-social"]
-    },
-    {
-      "canonical": "social media marketing",
-      "terms": ["social media marketing", "social-media marketing"]
-    },
-    {
-      "canonical": "content marketing",
-      "terms": ["content marketing", "content-marketing"]
-    },
-    {
-      "canonical": "email marketing",
-      "terms": ["email marketing", "email-marketing"]
-    },
-    {
-      "canonical": "google analytics",
-      "terms": ["google analytics", "ga4"]
-    },
-    {
-      "canonical": "mailchimp",
-      "terms": ["mailchimp"]
-    },
-    {
-      "canonical": "marketo",
-      "terms": ["marketo"]
-    },
-    {
-      "canonical": "lead generation",
-      "terms": ["lead generation", "lead-generation"]
-    },
-    {
-      "canonical": "brand management",
-      "terms": ["brand management", "brand-management"]
-    },
-    {
-      "canonical": "conversion rate optimization",
-      "terms": ["conversion rate optimization", "conversion-rate optimization", "cro"]
-    },
-    {
-      "canonical": "gaap",
-      "terms": ["gaap", "generally accepted accounting principles"]
-    },
-    {
-      "canonical": "ifrs",
-      "terms": ["ifrs", "international financial reporting standards"]
-    },
-    {
-      "canonical": "sox",
-      "terms": ["sox", "sarbanes-oxley", "sarbanes oxley"]
-    },
-    {
-      "canonical": "audit",
-      "terms": ["audit", "auditing"]
-    },
-    {
-      "canonical": "internal controls",
-      "terms": ["internal controls", "internal control"]
-    },
-    {
-      "canonical": "financial modeling",
-      "terms": ["financial modeling", "financial modelling"]
-    },
-    {
-      "canonical": "financial analysis",
-      "terms": ["financial analysis", "financial-analysis"]
-    },
-    {
-      "canonical": "financial reconciliation",
-      "terms": ["financial reconciliation", "financial-reconciliation"],
-      "catalogTerms": ["financial reconciliation", "financial-reconciliation"]
-    },
-    {
-      "canonical": "variance analysis",
-      "terms": ["variance analysis", "variance-analysis"]
-    },
-    {
-      "canonical": "cash flow",
-      "terms": ["cash flow", "cash-flow"]
-    },
-    {
-      "canonical": "budget management",
-      "terms": ["budget management", "budget-management"]
-    },
-    {
-      "canonical": "loan processing",
-      "terms": ["loan processing", "loan-processing"],
-      "catalogTerms": ["loan processing", "loan-processing"]
-    },
-    {
-      "canonical": "sap",
-      "terms": ["sap"]
-    },
-    {
-      "canonical": "oracle",
-      "terms": ["oracle"]
-    },
-    {
-      "canonical": "netsuite",
-      "terms": ["netsuite", "net suite"]
-    },
-    {
-      "canonical": "ehr",
-      "terms": ["ehr", "electronic health record", "electronic health records"]
-    },
-    {
-      "canonical": "emr",
-      "terms": ["emr", "electronic medical record", "electronic medical records"]
-    },
-    {
-      "canonical": "epic",
-      "terms": ["epic"]
-    },
-    {
-      "canonical": "cerner",
-      "terms": ["cerner"]
-    },
-    {
-      "canonical": "meditech",
-      "terms": ["meditech"]
-    },
-    {
-      "canonical": "clinical documentation",
-      "terms": ["clinical documentation", "clinical-documentation"]
-    },
-    {
-      "canonical": "icd-10",
-      "terms": ["icd-10", "icd 10"]
-    },
-    {
-      "canonical": "cpt",
-      "terms": ["cpt", "current procedural terminology"]
-    },
-    {
-      "canonical": "revenue cycle",
-      "terms": ["revenue cycle", "revenue-cycle"]
-    },
-    {
-      "canonical": "pals",
-      "terms": ["pals", "pediatric advanced life support"]
-    },
-    {
-      "canonical": "nrp",
-      "terms": ["nrp", "neonatal resuscitation program"]
-    },
-    {
-      "canonical": "legal document preparation",
-      "terms": ["legal document preparation", "legal-document preparation"]
-    },
-    {
-      "canonical": "court filing",
-      "terms": ["court filing", "court filings", "court-filing"]
-    },
-    {
-      "canonical": "e-filing",
-      "terms": ["e-filing", "efiling", "electronic filing"]
-    },
-    {
-      "canonical": "docket management",
-      "terms": ["docket management", "docket-management"]
-    },
-    {
-      "canonical": "litigation support",
-      "terms": ["litigation support", "litigation-support"]
-    },
-    {
-      "canonical": "e-discovery",
-      "terms": ["e-discovery", "ediscovery", "electronic discovery"]
-    },
-    {
-      "canonical": "westlaw",
-      "terms": ["westlaw"]
-    },
-    {
-      "canonical": "lexisnexis",
-      "terms": ["lexisnexis", "lexis nexis"]
-    },
-    {
-      "canonical": "pacer",
-      "terms": ["pacer"]
-    },
-    {
-      "canonical": "contracts",
-      "terms": ["contracts", "contract review", "contract management"]
-    },
-    {
-      "canonical": "due diligence",
-      "terms": ["due diligence", "due-diligence"]
-    },
-    {
-      "canonical": "supply chain management",
-      "terms": ["supply chain management", "supply-chain management"]
-    },
-    {
-      "canonical": "demand planning",
-      "terms": ["demand planning", "demand-planning"]
-    },
-    {
-      "canonical": "s&op",
-      "terms": ["s&op", "sales and operations planning"]
-    },
-    {
-      "canonical": "freight",
-      "terms": ["freight"]
-    },
-    {
-      "canonical": "tms",
-      "terms": ["tms", "transportation management system"]
-    },
-    {
-      "canonical": "wms",
-      "terms": ["wms", "warehouse management system"]
-    },
-    {
-      "canonical": "dot compliance",
-      "terms": ["dot compliance", "department of transportation compliance"]
-    },
-    {
-      "canonical": "lean",
-      "terms": ["lean"]
-    },
-    {
-      "canonical": "six sigma",
-      "terms": ["six sigma", "six-sigma"]
-    },
-    {
-      "canonical": "zendesk",
-      "terms": ["zendesk"]
-    },
-    {
-      "canonical": "ticketing",
-      "terms": ["ticketing", "ticketing system", "ticketing systems"]
-    },
-    {
-      "canonical": "de-escalation",
-      "terms": ["de-escalation", "deescalation", "de escalation"]
-    },
-    {
-      "canonical": "conflict resolution",
-      "terms": ["conflict resolution", "conflict-resolution"]
-    },
-    {
-      "canonical": "csat",
-      "terms": ["csat", "customer satisfaction"]
-    },
-    {
-      "canonical": "retention",
-      "terms": ["retention", "customer retention", "employee retention"]
-    },
-    {
-      "canonical": "buy online pick up in store",
-      "terms": ["buy online pick up in store", "buy online pickup in store", "bopis", "store pickup", "in-store pickup"]
-    },
-    {
-      "canonical": "curbside pickup",
-      "terms": ["curbside pickup", "curbside order", "curbside orders"]
-    },
-    {
-      "canonical": "ship from store",
-      "terms": ["ship from store", "ship-from-store", "store fulfillment"]
-    },
-    {
-      "canonical": "planogram",
-      "terms": ["planogram", "planograms", "merchandising planogram", "merchandising planograms"]
-    },
-    {
-      "canonical": "shrink",
-      "terms": ["shrink", "shrinkage", "inventory shrink", "retail shrink"]
-    },
-    {
-      "canonical": "loss prevention",
-      "terms": ["loss prevention", "loss-prevention"]
-    },
-    {
-      "canonical": "visual merchandising",
-      "terms": ["visual merchandising", "visual-merchandising"]
-    },
-    {
-      "canonical": "upselling",
-      "terms": ["upselling", "up selling", "upsell"]
-    },
-    {
-      "canonical": "governance",
-      "terms": ["governance"]
-    },
-    {
-      "canonical": "incident response",
-      "terms": ["incident response", "incident-response"]
-    },
-    {
-      "canonical": "vulnerability management",
-      "terms": ["vulnerability management", "vulnerability-management"]
-    },
-    {
-      "canonical": "security architecture",
-      "terms": ["security architecture", "security-architecture"]
-    },
-    {
-      "canonical": "cloud security",
-      "terms": ["cloud security", "cloud-security"]
-    },
-    {
-      "canonical": "identity and access management",
-      "terms": ["identity and access management", "iam"]
-    },
-    {
-      "canonical": "siem",
-      "terms": ["siem", "security information and event management"]
-    },
-    {
-      "canonical": "zero trust",
-      "terms": ["zero trust", "zero-trust"]
-    }
+    {"canonical":"microsoft office","terms":["microsoft office","microsoft office suite","ms office"]},
+    {"canonical":"outlook","terms":["outlook","microsoft outlook"]},
+    {"canonical":"google workspace","terms":["google workspace","google suite","g suite"]},
+    {"canonical":"document management","terms":["document management","document-management"]},
+    {"canonical":"document preparation","terms":["document preparation","document-preparation"]},
+    {"canonical":"document review","terms":["document review","document-review"],"catalogTerms":["document review","document-review"]},
+    {"canonical":"records management","terms":["records management","records-management"],"catalogTerms":["records management","records-management"]},
+    {"canonical":"case files","terms":["case files","case-files"],"catalogTerms":["case files","case-files"]},
+    {"canonical":"legal research","terms":["legal research","legal-research"],"catalogTerms":["legal research","legal-research"]},
+    {"canonical":"policy analysis","terms":["policy analysis","policy-analysis"],"catalogTerms":["policy analysis","policy-analysis"]},
+    {"canonical":"grant administration","terms":["grant administration","grant-administration"],"catalogTerms":["grant administration","grant-administration"]},
+    {"canonical":"confidentiality","terms":["confidentiality","confidential information"]},
+    {"canonical":"travel coordination","terms":["travel coordination","travel-coordination"]},
+    {"canonical":"expense reports","terms":["expense reports","expense reporting","expense report"]},
+    {"canonical":"meeting coordination","terms":["meeting coordination","meeting-coordination"]},
+    {"canonical":"office management","terms":["office management","office-management"]},
+    {"canonical":"stakeholder management","terms":["stakeholder management","stakeholder-management"]},
+    {"canonical":"risk management","terms":["risk management","risk-management"]},
+    {"canonical":"process improvement","terms":["process improvement","process-improvement"]},
+    {"canonical":"continuous improvement","terms":["continuous improvement","continuous-improvement"]},
+    {"canonical":"kpis","terms":["kpis","kpi","key performance indicators","key performance indicator"]},
+    {"canonical":"okrs","terms":["okrs","okr","objectives and key results"]},
+    {"canonical":"jira","terms":["jira"]},
+    {"canonical":"confluence","terms":["confluence"]},
+    {"canonical":"kanban","terms":["kanban"]},
+    {"canonical":"asana","terms":["asana"]},
+    {"canonical":"microsoft project","terms":["microsoft project","ms project"]},
+    {"canonical":"seo","terms":["seo","search engine optimization"]},
+    {"canonical":"sem","terms":["sem","search engine marketing"]},
+    {"canonical":"google ads","terms":["google ads","google adwords","adwords"]},
+    {"canonical":"paid social","terms":["paid social","paid-social"]},
+    {"canonical":"social media marketing","terms":["social media marketing","social-media marketing"]},
+    {"canonical":"content marketing","terms":["content marketing","content-marketing"]},
+    {"canonical":"email marketing","terms":["email marketing","email-marketing"]},
+    {"canonical":"google analytics","terms":["google analytics","ga4"]},
+    {"canonical":"mailchimp","terms":["mailchimp"]},
+    {"canonical":"marketo","terms":["marketo"]},
+    {"canonical":"lead generation","terms":["lead generation","lead-generation"]},
+    {"canonical":"brand management","terms":["brand management","brand-management"]},
+    {"canonical":"conversion rate optimization","terms":["conversion rate optimization","conversion-rate optimization","cro"]},
+    {"canonical":"gaap","terms":["gaap","generally accepted accounting principles"]},
+    {"canonical":"ifrs","terms":["ifrs","international financial reporting standards"]},
+    {"canonical":"sox","terms":["sox","sarbanes-oxley","sarbanes oxley"]},
+    {"canonical":"audit","terms":["audit","auditing"]},
+    {"canonical":"internal controls","terms":["internal controls","internal control"]},
+    {"canonical":"financial modeling","terms":["financial modeling","financial modelling"]},
+    {"canonical":"financial analysis","terms":["financial analysis","financial-analysis"]},
+    {"canonical":"financial reconciliation","terms":["financial reconciliation","financial-reconciliation"],"catalogTerms":["financial reconciliation","financial-reconciliation"]},
+    {"canonical":"variance analysis","terms":["variance analysis","variance-analysis"]},
+    {"canonical":"cash flow","terms":["cash flow","cash-flow"]},
+    {"canonical":"budget management","terms":["budget management","budget-management"]},
+    {"canonical":"loan processing","terms":["loan processing","loan-processing"],"catalogTerms":["loan processing","loan-processing"]},
+    {"canonical":"sap","terms":["sap"]},
+    {"canonical":"oracle","terms":["oracle"]},
+    {"canonical":"netsuite","terms":["netsuite","net suite"]},
+    {"canonical":"ehr","terms":["ehr","electronic health record","electronic health records"]},
+    {"canonical":"emr","terms":["emr","electronic medical record","electronic medical records"]},
+    {"canonical":"epic","terms":["epic"]},
+    {"canonical":"cerner","terms":["cerner"]},
+    {"canonical":"meditech","terms":["meditech"]},
+    {"canonical":"clinical documentation","terms":["clinical documentation","clinical-documentation"]},
+    {"canonical":"icd-10","terms":["icd-10","icd 10"]},
+    {"canonical":"cpt","terms":["cpt","current procedural terminology"]},
+    {"canonical":"revenue cycle","terms":["revenue cycle","revenue-cycle"]},
+    {"canonical":"pals","terms":["pals","pediatric advanced life support"]},
+    {"canonical":"nrp","terms":["nrp","neonatal resuscitation program"]},
+    {"canonical":"legal document preparation","terms":["legal document preparation","legal-document preparation"]},
+    {"canonical":"court filing","terms":["court filing","court filings","court-filing"]},
+    {"canonical":"e-filing","terms":["e-filing","efiling","electronic filing"]},
+    {"canonical":"docket management","terms":["docket management","docket-management"]},
+    {"canonical":"litigation support","terms":["litigation support","litigation-support"]},
+    {"canonical":"e-discovery","terms":["e-discovery","ediscovery","electronic discovery"]},
+    {"canonical":"westlaw","terms":["westlaw"]},
+    {"canonical":"lexisnexis","terms":["lexisnexis","lexis nexis"]},
+    {"canonical":"pacer","terms":["pacer"]},
+    {"canonical":"contracts","terms":["contracts","contract review","contract management"]},
+    {"canonical":"due diligence","terms":["due diligence","due-diligence"]},
+    {"canonical":"supply chain management","terms":["supply chain management","supply-chain management"]},
+    {"canonical":"demand planning","terms":["demand planning","demand-planning"]},
+    {"canonical":"s&op","terms":["s&op","sales and operations planning"]},
+    {"canonical":"freight","terms":["freight"]},
+    {"canonical":"tms","terms":["tms","transportation management system"]},
+    {"canonical":"wms","terms":["wms","warehouse management system"]},
+    {"canonical":"dot compliance","terms":["dot compliance","department of transportation compliance"]},
+    {"canonical":"lean","terms":["lean"]},
+    {"canonical":"six sigma","terms":["six sigma","six-sigma"]},
+    {"canonical":"zendesk","terms":["zendesk"]},
+    {"canonical":"ticketing","terms":["ticketing","ticketing system","ticketing systems"]},
+    {"canonical":"de-escalation","terms":["de-escalation","deescalation","de escalation"]},
+    {"canonical":"conflict resolution","terms":["conflict resolution","conflict-resolution"]},
+    {"canonical":"csat","terms":["csat","customer satisfaction"]},
+    {"canonical":"retention","terms":["retention","customer retention","employee retention"]},
+    {"canonical":"buy online pick up in store","terms":["buy online pick up in store","buy online pickup in store","bopis","store pickup","in-store pickup"]},
+    {"canonical":"curbside pickup","terms":["curbside pickup","curbside order","curbside orders"]},
+    {"canonical":"ship from store","terms":["ship from store","ship-from-store","store fulfillment"]},
+    {"canonical":"planogram","terms":["planogram","planograms","merchandising planogram","merchandising planograms"]},
+    {"canonical":"shrink","terms":["shrink","shrinkage","inventory shrink","retail shrink"]},
+    {"canonical":"loss prevention","terms":["loss prevention","loss-prevention"]},
+    {"canonical":"visual merchandising","terms":["visual merchandising","visual-merchandising"]},
+    {"canonical":"upselling","terms":["upselling","up selling","upsell"]},
+    {"canonical":"governance","terms":["governance"]},
+    {"canonical":"incident response","terms":["incident response","incident-response"]},
+    {"canonical":"vulnerability management","terms":["vulnerability management","vulnerability-management"]},
+    {"canonical":"security architecture","terms":["security architecture","security-architecture"]},
+    {"canonical":"cloud security","terms":["cloud security","cloud-security"]},
+    {"canonical":"identity and access management","terms":["identity and access management","iam"]},
+    {"canonical":"siem","terms":["siem","security information and event management"]},
+    {"canonical":"zero trust","terms":["zero trust","zero-trust"]}
   ]
 }

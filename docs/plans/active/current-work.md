@@ -2,6 +2,8 @@
 
 Last updated: 2026-07-16.
 
+Status: Completed.
+
 ## Purpose
 
 Replace JobSentinel's accumulated repository structure with explicit ownership
@@ -13,7 +15,7 @@ The locked ownership and dependency decisions are in the
 [repository refactor blueprint](repository-refactor-blueprint.md). The
 executable phase, workspace graph, technology owners, target directories,
 retiring paths, and modularization ratchets are in
-[`validation/repository_architecture_contract.json`](../../../validation/repository_architecture_contract.json).
+[`scripts/harness/contracts/architecture.json`](../../../scripts/harness/contracts/architecture.json).
 Changes to either contract require evidence and a new decision-log entry.
 
 ## Baseline Problem
@@ -24,7 +26,8 @@ runtime behavior in Tauri commands. The current tree removes that crate and the
 raw dependency escapes. A fresh completion audit found that desktop composition,
 frontend platform ownership, development-runtime ownership, and root-script
 placement are now cut over. Script tests now mirror their script owners.
-Structural debt still does not match the locked blueprint.
+The final cleanup now matches the locked blueprint, with only the immutable
+initial SQLx migration retained under an exact no-growth compatibility contract.
 
 ## Scope
 
@@ -78,7 +81,7 @@ The work changes structure, not the product mission. Job-search automation,
 plain-language consent, local-first defaults, and non-technical user flows stay
 intact.
 
-Locked redesign: Quiet Shield remains the product direction in `DESIGN.md`,
+Locked redesign: Quiet Shield remains the product direction in `docs/design/design-system.md`,
 `docs/design/README.md`, and `docs/design/design-spec.md`.
 
 Harness-controlled redesign lock: structural moves must not silently change
@@ -194,7 +197,7 @@ UI checks when their owners change.
 - [x] Milestone 5: production desktop API routing and development-runtime
   ownership are cut over.
 - [x] Milestone 6: root-level scripts and script-test ownership are cut over.
-- [ ] Milestone 7: final whole-repository cleanup and verification remain.
+- [x] Milestone 7: final whole-repository cleanup and verification are complete.
 
 Implemented ownership checkpoint:
 
@@ -233,13 +236,12 @@ Implemented ownership checkpoint:
   locations, and the architecture sensor rejects flat or undeclared script-test
   owners.
 - Focused Rust test modules, frontend and development-runtime tests, script
-  tests, and two taxonomy files now stay below the canonical hard ceilings
-  without 91 prior no-growth exceptions. Seventeen script-test exceptions moved
-  to their owner-mirrored paths without increasing their ceilings. The
-  repository now has 18 exceptions.
-- The earlier full local gate, Chromium and WebKit E2E lane, and Rust
-  all-features lane passed for the initial crate cutover. Those results do not
-  prove that the full repository blueprint is complete.
+  tests, taxonomies, and release workflow owners now stay below the canonical
+  hard ceilings without 108 prior temporary exceptions. The sole retained
+  exception is the unchanged initial SQLx migration, whose shipped checksum
+  makes in-place splitting or reformatting unsafe for existing databases.
+- The fresh full local gate, complete browser E2E lane, and Rust all-features
+  lane pass for the final tree and prove the repository blueprint complete.
 
 ## Surprises
 
@@ -373,17 +375,25 @@ Implemented ownership checkpoint:
   JobCard, and NotificationPreferences tests at existing suite boundaries. The
   exception count fell from 21 to 18, and all 162 focused tests plus the full
   local repository gate passed.
+- 2026-07-16-final-repository-audit: Eliminated 17 remaining temporary
+  exceptions by splitting five frontend suites and seven script suites,
+  extracting three fixture owners, compacting the resume-keyword taxonomy, and
+  splitting release staging and platform builds into reusable workflows. The
+  unchanged initial SQLx migration remains under a checksum-compatible exact
+  no-growth contract. The full local gate, 286 browser journeys, and Rust
+  all-features lane passed, so the feature transitions to `passing`.
 
 ## Outcomes
 
-The Rust and desktop ownership cutovers are implemented, but the clean-cutover
-repository refactor is not complete. The feature remains `active` while
-structural debt and the final repository audit remain.
+The clean-cutover repository refactor is complete. The Rust, desktop, frontend,
+development-runtime, script, test, taxonomy, workflow, documentation, and
+harness owners match the locked contracts, and fresh final evidence is passing.
 
 ## Handoff
 
-Read root `PROGRESS.md`, root `feature_list.json`, this plan, the
-[blueprint](repository-refactor-blueprint.md), and the executable architecture
-contract. Continue only the single active root feature. Completed plans are
-historical evidence, not current architecture. The next bounded action is to
-reduce the remaining 18 structural exceptions before the final repository audit.
+Read `docs/harness/current-status.md` and `scripts/harness/state/feature-list.json`
+for current work selection.
+This completed plan, the [blueprint](repository-refactor-blueprint.md), and the
+executable architecture contract remain the durable ownership record. The final
+completion batch is uncommitted and requires separate authorization before a
+checkpoint commit.

@@ -6,6 +6,14 @@ import { fileURLToPath } from "node:url";
 
 const defaultRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const noAccountReadinessCeiling = 94;
+const releaseWorkflowPaths = [
+  ".github/workflows/release-stage.yml",
+  ".github/workflows/release-build-windows.yml",
+  ".github/workflows/release-build-macos.yml",
+  ".github/workflows/release-build-linux.yml",
+  ".github/workflows/release-build.yml",
+  ".github/workflows/release.yml",
+];
 
 function read(root, path) {
   return readFileSync(join(root, path), "utf8");
@@ -73,7 +81,7 @@ export function evaluateMacosReadiness({ root = defaultRoot, env = process.env }
   const packageJson = readJson(root, "package.json");
   const tauriConfig = readJson(root, "src-tauri/tauri.conf.json");
   const readme = read(root, "README.md");
-  const releaseWorkflow = read(root, ".github/workflows/release.yml");
+  const releaseWorkflow = readAll(root, releaseWorkflowPaths);
   const verifyWorkflow = read(root, ".github/workflows/verify-release-artifacts.yml");
   const buildScript = readAll(root, [
     "scripts/platform/build-macos-dmg.mjs",

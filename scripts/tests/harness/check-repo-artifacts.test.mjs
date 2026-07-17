@@ -25,7 +25,7 @@ function withGitFixture(callback) {
     execFileSync("git", ["init", "--quiet"], { cwd: root });
     writeFixtureFile(
       root,
-      "repository-structure-policy.json",
+      "scripts/harness/contracts/repository-structure.json",
       `${JSON.stringify(
         {
           structure: {
@@ -33,10 +33,9 @@ function withGitFixture(callback) {
               ".nvmrc",
               "README.md",
               "package.json",
-              "repository-structure-policy.json",
               "rust-toolchain.toml",
             ],
-            allowed_top_level_directories: [".claude", "src"],
+            allowed_top_level_directories: [".claude", "scripts", "src"],
           },
         },
         null,

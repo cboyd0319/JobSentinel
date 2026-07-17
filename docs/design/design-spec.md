@@ -4,7 +4,7 @@ This spec captures the maintained product design direction for JobSentinel. It
 normalizes the full draft design brief into repo-maintained guidance that can be
 reviewed, tested, and kept current.
 
-Root [DESIGN.md](../../DESIGN.md) is the canonical design-system entrypoint.
+[Design System](design-system.md) is the canonical design-system entrypoint.
 This spec gives screen-level and interaction-level rules.
 
 ## Product Purpose
@@ -83,7 +83,7 @@ Avoid:
 
 ## Color System
 
-Root [DESIGN.md](../../DESIGN.md) defines the current token names and values.
+[Design System](design-system.md) defines the current token names and values.
 Protective Navy is the target dark theme.
 
 Color intent:
@@ -404,7 +404,7 @@ Do not add:
 
 Use this checklist for UI work:
 
-- Behavior matches [DESIGN.md](../../DESIGN.md).
+- Behavior matches [Design System](design-system.md).
 - User data stays local unless explicitly configured and approved.
 - External AI path is optional, preview-gated, and cancellable.
 - Labels, focus, keyboard flow, and screen-reader names are present.

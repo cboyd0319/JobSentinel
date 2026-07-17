@@ -23,7 +23,7 @@ export function summarizeHarnessSession(root = defaultRoot, options = {}) {
   const state = readHarnessState(root);
   const active = state.featureList.features.find((feature) => feature.status === state.featureList.active_status);
   const packageJson = JSON.parse(readFileSync(resolve(root, "package.json"), "utf8"));
-  const manifest = JSON.parse(readFileSync(resolve(root, "harness-manifest.json"), "utf8"));
+  const manifest = JSON.parse(readFileSync(resolve(root, "scripts/harness/contracts/harness.json"), "utf8"));
   return {
     root,
     projectPurpose: packageJson.description,

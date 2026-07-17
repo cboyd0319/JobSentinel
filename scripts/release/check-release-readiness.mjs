@@ -21,6 +21,14 @@ import {
 
 const scriptPath = fileURLToPath(import.meta.url);
 const defaultRoot = resolve(dirname(scriptPath), "../..");
+const releaseWorkflowPaths = [
+  ".github/workflows/release-stage.yml",
+  ".github/workflows/release-build-windows.yml",
+  ".github/workflows/release-build-macos.yml",
+  ".github/workflows/release-build-linux.yml",
+  ".github/workflows/release-build.yml",
+  ".github/workflows/release.yml",
+];
 
 function read(root, path) {
   return readFileSync(join(root, path), "utf8");
@@ -28,6 +36,10 @@ function read(root, path) {
 
 function readJson(root, path) {
   return JSON.parse(read(root, path));
+}
+
+function readAll(root, paths) {
+  return paths.map((path) => read(root, path)).join("\n");
 }
 
 function hasAll(text, snippets) {
@@ -60,7 +72,7 @@ export function loadReleaseReadinessInputs({
     packageJson,
     readme: read(root, "README.md"),
     releaseDocs: read(root, "docs/developer/RELEASING.md"),
-    releaseWorkflow: read(root, ".github/workflows/release.yml"),
+    releaseWorkflow: readAll(root, releaseWorkflowPaths),
     tauriConfig: readJson(root, "src-tauri/tauri.conf.json"),
     verifyPublicScript: read(root, "scripts/release/verify-public-release-assets.mjs"),
     verifyWorkflow: read(root, ".github/workflows/verify-release-artifacts.yml"),

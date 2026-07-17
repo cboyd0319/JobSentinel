@@ -1,6 +1,6 @@
 {
   "schema": "jobsentinel.plan_index.v2",
-  "purpose": "Detailed plan discovery only. Root feature_list.json owns work selection and state.",
+  "purpose": "Detailed plan discovery only. Root scripts/harness/state/feature-list.json owns work selection and state.",
   "active_plan": "docs/plans/active/current-work.md",
   "active_blueprint": "docs/plans/active/repository-refactor-blueprint.md",
   "completed_plan_directory": "docs/plans/completed",

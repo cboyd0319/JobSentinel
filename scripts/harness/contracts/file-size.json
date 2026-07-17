@@ -1,6 +1,6 @@
 {
   "schema": "jobsentinel.file_size_contract.v3",
-  "projection_of": "repository-structure-policy.json",
+  "projection_of": "scripts/harness/contracts/repository-structure.json",
   "baseline": {
     "measured_on": "2026-07-14",
     "owner": "repository maintainers",
@@ -49,7 +49,7 @@
       "globs": [
         "*.json", "*.toml", "*.yml", "*.yaml", "*.js", "*.ts", ".cargo/**",
         ".github/**/*.yml", ".github/**/*.yaml", ".storybook/**", "config/**",
-        "validation/**", "crates/**/Cargo.toml", "src-tauri/**/*.json",
+        "scripts/harness/**/*.json", "crates/**/Cargo.toml", "src-tauri/**/*.json",
         "src-tauri/**/*.toml", "skills/**/*.yaml", "skills/**/*.json"
       ],
       "max_lines": 500,
@@ -65,7 +65,7 @@
     },
     {
       "id": "resources-and-skill-assets",
-      "globs": ["resources/**", "skills/**/assets/**", "examples/**", "public/**"],
+      "globs": ["resources/**", "skills/**/assets/**", "public/**"],
       "max_lines": 500,
       "max_bytes": 65536,
       "max_line_bytes": 65536

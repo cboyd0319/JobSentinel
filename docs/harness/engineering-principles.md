@@ -37,12 +37,12 @@ the requirement:
   and runs the sensors below.
 - `npm run lint:dup` is the DRY ratchet: it fails when new or changed code
   raises duplicated-line volume above the tool-generated baseline in
-  `validation/duplication_contract.json`. The baseline may only ratchet down.
+  `scripts/harness/contracts/duplication.json`. The baseline may only ratchet down.
   Use `npm run lint:dup -- --list` to locate duplication and
   `npm run lint:dup -- --update-baseline` after removing some.
 - `npm run lint:deps:why` is the YAGNI gate for ladder step 4: every direct npm
   and Cargo dependency needs a one-line reason in
-  `validation/dependency_rationale.json`. Adding a dependency without one fails,
+  `scripts/harness/contracts/dependency-rationale.json`. Adding a dependency without one fails,
   and a stale entry for a removed dependency fails too.
 - `npm run lint:bloat` guards repo bloat and the maintainable file-size
   contract.

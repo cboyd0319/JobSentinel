@@ -1,0 +1,54 @@
+name: Release build dispatcher
+
+on:
+  workflow_call:
+    inputs:
+      platform_key:
+        required: true
+        type: string
+      tag:
+        required: true
+        type: string
+      version:
+        required: true
+        type: string
+
+permissions: {}
+
+jobs:
+  windows:
+    if: inputs.platform_key == 'windows'
+    permissions:
+      artifact-metadata: write
+      attestations: write
+      contents: write
+      id-token: write
+    uses: ./.github/workflows/release-build-windows.yml
+    with:
+      tag: ${{ inputs.tag }}
+      version: ${{ inputs.version }}
+    secrets: inherit
+  macos:
+    if: inputs.platform_key == 'macos'
+    permissions:
+      artifact-metadata: write
+      attestations: write
+      contents: write
+      id-token: write
+    uses: ./.github/workflows/release-build-macos.yml
+    with:
+      tag: ${{ inputs.tag }}
+      version: ${{ inputs.version }}
+    secrets: inherit
+  linux:
+    if: inputs.platform_key == 'linux'
+    permissions:
+      artifact-metadata: write
+      attestations: write
+      contents: write
+      id-token: write
+    uses: ./.github/workflows/release-build-linux.yml
+    with:
+      tag: ${{ inputs.tag }}
+      version: ${{ inputs.version }}
+    secrets: inherit

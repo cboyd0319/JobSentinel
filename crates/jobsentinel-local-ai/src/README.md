@@ -38,7 +38,7 @@ cargo test --features embedded-ml -- --ignored
 
 ## Model Governance
 
-Model artifacts are governed by `<repo-root>/models.lock.toml`. The lockfile
+Model artifacts are governed by the crate-owned `models.lock.toml`. The lockfile
 owns model id, kind, repo, revision, file hashes, sizes, license, backend
 compatibility, tokenizer family, pooling, normalization, dimensions,
 instruction profiles, and score thresholds.

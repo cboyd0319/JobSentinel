@@ -1,0 +1,328 @@
+name: Release build windows
+
+on:
+  workflow_call:
+    inputs:
+      tag:
+        required: true
+        type: string
+      version:
+        required: true
+        type: string
+
+permissions: {}
+
+env:
+  CARGO_INCREMENTAL: "0"
+  SQLX_OFFLINE: true
+
+jobs:
+  build-release-windows:
+    runs-on: windows-2025
+    timeout-minutes: 120
+    environment:
+      name: release
+    permissions:
+      artifact-metadata: write
+      attestations: write
+      contents: write
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "24.18.0"
+          package-manager-cache: false
+
+      - name: Install pinned npm
+        run: node scripts/harness/npm-pin.mjs
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@4be7066ada62dd38de10e7b70166bc74ed198c30 # stable
+        with:
+          toolchain: "1.97.0"
+          targets: x86_64-pc-windows-msvc
+
+      - name: Install frontend dependencies
+        run: npm ci --ignore-scripts --prefer-offline --no-audit --no-fund
+
+      - name: Configure Windows signing
+        shell: pwsh
+        env:
+          WINDOWS_CERTIFICATE: ${{ secrets.WINDOWS_CERTIFICATE }}
+          WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
+          WINDOWS_CERTIFICATE_THUMBPRINT: ${{ secrets.WINDOWS_CERTIFICATE_THUMBPRINT }}
+          WINDOWS_TIMESTAMP_URL: ${{ secrets.WINDOWS_TIMESTAMP_URL }}
+          WINDOWS_TSP: ${{ secrets.WINDOWS_TSP }}
+        run: |
+          $ErrorActionPreference = "Stop"
+
+          $required = @(
+            "WINDOWS_CERTIFICATE",
+            "WINDOWS_CERTIFICATE_PASSWORD",
+            "WINDOWS_CERTIFICATE_THUMBPRINT",
+            "WINDOWS_TIMESTAMP_URL"
+          )
+          $missing = @()
+          foreach ($name in $required) {
+            if ([string]::IsNullOrWhiteSpace([Environment]::GetEnvironmentVariable($name))) {
+              $missing += $name
+            }
+          }
+
+          if ($missing.Count -gt 0) {
+            if ($missing.Count -eq $required.Count) {
+              Write-Host "Windows release signing secrets are not configured. Building clearly labeled unsigned Windows installers. Windows SmartScreen warnings are expected."
+              "JOBSENTINEL_WINDOWS_REQUIRE_SIGNATURE=false" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+              "JOBSENTINEL_WINDOWS_UNSIGNED=true" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+              exit 0
+            }
+
+            throw "Partial Windows signing secrets are configured. Missing: $($missing -join ', ')."
+          }
+
+          $thumbprint = ($env:WINDOWS_CERTIFICATE_THUMBPRINT -replace "\s", "").ToUpperInvariant()
+          if ($thumbprint -notmatch "^[A-F0-9]{40}$") {
+            throw "WINDOWS_CERTIFICATE_THUMBPRINT must be a 40-character SHA-1 certificate thumbprint."
+          }
+
+          if ($env:WINDOWS_TIMESTAMP_URL -notmatch "^https?://") {
+            throw "WINDOWS_TIMESTAMP_URL must be an HTTP(S) timestamp service URL from the certificate provider."
+          }
+
+          $certificatePath = Join-Path $env:RUNNER_TEMP "jobsentinel-windows-signing.pfx"
+          $certificateBytes = [Convert]::FromBase64String(($env:WINDOWS_CERTIFICATE -replace "\s", ""))
+          [IO.File]::WriteAllBytes($certificatePath, $certificateBytes)
+
+          try {
+            Import-PfxCertificate `
+              -FilePath $certificatePath `
+              -CertStoreLocation Cert:\CurrentUser\My `
+              -Password (ConvertTo-SecureString -String $env:WINDOWS_CERTIFICATE_PASSWORD -Force -AsPlainText) `
+              | Out-Null
+          } finally {
+            Remove-Item -LiteralPath $certificatePath -Force -ErrorAction SilentlyContinue
+          }
+
+          $windowsConfig = [ordered]@{
+            bundle = [ordered]@{
+              windows = [ordered]@{
+                certificateThumbprint = $thumbprint
+                digestAlgorithm = "sha256"
+                timestampUrl = $env:WINDOWS_TIMESTAMP_URL
+                tsp = $env:WINDOWS_TSP -eq "true"
+              }
+            }
+          }
+
+          $windowsConfig |
+            ConvertTo-Json -Depth 5 |
+            Set-Content -Path "src-tauri/tauri.windows.conf.json" -Encoding utf8NoBOM
+
+          "JOBSENTINEL_WINDOWS_REQUIRE_SIGNATURE=true" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "JOBSENTINEL_WINDOWS_UNSIGNED=false" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Build Windows Tauri app
+        run: npx --no-install tauri build --target x86_64-pc-windows-msvc
+
+      - name: Clean Windows signing material
+        if: always()
+        shell: pwsh
+        env:
+          WINDOWS_CERTIFICATE_THUMBPRINT: ${{ secrets.WINDOWS_CERTIFICATE_THUMBPRINT }}
+        run: |
+          $ErrorActionPreference = "Stop"
+
+          $thumbprint = ($env:WINDOWS_CERTIFICATE_THUMBPRINT -replace "\s", "").ToUpperInvariant()
+          if ($thumbprint -notmatch "^[A-F0-9]{40}$") {
+            Write-Host "No valid Windows signing thumbprint was provided; skipping certificate store cleanup."
+            exit 0
+          }
+
+          $matchingCertificates = @(
+            Get-ChildItem -Path Cert:\CurrentUser\My |
+              Where-Object { $_.Thumbprint -eq $thumbprint }
+          )
+
+          foreach ($certificate in $matchingCertificates) {
+            Remove-Item -LiteralPath $certificate.PSPath -DeleteKey -Force
+          }
+
+          Remove-Item -LiteralPath "src-tauri/tauri.windows.conf.json" -Force -ErrorAction SilentlyContinue
+
+      - name: Label unsigned Windows installers
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+
+          $installerSpecs = @(
+            @{
+              Kind = "Windows MSI"
+              Directory = "target/x86_64-pc-windows-msvc/release/bundle/msi"
+              Filter = "*.msi"
+              Pattern = "*_unsigned.msi"
+            },
+            @{
+              Kind = "Windows NSIS setup"
+              Directory = "target/x86_64-pc-windows-msvc/release/bundle/nsis"
+              Filter = "*.exe"
+              Pattern = "*_unsigned.exe"
+            }
+          )
+
+          foreach ($spec in $installerSpecs) {
+            $installers = @(Get-ChildItem $spec["Directory"] -Filter $spec["Filter"])
+            if ($installers.Count -ne 1) {
+              throw "Expected exactly one $($spec["Kind"]) before unsigned labeling; found $($installers.Count)."
+            }
+
+            $installer = $installers[0]
+            if ($installer.Name -like $spec["Pattern"]) {
+              Write-Host "Unsigned $($spec["Kind"]) already labeled: $($installer.FullName)"
+              continue
+            }
+
+            $labeledPath = Join-Path $installer.DirectoryName "$($installer.BaseName)_unsigned$($installer.Extension)"
+            Rename-Item -LiteralPath $installer.FullName -NewName (Split-Path -Leaf $labeledPath)
+            Remove-Item -LiteralPath "$($installer.FullName).sha256" -Force -ErrorAction SilentlyContinue
+            Remove-Item -LiteralPath "$labeledPath.sha256" -Force -ErrorAction SilentlyContinue
+            Write-Host "Labeled unsigned $($spec["Kind"]): $labeledPath"
+          }
+
+      - name: Verify Windows installer signatures and checksums
+        shell: pwsh
+        env:
+          EXPECTED_VERSION: ${{ inputs.version }}
+          WINDOWS_REQUIRE_SIGNATURE: ${{ env.JOBSENTINEL_WINDOWS_REQUIRE_SIGNATURE }}
+        run: |
+          $ErrorActionPreference = "Stop"
+          $installerSpecs = @(
+            @{
+              Kind = "Windows MSI"
+              Directory = "target/x86_64-pc-windows-msvc/release/bundle/msi"
+              Filter = "*.msi"
+              UnsignedPattern = "*_unsigned.msi"
+            },
+            @{
+              Kind = "Windows NSIS setup"
+              Directory = "target/x86_64-pc-windows-msvc/release/bundle/nsis"
+              Filter = "*.exe"
+              UnsignedPattern = "*_unsigned.exe"
+            }
+          )
+
+          foreach ($spec in $installerSpecs) {
+            $installers = @(Get-ChildItem $spec["Directory"] -Filter $spec["Filter"])
+            if ($installers.Count -ne 1) {
+              throw "Expected exactly one $($spec["Kind"]) before release upload; found $($installers.Count)."
+            }
+            $installer = $installers[0]
+            if ($installer.Name -notlike "*$env:EXPECTED_VERSION*") {
+              throw "$($spec["Kind"]) filename does not include release version $env:EXPECTED_VERSION."
+            }
+
+            $signature = Get-AuthenticodeSignature $installer.FullName
+            if ($env:WINDOWS_REQUIRE_SIGNATURE -eq "true") {
+              if ($signature.Status -ne "Valid") {
+                throw "$($spec["Kind"]) is not Authenticode-signed. Configure certificateThumbprint and timestampUrl before public signed Windows upload."
+              }
+              Write-Host "$($spec["Kind"]) Authenticode signature is valid."
+            } else {
+              if ($installer.Name -notlike $spec["UnsignedPattern"]) {
+                throw "Unsigned $($spec["Kind"]) must include _unsigned in the filename before public upload."
+              }
+              if ($signature.Status -ne "Valid") {
+                Write-Host "$($spec["Kind"]) is unsigned and clearly labeled. Windows SmartScreen warnings are expected."
+              } else {
+                Write-Host "$($spec["Kind"]) is clearly labeled for the no-account Windows path and has a valid signature."
+              }
+            }
+
+            $hash = Get-FileHash -Algorithm SHA256 $installer.FullName
+            "$($hash.Hash.ToLowerInvariant())  $($installer.Name)" | Set-Content -NoNewline -Encoding ascii "$($installer.FullName).sha256"
+          }
+
+      - name: Remove old Windows release assets
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ inputs.tag }}
+        run: |
+          $ErrorActionPreference = "Stop"
+
+          $assets = @(
+            gh release view $env:RELEASE_TAG --json assets --jq '.assets[].name' |
+              Where-Object { $_ -match '\.(msi|exe)(\.sha256)?$' }
+          )
+
+          foreach ($asset in $assets) {
+            if ([string]::IsNullOrWhiteSpace($asset)) {
+              continue
+            }
+            Write-Host "Deleting stale Windows release asset: $asset"
+            gh release delete-asset $env:RELEASE_TAG $asset -y
+          }
+
+      - name: Stage Windows release assets
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          New-Item -ItemType Directory -Force "release-assets/public" | Out-Null
+          Copy-Item "target/x86_64-pc-windows-msvc/release/bundle/msi/*.msi" "release-assets/public/"
+          Copy-Item "target/x86_64-pc-windows-msvc/release/bundle/msi/*.msi.sha256" "release-assets/public/"
+          Copy-Item "target/x86_64-pc-windows-msvc/release/bundle/nsis/*.exe" "release-assets/public/"
+          Copy-Item "target/x86_64-pc-windows-msvc/release/bundle/nsis/*.exe.sha256" "release-assets/public/"
+
+      - name: Generate release SBOM
+        shell: bash
+        env:
+          PLATFORM_KEY: windows
+          RELEASE_VERSION: ${{ inputs.version }}
+        run: |
+          npm run release:sbom -- \
+            --platform "$PLATFORM_KEY" \
+            --version "$RELEASE_VERSION" \
+            --out-dir release-assets/public \
+            --checksums-out release-assets/attestation-subjects.sha256 \
+            --require-artifacts
+
+      - name: Attest release artifact provenance
+        uses: actions/attest@a1948c3f048ba23858d222213b7c278aabede763 # v4.1.1
+        with:
+          subject-path: release-assets/public/*
+
+      - name: Attest release artifact SBOM
+        uses: actions/attest@a1948c3f048ba23858d222213b7c278aabede763 # v4.1.1
+        with:
+          subject-path: |
+            release-assets/public/*.dmg
+            release-assets/public/*.msi
+            release-assets/public/*.exe
+            release-assets/public/*.AppImage
+            release-assets/public/*.deb
+          sbom-path: release-assets/public/JobSentinel-${{ inputs.version }}-windows.sbom.spdx.json
+
+      - name: Upload release assets
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ inputs.tag }}
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+
+          assets=(release-assets/public/*)
+          if [ "${#assets[@]}" -eq 0 ]; then
+            printf 'No release assets were staged for upload.\n'
+            exit 1
+          fi
+
+          gh release upload "$RELEASE_TAG" "${assets[@]}" --clobber

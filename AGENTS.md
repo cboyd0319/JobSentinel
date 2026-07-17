@@ -11,11 +11,11 @@ SQLite, and SQLx offline mode. Runtime versions are owned by `.nvmrc`,
 Before implementation:
 
 1. Confirm the repository root with `git rev-parse --show-toplevel`.
-2. Read `PROGRESS.md`, then `feature_list.json`.
+2. Read `docs/harness/current-status.md`, then `scripts/harness/state/feature-list.json`.
 3. Review `git log -5 --oneline` and `git status --short --branch`.
 4. Run `./init.sh` on macOS or Linux, or `pwsh -File ./init.ps1` on Windows.
 5. Repair a failed baseline before adding scope.
-6. Work only on the single `active` feature in `feature_list.json`.
+6. Work only on the single `active` feature in `scripts/harness/state/feature-list.json`.
 
 First run and every dependency refresh use the same init command. It performs
 locked project dependency synchronization, read-only environment diagnosis,
@@ -35,22 +35,22 @@ with `npm run tauri:dev`.
   state, or mutate user-level configuration without explicit authority.
 - Use repo-relative paths and structured APIs. Do not commit secrets or local
   home paths.
-- `validation/file_size_contract.json` covers every maintained text file. New or
+- `scripts/harness/contracts/file-size.json` covers every maintained text file. New or
   changed files must stay within their scope; exceptions need an owner, measured
   baseline, reason, and removal trigger.
 
 ## Canonical Owners
 
-- Current state: `PROGRESS.md`
-- Work selection and pass transitions: `feature_list.json`
+- Current state: `docs/harness/current-status.md`
+- Work selection and pass transitions: `scripts/harness/state/feature-list.json`
 - Initialization: `init.sh`, `init.ps1`, and `scripts/harness/init.mjs`
-- Harness ownership and retired paths: `harness-manifest.json`
+- Harness ownership and retired paths: `scripts/harness/contracts/harness.json`
 - Verification routing: `scripts/harness/plan.mjs`
-- Source roots, units, and file-size policy: `repository-structure-policy.json`
+- Source roots, units, and file-size policy: `scripts/harness/contracts/repository-structure.json`
 - Rust graph, technology owners, and retired architecture paths:
-  `validation/repository_architecture_contract.json`
+  `scripts/harness/contracts/architecture.json`
 - Detailed operating model: `docs/harness/README.md`
-- Human architecture projection: `ARCHITECTURE.md`
+- Human architecture projection: `docs/architecture/repository.md`
 - Product behavior: `docs/features/` and `docs/harness/product-sense.md`
 - Reliability: `docs/harness/reliability.md`
 - Security: `docs/security/README.md`
@@ -58,12 +58,12 @@ with `npm run tauri:dev`.
   `docs/harness/verification-matrix.md`
 - Tests and commands: `docs/developer/TESTING.md`
 - Change contracts: `docs/harness/change-contract.md`
-- UI and copy: `DESIGN.md`, `docs/design/design-spec.md`, and
+- UI and copy: `docs/design/design-system.md`, `docs/design/design-spec.md`, and
   `docs/style-guide/README.md`
 
 Closest feature documentation under `docs/features/` owns user-visible behavior.
 Detailed plans under `docs/plans/` may expand the active feature but cannot
-replace root state.
+replace canonical state.
 
 ## Verification
 
@@ -88,7 +88,7 @@ state.
 ## Definition Of Done
 
 - Acceptance behavior is proven at every applicable verification level.
-- `PROGRESS.md` and `feature_list.json` agree with fresh evidence. Only
+- `docs/harness/current-status.md` and `scripts/harness/state/feature-list.json` agree with fresh evidence. Only
   verification can move a feature to irreversible `passing`.
 - Blocked work names the blocker and next trigger. Skipped required checks remain
   gaps, not passes.

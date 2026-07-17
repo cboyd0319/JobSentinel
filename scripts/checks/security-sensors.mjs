@@ -52,7 +52,7 @@ function readIfExists(root, path, violations) {
 }
 
 function hostedCiEnabled(root) {
-  const path = repoPath(root, "harness-manifest.json");
+  const path = repoPath(root, "scripts/harness/contracts/harness.json");
   if (!existsSync(path)) return true;
   try {
     return JSON.parse(readFileSync(path, "utf8"))?.hosted_workflows?.ci_enabled !== false;
@@ -73,6 +73,14 @@ function workflowPaths(root) {
     .filter((file) => [".yml", ".yaml"].includes(extname(file)))
     .map((file) => `.github/workflows/${file}`)
     .sort();
+}
+
+function releaseWorkflowPaths(root) {
+  return workflowPaths(root).filter(
+    (path) =>
+      path === ".github/workflows/release.yml" ||
+      path.startsWith(".github/workflows/release-"),
+  );
 }
 
 function countMatches(text, pattern) {
@@ -308,15 +316,32 @@ export function checkSecuritySensors(root = defaultRoot) {
     );
   }
 
-  const releaseWorkflow = readIfExists(root, ".github/workflows/release.yml", violations);
-  if (releaseCacheMarkers.some((marker) => releaseWorkflow.includes(marker))) {
+  const releaseWorkflowPath = ".github/workflows/release.yml";
+  const releaseWorkflow = readIfExists(root, releaseWorkflowPath, violations);
+  const releasePaths = [...new Set([releaseWorkflowPath, ...releaseWorkflowPaths(root)])];
+  const releaseWorkflowSurface = releasePaths
+    .map((path) =>
+      path === releaseWorkflowPath
+        ? releaseWorkflow
+        : readIfExists(root, path, violations),
+    )
+    .join("\n");
+  if (releaseCacheMarkers.some((marker) => releaseWorkflowSurface.includes(marker))) {
     violations.push(
       "release workflow must not restore dependency caches before publishing artifacts",
     );
   }
-  checkSetupNodeCacheDisabled(".github/workflows/release.yml", releaseWorkflow, violations);
+  for (const path of releasePaths) {
+    checkSetupNodeCacheDisabled(
+      path,
+      path === releaseWorkflowPath
+        ? releaseWorkflow
+        : readIfExists(root, path, violations),
+      violations,
+    );
+  }
   checkPhrasePolicies(
-    releaseWorkflow,
+    releaseWorkflowSurface,
     releaseWorkflowChecks,
     "release workflow is missing package gate",
     violations,

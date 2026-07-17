@@ -34,7 +34,7 @@ account, telemetry, cloud sync, or external AI provider.
 | Source taxonomy and routing | Public feeds, employer career pages, ATS families, regional boards, public boards, restricted sources, search links, Browser Import, and manual paths are treated as distinct source classes. |
 | Restricted-source Workbench | Sign-in-backed sources stay user-started and visible, with acknowledgement, local ledger actions, visible-job import, and no stored session material. |
 | Evidence-bounded resume matching | Resume help connects requirements to concrete local resume evidence, readability signals, hard gaps, and truthful draft suggestions. |
-| Local model governance | `models.lock.toml` controls model identity, revision, hashes, size, license, backend compatibility, instructions, thresholds, and stale-vector rules. |
+| Local model governance | `crates/jobsentinel-local-ai/models.lock.toml` controls model identity, revision, hashes, size, license, backend compatibility, instructions, thresholds, and stale-vector rules. |
 | Hybrid ranking | Dense retrieval, BM25, exact skill taxonomy hits, required coverage, seniority, blocker caps, reranker scores, and provenance are scored separately. |
 | Privacy-first AI gateway | Provider setup supports OpenAI, Anthropic, Google Gemini, GitHub Copilot, and custom HTTPS providers without making external AI required. |
 | Secure local operations | Saved secrets use the local vault, safe support reports stay review-first, and release assets carry checksums, SBOMs, and attestations. |
@@ -91,7 +91,7 @@ convenience downloader own model identity or scoring semantics.
 
 | Mechanic | Release behavior |
 | --- | --- |
-| Governed model lock | `models.lock.toml` pins Qwen3 embedding, Qwen3 reranker, MiniLM fallback, revisions, hashes, sizes, licenses, backends, instructions, thresholds, and stale-vector rules. |
+| Governed model lock | `crates/jobsentinel-local-ai/models.lock.toml` pins Qwen3 embedding, Qwen3 reranker, MiniLM fallback, revisions, hashes, sizes, licenses, backends, instructions, thresholds, and stale-vector rules. |
 | Dense retrieval | Qwen3-Embedding-0.6B retrieves resume and job passages that are meaningfully related. |
 | Lexical grounding | BM25 and exact skill taxonomy matches keep tools, credentials, role terms, and hard requirements concrete. |
 | Bounded reranking | Qwen3-Reranker-0.6B reranks top candidates so direct evidence can beat keyword-only near misses. |
@@ -215,7 +215,7 @@ preview, edit, cancel, approval, redaction, and tests before it can be enabled.
 - Keep privacy labels synchronized with
   `docs/harness/feature-privacy-labels.json`.
 - Keep current release status synchronized with
-  root `PROGRESS.md` and `feature_list.json`.
+  `docs/harness/current-status.md` and `scripts/harness/state/feature-list.json`.
 - Run focused docs checks after changes:
 
 ```bash

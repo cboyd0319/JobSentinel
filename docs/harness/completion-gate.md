@@ -16,7 +16,7 @@ claims completion.
 
 ## State And Evidence
 
-- [ ] `PROGRESS.md` and `feature_list.json` name the same single active feature,
+- [ ] `docs/harness/current-status.md` and `scripts/harness/state/feature-list.json` name the same single active feature,
       status, and update date.
 - [ ] A `passing` transition points to fresh evidence under
       `docs/harness/evidence/` and retains the original evidence permanently.

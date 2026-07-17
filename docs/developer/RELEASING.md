@@ -9,8 +9,8 @@ attestation, or publication.
 
 Before tagging, building release assets, uploading, or publishing:
 
-1. Close or explicitly rescope the active work in root `PROGRESS.md` and
-   `feature_list.json`.
+1. Close or explicitly rescope the active work in `docs/harness/current-status.md` and
+   `scripts/harness/state/feature-list.json`.
 2. Confirm one source revision and exact `X.Y.Z` version across Cargo, npm,
    Tauri, lockfiles, changelog, and `docs/releases/vX.Y.Z.md`.
 3. Obtain explicit authority for every external mutation: tag push, release

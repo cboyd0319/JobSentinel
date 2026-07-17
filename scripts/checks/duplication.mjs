@@ -11,7 +11,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 const scriptPath = fileURLToPath(import.meta.url);
 const defaultRoot = resolve(dirname(scriptPath), "../..");
-const contractPath = "validation/duplication_contract.json";
+const contractPath = "scripts/harness/contracts/duplication.json";
 
 const walkSkip = new Set([".git", ".claude", "node_modules", "target", "gen", "dist"]);
 

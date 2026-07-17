@@ -27,9 +27,9 @@ function withFixture(callback) {
 
 function writeValidState(root) {
   writeFixtureFile(root, "package.json", '{"name":"jobsentinel","description":"Fixture purpose"}\n');
-  writeFixtureFile(root, "harness-manifest.json", '{"owners":{"instructions":{"canonical":"AGENTS.md"}}}\n');
-  writeFixtureFile(root, "PROGRESS.md", "# Progress\n\nLast updated: 2026-07-14\n\n- Active feature: `one`\n- Status: `active`\n");
-  writeFixtureFile(root, "feature_list.json", `${JSON.stringify({
+  writeFixtureFile(root, "scripts/harness/contracts/harness.json", '{"owners":{"instructions":{"canonical":"AGENTS.md"}}}\n');
+  writeFixtureFile(root, "docs/harness/current-status.md", "# Progress\n\nLast updated: 2026-07-14\n\n- Active feature: `one`\n- Status: `active`\n");
+  writeFixtureFile(root, "scripts/harness/state/feature-list.json", `${JSON.stringify({
     schema: "jobsentinel.feature_list.v1",
     project: "Fixture",
     last_updated: "2026-07-14",
@@ -68,7 +68,7 @@ function fakeGit(_command, args) {
   throw new Error(`unexpected git call: ${args.join(" ")}`);
 }
 
-test("session summary is derived only from canonical root state", () => {
+test("session summary is derived only from canonical state", () => {
   withFixture((root) => {
     writeValidState(root);
     const summary = summarizeHarnessSession(root, { execFileSync: fakeGit });
@@ -86,8 +86,11 @@ test("session summary is derived only from canonical root state", () => {
 test("session fails on invalid or contradictory state", () => {
   withFixture((root) => {
     writeValidState(root);
-    writeFixtureFile(root, "feature_list.json", "{invalid\n");
-    assert.throws(() => summarizeHarnessSession(root, { execFileSync: fakeGit }), /fix invalid feature_list.json/);
+    writeFixtureFile(root, "scripts/harness/state/feature-list.json", "{invalid\n");
+    assert.throws(
+      () => summarizeHarnessSession(root, { execFileSync: fakeGit }),
+      /fix invalid scripts\/harness\/state\/feature-list\.json/,
+    );
   });
 });
 

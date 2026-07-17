@@ -3,20 +3,6 @@ import { join } from "node:path";
 import { genericScraperFixturePaths } from "./broad-audience-fixture-paths.mjs";
 
 export function hasBroadAudienceSourceExampleDrift(root, path, text) {
-  if (path === "examples/resumes/sample-json-resume.json") {
-    const sampleJsonResumePatterns = [
-      /"name":\s*"John Doe"/i,
-      /"label":\s*"Senior Software Engineer"/i,
-      /"position":\s*"(?:(?:Senior|Junior)\s+)?(?:Software Engineer|Developer)"/i,
-      /"network":\s*"GitHub"/i,
-      /"name":\s*"Tech Corp"/i,
-      /"name":\s*"Startup Inc"/i,
-      /"keywords":\s*\[[^\]]*"Rust"/i,
-    ];
-
-    return sampleJsonResumePatterns.some((pattern) => pattern.test(text));
-  }
-
   if (path === "crates/jobsentinel-storage/src/market_intelligence/tests.rs") {
     const marketIntelligenceTestPatterns = [
       /Software Engineer/i,

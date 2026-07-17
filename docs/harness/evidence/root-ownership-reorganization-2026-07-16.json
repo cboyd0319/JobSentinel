@@ -1,0 +1,83 @@
+{
+  "schema": "jobsentinel.feature_evidence.v1",
+  "feature_id": "harness-canonical-remediation",
+  "behavior": "Every repository-root entry has a current owner, and maintained state, contracts, documentation, examples, and generated outputs live at their narrowest canonical owner.",
+  "result": "passing",
+  "verified_at": "2026-07-17T00:55:27Z",
+  "revision": "dadf92c4",
+  "platform": "macOS 27.0 arm64",
+  "scope": "Complete repository-root ownership audit and reorganization",
+  "moved_paths": {
+    "PROGRESS.md": "docs/harness/current-status.md",
+    "feature_list.json": "scripts/harness/state/feature-list.json",
+    "harness-manifest.json": "scripts/harness/contracts/harness.json",
+    "repository-structure-policy.json": "scripts/harness/contracts/repository-structure.json",
+    "validation/repository_architecture_contract.json": "scripts/harness/contracts/architecture.json",
+    "validation/dependency_rationale.json": "scripts/harness/contracts/dependency-rationale.json",
+    "validation/duplication_contract.json": "scripts/harness/contracts/duplication.json",
+    "validation/file_size_contract.json": "scripts/harness/contracts/file-size.json",
+    "ARCHITECTURE.md": "docs/architecture/repository.md",
+    "DESIGN.md": "docs/design/design-system.md",
+    "examples/config/config.example.json": "docs/examples/config.example.json",
+    "models.lock.toml": "crates/jobsentinel-local-ai/models.lock.toml"
+  },
+  "removed_paths": [
+    ".DS_Store",
+    ".env.example",
+    "examples/profiles",
+    "examples/resumes/sample-json-resume.json",
+    "examples",
+    "validation",
+    "target"
+  ],
+  "retained_root_directories": [
+    "crates",
+    "docs",
+    "node_modules",
+    "resources",
+    "scripts",
+    "src",
+    "src-tauri",
+    "tests"
+  ],
+  "observed_implementation": [
+    "All live path consumers, ownership contracts, documentation links, and checks use the relocated canonical paths.",
+    "The stale profile and resume fixtures were deleted; the live configuration example remains discoverable under docs/examples.",
+    "The local AI crate owns and embeds its model lock manifest.",
+    "Deleted working-tree paths are excluded before canonical structure classification.",
+    "In-memory SQLite test databases use one connection, preventing cross-test migration interference and preserving one database per pool."
+  ],
+  "commands": [
+    {
+      "command": "./init.sh",
+      "exit_status": 0,
+      "relevant_result": "Locked dependency synchronization, environment diagnosis, harness validation, and baseline application smoke passed.",
+      "caveat": "The host Node.js and npm versions differ from the repository-owned pins."
+    },
+    {
+      "command": "npm run verify:full",
+      "exit_status": 0,
+      "relevant_result": "The complete local gate passed, including 817 script tests, 2,934 frontend tests, production and Storybook builds, 10 smoke journeys, architecture, security, documentation, and Rust workspace checks.",
+      "caveat": "The verified batch remains uncommitted pending separate authorization."
+    },
+    {
+      "command": "cargo test -p jobsentinel-storage --test database_integration_test",
+      "exit_status": 0,
+      "relevant_result": "The affected integration binary completed in 1.45 seconds with 22 passing and 1 intentionally ignored test after the single-connection correction.",
+      "caveat": "A regression first proved that the previous in-memory pool allowed 10 connections."
+    },
+    {
+      "command": "npm run clean:generated && cargo clean",
+      "exit_status": 0,
+      "relevant_result": "Production, Storybook, runtime-test, and Rust build outputs were removed. Initial target cleanup reclaimed 184.5 GiB; final post-verification cleanup reclaimed 13.4 GiB.",
+      "caveat": "node_modules remains as the required local npm dependency installation."
+    }
+  ],
+  "audit": {
+    "root_entries_examined": true,
+    "live_consumers_updated": true,
+    "generated_artifacts_removed": true,
+    "implementation_complete": true,
+    "committed": false
+  }
+}

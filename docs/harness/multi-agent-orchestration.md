@@ -52,7 +52,7 @@ The coordinator owns:
 
 The repository still has one active feature. Each delegated slice records a
 unique parent/child task-lineage identifier under that feature. Only the
-coordinator updates `PROGRESS.md`, `feature_list.json`, shared plans, or
+coordinator updates `docs/harness/current-status.md`, `scripts/harness/state/feature-list.json`, shared plans, or
 integration evidence.
 
 The coordinator remains accountable for correctness. A sub-agent success report

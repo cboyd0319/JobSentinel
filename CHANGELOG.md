@@ -104,7 +104,7 @@ Job-search readiness release for the full local-first workspace. This release he
 - **Downloadable Agent Skills** - Added spec-compliant job-search, resume, application, outreach, interview, tracking, posting-risk, and offer/pay skills under `skills/`.
 - **Browser Import workflow** - Kept LinkedIn-compatible job capture on user-opened pages and user-clicked import, with no session-cookie storage, token replay, background monitoring, result-list crawling, or account automation.
 - **Under-the-hood release mechanics** - Public docs now call out the local architecture that powers the product: source taxonomy and routing, restricted-source Workbench, evidence-bounded resume matching, privacy-first AI gateway, local vault and safe reports, Agent Skills packaging, release supply-chain checks, and local semantic matching.
-- **Qwen3 local matching architecture** - Embedded-ML builds can use governed Qwen3-Embedding-0.6B retrieval plus bounded Qwen3-Reranker-0.6B reranking, blended with exact skill, BM25, blocker, seniority, evidence, and provenance signals. `models.lock.toml` pins model identity, revisions, hashes, sizes, licenses, backends, instruction profiles, thresholds, and stale-vector rules.
+- **Qwen3 local matching architecture** - Embedded-ML builds can use governed Qwen3-Embedding-0.6B retrieval plus bounded Qwen3-Reranker-0.6B reranking, blended with exact skill, BM25, blocker, seniority, evidence, and provenance signals. `crates/jobsentinel-local-ai/models.lock.toml` pins model identity, revisions, hashes, sizes, licenses, backends, instruction profiles, thresholds, and stale-vector rules.
 
 ### Changed
 

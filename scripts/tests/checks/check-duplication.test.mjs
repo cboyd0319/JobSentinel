@@ -83,14 +83,14 @@ test("checkDuplication fails above baseline and passes at or under it", () => {
       excludePatterns: [],
       baseline: { duplicatedLines: 0, cloneRegions: 0 },
     };
-    write(root, "validation/duplication_contract.json", `${JSON.stringify(contract)}\n`);
+    write(root, "scripts/harness/contracts/duplication.json", `${JSON.stringify(contract)}\n`);
 
     const failing = checkDuplication(root);
     assert.equal(failing.length, 1);
     assert.match(failing[0], /duplication increased/);
 
     contract.baseline.duplicatedLines = 100;
-    write(root, "validation/duplication_contract.json", `${JSON.stringify(contract)}\n`);
+    write(root, "scripts/harness/contracts/duplication.json", `${JSON.stringify(contract)}\n`);
     assert.deepEqual(checkDuplication(root), []);
   });
 });

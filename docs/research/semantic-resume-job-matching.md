@@ -214,7 +214,7 @@ tokens, or URLs with secrets in feedback or eval logs.
 
 ## Implementation Implications
 
-- Keep `models.lock.toml` as the model supply-chain source of truth.
+- Keep `crates/jobsentinel-local-ai/models.lock.toml` as the model supply-chain source of truth.
 - Keep model identity separate from backend identity.
 - Keep Qwen3 embeddings and reranking behind JobSentinel-owned traits.
 - Keep domain contracts for role families, generated-advice separation, skill

@@ -1,8 +1,8 @@
 {
   "schema": "jobsentinel.repository_architecture.v2",
-  "owner": "validation/repository_architecture_contract.json",
+  "owner": "scripts/harness/contracts/architecture.json",
   "active_plan": "docs/plans/active/current-work.md",
-  "architecture_doc": "ARCHITECTURE.md",
+  "architecture_doc": "docs/architecture/repository.md",
   "decision_log_id": "2026-07-14-executable-repository-topology",
     "members": {
       "jobsentinel": "src-tauri",
@@ -58,15 +58,13 @@
       ".storybook",
       "crates",
       "docs",
-      "examples",
       "public",
       "resources",
       "scripts",
       "skills",
       "src",
       "src-tauri",
-      "tests",
-      "validation"
+      "tests"
     ],
     "frontend_directories": [
       "app",
@@ -99,7 +97,6 @@
       "src-tauri/src/policy/mod.rs"
     ],
     "forbidden_paths": [
-      "docs/architecture",
       "scripts/dependency",
       "scripts/security",
       "src/app/vitals.ts",

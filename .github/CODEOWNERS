@@ -24,9 +24,12 @@ scripts/checks/repository-architecture.mjs @cboyd0319
 scripts/checks/security-sensors.mjs @cboyd0319
 scripts/tests/checks/check-security-sensors.test.mjs @cboyd0319
 scripts/checks/security/ @cboyd0319
+scripts/harness/contracts/ @cboyd0319
+scripts/harness/state/ @cboyd0319
 src-tauri/Cargo.toml @cboyd0319
 src-tauri/src/ipc/registry.rs @cboyd0319
-validation/ @cboyd0319
+docs/architecture/repository.md @cboyd0319
+docs/harness/current-status.md @cboyd0319
 
 # Agent and AI behavior controls.
 AGENTS.md @cboyd0319

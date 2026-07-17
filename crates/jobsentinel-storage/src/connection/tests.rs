@@ -1,6 +1,18 @@
 use super::*;
 
 #[cfg(test)]
+mod memory_tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn in_memory_database_uses_one_connection() {
+        let database = Database::connect_memory().await.unwrap();
+
+        assert_eq!(database.pool().options().get_max_connections(), 1);
+    }
+}
+
+#[cfg(test)]
 mod backup_tests {
     use super::*;
     use sqlx::{sqlite::SqliteConnectOptions, ConnectOptions};

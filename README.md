@@ -276,7 +276,7 @@ an embedded-ML build has verified model files, matching uses:
 | Exact skill and BM25 scoring | Keeps concrete tools, certifications, titles, and requirement words grounded. |
 | Qwen3-Reranker-0.6B | Reranks a bounded top-K set so direct evidence beats keyword-only near misses. |
 | Blockers and evidence classes | Flags missing hard requirements, salary/location mismatch, seniority mismatch, and weak evidence. |
-| Model governance | `models.lock.toml` pins model identity, revisions, hashes, sizes, licenses, and instruction profiles. |
+| Model governance | `crates/jobsentinel-local-ai/models.lock.toml` pins model identity, revisions, hashes, sizes, licenses, and instruction profiles. |
 
 If local model files are not present, JobSentinel falls back to deterministic
 matching. Resume and job text stays local either way. See

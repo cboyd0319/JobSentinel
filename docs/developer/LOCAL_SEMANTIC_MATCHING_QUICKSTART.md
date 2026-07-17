@@ -46,7 +46,7 @@ text, salary floors, private notes, application history, or other job-search
 records.
 
 The current wired runtime downloads the governed MiniLM baseline from
-`models.lock.toml`. Qwen3 embedding and reranker profiles are already pinned in
+`crates/jobsentinel-local-ai/models.lock.toml`. Qwen3 embedding and reranker profiles are already pinned in
 the same lockfile for the production backend work.
 
 ```typescript

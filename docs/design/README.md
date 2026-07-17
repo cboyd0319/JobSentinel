@@ -7,7 +7,7 @@ job seekers. They are product contracts, not inspiration boards.
 
 | Source | Purpose |
 | --- | --- |
-| [DESIGN.md](../../DESIGN.md) | Canonical design system entrypoint with tokens, visual stance, and core rules. |
+| [Design System](design-system.md) | Canonical design system entrypoint with tokens, visual stance, and core rules. |
 | [Design Spec](design-spec.md) | Maintained product design spec for screens, components, privacy UX, and accessibility. |
 | [Local Secret Vault And Keychain Integration](../security/KEYRING.md) | Local secret-vault, encrypted database, Keychain, Touch ID, and passphrase design contract. |
 | [Style Guide](../style-guide/README.md) | Product language, glossary, and writing rules. |
@@ -15,7 +15,7 @@ job seekers. They are product contracts, not inspiration boards.
 
 ## How To Use These Docs
 
-Read [DESIGN.md](../../DESIGN.md) before changing visual components, user
+Read [Design System](design-system.md) before changing visual components, user
 flows, dashboards, modals, navigation, empty states, toasts, or settings. Use
 the design spec when screen-level behavior or product interaction rules are in
 scope.
@@ -34,8 +34,8 @@ For broad UI changes, also read:
 ## Harness Lock
 
 The Quiet Shield redesign is a harness-controlled active-goal acceptance gate.
-`harness-manifest.json` records the harness owners; this design directory and root
-`DESIGN.md`, and the compatibility pointer under `docs/developer/` to stay
+`scripts/harness/contracts/harness.json` records the harness owners; this design directory,
+`design-system.md`, and the compatibility pointer under `docs/developer/` must stay
 present and aligned.
 
 Any UI or UX change must say whether it affects the design contract. Broad
@@ -46,7 +46,7 @@ work resumes.
 
 ## Maintenance Rules
 
-- Keep root [DESIGN.md](../../DESIGN.md) as the short canonical design-system
+- Keep [Design System](design-system.md) as the short canonical design-system
   source.
 - Keep long-form product design guidance in this directory.
 - Do not paste unreviewed design drafts into `docs/developer/`.

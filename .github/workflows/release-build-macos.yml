@@ -1,0 +1,354 @@
+name: Release build macos
+
+on:
+  workflow_call:
+    inputs:
+      tag:
+        required: true
+        type: string
+      version:
+        required: true
+        type: string
+
+permissions: {}
+
+env:
+  CARGO_INCREMENTAL: "0"
+  SQLX_OFFLINE: true
+
+jobs:
+  build-release-macos:
+    runs-on: macos-26
+    timeout-minutes: 120
+    environment:
+      name: release
+    permissions:
+      artifact-metadata: write
+      attestations: write
+      contents: write
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "24.18.0"
+          package-manager-cache: false
+
+      - name: Install pinned npm
+        run: node scripts/harness/npm-pin.mjs
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@4be7066ada62dd38de10e7b70166bc74ed198c30 # stable
+        with:
+          toolchain: "1.97.0"
+          targets: aarch64-apple-darwin,x86_64-apple-darwin
+
+      - name: Install frontend dependencies
+        run: npm ci --ignore-scripts --prefer-offline --no-audit --no-fund
+
+      - name: Configure macOS signing and notarization
+        env:
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
+          APPLE_API_KEY_PATH: ${{ secrets.APPLE_API_KEY_PATH }}
+          APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
+          JOBSENTINEL_MACOS_NOTARY_PROFILE: ${{ secrets.JOBSENTINEL_MACOS_NOTARY_PROFILE }}
+          NOTARYTOOL_KEYCHAIN_PROFILE: ${{ secrets.NOTARYTOOL_KEYCHAIN_PROFILE }}
+        run: |
+          set -euo pipefail
+
+          signing_required=(
+            APPLE_CERTIFICATE
+            APPLE_CERTIFICATE_PASSWORD
+            APPLE_SIGNING_IDENTITY
+          )
+          signing_missing=()
+          for name in "${signing_required[@]}"; do
+            if [ -z "${!name:-}" ]; then
+              signing_missing+=("$name")
+            fi
+          done
+
+          apple_id_notary=false
+          api_key_notary=false
+          profile_notary=false
+          if [ -n "${APPLE_ID:-}" ] && [ -n "${APPLE_PASSWORD:-}" ] && [ -n "${APPLE_TEAM_ID:-}" ]; then
+            apple_id_notary=true
+          fi
+          if [ -n "${APPLE_API_KEY:-}" ] && [ -n "${APPLE_API_KEY_PATH:-}" ] && [ -n "${APPLE_API_ISSUER:-}" ]; then
+            api_key_notary=true
+          fi
+          if [ -n "${JOBSENTINEL_MACOS_NOTARY_PROFILE:-}" ] || [ -n "${NOTARYTOOL_KEYCHAIN_PROFILE:-}" ]; then
+            profile_notary=true
+          fi
+
+          notary_fields=(
+            APPLE_ID
+            APPLE_PASSWORD
+            APPLE_TEAM_ID
+            APPLE_API_KEY
+            APPLE_API_KEY_PATH
+            APPLE_API_ISSUER
+          )
+          any_notary_field=false
+          for name in "${notary_fields[@]}"; do
+            if [ -n "${!name:-}" ]; then
+              any_notary_field=true
+            fi
+          done
+
+          if [ "$profile_notary" = "true" ]; then
+            printf 'GitHub macOS release runners cannot use a pre-existing notarytool keychain profile. Configure APPLE_ID/APPLE_PASSWORD/APPLE_TEAM_ID or APPLE_API_KEY/APPLE_API_KEY_PATH/APPLE_API_ISSUER instead.\n'
+            exit 1
+          fi
+
+          if [ "${#signing_missing[@]}" -ne 0 ]; then
+            if [ "${#signing_missing[@]}" -eq "${#signing_required[@]}" ] && [ "$any_notary_field" = "false" ]; then
+              printf 'Apple Developer release secrets are not configured. Building locally verified ad-hoc macOS DMG without notarization.\n'
+              {
+                printf 'JOBSENTINEL_MACOS_SIGNING_IDENTITY=-\n'
+                printf 'JOBSENTINEL_MACOS_NOTARIZE_DMG=false\n'
+                printf 'JOBSENTINEL_MACOS_REQUIRE_GATEKEEPER=false\n'
+                printf 'JOBSENTINEL_MACOS_NO_ACCOUNT=true\n'
+              } >> "$GITHUB_ENV"
+              exit 0
+            fi
+
+            printf 'Partial macOS signing secrets are configured. Missing: %s\n' "${signing_missing[*]}"
+            exit 1
+          fi
+
+          if [ "$apple_id_notary" != "true" ] && [ "$api_key_notary" != "true" ]; then
+            printf 'macOS signing secrets are configured, but no complete notarization auth set is available. Configure APPLE_ID/APPLE_PASSWORD/APPLE_TEAM_ID or APPLE_API_KEY/APPLE_API_KEY_PATH/APPLE_API_ISSUER.\n'
+            exit 1
+          fi
+
+          keychain_password="$(openssl rand -hex 24)"
+          printf '::add-mask::%s\n' "$keychain_password"
+          keychain_path="$RUNNER_TEMP/jobsentinel-signing.keychain-db"
+          certificate_path="$RUNNER_TEMP/jobsentinel-certificate.p12"
+
+          printf '%s' "$APPLE_CERTIFICATE" | base64 --decode > "$certificate_path"
+          security create-keychain -p "$keychain_password" "$keychain_path"
+          security default-keychain -s "$keychain_path"
+          security unlock-keychain -p "$keychain_password" "$keychain_path"
+          security set-keychain-settings -lut 21600 "$keychain_path"
+          security import "$certificate_path" \
+            -k "$keychain_path" \
+            -P "$APPLE_CERTIFICATE_PASSWORD" \
+            -T /usr/bin/codesign \
+            -T /usr/bin/security
+          security set-key-partition-list \
+            -S apple-tool:,apple:,codesign: \
+            -s \
+            -k "$keychain_password" \
+            "$keychain_path"
+          security find-identity -v -p codesigning "$keychain_path"
+
+          if [ "$api_key_notary" = "true" ]; then
+            materialized_api_key_path="$APPLE_API_KEY_PATH"
+            if [ ! -f "$materialized_api_key_path" ]; then
+              materialized_api_key_path="$RUNNER_TEMP/AuthKey_${APPLE_API_KEY}.p8"
+              umask 077
+              printf '%s' "$APPLE_API_KEY_PATH" > "$materialized_api_key_path"
+              chmod 600 "$materialized_api_key_path"
+            fi
+
+            if [ ! -s "$materialized_api_key_path" ]; then
+              printf 'APPLE_API_KEY_PATH must point to a readable .p8 file or contain the private key contents.\n'
+              exit 1
+            fi
+
+            printf 'APPLE_API_KEY_PATH=%s\n' "$materialized_api_key_path" >> "$GITHUB_ENV"
+          fi
+
+          {
+            printf 'APPLE_SIGNING_IDENTITY=%s\n' "$APPLE_SIGNING_IDENTITY"
+            printf 'JOBSENTINEL_MACOS_SIGNING_IDENTITY=%s\n' "$APPLE_SIGNING_IDENTITY"
+            printf 'JOBSENTINEL_MACOS_NOTARIZE_DMG=true\n'
+            printf 'JOBSENTINEL_MACOS_REQUIRE_GATEKEEPER=true\n'
+            printf 'JOBSENTINEL_MACOS_NO_ACCOUNT=false\n'
+          } >> "$GITHUB_ENV"
+
+      - name: Build macOS app and DMG
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
+          APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
+        run: npm run tauri:build:macos -- --target universal-apple-darwin
+
+      - name: Verify macOS app and DMG
+        shell: bash
+        env:
+          EXPECTED_VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+
+          dmg_paths=(target/universal-apple-darwin/release/bundle/dmg/*.dmg)
+          if [ "${#dmg_paths[@]}" -ne 1 ]; then
+            printf 'Expected exactly one macOS DMG, found %s\n' "${#dmg_paths[@]}"
+            exit 1
+          fi
+          args=(
+            --dmg "${dmg_paths[0]}"
+            --expected-architectures "x86_64,arm64"
+            --expected-bundle-id "com.jobsentinel.main"
+            --expected-product-name "JobSentinel"
+            --expected-version "$EXPECTED_VERSION"
+            --expected-icon-file "icon.icns"
+            --expected-minimum-system-version "13.0"
+            --launch-smoke
+            --install-smoke
+            --require-checksum
+          )
+
+          if [ "${JOBSENTINEL_MACOS_REQUIRE_GATEKEEPER:-false}" = "true" ]; then
+            args+=(--require-gatekeeper)
+          fi
+
+          npm run tauri:verify:macos -- "${args[@]}"
+
+      - name: Clean up macOS signing material
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          security delete-keychain "$RUNNER_TEMP/jobsentinel-signing.keychain-db" >/dev/null 2>&1 || :
+          rm -f "$RUNNER_TEMP/jobsentinel-certificate.p12"
+          rm -f "$RUNNER_TEMP"/AuthKey_*.p8
+
+      - name: Label no-account macOS DMG
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+
+          dmg_paths=(target/universal-apple-darwin/release/bundle/dmg/*.dmg)
+          if [ "${#dmg_paths[@]}" -ne 1 ]; then
+            printf 'Expected exactly one macOS DMG, found %s\n' "${#dmg_paths[@]}"
+            exit 1
+          fi
+
+          current_path="${dmg_paths[0]}"
+          current_name="$(basename "$current_path")"
+          current_dir="$(dirname "$current_path")"
+
+          if [[ "$current_name" == *"_no-account_"* ]]; then
+            printf 'No-account macOS DMG already labeled: %s\n' "$current_path"
+            exit 0
+          fi
+
+          labeled_name="${current_name/_universal.dmg/_no-account_universal.dmg}"
+          if [ "$labeled_name" = "$current_name" ]; then
+            labeled_name="${current_name%.dmg}_no-account_macos.dmg"
+          fi
+
+          labeled_path="$current_dir/$labeled_name"
+          mv "$current_path" "$labeled_path"
+          rm -f "$current_path.sha256" "$labeled_path.sha256"
+          printf 'Labeled no-account macOS DMG: %s\n' "$labeled_path"
+
+      - name: Create macOS checksum
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+
+          dmg_paths=(target/universal-apple-darwin/release/bundle/dmg/*.dmg)
+          if [ "${#dmg_paths[@]}" -ne 1 ]; then
+            printf 'Expected exactly one macOS DMG, found %s\n' "${#dmg_paths[@]}"
+            exit 1
+          fi
+
+          shasum -a 256 "${dmg_paths[0]}" > "${dmg_paths[0]}.sha256"
+          cat "${dmg_paths[0]}.sha256"
+
+      - name: Remove old macOS release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ inputs.tag }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          while IFS= read -r asset; do
+            [ -n "$asset" ] || continue
+            printf 'Deleting stale macOS release asset: %s\n' "$asset"
+            gh release delete-asset "$RELEASE_TAG" "$asset" -y
+          done < <(
+            gh release view "$RELEASE_TAG" \
+              --json assets \
+              --jq '.assets[].name' \
+              | grep -E '\.dmg(\.sha256)?$' || true
+          )
+
+      - name: Stage macOS release assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p release-assets/public
+          cp target/universal-apple-darwin/release/bundle/dmg/*.dmg release-assets/public/
+          cp target/universal-apple-darwin/release/bundle/dmg/*.dmg.sha256 release-assets/public/
+
+      - name: Generate release SBOM
+        shell: bash
+        env:
+          PLATFORM_KEY: macos
+          RELEASE_VERSION: ${{ inputs.version }}
+        run: |
+          npm run release:sbom -- \
+            --platform "$PLATFORM_KEY" \
+            --version "$RELEASE_VERSION" \
+            --out-dir release-assets/public \
+            --checksums-out release-assets/attestation-subjects.sha256 \
+            --require-artifacts
+
+      - name: Attest release artifact provenance
+        uses: actions/attest@a1948c3f048ba23858d222213b7c278aabede763 # v4.1.1
+        with:
+          subject-path: release-assets/public/*
+
+      - name: Attest release artifact SBOM
+        uses: actions/attest@a1948c3f048ba23858d222213b7c278aabede763 # v4.1.1
+        with:
+          subject-path: |
+            release-assets/public/*.dmg
+            release-assets/public/*.msi
+            release-assets/public/*.exe
+            release-assets/public/*.AppImage
+            release-assets/public/*.deb
+          sbom-path: release-assets/public/JobSentinel-${{ inputs.version }}-macos.sbom.spdx.json
+
+      - name: Upload release assets
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ inputs.tag }}
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+
+          assets=(release-assets/public/*)
+          if [ "${#assets[@]}" -eq 0 ]; then
+            printf 'No release assets were staged for upload.\n'
+            exit 1
+          fi
+
+          gh release upload "$RELEASE_TAG" "${assets[@]}" --clobber

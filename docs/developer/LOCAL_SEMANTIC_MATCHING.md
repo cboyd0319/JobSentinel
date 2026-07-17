@@ -12,13 +12,13 @@ external AI.
 | Default app behavior | Disabled unless built with the feature |
 | Core workflow dependency | None; deterministic matching remains available |
 | Data flow | Resume and job-skill matching runs locally |
-| Model governance | `models.lock.toml` pins model identity, revision, hashes, size, license, backend compatibility, instruction profiles, and score thresholds |
+| Model governance | `crates/jobsentinel-local-ai/models.lock.toml` pins model identity, revision, hashes, size, license, backend compatibility, instruction profiles, and score thresholds |
 | Target embedding profile | `Qwen/Qwen3-Embedding-0.6B` at revision `97b0c614be4d77ee51c0cef4e5f07c00f9eb65b3`, 768-dimensional balanced profile |
 | Target reranker profile | `Qwen/Qwen3-Reranker-0.6B` at revision `e61197ed45024b0ed8a2d74b80b4d909f1255473` |
 | Current wired runtime | Direct semantic matcher calls prefer the governed Qwen3 embedding plus reranker pair when both models are downloaded and checksum-verified; legacy `sentence-transformers/all-MiniLM-L6-v2` remains the fallback; embedded-ML resume/job scoring uses the hybrid scorer |
 | Network behavior | Model download only, when the model is explicitly requested |
 | User data sent during model download | None |
-| Integrity check | Required SHA-256 checks for every required file in `models.lock.toml` |
+| Integrity check | Required SHA-256 checks for every required file in `crates/jobsentinel-local-ai/models.lock.toml` |
 | Cache layout | `<app-data>/ml_models/<model-id>/<revision>/<model-lock-hash>/` |
 | Runtime stack | Candle, tokenizers, `safetensors`, optional macOS Metal acceleration |
 | Hybrid ranking | Typed local scoring core combines dense, BM25, exact skill, required-coverage, seniority, reranker, blocker, and provenance signals |
@@ -100,7 +100,7 @@ disabled by default, and routed through
 | `crates/jobsentinel-storage/src/resume/matcher/hybrid_score.rs` | Resume/job scoring bridge for hybrid matching and legacy fallback |
 | `crates/jobsentinel-local-ai/src/tests.rs` | Feature-gated tests |
 | `src-tauri/src/ipc/ml.rs` | Feature-gated Tauri commands |
-| `models.lock.toml` | Model supply-chain lockfile |
+| `crates/jobsentinel-local-ai/models.lock.toml` | Model supply-chain lockfile |
 
 ## Model Direction
 

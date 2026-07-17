@@ -1,4 +1,4 @@
-# Architecture
+# Repository Architecture
 
 ## Scale Contract
 
@@ -6,14 +6,14 @@ Treat JobSentinel as capable of growing to 2,000,000 lines and 50,000 files.
 Create a unit only when real code has a cohesive product or domain owner. Do not
 create empty layers, but do not let new code spread outside the approved roots.
 
-`validation/repository_architecture_contract.json` owns the Rust workspace
-graph, technology ownership, and retired paths. `repository-structure-policy.json`
+`scripts/harness/contracts/architecture.json` owns the Rust workspace
+graph, technology ownership, and retired paths. `scripts/harness/contracts/repository-structure.json`
 owns approved source roots, public entrypoints, TypeScript projects, generated
 isolation, and source-size ratchets. This document is their human projection.
 `npm run lint:architecture` and `npm run lint:file-size` enforce both locally.
 Hosted CI is absent
 under the named `pre-alpha-private-no-ci` user exception in
-`harness-manifest.json`; the canonical skill does not define that exception.
+`scripts/harness/contracts/harness.json`; the canonical skill does not define that exception.
 
 ## Repository Shape
 
@@ -27,7 +27,7 @@ crates/jobsentinel-credentials/ credential lifecycle and encrypted vault
 crates/jobsentinel-documents/ resume parsing, analysis, and rendering
 crates/jobsentinel-domain/   serialized business values and normalization
 crates/jobsentinel-intelligence/ pure scoring and posting-quality analysis
-crates/jobsentinel-local-ai/ optional governed local model runtime
+crates/jobsentinel-local-ai/ optional governed local model runtime and model lock
 crates/jobsentinel-network/  outbound target and bounded-body policy
 crates/jobsentinel-notifications/ explicit alert-channel delivery
 crates/jobsentinel-platform/ OS paths, file permissions, and device keys
@@ -40,12 +40,11 @@ docs/                        detailed product and engineering documentation
 skills/                      independently distributable JobSentinel skills
 resources/                   owned application data
 public/                      static application assets
-examples/                    maintained examples
 ```
 
 Generated dependency, cache, and build roots are isolated and declared in the
-policy. Root files are limited to workspace manifests, lockfiles, routing,
-repository policy, and unavoidable tool configuration.
+policy. Root files are limited to workspace manifests, lockfiles, public project
+contracts, launchers, and unavoidable tool configuration.
 
 ## Unit Owners And Public Entrypoints
 
@@ -79,13 +78,13 @@ bounded owner crates. SQLx belongs only to storage, reqwest only to network,
 keyring only to platform, browser automation only to assistance, and Tauri only
 to the desktop. Consumers use public crate APIs, never another unit's private
 source paths. The exhaustive graph and technology owners are enforced from
-`validation/repository_architecture_contract.json`.
+`scripts/harness/contracts/architecture.json`.
 
 ## Hard Source Limits
 
 Every hand-authored source or configuration file enters modularization review
 above 300 physical lines or 32,768 bytes. It fails above 500 physical lines or
-65,536 bytes unless `repository-structure-policy.json` contains an exact,
+65,536 bytes unless `scripts/harness/contracts/repository-structure.json` contains an exact,
 temporary ratchet with the affected rule, owner, reason, measured ceiling,
 approval date, and retirement condition. Blank and comment lines count.
 

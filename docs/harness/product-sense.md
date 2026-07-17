@@ -55,5 +55,5 @@ repo-template product-sense document. See
 
 - [Agent operating model](agent-operating-model.md)
 - [Change contract](change-contract.md)
-- [Design contract](../../DESIGN.md)
+- [Design contract](../design/design-system.md)
 - [Experience guide](../style-guide/README.md)

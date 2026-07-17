@@ -2,7 +2,7 @@
 
 Last updated: 2026-07-14. Locked by the planning milestone. The executable
 projection is
-[`validation/repository_architecture_contract.json`](../../../validation/repository_architecture_contract.json).
+[`scripts/harness/contracts/architecture.json`](../../../scripts/harness/contracts/architecture.json).
 Later changes require measured evidence, a contract-test update, and an entry
 in the active plan's decision log.
 
@@ -35,9 +35,7 @@ tests/e2e/          user-journey desktop-renderer contract tests
 scripts/            checks, harness, development, platform, release, and tests
 docs/               product, engineering, security, plans, research, and releases
 skills/             distributable JobSentinel agent skills
-examples/           reviewed, non-sensitive example inputs
 resources/          runtime-owned static data
-validation/         machine-readable repository policy contracts
 public/             renderer assets copied by Vite
 .github/             ownership, dependency automation, and explicit release workflows
 .storybook/          UI component development and accessibility configuration
@@ -295,7 +293,7 @@ storage. Those controls receive contract tests before the move.
 ## File And Dependency Policy
 
 The all-path sensor projects the canonical root policy into
-`validation/file_size_contract.json`. Every hand-authored source and
+`scripts/harness/contracts/file-size.json`. Every hand-authored source and
 configuration file enters review above 300 physical lines or 32,768 bytes and
 fails above 500 physical lines or 65,536 bytes. Archive and generated exclusions
 are explicit, owned, path-scoped, and tested. Oversized exceptions are exact-path

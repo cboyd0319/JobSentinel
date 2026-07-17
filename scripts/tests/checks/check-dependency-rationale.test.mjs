@@ -30,7 +30,7 @@ function seed(root, { npmDeps, cargoDeps, rationale }) {
       .map(([name, version]) => `${name} = "${version}"`)
       .join("\n")}\n`,
   );
-  write(root, "validation/dependency_rationale.json", JSON.stringify(rationale));
+  write(root, "scripts/harness/contracts/dependency-rationale.json", JSON.stringify(rationale));
 }
 
 test("passes when every direct dependency has a rationale", () => {
@@ -89,7 +89,7 @@ test("fails on an unused Cargo workspace dependency", () => {
     write(root, "crates/app/Cargo.toml", "[dependencies]\ntokio.workspace = true\n");
     write(
       root,
-      "repository-structure-policy.json",
+      "scripts/harness/contracts/repository-structure.json",
       JSON.stringify({
         structure: {
           units: [{ manifest: "crates/app/Cargo.toml" }],
@@ -98,7 +98,7 @@ test("fails on an unused Cargo workspace dependency", () => {
     );
     write(
       root,
-      "validation/dependency_rationale.json",
+      "scripts/harness/contracts/dependency-rationale.json",
       JSON.stringify({
         npm: {},
         cargo: { tokio: "Async runtime.", unused: "Not actually used." },

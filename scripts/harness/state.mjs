@@ -1,8 +1,8 @@
 import { existsSync, readFileSync } from "node:fs";
 import { isAbsolute, join, normalize } from "node:path";
 
-export const featureListPath = "feature_list.json";
-export const progressPath = "PROGRESS.md";
+export const featureListPath = "scripts/harness/state/feature-list.json";
+export const progressPath = "docs/harness/current-status.md";
 export const featureListSchema = "jobsentinel.feature_list.v1";
 export const allowedStatuses = new Set(["not_started", "active", "blocked", "passing"]);
 
@@ -74,19 +74,19 @@ function validatePassingEvidence(root, feature, violations) {
 export function validateFeatureList(root, featureList) {
   const violations = [];
   if (!featureList || typeof featureList !== "object" || Array.isArray(featureList)) {
-    return ["feature_list.json must contain an object"];
+    return ["scripts/harness/state/feature-list.json must contain an object"];
   }
   if (featureList.schema !== featureListSchema) {
-    violations.push(`feature_list.json schema must be ${featureListSchema}`);
+    violations.push(`scripts/harness/state/feature-list.json schema must be ${featureListSchema}`);
   }
   if (featureList.active_status !== "active") {
-    violations.push('feature_list.json must declare "active" as its single active status');
+    violations.push('scripts/harness/state/feature-list.json must declare "active" as its single active status');
   }
   if (!/^20\d{2}-\d{2}-\d{2}$/.test(String(featureList.last_updated ?? ""))) {
-    violations.push("feature_list.json last_updated must be an ISO date");
+    violations.push("scripts/harness/state/feature-list.json last_updated must be an ISO date");
   }
   if (!Array.isArray(featureList.features) || featureList.features.length === 0) {
-    return [...violations, "feature_list.json features must be a non-empty array"];
+    return [...violations, "scripts/harness/state/feature-list.json features must be a non-empty array"];
   }
 
   const ids = new Set();
@@ -126,7 +126,7 @@ export function validateFeatureList(root, featureList) {
       if (!nonEmptyString(feature.next_trigger)) violations.push(`feature ${id}: blocked status requires next_trigger`);
     }
   }
-  if (activeCount !== 1) violations.push(`feature_list.json must contain exactly one active feature; found ${activeCount}`);
+  if (activeCount !== 1) violations.push(`scripts/harness/state/feature-list.json must contain exactly one active feature; found ${activeCount}`);
   return violations;
 }
 
@@ -152,13 +152,13 @@ export function collectStateViolations(root) {
   const markers = parseProgressMarkers(progressText);
   const active = featureList.features?.find((feature) => feature.status === "active");
   if (markers.activeFeature !== active?.id) {
-    violations.push(`PROGRESS.md active feature must match feature_list.json: ${String(active?.id ?? "none")}`);
+    violations.push(`docs/harness/current-status.md active feature must match scripts/harness/state/feature-list.json: ${String(active?.id ?? "none")}`);
   }
   if (markers.status !== featureList.active_status) {
-    violations.push(`PROGRESS.md status must be ${String(featureList.active_status)}`);
+    violations.push(`docs/harness/current-status.md status must be ${String(featureList.active_status)}`);
   }
   if (markers.lastUpdated !== featureList.last_updated) {
-    violations.push("PROGRESS.md and feature_list.json last-updated dates must match");
+    violations.push("docs/harness/current-status.md and scripts/harness/state/feature-list.json last-updated dates must match");
   }
   if (/(?:\/Users\/[^/<\s]+\/|[A-Za-z]:\\Users\\[^\\<\s]+\\)/.test(`${progressText}\n${JSON.stringify(featureList)}`)) {
     violations.push("canonical state must not contain a machine-specific home path");
