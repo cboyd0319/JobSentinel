@@ -19,6 +19,7 @@ anyhow.workspace = true
 chrono.workspace = true
 docx-rs.workspace = true
 jobsentinel-local-ai = { workspace = true, optional = true }
+jobsentinel-security.workspace = true
 pdf-extract.workspace = true
 quick-xml.workspace = true
 regex.workspace = true

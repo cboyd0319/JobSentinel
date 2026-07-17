@@ -1,7 +1,8 @@
 //! Shared job hash generation.
 
-use super::normalization::{normalize_location, normalize_title, normalize_url};
-use jobsentinel_security::canonicalize_user_supplied_job_url;
+use super::normalization::{
+    canonicalize_job_url, normalize_location, normalize_title, normalize_url,
+};
 use sha2::{Digest, Sha256};
 
 /// Compute the canonical job hash used for deduplication.
@@ -13,7 +14,7 @@ pub fn calculate_job_hash(company: &str, title: &str, location: Option<&str>, ur
         hasher.update(normalize_location(location).as_bytes());
     }
     let canonical_url =
-        canonicalize_user_supplied_job_url(url).unwrap_or_else(|_| normalize_url(url).into_owned());
+        canonicalize_job_url(url).unwrap_or_else(|_| normalize_url(url).into_owned());
     hasher.update(canonical_url.as_bytes());
     hex::encode(hasher.finalize())
 }

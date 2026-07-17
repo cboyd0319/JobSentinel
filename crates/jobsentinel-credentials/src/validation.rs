@@ -1,18 +1,18 @@
 use super::{CredentialKey, LINKEDIN_CREDENTIAL_STORAGE_DISABLED, MAX_LINKEDIN_COOKIE_LEN};
+use jobsentinel_security::{validate_webhook_target, WebhookTarget};
 
 pub(super) fn validate_credential_value(key: CredentialKey, value: &str) -> Result<(), String> {
     match key {
         CredentialKey::LinkedInCookie => validate_legacy_linkedin_cookie(value),
         CredentialKey::SlackWebhook => {
-            validate_webhook_credential(value, &["hooks.slack.com"], "/services/", "Slack")
+            validate_webhook_credential(value, WebhookTarget::Slack, "Slack")
         }
-        CredentialKey::DiscordWebhook => validate_webhook_credential(
-            value,
-            &["discord.com", "discordapp.com", "hooks.discord.com"],
-            "/api/webhooks/",
-            "Discord",
-        ),
-        CredentialKey::TeamsWebhook => validate_teams_webhook_credential(value),
+        CredentialKey::DiscordWebhook => {
+            validate_webhook_credential(value, WebhookTarget::Discord, "Discord")
+        }
+        CredentialKey::TeamsWebhook => {
+            validate_webhook_credential(value, WebhookTarget::Teams, "Teams")
+        }
         CredentialKey::TelegramBotToken => validate_telegram_bot_token_credential(value),
         CredentialKey::ExternalAiOpenAiApiKey
         | CredentialKey::ExternalAiAnthropicApiKey
@@ -74,81 +74,15 @@ pub(super) fn validate_api_key_credential(value: &str, label: &str) -> Result<()
 
 pub(super) fn validate_webhook_credential(
     value: &str,
-    allowed_hosts: &[&str],
-    required_path_prefix: &str,
+    target: WebhookTarget,
     provider_label: &str,
 ) -> Result<(), String> {
     let help = format!(
         "Paste the full {provider_label} connection link copied from {provider_label}. If you are not sure, leave it blank and set it up later."
     );
-    let url = url::Url::parse(value).map_err(|_| help.clone())?;
-
-    if url.scheme() != "https" {
-        return Err(help);
-    }
-
-    if !url.username().is_empty() || url.password().is_some() {
-        return Err(help);
-    }
-
-    if let Some(port) = url.port() {
-        if port != 443 {
-            return Err(help);
-        }
-    }
-
-    let host = url.host_str().map(str::to_ascii_lowercase);
-    if !host.is_some_and(|host| allowed_hosts.contains(&host.as_str())) {
-        return Err(help);
-    }
-
-    if !url.path().starts_with(required_path_prefix) {
-        return Err(help);
-    }
-
-    Ok(())
-}
-
-pub(super) fn validate_teams_webhook_credential(value: &str) -> Result<(), String> {
-    let help =
-        "Paste the full Teams connection link copied from Teams. If you are not sure, leave it blank and set it up later."
-            .to_string();
-    let url = url::Url::parse(value).map_err(|_| help.clone())?;
-
-    if url.scheme() != "https" {
-        return Err(help);
-    }
-
-    if !url.username().is_empty() || url.password().is_some() {
-        return Err(help);
-    }
-
-    if let Some(port) = url.port() {
-        if port != 443 {
-            return Err(help);
-        }
-    }
-
-    let Some(host) = url.host_str().map(str::to_ascii_lowercase) else {
-        return Err(help);
-    };
-    let path = url.path();
-    let has_generated_path = path.len() > 1;
-
-    let legacy_connector = matches!(
-        host.as_str(),
-        "outlook.office.com" | "outlook.office365.com"
-    ) && path.starts_with("/webhook/");
-    let current_connector =
-        host.ends_with(".webhook.office.com") && host != "webhook.office.com" && has_generated_path;
-    let workflow_trigger =
-        host.ends_with(".logic.azure.com") && host != "logic.azure.com" && has_generated_path;
-
-    if legacy_connector || current_connector || workflow_trigger {
-        Ok(())
-    } else {
-        Err(help)
-    }
+    validate_webhook_target(value, target)
+        .map(|_| ())
+        .map_err(|_| help)
 }
 
 pub(super) fn validate_telegram_bot_token_credential(value: &str) -> Result<(), String> {

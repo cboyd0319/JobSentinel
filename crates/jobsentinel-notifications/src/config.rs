@@ -1,3 +1,4 @@
+use jobsentinel_security::redacted_secret_for_debug;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
@@ -35,14 +36,7 @@ impl fmt::Debug for SlackConfig {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("SlackConfig")
             .field("enabled", &self.enabled)
-            .field(
-                "webhook_url",
-                &if self.webhook_url.is_empty() {
-                    "[empty]"
-                } else {
-                    "[REDACTED]"
-                },
-            )
+            .field("webhook_url", &redacted_secret_for_debug(&self.webhook_url))
             .finish()
     }
 }
@@ -100,11 +94,7 @@ impl fmt::Debug for EmailConfig {
             .field("smtp_username", &self.smtp_username)
             .field(
                 "smtp_password",
-                &if self.smtp_password.is_empty() {
-                    "[empty]"
-                } else {
-                    "[REDACTED]"
-                },
+                &redacted_secret_for_debug(&self.smtp_password),
             )
             .field("from_email", &self.from_email)
             .field("to_emails", &self.to_emails)
@@ -131,14 +121,7 @@ impl fmt::Debug for DiscordConfig {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("DiscordConfig")
             .field("enabled", &self.enabled)
-            .field(
-                "webhook_url",
-                &if self.webhook_url.is_empty() {
-                    "[empty]"
-                } else {
-                    "[REDACTED]"
-                },
-            )
+            .field("webhook_url", &redacted_secret_for_debug(&self.webhook_url))
             .field("user_id_to_mention", &self.user_id_to_mention)
             .finish()
     }
@@ -162,14 +145,7 @@ impl fmt::Debug for TelegramConfig {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("TelegramConfig")
             .field("enabled", &self.enabled)
-            .field(
-                "bot_token",
-                &if self.bot_token.is_empty() {
-                    "[empty]"
-                } else {
-                    "[REDACTED]"
-                },
-            )
+            .field("bot_token", &redacted_secret_for_debug(&self.bot_token))
             .field("chat_id", &self.chat_id)
             .finish()
     }
@@ -189,14 +165,7 @@ impl fmt::Debug for TeamsConfig {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("TeamsConfig")
             .field("enabled", &self.enabled)
-            .field(
-                "webhook_url",
-                &if self.webhook_url.is_empty() {
-                    "[empty]"
-                } else {
-                    "[REDACTED]"
-                },
-            )
+            .field("webhook_url", &redacted_secret_for_debug(&self.webhook_url))
             .finish()
     }
 }

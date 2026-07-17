@@ -101,7 +101,7 @@ impl BookmarkletJobData {
             return Err("URL is required".to_string());
         }
 
-        jobsentinel_security::canonicalize_user_supplied_job_url(self.url.trim())
+        jobsentinel_domain::canonicalize_job_url(self.url.trim())
             .map_err(|_| "Job link must be a public https address".to_string())?;
 
         // Try to get title from Schema.org or fallback field

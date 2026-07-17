@@ -5,7 +5,7 @@ use url::{form_urlencoded::Serializer, Url};
 
 const MAX_LOG_URL_LEN: usize = 80;
 const BLOCKED_HOST_SUFFIXES: &[&str] = &["local", "lan", "home", "internal", "corp"];
-const SENSITIVE_JOB_QUERY_MARKERS: &[&str] = &[
+const SENSITIVE_QUERY_MARKERS: &[&str] = &[
     "token",
     "session",
     "auth",
@@ -13,6 +13,34 @@ const SENSITIVE_JOB_QUERY_MARKERS: &[&str] = &[
     "password",
     "email",
     "candidate",
+];
+const TRACKING_QUERY_PARAMS: &[&str] = &[
+    "aff_id",
+    "affiliate",
+    "campaign",
+    "cid",
+    "click_id",
+    "clickid",
+    "fbclid",
+    "from",
+    "gclid",
+    "igshid",
+    "lever-origin",
+    "lever-source",
+    "lever-source[]",
+    "mc_cid",
+    "mc_eid",
+    "medium",
+    "msclkid",
+    "partner",
+    "ref",
+    "referrer",
+    "refid",
+    "sid",
+    "source",
+    "tk",
+    "trackingid",
+    "twclid",
 ];
 
 fn truncate_log_label(label: &str) -> String {
@@ -119,13 +147,21 @@ pub fn sanitize_url_for_logging(url: &str) -> String {
 pub fn canonicalize_user_supplied_job_url(url: &str) -> Result<String, String> {
     let mut parsed = Url::parse(url).map_err(|_| "Invalid URL format".to_string())?;
 
+    strip_sensitive_url_components(&mut parsed);
+    validate_external_https_url(parsed.as_str())?;
+
+    Ok(parsed.to_string())
+}
+
+/// Remove user information, private fragments, and sensitive query data.
+pub fn strip_sensitive_url_components(parsed: &mut Url) {
     let _ = parsed.set_username("");
     let _ = parsed.set_password(None);
     parsed.set_fragment(None);
 
     let retained_pairs: Vec<(String, String)> = parsed
         .query_pairs()
-        .filter(|(name, value)| !is_sensitive_job_query_param(name, value))
+        .filter(|(name, value)| !is_sensitive_query_param(name, value))
         .map(|(name, value)| (name.into_owned(), value.into_owned()))
         .collect();
 
@@ -142,42 +178,27 @@ pub fn canonicalize_user_supplied_job_url(url: &str) -> Result<String, String> {
     } else {
         parsed.set_query(Some(&encoded_query));
     }
-
-    validate_external_https_url(parsed.as_str())?;
-
-    Ok(parsed.to_string())
 }
 
-fn is_sensitive_job_query_param(name: &str, value: &str) -> bool {
+fn is_sensitive_query_param(name: &str, value: &str) -> bool {
     let normalized = name.to_ascii_lowercase();
 
     normalized.starts_with("utm_")
-        || matches!(
-            normalized.as_str(),
-            "fbclid"
-                | "gclid"
-                | "msclkid"
-                | "mc_cid"
-                | "mc_eid"
-                | "igshid"
-                | "source"
-                | "ref"
-                | "referrer"
-        )
-        || SENSITIVE_JOB_QUERY_MARKERS
+        || TRACKING_QUERY_PARAMS.contains(&normalized.as_str())
+        || SENSITIVE_QUERY_MARKERS
             .iter()
             .any(|marker| normalized.contains(marker))
-        || is_sensitive_job_query_value(value)
+        || is_sensitive_query_value(value)
 }
 
-fn is_sensitive_job_query_value(value: &str) -> bool {
+fn is_sensitive_query_value(value: &str) -> bool {
     if Url::parse(value).is_ok() {
         return true;
     }
 
     let normalized = value.to_ascii_lowercase();
 
-    SENSITIVE_JOB_QUERY_MARKERS.iter().any(|marker| {
+    SENSITIVE_QUERY_MARKERS.iter().any(|marker| {
         normalized.contains(&format!("{marker}=")) || normalized.contains(&format!("{marker}%3d"))
     })
 }

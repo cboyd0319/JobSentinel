@@ -9,10 +9,9 @@ use super::{JobScraper, ScraperResult};
 use crate::{is_safe_company_board_id, parse_greenhouse_company_url};
 use async_trait::async_trait;
 use chrono::Utc;
-use jobsentinel_domain::calculate_job_hash;
-use jobsentinel_domain::Job;
+use jobsentinel_domain::{calculate_job_hash, canonicalize_job_url, Job};
 use jobsentinel_network::{send_external_http_text_with_retry, ExternalHttpRequest};
-use jobsentinel_security::{canonicalize_user_supplied_job_url, sanitize_url_for_logging};
+use jobsentinel_security::sanitize_url_for_logging;
 use scraper::{Html, Selector};
 
 const COMPANY_SCRAPE_FAILED: &str =
@@ -312,7 +311,7 @@ impl GreenhouseScraper {
         job_data["absolute_url"]
             .as_str()
             .filter(|value| !value.is_empty())
-            .and_then(|value| canonicalize_user_supplied_job_url(value).ok())
+            .and_then(|value| canonicalize_job_url(value).ok())
             .unwrap_or_else(|| {
                 format!(
                     "https://job-boards.greenhouse.io/{}/jobs/{}",

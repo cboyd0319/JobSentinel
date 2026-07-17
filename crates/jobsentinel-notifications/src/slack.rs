@@ -3,43 +3,19 @@
 //! Sends rich-formatted job alerts to Slack via incoming webhooks.
 
 use super::{
-    notification_job_href, validate_webhook_url_security_parts, Notification,
-    LOCAL_MATCH_DETAILS_MESSAGE, NOTIFICATION_HTTP_TIMEOUT,
+    notification_job_href, Notification, LOCAL_MATCH_DETAILS_MESSAGE, NOTIFICATION_HTTP_TIMEOUT,
 };
 use anyhow::{anyhow, Result};
+use jobsentinel_security::{validate_webhook_target, WebhookTarget};
 use serde_json::json;
 
 /// Validate Slack webhook URL format
 ///
 /// Ensures the URL is a legitimate Slack webhook to prevent data exfiltration.
 fn validate_webhook_url(url: &str) -> Result<()> {
-    // Parse URL first to validate host/origin, not just string prefix
-    // This prevents bypass attacks like "https://evil.com?https://hooks.slack.com/services/..."
-    let url_parsed =
-        url::Url::parse(url).map_err(|_| anyhow!("Paste the full Slack connection link."))?;
-
-    // Ensure HTTPS
-    if url_parsed.scheme() != "https" {
-        return Err(anyhow!("Paste the full Slack connection link."));
-    }
-
-    validate_webhook_url_security_parts(&url_parsed)?;
-
-    // Ensure correct host (validate host BEFORE checking string prefix)
-    if url_parsed.host_str() != Some("hooks.slack.com") {
-        return Err(anyhow!(
-            "Paste the full Slack connection link copied from Slack."
-        ));
-    }
-
-    // Ensure path starts with /services/
-    if !url_parsed.path().starts_with("/services/") {
-        return Err(anyhow!(
-            "Paste the full Slack connection link copied from Slack."
-        ));
-    }
-
-    Ok(())
+    validate_webhook_target(url, WebhookTarget::Slack)
+        .map(|_| ())
+        .map_err(|_| anyhow!("Paste the full Slack connection link copied from Slack."))
 }
 
 /// Build header block for job notification

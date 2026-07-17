@@ -5,8 +5,8 @@
 use super::connection::Database;
 use super::types::JobRow;
 use chrono::Utc;
-use jobsentinel_domain::Job;
-use jobsentinel_security::{canonicalize_user_supplied_job_url, validate_external_https_url};
+use jobsentinel_domain::{canonicalize_job_url, Job};
+use jobsentinel_security::validate_external_https_url;
 fn canonicalize_job_for_storage(job: &Job) -> Result<String, sqlx::Error> {
     const MAX_TITLE_LENGTH: usize = 500;
     const MAX_COMPANY_LENGTH: usize = 200;
@@ -41,7 +41,7 @@ fn canonicalize_job_for_storage(job: &Job) -> Result<String, sqlx::Error> {
     validate_external_https_url(&job.url)
         .map_err(|reason| sqlx::Error::Protocol(format!("Invalid job URL: {reason}")))?;
 
-    let canonical_job_url = canonicalize_user_supplied_job_url(&job.url)
+    let canonical_job_url = canonicalize_job_url(&job.url)
         .map_err(|reason| sqlx::Error::Protocol(format!("Invalid job URL: {reason}")))?;
 
     if canonical_job_url.len() > MAX_URL_LENGTH {

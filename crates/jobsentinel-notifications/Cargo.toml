@@ -19,7 +19,6 @@ jobsentinel-security.workspace = true
 lettre.workspace = true
 serde.workspace = true
 serde_json.workspace = true
-url.workspace = true
 
 [lints]
 workspace = true

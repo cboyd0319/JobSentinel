@@ -6,91 +6,9 @@
 use std::borrow::Cow;
 use url::Url;
 
-use jobsentinel_security::sanitize_url_for_logging;
-
-/// Common tracking parameters to strip from URLs
-const TRACKING_PARAMS: &[&str] = &[
-    // Analytics and campaign tracking
-    "utm_source",
-    "utm_medium",
-    "utm_campaign",
-    "utm_term",
-    "utm_content",
-    "utm_id",
-    // Social media tracking
-    "fbclid",
-    "gclid",
-    "msclkid",
-    "twclid",
-    // Referral tracking
-    "ref",
-    "source",
-    "campaign",
-    "medium",
-    // Email tracking
-    "mc_cid",
-    "mc_eid",
-    // Affiliate tracking
-    "aff_id",
-    "affiliate",
-    "partner",
-    // Session tracking
-    "session",
-    "sid",
-    "session_id",
-    // Click tracking
-    "click_id",
-    "clickid",
-    "cid",
-    // LinkedIn-specific tracking
-    "refId",
-    "trackingId",
-    // Indeed-specific tracking
-    "tk",
-    "from",
-    // Lever-specific tracking
-    "lever-origin",
-    "lever-source",
-    "lever-source[]",
-];
-
-const SENSITIVE_QUERY_MARKERS: &[&str] = &[
-    "token",
-    "session",
-    "auth",
-    "credential",
-    "password",
-    "email",
-    "candidate",
-];
-
-/// Essential job identifier parameters to preserve
-///
-/// These parameters typically contain job posting IDs that are required
-/// for correct deduplication and accessing the job listing.
-#[allow(dead_code)]
-const ESSENTIAL_PARAMS: &[&str] = &[
-    // Job identifiers
-    "id",
-    "job_id",
-    "jobid",
-    "job",
-    "posting",
-    "posting_id",
-    "postingid",
-    "gh_jid", // Greenhouse job ID
-    "lever-id",
-    "lever_id",
-    "position",
-    "position_id",
-    "req_id",
-    "requisition",
-    "opening",
-    "opening_id",
-    // Indeed-specific
-    "jk",  // Indeed job key
-    "vjs", // Indeed view job source (kept as it may affect job visibility)
-];
+use jobsentinel_security::{
+    canonicalize_user_supplied_job_url, sanitize_url_for_logging, strip_sensitive_url_components,
+};
 
 /// Normalize a URL by stripping private fragments and tracking parameters
 ///
@@ -137,85 +55,55 @@ pub fn normalize_url(url_str: &str) -> Cow<'_, str> {
         }
     };
 
-    let _ = url.set_username("");
-    let _ = url.set_password(None);
-    url.set_fragment(None);
+    strip_sensitive_url_components(&mut url);
+    apply_job_identity_rules(&mut url);
 
-    // Check if URL has query parameters
-    if url.query().is_none() {
-        // No query string, return original (zero-copy when possible)
-        return if url.as_str() == url_str {
-            Cow::Borrowed(url_str)
-        } else {
-            Cow::Owned(url.to_string())
-        };
-    }
-
-    // Collect tracking params to check if we need to modify
-    let has_tracking_params = url.query_pairs().any(|(key, value)| {
-        let key_lower = key.to_lowercase();
-        should_strip_query_pair(&key_lower, &value)
-    });
-
-    // If no tracking params, return as-is (zero-copy optimization)
-    if !has_tracking_params {
-        return if url.as_str() == url_str {
-            Cow::Borrowed(url_str)
-        } else {
-            Cow::Owned(url.to_string())
-        };
-    }
-
-    // Filter query parameters - avoid multiple iterations
-    let mut filtered_params = Vec::new();
-    for (key, value) in url.query_pairs() {
-        let key_lower = key.to_lowercase();
-
-        if should_strip_query_pair(&key_lower, &value) {
-            continue;
-        }
-
-        // Keep essential parameters and others (conservative approach)
-        filtered_params.push((key.into_owned(), value.into_owned()));
-    }
-
-    // Clear existing query and rebuild with filtered parameters
-    url.query_pairs_mut().clear();
-
-    if !filtered_params.is_empty() {
-        url.query_pairs_mut().extend_pairs(filtered_params);
+    if url.as_str() == url_str {
+        Cow::Borrowed(url_str)
     } else {
-        // If no parameters remain, remove the query entirely to avoid trailing "?"
+        Cow::Owned(url.to_string())
+    }
+}
+
+/// Canonicalize a public job URL using privacy policy, then provider identity.
+pub fn canonicalize_job_url(value: &str) -> Result<String, String> {
+    let canonical = canonicalize_user_supplied_job_url(value)?;
+    let mut parsed = Url::parse(&canonical).map_err(|_| "Invalid URL format".to_string())?;
+    apply_job_identity_rules(&mut parsed);
+    Ok(parsed.to_string())
+}
+
+fn apply_job_identity_rules(url: &mut Url) {
+    if url.host_str().is_some_and(|host| {
+        host.eq_ignore_ascii_case("linkedin.com")
+            || host.to_ascii_lowercase().ends_with(".linkedin.com")
+    }) {
         url.set_query(None);
     }
-
-    Cow::Owned(url.to_string())
-}
-
-fn should_strip_query_pair(normalized_key: &str, value: &str) -> bool {
-    TRACKING_PARAMS
-        .iter()
-        .any(|&param| normalized_key == param.to_lowercase())
-        || SENSITIVE_QUERY_MARKERS
-            .iter()
-            .any(|marker| normalized_key.contains(marker))
-        || is_sensitive_query_value(value)
-}
-
-fn is_sensitive_query_value(value: &str) -> bool {
-    if Url::parse(value).is_ok() {
-        return true;
-    }
-
-    let normalized = value.to_ascii_lowercase();
-    SENSITIVE_QUERY_MARKERS.iter().any(|marker| {
-        normalized.contains(&format!("{marker}=")) || normalized.contains(&format!("{marker}%3d"))
-    })
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn canonical_job_url_applies_provider_identity_after_privacy_policy() {
+        let canonical = canonicalize_job_url(
+            "https://www.linkedin.com/jobs/view/123?currentJobId=123&trackingId=private",
+        )
+        .expect("public job URL should canonicalize");
+
+        assert_eq!(canonical, "https://www.linkedin.com/jobs/view/123");
+    }
+
+    #[test]
+    fn canonical_job_url_preserves_non_provider_identity_parameters() {
+        let canonical =
+            canonicalize_job_url("https://boards.example.com/job?jobId=456&candidateToken=private")
+                .expect("public job URL should canonicalize");
+
+        assert_eq!(canonical, "https://boards.example.com/job?jobId=456");
+    }
 
     #[test]
     fn test_strip_utm_parameters() {

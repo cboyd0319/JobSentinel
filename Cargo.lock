@@ -3384,13 +3384,13 @@ dependencies = [
  "chacha20poly1305",
  "hex",
  "jobsentinel-platform",
+ "jobsentinel-security",
  "jobsentinel-storage",
  "serde",
  "serde_json",
  "tempfile",
  "tokio",
  "tracing",
- "url",
  "zeroize",
 ]
 
@@ -3402,6 +3402,7 @@ dependencies = [
  "chrono",
  "docx-rs",
  "jobsentinel-local-ai",
+ "jobsentinel-security",
  "pdf-extract",
  "quick-xml 0.41.0",
  "regex",
@@ -3489,7 +3490,6 @@ dependencies = [
  "lettre",
  "serde",
  "serde_json",
- "url",
 ]
 
 [[package]]

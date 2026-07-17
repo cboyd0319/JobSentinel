@@ -7,15 +7,13 @@
 use crate::ats::{ApplicationStatus, ApplicationTracker};
 use anyhow::Result;
 use chrono::{Duration, Utc};
-use jobsentinel_domain::calculate_job_hash;
-use jobsentinel_domain::Job;
-use jobsentinel_security::{canonicalize_user_supplied_job_url, sanitize_url_for_logging};
+use jobsentinel_domain::{calculate_job_hash, canonicalize_job_url, Job};
+use jobsentinel_security::sanitize_url_for_logging;
 use jobsentinel_storage::Database;
 use regex::{Captures, Regex};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::sync::LazyLock;
-use url::Url;
 use uuid::Uuid;
 
 const DEFAULT_LINKEDIN_URL: &str = "https://www.linkedin.com/jobs/";
@@ -95,7 +93,7 @@ pub async fn record_event(
         .filter(|value| !value.is_empty());
     let needs_url = user_url.is_none();
     let url = match user_url {
-        Some(value) => canonicalize_workbench_url(value).map_err(anyhow::Error::msg)?,
+        Some(value) => canonicalize_job_url(value).map_err(anyhow::Error::msg)?,
         None if event_type == LinkedInWorkbenchEventType::Applied => {
             DEFAULT_APPLIED_URL.to_string()
         }
@@ -252,23 +250,6 @@ fn status_for_event(event_type: &LinkedInWorkbenchEventType) -> &'static str {
     }
 }
 
-fn canonicalize_workbench_url(value: &str) -> Result<String, String> {
-    let canonical = canonicalize_user_supplied_job_url(value)?;
-    let Ok(mut parsed) = Url::parse(&canonical) else {
-        return Ok(canonical);
-    };
-
-    if parsed.host_str().is_some_and(|host| {
-        host.eq_ignore_ascii_case("linkedin.com") || host.ends_with(".linkedin.com")
-    }) {
-        parsed.set_query(None);
-        parsed.set_fragment(None);
-        return Ok(parsed.to_string());
-    }
-
-    Ok(canonical)
-}
-
 fn sanitize_workbench_notes(value: Option<&str>) -> Option<String> {
     let trimmed = value?.trim();
     if trimmed.is_empty() {
@@ -290,8 +271,7 @@ fn sanitize_workbench_notes(value: Option<&str>) -> Option<String> {
     let without_sensitive_urls = NOTE_URL_REGEX
         .replace_all(&without_sensitive_fields, |captures: &Captures<'_>| {
             let raw_url = captures.get(0).map_or("", |value| value.as_str());
-            canonicalize_workbench_url(raw_url)
-                .unwrap_or_else(|_| sanitize_url_for_logging(raw_url))
+            canonicalize_job_url(raw_url).unwrap_or_else(|_| sanitize_url_for_logging(raw_url))
         })
         .to_string();
 

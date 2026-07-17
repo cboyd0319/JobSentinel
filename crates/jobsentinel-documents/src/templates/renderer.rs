@@ -1,4 +1,5 @@
 use super::{styles, ResumeData, Template, TemplateId};
+use jobsentinel_security::encode_html_text as escape_html;
 
 mod variants;
 
@@ -238,13 +239,4 @@ impl TemplateRenderer {
             styles::print()
         )
     }
-}
-
-// HTML escape utility
-fn escape_html(s: &str) -> String {
-    s.replace('&', "&amp;")
-        .replace('<', "&lt;")
-        .replace('>', "&gt;")
-        .replace('"', "&quot;")
-        .replace('\'', "&#39;")
 }

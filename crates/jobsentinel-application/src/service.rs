@@ -1,8 +1,6 @@
 use chrono::Utc;
 
-use jobsentinel_domain::calculate_job_hash;
-use jobsentinel_domain::Job;
-use jobsentinel_security::canonicalize_user_supplied_job_url;
+use jobsentinel_domain::{calculate_job_hash, canonicalize_job_url, Job};
 use jobsentinel_sources::{parse_single_job_page, JobPageParseError, ParsedJobPage};
 use jobsentinel_storage::Database;
 
@@ -17,7 +15,7 @@ pub async fn preview_job_import(
     pending: &PendingUrlImports,
     url: &str,
 ) -> ImportResult<JobImportPreview> {
-    let canonical_url = canonicalize_user_supplied_job_url(url).map_err(ImportError::InvalidUrl)?;
+    let canonical_url = canonicalize_job_url(url).map_err(ImportError::InvalidUrl)?;
     let html = fetch_job_page(&canonical_url).await?;
     preview_job_from_html(database, pending, canonical_url, &html).await
 }

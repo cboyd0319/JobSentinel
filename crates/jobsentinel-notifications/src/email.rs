@@ -7,6 +7,7 @@ use super::{
 };
 use crate::EmailConfig;
 use anyhow::{anyhow, Context, Result};
+use jobsentinel_security::encode_html_text as escape_html;
 use lettre::{
     message::{header::ContentType, Mailbox},
     transport::smtp::authentication::Credentials,
@@ -219,14 +220,6 @@ fn format_html_email(
 
 fn validated_job_href(url: &str) -> Option<String> {
     notification_job_href(url)
-}
-
-fn escape_html(s: &str) -> String {
-    s.replace('&', "&amp;")
-        .replace('<', "&lt;")
-        .replace('>', "&gt;")
-        .replace('"', "&quot;")
-        .replace('\'', "&#39;")
 }
 
 /// Format email as plain text (fallback for non-HTML clients)

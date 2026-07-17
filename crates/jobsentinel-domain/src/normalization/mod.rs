@@ -6,4 +6,4 @@ mod url;
 
 pub use location::normalize_location;
 pub use title::{normalize_title, titles_match};
-pub use url::normalize_url;
+pub use url::{canonicalize_job_url, normalize_url};

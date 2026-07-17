@@ -15,4 +15,5 @@ pub use application_assistance::{
 pub use external_ai::{ExternalAiConfig, ExternalAiProvider, ExternalAiRedactionConfig};
 pub use job::Job;
 pub use job_hash::calculate_job_hash;
+pub use normalization::canonicalize_job_url;
 pub use scoring_config::ScoringConfig;

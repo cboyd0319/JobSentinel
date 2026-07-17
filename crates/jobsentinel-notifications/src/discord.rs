@@ -3,53 +3,19 @@
 //! Sends rich-formatted job alerts to Discord using webhooks with embeds.
 
 use super::{
-    notification_job_href, notification_provider_failure_summary,
-    validate_webhook_url_security_parts, Notification, LOCAL_MATCH_DETAILS_MESSAGE,
-    NOTIFICATION_HTTP_TIMEOUT,
+    notification_job_href, notification_provider_failure_summary, Notification,
+    LOCAL_MATCH_DETAILS_MESSAGE, NOTIFICATION_HTTP_TIMEOUT,
 };
 use crate::DiscordConfig;
 use anyhow::{anyhow, Result};
+use jobsentinel_security::{validate_webhook_target, WebhookTarget};
 use serde_json::json;
 
 /// Validate Discord webhook URL format
 fn validate_webhook_url(url: &str) -> Result<()> {
-    // Parse URL first to validate host/origin, not just string prefix
-    // This prevents bypass attacks like "https://evil.com?https://discord.com/api/webhooks/..."
-    let url_parsed =
-        url::Url::parse(url).map_err(|_| anyhow!("Paste the full Discord connection link."))?;
-
-    // Ensure HTTPS
-    if url_parsed.scheme() != "https" {
-        return Err(anyhow!("Paste the full Discord connection link."));
-    }
-
-    validate_webhook_url_security_parts(&url_parsed)?;
-
-    // Ensure correct host (validate host BEFORE checking string prefix)
-    let host = url_parsed
-        .host_str()
-        .ok_or_else(|| anyhow!("Paste the full Discord connection link copied from Discord."))?;
-    if !is_supported_discord_webhook_host(host) {
-        return Err(anyhow!(
-            "Paste the full Discord connection link copied from Discord."
-        ));
-    }
-
-    // Ensure path starts with /api/webhooks/
-    if !url_parsed.path().starts_with("/api/webhooks/") {
-        return Err(anyhow!(
-            "Paste the full Discord connection link copied from Discord."
-        ));
-    }
-
-    Ok(())
-}
-
-fn is_supported_discord_webhook_host(host: &str) -> bool {
-    matches!(
-        host.to_ascii_lowercase().as_str(),
-        "discord.com" | "discordapp.com" | "hooks.discord.com"
-    )
+    validate_webhook_target(url, WebhookTarget::Discord)
+        .map(|_| ())
+        .map_err(|_| anyhow!("Paste the full Discord connection link copied from Discord."))
 }
 
 fn build_discord_payload(config: &DiscordConfig, notification: &Notification) -> serde_json::Value {

@@ -6,13 +6,12 @@
 use super::error::ScraperError;
 use super::rate_limiter::{limits, RateLimiter};
 use super::{JobScraper, ScraperResult};
-use jobsentinel_domain::calculate_job_hash;
-use jobsentinel_domain::Job;
+use jobsentinel_domain::{calculate_job_hash, canonicalize_job_url, Job};
 
 use async_trait::async_trait;
 use chrono::Utc;
 use jobsentinel_network::{send_external_http_text_with_retry, ExternalHttpRequest};
-use jobsentinel_security::{canonicalize_user_supplied_job_url, sanitize_url_for_logging};
+use jobsentinel_security::sanitize_url_for_logging;
 use std::fmt;
 
 const SOURCE_USER_AGENT: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
@@ -195,7 +194,7 @@ impl JobsWithGptScraper {
             return Ok(None);
         }
 
-        let url = match canonicalize_user_supplied_job_url(raw_url) {
+        let url = match canonicalize_job_url(raw_url) {
             Ok(url) => url,
             Err(_) => {
                 tracing::warn!(

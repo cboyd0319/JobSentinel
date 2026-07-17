@@ -194,21 +194,21 @@ Commit boundary: `test(harness): cover Rust crate duplication`.
 
 ### Milestone 2: Consolidate Security And Output Policies
 
-- [ ] Move Teams target-host and path rules from credentials and notifications
+- [x] Move Teams target-host and path rules from credentials and notifications
   into a named `jobsentinel-security` policy. Keep channel-specific payload and
   transport behavior in notifications.
-- [ ] Keep one HTTPS URL parse and common target-safety path, with provider rules
+- [x] Keep one HTTPS URL parse and common target-safety path, with provider rules
   passed as explicit policy rather than copied validation steps.
-- [ ] Make security own sensitive query markers and query stripping. Make domain
+- [x] Make security own sensitive query markers and query stripping. Make domain
   job-URL canonicalization delegate privacy stripping, then apply only job
   identity rules.
-- [ ] Route the LinkedIn workbench and bookmarklet import through the same domain
+- [x] Route the LinkedIn workbench and bookmarklet import through the same domain
   canonicalizer. Delete their provider-special copies.
-- [ ] Add one context-correct HTML text encoder in security and migrate email and
+- [x] Add one context-correct HTML text encoder in security and migrate email and
   document rendering to it. Add the already architecture-approved documents to
   security dependency directly in the documents manifest.
-- [ ] Add one secret debug-redaction helper and migrate repeated implementations.
-- [ ] Verify malicious input and unchanged valid output in every affected crate.
+- [x] Add one secret debug-redaction helper and migrate repeated implementations.
+- [x] Verify malicious input and unchanged valid output in every affected crate.
 
 Commit boundary: `refactor(security): consolidate shared input policies`.
 
@@ -398,10 +398,11 @@ gap and blocks `passing`.
 | 2026-07-16 | Planned | Audit reconciled with live crate graph, harness contract, active state, and verification owners. |
 | 2026-07-16 | Active | Root ownership committed at `880fca80`; post-commit full gate passed and Milestone 0 activated this plan. |
 | 2026-07-16 | Guarded | Milestone 1 added independent downward-only sensors, measured crate baselines, and recorded pre-refactor behavior. |
+| 2026-07-16 | Secured | Milestone 2 centralized webhook, URL privacy, HTML encoding, provider job identity, and debug secret policy. |
 
 - [x] Milestone 0: activate the plan safely.
 - [x] Milestone 1: establish guardrails and characterization.
-- [ ] Milestone 2: consolidate security and output policies.
+- [x] Milestone 2: consolidate security and output policies.
 - [ ] Milestone 3: separate normalization from analytics bucketing.
 - [ ] Milestone 4: consolidate storage primitives and mappers.
 - [ ] Milestone 5: consolidate job construction and scraper orchestration.
@@ -449,10 +450,11 @@ dependency changes, verification evidence, and any follow-up debt.
 
 ## Handoff
 
-- Current state: Milestones 0 and 1 complete; Milestone 2 is next.
-- Evidence: checked-in downward-only scope baselines, eight detector tests,
-  behavior tables, and four passing pre-refactor Rust characterization lanes.
-- Next step: add fail-first security policy tests, then move shared URL, Teams,
-  HTML encoding, and debug-redaction behavior to `jobsentinel-security`.
+- Current state: Milestones 0 through 2 complete; Milestone 3 is next.
+- Evidence: security and domain fail-first contracts plus passing tests across
+  security, credentials, notifications, documents, application, assistance,
+  sources, storage, and domain.
+- Next step: characterize divergent title and location buckets and structured
+  remote signals, then consolidate canonical domain normalization.
 - Open risk: normalization and resume serialization are the two behavior-sensitive
   migrations. Do not combine either with unrelated cleanup.

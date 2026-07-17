@@ -3,56 +3,18 @@
 //! Sends formatted job alerts to Microsoft Teams using Incoming Webhooks.
 
 use super::{
-    notification_job_href, notification_provider_failure_summary,
-    validate_webhook_url_security_parts, Notification, LOCAL_MATCH_DETAILS_MESSAGE,
-    NOTIFICATION_HTTP_TIMEOUT,
+    notification_job_href, notification_provider_failure_summary, Notification,
+    LOCAL_MATCH_DETAILS_MESSAGE, NOTIFICATION_HTTP_TIMEOUT,
 };
 use anyhow::{anyhow, Result};
+use jobsentinel_security::{validate_webhook_target, WebhookTarget};
 use serde_json::json;
 
 /// Validate Teams webhook URL format
 fn validate_webhook_url(url: &str) -> Result<()> {
-    // Parse URL first to validate host/origin, not just string prefix
-    // This prevents bypass attacks like "https://evil.com?https://outlook.office.com/webhook/..."
-    let url_parsed =
-        url::Url::parse(url).map_err(|_| anyhow!("Paste the full Teams connection link."))?;
-
-    // Ensure HTTPS
-    if url_parsed.scheme() != "https" {
-        return Err(anyhow!("Paste the full Teams connection link."));
-    }
-
-    validate_webhook_url_security_parts(&url_parsed)?;
-
-    // Ensure correct host and path (validate host BEFORE checking string prefix)
-    let host = url_parsed
-        .host_str()
-        .ok_or_else(|| anyhow!("Paste the full Teams connection link copied from Teams."))?;
-
-    if !is_supported_teams_webhook_target(&url_parsed, host) {
-        return Err(anyhow!(
-            "Paste the full Teams connection link copied from Teams."
-        ));
-    }
-
-    Ok(())
-}
-
-fn is_supported_teams_webhook_target(url: &url::Url, host: &str) -> bool {
-    let host = host.to_ascii_lowercase();
-    let path = url.path();
-    let has_generated_path = path.len() > 1;
-
-    let legacy_connector = matches!(
-        host.as_str(),
-        "outlook.office.com" | "outlook.office365.com"
-    ) && path.starts_with("/webhook/");
-    let current_connector =
-        host.ends_with(".webhook.office.com") && host != "webhook.office.com" && has_generated_path;
-    let workflow_trigger =
-        host.ends_with(".logic.azure.com") && host != "logic.azure.com" && has_generated_path;
-
-    legacy_connector || current_connector || workflow_trigger
+    validate_webhook_target(url, WebhookTarget::Teams)
+        .map(|_| ())
+        .map_err(|_| anyhow!("Paste the full Teams connection link copied from Teams."))
 }
 
 fn build_teams_payload(notification: &Notification) -> serde_json::Value {

@@ -7,7 +7,6 @@ mod slack;
 mod teams;
 mod telegram;
 
-use anyhow::{anyhow, Result};
 use jobsentinel_domain::Job;
 use jobsentinel_intelligence::JobScore;
 use jobsentinel_network::ExternalTextResponse;
@@ -48,24 +47,6 @@ pub(crate) fn notification_provider_failure_summary(response: &ExternalTextRespo
         "status {}; provider error body omitted ({} chars)",
         response.status, body_chars
     )
-}
-
-pub(crate) fn validate_webhook_url_security_parts(url: &url::Url) -> Result<()> {
-    if !url.username().is_empty() || url.password().is_some() {
-        return Err(anyhow!(
-            "Remove any sign-in name or password from the connection link, then try again."
-        ));
-    }
-
-    if let Some(port) = url.port() {
-        if port != 443 {
-            return Err(anyhow!(
-                "Paste the standard connection link from the alert service and try again."
-            ));
-        }
-    }
-
-    Ok(())
 }
 
 #[cfg(test)]

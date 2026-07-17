@@ -15,6 +15,7 @@ use jobsentinel_domain::Job;
 use async_trait::async_trait;
 use chrono::Utc;
 use jobsentinel_network::{send_external_http_text_with_retry, ExternalHttpRequest};
+use jobsentinel_security::redacted_secret_for_debug;
 use serde::Deserialize;
 use std::fmt;
 
@@ -52,14 +53,7 @@ pub struct UsaJobsScraper {
 impl fmt::Debug for UsaJobsScraper {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("UsaJobsScraper")
-            .field(
-                "api_key",
-                &if self.api_key.is_empty() {
-                    "[empty]"
-                } else {
-                    "[REDACTED]"
-                },
-            )
+            .field("api_key", &redacted_secret_for_debug(&self.api_key))
             .field("email_configured", &!self.email.is_empty())
             .field("has_keywords", &self.keywords.is_some())
             .field("has_location", &self.location.is_some())

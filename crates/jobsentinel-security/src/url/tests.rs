@@ -127,6 +127,16 @@ fn canonical_job_url_strips_sensitive_nested_query_values() {
 }
 
 #[test]
+fn canonical_job_url_strips_the_shared_tracking_policy() {
+    let canonical = canonicalize_user_supplied_job_url(
+        "https://example.com/jobs/123?jobId=456&twclid=social&aff_id=partner&lever-source=email",
+    )
+    .expect("public URL should canonicalize");
+
+    assert_eq!(canonical, "https://example.com/jobs/123?jobId=456");
+}
+
+#[test]
 fn sanitized_log_url_removes_sensitive_parts() {
     let sanitized = sanitize_url_for_logging(
         "https://user:pass@example.com/jobs/123?token=secret&location=Denver#private",

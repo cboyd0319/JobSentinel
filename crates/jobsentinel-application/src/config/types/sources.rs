@@ -1,3 +1,4 @@
+use jobsentinel_security::redacted_secret_for_debug;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
@@ -273,14 +274,7 @@ impl fmt::Debug for UsaJobsConfig {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("UsaJobsConfig")
             .field("enabled", &self.enabled)
-            .field(
-                "api_key",
-                &if self.api_key.is_empty() {
-                    "[empty]"
-                } else {
-                    "[REDACTED]"
-                },
-            )
+            .field("api_key", &redacted_secret_for_debug(&self.api_key))
             .field("email", &self.email)
             .field("keywords", &self.keywords)
             .field("location", &self.location)

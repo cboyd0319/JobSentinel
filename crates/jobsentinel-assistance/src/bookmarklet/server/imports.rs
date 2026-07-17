@@ -11,8 +11,7 @@ use crate::bookmarklet::{
     },
     BookmarkletJobData, BookmarkletRepository,
 };
-use jobsentinel_domain::{calculate_job_hash, Job};
-use jobsentinel_security::canonicalize_user_supplied_job_url;
+use jobsentinel_domain::{calculate_job_hash, canonicalize_job_url, Job};
 
 use super::{
     bookmarklet_job_values, bookmarklet_payload_matches_request_origin,
@@ -321,7 +320,7 @@ fn normalize_bookmarklet_job_data(
         .get_location()
         .map(|value| value.trim().to_string())
         .filter(|value| !value.is_empty());
-    job_data.url = canonicalize_bookmarklet_job_url(job_data.url.trim())
+    job_data.url = canonicalize_job_url(job_data.url.trim())
         .map_err(|_| "Job link must be a public https address".to_string())?;
     validate_bookmarklet_job_storage_lengths(&job_data)?;
 
@@ -354,21 +353,4 @@ fn bookmarklet_job_hash(job_data: &BookmarkletJobData) -> String {
         location.as_deref(),
         &job_data.url,
     )
-}
-
-fn canonicalize_bookmarklet_job_url(value: &str) -> Result<String, String> {
-    let canonical = canonicalize_user_supplied_job_url(value)?;
-    let Ok(mut parsed) = url::Url::parse(&canonical) else {
-        return Ok(canonical);
-    };
-
-    if parsed.host_str().is_some_and(|host| {
-        host.eq_ignore_ascii_case("linkedin.com") || host.ends_with(".linkedin.com")
-    }) {
-        parsed.set_query(None);
-        parsed.set_fragment(None);
-        return Ok(parsed.to_string());
-    }
-
-    Ok(canonical)
 }
