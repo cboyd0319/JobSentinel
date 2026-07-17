@@ -1,5 +1,7 @@
 use url::Url;
 
+use serde_json::{Map, Value};
+
 pub(super) fn first_non_empty<'a>(
     values: impl IntoIterator<Item = Option<&'a str>>,
 ) -> Option<&'a str> {
@@ -21,6 +23,18 @@ pub(super) fn normalize_ws(value: &str) -> String {
         .split_whitespace()
         .collect::<Vec<_>>()
         .join(" ")
+}
+
+pub(super) fn first_string(item: &Map<String, Value>, keys: &[&str]) -> Option<String> {
+    keys.iter()
+        .filter_map(|key| item.get(*key).and_then(Value::as_str))
+        .find(|value| !value.trim().is_empty())
+        .map(normalize_ws)
+}
+
+pub(super) fn path_tail(value: &str) -> Option<&str> {
+    let path = value.split(['?', '#']).next().unwrap_or(value);
+    path.trim_end_matches('/').rsplit('/').next()
 }
 
 pub(super) fn hex_prefix(bytes: &[u8], length: usize) -> String {
@@ -63,6 +77,19 @@ mod tests {
     #[test]
     fn whitespace_normalization_handles_non_breaking_spaces() {
         assert_eq!(normalize_ws(" Remote\u{00a0}\n  role "), "Remote role");
+    }
+
+    #[test]
+    fn normalized_scalar_lookup_and_path_tail_share_adapter_semantics() {
+        let item = serde_json::json!({"missing": null, "id": "  job\u{00a0}123 "});
+        assert_eq!(
+            first_string(item.as_object().expect("object"), &["missing", "id"]),
+            Some("job 123".to_string())
+        );
+        assert_eq!(
+            path_tail("https://example.com/jobs/job_123/?token=private"),
+            Some("job_123")
+        );
     }
 
     #[test]

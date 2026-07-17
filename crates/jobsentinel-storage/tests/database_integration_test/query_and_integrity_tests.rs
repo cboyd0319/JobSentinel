@@ -6,7 +6,7 @@ use super::*;
 
 #[tokio::test]
 async fn test_upsert_atomicity() {
-    let (db, _temp_dir) = setup_test_db().await;
+    let db = setup_test_db().await;
 
     let job = create_test_job("atomic_001", "Program Coordinator", "Example Services");
 
@@ -26,7 +26,7 @@ async fn test_upsert_atomicity() {
 
 #[tokio::test]
 async fn test_job_data_preserved_on_upsert() {
-    let (db, _temp_dir) = setup_test_db().await;
+    let db = setup_test_db().await;
 
     // Create job with full data
     let job = Job {
@@ -86,7 +86,7 @@ async fn test_job_data_preserved_on_upsert() {
 
 #[tokio::test]
 async fn test_statistics_accuracy() {
-    let (db, _temp_dir) = setup_test_db().await;
+    let db = setup_test_db().await;
 
     // Insert jobs with different characteristics
     let jobs = vec![
@@ -132,7 +132,7 @@ async fn test_statistics_accuracy() {
 
 #[tokio::test]
 async fn test_search_jobs_basic() {
-    let (db, _temp_dir) = setup_test_db().await;
+    let db = setup_test_db().await;
 
     let jobs = vec![
         create_test_job("search_001", "Care Coordinator", "WellBridge"),
@@ -156,7 +156,7 @@ async fn test_search_jobs_basic() {
 
 #[tokio::test]
 async fn test_search_jobs_case_insensitive() {
-    let (db, _temp_dir) = setup_test_db().await;
+    let db = setup_test_db().await;
 
     let job = create_test_job("case_001", "Senior CARE Coordinator", "Corp");
     db.upsert_job(&job).await.unwrap();
@@ -173,7 +173,7 @@ async fn test_search_jobs_case_insensitive() {
 
 #[tokio::test]
 async fn test_get_recent_jobs_limit() {
-    let (db, _temp_dir) = setup_test_db().await;
+    let db = setup_test_db().await;
 
     // Insert 25 jobs
     for i in 0..25 {
@@ -208,7 +208,7 @@ async fn test_get_recent_jobs_limit() {
 
 #[tokio::test]
 async fn test_hide_and_unhide_job() {
-    let (db, _temp_dir) = setup_test_db().await;
+    let db = setup_test_db().await;
 
     let job = create_test_job("hide_001", "Test Job", "Corp");
     db.upsert_job(&job).await.unwrap();
@@ -231,7 +231,7 @@ async fn test_hide_and_unhide_job() {
 
 #[tokio::test]
 async fn test_bookmark_toggle() {
-    let (db, _temp_dir) = setup_test_db().await;
+    let db = setup_test_db().await;
 
     let job = create_test_job("bookmark_001", "Test Job", "Corp");
     db.upsert_job(&job).await.unwrap();
@@ -260,7 +260,7 @@ async fn test_bookmark_toggle() {
 
 #[tokio::test]
 async fn test_ghost_score_persistence() {
-    let (db, _temp_dir) = setup_test_db().await;
+    let db = setup_test_db().await;
 
     let mut job = create_test_job("ghost_001", "Old Job Posting", "GhostCorp");
     job.ghost_score = Some(0.75);

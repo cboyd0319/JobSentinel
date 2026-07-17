@@ -5,8 +5,7 @@ mod search_tests {
 
     #[tokio::test]
     async fn test_search_jobs_by_title() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         // Insert jobs
         let job1 = create_test_job("search1", "Senior Support Manager", 0.9);
@@ -27,8 +26,7 @@ mod search_tests {
 
     #[tokio::test]
     async fn test_search_jobs_by_description() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         // Insert job with specific description
         let mut job = create_test_job("search_desc", "Test Job", 0.9);
@@ -49,8 +47,7 @@ mod search_tests {
 
     #[tokio::test]
     async fn test_search_jobs_limit() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         // Insert 5 jobs with "Coordinator" in title
         for i in 0..5 {
@@ -70,8 +67,7 @@ mod search_tests {
 
     #[tokio::test]
     async fn test_search_jobs_no_results() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         let job = create_test_job("search_none", "Case Manager", 0.9);
         db.upsert_job(&job).await.unwrap();
@@ -84,8 +80,7 @@ mod search_tests {
 
     #[tokio::test]
     async fn test_search_jobs_case_insensitive() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         let job = create_test_job("case_test", "Senior BILINGUAL Support Specialist", 0.9);
         db.upsert_job(&job).await.unwrap();
@@ -98,8 +93,7 @@ mod search_tests {
 
     #[tokio::test]
     async fn test_search_jobs_empty_query() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         let job = create_test_job("empty_search", "Test Job", 0.9);
         db.upsert_job(&job).await.unwrap();
@@ -117,8 +111,7 @@ mod search_edge_cases {
 
     #[tokio::test]
     async fn test_search_jobs_with_special_fts_characters() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         let job = create_test_job("fts_test", "C++ Developer", 0.9);
         db.upsert_job(&job).await.unwrap();
@@ -139,8 +132,7 @@ mod search_error_paths {
 
     #[tokio::test]
     async fn test_search_jobs_with_too_many_results() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         // Insert 1005 jobs with common keyword (exceeds MAX_IDS = 1000)
         for i in 0..1005 {
@@ -163,8 +155,7 @@ mod search_error_paths {
 
     #[tokio::test]
     async fn test_search_jobs_with_max_limit() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         // Insert 100 jobs
         for i in 0..100 {
@@ -184,8 +175,7 @@ mod search_error_paths {
 
     #[tokio::test]
     async fn test_search_jobs_special_characters() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         let mut job = create_test_job("special", "Test Job", 0.9);
         job.description = Some("Job requires C# and .NET experience".to_string());
@@ -199,8 +189,7 @@ mod search_error_paths {
 
     #[tokio::test]
     async fn test_search_jobs_with_quotes() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         let mut job = create_test_job("quotes", "Senior Case Manager", 0.9);
         job.description = Some("Looking for 'experienced' coordinators".to_string());
@@ -214,8 +203,7 @@ mod search_error_paths {
 
     #[tokio::test]
     async fn test_search_jobs_unicode_query() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         let mut job = create_test_job("unicode_search", "Développeur Senior", 0.9);
         job.description = Some("Poste à São Paulo".to_string());

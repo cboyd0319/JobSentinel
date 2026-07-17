@@ -254,7 +254,7 @@ export function hasUnsafeResumeMatchJsonParsing(root, path) {
   return (
     /const\s+resume:\s*AtsResumeData\s*=\s*JSON\.parse\(resumeJson\)/.test(changedText) ||
     !/parseAtsResumeInput/.test(pageText) ||
-    !/function\s+isAtsResumeData/.test(validationContractText) ||
+    !/function\s+isStructuredResume/.test(validationContractText) ||
     !/export\s+function\s+parseAtsResumeInput/.test(validationContractText)
   );
 }

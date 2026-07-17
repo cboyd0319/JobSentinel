@@ -173,6 +173,13 @@ fn check_adversarial_content(
         return;
     }
 
+    push_adversarial_content_issue(issues, suggestions);
+}
+
+pub(super) fn push_adversarial_content_issue(
+    issues: &mut Vec<FormatIssue>,
+    suggestions: &mut Vec<AtsSuggestion>,
+) {
     issues.push(FormatIssue {
         severity: IssueSeverity::Warning,
         issue: "Instruction-like or hidden resume text detected".to_string(),
@@ -207,6 +214,13 @@ fn check_keyword_stuffing(
         return;
     }
 
+    push_keyword_stuffing_issue(issues, suggestions);
+}
+
+pub(super) fn push_keyword_stuffing_issue(
+    issues: &mut Vec<FormatIssue>,
+    suggestions: &mut Vec<AtsSuggestion>,
+) {
     issues.push(FormatIssue {
         severity: IssueSeverity::Warning,
         issue: "Possible keyword stuffing detected".to_string(),

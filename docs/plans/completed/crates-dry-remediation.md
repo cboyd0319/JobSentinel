@@ -327,19 +327,19 @@ Commit boundary: `test(rust): consolidate crate fixtures and database setup`.
 
 ### Milestone 10: Delete Residue, Ratchet To The Final Baseline, And Close
 
-- [ ] Run the detector listing and a symbol-level sweep for every family in the
+- [x] Run the detector listing and a symbol-level sweep for every family in the
   workstream map. Delete stale wrappers, constants, imports, adapters, and tests
   that only covered retired copies.
-- [ ] Consolidate repeated external-AI user messages at their existing copy
+- [x] Consolidate repeated external-AI user messages at their existing copy
   owner without changing wording or gateway behavior.
-- [ ] Require zero unexplained production clone regions and no repeated test
+- [x] Require zero unexplained production clone regions and no repeated test
   setup regions at the maintained threshold. Do not add exclusions for code
   created or moved by this plan.
-- [ ] Lower each duplication baseline to the measured result and close DRY-001
+- [x] Lower each duplication baseline to the measured result and close DRY-001
   in `docs/plans/tech-debt-tracker.md` with final evidence.
-- [ ] Update architecture and testing docs only where ownership or test-support
+- [x] Update architecture and testing docs only where ownership or test-support
   APIs changed.
-- [ ] Run the full verification matrix, save structured completion evidence,
+- [x] Run the full verification matrix, save structured completion evidence,
   update active state, and move this plan to `docs/plans/completed/` only after
   every required command passes.
 
@@ -406,6 +406,7 @@ gap and blocks `passing`.
 | 2026-07-16 | Modeled | Milestone 7 added the canonical structured resume, one complete template identifier contract, exact boundary fixtures, and temporary analysis and persistence adapters. HTML, DOCX, ATS, JSON import, and storage round trips pass without increasing production duplication. |
 | 2026-07-16 | Cut over | Milestone 8 moved rendering, export, ATS analysis, storage, command, and frontend consumers to the canonical resume contract; deleted every temporary adapter and legacy Rust resume DTO; preserved the flat stored-draft contract with an exact round trip; and renamed the distinct local inference result to `ExtractedResume`. Production duplication remains 98 lines across 5 regions and test duplication remains 2,127 lines across 77 regions. |
 | 2026-07-16 | Test support | Milestone 9 centralized application status, notification, config, job, migrated database, scraper parsing, and focused assertion fixtures. Test duplication fell from 2,127 lines across 77 regions to zero; production remains 98 lines across 5 regions. |
+| 2026-07-16 | Complete | Milestone 10 removed the final production clones and below-threshold forwarding copies, centralized shared prompt-injection and secure-storage policy, refreshed SQLx metadata and harness sensors, ratcheted both crate baselines to zero, and passed the full verification matrix. |
 
 - [x] Milestone 0: activate the plan safely.
 - [x] Milestone 1: establish guardrails and characterization.
@@ -417,7 +418,7 @@ gap and blocks `passing`.
 - [x] Milestone 7: introduce the canonical resume contract.
 - [x] Milestone 8: cut over resume consumers and delete duplicate models.
 - [x] Milestone 9: consolidate test support.
-- [ ] Milestone 10: delete residue, ratchet baselines, and close.
+- [x] Milestone 10: delete residue, ratchet baselines, and close.
 
 ## Surprises And Discoveries
 
@@ -440,6 +441,13 @@ gap and blocks `passing`.
   evidence record unrelated to the canonical document model. Renaming it to
   `ExtractedResume` removed the false ownership signal without coupling the
   inference contract to document rendering fields.
+- Two-line migrated-database setup and three-line forwarding functions remained
+  below the mechanical detector threshold. The symbol and setup sweep removed
+  them while preserving separate integrity, migration, file-backed, and
+  minimal-schema test contracts.
+- The final full gate exposed two stale harness predicates and two obsolete SQLx
+  cache entries left by earlier canonical-owner cutovers. Updating those
+  sensors and generated query metadata restored alignment with live ownership.
 
 ## Decision Log
 
@@ -457,22 +465,38 @@ gap and blocks `passing`.
   from the canonical document model and name it `ExtractedResume`.
 - 2026-07-16: Set zero as the raw production-clone target and prohibit baseline
   increases or cleanup-only exclusions.
+- 2026-07-16: Keep explicit schema keys, source-specific selectors, platform
+  parity contracts, and semantically distinct setup local. Similar spelling is
+  not a DRY violation without one shared behavior owner.
+- 2026-07-16: Split the remaining frontend duplication into DRY-003 so closing
+  the crate remediation does not hide unrelated measured debt.
 
 ## Outcomes And Retrospective
 
-Not started. On completion, record the removed regions, final production and
-test measurements, behavior corrections, retained intentional repetition,
-dependency changes, verification evidence, and any follow-up debt.
+- Maintained crate production duplication fell from 693 lines across 35 regions
+  to zero. Maintained crate test duplication fell from 2,184 lines across 79
+  regions to zero.
+- Security, normalization, SQLite mapping, source orchestration, document
+  rendering, structured resume data, notification formatting, and test setup
+  now have narrow canonical owners in existing crates. No new crate or external
+  dependency was added.
+- The shared salary aggregation now excludes null rows explicitly. Source
+  remote fallbacks, URL policy, HTML encoding, webhook validation, prompt-like
+  content checks, and resume serialization are protected by focused contracts.
+- Intentional repetition remains only where the repeated text is an explicit
+  protocol, schema, taxonomy, provider, platform-parity, or test-subject
+  contract. The completion evidence records these categories and the passing
+  command matrix.
+- Frontend production duplication remains measured separately at 778 lines
+  across 38 regions under DRY-003; it is not part of this completed crate scope.
 
 ## Handoff
 
-- Current state: Milestones 0 through 9 are complete; Milestone 10 is next.
-- Evidence: the affected storage, notifications, application, sources, and
-  documents package tests pass. Workspace formatting and clippy, harness,
-  architecture, file-size hard limits, and duplication gates pass. Maintained
-  crate test duplication is zero; production remains 98 lines across 5 regions.
-- Next step: eliminate the five residual production clone regions, complete a
-  symbol-level sweep, and ratchet the crate baselines.
-- Open risk: the remaining production clones are selector and row-mapping
-  families. Preserve their distinct matching and persistence semantics while
-  assigning each shared operation one owner.
+- Current state: all ten milestones are complete and both maintained crate
+  duplication scopes are ratcheted to zero.
+- Evidence: `docs/harness/evidence/crates-dry-completion-2026-07-16.json`
+  records the full command matrix, measurements, retained intentional
+  repetition, revision scope, and caveats.
+- Next step: treat any crate duplication increase as a regression. The separate
+  frontend DRY-003 feature owns the next duplication workstream.
+- Open risk: none within the completed crate scope.

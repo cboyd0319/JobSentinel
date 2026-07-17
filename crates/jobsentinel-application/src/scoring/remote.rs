@@ -7,6 +7,8 @@ use jobsentinel_domain::Job;
 
 pub use jobsentinel_domain::normalization::RemoteStatus;
 
+const WORK_ARRANGEMENT_NOT_SPECIFIED: &str = "Work arrangement not specified";
+
 /// User's remote work preference (derived from config flags)
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum UserRemotePreference {
@@ -86,7 +88,7 @@ pub fn score_remote_match(
             (0.4, "Onsite job (remote preferred)")
         }
         (UserRemotePreference::RemotePreferred, RemoteStatus::Unspecified) => {
-            (0.6, "Work arrangement not specified")
+            (0.6, WORK_ARRANGEMENT_NOT_SPECIFIED)
         }
 
         // HybridPreferred
@@ -100,7 +102,7 @@ pub fn score_remote_match(
             (0.6, "Onsite job (acceptable)")
         }
         (UserRemotePreference::HybridPreferred, RemoteStatus::Unspecified) => {
-            (0.7, "Work arrangement not specified")
+            (0.7, WORK_ARRANGEMENT_NOT_SPECIFIED)
         }
 
         // OnsitePreferred
@@ -114,7 +116,7 @@ pub fn score_remote_match(
             (0.5, "Remote job (onsite preferred)")
         }
         (UserRemotePreference::OnsitePreferred, RemoteStatus::Unspecified) => {
-            (0.6, "Work arrangement not specified")
+            (0.6, WORK_ARRANGEMENT_NOT_SPECIFIED)
         }
 
         // Flexible (all equally acceptable)

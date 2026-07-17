@@ -3,14 +3,14 @@
 //! Single-page fetcher with proper User-Agent and timeout handling.
 
 use super::types::{ImportError, ImportResult};
-use jobsentinel_network::{fetch_external_https_text_with_user_agent, ExternalFetchError};
+use jobsentinel_network::{
+    fetch_external_https_text_with_user_agent, ExternalFetchError, FULL_BROWSER_USER_AGENT,
+};
 use jobsentinel_security::sanitize_url_for_logging;
 use std::time::Duration;
 
 /// Timeout for HTTP requests (30 seconds)
 const HTTP_TIMEOUT: Duration = Duration::from_secs(30);
-const IMPORT_USER_AGENT: &str =
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
 
 /// Fetch a single job page HTML content
 ///
@@ -24,7 +24,7 @@ pub(super) async fn fetch_job_page(url: &str) -> ImportResult<String> {
     tracing::info!(url = %sanitize_url_for_logging(url), "Fetching job page");
 
     let response =
-        fetch_external_https_text_with_user_agent(url, HTTP_TIMEOUT, Some(IMPORT_USER_AGENT))
+        fetch_external_https_text_with_user_agent(url, HTTP_TIMEOUT, Some(FULL_BROWSER_USER_AGENT))
             .await
             .map_err(map_fetch_error)?;
 

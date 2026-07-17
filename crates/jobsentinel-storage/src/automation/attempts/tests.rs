@@ -1,19 +1,8 @@
 use super::*;
-use crate::Database;
-use tempfile::TempDir;
-
-async fn setup_test_db() -> (SqlitePool, TempDir) {
-    let temp_dir = TempDir::new().unwrap();
-    let database = Database::connect_memory().await.unwrap();
-    database.migrate().await.unwrap();
-    let pool = database.pool().clone();
-
-    (pool, temp_dir)
-}
 
 #[tokio::test]
 async fn test_create_automation_attempt() {
-    let (pool, _temp_dir) = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let manager = AutomationManager::new(pool);
 
     // Create test job first
@@ -47,7 +36,7 @@ async fn test_create_automation_attempt() {
 
 #[tokio::test]
 async fn test_update_attempt_status() {
-    let (pool, _temp_dir) = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let manager = AutomationManager::new(pool.clone());
 
     // Create test job
@@ -83,7 +72,7 @@ async fn test_update_attempt_status() {
 
 #[tokio::test]
 async fn test_approve_and_submit() {
-    let (pool, _temp_dir) = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let manager = AutomationManager::new(pool.clone());
 
     sqlx::query(

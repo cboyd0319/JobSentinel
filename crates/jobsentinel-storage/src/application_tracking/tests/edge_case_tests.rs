@@ -6,7 +6,7 @@ use super::*;
 
 #[tokio::test]
 async fn test_get_application_nonexistent() {
-    let pool = create_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let tracker = ApplicationTracker::new(pool);
 
     let result = tracker.get_application(9999).await;
@@ -15,7 +15,7 @@ async fn test_get_application_nonexistent() {
 
 #[tokio::test]
 async fn test_create_application_duplicate_job_hash() {
-    let pool = create_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
 
     sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test123', 'Case Manager', 'CommunityCare', 'http://test.com', 'test')")
         .execute(&pool)
@@ -36,7 +36,7 @@ async fn test_create_application_duplicate_job_hash() {
 
 #[tokio::test]
 async fn test_kanban_board_empty() {
-    let pool = create_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let tracker = ApplicationTracker::new(pool);
 
     let kanban = tracker.get_applications_by_status().await.unwrap();
@@ -47,7 +47,7 @@ async fn test_kanban_board_empty() {
 
 #[tokio::test]
 async fn test_get_pending_reminders_excludes_completed() {
-    let pool = create_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
 
     sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test123', 'Case Manager', 'CommunityCare', 'http://test.com', 'test')")
         .execute(&pool)

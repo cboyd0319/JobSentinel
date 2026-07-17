@@ -3,7 +3,7 @@
 //! Identifies which ATS (Applicant Tracking System) platform a job posting uses
 //! based on parsed URL host/path rules and page structure.
 
-use super::AtsPlatform;
+use super::{has_generic_automation_contract, AtsPlatform};
 use url::Url;
 
 /// ATS detector
@@ -334,6 +334,17 @@ impl AtsDetector {
     ///
     /// Returns common field names/IDs used by the platform
     pub fn get_common_fields(platform: &AtsPlatform) -> Vec<&'static str> {
+        if has_generic_automation_contract(platform) {
+            return vec![
+                "name",
+                "first_name",
+                "last_name",
+                "email",
+                "phone",
+                "resume",
+            ];
+        }
+
         match platform {
             AtsPlatform::Greenhouse => vec![
                 "first_name",
@@ -383,27 +394,7 @@ impl AtsDetector {
                 "resume",
                 "linkedin",
             ],
-            AtsPlatform::Workable
-            | AtsPlatform::Recruitee
-            | AtsPlatform::BreezyHr
-            | AtsPlatform::JazzHr
-            | AtsPlatform::Bullhorn
-            | AtsPlatform::Jobvite
-            | AtsPlatform::Teamtailor
-            | AtsPlatform::SuccessFactors
-            | AtsPlatform::OracleRecruiting
-            | AtsPlatform::Phenom
-            | AtsPlatform::Personio
-            | AtsPlatform::Comeet
-            | AtsPlatform::Jobylon
-            | AtsPlatform::Eightfold
-            | AtsPlatform::AdpRecruiting
-            | AtsPlatform::Ukg
-            | AtsPlatform::Rippling
-            | AtsPlatform::ZohoRecruit
-            | AtsPlatform::Freshteam
-            | AtsPlatform::Pinpoint
-            | AtsPlatform::JobScore => {
+            AtsPlatform::Workable | AtsPlatform::Recruitee => {
                 vec![
                     "name",
                     "first_name",
@@ -413,12 +404,17 @@ impl AtsDetector {
                     "resume",
                 ]
             }
-            AtsPlatform::Unknown => vec![],
+            _ => vec![],
         }
     }
 
     /// Get platform-specific automation notes/tips
     pub fn get_automation_notes(platform: &AtsPlatform) -> &'static str {
+        if has_generic_automation_contract(platform) {
+            return "Recognized employer application system. JobSentinel can prepare common fields, \
+                    but the user must review the page and submit manually.";
+        }
+
         match platform {
             AtsPlatform::Greenhouse => {
                 "Greenhouse: Usually has iframe embed. Look for #grnhse_app. \
@@ -460,29 +456,7 @@ impl AtsDetector {
                 "Ashby: Modern ATS with clean UI. Usually single-page application. \
                  Good automation candidate."
             }
-            AtsPlatform::BreezyHr
-            | AtsPlatform::JazzHr
-            | AtsPlatform::Bullhorn
-            | AtsPlatform::Jobvite
-            | AtsPlatform::Teamtailor
-            | AtsPlatform::SuccessFactors
-            | AtsPlatform::OracleRecruiting
-            | AtsPlatform::Phenom
-            | AtsPlatform::Personio
-            | AtsPlatform::Comeet
-            | AtsPlatform::Jobylon
-            | AtsPlatform::Eightfold
-            | AtsPlatform::AdpRecruiting
-            | AtsPlatform::Ukg
-            | AtsPlatform::Rippling
-            | AtsPlatform::ZohoRecruit
-            | AtsPlatform::Freshteam
-            | AtsPlatform::Pinpoint
-            | AtsPlatform::JobScore => {
-                "Recognized employer application system. JobSentinel can prepare common fields, \
-                 but the user must review the page and submit manually."
-            }
-            AtsPlatform::Unknown => "Unknown ATS platform. Manual detection required.",
+            _ => "Unknown ATS platform. Manual detection required.",
         }
     }
 }

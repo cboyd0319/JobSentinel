@@ -5,8 +5,7 @@ mod duplicate_detection_tests {
 
     #[tokio::test]
     async fn test_find_duplicate_groups_same_title_company() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         // Insert same job from different sources
         let mut job1 = create_test_job("dup1", "Senior Case Manager", 0.95);
@@ -34,8 +33,7 @@ mod duplicate_detection_tests {
 
     #[tokio::test]
     async fn test_find_duplicate_groups_case_insensitive() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         // Insert jobs with different casing
         let mut job1 = create_test_job("case1", "Case Manager", 0.9);
@@ -54,8 +52,7 @@ mod duplicate_detection_tests {
 
     #[tokio::test]
     async fn test_find_duplicate_groups_primary_is_highest_score() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         // Insert duplicates with different scores
         let mut job1 = create_test_job("score1", "Job Title", 0.85);
@@ -75,8 +72,7 @@ mod duplicate_detection_tests {
 
     #[tokio::test]
     async fn test_find_duplicate_groups_excludes_hidden() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         // Insert visible duplicate
         let mut job1 = create_test_job("visible_dup", "Duplicate Job", 0.9);
@@ -97,8 +93,7 @@ mod duplicate_detection_tests {
 
     #[tokio::test]
     async fn test_find_duplicate_groups_no_duplicates() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         // Insert unique jobs
         let job1 = create_test_job("unique1", "Job A", 0.9);
@@ -114,8 +109,7 @@ mod duplicate_detection_tests {
 
     #[tokio::test]
     async fn test_find_duplicate_groups_multiple_groups() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         // Group 1: Job A at CompanyX
         let mut job1a = create_test_job("1a", "Job A", 0.9);
@@ -142,8 +136,7 @@ mod duplicate_detection_tests {
 
     #[tokio::test]
     async fn test_merge_duplicates() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         // Insert duplicates
         let mut job1 = create_test_job("merge1", "Job Title", 0.95);
@@ -177,8 +170,7 @@ mod duplicate_detection_tests {
 
     #[tokio::test]
     async fn test_merge_duplicates_primary_not_hidden() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         let job1 = create_test_job("primary", "Job", 0.9);
         let primary_id = db.upsert_job(&job1).await.unwrap();
@@ -198,8 +190,7 @@ mod duplicate_detection_tests {
 
     #[tokio::test]
     async fn test_merge_duplicates_empty_list() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         let job = create_test_job("single", "Single Job", 0.9);
         let id = db.upsert_job(&job).await.unwrap();

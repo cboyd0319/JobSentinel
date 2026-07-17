@@ -6,11 +6,6 @@ mod normalization_seniority_tests;
 #[path = "predictor_tests/pure_tests.rs"]
 mod pure_tests;
 
-// Helper to create in-memory database with schema
-async fn create_test_db() -> SqlitePool {
-    crate::test_support::migrated_pool().await
-}
-
 // Insert a test job
 async fn insert_test_job(pool: &SqlitePool, hash: &str, title: &str, location: &str) {
     sqlx::query(
@@ -65,7 +60,7 @@ async fn insert_benchmark(
 
 #[tokio::test]
 async fn test_new_creates_predictor() {
-    let pool = create_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let predictor = SalaryPredictor::new(pool);
     // Just verify it was created (struct is simple)
     assert_eq!(
@@ -76,7 +71,7 @@ async fn test_new_creates_predictor() {
 
 #[tokio::test]
 async fn test_predict_for_job_exact_match() {
-    let pool = create_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     insert_test_job(&pool, "job123", "Senior Case Manager", "San Francisco, CA").await;
     insert_benchmark(
         &pool,
@@ -106,7 +101,7 @@ async fn test_predict_for_job_exact_match() {
 
 #[tokio::test]
 async fn test_predict_for_job_with_experience_override() {
-    let pool = create_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     // Job title suggests "senior" but we override with experience for "entry"
     insert_test_job(
         &pool,
@@ -141,7 +136,7 @@ async fn test_predict_for_job_with_experience_override() {
 
 #[tokio::test]
 async fn test_predict_for_job_fallback_average() {
-    let pool = create_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     insert_test_job(&pool, "job789", "Case Manager", "Austin, TX").await;
 
     // No exact location match, but have data for same title/seniority in other locations
@@ -184,7 +179,7 @@ async fn test_predict_for_job_fallback_average() {
 
 #[tokio::test]
 async fn test_predict_for_job_default_fallback_entry() {
-    let pool = create_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     insert_test_job(&pool, "job_entry", "Junior Inventory Planner", "Remote").await;
 
     let predictor = SalaryPredictor::new(pool);
@@ -203,7 +198,7 @@ async fn test_predict_for_job_default_fallback_entry() {
 
 #[tokio::test]
 async fn test_predict_for_job_default_fallback_senior() {
-    let pool = create_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     insert_test_job(
         &pool,
         "job_senior",
@@ -224,7 +219,7 @@ async fn test_predict_for_job_default_fallback_senior() {
 
 #[tokio::test]
 async fn test_predict_for_job_default_fallback_staff() {
-    let pool = create_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     insert_test_job(&pool, "job_staff", "Staff Case Manager", "Seattle, WA").await;
 
     let predictor = SalaryPredictor::new(pool);
@@ -239,7 +234,7 @@ async fn test_predict_for_job_default_fallback_staff() {
 
 #[tokio::test]
 async fn test_predict_for_job_default_fallback_principal() {
-    let pool = create_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     insert_test_job(
         &pool,
         "job_principal",
@@ -260,7 +255,7 @@ async fn test_predict_for_job_default_fallback_principal() {
 
 #[tokio::test]
 async fn test_predict_for_job_stores_prediction() {
-    let pool = create_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     insert_test_job(&pool, "job_store", "Data Scientist", "Chicago, IL").await;
 
     let predictor = SalaryPredictor::new(pool);
@@ -280,7 +275,7 @@ async fn test_predict_for_job_stores_prediction() {
 
 #[tokio::test]
 async fn test_predict_for_job_updates_existing_prediction() {
-    let pool = create_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     insert_test_job(&pool, "job_update", "Product Manager", "Denver, CO").await;
 
     let predictor = SalaryPredictor::new(pool.clone());
@@ -324,7 +319,7 @@ async fn test_predict_for_job_updates_existing_prediction() {
 
 #[tokio::test]
 async fn test_predict_for_job_nonexistent_job() {
-    let pool = create_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let predictor = SalaryPredictor::new(pool);
 
     let result = predictor.predict_for_job("nonexistent", None).await;
@@ -333,7 +328,7 @@ async fn test_predict_for_job_nonexistent_job() {
 
 #[tokio::test]
 async fn test_predict_for_job_empty_location() {
-    let pool = create_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     insert_test_job(&pool, "job_noloc", "Program Coordinator", "").await;
 
     let predictor = SalaryPredictor::new(pool);
@@ -347,7 +342,7 @@ async fn test_predict_for_job_empty_location() {
 
 #[tokio::test]
 async fn test_get_prediction_exists() {
-    let pool = create_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     insert_test_job(&pool, "job_get", "Training Coordinator", "Atlanta, GA").await;
 
     let predictor = SalaryPredictor::new(pool);
@@ -368,7 +363,7 @@ async fn test_get_prediction_exists() {
 
 #[tokio::test]
 async fn test_get_prediction_not_found() {
-    let pool = create_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let predictor = SalaryPredictor::new(pool);
 
     let result = predictor.get_prediction("nonexistent").await;
@@ -378,7 +373,7 @@ async fn test_get_prediction_not_found() {
 
 #[tokio::test]
 async fn test_get_prediction_returns_correct_data() {
-    let pool = create_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     insert_test_job(&pool, "job_data", "Workforce Analyst", "Los Angeles, CA").await;
     insert_benchmark(
         &pool,

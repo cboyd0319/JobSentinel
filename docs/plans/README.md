@@ -22,7 +22,7 @@ See [Exec Plans](../exec-plans.md) for required format.
 | Workstream | Document |
 | ---------- | -------- |
 | Current active status | [Compact status](active/status.md) |
-| Rust crate DRY remediation | [Active plan](active/crates-dry-remediation.md) |
+| Frontend DRY remediation | [Active plan](active/frontend-dry-remediation.md) |
 
 ## Major-Release Planning
 
@@ -51,6 +51,7 @@ Each broad plan follows [the exec-plan template](templates/exec-plan-template.md
 
 | Version | Status | Document |
 | ------- | ------ | -------- |
+| Rust crates | Complete | [DRY remediation](completed/crates-dry-remediation.md) |
 | v2.9.5 | Source readiness complete | [Full repository refactor and readiness](completed/repository-architecture-reorganization.md) |
 | Feedback workflow | Complete on main | [Beta feedback system](completed/beta-feedback-system.md) |
 | v2.9.1 | Complete | [Maintenance and repo cleanup](completed/v2.9.1-maintenance-and-repo-cleanup.md) |

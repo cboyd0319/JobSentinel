@@ -5,8 +5,7 @@ mod notes_tests {
 
     #[tokio::test]
     async fn test_set_job_notes() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         let job = create_test_job("notes_test", "Test Job", 0.9);
         let id = db.upsert_job(&job).await.unwrap();
@@ -23,8 +22,7 @@ mod notes_tests {
 
     #[tokio::test]
     async fn test_set_job_notes_update() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         let job = create_test_job("notes_update", "Test Job", 0.9);
         let id = db.upsert_job(&job).await.unwrap();
@@ -41,8 +39,7 @@ mod notes_tests {
 
     #[tokio::test]
     async fn test_set_job_notes_clear() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         let job = create_test_job("notes_clear", "Test Job", 0.9);
         let id = db.upsert_job(&job).await.unwrap();
@@ -59,8 +56,7 @@ mod notes_tests {
 
     #[tokio::test]
     async fn test_get_job_notes() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         let job = create_test_job("get_notes", "Test Job", 0.9);
         let id = db.upsert_job(&job).await.unwrap();
@@ -75,8 +71,7 @@ mod notes_tests {
 
     #[tokio::test]
     async fn test_get_job_notes_none() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         let job = create_test_job("no_notes", "Test Job", 0.9);
         let id = db.upsert_job(&job).await.unwrap();
@@ -88,8 +83,7 @@ mod notes_tests {
 
     #[tokio::test]
     async fn test_get_job_notes_nonexistent() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         // Get notes for non-existent job
         let notes = db.get_job_notes(999999).await.unwrap();
@@ -98,8 +92,7 @@ mod notes_tests {
 
     #[tokio::test]
     async fn test_get_jobs_with_notes() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         // Insert job with notes
         let job1 = create_test_job("with_notes1", "Job 1", 0.9);
@@ -124,8 +117,7 @@ mod notes_tests {
 
     #[tokio::test]
     async fn test_get_jobs_with_notes_ordered_by_updated() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         // Insert first job with notes
         let job1 = create_test_job("notes_old", "Old Job", 0.9);
@@ -148,8 +140,7 @@ mod notes_tests {
 
     #[tokio::test]
     async fn test_get_jobs_with_notes_limit() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         // Insert 5 jobs with notes
         for i in 0..5 {
@@ -166,8 +157,7 @@ mod notes_tests {
 
     #[tokio::test]
     async fn test_get_jobs_with_notes_excludes_hidden() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         // Insert job with notes but hidden
         let job1 = create_test_job("notes_hidden", "Hidden Job", 0.9);
@@ -187,8 +177,7 @@ mod notes_tests {
 
     #[tokio::test]
     async fn test_notes_with_special_characters() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         let job = create_test_job("special_chars", "Test Job", 0.9);
         let id = db.upsert_job(&job).await.unwrap();
@@ -202,8 +191,7 @@ mod notes_tests {
 
     #[tokio::test]
     async fn test_notes_with_long_text() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         let job = create_test_job("long_notes", "Test Job", 0.9);
         let id = db.upsert_job(&job).await.unwrap();
@@ -221,8 +209,7 @@ mod notes_coverage {
 
     #[tokio::test]
     async fn test_get_jobs_with_notes_empty_database() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         let results = db.get_jobs_with_notes(10).await.unwrap();
         assert_eq!(results.len(), 0);
@@ -230,8 +217,7 @@ mod notes_coverage {
 
     #[tokio::test]
     async fn test_set_job_notes_overwrites_existing() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         let job = create_test_job("notes_overwrite", "Test", 0.9);
         let id = db.upsert_job(&job).await.unwrap();
@@ -248,8 +234,7 @@ mod notes_coverage {
 
     #[tokio::test]
     async fn test_notes_with_newlines_and_tabs() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         let job = create_test_job("notes_whitespace", "Test", 0.9);
         let id = db.upsert_job(&job).await.unwrap();

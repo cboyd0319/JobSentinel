@@ -6,7 +6,7 @@ use super::*;
 
 #[tokio::test]
 async fn test_technical_interview_auto_sets_thank_you_reminder() {
-    let pool = create_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
 
     sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test123', 'Case Manager', 'CommunityCare', 'http://test.com', 'test')")
         .execute(&pool)
@@ -37,7 +37,7 @@ async fn test_technical_interview_auto_sets_thank_you_reminder() {
 
 #[tokio::test]
 async fn test_onsite_interview_auto_sets_thank_you_reminder() {
-    let pool = create_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
 
     sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test123', 'Case Manager', 'CommunityCare', 'http://test.com', 'test')")
         .execute(&pool)
@@ -68,7 +68,7 @@ async fn test_onsite_interview_auto_sets_thank_you_reminder() {
 
 #[tokio::test]
 async fn test_screening_call_no_auto_reminder() {
-    let pool = create_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
 
     sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test123', 'Case Manager', 'CommunityCare', 'http://test.com', 'test')")
         .execute(&pool)
@@ -95,7 +95,7 @@ async fn test_screening_call_no_auto_reminder() {
 
 #[tokio::test]
 async fn test_withdrawn_status_no_auto_reminder() {
-    let pool = create_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
 
     sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test1', 'Case Manager', 'CommunityCare', 'http://test.com', 'test')")
         .execute(&pool)

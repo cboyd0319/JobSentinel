@@ -69,26 +69,6 @@ fn test_webhook_url_validation_error_messages() {
 }
 
 #[test]
-fn test_salary_display_all_permutations() {
-    let test_cases = vec![
-        (Some(100000), Some(200000), "$100,000 - $200,000"),
-        (Some(150000), None, "$150,000+"),
-        (None, None, "Not specified"),
-    ];
-
-    for (min, max, expected) in test_cases {
-        let salary_display = if let (Some(min_val), Some(max_val)) = (min, max) {
-            format!("${},000 - ${},000", min_val / 1000, max_val / 1000)
-        } else if let Some(min_val) = min {
-            format!("${},000+", min_val / 1000)
-        } else {
-            "Not specified".to_string()
-        };
-        assert_eq!(salary_display, expected);
-    }
-}
-
-#[test]
 fn test_color_selection_logic_all_branches() {
     let test_cases = vec![
         (1.0, 0x10b981),

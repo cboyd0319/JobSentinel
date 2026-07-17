@@ -214,21 +214,6 @@ fn test_score_percentage_rounding() {
 }
 
 #[test]
-fn test_salary_formatting_large_numbers() {
-    let test_cases = vec![(Some(500000), Some(750000), "$500,000 - $750,000")];
-
-    for (min, max, expected) in test_cases {
-        let salary_display = if let (Some(min_val), Some(max_val)) = (min, max) {
-            format!("${},000 - ${},000", min_val / 1000, max_val / 1000)
-        } else {
-            "Not specified".to_string()
-        };
-
-        assert_eq!(salary_display, expected);
-    }
-}
-
-#[test]
 fn test_webhook_url_case_normalization() {
     let url = "https://OUTLOOK.OFFICE.COM/webhook/12345678-1234-1234-1234-123456789012";
     let result = validate_webhook_url(url);

@@ -133,9 +133,9 @@ test("frontend contracts accept split Resume Match validation ownership", () => 
       root,
       "src/features/resumes/matching/resumeMatchValidation.ts",
       [
-        "function isAtsResumeData(value: unknown) { return Boolean(value); }",
+        "function isStructuredResume(value: unknown) { return Boolean(value); }",
         "export function parseAtsResumeInput(value: string) {",
-        "  return isAtsResumeData(JSON.parse(value));",
+        "  return isStructuredResume(JSON.parse(value));",
         "}",
       ].join("\n"),
     );

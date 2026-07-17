@@ -18,6 +18,7 @@ mod validation;
 mod vault;
 mod vault_key_store;
 
+use jobsentinel_platform::SECURE_STORAGE_UNAVAILABLE_MESSAGE;
 use validation::{
     is_disabled_credential, reject_disabled_credential_storage, validate_credential_value,
 };
@@ -37,10 +38,8 @@ use vault::{SecretVault, SecretVaultError};
 const MAX_LINKEDIN_COOKIE_LEN: usize = 500;
 const LINKEDIN_CREDENTIAL_STORAGE_DISABLED: &str =
     "JobSentinel does not collect LinkedIn login details or session cookies";
-const SECURE_STORAGE_UNAVAILABLE: &str =
-    "JobSentinel could not use your device's secure storage. Check system permission prompts, then try again.";
 fn secure_storage_error() -> String {
-    SECURE_STORAGE_UNAVAILABLE.to_string()
+    SECURE_STORAGE_UNAVAILABLE_MESSAGE.to_string()
 }
 
 /// Private adapter for lazy migration and cleanup of legacy OS credentials.

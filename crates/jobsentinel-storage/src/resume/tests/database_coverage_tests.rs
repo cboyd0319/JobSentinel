@@ -4,7 +4,7 @@ use super::*;
 
 #[tokio::test]
 async fn test_get_resume_success() {
-    let pool = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let matcher = ResumeMatcher::new(pool.clone());
 
     // Insert a resume with all fields
@@ -33,7 +33,7 @@ async fn test_get_resume_success() {
 
 #[tokio::test]
 async fn test_get_resume_with_null_text() {
-    let pool = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let matcher = ResumeMatcher::new(pool.clone());
 
     let result = sqlx::query(
@@ -55,7 +55,7 @@ async fn test_get_resume_with_null_text() {
 
 #[tokio::test]
 async fn test_get_active_resume_success() {
-    let pool = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let matcher = ResumeMatcher::new(pool.clone());
 
     // Create multiple resumes with different timestamps
@@ -90,7 +90,7 @@ async fn test_get_active_resume_success() {
 
 #[tokio::test]
 async fn test_get_active_resume_no_active() {
-    let pool = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let matcher = ResumeMatcher::new(pool.clone());
 
     // Create inactive resumes
@@ -110,7 +110,7 @@ async fn test_get_active_resume_no_active() {
 
 #[tokio::test]
 async fn test_get_match_result_success() {
-    let pool = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let matcher = ResumeMatcher::new(pool.clone());
 
     let resume_id = create_test_resume(&pool, "Resume", "Python JavaScript").await;
@@ -147,7 +147,7 @@ async fn test_get_match_result_success() {
 
 #[tokio::test]
 async fn test_get_match_result_with_empty_skills() {
-    let pool = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let matcher = ResumeMatcher::new(pool.clone());
 
     let resume_id = create_test_resume(&pool, "Resume", "").await;
@@ -169,7 +169,7 @@ async fn test_get_match_result_with_empty_skills() {
 
 #[tokio::test]
 async fn test_set_active_resume_nonexistent() {
-    let pool = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let matcher = ResumeMatcher::new(pool.clone());
     let active_id = create_test_resume(&pool, "Active Resume", "Scheduling").await;
 
@@ -183,7 +183,7 @@ async fn test_set_active_resume_nonexistent() {
 
 #[tokio::test]
 async fn test_get_user_skills_ordering() {
-    let pool = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let matcher = ResumeMatcher::new(pool.clone());
 
     let result = sqlx::query(
@@ -226,7 +226,7 @@ async fn test_get_user_skills_ordering() {
 
 #[tokio::test]
 async fn test_get_user_skills_with_all_fields() {
-    let pool = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let matcher = ResumeMatcher::new(pool.clone());
 
     let result = sqlx::query(
@@ -273,7 +273,7 @@ async fn test_get_user_skills_with_all_fields() {
 
 #[tokio::test]
 async fn test_update_user_skill_clears_optional_fields_and_trims_name() {
-    let pool = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let matcher = ResumeMatcher::new(pool.clone());
     let resume_id = create_test_resume(&pool, "Resume", "Resident support").await;
 
@@ -350,7 +350,7 @@ fn test_skill_update_deserializes_missing_and_null_differently() {
 
 #[tokio::test]
 async fn test_user_skill_validation_rejects_blank_names_and_invalid_years() {
-    let pool = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let matcher = ResumeMatcher::new(pool.clone());
     let resume_id = create_test_resume(&pool, "Resume", "Scheduling").await;
 
@@ -422,7 +422,7 @@ async fn test_user_skill_validation_rejects_blank_names_and_invalid_years() {
 
 #[tokio::test]
 async fn test_update_user_skill_nonexistent_returns_error() {
-    let pool = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let matcher = ResumeMatcher::new(pool.clone());
 
     let result = matcher

@@ -152,7 +152,7 @@ fn linkedin_credential_storage_is_disabled_before_keyring() {
 fn secure_storage_error_does_not_echo_provider_details() {
     let err = secure_storage_error();
 
-    assert_eq!(err, SECURE_STORAGE_UNAVAILABLE);
+    assert_eq!(err, SECURE_STORAGE_UNAVAILABLE_MESSAGE);
     for raw_detail in [
         "keyring",
         "jobsentinel_smtp_password",

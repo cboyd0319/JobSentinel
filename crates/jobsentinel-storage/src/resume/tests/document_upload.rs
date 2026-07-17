@@ -6,7 +6,7 @@ use jobsentinel_documents::{
 
 #[tokio::test]
 async fn test_upload_resume_docx_parses_text_and_extracts_skills() {
-    let pool = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let matcher = ResumeMatcher::new(pool.clone());
     let temp_dir = tempfile::TempDir::new().unwrap();
     let file_path = temp_dir.path().join("operations-resume.docx");

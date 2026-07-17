@@ -2,7 +2,7 @@ use super::*;
 
 #[tokio::test]
 async fn test_extract_skills_from_resume() {
-    let pool = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let matcher = ResumeMatcher::new(pool.clone());
 
     let resume_text = r#"
@@ -29,7 +29,7 @@ async fn test_extract_skills_from_resume() {
 
 #[tokio::test]
 async fn test_extract_skills_duplicate_prevention() {
-    let pool = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let matcher = ResumeMatcher::new(pool.clone());
 
     let resume_text = "Python Python Python JavaScript JavaScript";
@@ -43,7 +43,7 @@ async fn test_extract_skills_duplicate_prevention() {
 
 #[tokio::test]
 async fn test_get_user_skills() {
-    let pool = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let matcher = ResumeMatcher::new(pool.clone());
 
     // Create resume without skills first
@@ -84,7 +84,7 @@ async fn test_get_user_skills() {
 
 #[tokio::test]
 async fn test_get_user_skills_empty() {
-    let pool = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let matcher = ResumeMatcher::new(pool.clone());
 
     let resume_id = create_test_resume(&pool, "Empty Resume", "").await;
@@ -102,7 +102,7 @@ async fn test_get_user_skills_empty() {
 
 #[tokio::test]
 async fn test_match_resume_to_job() {
-    let pool = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let matcher = ResumeMatcher::new(pool.clone());
 
     let resume_text = "Excel, CRM, reporting, scheduling";
@@ -132,7 +132,7 @@ async fn test_match_resume_to_job() {
 
 #[tokio::test]
 async fn test_match_resume_to_job_perfect_match() {
-    let pool = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let matcher = ResumeMatcher::new(pool.clone());
 
     let resume_text = "Python, JavaScript, React, Django";
@@ -159,7 +159,7 @@ async fn test_match_resume_to_job_perfect_match() {
 
 #[tokio::test]
 async fn test_match_resume_to_job_no_overlap() {
-    let pool = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let matcher = ResumeMatcher::new(pool.clone());
 
     let resume_text = "Python, Django";

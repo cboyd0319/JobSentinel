@@ -2,7 +2,7 @@ use super::*;
 
 #[tokio::test]
 async fn test_empty_database_operations() {
-    let (db, _temp_dir) = setup_test_db().await;
+    let db = setup_test_db().await;
 
     // Operations on empty database should not fail
     let stats = db.get_statistics().await.unwrap();
@@ -20,7 +20,7 @@ async fn test_empty_database_operations() {
 
 #[tokio::test]
 async fn test_special_characters_in_job_data() {
-    let (db, _temp_dir) = setup_test_db().await;
+    let db = setup_test_db().await;
 
     let job = Job {
         hash: "special_001".to_string(),
@@ -40,7 +40,7 @@ async fn test_special_characters_in_job_data() {
 
 #[tokio::test]
 async fn test_unicode_in_job_data() {
-    let (db, _temp_dir) = setup_test_db().await;
+    let db = setup_test_db().await;
 
     let job = Job {
         hash: "unicode_001".to_string(),
@@ -59,7 +59,7 @@ async fn test_unicode_in_job_data() {
 
 #[tokio::test]
 async fn test_very_long_content() {
-    let (db, _temp_dir) = setup_test_db().await;
+    let db = setup_test_db().await;
 
     // MAX_DESCRIPTION_LENGTH is 50,000 chars (see crud.rs)
     let long_description = "A".repeat(49_000); // Just under the limit

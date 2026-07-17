@@ -82,8 +82,7 @@ mod connection_tests {
 
     #[tokio::test]
     async fn test_pool_accessor() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         let pool = db.pool();
 

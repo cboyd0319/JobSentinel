@@ -5,7 +5,11 @@
 
 use super::error::ScraperError;
 use super::rate_limiter::{limits, RateLimiter};
-use super::{JobScraper, ScraperResult};
+#[cfg(test)]
+use super::COMPANY_SCRAPE_FAILED;
+use super::{
+    collect_company_scrape_result, require_company_scrape_success, JobScraper, ScraperResult,
+};
 use crate::{is_safe_company_board_id, parse_greenhouse_company_url};
 use async_trait::async_trait;
 use chrono::Utc;
@@ -13,9 +17,6 @@ use jobsentinel_domain::{canonicalize_job_url, Job};
 use jobsentinel_network::{send_external_http_text_with_retry, ExternalHttpRequest};
 use jobsentinel_security::sanitize_url_for_logging;
 use scraper::{Html, Selector};
-
-const COMPANY_SCRAPE_FAILED: &str =
-    "Company board scrape failed; continuing with other company boards";
 
 /// Greenhouse scraper configuration
 #[derive(Debug, Clone)]
@@ -282,28 +283,15 @@ impl JobScraper for GreenhouseScraper {
                 .wait("greenhouse", limits::GREENHOUSE)
                 .await;
 
-            match self.scrape_company(company).await {
-                Ok(jobs) => {
-                    all_jobs.extend(jobs);
-                }
-                Err(_) => {
-                    failed_companies += 1;
-                    tracing::warn!(
-                        source = "greenhouse",
-                        message = COMPANY_SCRAPE_FAILED,
-                        "Company board scrape failed"
-                    );
-                    // Continue with other companies
-                }
-            }
+            collect_company_scrape_result(
+                self.scrape_company(company).await,
+                &mut all_jobs,
+                &mut failed_companies,
+                "greenhouse",
+            );
         }
 
-        if !self.companies.is_empty() && failed_companies == self.companies.len() {
-            return Err(ScraperError::Generic {
-                scraper: "greenhouse".to_string(),
-                message: "All configured company boards failed".to_string(),
-            });
-        }
+        require_company_scrape_success(self.companies.len(), failed_companies, "greenhouse")?;
 
         Ok(all_jobs)
     }

@@ -23,45 +23,6 @@ fn test_score_reasons_with_special_characters() {
 }
 
 #[test]
-fn test_salary_zero_values() {
-    let mut notification = notification_fixture();
-    notification.job.salary_min = Some(0);
-    notification.job.salary_max = Some(0);
-
-    let salary_display = if let (Some(min), Some(max)) =
-        (notification.job.salary_min, notification.job.salary_max)
-    {
-        format!("${},000 - ${},000", min / 1000, max / 1000)
-    } else if let Some(min) = notification.job.salary_min {
-        format!("${},000+", min / 1000)
-    } else {
-        "Not specified".to_string()
-    };
-
-    assert_eq!(salary_display, "$0,000 - $0,000");
-}
-
-#[test]
-fn test_very_high_salary_formatting() {
-    let mut notification = notification_fixture();
-    notification.job.salary_min = Some(500000);
-    notification.job.salary_max = Some(1000000);
-
-    let salary_display = if let (Some(min), Some(max)) =
-        (notification.job.salary_min, notification.job.salary_max)
-    {
-        format!("${},000 - ${},000", min / 1000, max / 1000)
-    } else if let Some(min) = notification.job.salary_min {
-        format!("${},000+", min / 1000)
-    } else {
-        "Not specified".to_string()
-    };
-
-    // Formatting omits thousands separators.
-    assert_eq!(salary_display, "$500,000 - $1000,000");
-}
-
-#[test]
 fn test_embed_inline_field_boolean() {
     let notification = notification_fixture();
 
@@ -300,25 +261,6 @@ fn test_embed_url_matches_job_url() {
 
     assert_eq!(embed_url, "https://example.com/jobs/123");
     assert!(embed_url.starts_with("https://"));
-}
-
-#[test]
-fn test_salary_min_boundary() {
-    let mut notification = notification_fixture();
-    notification.job.salary_min = Some(1000);
-    notification.job.salary_max = None;
-
-    let salary_display = if let (Some(min), Some(_max)) =
-        (notification.job.salary_min, notification.job.salary_max)
-    {
-        format!("${},000 - ${},000", min / 1000, _max / 1000)
-    } else if let Some(min) = notification.job.salary_min {
-        format!("${},000+", min / 1000)
-    } else {
-        "Not specified".to_string()
-    };
-
-    assert_eq!(salary_display, "$1,000+");
 }
 
 #[test]

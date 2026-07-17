@@ -2,8 +2,7 @@ use super::*;
 
 #[tokio::test]
 async fn test_statistics_with_null_scores() {
-    let db = Database::connect_memory().await.unwrap();
-    db.migrate().await.unwrap();
+    let db = crate::test_support::migrated_database().await;
 
     // Insert jobs with scores
     let job1 = create_test_job("with_score", "Job 1", 0.9);
@@ -22,8 +21,7 @@ async fn test_statistics_with_null_scores() {
 
 #[tokio::test]
 async fn test_statistics_all_null_scores() {
-    let db = Database::connect_memory().await.unwrap();
-    db.migrate().await.unwrap();
+    let db = crate::test_support::migrated_database().await;
 
     // Insert jobs with no scores
     let mut job1 = create_test_job("null1", "Job 1", 0.0);
@@ -42,8 +40,7 @@ async fn test_statistics_all_null_scores() {
 
 #[tokio::test]
 async fn test_statistics_jobs_today_count() {
-    let db = Database::connect_memory().await.unwrap();
-    db.migrate().await.unwrap();
+    let db = crate::test_support::migrated_database().await;
 
     // Insert job with today's date
     let job = create_test_job("today", "Today's Job", 0.9);

@@ -265,7 +265,9 @@ export function hasMissingWebhookCredentialStorageValidation(root, path) {
     !productionText.includes("CredentialKey::TeamsWebhook") ||
     !productionText.includes("CredentialKey::TelegramBotToken") ||
     !/fn\s+validate_webhook_credential/.test(productionText) ||
-    !/fn\s+validate_teams_webhook_credential/.test(productionText) ||
+    !productionText.includes("WebhookTarget::Slack") ||
+    !productionText.includes("WebhookTarget::Discord") ||
+    !productionText.includes("WebhookTarget::Teams") ||
     !/fn\s+validate_telegram_bot_token_credential/.test(productionText)
   );
 }

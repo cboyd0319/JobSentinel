@@ -2,8 +2,7 @@ use super::*;
 
 #[tokio::test]
 async fn test_upsert_updates_optional_fields_to_none() {
-    let db = Database::connect_memory().await.unwrap();
-    db.migrate().await.unwrap();
+    let db = crate::test_support::migrated_database().await;
 
     // Insert job with all optional fields populated
     let job1 = create_test_job("update_none", "Test Job", 0.9);
@@ -33,8 +32,7 @@ async fn test_upsert_updates_optional_fields_to_none() {
 
 #[tokio::test]
 async fn test_upsert_remote_false_to_true() {
-    let db = Database::connect_memory().await.unwrap();
-    db.migrate().await.unwrap();
+    let db = crate::test_support::migrated_database().await;
 
     let mut job = create_test_job("remote_change", "Test Job", 0.9);
     job.remote = Some(false);
@@ -50,8 +48,7 @@ async fn test_upsert_remote_false_to_true() {
 
 #[tokio::test]
 async fn test_upsert_salary_range_update() {
-    let db = Database::connect_memory().await.unwrap();
-    db.migrate().await.unwrap();
+    let db = crate::test_support::migrated_database().await;
 
     let mut job = create_test_job("salary_update", "Test Job", 0.9);
     job.salary_min = Some(100000);
@@ -70,8 +67,7 @@ async fn test_upsert_salary_range_update() {
 
 #[tokio::test]
 async fn test_update_ghost_analysis() {
-    let db = Database::connect_memory().await.unwrap();
-    db.migrate().await.unwrap();
+    let db = crate::test_support::migrated_database().await;
 
     let job = create_test_job("ghost_test", "Ghost Job Test", 0.8);
     let id = db.upsert_job(&job).await.unwrap();
@@ -92,8 +88,7 @@ async fn test_update_ghost_analysis() {
 
 #[tokio::test]
 async fn test_track_repost() {
-    let db = Database::connect_memory().await.unwrap();
-    db.migrate().await.unwrap();
+    let db = crate::test_support::migrated_database().await;
 
     // First time tracking - should return 1
     // track_repost(company, title, source, job_hash)
@@ -120,8 +115,7 @@ async fn test_track_repost() {
 
 #[tokio::test]
 async fn test_get_repost_count() {
-    let db = Database::connect_memory().await.unwrap();
-    db.migrate().await.unwrap();
+    let db = crate::test_support::migrated_database().await;
 
     // Track reposts: track_repost(company, title, source, job_hash)
     for _ in 0..5 {
@@ -146,8 +140,7 @@ async fn test_get_repost_count() {
 
 #[tokio::test]
 async fn test_get_ghost_jobs() {
-    let db = Database::connect_memory().await.unwrap();
-    db.migrate().await.unwrap();
+    let db = crate::test_support::migrated_database().await;
 
     // Create jobs with varying ghost scores
     let mut job1 = create_test_job("ghost_high", "Likely Ghost", 0.5);
@@ -170,8 +163,7 @@ async fn test_get_ghost_jobs() {
 
 #[tokio::test]
 async fn test_get_recent_jobs_filtered_exclude_ghosts() {
-    let db = Database::connect_memory().await.unwrap();
-    db.migrate().await.unwrap();
+    let db = crate::test_support::migrated_database().await;
 
     let mut real_job = create_test_job("real_job", "Real Job", 0.9);
     real_job.ghost_score = Some(0.1);
@@ -193,8 +185,7 @@ async fn test_get_recent_jobs_filtered_exclude_ghosts() {
 
 #[tokio::test]
 async fn test_get_ghost_statistics() {
-    let db = Database::connect_memory().await.unwrap();
-    db.migrate().await.unwrap();
+    let db = crate::test_support::migrated_database().await;
 
     // Create jobs with varying ghost scores
     let mut job1 = create_test_job("stat_ghost", "Ghost Job", 0.5);
@@ -217,8 +208,7 @@ async fn test_get_ghost_statistics() {
 
 #[tokio::test]
 async fn test_count_company_open_jobs() {
-    let db = Database::connect_memory().await.unwrap();
-    db.migrate().await.unwrap();
+    let db = crate::test_support::migrated_database().await;
 
     // Create multiple jobs from same company
     let job1 = create_test_job("company_job1", "Job 1", 0.8);

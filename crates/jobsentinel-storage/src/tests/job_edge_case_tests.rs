@@ -5,8 +5,7 @@ mod edge_case_tests {
 
     #[tokio::test]
     async fn test_job_with_empty_strings() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         let mut job = create_test_job("empty_strings", "Valid Title", 0.9);
         job.location = Some("".to_string());
@@ -24,8 +23,7 @@ mod edge_case_tests {
 
     #[tokio::test]
     async fn test_job_with_zero_salary() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         let mut job = create_test_job("zero_salary", "Test Job", 0.9);
         job.salary_min = Some(0);
@@ -40,8 +38,7 @@ mod edge_case_tests {
 
     #[tokio::test]
     async fn test_job_with_negative_salary() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         let mut job = create_test_job("negative_salary", "Test Job", 0.9);
         job.salary_min = Some(-1000);
@@ -57,8 +54,7 @@ mod edge_case_tests {
 
     #[tokio::test]
     async fn test_job_with_score_boundary_values() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         // Score = 0.0
         let job1 = create_test_job("score_zero", "Zero Score", 0.0);
@@ -75,8 +71,7 @@ mod edge_case_tests {
 
     #[tokio::test]
     async fn test_get_recent_jobs_with_limit_zero() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         let job = create_test_job("limit_zero", "Test Job", 0.9);
         db.upsert_job(&job).await.unwrap();
@@ -87,8 +82,7 @@ mod edge_case_tests {
 
     #[tokio::test]
     async fn test_get_recent_jobs_with_negative_limit() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         let job = create_test_job("negative_limit", "Test Job", 0.9);
         db.upsert_job(&job).await.unwrap();
@@ -100,8 +94,7 @@ mod edge_case_tests {
 
     #[tokio::test]
     async fn test_unicode_in_job_fields() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         let mut job = create_test_job("unicode", "Développeur Senior 🚀", 0.9);
         job.company = "株式会社テスト".to_string();
@@ -118,8 +111,7 @@ mod edge_case_tests {
 
     #[tokio::test]
     async fn test_sql_injection_protection_in_search() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         let job = create_test_job("injection_test", "Test Job", 0.9);
         db.upsert_job(&job).await.unwrap();
@@ -136,8 +128,7 @@ mod edge_case_tests {
 
     #[tokio::test]
     async fn test_very_large_times_seen() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         let job = create_test_job("large_times_seen", "Popular Job", 0.9);
         let id = db.upsert_job(&job).await.unwrap();
@@ -153,8 +144,7 @@ mod edge_case_tests {
 
     #[tokio::test]
     async fn test_job_with_very_long_url() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         let mut job = create_test_job("long_url", "Test Job", 0.9);
         // Create a URL at the limit (2000 chars exactly)
@@ -168,8 +158,7 @@ mod edge_case_tests {
 
     #[tokio::test]
     async fn test_concurrent_upserts_same_hash() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         let job = create_test_job("concurrent", "Test Job", 0.9);
 

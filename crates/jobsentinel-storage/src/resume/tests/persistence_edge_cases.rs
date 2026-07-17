@@ -2,7 +2,7 @@ use super::*;
 
 #[tokio::test]
 async fn test_match_result_persistence() {
-    let pool = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let matcher = ResumeMatcher::new(pool.clone());
 
     let resume_id = create_test_resume(&pool, "Resume", "Python JavaScript").await;
@@ -39,7 +39,7 @@ async fn test_match_result_persistence() {
 
 #[tokio::test]
 async fn test_get_match_result_not_found() {
-    let pool = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let matcher = ResumeMatcher::new(pool.clone());
 
     let result = matcher
@@ -51,7 +51,7 @@ async fn test_get_match_result_not_found() {
 
 #[tokio::test]
 async fn test_match_result_upsert() {
-    let pool = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let matcher = ResumeMatcher::new(pool.clone());
 
     let resume_id = create_test_resume(&pool, "Resume", "Python").await;
@@ -86,7 +86,7 @@ async fn test_match_result_upsert() {
 
 #[tokio::test]
 async fn test_resume_with_null_parsed_text() {
-    let pool = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let matcher = ResumeMatcher::new(pool.clone());
 
     let result = sqlx::query(
@@ -107,7 +107,7 @@ async fn test_resume_with_null_parsed_text() {
 
 #[tokio::test]
 async fn test_resume_with_empty_parsed_text() {
-    let pool = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let matcher = ResumeMatcher::new(pool.clone());
 
     let result = sqlx::query(
@@ -136,7 +136,7 @@ async fn test_resume_with_empty_parsed_text() {
 
 #[tokio::test]
 async fn test_job_with_no_description() {
-    let pool = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let matcher = ResumeMatcher::new(pool.clone());
 
     let resume_id = create_test_resume(&pool, "Resume", "Python JavaScript").await;
@@ -165,7 +165,7 @@ async fn test_job_with_no_description() {
 
 #[tokio::test]
 async fn test_multiple_active_resumes() {
-    let pool = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
 
     // Create with explicit timestamps to ensure ordering
     let _id1 = sqlx::query(
@@ -214,7 +214,7 @@ async fn test_multiple_active_resumes() {
 
 #[tokio::test]
 async fn test_case_insensitive_skill_matching() {
-    let pool = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let matcher = ResumeMatcher::new(pool.clone());
 
     let resume_text = "python JAVASCRIPT rust";
@@ -231,7 +231,7 @@ async fn test_case_insensitive_skill_matching() {
 
 #[tokio::test]
 async fn test_match_with_special_characters_in_skills() {
-    let pool = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let matcher = ResumeMatcher::new(pool.clone());
 
     let resume_text = "C++, C#, Node.js, ASP.NET, Next.js";

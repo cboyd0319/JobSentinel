@@ -1,6 +1,9 @@
 use super::integrity::verify_model_file_checksum;
 use super::status::MODEL_CACHE_METADATA_FILE;
-use super::{ModelCacheMetadata, ModelManager};
+use super::{
+    ModelCacheMetadata, ModelManager, DEFAULT_EMBEDDING_MODEL_LOCK_MISSING,
+    DEFAULT_RERANKER_MODEL_LOCK_MISSING, RUNTIME_MODEL_LOCK_MISSING,
+};
 use crate::manifest::{load_model_manifest, model_lock_hash, ModelManifest, ModelSpec};
 use crate::MlError;
 use anyhow::{Context, Result};
@@ -13,9 +16,9 @@ impl ModelManager {
     /// Download the legacy runtime embedding model from Hugging Face Hub.
     pub async fn download_model(&self) -> Result<PathBuf> {
         let manifest = load_model_manifest()?;
-        let spec = manifest.legacy_runtime_embedding().ok_or_else(|| {
-            MlError::ModelLoadFailed("runtime model lock entry missing".to_string())
-        })?;
+        let spec = manifest
+            .legacy_runtime_embedding()
+            .ok_or_else(|| MlError::ModelLoadFailed(RUNTIME_MODEL_LOCK_MISSING.to_string()))?;
         self.download_model_spec(&manifest, spec).await
     }
 
@@ -30,10 +33,10 @@ impl ModelManager {
     pub async fn download_default_semantic_models(&self) -> Result<Vec<PathBuf>> {
         let manifest = load_model_manifest()?;
         let embedding = manifest.default_embedding().ok_or_else(|| {
-            MlError::ModelLoadFailed("default embedding model lock entry missing".to_string())
+            MlError::ModelLoadFailed(DEFAULT_EMBEDDING_MODEL_LOCK_MISSING.to_string())
         })?;
         let reranker = manifest.default_reranker().ok_or_else(|| {
-            MlError::ModelLoadFailed("default reranker model lock entry missing".to_string())
+            MlError::ModelLoadFailed(DEFAULT_RERANKER_MODEL_LOCK_MISSING.to_string())
         })?;
 
         let mut paths = Vec::with_capacity(2);

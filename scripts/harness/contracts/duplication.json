@@ -5,8 +5,15 @@
   "scopes": {
     "frontendProduction": {
       "include": {
-        "dirs": ["src", "src-tauri/src"],
-        "extensions": [".ts", ".tsx", ".rs"]
+        "dirs": [
+          "src",
+          "src-tauri/src"
+        ],
+        "extensions": [
+          ".ts",
+          ".tsx",
+          ".rs"
+        ]
       },
       "excludePatterns": [
         "\\.test\\.",
@@ -28,26 +35,34 @@
     },
     "cratesProduction": {
       "include": {
-        "dirs": ["crates"],
-        "extensions": [".rs"]
+        "dirs": [
+          "crates"
+        ],
+        "extensions": [
+          ".rs"
+        ]
       },
       "excludePatterns": [],
       "classification": "rust-production",
       "baseline": {
-        "duplicatedLines": 693,
-        "cloneRegions": 35
+        "duplicatedLines": 0,
+        "cloneRegions": 0
       }
     },
     "cratesTests": {
       "include": {
-        "dirs": ["crates"],
-        "extensions": [".rs"]
+        "dirs": [
+          "crates"
+        ],
+        "extensions": [
+          ".rs"
+        ]
       },
       "excludePatterns": [],
       "classification": "rust-tests",
       "baseline": {
-        "duplicatedLines": 2184,
-        "cloneRegions": 79
+        "duplicatedLines": 0,
+        "cloneRegions": 0
       }
     }
   },

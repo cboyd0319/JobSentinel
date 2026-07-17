@@ -2,6 +2,7 @@
 
 use jobsentinel_ai::{
     send_validated_external_ai_request, validate_external_ai_request, ValidatedExternalAiRequest,
+    CHOOSE_EXTERNAL_AI_PROVIDER_MESSAGE,
 };
 use zeroize::Zeroizing;
 
@@ -28,7 +29,7 @@ async fn retrieve_provider_key(
     credentials: &CredentialService,
 ) -> Result<Zeroizing<String>, String> {
     let key = credential_key_for_provider(request.provider())
-        .ok_or_else(|| "Choose the outside AI service before sending anything.".to_string())?;
+        .ok_or_else(|| CHOOSE_EXTERNAL_AI_PROVIDER_MESSAGE.to_string())?;
     let value = credentials
         .retrieve(key)
         .await

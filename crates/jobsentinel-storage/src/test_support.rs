@@ -2,10 +2,14 @@ use crate::Database;
 use chrono::Utc;
 use sqlx::SqlitePool;
 
-pub(crate) async fn migrated_pool() -> SqlitePool {
+pub(crate) async fn migrated_database() -> Database {
     let database = Database::connect_memory().await.unwrap();
     database.migrate().await.unwrap();
-    database.pool().clone()
+    database
+}
+
+pub(crate) async fn migrated_pool() -> SqlitePool {
+    migrated_database().await.pool().clone()
 }
 
 pub(crate) async fn insert_test_job(

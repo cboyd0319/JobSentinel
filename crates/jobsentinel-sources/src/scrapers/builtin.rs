@@ -12,7 +12,9 @@ use super::rate_limiter::RateLimiter;
 use super::{JobScraper, ScraperResult};
 use jobsentinel_domain::normalization::{infer_remote_status, RemoteStatus};
 use jobsentinel_domain::Job;
-use jobsentinel_network::{send_external_http_text_with_retry, ExternalHttpRequest};
+use jobsentinel_network::{
+    send_external_http_text_with_retry, ExternalHttpRequest, MINIMAL_BROWSER_USER_AGENT,
+};
 
 use async_trait::async_trait;
 use chrono::Utc;
@@ -65,7 +67,7 @@ impl BuiltInScraper {
 
         let response = send_external_http_text_with_retry(
             ExternalHttpRequest::get(&url)
-                .user_agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
+                .user_agent(MINIMAL_BROWSER_USER_AGENT)
                 .header("Accept", "text/html,application/xhtml+xml"),
         )
         .await

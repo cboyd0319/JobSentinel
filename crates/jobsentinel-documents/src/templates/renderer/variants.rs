@@ -9,6 +9,14 @@ enum SkillsLayout {
 }
 
 impl TemplateRenderer {
+    fn append_name(html: &mut String, name: &str) {
+        html.push_str(&format!("<h1 class=\"name\">{}</h1>\n", escape_html(name)));
+    }
+
+    fn append_section_divider(html: &mut String) {
+        html.push_str("<hr class=\"section-divider\">\n\n");
+    }
+
     fn append_contact(html: &mut String, contact: &ResumePersonalInfo) {
         html.push_str("<div class=\"contact\">\n");
         html.push_str(&format!("{}", escape_html(&contact.email)));
@@ -130,10 +138,7 @@ impl TemplateRenderer {
         let mut html = Self::html_header("Classic Resume", styles::classic());
 
         // Name centered
-        html.push_str(&format!(
-            "<h1 class=\"name\">{}</h1>\n",
-            escape_html(&resume.personal.name)
-        ));
+        Self::append_name(&mut html, &resume.personal.name);
 
         Self::append_contact(&mut html, &resume.personal);
 
@@ -161,32 +166,29 @@ impl TemplateRenderer {
         let mut html = Self::html_header("Modern Resume", styles::modern());
 
         // Name left-aligned, bold
-        html.push_str(&format!(
-            "<h1 class=\"name\">{}</h1>\n",
-            escape_html(&resume.personal.name)
-        ));
+        Self::append_name(&mut html, &resume.personal.name);
 
         Self::append_contact(&mut html, &resume.personal);
 
-        html.push_str("<hr class=\"section-divider\">\n\n");
+        Self::append_section_divider(&mut html);
 
         // Summary
         if let Some(summary) = &resume.summary {
             html.push_str("<h2>SUMMARY</h2>\n");
             html.push_str(&format!("<p>{}</p>\n\n", escape_html(summary)));
-            html.push_str("<hr class=\"section-divider\">\n\n");
+            Self::append_section_divider(&mut html);
         }
 
         // Experience
         if !resume.experience.is_empty() {
             Self::append_experience(&mut html, &resume.experience, "EXPERIENCE", None);
-            html.push_str("<hr class=\"section-divider\">\n\n");
+            Self::append_section_divider(&mut html);
         }
 
         // Education
         if !resume.education.is_empty() {
             Self::append_education(&mut html, &resume.education, true);
-            html.push_str("<hr class=\"section-divider\">\n\n");
+            Self::append_section_divider(&mut html);
         }
 
         Self::append_skills(&mut html, &resume.skills, "SKILLS", SkillsLayout::Inline);
@@ -203,10 +205,7 @@ impl TemplateRenderer {
         let mut html = Self::html_header("Skills-First Resume", styles::technical());
 
         // Name
-        html.push_str(&format!(
-            "<h1 class=\"name\">{}</h1>\n",
-            escape_html(&resume.personal.name)
-        ));
+        Self::append_name(&mut html, &resume.personal.name);
 
         Self::append_contact(&mut html, &resume.personal);
 
@@ -239,10 +238,7 @@ impl TemplateRenderer {
         let mut html = Self::html_header("Executive Resume", styles::executive());
 
         // Name
-        html.push_str(&format!(
-            "<h1 class=\"name\">{}</h1>\n",
-            escape_html(&resume.personal.name)
-        ));
+        Self::append_name(&mut html, &resume.personal.name);
 
         Self::append_contact(&mut html, &resume.personal);
 
@@ -282,10 +278,7 @@ impl TemplateRenderer {
         let mut html = Self::html_header("Military Resume", styles::military());
 
         // Name
-        html.push_str(&format!(
-            "<h1 class=\"name\">{}</h1>\n",
-            escape_html(&resume.personal.name)
-        ));
+        Self::append_name(&mut html, &resume.personal.name);
 
         Self::append_contact(&mut html, &resume.personal);
 

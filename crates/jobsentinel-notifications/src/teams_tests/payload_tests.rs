@@ -162,24 +162,6 @@ fn test_theme_color_perfect_score() {
 }
 
 #[test]
-fn test_salary_formatting_exact_boundaries() {
-    let cases = vec![
-        (Some(1000), Some(2000), "$1,000 - $2,000"),
-        (Some(999000), Some(1000000), "$999,000 - $1000,000"),
-        (Some(0), Some(100000), "$0,000 - $100,000"),
-    ];
-
-    for (min, max, expected) in cases {
-        let display = if let (Some(min_val), Some(max_val)) = (min, max) {
-            format!("${},000 - ${},000", min_val / 1000, max_val / 1000)
-        } else {
-            "Not specified".to_string()
-        };
-        assert_eq!(display, expected);
-    }
-}
-
-#[test]
 fn test_webhook_url_trailing_slash() {
     let url = "https://outlook.office.com/webhook/12345678-1234-1234-1234-123456789012/";
     let result = validate_webhook_url(url);
@@ -305,16 +287,6 @@ fn test_webhook_url_path_validation_exact() {
 }
 
 #[test]
-fn test_salary_formatting_min_zero() {
-    let display = if let (Some(min), Some(max)) = (Some(0), Some(50000)) {
-        format!("${},000 - ${},000", min / 1000, max / 1000)
-    } else {
-        "Not specified".to_string()
-    };
-    assert_eq!(display, "$0,000 - $50,000");
-}
-
-#[test]
 fn test_notification_job_fields_present() {
     let notification = notification_fixture();
     assert_eq!(notification.job.title, "Care Coordinator");
@@ -347,22 +319,6 @@ fn test_full_payload_with_all_none_optional_fields() {
     assert_eq!(payload["sections"][0]["facts"][0]["value"], "N/A");
     assert_eq!(payload["sections"][0]["facts"][1]["value"], "Not specified");
     assert_eq!(payload["sections"][0]["facts"][2]["value"], "❌ No");
-}
-
-#[test]
-fn test_salary_min_only_edge_case() {
-    let min_only = Some(250000);
-    let max: Option<i64> = None;
-
-    let display = if let (Some(min), Some(max_val)) = (min_only, max) {
-        format!("${},000 - ${},000", min / 1000, max_val / 1000)
-    } else if let Some(min) = min_only {
-        format!("${},000+", min / 1000)
-    } else {
-        "Not specified".to_string()
-    };
-
-    assert_eq!(display, "$250,000+");
 }
 
 #[test]

@@ -14,14 +14,10 @@ use std::sync::Arc;
 use tempfile::TempDir;
 
 /// Setup test database with migrations (in-memory for speed)
-async fn setup_test_db() -> (Database, TempDir) {
-    let temp_dir = TempDir::new().unwrap();
-
-    // Use in-memory database for test speed
+async fn setup_test_db() -> Database {
     let db = Database::connect_memory().await.unwrap();
     db.migrate().await.unwrap();
-
-    (db, temp_dir)
+    db
 }
 
 /// Setup raw SQLite pool for direct SQL operations
@@ -80,7 +76,7 @@ fn create_test_job(hash: &str, title: &str, company: &str) -> Job {
 
 #[tokio::test]
 async fn test_migrations_run_successfully() {
-    let (db, _temp_dir) = setup_test_db().await;
+    let db = setup_test_db().await;
 
     // If we got here, migrations ran successfully
     // Verify by checking we can query the jobs table
@@ -90,8 +86,7 @@ async fn test_migrations_run_successfully() {
 
 #[tokio::test]
 async fn test_migrations_are_idempotent() {
-    let db = Database::connect_memory().await.unwrap();
-    db.migrate().await.unwrap();
+    let db = setup_test_db().await;
 
     // Insert a job
     let job = create_test_job("idempotent_001", "Program Coordinator", "Example Services");
@@ -335,7 +330,7 @@ async fn test_screening_answers_unique_pattern() {
 
 #[tokio::test]
 async fn test_concurrent_job_inserts() {
-    let (db, _temp_dir) = setup_test_db().await;
+    let db = setup_test_db().await;
     let database = Arc::new(db);
 
     // Spawn 50 concurrent insert operations
@@ -375,7 +370,7 @@ async fn test_concurrent_job_inserts() {
 #[tokio::test]
 #[ignore = "Aggressive concurrent upsert test (20 concurrent ops on same row) can hang due to SQLite locking"]
 async fn test_concurrent_upsert_same_job() {
-    let (db, _temp_dir) = setup_test_db().await;
+    let db = setup_test_db().await;
     let database = Arc::new(db);
 
     // Create initial job
@@ -425,7 +420,7 @@ async fn test_concurrent_upsert_same_job() {
 
 #[tokio::test]
 async fn test_concurrent_reads_and_writes() {
-    let (db, _temp_dir) = setup_test_db().await;
+    let db = setup_test_db().await;
     let database = Arc::new(db);
 
     // Insert initial jobs

@@ -3,15 +3,13 @@ use super::*;
 #[tokio::test]
 async fn test_database_connection() {
     // Use in-memory database for testing
-    let db = Database::connect_memory().await.unwrap();
-    db.migrate().await.unwrap();
+    let _database = crate::test_support::migrated_database().await;
     // Database is created successfully (implicitly verified by unwrap)
 }
 
 #[tokio::test]
 async fn test_upsert_job_insert() {
-    let db = Database::connect_memory().await.unwrap();
-    db.migrate().await.unwrap();
+    let db = crate::test_support::migrated_database().await;
 
     let job = create_test_job("hash123", "Test Job", 0.95);
 
@@ -28,8 +26,7 @@ async fn test_upsert_job_insert() {
 
 #[tokio::test]
 async fn test_upsert_job_update() {
-    let db = Database::connect_memory().await.unwrap();
-    db.migrate().await.unwrap();
+    let db = crate::test_support::migrated_database().await;
 
     let job = create_test_job("hash456", "Original Title", 0.85);
 
@@ -55,8 +52,7 @@ async fn test_upsert_job_update() {
 
 #[tokio::test]
 async fn test_upsert_job_title_too_long() {
-    let db = Database::connect_memory().await.unwrap();
-    db.migrate().await.unwrap();
+    let db = crate::test_support::migrated_database().await;
 
     let mut job = create_test_job("hash789", "Test", 0.9);
     job.title = "x".repeat(501); // Over 500 char limit
@@ -68,8 +64,7 @@ async fn test_upsert_job_title_too_long() {
 
 #[tokio::test]
 async fn test_upsert_job_company_too_long() {
-    let db = Database::connect_memory().await.unwrap();
-    db.migrate().await.unwrap();
+    let db = crate::test_support::migrated_database().await;
 
     let mut job = create_test_job("hash_company", "Test Job", 0.9);
     job.company = "c".repeat(201); // Over 200 char limit
@@ -84,8 +79,7 @@ async fn test_upsert_job_company_too_long() {
 
 #[tokio::test]
 async fn test_upsert_job_url_too_long() {
-    let db = Database::connect_memory().await.unwrap();
-    db.migrate().await.unwrap();
+    let db = crate::test_support::migrated_database().await;
 
     let mut job = create_test_job("hash_url", "Test Job", 0.9);
     job.url = format!("https://example.com/{}", "x".repeat(2000));
@@ -97,8 +91,7 @@ async fn test_upsert_job_url_too_long() {
 
 #[tokio::test]
 async fn test_upsert_job_invalid_url_protocol() {
-    let db = Database::connect_memory().await.unwrap();
-    db.migrate().await.unwrap();
+    let db = crate::test_support::migrated_database().await;
 
     // Test javascript: protocol (XSS vector)
     let mut job = create_test_job("hash_xss", "Test Job", 0.9);
@@ -133,8 +126,7 @@ async fn test_upsert_job_invalid_url_protocol() {
 
 #[tokio::test]
 async fn test_upsert_job_rejects_non_public_urls() {
-    let db = Database::connect_memory().await.unwrap();
-    db.migrate().await.unwrap();
+    let db = crate::test_support::migrated_database().await;
 
     for (hash, url) in [
         ("hash_localhost", "http://localhost:3000/job"),
@@ -151,8 +143,7 @@ async fn test_upsert_job_rejects_non_public_urls() {
 
 #[tokio::test]
 async fn test_upsert_job_canonicalizes_stored_url() {
-    let db = Database::connect_memory().await.unwrap();
-    db.migrate().await.unwrap();
+    let db = crate::test_support::migrated_database().await;
 
     let mut job = create_test_job("hash_canonical_url", "Test Job", 0.9);
     job.url = "https://example.com/jobs/123?gh_jid=123&utm_source=newsletter&token=secret&candidate_email=person@example.com&redirect=https%3A%2F%2Fprivate.example%2Fcallback%3Ftoken%3Draw#private".to_string();
@@ -165,8 +156,7 @@ async fn test_upsert_job_canonicalizes_stored_url() {
 
 #[tokio::test]
 async fn test_upsert_job_dedupes_urls_that_only_differ_by_fragment() {
-    let db = Database::connect_memory().await.unwrap();
-    db.migrate().await.unwrap();
+    let db = crate::test_support::migrated_database().await;
 
     let title = "Care Coordinator";
     let company = "Community Care";
@@ -199,8 +189,7 @@ async fn test_upsert_job_dedupes_urls_that_only_differ_by_fragment() {
 
 #[tokio::test]
 async fn test_upsert_job_location_too_long() {
-    let db = Database::connect_memory().await.unwrap();
-    db.migrate().await.unwrap();
+    let db = crate::test_support::migrated_database().await;
 
     let mut job = create_test_job("hash_loc", "Test Job", 0.9);
     job.location = Some("l".repeat(201)); // Over 200 char limit
@@ -215,8 +204,7 @@ async fn test_upsert_job_location_too_long() {
 
 #[tokio::test]
 async fn test_upsert_job_description_too_long() {
-    let db = Database::connect_memory().await.unwrap();
-    db.migrate().await.unwrap();
+    let db = crate::test_support::migrated_database().await;
 
     let mut job = create_test_job("hash_desc", "Test Job", 0.9);
     job.description = Some("d".repeat(50001)); // Over 50000 char limit
@@ -231,8 +219,7 @@ async fn test_upsert_job_description_too_long() {
 
 #[tokio::test]
 async fn test_mark_alert_sent() {
-    let db = Database::connect_memory().await.unwrap();
-    db.migrate().await.unwrap();
+    let db = crate::test_support::migrated_database().await;
 
     let job = create_test_job("hash_alert", "Test Job", 0.95);
     let id = db.upsert_job(&job).await.unwrap();
@@ -251,8 +238,7 @@ async fn test_mark_alert_sent() {
 
 #[tokio::test]
 async fn test_claim_immediate_alert_is_atomic() {
-    let db = Database::connect_memory().await.unwrap();
-    db.migrate().await.unwrap();
+    let db = crate::test_support::migrated_database().await;
 
     let job = create_test_job("hash_alert_claim", "Test Job", 0.95);
     let id = db.upsert_job(&job).await.unwrap();
@@ -275,8 +261,7 @@ async fn test_claim_immediate_alert_is_atomic() {
 
 #[tokio::test]
 async fn test_get_recent_jobs() {
-    let db = Database::connect_memory().await.unwrap();
-    db.migrate().await.unwrap();
+    let db = crate::test_support::migrated_database().await;
 
     // Insert jobs at different times
     for i in 0..5 {
@@ -300,8 +285,7 @@ async fn test_get_recent_jobs() {
 
 #[tokio::test]
 async fn test_get_jobs_by_score() {
-    let db = Database::connect_memory().await.unwrap();
-    db.migrate().await.unwrap();
+    let db = crate::test_support::migrated_database().await;
 
     // Insert jobs with various scores
     db.upsert_job(&create_test_job("high1", "High Match 1", 0.95))
@@ -341,8 +325,7 @@ async fn test_get_jobs_by_score() {
 
 #[tokio::test]
 async fn test_get_jobs_by_source() {
-    let db = Database::connect_memory().await.unwrap();
-    db.migrate().await.unwrap();
+    let db = crate::test_support::migrated_database().await;
 
     // Insert jobs from different sources
     let mut job1 = create_test_job("gh1", "Greenhouse Job", 0.9);
@@ -368,8 +351,7 @@ async fn test_get_jobs_by_source() {
 
 #[tokio::test]
 async fn test_get_job_by_id_not_found() {
-    let db = Database::connect_memory().await.unwrap();
-    db.migrate().await.unwrap();
+    let db = crate::test_support::migrated_database().await;
 
     let result = db.get_job_by_id(999999).await.unwrap();
     assert!(result.is_none(), "Should return None for nonexistent ID");
@@ -377,8 +359,7 @@ async fn test_get_job_by_id_not_found() {
 
 #[tokio::test]
 async fn test_get_job_by_hash() {
-    let db = Database::connect_memory().await.unwrap();
-    db.migrate().await.unwrap();
+    let db = crate::test_support::migrated_database().await;
 
     let job = create_test_job("unique_hash", "Unique Job", 0.9);
     db.upsert_job(&job).await.unwrap();
@@ -398,8 +379,7 @@ async fn test_get_job_by_hash() {
 
 #[tokio::test]
 async fn test_get_statistics() {
-    let db = Database::connect_memory().await.unwrap();
-    db.migrate().await.unwrap();
+    let db = crate::test_support::migrated_database().await;
 
     // Insert jobs with various scores
     db.upsert_job(&create_test_job("s1", "Job 1", 0.95))
@@ -424,8 +404,7 @@ async fn test_get_statistics() {
 
 #[tokio::test]
 async fn test_get_statistics_empty_database() {
-    let db = Database::connect_memory().await.unwrap();
-    db.migrate().await.unwrap();
+    let db = crate::test_support::migrated_database().await;
 
     let stats = db.get_statistics().await.unwrap();
 
@@ -437,8 +416,7 @@ async fn test_get_statistics_empty_database() {
 
 #[tokio::test]
 async fn test_multiple_upserts_increment_times_seen() {
-    let db = Database::connect_memory().await.unwrap();
-    db.migrate().await.unwrap();
+    let db = crate::test_support::migrated_database().await;
 
     let job = create_test_job("repeat_hash", "Repeated Job", 0.9);
 
@@ -454,8 +432,7 @@ async fn test_multiple_upserts_increment_times_seen() {
 
 #[tokio::test]
 async fn test_job_with_all_optional_fields_none() {
-    let db = Database::connect_memory().await.unwrap();
-    db.migrate().await.unwrap();
+    let db = crate::test_support::migrated_database().await;
 
     let mut job = create_test_job("minimal", "Minimal Job", 0.8);
     job.location = None;

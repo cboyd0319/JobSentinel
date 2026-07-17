@@ -6,10 +6,6 @@ use super::types::{NewSkill, NullableFieldUpdate, SkillUpdate};
 use super::ResumeMatcher;
 use sqlx::{Row, SqlitePool};
 
-async fn setup_test_db() -> SqlitePool {
-    crate::test_support::migrated_pool().await
-}
-
 async fn create_test_resume(pool: &SqlitePool, name: &str, text: &str) -> i64 {
     let result = sqlx::query(
         "INSERT INTO resumes (name, file_path, parsed_text, is_active) VALUES (?, ?, ?, 1)",
@@ -79,7 +75,7 @@ fn uploaded_skill_names(skills: Vec<super::types::UserSkill>) -> Vec<String> {
 
 #[tokio::test]
 async fn test_get_resume() {
-    let pool = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
 
     let resume_id = create_test_resume(&pool, "Test Resume", "Test content").await;
 
@@ -98,7 +94,7 @@ async fn test_get_resume() {
 
 #[tokio::test]
 async fn test_upload_resume_txt_parses_text_and_extracts_skills() {
-    let pool = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let matcher = ResumeMatcher::new(pool.clone());
     let temp_dir = tempfile::TempDir::new().unwrap();
     let file_path = temp_dir.path().join("support-resume.txt");
@@ -125,7 +121,7 @@ async fn test_upload_resume_txt_parses_text_and_extracts_skills() {
 
 #[tokio::test]
 async fn test_upload_resume_html_parses_visible_text_and_extracts_skills() {
-    let pool = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let matcher = ResumeMatcher::new(pool.clone());
     let temp_dir = tempfile::TempDir::new().unwrap();
     let file_path = temp_dir.path().join("operations-resume.html");
@@ -165,7 +161,7 @@ async fn test_upload_resume_html_parses_visible_text_and_extracts_skills() {
 
 #[tokio::test]
 async fn test_import_json_resume_preserves_builder_evidence_sections() {
-    let pool = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let matcher = ResumeMatcher::new(pool.clone());
 
     let json = r#"{
@@ -244,7 +240,7 @@ async fn test_import_json_resume_preserves_builder_evidence_sections() {
 
 #[tokio::test]
 async fn test_get_resume_not_found() {
-    let pool = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let matcher = ResumeMatcher::new(pool.clone());
 
     let result = matcher.get_resume(999).await;
@@ -253,7 +249,7 @@ async fn test_get_resume_not_found() {
 
 #[tokio::test]
 async fn test_active_resume_empty() {
-    let pool = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let matcher = ResumeMatcher::new(pool.clone());
 
     let active = matcher.get_active_resume().await.unwrap();
@@ -262,7 +258,7 @@ async fn test_active_resume_empty() {
 
 #[tokio::test]
 async fn test_active_resume() {
-    let pool = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
 
     create_test_resume(&pool, "Test Resume", "Test content").await;
 
@@ -280,7 +276,7 @@ async fn test_active_resume() {
 
 #[tokio::test]
 async fn test_set_active_resume() {
-    let pool = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let matcher = ResumeMatcher::new(pool.clone());
 
     let id1 = sqlx::query(
@@ -327,7 +323,7 @@ async fn test_set_active_resume() {
 
 #[tokio::test]
 async fn test_set_active_resume_most_recent() {
-    let pool = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
 
     // Create with explicit timestamps to ensure ordering
     let _id1 = sqlx::query(

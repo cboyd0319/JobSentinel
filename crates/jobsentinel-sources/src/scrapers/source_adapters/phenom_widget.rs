@@ -5,7 +5,9 @@ use sha2::{Digest, Sha256};
 use url::Url;
 
 use super::contract::{CanonicalJobRecord, SourceAdapterLane};
-use super::support::{first_non_empty, hex_prefix, is_absolute_http_url, normalize_ws};
+use super::support::{
+    first_non_empty, first_string, hex_prefix, is_absolute_http_url, normalize_ws, path_tail,
+};
 
 pub(super) const DEFAULT_SIZE: u16 = 20;
 pub(super) const DEFAULT_FROM_OFFSET: u32 = 0;
@@ -263,18 +265,6 @@ fn parse_total(value: Option<&Value>) -> Option<u64> {
                 .and_then(|text| text.parse::<u64>().ok())
         })
     })
-}
-
-fn first_string(item: &serde_json::Map<String, Value>, keys: &[&str]) -> Option<String> {
-    keys.iter()
-        .filter_map(|key| item.get(*key).and_then(Value::as_str))
-        .find(|value| !value.trim().is_empty())
-        .map(normalize_ws)
-}
-
-fn path_tail(value: &str) -> Option<&str> {
-    let path = value.split(['?', '#']).next().unwrap_or(value);
-    path.trim_end_matches('/').rsplit('/').next()
 }
 
 #[cfg(test)]

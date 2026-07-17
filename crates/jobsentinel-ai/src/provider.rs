@@ -6,6 +6,8 @@ use jobsentinel_network::{
 };
 use serde_json::Value;
 
+use crate::{CHOOSE_EXTERNAL_AI_PROVIDER_MESSAGE, CUSTOM_EXTERNAL_AI_ENDPOINT_REQUIRED_MESSAGE};
+
 const MAX_PROVIDER_RESPONSE_CHARS: usize = 16_000;
 const OPENAI_RESPONSES_ENDPOINT: &str = "https://api.openai.com/v1/responses";
 const ANTHROPIC_MESSAGES_ENDPOINT: &str = "https://api.anthropic.com/v1/messages";
@@ -44,12 +46,10 @@ pub(crate) async fn send_provider_request(
             let endpoint = request
                 .custom_endpoint
                 .as_deref()
-                .ok_or_else(|| "Add a custom HTTPS endpoint in Settings first.".to_string())?;
+                .ok_or_else(|| CUSTOM_EXTERNAL_AI_ENDPOINT_REQUIRED_MESSAGE.to_string())?;
             send_custom_chat_request(endpoint, &request.model, &request.prompt, api_key).await
         }
-        ExternalAiProvider::None => {
-            Err("Choose the outside AI service before sending anything.".to_string())
-        }
+        ExternalAiProvider::None => Err(CHOOSE_EXTERNAL_AI_PROVIDER_MESSAGE.to_string()),
     }
 }
 

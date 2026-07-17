@@ -8,7 +8,10 @@ use super::rate_limiter::RateLimiter;
 #[cfg(test)]
 use super::rss::extract_xml_tag;
 use super::rss::parse_rss_items;
-use super::{JobScraper, ScraperResult, JOBSENTINEL_USER_AGENT};
+use super::{
+    decode_common_html_entities, strip_html_markup, JobScraper, ScraperResult,
+    JOBSENTINEL_USER_AGENT,
+};
 use jobsentinel_domain::Job;
 use jobsentinel_network::{send_external_http_text_with_retry, ExternalHttpRequest};
 
@@ -138,30 +141,15 @@ impl WeWorkRemotelyScraper {
 
     /// Decode HTML entities
     fn decode_html_entities(text: &str) -> String {
-        text.replace("&amp;", "&")
-            .replace("&lt;", "<")
-            .replace("&gt;", ">")
-            .replace("&quot;", "\"")
-            .replace("&#39;", "'")
-            .replace("&nbsp;", " ")
+        decode_common_html_entities(text)
     }
 
     /// Strip HTML tags from text
     fn strip_html_tags(html: &str) -> String {
-        let mut result = String::new();
-        let mut in_tag = false;
-
-        for ch in html.chars() {
-            match ch {
-                '<' => in_tag = true,
-                '>' => in_tag = false,
-                _ if !in_tag => result.push(ch),
-                _ => {}
-            }
-        }
-
-        // Clean up whitespace
-        result.split_whitespace().collect::<Vec<_>>().join(" ")
+        strip_html_markup(html)
+            .split_whitespace()
+            .collect::<Vec<_>>()
+            .join(" ")
     }
 
     /// Try to extract location from description

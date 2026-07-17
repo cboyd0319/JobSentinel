@@ -199,16 +199,6 @@ impl SalaryPredictor {
             None => Ok(None),
         }
     }
-
-    #[cfg(test)]
-    fn normalize_title(&self, title: &str) -> String {
-        salary_title_bucket(title)
-    }
-
-    #[cfg(test)]
-    fn normalize_location(&self, location: &str) -> String {
-        salary_location_bucket(location)
-    }
 }
 
 #[cfg(test)]

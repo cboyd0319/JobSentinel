@@ -1,0 +1,109 @@
+{
+  "schema": "jobsentinel.feature_evidence.v1",
+  "feature_id": "crates-dry-remediation",
+  "behavior": "Every confirmed actionable duplication and DRY violation under crates has one canonical owner, obsolete copies are removed, and maintained production and test sensors prevent recurrence.",
+  "result": "passing",
+  "verified_at": "2026-07-17T05:39:33Z",
+  "revision": "b11f2036dbfa6d7761ab03be28eb0124d0cfa4c7",
+  "revision_scope": "Verified working tree based on the recorded revision for the final Milestone 10 commit.",
+  "platform": "local Darwin arm64 development host",
+  "measurements": {
+    "initial_crates_production": {
+      "duplicated_lines": 693,
+      "clone_regions": 35
+    },
+    "initial_crates_tests": {
+      "duplicated_lines": 2184,
+      "clone_regions": 79
+    },
+    "final_crates_production": {
+      "duplicated_lines": 0,
+      "clone_regions": 0
+    },
+    "final_crates_tests": {
+      "duplicated_lines": 0,
+      "clone_regions": 0
+    }
+  },
+  "retained_intentional_repetition": [
+    "Serialized field names, SQL columns, and provider payload keys remain explicit protocol contracts.",
+    "Source-specific selectors and parsing taxonomies remain local where matching semantics differ.",
+    "Platform-parity implementations and migration, integrity, file-backed, or minimal-schema tests retain setup that is itself under test.",
+    "Public facade and trait methods remain explicit where they preserve separate API contracts."
+  ],
+  "commands": [
+    {
+      "command": "npm run verify:full",
+      "exit_status": 0,
+      "relevant_result": "The complete local gate passed, including 821 script tests, 2,937 frontend tests across 248 files, production and Storybook builds, the browser smoke budget, SQLx metadata, and Rust verification.",
+      "caveat": "The environment doctor reported that the host Node and npm versions differ from the repository-owned baselines; all checks still passed."
+    },
+    {
+      "command": "cargo test --workspace --all-features",
+      "exit_status": 0,
+      "relevant_result": "All workspace unit, integration, and documentation tests passed with optional features enabled.",
+      "caveat": "Tests carrying explicit repository-owned ignore reasons remained ignored."
+    },
+    {
+      "command": "npm run lint:dup -- --list",
+      "exit_status": 0,
+      "relevant_result": "Maintained crates production and test scopes each report zero duplicated lines and zero clone regions; both baselines are ratcheted to zero.",
+      "caveat": "The detector threshold is 15 significant lines, so completion also included exact-string, symbol, forwarding-wrapper, policy-owner, and test-setup sweeps below that threshold."
+    },
+    {
+      "command": "cargo clippy --workspace -- -D warnings",
+      "exit_status": 0,
+      "relevant_result": "The required workspace clippy lane passed with warnings denied.",
+      "caveat": "The command covers the repository-owned production clippy policy; stricter all-target test linting is tracked separately."
+    },
+    {
+      "command": "cargo test --workspace",
+      "exit_status": 0,
+      "relevant_result": "The standard workspace unit, integration, and documentation test lane passed.",
+      "caveat": "None."
+    },
+    {
+      "command": "npm run lint:architecture",
+      "exit_status": 0,
+      "relevant_result": "Frontend boundaries and the Rust repository ownership graph passed.",
+      "caveat": "None."
+    },
+    {
+      "command": "npm run lint:security",
+      "exit_status": 0,
+      "relevant_result": "Security sensors and the secret scan passed after shared prompt-injection and secure-storage policy consolidation.",
+      "caveat": "None."
+    },
+    {
+      "command": "npm run harness:check",
+      "exit_status": 0,
+      "relevant_result": "Harness state, architecture, workflow policy, and file-size coverage passed.",
+      "caveat": "None."
+    },
+    {
+      "command": "npm run lint:file-size",
+      "exit_status": 0,
+      "relevant_result": "Every governed source and configuration file remained within its hard limit.",
+      "caveat": "Review-threshold candidates remain advisory and governed by the existing file-size contract."
+    },
+    {
+      "command": "npm run lint:sqlx",
+      "exit_status": 0,
+      "relevant_result": "SQLx offline metadata passed after two obsolete interview-query cache entries were removed.",
+      "caveat": "None."
+    },
+    {
+      "command": "cargo fmt --all -- --check",
+      "exit_status": 0,
+      "relevant_result": "Workspace Rust formatting passed.",
+      "caveat": "None."
+    },
+    {
+      "command": "git diff --check",
+      "exit_status": 0,
+      "relevant_result": "The final working diff contains no whitespace errors.",
+      "caveat": "None."
+    }
+  ],
+  "source": "docs/plans/completed/crates-dry-remediation.md"
+}

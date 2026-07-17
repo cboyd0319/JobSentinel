@@ -5,8 +5,7 @@ mod bookmark_coverage {
 
     #[tokio::test]
     async fn test_get_bookmarked_jobs_ordered_by_score() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         // Insert bookmarked jobs with different scores
         let job1 = create_test_job("bm1", "Low Score", 0.5);
@@ -31,8 +30,7 @@ mod bookmark_coverage {
 
     #[tokio::test]
     async fn test_get_bookmarked_jobs_with_zero_limit() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         let job = create_test_job("bm_zero", "Test", 0.9);
         let id = db.upsert_job(&job).await.unwrap();

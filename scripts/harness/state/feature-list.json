@@ -96,18 +96,36 @@
       "title": "Crate DRY remediation",
       "behavior": "Every confirmed actionable duplication and DRY violation under crates has one canonical owner, obsolete copies are removed, and maintained production and test sensors prevent recurrence.",
       "user_visible_behavior": "JobSentinel preserves its behavior while shared policies, normalization, storage, sources, and document handling remain consistent across the Rust workspace.",
-      "status": "active",
+      "status": "passing",
       "verification": [
         "npm run verify:full",
         "cargo test --workspace --all-features",
         "npm run lint:dup -- --list"
       ],
       "evidence": [
+        "docs/harness/evidence/crates-dry-completion-2026-07-16.json",
         "docs/harness/evidence/crates-dry-baseline-2026-07-16.json",
         "docs/harness/evidence/crates-dry-characterization-2026-07-16.md"
       ],
       "blocker": "",
-      "next_trigger": "Complete Milestone 10 production clone removal and final ratchet."
+      "next_trigger": "A crate duplication or canonical-owner regression requires a new corrective feature."
+    },
+    {
+      "id": "frontend-dry-remediation",
+      "priority": 5,
+      "area": "frontend and desktop adapter maintainability",
+      "title": "Frontend DRY remediation",
+      "behavior": "Every confirmed actionable duplication under src and src-tauri/src has one canonical owner, obsolete copies are removed, and the maintained frontend production ratchet prevents recurrence.",
+      "user_visible_behavior": "JobSentinel preserves its interface and desktop behavior while shared resume, score, dashboard, market, feedback, error, and command-adapter behavior stays consistent.",
+      "status": "active",
+      "verification": [
+        "npm run verify:full",
+        "npm run test:run",
+        "npm run lint:dup -- --list"
+      ],
+      "evidence": [],
+      "blocker": "",
+      "next_trigger": "Classify all 38 measured regions before changing shared behavior."
     }
   ]
 }

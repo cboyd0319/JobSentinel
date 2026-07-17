@@ -1,7 +1,7 @@
 use super::*;
 
 async fn tracker_with_each_application_status() -> ApplicationTracker {
-    let pool = create_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let status_paths: [&[ApplicationStatus]; 12] = [
         &[],
         &[ApplicationStatus::Applied],
@@ -107,7 +107,7 @@ async fn test_application_stats_all_statuses() {
 
 #[tokio::test]
 async fn test_auto_reminder_for_offer_status() {
-    let pool = create_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
 
     sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test1', 'Case Manager', 'CommunityCare', 'http://test.com', 'test')")
         .execute(&pool)

@@ -4,9 +4,86 @@
 
 use async_trait::async_trait;
 use jobsentinel_domain::Job;
+use jobsentinel_network::FULL_BROWSER_USER_AGENT as BROWSER_USER_AGENT;
 
-const BROWSER_USER_AGENT: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
 const JOBSENTINEL_USER_AGENT: &str = "JobSentinel/1.0";
+const COMPANY_SCRAPE_FAILED: &str =
+    "Company board scrape failed; continuing with other company boards";
+const COMMON_BOT_PROTECTION_MARKERS: &[&str] = &[
+    "cf-browser-verification",
+    "checking your browser",
+    "verify you are human",
+    "access to this page has been denied",
+    "enable javascript and cookies to continue",
+    "unusual traffic",
+    "captcha",
+];
+
+fn has_bot_protection_marker(body: &str, source_markers: &[&str]) -> bool {
+    let body_lower = body.to_ascii_lowercase();
+    COMMON_BOT_PROTECTION_MARKERS
+        .iter()
+        .chain(source_markers)
+        .any(|marker| body_lower.contains(marker))
+}
+
+fn decode_common_html_entities(text: &str) -> String {
+    text.replace("&amp;", "&")
+        .replace("&lt;", "<")
+        .replace("&gt;", ">")
+        .replace("&quot;", "\"")
+        .replace("&#39;", "'")
+        .replace("&nbsp;", " ")
+}
+
+fn strip_html_markup(html: &str) -> String {
+    let mut result = String::new();
+    let mut in_tag = false;
+
+    for character in html.chars() {
+        match character {
+            '<' => in_tag = true,
+            '>' => in_tag = false,
+            _ if !in_tag => result.push(character),
+            _ => {}
+        }
+    }
+
+    result
+}
+
+fn collect_company_scrape_result(
+    result: ScraperResult,
+    jobs: &mut Vec<Job>,
+    failed_companies: &mut usize,
+    source: &'static str,
+) {
+    match result {
+        Ok(company_jobs) => jobs.extend(company_jobs),
+        Err(_) => {
+            *failed_companies += 1;
+            tracing::warn!(
+                source,
+                message = COMPANY_SCRAPE_FAILED,
+                "Company board scrape failed"
+            );
+        }
+    }
+}
+
+fn require_company_scrape_success(
+    company_count: usize,
+    failed_companies: usize,
+    source: &'static str,
+) -> Result<(), ScraperError> {
+    if company_count > 0 && failed_companies == company_count {
+        return Err(ScraperError::Generic {
+            scraper: source.to_string(),
+            message: "All configured company boards failed".to_string(),
+        });
+    }
+    Ok(())
+}
 
 mod builtin;
 mod dice;

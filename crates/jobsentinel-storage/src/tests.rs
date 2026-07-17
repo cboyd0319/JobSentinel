@@ -71,8 +71,7 @@ mod accessor_tests {
 
     #[tokio::test]
     async fn test_pool_accessor() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         // Get pool reference
         let pool = db.pool();
@@ -130,8 +129,7 @@ mod job_hash_tests {
 
     #[tokio::test]
     async fn test_get_job_by_hash_success() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         let job = create_test_job("hash_test", "Test Job", 0.9);
         let hash = job.hash.clone();
@@ -144,8 +142,7 @@ mod job_hash_tests {
 
     #[tokio::test]
     async fn test_get_job_by_hash_returns_hidden_jobs() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         let job = create_test_job("hash_hidden", "Hidden Job", 0.9);
         let hash = job.hash.clone();
@@ -163,8 +160,7 @@ mod alert_sent_tests {
 
     #[tokio::test]
     async fn test_mark_alert_sent_updates_flag() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         let job = create_test_job("alert", "Test Job", 0.9);
         let id = db.upsert_job(&job).await.unwrap();
@@ -183,8 +179,7 @@ mod alert_sent_tests {
 
     #[tokio::test]
     async fn test_mark_alert_sent_idempotent() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         let job = create_test_job("alert_idem", "Test Job", 0.9);
         let id = db.upsert_job(&job).await.unwrap();
@@ -207,8 +202,7 @@ mod toggle_bookmark_edge_cases {
 
     #[tokio::test]
     async fn test_toggle_bookmark_handles_unexpected_values() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         let job = create_test_job("toggle_edge", "Test Job", 0.9);
         let id = db.upsert_job(&job).await.unwrap();
@@ -228,8 +222,7 @@ mod toggle_bookmark_edge_cases {
 
     #[tokio::test]
     async fn test_toggle_bookmark_multiple_cycles() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         let job = create_test_job("multi_cycle", "Test Job", 0.9);
         let id = db.upsert_job(&job).await.unwrap();

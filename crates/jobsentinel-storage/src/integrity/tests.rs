@@ -2,19 +2,20 @@ use super::*;
 use chrono::{Duration, Utc};
 use sqlx::{sqlite::SqlitePoolOptions, SqlitePool};
 
-async fn create_test_db() -> SqlitePool {
+async fn create_integrity_test_db() -> SqlitePool {
     let pool = SqlitePoolOptions::new()
         .max_connections(1)
         .connect("sqlite::memory:")
         .await
         .unwrap();
+    // Apply the schema without the startup check that these tests exercise.
     sqlx::migrate!("./migrations").run(&pool).await.unwrap();
     pool
 }
 
 #[tokio::test]
 async fn healthy_startup_check_is_recorded() {
-    let pool = create_test_db().await;
+    let pool = create_integrity_test_db().await;
     let integrity = DatabaseIntegrity::new(pool.clone());
 
     let status = integrity.startup_check().await.unwrap();
@@ -31,7 +32,7 @@ async fn healthy_startup_check_is_recorded() {
 
 #[tokio::test]
 async fn first_startup_check_records_full_check_time() {
-    let pool = create_test_db().await;
+    let pool = create_integrity_test_db().await;
 
     DatabaseIntegrity::new(pool.clone())
         .startup_check()
@@ -49,7 +50,7 @@ async fn first_startup_check_records_full_check_time() {
 
 #[tokio::test]
 async fn recent_full_check_is_not_repeated() {
-    let pool = create_test_db().await;
+    let pool = create_integrity_test_db().await;
     let timestamp = Utc::now().to_rfc3339();
     sqlx::query("INSERT INTO app_metadata (key, value) VALUES ('last_full_integrity_check', ?)")
         .bind(&timestamp)
@@ -73,7 +74,7 @@ async fn recent_full_check_is_not_repeated() {
 
 #[tokio::test]
 async fn overdue_full_check_updates_its_timestamp() {
-    let pool = create_test_db().await;
+    let pool = create_integrity_test_db().await;
     let old_timestamp = (Utc::now() - Duration::days(8)).to_rfc3339();
     sqlx::query("INSERT INTO app_metadata (key, value) VALUES ('last_full_integrity_check', ?)")
         .bind(&old_timestamp)
@@ -97,7 +98,7 @@ async fn overdue_full_check_updates_its_timestamp() {
 
 #[tokio::test]
 async fn foreign_key_violation_fails_startup_check() {
-    let pool = create_test_db().await;
+    let pool = create_integrity_test_db().await;
     sqlx::query("CREATE TABLE integrity_parent (id INTEGER PRIMARY KEY)")
         .execute(&pool)
         .await

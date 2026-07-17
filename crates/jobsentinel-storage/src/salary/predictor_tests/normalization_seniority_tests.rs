@@ -1,47 +1,8 @@
 use super::*;
 
 #[tokio::test]
-async fn test_normalize_title_with_actual_predictor() {
-    let pool = create_test_db().await;
-    let predictor = SalaryPredictor::new(pool);
-
-    assert_eq!(
-        predictor.normalize_title("Software Engineer"),
-        "software engineer"
-    );
-    assert_eq!(predictor.normalize_title("Senior SWE"), "software engineer");
-    assert_eq!(
-        predictor.normalize_title("Data Scientist"),
-        "data scientist"
-    );
-    assert_eq!(
-        predictor.normalize_title("Product Manager"),
-        "product manager"
-    );
-    assert_eq!(
-        predictor.normalize_title("Care Coordinator"),
-        "care coordinator"
-    );
-}
-
-#[tokio::test]
-async fn test_normalize_location_with_actual_predictor() {
-    let pool = create_test_db().await;
-    let predictor = SalaryPredictor::new(pool);
-
-    assert_eq!(
-        predictor.normalize_location("San Francisco, CA"),
-        "san francisco, ca"
-    );
-    assert_eq!(predictor.normalize_location("SF"), "san francisco, ca");
-    assert_eq!(predictor.normalize_location("New York, NY"), "new york, ny");
-    assert_eq!(predictor.normalize_location("NYC"), "new york, ny");
-    assert_eq!(predictor.normalize_location("Seattle, WA"), "seattle, wa");
-}
-
-#[tokio::test]
 async fn test_prediction_with_location_like_pattern() {
-    let pool = create_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     insert_test_job(&pool, "job_like", "Case Manager", "San Francisco Bay Area").await;
     insert_benchmark(
         &pool,
@@ -67,7 +28,7 @@ async fn test_prediction_with_location_like_pattern() {
 
 #[tokio::test]
 async fn test_seniority_detection_from_title() {
-    let pool = create_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
 
     insert_test_job(&pool, "job_jr", "Junior Case Manager", "Remote").await;
     insert_benchmark(

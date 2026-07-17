@@ -6,7 +6,7 @@ use super::*;
 
 #[tokio::test]
 async fn test_auto_detect_ghosted() {
-    let pool = create_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
 
     sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test1', 'Case Manager', 'CommunityCare', 'http://test.com', 'test')")
         .execute(&pool)
@@ -55,7 +55,7 @@ async fn test_auto_detect_ghosted() {
 
 #[tokio::test]
 async fn test_auto_detect_ghosted_no_last_contact() {
-    let pool = create_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
 
     sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test1', 'Case Manager', 'CommunityCare', 'http://test.com', 'test')")
         .execute(&pool)
@@ -89,7 +89,7 @@ async fn test_auto_detect_ghosted_no_last_contact() {
 
 #[tokio::test]
 async fn test_auto_detect_ghosted_keeps_recent_no_last_contact() {
-    let pool = create_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
 
     sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test1', 'Case Manager', 'CommunityCare', 'http://test.com', 'test')")
         .execute(&pool)
@@ -112,7 +112,7 @@ async fn test_auto_detect_ghosted_keeps_recent_no_last_contact() {
 
 #[tokio::test]
 async fn test_auto_detect_ghosted_skips_terminal_states() {
-    let pool = create_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
 
     sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test1', 'Case Manager', 'CommunityCare', 'http://test.com', 'test')")
         .execute(&pool)
@@ -149,7 +149,7 @@ async fn test_auto_detect_ghosted_skips_terminal_states() {
 
 #[tokio::test]
 async fn test_get_application_stats_empty() {
-    let pool = create_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let tracker = ApplicationTracker::new(pool);
 
     let stats = tracker.get_application_stats().await.unwrap();
@@ -161,7 +161,7 @@ async fn test_get_application_stats_empty() {
 
 #[tokio::test]
 async fn test_get_application_stats_comprehensive() {
-    let pool = create_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
 
     // Insert test jobs
     for i in 1..=10 {
@@ -238,7 +238,7 @@ async fn test_get_application_stats_comprehensive() {
 
 #[tokio::test]
 async fn test_get_application_stats_response_rate_calculation() {
-    let pool = create_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
 
     for i in 1..=5 {
         let hash = format!("test{}", i);
@@ -283,7 +283,7 @@ async fn test_get_application_stats_response_rate_calculation() {
 
 #[tokio::test]
 async fn test_get_application_stats_offer_rate_calculation() {
-    let pool = create_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
 
     for i in 1..=10 {
         let hash = format!("test{}", i);

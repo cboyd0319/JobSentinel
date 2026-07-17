@@ -2,8 +2,7 @@ use super::*;
 
 #[tokio::test]
 async fn test_find_duplicate_groups_different_companies() {
-    let db = Database::connect_memory().await.unwrap();
-    db.migrate().await.unwrap();
+    let db = crate::test_support::migrated_database().await;
 
     // Same title, different companies - should NOT be duplicates
     let mut job1 = create_test_job("diff1", "Senior Case Manager", 0.9);
@@ -20,8 +19,7 @@ async fn test_find_duplicate_groups_different_companies() {
 
 #[tokio::test]
 async fn test_find_duplicate_groups_different_titles() {
-    let db = Database::connect_memory().await.unwrap();
-    db.migrate().await.unwrap();
+    let db = crate::test_support::migrated_database().await;
 
     // Same company, different titles - should NOT be duplicates
     let mut job1 = create_test_job("diff_title1", "Senior Case Manager", 0.9);
@@ -38,8 +36,7 @@ async fn test_find_duplicate_groups_different_titles() {
 
 #[tokio::test]
 async fn test_merge_duplicates_preserves_bookmarks() {
-    let db = Database::connect_memory().await.unwrap();
-    db.migrate().await.unwrap();
+    let db = crate::test_support::migrated_database().await;
 
     // Primary job (not bookmarked)
     let mut job1 = create_test_job("merge_bm1", "Job", 0.9);

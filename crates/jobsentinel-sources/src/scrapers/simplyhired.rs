@@ -10,13 +10,17 @@ use super::rate_limiter::RateLimiter;
 #[cfg(test)]
 use super::rss::extract_xml_tag;
 use super::rss::{parse_rss_items, RssItem};
-use super::{JobScraper, ScraperResult};
+use super::{
+    decode_common_html_entities, has_bot_protection_marker, strip_html_markup, JobScraper,
+    ScraperResult,
+};
 use jobsentinel_domain::normalization::infer_remote_status;
 use jobsentinel_domain::Job;
 #[cfg(test)]
 use jobsentinel_network::send_test_http_text_with_retry;
 use jobsentinel_network::{
     send_external_http_text_with_retry, ExternalHttpRequest, ExternalTextResponse,
+    MINIMAL_WEBKIT_USER_AGENT,
 };
 
 use async_trait::async_trait;
@@ -92,7 +96,7 @@ impl SimplyHiredScraper {
 
     fn build_request(url: &str) -> ExternalHttpRequest {
         ExternalHttpRequest::get(url)
-            .user_agent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36")
+            .user_agent(MINIMAL_WEBKIT_USER_AGENT)
             .header(
                 "Accept",
                 "application/rss+xml, application/xml, text/xml, */*",
@@ -218,19 +222,7 @@ impl SimplyHiredScraper {
     }
 
     fn is_bot_protection_page(body: &str) -> bool {
-        let body_lower = body.to_ascii_lowercase();
-        [
-            "cf-browser-verification",
-            "checking your browser",
-            "verify you are human",
-            "access to this page has been denied",
-            "enable javascript and cookies to continue",
-            "automation tools",
-            "unusual traffic",
-            "captcha",
-        ]
-        .iter()
-        .any(|marker| body_lower.contains(marker))
+        has_bot_protection_marker(body, &["automation tools"])
     }
 
     fn looks_like_feed(body: &str) -> bool {
@@ -242,29 +234,12 @@ impl SimplyHiredScraper {
 
     /// Decode HTML entities
     fn decode_html_entities(s: &str) -> String {
-        s.replace("&amp;", "&")
-            .replace("&lt;", "<")
-            .replace("&gt;", ">")
-            .replace("&quot;", "\"")
-            .replace("&#39;", "'")
-            .replace("&nbsp;", " ")
+        decode_common_html_entities(s)
     }
 
     /// Strip HTML tags from content
     fn strip_html_tags(html: &str) -> String {
-        let mut result = String::new();
-        let mut in_tag = false;
-
-        for c in html.chars() {
-            match c {
-                '<' => in_tag = true,
-                '>' => in_tag = false,
-                _ if !in_tag => result.push(c),
-                _ => {}
-            }
-        }
-
-        result
+        strip_html_markup(html)
     }
 
     /// Extract company name from title (often formatted as "Title - Company")

@@ -5,8 +5,7 @@ mod upsert_coverage_tests {
 
     #[tokio::test]
     async fn test_upsert_updates_all_fields() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         // Insert initial job
         let job1 = create_test_job("update_test", "Original Title", 0.7);
@@ -38,8 +37,7 @@ mod upsert_coverage_tests {
 
     #[tokio::test]
     async fn test_upsert_preserves_alert_and_digest_flags() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         // Insert job and mark alert sent
         let mut job = create_test_job("alert_test", "Test Job", 0.9);
@@ -55,8 +53,7 @@ mod upsert_coverage_tests {
 
     #[tokio::test]
     async fn test_upsert_with_score_reasons() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         let mut job = create_test_job("score_reasons", "Test Job", 0.9);
         job.score_reasons = Some(r#"{"skill_match": 0.95, "location_match": 0.85}"#.to_string());

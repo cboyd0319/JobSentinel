@@ -25,7 +25,7 @@ async fn set_match_subscores(
 
 #[tokio::test]
 async fn test_match_resume_to_job_with_null_skills_json() {
-    let pool = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let matcher = ResumeMatcher::new(pool.clone());
 
     let resume_id = create_test_resume(&pool, "Resume", "Python").await;
@@ -58,7 +58,7 @@ async fn test_match_resume_to_job_with_null_skills_json() {
 
 #[tokio::test]
 async fn test_match_resume_to_job_idempotent() {
-    let pool = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let matcher = ResumeMatcher::new(pool.clone());
 
     let resume_id = create_test_resume(&pool, "Resume", "Python JavaScript").await;
@@ -97,7 +97,7 @@ async fn test_match_resume_to_job_idempotent() {
 
 #[tokio::test]
 async fn test_extract_skills_with_empty_text() {
-    let pool = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let matcher = ResumeMatcher::new(pool.clone());
 
     let result = sqlx::query(
@@ -118,7 +118,7 @@ async fn test_extract_skills_with_empty_text() {
 
 #[tokio::test]
 async fn test_extract_skills_overwrites_existing() {
-    let pool = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let matcher = ResumeMatcher::new(pool.clone());
 
     // Create resume with initial skills
@@ -149,7 +149,7 @@ async fn test_extract_skills_overwrites_existing() {
 
 #[tokio::test]
 async fn test_get_match_result_with_all_scores() {
-    let pool = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let matcher = ResumeMatcher::new(pool.clone());
 
     let resume_id = create_test_resume(&pool, "Resume", "Python").await;
@@ -173,7 +173,7 @@ async fn test_get_match_result_with_all_scores() {
 
 #[tokio::test]
 async fn test_recent_matches_include_all_sub_scores() {
-    let pool = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let matcher = ResumeMatcher::new(pool.clone());
 
     let resume_id = create_test_resume(&pool, "Resume", "Python").await;
@@ -195,7 +195,7 @@ async fn test_recent_matches_include_all_sub_scores() {
 
 #[tokio::test]
 async fn test_boundary_values_for_scores() {
-    let pool = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let matcher = ResumeMatcher::new(pool.clone());
 
     let result = sqlx::query(
@@ -236,7 +236,7 @@ async fn test_boundary_values_for_scores() {
 
 #[tokio::test]
 async fn test_concurrent_resume_creation() {
-    let pool = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
 
     // Create multiple resumes concurrently
     let mut tasks = vec![];
@@ -264,7 +264,7 @@ async fn test_concurrent_resume_creation() {
 
 #[tokio::test]
 async fn test_unicode_in_skill_names() {
-    let pool = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let matcher = ResumeMatcher::new(pool.clone());
 
     let result = sqlx::query(
@@ -297,7 +297,7 @@ async fn test_unicode_in_skill_names() {
 
 #[tokio::test]
 async fn test_very_long_skill_names() {
-    let pool = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let matcher = ResumeMatcher::new(pool.clone());
 
     let result = sqlx::query(

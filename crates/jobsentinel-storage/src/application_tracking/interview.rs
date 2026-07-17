@@ -6,6 +6,34 @@ use anyhow::Result;
 use chrono::Utc;
 use sqlx::{sqlite::SqliteRow, Row};
 
+macro_rules! interview_with_job_query {
+    ($criteria:literal) => {
+        concat!(
+            r#"
+                SELECT
+                    i.id,
+                    i.application_id,
+                    i.interview_type,
+                    i.scheduled_at,
+                    i.duration_minutes,
+                    i.location,
+                    i.interviewer_name,
+                    i.interviewer_title,
+                    i.notes,
+                    i.completed,
+                    i.outcome,
+                    i.post_interview_notes,
+                    j.title as job_title,
+                    j.company
+                FROM interviews i
+                JOIN applications a ON i.application_id = a.id
+                JOIN jobs j ON a.job_hash = j.hash
+            "#,
+            $criteria
+        )
+    };
+}
+
 fn interview_with_job_from_row(row: SqliteRow) -> Result<InterviewWithJob> {
     Ok(InterviewWithJob {
         id: row.try_get("id")?,
@@ -66,32 +94,14 @@ impl ApplicationTracker {
 
     /// Get upcoming interviews (next 30 days, not completed)
     pub async fn get_upcoming_interviews(&self) -> Result<Vec<InterviewWithJob>> {
-        let interviews = sqlx::query(
+        let interviews = sqlx::query(interview_with_job_query!(
             r#"
-            SELECT
-                i.id,
-                i.application_id,
-                i.interview_type,
-                i.scheduled_at,
-                i.duration_minutes,
-                i.location,
-                i.interviewer_name,
-                i.interviewer_title,
-                i.notes,
-                i.completed,
-                i.outcome,
-                i.post_interview_notes,
-                j.title as job_title,
-                j.company
-            FROM interviews i
-            JOIN applications a ON i.application_id = a.id
-            JOIN jobs j ON a.job_hash = j.hash
-            WHERE i.completed = 0
-              AND datetime(i.scheduled_at) >= datetime('now')
-              AND datetime(i.scheduled_at) <= datetime('now', '+30 days')
-            ORDER BY i.scheduled_at ASC
-            "#,
-        )
+                WHERE i.completed = 0
+                  AND datetime(i.scheduled_at) >= datetime('now')
+                  AND datetime(i.scheduled_at) <= datetime('now', '+30 days')
+                ORDER BY i.scheduled_at ASC
+            "#
+        ))
         .fetch_all(&self.db)
         .await?;
 
@@ -103,31 +113,13 @@ impl ApplicationTracker {
 
     /// Get past interviews (completed, last 90 days)
     pub async fn get_past_interviews(&self) -> Result<Vec<InterviewWithJob>> {
-        let interviews = sqlx::query(
+        let interviews = sqlx::query(interview_with_job_query!(
             r#"
-            SELECT
-                i.id,
-                i.application_id,
-                i.interview_type,
-                i.scheduled_at,
-                i.duration_minutes,
-                i.location,
-                i.interviewer_name,
-                i.interviewer_title,
-                i.notes,
-                i.completed,
-                i.outcome,
-                i.post_interview_notes,
-                j.title as job_title,
-                j.company
-            FROM interviews i
-            JOIN applications a ON i.application_id = a.id
-            JOIN jobs j ON a.job_hash = j.hash
-            WHERE i.completed = 1
-              AND datetime(i.scheduled_at) >= datetime('now', '-90 days')
-            ORDER BY i.scheduled_at DESC
-            "#,
-        )
+                WHERE i.completed = 1
+                  AND datetime(i.scheduled_at) >= datetime('now', '-90 days')
+                ORDER BY i.scheduled_at DESC
+            "#
+        ))
         .fetch_all(&self.db)
         .await?;
 

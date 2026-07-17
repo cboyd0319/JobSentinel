@@ -5,7 +5,9 @@ use sha2::{Digest, Sha256};
 use url::Url;
 
 use super::contract::{CanonicalJobRecord, SourceAdapterLane};
-use super::support::{first_non_empty, hex_prefix, is_absolute_http_url, normalize_ws};
+use super::support::{
+    first_non_empty, first_string, hex_prefix, is_absolute_http_url, normalize_ws, path_tail,
+};
 
 pub(super) const DEFAULT_LIMIT: u16 = 20;
 pub(super) const DEFAULT_OFFSET: u32 = 0;
@@ -232,13 +234,6 @@ fn normalize_location(value: &Value) -> Option<String> {
     }
 }
 
-fn first_string(item: &serde_json::Map<String, Value>, keys: &[&str]) -> Option<String> {
-    keys.iter()
-        .filter_map(|key| item.get(*key).and_then(Value::as_str))
-        .find(|value| !value.trim().is_empty())
-        .map(normalize_ws)
-}
-
 fn looks_like_job_id(value: &str) -> bool {
     let normalized = value.trim();
     if normalized.is_empty() {
@@ -254,11 +249,6 @@ fn looks_like_job_id(value: &str) -> bool {
         && normalized
             .chars()
             .any(|character| character.is_ascii_digit())
-}
-
-fn path_tail(value: &str) -> Option<&str> {
-    let path = value.split(['?', '#']).next().unwrap_or(value);
-    path.trim_end_matches('/').rsplit('/').next()
 }
 
 #[cfg(test)]

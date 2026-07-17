@@ -5,8 +5,7 @@ mod hide_unhide_tests {
 
     #[tokio::test]
     async fn test_hide_job() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         let job = create_test_job("hide_test", "Test Job", 0.9);
         let id = db.upsert_job(&job).await.unwrap();
@@ -25,8 +24,7 @@ mod hide_unhide_tests {
 
     #[tokio::test]
     async fn test_unhide_job() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         let mut job = create_test_job("unhide_test", "Test Job", 0.9);
         job.hidden = true;
@@ -49,8 +47,7 @@ mod hide_unhide_tests {
 
     #[tokio::test]
     async fn test_hide_unhide_cycle() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         let job = create_test_job("cycle_test", "Test Job", 0.9);
         let id = db.upsert_job(&job).await.unwrap();
@@ -73,8 +70,7 @@ mod hide_unhide_tests {
 
     #[tokio::test]
     async fn test_hidden_jobs_excluded_from_recent() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         // Insert visible job
         let job1 = create_test_job("visible1", "Visible Job", 0.9);
@@ -95,8 +91,7 @@ mod hide_unhide_tests {
 
     #[tokio::test]
     async fn test_hidden_jobs_excluded_from_score_query() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         // Insert visible high-score job
         let job1 = create_test_job("visible_high", "Visible High", 0.95);
@@ -117,8 +112,7 @@ mod hide_unhide_tests {
 
     #[tokio::test]
     async fn test_hidden_jobs_excluded_from_source_query() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         // Insert visible job from greenhouse
         let mut job1 = create_test_job("visible_gh", "Visible Greenhouse", 0.9);
@@ -145,8 +139,7 @@ mod bookmark_tests {
 
     #[tokio::test]
     async fn test_toggle_bookmark_on() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         let job = create_test_job("toggle_on", "Test Job", 0.9);
         let id = db.upsert_job(&job).await.unwrap();
@@ -166,8 +159,7 @@ mod bookmark_tests {
 
     #[tokio::test]
     async fn test_toggle_bookmark_off() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         let job = create_test_job("toggle_off", "Test Job", 0.9);
         let id = db.upsert_job(&job).await.unwrap();
@@ -197,8 +189,7 @@ mod bookmark_tests {
 
     #[tokio::test]
     async fn test_toggle_bookmark_cycle() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         let job = create_test_job("toggle_cycle", "Test Job", 0.9);
         let id = db.upsert_job(&job).await.unwrap();
@@ -216,8 +207,7 @@ mod bookmark_tests {
 
     #[tokio::test]
     async fn test_toggle_bookmark_nonexistent_job() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         // Try to toggle bookmark on non-existent job
         let result = db.toggle_bookmark(999999).await;
@@ -226,8 +216,7 @@ mod bookmark_tests {
 
     #[tokio::test]
     async fn test_set_bookmark_true() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         let job = create_test_job("set_true", "Test Job", 0.9);
         let id = db.upsert_job(&job).await.unwrap();
@@ -241,8 +230,7 @@ mod bookmark_tests {
 
     #[tokio::test]
     async fn test_set_bookmark_false() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         let job = create_test_job("set_false", "Test Job", 0.9);
         let id = db.upsert_job(&job).await.unwrap();
@@ -259,8 +247,7 @@ mod bookmark_tests {
 
     #[tokio::test]
     async fn test_set_bookmark_idempotent() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         let job = create_test_job("idempotent", "Test Job", 0.9);
         let id = db.upsert_job(&job).await.unwrap();
@@ -276,8 +263,7 @@ mod bookmark_tests {
 
     #[tokio::test]
     async fn test_get_bookmarked_jobs() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         // Insert bookmarked jobs with different scores
         let job1 = create_test_job("bookmarked1", "Bookmarked High", 0.95);
@@ -305,8 +291,7 @@ mod bookmark_tests {
 
     #[tokio::test]
     async fn test_get_bookmarked_jobs_limit() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         // Insert 5 bookmarked jobs
         for i in 0..5 {
@@ -322,8 +307,7 @@ mod bookmark_tests {
 
     #[tokio::test]
     async fn test_get_bookmarked_jobs_excludes_hidden() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         // Insert bookmarked but hidden job
         let job1 = create_test_job("bookmarked_hidden", "Bookmarked Hidden", 0.9);
@@ -344,8 +328,7 @@ mod bookmark_tests {
 
     #[tokio::test]
     async fn test_get_bookmarked_jobs_empty() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         // Insert non-bookmarked job
         let job = create_test_job("not_bookmarked", "Not Bookmarked", 0.9);

@@ -2,7 +2,7 @@ use super::*;
 
 #[tokio::test]
 async fn test_status_change_logs_event() {
-    let pool = create_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
 
     sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test123', 'Case Manager', 'CommunityCare', 'http://test.com', 'test')")
         .execute(&pool)
@@ -33,7 +33,7 @@ async fn test_status_change_logs_event() {
 
 #[tokio::test]
 async fn test_applied_status_sets_applied_at_once() {
-    let pool = create_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
 
     sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test123', 'Case Manager', 'CommunityCare', 'http://test.com', 'test')")
         .execute(&pool)
@@ -80,7 +80,7 @@ async fn test_applied_status_sets_applied_at_once() {
 
 #[tokio::test]
 async fn test_interview_status_auto_sets_thank_you_reminder() {
-    let pool = create_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
 
     sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test123', 'Case Manager', 'CommunityCare', 'http://test.com', 'test')")
         .execute(&pool)

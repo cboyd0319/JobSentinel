@@ -33,35 +33,11 @@ pub(super) fn analyze_plain_text_format_with_source(
     if structured_format::text_has_adversarial_content(readable_text)
         || source_text.is_some_and(structured_format::text_has_adversarial_content)
     {
-        format_issues.push(FormatIssue {
-            severity: IssueSeverity::Warning,
-            issue: "Instruction-like or hidden resume text detected".to_string(),
-            fix: "Remove instructions aimed at screening tools and keep only truthful qualifications, work evidence, and readable application content.".to_string(),
-        });
-        suggestions.push(AtsSuggestion {
-            category: SuggestionCategory::FormatFix,
-            suggestion:
-                "Review the resume for prompt-injection-like instructions, hidden text, or invisible characters before using it."
-                    .to_string(),
-            impact:
-                "Keeps the resume readable and avoids tactics that can backfire with employers or screening systems."
-                .to_string(),
-        });
+        structured_format::push_adversarial_content_issue(&mut format_issues, &mut suggestions);
     }
 
     if structured_format::text_has_keyword_stuffing(readable_text) {
-        format_issues.push(FormatIssue {
-            severity: IssueSeverity::Warning,
-            issue: "Possible keyword stuffing detected".to_string(),
-            fix: "Remove repeated keyword piles and show each important skill through truthful experience, tools, scope, or outcomes.".to_string(),
-        });
-        suggestions.push(AtsSuggestion {
-            category: SuggestionCategory::FormatFix,
-            suggestion: "Replace repeated keywords with readable evidence a recruiter can understand and you can defend in an interview.".to_string(),
-            impact:
-                "Keeps the resume credible while still making real qualifications visible."
-                .to_string(),
-        });
+        structured_format::push_keyword_stuffing_issue(&mut format_issues, &mut suggestions);
     }
 
     push_special_character_issues(readable_text, &mut format_issues, &mut suggestions);

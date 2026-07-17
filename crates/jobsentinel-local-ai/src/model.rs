@@ -18,6 +18,10 @@ use std::path::PathBuf;
 pub(crate) use legacy::SentenceTransformer;
 pub(crate) use status::ModelCacheMetadata;
 
+const RUNTIME_MODEL_LOCK_MISSING: &str = "runtime model lock entry missing";
+const DEFAULT_EMBEDDING_MODEL_LOCK_MISSING: &str = "default embedding model lock entry missing";
+const DEFAULT_RERANKER_MODEL_LOCK_MISSING: &str = "default reranker model lock entry missing";
+
 /// Manages model download and caching.
 pub struct ModelManager {
     cache_dir: PathBuf,
@@ -32,23 +36,23 @@ impl ModelManager {
 
     pub(crate) fn runtime_model_spec() -> Result<ModelSpec> {
         let manifest = load_model_manifest()?;
-        manifest.legacy_runtime_embedding().cloned().ok_or_else(|| {
-            MlError::ModelLoadFailed("runtime model lock entry missing".to_string()).into()
-        })
+        manifest
+            .legacy_runtime_embedding()
+            .cloned()
+            .ok_or_else(|| MlError::ModelLoadFailed(RUNTIME_MODEL_LOCK_MISSING.to_string()).into())
     }
 
     pub(crate) fn default_embedding_model_spec() -> Result<ModelSpec> {
         let manifest = load_model_manifest()?;
         manifest.default_embedding().cloned().ok_or_else(|| {
-            MlError::ModelLoadFailed("default embedding model lock entry missing".to_string())
-                .into()
+            MlError::ModelLoadFailed(DEFAULT_EMBEDDING_MODEL_LOCK_MISSING.to_string()).into()
         })
     }
 
     pub(crate) fn default_reranker_model_spec() -> Result<ModelSpec> {
         let manifest = load_model_manifest()?;
         manifest.default_reranker().cloned().ok_or_else(|| {
-            MlError::ModelLoadFailed("default reranker model lock entry missing".to_string()).into()
+            MlError::ModelLoadFailed(DEFAULT_RERANKER_MODEL_LOCK_MISSING.to_string()).into()
         })
     }
 

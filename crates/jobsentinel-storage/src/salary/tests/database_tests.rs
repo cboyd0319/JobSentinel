@@ -1,10 +1,6 @@
 use super::*;
 use sqlx::SqlitePool;
 
-async fn create_test_db() -> SqlitePool {
-    crate::test_support::migrated_pool().await
-}
-
 async fn insert_benchmark(
     pool: &SqlitePool,
     title: &str,
@@ -72,7 +68,7 @@ async fn insert_template(pool: &SqlitePool, scenario: &str, text: &str) {
 
 #[tokio::test]
 async fn test_salary_analyzer_new() {
-    let pool = create_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let analyzer = SalaryAnalyzer::new(pool);
     assert_eq!(
         std::mem::size_of_val(&analyzer),
@@ -82,7 +78,7 @@ async fn test_salary_analyzer_new() {
 
 #[tokio::test]
 async fn test_predict_salary_for_job() {
-    let pool = create_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     insert_job(&pool, "job123", "Case Manager", "San Francisco, CA").await;
     insert_benchmark(
         &pool,

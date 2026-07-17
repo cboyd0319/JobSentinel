@@ -1,5 +1,5 @@
 use super::FieldType;
-use crate::automation::AtsPlatform;
+use crate::automation::{has_generic_automation_contract, AtsPlatform};
 use std::collections::HashMap;
 
 fn insert_generic_contact_resume_selectors(selectors: &mut HashMap<FieldType, Vec<&'static str>>) {
@@ -36,6 +36,11 @@ fn insert_generic_contact_resume_selectors(selectors: &mut HashMap<FieldType, Ve
 
 pub(super) fn get_field_selectors(platform: &AtsPlatform) -> HashMap<FieldType, Vec<&'static str>> {
     let mut selectors = HashMap::new();
+
+    if has_generic_automation_contract(platform) {
+        insert_generic_contact_resume_selectors(&mut selectors);
+        return selectors;
+    }
 
     match platform {
         AtsPlatform::Greenhouse => {
@@ -182,29 +187,10 @@ pub(super) fn get_field_selectors(platform: &AtsPlatform) -> HashMap<FieldType, 
         | AtsPlatform::BambooHr
         | AtsPlatform::SmartRecruiters
         | AtsPlatform::Workable
-        | AtsPlatform::Recruitee
-        | AtsPlatform::BreezyHr
-        | AtsPlatform::JazzHr
-        | AtsPlatform::Bullhorn
-        | AtsPlatform::Jobvite
-        | AtsPlatform::Teamtailor
-        | AtsPlatform::SuccessFactors
-        | AtsPlatform::OracleRecruiting
-        | AtsPlatform::Phenom
-        | AtsPlatform::Personio
-        | AtsPlatform::Comeet
-        | AtsPlatform::Jobylon
-        | AtsPlatform::Eightfold
-        | AtsPlatform::AdpRecruiting
-        | AtsPlatform::Ukg
-        | AtsPlatform::Rippling
-        | AtsPlatform::ZohoRecruit
-        | AtsPlatform::Freshteam
-        | AtsPlatform::Pinpoint
-        | AtsPlatform::JobScore => {
+        | AtsPlatform::Recruitee => {
             insert_generic_contact_resume_selectors(&mut selectors);
         }
-        AtsPlatform::Unknown => {}
+        _ => {}
     }
 
     selectors

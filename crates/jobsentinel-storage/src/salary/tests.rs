@@ -4,7 +4,6 @@
 
 use super::analyzer::SalaryAnalyzer;
 use super::types::{OfferComparison, SalaryPrediction, SeniorityLevel};
-use crate::analytics_buckets::{salary_location_bucket, salary_title_bucket};
 use chrono::Utc;
 
 #[test]
@@ -232,116 +231,6 @@ fn test_seniority_from_empty_title() {
 }
 
 #[test]
-fn test_normalize_job_title() {
-    let analyzer = create_test_analyzer();
-
-    // Software Engineer variations
-    assert_eq!(
-        analyzer.normalize_job_title("Senior Software Engineer"),
-        "software engineer"
-    );
-    assert_eq!(analyzer.normalize_job_title("Sr. SWE"), "software engineer");
-    assert_eq!(
-        analyzer.normalize_job_title("Staff SWE - Backend"),
-        "software engineer"
-    );
-
-    // Data Scientist
-    assert_eq!(
-        analyzer.normalize_job_title("Senior Data Scientist"),
-        "data scientist"
-    );
-    assert_eq!(
-        analyzer.normalize_job_title("Data Scientist II"),
-        "data scientist"
-    );
-
-    // Product Manager
-    assert_eq!(
-        analyzer.normalize_job_title("Senior Product Manager"),
-        "product manager"
-    );
-    assert_eq!(
-        analyzer.normalize_job_title("Technical Product Manager"),
-        "product manager"
-    );
-
-    // Other titles remain normalized
-    assert_eq!(
-        analyzer.normalize_job_title("Care Coordinator"),
-        "care coordinator"
-    );
-}
-
-#[test]
-fn test_normalize_job_title_removes_variations() {
-    let analyzer = create_test_analyzer();
-
-    assert_eq!(
-        analyzer.normalize_job_title("Sr. Software Engineer"),
-        "software engineer"
-    );
-    assert_eq!(
-        analyzer.normalize_job_title("Jr. Care Coordinator"),
-        "junior care coordinator"
-    );
-}
-
-#[test]
-fn test_normalize_job_title_handles_double_spaces() {
-    let analyzer = create_test_analyzer();
-
-    assert_eq!(
-        analyzer.normalize_job_title("Care  Coordinator"),
-        "care coordinator"
-    );
-}
-
-#[test]
-fn test_normalize_location() {
-    let analyzer = create_test_analyzer();
-
-    // San Francisco variants
-    assert_eq!(
-        analyzer.normalize_location("San Francisco, CA"),
-        "san francisco, ca"
-    );
-    assert_eq!(
-        analyzer.normalize_location("San Francisco Bay Area"),
-        "san francisco, ca"
-    );
-    assert_eq!(analyzer.normalize_location("SF, CA"), "san francisco, ca");
-
-    // New York variants
-    assert_eq!(analyzer.normalize_location("New York, NY"), "new york, ny");
-    assert_eq!(analyzer.normalize_location("New York City"), "new york, ny");
-    assert_eq!(analyzer.normalize_location("NYC"), "new york, ny");
-
-    // Seattle
-    assert_eq!(analyzer.normalize_location("Seattle, WA"), "seattle, wa");
-    assert_eq!(
-        analyzer.normalize_location("Seattle Metropolitan Area"),
-        "seattle, wa"
-    );
-
-    // Austin
-    assert_eq!(analyzer.normalize_location("Austin, TX"), "austin, tx");
-    assert_eq!(
-        analyzer.normalize_location("Austin-Round Rock"),
-        "austin, tx"
-    );
-
-    // Other locations remain lowercased
-    assert_eq!(analyzer.normalize_location("Denver, CO"), "denver, co");
-}
-
-#[test]
-fn test_normalize_location_empty() {
-    let analyzer = create_test_analyzer();
-    assert_eq!(analyzer.normalize_location(""), "");
-}
-
-#[test]
 fn test_offer_comparison_market_position_logic() {
     let base_salary = 160000i64;
     let predicted_median = 150000i64;
@@ -417,24 +306,6 @@ fn test_offer_comparison_recommendation_logic() {
         _ => "Unknown".to_string(),
     };
     assert_eq!(rec, "Below market. Counter with $150000-$180000.");
-}
-
-// Helper to create test analyzer (without DB)
-fn create_test_analyzer() -> TestAnalyzer {
-    TestAnalyzer
-}
-
-// Test struct that implements only the pure functions
-struct TestAnalyzer;
-
-impl TestAnalyzer {
-    fn normalize_job_title(&self, title: &str) -> String {
-        salary_title_bucket(title)
-    }
-
-    fn normalize_location(&self, location: &str) -> String {
-        salary_location_bucket(location)
-    }
 }
 
 mod database_tests;

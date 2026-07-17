@@ -2,8 +2,7 @@ use super::*;
 
 #[tokio::test]
 async fn insert_job_if_new_does_not_mutate_an_existing_job() {
-    let db = Database::connect_memory().await.unwrap();
-    db.migrate().await.unwrap();
+    let db = crate::test_support::migrated_database().await;
 
     let original = create_test_job("insert-once", "Original title", 0.9);
     let first_id = db

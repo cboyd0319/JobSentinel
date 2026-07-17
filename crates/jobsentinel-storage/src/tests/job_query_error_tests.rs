@@ -5,8 +5,7 @@ mod query_error_tests {
 
     #[tokio::test]
     async fn test_get_jobs_by_score_with_zero_limit() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         let job = create_test_job("score_limit", "Test Job", 0.9);
         db.upsert_job(&job).await.unwrap();
@@ -17,8 +16,7 @@ mod query_error_tests {
 
     #[tokio::test]
     async fn test_get_jobs_by_source_empty_results() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         let job = create_test_job("source_test", "Test Job", 0.9);
         db.upsert_job(&job).await.unwrap();
@@ -33,8 +31,7 @@ mod query_error_tests {
 
     #[tokio::test]
     async fn test_get_job_by_hash_not_found() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         let result = db.get_job_by_hash("nonexistent_hash").await.unwrap();
         assert!(result.is_none());
@@ -42,8 +39,7 @@ mod query_error_tests {
 
     #[tokio::test]
     async fn test_mark_alert_sent_nonexistent_job() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         // Should succeed (SQL UPDATE with no matches is not an error)
         let result = db.mark_alert_sent(999999).await;
@@ -52,8 +48,7 @@ mod query_error_tests {
 
     #[tokio::test]
     async fn test_hide_job_nonexistent() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         // Should succeed (UPDATE with no matches)
         let result = db.hide_job(999999).await;
@@ -62,8 +57,7 @@ mod query_error_tests {
 
     #[tokio::test]
     async fn test_unhide_job_nonexistent() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         // Should succeed (UPDATE with no matches)
         let result = db.unhide_job(999999).await;
@@ -72,8 +66,7 @@ mod query_error_tests {
 
     #[tokio::test]
     async fn test_set_bookmark_nonexistent() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         // Should succeed (UPDATE with no matches)
         let result = db.set_bookmark(999999, true).await;
@@ -82,8 +75,7 @@ mod query_error_tests {
 
     #[tokio::test]
     async fn test_set_job_notes_nonexistent() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         // Should succeed (UPDATE with no matches)
         let result = db.set_job_notes(999999, Some("Notes")).await;

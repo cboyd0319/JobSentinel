@@ -8,7 +8,7 @@
 
 use super::error::ScraperError;
 use super::rate_limiter::RateLimiter;
-use super::{JobScraper, ScraperResult, BROWSER_USER_AGENT};
+use super::{has_bot_protection_marker, JobScraper, ScraperResult, BROWSER_USER_AGENT};
 use jobsentinel_domain::Job;
 #[cfg(test)]
 use jobsentinel_network::send_test_http_text_with_retry;
@@ -139,20 +139,7 @@ impl GlassdoorScraper {
     }
 
     fn is_bot_protection_page(body: &str) -> bool {
-        let body_lower = body.to_ascii_lowercase();
-        [
-            "cf-browser-verification",
-            "checking your browser",
-            "cf_chl_opt",
-            "verify you are human",
-            "access to this page has been denied",
-            "attention required",
-            "enable javascript and cookies to continue",
-            "unusual traffic",
-            "captcha",
-        ]
-        .iter()
-        .any(|marker| body_lower.contains(marker))
+        has_bot_protection_marker(body, &["cf_chl_opt", "attention required"])
     }
 
     /// Parse HTML response and extract job data

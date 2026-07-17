@@ -2,24 +2,16 @@
 
 use super::tracker::ApplicationTracker;
 use super::types::*;
-use crate::Database as Db;
 use chrono::{Duration, Utc};
-use sqlx::{Row, SqlitePool};
+use sqlx::Row;
 
 // ========================================
 // Database integration tests
 // ========================================
 
-async fn create_test_db() -> SqlitePool {
-    // Use in-memory database with migrations
-    let db = Db::connect_memory().await.unwrap();
-    db.migrate().await.unwrap();
-    db.pool().clone()
-}
-
 #[tokio::test]
 async fn test_create_application() {
-    let pool = create_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
 
     // Insert test job
     sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test123', 'Case Manager', 'CommunityCare', 'http://test.com', 'test')")
@@ -39,7 +31,7 @@ async fn test_create_application() {
 
 #[tokio::test]
 async fn test_update_status() {
-    let pool = create_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
 
     sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test123', 'Case Manager', 'CommunityCare', 'http://test.com', 'test')")
         .execute(&pool)
@@ -62,7 +54,7 @@ async fn test_update_status() {
 
 #[tokio::test]
 async fn test_kanban_board() {
-    let pool = create_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
 
     sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('job1', 'Case Manager', 'CommunityCare', 'http://test.com', 'test')")
         .execute(&pool)
@@ -96,7 +88,7 @@ async fn test_kanban_board() {
 
 #[tokio::test]
 async fn test_auto_reminders() {
-    let pool = create_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
 
     sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test123', 'Case Manager', 'CommunityCare', 'http://test.com', 'test')")
         .execute(&pool)
@@ -185,7 +177,7 @@ fn test_interview_type_from_str() {
 
 #[tokio::test]
 async fn test_update_last_contact() {
-    let pool = create_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
 
     sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test123', 'Case Manager', 'CommunityCare', 'http://test.com', 'test')")
         .execute(&pool)
@@ -207,7 +199,7 @@ async fn test_update_last_contact() {
 
 #[tokio::test]
 async fn test_add_notes() {
-    let pool = create_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
 
     sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test123', 'Case Manager', 'CommunityCare', 'http://test.com', 'test')")
         .execute(&pool)
@@ -244,7 +236,7 @@ async fn test_add_notes() {
 
 #[tokio::test]
 async fn test_add_notes_overwrites_existing() {
-    let pool = create_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
 
     sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test123', 'Case Manager', 'CommunityCare', 'http://test.com', 'test')")
         .execute(&pool)
@@ -267,7 +259,7 @@ async fn test_add_notes_overwrites_existing() {
 
 #[tokio::test]
 async fn test_set_reminder() {
-    let pool = create_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
 
     sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test123', 'Case Manager', 'CommunityCare', 'http://test.com', 'test')")
         .execute(&pool)
@@ -299,7 +291,7 @@ async fn test_set_reminder() {
 
 #[tokio::test]
 async fn test_get_pending_reminders() {
-    let pool = create_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
 
     sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test123', 'Case Manager', 'CommunityCare', 'http://test.com', 'test')")
         .execute(&pool)
@@ -330,7 +322,7 @@ async fn test_get_pending_reminders() {
 
 #[tokio::test]
 async fn test_complete_reminder() {
-    let pool = create_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
 
     sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test123', 'Case Manager', 'CommunityCare', 'http://test.com', 'test')")
         .execute(&pool)

@@ -65,27 +65,6 @@ fn test_remote_unwrap_or_false_logic() {
 }
 
 #[test]
-fn test_salary_all_combinations() {
-    let cases = vec![
-        (Some(100000), Some(150000), "$100,000 - $150,000"),
-        (Some(100000), None, "$100,000+"),
-        (None, Some(150000), "Not specified"),
-        (None, None, "Not specified"),
-    ];
-
-    for (min, max, expected) in cases {
-        let display = if let (Some(min_val), Some(max_val)) = (min, max) {
-            format!("${},000 - ${},000", min_val / 1000, max_val / 1000)
-        } else if let Some(min_val) = min {
-            format!("${},000+", min_val / 1000)
-        } else {
-            "Not specified".to_string()
-        };
-        assert_eq!(display, expected);
-    }
-}
-
-#[test]
 fn test_message_card_summary_with_special_characters() {
     let mut notification = notification_fixture();
     notification.job.title = "Care Coordinator (Bilingual/Weekend)".to_string();
@@ -316,25 +295,6 @@ fn test_webhook_validation_empty_path_after_webhook() {
         result.is_ok(),
         "URL with /webhook/ and trailing slash should pass"
     );
-}
-
-#[test]
-fn test_salary_zero_values() {
-    let cases = vec![
-        (Some(0), Some(0), "$0,000 - $0,000"),
-        (Some(0), None, "$0,000+"),
-    ];
-
-    for (min, max, expected) in cases {
-        let display = if let (Some(min_val), Some(max_val)) = (min, max) {
-            format!("${},000 - ${},000", min_val / 1000, max_val / 1000)
-        } else if let Some(min_val) = min {
-            format!("${},000+", min_val / 1000)
-        } else {
-            "Not specified".to_string()
-        };
-        assert_eq!(display, expected);
-    }
 }
 
 #[test]

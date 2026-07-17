@@ -24,14 +24,14 @@ crates/jobsentinel-application/ application use cases and orchestration
 crates/jobsentinel-ai/       reviewed external-AI policy and transport
 crates/jobsentinel-assistance/ visible browser assistance and deep links
 crates/jobsentinel-credentials/ credential lifecycle and encrypted vault
-crates/jobsentinel-documents/ resume parsing, analysis, and rendering
+crates/jobsentinel-documents/ canonical resume model, parsing, analysis, and rendering
 crates/jobsentinel-domain/   serialized business values and normalization
 crates/jobsentinel-intelligence/ pure scoring and posting-quality analysis
 crates/jobsentinel-local-ai/ optional governed local model runtime and model lock
 crates/jobsentinel-network/  outbound target and bounded-body policy
 crates/jobsentinel-notifications/ explicit alert-channel delivery
 crates/jobsentinel-platform/ OS paths, file permissions, and device keys
-crates/jobsentinel-security/ redaction and untrusted-input policy
+crates/jobsentinel-security/ redaction, untrusted-input, and prompt-injection policy
 crates/jobsentinel-sources/  job-page parsing and explicit-user lookups
 crates/jobsentinel-storage/  SQLCipher, migrations, backup, and repositories
 scripts/                     repository-owned tooling
@@ -56,14 +56,14 @@ contracts, launchers, and unavoidable tool configuration.
 | External AI | `crates/jobsentinel-ai/Cargo.toml` | `crates/jobsentinel-ai/src/lib.rs` | reviewed provider-neutral requests and bounded transport |
 | Assistance | `crates/jobsentinel-assistance/Cargo.toml` | `crates/jobsentinel-assistance/src/lib.rs` | visible browser preparation, bookmarklet, and deep links |
 | Credentials | `crates/jobsentinel-credentials/Cargo.toml` | `crates/jobsentinel-credentials/src/lib.rs` | validation, encrypted vault, and secret lifecycle |
-| Documents | `crates/jobsentinel-documents/Cargo.toml` | `crates/jobsentinel-documents/src/lib.rs` | resume parsing, analysis, templates, and export |
+| Documents | `crates/jobsentinel-documents/Cargo.toml` | `crates/jobsentinel-documents/src/lib.rs` | canonical structured resume, parsing, analysis, templates, and export |
 | Domain | `crates/jobsentinel-domain/Cargo.toml` | `crates/jobsentinel-domain/src/lib.rs` | job values, hashes, and normalization |
 | Intelligence | `crates/jobsentinel-intelligence/Cargo.toml` | `crates/jobsentinel-intelligence/src/lib.rs` | pure posting-quality rules |
 | Local AI | `crates/jobsentinel-local-ai/Cargo.toml` | `crates/jobsentinel-local-ai/src/lib.rs` | optional governed model loading and inference |
 | Network | `crates/jobsentinel-network/Cargo.toml` | `crates/jobsentinel-network/src/lib.rs` | DNS-safe outbound targets and bounded response bodies |
 | Notifications | `crates/jobsentinel-notifications/Cargo.toml` | `crates/jobsentinel-notifications/src/lib.rs` | approved email and webhook delivery |
 | Platform | `crates/jobsentinel-platform/Cargo.toml` | `crates/jobsentinel-platform/src/lib.rs` | native paths, private file policy, and database-key retrieval |
-| Security | `crates/jobsentinel-security/Cargo.toml` | `crates/jobsentinel-security/src/lib.rs` | redaction and external URL policy |
+| Security | `crates/jobsentinel-security/Cargo.toml` | `crates/jobsentinel-security/src/lib.rs` | redaction, external URL, and untrusted prompt-injection policy |
 | Sources | `crates/jobsentinel-sources/Cargo.toml` | `crates/jobsentinel-sources/src/lib.rs` | Schema.org parsing and explicit-user external lookups |
 | Storage | `crates/jobsentinel-storage/Cargo.toml` | `crates/jobsentinel-storage/src/lib.rs` | SQLCipher connection, migrations, integrity, backup, and job repositories |
 | Repository tooling | `package.json` | named `package.json` scripts | checks, setup, release, and verification |

@@ -6,6 +6,7 @@
 //! the system instructions or credentials.
 
 use jobsentinel_domain::{ExternalAiConfig, ExternalAiProvider};
+use jobsentinel_security::contains_prompt_injection_phrase;
 use provider::{send_provider_request, ProviderRequest};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -19,6 +20,17 @@ const LABEL_PUBLIC_DATA_ONLY: &str = "Public-data only";
 const LABEL_EXTERNAL_AI_REQUIRED: &str = "External AI required";
 const LABEL_SENSITIVE: &str = "Sensitive";
 const MAX_PUBLIC_PAYLOAD_BYTES: usize = 24 * 1024;
+const PUBLIC_JOB_DETAILS_ONLY_MESSAGE: &str =
+    "This feature can send only public job-posting details.";
+const REVIEWED_DETAILS_PREPARATION_FAILED_MESSAGE: &str = "Reviewed details could not be prepared.";
+
+/// User-facing message when no outside-AI provider has been selected.
+pub const CHOOSE_EXTERNAL_AI_PROVIDER_MESSAGE: &str =
+    "Choose the outside AI service before sending anything.";
+
+/// User-facing message when a custom provider has no endpoint.
+pub const CUSTOM_EXTERNAL_AI_ENDPOINT_REQUIRED_MESSAGE: &str =
+    "Add a custom HTTPS endpoint in Settings first.";
 
 const ALLOWED_PUBLIC_PAYLOAD_KEYS: &[&str] = &[
     "ats",
@@ -53,18 +65,6 @@ const ALLOWED_PUBLIC_PAYLOAD_KEYS: &[&str] = &[
 ];
 
 const PUBLIC_DATA_CATEGORIES: &[&str] = &["job_posting", "public_metadata"];
-const PROMPT_LIKE_PHRASES: &[&str] = &[
-    "ignore previous instructions",
-    "ignore all previous instructions",
-    "disregard previous instructions",
-    "override instructions",
-    "system prompt",
-    "developer message",
-    "prompt injection",
-    "ignore the job description",
-    "do not follow the job description",
-    "for ai screeners",
-];
 const HIDDEN_TEXT_MARKERS: &[&str] = &[
     "display:none",
     "display: none",
@@ -148,7 +148,7 @@ fn validate_external_ai_config(
         return Err("Outside AI is off. Turn it on in Settings first.".to_string());
     }
     if provider == ExternalAiProvider::None {
-        return Err("Choose the outside AI service before sending anything.".to_string());
+        return Err(CHOOSE_EXTERNAL_AI_PROVIDER_MESSAGE.to_string());
     }
     if !config.enabled_providers.contains(&provider) {
         return Err("This outside AI provider is not enabled in Settings.".to_string());
@@ -160,7 +160,7 @@ fn validate_external_ai_config(
         return Err("Review details redaction must stay on for outside AI.".to_string());
     }
     if provider == ExternalAiProvider::Custom && config.custom_endpoint.trim().is_empty() {
-        return Err("Add a custom HTTPS endpoint in Settings first.".to_string());
+        return Err(CUSTOM_EXTERNAL_AI_ENDPOINT_REQUIRED_MESSAGE.to_string());
     }
     if provider == ExternalAiProvider::Custom {
         jobsentinel_security::validate_external_https_url(config.custom_endpoint.trim())
@@ -180,7 +180,7 @@ fn validate_review_state(
         return Err("Approve sending these details before continuing.".to_string());
     }
     if request.explicitly_included_sensitive_data {
-        return Err("This feature can send only public job-posting details.".to_string());
+        return Err(PUBLIC_JOB_DETAILS_ONLY_MESSAGE.to_string());
     }
     Ok(())
 }
@@ -198,12 +198,12 @@ fn validate_public_job_summary_request(request: &ExternalAiCommandRequest) -> Re
         return Err("Outside AI job summaries require reviewed public details.".to_string());
     }
     if labels.contains(LABEL_EXTERNAL_AI_REQUIRED) || labels.contains(LABEL_SENSITIVE) {
-        return Err("This feature can send only public job-posting details.".to_string());
+        return Err(PUBLIC_JOB_DETAILS_ONLY_MESSAGE.to_string());
     }
 
     for category in &request.data_categories {
         if !PUBLIC_DATA_CATEGORIES.contains(&category.as_str()) {
-            return Err("This feature can send only public job-posting details.".to_string());
+            return Err(PUBLIC_JOB_DETAILS_ONLY_MESSAGE.to_string());
         }
     }
 
@@ -216,7 +216,7 @@ fn validate_public_payload(payload: &Value) -> Result<String, String> {
     }
 
     let bytes = serde_json::to_vec(payload)
-        .map_err(|_| "Reviewed details could not be prepared.".to_string())?;
+        .map_err(|_| REVIEWED_DETAILS_PREPARATION_FAILED_MESSAGE.to_string())?;
     if bytes.len() > MAX_PUBLIC_PAYLOAD_BYTES {
         return Err("Reviewed details are too large for this outside AI feature.".to_string());
     }
@@ -235,7 +235,7 @@ fn validate_public_payload(payload: &Value) -> Result<String, String> {
     }
 
     serde_json::to_string_pretty(payload)
-        .map_err(|_| "Reviewed details could not be prepared.".to_string())
+        .map_err(|_| REVIEWED_DETAILS_PREPARATION_FAILED_MESSAGE.to_string())
 }
 
 fn collect_unclassified_payload_keys(value: &Value, unclassified: &mut BTreeSet<String>) {
@@ -267,14 +267,13 @@ fn value_has_prompt_like_content(value: &Value) -> bool {
 }
 
 fn text_has_prompt_like_content(text: &str) -> bool {
-    if text.chars().any(is_zero_width_character) {
+    if text.chars().any(is_zero_width_character) || contains_prompt_injection_phrase(text) {
         return true;
     }
 
     let normalized = text.to_lowercase().replace(['\n', '\r', '\t'], " ");
-    PROMPT_LIKE_PHRASES
+    HIDDEN_TEXT_MARKERS
         .iter()
-        .chain(HIDDEN_TEXT_MARKERS.iter())
         .any(|phrase| normalized.contains(phrase))
 }
 

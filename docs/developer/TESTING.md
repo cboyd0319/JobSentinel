@@ -103,6 +103,12 @@ module files easier to maintain under the current
 [harness file-size policy](../harness/README.md), enforced by
 `scripts/harness/contracts/file-size.json` through `npm run lint:bloat`.
 
+Repeated Rust setup belongs to a crate-local `test_support` owner. Keep
+scenario-specific mutations and assertions in each test, and use production
+migrations for database tests unless deliberate schema isolation is the subject
+under test. Cross-crate fixtures must be exposed only through an explicit
+`test-support` feature.
+
 ### Test Coverage Map
 
 Test counts change as features move. Use fresh command output as source of truth.

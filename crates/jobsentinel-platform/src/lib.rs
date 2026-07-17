@@ -39,7 +39,7 @@ mod secure_storage;
 pub use credential_vault_key::{
     credential_vault_key_storage_policy, decode_credential_vault_key, delete_credential_vault_key,
     load_credential_vault_key, store_credential_vault_key, CredentialVaultKeyBackend,
-    CredentialVaultKeyStoragePolicy,
+    CredentialVaultKeyStoragePolicy, SECURE_STORAGE_UNAVAILABLE_MESSAGE,
 };
 pub use database_key::{load_or_create_database_key, DatabaseKeyError};
 pub use private_files::write_file_atomic_private;

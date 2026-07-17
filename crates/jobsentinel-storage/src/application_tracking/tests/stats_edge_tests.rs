@@ -6,7 +6,7 @@ use super::*;
 
 #[tokio::test]
 async fn test_application_stats_weekly_data_with_null_week() {
-    let pool = create_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
 
     sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test1', 'Case Manager', 'CommunityCare', 'http://test.com', 'test')")
         .execute(&pool)
@@ -86,7 +86,7 @@ async fn test_application_stats_weekly_data_with_null_week() {
 
 #[tokio::test]
 async fn test_event_logging_via_reminder_set() {
-    let pool = create_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
 
     sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('test123', 'Case Manager', 'CommunityCare', 'http://test.com', 'test')")
         .execute(&pool)

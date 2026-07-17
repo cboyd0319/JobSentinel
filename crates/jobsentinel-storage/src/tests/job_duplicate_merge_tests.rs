@@ -5,8 +5,7 @@ mod duplicate_merge_coverage {
 
     #[tokio::test]
     async fn test_merge_duplicates_hides_all_except_primary() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         // Create 4 duplicate jobs
         let mut jobs = vec![];
@@ -36,8 +35,7 @@ mod duplicate_merge_coverage {
 
     #[tokio::test]
     async fn test_find_duplicate_groups_min_two_duplicates() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         // Single job - no group
         let mut job1 = create_test_job("single", "Unique Job", 0.9);

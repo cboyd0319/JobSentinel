@@ -254,28 +254,6 @@ fn test_text_email_url_appears() {
 }
 
 #[test]
-fn test_salary_formatting_edge_cases() {
-    // Test varied salary values.
-    let test_cases = vec![
-        (Some(100000), Some(150000), "$100,000 - $150,000"),
-        (Some(250000), Some(300000), "$250,000 - $300,000"),
-        (Some(75000), None, "$75,000+"),
-    ];
-
-    for (min, max, expected) in test_cases {
-        let salary_display = if let (Some(min_val), Some(max_val)) = (min, max) {
-            format!("${},000 - ${},000", min_val / 1000, max_val / 1000)
-        } else if let Some(min_val) = min {
-            format!("${},000+", min_val / 1000)
-        } else {
-            "Not specified".to_string()
-        };
-
-        assert_eq!(salary_display, expected);
-    }
-}
-
-#[test]
 fn test_html_email_with_special_characters() {
     let mut notification = notification_fixture();
     notification.job.title = "Care Coordinator & Intake Lead".to_string();

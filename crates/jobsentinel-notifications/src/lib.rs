@@ -87,12 +87,20 @@ mod tests {
     }
 
     #[test]
-    fn salary_range_covers_range_minimum_and_missing_values() {
-        assert_eq!(
-            format_salary_range(Some(180_000), Some(220_000)),
-            "$180,000 - $220,000"
-        );
-        assert_eq!(format_salary_range(Some(180_000), None), "$180,000+");
-        assert_eq!(format_salary_range(None, None), "Not specified");
+    fn salary_range_covers_boundaries_and_missing_values() {
+        let cases = [
+            (Some(180_000), Some(220_000), "$180,000 - $220,000"),
+            (Some(180_000), None, "$180,000+"),
+            (None, Some(220_000), "Not specified"),
+            (None, None, "Not specified"),
+            (Some(0), Some(0), "$0,000 - $0,000"),
+            (Some(0), None, "$0,000+"),
+            (Some(1_000), Some(2_000), "$1,000 - $2,000"),
+            (Some(999_000), Some(1_000_000), "$999,000 - $1000,000"),
+        ];
+
+        for (min, max, expected) in cases {
+            assert_eq!(format_salary_range(min, max), expected);
+        }
     }
 }

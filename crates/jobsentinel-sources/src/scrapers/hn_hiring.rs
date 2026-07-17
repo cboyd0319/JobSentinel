@@ -6,7 +6,10 @@
 
 use super::error::ScraperError;
 use super::rate_limiter::RateLimiter;
-use super::{JobScraper, ScraperResult, JOBSENTINEL_USER_AGENT};
+use super::{
+    decode_common_html_entities, strip_html_markup, JobScraper, ScraperResult,
+    JOBSENTINEL_USER_AGENT,
+};
 use jobsentinel_domain::normalization::infer_remote_status;
 use jobsentinel_domain::Job;
 use jobsentinel_network::{send_external_http_text_with_retry, ExternalHttpRequest};
@@ -193,32 +196,17 @@ impl HnHiringScraper {
 
     /// Strip HTML tags from text
     fn strip_html(html: &str) -> String {
-        let mut result = String::new();
-        let mut in_tag = false;
-
         // Replace common HTML entities and tags
-        let processed = html
-            .replace("<p>", "\n\n")
-            .replace("</p>", "")
-            .replace("<br>", "\n")
-            .replace("<br/>", "\n")
-            .replace("<br />", "\n")
-            .replace("&amp;", "&")
-            .replace("&lt;", "<")
-            .replace("&gt;", ">")
-            .replace("&quot;", "\"")
-            .replace("&#x27;", "'")
-            .replace("&#39;", "'")
-            .replace("&nbsp;", " ");
-
-        for ch in processed.chars() {
-            match ch {
-                '<' => in_tag = true,
-                '>' => in_tag = false,
-                _ if !in_tag => result.push(ch),
-                _ => {}
-            }
-        }
+        let processed = decode_common_html_entities(
+            &html
+                .replace("<p>", "\n\n")
+                .replace("</p>", "")
+                .replace("<br>", "\n")
+                .replace("<br/>", "\n")
+                .replace("<br />", "\n")
+                .replace("&#x27;", "'"),
+        );
+        let result = strip_html_markup(&processed);
 
         // Clean up whitespace
         result

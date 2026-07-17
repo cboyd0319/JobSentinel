@@ -5,8 +5,7 @@ mod get_jobs_by_functions {
 
     #[tokio::test]
     async fn test_get_jobs_by_score_boundary() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         // Job exactly at threshold
         let job1 = create_test_job("exact", "Exact Match", 0.8);
@@ -28,8 +27,7 @@ mod get_jobs_by_functions {
 
     #[tokio::test]
     async fn test_get_jobs_by_source_case_sensitive() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         let mut job = create_test_job("source_case", "Test Job", 0.9);
         job.source = "LinkedIn".to_string();
@@ -46,8 +44,7 @@ mod get_jobs_by_functions {
 
     #[tokio::test]
     async fn test_get_recent_jobs_ordered_by_score_then_date() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         // Insert jobs with same score but different times
         let job1 = create_test_job("recent1", "Old Job", 0.9);

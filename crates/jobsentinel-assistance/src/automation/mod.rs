@@ -17,3 +17,29 @@ pub use jobsentinel_domain::{
     screening_question_matches, ApplicationAttempt, ApplicationProfile, ApplicationProfileInput,
     AtsPlatform, AutomationStats, AutomationStatus, ScreeningAnswer,
 };
+
+pub(super) const GENERIC_AUTOMATION_PLATFORMS: &[AtsPlatform] = &[
+    AtsPlatform::BreezyHr,
+    AtsPlatform::JazzHr,
+    AtsPlatform::Bullhorn,
+    AtsPlatform::Jobvite,
+    AtsPlatform::Teamtailor,
+    AtsPlatform::SuccessFactors,
+    AtsPlatform::OracleRecruiting,
+    AtsPlatform::Phenom,
+    AtsPlatform::Personio,
+    AtsPlatform::Comeet,
+    AtsPlatform::Jobylon,
+    AtsPlatform::Eightfold,
+    AtsPlatform::AdpRecruiting,
+    AtsPlatform::Ukg,
+    AtsPlatform::Rippling,
+    AtsPlatform::ZohoRecruit,
+    AtsPlatform::Freshteam,
+    AtsPlatform::Pinpoint,
+    AtsPlatform::JobScore,
+];
+
+pub(super) fn has_generic_automation_contract(platform: &AtsPlatform) -> bool {
+    GENERIC_AUTOMATION_PLATFORMS.contains(platform)
+}

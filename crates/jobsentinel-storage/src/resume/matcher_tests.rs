@@ -3,10 +3,6 @@ use super::*;
 #[path = "matcher_tests/edge_case_tests.rs"]
 mod edge_case_tests;
 
-async fn setup_test_db() -> SqlitePool {
-    crate::test_support::migrated_pool().await
-}
-
 async fn create_test_job(pool: &SqlitePool, job_hash: &str) {
     sqlx::query(
         r#"
@@ -65,7 +61,7 @@ async fn create_test_resume_with_skills(pool: &SqlitePool) -> i64 {
 
 #[tokio::test]
 async fn test_extract_job_skills() {
-    let pool = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let matcher = JobMatcher::new(pool.clone());
 
     let job_hash = "test_job_123";
@@ -79,7 +75,7 @@ async fn test_extract_job_skills() {
 
 #[tokio::test]
 async fn test_calculate_match() {
-    let pool = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let matcher = JobMatcher::new(pool.clone());
 
     let job_hash = "test_job_456";
@@ -119,7 +115,7 @@ async fn test_gap_analysis() {
 
 #[tokio::test]
 async fn test_match_score_calculation() {
-    let pool = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let matcher = JobMatcher::new(pool.clone());
 
     let job_hash = "test_job_789";
@@ -154,7 +150,7 @@ async fn test_match_score_calculation() {
 
 #[tokio::test]
 async fn test_calculate_match_no_job_skills() {
-    let pool = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let matcher = JobMatcher::new(pool.clone());
 
     let job_hash = "test_job_no_skills";
@@ -178,7 +174,7 @@ async fn test_calculate_match_no_job_skills() {
 
 #[tokio::test]
 async fn test_calculate_match_no_user_skills() {
-    let pool = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let matcher = JobMatcher::new(pool.clone());
 
     let job_hash = "test_job_user_no_skills";
@@ -293,7 +289,7 @@ async fn test_gap_analysis_empty_skills() {
 
 #[tokio::test]
 async fn test_get_job_missing() {
-    let pool = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let matcher = JobMatcher::new(pool.clone());
 
     let result = matcher.get_job("nonexistent_job").await;
@@ -302,7 +298,7 @@ async fn test_get_job_missing() {
 
 #[tokio::test]
 async fn test_get_user_skills_empty() {
-    let pool = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let matcher = JobMatcher::new(pool.clone());
 
     // Create resume without skills
@@ -320,7 +316,7 @@ async fn test_get_user_skills_empty() {
 
 #[tokio::test]
 async fn test_get_job_skills_empty() {
-    let pool = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let matcher = JobMatcher::new(pool.clone());
 
     let job_hash = "job_no_skills";
@@ -355,7 +351,7 @@ async fn test_education_detection_keeps_degree_requirement() {
 
 #[tokio::test]
 async fn test_calculate_match_errors_when_education_lookup_fails() {
-    let pool = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let matcher = JobMatcher::new(pool.clone());
 
     let job_hash = "job_requires_degree";
@@ -383,7 +379,7 @@ async fn test_calculate_match_errors_when_education_lookup_fails() {
 
 #[tokio::test]
 async fn test_extract_job_skills_duplicate_prevention() {
-    let pool = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let matcher = JobMatcher::new(pool.clone());
 
     let job_hash = "test_job_duplicates";

@@ -6,7 +6,7 @@ use crate::{
 use anyhow::Result;
 use jobsentinel_network::{
     send_external_http_text_with_retry, ExternalFetchError, ExternalHttpRequest,
-    ExternalTextResponse,
+    ExternalTextResponse, MINIMAL_BROWSER_USER_AGENT, MINIMAL_WEBKIT_USER_AGENT,
 };
 
 async fn smoke_request(
@@ -78,8 +78,7 @@ pub(super) async fn test_indeed() -> Result<serde_json::Value> {
     let url = "https://www.indeed.com/jobs?q=customer+support&l=remote";
     let response = require_success(
         smoke_request(
-            ExternalHttpRequest::get(url)
-                .user_agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"),
+            ExternalHttpRequest::get(url).user_agent(MINIMAL_BROWSER_USER_AGENT),
             "Indeed smoke test request failed",
         )
         .await?,
@@ -120,8 +119,7 @@ pub(super) async fn test_wellfound() -> Result<serde_json::Value> {
     let url = "https://wellfound.com/role/software-engineer";
     let response = require_success(
         smoke_request(
-            ExternalHttpRequest::get(url)
-                .user_agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"),
+            ExternalHttpRequest::get(url).user_agent(MINIMAL_BROWSER_USER_AGENT),
             "Wellfound smoke test request failed",
         )
         .await?,
@@ -159,8 +157,7 @@ pub(super) async fn test_builtin() -> Result<serde_json::Value> {
     let url = "https://builtin.com/jobs/remote/dev-engineering";
     let response = require_success(
         smoke_request(
-            ExternalHttpRequest::get(url)
-                .user_agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"),
+            ExternalHttpRequest::get(url).user_agent(MINIMAL_BROWSER_USER_AGENT),
             "Built In smoke test request failed",
         )
         .await?,
@@ -242,8 +239,7 @@ pub(super) async fn test_dice() -> Result<serde_json::Value> {
     let url = "https://www.dice.com/jobs?q=software%20engineer&countryCode=US&radius=30&radiusUnit=mi&page=1&pageSize=20";
     let response = require_success(
         smoke_request(
-            ExternalHttpRequest::get(url)
-                .user_agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"),
+            ExternalHttpRequest::get(url).user_agent(MINIMAL_BROWSER_USER_AGENT),
             "Dice smoke test request failed",
         )
         .await?,
@@ -262,8 +258,7 @@ pub(super) async fn test_yc_startup() -> Result<serde_json::Value> {
     let url = "https://www.ycombinator.com/jobs";
     let response = require_success(
         smoke_request(
-            ExternalHttpRequest::get(url)
-                .user_agent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"),
+            ExternalHttpRequest::get(url).user_agent(MINIMAL_BROWSER_USER_AGENT),
             "YC startup smoke test request failed",
         )
         .await?,
@@ -358,7 +353,7 @@ pub(super) async fn test_simplyhired() -> Result<serde_json::Value> {
     let response = require_success(
         smoke_request(
             ExternalHttpRequest::get(url)
-                .user_agent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36")
+                .user_agent(MINIMAL_WEBKIT_USER_AGENT)
                 .header(
                     "Accept",
                     "application/rss+xml, application/xml, text/xml, */*",
@@ -382,7 +377,7 @@ pub(super) async fn test_glassdoor() -> Result<serde_json::Value> {
     let response = require_success(
         smoke_request(
             ExternalHttpRequest::get(url)
-                .user_agent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36")
+                .user_agent(MINIMAL_WEBKIT_USER_AGENT)
                 .header(
                     "Accept",
                     "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",

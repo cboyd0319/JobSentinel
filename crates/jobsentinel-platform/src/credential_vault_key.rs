@@ -11,9 +11,11 @@ use zeroize::Zeroizing;
 
 const VAULT_KEY_NAME: &str = "jobsentinel_vault_key";
 const MASTER_KEY_LEN: usize = 32;
+pub const SECURE_STORAGE_UNAVAILABLE_MESSAGE: &str =
+    "JobSentinel could not use your device's secure storage. Check system permission prompts, then try again.";
 
 fn secure_storage_error() -> String {
-    "JobSentinel could not use your device's secure storage. Check system permission prompts, then try again.".to_string()
+    SECURE_STORAGE_UNAVAILABLE_MESSAGE.to_string()
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

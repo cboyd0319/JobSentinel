@@ -25,6 +25,17 @@ use thiserror::Error;
 use tokio::net::lookup_host;
 use url::Url;
 
+/// Browser-compatible identity used for full HTML requests.
+pub const FULL_BROWSER_USER_AGENT: &str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
+
+/// Minimal browser-compatible identity used by sources that reject app identities.
+pub const MINIMAL_BROWSER_USER_AGENT: &str =
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36";
+
+/// Minimal WebKit identity retained for feed and search source compatibility.
+pub const MINIMAL_WEBKIT_USER_AGENT: &str =
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36";
+
 /// A validated external URL and the resolved addresses callers must pin.
 #[derive(Clone, Debug)]
 pub struct ResolvedExternalUrl {

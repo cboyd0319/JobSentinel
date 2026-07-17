@@ -2,7 +2,7 @@ use super::*;
 
 #[tokio::test]
 async fn test_case_insensitive_skill_matching() {
-    let pool = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let matcher = JobMatcher::new(pool.clone());
 
     let job_hash = "test_job_case";
@@ -42,7 +42,7 @@ async fn test_case_insensitive_skill_matching() {
 
 #[tokio::test]
 async fn test_get_job_with_null_description() {
-    let pool = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let matcher = JobMatcher::new(pool.clone());
     let job_hash = "test_job_null_desc";
 
@@ -68,7 +68,7 @@ async fn test_get_job_with_null_description() {
 
 #[tokio::test]
 async fn test_user_skills_with_all_optional_fields() {
-    let pool = setup_test_db().await;
+    let pool = crate::test_support::migrated_pool().await;
     let matcher = JobMatcher::new(pool.clone());
 
     let result = sqlx::query("INSERT INTO resumes (name, file_path, is_active) VALUES (?, ?, 1)")

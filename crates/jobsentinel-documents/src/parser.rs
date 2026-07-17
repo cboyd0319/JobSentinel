@@ -17,6 +17,7 @@ use zip::ZipArchive;
 const MIN_TEXT_LENGTH: usize = 100;
 const MAX_RESUME_FILE_BYTES: u64 = 10 * 1024 * 1024;
 const MAX_DOCX_DOCUMENT_XML_BYTES: u64 = 8 * 1024 * 1024;
+const DOCX_TEXT_DECODE_ERROR: &str = "Failed to decode DOCX document text";
 
 /// Resume parser for extracting text from local resume files
 ///
@@ -186,20 +187,14 @@ impl ResumeParser {
                     _ => {}
                 },
                 Event::Text(text) if in_text => {
-                    let decoded = text
-                        .decode()
-                        .context("Failed to decode DOCX document text")?;
-                    let unescaped = unescape(decoded.as_ref())
-                        .context("Failed to decode DOCX document text")?;
+                    let decoded = text.decode().context(DOCX_TEXT_DECODE_ERROR)?;
+                    let unescaped = unescape(decoded.as_ref()).context(DOCX_TEXT_DECODE_ERROR)?;
                     current_paragraph.push_str(&unescaped);
                 }
                 Event::GeneralRef(reference) if in_text => {
-                    let decoded = reference
-                        .decode()
-                        .context("Failed to decode DOCX document text")?;
+                    let decoded = reference.decode().context(DOCX_TEXT_DECODE_ERROR)?;
                     let entity = format!("&{};", decoded);
-                    let unescaped =
-                        unescape(&entity).context("Failed to decode DOCX document text")?;
+                    let unescaped = unescape(&entity).context(DOCX_TEXT_DECODE_ERROR)?;
                     current_paragraph.push_str(&unescaped);
                 }
                 Event::Eof => break,

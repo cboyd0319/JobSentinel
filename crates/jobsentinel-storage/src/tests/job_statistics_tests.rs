@@ -5,8 +5,7 @@ mod statistics_coverage_tests {
 
     #[tokio::test]
     async fn test_get_statistics_with_mixed_jobs() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         // Insert jobs with different attributes
         let mut job1 = create_test_job("stat1", "Job 1", 0.9);
@@ -28,8 +27,7 @@ mod statistics_coverage_tests {
 
     #[tokio::test]
     async fn test_get_statistics_with_high_score_threshold() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         // Insert jobs with scores around 0.9 threshold (high_matches >= 0.9)
         let job1 = create_test_job("high1", "Job 1", 0.95);
@@ -48,8 +46,7 @@ mod statistics_coverage_tests {
 
     #[tokio::test]
     async fn test_get_statistics_includes_all_jobs() {
-        let db = Database::connect_memory().await.unwrap();
-        db.migrate().await.unwrap();
+        let db = crate::test_support::migrated_database().await;
 
         // Insert visible job
         let job1 = create_test_job("visible", "Visible Job", 0.9);
