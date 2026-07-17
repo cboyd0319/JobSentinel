@@ -12,21 +12,8 @@ use anyhow::Result;
 use chrono::Utc;
 use sqlx::Row;
 
+use super::statistics::predicted_salary_summary;
 use super::MarketIntelligence;
-
-/// Compute median from a vector of values (SQLite doesn't have MEDIAN())
-pub(super) fn compute_median(values: &mut [f64]) -> Option<f64> {
-    if values.is_empty() {
-        return None;
-    }
-    values.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
-    let len = values.len();
-    if len.is_multiple_of(2) {
-        Some((values[len / 2 - 1] + values[len / 2]) / 2.0)
-    } else {
-        Some(values[len / 2])
-    }
-}
 
 impl MarketIntelligence {
     /// Compute skill demand trends for today
@@ -96,11 +83,7 @@ impl MarketIntelligence {
             .fetch_all(&self.db)
             .await?;
 
-            let mut salaries: Vec<f64> = salary_rows
-                .iter()
-                .filter_map(|r| r.try_get::<f64, _>("predicted_median").ok())
-                .collect();
-            let median_salary = compute_median(&mut salaries);
+            let median_salary = predicted_salary_summary(&salary_rows).median;
 
             // Insert or update skill demand trend
             sqlx::query(

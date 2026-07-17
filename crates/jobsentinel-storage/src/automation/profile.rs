@@ -2,7 +2,7 @@
 //!
 //! Manages user profile information for candidate-controlled application help.
 
-use crate::application_tracking::parse_sqlite_datetime;
+use crate::sqlite_time::parse_sqlite_datetime;
 use anyhow::Result;
 use jobsentinel_domain::{
     screening_question_matches, ApplicationProfile, ApplicationProfileInput, ScreeningAnswer,

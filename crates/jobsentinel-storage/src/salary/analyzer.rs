@@ -1,7 +1,7 @@
 //! Salary analyzer implementation
 
 use crate::analytics_buckets::{salary_location_bucket, salary_title_bucket};
-use crate::application_tracking::parse_sqlite_datetime;
+use crate::sqlite_time::parse_sqlite_datetime;
 use anyhow::Result;
 use sqlx::{Row, SqlitePool};
 

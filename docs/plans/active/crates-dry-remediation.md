@@ -230,15 +230,15 @@ Commit boundary: `refactor(domain): unify job normalization semantics`.
 
 ### Milestone 4: Consolidate Storage Primitives And Mappers
 
-- [ ] Move SQLite datetime parsing from application-tracking types to a neutral
+- [x] Move SQLite datetime parsing from application-tracking types to a neutral
   private storage module and migrate resume, salary, and tracking callers.
-- [ ] Extract one attempt row mapper, one interview row mapper, one answer
+- [x] Extract one attempt row mapper, one interview row mapper, one answer
   suggestion mapper, and one user-skill query owner where row contracts match.
-- [ ] Share market median and salary aggregation helpers. Keep distinct
+- [x] Share market median and salary aggregation helpers. Keep distinct
   statistical definitions separate and name them accordingly.
-- [ ] Route market alert insertion through one private function with a single
+- [x] Route market alert insertion through one private function with a single
   binding order and error context.
-- [ ] Add null, malformed datetime, empty sample, even and odd median, and row
+- [x] Add null, malformed datetime, empty sample, even and odd median, and row
   conversion tests before deleting copies.
 
 Commit boundary: `refactor(storage): consolidate row and analytics helpers`.
@@ -400,12 +400,13 @@ gap and blocks `passing`.
 | 2026-07-16 | Guarded | Milestone 1 added independent downward-only sensors, measured crate baselines, and recorded pre-refactor behavior. |
 | 2026-07-16 | Secured | Milestone 2 centralized webhook, URL privacy, HTML encoding, provider job identity, and debug secret policy. |
 | 2026-07-16 | Normalized | Milestone 3 centralized work-arrangement inference and separated canonical values from salary and market buckets. |
+| 2026-07-16 | Consolidated | Milestone 4 centralized SQLite time parsing, storage row mapping, user-skill queries, salary statistics, and alert insertion. Production crate duplication fell to 480 lines across 24 regions. |
 
 - [x] Milestone 0: activate the plan safely.
 - [x] Milestone 1: establish guardrails and characterization.
 - [x] Milestone 2: consolidate security and output policies.
 - [x] Milestone 3: separate normalization from analytics bucketing.
-- [ ] Milestone 4: consolidate storage primitives and mappers.
+- [x] Milestone 4: consolidate storage primitives and mappers.
 - [ ] Milestone 5: consolidate job construction and scraper orchestration.
 - [ ] Milestone 6: consolidate document rendering and ATS assembly.
 - [ ] Milestone 7: introduce the canonical resume contract.
@@ -427,6 +428,9 @@ gap and blocks `passing`.
 - The maintained item-range classifier measured 693 production lines across 35
   regions and 2,184 test lines across 79 regions. The prototype was higher by 4
   production lines and 93 test lines across 5 additional test regions.
+- The repeated market salary collector decoded nullable SQLite values directly
+  as `f64`, which admitted a null row into the average. The shared owner now
+  decodes `Option<f64>` explicitly and the null contract prevents regression.
 
 ## Decision Log
 

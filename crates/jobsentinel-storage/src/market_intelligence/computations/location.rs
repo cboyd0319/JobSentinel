@@ -2,9 +2,8 @@ use anyhow::Result;
 use chrono::Utc;
 use sqlx::Row;
 
-use super::compute_median;
 use crate::analytics_buckets::market_location_bucket;
-use crate::market_intelligence::MarketIntelligence;
+use crate::market_intelligence::{statistics::predicted_salary_summary, MarketIntelligence};
 
 impl MarketIntelligence {
     /// Compute location job density
@@ -62,16 +61,9 @@ impl MarketIntelligence {
             .fetch_all(&self.db)
             .await?;
 
-            let mut salaries: Vec<f64> = salary_rows
-                .iter()
-                .filter_map(|r| r.try_get::<f64, _>("predicted_median").ok())
-                .collect();
-            let avg_salary = if salaries.is_empty() {
-                None
-            } else {
-                Some(salaries.iter().sum::<f64>() / salaries.len() as f64)
-            };
-            let median_salary = compute_median(&mut salaries);
+            let salaries = predicted_salary_summary(&salary_rows);
+            let avg_salary = salaries.average;
+            let median_salary = salaries.median;
 
             // Top skill
             let top_skill = sqlx::query_scalar::<_, Option<String>>(

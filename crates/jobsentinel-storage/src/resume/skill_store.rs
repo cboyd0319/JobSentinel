@@ -1,8 +1,38 @@
 use anyhow::Result;
-use sqlx::SqlitePool;
+use sqlx::{Row, SqlitePool};
 
-use super::{types, ResumeMatcher};
+use super::{types, ResumeMatcher, UserSkill};
 use types::NullableFieldUpdate;
+
+pub(super) async fn query_user_skills(db: &SqlitePool, resume_id: i64) -> Result<Vec<UserSkill>> {
+    let rows = sqlx::query(
+        r#"
+        SELECT id, resume_id, skill_name, skill_category, confidence_score,
+               years_experience, proficiency_level, source
+        FROM user_skills
+        WHERE resume_id = ?
+        ORDER BY confidence_score DESC, skill_name ASC
+        "#,
+    )
+    .bind(resume_id)
+    .fetch_all(db)
+    .await?;
+
+    rows.into_iter()
+        .map(|row| {
+            Ok(UserSkill {
+                id: row.try_get("id")?,
+                resume_id: row.try_get("resume_id")?,
+                skill_name: row.try_get("skill_name")?,
+                skill_category: row.try_get("skill_category")?,
+                confidence_score: row.try_get("confidence_score")?,
+                years_experience: row.try_get("years_experience")?,
+                proficiency_level: row.try_get("proficiency_level")?,
+                source: row.try_get("source")?,
+            })
+        })
+        .collect()
+}
 
 impl ResumeMatcher {
     /// Return the normalized skill names stored for a job.
@@ -165,5 +195,41 @@ fn validate_skill_years(value: Option<f64>) -> Result<Option<f64>> {
             anyhow::bail!("Skill years must be between 0 and 50")
         }
         other => Ok(other),
+    }
+}
+
+#[cfg(test)]
+mod query_tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn user_skill_query_preserves_nullable_fields_and_tie_order() {
+        let database = crate::Database::connect_memory().await.unwrap();
+        database.migrate().await.unwrap();
+        let resume_id =
+            sqlx::query("INSERT INTO resumes (name, file_path) VALUES ('Resume', 'resume.txt')")
+                .execute(database.pool())
+                .await
+                .unwrap()
+                .last_insert_rowid();
+        for skill_name in ["Zulu", "Alpha"] {
+            sqlx::query(
+                "INSERT INTO user_skills
+                 (resume_id, skill_name, confidence_score, source)
+                 VALUES (?, ?, 0.8, 'resume')",
+            )
+            .bind(resume_id)
+            .bind(skill_name)
+            .execute(database.pool())
+            .await
+            .unwrap();
+        }
+
+        let skills = query_user_skills(database.pool(), resume_id).await.unwrap();
+
+        assert_eq!(skills[0].skill_name, "Alpha");
+        assert!(skills[0].skill_category.is_none());
+        assert!(skills[0].years_experience.is_none());
+        assert!(skills[0].proficiency_level.is_none());
     }
 }

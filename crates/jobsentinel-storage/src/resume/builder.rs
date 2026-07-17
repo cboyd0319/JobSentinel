@@ -1,3 +1,4 @@
+use crate::sqlite_time::parse_sqlite_datetime;
 use anyhow::{Context, Result};
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
@@ -213,22 +214,10 @@ impl ResumeBuilder {
 
         resume.id = resume_id;
 
-        // Try RFC3339 first, then fall back to SQLite datetime format
-        resume.created_at = DateTime::parse_from_rfc3339(&created_at)
-            .map(|dt| dt.with_timezone(&Utc))
-            .or_else(|_| {
-                chrono::NaiveDateTime::parse_from_str(&created_at, "%Y-%m-%d %H:%M:%S")
-                    .map(|dt| chrono::TimeZone::from_utc_datetime(&Utc, &dt))
-            })
-            .context("Failed to parse created_at")?;
-
-        resume.updated_at = DateTime::parse_from_rfc3339(&updated_at)
-            .map(|dt| dt.with_timezone(&Utc))
-            .or_else(|_| {
-                chrono::NaiveDateTime::parse_from_str(&updated_at, "%Y-%m-%d %H:%M:%S")
-                    .map(|dt| chrono::TimeZone::from_utc_datetime(&Utc, &dt))
-            })
-            .context("Failed to parse updated_at")?;
+        resume.created_at =
+            parse_sqlite_datetime(&created_at).context("Failed to parse created_at")?;
+        resume.updated_at =
+            parse_sqlite_datetime(&updated_at).context("Failed to parse updated_at")?;
 
         Ok(Some(resume))
     }

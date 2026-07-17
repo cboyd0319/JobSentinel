@@ -50,38 +50,7 @@ impl JobMatcher {
 
     /// Get user skills for resume
     pub(super) async fn get_user_skills(&self, resume_id: i64) -> Result<Vec<UserSkill>> {
-        let rows = sqlx::query(
-            r#"
-            SELECT id, resume_id, skill_name, skill_category, confidence_score,
-                   years_experience, proficiency_level, source
-            FROM user_skills
-            WHERE resume_id = ?
-            ORDER BY confidence_score DESC
-            "#,
-        )
-        .bind(resume_id)
-        .fetch_all(&self.db)
-        .await?;
-
-        Ok(rows
-            .into_iter()
-            .map(|r| UserSkill {
-                id: r.try_get::<i64, _>("id").unwrap_or(0),
-                resume_id: r.try_get::<i64, _>("resume_id").unwrap_or(0),
-                skill_name: r.try_get::<String, _>("skill_name").unwrap_or_default(),
-                skill_category: r
-                    .try_get::<Option<String>, _>("skill_category")
-                    .unwrap_or(None),
-                confidence_score: r.try_get::<f64, _>("confidence_score").unwrap_or(0.0),
-                years_experience: r
-                    .try_get::<Option<f64>, _>("years_experience")
-                    .unwrap_or(None),
-                proficiency_level: r
-                    .try_get::<Option<String>, _>("proficiency_level")
-                    .unwrap_or(None),
-                source: r.try_get::<String, _>("source").unwrap_or_default(),
-            })
-            .collect())
+        super::super::skill_store::query_user_skills(&self.db, resume_id).await
     }
 
     /// Get job skills

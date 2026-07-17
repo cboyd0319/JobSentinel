@@ -3,7 +3,7 @@
 use super::tracker::ApplicationTracker;
 use super::types::*;
 use crate::Database as Db;
-use chrono::{Datelike, Duration, Timelike, Utc};
+use chrono::{Duration, Utc};
 use sqlx::{Row, SqlitePool};
 
 // ========================================
@@ -121,42 +121,6 @@ async fn test_auto_reminders() {
 
     assert_eq!(reminders.len(), 1);
     assert_eq!(reminders[0].get::<String, _>("reminder_type"), "follow_up");
-}
-
-// ========================================
-// Parse datetime helper function tests
-// ========================================
-
-#[test]
-fn test_parse_sqlite_datetime_rfc3339() {
-    let dt = parse_sqlite_datetime("2026-01-15T12:34:56Z").unwrap();
-    assert_eq!(dt.to_rfc3339(), "2026-01-15T12:34:56+00:00");
-}
-
-#[test]
-fn test_parse_sqlite_datetime_sqlite_format() {
-    let dt = parse_sqlite_datetime("2026-01-15 12:34:56").unwrap();
-    assert_eq!(dt.year(), 2026);
-    assert_eq!(dt.month(), 1);
-    assert_eq!(dt.day(), 15);
-    assert_eq!(dt.hour(), 12);
-    assert_eq!(dt.minute(), 34);
-    assert_eq!(dt.second(), 56);
-}
-
-#[test]
-fn test_parse_sqlite_datetime_iso8601_no_z() {
-    let dt = parse_sqlite_datetime("2026-01-15T12:34:56").unwrap();
-    assert_eq!(dt.year(), 2026);
-    assert_eq!(dt.month(), 1);
-    assert_eq!(dt.day(), 15);
-}
-
-#[test]
-fn test_parse_sqlite_datetime_invalid() {
-    assert!(parse_sqlite_datetime("invalid").is_err());
-    assert!(parse_sqlite_datetime("").is_err());
-    assert!(parse_sqlite_datetime("2026-13-45").is_err());
 }
 
 // ========================================

@@ -50,18 +50,6 @@ fn test_market_sentiment_bearish() {
 }
 
 #[test]
-fn test_compute_median() {
-    let mut values = vec![1.0, 3.0, 2.0];
-    assert_eq!(compute_median(&mut values), Some(2.0));
-
-    let mut values = vec![1.0, 2.0, 3.0, 4.0];
-    assert_eq!(compute_median(&mut values), Some(2.5));
-
-    let mut values: Vec<f64> = vec![];
-    assert_eq!(compute_median(&mut values), None);
-}
-
-#[test]
 fn test_market_snapshot_neutral_sentiment() {
     let snapshot = MarketSnapshot {
         date: Utc::now().date_naive(),
@@ -179,7 +167,7 @@ fn test_market_snapshot_high_remote_percentage() {
 fn test_compute_median_with_nan() {
     let mut values = vec![1.0, 2.0, f64::NAN, 3.0];
     // NaN handling should be graceful
-    let result = compute_median(&mut values);
+    let result = median(&mut values);
     // Result depends on sort behavior with NaN, but should not panic
     assert!(result.is_some() || result.is_none());
 }
@@ -187,13 +175,13 @@ fn test_compute_median_with_nan() {
 #[test]
 fn test_compute_median_all_same() {
     let mut values = vec![42.0, 42.0, 42.0, 42.0, 42.0];
-    assert_eq!(compute_median(&mut values), Some(42.0));
+    assert_eq!(median(&mut values), Some(42.0));
 }
 
 #[test]
 fn test_compute_median_two_elements() {
     let mut values = vec![10.0, 20.0];
-    assert_eq!(compute_median(&mut values), Some(15.0));
+    assert_eq!(median(&mut values), Some(15.0));
 }
 
 #[test]
@@ -322,17 +310,17 @@ fn test_market_snapshot_summary_with_all_fields() {
 #[test]
 fn test_compute_median_extreme_values() {
     let mut values = vec![1.0, 1000000.0];
-    assert_eq!(compute_median(&mut values), Some(500000.5));
+    assert_eq!(median(&mut values), Some(500000.5));
 }
 
 #[test]
 fn test_compute_median_very_large_dataset() {
     let mut values: Vec<f64> = (1..=10000).map(|x| x as f64).collect();
-    assert_eq!(compute_median(&mut values), Some(5000.5));
+    assert_eq!(median(&mut values), Some(5000.5));
 }
 
 #[test]
 fn test_compute_median_negative_and_positive() {
     let mut values = vec![-100.0, -50.0, 0.0, 50.0, 100.0];
-    assert_eq!(compute_median(&mut values), Some(0.0));
+    assert_eq!(median(&mut values), Some(0.0));
 }

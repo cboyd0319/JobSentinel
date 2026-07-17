@@ -42,11 +42,11 @@ Last updated: 2026-07-16
   under `crates/` one canonical owner, remove obsolete copies, and prevent
   recurrence in production and test code.
 - Branch: `refactor/full-repo-v2.9.5`
-- Current slice: Milestone 3 is complete. Domain now owns canonical title,
-  location, and work-arrangement inference. Storage owns explicitly named salary
-  and market buckets, and source-local policy copies are removed.
-- Next action: complete Milestone 4 by consolidating storage datetime parsing,
-  row mappers, aggregation helpers, and market alert insertion.
+- Current slice: Milestone 4 is complete. Storage now has one private SQLite
+  datetime parser, owner-local row mappers and user-skill query, shared market
+  salary statistics, and one market-alert insertion path.
+- Next action: complete Milestone 5 by consolidating job construction, source
+  adapter helpers, hash wrappers, user-agent values, and scraper lifecycle code.
 
 ## Deferred
 

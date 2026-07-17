@@ -1,31 +1,10 @@
 //! Type definitions for Application Tracking System
 
 use anyhow::{anyhow, Result};
-use chrono::{DateTime, NaiveDateTime, Utc};
+use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::str::FromStr;
-
-/// Parse a datetime string from SQLite which can be in multiple formats
-#[inline]
-pub fn parse_sqlite_datetime(s: &str) -> Result<DateTime<Utc>> {
-    // Try RFC3339 first (format with 'T' and 'Z'): 2026-01-15T12:34:56Z
-    if let Ok(dt) = DateTime::parse_from_rfc3339(s) {
-        return Ok(dt.with_timezone(&Utc));
-    }
-
-    // Try SQLite datetime() format (space instead of T, no Z): 2026-01-15 12:34:56
-    if let Ok(naive) = NaiveDateTime::parse_from_str(s, "%Y-%m-%d %H:%M:%S") {
-        return Ok(DateTime::from_naive_utc_and_offset(naive, Utc));
-    }
-
-    // Try ISO8601 with T but no Z: 2026-01-15T12:34:56
-    if let Ok(naive) = NaiveDateTime::parse_from_str(s, "%Y-%m-%dT%H:%M:%S") {
-        return Ok(DateTime::from_naive_utc_and_offset(naive, Utc));
-    }
-
-    Err(anyhow!("Failed to parse datetime: {}", s))
-}
 
 /// Application status in the job search pipeline
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]

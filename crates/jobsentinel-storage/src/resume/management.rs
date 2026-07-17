@@ -1,4 +1,5 @@
 use super::*;
+use crate::sqlite_time::parse_sqlite_datetime;
 
 impl ResumeMatcher {
     /// Get recent match results for a resume with job titles
@@ -29,12 +30,7 @@ impl ResumeMatcher {
         for r in rows {
             let created_str = r.try_get::<String, _>("created_at")?;
 
-            let created_at = DateTime::parse_from_rfc3339(&created_str)
-                .map(|dt| dt.with_timezone(&Utc))
-                .or_else(|_| {
-                    chrono::NaiveDateTime::parse_from_str(&created_str, "%Y-%m-%d %H:%M:%S")
-                        .map(|dt| Utc.from_utc_datetime(&dt))
-                })?;
+            let created_at = parse_sqlite_datetime(&created_str)?;
 
             let missing_skills_str = r
                 .try_get::<Option<String>, _>("missing_skills")
@@ -114,19 +110,8 @@ impl ResumeMatcher {
             let created_str = row.try_get::<String, _>("created_at")?;
             let updated_str = row.try_get::<String, _>("updated_at")?;
 
-            let created_at = DateTime::parse_from_rfc3339(&created_str)
-                .map(|dt| dt.with_timezone(&Utc))
-                .or_else(|_| {
-                    chrono::NaiveDateTime::parse_from_str(&created_str, "%Y-%m-%d %H:%M:%S")
-                        .map(|dt| Utc.from_utc_datetime(&dt))
-                })?;
-
-            let updated_at = DateTime::parse_from_rfc3339(&updated_str)
-                .map(|dt| dt.with_timezone(&Utc))
-                .or_else(|_| {
-                    chrono::NaiveDateTime::parse_from_str(&updated_str, "%Y-%m-%d %H:%M:%S")
-                        .map(|dt| Utc.from_utc_datetime(&dt))
-                })?;
+            let created_at = parse_sqlite_datetime(&created_str)?;
+            let updated_at = parse_sqlite_datetime(&updated_str)?;
 
             resumes.push(Resume {
                 id: row.try_get::<i64, _>("id")?,

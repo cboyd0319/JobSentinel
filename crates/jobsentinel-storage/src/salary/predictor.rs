@@ -4,6 +4,7 @@
 
 use super::{SalaryPrediction, SeniorityLevel};
 use crate::analytics_buckets::{salary_location_bucket, salary_title_bucket};
+use crate::sqlite_time::parse_sqlite_datetime;
 use anyhow::Result;
 use chrono::Utc;
 use sqlx::{Row, SqlitePool};
@@ -193,19 +194,7 @@ impl SalaryPredictor {
                     .try_get::<String, _>("prediction_method")
                     .unwrap_or_else(|_| "unknown".to_string()),
                 data_points_used: r.try_get::<i64, _>("data_points_used").unwrap_or(0),
-                created_at: {
-                    let created_str: String = r.try_get("created_at")?;
-                    // Try RFC3339 first, fall back to SQLite datetime format
-                    chrono::DateTime::parse_from_rfc3339(&created_str)
-                        .map(|dt| dt.with_timezone(&Utc))
-                        .or_else(|_| {
-                            // Parse SQLite datetime format: "YYYY-MM-DD HH:MM:SS"
-                            chrono::NaiveDateTime::parse_from_str(&created_str, "%Y-%m-%d %H:%M:%S")
-                                .map(|ndt| {
-                                    chrono::DateTime::<Utc>::from_naive_utc_and_offset(ndt, Utc)
-                                })
-                        })?
-                },
+                created_at: parse_sqlite_datetime(&r.try_get::<String, _>("created_at")?)?,
             })),
             None => Ok(None),
         }

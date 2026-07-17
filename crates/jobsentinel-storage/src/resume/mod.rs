@@ -31,8 +31,8 @@
 //! println!("Missing skills: {:?}", match_result.missing_skills);
 //! ```
 
+use crate::sqlite_time::parse_sqlite_datetime;
 use anyhow::Result;
-use chrono::{DateTime, TimeZone, Utc};
 use sqlx::{Row, SqlitePool};
 use std::path::Path;
 
@@ -138,20 +138,8 @@ impl ResumeMatcher {
         let created_str = row.try_get::<String, _>("created_at")?;
         let updated_str = row.try_get::<String, _>("updated_at")?;
 
-        // Try RFC3339 first, then fall back to SQLite format
-        let created_at = DateTime::parse_from_rfc3339(&created_str)
-            .map(|dt| dt.with_timezone(&Utc))
-            .or_else(|_| {
-                chrono::NaiveDateTime::parse_from_str(&created_str, "%Y-%m-%d %H:%M:%S")
-                    .map(|dt| Utc.from_utc_datetime(&dt))
-            })?;
-
-        let updated_at = DateTime::parse_from_rfc3339(&updated_str)
-            .map(|dt| dt.with_timezone(&Utc))
-            .or_else(|_| {
-                chrono::NaiveDateTime::parse_from_str(&updated_str, "%Y-%m-%d %H:%M:%S")
-                    .map(|dt| Utc.from_utc_datetime(&dt))
-            })?;
+        let created_at = parse_sqlite_datetime(&created_str)?;
+        let updated_at = parse_sqlite_datetime(&updated_str)?;
 
         Ok(Resume {
             id: row.try_get::<i64, _>("id")?,
@@ -183,20 +171,8 @@ impl ResumeMatcher {
                 let created_str = r.try_get::<String, _>("created_at")?;
                 let updated_str = r.try_get::<String, _>("updated_at")?;
 
-                // Try RFC3339 first, then fall back to SQLite format
-                let created_at = DateTime::parse_from_rfc3339(&created_str)
-                    .map(|dt| dt.with_timezone(&Utc))
-                    .or_else(|_| {
-                        chrono::NaiveDateTime::parse_from_str(&created_str, "%Y-%m-%d %H:%M:%S")
-                            .map(|dt| Utc.from_utc_datetime(&dt))
-                    })?;
-
-                let updated_at = DateTime::parse_from_rfc3339(&updated_str)
-                    .map(|dt| dt.with_timezone(&Utc))
-                    .or_else(|_| {
-                        chrono::NaiveDateTime::parse_from_str(&updated_str, "%Y-%m-%d %H:%M:%S")
-                            .map(|dt| Utc.from_utc_datetime(&dt))
-                    })?;
+                let created_at = parse_sqlite_datetime(&created_str)?;
+                let updated_at = parse_sqlite_datetime(&updated_str)?;
 
                 Ok(Some(Resume {
                     id: r.try_get::<i64, _>("id")?,
@@ -246,38 +222,7 @@ impl ResumeMatcher {
 
     /// Get all skills for a resume
     pub async fn get_user_skills(&self, resume_id: i64) -> Result<Vec<UserSkill>> {
-        let rows = sqlx::query(
-            r#"
-            SELECT id, resume_id, skill_name, skill_category, confidence_score,
-                   years_experience, proficiency_level, source
-            FROM user_skills
-            WHERE resume_id = ?
-            ORDER BY confidence_score DESC, skill_name ASC
-            "#,
-        )
-        .bind(resume_id)
-        .fetch_all(&self.db)
-        .await?;
-
-        Ok(rows
-            .into_iter()
-            .map(|r| UserSkill {
-                id: r.try_get::<i64, _>("id").unwrap_or(0),
-                resume_id: r.try_get::<i64, _>("resume_id").unwrap_or(0),
-                skill_name: r.try_get::<String, _>("skill_name").unwrap_or_default(),
-                skill_category: r
-                    .try_get::<Option<String>, _>("skill_category")
-                    .unwrap_or(None),
-                confidence_score: r.try_get::<f64, _>("confidence_score").unwrap_or(0.0),
-                years_experience: r
-                    .try_get::<Option<f64>, _>("years_experience")
-                    .unwrap_or(None),
-                proficiency_level: r
-                    .try_get::<Option<String>, _>("proficiency_level")
-                    .unwrap_or(None),
-                source: r.try_get::<String, _>("source").unwrap_or_default(),
-            })
-            .collect())
+        skill_store::query_user_skills(&self.db, resume_id).await
     }
 
     /// Match resume against a job
@@ -350,13 +295,7 @@ impl ResumeMatcher {
             Some(r) => {
                 let created_str = r.try_get::<String, _>("created_at")?;
 
-                // Try RFC3339 first, then fall back to SQLite format
-                let created_at = DateTime::parse_from_rfc3339(&created_str)
-                    .map(|dt| dt.with_timezone(&Utc))
-                    .or_else(|_| {
-                        chrono::NaiveDateTime::parse_from_str(&created_str, "%Y-%m-%d %H:%M:%S")
-                            .map(|dt| Utc.from_utc_datetime(&dt))
-                    })?;
+                let created_at = parse_sqlite_datetime(&created_str)?;
 
                 // Handle missing_skills and matching_skills JSON with proper NULL handling
                 let missing_skills_str = r

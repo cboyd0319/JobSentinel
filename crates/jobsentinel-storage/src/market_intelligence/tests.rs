@@ -62,57 +62,6 @@ async fn test_run_daily_analysis_counts_hidden_jobs_as_market_evidence() {
 }
 
 #[test]
-fn test_compute_median_odd_length() {
-    let mut values = vec![5.0, 1.0, 3.0];
-    assert_eq!(super::computations::compute_median(&mut values), Some(3.0));
-}
-
-#[test]
-fn test_compute_median_even_length() {
-    let mut values = vec![1.0, 2.0, 3.0, 4.0];
-    assert_eq!(super::computations::compute_median(&mut values), Some(2.5));
-}
-
-#[test]
-fn test_compute_median_single_value() {
-    let mut values = vec![42.0];
-    assert_eq!(super::computations::compute_median(&mut values), Some(42.0));
-}
-
-#[test]
-fn test_compute_median_empty() {
-    let mut values: Vec<f64> = vec![];
-    assert_eq!(super::computations::compute_median(&mut values), None);
-}
-
-#[test]
-fn test_compute_median_unsorted() {
-    let mut values = vec![10.0, 5.0, 20.0, 15.0];
-    assert_eq!(super::computations::compute_median(&mut values), Some(12.5));
-}
-
-#[test]
-fn test_compute_median_with_duplicates() {
-    let mut values = vec![5.0, 5.0, 5.0];
-    assert_eq!(super::computations::compute_median(&mut values), Some(5.0));
-}
-
-#[test]
-fn test_compute_median_negative_values() {
-    let mut values = vec![-10.0, -5.0, 0.0, 5.0];
-    assert_eq!(super::computations::compute_median(&mut values), Some(-2.5));
-}
-
-#[test]
-fn test_compute_median_large_dataset() {
-    let mut values: Vec<f64> = (1..=1000).map(|x| x as f64).collect();
-    assert_eq!(
-        super::computations::compute_median(&mut values),
-        Some(500.5)
-    );
-}
-
-#[test]
 fn test_skill_trend_data() {
     let trend = super::queries::SkillTrend {
         skill_name: "Case Management".to_string(),
@@ -253,21 +202,6 @@ fn test_parse_location_empty() {
     };
     assert_eq!(city, Some("".to_string()));
     assert_eq!(state, None);
-}
-
-#[test]
-fn test_compute_median_with_floats() {
-    let mut values = vec![1.5, 2.5, 3.5, 4.5];
-    assert_eq!(super::computations::compute_median(&mut values), Some(3.0));
-}
-
-#[test]
-fn test_compute_median_precision() {
-    let mut values = vec![100.1, 100.2, 100.3];
-    assert_eq!(
-        super::computations::compute_median(&mut values),
-        Some(100.2)
-    );
 }
 
 #[test]

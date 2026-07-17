@@ -70,8 +70,8 @@ fn test_market_snapshot_all_none() {
 #[test]
 fn test_compute_median_fractional_positions() {
     let mut values = vec![1.0, 2.0, 3.0, 4.0, 5.0, 6.0];
-    assert_eq!(compute_median(&mut values), Some(3.5));
+    assert_eq!(median(&mut values), Some(3.5));
 
     let mut values2 = vec![1.0, 2.0, 3.0, 4.0, 5.0];
-    assert_eq!(compute_median(&mut values2), Some(3.0));
+    assert_eq!(median(&mut values2), Some(3.0));
 }

@@ -4,6 +4,30 @@ use super::tracker::ApplicationTracker;
 use super::types::*;
 use anyhow::Result;
 use chrono::Utc;
+use sqlx::{sqlite::SqliteRow, Row};
+
+fn interview_with_job_from_row(row: SqliteRow) -> Result<InterviewWithJob> {
+    Ok(InterviewWithJob {
+        id: row.try_get("id")?,
+        application_id: row.try_get("application_id")?,
+        interview_type: row
+            .try_get::<Option<String>, _>("interview_type")?
+            .unwrap_or_else(|| "other".to_string()),
+        scheduled_at: row.try_get("scheduled_at")?,
+        duration_minutes: row
+            .try_get::<Option<i32>, _>("duration_minutes")?
+            .unwrap_or(60),
+        location: row.try_get("location")?,
+        interviewer_name: row.try_get("interviewer_name")?,
+        interviewer_title: row.try_get("interviewer_title")?,
+        notes: row.try_get("notes")?,
+        completed: row.try_get::<i64, _>("completed")? != 0,
+        outcome: row.try_get("outcome")?,
+        post_interview_notes: row.try_get("post_interview_notes")?,
+        job_title: row.try_get("job_title")?,
+        company: row.try_get("company")?,
+    })
+}
 
 impl ApplicationTracker {
     /// Schedule a new interview
@@ -42,7 +66,7 @@ impl ApplicationTracker {
 
     /// Get upcoming interviews (next 30 days, not completed)
     pub async fn get_upcoming_interviews(&self) -> Result<Vec<InterviewWithJob>> {
-        let interviews = sqlx::query!(
+        let interviews = sqlx::query(
             r#"
             SELECT
                 i.id,
@@ -66,35 +90,20 @@ impl ApplicationTracker {
               AND datetime(i.scheduled_at) >= datetime('now')
               AND datetime(i.scheduled_at) <= datetime('now', '+30 days')
             ORDER BY i.scheduled_at ASC
-            "#
+            "#,
         )
         .fetch_all(&self.db)
         .await?;
 
-        Ok(interviews
+        interviews
             .into_iter()
-            .map(|row| InterviewWithJob {
-                id: row.id,
-                application_id: row.application_id,
-                interview_type: row.interview_type.unwrap_or_else(|| "other".to_string()),
-                scheduled_at: row.scheduled_at,
-                duration_minutes: row.duration_minutes.unwrap_or(60) as i32,
-                location: row.location,
-                interviewer_name: row.interviewer_name,
-                interviewer_title: row.interviewer_title,
-                notes: row.notes,
-                completed: row.completed != 0,
-                outcome: row.outcome,
-                post_interview_notes: row.post_interview_notes,
-                job_title: row.job_title,
-                company: row.company,
-            })
-            .collect())
+            .map(interview_with_job_from_row)
+            .collect()
     }
 
     /// Get past interviews (completed, last 90 days)
     pub async fn get_past_interviews(&self) -> Result<Vec<InterviewWithJob>> {
-        let interviews = sqlx::query!(
+        let interviews = sqlx::query(
             r#"
             SELECT
                 i.id,
@@ -117,30 +126,15 @@ impl ApplicationTracker {
             WHERE i.completed = 1
               AND datetime(i.scheduled_at) >= datetime('now', '-90 days')
             ORDER BY i.scheduled_at DESC
-            "#
+            "#,
         )
         .fetch_all(&self.db)
         .await?;
 
-        Ok(interviews
+        interviews
             .into_iter()
-            .map(|row| InterviewWithJob {
-                id: row.id,
-                application_id: row.application_id,
-                interview_type: row.interview_type.unwrap_or_else(|| "other".to_string()),
-                scheduled_at: row.scheduled_at,
-                duration_minutes: row.duration_minutes.unwrap_or(60) as i32,
-                location: row.location,
-                interviewer_name: row.interviewer_name,
-                interviewer_title: row.interviewer_title,
-                notes: row.notes,
-                completed: row.completed != 0,
-                outcome: row.outcome,
-                post_interview_notes: row.post_interview_notes,
-                job_title: row.job_title,
-                company: row.company,
-            })
-            .collect())
+            .map(interview_with_job_from_row)
+            .collect()
     }
 
     /// Update interview outcome with optional post-interview notes
@@ -188,5 +182,35 @@ impl ApplicationTracker {
             .await?;
 
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod row_mapper_tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn interview_mapper_applies_nullable_column_defaults() {
+        let database = crate::Database::connect_memory().await.unwrap();
+        let row = sqlx::query(
+            r#"
+            SELECT 3 AS id, 9 AS application_id, NULL AS interview_type,
+                   '2026-02-01 10:00:00' AS scheduled_at,
+                   NULL AS duration_minutes, NULL AS location,
+                   NULL AS interviewer_name, NULL AS interviewer_title,
+                   NULL AS notes, 0 AS completed, NULL AS outcome,
+                   NULL AS post_interview_notes, 'Engineer' AS job_title,
+                   'Example Co' AS company
+            "#,
+        )
+        .fetch_one(database.pool())
+        .await
+        .unwrap();
+
+        let interview = interview_with_job_from_row(row).unwrap();
+
+        assert_eq!(interview.interview_type, "other");
+        assert_eq!(interview.duration_minutes, 60);
+        assert!(!interview.completed);
     }
 }

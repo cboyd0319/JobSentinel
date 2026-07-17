@@ -11,6 +11,7 @@ mod analytics;
 
 mod computations;
 mod queries;
+mod statistics;
 mod utils;
 
 #[cfg(test)]

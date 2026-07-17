@@ -1,7 +1,41 @@
-use anyhow::Result;
-use sqlx::Row;
+use anyhow::{Context, Result};
+use sqlx::{Row, SqlitePool};
 
 use crate::market_intelligence::MarketIntelligence;
+
+struct NewMarketAlert<'a> {
+    alert_type: &'static str,
+    title: String,
+    description: String,
+    related_entity: &'a str,
+    related_entity_type: &'static str,
+    metric_value: f64,
+    metric_change_pct: Option<f64>,
+}
+
+async fn insert_market_alert(db: &SqlitePool, alert: NewMarketAlert<'_>) -> Result<()> {
+    sqlx::query(
+        r#"
+        INSERT INTO market_alerts (
+            alert_type, title, description, severity,
+            related_entity, related_entity_type, metric_value, metric_change_pct
+        )
+        VALUES (?, ?, ?, 'info', ?, ?, ?, ?)
+        "#,
+    )
+    .bind(alert.alert_type)
+    .bind(alert.title)
+    .bind(alert.description)
+    .bind(alert.related_entity)
+    .bind(alert.related_entity_type)
+    .bind(alert.metric_value)
+    .bind(alert.metric_change_pct)
+    .execute(db)
+    .await
+    .context("failed to insert market alert")?;
+
+    Ok(())
+}
 
 impl MarketIntelligence {
     /// Detect market alerts (anomalies, trends)
@@ -33,27 +67,21 @@ impl MarketIntelligence {
             let pct_change =
                 ((current_mentions - prev_mentions) as f64 / prev_mentions as f64) * 100.0;
 
-            sqlx::query(
-                r#"
-                INSERT INTO market_alerts (
-                    alert_type, title, description, severity,
-                    related_entity, related_entity_type, metric_value, metric_change_pct
-                )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                "#,
+            insert_market_alert(
+                &self.db,
+                NewMarketAlert {
+                    alert_type: "skill_surge",
+                    title: format!("{} demand surging!", skill_name),
+                    description: format!(
+                        "The skill '{}' saw a {}% increase in job postings this week ({} -> {} mentions).",
+                        skill_name, pct_change as i32, prev_mentions, current_mentions
+                    ),
+                    related_entity: &skill_name,
+                    related_entity_type: "skill",
+                    metric_value: current_mentions as f64,
+                    metric_change_pct: Some(pct_change),
+                },
             )
-            .bind("skill_surge")
-            .bind(format!("{} demand surging!", skill_name))
-            .bind(format!(
-                "The skill '{}' saw a {}% increase in job postings this week ({} -> {} mentions).",
-                skill_name, pct_change as i32, prev_mentions, current_mentions
-            ))
-            .bind("info")
-            .bind(&skill_name)
-            .bind("skill")
-            .bind(current_mentions as f64)
-            .bind(pct_change)
-            .execute(&self.db)
             .await?;
         }
 
@@ -79,27 +107,21 @@ impl MarketIntelligence {
             let growth: f64 = spike.try_get("salary_growth_pct")?;
             let median: i64 = spike.try_get("median_salary")?;
 
-            sqlx::query(
-                r#"
-                INSERT INTO market_alerts (
-                    alert_type, title, description, severity,
-                    related_entity, related_entity_type, metric_value, metric_change_pct
-                )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                "#,
+            insert_market_alert(
+                &self.db,
+                NewMarketAlert {
+                    alert_type: "salary_spike",
+                    title: format!("{} salaries jumping in {}", job_title, location),
+                    description: format!(
+                        "Salaries for '{}' in {} increased by {:.1}% (median: ${}).",
+                        job_title, location, growth, median
+                    ),
+                    related_entity: &job_title,
+                    related_entity_type: "role",
+                    metric_value: median as f64,
+                    metric_change_pct: Some(growth),
+                },
             )
-            .bind("salary_spike")
-            .bind(format!("{} salaries jumping in {}", job_title, location))
-            .bind(format!(
-                "Salaries for '{}' in {} increased by {:.1}% (median: ${}).",
-                job_title, location, growth, median
-            ))
-            .bind("info")
-            .bind(&job_title)
-            .bind("role")
-            .bind(median as f64)
-            .bind(growth)
-            .execute(&self.db)
             .await?;
         }
 
@@ -123,29 +145,56 @@ impl MarketIntelligence {
             let jobs_posted: i64 = spree.try_get("jobs_posted_count")?;
             let jobs_active: i64 = spree.try_get("jobs_active_count")?;
 
-            sqlx::query(
-                r#"
-                INSERT INTO market_alerts (
-                    alert_type, title, description, severity,
-                    related_entity, related_entity_type, metric_value
-                )
-                VALUES (?, ?, ?, ?, ?, ?, ?)
-                "#,
+            insert_market_alert(
+                &self.db,
+                NewMarketAlert {
+                    alert_type: "hiring_spree",
+                    title: format!("{} hiring aggressively", company_name),
+                    description: format!(
+                        "{} posted {} new jobs today ({} total active positions).",
+                        company_name, jobs_posted, jobs_active
+                    ),
+                    related_entity: &company_name,
+                    related_entity_type: "company",
+                    metric_value: jobs_posted as f64,
+                    metric_change_pct: None,
+                },
             )
-            .bind("hiring_spree")
-            .bind(format!("{} hiring aggressively", company_name))
-            .bind(format!(
-                "{} posted {} new jobs today ({} total active positions).",
-                company_name, jobs_posted, jobs_active
-            ))
-            .bind("info")
-            .bind(&company_name)
-            .bind("company")
-            .bind(jobs_posted as f64)
-            .execute(&self.db)
             .await?;
         }
 
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn alert_insert_preserves_optional_change_percentage() {
+        let database = crate::Database::connect_memory().await.unwrap();
+        database.migrate().await.unwrap();
+
+        insert_market_alert(
+            database.pool(),
+            NewMarketAlert {
+                alert_type: "hiring_spree",
+                title: "Example Co hiring aggressively".to_string(),
+                description: "Example Co posted 10 jobs.".to_string(),
+                related_entity: "Example Co",
+                related_entity_type: "company",
+                metric_value: 10.0,
+                metric_change_pct: None,
+            },
+        )
+        .await
+        .unwrap();
+
+        let change: Option<f64> = sqlx::query_scalar("SELECT metric_change_pct FROM market_alerts")
+            .fetch_one(database.pool())
+            .await
+            .unwrap();
+        assert!(change.is_none());
     }
 }

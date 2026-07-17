@@ -3,14 +3,14 @@
 //! Learns from user behavior to improve screening question answers over time.
 //! Tracks usage, modifications, and suggests answers with confidence scores.
 
-use crate::application_tracking::parse_sqlite_datetime;
+use crate::sqlite_time::parse_sqlite_datetime;
 use anyhow::{Context, Result};
 use chrono::{DateTime, Utc};
 use jobsentinel_domain::{
     screening_question_matches, AnswerSource, AnswerStatistics, AnswerSuggestion,
     ModificationExample,
 };
-use sqlx::{Row, SqlitePool};
+use sqlx::{sqlite::SqliteRow, Row, SqlitePool};
 use std::collections::HashMap;
 
 /// Manages screening answer learning
@@ -27,9 +27,65 @@ fn days_since_answer_datetime(value: Option<&str>) -> Option<i32> {
     Some((Utc::now() - parsed).num_days() as i32)
 }
 
+#[derive(Clone, Copy)]
+enum PatternAnswerSource {
+    Manual,
+    Learned,
+}
+
 impl AnswerLearningManager {
     pub fn new(db: SqlitePool) -> Self {
         Self { db }
+    }
+
+    fn pattern_suggestion_from_row(
+        &self,
+        row: &SqliteRow,
+        source_kind: PatternAnswerSource,
+    ) -> Result<(String, AnswerSuggestion)> {
+        let pattern: String = row.try_get("question_pattern")?;
+        let id: i64 = row.try_get("id")?;
+        let times_used: i32 = row.try_get("times_used")?;
+        let times_modified: i32 = row.try_get("times_modified")?;
+        let base_confidence: f64 = row.try_get("confidence_score")?;
+        let last_used: Option<String> = row.try_get("last_used_at")?;
+        let answer = row.try_get(match source_kind {
+            PatternAnswerSource::Manual => "answer",
+            PatternAnswerSource::Learned => "learned_answer",
+        })?;
+        let source = match source_kind {
+            PatternAnswerSource::Manual => AnswerSource::Manual {
+                pattern: pattern.clone(),
+                answer_id: id,
+            },
+            PatternAnswerSource::Learned => AnswerSource::Learned {
+                pattern: pattern.clone(),
+                learned_id: id,
+            },
+        };
+        let modification_rate = if times_used > 0 {
+            times_modified as f64 / times_used as f64
+        } else {
+            0.0
+        };
+
+        Ok((
+            pattern,
+            AnswerSuggestion {
+                answer,
+                confidence: self.calculate_confidence(
+                    base_confidence,
+                    times_used,
+                    times_modified,
+                    &last_used,
+                ),
+                source,
+                times_used,
+                times_modified,
+                last_used_days_ago: days_since_answer_datetime(last_used.as_deref()),
+                modification_rate,
+            },
+        ))
     }
 
     /// Normalize question text for fuzzy matching
@@ -141,42 +197,11 @@ impl AnswerLearningManager {
         let mut suggestions = Vec::new();
 
         for row in rows {
-            let pattern: String = row.get("question_pattern");
-            let answer: String = row.get("answer");
-            let id: i64 = row.get("id");
-            let times_used: i32 = row.get("times_used");
-            let times_modified: i32 = row.get("times_modified");
-            let base_confidence: f64 = row.get("confidence_score");
-            let last_used: Option<String> = row.get("last_used_at");
+            let (pattern, suggestion) =
+                self.pattern_suggestion_from_row(&row, PatternAnswerSource::Manual)?;
 
             if screening_question_matches(&pattern, question) {
-                let modification_rate = if times_used > 0 {
-                    times_modified as f64 / times_used as f64
-                } else {
-                    0.0
-                };
-
-                let confidence = self.calculate_confidence(
-                    base_confidence,
-                    times_used,
-                    times_modified,
-                    &last_used,
-                );
-
-                let last_used_days = days_since_answer_datetime(last_used.as_deref());
-
-                suggestions.push(AnswerSuggestion {
-                    answer,
-                    confidence,
-                    source: AnswerSource::Manual {
-                        pattern,
-                        answer_id: id,
-                    },
-                    times_used,
-                    times_modified,
-                    last_used_days_ago: last_used_days,
-                    modification_rate,
-                });
+                suggestions.push(suggestion);
             }
         }
 
@@ -200,42 +225,11 @@ impl AnswerLearningManager {
         let mut suggestions = Vec::new();
 
         for row in rows {
-            let pattern: String = row.get("question_pattern");
-            let answer: String = row.get("learned_answer");
-            let id: i64 = row.get("id");
-            let times_used: i32 = row.get("times_used");
-            let times_modified: i32 = row.get("times_modified");
-            let base_confidence: f64 = row.get("confidence_score");
-            let last_used: Option<String> = row.get("last_used_at");
+            let (pattern, suggestion) =
+                self.pattern_suggestion_from_row(&row, PatternAnswerSource::Learned)?;
 
             if screening_question_matches(&pattern, question) {
-                let modification_rate = if times_used > 0 {
-                    times_modified as f64 / times_used as f64
-                } else {
-                    0.0
-                };
-
-                let confidence = self.calculate_confidence(
-                    base_confidence,
-                    times_used,
-                    times_modified,
-                    &last_used,
-                );
-
-                let last_used_days = days_since_answer_datetime(last_used.as_deref());
-
-                suggestions.push(AnswerSuggestion {
-                    answer,
-                    confidence,
-                    source: AnswerSource::Learned {
-                        pattern,
-                        learned_id: id,
-                    },
-                    times_used,
-                    times_modified,
-                    last_used_days_ago: last_used_days,
-                    modification_rate,
-                });
+                suggestions.push(suggestion);
             }
         }
 
@@ -337,6 +331,42 @@ impl AnswerLearningManager {
 }
 
 mod history;
+
+#[cfg(test)]
+mod row_mapper_tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn pattern_suggestion_mapper_preserves_usage_fields() {
+        let database = crate::Database::connect_memory().await.unwrap();
+        let manager = AnswerLearningManager::new(database.pool().clone());
+        let row = sqlx::query(
+            r#"
+            SELECT 4 AS id, 'authorized to work' AS question_pattern,
+                   'Yes' AS answer, 8 AS times_used, 2 AS times_modified,
+                   0.9 AS confidence_score, NULL AS last_used_at
+            "#,
+        )
+        .fetch_one(database.pool())
+        .await
+        .unwrap();
+
+        let (pattern, suggestion) = manager
+            .pattern_suggestion_from_row(&row, PatternAnswerSource::Manual)
+            .unwrap();
+
+        assert_eq!(pattern, "authorized to work");
+        assert_eq!(suggestion.answer, "Yes");
+        assert_eq!(suggestion.modification_rate, 0.25);
+        assert_eq!(
+            suggestion.source,
+            AnswerSource::Manual {
+                pattern,
+                answer_id: 4
+            }
+        );
+    }
+}
 
 #[cfg(test)]
 mod tests;

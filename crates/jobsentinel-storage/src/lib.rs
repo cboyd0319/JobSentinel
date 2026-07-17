@@ -6,6 +6,7 @@ mod integrity;
 mod scoring_config;
 
 mod analytics_buckets;
+mod sqlite_time;
 
 pub mod application_tracking;
 pub mod automation;

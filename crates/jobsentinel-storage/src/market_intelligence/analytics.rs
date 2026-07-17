@@ -7,23 +7,13 @@ use chrono::{NaiveDate, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::{Row, SqlitePool};
 
+#[cfg(test)]
+use super::statistics::median;
+use super::statistics::predicted_salary_summary;
+
 /// Market analyzer
 pub(super) struct MarketAnalyzer {
     db: SqlitePool,
-}
-
-/// Compute median from a vector of values (SQLite doesn't have MEDIAN())
-fn compute_median(values: &mut [f64]) -> Option<f64> {
-    if values.is_empty() {
-        return None;
-    }
-    values.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
-    let len = values.len();
-    if len.is_multiple_of(2) {
-        Some((values[len / 2 - 1] + values[len / 2]) / 2.0)
-    } else {
-        Some(values[len / 2])
-    }
 }
 
 impl MarketAnalyzer {
@@ -62,11 +52,7 @@ impl MarketAnalyzer {
         let salary_rows = sqlx::query("SELECT predicted_median FROM job_salary_predictions")
             .fetch_all(&self.db)
             .await?;
-        let mut salaries: Vec<f64> = salary_rows
-            .iter()
-            .filter_map(|r| r.try_get::<f64, _>("predicted_median").ok())
-            .collect();
-        let median_salary = compute_median(&mut salaries);
+        let median_salary = predicted_salary_summary(&salary_rows).median;
 
         // Remote job percentage
         let remote_count = sqlx::query_scalar::<_, i64>(

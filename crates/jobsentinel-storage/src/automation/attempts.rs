@@ -4,11 +4,11 @@
 //! submission, and remain responsible for the target site's terms. The app
 //! stops at security challenges and does not bypass site protections.
 
-use crate::application_tracking::parse_sqlite_datetime;
+use crate::sqlite_time::parse_sqlite_datetime;
 use anyhow::Result;
 use chrono::{DateTime, Utc};
 use jobsentinel_domain::{ApplicationAttempt, AtsPlatform, AutomationStats, AutomationStatus};
-use sqlx::SqlitePool;
+use sqlx::{sqlite::SqliteRow, Row, SqlitePool};
 
 /// Manages application automation lifecycle and database tracking.
 ///
@@ -40,6 +40,26 @@ pub struct AutomationManager {
 
 fn parse_optional_sqlite_datetime(value: Option<String>) -> Option<DateTime<Utc>> {
     value.and_then(|date| parse_sqlite_datetime(&date).ok())
+}
+
+fn attempt_from_row(row: SqliteRow) -> Result<ApplicationAttempt> {
+    let submitted_at = parse_optional_sqlite_datetime(row.try_get("submitted_at")?);
+    let created_at = parse_sqlite_datetime(&row.try_get::<String, _>("created_at")?)?;
+
+    Ok(ApplicationAttempt {
+        id: row.try_get("id")?,
+        job_hash: row.try_get("job_hash")?,
+        application_id: row.try_get("application_id")?,
+        status: AutomationStatus::from_str(row.try_get("status")?),
+        ats_platform: AtsPlatform::from_str(row.try_get("ats_platform")?),
+        error_message: row.try_get("error_message")?,
+        screenshot_path: row.try_get("screenshot_path")?,
+        confirmation_screenshot_path: row.try_get("confirmation_screenshot_path")?,
+        automation_duration_ms: row.try_get("automation_duration_ms")?,
+        user_approved: row.try_get::<i32, _>("user_approved")? != 0,
+        submitted_at,
+        created_at,
+    })
 }
 
 impl AutomationManager {
@@ -116,24 +136,7 @@ impl AutomationManager {
         .fetch_one(&self.db)
         .await?;
 
-        use sqlx::Row;
-        let submitted_at: Option<String> = row.get("submitted_at");
-        let created_at: String = row.get("created_at");
-
-        Ok(ApplicationAttempt {
-            id: row.get("id"),
-            job_hash: row.get("job_hash"),
-            application_id: row.get("application_id"),
-            status: AutomationStatus::from_str(row.get("status")),
-            ats_platform: AtsPlatform::from_str(row.get("ats_platform")),
-            error_message: row.get("error_message"),
-            screenshot_path: row.get("screenshot_path"),
-            confirmation_screenshot_path: row.get("confirmation_screenshot_path"),
-            automation_duration_ms: row.get("automation_duration_ms"),
-            user_approved: row.get::<i32, _>("user_approved") != 0,
-            submitted_at: parse_optional_sqlite_datetime(submitted_at),
-            created_at: parse_sqlite_datetime(&created_at)?,
-        })
+        attempt_from_row(row)
     }
 
     /// Retrieve recent automation attempts for a job, newest first.
@@ -158,27 +161,7 @@ impl AutomationManager {
         .fetch_all(&self.db)
         .await?;
 
-        use sqlx::Row;
-        rows.into_iter()
-            .map(|row| {
-                let submitted_at: Option<String> = row.get("submitted_at");
-                let created_at: String = row.get("created_at");
-                Ok(ApplicationAttempt {
-                    id: row.get("id"),
-                    job_hash: row.get("job_hash"),
-                    application_id: row.get("application_id"),
-                    status: AutomationStatus::from_str(row.get("status")),
-                    ats_platform: AtsPlatform::from_str(row.get("ats_platform")),
-                    error_message: row.get("error_message"),
-                    screenshot_path: row.get("screenshot_path"),
-                    confirmation_screenshot_path: row.get("confirmation_screenshot_path"),
-                    automation_duration_ms: row.get("automation_duration_ms"),
-                    user_approved: row.get::<i32, _>("user_approved") != 0,
-                    submitted_at: parse_optional_sqlite_datetime(submitted_at),
-                    created_at: parse_sqlite_datetime(&created_at)?,
-                })
-            })
-            .collect()
+        rows.into_iter().map(attempt_from_row).collect()
     }
 
     /// Update the status of an automation attempt.
@@ -318,27 +301,7 @@ impl AutomationManager {
         .fetch_all(&self.db)
         .await?;
 
-        use sqlx::Row;
-        rows.into_iter()
-            .map(|row| {
-                let submitted_at: Option<String> = row.get("submitted_at");
-                let created_at: String = row.get("created_at");
-                Ok(ApplicationAttempt {
-                    id: row.get("id"),
-                    job_hash: row.get("job_hash"),
-                    application_id: row.get("application_id"),
-                    status: AutomationStatus::from_str(row.get("status")),
-                    ats_platform: AtsPlatform::from_str(row.get("ats_platform")),
-                    error_message: row.get("error_message"),
-                    screenshot_path: row.get("screenshot_path"),
-                    confirmation_screenshot_path: row.get("confirmation_screenshot_path"),
-                    automation_duration_ms: row.get("automation_duration_ms"),
-                    user_approved: row.get::<i32, _>("user_approved") != 0,
-                    submitted_at: parse_optional_sqlite_datetime(submitted_at),
-                    created_at: parse_sqlite_datetime(&created_at)?,
-                })
-            })
-            .collect()
+        rows.into_iter().map(attempt_from_row).collect()
     }
 
     /// Calculate aggregated automation statistics.
@@ -368,7 +331,6 @@ impl AutomationManager {
         .fetch_one(&self.db)
         .await?;
 
-        use sqlx::Row;
         let total: i64 = row.try_get("total")?;
         let submitted: i64 = row.try_get("submitted")?;
 
@@ -383,6 +345,49 @@ impl AutomationManager {
                 0.0
             },
         })
+    }
+}
+
+#[cfg(test)]
+mod row_mapper_tests {
+    use super::*;
+
+    async fn attempt_row(database: &crate::Database, created_at: &str) -> SqliteRow {
+        sqlx::query(
+            r#"
+            SELECT 7 AS id, 'job-1' AS job_hash, NULL AS application_id,
+                   'pending' AS status, 'lever' AS ats_platform,
+                   NULL AS error_message, NULL AS screenshot_path,
+                   NULL AS confirmation_screenshot_path,
+                   NULL AS automation_duration_ms, 1 AS user_approved,
+                   NULL AS submitted_at, ? AS created_at
+            "#,
+        )
+        .bind(created_at)
+        .fetch_one(database.pool())
+        .await
+        .unwrap()
+    }
+
+    #[tokio::test]
+    async fn attempt_mapper_preserves_nullable_submission_time() {
+        let database = crate::Database::connect_memory().await.unwrap();
+        let row = attempt_row(&database, "2026-01-15 12:34:56").await;
+
+        let attempt = attempt_from_row(row).unwrap();
+
+        assert_eq!(attempt.id, 7);
+        assert!(attempt.user_approved);
+        assert!(attempt.submitted_at.is_none());
+        assert_eq!(attempt.created_at.to_rfc3339(), "2026-01-15T12:34:56+00:00");
+    }
+
+    #[tokio::test]
+    async fn attempt_mapper_rejects_malformed_required_datetime() {
+        let database = crate::Database::connect_memory().await.unwrap();
+        let row = attempt_row(&database, "not-a-datetime").await;
+
+        assert!(attempt_from_row(row).is_err());
     }
 }
 
