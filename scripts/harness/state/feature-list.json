@@ -102,9 +102,12 @@
         "cargo test --workspace --all-features",
         "npm run lint:dup -- --list"
       ],
-      "evidence": [],
+      "evidence": [
+        "docs/harness/evidence/crates-dry-baseline-2026-07-16.json",
+        "docs/harness/evidence/crates-dry-characterization-2026-07-16.md"
+      ],
       "blocker": "",
-      "next_trigger": "Complete Milestone 1 guardrails and characterization."
+      "next_trigger": "Complete Milestone 2 security and output policy consolidation."
     }
   ]
 }

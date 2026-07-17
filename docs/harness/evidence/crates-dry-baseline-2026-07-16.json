@@ -1,0 +1,99 @@
+{
+  "schema": "jobsentinel.crates_dry_baseline.v1",
+  "feature_id": "crates-dry-remediation",
+  "measured_at": "2026-07-17T01:58:30Z",
+  "base_revision": "62f7b82d8bba9a11788017abc5adc73bee9e410c",
+  "platform": "local arm64 development host",
+  "detector": {
+    "contract": "scripts/harness/contracts/duplication.json",
+    "window_significant_lines": 15,
+    "baseline_direction": "downward-only"
+  },
+  "scopes": {
+    "frontendProduction": {
+      "maintained_measurement": {
+        "duplicatedLines": 778,
+        "cloneRegions": 38
+      },
+      "prior_baseline": {
+        "duplicatedLines": 778,
+        "cloneRegions": 38
+      },
+      "discrepancy": {
+        "duplicatedLines": 0,
+        "cloneRegions": 0
+      }
+    },
+    "cratesProduction": {
+      "maintained_measurement": {
+        "duplicatedLines": 693,
+        "cloneRegions": 35
+      },
+      "prototype_audit_observation": {
+        "duplicatedLines": 697,
+        "cloneRegions": 35
+      },
+      "discrepancy": {
+        "duplicatedLines": -4,
+        "cloneRegions": 0
+      }
+    },
+    "cratesTests": {
+      "maintained_measurement": {
+        "duplicatedLines": 2184,
+        "cloneRegions": 79
+      },
+      "prototype_audit_observation": {
+        "duplicatedLines": 2277,
+        "cloneRegions": 84
+      },
+      "discrepancy": {
+        "duplicatedLines": -93,
+        "cloneRegions": -5
+      }
+    }
+  },
+  "discrepancy_assessment": {
+    "observed": "No crate source file changed between plan activation and the maintained measurement.",
+    "inference": "The variance comes from replacing the read-only prototype classifier with the maintained item-range classifier. The checked-in classifier preserves line positions, ignores braces in comments and strings, and separates test-only files and test-only Rust items.",
+    "decision": "Use the maintained measurements as the ratchet baseline and retain the prototype observations for audit provenance."
+  },
+  "commands": [
+    {
+      "command": "node --test scripts/tests/checks/check-duplication.test.mjs",
+      "exit_status": 0,
+      "relevant_result": "Eight detector tests passed after the fail-first run proved the new classifier exports were absent.",
+      "caveat": "The fail-first run exited 1 with the expected missing-export error."
+    },
+    {
+      "command": "npm run lint:dup -- --list",
+      "exit_status": 0,
+      "relevant_result": "The three independent scopes measured 778 lines across 38 regions, 693 lines across 35 regions, and 2,184 lines across 79 regions.",
+      "caveat": "Exact-clone measurement does not replace semantic characterization."
+    },
+    {
+      "command": "cargo test -p jobsentinel-security -p jobsentinel-credentials -p jobsentinel-notifications",
+      "exit_status": 0,
+      "relevant_result": "URL, credential, webhook, output, and notification behavior passed before refactoring.",
+      "caveat": "None."
+    },
+    {
+      "command": "cargo test -p jobsentinel-domain -p jobsentinel-sources -p jobsentinel-application",
+      "exit_status": 0,
+      "relevant_result": "Normalization, source parsing, remote inference, scheduler, and scraper lifecycle behavior passed before refactoring.",
+      "caveat": "Tests requiring live external services remained intentionally ignored."
+    },
+    {
+      "command": "cargo test -p jobsentinel-storage",
+      "exit_status": 0,
+      "relevant_result": "All 629 storage unit tests passed; 22 integration tests passed and one documented locking stress test remained ignored.",
+      "caveat": "Three documentation examples remain intentionally ignored."
+    },
+    {
+      "command": "cargo test -p jobsentinel-documents",
+      "exit_status": 0,
+      "relevant_result": "All 301 active document tests passed; one local private-path test remained ignored.",
+      "caveat": "The export documentation example remains intentionally ignored."
+    }
+  ]
+}

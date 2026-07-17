@@ -173,21 +173,21 @@ Commit boundary: `docs(plan): activate crates DRY remediation`.
 
 ### Milestone 1: Establish Guardrails And Characterization
 
-- [ ] Upgrade `scripts/checks/duplication.mjs` and
+- [x] Upgrade `scripts/checks/duplication.mjs` and
   `scripts/harness/contracts/duplication.json` to independent production and
   test scopes without changing the existing frontend production ratchet.
-- [ ] Classify Rust test-only files and `#[cfg(test)]` items without discarding
+- [x] Classify Rust test-only files and `#[cfg(test)]` items without discarding
   production items that appear later in the same file.
-- [ ] Add detector tests for inline test modules, nested braces, production code
+- [x] Add detector tests for inline test modules, nested braces, production code
   after test code, crate test files, downward ratchets, and upward-baseline
   rejection.
-- [ ] Reproduce the audit measurements with the checked-in detector and save a
+- [x] Reproduce the audit measurements with the checked-in detector and save a
   structured baseline under `docs/harness/evidence/`. Record discrepancies as
   discoveries before source edits.
-- [ ] Add behavior tables for URL handling, webhook validation, title and
+- [x] Add behavior tables for URL handling, webhook validation, title and
   location normalization, remote inference, datetime parsing, HTML escaping,
   resume serialization, and scraper success or failure lifecycle.
-- [ ] Run focused tests before refactoring and preserve any intentional semantic
+- [x] Run focused tests before refactoring and preserve any intentional semantic
   corrections as explicit expected results.
 
 Commit boundary: `test(harness): cover Rust crate duplication`.
@@ -397,9 +397,10 @@ gap and blocks `passing`.
 | ---- | ------ | ----- |
 | 2026-07-16 | Planned | Audit reconciled with live crate graph, harness contract, active state, and verification owners. |
 | 2026-07-16 | Active | Root ownership committed at `880fca80`; post-commit full gate passed and Milestone 0 activated this plan. |
+| 2026-07-16 | Guarded | Milestone 1 added independent downward-only sensors, measured crate baselines, and recorded pre-refactor behavior. |
 
 - [x] Milestone 0: activate the plan safely.
-- [ ] Milestone 1: establish guardrails and characterization.
+- [x] Milestone 1: establish guardrails and characterization.
 - [ ] Milestone 2: consolidate security and output policies.
 - [ ] Milestone 3: separate normalization from analytics bucketing.
 - [ ] Milestone 4: consolidate storage primitives and mappers.
@@ -421,6 +422,9 @@ gap and blocks `passing`.
 - Exact clone counts alone do not capture the highest-risk debt. Normalization
   and resume models need semantic and serialization characterization in addition
   to the mechanical detector.
+- The maintained item-range classifier measured 693 production lines across 35
+  regions and 2,184 test lines across 79 regions. The prototype was higher by 4
+  production lines and 93 test lines across 5 additional test regions.
 
 ## Decision Log
 
@@ -445,10 +449,10 @@ dependency changes, verification evidence, and any follow-up debt.
 
 ## Handoff
 
-- Current state: Milestone 0 complete; Milestone 1 implementation is next.
-- Evidence: root ownership commit `880fca80`, its post-commit full gate, and the
-  live crate audit, Cargo graph, duplication sensor, and feature ledger.
-- Next step: add failing detector tests for independent crate production and
-  test scopes, then implement the maintained Rust classifier and ratchets.
+- Current state: Milestones 0 and 1 complete; Milestone 2 is next.
+- Evidence: checked-in downward-only scope baselines, eight detector tests,
+  behavior tables, and four passing pre-refactor Rust characterization lanes.
+- Next step: add fail-first security policy tests, then move shared URL, Teams,
+  HTML encoding, and debug-redaction behavior to `jobsentinel-security`.
 - Open risk: normalization and resume serialization are the two behavior-sensitive
   migrations. Do not combine either with unrelated cleanup.

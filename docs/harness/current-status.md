@@ -42,11 +42,11 @@ Last updated: 2026-07-16
   under `crates/` one canonical owner, remove obsolete copies, and prevent
   recurrence in production and test code.
 - Branch: `refactor/full-repo-v2.9.5`
-- Current slice: Milestone 1, establish independent crate production and test
-  duplication guardrails, characterize behavior-sensitive owners, and record
-  the measured baseline before source refactors.
-- Next action: add fail-first detector tests for Rust test classification,
-  independent scopes, and downward-only baselines.
+- Current slice: Milestone 1 is complete. Independent crate production and test
+  sensors now enforce downward-only baselines, and behavior-sensitive owners
+  have pre-refactor characterization evidence.
+- Next action: complete Milestone 2 by consolidating URL, webhook, HTML encoding,
+  and debug-redaction policy at `jobsentinel-security`.
 
 ## Deferred
 
