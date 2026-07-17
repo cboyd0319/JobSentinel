@@ -1,7 +1,7 @@
 {
   "schema": "jobsentinel.repository_architecture.v2",
   "owner": "scripts/harness/contracts/architecture.json",
-  "active_plan": "docs/plans/active/current-work.md",
+  "active_plan": "docs/plans/completed/full-repository-refactor.md",
   "architecture_doc": "docs/architecture/repository.md",
   "decision_log_id": "2026-07-14-executable-repository-topology",
     "members": {

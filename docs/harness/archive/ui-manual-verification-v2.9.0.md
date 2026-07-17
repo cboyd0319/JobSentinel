@@ -1,5 +1,7 @@
 # v2.9.0 Whole-UI Manual Verification
 
+Archive status: Historical release evidence.
+
 Last updated: 2026-06-20.
 
 ## Purpose

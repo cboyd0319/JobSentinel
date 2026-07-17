@@ -1,5 +1,7 @@
 # v2.9.0 Capabilities Verification
 
+Archive status: Historical release evidence.
+
 Last updated: 2026-06-22.
 
 ## Purpose

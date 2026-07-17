@@ -278,7 +278,6 @@ export function hasAnswerHistoryRendererInvoke(root, path) {
 export function hasRawAnswerHistoryIpcExposure(root, path) {
   if (
     path !== "src-tauri/src/ipc/automation.rs" &&
-    path !== "src/features/application-assist/ScreeningAnswerSuggestions.tsx" &&
     path !== "src/dev-runtime/features/application-assist/commands.ts" &&
     path !== "src/dev-runtime/mocks/handlers.ts"
   ) {

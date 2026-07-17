@@ -1,5 +1,6 @@
-import type { ReactElement } from "react";
+import type { ReactElement, ReactNode } from "react";
 import type { TemplateId } from "./resumeBuilderData";
+export { CheckCircleIcon } from "../../../ui/StatusIcons";
 
 export function TemplateThumbnail({ templateId }: { templateId: TemplateId }) {
   const thumbnails: Record<TemplateId, ReactElement> = {
@@ -104,45 +105,13 @@ export function TemplateThumbnail({ templateId }: { templateId: TemplateId }) {
   return thumbnails[templateId] || null;
 }
 
-export function TrashIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-      aria-hidden="true"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-      />
-    </svg>
-  );
-}
-
-export function CheckCircleIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-      aria-hidden="true"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-      />
-    </svg>
-  );
-}
-
-export function PdfIcon({ className }: { className?: string }) {
+function FileIcon({
+  className,
+  children,
+}: {
+  className?: string;
+  children: ReactNode;
+}) {
   return (
     <svg
       className={className}
@@ -157,13 +126,21 @@ export function PdfIcon({ className }: { className?: string }) {
         strokeWidth={2}
         d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
       />
+      {children}
+    </svg>
+  );
+}
+
+export function PdfIcon({ className }: { className?: string }) {
+  return (
+    <FileIcon className={className}>
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
         strokeWidth={2}
         d="M9 13h2v2H9v-2zm0 0V9l4 4m-4 0h4"
       />
-    </svg>
+    </FileIcon>
   );
 }
 
@@ -188,25 +165,13 @@ export function DocxIcon({ className }: { className?: string }) {
 
 export function JsonIcon({ className }: { className?: string }) {
   return (
-    <svg
-      className={className}
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-      aria-hidden="true"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
-      />
+    <FileIcon className={className}>
       <path
         strokeLinecap="round"
         strokeLinejoin="round"
         strokeWidth={2}
         d="M10 13l-1.5 1.5L10 16m4-3l1.5 1.5L14 16"
       />
-    </svg>
+    </FileIcon>
   );
 }

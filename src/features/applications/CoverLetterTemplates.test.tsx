@@ -1,46 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { screen, fireEvent, waitFor } from "@testing-library/react";
+import {
+  mockInvoke,
+  mockTemplate,
+  mockToast,
+  renderWithProviders,
+  setupCoverLetterTemplateMocks,
+} from "./CoverLetterTemplates.testSupport";
 import { CoverLetterTemplates } from "./CoverLetterTemplates";
 import { fillTemplatePlaceholders, type JobForTemplate } from "./coverLetterTemplate";
-import { UndoProvider } from "../../app/providers/UndoProvider";
-
-// Mock Tauri invoke
-const mockInvoke = vi.fn();
-vi.mock("@tauri-apps/api/core", () => ({
-  invoke: (...args: unknown[]) => mockInvoke(...args),
-}));
-
-// Mock useToast
-const mockToast = {
-  success: vi.fn(),
-  error: vi.fn(),
-  info: vi.fn(),
-  warning: vi.fn(),
-};
-vi.mock("../../shared/toast/useToast", () => ({
-  useToast: () => mockToast,
-}));
-
-// Helper to render with required providers
-const renderWithProviders = (ui: React.ReactElement) => {
-  return render(<UndoProvider>{ui}</UndoProvider>);
-};
-
-// Mock clipboard
-Object.assign(navigator, {
-  clipboard: {
-    writeText: vi.fn().mockResolvedValue(undefined),
-  },
-});
-
-const mockTemplate = {
-  id: "template-1",
-  name: "Test Template",
-  content: "Dear {hiring_manager},\n\nI am applying for {position} at {company}.",
-  category: "general" as const,
-  createdAt: "2024-01-01T00:00:00Z",
-  updatedAt: "2024-01-01T00:00:00Z",
-};
 
 describe("fillTemplatePlaceholders", () => {
   const job: JobForTemplate = {
@@ -130,11 +98,7 @@ describe("CoverLetterTemplates", () => {
 
   const toastErrorText = () => mockToast.error.mock.calls.flat().join(" ");
 
-  beforeEach(() => {
-    vi.clearAllMocks();
-    mockInvoke.mockReset();
-    (navigator.clipboard.writeText as ReturnType<typeof vi.fn>).mockResolvedValue(undefined);
-  });
+  beforeEach(setupCoverLetterTemplateMocks);
 
   describe("loading state", () => {
     it("shows loading spinner initially", async () => {

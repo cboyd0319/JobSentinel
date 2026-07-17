@@ -60,6 +60,27 @@ function TestWrapper({ children }: { children: React.ReactNode }) {
   );
 }
 
+async function renderThenUndo(
+  onUndo: () => Promise<void>,
+  onRedo: () => Promise<void>,
+) {
+  render(
+    <TestWrapper>
+      <TestComponent onUndo={onUndo} onRedo={onRedo} />
+    </TestWrapper>,
+  );
+  fireEvent.click(screen.getByTestId("push-action"));
+  await waitFor(() => {
+    expect(screen.getByTestId("can-undo")).toHaveTextContent("true");
+  });
+  await act(async () => {
+    fireEvent.click(screen.getByTestId("undo-btn"));
+  });
+  await waitFor(() => {
+    expect(onUndo).toHaveBeenCalled();
+  });
+}
+
 describe("UndoContext", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -259,29 +280,7 @@ describe("UndoContext", () => {
       const onUndo = vi.fn().mockResolvedValue(undefined);
       const onRedo = vi.fn().mockResolvedValue(undefined);
 
-      render(
-        <TestWrapper>
-          <TestComponent onUndo={onUndo} onRedo={onRedo} />
-        </TestWrapper>
-      );
-
-      // Push action
-      fireEvent.click(screen.getByTestId("push-action"));
-
-      await waitFor(() => {
-        expect(screen.getByTestId("can-undo")).toHaveTextContent("true");
-      });
-
-      // Undo
-      await act(async () => {
-        fireEvent.click(screen.getByTestId("undo-btn"));
-      });
-
-      await waitFor(() => {
-        expect(onUndo).toHaveBeenCalled();
-      });
-
-      // Redo
+      await renderThenUndo(onUndo, onRedo);
       await act(async () => {
         fireEvent.click(screen.getByTestId("redo-btn"));
       });
@@ -312,27 +311,7 @@ describe("UndoContext", () => {
       const onUndo = vi.fn().mockResolvedValue(undefined);
       const onRedo = vi.fn().mockRejectedValue(new Error("Redo failed"));
 
-      render(
-        <TestWrapper>
-          <TestComponent onUndo={onUndo} onRedo={onRedo} />
-        </TestWrapper>
-      );
-
-      // Push and undo to enable redo
-      fireEvent.click(screen.getByTestId("push-action"));
-      await waitFor(() => {
-        expect(screen.getByTestId("can-undo")).toHaveTextContent("true");
-      });
-
-      await act(async () => {
-        fireEvent.click(screen.getByTestId("undo-btn"));
-      });
-
-      await waitFor(() => {
-        expect(onUndo).toHaveBeenCalled();
-      });
-
-      // Now try to redo which will fail
+      await renderThenUndo(onUndo, onRedo);
       await act(async () => {
         fireEvent.click(screen.getByTestId("redo-btn"));
       });

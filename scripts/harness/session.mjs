@@ -14,7 +14,10 @@ function git(root, args, exec = execFileSync) {
   try {
     return exec("git", args, { cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
   } catch (error) {
-    throw new Error(`git ${args.join(" ")} failed: ${String(error?.stderr ?? error?.message ?? error).trim()}`);
+    throw new Error(
+      `git ${args.join(" ")} failed: ${String(error?.stderr ?? error?.message ?? error).trim()}`,
+      { cause: error },
+    );
   }
 }
 

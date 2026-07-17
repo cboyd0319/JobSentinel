@@ -1,70 +1,12 @@
 import assert from "node:assert/strict";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { dirname, join } from "node:path";
 import test from "node:test";
 import { checkTauriInvokes } from "../../checks/tauri-invokes.mjs";
+import { writeFixtureFile } from "../lib/filesystem-fixture.mjs";
+import { createTauriInvokeFixtureRunner } from "../lib/source-fixtures.mjs";
 
-function writeFixtureFile(root, path, content) {
-  const fullPath = join(root, path);
-  mkdirSync(dirname(fullPath), { recursive: true });
-  writeFileSync(fullPath, content, "utf8");
-}
-
-function withFixture(callback) {
-  const root = mkdtempSync(join(tmpdir(), "jobsentinel-tauri-invokes-"));
-
-  try {
-    writeFixtureFile(
-      root,
-      "src-tauri/src/main.rs",
-      `
-fn main() {
-    tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![
-            ipc::jobs::search_jobs,
-            ipc::config::get_config,
-        ]);
-}
-`,
-    );
-
-    writeFixtureFile(
-      root,
-      "README.md",
-      "Current backend surface: **2 registered Tauri commands**.\n",
-    );
-    writeFixtureFile(
-      root,
-      "docs/README.md",
-      "### Backend Modules (2 registered Tauri commands)\n\n- **ATS**: 10 commands\n",
-    );
-    writeFixtureFile(
-      root,
-      "docs/ROADMAP.md",
-      "- **2 registered Tauri commands** for backend modules\n",
-    );
-    writeFixtureFile(
-      root,
-      "docs/developer/ARCHITECTURE.md",
-      "Tauri command handlers. **169 total commands.**\n\n**Core Commands (18):**\n",
-    );
-    writeFixtureFile(
-      root,
-      "docs/developer/GETTING_STARTED.md",
-      "- **ats**: Application Tracking System with interview scheduler (10 commands)\n",
-    );
-    writeFixtureFile(
-      root,
-      "docs/features/user-data-management.md",
-      "These 20 commands power the user data features.\n\n### Saved Searches (4 commands)\n",
-    );
-
-    callback(root);
-  } finally {
-    rmSync(root, { recursive: true, force: true });
-  }
-}
+const withFixture = createTauriInvokeFixtureRunner(
+  "jobsentinel-tauri-invokes-",
+);
 
 test("checkTauriInvokes rejects hardcoded current command-count claims", () => {
   withFixture((root) => {

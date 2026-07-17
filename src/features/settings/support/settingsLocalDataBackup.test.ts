@@ -1,8 +1,9 @@
 import { describe, expect, it } from "vitest";
+import type { Config } from "../config/SettingsConfig";
 import {
-  DEFAULT_EXTERNAL_AI_CONFIG,
-  type Config,
-} from "../config/SettingsConfig";
+  makeConfig as makeBaseConfig,
+  makeSavedSearch,
+} from "../SettingsPage.testFixtures";
 import {
   createSettingsLocalDataBackup,
   isSettingsLocalDataBackup,
@@ -11,78 +12,12 @@ import {
 } from "./settingsLocalDataBackup";
 
 function makeConfig(): Config {
-  return {
-    title_allowlist: [],
-    title_blocklist: [],
-    keywords_boost: ["customer support"],
-    keywords_exclude: [],
-    location_preferences: {
-      allow_remote: true,
-      allow_hybrid: true,
-      allow_onsite: true,
-      cities: [],
-    },
-    salary_floor_usd: 0,
-    preferred_companies: [],
-    blocked_companies: [],
-    auto_refresh: { enabled: false, interval_minutes: 30 },
-    alerts: {
-      slack: { enabled: false },
-      email: {
-        enabled: false,
-        smtp_server: "",
-        smtp_port: 587,
-        smtp_username: "",
-        from_email: "",
-        to_emails: [],
-        use_starttls: true,
-      },
-      discord: { enabled: false },
-      telegram: { enabled: false },
-      teams: { enabled: false },
-      desktop: {
-        enabled: false,
-        show_when_focused: false,
-        play_sound: false,
-      },
-    },
-    linkedin: {
-      enabled: false,
-      query: "",
-      location: "",
-      remote_only: false,
-      limit: 25,
-    },
-    restricted_source_acknowledgements: {
-      builtin: false,
-      dice: false,
-      simplyhired: false,
-      glassdoor: false,
-    },
-    remoteok: { enabled: false, tags: [], limit: 25 },
-    weworkremotely: { enabled: false, limit: 25 },
-    builtin: { enabled: false, cities: [], limit: 25 },
-    hn_hiring: { enabled: false, remote_only: false, limit: 25 },
-    dice: { enabled: false, query: "", limit: 25 },
-    yc_startup: { enabled: false, remote_only: false, limit: 25 },
-    usajobs: {
-      enabled: false,
-      email: "",
-      remote_only: false,
-      date_posted_days: 7,
-      limit: 25,
-    },
-    simplyhired: { enabled: false, query: "", limit: 25 },
-    glassdoor: { enabled: false, query: "", limit: 25 },
-    jobswithgpt_endpoint: "",
-    jobswithgpt_approval: {
-      enabled: false,
-      payload: null,
-      approved_at: null,
-    },
-    external_ai: DEFAULT_EXTERNAL_AI_CONFIG,
-    use_resume_matching: false,
-  };
+  const config = makeBaseConfig();
+  config.keywords_boost = ["customer support"];
+  config.location_preferences.allow_hybrid = true;
+  config.location_preferences.allow_onsite = true;
+  config.salary_floor_usd = 0;
+  return config;
 }
 
 function makeTemplate() {
@@ -93,26 +28,6 @@ function makeTemplate() {
     category: "general",
     createdAt: "2026-06-19T12:00:00Z",
     updatedAt: "2026-06-19T12:00:00Z",
-  };
-}
-
-function makeSavedSearch() {
-  return {
-    id: "search-1",
-    name: "Remote coordinator",
-    sortBy: "score",
-    scoreFilter: "all",
-    sourceFilter: "all",
-    remoteFilter: "all",
-    bookmarkFilter: "all",
-    notesFilter: "all",
-    postedDateFilter: null,
-    salaryMinFilter: 50000,
-    salaryMaxFilter: null,
-    ghostFilter: null,
-    textSearch: "coordinator",
-    createdAt: "2026-06-19T12:00:00Z",
-    lastUsedAt: null,
   };
 }
 

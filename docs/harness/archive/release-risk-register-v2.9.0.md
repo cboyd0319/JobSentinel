@@ -1,5 +1,7 @@
 # v2.9.0 Release Risk Register
 
+Archive status: Historical release evidence.
+
 Last updated: 2026-06-22.
 
 This register covers source access, scraper behavior, user risk, and release
@@ -325,9 +327,9 @@ SBOMs, attestations, and plain first-open instructions.
 
 Evidence:
 
-- `docs/harness/ui-manual-verification-v2.9.0.md` is the whole-UI completion
+- `docs/harness/archive/ui-manual-verification-v2.9.0.md` is the whole-UI completion
   ledger.
-- `docs/harness/source-debug-verification-v2.9.0.md` is the source-path release
+- `docs/harness/archive/source-debug-verification-v2.9.0.md` is the source-path release
   ledger.
 
 Risk:

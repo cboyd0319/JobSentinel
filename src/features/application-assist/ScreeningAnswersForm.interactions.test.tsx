@@ -1,31 +1,15 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import {
+  mockInvoke,
+  resetScreeningAnswerMocks,
+} from "./ScreeningAnswersForm.testSupport";
 import { ScreeningAnswersForm } from "./ScreeningAnswersForm";
 import { mockAnswers } from "./ScreeningAnswersForm.testData";
 
-// Mock Tauri invoke
-const mockInvoke = vi.fn();
-vi.mock("@tauri-apps/api/core", () => ({
-  invoke: (...args: unknown[]) => mockInvoke(...args),
-}));
-
-// Mock useToast
-const mockToast = {
-  success: vi.fn(),
-  error: vi.fn(),
-  info: vi.fn(),
-  warning: vi.fn(),
-};
-vi.mock("../../shared/toast/useToast", () => ({
-  useToast: () => mockToast,
-}));
-
 describe("ScreeningAnswersForm", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    mockInvoke.mockReset();
-  });
+  beforeEach(resetScreeningAnswerMocks);
   describe("add modal", () => {
     beforeEach(() => {
       mockInvoke.mockResolvedValue([]);

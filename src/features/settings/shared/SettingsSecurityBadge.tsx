@@ -1,4 +1,4 @@
-import type { CredentialStatusValue } from "../config/SettingsConfig";
+import type { CredentialStatusValue } from "../credentials/SettingsCredentials";
 
 export function SecurityBadge({ status }: { status?: CredentialStatusValue }) {
   if (status?.state === "needs_attention") {

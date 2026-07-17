@@ -51,9 +51,9 @@ current maintained surface at the time of the latest docs sweep.
 
 | Surface | Maintained docs |
 | ------- | --------------- |
-| Setup and search intent | [Quick start](user/QUICK_START.md), [current plan](plans/active/current-work.md) |
+| Setup and search intent | [Quick start](user/QUICK_START.md), [current status](harness/current-status.md) |
 | Job monitoring and source status | [Source checks](features/job-sources.md), [source status](features/job-source-status.md) |
-| Ghost and stale-posting review | [Ghost detection](features/ghost-detection.md), [current plan](plans/active/current-work.md) |
+| Ghost and stale-posting review | [Ghost detection](features/ghost-detection.md), [current status](harness/current-status.md) |
 | Salary and pay protection | [Salary support](features/pay-protection.md), [pay-equity research](research/pay-equity.md) |
 | Resume builder and fit review | [Resume builder](features/resume-builder.md), [resume match](features/resume-matcher.md) |
 | Application tracking | [Application tracking](features/application-tracking.md) |
@@ -94,8 +94,9 @@ See [PRIVACY.md](../PRIVACY.md),
 
 Current active plan docs are part of the repo goal:
 
-- [Active status](plans/active/status.md)
-- [Current product and quality work](plans/active/current-work.md)
+- [Current status](harness/current-status.md)
+- [Repository residual cleanup](plans/active/repository-residual-cleanup.md)
+- [Completed full repository refactor](plans/completed/full-repository-refactor.md)
 - [Completed full repository refactor and v2.9.5 readiness](plans/completed/repository-architecture-reorganization.md)
 
 Superseded long-running plan history is archived under

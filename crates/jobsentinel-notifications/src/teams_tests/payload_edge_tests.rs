@@ -1,5 +1,5 @@
 use super::super::*;
-use super::notification_fixture;
+use super::{notification_fixture, validation_webhook_test_payload};
 
 #[test]
 fn test_theme_color_selection_comprehensive() {
@@ -148,26 +148,7 @@ fn test_reasons_text_with_markdown() {
 
 #[test]
 fn test_validation_webhook_test_payload_all_fields() {
-    let payload = json!({
-        "@type": "MessageCard",
-        "@context": "https://schema.org/extensions",
-        "summary": "JobSentinel Webhook Test",
-        "themeColor": "00FF00",
-        "title": "✅ JobSentinel Webhook Test",
-        "text": "Your Microsoft Teams webhook is configured correctly! You'll now receive job alerts in this channel.",
-        "potentialAction": [
-            {
-                "@type": "OpenUri",
-                "name": "Learn More",
-                "targets": [
-                    {
-                        "os": "default",
-                        "uri": "https://github.com/cboyd0319/JobSentinel"
-                    }
-                ]
-            }
-        ]
-    });
+    let payload = validation_webhook_test_payload();
 
     assert_eq!(payload["@type"], "MessageCard");
     assert_eq!(payload["@context"], "https://schema.org/extensions");

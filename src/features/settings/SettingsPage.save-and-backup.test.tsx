@@ -4,6 +4,7 @@ import userEvent from "@testing-library/user-event";
 import {
   makeConfig,
   makeGhostConfig,
+  makeSavedSearch,
   mockDownloadPrivateSettingsBackup,
   mockSelectSettingsBackupFile,
   mockInvoke,
@@ -321,23 +322,7 @@ describe("Settings — handleSave flow", () => {
       createdAt: "2026-06-19T12:00:00Z",
       updatedAt: "2026-06-19T12:00:00Z",
     };
-    const savedSearch = {
-      id: "search-1",
-      name: "Remote coordinator",
-      sortBy: "score",
-      scoreFilter: "all",
-      sourceFilter: "all",
-      remoteFilter: "all",
-      bookmarkFilter: "all",
-      notesFilter: "all",
-      postedDateFilter: null,
-      salaryMinFilter: 50000,
-      salaryMaxFilter: null,
-      ghostFilter: null,
-      textSearch: "coordinator",
-      createdAt: "2026-06-19T12:00:00Z",
-      lastUsedAt: null,
-    };
+    const savedSearch = makeSavedSearch();
 
     setupHappyPath();
     mockInvoke.mockImplementation(async (cmd: string) => {

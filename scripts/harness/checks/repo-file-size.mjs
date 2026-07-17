@@ -2,18 +2,17 @@ import { execFileSync } from "node:child_process";
 import { closeSync, existsSync, lstatSync, openSync, readFileSync, readSync, realpathSync } from "node:fs";
 import { extname, isAbsolute, join, relative } from "node:path";
 
-import {
-  defaultFileSizeContract,
-  fileSizeContractPath,
-  fileSizeContractSchema,
-  repositoryStructurePolicyPath,
-  requiredBudgetFields,
-  requiredExceptionFields,
-  requiredExclusionFields,
-} from "./repo-file-size-defaults.mjs";
-
 const cache = new Map();
 const globCache = new Map();
+const repositoryStructurePolicyPath =
+  "scripts/harness/contracts/repository-structure.json";
+const requiredExceptionFields = [
+  "owner",
+  "reason",
+  "approval_date",
+  "retirement_condition",
+];
+const requiredExclusionFields = ["owner", "reason", "refresh_trigger"];
 const canonicalLimits = {
   review_lines: 300,
   hard_lines: 500,
@@ -27,10 +26,6 @@ export function normalizeRepoPath(path) {
 
 export function clearFileSizeContractCache() {
   cache.clear();
-}
-
-function plainObject(value) {
-  return value !== null && typeof value === "object" && !Array.isArray(value);
 }
 
 function nonEmpty(value) {
@@ -119,14 +114,12 @@ function fileMetrics(root, path) {
 function load(root) {
   if (cache.has(root)) return cache.get(root);
   const policyPath = join(root, repositoryStructurePolicyPath);
-  const projectionPath = join(root, fileSizeContractPath);
   const policy = existsSync(policyPath) ? readJson(policyPath, {}) : { missing: true };
-  const projection = existsSync(projectionPath)
-    ? readJson(projectionPath, defaultFileSizeContract)
-    : { ...defaultFileSizeContract, missing: true };
   const loaded = {
     policy,
-    projection,
+    scopes: Array.isArray(policy.file_size?.scopes)
+      ? policy.file_size.scopes
+      : [],
     extensions: new Set(stringList(policy.included_extensions)),
     exclusions: Array.isArray(policy.non_hand_authored_exclusions)
       ? policy.non_hand_authored_exclusions
@@ -158,7 +151,7 @@ function scopesFor(path, scopes) {
 }
 
 function validatePolicy(root, loaded) {
-  const { policy, projection } = loaded;
+  const { policy } = loaded;
   const failures = [];
   if (policy.missing) failures.push(`add canonical structure policy: ${repositoryStructurePolicyPath}`);
   if (policy.parse_error) failures.push(`fix invalid ${repositoryStructurePolicyPath}: ${policy.parse_error}`);
@@ -167,23 +160,15 @@ function validatePolicy(root, loaded) {
     if (policy.source_limits?.[field] !== value) failures.push(`${repositoryStructurePolicyPath} source_limits.${field} must be ${value}`);
   }
   if (loaded.extensions.size === 0) failures.push(`${repositoryStructurePolicyPath} included_extensions must be non-empty`);
-  if (projection.missing) failures.push(`add file-coverage projection: ${fileSizeContractPath}`);
-  if (projection.parse_error) failures.push(`fix invalid ${fileSizeContractPath}: ${projection.parse_error}`);
-  if (projection.schema !== fileSizeContractSchema) failures.push(`${fileSizeContractPath} schema must be ${fileSizeContractSchema}`);
-  if (projection.projection_of !== repositoryStructurePolicyPath) failures.push(`${fileSizeContractPath} must project ${repositoryStructurePolicyPath}`);
-  const projectedExtensions = new Set(stringList(projection.coverage?.extensions));
-  for (const extension of loaded.extensions) {
-    if (!projectedExtensions.has(extension)) failures.push(`${fileSizeContractPath} omits canonical extension ${extension}`);
+  if (loaded.scopes.length === 0) {
+    failures.push(`${repositoryStructurePolicyPath} file_size.scopes must be non-empty`);
   }
-  for (const scope of Array.isArray(projection.scopes) ? projection.scopes : []) {
-    for (const field of requiredBudgetFields) {
-      if (!Number.isInteger(scope?.[field]) || scope[field] <= 0) failures.push(`${fileSizeContractPath} scope ${String(scope?.id)}: ${field} must be positive`);
+  for (const scope of loaded.scopes) {
+    if (!nonEmpty(scope?.id) || stringList(scope?.globs).length === 0) {
+      failures.push(
+        `${repositoryStructurePolicyPath} file_size scope ${String(scope?.id ?? "<missing>")} requires an id and globs`,
+      );
     }
-    if (scope.max_lines > canonicalLimits.hard_lines) failures.push(`${fileSizeContractPath} scope ${String(scope?.id)} exceeds canonical hard_lines`);
-    if (scope.max_bytes > canonicalLimits.hard_bytes) failures.push(`${fileSizeContractPath} scope ${String(scope?.id)} exceeds canonical hard_bytes`);
-  }
-  if ((projection.coverage_exclusions ?? []).length > 0 || (projection.exceptions ?? []).length > 0) {
-    failures.push(`${fileSizeContractPath} cannot own exclusions or exceptions; ${repositoryStructurePolicyPath} is canonical`);
   }
   const exclusionPaths = new Set();
   for (const row of loaded.exclusions) {
@@ -229,12 +214,12 @@ export function collectTrackedFileSizeViolations(root, inputPath) {
   const loaded = load(root);
   if (!loaded.extensions.has(extname(path)) || excluded(path, loaded.exclusions)) return [];
   if (!existsSync(join(root, path))) return [];
-  const scopes = scopesFor(path, Array.isArray(loaded.projection.scopes) ? loaded.projection.scopes : []);
-  if (scopes.length === 0) return [`classify source or configuration in ${fileSizeContractPath}: ${path}`];
+  const scopes = scopesFor(path, loaded.scopes);
+  if (scopes.length === 0) return [`classify source or configuration in ${repositoryStructurePolicyPath}: ${path}`];
   const exception = loaded.exceptions.get(path);
-  const maxLines = exception?.max_lines ?? Math.min(canonicalLimits.hard_lines, ...scopes.map((scope) => scope.max_lines));
-  const maxBytes = exception?.max_bytes ?? Math.min(canonicalLimits.hard_bytes, ...scopes.map((scope) => scope.max_bytes));
-  const maxLineBytes = Math.min(...scopes.map((scope) => scope.max_line_bytes));
+  const maxLines = exception?.max_lines ?? canonicalLimits.hard_lines;
+  const maxBytes = exception?.max_bytes ?? canonicalLimits.hard_bytes;
+  const maxLineBytes = canonicalLimits.hard_bytes;
   let metrics;
   try {
     metrics = fileMetrics(root, path);

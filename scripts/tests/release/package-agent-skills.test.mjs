@@ -42,8 +42,8 @@ test("packageAgentSkills writes tar.gz and ZIP archives with checksums", () => {
   assert.equal(archive[1], 0x8b);
   assert.equal(zipArchive[0], 0x50);
   assert.equal(zipArchive[1], 0x4b);
-  assert.match(checksum, /^[a-f0-9]{64}  JobSentinel-9\.9\.9-agent-skills\.tar\.gz\n$/);
-  assert.match(zipChecksum, /^[a-f0-9]{64}  JobSentinel-9\.9\.9-agent-skills\.zip\n$/);
+  assert.match(checksum, /^[a-f0-9]{64} {2}JobSentinel-9\.9\.9-agent-skills\.tar\.gz\n$/);
+  assert.match(zipChecksum, /^[a-f0-9]{64} {2}JobSentinel-9\.9\.9-agent-skills\.zip\n$/);
 });
 
 test("packageAgentSkills archives contain every downloadable skill surface", () => {

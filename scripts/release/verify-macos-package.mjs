@@ -1,40 +1,31 @@
 #!/usr/bin/env node
 
 import { execFileSync, spawn, spawnSync } from "node:child_process";
-import { createHash, randomBytes } from "node:crypto";
 import {
   existsSync,
   lstatSync,
   mkdirSync,
   mkdtempSync,
-  readdirSync,
   readFileSync,
   rmSync,
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { basename, dirname, join, resolve } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import {
-  getArgValue,
-  hasArg,
-  defaultArchitectures,
   parseArgs,
   parseLipoArchitectures,
   hasExpectedArchitectures,
   bundleIconResourceNames,
   formatGatekeeperStatus,
   macosSmokeDataPaths,
-  smokeDataPermissionViolations,
-  buildCgWindowSmokeScript,
-  parseCgWindowSmokeOutput,
   assertLaunchWindowVisible,
   assertSmokeDataPermissions,
   buildMacosOpenArgs,
   formatMacosOpenArgsForLog,
   createSmokeDatabaseKeyHex,
   findMacosAppProcess,
-  parseSha256Checksum,
   verifyLocalDmgChecksum,
   bundleMetadataViolations,
 } from "./macos-package-contract.mjs";

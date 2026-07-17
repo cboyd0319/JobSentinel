@@ -1,5 +1,7 @@
 # Resume Corpus Verification v2.9.0
 
+Archive status: Historical release evidence.
+
 Updated: 2026-06-22.
 
 This record tracks privacy-safe local verification against a private resume

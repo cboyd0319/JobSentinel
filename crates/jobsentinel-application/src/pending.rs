@@ -69,35 +69,17 @@ mod tests {
 
     fn job(hash: &str) -> Job {
         let now = Utc::now();
-        Job {
-            id: 0,
-            hash: hash.to_string(),
-            title: "Office Manager".to_string(),
-            company: "Example Services".to_string(),
-            url: "https://example.com/jobs/office-manager".to_string(),
-            location: None,
-            description: None,
-            score: None,
-            score_reasons: None,
-            source: "import".to_string(),
-            remote: Some(false),
-            salary_min: None,
-            salary_max: None,
-            currency: None,
-            created_at: now,
-            updated_at: now,
-            last_seen: now,
-            times_seen: 1,
-            immediate_alert_sent: false,
-            included_in_digest: false,
-            hidden: false,
-            bookmarked: false,
-            notes: None,
-            ghost_score: None,
-            ghost_reasons: None,
-            first_seen: Some(now),
-            repost_count: 0,
-        }
+        let mut job = Job::newly_discovered(
+            "Office Manager",
+            "Example Services",
+            "https://example.com/jobs/office-manager",
+            None,
+            "import",
+            now,
+        );
+        job.hash = hash.to_string();
+        job.remote = Some(false);
+        job
     }
 
     #[test]

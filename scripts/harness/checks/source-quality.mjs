@@ -9,7 +9,6 @@ const databaseLogEmojiPaths = new Set([
 
 const scoreReasonJsonParserPaths = new Set([
   "src/ui/score-display/internal/scoreReasons.ts",
-  "src/features/dashboard/components/ScoreBreakdownModal.tsx",
   "src/features/dashboard/components/GhostIndicator.tsx",
 ]);
 

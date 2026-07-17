@@ -47,5 +47,26 @@ export default tseslint.config(
       "@typescript-eslint/no-throw-literal": "off",
     },
   },
+  {
+    ...js.configs.recommended,
+    files: ["scripts/**/*.{js,mjs}"],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: "module",
+      globals: globals.node,
+    },
+    rules: {
+      ...js.configs.recommended.rules,
+      "no-unused-vars": [
+        "error",
+        {
+          argsIgnorePattern: "^_",
+          caughtErrorsIgnorePattern: "^_",
+        },
+      ],
+      "no-control-regex": "off",
+      "no-misleading-character-class": "off",
+    },
+  },
   storybook.configs["flat/recommended"],
 );

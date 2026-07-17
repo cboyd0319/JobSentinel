@@ -1,113 +1,16 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { invoke } from "@tauri-apps/api/core";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  mockInvoke,
+  mockInvokeResponses,
+  mockToast,
+  mockWriteStorageValue,
+  openResumeAppImport,
+  setupResumeMatchMocks,
+  validResume,
+} from "./ResumeMatchPage.testSupport";
 import ResumeMatch from "./ResumeMatchPage";
-
-vi.mock("@tauri-apps/api/core", () => ({
-  invoke: vi.fn(),
-}));
-
-const mockReadStorageValue = vi.hoisted(() => vi.fn(() => null));
-const mockRemoveStorageValue = vi.hoisted(() => vi.fn(() => true));
-const mockWriteStorageValue = vi.hoisted(() => vi.fn(() => true));
-
-vi.mock("../../../shared/browserStorage", () => ({
-  readStorageValue: mockReadStorageValue,
-  removeStorageValue: mockRemoveStorageValue,
-  writeStorageValue: mockWriteStorageValue,
-}));
-
-const mockToast = {
-  success: vi.fn(),
-  error: vi.fn(),
-  info: vi.fn(),
-  warning: vi.fn(),
-};
-
-vi.mock("../../../shared/toast/useToast", () => ({
-  useToast: () => mockToast,
-}));
-
-vi.mock("../../../shared/errorReporting/logger", () => ({
-  logError: vi.fn(),
-}));
-
-const mockInvoke = vi.mocked(invoke);
-
-const validResume = {
-  resume: {
-    personal: {
-      name: "Jordan Lee",
-      email: "jordan@example.com",
-      phone: "555-1234",
-      location: "Denver, CO",
-      linkedin: null,
-      github: null,
-      website: null,
-    },
-    summary: "Customer success manager",
-    experience: [{
-      title: "Customer Success Manager",
-      company: "ExampleCo",
-      location: "Remote",
-      start_date: "2022-01",
-      end_date: null,
-      is_current: true,
-      achievements: ["Improved onboarding and retention"],
-    }],
-    skills: [{
-      name: "Customer Success",
-      skills: [{
-        name: "Customer Retention",
-        proficiency: "advanced",
-        years_experience: null,
-      }],
-    }],
-    education: [{
-      degree: "BA Communications",
-      institution: "Example University",
-      field_of_study: null,
-      location: "Denver, CO",
-      graduation_date: "2018",
-      gpa: null,
-      honors: [],
-    }],
-    certifications: [],
-    projects: [],
-    clearance: null,
-    military_info: null,
-  },
-  custom_sections: {},
-};
-
-const mockAnalysis = {
-  overall_score: 82,
-  keyword_score: 80,
-  format_score: 84,
-  completeness_score: 82,
-  keyword_matches: [],
-  missing_keywords: [],
-  missing_keyword_details: [],
-  format_issues: [],
-  suggestions: [],
-};
-
-function mockInvokeResponses(responses: Record<string, unknown | Error>) {
-  mockInvoke.mockImplementation((command) => {
-    if (Object.prototype.hasOwnProperty.call(responses, command)) {
-      const response = responses[command];
-      if (response instanceof Error) return Promise.reject(response);
-      return Promise.resolve(response);
-    }
-    if (command === "get_active_resume") return Promise.resolve(null);
-    return Promise.resolve(mockAnalysis);
-  });
-}
-
-async function openResumeAppImport(user: ReturnType<typeof userEvent.setup>) {
-  await user.click(screen.getByRole("button", { name: /import from resume app/i }));
-}
 
 describe("ResumeMatch recovery and bullet guidance", () => {
   const privateFailure = new Error(
@@ -116,13 +19,7 @@ describe("ResumeMatch recovery and bullet guidance", () => {
 
   const toastErrorText = () => mockToast.error.mock.calls.flat().join(" ");
 
-  beforeEach(() => {
-    vi.clearAllMocks();
-    mockReadStorageValue.mockReturnValue(null);
-    mockRemoveStorageValue.mockReturnValue(true);
-    mockWriteStorageValue.mockReturnValue(true);
-    mockInvokeResponses({});
-  });
+  beforeEach(setupResumeMatchMocks);
 
   it("gives a plain recovery path when Resume Builder cannot receive the job post", async () => {
     const user = userEvent.setup();

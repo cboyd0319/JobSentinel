@@ -7,6 +7,7 @@ import test from "node:test";
 import {
   checkDuplication,
   classifyRustSource,
+  listSourceFiles,
   measureDuplication,
   measureRepoScopes,
   ratchetBaselines,
@@ -15,7 +16,7 @@ import {
 
 function sharedBlock() {
   return Array.from(
-    { length: 15 },
+    { length: 14 },
     (_, index) => `const value${index} = transform(input${index}) + ${index};`,
   ).join("\n");
 }
@@ -38,7 +39,7 @@ function write(root, path, content) {
 function contractWithScopes(scopes) {
   return {
     schema: "jobsentinel.duplication_contract.v2",
-    windowLines: 15,
+    windowLines: 14,
     scopes,
   };
 }
@@ -67,10 +68,10 @@ test("measureDuplication finds an identical block across two files", () => {
         text: `export function b() {\n${block}\n  return 2;\n}`,
       },
     ],
-    15,
+    14,
   );
 
-  assert.equal(result.duplicatedLines, 30);
+  assert.equal(result.duplicatedLines, 28);
   assert.equal(result.cloneRegions, 2);
 });
 
@@ -91,11 +92,30 @@ test("measureDuplication reports no duplication for unique code", () => {
         ).join("\n"),
       },
     ],
-    15,
+    14,
   );
 
   assert.equal(result.duplicatedLines, 0);
   assert.equal(result.cloneRegions, 0);
+});
+
+test("listSourceFiles can restrict a scope to matching paths", () => {
+  withFixture((root) => {
+    write(root, "src/Widget.tsx", "export const Widget = 1;\n");
+    write(root, "src/Widget.test.tsx", "export const WidgetTest = 1;\n");
+    write(root, "src/helpers/Widget.spec.ts", "export const WidgetSpec = 1;\n");
+
+    const files = listSourceFiles(root, {
+      include: { dirs: ["src"], extensions: [".ts", ".tsx"] },
+      includePatterns: ["\\.test\\.", "\\.spec\\."],
+      excludePatterns: [],
+    });
+
+    assert.deepEqual(files, [
+      "src/Widget.test.tsx",
+      "src/helpers/Widget.spec.ts",
+    ]);
+  });
 });
 
 test("independent scopes measure and gate their own files and baselines", () => {
@@ -130,7 +150,7 @@ test("independent scopes measure and gate their own files and baselines", () => 
     );
 
     const measured = measureRepoScopes(root, contract);
-    assert.equal(measured.frontendProduction.duplicatedLines, 30);
+    assert.equal(measured.frontendProduction.duplicatedLines, 28);
     assert.equal(measured.cratesProduction.duplicatedLines, 0);
 
     const failing = checkDuplication(root);
@@ -138,7 +158,7 @@ test("independent scopes measure and gate their own files and baselines", () => 
     assert.match(failing[0], /frontendProduction.*duplication increased/);
 
     contract.scopes.frontendProduction.baseline = {
-      duplicatedLines: 30,
+      duplicatedLines: 28,
       cloneRegions: 2,
     };
     write(

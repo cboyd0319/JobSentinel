@@ -1,14 +1,14 @@
 import { useState, type Dispatch, type SetStateAction } from "react";
 import { invoke } from "../../../platform/tauri";
 import { useToast } from "../../../shared/toast/useToast";
+import type { Config } from "../config/SettingsConfig";
 import {
   credentialExists,
   credentialIsExpected,
-  type Config,
   type CredentialKey,
   type CredentialStatusMap,
   type Credentials,
-} from "../config/SettingsConfig";
+} from "../credentials/SettingsCredentials";
 
 interface UseSettingsChatAlertsOptions {
   config: Config;

@@ -1,9 +1,7 @@
 import { getUserFriendlyError } from "../../../shared/errorReporting/messages";
 import type {
-  IssueSeverity,
   RequirementMatchState,
   HardConstraintCategory,
-  SuggestionCategory,
   RequirementReview,
   FormatIssue,
   AtsAnalysisResult,
@@ -11,6 +9,13 @@ import type {
   ResumeFitEvidenceStatus,
   ResumeSummary,
 } from "./resumeMatchContracts";
+import {
+  formatEvidenceSections,
+  formatIssueSeverity,
+  formatSuggestionCategory,
+  formatHardConstraintCategory,
+  isCitizenshipRequirement,
+} from "../shared/atsAnalysisLabels";
 
 export type {
   ResumeAnalysisInput,
@@ -33,31 +38,11 @@ export type {
 } from "./resumeMatchContracts";
 
 export { isResumeSummary, parseAtsResumeInput } from "./resumeMatchValidation";
-
-export function formatSuggestionCategory(category: SuggestionCategory): string {
-  switch (category) {
-    case "AddKeyword":
-      return "Review job words";
-    case "RewordBullet":
-      return "Rewrite bullet";
-    case "AddSection":
-      return "Add section";
-    case "ReorderContent":
-      return "Reorder content";
-    case "FormatFix":
-      return "Safety check";
-  }
-}
-export function formatIssueSeverity(severity: IssueSeverity): string {
-  switch (severity) {
-    case "Critical":
-      return "Fix first";
-    case "Warning":
-      return "Review";
-    case "Info":
-      return "Note";
-  }
-}
+export {
+  formatHardConstraintCategory,
+  formatIssueSeverity,
+  formatSuggestionCategory,
+};
 
 export function formatRequirementState(state: RequirementMatchState): string {
   switch (state) {
@@ -74,73 +59,8 @@ export function formatRequirementState(state: RequirementMatchState): string {
   }
 }
 
-function formatRequirementEvidenceSection(section: string): string {
-  switch (section) {
-    case "current experience":
-      return "current role experience";
-    case "recent experience":
-      return "recent role experience";
-    case "experience":
-      return "work experience";
-    case "skills":
-      return "skills list";
-    case "summary":
-      return "resume summary";
-    case "resume text":
-      return "resume text";
-    case "projects":
-      return "projects";
-    case "education":
-      return "education";
-    case "certifications":
-      return "certifications";
-    case "licenses":
-      return "licenses";
-    default:
-      return section.replace(/[_-]/g, " ");
-  }
-}
-
 export function formatRequirementEvidenceSections(sections: string[]): string {
-  return sections.map(formatRequirementEvidenceSection).join(", ");
-}
-
-export function formatHardConstraintCategory(category: HardConstraintCategory): string {
-  switch (category) {
-    case "WorkAuthorization":
-      return "Work authorization";
-    case "Citizenship":
-      return "Citizenship";
-    case "SecurityClearance":
-      return "Security clearance";
-    case "LicenseOrCertification":
-      return "License or certification";
-    case "Education":
-      return "Education";
-    case "Experience":
-      return "Years of experience";
-    case "Language":
-      return "Language requirement";
-    case "Age":
-      return "Age requirement";
-    case "BackgroundScreening":
-      return "Background or drug screening";
-    case "PhysicalRequirement":
-      return "Physical requirement";
-    case "Location":
-      return "Location, schedule, availability, or travel";
-  }
-}
-
-function isCitizenshipRequirement(requirement: string): boolean {
-  const lower = requirement.toLowerCase();
-  return (
-    lower.includes("us citizenship") ||
-    lower.includes("u.s. citizenship") ||
-    lower.includes("us citizen") ||
-    lower.includes("u.s. citizen") ||
-    lower.includes("citizenship required")
-  );
+  return formatEvidenceSections(sections);
 }
 
 export function formatHardConstraintNextActionDetail(

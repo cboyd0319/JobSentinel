@@ -6,6 +6,12 @@ import {
   PARTIAL_JOB_MATCH_THRESHOLD,
   STRONG_JOB_MATCH_THRESHOLD,
 } from "../../../shared/jobMatchScore";
+import {
+  displayReasonText,
+  getReasonStatus,
+  parseScoreReasons,
+} from "../../../ui/score-display/internal/scoreReasons";
+import { ScoreFactorIcon } from "../../../ui/score-display/internal/ScoreFactorIcon";
 
 interface ScoreBreakdown {
   skills: number;
@@ -74,157 +80,6 @@ const FACTOR_WEIGHTS = {
     sourceLabel: "Uses posting date and freshness settings",
   },
 } as const;
-
-const LEGACY_PASS_PREFIX = "\u2713";
-const LEGACY_FAIL_PREFIX = "\u2717";
-
-function getReasonStatus(reason: string): "pass" | "fail" | "neutral" {
-  const lower = reason.toLowerCase();
-
-  if (
-    reason.includes(LEGACY_FAIL_PREFIX) ||
-    lower.includes("not in allowlist") ||
-    lower.includes("doesn't match") ||
-    lower.includes("in blocklist") ||
-    lower.includes("blocklisted")
-  ) {
-    return "fail";
-  }
-
-  if (
-    reason.includes(LEGACY_PASS_PREFIX) ||
-    lower.includes("matches") ||
-    lower.includes("meets") ||
-    lower.includes("favorite")
-  ) {
-    return "pass";
-  }
-
-  return "neutral";
-}
-
-function displayReasonText(reason: string): string {
-  return reason
-    .replace(LEGACY_PASS_PREFIX, "")
-    .replace(LEGACY_FAIL_PREFIX, "")
-    .replace(/^not in allowlist$/i, "Not in your preferred job titles")
-    .replace(/not in allowlist/gi, "not in your preferred job titles")
-    .replace(
-      /\bcompany\s+is\s+in blocklist\b/gi,
-      "Company matches something you chose to avoid",
-    )
-    .replace(/\bin blocklist\b/gi, "matches something you chose to avoid")
-    .replace(/\bblocklisted\b/gi, "marked as something to avoid")
-    .replace(/\ballowlist\b/gi, "preferred list")
-    .replace(/\bblocklist\b/gi, "avoid list")
-    .trim();
-}
-
-function FactorIcon({
-  icon,
-  className = "w-5 h-5 text-surface-500 dark:text-surface-400",
-}: {
-  icon: (typeof FACTOR_WEIGHTS)[keyof typeof FACTOR_WEIGHTS]["icon"];
-  className?: string;
-}) {
-  const commonProps = {
-    className,
-    fill: "none",
-    viewBox: "0 0 24 24",
-    stroke: "currentColor",
-    "aria-hidden": true,
-  };
-
-  switch (icon) {
-    case "target":
-      return (
-        <svg {...commonProps}>
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-      );
-    case "currency":
-      return (
-        <svg {...commonProps}>
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 6v12m3-9.5A3.5 3.5 0 0012 7c-1.66 0-3 .9-3 2s1.34 2 3 2 3 .9 3 2-1.34 2-3 2a3.5 3.5 0 01-3-1.5" />
-        </svg>
-      );
-    case "location":
-      return (
-        <svg {...commonProps}>
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 21s6-5.4 6-11a6 6 0 10-12 0c0 5.6 6 11 6 11z" />
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 10.5h.01" />
-        </svg>
-      );
-    case "company":
-      return (
-        <svg {...commonProps}>
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M4 21V7a2 2 0 012-2h8a2 2 0 012 2v14M9 9h1m-1 4h1m4-4h1m-1 4h1M3 21h18" />
-        </svg>
-      );
-    case "clock":
-      return (
-        <svg {...commonProps}>
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 8v4l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-      );
-  }
-}
-
-/**
- * Parse score reasons JSON and categorize by factor
- */
-function parseReasonList(reasonsJson?: string | null): string[] {
-  if (!reasonsJson) return [];
-
-  try {
-    const parsed: unknown = JSON.parse(reasonsJson);
-    if (!Array.isArray(parsed)) return [];
-
-    return parsed.filter((reason): reason is string => typeof reason === "string");
-  } catch {
-    return [];
-  }
-}
-
-function parseScoreReasons(reasonsJson?: string | null): {
-  skills: string[];
-  salary: string[];
-  location: string[];
-  company: string[];
-  recency: string[];
-} {
-  const result = {
-    skills: [] as string[],
-    salary: [] as string[],
-    location: [] as string[],
-    company: [] as string[],
-    recency: [] as string[],
-  };
-
-  if (!reasonsJson) return result;
-
-  const reasons = parseReasonList(reasonsJson);
-  for (const reason of reasons) {
-    const lower = reason.toLowerCase();
-    if (lower.includes("title") || lower.includes("keyword") || lower.includes("allowlist") || lower.includes("blocklist")) {
-      result.skills.push(reason);
-    } else if (lower.includes("salary")) {
-      result.salary.push(reason);
-    } else if (lower.includes("remote") || lower.includes("location") || lower.includes("hybrid") || lower.includes("onsite")) {
-      result.location.push(reason);
-    } else if (lower.includes("company")) {
-      result.company.push(reason);
-    } else if (lower.includes("posted") || lower.includes("days ago") || lower.includes("fresh") || lower.includes("old")) {
-      result.recency.push(reason);
-    } else {
-      // Default to skills if can't categorize
-      result.skills.push(reason);
-    }
-  }
-
-  return result;
-}
 
 function getScoreEvidenceStatus(
   reasons: ReturnType<typeof parseScoreReasons>,
@@ -417,7 +272,10 @@ export const ScoreBreakdownModal = memo(function ScoreBreakdownModal({
                 {/* Factor header */}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <FactorIcon icon={factor.icon} />
+                    <ScoreFactorIcon
+                      icon={factor.icon}
+                      className="w-5 h-5 text-surface-500 dark:text-surface-400"
+                    />
                     <div>
                       <div className="font-semibold text-surface-900 dark:text-white">
                         {factor.label}

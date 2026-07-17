@@ -16,6 +16,23 @@ body {
 }
 "#;
 
+const STANDARD_SECTION_TAIL: &str = r#".dates {
+    font-size: 10pt;
+    color: #333;
+    margin-bottom: 4pt;
+}
+ul {
+    margin: 4pt 0 12pt 20pt;
+    padding: 0;
+}
+li {
+    margin-bottom: 4pt;
+}
+.skill-category {
+    margin-bottom: 6pt;
+}
+"#;
+
 pub(super) fn classic() -> String {
     [
         STANDARD_PAGE_AND_NAME,
@@ -42,22 +59,9 @@ h3 {
     font-style: italic;
     margin-bottom: 2pt;
 }
-.dates {
-    font-size: 10pt;
-    color: #333;
-    margin-bottom: 4pt;
-}
-ul {
-    margin: 4pt 0 12pt 20pt;
-    padding: 0;
-}
-li {
-    margin-bottom: 4pt;
-}
-.skill-category {
-    margin-bottom: 6pt;
-}
-    "#,
+"#,
+        STANDARD_SECTION_TAIL,
+        "    ",
     ]
     .concat()
 }
@@ -314,22 +318,8 @@ h3 {
     font-size: 11pt;
     margin-bottom: 2pt;
 }
-.dates {
-    font-size: 10pt;
-    color: #333;
-    margin-bottom: 4pt;
-}
-ul {
-    margin: 4pt 0 12pt 20pt;
-    padding: 0;
-}
-li {
-    margin-bottom: 4pt;
-}
-.skill-category {
-    margin-bottom: 6pt;
-}
 "#,
+        STANDARD_SECTION_TAIL,
     ]
     .concat()
 }

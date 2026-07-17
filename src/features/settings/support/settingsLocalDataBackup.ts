@@ -1,4 +1,5 @@
-import { isSettingsBackupConfig, type Config } from "../config/SettingsConfig";
+import type { Config } from "../config/SettingsConfig";
+import { isSettingsBackupConfig } from "../config/settingsConfigValidation";
 
 export const LOCAL_DATA_BACKUP_KIND = "jobsentinel-local-data-backup";
 export const LOCAL_DATA_BACKUP_SCHEMA_VERSION = 1;

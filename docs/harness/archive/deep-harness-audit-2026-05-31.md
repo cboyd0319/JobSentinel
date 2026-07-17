@@ -1,5 +1,7 @@
 # Deep Harness Audit
 
+Archive status: Historical audit evidence.
+
 Date: 2026-05-31.
 
 Historical evidence only. This audit describes the repository as it existed on

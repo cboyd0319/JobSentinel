@@ -1,5 +1,7 @@
 # Repository Refactor Blueprint
 
+Status: Completed and archived.
+
 Last updated: 2026-07-14. Locked by the planning milestone. The executable
 projection is
 [`scripts/harness/contracts/architecture.json`](../../../scripts/harness/contracts/architecture.json).

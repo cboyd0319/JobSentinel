@@ -4,20 +4,9 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import test from "node:test";
 import {
-  hasApplicationAssistAutomationFraming,
-  hasFeedbackLocalReportDrift,
-  hasFeedbackSetupJargon,
-  hasEngineerFirstResumeTemplateCopy,
-  hasFeedbackTechnicalCompanyLabels,
   hasLegacyPreferenceListCopy,
-  hasNonProtectivePayFloorRecoveryCopy,
   hasNonProtectiveScoreCopy,
-  hasOverconfidentGhostCopy,
-  hasOverconfidentPayGuidance,
   hasRawErrorBoundaryDetails,
-  hasRawFeedbackDebugEventDetails,
-  hasRawProblemHistoryContextDetails,
-  hasStaleResumeOptimizerFraming,
   hasTechnicalRecoveryCopy,
   hasTechnicalFirstUserCopy,
 } from "../../harness/checks/product-copy.mjs";
@@ -259,7 +248,6 @@ test("product copy rejects stale match-ranking labels", () => {
       ["docs/features/smart-scoring.md", "match percentage"],
       ["docs/style-guide/GLOSSARY.md", "match score"],
       ["docs/style-guide/WRITING-FOR-JOB-SEEKERS.md", "match scores"],
-      ["docs/plans/active/current-work.md", "match scores"],
       [
         "PRIVACY.md",
         "Alert details may include public job details and match score",

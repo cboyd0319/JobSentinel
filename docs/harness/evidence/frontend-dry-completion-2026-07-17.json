@@ -1,0 +1,67 @@
+{
+  "schema": "jobsentinel.feature_evidence.v1",
+  "feature_id": "frontend-dry-remediation",
+  "behavior": "Every confirmed actionable duplication under src and src-tauri/src has one canonical owner, obsolete copies are removed, and the maintained frontend production ratchet prevents recurrence.",
+  "result": "passing",
+  "verified_at": "2026-07-17T16:08:21Z",
+  "revision": "19b939d4a1c36a566626a36f32d3871be18307bf",
+  "revision_scope": "Verified working tree based on the recorded revision.",
+  "platform": "local Darwin arm64 development host",
+  "measurements": {
+    "initial_frontend_production": {
+      "duplicated_lines": 778,
+      "clone_regions": 38
+    },
+    "final_frontend_production": {
+      "duplicated_lines": 0,
+      "clone_regions": 0
+    }
+  },
+  "changes": [
+    "Removed two verified orphan production modules and their tests.",
+    "Removed settings, resume-builder, and career-profile import cycles.",
+    "Consolidated resume analysis contracts, labels, score reasons, status icons, score icons, feedback icons, market icons, chart axes, dashboard feedback controls, and error status rendering.",
+    "Consolidated resume file-name sanitization and job serialization in desktop adapters.",
+    "Updated repository sensors to follow the new canonical owners.",
+    "Ratcheted every maintained 15-line production and crate duplication scope to zero."
+  ],
+  "commands": [
+    {
+      "command": "npm run verify:full",
+      "exit_status": 0,
+      "relevant_result": "The complete local gate passed, including 822 script tests, 2,925 frontend tests across 246 files, production and Storybook builds, the 10-test browser smoke budget, SQLx metadata, and complete Rust verification.",
+      "caveat": "The environment doctor reported that host Node and npm versions differ from repository-owned baselines; all checks passed."
+    },
+    {
+      "command": "npm run lint:dup -- --list",
+      "exit_status": 0,
+      "relevant_result": "Frontend production, crate production, and crate test scopes each report zero duplicated lines and zero clone regions.",
+      "caveat": "This completion closes the enforced 15-significant-line scope. Smaller-window analysis continues under the residual cleanup feature."
+    },
+    {
+      "command": "npm run test:run",
+      "exit_status": 0,
+      "relevant_result": "All 2,925 frontend tests across 246 files passed.",
+      "caveat": "None."
+    },
+    {
+      "command": "npm run typecheck",
+      "exit_status": 0,
+      "relevant_result": "The composite TypeScript build passed after owner and import-cycle changes.",
+      "caveat": "None."
+    },
+    {
+      "command": "cargo test -q -p jobsentinel 'ipc::'",
+      "exit_status": 0,
+      "relevant_result": "The focused desktop adapter suite passed 172 tests with one repository-owned ignore.",
+      "caveat": "None."
+    },
+    {
+      "command": "git diff --check",
+      "exit_status": 0,
+      "relevant_result": "The verified working diff contains no whitespace errors.",
+      "caveat": "None."
+    }
+  ],
+  "source": "docs/plans/completed/frontend-dry-remediation.md"
+}

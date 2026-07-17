@@ -6,7 +6,6 @@
     "@dnd-kit/sortable": "Sortable board/list preset built on @dnd-kit/core.",
     "@dnd-kit/utilities": "Shared helpers required by the @dnd-kit packages.",
     "@tauri-apps/api": "Tauri IPC bridge between the React UI and Rust commands.",
-    "@tauri-apps/plugin-dialog": "Native file and message dialogs from the renderer.",
     "@tauri-apps/plugin-notification": "Native desktop notifications from the renderer.",
     "dompurify": "Sanitizes untrusted HTML (job descriptions, resume preview) before render.",
     "react": "UI framework.",

@@ -10,6 +10,19 @@ use serde_json::Value;
 use std::sync::Arc;
 use tauri::State;
 
+fn serialize_job(job_id: i64, job: &impl serde::Serialize) -> Option<Value> {
+    serde_json::to_value(job)
+        .inspect_err(|error| {
+            let message = user_friendly_error("Failed to serialize job", error);
+            tracing::error!(
+                job_id,
+                error = %message,
+                "Skipped job serialization"
+            );
+        })
+        .ok()
+}
+
 /// Search for jobs from all enabled sources
 ///
 /// This triggers a full scraping cycle across Greenhouse, Lever, and JobsWithGPT.
@@ -72,18 +85,7 @@ pub(crate) async fn get_recent_jobs(
         Ok(jobs) => {
             let jobs_json: Vec<Value> = jobs
                 .into_iter()
-                .filter_map(|job| {
-                    serde_json::to_value(&job)
-                        .inspect_err(|e| {
-                            let message = user_friendly_error("Failed to serialize job", e);
-                            tracing::error!(
-                                job_id = job.id,
-                                error = %message,
-                                "Skipped job serialization"
-                            );
-                        })
-                        .ok()
-                })
+                .filter_map(|job| serialize_job(job.id, &job))
                 .collect();
 
             tracing::debug!(returned_count = jobs_json.len(), "Recent jobs fetched");
@@ -110,18 +112,7 @@ pub(crate) async fn get_job_by_id(
         Ok(job) => {
             let found = job.is_some();
             tracing::debug!(found, "Job lookup complete");
-            Ok(job.and_then(|j| {
-                serde_json::to_value(&j)
-                    .inspect_err(|e| {
-                        let message = user_friendly_error("Failed to serialize job", e);
-                        tracing::error!(
-                            job_id = j.id,
-                            error = %message,
-                            "Skipped job serialization"
-                        );
-                    })
-                    .ok()
-            }))
+            Ok(job.and_then(|job| serialize_job(job.id, &job)))
         }
         Err(e) => {
             tracing::error!(
@@ -152,18 +143,7 @@ pub(crate) async fn search_jobs_query(
         Ok(jobs) => {
             let jobs_json: Vec<Value> = jobs
                 .into_iter()
-                .filter_map(|job| {
-                    serde_json::to_value(&job)
-                        .inspect_err(|e| {
-                            let message = user_friendly_error("Failed to serialize job", e);
-                            tracing::error!(
-                                job_id = job.id,
-                                error = %message,
-                                "Skipped job serialization"
-                            );
-                        })
-                        .ok()
-                })
+                .filter_map(|job| serialize_job(job.id, &job))
                 .collect();
 
             Ok(jobs_json)
@@ -251,18 +231,7 @@ pub(crate) async fn get_bookmarked_jobs(
         Ok(jobs) => {
             let jobs_json: Vec<Value> = jobs
                 .into_iter()
-                .filter_map(|job| {
-                    serde_json::to_value(&job)
-                        .inspect_err(|e| {
-                            let message = user_friendly_error("Failed to serialize job", e);
-                            tracing::error!(
-                                job_id = job.id,
-                                error = %message,
-                                "Skipped job serialization"
-                            );
-                        })
-                        .ok()
-                })
+                .filter_map(|job| serialize_job(job.id, &job))
                 .collect();
 
             Ok(jobs_json)

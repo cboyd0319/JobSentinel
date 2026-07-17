@@ -1,12 +1,11 @@
 # Current Status
 
-Last updated: 2026-07-16
+Last updated: 2026-07-17
 
 ## Done
 
-- The full repository refactor plan and ownership blueprint are locked in
-  `docs/plans/active/current-work.md` and
-  `docs/plans/active/repository-refactor-blueprint.md`.
+- The full repository refactor plan and ownership blueprint are preserved under
+  `docs/plans/completed/`.
 - The earlier local harness checkpoint remains preserved at
   `docs/harness/evidence/harness-standard-contract-2026-07-14.md`.
 - The corrective harness implementation and full local gate passed.
@@ -34,20 +33,23 @@ Last updated: 2026-07-16
   fell from 693 lines across 35 regions to zero, and crate test duplication fell
   from 2,184 lines across 79 regions to zero. The baselines are ratcheted to
   zero and the full local gate passed with structured completion evidence.
+- Frontend DRY remediation is complete. Maintained production duplication fell
+  from 778 lines across 38 regions to zero. Shared resume, score, dashboard,
+  market, feedback, error, and desktop-adapter behavior now has canonical owners,
+  and the full local gate passed.
+- Residual cleanup is implementation-complete. Test and script fixtures,
+  file-size policy, stale records, dependencies, and Rust fixtures have
+  canonical owners. All maintained scopes are at zero duplication under the
+  14-line contract, the full gate passed, and generated outputs were removed.
 
 ## In Progress
 
-- Active feature: `frontend-dry-remediation`
+- Active feature: `repository-residual-cleanup`
 - Status: `active`
-- Objective: Give every confirmed actionable duplication under `src/` and
-  `src-tauri/src/` one canonical owner, remove obsolete copies, and prevent
-  recurrence in maintained frontend production code.
+- Objective: Select the next approved feature after this cleanup checkpoint.
 - Branch: `refactor/full-repo-v2.9.5`
-- Current slice: Planning and characterization. The maintained detector reports
-  778 duplicated significant lines across 38 regions. Crate production and test
-  scopes remain guarded at zero.
-- Next action: classify every listed frontend region by semantic owner before
-  changing shared behavior.
+- Current slice: Implementation and verification complete.
+- Next action: Select and activate the next approved product feature.
 
 ## Deferred
 

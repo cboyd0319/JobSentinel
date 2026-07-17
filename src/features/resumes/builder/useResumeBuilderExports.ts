@@ -8,15 +8,17 @@ import {
   openResumePrintDialog,
 } from "./resumeBuilderExportDom";
 import {
-  normalizeAtsAnalysis,
-  toJsonResumeData,
-  toResumeAnalysisInput,
-  toStructuredResume,
   type ATSAnalysis,
   type BackendATSAnalysis,
   type ResumeData,
   type TemplateId,
 } from "./resumeBuilderData";
+import {
+  normalizeAtsAnalysis,
+  toJsonResumeData,
+  toResumeAnalysisInput,
+  toStructuredResume,
+} from "./resumeBuilderTransforms";
 
 interface UseResumeBuilderExportsOptions {
   contactName: string;

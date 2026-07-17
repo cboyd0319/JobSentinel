@@ -9,17 +9,12 @@ import {
   hasFeedbackSetupJargon,
   hasEngineerFirstResumeTemplateCopy,
   hasFeedbackTechnicalCompanyLabels,
-  hasLegacyPreferenceListCopy,
   hasNonProtectivePayFloorRecoveryCopy,
-  hasNonProtectiveScoreCopy,
   hasOverconfidentGhostCopy,
   hasOverconfidentPayGuidance,
-  hasRawErrorBoundaryDetails,
   hasRawFeedbackDebugEventDetails,
   hasRawProblemHistoryContextDetails,
   hasStaleResumeOptimizerFraming,
-  hasTechnicalRecoveryCopy,
-  hasTechnicalFirstUserCopy,
 } from "../../harness/checks/product-copy.mjs";
 function writeFixtureFile(root, path, content = "") {
   const fullPath = join(root, path);

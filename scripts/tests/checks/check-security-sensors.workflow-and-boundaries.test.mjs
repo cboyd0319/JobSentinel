@@ -1,12 +1,11 @@
 import assert from "node:assert/strict";
-import { mkdirSync, readFileSync, unlinkSync, writeFileSync } from "node:fs";
+import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import test from "node:test";
 import { checkSecuritySensors } from "../../checks/security-sensors.mjs";
 import {
   mkdtempRoot,
   readBaseReleaseWorkflowWithout,
-  writeBaseRepo,
   writeSelfOnlyBaseRepo,
 } from "./check-security-sensors.fixtures.mjs";
 test("checkSecuritySensors rejects workflow npm installs that run lifecycle scripts", () => {

@@ -295,6 +295,27 @@ test("checkFrontendBoundaries rejects production imports from test support", () 
   });
 });
 
+test("checkFrontendBoundaries ignores colocated test support modules", () => {
+  withFixture((root) => {
+    writeFixtureFile(
+      root,
+      "src/features/dashboard/Dashboard.testSupport.tsx",
+      [
+        'import { invoke } from "@tauri-apps/api/core";',
+        'import { ToastProvider } from "../../app/providers/ToastProvider";',
+        "export { invoke, ToastProvider };",
+      ].join("\n"),
+    );
+    writeFixtureFile(
+      root,
+      "src/features/dashboard/dashboardTestFixtures.ts",
+      'import { UndoProvider } from "../../app/providers/UndoProvider";\nexport { UndoProvider };\n',
+    );
+
+    assert.deepEqual(checkFrontendBoundaries(root), []);
+  });
+});
+
 test("checkFrontendBoundaries allows only app bootstrap and test support to import dev runtime", () => {
   withFixture((root) => {
     writeFixtureFile(

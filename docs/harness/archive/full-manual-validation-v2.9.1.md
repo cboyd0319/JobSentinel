@@ -1,5 +1,7 @@
 # Full Manual Validation v2.9.1
 
+Archive status: Historical release evidence.
+
 Last updated: 2026-06-22.
 
 This is the completed live/manual regression validation ledger for the

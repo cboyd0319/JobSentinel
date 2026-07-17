@@ -1,4 +1,4 @@
-import { hasAll, hasAny, normalizeText } from "./macos-readiness-text.mjs";
+import { hasAll, hasAny } from "./macos-readiness-text.mjs";
 
 export function hasOrderedSnippets(text, snippets) {
   let offset = 0;

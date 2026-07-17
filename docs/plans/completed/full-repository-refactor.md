@@ -2,7 +2,7 @@
 
 Last updated: 2026-07-16.
 
-Status: Completed.
+Status: Completed and archived.
 
 ## Purpose
 

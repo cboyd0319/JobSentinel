@@ -56,9 +56,7 @@ function getLineNumber(sourceFile, position) {
   return sourceFile.getLineAndCharacterOfPosition(position).line + 1;
 }
 
-export function collectFrontendInvokes(root) {
-  const invokes = new Map();
-
+function visitFrontendInvokes(root, onInvoke) {
   for (const file of collectSourceFiles(root)) {
     const text = readFileSync(file, "utf8");
     const scriptKind = file.endsWith(".tsx") ? ts.ScriptKind.TSX : ts.ScriptKind.TS;
@@ -78,11 +76,9 @@ export function collectFrontendInvokes(root) {
         frontendInvokeFunctionNames.has(node.expression.text) &&
         node.arguments.length > 0
       ) {
-        const [firstArg] = node.arguments;
+        const [firstArg, secondArg] = node.arguments;
         if (ts.isStringLiteral(firstArg) || ts.isNoSubstitutionTemplateLiteral(firstArg)) {
-          const location = `${relFile}:${getLineNumber(sourceFile, firstArg.getStart(sourceFile))}`;
-          if (!invokes.has(firstArg.text)) invokes.set(firstArg.text, []);
-          invokes.get(firstArg.text).push(location);
+          onInvoke({ firstArg, secondArg, sourceFile, relFile });
         }
       }
       ts.forEachChild(node, visit);
@@ -90,6 +86,15 @@ export function collectFrontendInvokes(root) {
 
     visit(sourceFile);
   }
+}
+
+export function collectFrontendInvokes(root) {
+  const invokes = new Map();
+  visitFrontendInvokes(root, ({ firstArg, sourceFile, relFile }) => {
+    const location = `${relFile}:${getLineNumber(sourceFile, firstArg.getStart(sourceFile))}`;
+    if (!invokes.has(firstArg.text)) invokes.set(firstArg.text, []);
+    invokes.get(firstArg.text).push(location);
+  });
   return invokes;
 }
 
@@ -204,47 +209,27 @@ export function collectFrontendRequiredArgViolations(root) {
     }
   }
 
-  for (const file of collectSourceFiles(root)) {
-    const text = readFileSync(file, "utf8");
-    const scriptKind = file.endsWith(".tsx") ? ts.ScriptKind.TSX : ts.ScriptKind.TS;
-    const sourceFile = ts.createSourceFile(
-      file,
-      text,
-      ts.ScriptTarget.Latest,
-      true,
-      scriptKind,
-    );
-    const relFile = relative(root, file);
-
-    function visit(node) {
+  visitFrontendInvokes(
+    root,
+    ({ firstArg, secondArg, sourceFile, relFile }) => {
+      const requiredArgs = requiredByCommand.get(firstArg.text) ?? [];
       if (
-        ts.isCallExpression(node) &&
-        ts.isIdentifier(node.expression) &&
-        frontendInvokeFunctionNames.has(node.expression.text) &&
-        node.arguments.length > 0
+        requiredArgs.length > 0 &&
+        (isMissingArg(secondArg) || isObjectLikeArg(secondArg))
       ) {
-        const [firstArg, secondArg] = node.arguments;
-        if (ts.isStringLiteral(firstArg) || ts.isNoSubstitutionTemplateLiteral(firstArg)) {
-          const requiredArgs = requiredByCommand.get(firstArg.text) ?? [];
-          if (requiredArgs.length > 0 && (isMissingArg(secondArg) || isObjectLikeArg(secondArg))) {
-            for (const requiredArg of requiredArgs) {
-              if (
-                isMissingArg(secondArg) ||
-                (!hasObjectProperty(secondArg, requiredArg) &&
-                  !hasObjectProperty(secondArg, toCamelCase(requiredArg)))
-              ) {
-                violations.push(
-                  `${relFile}:${getLineNumber(sourceFile, firstArg.getStart(sourceFile))} invokes ${firstArg.text} without required ${requiredArg} argument`,
-                );
-              }
-            }
+        for (const requiredArg of requiredArgs) {
+          if (
+            isMissingArg(secondArg) ||
+            (!hasObjectProperty(secondArg, requiredArg) &&
+              !hasObjectProperty(secondArg, toCamelCase(requiredArg)))
+          ) {
+            violations.push(
+              `${relFile}:${getLineNumber(sourceFile, firstArg.getStart(sourceFile))} invokes ${firstArg.text} without required ${requiredArg} argument`,
+            );
           }
         }
       }
-      ts.forEachChild(node, visit);
-    }
-
-    visit(sourceFile);
-  }
+    },
+  );
   return violations;
 }

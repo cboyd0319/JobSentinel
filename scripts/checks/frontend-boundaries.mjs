@@ -15,11 +15,13 @@ const ignoredPathParts = new Set([
   "src-tauri",
   "test",
   "tests",
+  "test-support",
   "mocks",
 ]);
 
 const ignoredFilePatterns = [
   /\.test\.[tj]sx?$/,
+  /[Tt]est(?:Support|Fixtures)\.[tj]sx?$/,
   /\.stories\.[tj]sx?$/,
   /\.d\.ts$/,
 ];

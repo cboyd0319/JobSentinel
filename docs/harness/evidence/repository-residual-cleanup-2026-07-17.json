@@ -1,0 +1,116 @@
+{
+  "schema": "jobsentinel.feature_evidence.v1",
+  "feature_id": "repository-residual-cleanup",
+  "behavior": "Frontend tests, scripts, plans, harness documents, generated artifacts, dependencies, and policy projections have one current owner with obsolete or duplicate material removed.",
+  "result": "passing",
+  "verified_at": "2026-07-17T17:58:37Z",
+  "revision": "19b939d4a1c36a566626a36f32d3871be18307bf",
+  "revision_scope": "Verified working tree based on the recorded revision.",
+  "platform": "local Darwin arm64 development host",
+  "measurements": {
+    "initial_frontend_tests": {
+      "duplicated_lines": 2559,
+      "clone_regions": 85
+    },
+    "final_maintained_scopes": {
+      "window_lines": 14,
+      "frontend_production": {
+        "duplicated_lines": 0,
+        "clone_regions": 0
+      },
+      "frontend_tests": {
+        "duplicated_lines": 0,
+        "clone_regions": 0
+      },
+      "scripts_production": {
+        "duplicated_lines": 0,
+        "clone_regions": 0
+      },
+      "scripts_tests": {
+        "duplicated_lines": 0,
+        "clone_regions": 0
+      },
+      "crates_production": {
+        "duplicated_lines": 0,
+        "clone_regions": 0
+      },
+      "crates_tests": {
+        "duplicated_lines": 0,
+        "clone_regions": 0
+      }
+    },
+    "dead_script_bindings_removed": 294
+  },
+  "changes": [
+    "Consolidated repeated frontend test setup into owner-local support modules and included those modules in the maintained test scope.",
+    "Removed script clones and dead bindings, introduced shared script-test fixtures under the canonical library owner, and added script lint to the complete gate.",
+    "Archived dated harness records, completed stale active plans, deleted superseded archives, and repaired direct links and plan indexes.",
+    "Moved file-size scope ownership into the canonical repository-structure contract and deleted its duplicate contract and default projection.",
+    "Removed the unused renderer dialog package and its lockfile and rationale entries.",
+    "Consolidated the remaining Rust style, requirement-equivalence, job, template, and notification fixtures.",
+    "Lowered the duplication window from 15 to 14 significant lines with every maintained production and test scope ratcheted to zero.",
+    "Removed production, component-library, browser-test, and Rust build outputs with the bounded deep-clean command."
+  ],
+  "commands": [
+    {
+      "command": "npm run verify:full",
+      "exit_status": 0,
+      "relevant_result": "The complete local gate passed with 824 script tests, 2,925 frontend tests across 246 files, production and component-library builds, 10 runtime smoke journeys within budget, SQLx metadata verification, strict linting, and the complete Rust workspace.",
+      "caveat": "The environment doctor reported that host Node and npm versions differ from repository-owned baselines; all checks passed."
+    },
+    {
+      "command": "npm run lint:dup -- --list",
+      "exit_status": 0,
+      "relevant_result": "All six maintained production and test scopes report zero duplicated lines and zero clone regions at the enforced 14-significant-line window.",
+      "caveat": "None."
+    },
+    {
+      "command": "npm run test:scripts",
+      "exit_status": 0,
+      "relevant_result": "All 824 recursively discovered script contract tests passed.",
+      "caveat": "None."
+    },
+    {
+      "command": "npm run harness:check",
+      "exit_status": 0,
+      "relevant_result": "Harness state, architecture, workflow policy, and file-size coverage passed before and after generated-output cleanup.",
+      "caveat": "None."
+    },
+    {
+      "command": "npm run clean:generated -- --deep",
+      "exit_status": 0,
+      "relevant_result": "Removed production build output, component-library output, browser-test output, and the Rust target tree.",
+      "caveat": "These ignored directories are recreated by their respective build and test commands."
+    },
+    {
+      "command": "npm run lint:bloat",
+      "exit_status": 0,
+      "relevant_result": "The post-clean repository artifact and bloat audit passed.",
+      "caveat": "None."
+    },
+    {
+      "command": "npm run lint",
+      "exit_status": 0,
+      "relevant_result": "Frontend lint passed with no errors or warnings.",
+      "caveat": "None."
+    },
+    {
+      "command": "npm run lint:file-size",
+      "exit_status": 0,
+      "relevant_result": "Every governed maintained source and configuration file remained below the canonical hard limits.",
+      "caveat": "The informational modularization review list is not a hard-limit failure."
+    },
+    {
+      "command": "git diff --check",
+      "exit_status": 0,
+      "relevant_result": "The verified working diff contains no whitespace errors.",
+      "caveat": "None."
+    }
+  ],
+  "source": "docs/plans/active/repository-residual-cleanup.md",
+  "audit": {
+    "implementation_complete": true,
+    "generated_artifacts_removed": true,
+    "committed": false
+  }
+}

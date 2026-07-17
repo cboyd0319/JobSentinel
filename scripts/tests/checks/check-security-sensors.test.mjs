@@ -328,7 +328,7 @@ test("checkSecuritySensors rejects CI Node security job without GitHub Actions s
   writeFileSync(
     ciWorkflowPath,
     readFileSync(ciWorkflowPath, "utf8").replace(
-      /      - uses: zizmorcore\/zizmor-action@[^\n]+\n        with:\n          advanced-security: false\n          inputs: \.github\/workflows\n/,
+      / {6}- uses: zizmorcore\/zizmor-action@[^\n]+\n {8}with:\n {10}advanced-security: false\n {10}inputs: \.github\/workflows\n/,
       "",
     ),
   );

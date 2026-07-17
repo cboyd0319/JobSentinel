@@ -6,6 +6,19 @@ import { ToastProvider } from "../../app/providers/ToastProvider";
 import SalaryPage from "./SalaryPage";
 
 const mockInvoke = vi.mocked(invoke);
+const salaryBenchmark = {
+  job_title: "Registered Nurse",
+  location: "Denver, CO",
+  seniority_level: "Principal",
+  min_salary: 150000,
+  p25_salary: 175000,
+  median_salary: 200000,
+  p75_salary: 230000,
+  max_salary: 260000,
+  average_salary: 205000,
+  sample_size: 128,
+  last_updated: "2026-05-20T00:00:00Z",
+};
 
 function renderSalary() {
   return render(
@@ -22,19 +35,7 @@ describe("Salary", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mockInvoke.mockResolvedValue({
-      job_title: "Registered Nurse",
-      location: "Denver, CO",
-      seniority_level: "Principal",
-      min_salary: 150000,
-      p25_salary: 175000,
-      median_salary: 200000,
-      p75_salary: 230000,
-      max_salary: 260000,
-      average_salary: 205000,
-      sample_size: 128,
-      last_updated: "2026-05-20T00:00:00Z",
-    });
+    mockInvoke.mockResolvedValue(salaryBenchmark);
   });
 
   it("uses broad-audience salary examples", () => {
@@ -151,17 +152,8 @@ describe("Salary", () => {
   it("labels thin salary samples as weaker evidence", async () => {
     const user = userEvent.setup();
     mockInvoke.mockResolvedValueOnce({
-      job_title: "Registered Nurse",
-      location: "Denver, CO",
-      seniority_level: "Principal",
-      min_salary: 150000,
-      p25_salary: 175000,
-      median_salary: 200000,
-      p75_salary: 230000,
-      max_salary: 260000,
-      average_salary: 205000,
+      ...salaryBenchmark,
       sample_size: 12,
-      last_updated: "2026-05-20T00:00:00Z",
     });
     renderSalary();
 
@@ -219,19 +211,7 @@ describe("Salary", () => {
   it("does not show raw private details when negotiation notes fail", async () => {
     const user = userEvent.setup();
     mockInvoke
-      .mockResolvedValueOnce({
-        job_title: "Registered Nurse",
-        location: "Denver, CO",
-        seniority_level: "Principal",
-        min_salary: 150000,
-        p25_salary: 175000,
-        median_salary: 200000,
-        p75_salary: 230000,
-        max_salary: 260000,
-        average_salary: 205000,
-        sample_size: 128,
-        last_updated: "2026-05-20T00:00:00Z",
-      })
+      .mockResolvedValueOnce(salaryBenchmark)
       .mockRejectedValueOnce(privateFailure);
     renderSalary();
 
@@ -343,19 +323,7 @@ describe("Salary", () => {
   it("sends only user-entered offer facts to the negotiation template", async () => {
     const user = userEvent.setup();
     mockInvoke
-      .mockResolvedValueOnce({
-        job_title: "Registered Nurse",
-        location: "Denver, CO",
-        seniority_level: "Principal",
-        min_salary: 150000,
-        p25_salary: 175000,
-        median_salary: 200000,
-        p75_salary: 230000,
-        max_salary: 260000,
-        average_salary: 205000,
-        sample_size: 128,
-        last_updated: "2026-05-20T00:00:00Z",
-      })
+      .mockResolvedValueOnce(salaryBenchmark)
       .mockResolvedValueOnce(
         "Thank you for the offer. My target range is $210,000-$225,000, and the current offer is $185,000.",
       );
@@ -403,19 +371,7 @@ describe("Salary", () => {
   it("keeps notes hidden when a template returns unreplaced placeholders", async () => {
     const user = userEvent.setup();
     mockInvoke
-      .mockResolvedValueOnce({
-        job_title: "Registered Nurse",
-        location: "Denver, CO",
-        seniority_level: "Principal",
-        min_salary: 150000,
-        p25_salary: 175000,
-        median_salary: 200000,
-        p75_salary: 230000,
-        max_salary: 260000,
-        average_salary: 205000,
-        sample_size: 128,
-        last_updated: "2026-05-20T00:00:00Z",
-      })
+      .mockResolvedValueOnce(salaryBenchmark)
       .mockResolvedValueOnce("Discuss {{current_offer}} with {{company}}.");
     renderSalary();
 

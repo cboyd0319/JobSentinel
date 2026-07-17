@@ -153,10 +153,7 @@ export function hasStaleAtsKeywordMatchFrontendShape(root, path) {
 
 const resumeSuggestionCategoryPaths = new Set([
   "crates/jobsentinel-documents/src/ats_analyzer.rs",
-  "src/features/resumes/matching/ResumeMatchPage.tsx",
-  "src/features/resumes/matching/resumeMatchModel.ts",
-  "src/features/resumes/builder/AtsLiveScorePanel.tsx",
-  "src/features/resumes/builder/AtsLiveScorePanelModel.ts",
+  "src/features/resumes/shared/atsAnalysisLabels.ts",
   legacyMockCommandRegistryPath,
   "src/dev-runtime/features/resumes/resumeAnalysis.ts",
 ]);
@@ -210,12 +207,8 @@ export function hasResumeSuggestionCategoryDrift(root, path) {
   }
 
   const categories = collectBackendResumeSuggestionCategories(root);
-  const liveScoreModelText =
-    readOptionalFile(root, "src/features/resumes/builder/AtsLiveScorePanelModel.ts") ||
-    readOptionalFile(root, "src/features/resumes/builder/AtsLiveScorePanel.tsx");
   const frontendTexts = [
-    readOptionalFile(root, "src/features/resumes/matching/resumeMatchModel.ts"),
-    liveScoreModelText,
+    readOptionalFile(root, "src/features/resumes/shared/atsAnalysisLabels.ts"),
   ].filter(Boolean);
 
   for (const text of frontendTexts) {

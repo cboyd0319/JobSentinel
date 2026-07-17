@@ -1,26 +1,7 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
-import {
-  hasActiveUserDocGlyphMarkers,
-  hasConfusingApplicationTrackingAtsLabel,
-  hasConfusingResumeMatcherAiLabel,
-  hasConfusingSalaryAiLabel,
-  hasFeatureDocMetadataFooter,
-  hasFeaturePlainDocGlyphMarkers,
-  hasFeatureStatusColorEmojiMarkers,
-  hasMarketIntelligenceDocGlyphMarkers,
-  hasNotificationsDocGlyphMarkers,
-  hasResumeOrSalaryFeatureDocEmojiMarkers,
-  hasSmartScoringDocGlyphMarkers,
-  hasStaleApplicationTrackingDocClaims,
-  hasStaleMarketIntelligenceDocShape,
-  hasStaleResumeMatcherDocShape,
-  hasStaleSalaryAiFutureUiClaim,
-  hasStaleSmartScoringSalaryMarkerClaim,
-  hasStaleUserDataExportRoadmapClaim,
-  hasStaleUserDataManagementDocShape,
-  hasSynonymOrRemotePreferenceDocDrift,
-} from "./docs-drift-feature-docs.mjs";
+import { parseProgressMarkers } from "../state.mjs";
+import * as featureDocs from "./docs-drift-feature-docs.mjs";
 import {
   activeStatusPath,
   deepLinksStatusEmojiPattern,
@@ -29,32 +10,37 @@ import {
   speculativeCloudDeploymentDocs,
   statusEmojiPattern,
 } from "./docs-drift-constants.mjs";
-import {
-  hasDeveloperArchitectureDocMarkers,
-  hasDeveloperMaintenanceDocDrift,
-  hasDeveloperTestingDocMarkers,
-  hasFixedWaitInActiveE2eRuntime,
-  hasStaleArchitectureCloudDependencyClaim,
-  hasStaleE2eWaitGuidance,
-  hasStaleTestQualityDocGuidance,
-  hasTopLevelActiveDocDrift,
+import * as developerDocs from "./docs-drift-developer.mjs";
+import * as platformDocs from "./docs-drift-platform.mjs";
+
+const {
+  hasActiveUserDocGlyphMarkers, hasConfusingApplicationTrackingAtsLabel,
+  hasConfusingResumeMatcherAiLabel, hasConfusingSalaryAiLabel,
+  hasFeatureDocMetadataFooter, hasFeaturePlainDocGlyphMarkers,
+  hasFeatureStatusColorEmojiMarkers, hasMarketIntelligenceDocGlyphMarkers,
+  hasNotificationsDocGlyphMarkers, hasResumeOrSalaryFeatureDocEmojiMarkers,
+  hasSmartScoringDocGlyphMarkers, hasStaleApplicationTrackingDocClaims,
+  hasStaleMarketIntelligenceDocShape, hasStaleResumeMatcherDocShape,
+  hasStaleSalaryAiFutureUiClaim, hasStaleSmartScoringSalaryMarkerClaim,
+  hasStaleUserDataExportRoadmapClaim, hasStaleUserDataManagementDocShape,
+  hasSynonymOrRemotePreferenceDocDrift,
+} = featureDocs;
+const {
+  hasDeveloperArchitectureDocMarkers, hasDeveloperMaintenanceDocDrift,
+  hasDeveloperTestingDocMarkers, hasFixedWaitInActiveE2eRuntime,
+  hasStaleArchitectureCloudDependencyClaim, hasStaleE2eWaitGuidance,
+  hasStaleTestQualityDocGuidance, hasTopLevelActiveDocDrift,
   hasTopLevelActiveDocGlyphMarkers,
-} from "./docs-drift-developer.mjs";
-import {
-  hasBookmarkletDocStatusEmojiMarkers,
-  hasDeveloperLayoutDocGlyphMarkers,
-  hasMacosVerificationClaimWithoutEvidence,
-  hasMaintainedDocGlyphMarkers,
-  hasStaleGettingStartedToolingDocs,
-  hasStaleLinuxBuildWorkflowTriggerDoc,
-  hasStaleMacosDeveloperDocs,
-  hasStalePlatformDataPathDocs,
-  hasStalePlatformVersionTags,
-  hasStaleSqliteConfigurationDoc,
-  hasStaleTestingReleaseScopedNote,
-  hasUnindexedReleaseNote,
+} = developerDocs;
+const {
+  hasBookmarkletDocStatusEmojiMarkers, hasDeveloperLayoutDocGlyphMarkers,
+  hasMacosVerificationClaimWithoutEvidence, hasMaintainedDocGlyphMarkers,
+  hasStaleGettingStartedToolingDocs, hasStaleLinuxBuildWorkflowTriggerDoc,
+  hasStaleMacosDeveloperDocs, hasStalePlatformDataPathDocs,
+  hasStalePlatformVersionTags, hasStaleSqliteConfigurationDoc,
+  hasStaleTestingReleaseScopedNote, hasUnindexedReleaseNote,
   hasUnlinkedLinuxBuildGuide,
-} from "./docs-drift-platform.mjs";
+} = platformDocs;
 
 export {
   hasDeveloperArchitectureDocMarkers,
@@ -169,7 +155,7 @@ export function hasActiveStatusStaleLastUpdatedDate(root, path) {
   }
 
   const text = readFileSync(join(root, path), "utf8");
-  const statusDate = /^Last updated:\s*(20\d{2}-\d{2}-\d{2})\./m.exec(text)?.[1];
+  const statusDate = parseProgressMarkers(text).lastUpdated;
 
   if (!statusDate) {
     return true;

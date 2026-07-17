@@ -48,7 +48,7 @@ Out of scope:
 
 - Add this plan.
 - Register it in `docs/plans/index.json`.
-- Keep `docs/plans/active/status.md` compact if a status note is needed.
+- Keep `docs/harness/current-status.md` compact if a status note is needed.
 - Verify with `npm run harness:check`.
 
 ### 2. Red Tests
@@ -104,7 +104,7 @@ shared APIs or warnings surface.
 
 ## Surprises And Discoveries
 
-- `docs/plans/active/status.md` is exactly at the harness line budget, so v3
+- `docs/harness/current-status.md` is the compact status owner, so v3
   implementation progress should stay in this focused plan unless the status
   file is compacted first.
 

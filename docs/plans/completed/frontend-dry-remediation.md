@@ -1,6 +1,6 @@
 # Frontend DRY Remediation
 
-Status: Active
+Status: Completed
 
 ## Problem
 
@@ -33,32 +33,32 @@ code under `crates/` is complete and guarded by its zero baselines.
 
 ### Milestone 1: Characterize The 38 Regions
 
-- [ ] Group the detector output by semantic owner and behavior contract.
-- [ ] Add focused characterization where consolidation could alter behavior.
-- [ ] Record intentional protocol or layout repetition before editing.
+- [x] Group the detector output by semantic owner and behavior contract.
+- [x] Add focused characterization where consolidation could alter behavior.
+- [x] Record intentional protocol or layout repetition before editing.
 
 ### Milestone 2: Consolidate Resume And Score Models
 
-- [ ] Unify confirmed resume score, match, and analysis model clones.
-- [ ] Preserve serialized command payloads and user-visible score semantics.
+- [x] Unify confirmed resume score, match, and analysis model clones.
+- [x] Preserve serialized command payloads and user-visible score semantics.
 
 ### Milestone 3: Consolidate Shared UI Rendering
 
-- [ ] Extract confirmed shared dashboard, market, feedback, and resume visuals.
-- [ ] Keep accessibility names, focus behavior, responsive layout, and distinct
+- [x] Extract confirmed shared dashboard, market, feedback, and resume visuals.
+- [x] Keep accessibility names, focus behavior, responsive layout, and distinct
   interactions local where they differ.
 
 ### Milestone 4: Consolidate Boundaries And Error Handling
 
-- [ ] Remove confirmed desktop command-adapter and error-boundary clones.
-- [ ] Preserve command validation, error recovery, and data-loss handling.
+- [x] Remove confirmed desktop command-adapter and error-boundary clones.
+- [x] Preserve command validation, error recovery, and data-loss handling.
 
 ### Milestone 5: Sweep, Ratchet, And Close
 
-- [ ] Run detector, symbol, literal, and forwarding-wrapper sweeps.
-- [ ] Lower the frontend baseline to the final measurement.
-- [ ] Run the complete verification lane and save structured evidence.
-- [ ] Mark the feature passing and move this plan to `completed/` only after all
+- [x] Run detector, symbol, literal, and forwarding-wrapper sweeps.
+- [x] Lower the frontend baseline to the final measurement.
+- [x] Run the complete verification lane and save structured evidence.
+- [x] Mark the feature passing and move this plan to `completed/` only after all
   required commands pass.
 
 ## Verification
@@ -79,7 +79,8 @@ git diff --check
 
 ## Handoff
 
-- Current state: active and not yet implemented.
-- Baseline: 778 duplicated significant lines across 38 regions.
-- Next step: classify every listed region before changing shared behavior.
-- Prior scope: crate production and test duplication are complete at zero.
+- Current state: completed and verified.
+- Result: frontend production duplication fell from 778 significant lines across
+  38 regions to zero, with the baseline ratcheted to zero.
+- Evidence: `docs/harness/evidence/frontend-dry-completion-2026-07-17.json`.
+- Next workstream: repository residual cleanup.

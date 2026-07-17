@@ -88,7 +88,7 @@ function verifyCodesign(appPath, options = {}) {
   }
 }
 
-function readCodesignDetails(path) {
+export function readCodesignDetails(path) {
   const result = spawnSync("codesign", ["-dv", "--verbose=4", path], {
     encoding: "utf8",
     stdio: ["ignore", "pipe", "pipe"],

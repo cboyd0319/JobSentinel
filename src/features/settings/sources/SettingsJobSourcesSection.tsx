@@ -12,11 +12,13 @@ import { SettingsAdditionalJobSources } from "./SettingsAdditionalJobSources";
 import { SettingsUsaJobsSourceSection } from "./SettingsUsaJobsSourceSection";
 import {
   type Config,
-  type CredentialStatusMap,
-  type Credentials,
   type JobsWithGptPayload,
   type SourceRequestSummary,
 } from "../config/SettingsConfig";
+import type {
+  CredentialStatusMap,
+  Credentials,
+} from "../credentials/SettingsCredentials";
 
 interface SettingsJobSourcesSectionProps {
   config: Config;

@@ -20,6 +20,7 @@ pub(crate) mod linkedin_auth;
 pub(crate) mod linkedin_workbench;
 pub(crate) mod market;
 pub(crate) mod resume;
+mod resume_file_names;
 pub(crate) mod salary;
 pub(crate) mod scoring;
 pub(crate) mod semantic_matching;

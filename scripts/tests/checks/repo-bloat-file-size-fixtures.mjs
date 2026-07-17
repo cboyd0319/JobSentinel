@@ -24,34 +24,19 @@ export function writeCanonicalFileSizePolicy(root) {
         hard_bytes: 65536,
       },
       included_extensions: [".rs", ".ts", ".tsx"],
+      file_size: {
+        scopes: [
+          {
+            id: "frontend-source",
+            globs: ["src/**/*.ts", "src/**/*.tsx"],
+          },
+          {
+            id: "rust-source",
+            globs: ["crates/**/*.rs"],
+          },
+        ],
+      },
       non_hand_authored_exclusions: [],
-      exceptions: [],
-    }, null, 2)}\n`,
-  );
-  writeFixtureFile(
-    root,
-    "scripts/harness/contracts/file-size.json",
-    `${JSON.stringify({
-      schema: "jobsentinel.file_size_contract.v3",
-      projection_of: "scripts/harness/contracts/repository-structure.json",
-      coverage: { extensions: [".rs", ".ts", ".tsx"], filenames: [] },
-      scopes: [
-        {
-          id: "frontend-source",
-          globs: ["src/**/*.ts", "src/**/*.tsx"],
-          max_lines: 500,
-          max_bytes: 65536,
-          max_line_bytes: 65536,
-        },
-        {
-          id: "rust-source",
-          globs: ["crates/**/*.rs"],
-          max_lines: 500,
-          max_bytes: 65536,
-          max_line_bytes: 65536,
-        },
-      ],
-      coverage_exclusions: [],
       exceptions: [],
     }, null, 2)}\n`,
   );

@@ -8,11 +8,8 @@ import { basename, join, resolve } from "node:path";
 import { pipeline } from "node:stream/promises";
 import { pathToFileURL } from "node:url";
 import {
-  expectedAgentSkillsArchiveNames,
   findAgentSkillsArchiveAssets,
   validateExactAgentSkillsAssetSet,
-  listTarGzArchivePaths,
-  listZipArchivePaths,
   validateAgentSkillsArchiveContents,
 } from "./public-assets/agent-skills.mjs";
 import { parseArgs } from "./public-assets/options.mjs";
@@ -31,6 +28,7 @@ import {
   findChecksumAsset,
   findReleaseAssetByName,
   parseSha256Checksum,
+  validateReleaseSbomDocument,
   verifyGitHubAttestation,
 } from "./verify-latest-macos-release.mjs";
 
@@ -223,35 +221,13 @@ export function validatePublicReleaseSupplyChain({
   expectedVersion,
   platform,
 }) {
-  const { manifestName, sbomName } = expectedReleaseSbomNames(expectedVersion, platform);
-
-  if (manifest?.schemaVersion !== 1) {
-    throw new Error(`${manifestName} must use schemaVersion 1.`);
-  }
-
-  if (manifest.version !== expectedVersion) {
-    throw new Error(`${manifestName} version expected ${expectedVersion}, found ${manifest.version}.`);
-  }
-
-  if (manifest.platform !== platform) {
-    throw new Error(`${manifestName} platform expected ${platform}, found ${manifest.platform}.`);
-  }
-
-  if (manifest.sbom?.fileName !== sbomName) {
-    throw new Error(`${manifestName} must point to ${sbomName}.`);
-  }
-
-  if (manifest.sbom?.sha256 !== sbomDigest) {
-    throw new Error(`${sbomName} SHA-256 does not match ${manifestName}.`);
-  }
-
-  if (sbom?.spdxVersion !== "SPDX-2.3" || sbom?.SPDXID !== "SPDXRef-DOCUMENT") {
-    throw new Error(`${sbomName} must be an SPDX 2.3 JSON document.`);
-  }
-
-  if (!Array.isArray(sbom.packages) || sbom.packages.length === 0) {
-    throw new Error(`${sbomName} must contain at least one package.`);
-  }
+  const { manifestName } = validateReleaseSbomDocument({
+    manifest,
+    sbom,
+    sbomDigest,
+    expectedVersion,
+    platform,
+  });
 
   for (const [fileName, digest] of Object.entries(assetDigests)) {
     const assetEntry = manifest.assets?.find((asset) => asset.fileName === fileName);

@@ -88,6 +88,24 @@ fn create_test_resume() -> StructuredResume {
     }
 }
 
+fn add_certification_and_project(resume: &mut StructuredResume) {
+    resume.certifications = vec![ResumeCertification {
+        name: "Certified Community Health Worker".to_string(),
+        issuer: "State Health Board".to_string(),
+        date_obtained: Some("2024".to_string()),
+        expiration_date: None,
+        credential_id: None,
+    }];
+    resume.projects = vec![ResumeProject {
+        name: "Clinic Intake Redesign".to_string(),
+        description: "Improved appointment intake for community clinic.".to_string(),
+        technologies: vec!["Scheduling".to_string(), "Patient intake".to_string()],
+        url: Some("https://example.test/project".to_string()),
+        start_date: None,
+        end_date: None,
+    }];
+}
+
 #[test]
 fn test_html_template_snapshots() {
     let resume = create_test_resume();
@@ -218,21 +236,7 @@ fn test_render_plain_text() {
 #[test]
 fn test_render_html_and_text_include_certifications_and_projects() {
     let mut resume = create_test_resume();
-    resume.certifications = vec![ResumeCertification {
-        name: "Certified Community Health Worker".to_string(),
-        issuer: "State Health Board".to_string(),
-        date_obtained: Some("2024".to_string()),
-        expiration_date: None,
-        credential_id: None,
-    }];
-    resume.projects = vec![ResumeProject {
-        name: "Clinic Intake Redesign".to_string(),
-        description: "Improved appointment intake for community clinic.".to_string(),
-        technologies: vec!["Scheduling".to_string(), "Patient intake".to_string()],
-        url: Some("https://example.test/project".to_string()),
-        start_date: None,
-        end_date: None,
-    }];
+    add_certification_and_project(&mut resume);
 
     let html = TemplateRenderer::render_html(&resume, TemplateId::Classic);
     let text = TemplateRenderer::render_plain_text(&resume);
@@ -252,21 +256,7 @@ fn test_render_html_and_text_include_certifications_and_projects() {
 #[test]
 fn test_technical_html_does_not_duplicate_certifications_or_projects() {
     let mut resume = create_test_resume();
-    resume.certifications = vec![ResumeCertification {
-        name: "Certified Community Health Worker".to_string(),
-        issuer: "State Health Board".to_string(),
-        date_obtained: Some("2024".to_string()),
-        expiration_date: None,
-        credential_id: None,
-    }];
-    resume.projects = vec![ResumeProject {
-        name: "Clinic Intake Redesign".to_string(),
-        description: "Improved appointment intake for community clinic.".to_string(),
-        technologies: vec!["Scheduling".to_string(), "Patient intake".to_string()],
-        url: Some("https://example.test/project".to_string()),
-        start_date: None,
-        end_date: None,
-    }];
+    add_certification_and_project(&mut resume);
 
     let html = TemplateRenderer::render_html(&resume, TemplateId::Technical);
 
@@ -277,21 +267,7 @@ fn test_technical_html_does_not_duplicate_certifications_or_projects() {
 #[test]
 fn test_all_html_templates_include_certifications_and_projects_once() {
     let mut resume = create_test_resume();
-    resume.certifications = vec![ResumeCertification {
-        name: "Certified Community Health Worker".to_string(),
-        issuer: "State Health Board".to_string(),
-        date_obtained: Some("2024".to_string()),
-        expiration_date: None,
-        credential_id: None,
-    }];
-    resume.projects = vec![ResumeProject {
-        name: "Clinic Intake Redesign".to_string(),
-        description: "Improved appointment intake for community clinic.".to_string(),
-        technologies: vec!["Scheduling".to_string(), "Patient intake".to_string()],
-        url: Some("https://example.test/project".to_string()),
-        start_date: None,
-        end_date: None,
-    }];
+    add_certification_and_project(&mut resume);
 
     for template in ALL_TEMPLATE_IDS {
         let html = TemplateRenderer::render_html(&resume, template);

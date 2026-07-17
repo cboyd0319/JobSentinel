@@ -70,6 +70,9 @@ function listCandidatePaths(root) {
 
 export function listSourceFiles(root, scope) {
   const { dirs, extensions } = scope.include;
+  const includes = (scope.includePatterns ?? []).map(
+    (pattern) => new RegExp(pattern),
+  );
   const excludes = (scope.excludePatterns ?? []).map(
     (pattern) => new RegExp(pattern),
   );
@@ -77,6 +80,10 @@ export function listSourceFiles(root, scope) {
   return listCandidatePaths(root)
     .filter((path) => dirs.some((dir) => path.startsWith(`${dir}/`)))
     .filter((path) => extensions.some((extension) => path.endsWith(extension)))
+    .filter(
+      (path) =>
+        includes.length === 0 || includes.some((pattern) => pattern.test(path)),
+    )
     .filter((path) => !excludes.some((pattern) => pattern.test(path)))
     .filter(
       (path) =>
@@ -97,7 +104,7 @@ export function significantLines(text) {
   for (let index = 0; index < raw.length; index += 1) {
     const trimmed = raw[index].trim();
     if (trimmed === "" || isCommentLine(trimmed)) continue;
-    if (/^[\s{}()\[\];,.]*$/.test(trimmed)) continue;
+    if (/^[\s{}()[\];,.]*$/.test(trimmed)) continue;
     lines.push({ lineNo: index + 1, norm: trimmed.replace(/\s+/g, " ") });
   }
   return lines;

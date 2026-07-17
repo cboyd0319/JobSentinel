@@ -1,141 +1,35 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { invoke } from "@tauri-apps/api/core";
+import {
+  makeConfig,
+  makeGhostConfig,
+  mockInvoke,
+} from "./SettingsPage.testSupport";
 import Settings from "./SettingsPage";
-import { DEFAULT_EXTERNAL_AI_CONFIG } from "./config/SettingsConfig";
 
-const mockInvoke = vi.mocked(invoke);
-
-const mockToast = {
-  success: vi.fn(),
-  error: vi.fn(),
-  info: vi.fn(),
-  warning: vi.fn(),
-};
-vi.mock("../../shared/toast/useToast", () => ({
-  useToast: () => mockToast,
-}));
-
-vi.mock("../../shared/errorReporting/logger", () => ({
-  logError: vi.fn(),
-}));
-
-vi.mock("../../shared/errorReporting/messages", () => ({
-  getUserFriendlyError: (err: unknown) => ({
-    title: "Error",
-    message: String(err),
-  }),
-}));
-
-vi.mock("./support/settingsBackupFile", () => ({
-  downloadPrivateSettingsBackup: vi.fn(),
-  selectSettingsBackupFile: vi.fn(),
-}));
-
-vi.mock("./support/ErrorLogPanel", () => ({
-  ErrorLogPanel: () => <div data-testid="error-log-panel" />,
-}));
-
-function makeConfig() {
-  return {
-    title_allowlist: [],
-    title_blocklist: [],
-    keywords_boost: ["rust"],
-    keywords_exclude: [],
-    location_preferences: {
-      allow_remote: true,
-      allow_hybrid: false,
-      allow_onsite: false,
-      cities: [],
-    },
-    salary_floor_usd: 100000,
-    preferred_companies: [],
-    blocked_companies: [],
-    auto_refresh: { enabled: false, interval_minutes: 30 },
-    alerts: {
-      slack: { enabled: false },
-      email: {
-        enabled: false,
-        smtp_server: "",
-        smtp_port: 587,
-        smtp_username: "",
-        from_email: "",
-        to_emails: [],
-        use_starttls: true,
-      },
-      discord: { enabled: false },
-      telegram: { enabled: false },
-      teams: { enabled: false },
-      desktop: {
-        enabled: false,
-        show_when_focused: false,
-        play_sound: false,
-      },
-    },
-    linkedin: {
-      enabled: false,
-      query: "",
-      location: "",
-      remote_only: false,
-      limit: 25,
-    },
-    remoteok: { enabled: false, tags: [], limit: 25 },
-    weworkremotely: { enabled: false, limit: 25 },
-    builtin: { enabled: false, cities: [], limit: 25 },
-    hn_hiring: { enabled: false, remote_only: false, limit: 25 },
-    dice: {
-      enabled: false,
-      query: "",
-      location: undefined as string | undefined,
-      limit: 25,
-    },
-    yc_startup: { enabled: false, remote_only: false, limit: 25 },
-    usajobs: {
-      enabled: false,
-      email: "",
-      remote_only: false,
-      date_posted_days: 7,
-      limit: 25,
-    },
-    simplyhired: {
-      enabled: false,
-      query: "",
-      location: undefined as string | undefined,
-      limit: 25,
-    },
-    glassdoor: {
-      enabled: false,
-      query: "",
-      location: undefined as string | undefined,
-      limit: 25,
-    },
-    restricted_source_acknowledgements: {
-      builtin: false,
-      dice: false,
-      simplyhired: false,
-      glassdoor: false,
-    },
-    jobswithgpt_endpoint: "",
-    jobswithgpt_approval: {
-      enabled: false,
-      payload: null,
-      approved_at: null,
-    },
-    external_ai: DEFAULT_EXTERNAL_AI_CONFIG,
-    use_resume_matching: false,
-  };
-}
-
-function makeGhostConfig() {
-  return {
-    stale_threshold_days: 60,
-    repost_threshold: 3,
-    min_description_length: 200,
-    penalize_missing_salary: false,
-    warning_threshold: 0.3,
-    hide_threshold: 0.7,
-  };
+async function openSourceRecommendations(
+  user: ReturnType<typeof userEvent.setup>,
+  title: string,
+  keywords: string[],
+) {
+  const config = makeConfig();
+  config.title_allowlist = [title];
+  config.keywords_boost = keywords;
+  config.location_preferences.allow_remote = true;
+  config.location_preferences.cities = ["Austin"];
+  mockInvoke.mockImplementation(async (cmd: string) => {
+    if (cmd === "get_config") return config;
+    if (cmd === "has_credential") return false;
+    if (cmd === "get_ghost_config") return makeGhostConfig();
+    if (cmd === "detect_location") return null;
+    return null;
+  });
+  render(<Settings onClose={vi.fn()} />);
+  await waitFor(() => {
+    expect(screen.getByText("Settings")).toBeInTheDocument();
+  });
+  await user.click(screen.getByRole("tab", { name: "Sources & Alerts" }));
 }
 
 describe("Settings source setup", () => {
@@ -168,27 +62,7 @@ describe("Settings source setup", () => {
 
   it("does not recommend tech-heavy sources for broad remote searches", async () => {
     const user = userEvent.setup();
-    const config = makeConfig();
-    config.title_allowlist = ["Office Manager"];
-    config.keywords_boost = ["Scheduling"];
-    config.location_preferences.allow_remote = true;
-    config.location_preferences.cities = ["Austin"];
-
-    mockInvoke.mockImplementation(async (cmd: string) => {
-      if (cmd === "get_config") return config;
-      if (cmd === "has_credential") return false;
-      if (cmd === "get_ghost_config") return makeGhostConfig();
-      if (cmd === "detect_location") return null;
-      return null;
-    });
-
-    render(<Settings onClose={vi.fn()} />);
-
-    await waitFor(() => {
-      expect(screen.getByText("Settings")).toBeInTheDocument();
-    });
-
-    await user.click(screen.getByRole("tab", { name: "Sources & Alerts" }));
+    await openSourceRecommendations(user, "Office Manager", ["Scheduling"]);
 
     expect(
       screen.queryByText("Optional sources to review"),
@@ -197,27 +71,7 @@ describe("Settings source setup", () => {
 
   it("does not recommend tech-heavy sources for broad searches with common tool keywords", async () => {
     const user = userEvent.setup();
-    const config = makeConfig();
-    config.title_allowlist = ["Accountant"];
-    config.keywords_boost = ["SQL", "Excel"];
-    config.location_preferences.allow_remote = true;
-    config.location_preferences.cities = ["Austin"];
-
-    mockInvoke.mockImplementation(async (cmd: string) => {
-      if (cmd === "get_config") return config;
-      if (cmd === "has_credential") return false;
-      if (cmd === "get_ghost_config") return makeGhostConfig();
-      if (cmd === "detect_location") return null;
-      return null;
-    });
-
-    render(<Settings onClose={vi.fn()} />);
-
-    await waitFor(() => {
-      expect(screen.getByText("Settings")).toBeInTheDocument();
-    });
-
-    await user.click(screen.getByRole("tab", { name: "Sources & Alerts" }));
+    await openSourceRecommendations(user, "Accountant", ["SQL", "Excel"]);
 
     expect(
       screen.queryByText("Optional sources to review"),
@@ -226,27 +80,7 @@ describe("Settings source setup", () => {
 
   it("recommends tech-heavy sources for technical searches", async () => {
     const user = userEvent.setup();
-    const config = makeConfig();
-    config.title_allowlist = ["Software Engineer"];
-    config.keywords_boost = ["React"];
-    config.location_preferences.allow_remote = true;
-    config.location_preferences.cities = ["Austin"];
-
-    mockInvoke.mockImplementation(async (cmd: string) => {
-      if (cmd === "get_config") return config;
-      if (cmd === "has_credential") return false;
-      if (cmd === "get_ghost_config") return makeGhostConfig();
-      if (cmd === "detect_location") return null;
-      return null;
-    });
-
-    render(<Settings onClose={vi.fn()} />);
-
-    await waitFor(() => {
-      expect(screen.getByText("Settings")).toBeInTheDocument();
-    });
-
-    await user.click(screen.getByRole("tab", { name: "Sources & Alerts" }));
+    await openSourceRecommendations(user, "Software Engineer", ["React"]);
 
     const sourceReview = screen.getByText("Optional sources to review");
     const panel = sourceReview.parentElement?.parentElement;

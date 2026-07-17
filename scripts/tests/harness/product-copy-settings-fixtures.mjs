@@ -29,7 +29,6 @@ export const technicalFirstSettingsPaths = [
       "src/features/application-assist/ApplicationPreview.tsx",
       "src/features/application-assist/ApplyButton.tsx",
       "src/features/application-assist/ProfileForm.tsx",
-      "src/features/application-assist/ScreeningAnswerSuggestions.tsx",
       "src/features/application-assist/ScreeningAnswersForm.tsx",
       "src/features/settings/support/feedback/SubmitOptions.tsx",
       "src/features/dashboard/components/jobCardGuidance.ts",
@@ -355,19 +354,6 @@ export function writePrimarySettingsFixtures(root, writeFixtureFile) {
       "<code>{a.questionPattern}</code>",
       "{Math.round(a.confidenceScore * 100)}% confident",
       "Modified {a.timesModified}× ({Math.round((a.timesModified / a.timesUsed) * 100)}%)",
-      "",
-    ].join("\n"),
-  );
-  writeFixtureFile(
-    root,
-    "src/features/application-assist/ScreeningAnswerSuggestions.tsx",
-    [
-      "Smart Suggestions",
-      "Based on your history",
-      "{confidencePercent}% confident",
-      "(modified {Math.round(suggestion.modificationRate * 100)}%)",
-      "Failed to load suggestions",
-      'setError("Could not load saved answers");',
       "",
     ].join("\n"),
   );

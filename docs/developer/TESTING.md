@@ -101,7 +101,7 @@ src-tauri/
 feature-specific test subdirectories. This improves code organization and keeps
 module files easier to maintain under the current
 [harness file-size policy](../harness/README.md), enforced by
-`scripts/harness/contracts/file-size.json` through `npm run lint:bloat`.
+`scripts/harness/contracts/repository-structure.json` through `npm run lint:bloat`.
 
 Repeated Rust setup belongs to a crate-local `test_support` owner. Keep
 scenario-specific mutations and assertions in each test, and use production

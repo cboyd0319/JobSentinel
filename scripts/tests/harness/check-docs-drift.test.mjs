@@ -4,11 +4,9 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import test from "node:test";
 import {
-  hasActiveUserDocGlyphMarkers,
   hasActiveStatusStaleLastUpdatedDate,
   hasActiveStatusStaleMeasuredCounts,
   hasBookmarkletDocStatusEmojiMarkers,
-  hasConfusingApplicationTrackingAtsLabel,
   hasConfusingResumeMatcherAiLabel,
   hasConfusingSalaryAiLabel,
   collectDocsDriftViolations,
@@ -26,13 +24,10 @@ import {
   hasMaintainedDocGlyphMarkers,
   hasMacosVerificationClaimWithoutEvidence,
   hasMarketIntelligenceDocGlyphMarkers,
-  hasNotificationsDocGlyphMarkers,
   hasOverbroadLocalStorageMigrationClaim,
   hasQuickStartEmojiMarkers,
   hasResumeOrSalaryFeatureDocEmojiMarkers,
-  hasSmartScoringDocGlyphMarkers,
   hasSpeculativeCloudDeploymentDoc,
-  hasStaleApplicationTrackingDocClaims,
   hasStaleE2eWaitGuidance,
   hasStaleArchitectureCloudDependencyClaim,
   hasStaleGettingStartedToolingDocs,
@@ -47,9 +42,7 @@ import {
   hasStaleResumeMatcherDocShape,
   hasStaleSalaryAiFutureUiClaim,
   hasStaleSqliteConfigurationDoc,
-  hasStaleSmartScoringSalaryMarkerClaim,
   hasStaleTestQualityDocGuidance,
-  hasSynonymOrRemotePreferenceDocDrift,
   hasTopLevelActiveDocDrift,
   hasTopLevelActiveDocGlyphMarkers,
   hasUnindexedReleaseNote,
@@ -339,7 +332,7 @@ test("docs drift check rejects stale active status metrics", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "docs/plans/active/status.md",
+      "docs/harness/current-status.md",
       [
         "# Active Plan Status",
         "",
@@ -352,11 +345,11 @@ test("docs drift check rejects stale active status metrics", () => {
     );
 
     assert.equal(
-      hasActiveStatusStaleMeasuredCounts(root, "docs/plans/active/status.md"),
+      hasActiveStatusStaleMeasuredCounts(root, "docs/harness/current-status.md"),
       true,
     );
     assert.equal(
-      hasActiveStatusStaleMeasuredCounts(root, "docs/plans/active/current-work.md"),
+      hasActiveStatusStaleMeasuredCounts(root, "docs/plans/active/repository-residual-cleanup.md"),
       false,
     );
   });
@@ -366,28 +359,28 @@ test("docs drift check rejects stale active status last-updated date", () => {
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "docs/plans/active/status.md",
-      "# Active Plan Status\n\nLast updated: 2026-06-01.\n",
+      "docs/harness/current-status.md",
+      "# Active Plan Status\n\nLast updated: 2026-06-01\n",
     );
     writeFixtureFile(
       root,
-      "docs/plans/active/current-work.md",
+      "docs/plans/active/repository-residual-cleanup.md",
       "| 2026-06-02 | In progress | Guarded active status drift. |\n",
     );
 
     assert.equal(
-      hasActiveStatusStaleLastUpdatedDate(root, "docs/plans/active/status.md"),
+      hasActiveStatusStaleLastUpdatedDate(root, "docs/harness/current-status.md"),
       true,
     );
 
     writeFixtureFile(
       root,
-      "docs/plans/active/status.md",
-      "# Active Plan Status\n\nLast updated: 2026-06-02.\n",
+      "docs/harness/current-status.md",
+      "# Active Plan Status\n\nLast updated: 2026-06-02\n",
     );
 
     assert.equal(
-      hasActiveStatusStaleLastUpdatedDate(root, "docs/plans/active/status.md"),
+      hasActiveStatusStaleLastUpdatedDate(root, "docs/harness/current-status.md"),
       false,
     );
   });

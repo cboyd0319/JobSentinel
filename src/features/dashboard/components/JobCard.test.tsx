@@ -1,53 +1,21 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { describe, it, expect, beforeEach } from "vitest";
+import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import React from "react";
+import {
+  mockInvoke,
+  mockJob,
+  renderWithToast,
+  setupJobCardMocks,
+} from "./JobCard.testSupport";
 import { JobCard } from "./JobCard";
-import { ToastProvider } from "../../../app/providers/ToastProvider";
 import {
   BROWSER_ASSIST_LEARNING_ENABLED_STORAGE_KEY,
   BROWSER_ASSIST_LEARNING_STORAGE_KEY,
 } from "../../../shared/browserAssistLearning";
-
-vi.mock("../../../shared/search-links", () => ({
-  openDeepLink: vi.fn(),
-}));
-vi.mock("@tauri-apps/api/core", () => ({
-  invoke: vi.fn(),
-}));
-
-const { invoke } = await import("@tauri-apps/api/core");
-const mockInvoke = vi.mocked(invoke);
-
-// Helper to wrap component with ToastProvider
-const renderWithToast = (ui: React.ReactElement) => {
-  return render(<ToastProvider>{ui}</ToastProvider>);
-};
-
-const mockJob = {
-  id: 1,
-  title: "Customer Support Lead",
-  company: "CareBridge Services",
-  location: "Chicago, IL",
-  url: "https://example.com/job/1",
-  source: "LinkedIn",
-  score: 0.85,
-  created_at: new Date().toISOString(),
-  description:
-    "We are looking for a helpful support lead to guide our care team.",
-  salary_min: 55000,
-  salary_max: 72000,
-  remote: false,
-  bookmarked: false,
-  notes: null,
-};
+import { ToastProvider } from "../../../app/providers/ToastProvider";
 
 describe("JobCard", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    mockInvoke.mockReset();
-    window.localStorage.clear();
-  });
+  beforeEach(setupJobCardMocks);
 
   describe("rendering", () => {
     it("renders job title and company", () => {

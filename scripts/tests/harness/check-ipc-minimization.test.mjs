@@ -3,6 +3,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import test from "node:test";
+import { staleJobImportMockSource } from "../lib/source-fixtures.mjs";
 import {
   hasAnswerHistoryRendererInvoke,
   hasApplicationAssistAutomaticResumeUpload,
@@ -163,20 +164,7 @@ test("ipc minimization rejects stale import and profile mocks", () => {
     writeFixtureFile(
       root,
       "src/dev-runtime/features/dashboard/jobImportCommands.ts",
-      [
-        "function importMockJobFromUrl(command) {",
-        "  const job = { id: 1, title: 'Care Coordinator' };",
-        "  switch (command) {",
-        "    case 'preview_job_import':",
-        "      return {};",
-        "    case 'confirm_job_import':",
-        "      return { value: { ...job } };",
-        "    default:",
-        "      return undefined;",
-        "  }",
-        "}",
-        "",
-      ].join("\n"),
+      staleJobImportMockSource,
     );
 
     assert.equal(
@@ -394,11 +382,6 @@ test("ipc minimization rejects raw screening answer history IPC", () => {
     );
     writeFixtureFile(
       root,
-      "src/features/application-assist/ScreeningAnswerSuggestions.tsx",
-      "type AnswerSource = { type: 'historical'; originalQuestion: string } | { type: 'manual'; pattern: string };\n",
-    );
-    writeFixtureFile(
-      root,
       "src/dev-runtime/mocks/handlers.ts",
       "const suggestion = { source: { type: 'historical', originalQuestion: 'What salary?' } };\n",
     );
@@ -407,13 +390,6 @@ test("ipc minimization rejects raw screening answer history IPC", () => {
       hasRawAnswerHistoryIpcExposure(
         root,
         "src-tauri/src/ipc/automation.rs",
-      ),
-      true,
-    );
-    assert.equal(
-      hasRawAnswerHistoryIpcExposure(
-        root,
-        "src/features/application-assist/ScreeningAnswerSuggestions.tsx",
       ),
       true,
     );
@@ -428,26 +404,26 @@ test("ipc minimization rejects renderer answer-history management calls", () => 
   withFixture((root) => {
     writeFixtureFile(
       root,
-      "src/features/application-assist/ScreeningAnswerSuggestions.tsx",
+      "src/features/application-assist/ApplicationPreview.tsx",
       'await invoke("get_answer_statistics", { pattern });\nawait invoke("clear_answer_history");\n',
     );
     writeFixtureFile(
       root,
-      "src/features/application-assist/ScreeningAnswerSuggestions.test.tsx",
+      "src/features/application-assist/ApplicationPreview.test.tsx",
       'expect(command).toBe("get_answer_statistics");\n',
     );
 
     assert.equal(
       hasAnswerHistoryRendererInvoke(
         root,
-        "src/features/application-assist/ScreeningAnswerSuggestions.tsx",
+        "src/features/application-assist/ApplicationPreview.tsx",
       ),
       true,
     );
     assert.equal(
       hasAnswerHistoryRendererInvoke(
         root,
-        "src/features/application-assist/ScreeningAnswerSuggestions.test.tsx",
+        "src/features/application-assist/ApplicationPreview.test.tsx",
       ),
       false,
     );

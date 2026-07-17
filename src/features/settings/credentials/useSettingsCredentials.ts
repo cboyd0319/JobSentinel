@@ -5,13 +5,13 @@ import {
   type SetStateAction,
 } from "react";
 import type { ToastContextType } from "../../../shared/toast/toastContext";
-import {
-  type Config,
-  type CredentialKey,
-  type CredentialStatusMap,
-  type CredentialStatusState,
-  type Credentials,
-} from "../config/SettingsConfig";
+import type { Config } from "../config/SettingsConfig";
+import type {
+  CredentialKey,
+  CredentialStatusMap,
+  CredentialStatusState,
+  Credentials,
+} from "./SettingsCredentials";
 import { EXTERNAL_AI_PROVIDER_CREDENTIAL_KEYS } from "../external-ai/externalAiProviders";
 
 export interface CredentialSaveEntry {

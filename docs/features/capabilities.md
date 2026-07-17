@@ -53,7 +53,7 @@ account, telemetry, cloud sync, or external AI provider.
 | Restricted job sources | User-gated, local, review-first paths only |
 | Final application submission | Always user-controlled outside JobSentinel |
 
-Use [active status](../plans/active/status.md) for current release gates and
+Use [current status](../harness/current-status.md) for current release gates and
 [the README](../../README.md) for public download status.
 
 ## Capability Map

@@ -40,11 +40,6 @@ This brief condenses research and source-governance guidance for job monitoring.
   and career-profile coverage centralized in
   `src/shared/jobSourceDiscoveryTaxonomy.ts` so source discovery can grow
   without hard-coding source lists in UI components or docs-only notes.
-- Keep official job API and employer-owned web API evidence centralized in
-  `src/shared/jobSourceOfficialApiCorpus.ts`. An official path can be a
-  documented public developer API, a documented feed, or an employer-owned
-  public web API behind a careers page; do not collapse those into
-  manual-only notes just because they are JavaScript-heavy.
 - Keep parser resilience inside the existing source-adapter boundaries. The
   Scrapling Rust core can parse already-fetched HTML, but adopting it is not
   justified while JobSentinel already pins `scraper` and `quick-xml`; Scrapling

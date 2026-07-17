@@ -23,14 +23,6 @@ function withGitFixture(callback) {
   }
 }
 
-function lineFixture(count) {
-  return Array.from(
-    { length: count },
-    (_, index) => `const fixtureLine${index} = ${index};`,
-  ).join("\n");
-}
-
-
 test("checkRepoBloat rejects runtime frontend invokes missing dev mock cases", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");

@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest";
 import {
+  type ResumeData,
+} from "./resumeBuilderData";
+import {
   toJsonResumeData,
   toResumeAnalysisInput,
   toStructuredResume,
-  type ResumeData,
-} from "./resumeBuilderData";
+} from "./resumeBuilderTransforms";
 
 function createResumeWithEvidenceSections(): ResumeData {
   return {

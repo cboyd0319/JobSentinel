@@ -3,6 +3,24 @@ use crate::{AtsAnalyzer, RequirementMatchState};
 #[path = "service_healthcare_requirement_equivalences/care_plan_and_data_tests.rs"]
 mod care_plan_and_data_tests;
 
+fn assert_requirement_equivalence(
+    resume_experience: &str,
+    requirement: &str,
+    expected_match: RequirementMatchState,
+) {
+    let resume = format!("Jordan Lee\njordan@example.com\n\nExperience\n{resume_experience}");
+    let job_description = format!("Required: {requirement}");
+    let result = AtsAnalyzer::analyze_text_for_job(&resume, &[], &job_description);
+    let review = result
+        .requirement_reviews
+        .iter()
+        .find(|review| review.keyword == requirement)
+        .unwrap_or_else(|| panic!("{requirement} review"));
+
+    assert_eq!(review.match_state, expected_match);
+    assert!(review.evidence_sections.contains(&"experience".to_string()));
+}
+
 #[test]
 fn test_requirement_review_recognizes_healthcare_and_education_terms() {
     let result = AtsAnalyzer::analyze_text_for_job(
@@ -382,108 +400,42 @@ fn test_requirement_review_uses_medication_administration_hyphen_equivalence() {
 
 #[test]
 fn test_requirement_review_uses_medical_record_plural_equivalence() {
-    let result = AtsAnalyzer::analyze_text_for_job(
-            "Jordan Lee\njordan@example.com\n\nExperience\nUpdated medical record notes for patient visits.",
-            &[],
-            "Required: medical records",
-        );
-
-    let medical_records = result
-        .requirement_reviews
-        .iter()
-        .find(|review| review.keyword == "medical records")
-        .expect("medical records review");
-    assert_eq!(medical_records.match_state, RequirementMatchState::Strong);
-    assert!(medical_records
-        .evidence_sections
-        .contains(&"experience".to_string()));
-
-    let inverse = AtsAnalyzer::analyze_text_for_job(
-        "Jordan Lee\njordan@example.com\n\nExperience\nUpdated medical records for patient visits.",
-        &[],
-        "Required: medical record",
+    assert_requirement_equivalence(
+        "Updated medical record notes for patient visits.",
+        "medical records",
+        RequirementMatchState::Strong,
     );
-
-    let medical_record = inverse
-        .requirement_reviews
-        .iter()
-        .find(|review| review.keyword == "medical record")
-        .expect("medical record review");
-    assert_eq!(medical_record.match_state, RequirementMatchState::Strong);
-    assert!(medical_record
-        .evidence_sections
-        .contains(&"experience".to_string()));
+    assert_requirement_equivalence(
+        "Updated medical records for patient visits.",
+        "medical record",
+        RequirementMatchState::Strong,
+    );
 }
 
 #[test]
 fn test_requirement_review_uses_medical_record_hyphen_equivalence() {
-    let result = AtsAnalyzer::analyze_text_for_job(
-            "Jordan Lee\njordan@example.com\n\nExperience\nUpdated medical-record notes for patient visits.",
-            &[],
-            "Required: medical records",
-        );
-
-    let medical_records = result
-        .requirement_reviews
-        .iter()
-        .find(|review| review.keyword == "medical records")
-        .expect("medical records review");
-    assert_eq!(medical_records.match_state, RequirementMatchState::Strong);
-    assert!(medical_records
-        .evidence_sections
-        .contains(&"experience".to_string()));
-
-    let inverse = AtsAnalyzer::analyze_text_for_job(
-        "Jordan Lee\njordan@example.com\n\nExperience\nUpdated medical records for patient visits.",
-        &[],
-        "Required: medical-record",
+    assert_requirement_equivalence(
+        "Updated medical-record notes for patient visits.",
+        "medical records",
+        RequirementMatchState::Strong,
     );
-
-    let medical_record_hyphen = inverse
-        .requirement_reviews
-        .iter()
-        .find(|review| review.keyword == "medical-record")
-        .expect("medical-record review");
-    assert_eq!(
-        medical_record_hyphen.match_state,
-        RequirementMatchState::Strong
+    assert_requirement_equivalence(
+        "Updated medical records for patient visits.",
+        "medical-record",
+        RequirementMatchState::Strong,
     );
-    assert!(medical_record_hyphen
-        .evidence_sections
-        .contains(&"experience".to_string()));
 }
 
 #[test]
 fn test_requirement_review_uses_care_plan_plural_equivalence() {
-    let result = AtsAnalyzer::analyze_text_for_job(
-        "Jordan Lee\njordan@example.com\n\nExperience\nUsed care plan notes for patient visits.",
-        &[],
-        "Required: care plans",
+    assert_requirement_equivalence(
+        "Used care plan notes for patient visits.",
+        "care plans",
+        RequirementMatchState::Direct,
     );
-
-    let care_plans = result
-        .requirement_reviews
-        .iter()
-        .find(|review| review.keyword == "care plans")
-        .expect("care plans review");
-    assert_eq!(care_plans.match_state, RequirementMatchState::Direct);
-    assert!(care_plans
-        .evidence_sections
-        .contains(&"experience".to_string()));
-
-    let inverse = AtsAnalyzer::analyze_text_for_job(
-        "Jordan Lee\njordan@example.com\n\nExperience\nUsed care plans for patient visits.",
-        &[],
-        "Required: care plan",
+    assert_requirement_equivalence(
+        "Used care plans for patient visits.",
+        "care plan",
+        RequirementMatchState::Direct,
     );
-
-    let care_plan = inverse
-        .requirement_reviews
-        .iter()
-        .find(|review| review.keyword == "care plan")
-        .expect("care plan review");
-    assert_eq!(care_plan.match_state, RequirementMatchState::Direct);
-    assert!(care_plan
-        .evidence_sections
-        .contains(&"experience".to_string()));
 }

@@ -1,12 +1,12 @@
 import type { Dispatch, SetStateAction } from "react";
 import { Input } from "../../../ui/Input";
+import type { Config } from "../config/SettingsConfig";
 import {
   credentialExists,
   credentialIsExpected,
-  type Config,
   type CredentialStatusMap,
   type Credentials,
-} from "../config/SettingsConfig";
+} from "../credentials/SettingsCredentials";
 import { SettingsSymbol } from "../shared/SettingsIcons";
 import { SecurityBadge } from "../shared/SettingsSecurityBadge";
 

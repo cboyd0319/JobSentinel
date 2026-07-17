@@ -1,47 +1,17 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import {
+  mockAtsDetection,
+  mockInvoke,
+  mockJob,
+  renderWithToast,
+  setupApplyButtonMocks,
+} from "./ApplyButton.testSupport";
 import { ApplyButton } from "./ApplyButton";
-import { ToastProvider } from "../../app/providers/ToastProvider";
-
-// Mock Tauri API
-vi.mock("@tauri-apps/api/core", () => ({
-  invoke: vi.fn(),
-}));
-
-const { invoke } = await import("@tauri-apps/api/core");
-const mockInvoke = vi.mocked(invoke);
-
-// Helper to render with ToastProvider
-const renderWithToast = (ui: React.ReactElement) => {
-  return render(<ToastProvider>{ui}</ToastProvider>);
-};
-
-const mockJob = {
-  id: 1,
-  hash: "test-hash-123",
-  title: "Customer Support Lead",
-  company: "CareBridge Services",
-  location: "Chicago, IL",
-  url: "https://example.com/jobs/123",
-  description: "Great opportunity",
-  score: 85,
-};
-
-const mockAtsDetection = {
-  platform: "greenhouse",
-  commonFields: ["email", "phone", "name"],
-  automationNotes: "Greenhouse recognized",
-};
 
 describe("ApplyButton", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    localStorage.clear();
-    vi.mocked(localStorage.getItem).mockReturnValue(null);
-    vi.mocked(localStorage.setItem).mockImplementation(() => {});
-    vi.mocked(localStorage.removeItem).mockImplementation(() => {});
-  });
+  beforeEach(setupApplyButtonMocks);
 
   describe("initial rendering", () => {
     it("renders prepare form button", async () => {

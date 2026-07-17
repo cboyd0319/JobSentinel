@@ -5,6 +5,7 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import test from "node:test";
 import { checkRepoBloat } from "../../checks/repo-bloat.mjs";
+import { staleJobImportMockSource } from "../lib/source-fixtures.mjs";
 
 function writeFixtureFile(root, path, content = "") {
   const fullPath = join(root, path);
@@ -139,20 +140,7 @@ test("checkRepoBloat rejects job-import mocks returning full jobs", () => {
     writeFixtureFile(
       root,
       "src/dev-runtime/features/dashboard/jobImportCommands.ts",
-      [
-        "function importMockJobFromUrl(command) {",
-        "  const job = { id: 1, title: 'Care Coordinator' };",
-        "  switch (command) {",
-        "    case 'preview_job_import':",
-        "      return {};",
-        "    case 'confirm_job_import':",
-        "      return { value: { ...job } };",
-        "    default:",
-        "      return undefined;",
-        "  }",
-        "}",
-        "",
-      ].join("\n"),
+      staleJobImportMockSource,
     );
 
     execFileSync(

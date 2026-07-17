@@ -1,108 +1,46 @@
+use super::assert_requirement_equivalence;
 use crate::{AtsAnalyzer, RequirementMatchState};
 
 #[test]
 fn test_requirement_review_uses_care_plan_hyphen_equivalence() {
-    let result = AtsAnalyzer::analyze_text_for_job(
-        "Jordan Lee\njordan@example.com\n\nExperience\nUsed care-plan notes for patient visits.",
-        &[],
-        "Required: care plans",
+    assert_requirement_equivalence(
+        "Used care-plan notes for patient visits.",
+        "care plans",
+        RequirementMatchState::Direct,
     );
-
-    let care_plans = result
-        .requirement_reviews
-        .iter()
-        .find(|review| review.keyword == "care plans")
-        .expect("care plans review");
-    assert_eq!(care_plans.match_state, RequirementMatchState::Direct);
-    assert!(care_plans
-        .evidence_sections
-        .contains(&"experience".to_string()));
-
-    let inverse = AtsAnalyzer::analyze_text_for_job(
-        "Jordan Lee\njordan@example.com\n\nExperience\nUsed care plans for patient visits.",
-        &[],
-        "Required: care-plan",
+    assert_requirement_equivalence(
+        "Used care plans for patient visits.",
+        "care-plan",
+        RequirementMatchState::Direct,
     );
-
-    let care_plan_hyphen = inverse
-        .requirement_reviews
-        .iter()
-        .find(|review| review.keyword == "care-plan")
-        .expect("care-plan review");
-    assert_eq!(care_plan_hyphen.match_state, RequirementMatchState::Direct);
-    assert!(care_plan_hyphen
-        .evidence_sections
-        .contains(&"experience".to_string()));
 }
 
 #[test]
 fn test_requirement_review_uses_vital_sign_plural_equivalence() {
-    let result = AtsAnalyzer::analyze_text_for_job(
-        "Jordan Lee\njordan@example.com\n\nExperience\nRecorded vital sign readings for patient visits.",
-        &[],
-        "Required: vital signs",
+    assert_requirement_equivalence(
+        "Recorded vital sign readings for patient visits.",
+        "vital signs",
+        RequirementMatchState::Direct,
     );
-
-    let vital_signs = result
-        .requirement_reviews
-        .iter()
-        .find(|review| review.keyword == "vital signs")
-        .expect("vital signs review");
-    assert_eq!(vital_signs.match_state, RequirementMatchState::Direct);
-    assert!(vital_signs
-        .evidence_sections
-        .contains(&"experience".to_string()));
-
-    let inverse = AtsAnalyzer::analyze_text_for_job(
-        "Jordan Lee\njordan@example.com\n\nExperience\nRecorded vital signs for patient visits.",
-        &[],
-        "Required: vital sign",
+    assert_requirement_equivalence(
+        "Recorded vital signs for patient visits.",
+        "vital sign",
+        RequirementMatchState::Direct,
     );
-
-    let vital_sign = inverse
-        .requirement_reviews
-        .iter()
-        .find(|review| review.keyword == "vital sign")
-        .expect("vital sign review");
-    assert_eq!(vital_sign.match_state, RequirementMatchState::Direct);
-    assert!(vital_sign
-        .evidence_sections
-        .contains(&"experience".to_string()));
 }
 
 #[test]
 fn test_requirement_review_uses_vital_sign_hyphen_equivalence() {
-    let result = AtsAnalyzer::analyze_text_for_job(
-        "Jordan Lee\njordan@example.com\n\nExperience\nRecorded vital-sign readings for patient visits.",
-        &[],
-        "Required: vital signs",
+    assert_requirement_equivalence(
+        "Recorded vital-sign readings for patient visits.",
+        "vital signs",
+        RequirementMatchState::Direct,
     );
-
-    let vital_signs = result
-        .requirement_reviews
-        .iter()
-        .find(|review| review.keyword == "vital signs")
-        .expect("vital signs review");
-    assert_eq!(vital_signs.match_state, RequirementMatchState::Direct);
-    assert!(vital_signs
-        .evidence_sections
-        .contains(&"experience".to_string()));
-
-    let inverse = AtsAnalyzer::analyze_text_for_job(
-        "Jordan Lee\njordan@example.com\n\nExperience\nRecorded vital signs for patient visits.",
-        &[],
-        "Required: vital-sign",
+    assert_requirement_equivalence(
+        "Recorded vital signs for patient visits.",
+        "vital-sign",
+        RequirementMatchState::Direct,
     );
-
-    let vital_sign_hyphen = inverse
-        .requirement_reviews
-        .iter()
-        .find(|review| review.keyword == "vital-sign")
-        .expect("vital-sign review");
-    assert_eq!(vital_sign_hyphen.match_state, RequirementMatchState::Direct);
-    assert!(vital_sign_hyphen
-        .evidence_sections
-        .contains(&"experience".to_string()));
 }
 
 #[test]

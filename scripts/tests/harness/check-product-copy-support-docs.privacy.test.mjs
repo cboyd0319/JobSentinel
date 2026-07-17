@@ -1,31 +1,14 @@
 import assert from "node:assert/strict";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { dirname, join } from "node:path";
 import test from "node:test";
+import { hasTechnicalFirstUserCopy } from "../../harness/checks/product-copy.mjs";
 import {
-  hasFeedbackSetupJargon,
-  hasTechnicalFirstUserCopy,
-} from "../../harness/checks/product-copy.mjs";
+  createFixtureRunner,
+  writeFixtureFile,
+} from "../lib/filesystem-fixture.mjs";
 
-function writeFixtureFile(root, path, content = "") {
-  const fullPath = join(root, path);
-  mkdirSync(dirname(fullPath), { recursive: true });
-  writeFileSync(fullPath, content, "utf8");
-}
-
-function withFixture(callback) {
-  const root = mkdtempSync(
-    join(tmpdir(), "jobsentinel-product-copy-support-docs-"),
-  );
-
-  try {
-    callback(root);
-  } finally {
-    rmSync(root, { recursive: true, force: true });
-  }
-}
-
+const withFixture = createFixtureRunner(
+  "jobsentinel-product-copy-support-docs-",
+);
 test("product copy rejects first-run and Rule 0 privacy drift", () => {
   withFixture((root) => {
     writeFixtureFile(

@@ -50,7 +50,7 @@ Status:
 
 Use `docs/plans/tech-debt-tracker.md` as the single current debt source. Keep
 audit detail in dated harness reviews such as
-`docs/harness/deep-harness-audit-2026-05-31.md`, then promote accepted work into
+`docs/harness/archive/deep-harness-audit-2026-05-31.md`, then promote accepted work into
 the tracker. Do not keep a second live debt table here.
 
 ## Promotion Rule

@@ -88,6 +88,33 @@ export const TrendChart = memo(function TrendChart({
     data: chartData,
     margin: { top: 5, right: 20, left: 10, bottom: 5 },
   };
+  const grid = <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.3} />;
+  const xAxis = (
+    <XAxis
+      dataKey={xKey}
+      tick={{ fill: "#9ca3af", fontSize: 12 }}
+      tickLine={{ stroke: "#6b7280" }}
+    />
+  );
+  const yAxis = (
+    <YAxis
+      tick={{ fill: "#9ca3af", fontSize: 12 }}
+      tickLine={{ stroke: "#6b7280" }}
+      label={
+        yLabel
+          ? {
+              value: yLabel,
+              angle: -90,
+              position: "insideLeft",
+              fill: "#9ca3af",
+              fontSize: 12,
+            }
+          : undefined
+      }
+    />
+  );
+  const tooltip = <Tooltip contentStyle={TOOLTIP_CONTENT_STYLE} />;
+  const legend = <Legend />;
 
   return (
     <Card className="dark:bg-surface-800" role="region" aria-labelledby={`${title.replace(/\s+/g, '-').toLowerCase()}-title`}>
@@ -98,29 +125,11 @@ export const TrendChart = memo(function TrendChart({
         <ResponsiveContainer width="100%" height={height}>
         {type === "line" ? (
           <LineChart {...commonProps}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.3} />
-            <XAxis
-              dataKey={xKey}
-              tick={{ fill: "#9ca3af", fontSize: 12 }}
-              tickLine={{ stroke: "#6b7280" }}
-            />
-            <YAxis
-              tick={{ fill: "#9ca3af", fontSize: 12 }}
-              tickLine={{ stroke: "#6b7280" }}
-              label={
-                yLabel
-                  ? {
-                      value: yLabel,
-                      angle: -90,
-                      position: "insideLeft",
-                      fill: "#9ca3af",
-                      fontSize: 12,
-                    }
-                  : undefined
-              }
-            />
-            <Tooltip contentStyle={TOOLTIP_CONTENT_STYLE} />
-            <Legend />
+            {grid}
+            {xAxis}
+            {yAxis}
+            {tooltip}
+            {legend}
             <Line
               type="monotone"
               dataKey={yKey}
@@ -132,29 +141,11 @@ export const TrendChart = memo(function TrendChart({
           </LineChart>
         ) : (
           <BarChart {...commonProps}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.3} />
-            <XAxis
-              dataKey={xKey}
-              tick={{ fill: "#9ca3af", fontSize: 12 }}
-              tickLine={{ stroke: "#6b7280" }}
-            />
-            <YAxis
-              tick={{ fill: "#9ca3af", fontSize: 12 }}
-              tickLine={{ stroke: "#6b7280" }}
-              label={
-                yLabel
-                  ? {
-                      value: yLabel,
-                      angle: -90,
-                      position: "insideLeft",
-                      fill: "#9ca3af",
-                      fontSize: 12,
-                    }
-                  : undefined
-              }
-            />
-            <Tooltip contentStyle={TOOLTIP_CONTENT_STYLE} />
-            <Legend />
+            {grid}
+            {xAxis}
+            {yAxis}
+            {tooltip}
+            {legend}
             <Bar dataKey={yKey} fill={color} radius={[4, 4, 0, 0]} />
           </BarChart>
         )}

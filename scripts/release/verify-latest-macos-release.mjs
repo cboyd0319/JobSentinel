@@ -8,7 +8,10 @@ import { tmpdir } from "node:os";
 import { basename, join, resolve } from "node:path";
 import { pipeline } from "node:stream/promises";
 import { pathToFileURL } from "node:url";
+import { parseSha256Checksum } from "./checksum.mjs";
 import { verifyMacosPackage } from "./verify-macos-package.mjs";
+
+export { parseSha256Checksum } from "./checksum.mjs";
 
 const defaultRepo = "cboyd0319/JobSentinel";
 const verifierUserAgent = "JobSentinel-macOS-release-verifier";
@@ -179,32 +182,6 @@ export function validateMacosAssetLabel(asset, { requireGatekeeper = false, requ
   }
 }
 
-export function parseSha256Checksum(content, expectedFileName) {
-  const entries = [];
-
-  for (const line of String(content ?? "").split(/\r?\n/)) {
-    const match = line.match(/^\s*([a-fA-F0-9]{64})\s+\*?(.+?)\s*$/);
-    if (match) {
-      entries.push({
-        digest: match[1].toLowerCase(),
-        fileName: match[2],
-      });
-    }
-  }
-
-  if (entries.length !== 1) {
-    throw new Error("SHA-256 checksum file must contain exactly one digest line.");
-  }
-
-  if (expectedFileName && basename(entries[0].fileName) !== expectedFileName) {
-    throw new Error(
-      `SHA-256 checksum filename expected ${expectedFileName}, found ${entries[0].fileName}.`,
-    );
-  }
-
-  return entries[0].digest;
-}
-
 async function sha256File(path) {
   const data = await readFile(path);
   return createHash("sha256").update(data).digest("hex");
@@ -232,17 +209,14 @@ async function verifyChecksum({ release, dmgAsset, dmgPath, requireChecksum }) {
   console.log(`SHA-256 checksum verified: ${actual}`);
 }
 
-export function validateReleaseSbomManifest({
+export function validateReleaseSbomDocument({
   manifest,
   sbom,
   sbomDigest,
-  dmgAsset,
-  dmgDigest,
   expectedVersion,
   platform = "macos",
 }) {
   const { manifestName, sbomName } = expectedReleaseSbomNames(expectedVersion, platform);
-
   if (manifest?.schemaVersion !== 1) {
     throw new Error(`${manifestName} must use schemaVersion 1.`);
   }
@@ -270,7 +244,25 @@ export function validateReleaseSbomManifest({
   if (!Array.isArray(sbom.packages) || sbom.packages.length === 0) {
     throw new Error(`${sbomName} must contain at least one package.`);
   }
+  return { manifestName, sbomName };
+}
 
+export function validateReleaseSbomManifest({
+  manifest,
+  sbom,
+  sbomDigest,
+  dmgAsset,
+  dmgDigest,
+  expectedVersion,
+  platform = "macos",
+}) {
+  const { manifestName } = validateReleaseSbomDocument({
+    manifest,
+    sbom,
+    sbomDigest,
+    expectedVersion,
+    platform,
+  });
   const assetEntry = manifest.assets?.find((asset) => asset.fileName === dmgAsset.name);
   if (!assetEntry) {
     throw new Error(`${manifestName} must include downloaded DMG asset ${dmgAsset.name}.`);

@@ -35,7 +35,7 @@ with `npm run tauri:dev`.
   state, or mutate user-level configuration without explicit authority.
 - Use repo-relative paths and structured APIs. Do not commit secrets or local
   home paths.
-- `scripts/harness/contracts/file-size.json` covers every maintained text file. New or
+- `scripts/harness/contracts/repository-structure.json` covers every maintained text file. New or
   changed files must stay within their scope; exceptions need an owner, measured
   baseline, reason, and removal trigger.
 

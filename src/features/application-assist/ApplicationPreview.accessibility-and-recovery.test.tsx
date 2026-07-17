@@ -1,41 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { act, render, screen, waitFor } from "@testing-library/react";
+import {
+  mockInvoke,
+  mockJob,
+  mockProfile,
+  setupApplicationPreviewMocks,
+} from "./ApplicationPreview.testSupport";
 import { ApplicationPreview } from "./ApplicationPreview";
 
-vi.mock("@tauri-apps/api/core", () => ({
-  invoke: vi.fn(),
-}));
-
-const { invoke } = await import("@tauri-apps/api/core");
-const mockInvoke = vi.mocked(invoke);
-
-const mockJob = {
-  id: 1,
-  hash: "test-hash-123",
-  title: "Customer Support Manager",
-  company: "CareBridge Health",
-  location: "Chicago, IL",
-  url: "https://example.com/jobs/123",
-  description: "Great opportunity",
-  score: 85,
-};
-
-const mockProfile = {
-  fullName: "Jordan Lee",
-  email: "jordan@example.com",
-  phone: "+1 (555) 123-4567",
-  linkedinUrl: "https://linkedin.com/in/jordanlee",
-  githubUrl: "https://profile.example.com/jordanlee",
-  portfolioUrl: "https://jordanlee.example.com/work",
-  websiteUrl: "https://jordanlee.example.com",
-  usWorkAuthorized: true,
-  requiresSponsorship: false,
-};
-
 describe("ApplicationPreview accessibility and recovery", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
+  beforeEach(setupApplicationPreviewMocks);
 
   describe("accessibility", () => {
     it("has region landmark for preview content", async () => {

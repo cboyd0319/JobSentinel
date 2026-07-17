@@ -1,6 +1,12 @@
 import { memo } from "react";
 
 export type TabIcon = "chart" | "tool" | "building" | "location" | "bell";
+export type MarketIcon =
+  | TabIcon
+  | "trend-up"
+  | "trend-down"
+  | "trend-flat"
+  | "factory";
 
 export function BackIcon() {
   return (
@@ -10,9 +16,15 @@ export function BackIcon() {
   );
 }
 
-export function TabIconView({ icon }: { icon: TabIcon }) {
+export function MarketIconView({
+  icon,
+  className = "h-4 w-4",
+}: {
+  icon: MarketIcon;
+  className?: string;
+}) {
   const commonProps = {
-    className: "h-4 w-4",
+    className,
     fill: "none",
     viewBox: "0 0 24 24",
     stroke: "currentColor",
@@ -20,6 +32,24 @@ export function TabIconView({ icon }: { icon: TabIcon }) {
   };
 
   switch (icon) {
+    case "trend-up":
+      return (
+        <svg {...commonProps}>
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M4 17l6-6 4 4 6-8m0 0v6m0-6h-6" />
+        </svg>
+      );
+    case "trend-down":
+      return (
+        <svg {...commonProps}>
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M4 7l6 6 4-4 6 8m0 0v-6m0 6h-6" />
+        </svg>
+      );
+    case "trend-flat":
+      return (
+        <svg {...commonProps}>
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M5 12h14" />
+        </svg>
+      );
     case "chart":
       return (
         <svg {...commonProps}>
@@ -52,7 +82,17 @@ export function TabIconView({ icon }: { icon: TabIcon }) {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M15 17h5l-1.4-1.4A2 2 0 0118 14.2V11a6 6 0 10-12 0v3.2c0 .5-.2 1-.6 1.4L4 17h5m6 0a3 3 0 01-6 0" />
         </svg>
       );
+    case "factory":
+      return (
+        <svg {...commonProps}>
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M4 21V9l5 3V9l5 3V7h6v14H4zm4-5h1m4 0h1m4 0h1" />
+        </svg>
+      );
   }
+}
+
+export function TabIconView({ icon }: { icon: TabIcon }) {
+  return <MarketIconView icon={icon} />;
 }
 
 interface TrendIndicatorProps {

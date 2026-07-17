@@ -1,132 +1,30 @@
-export interface AtsAnalysisResult {
-  overall_score: number;
-  keyword_score: number;
-  format_score: number;
-  completeness_score: number;
-  keyword_matches: KeywordMatch[];
-  missing_keywords: string[];
-  missing_keyword_details?: MissingKeyword[];
-  requirement_reviews?: RequirementReview[];
-  hard_constraint_risks?: HardConstraintRisk[];
-  format_issues: FormatIssue[];
-  suggestions: AtsSuggestion[];
-}
+import type {
+  AtsAnalysisResult,
+  HardConstraintRisk,
+  MissingKeyword,
+} from "../shared/atsAnalysisContracts";
+import {
+  formatEvidenceSections,
+  formatHardConstraintCategory,
+  formatIssueSeverity,
+  formatSuggestionCategory,
+  isCitizenshipRequirement,
+} from "../shared/atsAnalysisLabels";
 
-export interface KeywordMatch {
-  keyword: string;
-  importance: "Required" | "Preferred" | "Industry";
-  found_in: string[];
-  frequency: number;
-}
+export type {
+  AtsAnalysisResult,
+  AtsSuggestion,
+  FormatIssue,
+  HardConstraintRisk,
+  KeywordMatch,
+  MissingKeyword,
+  RequirementReview,
+} from "../shared/atsAnalysisContracts";
 
-export interface MissingKeyword {
-  keyword: string;
-  importance: "Required" | "Preferred" | "Industry";
-}
-
-export interface RequirementReview {
-  keyword: string;
-  importance: "Required" | "Preferred" | "Industry";
-  match_state: "Direct" | "Strong" | "Partial" | "Implied" | "Missing";
-  evidence_sections: string[];
-  hard_constraint: boolean;
-  recommendation: string;
-}
-
-export interface HardConstraintRisk {
-  requirement: string;
-  category:
-    | "WorkAuthorization"
-    | "Citizenship"
-    | "SecurityClearance"
-    | "LicenseOrCertification"
-    | "Education"
-    | "Experience"
-    | "Language"
-    | "Age"
-    | "BackgroundScreening"
-    | "PhysicalRequirement"
-    | "Location";
-  score_cap: number;
-  reason: string;
-  action: string;
-}
-
-export interface FormatIssue {
-  severity: "Critical" | "Warning" | "Info";
-  issue: string;
-  fix: string;
-}
-
-export interface AtsSuggestion {
-  category: "AddKeyword" | "RewordBullet" | "AddSection" | "ReorderContent" | "FormatFix";
-  suggestion: string;
-  impact: string;
-}
-
-export function formatSuggestionCategory(category: AtsSuggestion["category"]): string {
-  switch (category) {
-    case "AddKeyword":
-      return "Review job words";
-    case "RewordBullet":
-      return "Rewrite bullet";
-    case "AddSection":
-      return "Add section";
-    case "ReorderContent":
-      return "Reorder content";
-    case "FormatFix":
-      return "Safety check";
-  }
-}
-
-export function formatIssueSeverity(severity: FormatIssue["severity"]): string {
-  switch (severity) {
-    case "Critical":
-      return "Fix first";
-    case "Warning":
-      return "Review";
-    case "Info":
-      return "Note";
-  }
-}
-
-function formatHardConstraintCategory(category: HardConstraintRisk["category"]): string {
-  switch (category) {
-    case "WorkAuthorization":
-      return "Work authorization";
-    case "Citizenship":
-      return "Citizenship";
-    case "SecurityClearance":
-      return "Security clearance";
-    case "LicenseOrCertification":
-      return "License or certification";
-    case "Education":
-      return "Education";
-    case "Experience":
-      return "Years of experience";
-    case "Language":
-      return "Language requirement";
-    case "Age":
-      return "Age requirement";
-    case "BackgroundScreening":
-      return "Background or drug screening";
-    case "PhysicalRequirement":
-      return "Physical requirement";
-    case "Location":
-      return "Location, schedule, availability, or travel";
-  }
-}
-
-function isCitizenshipRequirement(requirement: string): boolean {
-  const lower = requirement.toLowerCase();
-  return (
-    lower.includes("us citizenship") ||
-    lower.includes("u.s. citizenship") ||
-    lower.includes("us citizen") ||
-    lower.includes("u.s. citizen") ||
-    lower.includes("citizenship required")
-  );
-}
+export {
+  formatIssueSeverity,
+  formatSuggestionCategory,
+};
 
 export function formatHardConstraintRiskCategory(risk: HardConstraintRisk): string {
   if (
@@ -139,35 +37,8 @@ export function formatHardConstraintRiskCategory(risk: HardConstraintRisk): stri
   return formatHardConstraintCategory(risk.category);
 }
 
-function formatResumeEvidenceSection(section: string): string {
-  switch (section) {
-    case "current experience":
-      return "current role experience";
-    case "recent experience":
-      return "recent role experience";
-    case "experience":
-      return "work experience";
-    case "skills":
-      return "skills list";
-    case "summary":
-      return "resume summary";
-    case "resume text":
-      return "resume text";
-    case "projects":
-      return "projects";
-    case "education":
-      return "education";
-    case "certifications":
-      return "certifications";
-    case "licenses":
-      return "licenses";
-    default:
-      return section.replace(/[_-]/g, " ");
-  }
-}
-
 export function formatResumeEvidenceSections(sections: string[]): string {
-  return sections.map(formatResumeEvidenceSection).join(", ");
+  return formatEvidenceSections(sections);
 }
 
 const STEP_TIPS: Record<number, string[]> = {

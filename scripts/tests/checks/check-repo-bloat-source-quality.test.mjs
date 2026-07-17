@@ -4,6 +4,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import test from "node:test";
+import { contradictoryPlansIndexSource } from "../lib/source-fixtures.mjs";
 import { checkRepoBloat } from "../../checks/repo-bloat.mjs";
 
 function writeFixtureFile(root, path, content = "") {
@@ -298,18 +299,7 @@ test("checkRepoBloat rejects contradictory plans index release statuses", () => 
     writeFixtureFile(
       root,
       "docs/plans/README.md",
-      [
-        "## Current Release Plans",
-        "| Version | Status | Document |",
-        "| ------- | ------ | -------- |",
-        "| v2.7.0 | Unreleased | [Beta feedback system](completed/beta-feedback-system.md) |",
-        "",
-        "## Archived Plans",
-        "| Version | Status | Document |",
-        "| ------- | ------ | -------- |",
-        "| v2.7.0 | Complete on main | [Beta feedback system](completed/beta-feedback-system.md) |",
-        "",
-      ].join("\n"),
+      contradictoryPlansIndexSource,
     );
 
     execFileSync("git", ["add", "docs/plans/README.md"], { cwd: root });

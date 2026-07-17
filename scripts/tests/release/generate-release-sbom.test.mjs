@@ -160,7 +160,7 @@ checksum = "7f202df86484c868dbad7eaa557ef785d5c66295e41b460ef922eca0723b842c"
   assert(sbom.packages.some((pkg) => pkg.SPDXID === "SPDXRef-Cargo-Package-anyhow-1.0.102"));
   assert.equal(manifest.sbom.fileName, "JobSentinel-9.9.9-macos.sbom.spdx.json");
   assert.equal(manifest.assets.length, 2);
-  assert.match(checksums, /^[a-f0-9]{64}  JobSentinel_9\.9\.9_no-account_universal\.dmg\n$/);
+  assert.match(checksums, /^[a-f0-9]{64} {2}JobSentinel_9\.9\.9_no-account_universal\.dmg\n$/);
 });
 
 test("npmSbom routes Windows npm through cmd", () => {

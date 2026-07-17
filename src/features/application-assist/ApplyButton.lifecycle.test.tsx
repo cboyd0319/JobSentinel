@@ -1,45 +1,49 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import {
+  mockAtsDetection,
+  mockInvoke,
+  mockJob,
+  makeFormFillResult,
+  renderWithToast,
+  setupApplyButtonMocks,
+} from "./ApplyButton.testSupport";
 import { ApplyButton } from "./ApplyButton";
-import { ToastProvider } from "../../app/providers/ToastProvider";
 
-vi.mock("@tauri-apps/api/core", () => ({
-  invoke: vi.fn(),
-}));
-
-const { invoke } = await import("@tauri-apps/api/core");
-const mockInvoke = vi.mocked(invoke);
-
-const renderWithToast = (ui: React.ReactElement) => {
-  return render(<ToastProvider>{ui}</ToastProvider>);
-};
-
-const mockJob = {
-  id: 1,
-  hash: "test-hash-123",
-  title: "Customer Support Lead",
-  company: "CareBridge Services",
-  location: "Chicago, IL",
-  url: "https://example.com/jobs/123",
-  description: "Great opportunity",
-  score: 85,
-};
-
-const mockAtsDetection = {
-  platform: "greenhouse",
-  commonFields: ["email", "phone", "name"],
-  automationNotes: "Greenhouse recognized",
-};
+async function openSubmitConfirmation(
+  attemptId: string,
+  trackSubmission = false,
+) {
+  const user = userEvent.setup();
+  vi.mocked(localStorage.getItem).mockReturnValue(attemptId);
+  mockInvoke.mockImplementation((cmd) => {
+    if (cmd === "detect_ats_platform") return Promise.resolve(mockAtsDetection);
+    if (cmd === "has_application_profile") return Promise.resolve(true);
+    if (cmd === "is_browser_running") return Promise.resolve(true);
+    if (cmd === "close_automation_browser") return Promise.resolve(null);
+    if (trackSubmission && cmd === "mark_attempt_submitted") {
+      return Promise.resolve(null);
+    }
+    return Promise.resolve(null);
+  });
+  renderWithToast(<ApplyButton job={mockJob} />);
+  await waitFor(() => {
+    expect(
+      screen.getByRole("button", { name: /close browser/i }),
+    ).toBeInTheDocument();
+  });
+  await user.click(screen.getByRole("button", { name: /close browser/i }));
+  await waitFor(() => {
+    expect(
+      screen.getByText("Did you submit the application?"),
+    ).toBeInTheDocument();
+  });
+  return user;
+}
 
 describe("ApplyButton lifecycle behavior", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    localStorage.clear();
-    vi.mocked(localStorage.getItem).mockReturnValue(null);
-    vi.mocked(localStorage.setItem).mockImplementation(() => {});
-    vi.mocked(localStorage.removeItem).mockImplementation(() => {});
-  });
+  beforeEach(setupApplyButtonMocks);
 
   describe("browser management", () => {
     it("shows Close Browser button when browser is running", async () => {
@@ -132,16 +136,9 @@ describe("ApplyButton lifecycle behavior", () => {
         if (cmd === "has_application_profile") return Promise.resolve(true);
         if (cmd === "is_browser_running") return Promise.resolve(false);
         if (cmd === "fill_application_form") {
-          return Promise.resolve({
-            filledFields: ["name"],
-            unfilledFields: [],
-            captchaDetected: true,
-            readyForReview: true,
-            errorMessage: null,
-            attemptId: 123,
-            durationMs: 1000,
-            atsPlatform: "greenhouse",
-          });
+          return Promise.resolve(
+            makeFormFillResult({ captchaDetected: true }),
+          );
         }
         return Promise.resolve(null);
       });
@@ -276,54 +273,11 @@ describe("ApplyButton lifecycle behavior", () => {
 
   describe("submit confirmation modal", () => {
     it("shows submit confirmation after closing browser with pending attempt", async () => {
-      const user = userEvent.setup();
-      vi.mocked(localStorage.getItem).mockReturnValue("999");
-
-      mockInvoke.mockImplementation((cmd) => {
-        if (cmd === "detect_ats_platform") return Promise.resolve(mockAtsDetection);
-        if (cmd === "has_application_profile") return Promise.resolve(true);
-        if (cmd === "is_browser_running") return Promise.resolve(true);
-        if (cmd === "close_automation_browser") return Promise.resolve(null);
-        return Promise.resolve(null);
-      });
-
-      renderWithToast(<ApplyButton job={mockJob} />);
-
-      await waitFor(() => {
-        expect(screen.getByRole("button", { name: /close browser/i })).toBeInTheDocument();
-      });
-
-      await user.click(screen.getByRole("button", { name: /close browser/i }));
-
-      await waitFor(() => {
-        expect(screen.getByText("Did you submit the application?")).toBeInTheDocument();
-      });
+      await openSubmitConfirmation("999");
     });
 
     it("marks attempt as submitted when clicking Yes", async () => {
-      const user = userEvent.setup();
-      vi.mocked(localStorage.getItem).mockReturnValue("888");
-
-      mockInvoke.mockImplementation((cmd) => {
-        if (cmd === "detect_ats_platform") return Promise.resolve(mockAtsDetection);
-        if (cmd === "has_application_profile") return Promise.resolve(true);
-        if (cmd === "is_browser_running") return Promise.resolve(true);
-        if (cmd === "close_automation_browser") return Promise.resolve(null);
-        if (cmd === "mark_attempt_submitted") return Promise.resolve(null);
-        return Promise.resolve(null);
-      });
-
-      renderWithToast(<ApplyButton job={mockJob} />);
-
-      await waitFor(() => {
-        expect(screen.getByRole("button", { name: /close browser/i })).toBeInTheDocument();
-      });
-
-      await user.click(screen.getByRole("button", { name: /close browser/i }));
-
-      await waitFor(() => {
-        expect(screen.getByText("Did you submit the application?")).toBeInTheDocument();
-      });
+      const user = await openSubmitConfirmation("888", true);
 
       await user.click(screen.getByRole("button", { name: /yes, i submitted it/i }));
 
@@ -333,29 +287,7 @@ describe("ApplyButton lifecycle behavior", () => {
     });
 
     it("removes localStorage entry after marking submitted", async () => {
-      const user = userEvent.setup();
-      vi.mocked(localStorage.getItem).mockReturnValue("777");
-
-      mockInvoke.mockImplementation((cmd) => {
-        if (cmd === "detect_ats_platform") return Promise.resolve(mockAtsDetection);
-        if (cmd === "has_application_profile") return Promise.resolve(true);
-        if (cmd === "is_browser_running") return Promise.resolve(true);
-        if (cmd === "close_automation_browser") return Promise.resolve(null);
-        if (cmd === "mark_attempt_submitted") return Promise.resolve(null);
-        return Promise.resolve(null);
-      });
-
-      renderWithToast(<ApplyButton job={mockJob} />);
-
-      await waitFor(() => {
-        expect(screen.getByRole("button", { name: /close browser/i })).toBeInTheDocument();
-      });
-
-      await user.click(screen.getByRole("button", { name: /close browser/i }));
-
-      await waitFor(() => {
-        expect(screen.getByText("Did you submit the application?")).toBeInTheDocument();
-      });
+      const user = await openSubmitConfirmation("777", true);
 
       await user.click(screen.getByRole("button", { name: /yes, i submitted it/i }));
 
@@ -365,28 +297,7 @@ describe("ApplyButton lifecycle behavior", () => {
     });
 
     it("skips tracking when clicking No", async () => {
-      const user = userEvent.setup();
-      vi.mocked(localStorage.getItem).mockReturnValue("666");
-
-      mockInvoke.mockImplementation((cmd) => {
-        if (cmd === "detect_ats_platform") return Promise.resolve(mockAtsDetection);
-        if (cmd === "has_application_profile") return Promise.resolve(true);
-        if (cmd === "is_browser_running") return Promise.resolve(true);
-        if (cmd === "close_automation_browser") return Promise.resolve(null);
-        return Promise.resolve(null);
-      });
-
-      renderWithToast(<ApplyButton job={mockJob} />);
-
-      await waitFor(() => {
-        expect(screen.getByRole("button", { name: /close browser/i })).toBeInTheDocument();
-      });
-
-      await user.click(screen.getByRole("button", { name: /close browser/i }));
-
-      await waitFor(() => {
-        expect(screen.getByText("Did you submit the application?")).toBeInTheDocument();
-      });
+      const user = await openSubmitConfirmation("666");
 
       await user.click(screen.getByRole("button", { name: /no, skip/i }));
 

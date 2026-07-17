@@ -1,44 +1,18 @@
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  makeResumeSummary,
+  mockResumeLibraryResponses,
+  mockSafeInvoke,
+  resetResumeLibraryMocks,
+} from "./ResumeLibraryPage.testSupport";
 import ResumeLibraryPage from "./ResumeLibraryPage";
-import { safeInvoke } from "../../../platform/tauri";
-
-const mockToast = vi.hoisted(() => ({
-  success: vi.fn(),
-  error: vi.fn(),
-  info: vi.fn(),
-}));
-
-vi.mock("../../../platform/tauri", () => ({
-  safeInvoke: vi.fn(),
-  safeInvokeWithToast: vi.fn(),
-}));
-
-vi.mock("../../../shared/toast/useToast", () => ({
-  useToast: () => mockToast,
-}));
-
-const mockSafeInvoke = vi.mocked(safeInvoke);
 describe("Resume page", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    vi.unstubAllGlobals();
-  });
+  beforeEach(resetResumeLibraryMocks);
 
   it("labels structured resume import as a resume-app file path", async () => {
-    mockSafeInvoke.mockImplementation((command: string) => {
-      switch (command) {
-        case "get_active_resume":
-          return Promise.resolve(null);
-        case "list_all_resumes":
-        case "get_user_skills":
-        case "get_recent_matches":
-          return Promise.resolve([]);
-        default:
-          return Promise.resolve(null);
-      }
-    });
+    mockResumeLibraryResponses();
 
     render(<ResumeLibraryPage onBack={vi.fn()} />);
 
@@ -53,18 +27,7 @@ describe("Resume page", () => {
   });
 
   it("keeps resume action buttons stacked on narrow screens", async () => {
-    mockSafeInvoke.mockImplementation((command: string) => {
-      switch (command) {
-        case "get_active_resume":
-          return Promise.resolve(null);
-        case "list_all_resumes":
-        case "get_user_skills":
-        case "get_recent_matches":
-          return Promise.resolve([]);
-        default:
-          return Promise.resolve(null);
-      }
-    });
+    mockResumeLibraryResponses();
 
     render(<ResumeLibraryPage onBack={vi.fn()} />);
 
@@ -87,41 +50,25 @@ describe("Resume page", () => {
   });
 
   it("renders resume match sub-scores as percentages from backend fractions", async () => {
-    mockSafeInvoke.mockImplementation((command: string) => {
-      switch (command) {
-        case "get_active_resume":
-          return Promise.resolve({
-            id: 1,
-            name: "Care Coordinator Resume",
-            is_active: true,
-            created_at: "2026-05-21T12:00:00Z",
-            updated_at: "2026-05-21T12:00:00Z",
-          });
-        case "list_all_resumes":
-          return Promise.resolve([]);
-        case "get_user_skills":
-          return Promise.resolve([]);
-        case "get_recent_matches":
-          return Promise.resolve([
-            {
-              id: 10,
-              resume_id: 1,
-              job_hash: "job-hash",
-              job_title: "Care Coordinator",
-              company: "Community Health Partners",
-              overall_match_score: 0.82,
-              skills_match_score: 0.75,
-              experience_match_score: 0.5,
-              education_match_score: 0.25,
-              matching_skills: ["Scheduling"],
-              missing_skills: ["Case Management"],
-              gap_analysis: null,
-              created_at: "2026-05-21T12:00:00Z",
-            },
-          ]);
-        default:
-          return Promise.resolve(null);
-      }
+    mockResumeLibraryResponses({
+      get_active_resume: makeResumeSummary(),
+      get_recent_matches: [
+        {
+          id: 10,
+          resume_id: 1,
+          job_hash: "job-hash",
+          job_title: "Care Coordinator",
+          company: "Community Health Partners",
+          overall_match_score: 0.82,
+          skills_match_score: 0.75,
+          experience_match_score: 0.5,
+          education_match_score: 0.25,
+          matching_skills: ["Scheduling"],
+          missing_skills: ["Case Management"],
+          gap_analysis: null,
+          created_at: "2026-05-21T12:00:00Z",
+        },
+      ],
     });
 
     render(<ResumeLibraryPage onBack={vi.fn()} />);
@@ -151,39 +98,23 @@ describe("Resume page", () => {
   });
 
   it("does not show invalid percentages when recent matches omit optional sub-scores", async () => {
-    mockSafeInvoke.mockImplementation((command: string) => {
-      switch (command) {
-        case "get_active_resume":
-          return Promise.resolve({
-            id: 1,
-            name: "Care Coordinator Resume",
-            is_active: true,
-            created_at: "2026-05-21T12:00:00Z",
-            updated_at: "2026-05-21T12:00:00Z",
-          });
-        case "list_all_resumes":
-          return Promise.resolve([]);
-        case "get_user_skills":
-          return Promise.resolve([]);
-        case "get_recent_matches":
-          return Promise.resolve([
-            {
-              id: 10,
-              resume_id: 1,
-              job_hash: "job-hash",
-              job_title: "Care Coordinator",
-              company: "Community Health Partners",
-              overall_match_score: 0.82,
-              skills_match_score: 0.75,
-              matching_skills: ["Scheduling"],
-              missing_skills: ["Case Management"],
-              gap_analysis: null,
-              created_at: "2026-05-21T12:00:00Z",
-            },
-          ]);
-        default:
-          return Promise.resolve(null);
-      }
+    mockResumeLibraryResponses({
+      get_active_resume: makeResumeSummary(),
+      get_recent_matches: [
+        {
+          id: 10,
+          resume_id: 1,
+          job_hash: "job-hash",
+          job_title: "Care Coordinator",
+          company: "Community Health Partners",
+          overall_match_score: 0.82,
+          skills_match_score: 0.75,
+          matching_skills: ["Scheduling"],
+          missing_skills: ["Case Management"],
+          gap_analysis: null,
+          created_at: "2026-05-21T12:00:00Z",
+        },
+      ],
     });
 
     render(<ResumeLibraryPage onBack={vi.fn()} />);
@@ -203,32 +134,16 @@ describe("Resume page", () => {
   it("shows a local readable-text preview without exposing a resume path", async () => {
     const user = userEvent.setup();
 
-    mockSafeInvoke.mockImplementation((command: string) => {
-      switch (command) {
-        case "get_active_resume":
-          return Promise.resolve({
-            id: 1,
-            name: "Care Coordinator Resume",
-            is_active: true,
-            created_at: "2026-05-21T12:00:00Z",
-            updated_at: "2026-05-21T12:00:00Z",
-          });
-        case "list_all_resumes":
-        case "get_user_skills":
-        case "get_recent_matches":
-          return Promise.resolve([]);
-        case "get_resume_text_preview":
-          return Promise.resolve({
-            resume_id: 1,
-            name: "Care Coordinator Resume",
-            has_text: true,
-            text_preview: "Care coordinator\nPatient scheduling\nCase management",
-            text_chars: 52,
-            is_truncated: false,
-          });
-        default:
-          return Promise.resolve(null);
-      }
+    mockResumeLibraryResponses({
+      get_active_resume: makeResumeSummary(),
+      get_resume_text_preview: {
+        resume_id: 1,
+        name: "Care Coordinator Resume",
+        has_text: true,
+        text_preview: "Care coordinator\nPatient scheduling\nCase management",
+        text_chars: 52,
+        is_truncated: false,
+      },
     });
 
     render(<ResumeLibraryPage onBack={vi.fn()} />);
@@ -255,38 +170,14 @@ describe("Resume page", () => {
   });
 
   it("shows sanitized resume format and readable-text status before review", async () => {
-    mockSafeInvoke.mockImplementation((command: string) => {
-      switch (command) {
-        case "get_active_resume":
-          return Promise.resolve({
-            id: 1,
-            name: "Care Coordinator Resume",
-            is_active: true,
-            created_at: "2026-05-21T12:00:00Z",
-            updated_at: "2026-05-21T12:00:00Z",
-            format_label: "PDF",
-            has_readable_text: true,
-            readable_text_chars: 1234,
-          });
-        case "list_all_resumes":
-          return Promise.resolve([
-            {
-              id: 1,
-              name: "Care Coordinator Resume",
-              is_active: true,
-              created_at: "2026-05-21T12:00:00Z",
-              updated_at: "2026-05-21T12:00:00Z",
-              format_label: "PDF",
-              has_readable_text: true,
-              readable_text_chars: 1234,
-            },
-          ]);
-        case "get_user_skills":
-        case "get_recent_matches":
-          return Promise.resolve([]);
-        default:
-          return Promise.resolve(null);
-      }
+    const resume = makeResumeSummary({
+      format_label: "PDF",
+      has_readable_text: true,
+      readable_text_chars: 1234,
+    });
+    mockResumeLibraryResponses({
+      get_active_resume: resume,
+      list_all_resumes: [resume],
     });
 
     render(<ResumeLibraryPage onBack={vi.fn()} />);
@@ -302,38 +193,15 @@ describe("Resume page", () => {
   });
 
   it("shows employer-format-first guidance when readable text is missing", async () => {
-    mockSafeInvoke.mockImplementation((command: string) => {
-      switch (command) {
-        case "get_active_resume":
-          return Promise.resolve({
-            id: 1,
-            name: "Scanned Resume",
-            is_active: true,
-            created_at: "2026-05-21T12:00:00Z",
-            updated_at: "2026-05-21T12:00:00Z",
-            format_label: "PDF",
-            has_readable_text: false,
-            readable_text_chars: 0,
-          });
-        case "list_all_resumes":
-          return Promise.resolve([
-            {
-              id: 1,
-              name: "Scanned Resume",
-              is_active: true,
-              created_at: "2026-05-21T12:00:00Z",
-              updated_at: "2026-05-21T12:00:00Z",
-              format_label: "PDF",
-              has_readable_text: false,
-              readable_text_chars: 0,
-            },
-          ]);
-        case "get_user_skills":
-        case "get_recent_matches":
-          return Promise.resolve([]);
-        default:
-          return Promise.resolve(null);
-      }
+    const resume = makeResumeSummary({
+      name: "Scanned Resume",
+      format_label: "PDF",
+      has_readable_text: false,
+      readable_text_chars: 0,
+    });
+    mockResumeLibraryResponses({
+      get_active_resume: resume,
+      list_all_resumes: [resume],
     });
 
     render(<ResumeLibraryPage onBack={vi.fn()} />);
@@ -353,47 +221,23 @@ describe("Resume page", () => {
   it("shows employer-format-first guidance in the empty readable-text preview", async () => {
     const user = userEvent.setup();
 
-    mockSafeInvoke.mockImplementation((command: string) => {
-      switch (command) {
-        case "get_active_resume":
-          return Promise.resolve({
-            id: 1,
-            name: "Scanned Resume",
-            is_active: true,
-            created_at: "2026-05-21T12:00:00Z",
-            updated_at: "2026-05-21T12:00:00Z",
-            format_label: "PDF",
-            has_readable_text: false,
-            readable_text_chars: 0,
-          });
-        case "list_all_resumes":
-          return Promise.resolve([
-            {
-              id: 1,
-              name: "Scanned Resume",
-              is_active: true,
-              created_at: "2026-05-21T12:00:00Z",
-              updated_at: "2026-05-21T12:00:00Z",
-              format_label: "PDF",
-              has_readable_text: false,
-              readable_text_chars: 0,
-            },
-          ]);
-        case "get_user_skills":
-        case "get_recent_matches":
-          return Promise.resolve([]);
-        case "get_resume_text_preview":
-          return Promise.resolve({
-            resume_id: 1,
-            name: "Scanned Resume",
-            has_text: false,
-            text_preview: "",
-            text_chars: 0,
-            is_truncated: false,
-          });
-        default:
-          return Promise.resolve(null);
-      }
+    const resume = makeResumeSummary({
+      name: "Scanned Resume",
+      format_label: "PDF",
+      has_readable_text: false,
+      readable_text_chars: 0,
+    });
+    mockResumeLibraryResponses({
+      get_active_resume: resume,
+      list_all_resumes: [resume],
+      get_resume_text_preview: {
+        resume_id: 1,
+        name: "Scanned Resume",
+        has_text: false,
+        text_preview: "",
+        text_chars: 0,
+        is_truncated: false,
+      },
     });
 
     render(<ResumeLibraryPage onBack={vi.fn()} />);

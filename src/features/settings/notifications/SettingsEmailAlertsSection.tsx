@@ -6,14 +6,16 @@ import { HelpIcon } from "../../../ui/HelpIcon";
 import { Input } from "../../../ui/Input";
 import { useToast } from "../../../shared/toast/useToast";
 import {
-  credentialExists,
-  credentialIsExpected,
   isValidEmail,
   type Config,
+} from "../config/SettingsConfig";
+import {
+  credentialExists,
+  credentialIsExpected,
   type CredentialKey,
   type CredentialStatusMap,
   type Credentials,
-} from "../config/SettingsConfig";
+} from "../credentials/SettingsCredentials";
 import { SettingsEmailProviderSetup } from "./SettingsEmailProviderSetup";
 import {
   EMAIL_PROVIDER_TEMPLATES,

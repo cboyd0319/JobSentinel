@@ -3,6 +3,10 @@ import { Badge } from "../../ui/Badge";
 import { Card } from "../../ui/Card";
 import { formatCurrency } from "../../shared/currencyFormatting";
 import type { MarketSnapshot } from "./model";
+import {
+  MarketIconView,
+  type MarketIcon,
+} from "./MarketPrimitives";
 
 interface MarketSnapshotCardProps {
   snapshot: MarketSnapshot | null;
@@ -10,7 +14,7 @@ interface MarketSnapshotCardProps {
   emptyMessage?: string;
 }
 
-type SnapshotIconName = "trend-up" | "trend-down" | "trend-flat" | "tool" | "building" | "location" | "factory";
+type SnapshotIconName = Exclude<MarketIcon, "chart" | "bell">;
 type OutlookConfig = { icon: SnapshotIconName; color: string; label: string };
 
 // Lookup objects for hiring outlook styling.
@@ -29,67 +33,10 @@ const OUTLOOK_CONFIG: Record<string, OutlookConfig> = {
 const getOutlookConfig = (sentiment: string | undefined | null) =>
   OUTLOOK_CONFIG[(sentiment ?? "neutral").toLowerCase()] ?? DEFAULT_OUTLOOK;
 
-function SnapshotIcon({ icon, className = "h-4 w-4" }: { icon: SnapshotIconName; className?: string }) {
-  const commonProps = {
-    className,
-    fill: "none",
-    viewBox: "0 0 24 24",
-    stroke: "currentColor",
-    "aria-hidden": true,
-  };
-
-  switch (icon) {
-    case "trend-up":
-      return (
-        <svg {...commonProps}>
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M4 17l6-6 4 4 6-8m0 0v6m0-6h-6" />
-        </svg>
-      );
-    case "trend-down":
-      return (
-        <svg {...commonProps}>
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M4 7l6 6 4-4 6 8m0 0v-6m0 6h-6" />
-        </svg>
-      );
-    case "trend-flat":
-      return (
-        <svg {...commonProps}>
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M5 12h14" />
-        </svg>
-      );
-    case "tool":
-      return (
-        <svg {...commonProps}>
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M14.7 6.3l3 3m-1.5-4.5l3 3-8.7 8.7H7.5v-3L16.2 4.8z" />
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M5 19h14" />
-        </svg>
-      );
-    case "building":
-      return (
-        <svg {...commonProps}>
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M4 21V7a2 2 0 012-2h8a2 2 0 012 2v14M9 9h1m-1 4h1m4-4h1m-1 4h1M3 21h18" />
-        </svg>
-      );
-    case "location":
-      return (
-        <svg {...commonProps}>
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 21s6-5.4 6-11a6 6 0 10-12 0c0 5.6 6 11 6 11z" />
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 10.5h.01" />
-        </svg>
-      );
-    case "factory":
-      return (
-        <svg {...commonProps}>
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M4 21V9l5 3V9l5 3V7h6v14H4zm4-5h1m4 0h1m4 0h1" />
-        </svg>
-      );
-  }
-}
-
 function BadgeContent({ icon, children }: { icon: SnapshotIconName; children: ReactNode }) {
   return (
     <span className="inline-flex items-center gap-1">
-      <SnapshotIcon icon={icon} />
+      <MarketIconView icon={icon} />
       <span>{children}</span>
     </span>
   );
@@ -154,7 +101,7 @@ export const MarketSnapshotCard = memo(function MarketSnapshotCard({
         {/* Hiring outlook */}
         <div className="text-right" role="status" aria-label={`Hiring outlook: ${outlookConfig.label}`}>
           <span className={`inline-flex items-center justify-end gap-2 text-2xl ${outlookConfig.color}`} aria-hidden="true">
-            <SnapshotIcon icon={outlookConfig.icon} className="h-6 w-6" />
+            <MarketIconView icon={outlookConfig.icon} className="h-6 w-6" />
             <span>{outlookConfig.label}</span>
           </span>
           <p className="text-sm text-surface-500 dark:text-surface-400">Hiring Outlook</p>

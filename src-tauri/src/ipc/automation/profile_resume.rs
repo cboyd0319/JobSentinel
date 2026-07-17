@@ -1,5 +1,6 @@
 use crate::application::automation::ApplicationProfileInput;
 use crate::desktop;
+use crate::ipc::resume_file_names::safe_resume_file_stem;
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 use tauri_plugin_dialog::DialogExt;
@@ -53,47 +54,7 @@ fn allowed_application_resume_extension(path: &Path) -> Result<&'static str, Str
 }
 
 fn safe_resume_file_name(path: &Path, extension: &str) -> String {
-    let raw_stem = path
-        .file_stem()
-        .and_then(|value| value.to_str())
-        .unwrap_or("resume");
-    let mut safe_stem = String::new();
-    let mut previous_dash = false;
-
-    for ch in raw_stem.chars() {
-        let next = if ch.is_ascii_alphanumeric() || ch == '_' || ch == '-' {
-            previous_dash = false;
-            Some(ch)
-        } else if ch.is_ascii_whitespace() || ch == '.' {
-            if previous_dash {
-                None
-            } else {
-                previous_dash = true;
-                Some('-')
-            }
-        } else if previous_dash {
-            None
-        } else {
-            previous_dash = true;
-            Some('-')
-        };
-
-        if let Some(ch) = next {
-            safe_stem.push(ch);
-        }
-
-        if safe_stem.len() >= 80 {
-            break;
-        }
-    }
-
-    let safe_stem = safe_stem.trim_matches('-');
-    let safe_stem = if safe_stem.is_empty() {
-        "resume"
-    } else {
-        safe_stem
-    };
-
+    let safe_stem = safe_resume_file_stem(path, "resume");
     format!("{safe_stem}.{extension}")
 }
 

@@ -1,46 +1,14 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
+import {
+  localStorageMock,
+  setupThemeEnvironment,
+} from "../test-support/themeTestSupport";
 import { ThemeToggle } from "./ThemeToggle";
 import { ThemeProvider } from "../app/providers/ThemeProvider";
 
-// Mock localStorage
-const localStorageMock = {
-  store: {} as Record<string, string>,
-  getItem: vi.fn((key: string) => localStorageMock.store[key] || null),
-  setItem: vi.fn((key: string, value: string) => {
-    localStorageMock.store[key] = value;
-  }),
-  removeItem: vi.fn((key: string) => {
-    delete localStorageMock.store[key];
-  }),
-  clear: vi.fn(() => {
-    localStorageMock.store = {};
-  }),
-};
-
 describe("ThemeToggle", () => {
-  beforeEach(() => {
-    localStorageMock.store = {};
-    Object.defineProperty(window, "localStorage", {
-      value: localStorageMock,
-      writable: true,
-    });
-
-    // Mock matchMedia
-    Object.defineProperty(window, "matchMedia", {
-      writable: true,
-      value: vi.fn().mockImplementation((query: string) => ({
-        matches: query === "(prefers-color-scheme: dark)",
-        media: query,
-        onchange: null,
-        addListener: vi.fn(),
-        removeListener: vi.fn(),
-        addEventListener: vi.fn(),
-        removeEventListener: vi.fn(),
-        dispatchEvent: vi.fn(),
-      })),
-    });
-  });
+  beforeEach(setupThemeEnvironment);
 
   it("renders a button", () => {
     render(

@@ -21,8 +21,7 @@ See [Exec Plans](../exec-plans.md) for required format.
 
 | Workstream | Document |
 | ---------- | -------- |
-| Current active status | [Compact status](active/status.md) |
-| Frontend DRY remediation | [Active plan](active/frontend-dry-remediation.md) |
+| Repository residual cleanup | [Active plan](active/repository-residual-cleanup.md) |
 
 ## Major-Release Planning
 
@@ -51,14 +50,16 @@ Each broad plan follows [the exec-plan template](templates/exec-plan-template.md
 
 | Version | Status | Document |
 | ------- | ------ | -------- |
+| Frontend | Complete | [DRY remediation](completed/frontend-dry-remediation.md) |
 | Rust crates | Complete | [DRY remediation](completed/crates-dry-remediation.md) |
+| Repository | Complete | [Full refactor](completed/full-repository-refactor.md), [ownership blueprint](completed/repository-refactor-blueprint.md) |
 | v2.9.5 | Source readiness complete | [Full repository refactor and readiness](completed/repository-architecture-reorganization.md) |
 | Feedback workflow | Complete on main | [Beta feedback system](completed/beta-feedback-system.md) |
 | v2.9.1 | Complete | [Maintenance and repo cleanup](completed/v2.9.1-maintenance-and-repo-cleanup.md) |
 | v2.9.0 | Complete | [Completion and full-feature roadmap](completed/v2.9.0-completion-and-full-feature-roadmap.md) |
 | v2.6.x | Complete on main | [Undo and redo wiring](completed/undo-redo-wiring.md) |
 | v2.6.0 | Complete | [v2.6.0 UX improvements](completed/v2.6.0-ux-improvements.md) |
-| Superseded active history | Archived | [Guided intake](archive/guided-job-search-intake-superseded-2026-06-04.md), [cleanup sweep](archive/repo-cleanup-and-quality-sweep-superseded-2026-06-04.md), [cleanup handoff](archive/repo-cleanup-handoff-superseded-2026-06-04.md), [research-backed improvements](archive/research-backed-product-improvements-superseded-2026-06-04.md) |
+| Superseded active history | Archived | [Guided intake](archive/guided-job-search-intake-superseded-2026-06-04.md) |
 | v2.5.0 | Complete | No formal plan. |
 | v2.0.0 | Complete | No formal plan. |
 | Release pipeline optimization | Deferred on 2026-07-13 | [Deferred plan](archive/release-pipeline-audit-and-optimization-deferred-2026-07-13.md) |

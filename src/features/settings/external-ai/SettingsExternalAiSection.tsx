@@ -8,12 +8,12 @@ import {
   normalizeExternalAiProviderOrder,
   type EnabledExternalAiProvider,
 } from "./externalAiProviders";
+import type { Config } from "../config/SettingsConfig";
 import {
   credentialExists,
-  type Config,
   type CredentialStatusMap,
   type Credentials,
-} from "../config/SettingsConfig";
+} from "../credentials/SettingsCredentials";
 import { SettingsExternalAiRequestHistory } from "./SettingsExternalAiRequestHistory";
 
 interface SettingsExternalAiSectionProps {

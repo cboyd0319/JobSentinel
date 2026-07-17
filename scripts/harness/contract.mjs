@@ -197,7 +197,7 @@ export function validateHostedWorkflows(root, manifest, violations) {
     }
 
     const workflowRoot = join(root, manifest.owners?.feedback?.hosted_workflow_root ?? ".github/workflows");
-    const automaticTriggers = /^  (?:push|pull_request|pull_request_target|merge_group|schedule):/m;
+    const automaticTriggers = /^ {2}(?:push|pull_request|pull_request_target|merge_group|schedule):/m;
     if (existsSync(workflowRoot)) {
       for (const file of readdirSync(workflowRoot).filter((name) => [".yml", ".yaml"].includes(extname(name))).sort()) {
         const path = `.github/workflows/${file}`;

@@ -30,7 +30,10 @@ function git(root, args, exec = execFileSync) {
     return exec("git", args, { cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
   } catch (error) {
     const detail = String(error?.stderr ?? error?.message ?? error).trim();
-    throw new Error(`git ${args.join(" ")} failed${detail ? `: ${detail}` : ""}`);
+    throw new Error(
+      `git ${args.join(" ")} failed${detail ? `: ${detail}` : ""}`,
+      { cause: error },
+    );
   }
 }
 

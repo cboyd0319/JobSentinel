@@ -1,58 +1,17 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import {
+  mockInvoke,
+  mockToast,
+  openAndSubmitAnswer,
+  resetScreeningAnswerMocks,
+} from "./ScreeningAnswersForm.testSupport";
 import { ScreeningAnswersForm } from "./ScreeningAnswersForm";
-
-const mockInvoke = vi.fn();
-vi.mock("@tauri-apps/api/core", () => ({
-  invoke: (...args: unknown[]) => mockInvoke(...args),
-}));
-
-const mockToast = {
-  success: vi.fn(),
-  error: vi.fn(),
-  info: vi.fn(),
-  warning: vi.fn(),
-};
-vi.mock("../../shared/toast/useToast", () => ({
-  useToast: () => mockToast,
-}));
-
-const mockAnswers = [
-  {
-    id: 1,
-    questionPattern: "years of experience",
-    answer: "5 years",
-    answerType: "text",
-    notes: "Professional experience",
-    createdAt: "2024-01-01T00:00:00Z",
-    updatedAt: "2024-01-01T00:00:00Z",
-  },
-  {
-    id: 2,
-    questionPattern: "relocate",
-    answer: "Yes",
-    answerType: "yes_no",
-    notes: null,
-    createdAt: "2024-01-02T00:00:00Z",
-    updatedAt: "2024-01-02T00:00:00Z",
-  },
-  {
-    id: 3,
-    questionPattern: "cover letter",
-    answer: "I am passionate about software development...",
-    answerType: "textarea",
-    notes: "Cover letter template",
-    createdAt: "2024-01-03T00:00:00Z",
-    updatedAt: "2024-01-03T00:00:00Z",
-  },
-];
+import { mockAnswers } from "./ScreeningAnswersForm.testData";
 
 describe("ScreeningAnswersForm", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    mockInvoke.mockReset();
-  });
+  beforeEach(resetScreeningAnswerMocks);
 
   describe("form submission", () => {
     beforeEach(() => {
@@ -66,25 +25,11 @@ describe("ScreeningAnswersForm", () => {
         .mockResolvedValueOnce(undefined) // Upsert
         .mockResolvedValueOnce([]); // Reload
 
-      render(<ScreeningAnswersForm />);
-
-      await waitFor(() => {
-        expect(
-          screen.getByRole("button", { name: /add answer/i }),
-        ).toBeInTheDocument();
+      await openAndSubmitAnswer(user, {
+        pattern: "testpattern",
+        answer: "Testanswer",
+        notes: "Testnotes",
       });
-
-      await user.click(screen.getByRole("button", { name: /add answer/i }));
-
-      const patternInput = screen.getByLabelText(/question wording to look for/i);
-      const answerInput = screen.getByLabelText(/your answer/i);
-      const notesInput = screen.getByLabelText(/notes/i);
-
-      fireEvent.change(patternInput, { target: { value: "testpattern" } });
-      fireEvent.change(answerInput, { target: { value: "Testanswer" } });
-      fireEvent.change(notesInput, { target: { value: "Testnotes" } });
-
-      await user.click(screen.getByRole("button", { name: /save answer/i }));
 
       await waitFor(() => {
         const calls = mockInvoke.mock.calls;
@@ -108,23 +53,10 @@ describe("ScreeningAnswersForm", () => {
         .mockResolvedValueOnce(undefined) // Upsert
         .mockResolvedValueOnce([]); // Reload
 
-      render(<ScreeningAnswersForm />);
-
-      await waitFor(() => {
-        expect(
-          screen.getByRole("button", { name: /add answer/i }),
-        ).toBeInTheDocument();
+      await openAndSubmitAnswer(user, {
+        pattern: "Security+",
+        answer: "Yes",
       });
-
-      await user.click(screen.getByRole("button", { name: /add answer/i }));
-
-      const patternInput = screen.getByLabelText(/question wording to look for/i);
-      const answerInput = screen.getByLabelText(/your answer/i);
-
-      fireEvent.change(patternInput, { target: { value: "Security+" } });
-      fireEvent.change(answerInput, { target: { value: "Yes" } });
-
-      await user.click(screen.getByRole("button", { name: /save answer/i }));
 
       await waitFor(() => {
         expect(mockInvoke).toHaveBeenCalledWith(
@@ -147,23 +79,10 @@ describe("ScreeningAnswersForm", () => {
           .mockResolvedValueOnce(undefined) // Upsert
           .mockResolvedValueOnce([]); // Reload
 
-        render(<ScreeningAnswersForm />);
-
-        await waitFor(() => {
-          expect(
-            screen.getByRole("button", { name: /add answer/i }),
-          ).toBeInTheDocument();
+        await openAndSubmitAnswer(user, {
+          pattern: "  testpattern  ",
+          answer: "  Testanswer  ",
         });
-
-        await user.click(screen.getByRole("button", { name: /add answer/i }));
-
-        const patternInput = screen.getByLabelText(/question wording to look for/i);
-        const answerInput = screen.getByLabelText(/your answer/i);
-
-        fireEvent.change(patternInput, { target: { value: "  testpattern  " } });
-        fireEvent.change(answerInput, { target: { value: "  Testanswer  " } });
-
-        await user.click(screen.getByRole("button", { name: /save answer/i }));
 
         await waitFor(() => {
           const calls = mockInvoke.mock.calls;
@@ -188,23 +107,7 @@ describe("ScreeningAnswersForm", () => {
         .mockResolvedValueOnce(undefined)
         .mockResolvedValueOnce([]);
 
-      render(<ScreeningAnswersForm />);
-
-      await waitFor(() => {
-        expect(
-          screen.getByRole("button", { name: /add answer/i }),
-        ).toBeInTheDocument();
-      });
-
-      await user.click(screen.getByRole("button", { name: /add answer/i }));
-
-      const patternInput = screen.getByLabelText(/question wording to look for/i);
-      const answerInput = screen.getByLabelText(/your answer/i);
-
-      fireEvent.change(patternInput, { target: { value: "test.*pattern" } });
-      fireEvent.change(answerInput, { target: { value: "Test answer" } });
-
-      await user.click(screen.getByRole("button", { name: /save answer/i }));
+      await openAndSubmitAnswer(user);
 
       await waitFor(() => {
         expect(mockInvoke).toHaveBeenCalledWith(
@@ -223,23 +126,7 @@ describe("ScreeningAnswersForm", () => {
         .mockResolvedValueOnce(undefined)
         .mockResolvedValueOnce([]);
 
-      render(<ScreeningAnswersForm />);
-
-      await waitFor(() => {
-        expect(
-          screen.getByRole("button", { name: /add answer/i }),
-        ).toBeInTheDocument();
-      });
-
-      await user.click(screen.getByRole("button", { name: /add answer/i }));
-
-      const patternInput = screen.getByLabelText(/question wording to look for/i);
-      const answerInput = screen.getByLabelText(/your answer/i);
-
-      fireEvent.change(patternInput, { target: { value: "test.*pattern" } });
-      fireEvent.change(answerInput, { target: { value: "Test answer" } });
-
-      await user.click(screen.getByRole("button", { name: /save answer/i }));
+      await openAndSubmitAnswer(user);
 
       await waitFor(() => {
         expect(mockToast.success).toHaveBeenCalledWith(
@@ -256,23 +143,7 @@ describe("ScreeningAnswersForm", () => {
         .mockResolvedValueOnce(undefined)
         .mockResolvedValueOnce([]);
 
-      render(<ScreeningAnswersForm />);
-
-      await waitFor(() => {
-        expect(
-          screen.getByRole("button", { name: /add answer/i }),
-        ).toBeInTheDocument();
-      });
-
-      await user.click(screen.getByRole("button", { name: /add answer/i }));
-
-      const patternInput = screen.getByLabelText(/question wording to look for/i);
-      const answerInput = screen.getByLabelText(/your answer/i);
-
-      fireEvent.change(patternInput, { target: { value: "test.*pattern" } });
-      fireEvent.change(answerInput, { target: { value: "Test answer" } });
-
-      await user.click(screen.getByRole("button", { name: /save answer/i }));
+      await openAndSubmitAnswer(user);
 
       await waitFor(() => {
         expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
@@ -286,23 +157,7 @@ describe("ScreeningAnswersForm", () => {
         .mockResolvedValueOnce(undefined) // Upsert
         .mockResolvedValueOnce(mockAnswers); // Reload
 
-      render(<ScreeningAnswersForm />);
-
-      await waitFor(() => {
-        expect(
-          screen.getByRole("button", { name: /add answer/i }),
-        ).toBeInTheDocument();
-      });
-
-      await user.click(screen.getByRole("button", { name: /add answer/i }));
-
-      const patternInput = screen.getByLabelText(/question wording to look for/i);
-      const answerInput = screen.getByLabelText(/your answer/i);
-
-      fireEvent.change(patternInput, { target: { value: "test.*pattern" } });
-      fireEvent.change(answerInput, { target: { value: "Test answer" } });
-
-      await user.click(screen.getByRole("button", { name: /save answer/i }));
+      await openAndSubmitAnswer(user);
 
       await waitFor(() => {
         expect(mockInvoke).toHaveBeenCalledWith("get_screening_answers", {});
@@ -318,23 +173,7 @@ describe("ScreeningAnswersForm", () => {
         .mockResolvedValueOnce(undefined)
         .mockResolvedValueOnce([]);
 
-      render(<ScreeningAnswersForm onSaved={onSaved} />);
-
-      await waitFor(() => {
-        expect(
-          screen.getByRole("button", { name: /add answer/i }),
-        ).toBeInTheDocument();
-      });
-
-      await user.click(screen.getByRole("button", { name: /add answer/i }));
-
-      const patternInput = screen.getByLabelText(/question wording to look for/i);
-      const answerInput = screen.getByLabelText(/your answer/i);
-
-      fireEvent.change(patternInput, { target: { value: "test.*pattern" } });
-      fireEvent.change(answerInput, { target: { value: "Test answer" } });
-
-      await user.click(screen.getByRole("button", { name: /save answer/i }));
+      await openAndSubmitAnswer(user, { onSaved });
 
       await waitFor(() => {
         expect(onSaved).toHaveBeenCalledTimes(1);
@@ -348,24 +187,7 @@ describe("ScreeningAnswersForm", () => {
         .mockResolvedValueOnce(undefined)
         .mockResolvedValueOnce([]);
 
-      render(<ScreeningAnswersForm />);
-
-      await waitFor(() => {
-        expect(
-          screen.getByRole("button", { name: /add answer/i }),
-        ).toBeInTheDocument();
-      });
-
-      await user.click(screen.getByRole("button", { name: /add answer/i }));
-
-      const patternInput = screen.getByLabelText(/question wording to look for/i);
-      const answerInput = screen.getByLabelText(/your answer/i);
-
-      fireEvent.change(patternInput, { target: { value: "test.*pattern" } });
-      fireEvent.change(answerInput, { target: { value: "Test answer" } });
-
-      // Should not throw error
-      await user.click(screen.getByRole("button", { name: /save answer/i }));
+      await openAndSubmitAnswer(user);
 
       await waitFor(() => {
         expect(mockToast.success).toHaveBeenCalled();

@@ -12,7 +12,7 @@ const defaultRoot = resolve(dirname(scriptPath), "../..");
 const workflowDir = ".github/workflows";
 
 const usesPattern =
-  /^\s*(?:-\s*)?uses:\s*([A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+(?:\/[A-Za-z0-9_.\/-]+)?)@([^\s#]+)(?:\s+#\s*([^\s]+))?/;
+  /^\s*(?:-\s*)?uses:\s*([A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+(?:\/[A-Za-z0-9_./-]+)?)@([^\s#]+)(?:\s+#\s*([^\s]+))?/;
 const pinnedShaPattern = /^[0-9a-f]{40}$/i;
 
 function normalizePath(path) {

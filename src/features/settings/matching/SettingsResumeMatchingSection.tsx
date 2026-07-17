@@ -8,6 +8,39 @@ interface SettingsResumeMatchingSectionProps {
   onConfigChange: (config: Config) => void;
 }
 
+const MATCH_REVIEW_FACTORS = [
+  {
+    icon: "target",
+    label: "Skills Fit",
+    description: "Job title and search-word fit",
+    priority: "Primary",
+  },
+  {
+    icon: "currency",
+    label: "Salary",
+    description: "Meets your salary requirements",
+    priority: "Important",
+  },
+  {
+    icon: "location",
+    label: "Location",
+    description: "Remote/hybrid/onsite preference",
+    priority: "Important",
+  },
+  {
+    icon: "company",
+    label: "Company",
+    description: "Companies you prefer or hide",
+    priority: "Supporting",
+  },
+  {
+    icon: "clock",
+    label: "Recency",
+    description: "How fresh the posting is",
+    priority: "Supporting",
+  },
+] as const;
+
 export function SettingsResumeMatchingSection({
   config,
   onConfigChange,
@@ -81,130 +114,32 @@ export function SettingsResumeMatchingSection({
             fit label. These areas explain what shapes the review by default.
           </p>
           <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <SettingsSymbol
-                  icon="target"
-                  className="h-5 w-5 text-surface-500 dark:text-surface-400"
-                />
-                <div>
-                  <div className="text-sm font-medium text-surface-900 dark:text-white">
-                    Skills Fit
+            {MATCH_REVIEW_FACTORS.map((factor) => (
+              <div key={factor.label} className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <SettingsSymbol
+                    icon={factor.icon}
+                    className="h-5 w-5 text-surface-500 dark:text-surface-400"
+                  />
+                  <div>
+                    <div className="text-sm font-medium text-surface-900 dark:text-white">
+                      {factor.label}
+                    </div>
+                    <div className="text-xs text-surface-500 dark:text-surface-400">
+                      {factor.description}
+                    </div>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-sm font-semibold text-surface-900 dark:text-white">
+                    {factor.priority}
                   </div>
                   <div className="text-xs text-surface-500 dark:text-surface-400">
-                    Job title and search-word fit
+                    review area
                   </div>
                 </div>
               </div>
-              <div className="text-right">
-                <div className="text-sm font-semibold text-surface-900 dark:text-white">
-                  Primary
-                </div>
-                <div className="text-xs text-surface-500 dark:text-surface-400">
-                  review area
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <SettingsSymbol
-                  icon="currency"
-                  className="h-5 w-5 text-surface-500 dark:text-surface-400"
-                />
-                <div>
-                  <div className="text-sm font-medium text-surface-900 dark:text-white">
-                    Salary
-                  </div>
-                  <div className="text-xs text-surface-500 dark:text-surface-400">
-                    Meets your salary requirements
-                  </div>
-                </div>
-              </div>
-              <div className="text-right">
-                <div className="text-sm font-semibold text-surface-900 dark:text-white">
-                  Important
-                </div>
-                <div className="text-xs text-surface-500 dark:text-surface-400">
-                  review area
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <SettingsSymbol
-                  icon="location"
-                  className="h-5 w-5 text-surface-500 dark:text-surface-400"
-                />
-                <div>
-                  <div className="text-sm font-medium text-surface-900 dark:text-white">
-                    Location
-                  </div>
-                  <div className="text-xs text-surface-500 dark:text-surface-400">
-                    Remote/hybrid/onsite preference
-                  </div>
-                </div>
-              </div>
-              <div className="text-right">
-                <div className="text-sm font-semibold text-surface-900 dark:text-white">
-                  Important
-                </div>
-                <div className="text-xs text-surface-500 dark:text-surface-400">
-                  review area
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <SettingsSymbol
-                  icon="company"
-                  className="h-5 w-5 text-surface-500 dark:text-surface-400"
-                />
-                <div>
-                  <div className="text-sm font-medium text-surface-900 dark:text-white">
-                    Company
-                  </div>
-                  <div className="text-xs text-surface-500 dark:text-surface-400">
-                    Companies you prefer or hide
-                  </div>
-                </div>
-              </div>
-              <div className="text-right">
-                <div className="text-sm font-semibold text-surface-900 dark:text-white">
-                  Supporting
-                </div>
-                <div className="text-xs text-surface-500 dark:text-surface-400">
-                  review area
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <SettingsSymbol
-                  icon="clock"
-                  className="h-5 w-5 text-surface-500 dark:text-surface-400"
-                />
-                <div>
-                  <div className="text-sm font-medium text-surface-900 dark:text-white">
-                    Recency
-                  </div>
-                  <div className="text-xs text-surface-500 dark:text-surface-400">
-                    How fresh the posting is
-                  </div>
-                </div>
-              </div>
-              <div className="text-right">
-                <div className="text-sm font-semibold text-surface-900 dark:text-white">
-                  Supporting
-                </div>
-                <div className="text-xs text-surface-500 dark:text-surface-400">
-                  review area
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
           <div className="mt-4 pt-4 border-t border-surface-200 dark:border-surface-700">
             <p className="flex items-start gap-1.5 text-xs text-surface-500 dark:text-surface-400">

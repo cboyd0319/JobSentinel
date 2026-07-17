@@ -5,33 +5,6 @@ import {
   type ExternalAiProvider,
   type ExternalAiSettings,
 } from "../external-ai/externalAiProviders";
-export {
-  credentialExists,
-  credentialIsExpected,
-  credentialNeedsAttention,
-  disableCredentialPassphrase,
-  enableCredentialPassphrase,
-  getCredentialStatusEntries,
-  getCredentialUnlockStatus,
-  getCredentialValidationError,
-  hasCredential,
-  isValidDiscordWebhook,
-  isValidSlackWebhook,
-  isValidTeamsWebhook,
-  storeCredential,
-  unlockCredentialVault,
-} from "../credentials/SettingsCredentials";
-export type {
-  CredentialKey,
-  CredentialStatusEntry,
-  CredentialStatusMap,
-  CredentialStatusState,
-  CredentialStatusValue,
-  CredentialUnlockMode,
-  CredentialUnlockStatus,
-  CredentialValidationError,
-  Credentials,
-} from "../credentials/SettingsCredentials";
 
 // Ghost detection configuration interface
 export interface GhostConfig {
@@ -330,5 +303,3 @@ export const isValidEmail = (email: string): boolean => {
   if (!email) return true;
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 };
-
-export { isSettingsBackupConfig } from "./settingsConfigValidation";

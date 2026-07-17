@@ -140,7 +140,7 @@ function isForbiddenEmptyDirectory(path) {
 
 export function collectUnexpectedRootEntries(root) {
   const violations = [];
-  let allowedRootEntries = new Set();
+  let allowedRootEntries;
   try {
     const policy = JSON.parse(readFileSync(join(root, "scripts/harness/contracts/repository-structure.json"), "utf8"));
     allowedRootEntries = new Set([

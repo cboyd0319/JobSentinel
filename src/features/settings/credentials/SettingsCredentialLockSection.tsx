@@ -9,7 +9,7 @@ import {
   getCredentialUnlockStatus,
   unlockCredentialVault,
   type CredentialUnlockStatus,
-} from "../config/SettingsConfig";
+} from "./SettingsCredentials";
 
 type CredentialLockAction = "enable" | "unlock" | "disable" | "refresh";
 type CredentialLockLoadState = "loading" | "ready" | "error";

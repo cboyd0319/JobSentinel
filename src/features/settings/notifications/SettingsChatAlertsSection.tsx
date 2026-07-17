@@ -3,15 +3,15 @@ import { Badge } from "../../../ui/Badge";
 import { Button } from "../../../ui/Button";
 import { HelpIcon } from "../../../ui/HelpIcon";
 import { Input } from "../../../ui/Input";
+import type { Config } from "../config/SettingsConfig";
 import {
   isValidDiscordWebhook,
   isValidSlackWebhook,
   isValidTeamsWebhook,
-  type Config,
   type CredentialKey,
   type CredentialStatusMap,
   type Credentials,
-} from "../config/SettingsConfig";
+} from "../credentials/SettingsCredentials";
 import { SettingsSymbol } from "../shared/SettingsIcons";
 import { SecurityBadge } from "../shared/SettingsSecurityBadge";
 import { useSettingsChatAlerts } from "./useSettingsChatAlerts";

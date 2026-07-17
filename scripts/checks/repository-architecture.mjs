@@ -282,7 +282,7 @@ export function checkRepositoryArchitecture(root = defaultRoot, options = {}) {
       );
     }
     for (const member of parsedMembers.members) {
-      if (/[*?\[]/.test(member)) {
+      if (/[*?[]/.test(member)) {
         violations.push(
           `Cargo.toml workspace members must be literal paths; wildcard member ${member} is forbidden`,
         );

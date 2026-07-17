@@ -1,32 +1,19 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  makeResumeSummary,
+  makeUserSkill,
+  mockResumeLibraryResponses,
+  mockSafeInvoke,
+  mockSafeInvokeWithToast,
+  mockToast,
+  resetResumeLibraryMocks,
+} from "./ResumeLibraryPage.testSupport";
 import ResumeLibraryPage from "./ResumeLibraryPage";
-import { safeInvoke, safeInvokeWithToast } from "../../../platform/tauri";
-
-const mockToast = vi.hoisted(() => ({
-  success: vi.fn(),
-  error: vi.fn(),
-  info: vi.fn(),
-}));
-
-vi.mock("../../../platform/tauri", () => ({
-  safeInvoke: vi.fn(),
-  safeInvokeWithToast: vi.fn(),
-}));
-
-vi.mock("../../../shared/toast/useToast", () => ({
-  useToast: () => mockToast,
-}));
-
-const mockSafeInvoke = vi.mocked(safeInvoke);
-const mockSafeInvokeWithToast = vi.mocked(safeInvokeWithToast);
 
 describe("Resume page", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    vi.unstubAllGlobals();
-  });
+  beforeEach(resetResumeLibraryMocks);
 
   it("copies the readable resume text after the user opens the preview", async () => {
     const user = userEvent.setup();
@@ -37,32 +24,16 @@ describe("Resume page", () => {
       configurable: true,
     });
 
-    mockSafeInvoke.mockImplementation((command: string) => {
-      switch (command) {
-        case "get_active_resume":
-          return Promise.resolve({
-            id: 1,
-            name: "Care Coordinator Resume",
-            is_active: true,
-            created_at: "2026-05-21T12:00:00Z",
-            updated_at: "2026-05-21T12:00:00Z",
-          });
-        case "list_all_resumes":
-        case "get_user_skills":
-        case "get_recent_matches":
-          return Promise.resolve([]);
-        case "get_resume_text_preview":
-          return Promise.resolve({
-            resume_id: 1,
-            name: "Care Coordinator Resume",
-            has_text: true,
-            text_preview: "Care coordinator\nPatient scheduling",
-            text_chars: 35,
-            is_truncated: false,
-          });
-        default:
-          return Promise.resolve(null);
-      }
+    mockResumeLibraryResponses({
+      get_active_resume: makeResumeSummary(),
+      get_resume_text_preview: {
+        resume_id: 1,
+        name: "Care Coordinator Resume",
+        has_text: true,
+        text_preview: "Care coordinator\nPatient scheduling",
+        text_chars: 35,
+        is_truncated: false,
+      },
     });
 
     render(<ResumeLibraryPage onBack={vi.fn()} />);
@@ -82,45 +53,23 @@ describe("Resume page", () => {
   });
 
   it("labels saved skill source instead of showing raw confidence percentages", async () => {
-    mockSafeInvoke.mockImplementation((command: string) => {
-      switch (command) {
-        case "get_active_resume":
-          return Promise.resolve({
-            id: 1,
-            name: "Care Coordinator Resume",
-            is_active: true,
-            created_at: "2026-05-21T12:00:00Z",
-            updated_at: "2026-05-21T12:00:00Z",
-          });
-        case "list_all_resumes":
-        case "get_recent_matches":
-          return Promise.resolve([]);
-        case "get_user_skills":
-          return Promise.resolve([
-            {
-              id: 1,
-              resume_id: 1,
-              skill_name: "Patient Scheduling",
-              skill_category: "Care coordination",
-              confidence_score: 0.95,
-              years_experience: 3,
-              proficiency_level: "Advanced",
-              source: "resume",
-            },
-            {
-              id: 2,
-              resume_id: 1,
-              skill_name: "Community Outreach",
-              skill_category: "Community programs",
-              confidence_score: 1,
-              years_experience: null,
-              proficiency_level: "Intermediate",
-              source: "manual",
-            },
-          ]);
-        default:
-          return Promise.resolve(null);
-      }
+    mockResumeLibraryResponses({
+      get_active_resume: makeResumeSummary(),
+      get_user_skills: [
+        makeUserSkill({
+          skill_category: "Care coordination",
+          confidence_score: 0.95,
+          proficiency_level: "Advanced",
+          source: "resume",
+        }),
+        makeUserSkill({
+          id: 2,
+          skill_name: "Community Outreach",
+          skill_category: "Community programs",
+          years_experience: null,
+          proficiency_level: "Intermediate",
+        }),
+      ],
     });
 
     render(<ResumeLibraryPage onBack={vi.fn()} />);
@@ -142,39 +91,11 @@ describe("Resume page", () => {
   it("lets job seekers explicitly use reviewed resume skills for local sorting", async () => {
     const user = userEvent.setup();
 
-    mockSafeInvoke.mockImplementation((command: string) => {
-      switch (command) {
-        case "get_active_resume":
-          return Promise.resolve({
-            id: 1,
-            name: "Care Coordinator Resume",
-            is_active: true,
-            created_at: "2026-05-21T12:00:00Z",
-            updated_at: "2026-05-21T12:00:00Z",
-          });
-        case "list_all_resumes":
-        case "get_recent_matches":
-          return Promise.resolve([]);
-        case "get_resume_matching_preference":
-          return Promise.resolve({ enabled: false });
-        case "get_user_skills":
-          return Promise.resolve([
-            {
-              id: 1,
-              resume_id: 1,
-              skill_name: "Patient Scheduling",
-              skill_category: "Customer or Patient Support",
-              confidence_score: 1,
-              years_experience: 3,
-              proficiency_level: "Regular use",
-              source: "manual",
-            },
-          ]);
-        case "set_resume_matching_enabled":
-          return Promise.resolve({ enabled: true });
-        default:
-          return Promise.resolve(null);
-      }
+    mockResumeLibraryResponses({
+      get_active_resume: makeResumeSummary(),
+      get_resume_matching_preference: { enabled: false },
+      get_user_skills: [makeUserSkill()],
+      set_resume_matching_enabled: { enabled: true },
     });
 
     render(<ResumeLibraryPage onBack={vi.fn()} />);
@@ -198,37 +119,10 @@ describe("Resume page", () => {
   });
 
   it("shows resume skill sorting as on when already enabled", async () => {
-    mockSafeInvoke.mockImplementation((command: string) => {
-      switch (command) {
-        case "get_active_resume":
-          return Promise.resolve({
-            id: 1,
-            name: "Care Coordinator Resume",
-            is_active: true,
-            created_at: "2026-05-21T12:00:00Z",
-            updated_at: "2026-05-21T12:00:00Z",
-          });
-        case "list_all_resumes":
-        case "get_recent_matches":
-          return Promise.resolve([]);
-        case "get_resume_matching_preference":
-          return Promise.resolve({ enabled: true });
-        case "get_user_skills":
-          return Promise.resolve([
-            {
-              id: 1,
-              resume_id: 1,
-              skill_name: "Patient Scheduling",
-              skill_category: "Customer or Patient Support",
-              confidence_score: 1,
-              years_experience: 3,
-              proficiency_level: "Regular use",
-              source: "manual",
-            },
-          ]);
-        default:
-          return Promise.resolve(null);
-      }
+    mockResumeLibraryResponses({
+      get_active_resume: makeResumeSummary(),
+      get_resume_matching_preference: { enabled: true },
+      get_user_skills: [makeUserSkill()],
     });
 
     render(<ResumeLibraryPage onBack={vi.fn()} />);
@@ -243,35 +137,9 @@ describe("Resume page", () => {
     const user = userEvent.setup();
 
     mockSafeInvokeWithToast.mockResolvedValue(undefined);
-    mockSafeInvoke.mockImplementation((command: string) => {
-      switch (command) {
-        case "get_active_resume":
-          return Promise.resolve({
-            id: 1,
-            name: "Care Coordinator Resume",
-            is_active: true,
-            created_at: "2026-05-21T12:00:00Z",
-            updated_at: "2026-05-21T12:00:00Z",
-          });
-        case "list_all_resumes":
-        case "get_recent_matches":
-          return Promise.resolve([]);
-        case "get_user_skills":
-          return Promise.resolve([
-            {
-              id: 1,
-              resume_id: 1,
-              skill_name: "Patient Scheduling",
-              skill_category: "Customer or Patient Support",
-              confidence_score: 1,
-              years_experience: 3,
-              proficiency_level: "Intermediate",
-              source: "manual",
-            },
-          ]);
-        default:
-          return Promise.resolve(null);
-      }
+    mockResumeLibraryResponses({
+      get_active_resume: makeResumeSummary(),
+      get_user_skills: [makeUserSkill({ proficiency_level: "Intermediate" })],
     });
 
     render(<ResumeLibraryPage onBack={vi.fn()} />);
@@ -306,35 +174,14 @@ describe("Resume page", () => {
   it("uses action-first validation copy when editing a skill without a name", async () => {
     const user = userEvent.setup();
 
-    mockSafeInvoke.mockImplementation((command: string) => {
-      switch (command) {
-        case "get_active_resume":
-          return Promise.resolve({
-            id: 1,
-            name: "Care Coordinator Resume",
-            is_active: true,
-            created_at: "2026-05-21T12:00:00Z",
-            updated_at: "2026-05-21T12:00:00Z",
-          });
-        case "list_all_resumes":
-        case "get_recent_matches":
-          return Promise.resolve([]);
-        case "get_user_skills":
-          return Promise.resolve([
-            {
-              id: 1,
-              resume_id: 1,
-              skill_name: "Patient Scheduling",
-              skill_category: null,
-              confidence_score: 1,
-              years_experience: null,
-              proficiency_level: "Regular use",
-              source: "manual",
-            },
-          ]);
-        default:
-          return Promise.resolve(null);
-      }
+    mockResumeLibraryResponses({
+      get_active_resume: makeResumeSummary(),
+      get_user_skills: [
+        makeUserSkill({
+          skill_category: null,
+          years_experience: null,
+        }),
+      ],
     });
 
     render(<ResumeLibraryPage onBack={vi.fn()} />);
@@ -362,23 +209,8 @@ describe("Resume page", () => {
   it("uses action-first validation copy when adding a skill without a name", async () => {
     const user = userEvent.setup();
 
-    mockSafeInvoke.mockImplementation((command: string) => {
-      switch (command) {
-        case "get_active_resume":
-          return Promise.resolve({
-            id: 1,
-            name: "Care Coordinator Resume",
-            is_active: true,
-            created_at: "2026-05-21T12:00:00Z",
-            updated_at: "2026-05-21T12:00:00Z",
-          });
-        case "list_all_resumes":
-        case "get_user_skills":
-        case "get_recent_matches":
-          return Promise.resolve([]);
-        default:
-          return Promise.resolve(null);
-      }
+    mockResumeLibraryResponses({
+      get_active_resume: makeResumeSummary(),
     });
 
     render(<ResumeLibraryPage onBack={vi.fn()} />);

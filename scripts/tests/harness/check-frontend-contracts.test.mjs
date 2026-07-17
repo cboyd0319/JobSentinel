@@ -5,6 +5,10 @@ import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import test from "node:test";
 import {
+  staleSuggestionCategoryMockSource,
+  suggestionCategoryRustSource,
+} from "../lib/source-fixtures.mjs";
+import {
   hasStaleAtsKeywordMatchFrontendShape,
   hasStaleDeepLinkMockHandlers,
   hasStaleFeedbackMockHandlers,
@@ -155,19 +159,11 @@ test("frontend contracts reject resume suggestion category drift", () => {
     writeFixtureFile(
       root,
       "crates/jobsentinel-documents/src/ats_analyzer.rs",
-      `
-pub enum SuggestionCategory {
-    AddKeyword,
-    RewordBullet,
-    AddSection,
-    ReorderContent,
-    FormatFix,
-}
-`,
+      suggestionCategoryRustSource,
     );
     writeFixtureFile(
       root,
-      "src/features/resumes/matching/resumeMatchModel.ts",
+      "src/features/resumes/shared/atsAnalysisLabels.ts",
       `
 type SuggestionCategory = "AddKeyword" | "RewordBullet" | "AddSection" | "RemoveItem";
 function formatSuggestionCategory(category: SuggestionCategory): string {
@@ -182,35 +178,17 @@ function formatSuggestionCategory(category: SuggestionCategory): string {
     );
     writeFixtureFile(
       root,
-      "src/features/resumes/builder/AtsLiveScorePanelModel.ts",
-      `
-interface AtsSuggestion {
-  category: "AddKeyword" | "RewordBullet" | "AddSection" | "ReorderContent" | "FormatFix";
-}
-function formatSuggestionCategory(category: AtsSuggestion["category"]): string {
-  switch (category) {
-    case "AddKeyword": return "Add job words";
-    case "RewordBullet": return "Rewrite bullet";
-    case "AddSection": return "Add section";
-    case "ReorderContent": return "Reorder content";
-    case "FormatFix": return "Safety check";
-  }
-}
-`,
-    );
-    writeFixtureFile(
-      root,
       "src/dev-runtime/mocks/handlers.ts",
-      'type MockSuggestionCategory = "AddKeyword" | "RewordBullet" | "AddSection";\n',
+      staleSuggestionCategoryMockSource,
     );
 
     assert.equal(
-      hasResumeSuggestionCategoryDrift(root, "src/features/resumes/matching/resumeMatchModel.ts"),
+      hasResumeSuggestionCategoryDrift(root, "src/features/resumes/shared/atsAnalysisLabels.ts"),
       true,
     );
     assert.equal(
       hasResumeSuggestionCategoryDrift(root, "src/features/resumes/builder/AtsLiveScorePanelModel.ts"),
-      true,
+      false,
     );
     assert.equal(hasResumeSuggestionCategoryDrift(root, "src/dev-runtime/mocks/handlers.ts"), true);
     assert.equal(hasResumeSuggestionCategoryDrift(root, "src/features/salary/SalaryPage.tsx"), false);

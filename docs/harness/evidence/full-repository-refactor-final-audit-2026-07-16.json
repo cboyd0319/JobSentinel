@@ -6,7 +6,7 @@
   "verified_at": "2026-07-17T00:08:53Z",
   "revision": "dadf92c4",
   "platform": "macOS 27.0 arm64",
-  "source": "docs/plans/active/current-work.md",
+  "source": "docs/plans/completed/full-repository-refactor.md",
   "scope": "Final whole-repository cleanup, structural exception audit, and acceptance verification",
   "observed_implementation": [
     "Five frontend and development-runtime suites were split at existing behavior boundaries while preserving all 86 test titles.",

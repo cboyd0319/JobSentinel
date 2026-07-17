@@ -1,26 +1,10 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import { mockInvoke, resetMockData } from "../../mocks/handlers";
+import { beforeEach, describe, expect, it } from "vitest";
+import { mockInvoke } from "../../mocks/handlers";
 import { atsResume } from "./resumeAnalysisTestData";
 import type { AtsAnalysisResult } from "./resumeAnalysisTestData";
+import { setupResumeRuntimeMocks } from "./resumeRuntimeTestSupport";
 describe("mock resume runtime commands", () => {
-  let localStore: Record<string, string>;
-  beforeEach(() => {
-    vi.useRealTimers();
-    localStore = {};
-    vi.mocked(window.localStorage.getItem).mockImplementation(
-      (key) => localStore[key] ?? null,
-    );
-    vi.mocked(window.localStorage.setItem).mockImplementation((key, value) => {
-      localStore[key] = value;
-    });
-    vi.mocked(window.localStorage.removeItem).mockImplementation((key) => {
-      delete localStore[key];
-    });
-    vi.mocked(window.localStorage.clear).mockImplementation(() => {
-      localStore = {};
-    });
-    resetMockData();
-  });
+  beforeEach(setupResumeRuntimeMocks);
   it("does not cap degree-or-equivalent experience requirements in mock resume review", async () => {
     const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {

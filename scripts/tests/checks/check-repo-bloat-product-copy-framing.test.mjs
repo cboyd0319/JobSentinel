@@ -89,12 +89,6 @@ test("checkRepoBloat rejects stale Resume Optimizer framing", () => {
     writeFixtureFile(root, "docs/releases/v2.0.md", "Resume Optimizer\n");
     writeFixtureFile(root, "docs/releases/v2.4.md", "Resume Optimizer\n");
     writeFixtureFile(root, "docs/releases/v2.6.0.md", "ATS score calculation\n");
-    writeFixtureFile(
-      root,
-      "docs/plans/active/current-work.md",
-      "Rename visible app and user-doc surfaces from ATS Optimizer to Resume Optimizer\n",
-    );
-
     execFileSync(
       "git",
       [
@@ -111,7 +105,6 @@ test("checkRepoBloat rejects stale Resume Optimizer framing", () => {
         "docs/releases/v2.0.md",
         "docs/releases/v2.4.md",
         "docs/releases/v2.6.0.md",
-        "docs/plans/active/current-work.md",
       ],
       { cwd: root },
     );
@@ -130,7 +123,6 @@ test("checkRepoBloat rejects stale Resume Optimizer framing", () => {
       "docs/releases/v2.0.md",
       "docs/releases/v2.4.md",
       "docs/releases/v2.6.0.md",
-      "docs/plans/active/current-work.md",
     ]) {
       assert.ok(
         violations.includes(`replace stale Resume Optimizer framing: ${path}`),

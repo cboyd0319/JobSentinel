@@ -1,120 +1,18 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import {
+  mockApplications,
+  mockInvoke,
+  mockOnClose,
+  mockToast,
+  restoreInterviewSchedulerMocks,
+  setupInterviewSchedulerMocks,
+} from "./InterviewScheduler.testSupport";
 import { InterviewScheduler } from "./InterviewScheduler";
 
-// Mock Tauri invoke
-const mockInvoke = vi.fn();
-vi.mock("@tauri-apps/api/core", () => ({
-  invoke: (...args: unknown[]) => mockInvoke(...args),
-}));
-
-// Mock cachedInvoke
-const mockCachedInvoke = vi.fn();
-vi.mock("../../platform/tauri", () => ({
-  cachedInvoke: (...args: unknown[]) => mockCachedInvoke(...args),
-  invalidateCacheByCommand: vi.fn(),
-}));
-
-// Mock useToast
-const mockToast = {
-  success: vi.fn(),
-  error: vi.fn(),
-  info: vi.fn(),
-};
-vi.mock("../../shared/toast/useToast", () => ({
-  useToast: () => mockToast,
-}));
-
-// Mock logError
-vi.mock("../../shared/errorReporting/logger", () => ({
-  logError: vi.fn(),
-}));
-
-// Mock URL methods for calendar reminder download
-const mockCreateObjectURL = vi.fn(() => "blob:test");
-const mockRevokeObjectURL = vi.fn();
-global.URL.createObjectURL = mockCreateObjectURL;
-global.URL.revokeObjectURL = mockRevokeObjectURL;
-
 describe("InterviewScheduler", () => {
-  const mockOnClose = vi.fn();
-
-  const mockApplications = [
-    { id: 1, job_title: "Customer Support Coordinator", company: "CareBridge Services" },
-    { id: 2, job_title: "Program Assistant", company: "Neighborhood Works" },
-  ];
-
-  const mockUpcomingInterviews = [
-    {
-      id: 1,
-      application_id: 1,
-      interview_type: "technical",
-      scheduled_at: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days
-      duration_minutes: 60,
-      location: "Zoom Meeting",
-      interviewer_name: "Morgan Rivera",
-      interviewer_title: "Support Operations Manager",
-      notes: "Review customer escalation examples",
-      completed: false,
-      outcome: null,
-      post_interview_notes: null,
-      job_title: "Customer Support Coordinator",
-      company: "CareBridge Services",
-    },
-    {
-      id: 2,
-      application_id: 2,
-      interview_type: "phone",
-      scheduled_at: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(), // 5 days
-      duration_minutes: 30,
-      location: null,
-      interviewer_name: null,
-      interviewer_title: null,
-      notes: null,
-      completed: false,
-      outcome: null,
-      post_interview_notes: null,
-      job_title: "Program Assistant",
-      company: "Neighborhood Works",
-    },
-  ];
-
-  const mockPastInterviews = [
-    {
-      id: 3,
-      application_id: 1,
-      interview_type: "screening",
-      scheduled_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days ago
-      duration_minutes: 45,
-      location: "Google Meet",
-      interviewer_name: "Avery Patel",
-      interviewer_title: "Recruiting Coordinator",
-      notes: null,
-      completed: true,
-      outcome: "passed",
-      post_interview_notes: "Went well, moving to next round",
-      job_title: "Customer Support Coordinator",
-      company: "CareBridge Services",
-    },
-  ];
-
-  beforeEach(() => {
-    vi.clearAllMocks();
-    mockCachedInvoke.mockImplementation((cmd: string) => {
-      if (cmd === "get_upcoming_interviews") {
-        return Promise.resolve(mockUpcomingInterviews);
-      }
-      if (cmd === "get_past_interviews") {
-        return Promise.resolve(mockPastInterviews);
-      }
-      return Promise.resolve([]);
-    });
-    mockInvoke.mockResolvedValue(undefined);
-  });
-
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
+  beforeEach(setupInterviewSchedulerMocks);
+  afterEach(restoreInterviewSchedulerMocks);
 
   describe("add interview form", () => {
     it("opens form when Schedule button is clicked", async () => {

@@ -1,5 +1,7 @@
 # Source Debug Verification For v2.9.0
 
+Archive status: Historical release evidence.
+
 This matrix is the release checklist for job sources. It exists so source
 testing is understandable to non-technical users and auditable by maintainers.
 

@@ -1,7 +1,7 @@
 {
   "schema": "jobsentinel.duplication_contract.v2",
   "policy": "DRY enforcement ratchet. A duplicated block is a run of identical significant code lines that appears in two or more places. New or changed code must not raise duplicatedLines above the baseline. The baseline is tool-generated (npm run lint:dup -- --update-baseline) and may only ratchet down as duplication is removed. Existing duplication above zero is tracked debt, not approved; see docs/plans/tech-debt-tracker.md.",
-  "windowLines": 15,
+  "windowLines": 14,
   "scopes": {
     "frontendProduction": {
       "include": {
@@ -18,19 +18,85 @@
       "excludePatterns": [
         "\\.test\\.",
         "\\.spec\\.",
+        "[Tt]est(?:Support|Fixtures)\\.(?:ts|tsx)$",
         "\\.stories\\.",
         "/tests/",
         "tests\\.rs$",
         "/__tests__/",
         "/mocks/",
+        "^src/test-support/",
         "^src/dev-runtime/",
         "Taxonomy\\.(ts|json)$",
         "Entries\\.ts$"
       ],
       "classification": "all",
       "baseline": {
-        "duplicatedLines": 778,
-        "cloneRegions": 38
+        "duplicatedLines": 0,
+        "cloneRegions": 0
+      }
+    },
+    "frontendTests": {
+      "include": {
+        "dirs": [
+          "src"
+        ],
+        "extensions": [
+          ".ts",
+          ".tsx"
+        ]
+      },
+      "includePatterns": [
+        "\\.test\\.",
+        "\\.spec\\.",
+        "[Tt]est(?:Support|Fixtures)\\.(?:ts|tsx)$",
+        "/tests/",
+        "/__tests__/",
+        "^src/test-support/"
+      ],
+      "excludePatterns": [],
+      "classification": "all",
+      "baseline": {
+        "duplicatedLines": 0,
+        "cloneRegions": 0
+      }
+    },
+    "scriptsProduction": {
+      "include": {
+        "dirs": [
+          "scripts"
+        ],
+        "extensions": [
+          ".js",
+          ".mjs"
+        ]
+      },
+      "excludePatterns": [
+        "^scripts/tests/"
+      ],
+      "classification": "all",
+      "baseline": {
+        "duplicatedLines": 0,
+        "cloneRegions": 0
+      }
+    },
+    "scriptsTests": {
+      "include": {
+        "dirs": [
+          "scripts"
+        ],
+        "extensions": [
+          ".js",
+          ".mjs"
+        ]
+      },
+      "includePatterns": [
+        "^scripts/tests/"
+      ],
+      "excludePatterns": [],
+      "classification": "all",
+      "baseline": {
+        "duplicatedLines": 0,
+        "cloneRegions": 0
       }
     },
     "cratesProduction": {
@@ -66,5 +132,5 @@
       }
     }
   },
-  "measuredOn": "2026-07-16"
+  "measuredOn": "2026-07-17"
 }

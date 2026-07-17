@@ -3,6 +3,10 @@ import { errorReporter, sanitizeTextForStorage } from '../../shared/errorReporti
 import { clearStorage, readStorageValue, writeStorageValue } from '../../shared/browserStorage';
 import { logError } from '../../shared/errorReporting/logger';
 import { copySanitizedDebugReport, saveSanitizedDebugReport } from '../../shared/errorReporting/supportReport';
+import {
+  SafeSupportReportStatus,
+  type SupportReportStatus,
+} from '../../shared/errorReporting/SafeSupportReportStatus';
 
 const VISUAL_PREFERENCE_KEYS = [
   'jobsentinel-theme',
@@ -33,7 +37,7 @@ interface State {
   hasError: boolean;
   error: Error | null;
   errorCount: number;
-  debugReportStatus: 'idle' | 'copying' | 'copied' | 'saving' | 'saved' | 'failed';
+  debugReportStatus: SupportReportStatus;
   debugReportFileName: string | null;
   confirmLocalSettingsReset: boolean;
 }
@@ -241,21 +245,10 @@ class ErrorBoundary extends Component<Props, State> {
                   : 'Save Safe Support Report'}
               </button>
 
-              {this.state.debugReportStatus === 'copied' && (
-                <p className="text-center text-sm text-success" role="status">
-                  Safe support report copied
-                </p>
-              )}
-              {this.state.debugReportStatus === 'saved' && this.state.debugReportFileName && (
-                <p className="text-center text-sm text-success" role="status">
-                  Safe support report saved: {this.state.debugReportFileName}
-                </p>
-              )}
-              {this.state.debugReportStatus === 'failed' && (
-                <p className="text-center text-sm text-danger" role="status">
-                  Could not create safe support report
-                </p>
-              )}
+              <SafeSupportReportStatus
+                status={this.state.debugReportStatus}
+                fileName={this.state.debugReportFileName}
+              />
 
               {showClearData && (
                 <>

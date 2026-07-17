@@ -54,14 +54,6 @@ export function getTechnicalFirstUiResult(path, text) {
     );
   }
 
-  if (
-    path === "src/features/application-assist/ScreeningAnswerSuggestions.tsx"
-  ) {
-    return /Failed to load suggestions|setError\(\s*["'`]Could not load saved answers["'`]\s*\)/i.test(
-      text,
-    );
-  }
-
   if (path === "src/features/dashboard/components/noJobsEmptyStateCopy.ts") {
     return /Scan allowed sources|Local checks run on your schedule/i.test(text);
   }

@@ -215,7 +215,7 @@ if (process.argv[1] === scriptPath) {
     maxDurationMs: readNumber(args.maxDurationMs, defaultBudget.maxDurationMs),
     maxTests: readNumber(args.maxTests, defaultBudget.maxTests),
   };
-  let reportText = "";
+  let reportText;
   let playWrightExitCode = 0;
 
   if (args.report) {

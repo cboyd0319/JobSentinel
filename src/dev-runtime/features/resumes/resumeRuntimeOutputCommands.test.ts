@@ -1,5 +1,6 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import { mockInvoke, resetMockData } from "../../mocks/handlers";
+import { beforeEach, describe, expect, it } from "vitest";
+import { mockInvoke } from "../../mocks/handlers";
+import { setupResumeRuntimeMocks } from "./resumeRuntimeTestSupport";
 
 type MockJobSummary = {
   hash: string;
@@ -23,21 +24,7 @@ type ResumeTextPreview = {
 };
 
 describe("mock resume runtime output commands", () => {
-  let localStore: Record<string, string>;
-
-  beforeEach(() => {
-    localStore = {};
-    vi.mocked(window.localStorage.getItem).mockImplementation(
-      (key) => localStore[key] ?? null,
-    );
-    vi.mocked(window.localStorage.setItem).mockImplementation((key, value) => {
-      localStore[key] = value;
-    });
-    vi.mocked(window.localStorage.removeItem).mockImplementation((key) => {
-      delete localStore[key];
-    });
-    resetMockData();
-  });
+  beforeEach(setupResumeRuntimeMocks);
 
   it("returns match scores as backend-compatible fractions", async () => {
     const [job] = await mockInvoke<MockJobSummary[]>("get_jobs", {});

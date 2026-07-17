@@ -107,7 +107,7 @@ function collectResourceFiles(root, dir) {
 function referencedSkillFiles(text) {
   return [
     ...new Set(
-      [...text.matchAll(/\b(?:assets|references?|scripts)\/[A-Za-z0-9_.\/-]+/g)].map(
+      [...text.matchAll(/\b(?:assets|references?|scripts)\/[A-Za-z0-9_./-]+/g)].map(
         (match) => match[0],
       ),
     ),

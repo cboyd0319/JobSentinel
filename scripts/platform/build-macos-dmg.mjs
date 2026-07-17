@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { execFileSync, spawnSync } from "node:child_process";
+import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import {
   cpSync,
@@ -14,17 +14,14 @@ import {
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { basename, delimiter, dirname, join, resolve } from "node:path";
+import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import {
-  prependPathDir,
-  stripMacosTauriBuildSecrets,
-  getRustupToolchainBinDir,
   buildMacosTauriEnv,
   getSigningIdentity,
-  buildAppCodesignArgs,
   buildDmgCodesignArgs,
   ensureSignedApp,
+  readCodesignDetails,
   buildNotarytoolSubmitArgs,
   hasPartialNotarizationCredentials,
   shouldNotarizeDmg,
@@ -32,6 +29,10 @@ import {
   parseNotarytoolSubmitResult,
   buildNotarytoolLogArgs,
 } from "./macos-signing.mjs";
+import {
+  assertDeveloperIdSignature,
+  extractTeamIdFromSigningIdentity,
+} from "./macos-signature.mjs";
 
 export {
   prependPathDir,

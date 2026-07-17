@@ -1,4 +1,4 @@
-import type { CareerProfile } from "./careerProfileTaxonomy";
+import type { CareerProfile } from "./careerProfileModel";
 
 export const SERVICE_CAREER_PROFILES: CareerProfile[] = [
   {

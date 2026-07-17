@@ -52,35 +52,17 @@ mod job_struct_tests {
     #[test]
     fn test_job_creation_minimal_fields() {
         let now = Utc::now();
-        let job = Job {
-            id: 1,
-            hash: "minimal_hash".to_string(),
-            title: "Job Title".to_string(),
-            company: "Company".to_string(),
-            url: "https://example.com/job".to_string(),
-            location: None,
-            description: None,
-            score: None,
-            score_reasons: None,
-            source: "test".to_string(),
-            remote: None,
-            salary_min: None,
-            salary_max: None,
-            currency: None,
-            created_at: now,
-            updated_at: now,
-            last_seen: now,
-            times_seen: 1,
-            immediate_alert_sent: false,
-            included_in_digest: false,
-            hidden: false,
-            bookmarked: false,
-            notes: None,
-            ghost_score: None,
-            ghost_reasons: None,
-            first_seen: None,
-            repost_count: 0,
-        };
+        let mut job = Job::newly_discovered(
+            "Job Title",
+            "Company",
+            "https://example.com/job",
+            None,
+            "test",
+            now,
+        );
+        job.id = 1;
+        job.hash = "minimal_hash".to_string();
+        job.first_seen = None;
 
         assert_eq!(job.id, 1);
         assert!(job.location.is_none());

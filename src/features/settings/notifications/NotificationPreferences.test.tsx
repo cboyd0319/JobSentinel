@@ -1,52 +1,14 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import {
+  DEFAULT_PREFS,
+  mockInvoke,
+  resetNotificationPreferencesMocks,
+} from "./NotificationPreferences.testSupport";
 import { NotificationPreferences as NotificationPreferencesComponent } from "./NotificationPreferences";
-import type { NotificationPreferences } from "./notificationPreferencesStore";
-
-// Mock Tauri invoke
-const mockInvoke = vi.fn();
-vi.mock("@tauri-apps/api/core", () => ({
-  invoke: (...args: unknown[]) => mockInvoke(...args),
-}));
-
-// Mock useToast
-const mockToast = {
-  success: vi.fn(),
-  error: vi.fn(),
-  info: vi.fn(),
-  warning: vi.fn(),
-};
-vi.mock("../../../shared/toast/useToast", () => ({
-  useToast: () => mockToast,
-}));
-
-const DEFAULT_PREFS: NotificationPreferences = {
-  linkedin: { enabled: false, minScoreThreshold: 70, soundEnabled: false },
-  indeed: { enabled: true, minScoreThreshold: 70, soundEnabled: false },
-  greenhouse: { enabled: true, minScoreThreshold: 80, soundEnabled: false },
-  lever: { enabled: true, minScoreThreshold: 80, soundEnabled: false },
-  jobswithgpt: { enabled: true, minScoreThreshold: 75, soundEnabled: false },
-  global: {
-    enabled: true,
-    quietHoursStart: "22:00",
-    quietHoursEnd: "08:00",
-    quietHoursEnabled: false,
-  },
-  advancedFilters: {
-    includeKeywords: [],
-    excludeKeywords: [],
-    minSalary: null,
-    remoteOnly: false,
-    includedCompanies: [],
-    excludedCompanies: [],
-  },
-};
 
 describe("NotificationPreferences Component", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    mockInvoke.mockReset();
-  });
+  beforeEach(resetNotificationPreferencesMocks);
 
   describe("loading state", () => {
     it("shows loading text initially", async () => {

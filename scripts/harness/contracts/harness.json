@@ -167,8 +167,7 @@
     "docs/harness/README.md",
     "docs/harness/harness-map.md",
     "docs/harness/verification-matrix.md",
-    "docs/plans/active/status.md",
-    "docs/plans/active/current-work.md"
+    "docs/plans/active/repository-residual-cleanup.md"
   ],
   "budget_exceptions": []
 }

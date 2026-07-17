@@ -37,6 +37,8 @@ interface GhostIndicatorProps {
   onFeedbackSubmitted?: (verdict: "real" | "ghost") => void;
 }
 
+type GhostFeedbackVerdict = "real" | "ghost";
+
 const severityStyles = {
   low: "text-yellow-600 dark:text-yellow-400",
   medium: "text-orange-600 dark:text-orange-400",
@@ -142,28 +144,15 @@ function SeverityDot({ severity }: { severity: GhostReason["severity"] }) {
   return <span className={`mt-1.5 h-2 w-2 flex-shrink-0 rounded-full ${color}`} aria-hidden="true" />;
 }
 
-export const GhostIndicator = memo(function GhostIndicator({
-  ghostScore,
-  ghostReasons,
-  size = "sm",
-  jobId,
-  onFeedbackSubmitted,
-}: GhostIndicatorProps) {
-  const [feedbackState, setFeedbackState] = useState<"real" | "ghost" | null>(null);
+function useGhostFeedback(
+  jobId?: number,
+  onFeedbackSubmitted?: (verdict: GhostFeedbackVerdict) => void,
+) {
+  const [feedbackState, setFeedbackState] = useState<GhostFeedbackVerdict | null>(null);
   const [feedbackError, setFeedbackError] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Don't show if score is null or below threshold
-  if (ghostScore === null || ghostScore < 0.5) {
-    return null;
-  }
-
-  const severity = getSeverity(ghostScore);
-  const reasons = parseReasons(ghostReasons);
-  const sizeClass = size === "sm" ? "w-4 h-4" : "w-5 h-5";
-  const ariaLabel = indicatorAriaLabel(ghostScore);
-
-  const handleFeedback = async (feedbackVerdict: "real" | "ghost") => {
+  const handleFeedback = async (feedbackVerdict: GhostFeedbackVerdict) => {
     if (!jobId || isSubmitting) return;
 
     setIsSubmitting(true);
@@ -172,12 +161,12 @@ export const GhostIndicator = memo(function GhostIndicator({
       if (feedbackVerdict === "real") {
         await safeInvoke("mark_job_as_real", { jobId }, {
           logContext: "Mark job as real",
-          silent: true
+          silent: true,
         });
       } else {
         await safeInvoke("mark_job_as_ghost", { jobId }, {
           logContext: "Mark posting as needs review",
-          silent: true
+          silent: true,
         });
       }
       setFeedbackState(feedbackVerdict);
@@ -188,6 +177,103 @@ export const GhostIndicator = memo(function GhostIndicator({
       setIsSubmitting(false);
     }
   };
+
+  return {
+    feedbackState,
+    feedbackError,
+    isSubmitting,
+    handleFeedback,
+  };
+}
+
+interface GhostFeedbackControlsProps {
+  jobId?: number;
+  feedbackState: GhostFeedbackVerdict | null;
+  feedbackError: boolean;
+  isSubmitting: boolean;
+  onFeedback: (verdict: GhostFeedbackVerdict) => void;
+}
+
+function GhostFeedbackControls({
+  jobId,
+  feedbackState,
+  feedbackError,
+  isSubmitting,
+  onFeedback,
+}: GhostFeedbackControlsProps) {
+  if (feedbackState) {
+    return (
+      <div className="mt-2 pt-2 border-t border-surface-200 dark:border-surface-600">
+        <p className="text-xs text-green-400">
+          Marked as {feedbackLabel(feedbackState)}
+        </p>
+      </div>
+    );
+  }
+
+  if (!jobId) {
+    return null;
+  }
+
+  return (
+    <div className="mt-2 pt-2 border-t border-surface-200 dark:border-surface-600">
+      <p className="text-xs text-surface-400 mb-1">Did you verify this posting?</p>
+      <div className="flex gap-1">
+        <button
+          onClick={(event) => {
+            event.stopPropagation();
+            onFeedback("real");
+          }}
+          disabled={isSubmitting}
+          className="flex-1 px-2 py-1 text-xs rounded bg-green-500 hover:bg-green-600 text-white transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400 focus-visible:ring-offset-1"
+          title="Mark as verified posting"
+        >
+          Verified
+        </button>
+        <button
+          onClick={(event) => {
+            event.stopPropagation();
+            onFeedback("ghost");
+          }}
+          disabled={isSubmitting}
+          className="flex-1 px-2 py-1 text-xs rounded bg-red-500 hover:bg-red-600 text-white transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-1"
+          title="Mark as stale or unverified"
+        >
+          Needs Review
+        </button>
+      </div>
+      {feedbackError && (
+        <p role="alert" className="mt-2 text-xs text-red-300">
+          Could not save feedback. Try again.
+        </p>
+      )}
+    </div>
+  );
+}
+
+export const GhostIndicator = memo(function GhostIndicator({
+  ghostScore,
+  ghostReasons,
+  size = "sm",
+  jobId,
+  onFeedbackSubmitted,
+}: GhostIndicatorProps) {
+  const {
+    feedbackState,
+    feedbackError,
+    isSubmitting,
+    handleFeedback,
+  } = useGhostFeedback(jobId, onFeedbackSubmitted);
+
+  // Don't show if score is null or below threshold
+  if (ghostScore === null || ghostScore < 0.5) {
+    return null;
+  }
+
+  const severity = getSeverity(ghostScore);
+  const reasons = parseReasons(ghostReasons);
+  const sizeClass = size === "sm" ? "w-4 h-4" : "w-5 h-5";
+  const ariaLabel = indicatorAriaLabel(ghostScore);
 
   const tooltipContent = (
     <div className="max-w-xs">
@@ -217,47 +303,13 @@ export const GhostIndicator = memo(function GhostIndicator({
       ) : (
         <p className="text-xs">Some posting details may need checking against the original job page</p>
       )}
-      {jobId && !feedbackState && (
-        <div className="mt-2 pt-2 border-t border-surface-200 dark:border-surface-600">
-          <p className="text-xs text-surface-400 mb-1">Did you verify this posting?</p>
-          <div className="flex gap-1">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleFeedback("real");
-              }}
-              disabled={isSubmitting}
-              className="flex-1 px-2 py-1 text-xs rounded bg-green-500 hover:bg-green-600 text-white transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400 focus-visible:ring-offset-1"
-              title="Mark as verified posting"
-            >
-              Verified
-            </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleFeedback("ghost");
-              }}
-              disabled={isSubmitting}
-              className="flex-1 px-2 py-1 text-xs rounded bg-red-500 hover:bg-red-600 text-white transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-1"
-              title="Mark as stale or unverified"
-            >
-              Needs Review
-            </button>
-          </div>
-          {feedbackError && (
-            <p role="alert" className="mt-2 text-xs text-red-300">
-              Could not save feedback. Try again.
-            </p>
-          )}
-        </div>
-      )}
-      {feedbackState && (
-        <div className="mt-2 pt-2 border-t border-surface-200 dark:border-surface-600">
-          <p className="text-xs text-green-400">
-            Marked as {feedbackLabel(feedbackState)}
-          </p>
-        </div>
-      )}
+      <GhostFeedbackControls
+        jobId={jobId}
+        feedbackState={feedbackState}
+        feedbackError={feedbackError}
+        isSubmitting={isSubmitting}
+        onFeedback={handleFeedback}
+      />
     </div>
   );
 
@@ -297,9 +349,12 @@ export const GhostIndicatorCompact = memo(function GhostIndicatorCompact({
   jobId,
   onFeedbackSubmitted,
 }: Omit<GhostIndicatorProps, "size">) {
-  const [feedbackState, setFeedbackState] = useState<"real" | "ghost" | null>(null);
-  const [feedbackError, setFeedbackError] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const {
+    feedbackState,
+    feedbackError,
+    isSubmitting,
+    handleFeedback,
+  } = useGhostFeedback(jobId, onFeedbackSubmitted);
 
   if (ghostScore === null || ghostScore < 0.5) {
     return null;
@@ -308,32 +363,6 @@ export const GhostIndicatorCompact = memo(function GhostIndicatorCompact({
   const severity = getSeverity(ghostScore);
   const reasons = parseReasons(ghostReasons);
   const ariaLabel = indicatorAriaLabel(ghostScore);
-
-  const handleFeedback = async (feedbackVerdict: "real" | "ghost") => {
-    if (!jobId || isSubmitting) return;
-
-    setIsSubmitting(true);
-    setFeedbackError(false);
-    try {
-      if (feedbackVerdict === "real") {
-        await safeInvoke("mark_job_as_real", { jobId }, {
-          logContext: "Mark job as real",
-          silent: true
-        });
-      } else {
-        await safeInvoke("mark_job_as_ghost", { jobId }, {
-          logContext: "Mark posting as needs review",
-          silent: true
-        });
-      }
-      setFeedbackState(feedbackVerdict);
-      onFeedbackSubmitted?.(feedbackVerdict);
-    } catch {
-      setFeedbackError(true);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
 
   const tooltipContent = (
     <div className="max-w-xs">
@@ -354,47 +383,13 @@ export const GhostIndicatorCompact = memo(function GhostIndicatorCompact({
       ) : (
         <p className="text-xs">This posting may be stale, reposted, or hard to verify</p>
       )}
-      {jobId && !feedbackState && (
-        <div className="mt-2 pt-2 border-t border-surface-200 dark:border-surface-600">
-          <p className="text-xs text-surface-400 mb-1">Did you verify this posting?</p>
-          <div className="flex gap-1">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleFeedback("real");
-              }}
-              disabled={isSubmitting}
-              className="flex-1 px-2 py-1 text-xs rounded bg-green-500 hover:bg-green-600 text-white transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-400 focus-visible:ring-offset-1"
-              title="Mark as verified posting"
-            >
-              Verified
-            </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleFeedback("ghost");
-              }}
-              disabled={isSubmitting}
-              className="flex-1 px-2 py-1 text-xs rounded bg-red-500 hover:bg-red-600 text-white transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-1"
-              title="Mark as stale or unverified"
-            >
-              Needs Review
-            </button>
-          </div>
-          {feedbackError && (
-            <p role="alert" className="mt-2 text-xs text-red-300">
-              Could not save feedback. Try again.
-            </p>
-          )}
-        </div>
-      )}
-      {feedbackState && (
-        <div className="mt-2 pt-2 border-t border-surface-200 dark:border-surface-600">
-          <p className="text-xs text-green-400">
-            Marked as {feedbackLabel(feedbackState)}
-          </p>
-        </div>
-      )}
+      <GhostFeedbackControls
+        jobId={jobId}
+        feedbackState={feedbackState}
+        feedbackError={feedbackError}
+        isSubmitting={isSubmitting}
+        onFeedback={handleFeedback}
+      />
     </div>
   );
 

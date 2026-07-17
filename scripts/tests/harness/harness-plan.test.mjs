@@ -19,7 +19,7 @@ test("routes every previously bypassed harness and configuration path", () => {
       "Cargo.toml",
       "crates/jobsentinel-domain/Cargo.toml",
       "playwright.config.ts",
-      "scripts/harness/contracts/file-size.json",
+      "scripts/harness/contracts/repository-structure.json",
     ],
   });
   const commands = commandsFor(plan);

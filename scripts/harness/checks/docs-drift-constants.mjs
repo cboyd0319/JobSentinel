@@ -97,5 +97,5 @@ export const statusEmojiPattern =
 export const deepLinksStatusEmojiPattern =
   /[\u{2705}\u{274c}\u{26a0}\u{1f510}]/u;
 
-export const activeStatusPath = "docs/plans/active/status.md";
+export const activeStatusPath = "docs/harness/current-status.md";
 export const isoDatePattern = /\b20\d{2}-\d{2}-\d{2}\b/g;

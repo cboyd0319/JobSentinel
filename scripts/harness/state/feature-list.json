@@ -1,7 +1,7 @@
 {
   "schema": "jobsentinel.feature_list.v1",
   "project": "JobSentinel",
-  "last_updated": "2026-07-16",
+  "last_updated": "2026-07-17",
   "active_status": "active",
   "rules": {
     "single_active_feature": true,
@@ -117,15 +117,37 @@
       "title": "Frontend DRY remediation",
       "behavior": "Every confirmed actionable duplication under src and src-tauri/src has one canonical owner, obsolete copies are removed, and the maintained frontend production ratchet prevents recurrence.",
       "user_visible_behavior": "JobSentinel preserves its interface and desktop behavior while shared resume, score, dashboard, market, feedback, error, and command-adapter behavior stays consistent.",
-      "status": "active",
+      "status": "passing",
       "verification": [
         "npm run verify:full",
         "npm run test:run",
         "npm run lint:dup -- --list"
       ],
-      "evidence": [],
+      "evidence": [
+        "docs/harness/evidence/frontend-dry-completion-2026-07-17.json"
+      ],
       "blocker": "",
-      "next_trigger": "Classify all 38 measured regions before changing shared behavior."
+      "next_trigger": "A frontend production duplication or canonical-owner regression requires a new corrective feature."
+    },
+    {
+      "id": "repository-residual-cleanup",
+      "priority": 6,
+      "area": "repository maintainability",
+      "title": "Repository residual cleanup",
+      "behavior": "Frontend tests, scripts, plans, harness documents, generated artifacts, dependencies, and policy projections have one current owner with obsolete or duplicate material removed.",
+      "user_visible_behavior": "JobSentinel preserves product behavior while the repository becomes smaller, easier to navigate, and harder to regress.",
+      "status": "active",
+      "verification": [
+        "npm run verify:full",
+        "npm run lint:dup -- --list",
+        "npm run test:scripts",
+        "npm run harness:check"
+      ],
+      "evidence": [
+        "docs/harness/evidence/repository-residual-cleanup-2026-07-17.json"
+      ],
+      "blocker": "",
+      "next_trigger": "After the repository checkpoint, select the next approved product feature; a regression requires a new corrective feature."
     }
   ]
 }

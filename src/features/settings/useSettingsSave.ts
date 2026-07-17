@@ -1,14 +1,14 @@
 import { useCallback, useEffect, useState } from "react";
 import { invalidateCacheByCommand, invoke } from "../../platform/tauri";
 import { logError } from "../../shared/errorReporting/logger";
+import type { Config } from "./config/SettingsConfig";
 import {
   getCredentialValidationError,
   storeCredential,
-  type Config,
   type CredentialKey,
   type CredentialStatusMap,
   type Credentials,
-} from "./config/SettingsConfig";
+} from "./credentials/SettingsCredentials";
 import type { CredentialSaveEntry } from "./credentials/useSettingsCredentials";
 
 type ToastMessage = (title: string, message: string) => void;

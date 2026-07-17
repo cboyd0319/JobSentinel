@@ -70,7 +70,6 @@ const technicalFirstUserCopyPaths = new Set([
   "src/features/application-assist/ApplyButton.tsx",
   "src/features/application-assist/ApplicationPreview.tsx",
   "src/features/application-assist/ProfileForm.tsx",
-  "src/features/application-assist/ScreeningAnswerSuggestions.tsx",
   "src/features/application-assist/ScreeningAnswersForm.tsx",
   "src/features/settings/support/feedback/DebugInfoPreview.tsx",
   "src/features/settings/support/feedback/FeedbackModal.tsx",

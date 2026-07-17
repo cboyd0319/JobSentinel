@@ -27,6 +27,9 @@ function policy(extra = {}) {
       hard_bytes: 65536,
     },
     included_extensions: [".ts"],
+    file_size: {
+      scopes: [{ id: "source", globs: ["src/**"] }],
+    },
     structure: {},
     non_hand_authored_exclusions: [],
     exceptions: [],
@@ -34,23 +37,10 @@ function policy(extra = {}) {
   };
 }
 
-function projection(scopes = [{ id: "source", globs: ["src/**"], max_lines: 500, max_bytes: 65536, max_line_bytes: 65536 }]) {
-  return {
-    schema: "jobsentinel.file_size_contract.v3",
-    projection_of: "scripts/harness/contracts/repository-structure.json",
-    baseline: { measured_on: "2026-07-14", owner: "tests", method: "fixture" },
-    coverage: { extensions: [".ts"], filenames: [] },
-    scopes,
-    coverage_exclusions: [],
-    exceptions: [],
-  };
-}
-
 function withFixture(callback, policyOverrides = {}) {
   const root = mkdtempSync(join(tmpdir(), "jobsentinel-file-size-"));
   try {
     writeFixture(root, "scripts/harness/contracts/repository-structure.json", `${JSON.stringify(policy(policyOverrides), null, 2)}\n`);
-    writeFixture(root, "scripts/harness/contracts/file-size.json", `${JSON.stringify(projection(), null, 2)}\n`);
     callback(root);
   } finally {
     clearFileSizeContractCache();
@@ -75,7 +65,7 @@ test("a governed source outside declared scopes fails closed", () => {
   withFixture((root) => {
     writeFixture(root, "other/unowned.ts", "export {};\n");
     assert.deepEqual(scan(root, ["other/unowned.ts"]), [
-      "classify source or configuration in scripts/harness/contracts/file-size.json: other/unowned.ts",
+      "classify source or configuration in scripts/harness/contracts/repository-structure.json: other/unowned.ts",
     ]);
   });
 });

@@ -1,29 +1,15 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { dirname, join } from "node:path";
 import test from "node:test";
 import { checkRepoBloat } from "../../checks/repo-bloat.mjs";
-
-function writeFixtureFile(root, path, content = "") {
-  const fullPath = join(root, path);
-  mkdirSync(dirname(fullPath), { recursive: true });
-  writeFileSync(fullPath, content, "utf8");
-}
-
-function withGitFixture(callback) {
-  const root = mkdtempSync(
-    join(tmpdir(), "jobsentinel-repo-bloat-frontend-security-"),
-  );
-
-  try {
-    execFileSync("git", ["init", "--quiet"], { cwd: root });
-    callback(root);
-  } finally {
-    rmSync(root, { recursive: true, force: true });
-  }
-}
+import {
+  createFixtureRunner,
+  writeFixtureFile,
+} from "../lib/filesystem-fixture.mjs";
+const withGitFixture = createFixtureRunner(
+  "jobsentinel-repo-bloat-frontend-security-",
+  { git: true },
+);
 
 test("checkRepoBloat rejects unsafe storage JSON parsing", () => {
   withGitFixture((root) => {

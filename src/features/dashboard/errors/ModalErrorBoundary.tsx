@@ -5,6 +5,10 @@ import {
   copySanitizedDebugReport,
   saveSanitizedDebugReport,
 } from '../../../shared/errorReporting/supportReport';
+import {
+  SafeSupportReportStatus,
+  type SupportReportStatus,
+} from '../../../shared/errorReporting/SafeSupportReportStatus';
 
 interface Props {
   children: ReactNode;
@@ -17,7 +21,7 @@ interface State {
   hasError: boolean;
   error: Error | null;
   retryCount: number;
-  debugReportStatus: 'idle' | 'copying' | 'copied' | 'saving' | 'saved' | 'failed';
+  debugReportStatus: SupportReportStatus;
   debugReportFileName: string | null;
 }
 
@@ -203,21 +207,10 @@ class ModalErrorBoundary extends Component<Props, State> {
                   : 'Save Safe Support Report'}
               </button>
 
-              {this.state.debugReportStatus === 'copied' && (
-                <p className="text-center text-sm text-success" role="status">
-                  Safe support report copied
-                </p>
-              )}
-              {this.state.debugReportStatus === 'saved' && this.state.debugReportFileName && (
-                <p className="text-center text-sm text-success" role="status">
-                  Safe support report saved: {this.state.debugReportFileName}
-                </p>
-              )}
-              {this.state.debugReportStatus === 'failed' && (
-                <p className="text-center text-sm text-danger" role="status">
-                  Could not create safe support report
-                </p>
-              )}
+              <SafeSupportReportStatus
+                status={this.state.debugReportStatus}
+                fileName={this.state.debugReportFileName}
+              />
             </div>
 
             <div className="flex gap-3">

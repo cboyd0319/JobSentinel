@@ -1,46 +1,16 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import React from "react";
-import { JobCard } from "./JobCard";
+import {
+  mockJob,
+  renderWithToast,
+  setupJobCardMocks,
+} from "./JobCard.testSupport";
 import * as deeplinks from "../../../shared/search-links";
-import { ToastProvider } from "../../../app/providers/ToastProvider";
-
-vi.mock("../../../shared/search-links", () => ({
-  openDeepLink: vi.fn(),
-}));
-vi.mock("@tauri-apps/api/core", () => ({
-  invoke: vi.fn(),
-}));
-
-// Helper to wrap component with ToastProvider
-const renderWithToast = (ui: React.ReactElement) => {
-  return render(<ToastProvider>{ui}</ToastProvider>);
-};
-
-const mockJob = {
-  id: 1,
-  title: "Customer Support Lead",
-  company: "CareBridge Services",
-  location: "Chicago, IL",
-  url: "https://example.com/job/1",
-  source: "LinkedIn",
-  score: 0.85,
-  created_at: new Date().toISOString(),
-  description:
-    "We are looking for a helpful support lead to guide our care team.",
-  salary_min: 55000,
-  salary_max: 72000,
-  remote: false,
-  bookmarked: false,
-  notes: null,
-};
+import { JobCard } from "./JobCard";
 
 describe("JobCard actions and accessibility", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    window.localStorage.clear();
-  });
+  beforeEach(setupJobCardMocks);
   describe("view button", () => {
     it("calls onViewJob when provided and clicked", async () => {
       const user = userEvent.setup();

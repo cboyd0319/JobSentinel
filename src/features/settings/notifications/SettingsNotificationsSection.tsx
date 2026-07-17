@@ -1,12 +1,12 @@
 import type { Dispatch, SetStateAction } from "react";
 import { HelpIcon } from "../../../ui/HelpIcon";
 import { NotificationPreferences } from "./NotificationPreferences";
-import {
-  type Config,
-  type CredentialKey,
-  type CredentialStatusMap,
-  type Credentials,
-} from "../config/SettingsConfig";
+import type { Config } from "../config/SettingsConfig";
+import type {
+  CredentialKey,
+  CredentialStatusMap,
+  Credentials,
+} from "../credentials/SettingsCredentials";
 import { SettingsDesktopAlertsSection } from "./SettingsDesktopAlertsSection";
 import { SettingsEmailAlertsSection } from "./SettingsEmailAlertsSection";
 import { SettingsChatAlertsSection } from "./SettingsChatAlertsSection";

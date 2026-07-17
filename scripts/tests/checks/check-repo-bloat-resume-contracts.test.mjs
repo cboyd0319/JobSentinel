@@ -4,6 +4,11 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import test from "node:test";
+import {
+  staleSuggestionCategoryLabelsSource,
+  staleSuggestionCategoryMockSource,
+  suggestionCategoryRustSource,
+} from "../lib/source-fixtures.mjs";
 import { checkRepoBloat } from "../../checks/repo-bloat.mjs";
 
 function writeFixtureFile(root, path, content = "") {
@@ -58,20 +63,12 @@ test("checkRepoBloat rejects stale resume suggestion category labels", () => {
     writeFixtureFile(
       root,
       "crates/jobsentinel-documents/src/ats_analyzer.rs",
-      `
-pub enum SuggestionCategory {
-    AddKeyword,
-    RewordBullet,
-    AddSection,
-    ReorderContent,
-    FormatFix,
-}
-`,
+      suggestionCategoryRustSource,
     );
     writeFixtureFile(
       root,
-      "src/features/resumes/matching/resumeMatchModel.ts",
-      'type SuggestionCategory = "AddKeyword" | "RewordBullet" | "AddSection" | "RemoveItem";\n',
+      "src/features/resumes/shared/atsAnalysisLabels.ts",
+      staleSuggestionCategoryLabelsSource,
     );
     writeFixtureFile(
       root,
@@ -81,14 +78,14 @@ pub enum SuggestionCategory {
     writeFixtureFile(
       root,
       "src/dev-runtime/mocks/handlers.ts",
-      'type MockSuggestionCategory = "AddKeyword" | "RewordBullet" | "AddSection";\n',
+      staleSuggestionCategoryMockSource,
     );
     execFileSync(
       "git",
       [
         "add",
         "crates/jobsentinel-documents/src/ats_analyzer.rs",
-        "src/features/resumes/matching/resumeMatchModel.ts",
+        "src/features/resumes/shared/atsAnalysisLabels.ts",
         "src/features/resumes/builder/AtsLiveScorePanel.tsx",
         "src/dev-runtime/mocks/handlers.ts",
       ],
@@ -97,7 +94,7 @@ pub enum SuggestionCategory {
     const violations = checkRepoBloat(root);
     assert.ok(
       violations.includes(
-        "sync resume suggestion category labels: src/features/resumes/matching/resumeMatchModel.ts",
+        "sync resume suggestion category labels: src/features/resumes/shared/atsAnalysisLabels.ts",
       ),
       violations.join("\n"),
     );

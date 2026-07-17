@@ -51,7 +51,6 @@ test("checkRepoBloat requires the canonical file-size owners in the JobSentinel 
     });
     const violations = checkRepoBloat(root);
     assert.ok(violations.includes("add canonical structure policy: scripts/harness/contracts/repository-structure.json"));
-    assert.ok(violations.includes("add file-coverage projection: scripts/harness/contracts/file-size.json"));
   });
 });
 test("checkRepoBloat rejects formerly grandfathered oversized files at the hard cap", () => {

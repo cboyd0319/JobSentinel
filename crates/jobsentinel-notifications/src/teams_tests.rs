@@ -10,6 +10,29 @@ mod payload_tests;
 #[path = "teams_tests/webhook_validation_tests.rs"]
 mod webhook_validation_tests;
 
+fn validation_webhook_test_payload() -> serde_json::Value {
+    json!({
+        "@type": "MessageCard",
+        "@context": "https://schema.org/extensions",
+        "summary": "JobSentinel Webhook Test",
+        "themeColor": "00FF00",
+        "title": "✅ JobSentinel Webhook Test",
+        "text": "Your Microsoft Teams webhook is configured correctly! You'll now receive job alerts in this channel.",
+        "potentialAction": [
+            {
+                "@type": "OpenUri",
+                "name": "Learn More",
+                "targets": [
+                    {
+                        "os": "default",
+                        "uri": "https://github.com/cboyd0319/JobSentinel"
+                    }
+                ]
+            }
+        ]
+    })
+}
+
 #[test]
 fn test_theme_color_for_high_score() {
     let notification = notification_fixture();
