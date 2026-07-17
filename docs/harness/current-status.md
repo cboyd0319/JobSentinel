@@ -42,12 +42,12 @@ Last updated: 2026-07-16
   under `crates/` one canonical owner, remove obsolete copies, and prevent
   recurrence in production and test code.
 - Branch: `refactor/full-repo-v2.9.5`
-- Current slice: Milestone 6 is complete. Document templates share byte-stable
-  section renderers, format analysis uses one result builder, and requirement
-  taxonomy aliases use one lookup path. Production crate duplication is down to
-  98 lines across 5 regions.
-- Next action: complete Milestone 7 by introducing the canonical structured
-  resume and template identifier contracts with fixture-based boundary tests.
+- Current slice: Milestone 7 is complete. Documents owns one structured resume
+  model and complete template identifier contract. Fixture-backed adapters prove
+  HTML, DOCX, ATS, JSON Resume, and stored-draft compatibility without adding a
+  production clone.
+- Next action: complete Milestone 8 by cutting every resume consumer over to the
+  canonical model and deleting the legacy DTOs and temporary conversions.
 
 ## Deferred
 

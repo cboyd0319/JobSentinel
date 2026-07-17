@@ -333,3 +333,27 @@ fn test_empty_json_resume() {
     assert!(data.experience.is_empty());
     assert!(data.skills.is_empty());
 }
+
+#[test]
+fn json_resume_fixture_converts_to_canonical_resume() {
+    let json = include_str!("../fixtures/json_resume.json");
+    let resume = JsonResume::from_json(json).unwrap();
+
+    let structured = resume.to_structured_resume().unwrap();
+
+    assert_eq!(structured.personal.name, "Jordan Lee");
+    assert_eq!(
+        structured.personal.location.as_deref(),
+        Some("Portland, OR")
+    );
+    assert_eq!(structured.experience.len(), 1);
+    assert!(structured.experience[0].is_current);
+    assert_eq!(
+        structured.education[0].field_of_study.as_deref(),
+        Some("Public Administration")
+    );
+    assert_eq!(structured.skills[0].name, "Operations");
+    assert_eq!(structured.skills[0].skills.len(), 2);
+    assert_eq!(structured.certifications.len(), 1);
+    assert_eq!(structured.projects.len(), 1);
+}

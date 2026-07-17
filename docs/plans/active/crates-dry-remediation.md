@@ -281,15 +281,15 @@ Commit boundary: `refactor(documents): share rendering and ATS assembly`.
 
 ### Milestone 7: Introduce The Canonical Resume Contract
 
-- [ ] Define `jobsentinel-documents::StructuredResume` as the canonical shared
+- [x] Define `jobsentinel-documents::StructuredResume` as the canonical shared
   personal, summary, experience, education, skills, and certification model.
-- [ ] Define one public `TemplateId` with the complete supported identifier set,
+- [x] Define one public `TemplateId` with the complete supported identifier set,
   parsing behavior, and stable serialized representation.
-- [ ] Add fixture-based conversion and round-trip tests for JSON import, HTML,
+- [x] Add fixture-based conversion and round-trip tests for JSON import, HTML,
   DOCX, ATS input, and storage-builder boundaries.
-- [ ] Add temporary explicit conversions from the old template, export, ATS,
+- [x] Add temporary explicit conversions from the old template, export, ATS,
   and storage shapes. Mark every adapter for removal in Milestone 8.
-- [ ] Preserve analysis-only fields in an ATS wrapper and persistence-only
+- [x] Preserve analysis-only fields in an ATS wrapper and persistence-only
   identifiers and timestamps in a storage wrapper.
 
 Commit boundary: `refactor(documents): add canonical structured resume model`.
@@ -403,6 +403,7 @@ gap and blocks `passing`.
 | 2026-07-16 | Consolidated | Milestone 4 centralized SQLite time parsing, storage row mapping, user-skill queries, salary statistics, and alert insertion. Production crate duplication fell to 480 lines across 24 regions. |
 | 2026-07-16 | Orchestrated | Milestone 5 centralized new-job invariants, source-adapter helpers, shared user agents, canonical hash ownership, and scraper lifecycle handling. Production crate duplication fell to 266 lines across 13 regions; test duplication fell to 2,127 lines across 77 regions. |
 | 2026-07-16 | Rendered | Milestone 6 centralized document sections, byte-stable shared style fragments, ATS format-result assembly, plain-text bullet traversal, and requirement-taxonomy search terms. Production crate duplication fell to 98 lines across 5 regions; document production clones fell to zero. |
+| 2026-07-16 | Modeled | Milestone 7 added the canonical structured resume, one complete template identifier contract, exact boundary fixtures, and temporary analysis and persistence adapters. HTML, DOCX, ATS, JSON import, and storage round trips pass without increasing production duplication. |
 
 - [x] Milestone 0: activate the plan safely.
 - [x] Milestone 1: establish guardrails and characterization.
@@ -411,7 +412,7 @@ gap and blocks `passing`.
 - [x] Milestone 4: consolidate storage primitives and mappers.
 - [x] Milestone 5: consolidate job construction and scraper orchestration.
 - [x] Milestone 6: consolidate document rendering and ATS assembly.
-- [ ] Milestone 7: introduce the canonical resume contract.
+- [x] Milestone 7: introduce the canonical resume contract.
 - [ ] Milestone 8: cut over resume consumers and delete duplicate models.
 - [ ] Milestone 9: consolidate test support.
 - [ ] Milestone 10: delete residue, ratchet baselines, and close.
@@ -457,14 +458,14 @@ dependency changes, verification evidence, and any follow-up debt.
 
 ## Handoff
 
-- Current state: Milestones 0 through 6 are complete; Milestone 7 is next.
-- Evidence: exact HTML snapshot checksums remained unchanged, all 304 document
-  tests passed, and the canonical workspace Rust gate passed. Production crate
-  duplication is 98 lines across 5 regions; test duplication remains 2,127
-  lines across 77 regions.
-- Next step: define the canonical documents-owned structured resume and template
-  identifier contracts with fixture-based boundary tests and temporary explicit
-  conversions.
-- Open risk: resume serialization remains the highest-risk migration. Preserve
-  every existing field name, optionality rule, and identifier while introducing
-  the Milestone 7 contract.
+- Current state: Milestones 0 through 7 are complete; Milestone 8 is next.
+- Evidence: canonical JSON and template identifiers round-trip exactly; legacy
+  template, export, ATS, JSON Resume, and storage-builder fixtures preserve
+  their serialized fields and outputs. All document and storage tests pass, and
+  production duplication remains 98 lines across 5 regions.
+- Next step: migrate renderers, exporters, ATS analysis, storage, application
+  re-exports, and command boundaries to `StructuredResume`, then delete every
+  legacy resume shape and temporary conversion.
+- Open risk: the cutover crosses frontend command payloads and stored draft JSON.
+  Keep the existing serialized names and optionality through explicit boundary
+  wrappers, and prove persisted fixture compatibility before deleting adapters.

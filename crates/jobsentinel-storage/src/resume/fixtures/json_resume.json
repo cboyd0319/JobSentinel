@@ -1,0 +1,68 @@
+{
+  "basics": {
+    "name": "Jordan Lee",
+    "email": "jordan@example.com",
+    "phone": "+1-555-0100",
+    "url": "https://jordan.example.com",
+    "summary": "Operations leader focused on accessible community services.",
+    "location": {
+      "city": "Portland",
+      "region": "OR"
+    },
+    "profiles": [
+      {
+        "network": "LinkedIn",
+        "username": "jordan-lee",
+        "url": "https://www.linkedin.com/in/jordan-lee"
+      },
+      {
+        "network": "GitHub",
+        "username": "jordan-lee",
+        "url": "https://github.com/jordan-lee"
+      }
+    ]
+  },
+  "work": [
+    {
+      "name": "Harbor Community Services",
+      "position": "Program Operations Lead",
+      "startDate": "2020-01",
+      "endDate": "",
+      "highlights": ["Led a five-person case coordination team"]
+    }
+  ],
+  "education": [
+    {
+      "institution": "State University",
+      "area": "Public Administration",
+      "studyType": "Bachelor of Arts",
+      "endDate": "2019",
+      "score": "3.80",
+      "courses": ["Magna cum laude"]
+    }
+  ],
+  "skills": [
+    {
+      "name": "Operations",
+      "level": "Advanced",
+      "keywords": ["Case documentation", "Grant reporting"]
+    }
+  ],
+  "certificates": [
+    {
+      "name": "Certified Community Health Worker",
+      "date": "2022-06",
+      "issuer": "Oregon Health Authority"
+    }
+  ],
+  "projects": [
+    {
+      "name": "Clinic Intake Redesign",
+      "description": "Simplified client intake and reduced wait time.",
+      "startDate": "2023-01",
+      "endDate": "2023-08",
+      "url": "https://jordan.example.com/intake-redesign",
+      "keywords": ["Process mapping"]
+    }
+  ]
+}

@@ -9,49 +9,13 @@
 //! - Proper heading hierarchy
 
 use serde::{Deserialize, Serialize};
-use std::str::FromStr;
+
+pub(crate) use crate::structured_resume::TemplateId;
 
 mod styles;
 
 mod renderer;
 pub use renderer::TemplateRenderer;
-
-/// Template identifier
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
-pub enum TemplateId {
-    Classic,   // Traditional chronological, readable by common systems
-    Modern,    // Clean design with readable structure
-    Technical, // Skills-first template; stable internal id
-    Executive, // Summary-focused for senior roles
-    Military,  // Veteran→civilian with clearance support
-}
-
-impl TemplateId {
-    pub fn as_str(&self) -> &'static str {
-        match self {
-            TemplateId::Classic => "classic",
-            TemplateId::Modern => "modern",
-            TemplateId::Technical => "technical",
-            TemplateId::Executive => "executive",
-            TemplateId::Military => "military",
-        }
-    }
-}
-
-impl FromStr for TemplateId {
-    type Err = String;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s.to_lowercase().as_str() {
-            "classic" => Ok(TemplateId::Classic),
-            "modern" => Ok(TemplateId::Modern),
-            "technical" => Ok(TemplateId::Technical),
-            "executive" => Ok(TemplateId::Executive),
-            "military" => Ok(TemplateId::Military),
-            _ => Err("Invalid template ID".to_string()),
-        }
-    }
-}
 
 /// Template metadata
 #[derive(Debug, Clone, Serialize, Deserialize)]

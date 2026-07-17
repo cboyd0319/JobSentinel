@@ -1,0 +1,75 @@
+{
+  "personal": {
+    "name": "Jordan Lee",
+    "email": "jordan@example.com",
+    "phone": "+1-555-0100",
+    "location": "Portland, OR",
+    "linkedin": "https://www.linkedin.com/in/jordan-lee",
+    "github": "https://github.com/jordan-lee",
+    "website": "https://jordan.example.com"
+  },
+  "summary": "Operations leader focused on accessible community services.",
+  "experience": [
+    {
+      "title": "Program Operations Lead",
+      "company": "Harbor Community Services",
+      "location": "Portland, OR",
+      "start_date": "2020-01",
+      "end_date": null,
+      "is_current": true,
+      "achievements": [
+        "Coordinated intake for more than 1,000 clients annually",
+        "Led a five-person case coordination team"
+      ]
+    }
+  ],
+  "education": [
+    {
+      "institution": "State University",
+      "degree": "Bachelor of Arts",
+      "field_of_study": "Public Administration",
+      "location": "Portland, OR",
+      "graduation_date": "2019",
+      "gpa": "3.80",
+      "honors": ["Magna cum laude"]
+    }
+  ],
+  "skills": [
+    {
+      "name": "Operations",
+      "skills": [
+        {
+          "name": "Case documentation",
+          "proficiency": "advanced",
+          "years_experience": 5.0
+        },
+        {
+          "name": "Grant reporting",
+          "proficiency": null,
+          "years_experience": null
+        }
+      ]
+    }
+  ],
+  "certifications": [
+    {
+      "name": "Certified Community Health Worker",
+      "issuer": "Oregon Health Authority",
+      "date_obtained": "2022-06",
+      "expiration_date": "2027-06",
+      "credential_id": "CCHW-123"
+    }
+  ],
+  "projects": [
+    {
+      "name": "Clinic Intake Redesign",
+      "description": "Simplified client intake and reduced wait time.",
+      "technologies": ["Process mapping", "Accessibility review"],
+      "url": "https://jordan.example.com/intake-redesign",
+      "start_date": "2023-01",
+      "end_date": "2023-08"
+    }
+  ],
+  "clearance": null,
+  "military_info": null
+}

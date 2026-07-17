@@ -110,6 +110,17 @@ pub enum Proficiency {
     Expert,
 }
 
+impl Proficiency {
+    pub(crate) fn as_str(&self) -> &'static str {
+        match self {
+            Self::Beginner => "beginner",
+            Self::Intermediate => "intermediate",
+            Self::Advanced => "advanced",
+            Self::Expert => "expert",
+        }
+    }
+}
+
 /// Certification entry
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Certification {

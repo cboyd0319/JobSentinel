@@ -49,10 +49,10 @@ impl TemplateRenderer {
     /// Render resume data to HTML using specified template
     pub fn render_html(resume: &ResumeData, template: TemplateId) -> String {
         match template {
-            TemplateId::Classic => Self::render_classic(resume),
+            TemplateId::Classic | TemplateId::Professional => Self::render_classic(resume),
             TemplateId::Modern => Self::render_modern(resume),
             TemplateId::Technical => Self::render_technical(resume),
-            TemplateId::Executive => Self::render_executive(resume),
+            TemplateId::Executive | TemplateId::Traditional => Self::render_executive(resume),
             TemplateId::Military => Self::render_military(resume),
         }
     }

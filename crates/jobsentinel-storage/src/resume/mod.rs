@@ -37,6 +37,7 @@ use sqlx::{Row, SqlitePool};
 use std::path::Path;
 
 mod builder;
+mod canonical;
 mod json_import;
 mod json_resume;
 mod management;

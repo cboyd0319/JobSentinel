@@ -7,6 +7,7 @@ mod format_taxonomy;
 mod parser;
 mod resume_match_score;
 mod skills;
+mod structured_resume;
 mod templates;
 mod types;
 
@@ -24,9 +25,14 @@ pub use export::{
 pub use parser::ResumeParser;
 pub use resume_match_score::calculate_resume_match_score;
 pub use skills::{ExtractedSkill, SkillExtractor};
+pub use structured_resume::{
+    ResumeAnalysisInput, ResumeCertification, ResumeEducation, ResumeExperience,
+    ResumePersonalInfo, ResumeProject, ResumeSkill, ResumeSkillCategory, StructuredResume,
+    TemplateId,
+};
 pub use templates::{
     Certification, ContactInfo, Education, Experience, ResumeData, SkillCategory, Template,
-    TemplateId, TemplateRenderer,
+    TemplateRenderer,
 };
 pub use types::{
     ContactInfo as AtsContactInfo, DegreeLevel, Education as AtsEducation, EducationRequirement,

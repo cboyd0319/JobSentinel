@@ -42,6 +42,10 @@ impl JsonResume {
         })
     }
 
+    pub(super) fn to_structured_resume(&self) -> Result<jobsentinel_documents::StructuredResume> {
+        self.to_resume_data().map(Into::into)
+    }
+
     /// Convert basics section to ConvertedContactInfo
     fn convert_contact_info(&self) -> ConvertedContactInfo {
         let basics = &self.basics;
@@ -195,6 +199,7 @@ impl JsonResume {
 
                 ConvertedEducation {
                     degree,
+                    field_of_study: edu.area.clone(),
                     institution: edu.institution.clone(),
                     location: String::new(), // JSON Resume doesn't have education location
                     graduation_date: edu.end_date.clone(),

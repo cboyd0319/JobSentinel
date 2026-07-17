@@ -41,6 +41,7 @@ pub(crate) struct ConvertedExperience {
 #[derive(Debug, Clone)]
 pub(crate) struct ConvertedEducation {
     pub degree: String,
+    pub field_of_study: String,
     pub institution: String,
     pub location: String,
     pub graduation_date: String,
