@@ -1,5 +1,6 @@
 //! Salary analyzer implementation
 
+use crate::analytics_buckets::{salary_location_bucket, salary_title_bucket};
 use crate::application_tracking::parse_sqlite_datetime;
 use anyhow::Result;
 use sqlx::{Row, SqlitePool};
@@ -43,8 +44,8 @@ impl SalaryAnalyzer {
         location: &str,
         seniority: SeniorityLevel,
     ) -> Result<Option<SalaryBenchmark>> {
-        let normalized_title = self.normalize_job_title(job_title);
-        let normalized_location = self.normalize_location(location);
+        let normalized_title = salary_title_bucket(job_title);
+        let normalized_location = salary_location_bucket(location);
         let seniority_str = seniority.as_str();
 
         let row = sqlx::query(
@@ -180,45 +181,5 @@ impl SalaryAnalyzer {
         }
 
         Ok(comparisons)
-    }
-
-    /// Normalize job title for matching
-    fn normalize_job_title(&self, title: &str) -> String {
-        let mut normalized = title.to_lowercase();
-
-        // Remove common variations
-        normalized = normalized.replace("sr.", "senior");
-        normalized = normalized.replace("jr.", "junior");
-        normalized = normalized.replace("swe", "software engineer");
-        normalized = normalized.replace("  ", " ");
-
-        // Extract core title
-        if normalized.contains("software engineer") {
-            "software engineer".to_string()
-        } else if normalized.contains("data scientist") {
-            "data scientist".to_string()
-        } else if normalized.contains("product manager") {
-            "product manager".to_string()
-        } else {
-            normalized
-        }
-    }
-
-    /// Normalize location for matching
-    fn normalize_location(&self, location: &str) -> String {
-        let normalized = location.to_lowercase();
-
-        // Standardize common metro areas
-        if normalized.contains("san francisco") || normalized.contains("sf") {
-            "san francisco, ca".to_string()
-        } else if normalized.contains("new york") || normalized.contains("nyc") {
-            "new york, ny".to_string()
-        } else if normalized.contains("seattle") {
-            "seattle, wa".to_string()
-        } else if normalized.contains("austin") {
-            "austin, tx".to_string()
-        } else {
-            normalized
-        }
     }
 }

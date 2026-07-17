@@ -11,8 +11,8 @@ use super::rate_limiter::RateLimiter;
 use super::rss::extract_xml_tag;
 use super::rss::{parse_rss_items, RssItem};
 use super::{JobScraper, ScraperResult};
-use jobsentinel_domain::calculate_job_hash;
-use jobsentinel_domain::Job;
+use jobsentinel_domain::normalization::infer_remote_status;
+use jobsentinel_domain::{calculate_job_hash, Job};
 #[cfg(test)]
 use jobsentinel_network::send_test_http_text_with_retry;
 use jobsentinel_network::{
@@ -346,19 +346,9 @@ impl SimplyHiredScraper {
 
     /// Check if job appears to be remote
     fn is_remote_job(&self, query: &str, location: Option<&str>) -> Option<bool> {
-        let query_lower = query.to_lowercase();
-        if query_lower.contains("remote") {
-            return Some(true);
-        }
-
-        if let Some(loc) = location {
-            let loc_lower = loc.to_lowercase();
-            if loc_lower.contains("remote") || loc_lower.contains("anywhere") {
-                return Some(true);
-            }
-        }
-
-        None
+        infer_remote_status(&[query, location.unwrap_or("")])
+            .is_remote()
+            .then_some(true)
     }
 
     /// Compute SHA-256 hash for deduplication

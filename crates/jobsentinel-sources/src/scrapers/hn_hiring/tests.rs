@@ -295,7 +295,7 @@ fn test_parse_comments_filters_remote_only() {
         .parse_comments(&json_data)
         .expect("parse_comments should succeed");
 
-    assert_eq!(jobs.len(), 2); // Only remote jobs
+    assert_eq!(jobs.len(), 1);
     assert!(jobs.iter().all(|j| j.remote == Some(true)));
 }
 

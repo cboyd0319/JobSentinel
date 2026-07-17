@@ -5,6 +5,8 @@
 mod integrity;
 mod scoring_config;
 
+mod analytics_buckets;
+
 pub mod application_tracking;
 pub mod automation;
 pub mod health;
@@ -122,5 +124,48 @@ impl Database {
     /// Close all database connections after in-flight work completes.
     pub async fn close(&self) {
         self.pool().close().await;
+    }
+}
+
+#[cfg(test)]
+mod analytics_bucket_contract_tests {
+    use super::analytics_buckets::{
+        market_location_bucket, salary_location_bucket, salary_title_bucket,
+    };
+
+    #[test]
+    fn salary_buckets_are_distinct_from_canonical_normalization() {
+        for (input, expected) in [
+            ("Senior Software Engineer", "software engineer"),
+            ("Sr. SWE", "software engineer"),
+            ("Jr. Care Coordinator", "junior care coordinator"),
+            ("   ", ""),
+        ] {
+            assert_eq!(salary_title_bucket(input), expected, "title: {input}");
+        }
+
+        for (input, expected) in [
+            ("SF Bay Area", "san francisco, ca"),
+            ("NYC, USA", "new york, ny"),
+            ("Seattle Metropolitan Area", "seattle, wa"),
+            ("Austin-Round Rock", "austin, tx"),
+            ("Remote - US", "remote"),
+            ("Satisfactory Location", "satisfactory location"),
+        ] {
+            assert_eq!(salary_location_bucket(input), expected, "location: {input}");
+        }
+    }
+
+    #[test]
+    fn market_location_bucket_preserves_market_group_keys() {
+        for (input, expected) in [
+            ("SF Bay Area", "san francisco, ca"),
+            ("NYC", "new york, ny"),
+            ("Remote - Anywhere", "remote"),
+            ("Chicago, IL", "chicago, il"),
+            ("Satisfactory Location", "satisfactory location"),
+        ] {
+            assert_eq!(market_location_bucket(input), expected, "location: {input}");
+        }
     }
 }

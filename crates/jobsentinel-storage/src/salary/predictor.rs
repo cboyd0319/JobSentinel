@@ -3,6 +3,7 @@
 //! Predicts salary ranges for jobs based on title, location, and experience.
 
 use super::{SalaryPrediction, SeniorityLevel};
+use crate::analytics_buckets::{salary_location_bucket, salary_title_bucket};
 use anyhow::Result;
 use chrono::Utc;
 use sqlx::{Row, SqlitePool};
@@ -41,8 +42,8 @@ impl SalaryPredictor {
         };
 
         // Normalize title and location
-        let normalized_title = self.normalize_title(&title);
-        let normalized_location = self.normalize_location(&location);
+        let normalized_title = salary_title_bucket(&title);
+        let normalized_location = salary_location_bucket(&location);
         let seniority_str = seniority.as_str().to_string();
 
         // Query benchmark
@@ -210,28 +211,14 @@ impl SalaryPredictor {
         }
     }
 
+    #[cfg(test)]
     fn normalize_title(&self, title: &str) -> String {
-        let lower = title.to_lowercase();
-        if lower.contains("software engineer") || lower.contains("swe") {
-            "software engineer".to_string()
-        } else if lower.contains("data scientist") {
-            "data scientist".to_string()
-        } else if lower.contains("product manager") {
-            "product manager".to_string()
-        } else {
-            lower
-        }
+        salary_title_bucket(title)
     }
 
+    #[cfg(test)]
     fn normalize_location(&self, location: &str) -> String {
-        let lower = location.to_lowercase();
-        if lower.contains("san francisco") || lower.contains("sf") {
-            "san francisco, ca".to_string()
-        } else if lower.contains("new york") || lower.contains("nyc") {
-            "new york, ny".to_string()
-        } else {
-            lower
-        }
+        salary_location_bucket(location)
     }
 }
 

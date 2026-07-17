@@ -214,16 +214,16 @@ Commit boundary: `refactor(security): consolidate shared input policies`.
 
 ### Milestone 3: Separate Domain Normalization From Analytics Bucketing
 
-- [ ] Define canonical title and location normalization in
+- [x] Define canonical title and location normalization in
   `jobsentinel-domain/src/normalization/` with table-driven edge cases.
-- [ ] Define one generic remote-text fallback in domain. Preserve structured
+- [x] Define one generic remote-text fallback in domain. Preserve structured
   source flags as authoritative and test unknown, hybrid, and conflicting data.
-- [ ] Replace source-local generic inference in Dice, YC, HN, Lever, Glassdoor,
+- [x] Replace source-local generic inference in Dice, YC, HN, Lever, Glassdoor,
   and equivalent adapters while retaining source-specific structured mapping.
-- [ ] Name salary and market grouping transformations as analytics buckets in
+- [x] Name salary and market grouping transformations as analytics buckets in
   storage. They may consume canonical domain output but must not masquerade as
   general normalization.
-- [ ] Migrate salary analyzer, predictor, market intelligence, and assistance
+- [x] Migrate salary analyzer, predictor, market intelligence, and assistance
   callers. Delete obsolete normalizers only after behavior tables pass.
 
 Commit boundary: `refactor(domain): unify job normalization semantics`.
@@ -399,11 +399,12 @@ gap and blocks `passing`.
 | 2026-07-16 | Active | Root ownership committed at `880fca80`; post-commit full gate passed and Milestone 0 activated this plan. |
 | 2026-07-16 | Guarded | Milestone 1 added independent downward-only sensors, measured crate baselines, and recorded pre-refactor behavior. |
 | 2026-07-16 | Secured | Milestone 2 centralized webhook, URL privacy, HTML encoding, provider job identity, and debug secret policy. |
+| 2026-07-16 | Normalized | Milestone 3 centralized work-arrangement inference and separated canonical values from salary and market buckets. |
 
 - [x] Milestone 0: activate the plan safely.
 - [x] Milestone 1: establish guardrails and characterization.
 - [x] Milestone 2: consolidate security and output policies.
-- [ ] Milestone 3: separate normalization from analytics bucketing.
+- [x] Milestone 3: separate normalization from analytics bucketing.
 - [ ] Milestone 4: consolidate storage primitives and mappers.
 - [ ] Milestone 5: consolidate job construction and scraper orchestration.
 - [ ] Milestone 6: consolidate document rendering and ATS assembly.
@@ -450,11 +451,10 @@ dependency changes, verification evidence, and any follow-up debt.
 
 ## Handoff
 
-- Current state: Milestones 0 through 2 complete; Milestone 3 is next.
-- Evidence: security and domain fail-first contracts plus passing tests across
-  security, credentials, notifications, documents, application, assistance,
-  sources, storage, and domain.
-- Next step: characterize divergent title and location buckets and structured
-  remote signals, then consolidate canonical domain normalization.
+- Current state: Milestones 0 through 3 complete; Milestone 4 is next.
+- Evidence: domain, application, sources, assistance, and storage tests pass with
+  table-driven normalization, remote fallback, and analytics bucket contracts.
+- Next step: centralize SQLite datetime parsing, row mappers, median helpers, and
+  market alert insertion inside storage.
 - Open risk: normalization and resume serialization are the two behavior-sensitive
   migrations. Do not combine either with unrelated cleanup.

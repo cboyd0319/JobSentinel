@@ -1,4 +1,5 @@
 use super::*;
+use crate::analytics_buckets::market_location_bucket;
 
 #[tokio::test]
 async fn test_market_intelligence_new() {
@@ -12,20 +13,20 @@ async fn test_market_intelligence_new() {
     );
 }
 
-#[tokio::test]
-async fn test_normalize_location_via_method() {
-    let pool = setup_test_db().await;
-    let mi = MarketIntelligence::new(pool);
-
+#[test]
+fn test_market_location_bucket() {
     assert_eq!(
-        mi.normalize_location("San Francisco Bay Area"),
+        market_location_bucket("San Francisco Bay Area"),
         "san francisco, ca"
     );
-    assert_eq!(mi.normalize_location("SF, California"), "san francisco, ca");
-    assert_eq!(mi.normalize_location("New York City"), "new york, ny");
-    assert_eq!(mi.normalize_location("NYC"), "new york, ny");
-    assert_eq!(mi.normalize_location("Remote - US"), "remote");
-    assert_eq!(mi.normalize_location("Seattle, WA"), "seattle, wa");
+    assert_eq!(
+        market_location_bucket("SF, California"),
+        "san francisco, ca"
+    );
+    assert_eq!(market_location_bucket("New York City"), "new york, ny");
+    assert_eq!(market_location_bucket("NYC"), "new york, ny");
+    assert_eq!(market_location_bucket("Remote - US"), "remote");
+    assert_eq!(market_location_bucket("Seattle, WA"), "seattle, wa");
 }
 
 #[tokio::test]

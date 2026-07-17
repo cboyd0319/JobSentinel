@@ -9,8 +9,8 @@ use super::{JobScraper, ScraperResult};
 use crate::is_safe_company_board_id;
 use async_trait::async_trait;
 use chrono::Utc;
-use jobsentinel_domain::calculate_job_hash;
-use jobsentinel_domain::Job;
+use jobsentinel_domain::normalization::infer_remote_status;
+use jobsentinel_domain::{calculate_job_hash, Job};
 use jobsentinel_network::{send_external_http_text_with_retry, ExternalHttpRequest};
 use jobsentinel_security::sanitize_url_for_logging;
 
@@ -139,26 +139,7 @@ impl LeverScraper {
 
     /// Infer if job is remote from title or location
     fn infer_remote(title: &str, location: Option<&str>) -> bool {
-        let title_lower = title.to_lowercase();
-        let location_lower = location.map(|l| l.to_lowercase()).unwrap_or_default();
-
-        // Check title
-        if title_lower.contains("remote")
-            || title_lower.contains("work from home")
-            || title_lower.contains("wfh")
-        {
-            return true;
-        }
-
-        // Check location
-        if location_lower.contains("remote")
-            || location_lower.contains("anywhere")
-            || location_lower.contains("worldwide")
-        {
-            return true;
-        }
-
-        false
+        infer_remote_status(&[title, location.unwrap_or("")]).is_remote()
     }
 
     /// Compute SHA-256 hash for deduplication

@@ -107,7 +107,7 @@
         "docs/harness/evidence/crates-dry-characterization-2026-07-16.md"
       ],
       "blocker": "",
-      "next_trigger": "Complete Milestone 3 normalization and analytics bucket consolidation."
+      "next_trigger": "Complete Milestone 4 storage primitive and mapper consolidation."
     }
   ]
 }

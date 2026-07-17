@@ -98,21 +98,6 @@ fn test_url_encoding() {
 }
 
 #[test]
-fn test_normalize_location_remote_variants() {
-    assert_eq!(normalize_location("remote"), "remote");
-    assert_eq!(normalize_location("Remote"), "remote");
-    assert_eq!(normalize_location("REMOTE"), "remote");
-    assert_eq!(normalize_location("anywhere"), "remote");
-    assert_eq!(normalize_location("work from home"), "remote");
-}
-
-#[test]
-fn test_normalize_location_empty() {
-    assert_eq!(normalize_location(""), "");
-    assert_eq!(normalize_location("   "), "");
-}
-
-#[test]
 fn test_all_site_generators() {
     let criteria = create_basic_criteria();
 

@@ -4,6 +4,7 @@
 
 use super::analyzer::SalaryAnalyzer;
 use super::types::{OfferComparison, SalaryPrediction, SeniorityLevel};
+use crate::analytics_buckets::{salary_location_bucket, salary_title_bucket};
 use chrono::Utc;
 
 #[test]
@@ -428,37 +429,11 @@ struct TestAnalyzer;
 
 impl TestAnalyzer {
     fn normalize_job_title(&self, title: &str) -> String {
-        let mut normalized = title.to_lowercase();
-        normalized = normalized.replace("sr.", "senior");
-        normalized = normalized.replace("jr.", "junior");
-        normalized = normalized.replace("swe", "software engineer");
-        normalized = normalized.replace("  ", " ");
-
-        if normalized.contains("software engineer") {
-            "software engineer".to_string()
-        } else if normalized.contains("data scientist") {
-            "data scientist".to_string()
-        } else if normalized.contains("product manager") {
-            "product manager".to_string()
-        } else {
-            normalized
-        }
+        salary_title_bucket(title)
     }
 
     fn normalize_location(&self, location: &str) -> String {
-        let normalized = location.to_lowercase();
-
-        if normalized.contains("san francisco") || normalized.contains("sf") {
-            "san francisco, ca".to_string()
-        } else if normalized.contains("new york") || normalized.contains("nyc") {
-            "new york, ny".to_string()
-        } else if normalized.contains("seattle") {
-            "seattle, wa".to_string()
-        } else if normalized.contains("austin") {
-            "austin, tx".to_string()
-        } else {
-            normalized
-        }
+        salary_location_bucket(location)
     }
 }
 

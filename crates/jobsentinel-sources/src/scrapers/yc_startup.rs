@@ -8,8 +8,8 @@
 use super::error::ScraperError;
 use super::rate_limiter::RateLimiter;
 use super::{JobScraper, ScraperResult};
-use jobsentinel_domain::calculate_job_hash;
-use jobsentinel_domain::Job;
+use jobsentinel_domain::normalization::infer_remote_status;
+use jobsentinel_domain::{calculate_job_hash, Job};
 use jobsentinel_network::{send_external_http_text_with_retry, ExternalHttpRequest};
 
 use async_trait::async_trait;
@@ -347,13 +347,7 @@ impl YcStartupScraper {
 
     /// Check if job is remote based on title and location strings
     fn is_remote(title: &str, location: Option<&str>) -> bool {
-        let title_lower = title.to_lowercase();
-        let loc_lower = location.map(|l| l.to_lowercase()).unwrap_or_default();
-
-        title_lower.contains("remote")
-            || loc_lower.contains("remote")
-            || loc_lower.contains("anywhere")
-            || loc_lower.contains("distributed")
+        infer_remote_status(&[title, location.unwrap_or("")]).is_remote()
     }
 
     /// Compute SHA-256 hash for deduplication

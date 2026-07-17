@@ -5,7 +5,6 @@
 use super::sites::{get_all_sites, get_site_by_id};
 use super::types::{DeepLink, JobType, RemoteType, SearchCriteria};
 use anyhow::{Context, Result};
-use std::borrow::Cow;
 use urlencoding::encode;
 
 /// Generate deep links for all supported sites
@@ -334,25 +333,6 @@ fn generate_ycombinator_url(criteria: &SearchCriteria) -> Result<String> {
     );
 
     Ok(url)
-}
-
-/// URL-encode helper for locations with special characters
-#[allow(dead_code)]
-fn normalize_location(location: &str) -> Cow<'_, str> {
-    let trimmed = location.trim();
-    if trimmed.is_empty() {
-        return Cow::Borrowed("");
-    }
-
-    // Common remote variants
-    if trimmed.eq_ignore_ascii_case("remote")
-        || trimmed.eq_ignore_ascii_case("anywhere")
-        || trimmed.eq_ignore_ascii_case("work from home")
-    {
-        return Cow::Borrowed("remote");
-    }
-
-    Cow::Borrowed(trimmed)
 }
 
 #[cfg(test)]

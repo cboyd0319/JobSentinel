@@ -2,48 +2,10 @@
 //!
 //! Provides graduated scoring for remote/hybrid/onsite jobs based on user preferences.
 
+use jobsentinel_domain::normalization::resolve_remote_status;
 use jobsentinel_domain::Job;
-use serde::Deserialize;
-use std::sync::LazyLock;
 
-const WORK_ARRANGEMENT_TAXONOMY_JSON: &str = include_str!(concat!(
-    env!("CARGO_MANIFEST_DIR"),
-    "/../../resources/taxonomies/work-arrangements.json"
-));
-
-static WORK_ARRANGEMENT_TAXONOMY: LazyLock<WorkArrangementTaxonomy> =
-    LazyLock::new(
-        || match serde_json::from_str(WORK_ARRANGEMENT_TAXONOMY_JSON) {
-            Ok(taxonomy) => taxonomy,
-            Err(error) => panic!("work arrangement taxonomy must be valid JSON: {error}"),
-        },
-    );
-
-#[derive(Debug, Deserialize)]
-struct WorkArrangementTaxonomy {
-    #[serde(rename = "workArrangementIndicators")]
-    work_arrangement_indicators: WorkArrangementIndicators,
-}
-
-#[derive(Debug, Deserialize)]
-struct WorkArrangementIndicators {
-    hybrid: Vec<String>,
-    remote: Vec<String>,
-    onsite: Vec<String>,
-}
-
-/// Detected remote status of a job
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum RemoteStatus {
-    /// Fully remote position
-    Remote,
-    /// Hybrid (some remote, some onsite)
-    Hybrid,
-    /// Fully onsite position
-    Onsite,
-    /// Not specified in job description
-    Unspecified,
-}
+pub use jobsentinel_domain::normalization::RemoteStatus;
 
 /// User's remote work preference (derived from config flags)
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -76,41 +38,18 @@ impl UserRemotePreference {
 
 /// Detect remote status from job data
 pub fn detect_remote_status(job: &Job) -> RemoteStatus {
-    let location_text = job.location.as_deref().unwrap_or("").to_lowercase();
-    let title_text = job.title.to_lowercase();
-    let description_text = job.description.as_deref().unwrap_or("").to_lowercase();
-
-    // Combine text for keyword detection
-    let combined_text = format!("{} {} {}", title_text, location_text, description_text);
-
-    // Check explicit remote field first
-    if job.remote.unwrap_or(false) {
-        return RemoteStatus::Remote;
-    }
-
-    let indicators = &WORK_ARRANGEMENT_TAXONOMY.work_arrangement_indicators;
-
-    // Check for hybrid indicators before remote to catch "hybrid remote".
-    if contains_any_indicator(&combined_text, &indicators.hybrid) {
-        return RemoteStatus::Hybrid;
-    }
-
-    if contains_any_indicator(&combined_text, &indicators.remote) {
-        return RemoteStatus::Remote;
-    }
-
-    if contains_any_indicator(&combined_text, &indicators.onsite) {
-        return RemoteStatus::Onsite;
-    }
-
-    // Default: unspecified (no clear indicators found)
-    RemoteStatus::Unspecified
-}
-
-fn contains_any_indicator(text: &str, indicators: &[String]) -> bool {
-    indicators
-        .iter()
-        .any(|indicator| text.contains(indicator.as_str()))
+    let structured = job
+        .remote
+        .filter(|remote| *remote)
+        .map(|_| RemoteStatus::Remote);
+    resolve_remote_status(
+        structured,
+        &[
+            &job.title,
+            job.location.as_deref().unwrap_or(""),
+            job.description.as_deref().unwrap_or(""),
+        ],
+    )
 }
 
 /// Calculate remote preference score multiplier and reason

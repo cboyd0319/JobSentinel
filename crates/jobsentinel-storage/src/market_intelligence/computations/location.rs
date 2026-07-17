@@ -3,6 +3,7 @@ use chrono::Utc;
 use sqlx::Row;
 
 use super::compute_median;
+use crate::analytics_buckets::market_location_bucket;
 use crate::market_intelligence::MarketIntelligence;
 
 impl MarketIntelligence {
@@ -23,7 +24,7 @@ impl MarketIntelligence {
 
         for location_record in locations {
             let location: String = location_record.try_get("location")?;
-            let normalized = self.normalize_location(&location);
+            let normalized = market_location_bucket(&location);
 
             // Parse city, state from location
             let (city, state) = self.parse_location(&location);

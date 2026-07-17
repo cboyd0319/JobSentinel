@@ -9,8 +9,8 @@
 use super::error::ScraperError;
 use super::rate_limiter::RateLimiter;
 use super::{JobScraper, ScraperResult};
-use jobsentinel_domain::calculate_job_hash;
-use jobsentinel_domain::Job;
+use jobsentinel_domain::normalization::infer_remote_status;
+use jobsentinel_domain::{calculate_job_hash, Job};
 
 use async_trait::async_trait;
 use chrono::Utc;
@@ -283,14 +283,7 @@ impl UsaJobsScraper {
         let (salary_min, salary_max) = self.parse_salary(&desc.position_remuneration);
 
         // Check if remote from location display
-        let is_remote = desc
-            .position_location_display
-            .to_lowercase()
-            .contains("remote")
-            || desc
-                .position_location_display
-                .to_lowercase()
-                .contains("telework");
+        let is_remote = infer_remote_status(&[&desc.position_location_display]).is_remote();
 
         // Get job description from user area details
         let description = desc

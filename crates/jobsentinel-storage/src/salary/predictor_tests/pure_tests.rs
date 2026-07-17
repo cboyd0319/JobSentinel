@@ -1,3 +1,5 @@
+use crate::analytics_buckets::{salary_location_bucket, salary_title_bucket};
+
 #[test]
 fn test_normalize_title_software_engineer() {
     let predictor = create_test_predictor();
@@ -91,8 +93,8 @@ fn test_normalize_title_empty() {
 #[test]
 fn test_normalize_title_whitespace_only() {
     let predictor = create_test_predictor();
-    assert_eq!(predictor.normalize_title("   "), "   ");
-    assert_eq!(predictor.normalize_title("\t\n"), "\t\n");
+    assert_eq!(predictor.normalize_title("   "), "");
+    assert_eq!(predictor.normalize_title("\t\n"), "");
 }
 
 #[test]
@@ -109,7 +111,7 @@ fn test_normalize_title_mixed_case_variations() {
 }
 
 #[test]
-fn test_normalize_title_preserves_whitespace() {
+fn test_normalize_title_collapses_whitespace() {
     let predictor = create_test_predictor();
     // Normal single space - works fine
     assert_eq!(
@@ -117,14 +119,8 @@ fn test_normalize_title_preserves_whitespace() {
         "software engineer"
     );
 
-    // Double space breaks the pattern match because "senior  software  engineer"
-    // does NOT contain the exact substring "software engineer" (single space)
     let result = predictor.normalize_title("Senior  Software  Engineer");
-    // No match, so returns the lowercased version
-    assert_eq!(result, "senior  software  engineer");
-
-    // This demonstrates a potential bug in the normalization function -
-    // it should probably normalize whitespace before checking patterns
+    assert_eq!(result, "software engineer");
 }
 
 #[test]
@@ -252,8 +248,8 @@ fn test_normalize_location_case_insensitive() {
 #[test]
 fn test_normalize_location_whitespace_only() {
     let predictor = create_test_predictor();
-    assert_eq!(predictor.normalize_location("   "), "   ");
-    assert_eq!(predictor.normalize_location("\t\n"), "\t\n");
+    assert_eq!(predictor.normalize_location("   "), "");
+    assert_eq!(predictor.normalize_location("\t\n"), "");
 }
 
 #[test]
@@ -292,8 +288,8 @@ fn test_normalize_location_partial_nyc_matches() {
 fn test_normalize_location_remote() {
     let predictor = create_test_predictor();
     assert_eq!(predictor.normalize_location("Remote"), "remote");
-    assert_eq!(predictor.normalize_location("Remote - US"), "remote - us");
-    assert_eq!(predictor.normalize_location("Fully Remote"), "fully remote");
+    assert_eq!(predictor.normalize_location("Remote - US"), "remote");
+    assert_eq!(predictor.normalize_location("Fully Remote"), "remote");
 }
 
 #[test]
@@ -319,7 +315,7 @@ fn test_normalize_location_special_characters() {
     );
     assert_eq!(
         predictor.normalize_location("Austin, TX (hybrid)"),
-        "austin, tx (hybrid)"
+        "austin, tx"
     );
 }
 
@@ -352,7 +348,7 @@ fn test_normalize_location_ambiguous_cases() {
     // "sf" could be abbreviation or part of another word
     assert_eq!(
         predictor.normalize_location("Satisfactory Location"),
-        "san francisco, ca" // Will match because contains "sf"
+        "satisfactory location"
     );
 }
 
@@ -410,10 +406,9 @@ fn test_normalize_title_boundary_cases() {
     let result = predictor.normalize_title(long_title);
     assert_eq!(result, "software engineer"); // Contains "software engineer"
 
-    // Title with newlines - doesn't match "software engineer" pattern due to newline
     let multiline = "Software\nEngineer";
     let result = predictor.normalize_title(multiline);
-    assert_eq!(result, "software\nengineer"); // Newlines preserved, no pattern match
+    assert_eq!(result, "software engineer");
 }
 
 #[test]
@@ -464,27 +459,11 @@ struct TestPredictor;
 
 impl TestPredictor {
     fn normalize_title(&self, title: &str) -> String {
-        let lower = title.to_lowercase();
-        if lower.contains("software engineer") || lower.contains("swe") {
-            "software engineer".to_string()
-        } else if lower.contains("data scientist") {
-            "data scientist".to_string()
-        } else if lower.contains("product manager") {
-            "product manager".to_string()
-        } else {
-            lower
-        }
+        salary_title_bucket(title)
     }
 
     fn normalize_location(&self, location: &str) -> String {
-        let lower = location.to_lowercase();
-        if lower.contains("san francisco") || lower.contains("sf") {
-            "san francisco, ca".to_string()
-        } else if lower.contains("new york") || lower.contains("nyc") {
-            "new york, ny".to_string()
-        } else {
-            lower
-        }
+        salary_location_bucket(location)
     }
 }
 #[path = "pure_tests/salary_calculation_tests.rs"]

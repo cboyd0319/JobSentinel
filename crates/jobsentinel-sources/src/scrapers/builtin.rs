@@ -10,8 +10,8 @@
 use super::error::ScraperError;
 use super::rate_limiter::RateLimiter;
 use super::{JobScraper, ScraperResult};
-use jobsentinel_domain::calculate_job_hash;
-use jobsentinel_domain::Job;
+use jobsentinel_domain::normalization::{infer_remote_status, RemoteStatus};
+use jobsentinel_domain::{calculate_job_hash, Job};
 use jobsentinel_network::{send_external_http_text_with_retry, ExternalHttpRequest};
 
 use async_trait::async_trait;
@@ -202,11 +202,10 @@ impl BuiltInScraper {
                         }
 
                         // Check for remote indicators
-                        let lower_text = parent_text.to_lowercase();
-                        if lower_text.contains("remote") {
-                            location = Some("Remote".to_string());
-                        } else if lower_text.contains("hybrid") {
-                            location = Some("Hybrid".to_string());
+                        match infer_remote_status(&[&parent_text]) {
+                            RemoteStatus::Hybrid => location = Some("Hybrid".to_string()),
+                            RemoteStatus::Remote => location = Some("Remote".to_string()),
+                            RemoteStatus::Onsite | RemoteStatus::Unspecified => {}
                         }
 
                         // Suppress unused variable warning
@@ -217,10 +216,7 @@ impl BuiltInScraper {
 
             // Determine if remote based on URL path or location
             let remote = self.remote_only
-                || location
-                    .as_ref()
-                    .map(|l| l.to_lowercase().contains("remote"))
-                    .unwrap_or(false);
+                || infer_remote_status(&[&title, location.as_deref().unwrap_or("")]).is_remote();
 
             let hash = Self::compute_hash(&company, &title, location.as_deref(), &url);
 

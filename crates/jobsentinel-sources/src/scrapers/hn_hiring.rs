@@ -7,8 +7,8 @@
 use super::error::ScraperError;
 use super::rate_limiter::RateLimiter;
 use super::{JobScraper, ScraperResult};
-use jobsentinel_domain::calculate_job_hash;
-use jobsentinel_domain::Job;
+use jobsentinel_domain::normalization::infer_remote_status;
+use jobsentinel_domain::{calculate_job_hash, Job};
 use jobsentinel_network::{send_external_http_text_with_retry, ExternalHttpRequest};
 
 use async_trait::async_trait;
@@ -373,12 +373,7 @@ impl HnHiringScraper {
 
     /// Check if job is remote
     fn is_remote(text: &str) -> bool {
-        let lower = text.to_lowercase();
-        lower.contains("remote")
-            || lower.contains("wfh")
-            || lower.contains("work from home")
-            || lower.contains("distributed")
-            || lower.contains("anywhere")
+        infer_remote_status(&[text]).is_remote()
     }
 
     /// Compute SHA-256 hash for deduplication

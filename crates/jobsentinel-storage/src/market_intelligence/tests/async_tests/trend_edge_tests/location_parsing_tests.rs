@@ -1,21 +1,19 @@
 use super::*;
+use crate::analytics_buckets::market_location_bucket;
 
-#[tokio::test]
-async fn test_normalize_location_edge_cases() {
-    let pool = setup_test_db().await;
-    let mi = MarketIntelligence::new(pool);
+#[test]
+fn test_market_location_bucket_edge_cases() {
+    assert_eq!(market_location_bucket("SF Bay Area"), "san francisco, ca");
+    assert_eq!(market_location_bucket("SAN FRANCISCO"), "san francisco, ca");
+    assert_eq!(market_location_bucket("sf"), "san francisco, ca");
 
-    assert_eq!(mi.normalize_location("SF Bay Area"), "san francisco, ca");
-    assert_eq!(mi.normalize_location("SAN FRANCISCO"), "san francisco, ca");
-    assert_eq!(mi.normalize_location("sf"), "san francisco, ca");
+    assert_eq!(market_location_bucket("NYC, New York"), "new york, ny");
+    assert_eq!(market_location_bucket("new york city"), "new york, ny");
 
-    assert_eq!(mi.normalize_location("NYC, New York"), "new york, ny");
-    assert_eq!(mi.normalize_location("new york city"), "new york, ny");
+    assert_eq!(market_location_bucket("REMOTE - Anywhere"), "remote");
+    assert_eq!(market_location_bucket("Remote US"), "remote");
 
-    assert_eq!(mi.normalize_location("REMOTE - Anywhere"), "remote");
-    assert_eq!(mi.normalize_location("Remote US"), "remote");
-
-    assert_eq!(mi.normalize_location("Chicago, IL"), "chicago, il");
+    assert_eq!(market_location_bucket("Chicago, IL"), "chicago, il");
 }
 
 #[tokio::test]

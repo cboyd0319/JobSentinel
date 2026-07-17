@@ -46,7 +46,7 @@ fn test_compute_hash_with_location_none() {
 }
 
 #[test]
-fn test_compute_hash_with_different_locations() {
+fn test_compute_hash_canonicalizes_remote_location_synonyms() {
     let hash1 = RemoteOkScraper::compute_hash(
         "Company",
         "Engineer",
@@ -60,8 +60,7 @@ fn test_compute_hash_with_different_locations() {
         "https://example.com/job/1",
     );
 
-    // Different locations should produce different hashes
-    assert_ne!(hash1, hash2);
+    assert_eq!(hash1, hash2);
 }
 
 #[test]

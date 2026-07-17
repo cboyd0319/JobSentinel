@@ -251,7 +251,7 @@ fn test_infer_remote_location_variations() {
         "Care Coordinator",
         Some("Remote (US)")
     ));
-    assert!(LeverScraper::infer_remote(
+    assert!(!LeverScraper::infer_remote(
         "Care Coordinator",
         Some("Remote/Hybrid")
     ));

@@ -432,8 +432,7 @@ fn test_is_remote_work_from_home() {
         "Engineer",
         Some("Work from home opportunity")
     ));
-    // WFH is not explicitly checked in is_remote function - only "work from home" text
-    assert!(!DiceScraper::is_remote("Engineer", Some("WFH position")));
+    assert!(DiceScraper::is_remote("Engineer", Some("WFH position")));
 }
 
 #[test]

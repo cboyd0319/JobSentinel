@@ -1,4 +1,5 @@
 use jobsentinel_domain::calculate_job_hash;
+use jobsentinel_domain::normalization::infer_remote_status;
 
 use super::GlassdoorScraper;
 
@@ -41,12 +42,7 @@ impl GlassdoorScraper {
     /// Check if job appears to be remote based on location
     #[allow(clippy::single_option_map)]
     pub(super) fn is_remote(&self, location: Option<&str>) -> Option<bool> {
-        location.map(|l| {
-            let lower = l.to_lowercase();
-            lower.contains("remote")
-                || lower.contains("anywhere")
-                || lower.contains("work from home")
-        })
+        location.map(|value| infer_remote_status(&[value]).is_remote())
     }
 
     /// Strip HTML tags from text

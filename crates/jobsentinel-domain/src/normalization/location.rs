@@ -6,6 +6,8 @@
 use std::borrow::Cow;
 use std::collections::HashMap;
 
+use super::{infer_remote_status, RemoteStatus};
+
 /// Normalize a location string to canonical form
 ///
 /// Performs the following transformations:
@@ -37,7 +39,7 @@ pub fn normalize_location(location: &str) -> Cow<'_, str> {
 
     // Handle remote variants first (case-insensitive)
     let lower = trimmed.to_lowercase();
-    if lower.contains("remote") {
+    if lower.contains("remote") || infer_remote_status(&[trimmed]) == RemoteStatus::Remote {
         // Remote US, Remote - USA, Fully Remote, etc. → "remote"
         return Cow::Borrowed("remote");
     }
