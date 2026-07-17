@@ -1,8 +1,12 @@
 use super::*;
 
-pub(in crate::ats_analyzer) fn has_adversarial_content(resume: &ResumeData) -> bool {
-    text_has_adversarial_content(&resume.summary)
-        || text_has_adversarial_content(&resume.contact_info.name)
+pub(in crate::ats_analyzer) fn has_adversarial_content(input: &ResumeAnalysisInput) -> bool {
+    let resume = &input.resume;
+    resume
+        .summary
+        .as_deref()
+        .is_some_and(text_has_adversarial_content)
+        || text_has_adversarial_content(&resume.personal.name)
         || resume.experience.iter().any(|experience| {
             text_has_adversarial_content(&experience.title)
                 || text_has_adversarial_content(&experience.company)
@@ -11,13 +15,15 @@ pub(in crate::ats_analyzer) fn has_adversarial_content(resume: &ResumeData) -> b
                     .iter()
                     .any(|item| text_has_adversarial_content(item))
         })
-        || resume.skills.iter().any(|skill| {
-            text_has_adversarial_content(&skill.name)
-                || text_has_adversarial_content(&skill.category)
-                || skill
-                    .proficiency
-                    .as_deref()
-                    .is_some_and(text_has_adversarial_content)
+        || resume.skills.iter().any(|category| {
+            text_has_adversarial_content(&category.name)
+                || category.skills.iter().any(|skill| {
+                    text_has_adversarial_content(&skill.name)
+                        || skill
+                            .proficiency
+                            .as_deref()
+                            .is_some_and(text_has_adversarial_content)
+                })
         })
         || resume.education.iter().any(|education| {
             text_has_adversarial_content(&education.degree)
@@ -27,33 +33,47 @@ pub(in crate::ats_analyzer) fn has_adversarial_content(resume: &ResumeData) -> b
                     .iter()
                     .any(|item| text_has_adversarial_content(item))
         })
-        || resume
-            .certifications
-            .iter()
-            .any(|item| text_has_adversarial_content(item))
-        || resume
-            .projects
-            .iter()
-            .any(|item| text_has_adversarial_content(item))
-        || resume.custom_sections.iter().any(|(section, values)| {
+        || resume.certifications.iter().any(|certification| {
+            text_has_adversarial_content(&certification.name)
+                || text_has_adversarial_content(&certification.issuer)
+                || certification
+                    .credential_id
+                    .as_deref()
+                    .is_some_and(text_has_adversarial_content)
+        })
+        || resume.projects.iter().any(|project| {
+            text_has_adversarial_content(&project.name)
+                || text_has_adversarial_content(&project.description)
+                || project
+                    .technologies
+                    .iter()
+                    .any(|item| text_has_adversarial_content(item))
+        })
+        || input.custom_sections.iter().any(|(section, values)| {
             text_has_adversarial_content(section)
                 || values.iter().any(|item| text_has_adversarial_content(item))
         })
 }
 
-pub(in crate::ats_analyzer) fn collect_resume_text(resume: &ResumeData) -> String {
-    let mut chunks = vec![resume.summary.as_str(), resume.contact_info.name.as_str()];
+pub(in crate::ats_analyzer) fn collect_resume_text(input: &ResumeAnalysisInput) -> String {
+    let resume = &input.resume;
+    let mut chunks = vec![resume.personal.name.as_str()];
+    if let Some(summary) = &resume.summary {
+        chunks.push(summary);
+    }
 
     for experience in &resume.experience {
         chunks.push(experience.title.as_str());
         chunks.push(experience.company.as_str());
         chunks.extend(experience.achievements.iter().map(String::as_str));
     }
-    for skill in &resume.skills {
-        chunks.push(skill.name.as_str());
-        chunks.push(skill.category.as_str());
-        if let Some(proficiency) = skill.proficiency.as_deref() {
-            chunks.push(proficiency);
+    for category in &resume.skills {
+        chunks.push(category.name.as_str());
+        for skill in &category.skills {
+            chunks.push(skill.name.as_str());
+            if let Some(proficiency) = skill.proficiency.as_deref() {
+                chunks.push(proficiency);
+            }
         }
     }
     for education in &resume.education {
@@ -61,9 +81,19 @@ pub(in crate::ats_analyzer) fn collect_resume_text(resume: &ResumeData) -> Strin
         chunks.push(education.institution.as_str());
         chunks.extend(education.honors.iter().map(String::as_str));
     }
-    chunks.extend(resume.certifications.iter().map(String::as_str));
-    chunks.extend(resume.projects.iter().map(String::as_str));
-    for (section, values) in &resume.custom_sections {
+    for certification in &resume.certifications {
+        chunks.push(certification.name.as_str());
+        chunks.push(certification.issuer.as_str());
+        if let Some(credential_id) = certification.credential_id.as_deref() {
+            chunks.push(credential_id);
+        }
+    }
+    for project in &resume.projects {
+        chunks.push(project.name.as_str());
+        chunks.push(project.description.as_str());
+        chunks.extend(project.technologies.iter().map(String::as_str));
+    }
+    for (section, values) in &input.custom_sections {
         chunks.push(section.as_str());
         chunks.extend(values.iter().map(String::as_str));
     }
@@ -71,8 +101,12 @@ pub(in crate::ats_analyzer) fn collect_resume_text(resume: &ResumeData) -> Strin
     chunks.join("\n")
 }
 
-pub(in crate::ats_analyzer) fn has_keyword_stuffing(resume: &ResumeData) -> bool {
-    text_has_keyword_stuffing(&resume.summary)
+pub(in crate::ats_analyzer) fn has_keyword_stuffing(input: &ResumeAnalysisInput) -> bool {
+    let resume = &input.resume;
+    resume
+        .summary
+        .as_deref()
+        .is_some_and(text_has_keyword_stuffing)
         || resume.experience.iter().any(|experience| {
             text_has_keyword_stuffing(&experience.title)
                 || text_has_keyword_stuffing(&experience.company)
@@ -81,19 +115,25 @@ pub(in crate::ats_analyzer) fn has_keyword_stuffing(resume: &ResumeData) -> bool
                     .iter()
                     .any(|item| text_has_keyword_stuffing(item))
         })
-        || resume.skills.iter().any(|skill| {
-            text_has_keyword_stuffing(&skill.name)
-                || text_has_keyword_stuffing(&skill.category)
-                || skill
-                    .proficiency
-                    .as_deref()
-                    .is_some_and(text_has_keyword_stuffing)
+        || resume.skills.iter().any(|category| {
+            text_has_keyword_stuffing(&category.name)
+                || category.skills.iter().any(|skill| {
+                    text_has_keyword_stuffing(&skill.name)
+                        || skill
+                            .proficiency
+                            .as_deref()
+                            .is_some_and(text_has_keyword_stuffing)
+                })
         })
-        || resume
-            .projects
-            .iter()
-            .any(|item| text_has_keyword_stuffing(item))
-        || resume.custom_sections.iter().any(|(section, values)| {
+        || resume.projects.iter().any(|project| {
+            text_has_keyword_stuffing(&project.name)
+                || text_has_keyword_stuffing(&project.description)
+                || project
+                    .technologies
+                    .iter()
+                    .any(|item| text_has_keyword_stuffing(item))
+        })
+        || input.custom_sections.iter().any(|(section, values)| {
             text_has_keyword_stuffing(section)
                 || values.iter().any(|item| text_has_keyword_stuffing(item))
         })

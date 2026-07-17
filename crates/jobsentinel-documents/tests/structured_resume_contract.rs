@@ -1,13 +1,9 @@
 use jobsentinel_documents::{
-    AtsAnalyzer, AtsResumeData, ExportResumeData, ExportTemplateId, ResumeAnalysisInput,
-    ResumeData as TemplateResumeData, ResumeExporter, StructuredResume, TemplateId,
+    AtsAnalyzer, ResumeAnalysisInput, ResumeExporter, StructuredResume, TemplateId,
     TemplateRenderer,
 };
 
 const STRUCTURED_RESUME_FIXTURE: &str = include_str!("fixtures/structured_resume.json");
-const TEMPLATE_RESUME_FIXTURE: &str = include_str!("fixtures/template_resume.json");
-const EXPORT_RESUME_FIXTURE: &str = include_str!("fixtures/export_resume.json");
-const ATS_RESUME_FIXTURE: &str = include_str!("fixtures/ats_resume.json");
 
 #[test]
 fn structured_resume_fixture_round_trips_without_field_drift() {
@@ -53,49 +49,30 @@ fn template_id_supports_rendering_ids_and_legacy_export_aliases() {
 }
 
 #[test]
-fn template_adapter_round_trips_fixture_and_preserves_html() {
-    let legacy: TemplateResumeData = serde_json::from_str(TEMPLATE_RESUME_FIXTURE).unwrap();
-    let original_json = serde_json::to_value(&legacy).unwrap();
-    let original_html = TemplateRenderer::render_html(&legacy, TemplateId::Classic);
+fn renderer_and_html_export_share_the_canonical_model() {
+    let resume: StructuredResume = serde_json::from_str(STRUCTURED_RESUME_FIXTURE).unwrap();
 
-    let restored = TemplateResumeData::from(StructuredResume::from(legacy));
-
-    assert_eq!(serde_json::to_value(&restored).unwrap(), original_json);
     assert_eq!(
-        TemplateRenderer::render_html(&restored, TemplateId::Classic),
-        original_html
+        ResumeExporter::export_html(&resume, TemplateId::Professional),
+        TemplateRenderer::render_html(&resume, TemplateId::Classic)
     );
 }
 
 #[test]
-fn export_adapter_round_trips_fixture_and_preserves_outputs() {
-    let legacy: ExportResumeData = serde_json::from_str(EXPORT_RESUME_FIXTURE).unwrap();
-    let original_json = serde_json::to_value(&legacy).unwrap();
-    let original_text = ResumeExporter::export_text(&legacy);
-    let original_docx =
-        ResumeExporter::export_docx(&legacy, ExportTemplateId::Professional).unwrap();
+fn exporters_accept_the_canonical_model() {
+    let resume: StructuredResume = serde_json::from_str(STRUCTURED_RESUME_FIXTURE).unwrap();
 
-    let restored = ExportResumeData::from(StructuredResume::from(legacy));
-
-    assert_eq!(serde_json::to_value(&restored).unwrap(), original_json);
-    assert_eq!(ResumeExporter::export_text(&restored), original_text);
-    assert_eq!(
-        ResumeExporter::export_docx(&restored, ExportTemplateId::Professional).unwrap(),
-        original_docx
-    );
+    assert!(ResumeExporter::export_text(&resume).contains("Jordan Lee"));
+    assert!(ResumeExporter::export_docx(&resume, TemplateId::Professional).is_ok());
 }
 
 #[test]
-fn ats_adapter_round_trips_fixture_and_preserves_analysis() {
-    let legacy: AtsResumeData = serde_json::from_str(ATS_RESUME_FIXTURE).unwrap();
-    let original_json = serde_json::to_value(&legacy).unwrap();
-    let original_analysis = serde_json::to_value(AtsAnalyzer::analyze_format(&legacy)).unwrap();
+fn analysis_accepts_the_canonical_model_with_boundary_fields() {
+    let resume: StructuredResume = serde_json::from_str(STRUCTURED_RESUME_FIXTURE).unwrap();
+    let input = ResumeAnalysisInput {
+        resume,
+        custom_sections: Default::default(),
+    };
 
-    let restored = AtsResumeData::from(ResumeAnalysisInput::from(legacy));
-
-    assert_eq!(serde_json::to_value(&restored).unwrap(), original_json);
-    assert_eq!(
-        serde_json::to_value(AtsAnalyzer::analyze_format(&restored)).unwrap(),
-        original_analysis
-    );
+    assert!(AtsAnalyzer::analyze_format(&input).completeness_score > 0.0);
 }

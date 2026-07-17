@@ -2,8 +2,6 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::str::FromStr;
 
-mod adapters;
-
 /// Resume template identifier accepted by rendering and export boundaries.
 #[derive(Debug, Clone, Copy, Default, Serialize, Deserialize, PartialEq, Eq)]
 pub enum TemplateId {
@@ -113,7 +111,7 @@ pub struct ResumeExperience {
     pub end_date: Option<String>,
     #[serde(default)]
     pub is_current: bool,
-    #[serde(default)]
+    #[serde(default, alias = "bullets")]
     pub achievements: Vec<String>,
 }
 
@@ -121,7 +119,7 @@ pub struct ResumeExperience {
 pub struct ResumeEducation {
     pub institution: String,
     pub degree: String,
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub field_of_study: Option<String>,
     #[serde(default)]
     pub location: Option<String>,

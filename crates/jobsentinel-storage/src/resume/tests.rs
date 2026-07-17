@@ -321,27 +321,32 @@ async fn test_import_json_resume_preserves_builder_evidence_sections() {
     let builder = ResumeBuilder::new(pool);
     let draft = builder.get_resume(resume_id).await.unwrap().unwrap();
 
-    assert_eq!(draft.contact.name, "Applicant Example");
+    assert_eq!(draft.resume.personal.name, "Applicant Example");
     assert!(draft
+        .resume
         .skills
         .iter()
+        .flat_map(|category| &category.skills)
         .any(|skill| skill.name == "Spanish - Professional working proficiency"));
-    assert!(draft.skills.iter().any(|skill| {
-        skill.name == "Scheduling"
-            && skill.category == "Client Services"
-            && skill.proficiency.as_deref() == Some("advanced")
+    assert!(draft.resume.skills.iter().any(|category| {
+        category.name == "Client Services"
+            && category.skills.iter().any(|skill| {
+                skill.name == "Scheduling" && skill.proficiency.as_deref() == Some("advanced")
+            })
     }));
     assert!(!draft
+        .resume
         .skills
         .iter()
+        .flat_map(|category| &category.skills)
         .any(|skill| skill.name == "Client Services"));
-    assert!(draft.certifications.iter().any(|cert| {
+    assert!(draft.resume.certifications.iter().any(|cert| {
         cert.name == "Publication: Accessible Hiring Forms"
             && cert.issuer == "Operations Journal"
             && cert.date_obtained.as_deref() == Some("2024-02-01")
     }));
-    assert_eq!(draft.experience.len(), 0);
-    assert!(draft.projects.iter().any(|project| {
+    assert_eq!(draft.resume.experience.len(), 0);
+    assert!(draft.resume.projects.iter().any(|project| {
         project.name == "Clinic Intake Redesign - Coordinator"
             && project
                 .description

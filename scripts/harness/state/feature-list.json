@@ -107,7 +107,7 @@
         "docs/harness/evidence/crates-dry-characterization-2026-07-16.md"
       ],
       "blocker": "",
-      "next_trigger": "Complete Milestone 8 canonical resume consumer cutover."
+      "next_trigger": "Complete Milestone 9 Rust test-support consolidation."
     }
   ]
 }

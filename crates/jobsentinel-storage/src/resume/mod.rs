@@ -37,7 +37,6 @@ use sqlx::{Row, SqlitePool};
 use std::path::Path;
 
 mod builder;
-mod canonical;
 mod json_import;
 mod json_resume;
 mod management;
@@ -60,22 +59,15 @@ pub(crate) mod types {
     };
 }
 
-// Re-export builder types
-pub use builder::{
-    Certification as BuilderCertification, ContactInfo as BuilderContactInfo,
-    Education as BuilderEducation, Experience as BuilderExperience, Proficiency, Project,
-    ResumeBuilder, ResumeData as BuilderResumeData, SkillCategory as BuilderSkillCategory,
-    SkillEntry,
-};
+pub use builder::{DraftEducation, DraftExperience, DraftSkill, ResumeBuilder, ResumeDraft};
 
 pub use jobsentinel_documents::{
-    AtsAnalysisResult, AtsAnalyzer, AtsContactInfo, AtsEducation, AtsExperience, AtsResumeData,
-    AtsSuggestion, Certification, DegreeLevel, Education, EducationEntry, EducationRequirement,
-    Experience, ExperienceEntry, ExperienceRequirement, ExportCertification, ExportProject,
-    ExportResumeData, ExportSkillCategory, ExportTemplateId, FormatIssue, HardConstraintCategory,
-    HardConstraintRisk, IssueSeverity, JobSkill, KeywordImportance, KeywordMatch, MatchResult,
-    MatchResultWithJob, MissingKeyword, NewSkill, PersonalInfo, RequirementMatchState,
-    RequirementReview, Resume, ResumeData, ResumeExporter, Skill, SkillCategory, SkillUpdate,
+    AtsAnalysisResult, AtsAnalyzer, AtsSuggestion, DegreeLevel, EducationRequirement,
+    ExperienceRequirement, FormatIssue, HardConstraintCategory, HardConstraintRisk, IssueSeverity,
+    JobSkill, KeywordImportance, KeywordMatch, MatchResult, MatchResultWithJob, MissingKeyword,
+    NewSkill, RequirementMatchState, RequirementReview, Resume, ResumeAnalysisInput,
+    ResumeCertification, ResumeEducation, ResumeExperience, ResumeExporter, ResumePersonalInfo,
+    ResumeProject, ResumeSkill, ResumeSkillCategory, SkillUpdate, StructuredResume,
     SuggestionCategory, Template, TemplateId, TemplateRenderer, UserSkill,
 };
 

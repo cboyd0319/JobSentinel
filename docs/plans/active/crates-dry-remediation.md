@@ -296,14 +296,14 @@ Commit boundary: `refactor(documents): add canonical structured resume model`.
 
 ### Milestone 8: Cut Over Resume Consumers And Delete Duplicate Models
 
-- [ ] Migrate template rendering and every exporter to `&StructuredResume`.
-- [ ] Migrate ATS analysis and the storage resume builder through their explicit
+- [x] Migrate template rendering and every exporter to `&StructuredResume`.
+- [x] Migrate ATS analysis and the storage resume builder through their explicit
   wrappers without copying shared fields into parallel DTOs.
-- [ ] Migrate application callers and public re-exports. Preserve serialized
+- [x] Migrate application callers and public re-exports. Preserve serialized
   names, optionality, and template identifiers proven in Milestone 7.
-- [ ] Delete duplicate `ResumeData` structures, duplicate `TemplateId`, manual
+- [x] Delete duplicate `ResumeData` structures, duplicate `TemplateId`, manual
   field-copy rendering adapters, and temporary conversion code.
-- [ ] Run all document, storage, application, import, export, and all-feature
+- [x] Run all document, storage, application, import, export, and all-feature
   tests before committing.
 
 Commit boundary: `refactor(documents): complete resume model cutover`.
@@ -404,6 +404,7 @@ gap and blocks `passing`.
 | 2026-07-16 | Orchestrated | Milestone 5 centralized new-job invariants, source-adapter helpers, shared user agents, canonical hash ownership, and scraper lifecycle handling. Production crate duplication fell to 266 lines across 13 regions; test duplication fell to 2,127 lines across 77 regions. |
 | 2026-07-16 | Rendered | Milestone 6 centralized document sections, byte-stable shared style fragments, ATS format-result assembly, plain-text bullet traversal, and requirement-taxonomy search terms. Production crate duplication fell to 98 lines across 5 regions; document production clones fell to zero. |
 | 2026-07-16 | Modeled | Milestone 7 added the canonical structured resume, one complete template identifier contract, exact boundary fixtures, and temporary analysis and persistence adapters. HTML, DOCX, ATS, JSON import, and storage round trips pass without increasing production duplication. |
+| 2026-07-16 | Cut over | Milestone 8 moved rendering, export, ATS analysis, storage, command, and frontend consumers to the canonical resume contract; deleted every temporary adapter and legacy Rust resume DTO; preserved the flat stored-draft contract with an exact round trip; and renamed the distinct local inference result to `ExtractedResume`. Production duplication remains 98 lines across 5 regions and test duplication remains 2,127 lines across 77 regions. |
 
 - [x] Milestone 0: activate the plan safely.
 - [x] Milestone 1: establish guardrails and characterization.
@@ -413,7 +414,7 @@ gap and blocks `passing`.
 - [x] Milestone 5: consolidate job construction and scraper orchestration.
 - [x] Milestone 6: consolidate document rendering and ATS assembly.
 - [x] Milestone 7: introduce the canonical resume contract.
-- [ ] Milestone 8: cut over resume consumers and delete duplicate models.
+- [x] Milestone 8: cut over resume consumers and delete duplicate models.
 - [ ] Milestone 9: consolidate test support.
 - [ ] Milestone 10: delete residue, ratchet baselines, and close.
 
@@ -434,6 +435,10 @@ gap and blocks `passing`.
 - The repeated market salary collector decoded nullable SQLite values directly
   as `f64`, which admitted a null row into the average. The shared owner now
   decodes `Option<f64>` explicitly and the null contract prevents regression.
+- The local inference crate used `StructuredResume` for a compact extracted
+  evidence record unrelated to the canonical document model. Renaming it to
+  `ExtractedResume` removed the false ownership signal without coupling the
+  inference contract to document rendering fields.
 
 ## Decision Log
 
@@ -447,6 +452,8 @@ gap and blocks `passing`.
   bucketing where product semantics differ.
 - 2026-07-16: Use one documents-owned structured resume DTO and one template ID,
   with temporary adapters removed in the immediately following milestone.
+- 2026-07-16: Keep the local inference extraction contract semantically separate
+  from the canonical document model and name it `ExtractedResume`.
 - 2026-07-16: Set zero as the raw production-clone target and prohibit baseline
   increases or cleanup-only exclusions.
 
@@ -458,14 +465,12 @@ dependency changes, verification evidence, and any follow-up debt.
 
 ## Handoff
 
-- Current state: Milestones 0 through 7 are complete; Milestone 8 is next.
-- Evidence: canonical JSON and template identifiers round-trip exactly; legacy
-  template, export, ATS, JSON Resume, and storage-builder fixtures preserve
-  their serialized fields and outputs. All document and storage tests pass, and
-  production duplication remains 98 lines across 5 regions.
-- Next step: migrate renderers, exporters, ATS analysis, storage, application
-  re-exports, and command boundaries to `StructuredResume`, then delete every
-  legacy resume shape and temporary conversion.
-- Open risk: the cutover crosses frontend command payloads and stored draft JSON.
-  Keep the existing serialized names and optionality through explicit boundary
-  wrappers, and prove persisted fixture compatibility before deleting adapters.
+- Current state: Milestones 0 through 8 are complete; Milestone 9 is next.
+- Evidence: combined document, storage, application, and local inference
+  all-feature tests pass; 341 frontend resume tests, lint, typecheck, harness,
+  architecture, file-size hard limits, and duplication gates pass. The exact
+  stored-draft JSON round trip and canonical command tests cover the cutover.
+- Next step: consolidate repeated Rust test fixtures and migrated database setup,
+  beginning with the 112-line application-status fixture pair.
+- Open risk: test helpers can hide assertions or introduce production dependency
+  edges. Keep helpers crate-local and limited to setup data.

@@ -11,15 +11,6 @@ where
     value_to_optional_string(value).map_err(de::Error::custom)
 }
 
-pub(super) fn optional_lowercase_string_from_value<'de, D>(
-    deserializer: D,
-) -> std::result::Result<Option<String>, D::Error>
-where
-    D: Deserializer<'de>,
-{
-    Ok(optional_string_from_value(deserializer)?.map(|value| value.to_ascii_lowercase()))
-}
-
 pub(super) fn string_from_value<'de, D>(deserializer: D) -> std::result::Result<String, D::Error>
 where
     D: Deserializer<'de>,

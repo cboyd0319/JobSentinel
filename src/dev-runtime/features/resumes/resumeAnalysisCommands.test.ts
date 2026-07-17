@@ -6,6 +6,53 @@ describe("mock resume analysis command handlers", () => {
   beforeEach(() => {
     resetMockData();
   });
+
+  it("analyzes the canonical resume wrapper used by the application", async () => {
+    const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
+      resume: {
+        resume: {
+          personal: {
+            name: "Jordan Lee",
+            email: "jordan@example.com",
+            phone: null,
+            location: null,
+            linkedin: null,
+            github: null,
+            website: null,
+          },
+          summary: "Program lead with scheduling experience",
+          experience: [],
+          education: [],
+          skills: [{
+            name: "Operations",
+            skills: [{
+              name: "Scheduling",
+              proficiency: "advanced",
+              years_experience: 4,
+            }],
+          }],
+          certifications: [],
+          projects: [],
+          clearance: null,
+          military_info: null,
+        },
+        custom_sections: {},
+      },
+      jobDescription: "Required: scheduling.",
+    });
+
+    expect(result.keyword_matches).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ keyword: "scheduling" }),
+      ]),
+    );
+    expect(result.format_issues).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ issue: "Missing email address" }),
+      ]),
+    );
+  });
+
   it("analyzes resumes with the real ATS backend command names", async () => {
     const powerWords = await mockInvoke<string[]>("get_ats_power_words");
     expect(powerWords).toEqual(

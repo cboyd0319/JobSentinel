@@ -64,8 +64,8 @@ fn test_convert_contact_info() {
 
     assert_eq!(contact.name, "Jordan Lee");
     assert_eq!(contact.email, "jordan@example.com");
-    assert_eq!(contact.phone, "+1-555-1234");
-    assert_eq!(contact.location, "Portland, OR");
+    assert_eq!(contact.phone.as_deref(), Some("+1-555-1234"));
+    assert_eq!(contact.location.as_deref(), Some("Portland, OR"));
     assert_eq!(
         contact.linkedin,
         Some("https://linkedin.com/in/jordan-lee".to_string())
@@ -111,8 +111,8 @@ fn test_convert_experience() {
     assert_eq!(experience.len(), 3);
     assert_eq!(experience[0].company, "Harbor Services");
     assert_eq!(experience[1].title, "Lead Scheduler");
-    assert_eq!(experience[1].end_date, "Present");
-    assert!(experience[1].current);
+    assert_eq!(experience[1].end_date, None);
+    assert!(experience[1].is_current);
     assert_eq!(experience[2].title, "Mentor (Volunteer)");
 }
 
@@ -135,7 +135,7 @@ fn test_convert_education() {
     assert_eq!(education.len(), 1);
     assert_eq!(education[0].degree, "Bachelor in Public Administration");
     assert_eq!(education[0].institution, "State University");
-    assert_eq!(education[0].gpa, Some(3.8));
+    assert_eq!(education[0].gpa.as_deref(), Some("3.8"));
     assert_eq!(
         education[0].honors,
         vec!["Grant Writing", "Program Evaluation"]
@@ -163,13 +163,12 @@ fn test_convert_skills() {
     let skills = resume.convert_skills();
 
     // Group names become categories, not separate fake skill rows.
-    assert_eq!(skills.len(), 4);
-    assert_eq!(skills[0].name, "Scheduling");
-    assert_eq!(skills[0].category, "Client Services");
-    assert_eq!(skills[0].proficiency, Some(Proficiency::Advanced));
-    assert_eq!(skills[1].name, "Case notes");
-    assert_eq!(skills[1].category, "Client Services");
-    assert_eq!(skills[1].proficiency, Some(Proficiency::Advanced));
+    assert_eq!(skills.len(), 2);
+    assert_eq!(skills[0].name, "Client Services");
+    assert_eq!(skills[0].skills[0].name, "Scheduling");
+    assert_eq!(skills[0].skills[0].proficiency.as_deref(), Some("advanced"));
+    assert_eq!(skills[0].skills[1].name, "Case notes");
+    assert_eq!(skills[0].skills[1].proficiency.as_deref(), Some("advanced"));
 }
 
 #[test]
@@ -187,13 +186,15 @@ fn test_convert_languages_to_skills() {
     let resume = JsonResume::from_json(json).unwrap();
     let skills = resume.convert_skills();
 
-    assert_eq!(skills.len(), 2);
-    assert_eq!(skills[0].name, "Spanish - Professional working proficiency");
-    assert_eq!(skills[0].category, "Languages");
-    assert_eq!(skills[0].proficiency, Some(Proficiency::Advanced));
-    assert_eq!(skills[1].name, "Arabic - Elementary");
-    assert_eq!(skills[1].category, "Languages");
-    assert_eq!(skills[1].proficiency, Some(Proficiency::Beginner));
+    assert_eq!(skills.len(), 1);
+    assert_eq!(skills[0].name, "Languages");
+    assert_eq!(
+        skills[0].skills[0].name,
+        "Spanish - Professional working proficiency"
+    );
+    assert_eq!(skills[0].skills[0].proficiency.as_deref(), Some("advanced"));
+    assert_eq!(skills[0].skills[1].name, "Arabic - Elementary");
+    assert_eq!(skills[0].skills[1].proficiency.as_deref(), Some("beginner"));
 }
 
 #[test]
@@ -239,7 +240,10 @@ fn test_convert_publications_to_certifications() {
         "Publication: Accessible Hiring Forms"
     );
     assert_eq!(certifications[0].issuer, "Operations Journal");
-    assert_eq!(certifications[0].date, "2024-02-01");
+    assert_eq!(
+        certifications[0].date_obtained.as_deref(),
+        Some("2024-02-01")
+    );
 }
 
 #[test]
@@ -311,14 +315,15 @@ fn test_full_conversion() {
         }"#;
 
     let json_resume = JsonResume::from_json(json).unwrap();
-    let resume_data = json_resume.to_resume_data().unwrap();
+    let resume_data = json_resume.to_structured_resume().unwrap();
 
-    assert_eq!(resume_data.contact_info.name, "Applicant Example");
-    assert_eq!(resume_data.summary, "Full-stack developer");
+    assert_eq!(resume_data.personal.name, "Applicant Example");
+    assert_eq!(resume_data.summary.as_deref(), Some("Full-stack developer"));
     assert_eq!(resume_data.experience.len(), 1);
     assert_eq!(resume_data.education.len(), 1);
-    assert_eq!(resume_data.skills.len(), 2); // React + Node under JavaScript
-    assert_eq!(resume_data.skills[0].category, "JavaScript");
+    assert_eq!(resume_data.skills.len(), 1);
+    assert_eq!(resume_data.skills[0].name, "JavaScript");
+    assert_eq!(resume_data.skills[0].skills.len(), 2);
     assert!(resume_data.projects.is_empty());
 }
 
@@ -326,10 +331,10 @@ fn test_full_conversion() {
 fn test_empty_json_resume() {
     let json = "{}";
     let resume = JsonResume::from_json(json).unwrap();
-    let data = resume.to_resume_data().unwrap();
+    let data = resume.to_structured_resume().unwrap();
 
     // Should not panic, should have empty/default values
-    assert!(data.contact_info.name.is_empty());
+    assert!(data.personal.name.is_empty());
     assert!(data.experience.is_empty());
     assert!(data.skills.is_empty());
 }

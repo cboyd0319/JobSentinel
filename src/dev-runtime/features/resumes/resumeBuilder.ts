@@ -203,10 +203,20 @@ export function normalizeBuilderProject(value: unknown): MockBuilderProject | nu
 export function normalizeResumeDraft(value: unknown): MockResumeDraft {
   const source = isRecord(value) ? value : {};
   const now = new Date().toISOString();
+  const groupedSkills = Array.isArray(source.skills)
+    ? source.skills.flatMap((category) => {
+        if (!isRecord(category) || !Array.isArray(category.skills)) return [];
+        const categoryName = typeof category.name === "string" ? category.name : "";
+        return category.skills.map((skill) =>
+          isRecord(skill) ? { ...skill, category: categoryName } : skill,
+        );
+      })
+    : [];
+  const rawSkills = groupedSkills.length > 0 ? groupedSkills : source.skills;
 
   return {
     id: typeof source.id === "number" ? source.id : 1,
-    contact: normalizeBuilderContact(source.contact),
+    contact: normalizeBuilderContact(source.contact ?? source.personal),
     summary: typeof source.summary === "string" ? source.summary : "",
     experience: Array.isArray(source.experience)
       ? source.experience.map((experience, index) =>
@@ -216,8 +226,8 @@ export function normalizeResumeDraft(value: unknown): MockResumeDraft {
     education: Array.isArray(source.education)
       ? source.education.map((education, index) => normalizeBuilderEducation(education, index + 1))
       : [],
-    skills: Array.isArray(source.skills)
-      ? source.skills.map(normalizeBuilderSkill).filter((skill): skill is MockBuilderSkill => !!skill)
+    skills: Array.isArray(rawSkills)
+      ? rawSkills.map(normalizeBuilderSkill).filter((skill): skill is MockBuilderSkill => !!skill)
       : [],
     certifications: Array.isArray(source.certifications)
       ? source.certifications

@@ -24,73 +24,67 @@ mod service_healthcare_requirement_equivalences;
 #[path = "ats_analyzer_tests/work_arrangement_constraints.rs"]
 mod work_arrangement_constraints;
 
-fn sample_resume() -> ResumeData {
-    ResumeData {
-        contact_info: ContactInfo {
-            name: "Jordan Lee".to_string(),
-            email: "jordan@example.com".to_string(),
-            phone: "555-1234".to_string(),
-            location: "Portland, OR".to_string(),
-            linkedin: Some("linkedin.com/in/jordan-lee".to_string()),
-            github: None,
-            website: None,
-        },
-        summary: "Program operations lead with 5 years of client services and intake scheduling"
-            .to_string(),
-        experience: vec![Experience {
-            title: "Program Operations Lead".to_string(),
-            company: "Harbor Community Services".to_string(),
-            location: "Portland, OR".to_string(),
-            start_date: "Jan 2020".to_string(),
-            end_date: "Present".to_string(),
-            achievements: vec![
-                "Led client intake scheduling across three service teams".to_string(),
-                "Improved case documentation accuracy by 40%".to_string(),
+fn skill_category(name: &str, category: &str) -> ResumeSkillCategory {
+    ResumeSkillCategory {
+        name: category.to_string(),
+        skills: vec![ResumeSkill {
+            name: name.to_string(),
+            proficiency: None,
+            years_experience: None,
+        }],
+    }
+}
+
+fn sample_resume() -> ResumeAnalysisInput {
+    ResumeAnalysisInput {
+        resume: StructuredResume {
+            personal: ResumePersonalInfo {
+                name: "Jordan Lee".to_string(),
+                email: "jordan@example.com".to_string(),
+                phone: Some("555-1234".to_string()),
+                location: Some("Portland, OR".to_string()),
+                linkedin: Some("linkedin.com/in/jordan-lee".to_string()),
+                github: None,
+                website: None,
+            },
+            summary: Some(
+                "Program operations lead with 5 years of client services and intake scheduling"
+                    .to_string(),
+            ),
+            experience: vec![ResumeExperience {
+                title: "Program Operations Lead".to_string(),
+                company: "Harbor Community Services".to_string(),
+                location: Some("Portland, OR".to_string()),
+                start_date: "Jan 2020".to_string(),
+                end_date: None,
+                achievements: vec![
+                    "Led client intake scheduling across three service teams".to_string(),
+                    "Improved case documentation accuracy by 40%".to_string(),
+                ],
+                is_current: true,
+            }],
+            skills: vec![
+                skill_category("Case management", "Client Services"),
+                skill_category("Scheduling", "Operations"),
+                skill_category("CRM", "Tools"),
+                skill_category("Reporting", "Operations"),
+                skill_category("Compliance", "Quality"),
+                skill_category("Excel", "Tools"),
             ],
-            current: true,
-        }],
-        skills: vec![
-            Skill {
-                name: "Case management".to_string(),
-                category: "Client Services".to_string(),
-                proficiency: None,
-            },
-            Skill {
-                name: "Scheduling".to_string(),
-                category: "Operations".to_string(),
-                proficiency: None,
-            },
-            Skill {
-                name: "CRM".to_string(),
-                category: "Tools".to_string(),
-                proficiency: None,
-            },
-            Skill {
-                name: "Reporting".to_string(),
-                category: "Operations".to_string(),
-                proficiency: None,
-            },
-            Skill {
-                name: "Compliance".to_string(),
-                category: "Quality".to_string(),
-                proficiency: None,
-            },
-            Skill {
-                name: "Excel".to_string(),
-                category: "Tools".to_string(),
-                proficiency: None,
-            },
-        ],
-        education: vec![Education {
-            degree: "BA Public Administration".to_string(),
-            institution: "State University".to_string(),
-            location: "Portland, OR".to_string(),
-            graduation_date: "2018".to_string(),
-            gpa: Some(3.8),
-            honors: vec![],
-        }],
-        certifications: vec![],
-        projects: vec![],
+            education: vec![ResumeEducation {
+                degree: "BA Public Administration".to_string(),
+                institution: "State University".to_string(),
+                field_of_study: None,
+                location: Some("Portland, OR".to_string()),
+                graduation_date: Some("2018".to_string()),
+                gpa: Some("3.8".to_string()),
+                honors: vec![],
+            }],
+            certifications: vec![],
+            projects: vec![],
+            clearance: None,
+            military_info: None,
+        },
         custom_sections: HashMap::new(),
     }
 }
@@ -251,8 +245,8 @@ fn test_keyword_importance_ordering() {
 #[test]
 fn test_format_issue_severity() {
     let mut resume = sample_resume();
-    resume.contact_info.email = String::new(); // Critical
-    resume.contact_info.phone = String::new(); // Warning
+    resume.resume.personal.email = String::new(); // Critical
+    resume.resume.personal.phone = Some(String::new()); // Warning
 
     let result = AtsAnalyzer::analyze_format(&resume);
 
@@ -281,8 +275,8 @@ fn test_completeness_score() {
 
     // Remove some sections
     let mut incomplete = resume.clone();
-    incomplete.summary = String::new();
-    incomplete.education.clear();
+    incomplete.resume.summary = Some(String::new());
+    incomplete.resume.education.clear();
 
     let result2 = AtsAnalyzer::analyze_format(&incomplete);
     assert!(result2.completeness_score < 100.0);
@@ -291,7 +285,8 @@ fn test_completeness_score() {
 #[test]
 fn test_keyword_frequency_tracking() {
     let mut resume = sample_resume();
-    resume.summary = "Rust developer with Rust experience building Rust applications".to_string();
+    resume.resume.summary =
+        Some("Rust developer with Rust experience building Rust applications".to_string());
 
     let job_desc = "Required: Rust";
     let result = AtsAnalyzer::analyze_for_job(&resume, job_desc);
@@ -304,19 +299,12 @@ fn test_keyword_frequency_tracking() {
 #[test]
 fn test_keyword_matching_does_not_count_substrings_as_evidence() {
     let mut resume = sample_resume();
-    resume.summary =
-        "Customer success specialist with JavaScript dashboards and Salesforce reports".to_string();
-    resume.skills = vec![
-        Skill {
-            name: "JavaScript".to_string(),
-            category: "Tools".to_string(),
-            proficiency: None,
-        },
-        Skill {
-            name: "Salesforce".to_string(),
-            category: "Tools".to_string(),
-            proficiency: None,
-        },
+    resume.resume.summary = Some(
+        "Customer success specialist with JavaScript dashboards and Salesforce reports".to_string(),
+    );
+    resume.resume.skills = vec![
+        skill_category("JavaScript", "Tools"),
+        skill_category("Salesforce", "Tools"),
     ];
 
     let result = AtsAnalyzer::analyze_for_job(&resume, "Required: Java, sales");
@@ -338,7 +326,7 @@ fn test_keyword_matching_does_not_count_substrings_as_evidence() {
 #[test]
 fn test_long_bullet_points_detected() {
     let mut resume = sample_resume();
-    resume.experience[0].achievements = vec![
+    resume.resume.experience[0].achievements = vec![
             "This is a very long bullet point that exceeds the recommended length for ATS systems and should be flagged as a formatting issue that needs to be addressed before submission".to_string(),
         ];
 
@@ -353,7 +341,7 @@ fn test_long_bullet_points_detected() {
 #[test]
 fn test_missing_start_date_detected() {
     let mut resume = sample_resume();
-    resume.experience[0].start_date = String::new();
+    resume.resume.experience[0].start_date = String::new();
 
     let result = AtsAnalyzer::analyze_format(&resume);
 
@@ -366,17 +354,9 @@ fn test_missing_start_date_detected() {
 #[test]
 fn test_few_skills_warning() {
     let mut resume = sample_resume();
-    resume.skills = vec![
-        Skill {
-            name: "Rust".to_string(),
-            category: "Programming".to_string(),
-            proficiency: None,
-        },
-        Skill {
-            name: "Python".to_string(),
-            category: "Programming".to_string(),
-            proficiency: None,
-        },
+    resume.resume.skills = vec![
+        skill_category("Rust", "Programming"),
+        skill_category("Python", "Programming"),
     ];
 
     let result = AtsAnalyzer::analyze_format(&resume);
@@ -423,7 +403,7 @@ fn test_missing_keyword_suggestions_are_review_first() {
 #[test]
 fn test_resume_format_suggestions_have_plain_impact_copy() {
     let mut resume = sample_resume();
-    resume.experience[0].achievements.clear();
+    resume.resume.experience[0].achievements.clear();
 
     let result = AtsAnalyzer::analyze_format(&resume);
     let suggestion = result
@@ -439,7 +419,7 @@ fn test_resume_format_suggestions_have_plain_impact_copy() {
 #[test]
 fn test_bullet_suggestions_are_review_first() {
     let mut resume = sample_resume();
-    resume.experience[0].achievements = vec!["Handled weekly client scheduling".to_string()];
+    resume.resume.experience[0].achievements = vec!["Handled weekly client scheduling".to_string()];
 
     let result = AtsAnalyzer::analyze_format(&resume);
     let suggestion = result

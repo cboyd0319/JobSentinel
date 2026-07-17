@@ -185,7 +185,7 @@ pub struct ResumeDocument {
 }
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
-pub struct StructuredResume {
+pub struct ExtractedResume {
     pub id: String,
     pub summary: Option<String>,
     pub skills: Vec<SkillMention>,
@@ -224,7 +224,7 @@ pub struct Gap {
 }
 
 pub trait ResumeExtractor {
-    fn extract(&self, input: ResumeDocument) -> Result<StructuredResume>;
+    fn extract(&self, input: ResumeDocument) -> Result<ExtractedResume>;
 }
 
 pub trait JobExtractor {
@@ -239,7 +239,7 @@ pub trait EvidenceMatcher {
     fn match_evidence(
         &self,
         requirement: &JobRequirement,
-        resume: &StructuredResume,
+        resume: &ExtractedResume,
     ) -> Result<Vec<EvidenceMatch>>;
 }
 

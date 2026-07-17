@@ -30,11 +30,10 @@ mod runtime;
 mod tests;
 
 pub use contracts::{
-    EvidenceItem, EvidenceMatch, EvidenceMatcher, Gap, GapAnalyzer, JobExtractor,
+    EvidenceItem, EvidenceMatch, EvidenceMatcher, ExtractedResume, Gap, GapAnalyzer, JobExtractor,
     JobPostingRiskSignals, JobRequirement, MatchExplanation, RawJobPosting, RecommendationKind,
     RequirementClassifier, RequirementStrength, ResumeDocument, ResumeExtractor, RoleFamily,
-    RoleFamilyFitSignals, ScoreConfidence, SkillMention, SkillRelation, StructuredJob,
-    StructuredResume, TextSpan,
+    RoleFamilyFitSignals, ScoreConfidence, SkillMention, SkillRelation, StructuredJob, TextSpan,
 };
 pub use embeddings::EmbeddingGenerator;
 pub use evaluation::{

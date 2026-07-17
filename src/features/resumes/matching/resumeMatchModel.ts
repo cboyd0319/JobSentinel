@@ -13,11 +13,8 @@ import type {
 } from "./resumeMatchContracts";
 
 export type {
-  ContactInfo,
-  Experience,
-  Education,
-  Skill,
-  AtsResumeData,
+  ResumeAnalysisInput,
+  StructuredResume,
   KeywordImportance,
   IssueSeverity,
   RequirementMatchState,

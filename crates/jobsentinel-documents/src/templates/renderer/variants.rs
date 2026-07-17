@@ -1,5 +1,7 @@
 use super::*;
-use crate::{ContactInfo, Education, Experience, SkillCategory};
+use crate::structured_resume::{
+    ResumeEducation, ResumeExperience, ResumePersonalInfo, ResumeSkillCategory, StructuredResume,
+};
 
 enum SkillsLayout {
     Inline,
@@ -7,7 +9,7 @@ enum SkillsLayout {
 }
 
 impl TemplateRenderer {
-    fn append_contact(html: &mut String, contact: &ContactInfo) {
+    fn append_contact(html: &mut String, contact: &ResumePersonalInfo) {
         html.push_str("<div class=\"contact\">\n");
         html.push_str(&format!("{}", escape_html(&contact.email)));
         if let Some(phone) = &contact.phone {
@@ -21,7 +23,7 @@ impl TemplateRenderer {
 
     fn append_experience(
         html: &mut String,
-        experience: &[Experience],
+        experience: &[ResumeExperience],
         heading: &str,
         list_class: Option<&str>,
     ) {
@@ -54,7 +56,11 @@ impl TemplateRenderer {
         }
     }
 
-    fn append_education(html: &mut String, education: &[Education], show_graduation_date: bool) {
+    fn append_education(
+        html: &mut String,
+        education: &[ResumeEducation],
+        show_graduation_date: bool,
+    ) {
         if education.is_empty() {
             return;
         }
@@ -81,7 +87,7 @@ impl TemplateRenderer {
 
     fn append_skills(
         html: &mut String,
-        skills: &[SkillCategory],
+        skills: &[ResumeSkillCategory],
         heading: &str,
         layout: SkillsLayout,
     ) {
@@ -91,18 +97,24 @@ impl TemplateRenderer {
 
         html.push_str(&format!("<h2>{heading}</h2>\n"));
         for category in skills {
+            let skill_names = category
+                .skills
+                .iter()
+                .map(|skill| skill.name.as_str())
+                .collect::<Vec<_>>()
+                .join(", ");
             match layout {
                 SkillsLayout::Inline => html.push_str(&format!(
                     "<div class=\"skill-category\"><strong>{}:</strong> {}</div>\n",
                     escape_html(&category.name),
-                    escape_html(&category.skills.join(", "))
+                    escape_html(&skill_names)
                 )),
                 SkillsLayout::Block => {
                     html.push_str("<div class=\"skill-category\">\n");
                     html.push_str(&format!(
                         "<strong>{}:</strong> {}\n",
                         escape_html(&category.name),
-                        escape_html(&category.skills.join(", "))
+                        escape_html(&skill_names)
                     ));
                     html.push_str("</div>\n");
                 }
@@ -114,16 +126,16 @@ impl TemplateRenderer {
     }
 
     // Classic template: traditional chronological
-    pub(super) fn render_classic(resume: &ResumeData) -> String {
+    pub(super) fn render_classic(resume: &StructuredResume) -> String {
         let mut html = Self::html_header("Classic Resume", styles::classic());
 
         // Name centered
         html.push_str(&format!(
             "<h1 class=\"name\">{}</h1>\n",
-            escape_html(&resume.contact.name)
+            escape_html(&resume.personal.name)
         ));
 
-        Self::append_contact(&mut html, &resume.contact);
+        Self::append_contact(&mut html, &resume.personal);
 
         // Summary
         if let Some(summary) = &resume.summary {
@@ -145,16 +157,16 @@ impl TemplateRenderer {
     }
 
     // Modern template: clean minimal design
-    pub(super) fn render_modern(resume: &ResumeData) -> String {
+    pub(super) fn render_modern(resume: &StructuredResume) -> String {
         let mut html = Self::html_header("Modern Resume", styles::modern());
 
         // Name left-aligned, bold
         html.push_str(&format!(
             "<h1 class=\"name\">{}</h1>\n",
-            escape_html(&resume.contact.name)
+            escape_html(&resume.personal.name)
         ));
 
-        Self::append_contact(&mut html, &resume.contact);
+        Self::append_contact(&mut html, &resume.personal);
 
         html.push_str("<hr class=\"section-divider\">\n\n");
 
@@ -187,16 +199,16 @@ impl TemplateRenderer {
     }
 
     // Skills-first template.
-    pub(super) fn render_technical(resume: &ResumeData) -> String {
+    pub(super) fn render_technical(resume: &StructuredResume) -> String {
         let mut html = Self::html_header("Skills-First Resume", styles::technical());
 
         // Name
         html.push_str(&format!(
             "<h1 class=\"name\">{}</h1>\n",
-            escape_html(&resume.contact.name)
+            escape_html(&resume.personal.name)
         ));
 
-        Self::append_contact(&mut html, &resume.contact);
+        Self::append_contact(&mut html, &resume.personal);
 
         // Summary
         if let Some(summary) = &resume.summary {
@@ -223,16 +235,16 @@ impl TemplateRenderer {
     }
 
     // Executive template: summary and impact focused
-    pub(super) fn render_executive(resume: &ResumeData) -> String {
+    pub(super) fn render_executive(resume: &StructuredResume) -> String {
         let mut html = Self::html_header("Executive Resume", styles::executive());
 
         // Name
         html.push_str(&format!(
             "<h1 class=\"name\">{}</h1>\n",
-            escape_html(&resume.contact.name)
+            escape_html(&resume.personal.name)
         ));
 
-        Self::append_contact(&mut html, &resume.contact);
+        Self::append_contact(&mut html, &resume.personal);
 
         // Summary (EMPHASIZED)
         if let Some(summary) = &resume.summary {
@@ -266,16 +278,16 @@ impl TemplateRenderer {
     }
 
     // Military template: veteran transition
-    pub(super) fn render_military(resume: &ResumeData) -> String {
+    pub(super) fn render_military(resume: &StructuredResume) -> String {
         let mut html = Self::html_header("Military Resume", styles::military());
 
         // Name
         html.push_str(&format!(
             "<h1 class=\"name\">{}</h1>\n",
-            escape_html(&resume.contact.name)
+            escape_html(&resume.personal.name)
         ));
 
-        Self::append_contact(&mut html, &resume.contact);
+        Self::append_contact(&mut html, &resume.personal);
 
         // Clearance (PROMINENT)
         if let Some(clearance) = &resume.clearance {

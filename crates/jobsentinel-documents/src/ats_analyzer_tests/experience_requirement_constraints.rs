@@ -60,9 +60,9 @@ fn test_age_requirement_is_not_years_experience_constraint() {
 #[test]
 fn test_missing_required_senior_level_constraint_caps_overall_score() {
     let mut resume = sample_resume();
-    resume.summary = "Client service coordinator with intake scheduling".to_string();
-    resume.experience[0].title = "Client Service Coordinator".to_string();
-    resume.experience[0].achievements =
+    resume.resume.summary = Some("Client service coordinator with intake scheduling".to_string());
+    resume.resume.experience[0].title = "Client Service Coordinator".to_string();
+    resume.resume.experience[0].achievements =
         vec!["Handled intake scheduling and case documentation".to_string()];
 
     let result = AtsAnalyzer::analyze_for_job(&resume, "Required: senior-level experience, CRM");
@@ -84,9 +84,10 @@ fn test_missing_required_senior_level_constraint_caps_overall_score() {
 #[test]
 fn test_higher_seniority_requirement_warns_about_lower_level_evidence() {
     let mut resume = sample_resume();
-    resume.summary = "Senior service coordinator with 7 years of intake scheduling".to_string();
-    resume.experience[0].title = "Senior Service Coordinator".to_string();
-    resume.experience[0].achievements =
+    resume.resume.summary =
+        Some("Senior service coordinator with 7 years of intake scheduling".to_string());
+    resume.resume.experience[0].title = "Senior Service Coordinator".to_string();
+    resume.resume.experience[0].achievements =
         vec!["Handled intake scheduling and case documentation".to_string()];
 
     let result = AtsAnalyzer::analyze_for_job(&resume, "Required: staff-level experience, CRM");

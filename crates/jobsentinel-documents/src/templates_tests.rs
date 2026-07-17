@@ -1,4 +1,8 @@
 use super::*;
+use crate::structured_resume::{
+    ResumeCertification, ResumeEducation, ResumeExperience, ResumePersonalInfo, ResumeProject,
+    ResumeSkill, ResumeSkillCategory, StructuredResume,
+};
 
 const ALL_TEMPLATE_IDS: [TemplateId; 5] = [
     TemplateId::Classic,
@@ -17,50 +21,64 @@ fn snapshot_checksum(value: &str) -> u64 {
         })
 }
 
-fn create_test_resume() -> ResumeData {
-    ResumeData {
-        contact: ContactInfo {
+fn create_test_resume() -> StructuredResume {
+    StructuredResume {
+        personal: ResumePersonalInfo {
             name: "Jordan Lee".to_string(),
             email: "jordan@example.com".to_string(),
             phone: Some("555-1234".to_string()),
             location: Some("Portland, OR".to_string()),
             linkedin: Some("linkedin.com/in/jordan-lee".to_string()),
+            github: None,
             website: Some("jordanlee.example.com".to_string()),
         },
         summary: Some(
             "Community programs manager with 10 years in client services and operations."
                 .to_string(),
         ),
-        experience: vec![Experience {
+        experience: vec![ResumeExperience {
             title: "Community Programs Manager".to_string(),
             company: "Harbor Community Services".to_string(),
             location: Some("Portland, OR".to_string()),
             start_date: "Jan 2020".to_string(),
             end_date: None,
+            is_current: true,
             achievements: vec![
                 "Coordinated intake program serving 1,000+ clients per year".to_string(),
                 "Led a 5-person case coordination team".to_string(),
             ],
         }],
-        education: vec![Education {
+        education: vec![ResumeEducation {
             degree: "BA Public Administration".to_string(),
             institution: "State University".to_string(),
+            field_of_study: None,
             location: Some("Portland, OR".to_string()),
             graduation_date: Some("2014".to_string()),
             gpa: Some("3.8".to_string()),
             honors: vec![],
         }],
         skills: vec![
-            SkillCategory {
+            ResumeSkillCategory {
                 name: "Languages".to_string(),
-                skills: vec!["English".to_string(), "Spanish".to_string()],
+                skills: vec!["English", "Spanish"]
+                    .into_iter()
+                    .map(|name| ResumeSkill {
+                        name: name.to_string(),
+                        proficiency: None,
+                        years_experience: None,
+                    })
+                    .collect(),
             },
-            SkillCategory {
+            ResumeSkillCategory {
                 name: "Operations".to_string(),
-                skills: vec![
-                    "Case documentation".to_string(),
-                    "Grant reporting".to_string(),
-                ],
+                skills: vec!["Case documentation", "Grant reporting"]
+                    .into_iter()
+                    .map(|name| ResumeSkill {
+                        name: name.to_string(),
+                        proficiency: None,
+                        years_experience: None,
+                    })
+                    .collect(),
             },
         ],
         certifications: vec![],
@@ -200,13 +218,14 @@ fn test_render_plain_text() {
 #[test]
 fn test_render_html_and_text_include_certifications_and_projects() {
     let mut resume = create_test_resume();
-    resume.certifications = vec![Certification {
+    resume.certifications = vec![ResumeCertification {
         name: "Certified Community Health Worker".to_string(),
         issuer: "State Health Board".to_string(),
-        date: Some("2024".to_string()),
-        expiry: None,
+        date_obtained: Some("2024".to_string()),
+        expiration_date: None,
+        credential_id: None,
     }];
-    resume.projects = vec![Project {
+    resume.projects = vec![ResumeProject {
         name: "Clinic Intake Redesign".to_string(),
         description: "Improved appointment intake for community clinic.".to_string(),
         technologies: vec!["Scheduling".to_string(), "Patient intake".to_string()],
@@ -233,13 +252,14 @@ fn test_render_html_and_text_include_certifications_and_projects() {
 #[test]
 fn test_technical_html_does_not_duplicate_certifications_or_projects() {
     let mut resume = create_test_resume();
-    resume.certifications = vec![Certification {
+    resume.certifications = vec![ResumeCertification {
         name: "Certified Community Health Worker".to_string(),
         issuer: "State Health Board".to_string(),
-        date: Some("2024".to_string()),
-        expiry: None,
+        date_obtained: Some("2024".to_string()),
+        expiration_date: None,
+        credential_id: None,
     }];
-    resume.projects = vec![Project {
+    resume.projects = vec![ResumeProject {
         name: "Clinic Intake Redesign".to_string(),
         description: "Improved appointment intake for community clinic.".to_string(),
         technologies: vec!["Scheduling".to_string(), "Patient intake".to_string()],
@@ -257,13 +277,14 @@ fn test_technical_html_does_not_duplicate_certifications_or_projects() {
 #[test]
 fn test_all_html_templates_include_certifications_and_projects_once() {
     let mut resume = create_test_resume();
-    resume.certifications = vec![Certification {
+    resume.certifications = vec![ResumeCertification {
         name: "Certified Community Health Worker".to_string(),
         issuer: "State Health Board".to_string(),
-        date: Some("2024".to_string()),
-        expiry: None,
+        date_obtained: Some("2024".to_string()),
+        expiration_date: None,
+        credential_id: None,
     }];
-    resume.projects = vec![Project {
+    resume.projects = vec![ResumeProject {
         name: "Clinic Intake Redesign".to_string(),
         description: "Improved appointment intake for community clinic.".to_string(),
         technologies: vec!["Scheduling".to_string(), "Patient intake".to_string()],
@@ -289,13 +310,14 @@ fn test_all_html_templates_include_certifications_and_projects_once() {
 
 #[test]
 fn test_html_escaping() {
-    let resume = ResumeData {
-        contact: ContactInfo {
+    let resume = StructuredResume {
+        personal: ResumePersonalInfo {
             name: "<script>alert('xss')</script>".to_string(),
             email: "test@example.com".to_string(),
             phone: None,
             location: None,
             linkedin: None,
+            github: None,
             website: None,
         },
         summary: Some("Test & < > \" '".to_string()),
@@ -322,13 +344,14 @@ fn test_html_escaping() {
 
 #[test]
 fn test_empty_sections() {
-    let resume = ResumeData {
-        contact: ContactInfo {
+    let resume = StructuredResume {
+        personal: ResumePersonalInfo {
             name: "Jane Smith".to_string(),
             email: "jane@example.com".to_string(),
             phone: None,
             location: None,
             linkedin: None,
+            github: None,
             website: None,
         },
         summary: None,

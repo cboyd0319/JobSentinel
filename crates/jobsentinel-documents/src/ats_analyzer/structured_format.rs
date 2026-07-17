@@ -1,27 +1,30 @@
 use super::super::ats_types::{
     AtsAnalysisResult, AtsSuggestion, FormatIssue, IssueSeverity, SuggestionCategory,
 };
-use super::super::types::{ContactInfo, Education, Experience, ResumeData, Skill};
+use super::super::structured_resume::{
+    ResumeAnalysisInput, ResumeEducation, ResumeExperience, ResumePersonalInfo, ResumeSkillCategory,
+};
 use super::{bullet_prompts, format_result, plain_text_format};
 
 mod text_rules;
 
 pub(super) use text_rules::*;
 
-pub(super) fn analyze_format(resume: &ResumeData) -> AtsAnalysisResult {
+pub(super) fn analyze_format(input: &ResumeAnalysisInput) -> AtsAnalysisResult {
+    let resume = &input.resume;
     let mut format_issues = Vec::new();
     let mut suggestions = Vec::new();
 
-    check_contact_info(&resume.contact_info, &mut format_issues, &mut suggestions);
+    check_contact_info(&resume.personal, &mut format_issues, &mut suggestions);
     check_experience(&resume.experience, &mut format_issues, &mut suggestions);
     check_skills(&resume.skills, &mut format_issues, &mut suggestions);
     check_education(&resume.education, &mut format_issues, &mut suggestions);
-    check_adversarial_content(resume, &mut format_issues, &mut suggestions);
-    check_special_character_risks(resume, &mut format_issues, &mut suggestions);
-    check_keyword_stuffing(resume, &mut format_issues, &mut suggestions);
-    check_keyword_list_bullets(resume, &mut format_issues, &mut suggestions);
-    check_capability_level_claims(resume, &mut format_issues, &mut suggestions);
-    check_generic_filler_bullets(resume, &mut format_issues, &mut suggestions);
+    check_adversarial_content(input, &mut format_issues, &mut suggestions);
+    check_special_character_risks(input, &mut format_issues, &mut suggestions);
+    check_keyword_stuffing(input, &mut format_issues, &mut suggestions);
+    check_keyword_list_bullets(input, &mut format_issues, &mut suggestions);
+    check_capability_level_claims(input, &mut format_issues, &mut suggestions);
+    check_generic_filler_bullets(input, &mut format_issues, &mut suggestions);
 
     let completeness_score = calculate_completeness(resume);
 
@@ -29,7 +32,7 @@ pub(super) fn analyze_format(resume: &ResumeData) -> AtsAnalysisResult {
 }
 
 fn check_contact_info(
-    contact: &ContactInfo,
+    contact: &ResumePersonalInfo,
     issues: &mut Vec<FormatIssue>,
     _suggestions: &mut Vec<AtsSuggestion>,
 ) {
@@ -41,7 +44,7 @@ fn check_contact_info(
         });
     }
 
-    if contact.phone.is_empty() {
+    if contact.phone.as_deref().unwrap_or_default().is_empty() {
         issues.push(FormatIssue {
             severity: IssueSeverity::Warning,
             issue: "Missing phone number".to_string(),
@@ -49,7 +52,7 @@ fn check_contact_info(
         });
     }
 
-    if contact.location.is_empty() {
+    if contact.location.as_deref().unwrap_or_default().is_empty() {
         issues.push(FormatIssue {
             severity: IssueSeverity::Info,
             issue: "Missing location".to_string(),
@@ -59,7 +62,7 @@ fn check_contact_info(
 }
 
 fn check_experience(
-    experience: &[Experience],
+    experience: &[ResumeExperience],
     issues: &mut Vec<FormatIssue>,
     suggestions: &mut Vec<AtsSuggestion>,
 ) {
@@ -121,7 +124,7 @@ fn check_experience(
 }
 
 fn check_skills(
-    skills: &[Skill],
+    skills: &[ResumeSkillCategory],
     issues: &mut Vec<FormatIssue>,
     _suggestions: &mut Vec<AtsSuggestion>,
 ) {
@@ -133,7 +136,12 @@ fn check_skills(
                 "Add a skills section with relevant technical, workplace, and role-specific skills"
                     .to_string(),
         });
-    } else if skills.len() < 5 {
+    } else if skills
+        .iter()
+        .map(|category| category.skills.len())
+        .sum::<usize>()
+        < 5
+    {
         issues.push(FormatIssue {
             severity: IssueSeverity::Warning,
             issue: "Few skills listed".to_string(),
@@ -143,7 +151,7 @@ fn check_skills(
 }
 
 fn check_education(
-    education: &[Education],
+    education: &[ResumeEducation],
     issues: &mut Vec<FormatIssue>,
     _suggestions: &mut Vec<AtsSuggestion>,
 ) {
@@ -157,7 +165,7 @@ fn check_education(
 }
 
 fn check_adversarial_content(
-    resume: &ResumeData,
+    resume: &ResumeAnalysisInput,
     issues: &mut Vec<FormatIssue>,
     suggestions: &mut Vec<AtsSuggestion>,
 ) {
@@ -182,7 +190,7 @@ fn check_adversarial_content(
 }
 
 fn check_special_character_risks(
-    resume: &ResumeData,
+    resume: &ResumeAnalysisInput,
     issues: &mut Vec<FormatIssue>,
     suggestions: &mut Vec<AtsSuggestion>,
 ) {
@@ -191,7 +199,7 @@ fn check_special_character_risks(
 }
 
 fn check_keyword_stuffing(
-    resume: &ResumeData,
+    resume: &ResumeAnalysisInput,
     issues: &mut Vec<FormatIssue>,
     suggestions: &mut Vec<AtsSuggestion>,
 ) {
@@ -213,10 +221,11 @@ fn check_keyword_stuffing(
 }
 
 fn check_keyword_list_bullets(
-    resume: &ResumeData,
+    input: &ResumeAnalysisInput,
     issues: &mut Vec<FormatIssue>,
     suggestions: &mut Vec<AtsSuggestion>,
 ) {
+    let resume = &input.resume;
     let has_keyword_list = resume.experience.iter().any(|experience| {
         experience
             .achievements
@@ -225,7 +234,7 @@ fn check_keyword_list_bullets(
     }) || resume
         .projects
         .iter()
-        .any(|project| plain_text_format::line_looks_like_keyword_list(project));
+        .any(|project| plain_text_format::line_looks_like_keyword_list(&project.description));
 
     if has_keyword_list {
         push_keyword_list_issue(issues, suggestions);
@@ -252,10 +261,11 @@ pub(super) fn push_keyword_list_issue(
 }
 
 fn check_capability_level_claims(
-    resume: &ResumeData,
+    input: &ResumeAnalysisInput,
     issues: &mut Vec<FormatIssue>,
     suggestions: &mut Vec<AtsSuggestion>,
 ) {
+    let resume = &input.resume;
     let has_unclear_claim = resume.experience.iter().any(|experience| {
         experience
             .achievements
@@ -264,7 +274,7 @@ fn check_capability_level_claims(
     }) || resume
         .projects
         .iter()
-        .any(|project| line_has_unclear_capability_level(project));
+        .any(|project| line_has_unclear_capability_level(&project.description));
 
     if has_unclear_claim {
         push_capability_level_issue(issues, suggestions);
@@ -290,19 +300,19 @@ pub(super) fn push_capability_level_issue(
 }
 
 fn check_generic_filler_bullets(
-    resume: &ResumeData,
+    input: &ResumeAnalysisInput,
     issues: &mut Vec<FormatIssue>,
     suggestions: &mut Vec<AtsSuggestion>,
 ) {
+    let resume = &input.resume;
     let has_filler = resume.experience.iter().any(|experience| {
         experience
             .achievements
             .iter()
             .any(|item| plain_text_format::line_looks_like_generic_resume_filler(item))
-    }) || resume
-        .projects
-        .iter()
-        .any(|project| plain_text_format::line_looks_like_generic_resume_filler(project));
+    }) || resume.projects.iter().any(|project| {
+        plain_text_format::line_looks_like_generic_resume_filler(&project.description)
+    });
 
     if has_filler {
         push_generic_filler_issue(issues, suggestions);
@@ -327,11 +337,18 @@ pub(super) fn push_generic_filler_issue(
     });
 }
 
-fn calculate_completeness(resume: &ResumeData) -> f64 {
+fn calculate_completeness(resume: &super::super::structured_resume::StructuredResume) -> f64 {
     let mut filled = 0;
     let total = 5;
 
-    if !resume.contact_info.email.is_empty() && !resume.contact_info.phone.is_empty() {
+    if !resume.personal.email.is_empty()
+        && !resume
+            .personal
+            .phone
+            .as_deref()
+            .unwrap_or_default()
+            .is_empty()
+    {
         filled += 1;
     }
 
@@ -347,7 +364,11 @@ fn calculate_completeness(resume: &ResumeData) -> f64 {
         filled += 1;
     }
 
-    if !resume.summary.is_empty() {
+    if resume
+        .summary
+        .as_deref()
+        .is_some_and(|summary| !summary.is_empty())
+    {
         filled += 1;
     }
 

@@ -1,6 +1,7 @@
 use super::*;
 use jobsentinel_documents::{
-    ExportResumeData, ExportSkillCategory, ExportTemplateId, PersonalInfo, ResumeExporter,
+    ResumeExporter, ResumePersonalInfo, ResumeSkill, ResumeSkillCategory, StructuredResume,
+    TemplateId,
 };
 
 #[tokio::test]
@@ -10,26 +11,30 @@ async fn test_upload_resume_docx_parses_text_and_extracts_skills() {
     let temp_dir = tempfile::TempDir::new().unwrap();
     let file_path = temp_dir.path().join("operations-resume.docx");
     let bytes = ResumeExporter::export_docx(
-        &ExportResumeData {
-            personal: PersonalInfo {
-                full_name: "Jordan Lee".to_string(),
+        &StructuredResume {
+            personal: ResumePersonalInfo {
+                name: "Jordan Lee".to_string(),
                 email: "jordan@example.com".to_string(),
-                phone: String::new(),
-                location: String::new(),
-                linkedin_url: None,
-                website_url: None,
+                ..ResumePersonalInfo::default()
             },
             summary: None,
             experience: Vec::new(),
             education: Vec::new(),
-            skills: vec![ExportSkillCategory {
-                category: "Skills".to_string(),
-                skills: vec!["Project Management".to_string(), "Agile".to_string()],
+            skills: vec![ResumeSkillCategory {
+                name: "Skills".to_string(),
+                skills: vec!["Project Management", "Agile"]
+                    .into_iter()
+                    .map(|name| ResumeSkill {
+                        name: name.to_string(),
+                        ..ResumeSkill::default()
+                    })
+                    .collect(),
             }],
             certifications: Vec::new(),
             projects: Vec::new(),
+            ..StructuredResume::default()
         },
-        ExportTemplateId::Professional,
+        TemplateId::Professional,
     )
     .unwrap();
     std::fs::write(&file_path, bytes).unwrap();

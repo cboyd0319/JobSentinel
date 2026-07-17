@@ -28,7 +28,10 @@ export function analyzeMockResumeFormat(resume: unknown): MockAtsAnalysisResult 
   const formatIssues: MockFormatIssue[] = [];
   const suggestions: MockAtsSuggestion[] = [];
 
-  if (!getNestedString(resume, ["contact_info", "email"])) {
+  if (
+    !getNestedString(resume, ["resume", "personal", "email"]) &&
+    !getNestedString(resume, ["contact_info", "email"])
+  ) {
     formatIssues.push({
       severity: "Critical",
       issue: "Missing email address",

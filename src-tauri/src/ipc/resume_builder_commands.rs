@@ -1,7 +1,7 @@
 //! Resume Builder Tauri commands.
 
 use crate::application::resume::{
-    BuilderContactInfo, BuilderEducation, BuilderExperience, BuilderResumeData, SkillEntry,
+    DraftEducation, DraftExperience, DraftSkill, ResumeDraft, ResumePersonalInfo,
 };
 use crate::bootstrap::AppState;
 use crate::ipc::errors::user_friendly_error;
@@ -24,7 +24,7 @@ pub(crate) async fn create_resume_draft(state: State<'_, AppState>) -> Result<i6
 pub(crate) async fn get_resume_draft(
     resume_id: i64,
     state: State<'_, AppState>,
-) -> Result<Option<BuilderResumeData>, String> {
+) -> Result<Option<ResumeDraft>, String> {
     tracing::info!("Command: get_resume_draft (id: {})", resume_id);
 
     let builder = state.database.resume_builder();
@@ -38,7 +38,7 @@ pub(crate) async fn get_resume_draft(
 #[tauri::command]
 pub(crate) async fn update_resume_contact(
     resume_id: i64,
-    contact: BuilderContactInfo,
+    contact: ResumePersonalInfo,
     state: State<'_, AppState>,
 ) -> Result<(), String> {
     tracing::info!("Command: update_resume_contact (id: {})", resume_id);
@@ -70,7 +70,7 @@ pub(crate) async fn update_resume_summary(
 #[tauri::command]
 pub(crate) async fn add_resume_experience(
     resume_id: i64,
-    experience: BuilderExperience,
+    experience: DraftExperience,
     state: State<'_, AppState>,
 ) -> Result<i64, String> {
     tracing::info!("Command: add_resume_experience (id: {})", resume_id);
@@ -106,7 +106,7 @@ pub(crate) async fn delete_resume_experience(
 #[tauri::command]
 pub(crate) async fn add_resume_education(
     resume_id: i64,
-    education: BuilderEducation,
+    education: DraftEducation,
     state: State<'_, AppState>,
 ) -> Result<i64, String> {
     tracing::info!("Command: add_resume_education (id: {})", resume_id);
@@ -142,7 +142,7 @@ pub(crate) async fn delete_resume_education(
 #[tauri::command]
 pub(crate) async fn set_resume_skills(
     resume_id: i64,
-    skills: Vec<SkillEntry>,
+    skills: Vec<DraftSkill>,
     state: State<'_, AppState>,
 ) -> Result<(), String> {
     tracing::info!("Command: set_resume_skills (id: {})", resume_id);

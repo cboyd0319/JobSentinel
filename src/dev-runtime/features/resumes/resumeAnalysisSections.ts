@@ -12,7 +12,8 @@ export interface MockAtsResumeSections {
 }
 
 export function getMockAtsResumeSections(value: unknown): MockAtsResumeSections {
-  const source = isRecord(value) ? value : {};
+  const root = isRecord(value) ? value : {};
+  const source = isRecord(root.resume) ? root.resume : root;
   const experienceEntries = Array.isArray(source.experience)
     ? source.experience.map((item) => ({
         text: collectRecordText(item),
@@ -43,7 +44,7 @@ export function getMockAtsResumeSections(value: unknown): MockAtsResumeSections 
     ? source.projects.map((item) => collectRecordText(item))
     : [];
   const summary = typeof source.summary === "string" ? source.summary : "";
-  const contactInfo = collectRecordText(source.contact_info);
+  const contactInfo = collectRecordText(source.personal ?? source.contact_info);
   const allText = [
     contactInfo,
     summary,

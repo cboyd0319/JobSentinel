@@ -9,11 +9,9 @@ import {
 } from "./resumeBuilderExportDom";
 import {
   normalizeAtsAnalysis,
-  toAtsResumeData,
-  toExportResumeData,
-  toExportTemplateId,
   toJsonResumeData,
-  toTemplateResumeData,
+  toResumeAnalysisInput,
+  toStructuredResume,
   type ATSAnalysis,
   type BackendATSAnalysis,
   type ResumeData,
@@ -51,7 +49,7 @@ export function useResumeBuilderExports({
       // NOTE: render_resume_html must sanitize all user input on the Rust side
       // to prevent XSS attacks. The HTML returned here is trusted.
       const html = await safeInvoke<string>("render_resume_html", {
-        resume: toTemplateResumeData(resumeData),
+        resume: toStructuredResume(resumeData),
         templateId: selectedTemplate,
       }, {
         logContext: "Render resume HTML"
@@ -61,7 +59,7 @@ export function useResumeBuilderExports({
       // Generate resume readability analysis
       try {
         const analysis = await safeInvoke<BackendATSAnalysis>("analyze_resume_format", {
-          resume: toAtsResumeData(resumeData),
+          resume: toResumeAnalysisInput(resumeData),
         }, {
           logContext: "Analyze resume format",
           silent: true  // Non-critical, don't log failures
@@ -93,8 +91,8 @@ export function useResumeBuilderExports({
     try {
       setExporting(true);
       const docxData = await safeInvoke<number[]>("export_resume_docx", {
-        resume: toExportResumeData(resumeData),
-        template: toExportTemplateId(selectedTemplate),
+        resume: toStructuredResume(resumeData),
+        template: selectedTemplate,
       }, {
         logContext: "Export resume to DOCX"
       });
@@ -137,7 +135,7 @@ export function useResumeBuilderExports({
 
       // Generate HTML using the selected template
       const html = await safeInvoke<string>("render_resume_html", {
-        resume: toTemplateResumeData(resumeData),
+        resume: toStructuredResume(resumeData),
         templateId: selectedTemplate,
       }, {
         logContext: "Render resume for PDF export"

@@ -4,8 +4,8 @@
 //! resume builder, and ATS analysis.
 
 use crate::application::resume::{
-    AtsAnalysisResult, AtsAnalyzer, AtsResumeData, ExportResumeData, MatchResult,
-    MatchResultWithJob, NewSkill, Resume, ResumeExporter, SkillUpdate, Template, TemplateId,
+    AtsAnalysisResult, AtsAnalyzer, MatchResult, MatchResultWithJob, NewSkill, Resume,
+    ResumeAnalysisInput, ResumeExporter, SkillUpdate, StructuredResume, Template, TemplateId,
     TemplateRenderer, UserSkill,
 };
 use crate::bootstrap::AppState;
@@ -320,17 +320,14 @@ pub(crate) fn list_resume_templates() -> Vec<Template> {
 
 /// Render resume to HTML using a template
 #[tauri::command]
-pub(crate) fn render_resume_html(
-    resume: crate::application::resume::ResumeData,
-    template_id: TemplateId,
-) -> String {
+pub(crate) fn render_resume_html(resume: StructuredResume, template_id: TemplateId) -> String {
     tracing::info!("Command: render_resume_html (template: {:?})", template_id);
     TemplateRenderer::render_html(&resume, template_id)
 }
 
 /// Render resume to plain text
 #[tauri::command]
-pub(crate) fn render_resume_text(resume: crate::application::resume::ResumeData) -> String {
+pub(crate) fn render_resume_text(resume: StructuredResume) -> String {
     tracing::info!("Command: render_resume_text");
     TemplateRenderer::render_plain_text(&resume)
 }
@@ -342,8 +339,8 @@ pub(crate) fn render_resume_text(resume: crate::application::resume::ResumeData)
 /// Export resume to DOCX format
 #[tauri::command]
 pub(crate) fn export_resume_docx(
-    resume: ExportResumeData,
-    template: crate::application::resume::ExportTemplateId,
+    resume: StructuredResume,
+    template: TemplateId,
 ) -> Result<Vec<u8>, String> {
     tracing::info!("Command: export_resume_docx");
     ResumeExporter::export_docx(&resume, template)
@@ -352,17 +349,14 @@ pub(crate) fn export_resume_docx(
 
 /// Export resume to HTML format for browser-based PDF generation
 #[tauri::command]
-pub(crate) fn export_resume_html(
-    resume: ExportResumeData,
-    template: crate::application::resume::ExportTemplateId,
-) -> String {
+pub(crate) fn export_resume_html(resume: StructuredResume, template: TemplateId) -> String {
     tracing::info!("Command: export_resume_html (template: {:?})", template);
-    ResumeExporter::export_html(resume, template)
+    ResumeExporter::export_html(&resume, template)
 }
 
 /// Export resume to plain text
 #[tauri::command]
-pub(crate) fn export_resume_text(resume: ExportResumeData) -> String {
+pub(crate) fn export_resume_text(resume: StructuredResume) -> String {
     tracing::info!("Command: export_resume_text");
     ResumeExporter::export_text(&resume)
 }
@@ -374,7 +368,7 @@ pub(crate) fn export_resume_text(resume: ExportResumeData) -> String {
 /// Analyze resume against a job description for application readability
 #[tauri::command]
 pub(crate) fn analyze_resume_for_job(
-    resume: AtsResumeData,
+    resume: ResumeAnalysisInput,
     job_description: String,
 ) -> AtsAnalysisResult {
     tracing::info!("Command: analyze_resume_for_job");
@@ -428,7 +422,7 @@ pub(crate) async fn analyze_active_resume_for_job(
 
 /// Analyze resume format without job context
 #[tauri::command]
-pub(crate) fn analyze_resume_format(resume: AtsResumeData) -> AtsAnalysisResult {
+pub(crate) fn analyze_resume_format(resume: ResumeAnalysisInput) -> AtsAnalysisResult {
     tracing::info!("Command: analyze_resume_format");
     AtsAnalyzer::analyze_format(&resume)
 }

@@ -1,4 +1,5 @@
-use super::{styles, ResumeData, Template, TemplateId};
+use super::{styles, Template, TemplateId};
+use crate::structured_resume::StructuredResume;
 use jobsentinel_security::encode_html_text as escape_html;
 
 mod variants;
@@ -47,7 +48,7 @@ impl TemplateRenderer {
     }
 
     /// Render resume data to HTML using specified template
-    pub fn render_html(resume: &ResumeData, template: TemplateId) -> String {
+    pub fn render_html(resume: &StructuredResume, template: TemplateId) -> String {
         match template {
             TemplateId::Classic | TemplateId::Professional => Self::render_classic(resume),
             TemplateId::Modern => Self::render_modern(resume),
@@ -58,16 +59,16 @@ impl TemplateRenderer {
     }
 
     /// Render resume as plain text (ATS fallback)
-    pub fn render_plain_text(resume: &ResumeData) -> String {
+    pub fn render_plain_text(resume: &StructuredResume) -> String {
         let mut text = String::new();
 
         // Contact
-        text.push_str(&format!("{}\n", resume.contact.name));
-        text.push_str(&format!("{}\n", resume.contact.email));
-        if let Some(phone) = &resume.contact.phone {
+        text.push_str(&format!("{}\n", resume.personal.name));
+        text.push_str(&format!("{}\n", resume.personal.email));
+        if let Some(phone) = &resume.personal.phone {
             text.push_str(&format!("{}\n", phone));
         }
-        if let Some(location) = &resume.contact.location {
+        if let Some(location) = &resume.personal.location {
             text.push_str(&format!("{}\n", location));
         }
         text.push_str("\n");
@@ -111,7 +112,14 @@ impl TemplateRenderer {
             text.push_str("SKILLS\n\n");
             for category in &resume.skills {
                 text.push_str(&format!("{}: ", category.name));
-                text.push_str(&category.skills.join(", "));
+                text.push_str(
+                    &category
+                        .skills
+                        .iter()
+                        .map(|skill| skill.name.as_str())
+                        .collect::<Vec<_>>()
+                        .join(", "),
+                );
                 text.push_str("\n");
             }
         }
@@ -123,10 +131,10 @@ impl TemplateRenderer {
                 if !cert.issuer.is_empty() {
                     text.push_str(&format!(" - {}", cert.issuer));
                 }
-                if let Some(date) = &cert.date {
+                if let Some(date) = &cert.date_obtained {
                     text.push_str(&format!(" - {}", date));
                 }
-                if let Some(expiry) = &cert.expiry {
+                if let Some(expiry) = &cert.expiration_date {
                     text.push_str(&format!(" - Expires {}", expiry));
                 }
                 text.push_str("\n");
@@ -159,7 +167,7 @@ impl TemplateRenderer {
         text
     }
 
-    fn append_certifications(html: &mut String, resume: &ResumeData) {
+    fn append_certifications(html: &mut String, resume: &StructuredResume) {
         if resume.certifications.is_empty() {
             return;
         }
@@ -173,10 +181,10 @@ impl TemplateRenderer {
             if !cert.issuer.is_empty() {
                 details.push(cert.issuer.clone());
             }
-            if let Some(date) = &cert.date {
+            if let Some(date) = &cert.date_obtained {
                 details.push(date.clone());
             }
-            if let Some(expiry) = &cert.expiry {
+            if let Some(expiry) = &cert.expiration_date {
                 details.push(format!("Expires {}", expiry));
             }
             if !details.is_empty() {
@@ -190,7 +198,7 @@ impl TemplateRenderer {
         }
     }
 
-    fn append_projects(html: &mut String, resume: &ResumeData) {
+    fn append_projects(html: &mut String, resume: &StructuredResume) {
         if resume.projects.is_empty() {
             return;
         }

@@ -1,48 +1,7 @@
-export interface ContactInfo {
-  name: string;
-  email: string;
-  phone: string;
-  location: string;
-  linkedin: string | null;
-  github: string | null;
-  website: string | null;
-}
-
-export interface Experience {
-  title: string;
-  company: string;
-  location: string;
-  start_date: string;
-  end_date: string;
-  achievements: string[];
-  current: boolean;
-}
-
-export interface Education {
-  degree: string;
-  institution: string;
-  location: string;
-  graduation_date: string;
-  gpa: number | null;
-  honors: string[];
-}
-
-export interface Skill {
-  name: string;
-  category: string;
-  proficiency: string | null;
-}
-
-export interface AtsResumeData {
-  contact_info: ContactInfo;
-  summary: string;
-  experience: Experience[];
-  skills: Skill[];
-  education: Education[];
-  certifications: string[];
-  projects: string[];
-  custom_sections: Record<string, string[]>;
-}
+export type {
+  ResumeAnalysisInput,
+  StructuredResume,
+} from "../builder/resumeBuilderData";
 
 export type KeywordImportance = "Required" | "Preferred" | "Industry";
 export type IssueSeverity = "Critical" | "Warning" | "Info";

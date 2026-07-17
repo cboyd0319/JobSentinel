@@ -9,110 +9,21 @@
 //! ## Usage
 //!
 //! ```rust,ignore
-//! use jobsentinel_documents::{ExportTemplateId, ResumeExporter};
+//! use jobsentinel_documents::{ResumeExporter, TemplateId};
 //!
-//! let html = ResumeExporter::export_html(resume_data.clone(), ExportTemplateId::Professional);
-//! let docx_bytes = ResumeExporter::export_docx(&resume_data, ExportTemplateId::Modern)?;
+//! let html = ResumeExporter::export_html(&resume_data, TemplateId::Professional);
+//! let docx_bytes = ResumeExporter::export_docx(&resume_data, TemplateId::Modern)?;
 //! let text = ResumeExporter::export_text(&resume_data);
 //! ```
 
+use crate::structured_resume::{StructuredResume, TemplateId};
 use anyhow::{Context, Result};
 use docx_rs::{AlignmentType, Docx, LineSpacing, PageMargin, Paragraph, Run};
-use serde::{Deserialize, Serialize};
 use std::io::Cursor;
 
 mod rendering;
 
 use rendering::*;
-
-/// Resume template styles
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, Default)]
-pub enum TemplateId {
-    /// Clean professional template (default)
-    #[default]
-    Professional,
-    /// Modern template with accent colors
-    Modern,
-    /// Traditional academic-style template
-    Traditional,
-}
-
-/// Complete resume data for export
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ResumeData {
-    /// Personal information
-    pub personal: PersonalInfo,
-    /// Professional summary
-    pub summary: Option<String>,
-    /// Work experience entries
-    pub experience: Vec<ExperienceEntry>,
-    /// Education entries
-    pub education: Vec<EducationEntry>,
-    /// Skills organized by category
-    pub skills: Vec<SkillCategory>,
-    /// Certifications (optional)
-    pub certifications: Vec<Certification>,
-    /// Projects (optional)
-    pub projects: Vec<Project>,
-}
-
-/// Personal contact information
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct PersonalInfo {
-    pub full_name: String,
-    pub email: String,
-    pub phone: String,
-    pub location: String,
-    pub linkedin_url: Option<String>,
-    pub website_url: Option<String>,
-}
-
-/// Work experience entry
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ExperienceEntry {
-    pub company: String,
-    pub job_title: String,
-    pub start_date: String,
-    pub end_date: Option<String>, // None means "Present"
-    pub location: Option<String>,
-    pub responsibilities: Vec<String>, // Bullet points
-}
-
-/// Education entry
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct EducationEntry {
-    pub institution: String,
-    pub degree: String,
-    pub field_of_study: String,
-    pub graduation_year: String,
-    pub gpa: Option<f64>,
-    pub honors: Option<String>,
-}
-
-/// Skills grouped by category
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct SkillCategory {
-    pub category: String, // e.g., "Programming Languages", "Frameworks"
-    pub skills: Vec<String>,
-}
-
-/// Certification entry
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Certification {
-    pub name: String,
-    pub issuer: String,
-    pub date: String,
-    pub credential_id: Option<String>,
-}
-
-/// Project entry
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Project {
-    pub name: String,
-    pub description: String,
-    pub technologies: Vec<String>,
-    pub url: Option<String>,
-}
 
 /// Resume exporter service
 pub struct ResumeExporter;
@@ -127,22 +38,15 @@ impl ResumeExporter {
     /// - Professional typography and layout
     ///
     /// **Implementation**: Option A - HTML + browser print (RECOMMENDED)
-    pub fn export_html(resume: ResumeData, template: TemplateId) -> String {
-        // Convert export types to template types - takes ownership to avoid clones
-        let template_resume = convert_to_template_resume(resume);
-
-        // Use existing template renderer for HTML generation
-        crate::templates::TemplateRenderer::render_html(
-            &template_resume,
-            convert_template_id(template),
-        )
+    pub fn export_html(resume: &StructuredResume, template: TemplateId) -> String {
+        crate::templates::TemplateRenderer::render_html(resume, template.rendering_id())
     }
 
     /// Export resume to DOCX format
     ///
     /// Returns DOCX bytes suitable for saving to file or sending to client.
     /// Uses application-readable formatting with Calibri font and standard structure.
-    pub fn export_docx(resume: &ResumeData, template: TemplateId) -> Result<Vec<u8>> {
+    pub fn export_docx(resume: &StructuredResume, template: TemplateId) -> Result<Vec<u8>> {
         // Create new document
         let mut doc = Docx::new();
 
@@ -159,12 +63,7 @@ impl ResumeExporter {
         // Add name (centered, 18pt, bold)
         doc = doc.add_paragraph(
             Paragraph::new()
-                .add_run(
-                    Run::new()
-                        .add_text(&resume.personal.full_name)
-                        .size(36)
-                        .bold(),
-                ) // 36 half-points = 18pt
+                .add_run(Run::new().add_text(&resume.personal.name).size(36).bold()) // 36 half-points = 18pt
                 .align(AlignmentType::Center),
         );
 
@@ -240,11 +139,11 @@ impl ResumeExporter {
     ///
     /// Returns formatted text suitable for copying into online forms
     /// or text-only applications.
-    pub fn export_text(resume: &ResumeData) -> String {
+    pub fn export_text(resume: &StructuredResume) -> String {
         let mut output = String::new();
 
         // Name and contact
-        output.push_str(&resume.personal.full_name);
+        output.push_str(&resume.personal.name);
         output.push('\n');
         output.push_str(&format_contact_line(&resume.personal));
         output.push_str("\n\n");
@@ -265,12 +164,12 @@ impl ResumeExporter {
                 let end_date = exp.end_date.as_deref().unwrap_or("Present");
                 output.push_str(&format!(
                     "{} — {}\n{} - {}\n",
-                    exp.company, exp.job_title, exp.start_date, end_date
+                    exp.company, exp.title, exp.start_date, end_date
                 ));
                 if let Some(loc) = &exp.location {
                     output.push_str(&format!("{}\n", loc));
                 }
-                for resp in &exp.responsibilities {
+                for resp in &exp.achievements {
                     output.push_str(&format!("• {}\n", resp));
                 }
                 output.push('\n');
@@ -282,16 +181,19 @@ impl ResumeExporter {
             output.push_str("EDUCATION\n");
             output.push_str("---------\n");
             for edu in &resume.education {
-                output.push_str(&format!(
-                    "{} — {} in {}\n",
-                    edu.institution, edu.degree, edu.field_of_study
-                ));
-                output.push_str(&format!("Graduated: {}\n", edu.graduation_year));
-                if let Some(gpa) = edu.gpa {
-                    output.push_str(&format!("GPA: {:.2}\n", gpa));
+                output.push_str(&format!("{} — {}", edu.institution, edu.degree));
+                if let Some(field) = &edu.field_of_study {
+                    output.push_str(&format!(" in {field}"));
                 }
-                if let Some(honors) = &edu.honors {
-                    output.push_str(&format!("{}\n", honors));
+                output.push('\n');
+                if let Some(graduation_date) = &edu.graduation_date {
+                    output.push_str(&format!("Graduated: {graduation_date}\n"));
+                }
+                if let Some(gpa) = &edu.gpa {
+                    output.push_str(&format!("GPA: {}\n", format_gpa(gpa)));
+                }
+                for honor in &edu.honors {
+                    output.push_str(&format!("{honor}\n"));
                 }
                 output.push('\n');
             }
@@ -302,8 +204,15 @@ impl ResumeExporter {
             output.push_str("SKILLS\n");
             output.push_str("------\n");
             for skill_cat in &resume.skills {
-                output.push_str(&format!("{}: ", skill_cat.category));
-                output.push_str(&skill_cat.skills.join(", "));
+                output.push_str(&format!("{}: ", skill_cat.name));
+                output.push_str(
+                    &skill_cat
+                        .skills
+                        .iter()
+                        .map(|skill| skill.name.as_str())
+                        .collect::<Vec<_>>()
+                        .join(", "),
+                );
                 output.push('\n');
             }
             output.push('\n');
@@ -315,7 +224,9 @@ impl ResumeExporter {
             output.push_str("--------------\n");
             for cert in &resume.certifications {
                 output.push_str(&format!("{} — {}\n", cert.name, cert.issuer));
-                output.push_str(&format!("Date: {}\n", cert.date));
+                if let Some(date) = &cert.date_obtained {
+                    output.push_str(&format!("Date: {date}\n"));
+                }
                 if let Some(id) = &cert.credential_id {
                     output.push_str(&format!("Credential ID: {}\n", id));
                 }

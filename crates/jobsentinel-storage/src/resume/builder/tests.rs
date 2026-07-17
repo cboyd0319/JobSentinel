@@ -31,8 +31,13 @@ async fn test_create_resume() {
 
     let resume = builder.get_resume(resume_id).await.unwrap().unwrap();
     assert_eq!(resume.id, resume_id);
-    assert!(resume.contact.name.is_empty());
-    assert!(resume.summary.is_empty());
+    assert!(resume.resume.personal.name.is_empty());
+    assert!(resume
+        .resume
+        .summary
+        .as_deref()
+        .unwrap_or_default()
+        .is_empty());
 }
 
 #[tokio::test]
@@ -42,7 +47,7 @@ async fn test_update_contact() {
 
     let resume_id = builder.create_resume().await.unwrap();
 
-    let contact = ContactInfo {
+    let contact = ResumePersonalInfo {
         name: "Jordan Lee".to_string(),
         email: "jordan@example.com".to_string(),
         phone: Some("+1-555-0100".to_string()),
@@ -58,9 +63,9 @@ async fn test_update_contact() {
         .unwrap();
 
     let resume = builder.get_resume(resume_id).await.unwrap().unwrap();
-    assert_eq!(resume.contact.name, "Jordan Lee");
-    assert_eq!(resume.contact.email, "jordan@example.com");
-    assert_eq!(resume.contact.phone.unwrap(), "+1-555-0100");
+    assert_eq!(resume.resume.personal.name, "Jordan Lee");
+    assert_eq!(resume.resume.personal.email, "jordan@example.com");
+    assert_eq!(resume.resume.personal.phone.unwrap(), "+1-555-0100");
 }
 
 #[tokio::test]
@@ -70,27 +75,32 @@ async fn test_add_experience() {
 
     let resume_id = builder.create_resume().await.unwrap();
 
-    let exp = Experience {
+    let exp = DraftExperience {
         id: 0, // Will be assigned
-        company: "Harbor Community Services".to_string(),
-        title: "Program Operations Lead".to_string(),
-        location: Some("Remote".to_string()),
-        start_date: "2020-01".to_string(),
-        end_date: None,
-        is_current: true,
-        achievements: vec![
-            "Coordinated a 5-person intake team".to_string(),
-            "Reduced client intake turnaround by 30%".to_string(),
-        ],
+        experience: ResumeExperience {
+            company: "Harbor Community Services".to_string(),
+            title: "Program Operations Lead".to_string(),
+            location: Some("Remote".to_string()),
+            start_date: "2020-01".to_string(),
+            end_date: None,
+            is_current: true,
+            achievements: vec![
+                "Coordinated a 5-person intake team".to_string(),
+                "Reduced client intake turnaround by 30%".to_string(),
+            ],
+        },
     };
 
     let exp_id = builder.add_experience(resume_id, exp).await.unwrap();
     assert_eq!(exp_id, 1);
 
     let resume = builder.get_resume(resume_id).await.unwrap().unwrap();
-    assert_eq!(resume.experience.len(), 1);
-    assert_eq!(resume.experience[0].company, "Harbor Community Services");
-    assert_eq!(resume.experience[0].achievements.len(), 2);
+    assert_eq!(resume.resume.experience.len(), 1);
+    assert_eq!(
+        resume.resume.experience[0].company,
+        "Harbor Community Services"
+    );
+    assert_eq!(resume.resume.experience[0].achievements.len(), 2);
 }
 
 #[tokio::test]
@@ -100,22 +110,24 @@ async fn test_delete_experience() {
 
     let resume_id = builder.create_resume().await.unwrap();
 
-    let exp = Experience {
+    let exp = DraftExperience {
         id: 0,
-        company: "Harbor Community Services".to_string(),
-        title: "Program Operations Lead".to_string(),
-        location: None,
-        start_date: "2020-01".to_string(),
-        end_date: None,
-        is_current: true,
-        achievements: vec![],
+        experience: ResumeExperience {
+            company: "Harbor Community Services".to_string(),
+            title: "Program Operations Lead".to_string(),
+            location: None,
+            start_date: "2020-01".to_string(),
+            end_date: None,
+            is_current: true,
+            achievements: vec![],
+        },
     };
 
     let exp_id = builder.add_experience(resume_id, exp).await.unwrap();
     builder.delete_experience(resume_id, exp_id).await.unwrap();
 
     let resume = builder.get_resume(resume_id).await.unwrap().unwrap();
-    assert_eq!(resume.experience.len(), 0);
+    assert_eq!(resume.resume.experience.len(), 0);
 }
 
 #[tokio::test]
@@ -137,30 +149,34 @@ async fn test_set_skills() {
     let resume_id = builder.create_resume().await.unwrap();
 
     let skills = vec![
-        SkillEntry {
-            name: "Rust".to_string(),
+        DraftSkill {
             category: "Programming Language".to_string(),
-            proficiency: Some("expert".to_string()),
-            years_experience: Some(5.0),
+            skill: ResumeSkill {
+                name: "Rust".to_string(),
+                proficiency: Some("expert".to_string()),
+                years_experience: Some(5.0),
+            },
         },
-        SkillEntry {
-            name: "Tokio".to_string(),
+        DraftSkill {
             category: "Framework".to_string(),
-            proficiency: Some("advanced".to_string()),
-            years_experience: Some(3.0),
+            skill: ResumeSkill {
+                name: "Tokio".to_string(),
+                proficiency: Some("advanced".to_string()),
+                years_experience: Some(3.0),
+            },
         },
     ];
 
     builder.set_skills(resume_id, skills).await.unwrap();
 
     let resume = builder.get_resume(resume_id).await.unwrap().unwrap();
-    assert_eq!(resume.skills.len(), 2);
-    assert_eq!(resume.skills[0].name, "Rust");
+    assert_eq!(resume.resume.skills.len(), 2);
+    assert_eq!(resume.resume.skills[0].skills[0].name, "Rust");
 }
 
 #[test]
 fn test_builder_deserializes_frontend_resume_payload_shapes() {
-    let experience: Experience = serde_json::from_value(serde_json::json!({
+    let experience: DraftExperience = serde_json::from_value(serde_json::json!({
         "id": 0,
         "title": "Program Coordinator",
         "company": "Community Clinic",
@@ -171,9 +187,12 @@ fn test_builder_deserializes_frontend_resume_payload_shapes() {
     }))
     .expect("frontend experience payload should deserialize");
 
-    assert_eq!(experience.achievements, vec!["Improved intake scheduling"]);
+    assert_eq!(
+        experience.experience.achievements,
+        vec!["Improved intake scheduling"]
+    );
 
-    let education: Education = serde_json::from_value(serde_json::json!({
+    let education: DraftEducation = serde_json::from_value(serde_json::json!({
         "id": 0,
         "degree": "BA",
         "institution": "Metro College",
@@ -184,10 +203,10 @@ fn test_builder_deserializes_frontend_resume_payload_shapes() {
     }))
     .expect("frontend education payload should deserialize");
 
-    assert_eq!(education.graduation_date.as_deref(), Some("2020"));
-    assert_eq!(education.honors, vec!["Dean's List"]);
+    assert_eq!(education.education.graduation_date.as_deref(), Some("2020"));
+    assert_eq!(education.education.honors, vec!["Dean's List"]);
 
-    let skill: SkillEntry = serde_json::from_value(serde_json::json!({
+    let skill: DraftSkill = serde_json::from_value(serde_json::json!({
         "name": "Patient Intake",
         "category": "Operations",
         "proficiency": "advanced"
@@ -195,7 +214,71 @@ fn test_builder_deserializes_frontend_resume_payload_shapes() {
     .expect("frontend skill payload should deserialize");
 
     assert_eq!(skill.category, "Operations");
-    assert_eq!(skill.proficiency.as_deref(), Some("advanced"));
+    assert_eq!(skill.skill.proficiency.as_deref(), Some("advanced"));
+}
+
+#[test]
+fn resume_draft_preserves_the_flat_persistence_contract() {
+    let payload = serde_json::json!({
+        "id": 7,
+        "contact": {
+            "name": "Jordan Lee",
+            "email": "jordan@example.com",
+            "phone": null,
+            "location": "Portland, OR",
+            "linkedin": null,
+            "github": null,
+            "website": null
+        },
+        "summary": "Program operations lead",
+        "experience": [{
+            "id": 11,
+            "title": "Operations Lead",
+            "company": "Community Services",
+            "location": "Portland, OR",
+            "start_date": "2022-01",
+            "end_date": null,
+            "is_current": true,
+            "achievements": ["Reduced intake time by 30%"]
+        }],
+        "education": [{
+            "id": 13,
+            "institution": "Metro College",
+            "degree": "BA",
+            "field_of_study": "Public Administration",
+            "location": "Portland, OR",
+            "graduation_date": "2020",
+            "gpa": "3.8",
+            "honors": ["Dean's List"]
+        }],
+        "skills": [{
+            "category": "Operations",
+            "name": "Scheduling",
+            "proficiency": "advanced",
+            "years_experience": 4.0
+        }],
+        "certifications": [{
+            "name": "Project Management",
+            "issuer": "Professional Institute",
+            "date_obtained": "2024-01",
+            "expiration_date": null,
+            "credential_id": "PM-123"
+        }],
+        "projects": [{
+            "name": "Intake Redesign",
+            "description": "Simplified client intake",
+            "technologies": ["Excel"],
+            "url": null,
+            "start_date": "2023-01",
+            "end_date": "2023-06"
+        }],
+        "created_at": "2026-07-16T12:00:00Z",
+        "updated_at": "2026-07-16T13:00:00Z"
+    });
+
+    let draft: ResumeDraft = serde_json::from_value(payload.clone()).unwrap();
+
+    assert_eq!(serde_json::to_value(draft).unwrap(), payload);
 }
 
 #[tokio::test]

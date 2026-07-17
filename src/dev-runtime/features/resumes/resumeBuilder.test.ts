@@ -101,7 +101,7 @@ describe("mock resume builder commands", () => {
   it("renders and exports normalized resume content", async () => {
     const html = await mockInvoke<string>("render_resume_html", {
       resume: {
-        contact: {
+        personal: {
           name: "Jordan <Lee>",
           email: "jordan@example.com",
         },
@@ -114,7 +114,7 @@ describe("mock resume builder commands", () => {
 
     const text = await mockInvoke<string>("export_resume_text", {
       resume: {
-        contact: {
+        personal: {
           name: "Jordan Lee",
           email: "jordan@example.com",
         },

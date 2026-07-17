@@ -1,103 +1,24 @@
 use super::*;
+use crate::structured_resume::{
+    ResumeCertification, ResumeEducation, ResumeExperience, ResumePersonalInfo, ResumeProject,
+    ResumeSkillCategory,
+};
 
-// Helper functions for type conversion
-
-/// Convert export TemplateId to templates TemplateId
-pub(super) fn convert_template_id(template: TemplateId) -> crate::templates::TemplateId {
-    match template {
-        TemplateId::Professional => crate::templates::TemplateId::Classic,
-        TemplateId::Modern => crate::templates::TemplateId::Modern,
-        TemplateId::Traditional => crate::templates::TemplateId::Executive,
-    }
-}
-
-/// Convert export ResumeData to templates ResumeData
-/// Takes ownership to avoid cloning - eliminates 27 allocations
-pub(super) fn convert_to_template_resume(resume: ResumeData) -> crate::templates::ResumeData {
-    use crate::templates;
-
-    templates::ResumeData {
-        contact: templates::ContactInfo {
-            name: resume.personal.full_name,
-            email: resume.personal.email,
-            phone: Some(resume.personal.phone),
-            location: Some(resume.personal.location),
-            linkedin: resume.personal.linkedin_url,
-            website: resume.personal.website_url,
-        },
-        summary: resume.summary,
-        experience: resume
-            .experience
-            .into_iter()
-            .map(|exp| templates::Experience {
-                title: exp.job_title,
-                company: exp.company,
-                location: exp.location,
-                start_date: exp.start_date,
-                end_date: exp.end_date,
-                achievements: exp.responsibilities,
-            })
-            .collect(),
-        education: resume
-            .education
-            .into_iter()
-            .map(|edu| templates::Education {
-                degree: edu.degree,
-                institution: edu.institution,
-                location: None,
-                graduation_date: Some(edu.graduation_year),
-                gpa: edu.gpa.map(|g| format!("{:.2}", g)),
-                honors: edu.honors.map(|h| vec![h]).unwrap_or_default(),
-            })
-            .collect(),
-        skills: resume
-            .skills
-            .into_iter()
-            .map(|skill_cat| templates::SkillCategory {
-                name: skill_cat.category,
-                skills: skill_cat.skills,
-            })
-            .collect(),
-        certifications: resume
-            .certifications
-            .into_iter()
-            .map(|cert| templates::Certification {
-                name: cert.name,
-                issuer: cert.issuer,
-                date: Some(cert.date),
-                expiry: None,
-            })
-            .collect(),
-        projects: resume
-            .projects
-            .into_iter()
-            .map(|project| templates::Project {
-                name: project.name,
-                description: project.description,
-                technologies: project.technologies,
-                url: project.url,
-                start_date: None,
-                end_date: None,
-            })
-            .collect(),
-        clearance: None,
-        military_info: None,
-    }
-}
-
-// Helper functions for DOCX generation
-
-pub(super) fn format_contact_line(personal: &PersonalInfo) -> String {
+pub(super) fn format_contact_line(personal: &ResumePersonalInfo) -> String {
     let mut parts: Vec<&str> = Vec::with_capacity(5);
     parts.push(&personal.email);
-    parts.push(&personal.phone);
-    parts.push(&personal.location);
+    if let Some(phone) = &personal.phone {
+        parts.push(phone);
+    }
+    if let Some(location) = &personal.location {
+        parts.push(location);
+    }
 
-    if let Some(linkedin) = &personal.linkedin_url {
+    if let Some(linkedin) = &personal.linkedin {
         parts.push(linkedin);
     }
 
-    if let Some(website) = &personal.website_url {
+    if let Some(website) = &personal.website {
         parts.push(website);
     }
 
@@ -114,13 +35,13 @@ pub(super) fn add_section_header(doc: Docx, title: &str) -> Docx {
 
 pub(super) fn add_experience_entry(
     mut doc: Docx,
-    exp: &ExperienceEntry,
+    exp: &ResumeExperience,
     _template: TemplateId,
 ) -> Docx {
     let end_date = exp.end_date.as_deref().unwrap_or("Present");
 
     // Company and job title line
-    let header = format!("{} — {}", exp.company, exp.job_title);
+    let header = format!("{} — {}", exp.company, exp.title);
     let date_range = format!("{} - {}", exp.start_date, end_date);
 
     doc = doc.add_paragraph(
@@ -140,7 +61,7 @@ pub(super) fn add_experience_entry(
     }
 
     // Bullet points
-    for resp in &exp.responsibilities {
+    for resp in &exp.achievements {
         doc = doc.add_paragraph(
             Paragraph::new()
                 .add_run(Run::new().add_text(format!("• {}", resp)).size(22))
@@ -158,35 +79,42 @@ pub(super) fn add_experience_entry(
     doc
 }
 
-pub(super) fn add_education_entry(mut doc: Docx, edu: &EducationEntry) -> Docx {
-    let header = format!(
-        "{} — {} in {}",
-        edu.institution, edu.degree, edu.field_of_study
-    );
+pub(super) fn add_education_entry(mut doc: Docx, edu: &ResumeEducation) -> Docx {
+    let mut header = format!("{} — {}", edu.institution, edu.degree);
+    if let Some(field) = &edu.field_of_study {
+        header.push_str(&format!(" in {field}"));
+    }
 
     doc = doc.add_paragraph(
         Paragraph::new()
             .add_run(Run::new().add_text(&header).size(22).bold())
             .add_run(
                 Run::new()
-                    .add_text(format!("    {}", edu.graduation_year))
+                    .add_text(format!(
+                        "    {}",
+                        edu.graduation_date.as_deref().unwrap_or_default()
+                    ))
                     .size(22),
             )
             .line_spacing(LineSpacing::new().after(60)),
     );
 
-    if let Some(gpa) = edu.gpa {
+    if let Some(gpa) = &edu.gpa {
         doc = doc.add_paragraph(
             Paragraph::new()
-                .add_run(Run::new().add_text(format!("GPA: {:.2}", gpa)).size(22))
+                .add_run(
+                    Run::new()
+                        .add_text(format!("GPA: {}", format_gpa(gpa)))
+                        .size(22),
+                )
                 .line_spacing(LineSpacing::new().after(60)),
         );
     }
 
-    if let Some(honors) = &edu.honors {
+    for honor in &edu.honors {
         doc = doc.add_paragraph(
             Paragraph::new()
-                .add_run(Run::new().add_text(honors).size(22).italic())
+                .add_run(Run::new().add_text(honor).size(22).italic())
                 .line_spacing(LineSpacing::new().after(60)),
         );
     }
@@ -200,14 +128,19 @@ pub(super) fn add_education_entry(mut doc: Docx, edu: &EducationEntry) -> Docx {
     doc
 }
 
-pub(super) fn add_skill_category(mut doc: Docx, skill_cat: &SkillCategory) -> Docx {
-    let skills_text = skill_cat.skills.join(", ");
+pub(super) fn add_skill_category(mut doc: Docx, skill_cat: &ResumeSkillCategory) -> Docx {
+    let skills_text = skill_cat
+        .skills
+        .iter()
+        .map(|skill| skill.name.as_str())
+        .collect::<Vec<_>>()
+        .join(", ");
 
     doc = doc.add_paragraph(
         Paragraph::new()
             .add_run(
                 Run::new()
-                    .add_text(format!("{}: ", skill_cat.category))
+                    .add_text(format!("{}: ", skill_cat.name))
                     .size(22)
                     .bold(),
             )
@@ -218,15 +151,14 @@ pub(super) fn add_skill_category(mut doc: Docx, skill_cat: &SkillCategory) -> Do
     doc
 }
 
-pub(super) fn add_certification_entry(mut doc: Docx, cert: &Certification) -> Docx {
+pub(super) fn add_certification_entry(mut doc: Docx, cert: &ResumeCertification) -> Docx {
     let header = format!("{} — {}", cert.name, cert.issuer);
 
-    doc = doc.add_paragraph(
-        Paragraph::new()
-            .add_run(Run::new().add_text(&header).size(22).bold())
-            .add_run(Run::new().add_text(format!("    {}", cert.date)).size(22))
-            .line_spacing(LineSpacing::new().after(60)),
-    );
+    let mut paragraph = Paragraph::new().add_run(Run::new().add_text(&header).size(22).bold());
+    if let Some(date) = &cert.date_obtained {
+        paragraph = paragraph.add_run(Run::new().add_text(format!("    {date}")).size(22));
+    }
+    doc = doc.add_paragraph(paragraph.line_spacing(LineSpacing::new().after(60)));
 
     if let Some(id) = &cert.credential_id {
         doc = doc.add_paragraph(
@@ -249,7 +181,7 @@ pub(super) fn add_certification_entry(mut doc: Docx, cert: &Certification) -> Do
     doc
 }
 
-pub(super) fn add_project_entry(mut doc: Docx, project: &Project) -> Docx {
+pub(super) fn add_project_entry(mut doc: Docx, project: &ResumeProject) -> Docx {
     doc = doc.add_paragraph(
         Paragraph::new()
             .add_run(Run::new().add_text(&project.name).size(22).bold())
@@ -286,4 +218,9 @@ pub(super) fn add_project_entry(mut doc: Docx, project: &Project) -> Docx {
     }
 
     doc
+}
+
+pub(super) fn format_gpa(gpa: &str) -> String {
+    gpa.parse::<f64>()
+        .map_or_else(|_| gpa.to_string(), |value| format!("{value:.2}"))
 }

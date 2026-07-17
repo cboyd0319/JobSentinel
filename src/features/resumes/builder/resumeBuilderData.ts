@@ -63,6 +63,7 @@ export interface SkillEntry {
   name: string;
   category: string;
   proficiency: SkillProficiency | null;
+  years_experience?: number | null;
 }
 
 export interface Certification {
@@ -109,130 +110,33 @@ export interface Template {
   preview_image: string;
 }
 
-export interface TemplateSkillCategory {
+export interface StructuredSkill {
   name: string;
-  skills: string[];
+  proficiency: string | null;
+  years_experience: number | null;
 }
 
-export interface TemplateResumeData {
-  contact: {
-    name: string;
-    email: string;
-    phone: string | null;
-    location: string | null;
-    linkedin: string | null;
-    website: string | null;
-  };
+export interface StructuredSkillCategory {
+  name: string;
+  skills: StructuredSkill[];
+}
+
+export interface StructuredResume {
+  personal: ContactInfo;
   summary: string | null;
-  experience: Array<{
-    title: string;
-    company: string;
-    location: string | null;
-    start_date: string;
-    end_date: string | null;
-    achievements: string[];
-  }>;
-  education: Education[];
-  skills: TemplateSkillCategory[];
-  certifications: Array<{
-    name: string;
-    issuer: string;
-    date: string | null;
-    expiry: string | null;
-  }>;
-  projects: Array<{
-    name: string;
-    description: string;
-    technologies: string[];
-    url: string | null;
-    start_date: string | null;
-    end_date: string | null;
-  }>;
+  experience: Array<Omit<Experience, "id"> & { is_current: boolean }>;
+  education: Array<
+    Omit<Education, "id"> & { field_of_study: string | null }
+  >;
+  skills: StructuredSkillCategory[];
+  certifications: Certification[];
+  projects: Project[];
   clearance: string | null;
   military_info: string | null;
 }
 
-export type ExportTemplateId = "Professional" | "Modern" | "Traditional";
-
-export interface ExportResumeData {
-  personal: {
-    full_name: string;
-    email: string;
-    phone: string;
-    location: string;
-    linkedin_url: string | null;
-    website_url: string | null;
-  };
-  summary: string | null;
-  experience: Array<{
-    company: string;
-    job_title: string;
-    start_date: string;
-    end_date: string | null;
-    location: string | null;
-    responsibilities: string[];
-  }>;
-  education: Array<{
-    institution: string;
-    degree: string;
-    field_of_study: string;
-    graduation_year: string;
-    gpa: number | null;
-    honors: string | null;
-  }>;
-  skills: Array<{
-    category: string;
-    skills: string[];
-  }>;
-  certifications: Array<{
-    name: string;
-    issuer: string;
-    date: string;
-    credential_id: string | null;
-  }>;
-  projects: Array<{
-    name: string;
-    description: string;
-    technologies: string[];
-    url: string | null;
-  }>;
-}
-
-export interface AtsResumeData {
-  contact_info: {
-    name: string;
-    email: string;
-    phone: string;
-    location: string;
-    linkedin: string | null;
-    github: string | null;
-    website: string | null;
-  };
-  summary: string;
-  experience: Array<{
-    title: string;
-    company: string;
-    location: string;
-    start_date: string;
-    end_date: string;
-    achievements: string[];
-    current: boolean;
-  }>;
-  skills: Array<{
-    name: string;
-    category: string;
-    proficiency: string | null;
-  }>;
-  education: Array<{
-    degree: string;
-    institution: string;
-    location: string;
-    graduation_date: string;
-    gpa: number | null;
-    honors: string[];
-  }>;
-  certifications: string[];
-  projects: string[];
+export interface ResumeAnalysisInput {
+  resume: StructuredResume;
   custom_sections: Record<string, string[]>;
 }
 
@@ -335,9 +239,7 @@ export function getSkillStrengthLabel(
 
 export {
   normalizeAtsAnalysis,
-  toAtsResumeData,
-  toExportResumeData,
-  toExportTemplateId,
   toJsonResumeData,
-  toTemplateResumeData,
+  toResumeAnalysisInput,
+  toStructuredResume,
 } from "./resumeBuilderTransforms";

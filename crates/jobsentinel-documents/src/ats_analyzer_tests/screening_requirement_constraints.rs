@@ -1,27 +1,15 @@
-use super::sample_resume;
-use crate::{AtsAnalyzer, HardConstraintCategory, RequirementMatchState, Skill};
+use super::{sample_resume, skill_category};
+use crate::{AtsAnalyzer, HardConstraintCategory, RequirementMatchState};
 
 #[test]
 fn test_missing_required_hard_constraint_caps_overall_score() {
     let mut resume = sample_resume();
-    resume.summary =
-        "Customer success manager with onboarding, retention, and CRM experience".to_string();
-    resume.skills = vec![
-        Skill {
-            name: "Customer service".to_string(),
-            category: "Client Services".to_string(),
-            proficiency: None,
-        },
-        Skill {
-            name: "CRM".to_string(),
-            category: "Tools".to_string(),
-            proficiency: None,
-        },
-        Skill {
-            name: "Salesforce".to_string(),
-            category: "Tools".to_string(),
-            proficiency: None,
-        },
+    resume.resume.summary =
+        Some("Customer success manager with onboarding, retention, and CRM experience".to_string());
+    resume.resume.skills = vec![
+        skill_category("Customer service", "Client Services"),
+        skill_category("CRM", "Tools"),
+        skill_category("Salesforce", "Tools"),
     ];
 
     let result = AtsAnalyzer::analyze_for_job(

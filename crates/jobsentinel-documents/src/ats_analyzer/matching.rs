@@ -2,14 +2,15 @@ use chrono::{Datelike, Utc};
 
 use super::super::ats_types::{KeywordImportance, KeywordMatch, MissingKeyword};
 use super::super::format_taxonomy::resume_format_taxonomy;
-use super::super::types::{Experience, ResumeData};
+use super::super::structured_resume::{ResumeAnalysisInput, ResumeExperience};
 use super::{term_expansion, AtsAnalyzer};
 
 impl AtsAnalyzer {
     pub(super) fn find_keyword_matches(
-        resume: &ResumeData,
+        input: &ResumeAnalysisInput,
         job_keywords: &[(String, KeywordImportance)],
     ) -> (Vec<KeywordMatch>, Vec<MissingKeyword>) {
+        let resume = &input.resume;
         let mut matches = Vec::new();
         let mut missing = Vec::new();
 
@@ -20,7 +21,7 @@ impl AtsAnalyzer {
             let search_terms = term_expansion::conservative_keyword_search_terms(&keyword_lower);
 
             // Search in summary
-            let summary_lower = resume.summary.to_lowercase();
+            let summary_lower = resume.summary.as_deref().unwrap_or_default().to_lowercase();
             let count = Self::keyword_frequency_for_search_terms(&summary_lower, &search_terms);
             if count > 0 {
                 Self::add_evidence_section(&mut found_in, "summary");
@@ -45,14 +46,16 @@ impl AtsAnalyzer {
             }
 
             // Search in skills
-            for skill in &resume.skills {
-                let skill_lower = skill.name.to_lowercase();
-                if search_terms.iter().any(|term| {
-                    Self::keyword_appears_in_text(&skill_lower, term)
-                        || Self::keyword_appears_in_text(term, &skill_lower)
-                }) {
-                    Self::add_evidence_section(&mut found_in, "skills");
-                    frequency += 1;
+            for category in &resume.skills {
+                for skill in &category.skills {
+                    let skill_lower = skill.name.to_lowercase();
+                    if search_terms.iter().any(|term| {
+                        Self::keyword_appears_in_text(&skill_lower, term)
+                            || Self::keyword_appears_in_text(term, &skill_lower)
+                    }) {
+                        Self::add_evidence_section(&mut found_in, "skills");
+                        frequency += 1;
+                    }
                 }
             }
 
@@ -61,7 +64,7 @@ impl AtsAnalyzer {
                     "{} {} {} {}",
                     education.degree,
                     education.institution,
-                    education.location,
+                    education.location.as_deref().unwrap_or_default(),
                     education.honors.join(" ")
                 )
                 .to_lowercase();
@@ -74,7 +77,15 @@ impl AtsAnalyzer {
             }
 
             for certification in &resume.certifications {
-                let certification_lower = certification.to_lowercase();
+                let certification_lower = format!(
+                    "{} {} {} {} {}",
+                    certification.name,
+                    certification.issuer,
+                    certification.date_obtained.as_deref().unwrap_or_default(),
+                    certification.expiration_date.as_deref().unwrap_or_default(),
+                    certification.credential_id.as_deref().unwrap_or_default()
+                )
+                .to_lowercase();
                 let count =
                     Self::keyword_frequency_for_search_terms(&certification_lower, &search_terms);
                 if count > 0 {
@@ -84,7 +95,14 @@ impl AtsAnalyzer {
             }
 
             for project in &resume.projects {
-                let project_lower = project.to_lowercase();
+                let project_lower = format!(
+                    "{} {} {} {}",
+                    project.name,
+                    project.description,
+                    project.technologies.join(" "),
+                    project.url.as_deref().unwrap_or_default()
+                )
+                .to_lowercase();
                 let count = Self::keyword_frequency_for_search_terms(&project_lower, &search_terms);
                 if count > 0 {
                     Self::add_evidence_section(&mut found_in, "projects");
@@ -282,11 +300,20 @@ impl AtsAnalyzer {
             .any(|word| word == "present")
     }
 
-    fn structured_experience_evidence_section(exp: &Experience) -> &'static str {
-        if exp.current || exp.end_date.trim().eq_ignore_ascii_case("present") {
+    fn structured_experience_evidence_section(exp: &ResumeExperience) -> &'static str {
+        if exp.is_current
+            || exp
+                .end_date
+                .as_deref()
+                .is_some_and(|date| date.trim().eq_ignore_ascii_case("present"))
+        {
             return "current experience";
         }
-        if Self::recent_end_year_marker(&exp.end_date) {
+        if exp
+            .end_date
+            .as_deref()
+            .is_some_and(Self::recent_end_year_marker)
+        {
             return "recent experience";
         }
         "experience"

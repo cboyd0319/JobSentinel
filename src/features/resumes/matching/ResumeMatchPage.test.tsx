@@ -36,46 +36,48 @@ vi.mock("../../../shared/errorReporting/logger", () => ({
 const mockInvoke = vi.mocked(invoke);
 
 const validResume = {
-  contact_info: {
-    name: "Jordan Lee",
-    email: "jordan@example.com",
-    phone: "555-1234",
-    location: "Denver, CO",
-    linkedin: null,
-    github: null,
-    website: null,
-  },
-  summary: "Customer success manager",
-  experience: [
-    {
+  resume: {
+    personal: {
+      name: "Jordan Lee",
+      email: "jordan@example.com",
+      phone: "555-1234",
+      location: "Denver, CO",
+      linkedin: null,
+      github: null,
+      website: null,
+    },
+    summary: "Customer success manager",
+    experience: [{
       title: "Customer Success Manager",
       company: "ExampleCo",
       location: "Remote",
       start_date: "2022-01",
-      end_date: "Present",
+      end_date: null,
+      is_current: true,
       achievements: ["Improved onboarding and retention"],
-      current: true,
-    },
-  ],
-  skills: [
-    {
-      name: "Customer Retention",
-      category: "Customer Success",
-      proficiency: "advanced",
-    },
-  ],
-  education: [
-    {
+    }],
+    skills: [{
+      name: "Customer Success",
+      skills: [{
+        name: "Customer Retention",
+        proficiency: "advanced",
+        years_experience: null,
+      }],
+    }],
+    education: [{
       degree: "BA Communications",
       institution: "Example University",
+      field_of_study: null,
       location: "Denver, CO",
       graduation_date: "2018",
       gpa: null,
       honors: [],
-    },
-  ],
-  certifications: [],
-  projects: [],
+    }],
+    certifications: [],
+    projects: [],
+    clearance: null,
+    military_info: null,
+  },
   custom_sections: {},
 };
 

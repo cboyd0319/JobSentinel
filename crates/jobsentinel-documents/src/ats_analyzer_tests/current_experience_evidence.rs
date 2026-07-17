@@ -267,9 +267,9 @@ fn test_plain_text_requirement_review_marks_current_experience_evidence() {
 #[test]
 fn test_metric_backed_current_experience_counts_as_strong_evidence() {
     let mut resume = sample_resume();
-    resume.summary.clear();
-    resume.skills.clear();
-    resume.experience[0].achievements = vec!["Reduced scheduling delays by 30%".to_string()];
+    resume.resume.summary = None;
+    resume.resume.skills.clear();
+    resume.resume.experience[0].achievements = vec!["Reduced scheduling delays by 30%".to_string()];
 
     let result = AtsAnalyzer::analyze_for_job(&resume, "Required: scheduling");
 
@@ -288,9 +288,9 @@ fn test_metric_backed_current_experience_counts_as_strong_evidence() {
 #[test]
 fn test_scope_backed_current_experience_counts_as_strong_evidence() {
     let mut resume = sample_resume();
-    resume.summary.clear();
-    resume.skills.clear();
-    resume.experience[0].achievements =
+    resume.resume.summary = None;
+    resume.resume.skills.clear();
+    resume.resume.experience[0].achievements =
         vec!["Coordinated scheduling across three service teams".to_string()];
 
     let result = AtsAnalyzer::analyze_for_job(&resume, "Required: scheduling");
@@ -310,9 +310,9 @@ fn test_scope_backed_current_experience_counts_as_strong_evidence() {
 #[test]
 fn test_responsibility_backed_current_experience_counts_as_strong_evidence() {
     let mut resume = sample_resume();
-    resume.summary.clear();
-    resume.skills.clear();
-    resume.experience[0].achievements =
+    resume.resume.summary = None;
+    resume.resume.skills.clear();
+    resume.resume.experience[0].achievements =
         vec!["Owned scheduling workflows for client intake".to_string()];
 
     let result = AtsAnalyzer::analyze_for_job(&resume, "Required: scheduling");
@@ -333,11 +333,11 @@ fn test_responsibility_backed_current_experience_counts_as_strong_evidence() {
 fn test_recent_ended_experience_counts_as_recent_evidence() {
     let recent_year = chrono::Utc::now().year() - 1;
     let mut resume = sample_resume();
-    resume.summary.clear();
-    resume.skills.clear();
-    resume.experience[0].current = false;
-    resume.experience[0].end_date = format!("Dec {recent_year}");
-    resume.experience[0].achievements = vec!["Handled scheduling.".to_string()];
+    resume.resume.summary = None;
+    resume.resume.skills.clear();
+    resume.resume.experience[0].is_current = false;
+    resume.resume.experience[0].end_date = Some(format!("Dec {recent_year}"));
+    resume.resume.experience[0].achievements = vec!["Handled scheduling.".to_string()];
 
     let result = AtsAnalyzer::analyze_for_job(&resume, "Required: scheduling");
 
@@ -356,11 +356,11 @@ fn test_recent_ended_experience_counts_as_recent_evidence() {
 #[test]
 fn test_duty_backed_past_experience_counts_as_strong_evidence() {
     let mut resume = sample_resume();
-    resume.summary.clear();
-    resume.skills.clear();
-    resume.experience[0].current = false;
-    resume.experience[0].end_date = "Dec 2022".to_string();
-    resume.experience[0].achievements =
+    resume.resume.summary = None;
+    resume.resume.skills.clear();
+    resume.resume.experience[0].is_current = false;
+    resume.resume.experience[0].end_date = Some("Dec 2022".to_string());
+    resume.resume.experience[0].achievements =
         vec!["Coordinated scheduling requests for client appointments".to_string()];
 
     let result = AtsAnalyzer::analyze_for_job(&resume, "Required: scheduling");

@@ -5,9 +5,12 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)] // Regex patterns are compile-time constants
 
 use super::ats_types::*;
-use super::types::ResumeData;
+use super::structured_resume::ResumeAnalysisInput;
 #[cfg(test)]
-use super::types::{ContactInfo, Education, Experience, Skill};
+use super::structured_resume::{
+    ResumeEducation, ResumeExperience, ResumePersonalInfo, ResumeSkill, ResumeSkillCategory,
+    StructuredResume,
+};
 
 mod bullet_prompts;
 mod format_result;
@@ -45,7 +48,10 @@ impl AtsAnalyzer {
     ];
 
     /// Analyze resume against a specific job description
-    pub fn analyze_for_job(resume: &ResumeData, job_description: &str) -> AtsAnalysisResult {
+    pub fn analyze_for_job(
+        resume: &ResumeAnalysisInput,
+        job_description: &str,
+    ) -> AtsAnalysisResult {
         let job_keywords = Self::extract_job_keywords(job_description);
         let format_result = Self::analyze_format(resume);
 
@@ -97,7 +103,7 @@ impl AtsAnalyzer {
     }
 
     /// Analyze resume format without job context
-    pub fn analyze_format(resume: &ResumeData) -> AtsAnalysisResult {
+    pub fn analyze_format(resume: &ResumeAnalysisInput) -> AtsAnalysisResult {
         structured_format::analyze_format(resume)
     }
 
