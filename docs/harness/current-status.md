@@ -39,16 +39,18 @@ Last updated: 2026-07-18
   package passed fresh-download installation and launch smoke verification.
 - Gate 0 is approved. The comprehensive v3 master plan and its 230 canonical
   idea dispositions are the sole execution authority for the v3 major line.
+- Milestone 0 is complete. Release truth, debt, testing claims, dependency
+  ownership, and the deferred release-pipeline decision are reconciled.
 
 ## In Progress
 
-- Active feature: `v3-milestone-0-repository-truth`
+- Active feature: `v3-milestone-1-contract-evaluation-baseline`
 - Status: `active`
-- Objective: Reconcile planning authority, release truth, debt, testing claims,
-  and deferred release work before v3 contracts freeze.
+- Objective: Freeze privacy-safe v3 contracts, evals, job ownership, native input, and quality budgets.
 - Branch: `feat/v3-major-line`
-- Current slice: Complete Milestone 0 with deterministic plan and docs audits.
-- Next action: Verify Milestone 0, record evidence, then activate Milestone 1.
+- Current slice: Complete Gate 1 without A20 unless existing application and Tokio owners fail.
+- Next action: Inventory existing contract owners and write the first fail-closed
+  schema and compatibility tests.
 
 ## Deferred
 

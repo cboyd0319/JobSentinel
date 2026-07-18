@@ -5,17 +5,12 @@
   },
   "features": [
     {
-      "id": "harness-standard-contract",
-      "priority": 1,
-      "area": "repository harness",
-      "title": "Standard repository harness",
+      "id": "harness-standard-contract", "priority": 1, "area": "repository harness", "title": "Standard repository harness",
       "behavior": "A fresh session can initialize the repository, see one current objective, select the next task, route its diff, and verify completion without contradictory owners.",
       "user_visible_behavior": "Repository work preserves JobSentinel behavior while becoming resumable and verifiable across supported platforms.",
-      "status": "passing",
-      "verification": ["npm run harness:check", "npm run lint:file-size", "npm run test:scripts", "npm run test:smoke", "npm run verify:full"],
+      "status": "passing", "verification": ["npm run harness:check", "npm run lint:file-size", "npm run test:scripts", "npm run test:smoke", "npm run verify:full"],
       "evidence": ["docs/harness/evidence/harness-standard-contract-2026-07-14.json", "docs/harness/evidence/harness-standard-contract-2026-07-14.md"],
-      "blocker": "",
-      "next_trigger": "A regression against the recorded contract requires a new corrective feature."
+      "blocker": "", "next_trigger": "A regression against the recorded contract requires a new corrective feature."
     },
     {
       "id": "harness-canonical-remediation",
@@ -152,9 +147,14 @@
       "evidence": ["docs/harness/evidence/v3-gate-0-approval-2026-07-18.json"], "blocker": "", "next_trigger": "A user-approved scope change requires an updated disposition and dependency review."
     }, { "id": "v3-milestone-0-repository-truth", "priority": 14, "area": "product planning", "title": "Reconcile v3 planning authority and repository truth",
       "behavior": "Gate 0 approval is recorded, stale release, debt, testing, and release-pipeline claims are reconciled, and deterministic plan-integrity checks prevent v3 inventory drift before contract work begins.",
-      "user_visible_behavior": "V3 implementation starts from one approved plan and accurate release, trust, and verification records.", "status": "active",
+      "user_visible_behavior": "V3 implementation starts from one approved plan and accurate release, trust, and verification records.", "status": "passing",
       "verification": ["npm run harness:check", "npm run lint:docs", "npm run lint:deps:why", "npm run lint:dup -- --list", "npm run lint:file-size", "npm run test:scripts", "git diff --check"],
-      "evidence": [], "blocker": "", "next_trigger": "Complete Milestone 0, record its evidence, and activate Milestone 1."
+      "evidence": ["docs/harness/evidence/v3-milestone-0-repository-truth-2026-07-18.json"], "blocker": "", "next_trigger": "A release-truth, dependency, testing, or plan-inventory regression requires a focused correction."
+    }, { "id": "v3-milestone-1-contract-evaluation-baseline", "priority": 15, "area": "v3 contracts and evaluation", "title": "Freeze the v3 contract, evaluation, and quality baseline",
+      "behavior": "Versioned Rust-owned v3 schemas, compatibility fixtures, privacy-safe evaluation sets, typed-job evidence, deterministic file-input coverage, and measured quality budgets fail closed before durable v3 data work starts.",
+      "user_visible_behavior": "The v3 foundation has stable privacy, recovery, compatibility, accessibility, veteran, and quality rules before user data is migrated.", "status": "active",
+      "verification": ["npm run harness:check", "npm run lint:security", "npm run test:scripts", "node scripts/dev/run-cargo.mjs test -p jobsentinel-domain --all-features", "npm run test:e2e:smoke"],
+      "evidence": [], "blocker": "", "next_trigger": "Complete Gate 1 with revision-bound contract, evaluation, typed-job, and native-input evidence, then activate Milestone 2."
     }
   ]
 }

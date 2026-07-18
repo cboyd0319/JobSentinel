@@ -246,7 +246,7 @@ pack privileges, and opaque hiring-probability claims.
 
 | Milestone | Required work | Owners and exit |
 | --- | --- | --- |
-| 0. Planning authority and repository truth | [ ] Verify this file remains active in the plan index, v3 planning, plans hub, current status, and feature state.<br>[ ] Correct stale v2.9.5 release records.<br>[ ] Reconcile DRY-002 and close stale DRY-003 with live evidence.<br>[ ] Reconcile testing future-work claims against existing coverage.<br>[ ] Re-audit the deferred release-pipeline decision.<br>[ ] Add a deterministic idea-disposition check and a focused docs-marker audit for inventory drift.<br>[ ] Record Gate 0 and activate Milestone 1.<br>Verify: `npm run harness:check`, `npm run lint:docs`, `npm run lint:deps:why`, `npm run lint:dup -- --list`, `npm run lint:file-size`, and `git diff --check`. | Planning and harness owners.<br>Exit: one active plan, one active feature, no contradictory current-state docs, and no unowned open debt. |
+| 0. Planning authority and repository truth | [x] Verify this file remains active in the plan index, v3 planning, plans hub, current status, and feature state.<br>[x] Correct stale v2.9.5 release records.<br>[x] Reconcile DRY-002 and close stale DRY-003 with live evidence.<br>[x] Reconcile testing future-work claims against existing coverage.<br>[x] Re-audit the deferred release-pipeline decision.<br>[x] Add a deterministic idea-disposition check and a focused docs-marker audit for inventory drift.<br>[x] Record Gate 0 and activate Milestone 1.<br>Verify: `npm run harness:check`, `npm run lint:docs`, `npm run lint:deps:why`, `npm run lint:dup -- --list`, `npm run lint:file-size`, and `git diff --check`. | Planning and harness owners.<br>Exit: one active plan, one active feature, no contradictory current-state docs, and no unowned open debt. |
 | 1. Contract, evaluation, and quality baseline | [ ] Define versioned Rust-owned schemas for compatibility, manifests, privacy receipts, agent tasks, packs, regions, editions, model provenance, and vector freshness.<br>[ ] Add fixtures for current v2.9, malformed, unsupported-newer, and forward-compatible unknown input.<br>[ ] Create public or synthetic eval sets for source truth, resume evidence, pay clarity, posting risk, employer context, accessibility, recovery, modest hardware, military-to-civilian evidence, protected veteran-status answers, and commercial comparison.<br>[ ] Prove whether existing application and Tokio owners satisfy typed-job scheduling, cancellation, recovery, observability, and resource-bound requirements; keep A20 deferred unless the evidence shows a concrete gap.<br>[ ] Make drag-and-drop E2E deterministic and add installed-app native file-picker smoke coverage.<br>[ ] Set benchmark budgets and use mutation testing only where it can disprove high-risk test quality.<br>[ ] Complete Gate 1. | `jobsentinel-domain`, security, local AI, platform, harness contracts, tests, and closest docs.<br>Exit: schemas and evals fail closed, are versioned, require no database migration, and do not add a runtime kernel without evidence. |
 | 2. V3 local data foundation | [ ] Write fail-first tests for case-file create/reuse, sanitized events, metadata limits, privacy receipts, source policy upsert, compatibility reads, failed migration, retry, and backup restore.<br>[ ] Add append-only SQLx migrations for case files, typed events, career/source graph records, receipts, source policies, and compatibility metadata.<br>[ ] Exclude raw resumes, notes, credentials, browser storage, provider payloads, and unrelated history from event metadata.<br>[ ] Add application-layer operations without frontend commands.<br>[ ] Prove fresh install and v2.9 fixture migration, then complete Gate 2. | Storage, domain, application, and `.sqlx/`.<br>Exit: the foundation is local, typed, bounded, migration-safe, and has no renderer surface. |
 | 3. Recovery, portability, policy, and repair | [ ] Implement encrypted backup and restore, migration provenance, compatible rollback, newer-data refusal, export without lock-in, and storage cleanup.<br>[ ] Make recovery, local record access, queued local work, and repair guidance available without network access; identify actions that require connectivity before the user commits work.<br>[ ] Build Privacy Doctor, safe support bundle, policy ledger, smart consent, and recovery/repair services.<br>[ ] Keep secret export disabled unless a separate design passes threat review and explicit approval.<br>[ ] Add platform-health and package-repair contracts with plain fallbacks. | Storage, security, credentials, application, platform, Settings, and user-data docs.<br>Exit: destructive and irreversible paths have backup, restore, cancel, offline, support, and test evidence. |
@@ -320,6 +320,7 @@ relevant result, and caveat.
 | 2026-07-18 | Scope updated | User promoted all maintained veteran and military-transition work into v3.0. R10 moved to Milestone 9 with cross-milestone source, evidence, application-review, and release requirements. |
 | 2026-07-18 | Priorities reconciled | Absorbed U17 and R14 into v3.0, moved the A20 build decision to Gate 1, promoted six outcomes to v3.x trains, and consolidated E09, X03, and X04 into their canonical IDs. |
 | 2026-07-18 | Gate 0 approved | User authorized full execution of this plan on `feat/v3-major-line` through draft PR 329. Milestone 0 is the sole active feature. |
+| 2026-07-18 | Milestone 0 complete | Corrected release truth, closed DRY-002 and DRY-003, reconciled testing claims, resolved the release-pipeline decision, added deterministic plan audits, and activated Milestone 1 with evidence at `469abb3f`. |
 
 ## Discoveries
 
@@ -378,16 +379,17 @@ relevant result, and caveat.
 
 ## Outcomes
 
-- Pending implementation and verification.
+- Milestone 0 established one verified planning authority, accurate current
+  release records, closed repository debt, and deterministic scope checks.
 
 ## Handoff
 
-- Current state: Gate 0 approved; Milestone 0 repository-truth reconciliation
-  is active; no v3 runtime implementation has started.
-- Evidence: repository inventory, live state files, plan index, idea index,
-  roadmaps, debt tracker, docs marker audit, and current harness baseline.
-- Next step: complete and verify Milestone 0, then activate Milestone 1 as the
-  sole feature.
+- Current state: Milestone 0 is passing and Milestone 1 contract, evaluation,
+  and quality baseline work is the sole active feature.
+- Evidence: `docs/harness/evidence/v3-milestone-0-repository-truth-2026-07-18.json`
+  binds the clean implementation at `469abb3f`.
+- Next step: inventory existing contract owners, add fail-first version and
+  compatibility fixtures, and complete Gate 1 without an unproven A20 kernel.
 - Open risks: scope remains large, contract freeze is irreversible within the
   v3 compatibility line, and some final distribution evidence depends on
   external credentials.
