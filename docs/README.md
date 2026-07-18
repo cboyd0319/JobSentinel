@@ -41,9 +41,9 @@ The maintained external source index lives in
 
 ## Current State
 
-- Package metadata version: `2.9.5` source candidate.
-- Current public release: `v2.9.1`, published on 2026-06-23 UTC at
-  `https://github.com/cboyd0319/JobSentinel/releases/tag/v2.9.1`.
+- Package metadata version: `2.9.5`.
+- Current public release: `v2.9.5`, published on 2026-07-18 UTC at
+  `https://github.com/cboyd0319/JobSentinel/releases/tag/v2.9.5`.
 - Release assets are produced from manual release workflow dispatches on GitHub
   version tags, or from verified local platform builds, and verified after
   publication with checksum, SBOM, attestation, and platform package checks.
@@ -59,8 +59,8 @@ The maintained external source index lives in
   no-account release path when hosted macOS proof is not needed; hosted
   cross-platform release builds remain available by manual dispatch from a
   release tag.
-- Current active work is final `v2.9.5` release-readiness verification after the
-  full repository refactor and cleanup. Pending and unreleased work is tracked in
+- Current active work is the v3 master execution plan after the verified
+  `v2.9.5` release. Pending and unreleased work is tracked in
   [CHANGELOG.md](../CHANGELOG.md) and the
   [active plans index](plans/README.md#current-active-plans).
 - Historical release notes are indexed in

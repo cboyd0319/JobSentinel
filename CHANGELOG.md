@@ -12,13 +12,12 @@ supported path is user-opened search links plus user-clicked Browser Import.
 
 ## [Unreleased]
 
-No changes recorded after the `2.9.5` source candidate.
+No changes recorded after the `2.9.5` release.
 
-## [2.9.5] - 2026-07-13
+## [2.9.5] - 2026-07-18
 
-Source candidate for the full repository refactor. This version is not a
-published release until the release workflow and public asset verification
-finish.
+Published release for the full repository refactor. The release workflow and
+public asset verification completed successfully.
 
 ### Changed
 

@@ -544,20 +544,6 @@ See [tests/README.md](../../tests/README.md) for full documentation.
 
 ---
 
-## Future Improvements
-
-### Planned Additions
-
-- [x] E2E tests for all pages
-- [ ] Integration tests for full scraping pipeline
-- [ ] Property-based testing with `proptest`
-- [ ] Mutation testing with `cargo-mutants`
-- [ ] Benchmark tests with `criterion`
-- [ ] Mock HTTP servers for scraper tests
-- [ ] Snapshot testing for JSON outputs
-
----
-
 ## Resources
 
 - [Rust Testing Guide](https://doc.rust-lang.org/book/ch11-00-testing.html)

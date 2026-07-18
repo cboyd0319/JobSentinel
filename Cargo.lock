@@ -3403,12 +3403,10 @@ dependencies = [
  "pdf-extract",
  "quick-xml 0.41.0",
  "regex",
- "scopeguard",
  "serde",
  "serde_json",
  "tempfile",
  "tracing",
- "uuid",
  "zip 8.6.0",
 ]
 

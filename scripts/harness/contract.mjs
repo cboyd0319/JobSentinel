@@ -2,6 +2,7 @@ import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { extname, join } from "node:path";
 
 import { collectRepositoryFileSizeViolations } from "./checks/repo-file-size.mjs";
+import { collectV3PlanViolations } from "./checks/v3-plan.mjs";
 import { collectStateViolations } from "./state.mjs";
 import { checkRepositoryArchitecture } from "../checks/repository-architecture.mjs";
 
@@ -266,6 +267,7 @@ export function collectHarnessContractViolations(root) {
   validateHostedWorkflows(root, manifest, violations);
   validateRetirement(root, manifest, violations);
   violations.push(...collectStateViolations(root));
+  violations.push(...collectV3PlanViolations(root));
   violations.push(...collectRepositoryFileSizeViolations(root));
   violations.push(...checkRepositoryArchitecture(root));
   return [...new Set(violations)].sort();

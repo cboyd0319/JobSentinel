@@ -1,11 +1,11 @@
 # Features And Capabilities
 
-Last reviewed: 2026-07-13.
+Last reviewed: 2026-07-18.
 
 This page is the single maintained map of what JobSentinel can do in the
-current source line. The `v2.9.5` source candidate retains the published
-product boundary while reorganizing the repository and strengthening local
-database integrity, ownership, and verification.
+current source line. The published `v2.9.5` release retains the product boundary
+while reorganizing the repository and strengthening local database integrity,
+ownership, and verification.
 Detailed behavior stays in the linked feature, security, architecture,
 research, and harness docs.
 
@@ -44,8 +44,8 @@ account, telemetry, cloud sync, or external AI provider.
 
 | Item | Current state |
 | ---- | ------------- |
-| Source status | `v2.9.5` is the current source candidate and is not published yet |
-| Public release | `v2.9.1` remains the latest verified GitHub release with Windows, macOS, Linux, and Agent Skills assets |
+| Source status | `2.9.5` is the current source version |
+| Public release | `v2.9.5` is the latest verified GitHub release with Windows, macOS, Linux, and Agent Skills assets |
 | Primary platforms | Windows 11+, macOS, and Linux |
 | Default data model | Local SQLite and local settings |
 | Telemetry | None |

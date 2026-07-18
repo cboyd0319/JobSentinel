@@ -124,13 +124,13 @@ Out of scope:
 
 | Source | Unfinished or conflicting work | Disposition |
 | --- | --- | --- |
-| `README.md`, `docs/README.md`, `docs/ROADMAP.md`, `docs/features/capabilities.md`, `docs/releases/v2.9.5.md`, `CHANGELOG.md` | Several maintained docs still describe v2.9.5 as an unpublished candidate or v2.9.1 as current. | Milestone 0 corrects and verifies all release truth before product implementation. |
+| `README.md`, `docs/README.md`, `docs/ROADMAP.md`, `docs/features/capabilities.md`, `docs/releases/v2.9.5.md`, `CHANGELOG.md` | Maintained release records identify v2.9.5 as the current published release. | Milestone 0 corrected the stale claims and added a focused marker audit. |
 | Root `ROADMAP.md` | Resume readability, source verification, repost lineage, pay protection, long-search support, bias-aware routes, protective UX, and local control remain planned. | Milestones 4 through 9 implement them; Milestone 11 evaluates them. |
-| `docs/plans/tech-debt-tracker.md` DRY-002 | Small direct dependencies still require replacement review. | Milestone 0 evaluates each named dependency and either removes it or records why the existing rationale remains sufficient. |
-| `docs/plans/tech-debt-tracker.md` DRY-003 | The tracker says frontend duplication is open, while the live duplication gate reports zero. | Milestone 0 closes the stale item with fresh evidence. |
-| Deferred release-pipeline plan | Whether public verification belongs inside the blocking release workflow remains unresolved. | Milestone 0 re-audits the current workflow; Milestone 11 implements or explicitly rejects the change. |
+| `docs/plans/tech-debt-tracker.md` DRY-002 | The small direct dependency review is complete. | Milestone 0 replaced direct `scopeguard` with existing `tempfile` ownership and retained three dependencies with evidence-backed rationales. |
+| `docs/plans/tech-debt-tracker.md` DRY-003 | The live duplication gate reports zero across all six maintained scopes. | Milestone 0 closed the stale item with fresh evidence. |
+| Deferred release-pipeline plan | Publication through `github.token` cannot trigger the separate `release.published` verifier, the current verifier is authenticated, and its macOS job lacks platform scoping. | Milestone 11 makes authenticated draft verification blocking before publication, restores platform scoping, and retains explicit unauthenticated post-publication verification. |
 | `docs/harness/current-status.md` | Shared-history CI is deferred under an explicit user override. | Keep the exception visible. Milestone 11 requires a fresh user decision before v3 release and records the enforcement gap if retained. |
-| `docs/developer/TESTING.md` | Full pipeline integration, property tests, mutation tests, benchmarks, mock servers, and JSON snapshots are listed as future work. | Milestone 0 closes already-implemented items. Milestones 1 and 11 add only risk-based mutation and performance checks; snapshot testing is retired unless a stable JSON contract needs it. |
+| `docs/developer/TESTING.md` | The stale generic future-work list is removed after reconciling it with live pipeline, property, mock-server, E2E, and contract coverage. | Milestones 1 and 11 add only measured performance budgets and risk-based mutation checks; generic benchmark and snapshot frameworks remain unapproved. |
 | `tests/e2e/README.md` | Drag-and-drop relies on retries; native file-picker behavior lacks installed-app smoke coverage. | Milestone 1 makes drag-and-drop deterministic and adds a native smoke owner. |
 | Research open evaluations | Ghost, pay, negotiation, behavior, source, resume, and screening-system studies contain unevaluated product questions. | Milestone 1 creates versioned eval sets; feature milestones add fixtures before implementation; Milestone 11 runs the accepted evaluations. |
 | Resume feature and research docs | Broader evidence strength, synonym handling, recency, seniority, profession weighting, YAML import, static export, draft history, and a public-profile importer remain future work. | Core evidence and weighting ship in Milestone 5. Import/export extensions enter the v3.x train in Milestone 12. |
@@ -139,7 +139,7 @@ Out of scope:
 | Employer-intelligence plan | Dataset mode, starter sources, Essentials size, manual observations, expiry, and minimum dossier remain open decisions. | Decision Gate 4 resolves them before Milestone 8 implementation. |
 | Security docs | Future private-data AI, encrypted-secret backup, and stricter local-auth choices are conditional, not approved behavior. | Milestones 3 and 7 may promote only reviewed paths with focused threat models and local fallbacks. |
 | Distribution-dependent platform work | Start-on-login, sandboxing, signing, notarization, and final native proof remain incomplete or externally constrained. | Design and fixture work stays late. Live platform and distribution proof is part of Milestone 11 only. |
-| Completed and archived plans | Completed plans are historical. The release-pipeline plan is the only archived plan with an explicit unresolved `Next` item. | Do not reopen historical checklists. Carry forward only the release decision named above. |
+| Completed and archived plans | Completed plans are historical. Milestone 0 resolved the release-pipeline plan's remaining decision. | Do not reopen historical checklists. Milestone 11 owns only the recorded release-pipeline corrections above. |
 | Checklists and boundary language | Security, contribution, support, and skill checkboxes are reusable procedures; phrases such as “not yet submitted” describe state. | Not backlog. Keep them as verification or user guidance. |
 
 The inventory covers maintained root state, roadmaps, plan references, feature
@@ -339,6 +339,12 @@ relevant result, and caveat.
   consolidation into user outcomes, not 187 independent features.
 - E09, X03, and X04 duplicated A19, U19, and M26. Their intent now remains
   under the canonical IDs rather than inflating the index and disposition list.
+- Direct `scopeguard` ownership duplicated existing `tempfile` cleanup, while
+  `hex`, `urlencoding`, and `basic-toml` avoid riskier custom implementations.
+- Under [GitHub's token event rules](https://docs.github.com/en/actions/concepts/security/github_token),
+  a release published with `github.token` cannot trigger the separate
+  `release.published` verifier. That verifier also authenticates downloads and
+  lacks its previously recorded macOS platform condition.
 
 ## Decisions
 
@@ -365,6 +371,10 @@ relevant result, and caveat.
   cannot be solved by an existing owner.
 - Put platform-specific live distribution proof at the end of the release
   stream.
+- At Milestone 11, make authenticated draft-asset verification block
+  publication, restore verifier platform scoping, and keep unauthenticated
+  public-download verification as an explicit post-publication closure check.
+  Do not add a broader credential only to trigger another workflow.
 
 ## Outcomes
 
