@@ -21,13 +21,14 @@ See [Exec Plans](../exec-plans.md) for required format.
 
 | Workstream | Document |
 | ---------- | -------- |
-| V3 workstream selection | [V3 planning](v3/README.md) |
+| V3 master planning | [V3 master execution plan](v3/master-exec-plan.md) |
 
 ## Major-Release Planning
 
 | Horizon | Document |
 | ------- | -------- |
-| v3.0.0 moonshot planning | [V3 Planning](v3/README.md) |
+| V3 major line | [V3 master execution plan](v3/master-exec-plan.md) |
+| V3 strategy and research | [V3 planning package](v3/README.md) |
 
 ## Plan Requirements
 

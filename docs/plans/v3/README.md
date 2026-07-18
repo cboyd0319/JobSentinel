@@ -11,6 +11,10 @@ the base of JobSentinel and the primary local trust boundary. The point of this
 package is to think beyond "make v2 better" and identify what would make
 JobSentinel genuinely impressive.
 
+The [V3 Master Execution Plan](master-exec-plan.md) is the sole owner for v3
+scope, sequence, progress, decisions, verification, and handoff. The documents
+below are references. They do not independently authorize implementation.
+
 ## Baseline
 
 V2.9 provides the foundation:
@@ -81,6 +85,7 @@ burdens for the user, not hidden behavior.
 
 | Doc | Purpose |
 | --- | --- |
+| [V3 Master Execution Plan](master-exec-plan.md) | Sole active execution owner for the v3.0 and v3.x scope, backlog disposition, milestones, gates, verification, and release closure. |
 | [North Star](north-star.md) | Product vision, strategic bets, and anti-goals. |
 | [Idea Catalog](idea-catalog.md) | Broad v3 feature and moonshot inventory. |
 | [Idea Index](idea-index.md) | Ranked benefit and effort index for v3 ideas and implementation sequencing. |

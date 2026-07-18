@@ -47,10 +47,10 @@ Last updated: 2026-07-18
 
 - Active feature: `v3-workstream-selection`
 - Status: `active`
-- Objective: Select one user-approved, bounded v3 major workstream.
-- Branch: `refactor/full-repo-v2.9.5`
-- Current slice: Review and rank the existing v3 planning package.
-- Next action: Present the bounded workstream options for user approval.
+- Objective: Approve one comprehensive v3 plan and its first bounded milestone.
+- Branch: `feat/v3-major-line`
+- Current slice: Review the repo-wide v3 master plan and backlog dispositions.
+- Next action: Approve the master plan, then activate Milestone 0.
 
 ## Deferred
 

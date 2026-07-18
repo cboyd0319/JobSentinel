@@ -150,11 +150,11 @@
       "user_visible_behavior": "Users can obtain a verified v2.9.5 release whose public artifacts match the tested source candidate.", "status": "passing",
       "verification": ["npm run release:readiness -- --version 2.9.5", "npm run release:verify:public -- --tag v2.9.5 --expected-version 2.9.5 --require-windows-unsigned-label"],
       "evidence": ["docs/harness/evidence/v2.9.5-release-cut-2026-07-18.json"], "blocker": "", "next_trigger": "A regression against the public v2.9.5 release requires a bounded corrective feature."
-    }, { "id": "v3-workstream-selection", "priority": 13, "area": "product planning", "title": "Select the first v3 major workstream",
-      "behavior": "The ranked v3 planning package is reduced to one user-approved, bounded execution plan before implementation begins.",
+    }, { "id": "v3-workstream-selection", "priority": 13, "area": "product planning", "title": "Approve the comprehensive v3 execution plan",
+      "behavior": "The v3 strategy package and every unfinished maintained-doc commitment are dispositioned in one ordered, user-approved master plan before implementation begins.",
       "user_visible_behavior": "The next major investment targets a clear job-seeker burden with explicit privacy, usability, and verification boundaries.", "status": "active",
       "verification": ["npm run harness:check", "npm run lint:docs"],
-      "evidence": [], "blocker": "", "next_trigger": "Review the ranked v3 package and obtain user approval for one bounded workstream."
+      "evidence": [], "blocker": "", "next_trigger": "Approve the v3 master plan and activate Milestone 0 as the sole bounded workstream."
     }
   ]
 }
