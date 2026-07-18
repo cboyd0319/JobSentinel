@@ -248,7 +248,17 @@ test("npm compatible update check accepts up-to-date lockfiles", () => {
   assert.deepEqual(calls, [
     [
       "C:\\Windows\\System32\\cmd.exe",
-      ["/d", "/s", "/c", "npm.cmd", "update", "--package-lock-only", "--dry-run", "--ignore-scripts"],
+      [
+        "/d",
+        "/s",
+        "/c",
+        "npm.cmd",
+        "update",
+        "--package-lock-only",
+        "--dry-run",
+        "--ignore-scripts",
+        "--allow-remote=all",
+      ],
     ],
   ]);
 });
@@ -299,7 +309,10 @@ test("npm compatible outdated check reports current-vs-wanted transitive drift",
     "package-lock.json has compatible npm transitive drift for @testing-library/jest-dom: aria-query is 5.3.0; wanted 5.3.2",
   ]);
   assert.deepEqual(calls, [
-    ["C:\\Windows\\System32\\cmd.exe", ["/d", "/s", "/c", "npm.cmd", "outdated", "--all", "--json"]],
+    [
+      "C:\\Windows\\System32\\cmd.exe",
+      ["/d", "/s", "/c", "npm.cmd", "outdated", "--all", "--json", "--allow-remote=all"],
+    ],
   ]);
 });
 

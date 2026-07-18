@@ -10,7 +10,7 @@ export function collectNpmCompatibleUpdateViolations(
   { spawn = spawnSync, platform = process.platform, env = process.env } = {},
 ) {
   const invocation = npmInvocation(
-    ["update", "--package-lock-only", "--dry-run", "--ignore-scripts"],
+    ["update", "--package-lock-only", "--dry-run", "--ignore-scripts", "--allow-remote=all"],
     platform,
     env,
   );
@@ -47,7 +47,11 @@ export function collectNpmCompatibleOutdatedViolations(
   root,
   { spawn = spawnSync, platform = process.platform, env = process.env } = {},
 ) {
-  const invocation = npmInvocation(["outdated", "--all", "--json"], platform, env);
+  const invocation = npmInvocation(
+    ["outdated", "--all", "--json", "--allow-remote=all"],
+    platform,
+    env,
+  );
   const result = spawn(invocation.command, invocation.args, {
     cwd: root,
     encoding: "utf8",
