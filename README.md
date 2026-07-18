@@ -9,7 +9,7 @@ application, and protect your pay goals from one private desktop workspace.
 Core workflows work locally. JobSentinel is free, will always stay free, and
 will always remain MIT licensed.
 
-[![Source version](https://img.shields.io/badge/source-2.9.5-2563eb)](docs/releases/v2.9.5.md)
+[![Source version](https://img.shields.io/badge/source-2.9.5-2563eb)](https://github.com/cboyd0319/JobSentinel/releases/tag/v2.9.5)
 [![Release](https://img.shields.io/github/v/release/cboyd0319/JobSentinel?label=release&color=2563eb)](https://github.com/cboyd0319/JobSentinel/releases/latest)
 [![MIT License](https://img.shields.io/badge/license-MIT-111827)](LICENSE)
 [![Rule 0](https://img.shields.io/badge/rule%200-privacy%20%26%20security-991b1b)](PRIVACY.md)
@@ -77,12 +77,16 @@ not need terminal commands or debugging skill to get value.
 - **Security is part of the product mechanics.** Safe support reports, local
   encrypted secrets, optional AI request previews, and release artifact
   checksums are built into normal flows instead of bolted on later.
-- **Agent Skills ship with the app.** The release includes downloadable job
+- **Agent Skills ship with the release.** Separate downloads include job
   hunting and resume skills for agents that support skills packages.
 - **External AI is optional, not the product.** Users can configure providers,
   preview payloads, approve requests, and keep the local path available.
 
 ## Download
+
+The current public release is
+[v2.9.5](https://github.com/cboyd0319/JobSentinel/releases/tag/v2.9.5),
+published July 18, 2026.
 
 Use the [latest GitHub release](https://github.com/cboyd0319/JobSentinel/releases/latest)
 and verify the matching `.sha256` checksum from the same release before opening
@@ -161,12 +165,19 @@ Read more in [PRIVACY.md](PRIVACY.md),
 [RESPONSIBLE_AI.md](RESPONSIBLE_AI.md), and the
 [security docs](docs/security/README.md).
 
-## Current Source Candidate: v2.9.5
+## Current Release: v2.9.5
 
-The `v2.9.5` source candidate completes a full repository refactor around
-explicit ownership, a 15-member Cargo workspace, application-layer
+`v2.9.5` is the current public release. It completes a full repository refactor
+around explicit ownership, a 15-member Cargo workspace, application-layer
 orchestration, a thin private IPC shell, feature-owned frontend code,
-deterministic discovery, and enforced file limits.
+deterministic discovery, and enforced file limits. It also includes database
+integrity safeguards, full-text search and saved-alert corrections, and GUI
+fixes found during release QA.
+
+The hosted release workflow passed 288 browser journeys and published 20
+verified assets. Those assets include five desktop packages, two Agent Skills
+archives, matching checksums, and SPDX SBOM material. Release verification also
+binds the packages and archives to build provenance.
 
 Privacy and security guarantees do not change. Local data remains local by
 default, external AI remains optional and disabled by default, credential
@@ -175,10 +186,14 @@ require verified encrypted snapshots and integrity checks, and users retain
 review control over imports, external channels, browser actions, and final
 application submission.
 
-This source version is not a published release yet. Current downloads remain on
-the [latest GitHub release](https://github.com/cboyd0319/JobSentinel/releases/latest).
+[Download v2.9.5](https://github.com/cboyd0319/JobSentinel/releases/tag/v2.9.5)
+or review the
+[release verification evidence](docs/harness/evidence/v2.9.5-release-cut-2026-07-18.json).
 
-## What Was New In 2.9.0
+## Product Highlights In v2.9.5
+
+The current release carries forward the user-facing product work introduced in
+the 2.9 release line:
 
 - Browser Import review queue for visible jobs the user chooses to send into
   JobSentinel before saving.
@@ -202,8 +217,9 @@ the [latest GitHub release](https://github.com/cboyd0319/JobSentinel/releases/la
 - Optional external AI provider configuration for OpenAI, Anthropic, Google
   Gemini, GitHub Copilot, and custom HTTPS providers through the local gateway.
 
-Full candidate notes: [docs/releases/v2.9.5.md](docs/releases/v2.9.5.md).
-Published v2.9.1 notes: [docs/releases/v2.9.1.md](docs/releases/v2.9.1.md).
+See the
+[published v2.9.5 release](https://github.com/cboyd0319/JobSentinel/releases/tag/v2.9.5)
+and [CHANGELOG.md](CHANGELOG.md) for release history.
 
 ## Job Source Terms And User Control
 
@@ -295,21 +311,17 @@ matching. Resume and job text stays local either way. See
 <summary><strong>More screenshots</strong></summary>
 <br>
 
-| Resume builder | Resume matcher |
+| Resume builder | Resume Match Helper |
 | --- | --- |
-| ![Resume builder](docs/images/resume-builder.png) | ![Resume matcher](docs/images/resume-matcher.png) |
+| ![Resume builder](docs/images/resume-builder.png) | ![Resume Match Helper](docs/images/hiring-system-transparency.png) |
 
-| Hiring-system transparency | Application Assist |
+| Application Assist | Pay Protection |
 | --- | --- |
-| ![Hiring-system transparency](docs/images/hiring-system-transparency.png) | ![Application Assist](docs/images/application-assist.png) |
+| ![Application Assist](docs/images/application-assist.png) | ![Pay Protection](docs/images/pay-protection.png) |
 
-| Pay Protection | Hiring Trends |
+| Hiring Trends | Settings |
 | --- | --- |
-| ![Pay Protection](docs/images/pay-protection.png) | ![Hiring Trends](docs/images/hiring-trends.png) |
-
-| Settings |
-| --- |
-| ![Settings](docs/images/settings.png) |
+| ![Hiring Trends](docs/images/hiring-trends.png) | ![Settings](docs/images/settings.png) |
 
 </details>
 
@@ -360,12 +372,15 @@ cd JobSentinel
 npm run tauri:build
 ```
 
+PowerShell users can replace `./init.sh` with `pwsh -File ./init.ps1`.
+
 Common verification:
 
 ```bash
 npm run harness:check
 npm run lint:bloat
 npm run lint:docs
+npm run typecheck
 npm run lint
 npm run test:run
 npm run test:e2e:smoke
@@ -375,7 +390,8 @@ cargo clippy --workspace -- -D warnings
 cargo test --workspace
 ```
 
-Release verification is broader. Use
+Run `npm run verify:full` for the full local gate. Release verification is
+broader. Use
 [docs/harness/verification-matrix.md](docs/harness/verification-matrix.md).
 
 ## Support

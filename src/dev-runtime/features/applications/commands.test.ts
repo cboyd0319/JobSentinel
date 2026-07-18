@@ -18,6 +18,23 @@ function createState() {
 }
 
 describe("Applications mock commands", () => {
+  it("returns source totals that match the displayed jobs", () => {
+    const state = createState();
+
+    const result = handleMockApplicationsCommand(
+      "get_jobs_by_source",
+      undefined,
+      state,
+    );
+
+    expect(result.value).toEqual([
+      { source: "linkedin", count: 1 },
+      { source: "greenhouse", count: 5 },
+      { source: "lever", count: 1 },
+      { source: "direct", count: 1 },
+    ]);
+  });
+
   it("creates and moves an application through owned state", () => {
     const initial = createState();
     const job = initial.jobs[0];

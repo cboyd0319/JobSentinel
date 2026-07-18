@@ -3,6 +3,19 @@ import { mockJobs } from "../../mocks/data";
 import { handleMockDashboardCommand } from "./commands";
 
 describe("Dashboard mock commands", () => {
+  it("returns statistics that match the displayed jobs", () => {
+    const state = { jobs: mockJobs.map((job) => ({ ...job })) };
+
+    const result = handleMockDashboardCommand("get_statistics", undefined, state);
+
+    expect(result.value).toMatchObject({
+      total_jobs: 8,
+      high_matches: 1,
+      hidden_count: 0,
+      average_score: 0.8075,
+    });
+  });
+
   it("updates only the selected job when hiding a listing", () => {
     const state = { jobs: mockJobs.map((job) => ({ ...job })) };
     const selectedJob = state.jobs[0];

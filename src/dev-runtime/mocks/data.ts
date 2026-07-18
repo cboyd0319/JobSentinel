@@ -210,16 +210,15 @@ export const mockConfig = {
 };
 
 export const mockStatistics = {
-  total_jobs: 156,
-  new_today: 18,
-  high_matches: 12,
-  hidden_count: 23,
-  average_score: 0.78,
+  total_jobs: 8,
+  high_matches: 1,
+  hidden_count: 0,
+  average_score: 0.8075,
   by_source: {
-    linkedin: 52,
-    greenhouse: 41,
-    lever: 28,
-    direct: 35,
+    linkedin: 1,
+    greenhouse: 5,
+    lever: 1,
+    direct: 1,
   },
 };
 
