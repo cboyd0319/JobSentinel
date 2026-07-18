@@ -146,6 +146,21 @@ export function evaluateReleaseReadinessFromInputs(inputs) {
       "Release preflight must block on security sensors, workflow static analysis, npm audit, and cargo-deny.",
     ),
     criterion(
+      "hosted prose lint installs pinned Vale",
+      hasAll(inputs.releaseWorkflow, [
+        "- name: Install pinned Vale",
+        'VALE_ARCHIVE_SHA256: "c024d9c157874fb043d4f24a055d60050d1bb18755251f590593eed5bace1857"',
+        'VALE_VERSION: "3.15.1"',
+        "https://github.com/vale-cli/vale/releases/download/v${VALE_VERSION}/vale_${VALE_VERSION}_Linux_64-bit.tar.gz",
+        "sha256sum --check -",
+      ]) &&
+        hasOrderedSnippets(inputs.releaseWorkflow, [
+          "- name: Install pinned Vale",
+          "- name: Run prose lint",
+        ]),
+      "Hosted prose lint must install the exact Vale release and verify its archive checksum first.",
+    ),
+    criterion(
       "release workflow creates verified versioned staged release",
       hasAll(inputs.releaseWorkflow, [
         "- name: Create staged release",

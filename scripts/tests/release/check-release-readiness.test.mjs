@@ -136,6 +136,23 @@ test("release readiness rejects release preflight without workflow static analys
   );
 });
 
+test("release readiness rejects prose lint without pinned Vale installation", () => {
+  const inputs = loadReleaseReadinessInputs({ env: {} });
+  const report = evaluateReleaseReadinessFromInputs({
+    ...inputs,
+    releaseWorkflow: inputs.releaseWorkflow.replace(
+      'VALE_ARCHIVE_SHA256: "c024d9c157874fb043d4f24a055d60050d1bb18755251f590593eed5bace1857"',
+      'VALE_ARCHIVE_SHA256: ""',
+    ),
+  });
+
+  assert(
+    report.criteria.some(
+      (item) => item.id === "hosted prose lint installs pinned Vale" && !item.ok,
+    ),
+  );
+});
+
 test("release readiness rejects unverified GitHub release creation", () => {
   const inputs = loadReleaseReadinessInputs({ env: {} });
   const report = evaluateReleaseReadinessFromInputs({

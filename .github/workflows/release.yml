@@ -161,6 +161,22 @@ jobs:
       - name: Run markdown lint
         run: npm run lint:md
 
+      - name: Install pinned Vale
+        env:
+          VALE_ARCHIVE_SHA256: "c024d9c157874fb043d4f24a055d60050d1bb18755251f590593eed5bace1857"
+          VALE_VERSION: "3.15.1"
+        run: |
+          archive="$RUNNER_TEMP/vale.tar.gz"
+          bin_dir="$RUNNER_TEMP/vale-bin"
+          curl --fail --location --silent --show-error \
+            "https://github.com/vale-cli/vale/releases/download/v${VALE_VERSION}/vale_${VALE_VERSION}_Linux_64-bit.tar.gz" \
+            --output "$archive"
+          echo "${VALE_ARCHIVE_SHA256}  ${archive}" | sha256sum --check -
+          mkdir -p "$bin_dir"
+          tar --extract --gzip --file "$archive" --directory "$bin_dir" vale
+          echo "$bin_dir" >> "$GITHUB_PATH"
+          "$bin_dir/vale" --version
+
       - name: Run prose lint
         run: npm run lint:prose
 
