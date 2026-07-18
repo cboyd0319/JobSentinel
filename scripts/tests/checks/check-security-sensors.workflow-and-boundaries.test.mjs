@@ -62,6 +62,27 @@ test("checkSecuritySensors rejects release setup-node automatic package-manager 
   );
 });
 
+test("checkSecuritySensors rejects inherited reusable-workflow secrets", () => {
+  const root = mkdtempRoot("jobsentinel-security-sensors-inherited-secrets-");
+  writeSelfOnlyBaseRepo(root);
+  writeFileSync(
+    join(root, ".github/workflows/ci.yml"),
+    [
+      "permissions: {}",
+      "jobs:",
+      "  release:",
+      "    uses: ./.github/workflows/release.yml",
+      "    secrets: inherit",
+    ].join("\n"),
+  );
+
+  assert(
+    checkSecuritySensors(root).includes(
+      ".github/workflows/ci.yml must pass only explicitly named secrets to reusable workflows",
+    ),
+  );
+});
+
 test("checkSecuritySensors rejects release workflow without Linux AppImage compatibility", () => {
   const root = mkdtempRoot("jobsentinel-security-sensors-linux-appimage-");
   writeSelfOnlyBaseRepo(root);

@@ -26,8 +26,8 @@ vi.mock("../../shared/errorReporting/logger", () => ({
 
 export const mockCreateObjectURL = vi.fn(() => "blob:test");
 export const mockRevokeObjectURL = vi.fn();
-global.URL.createObjectURL = mockCreateObjectURL;
-global.URL.revokeObjectURL = mockRevokeObjectURL;
+globalThis.URL.createObjectURL = mockCreateObjectURL;
+globalThis.URL.revokeObjectURL = mockRevokeObjectURL;
 
 export const mockOnClose = vi.fn();
 

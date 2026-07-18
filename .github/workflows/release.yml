@@ -340,7 +340,6 @@ jobs:
       matrix: ${{ needs.release-inputs.outputs.matrix }}
       tag: ${{ needs.release-inputs.outputs.tag }}
       version: ${{ needs.release-inputs.outputs.version }}
-    secrets: inherit
 
   build-release:
     needs:
@@ -360,7 +359,6 @@ jobs:
       platform_key: ${{ matrix.platform_key }}
       tag: ${{ needs.release-inputs.outputs.tag }}
       version: ${{ needs.release-inputs.outputs.version }}
-    secrets: inherit
 
   publish-release:
     needs:

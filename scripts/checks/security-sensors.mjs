@@ -103,6 +103,9 @@ function checkWorkflowSecurityBaseline(root, violations) {
         violations.push(`${path} must not use privileged or chained trigger: ${trigger}`);
       }
     }
+    if (/(?:^|\n)\s*secrets:\s*inherit\s*(?:\n|$)/.test(text)) {
+      violations.push(`${path} must pass only explicitly named secrets to reusable workflows`);
+    }
 
     const checkoutCount = countMatches(text, /\buses:\s*actions\/checkout@/g);
     const guardCount = countMatches(text, /\bpersist-credentials:\s*false\b/g);

@@ -27,8 +27,6 @@ on:
 
 permissions: {}
 
-env:
-
 jobs:
   verify-public-release-assets:
     name: Verify public release assets

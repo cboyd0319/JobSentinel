@@ -60,6 +60,7 @@ test("live harness satisfies the canonical semantic contract", () => {
 
 test("harness manifest names one owner per required subsystem and retired paths", () => {
   const manifest = readJson("scripts/harness/contracts/harness.json");
+  const repositoryStructure = readJson("scripts/harness/contracts/repository-structure.json");
   assert.equal(manifest.schema_version, 1);
   assert.deepEqual(Object.keys(manifest.owners).sort(), [
     "architecture", "environment", "feedback", "instructions", "state", "tools",
@@ -73,6 +74,8 @@ test("harness manifest names one owner per required subsystem and retired paths"
   assert.equal(manifest.hosted_workflows.authoritative_ci.length, 0);
   assert.equal(manifest.canonical_requirement_exceptions[0].id, noCiExceptionId);
   assert.match(manifest.canonical_requirement_exceptions[0].canonical_status, /nonconforming user override/);
+  assert.equal(manifest.owners.feedback.local_hook_root, ".husky");
+  assert.ok(!repositoryStructure.structure.allowed_configuration_roots.includes(".claude"));
 });
 
 test("hosted workflow policy rejects incomplete enabled CI", () => {

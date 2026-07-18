@@ -98,7 +98,6 @@
     ],
     "allowed_configuration_roots": [
       ".cargo",
-      ".claude",
       ".github",
       ".storybook",
       "docs",

@@ -34,7 +34,7 @@
     "feedback": {
       "sensor_registry": "docs/harness/harness-map.md",
       "acceptance_contract": "docs/harness/verification-matrix.md",
-      "local_hook_root": ".husky/_",
+      "local_hook_root": ".husky",
       "hosted_workflow_root": ".github/workflows"
     },
     "architecture": {

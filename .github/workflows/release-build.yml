@@ -27,7 +27,6 @@ jobs:
     with:
       tag: ${{ inputs.tag }}
       version: ${{ inputs.version }}
-    secrets: inherit
   macos:
     if: inputs.platform_key == 'macos'
     permissions:
@@ -39,7 +38,6 @@ jobs:
     with:
       tag: ${{ inputs.tag }}
       version: ${{ inputs.version }}
-    secrets: inherit
   linux:
     if: inputs.platform_key == 'linux'
     permissions:
@@ -51,4 +49,3 @@ jobs:
     with:
       tag: ${{ inputs.tag }}
       version: ${{ inputs.version }}
-    secrets: inherit
