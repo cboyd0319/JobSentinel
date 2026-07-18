@@ -1,6 +1,6 @@
 {
   "schema": "jobsentinel.feature_list.v1", "project": "JobSentinel",
-  "last_updated": "2026-07-17",
+  "last_updated": "2026-07-18",
   "active_status": "active",
   "rules": {
     "single_active_feature": true,
@@ -147,14 +147,14 @@
       "evidence": ["docs/harness/evidence/v2.9.5-gui-qa-corrections-2026-07-17.json"], "blocker": "", "next_trigger": "A regression against the recorded GUI QA baseline requires a bounded corrective feature."
     }, { "id": "v2.9.5-release-cut", "priority": 12, "area": "release publication", "title": "Cut the v2.9.5 release",
       "behavior": "The verified v2.9.5 source candidate is published through the authorized release workflow, and its public artifacts, metadata, and immutable references are validated before v3 work begins.",
-      "user_visible_behavior": "Users can obtain a verified v2.9.5 release whose public artifacts match the tested source candidate.", "status": "active",
-      "verification": ["npm run release:readiness -- --version 2.9.5", "npm run release:verify:public -- --version 2.9.5"],
-      "evidence": [], "blocker": "", "next_trigger": "Begin only after v2.9.5 GUI QA corrections pass and their source changes are committed."
+      "user_visible_behavior": "Users can obtain a verified v2.9.5 release whose public artifacts match the tested source candidate.", "status": "passing",
+      "verification": ["npm run release:readiness -- --version 2.9.5", "npm run release:verify:public -- --tag v2.9.5 --expected-version 2.9.5 --require-windows-unsigned-label"],
+      "evidence": ["docs/harness/evidence/v2.9.5-release-cut-2026-07-18.json"], "blocker": "", "next_trigger": "A regression against the public v2.9.5 release requires a bounded corrective feature."
     }, { "id": "v3-workstream-selection", "priority": 13, "area": "product planning", "title": "Select the first v3 major workstream",
       "behavior": "The ranked v3 planning package is reduced to one user-approved, bounded execution plan before implementation begins.",
-      "user_visible_behavior": "The next major investment targets a clear job-seeker burden with explicit privacy, usability, and verification boundaries.", "status": "not_started",
+      "user_visible_behavior": "The next major investment targets a clear job-seeker burden with explicit privacy, usability, and verification boundaries.", "status": "active",
       "verification": ["npm run harness:check", "npm run lint:docs"],
-      "evidence": [], "blocker": "", "next_trigger": "Select and approve one major workstream only after the verified v2.9.5 release is public."
+      "evidence": [], "blocker": "", "next_trigger": "Review the ranked v3 package and obtain user approval for one bounded workstream."
     }
   ]
 }

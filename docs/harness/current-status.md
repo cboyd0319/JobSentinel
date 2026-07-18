@@ -1,6 +1,6 @@
 # Current Status
 
-Last updated: 2026-07-17
+Last updated: 2026-07-18
 
 ## Done
 
@@ -38,23 +38,23 @@ Last updated: 2026-07-17
   maintained links and release records are current, and dependencies are fresh.
   The full gate, 286 browser journeys, all-feature Rust lane, universal package
   smoke, skills archives, and SBOM generation passed with structured evidence.
-- The v2.9.5 GUI QA corrections are complete. All 288 browser journeys passed,
-  and the native bundle stayed active after close, reopened from the tray, and
-  quit cleanly. Structured evidence records the complete correction gate.
+- The v2.9.5 GUI QA and release publication are complete. All 288 browser
+  journeys and hosted release gates passed. The public release contains 20
+  checksummed assets with SBOM and provenance validation. The no-account Mac
+  package passed fresh-download installation and launch smoke verification.
 
 ## In Progress
 
-- Active feature: `v2.9.5-release-cut`
+- Active feature: `v3-workstream-selection`
 - Status: `active`
-- Objective: Publish and verify the tested v2.9.5 source candidate.
+- Objective: Select one user-approved, bounded v3 major workstream.
 - Branch: `refactor/full-repo-v2.9.5`
-- Current slice: Publish the committed v2.9.5 candidate through the no-account release path.
-- Next action: Push the verified commit and tag, run the release workflow, then verify public assets.
+- Current slice: Review and rank the existing v3 planning package.
+- Next action: Present the bounded workstream options for user approval.
 
 ## Deferred
 
-- Hosted CI remains intentionally absent under the named
-  `pre-alpha-private-no-ci` user override. It was not part of the repository
-  cleanup slice.
+- Hosted general CI remains intentionally absent under the named
+  `pre-alpha-private-no-ci` user override.
 
 Keep this current; put command history and long evidence under `docs/harness/evidence/`.

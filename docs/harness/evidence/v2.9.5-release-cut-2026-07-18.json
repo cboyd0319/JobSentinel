@@ -1,0 +1,99 @@
+{
+  "schema": "jobsentinel.feature_evidence.v1",
+  "feature_id": "v2.9.5-release-cut",
+  "behavior": "The verified v2.9.5 source candidate is published through the authorized release workflow, and its public artifacts, metadata, and immutable references are validated before v3 work begins.",
+  "result": "passing",
+  "verified_at": "2026-07-18T06:52:31Z",
+  "revision": "84f55d04514433b14af86db10a5652b7f02a1a99",
+  "revision_scope": "Public release source at the immutable tag plus the post-publication verifier correction at the recorded revision.",
+  "platform": "local Darwin arm64 host and GitHub-hosted release runners",
+  "release": {
+    "tag": "v2.9.5",
+    "source_revision": "16e48bfd24297e597ea1c5db2aea1b26a2c8b7e8",
+    "post_release_verifier_revision": "84f55d04514433b14af86db10a5652b7f02a1a99",
+    "url": "https://github.com/cboyd0319/JobSentinel/releases/tag/v2.9.5",
+    "published_at": "2026-07-18T06:43:20Z",
+    "draft": false,
+    "prerelease": false,
+    "asset_count": 20,
+    "mac_asset": "JobSentinel_2.9.5_no-account_universal.dmg",
+    "mac_asset_sha256": "0e6fa18f12a0f8beba72335387205a75c94a3f4d35f765cc0598299ea1830710"
+  },
+  "workflow": {
+    "run_id": 29633409832,
+    "url": "https://github.com/cboyd0319/JobSentinel/actions/runs/29633409832",
+    "source_revision": "16e48bfd24297e597ea1c5db2aea1b26a2c8b7e8",
+    "created_at": "2026-07-18T06:06:09Z",
+    "completed_at": "2026-07-18T06:43:24Z",
+    "conclusion": "success"
+  },
+  "measurements": {
+    "hosted_browser_journeys_passed": 288,
+    "public_assets": 20,
+    "agent_skills_archives": 2,
+    "desktop_installers": 5,
+    "release_sbom_documents": 3,
+    "release_sbom_manifests": 3,
+    "post_release_script_tests_passed": 834
+  },
+  "changes": [
+    "Published the committed v2.9.5 source candidate through the authorized hosted release workflow.",
+    "Validated exact public assets, checksums, archive contents, SBOM bindings, provenance, release metadata, and immutable tag references.",
+    "Downloaded the public no-account Mac DMG and repeated mount, architecture, metadata, install, launch, local-data, checksum, SBOM, and provenance checks.",
+    "Corrected the public verifier to bind attestations to the reusable workflow that owns each artifact."
+  ],
+  "commands": [
+    {
+      "command": "npm run release:readiness -- --version 2.9.5",
+      "exit_status": 0,
+      "relevant_result": "Release input, preflight, browser, Rust, package, publication, checksum, SBOM, attestation, and public-verification contracts passed.",
+      "caveat": "The Mac release uses the authorized no-account path."
+    },
+    {
+      "command": "gh workflow run release.yml --ref v2.9.5 -f version=2.9.5 -f platform=all",
+      "exit_status": 0,
+      "relevant_result": "Run 29633409832 completed successfully against the immutable source revision.",
+      "caveat": "The no-account Mac package is ad-hoc signed, not Developer ID signed, not notarized, and not Gatekeeper-ready."
+    },
+    {
+      "command": "npm run release:verify:public -- --tag v2.9.5 --expected-version 2.9.5 --require-windows-unsigned-label",
+      "exit_status": 0,
+      "relevant_result": "All 20 public assets had the exact expected names and versions; checksums, archives, SBOM bindings, and provenance predicates passed.",
+      "caveat": "The final run used the authenticated GitHub CLI before a local credential wrapper in PATH."
+    },
+    {
+      "command": "npm run tauri:verify:macos:latest -- --tag v2.9.5 --expected-version 2.9.5",
+      "exit_status": 0,
+      "relevant_result": "The downloaded no-account DMG passed checksum, universal architecture, metadata, signature integrity, visible-window, local-data, install, SBOM, and provenance checks.",
+      "caveat": "Expected public trust rejection was observed because Developer ID signing and notarization are unavailable."
+    },
+    {
+      "command": "node --test scripts/tests/release/verify-latest-macos-release.test.mjs scripts/tests/release/verify-public-release-assets.test.mjs",
+      "exit_status": 0,
+      "relevant_result": "All 33 focused verifier tests passed after fail-first coverage proved each reusable signer mapping.",
+      "caveat": "The released application artifacts were unaffected by the verifier-only correction."
+    },
+    {
+      "command": "npm run test:scripts",
+      "exit_status": 0,
+      "relevant_result": "All 834 script tests passed after the verifier correction.",
+      "caveat": "None."
+    },
+    {
+      "command": "npm run harness:check && npm run lint:scripts && npm run lint:file-size",
+      "exit_status": 0,
+      "relevant_result": "Canonical state, harness, script quality, and maintained-file hard limits passed.",
+      "caveat": "File-size review-threshold notes remained informational."
+    }
+  ],
+  "source": "docs/releases/v2.9.5.md",
+  "audit": {
+    "release_public": true,
+    "immutable_tag_verified": true,
+    "hosted_release_gate_complete": true,
+    "public_assets_verified": true,
+    "mac_package_verified": true,
+    "signing_caveat_recorded": true,
+    "v3_work_started": false
+  }
+}
