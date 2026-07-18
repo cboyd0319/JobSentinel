@@ -214,8 +214,8 @@ jobs:
       - name: Run frontend build
         run: npm run build
 
-      - name: Install Playwright Chromium
-        run: ./node_modules/.bin/playwright install --with-deps chromium
+      - name: Install Playwright browsers
+        run: ./node_modules/.bin/playwright install --with-deps chromium webkit
 
       - name: Check end-to-end readiness
         run: npm run doctor:e2e -- --skip-native
@@ -273,6 +273,9 @@ jobs:
 
       - name: Run Rust tests
         run: cargo test --workspace
+
+      - name: Install SQLx CLI
+        run: cargo install sqlx-cli --version 0.9.0 --no-default-features --features sqlite,rustls --locked
 
       - name: Check SQLx offline metadata
         run: npm run lint:sqlx

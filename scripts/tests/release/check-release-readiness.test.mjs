@@ -153,6 +153,40 @@ test("release readiness rejects prose lint without pinned Vale installation", ()
   );
 });
 
+test("release readiness rejects incomplete browser installation for the full E2E suite", () => {
+  const inputs = loadReleaseReadinessInputs({ env: {} });
+  const report = evaluateReleaseReadinessFromInputs({
+    ...inputs,
+    releaseWorkflow: inputs.releaseWorkflow.replace(
+      "playwright install --with-deps chromium webkit",
+      "playwright install --with-deps chromium",
+    ),
+  });
+
+  assert(
+    report.criteria.some(
+      (item) => item.id === "full E2E preflight installs configured browsers" && !item.ok,
+    ),
+  );
+});
+
+test("release readiness rejects SQLx metadata checks without the pinned CLI", () => {
+  const inputs = loadReleaseReadinessInputs({ env: {} });
+  const report = evaluateReleaseReadinessFromInputs({
+    ...inputs,
+    releaseWorkflow: inputs.releaseWorkflow.replace(
+      "cargo install sqlx-cli --version 0.9.0",
+      "cargo install sqlx-cli",
+    ),
+  });
+
+  assert(
+    report.criteria.some(
+      (item) => item.id === "Rust preflight installs pinned SQLx CLI" && !item.ok,
+    ),
+  );
+});
+
 test("release readiness rejects unverified GitHub release creation", () => {
   const inputs = loadReleaseReadinessInputs({ env: {} });
   const report = evaluateReleaseReadinessFromInputs({

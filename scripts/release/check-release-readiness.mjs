@@ -161,6 +161,28 @@ export function evaluateReleaseReadinessFromInputs(inputs) {
       "Hosted prose lint must install the exact Vale release and verify its archive checksum first.",
     ),
     criterion(
+      "full E2E preflight installs configured browsers",
+      hasAll(inputs.releaseWorkflow, [
+        "playwright install --with-deps chromium webkit",
+        "npm run doctor:e2e -- --skip-native",
+        "npm run test:e2e:all",
+      ]) &&
+        hasOrderedSnippets(inputs.releaseWorkflow, [
+          "playwright install --with-deps chromium webkit",
+          "npm run doctor:e2e -- --skip-native",
+          "npm run test:e2e:all",
+        ]),
+      "The full hosted E2E lane must install Chromium and WebKit before readiness and execution.",
+    ),
+    criterion(
+      "Rust preflight installs pinned SQLx CLI",
+      hasOrderedSnippets(inputs.releaseWorkflow, [
+        "cargo install sqlx-cli --version 0.9.0 --no-default-features --features sqlite,rustls --locked",
+        "npm run lint:sqlx",
+      ]),
+      "The hosted Rust lane must install the exact locked SQLx CLI before checking offline metadata.",
+    ),
+    criterion(
       "release workflow creates verified versioned staged release",
       hasAll(inputs.releaseWorkflow, [
         "- name: Create staged release",
