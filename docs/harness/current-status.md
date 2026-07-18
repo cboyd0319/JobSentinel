@@ -4,14 +4,11 @@ Last updated: 2026-07-17
 
 ## Done
 
-- The target Rust ownership graph is implemented across security, domain,
-  network, platform, storage, intelligence, sources, application, assistance,
-  local AI, documents, credentials, notifications, and external AI crates.
-  `jobsentinel-core` is deleted, storage no longer exposes a raw SQLx pool, and
-  the Tauri crate delegates product behavior through `jobsentinel-application`.
-- Desktop composition, frontend platform routing, development-runtime
-  ownership, root-script placement, script-test ownership, release workflow
-  ownership, and maintained-file boundaries match the executable contracts.
+- Rust ownership is implemented across the declared crates. `jobsentinel-core`
+  is deleted, storage hides its raw SQLx pool, and Tauri delegates product
+  behavior through `jobsentinel-application`.
+- Desktop, frontend, script, workflow, and maintained-file ownership match the
+  executable contracts.
 - The final structural batch eliminated 17 temporary exceptions through focused
   suite splits, fixture extraction, taxonomy compaction, and reusable release
   workflows. The sole retained exception is the unchanged initial SQLx migration,
@@ -41,15 +38,18 @@ Last updated: 2026-07-17
   maintained links and release records are current, and dependencies are fresh.
   The full gate, 286 browser journeys, all-feature Rust lane, universal package
   smoke, skills archives, and SBOM generation passed with structured evidence.
+- The v2.9.5 GUI QA corrections are complete. All 288 browser journeys passed,
+  and the native bundle stayed active after close, reopened from the tray, and
+  quit cleanly. Structured evidence records the complete correction gate.
 
 ## In Progress
 
-- Active feature: `v3-workstream-selection`
+- Active feature: `v2.9.5-release-cut`
 - Status: `active`
-- Objective: Select one bounded, user-approved v3 major workstream.
+- Objective: Publish and verify the tested v2.9.5 source candidate.
 - Branch: `refactor/full-repo-v2.9.5`
-- Current slice: Compare the ranked v3 workstream candidates against current product evidence.
-- Next action: Select and approve one workstream from `docs/plans/v3/idea-index.md`.
+- Current slice: Publish the committed v2.9.5 candidate through the no-account release path.
+- Next action: Push the verified commit and tag, run the release workflow, then verify public assets.
 
 ## Deferred
 

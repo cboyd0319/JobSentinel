@@ -349,14 +349,14 @@ export const DashboardFiltersBar = memo(function DashboardFiltersBar({
           />
 
           {/* Salary Range Filter */}
-          <div className="flex items-center gap-2">
+          <div className="grid w-full grid-cols-[auto_minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 sm:flex sm:w-auto">
             <span className="text-xs text-surface-500 dark:text-surface-400 whitespace-nowrap">Salary:</span>
             <input
               type="number"
               placeholder="Min $/year"
               value={salaryMinFilter ?? ""}
               onChange={(e) => setSalaryMinFilter(e.target.value ? parseInt(e.target.value) : null)}
-              className="w-28 px-2 py-1 text-sm border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-800 text-surface-900 dark:text-white"
+              className="w-full min-w-0 px-2 py-1 text-sm border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-800 text-surface-900 dark:text-white sm:w-28"
               min={0}
               step={1000}
               aria-label="Minimum yearly salary"
@@ -367,7 +367,7 @@ export const DashboardFiltersBar = memo(function DashboardFiltersBar({
               placeholder="Max $/year"
               value={salaryMaxFilter ?? ""}
               onChange={(e) => setSalaryMaxFilter(e.target.value ? parseInt(e.target.value) : null)}
-              className="w-28 px-2 py-1 text-sm border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-800 text-surface-900 dark:text-white"
+              className="w-full min-w-0 px-2 py-1 text-sm border border-surface-300 dark:border-surface-600 rounded-lg bg-white dark:bg-surface-800 text-surface-900 dark:text-white sm:w-28"
               min={0}
               step={1000}
               aria-label="Maximum yearly salary"

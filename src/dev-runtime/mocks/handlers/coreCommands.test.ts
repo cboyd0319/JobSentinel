@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { mockInvoke, resetMockData } from "../handlers";
 
 type ResumeMatchingPreference = {
@@ -41,6 +41,10 @@ type FeedbackSystemInfo = {
 describe("mock core command handlers", () => {
   beforeEach(() => {
     resetMockData();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   it("returns the active Browser Import setup after starting the local receiver", async () => {
@@ -180,6 +184,8 @@ describe("mock core command handlers", () => {
   });
 
   it("redacts sensitive job-search details in mock support reports", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date("2026-07-17T12:00:00.303Z"));
     const sensitiveText = [
       "Crash while applying to \"Acme Health\" for care manager role after layoff",
       "Salary floor: $125,000 remote minimum",
@@ -202,6 +208,7 @@ describe("mock core command handlers", () => {
     });
     const combined = `${report}\n${sanitized}`;
 
+    expect(combined).toContain("2026-07-17T12:00:00.303Z");
     expect(combined).toContain("[JOB_SEARCH_DETAIL_REDACTED]");
     expect(combined).toContain("[PERSON_NAME_REDACTED]");
     expect(combined).toContain("[PHONE]");
@@ -213,7 +220,7 @@ describe("mock core command handlers", () => {
     expect(combined).not.toContain("sponsorship next year");
     expect(combined).not.toContain("Denver");
     expect(combined).not.toContain("Alice Applicant");
-    expect(combined).not.toContain("303");
+    expect(combined).not.toContain("+1 (303) 555-1212");
     expect(combined).not.toContain("candidate=alice");
   });
 });

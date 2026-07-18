@@ -43,4 +43,23 @@ describe("ResumeBuilder", () => {
 
     expect(onBack).toHaveBeenCalledOnce();
   });
+
+  it("waits until the name field is touched before showing its required error", async () => {
+    const user = userEvent.setup();
+    mockInvoke.mockImplementation((command) => {
+      if (command === "create_resume_draft") return Promise.resolve(1);
+      if (command === "list_resume_templates") return Promise.resolve([]);
+      return Promise.resolve(null);
+    });
+
+    renderBuilder();
+
+    const nameInput = await screen.findByRole("textbox", { name: /full name/i });
+    expect(screen.queryByText("Add your name.")).not.toBeInTheDocument();
+
+    await user.click(nameInput);
+    await user.tab();
+
+    expect(screen.getByText("Add your name.")).toBeInTheDocument();
+  });
 });

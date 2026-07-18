@@ -30,7 +30,7 @@ pub(crate) fn run() {
         std::process::exit(1);
     }
 
-    policy::builder()
+    desktop::preserve_main_window_on_close(policy::builder())
         .invoke_handler(crate::ipc::jobsentinel_command_handlers!())
         .setup(|app| {
             let services =

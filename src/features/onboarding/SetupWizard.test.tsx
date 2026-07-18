@@ -28,6 +28,14 @@ describe("SetupWizard Accessibility", () => {
     window.sessionStorage.clear();
   });
 
+  it("keeps the step heading legible in the dark app shell", () => {
+    renderWithProviders(<SetupWizard onComplete={mockOnComplete} />);
+
+    expect(
+      screen.getByRole("heading", { name: "Work You Want" }),
+    ).toHaveClass("dark:text-white");
+  });
+
   describe("Progress Announcements", () => {
     it("should have aria-live region for step announcements", () => {
       renderWithProviders(<SetupWizard onComplete={mockOnComplete} />);

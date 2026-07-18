@@ -1,0 +1,82 @@
+{
+  "schema": "jobsentinel.feature_evidence.v1",
+  "feature_id": "v2.9.5-gui-qa-corrections",
+  "behavior": "Release-blocking regressions in resume validation, narrow salary filters, first-run dark contrast, support-report testing, and desktop close-to-tray behavior are corrected and regression-protected.",
+  "result": "passing",
+  "verified_at": "2026-07-18T04:43:43Z",
+  "revision": "029ec49285381225d1b870f0a77cee68aef10093",
+  "revision_scope": "Verified working tree based on the recorded revision.",
+  "platform": "local Darwin arm64 development host",
+  "measurements": {
+    "script_tests_passed": 828,
+    "frontend_test_files_passed": 247,
+    "frontend_tests_passed": 2928,
+    "browser_journeys_passed": 288,
+    "browser_journeys_flaky": 0,
+    "browser_journeys_skipped": 0,
+    "native_windows_before_close": 1,
+    "native_windows_after_close": 0,
+    "native_windows_after_reopen": 1,
+    "native_process_survived_close": true,
+    "native_tray_quit_stopped_process": true
+  },
+  "changes": [
+    "Deferred the required resume name error until field blur or an attempted step advance.",
+    "Kept both salary bounds inside the exact 360-pixel minimum viewport.",
+    "Restored readable first-run heading contrast in the dark app shell.",
+    "Made support-report privacy coverage deterministic without treating timestamp digits as leaked phone data.",
+    "Prevented main-window close from terminating the process and hid it for tray-based reopen."
+  ],
+  "commands": [
+    {
+      "command": "npm run verify:full",
+      "exit_status": 0,
+      "relevant_result": "The exact-runtime source gate passed harness, security, dependency, SQLx, duplication, documentation, lint, 828 script tests, 2,928 frontend tests, production and component-library builds, 10 smoke journeys, and the complete standard Rust lane.",
+      "caveat": "None."
+    },
+    {
+      "command": "npm run test:e2e:all:budget",
+      "exit_status": 0,
+      "relevant_result": "All 288 browser journeys passed across both configured engines in 123,411.608 ms with zero unexpected, flaky, or skipped outcomes.",
+      "caveat": "The enforced budget was 240,000 ms and 320 tests."
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --workspace --all-features",
+      "exit_status": 0,
+      "relevant_result": "The complete Rust workspace passed with every optional feature enabled.",
+      "caveat": "Tests explicitly classified as live-network, model-download, environment-isolation, manual-browser, or hanging stress checks remained ignored."
+    },
+    {
+      "command": "npm run release:readiness -- --version 2.9.5",
+      "exit_status": 0,
+      "relevant_result": "Release metadata, policy, preflight, staged publication, package, checksum, SBOM, attestation, and public-verifier gates passed for 2.9.5.",
+      "caveat": "Public trust signing and notarization remain release-execution requirements."
+    },
+    {
+      "command": "npm run tauri:build -- --debug --bundles app",
+      "exit_status": 0,
+      "relevant_result": "A local application bundle was built from the verified correction source.",
+      "caveat": "The debug bundle was used only for native lifecycle QA and was not retained as a release artifact."
+    },
+    {
+      "command": "local native bundle lifecycle probe",
+      "exit_status": 0,
+      "relevant_result": "The isolated encrypted bundle launched with one visible window; close reduced visible windows to zero while the process stayed alive; tray reopen restored one visible window; tray quit stopped the process.",
+      "caveat": "The packaged desktop-control service did not attach, so native accessibility and compositor APIs supplied the direct observations."
+    },
+    {
+      "command": "npm run harness:check && npm run lint:file-size && npm run lint:docs && npm run test:scripts && git diff --check",
+      "exit_status": 0,
+      "relevant_result": "Canonical state, file-size governance, maintained documentation, all 828 script tests, and diff hygiene passed after the final state update.",
+      "caveat": "Five changed files remain above the advisory modularization review threshold but below every hard line and byte limit."
+    }
+  ],
+  "source": "docs/releases/v2.9.5.md",
+  "audit": {
+    "gui_qa_corrections_complete": true,
+    "native_close_and_reopen_observed": true,
+    "generated_artifacts_removed": true,
+    "committed": true,
+    "public_release_executed": false
+  }
+}

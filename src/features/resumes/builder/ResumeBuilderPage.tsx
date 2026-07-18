@@ -39,6 +39,7 @@ export default function ResumeBuilderPage({ onBack }: ResumeBuilderPageProps) {
   const [currentStep, setCurrentStep] = useState(1);
   const [resumeData, setResumeData] = useState<ResumeData | null>(null);
   const [saving, setSaving] = useState(false);
+  const [showContactValidation, setShowContactValidation] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateId>("Modern");
   const [importingSkills, setImportingSkills] = useState(false);
   const [hasJobContext] = useState(() => hasStoredResumeJobContext());
@@ -150,12 +151,14 @@ export default function ResumeBuilderPage({ onBack }: ResumeBuilderPageProps) {
   // Navigation handlers
   const handleNext = async () => {
     if (!canProceed()) {
+      if (currentStep === 1) setShowContactValidation(true);
       toast.warning("Add missing resume details", getValidationMessage());
       return;
     }
 
     try {
       await saveCurrentStep();
+      if (currentStep === 1) setShowContactValidation(false);
       setCurrentStep((prev) => Math.min(prev + 1, STEPS.length));
     } catch {
       // Error already shown by saveCurrentStep
@@ -419,6 +422,7 @@ export default function ResumeBuilderPage({ onBack }: ResumeBuilderPageProps) {
         previewHtml={previewHtml}
         saving={saving}
         selectedTemplate={selectedTemplate}
+        showContactValidation={showContactValidation}
         skills={skills}
         summary={summary}
         templates={templates}

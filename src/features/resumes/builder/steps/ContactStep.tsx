@@ -16,9 +16,14 @@ interface ContactInfo {
 interface ContactStepProps {
   contact: ContactInfo;
   setContact: (contact: ContactInfo) => void;
+  showRequiredError: boolean;
 }
 
-const ContactStep = memo(function ContactStep({ contact, setContact }: ContactStepProps) {
+const ContactStep = memo(function ContactStep({
+  contact,
+  setContact,
+  showRequiredError,
+}: ContactStepProps) {
   const [errors, setErrors] = useState<Record<string, string | undefined>>({});
 
   const validateContactEmail = useCallback((email: string): string | undefined => {
@@ -37,7 +42,8 @@ const ContactStep = memo(function ContactStep({ contact, setContact }: ContactSt
 
   const handleBlur = useCallback((field: string, value: string) => {
     let error: string | undefined;
-    if (field === "email") error = validateContactEmail(value);
+    if (field === "name") error = value.trim() ? undefined : "Add your name.";
+    else if (field === "email") error = validateContactEmail(value);
     else if (field === "phone") error = validatePhone(value);
     else if (["linkedin", "github", "website"].includes(field)) {
       error = validateUrlWithOptionalProtocol(value);
@@ -56,10 +62,11 @@ const ContactStep = memo(function ContactStep({ contact, setContact }: ContactSt
           label="Full Name"
           value={contact.name}
           onChange={(e) => setContact({ ...contact, name: e.target.value })}
+          onBlur={() => handleBlur("name", contact.name)}
           placeholder="Jordan Lee"
           maxLength={100}
           required
-          error={!contact.name.trim() ? "Add your name." : undefined}
+          error={errors.name ?? (showRequiredError && !contact.name.trim() ? "Add your name." : undefined)}
           autoComplete="name"
         />
         <Input

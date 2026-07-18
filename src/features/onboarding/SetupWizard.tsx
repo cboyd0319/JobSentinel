@@ -351,7 +351,7 @@ export default function SetupWizard({ onComplete }: SetupWizardProps) {
             <div className="w-14 h-14 bg-sentinel-100 rounded-xl flex items-center justify-center mx-auto mb-4">
               <SentinelIcon className="w-8 h-8 text-sentinel-600" />
             </div>
-            <h1 className="font-display text-display-xl text-surface-900 mb-2">
+            <h1 className="font-display text-display-xl text-surface-900 dark:text-white mb-2">
               {SETUP_STEPS[step]?.title ?? 'Setup'}
             </h1>
             <p className="text-surface-500">

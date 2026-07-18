@@ -33,6 +33,7 @@ interface ResumeBuilderWorkspaceProps {
   previewHtml: string;
   saving: boolean;
   selectedTemplate: TemplateId;
+  showContactValidation: boolean;
   skills: SkillEntry[];
   summary: string;
   templates: Template[];
@@ -68,6 +69,7 @@ export function ResumeBuilderWorkspace({
   previewHtml,
   saving,
   selectedTemplate,
+  showContactValidation,
   skills,
   summary,
   templates,
@@ -95,7 +97,11 @@ export function ResumeBuilderWorkspace({
         <div className="lg:col-span-3">
           <Card>
             {currentStep === 1 && (
-              <ContactStep contact={contact} setContact={setContact} />
+              <ContactStep
+                contact={contact}
+                setContact={setContact}
+                showRequiredError={showContactValidation}
+              />
             )}
 
             {currentStep === 2 && (

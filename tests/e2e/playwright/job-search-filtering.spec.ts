@@ -50,6 +50,25 @@ test.describe("Job Search and Filtering", () => {
         .toBeGreaterThan(0);
     });
 
+    test("keeps the salary range inside the minimum viewport", async ({ page }) => {
+      await page.setViewportSize({ width: 360, height: 600 });
+      const maximumSalary = page.getByLabel("Maximum yearly salary");
+
+      await expect(maximumSalary).toBeVisible();
+
+      const bounds = await maximumSalary.evaluate((input) => {
+        const rect = input.getBoundingClientRect();
+        return {
+          left: rect.left,
+          right: rect.right,
+          viewportWidth: window.innerWidth,
+        };
+      });
+
+      expect(bounds.left).toBeGreaterThanOrEqual(0);
+      expect(bounds.right).toBeLessThanOrEqual(bounds.viewportWidth);
+    });
+
     test("should filter jobs by location", async () => {
       const initialCount = await dashboard.getVisibleJobCount();
 
