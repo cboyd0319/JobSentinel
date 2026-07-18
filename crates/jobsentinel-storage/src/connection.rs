@@ -83,7 +83,21 @@ impl Database {
 
     /// Configure database-persistent settings and log connection diagnostics.
     async fn configure_database(pool: &SqlitePool) -> Result<(), sqlx::Error> {
+        const SCHEMA_VERSION: i64 = 2;
+
         tracing::info!("Configuring SQLite database");
+
+        let stored_version: i64 = sqlx::query_scalar("PRAGMA user_version")
+            .fetch_one(pool)
+            .await?;
+        if stored_version > SCHEMA_VERSION {
+            return Err(sqlx::Error::Protocol(
+                format!(
+                    "Unsupported newer database schema version {stored_version}; this app supports through version {SCHEMA_VERSION}"
+                )
+                .into(),
+            ));
+        }
 
         // Set page size to 4096 bytes (optimal for most systems)
         // MUST be set before any tables are created (only affects new databases)
@@ -119,7 +133,6 @@ impl Database {
 
         // Set user version (complementary to migrations)
         // We'll use this to track major schema versions
-        const SCHEMA_VERSION: i64 = 2; // Bumped with integrity tables
         sqlx::query("PRAGMA user_version = 2").execute(pool).await?;
         tracing::debug!("User version = {}", SCHEMA_VERSION);
 

@@ -37,6 +37,32 @@ mod memory_tests {
         assert_eq!(synchronous, 1);
         assert_eq!(cache_size, -128_000);
     }
+
+    #[tokio::test]
+    async fn connect_refuses_and_preserves_unsupported_newer_database_version() {
+        let temp_dir = tempfile::tempdir().unwrap();
+        let db_path = temp_dir.path().join("jobs.db");
+        let database = Database::connect(&db_path).await.unwrap();
+        sqlx::query("PRAGMA user_version = 3")
+            .execute(database.pool())
+            .await
+            .unwrap();
+        database.pool().close().await;
+        drop(database);
+
+        let error = Database::connect(&db_path).await.unwrap_err();
+        assert!(error
+            .to_string()
+            .contains("newer database schema version 3"));
+
+        let key = load_or_create_database_key().await.unwrap();
+        let pool = connect_encrypted_pool(&db_path, &key, false).await.unwrap();
+        let preserved_version: i64 = sqlx::query_scalar("PRAGMA user_version")
+            .fetch_one(&pool)
+            .await
+            .unwrap();
+        assert_eq!(preserved_version, 3);
+    }
 }
 
 #[cfg(test)]
