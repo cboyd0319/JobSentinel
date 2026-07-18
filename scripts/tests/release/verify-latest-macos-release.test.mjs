@@ -289,7 +289,7 @@ test("latest macOS release verifier invokes gh attestation with repo, workflow, 
     "--predicate-type",
     "https://slsa.dev/provenance/v1",
     "--signer-workflow",
-    "example/project/.github/workflows/release.yml",
+    "example/project/.github/workflows/release-build-macos.yml",
   ]);
 
   assert.throws(

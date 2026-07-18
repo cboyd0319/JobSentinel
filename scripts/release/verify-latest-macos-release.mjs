@@ -281,7 +281,7 @@ export function verifyGitHubAttestation({
   artifactPath,
   repo,
   predicateType,
-  signerWorkflow = `${repo}/.github/workflows/release.yml`,
+  signerWorkflow = `${repo}/.github/workflows/release-build-macos.yml`,
   spawn = spawnSync,
 }) {
   const result = spawn(

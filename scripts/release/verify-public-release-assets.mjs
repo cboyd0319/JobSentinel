@@ -41,6 +41,10 @@ export const publicReleaseAssetSpecs = {
   linux: [{ extension: ".AppImage" }, { extension: ".deb" }],
 };
 
+export function platformSignerWorkflow(repo, platform) {
+  return `${repo}/.github/workflows/release-build-${platform}.yml`;
+}
+
 function releaseApiUrl({ repo, releaseTag }) {
   const base = `https://api.github.com/repos/${repo}/releases`;
   return releaseTag ? `${base}/tags/${encodeURIComponent(releaseTag)}` : `${base}/latest`;
@@ -288,16 +292,19 @@ async function verifySupplyChain({
     return;
   }
 
+  const signerWorkflow = platformSignerWorkflow(repo, platform);
   for (const assetPath of assetPaths) {
     verifyGitHubAttestation({
       artifactPath: assetPath,
       repo,
       predicateType: slsaPredicateType,
+      signerWorkflow,
     });
     verifyGitHubAttestation({
       artifactPath: assetPath,
       repo,
       predicateType: spdxPredicateType,
+      signerWorkflow,
     });
   }
 }
@@ -376,6 +383,7 @@ async function verifyAgentSkillsArchives({ release, expectedVersion, options, te
         artifactPath: assetPath,
         repo: options.repo,
         predicateType: slsaPredicateType,
+        signerWorkflow: `${options.repo}/.github/workflows/release-stage.yml`,
       });
     }
   }

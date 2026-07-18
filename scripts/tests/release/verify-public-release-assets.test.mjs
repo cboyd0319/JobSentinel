@@ -8,6 +8,7 @@ import {
   findAgentSkillsArchiveAssets,
   findPlatformInstallerAssets,
   parseArgs,
+  platformSignerWorkflow,
   validateAgentSkillsArchiveContents,
   validateWindowsUnsignedAssetLabel,
   validateExactAgentSkillsAssetSet,
@@ -28,6 +29,21 @@ test("public release verifier defaults to all supported platforms", () => {
     requireSupplyChain: true,
     requireWindowsUnsignedLabel: false,
   });
+});
+
+test("public release verifier binds each package platform to its reusable signer", () => {
+  assert.equal(
+    platformSignerWorkflow("example/project", "windows"),
+    "example/project/.github/workflows/release-build-windows.yml",
+  );
+  assert.equal(
+    platformSignerWorkflow("example/project", "macos"),
+    "example/project/.github/workflows/release-build-macos.yml",
+  );
+  assert.equal(
+    platformSignerWorkflow("example/project", "linux"),
+    "example/project/.github/workflows/release-build-linux.yml",
+  );
 });
 
 test("public release verifier supports scoped platform and supply-chain options", () => {
