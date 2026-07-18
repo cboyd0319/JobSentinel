@@ -23,6 +23,11 @@
 # ttf-parser (RUSTSEC-2026-0192): Inherited through pdf-extract and lopdf for
 # local resume parsing. This is an unmaintained notice without a reported
 # vulnerability. pdf-extract has no maintained replacement for that edge yet.
+#
+# glib (RUSTSEC-2024-0429): Inherited through Tauri's GTK3 backend. Neither
+# JobSentinel nor any locked Rust dependency calls VariantStrIter or
+# Variant::array_iter_str, and glib 0.20 cannot satisfy the GTK 0.18 graph.
+unsound = "all"
 ignore = [
     # --- GTK3 bindings (unmaintained, required by Tauri on Linux) ---
     "RUSTSEC-2024-0411",  # gdkwayland-sys
@@ -50,6 +55,7 @@ ignore = [
     "RUSTSEC-2026-0192",  # ttf-parser, unmaintained through pdf-extract
     "RUSTSEC-2026-0194",  # quick-xml, unreachable parser path in Windows notifications
     "RUSTSEC-2026-0195",  # quick-xml, unreachable namespace path in Windows notifications
+    "RUSTSEC-2024-0429",  # glib, unreachable VariantStrIter implementation
 ]
 
 [licenses]
