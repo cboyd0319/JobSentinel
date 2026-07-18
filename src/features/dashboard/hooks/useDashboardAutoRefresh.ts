@@ -121,19 +121,22 @@ export function useDashboardAutoRefresh({
           status: statusData,
         });
 
+        const notificationCandidates = selectNotificationCandidates(
+          jobsRef.current,
+          jobsData,
+        );
+        if (notificationCandidates.length > 0) {
+          void notifyScrapingComplete(notificationCandidates);
+        }
+
         // Check for new high matches - use ref to avoid stale closure
         const previousHighMatches = statisticsRef.current.high_matches;
         if (statsData.high_matches > previousHighMatches) {
           const newCount = statsData.high_matches - previousHighMatches;
-          const notificationCandidates = selectNotificationCandidates(
-            jobsRef.current,
-            jobsData,
-          );
           toast.success(
             "New matches found!",
             `${newCount} new high-match jobs`,
           );
-          void notifyScrapingComplete(notificationCandidates);
         }
         setConsecutiveFailures(0);
       } catch {

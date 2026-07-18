@@ -116,18 +116,18 @@ mod duplicate_detection_tests {
         job1a.company = "CompanyX".to_string();
         db.upsert_job(&job1a).await.unwrap();
 
-        let mut job1b = create_test_job("1b", "Job A", 0.85);
-        job1b.company = "CompanyX".to_string();
-        db.upsert_job(&job1b).await.unwrap();
+        let mut group_one_second = create_test_job("1b", "Job A", 0.85);
+        group_one_second.company = "CompanyX".to_string();
+        db.upsert_job(&group_one_second).await.unwrap();
 
         // Group 2: Job B at CompanyY
         let mut job2a = create_test_job("2a", "Job B", 0.95);
         job2a.company = "CompanyY".to_string();
         db.upsert_job(&job2a).await.unwrap();
 
-        let mut job2b = create_test_job("2b", "Job B", 0.80);
-        job2b.company = "CompanyY".to_string();
-        db.upsert_job(&job2b).await.unwrap();
+        let mut group_two_second = create_test_job("2b", "Job B", 0.80);
+        group_two_second.company = "CompanyY".to_string();
+        db.upsert_job(&group_two_second).await.unwrap();
 
         let groups = db.find_duplicate_groups().await.unwrap();
 

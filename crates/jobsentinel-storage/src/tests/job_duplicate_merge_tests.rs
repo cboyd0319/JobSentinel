@@ -47,9 +47,9 @@ mod duplicate_merge_coverage {
         job2a.company = "DupCompany".to_string();
         db.upsert_job(&job2a).await.unwrap();
 
-        let mut job2b = create_test_job("dup_b", "Duplicate Job", 0.85);
-        job2b.company = "DupCompany".to_string();
-        db.upsert_job(&job2b).await.unwrap();
+        let mut duplicate_second = create_test_job("dup_b", "Duplicate Job", 0.85);
+        duplicate_second.company = "DupCompany".to_string();
+        db.upsert_job(&duplicate_second).await.unwrap();
 
         let groups = db.find_duplicate_groups().await.unwrap();
         assert_eq!(groups.len(), 1);

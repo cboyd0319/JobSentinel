@@ -26,7 +26,6 @@ async fn test_job_upsert_creates_new() {
 }
 
 #[tokio::test]
-#[ignore = "Unexplained SQLite corruption in test binary - same test passes in lib tests (see test_upsert_job_update)"]
 async fn test_job_upsert_updates_existing() {
     let db = Database::connect_memory().await.unwrap();
     db.migrate().await.unwrap();
@@ -55,6 +54,9 @@ async fn test_job_upsert_updates_existing() {
     // Verify update
     let retrieved = db.get_job_by_hash(&test_hash).await.unwrap().unwrap();
     assert_eq!(retrieved.title, "Senior Program Coordinator");
+    let search_results = db.search_jobs("Senior", 10).await.unwrap();
+    assert_eq!(search_results.len(), 1);
+    assert_eq!(search_results[0].hash, test_hash);
 }
 
 #[tokio::test]

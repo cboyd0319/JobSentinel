@@ -164,9 +164,9 @@ Read more in [PRIVACY.md](PRIVACY.md),
 ## Current Source Candidate: v2.9.5
 
 The `v2.9.5` source candidate completes a full repository refactor around
-explicit ownership, an inherited two-member Cargo workspace, a Tauri-free core,
-a thin private IPC shell, feature-owned frontend code, deterministic discovery,
-and enforced file caps.
+explicit ownership, a 15-member Cargo workspace, application-layer
+orchestration, a thin private IPC shell, feature-owned frontend code,
+deterministic discovery, and enforced file limits.
 
 Privacy and security guarantees do not change. Local data remains local by
 default, external AI remains optional and disabled by default, credential
@@ -348,7 +348,7 @@ Requirements:
 
 - Node.js 24.18.0 from `.nvmrc`
 - npm 12.0.1 from `package.json`
-- Rust 1.97.0 from `rust-toolchain.toml`
+- Rust 1.97.1 from `rust-toolchain.toml`
 - Platform packages from [developer setup](docs/developer/GETTING_STARTED.md)
 
 Current backend surface: **205 registered Tauri commands**.

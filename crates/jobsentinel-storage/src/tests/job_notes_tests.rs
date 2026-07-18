@@ -131,11 +131,11 @@ mod notes_tests {
         let id2 = db.upsert_job(&job2).await.unwrap();
         db.set_job_notes(id2, Some("New notes")).await.unwrap();
 
-        let jobs = db.get_jobs_with_notes(10).await.unwrap();
+        let noted_jobs = db.get_jobs_with_notes(10).await.unwrap();
 
         // Should be ordered by updated_at DESC (newest first)
-        assert_eq!(jobs[0].title, "New Job");
-        assert_eq!(jobs[1].title, "Old Job");
+        assert_eq!(noted_jobs[0].title, "New Job");
+        assert_eq!(noted_jobs[1].title, "Old Job");
     }
 
     #[tokio::test]
@@ -170,9 +170,9 @@ mod notes_tests {
         let id2 = db.upsert_job(&job2).await.unwrap();
         db.set_job_notes(id2, Some("Visible notes")).await.unwrap();
 
-        let jobs = db.get_jobs_with_notes(10).await.unwrap();
-        assert_eq!(jobs.len(), 1);
-        assert_eq!(jobs[0].title, "Visible Job");
+        let noted_jobs = db.get_jobs_with_notes(10).await.unwrap();
+        assert_eq!(noted_jobs.len(), 1);
+        assert_eq!(noted_jobs[0].title, "Visible Job");
     }
 
     #[tokio::test]

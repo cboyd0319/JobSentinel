@@ -23,7 +23,7 @@ function withDoctorFixture(callback) {
 
   try {
     writeFixtureFile(root, ".nvmrc", "24.18.0\n");
-    writeFixtureFile(root, "rust-toolchain.toml", 'channel = "1.97.0"\n');
+    writeFixtureFile(root, "rust-toolchain.toml", 'channel = "1.97.1"\n');
     writeFixtureFile(root, "package.json", '{"packageManager":"npm@12.0.1"}');
     writeFixtureFile(root, "package-lock.json", "{}");
     writeFixtureFile(root, "node_modules/.bin/tauri", "");
@@ -56,11 +56,11 @@ function createMockExec(options = {}) {
 
     if (command === "cargo") {
       if (firstArg === "--version") {
-        return "cargo 1.97.0";
+        return "cargo 1.97.1";
       }
 
       if (firstArg === "fmt") {
-        return "rustfmt 1.97.0";
+        return "rustfmt 1.97.1";
       }
 
       if (firstArg === "clippy") {
@@ -69,7 +69,7 @@ function createMockExec(options = {}) {
     }
 
     if (command === "rustc") {
-      return options.rustcOutput ?? "rustc 1.97.0";
+      return options.rustcOutput ?? "rustc 1.97.1";
     }
 
     if (command === "pkg-config") {
@@ -251,7 +251,7 @@ test("runDoctor warns on toolchain baseline drift", () => {
       root,
       platform: "darwin",
       nodeVersion: "v26.3.0",
-      execFileSync: createMockExec({ rustcOutput: "rustc 1.97.0-nightly" }),
+      execFileSync: createMockExec({ rustcOutput: "rustc 1.97.1-nightly" }),
     });
 
     assert.ok(

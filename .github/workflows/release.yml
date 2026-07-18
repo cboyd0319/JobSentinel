@@ -233,9 +233,9 @@ jobs:
         run: npm ci --ignore-scripts --prefer-offline --no-audit --no-fund
 
       - name: Setup Rust
-        uses: dtolnay/rust-toolchain@4be7066ada62dd38de10e7b70166bc74ed198c30 # stable
+        uses: dtolnay/rust-toolchain@4cda84d5c5c54efe2404f9d843567869ab1699d4 # stable
         with:
-          toolchain: "1.97.0"
+          toolchain: "1.97.1"
           components: clippy, rustfmt
 
       - name: Check Rust formatting
@@ -291,7 +291,7 @@ jobs:
         run: npm run lint:security
 
       - name: Run GitHub Actions static analysis
-        uses: zizmorcore/zizmor-action@192e21d79ab29983730a13d1382995c2307fbcaa # v0.5.7
+        uses: zizmorcore/zizmor-action@6599ee8b7a49aef6a770f63d261d214911a7ce02 # v0.6.0
         with:
           advanced-security: false
           inputs: .github/workflows
@@ -313,9 +313,9 @@ jobs:
           persist-credentials: false
 
       - name: Setup Rust
-        uses: dtolnay/rust-toolchain@4be7066ada62dd38de10e7b70166bc74ed198c30 # stable
+        uses: dtolnay/rust-toolchain@4cda84d5c5c54efe2404f9d843567869ab1699d4 # stable
         with:
-          toolchain: "1.97.0"
+          toolchain: "1.97.1"
 
       - name: Install cargo-deny
         run: cargo install cargo-deny --version 0.20.2 --locked

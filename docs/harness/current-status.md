@@ -36,20 +36,20 @@ Last updated: 2026-07-17
   dependencies, and Rust support have canonical owners. All maintained scopes
   are at zero duplication under the 14-line contract, the full gate passed, and
   the post-cleanup review recorded a bounded concerns verdict.
-- Post-cleanup corrections are complete. Pooled database settings now apply to
-  every connection, saved alert preferences govern real notifications,
-  maintained local links are checked, security documentation names its shared
-  validator, obsolete dependencies and APIs are removed, and advisory
-  file-size output is scoped to changed files. The complete local gate passed.
+- Post-cleanup corrections and the v2.9.5 source-candidate closure are complete.
+  Database settings and FTS updates are sound, saved alerts evaluate new jobs,
+  maintained links and release records are current, and dependencies are fresh.
+  The full gate, 286 browser journeys, all-feature Rust lane, universal package
+  smoke, skills archives, and SBOM generation passed with structured evidence.
 
 ## In Progress
 
 - Active feature: `v3-workstream-selection`
 - Status: `active`
-- Objective: Select and bound the first major v3 workstream.
+- Objective: Select one bounded, user-approved v3 major workstream.
 - Branch: `refactor/full-repo-v2.9.5`
-- Current slice: Review the ranked v3 candidates against the product priorities.
-- Next action: Select one major workstream and create its active execution plan.
+- Current slice: Compare the ranked v3 workstream candidates against current product evidence.
+- Next action: Select and approve one workstream from `docs/plans/v3/idea-index.md`.
 
 ## Deferred
 

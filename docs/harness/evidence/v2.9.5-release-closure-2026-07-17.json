@@ -1,0 +1,139 @@
+{
+  "schema": "jobsentinel.feature_evidence.v1",
+  "feature_id": "v2.9.5-release-closure",
+  "behavior": "The reproducible database failure, saved-alert notification orchestration, dependency drift, and stale release records are corrected before the source candidate is called complete.",
+  "result": "passing",
+  "verified_at": "2026-07-17T21:13:11Z",
+  "revision": "4210647944b34952c90469f298c16ca80adc168a",
+  "revision_scope": "Verified working tree based on the recorded revision.",
+  "platform": "local Darwin arm64 development host",
+  "measurements": {
+    "script_tests_passed": 828,
+    "frontend_test_files_passed": 247,
+    "frontend_tests_passed": 2926,
+    "browser_journeys_passed": 286,
+    "application_integration_tests_passed": 19,
+    "storage_integration_tests_passed": 22,
+    "storage_integration_tests_intentionally_ignored": 1,
+    "release_sbom_packages": 1438,
+    "release_sbom_relationships": 4022,
+    "release_sbom_assets": 6,
+    "release_sbom_installable_assets": 1
+  },
+  "changes": [
+    "Rebuilt the jobs FTS5 index and replaced invalid direct-update triggers with the documented delete-command and insert sequence.",
+    "Restored the previously skipped job-update integration test and proved updated terms are searchable.",
+    "Evaluated new notification candidates independently of aggregate dashboard counters for manual and automatic searches.",
+    "Added fail-first notification orchestration coverage for unchanged and zero aggregate high-match counts.",
+    "Refreshed exact direct dependencies, compatible lockfile entries, the Rust toolchain, and hosted action pins.",
+    "Corrected release-facing architecture, workspace, file-size, migration, and saved-alert records.",
+    "Built and verified a universal no-account package without changing user-level toolchain configuration.",
+    "Generated checksummed Agent Skills archives, an SPDX release SBOM, a manifest, and attestation subjects."
+  ],
+  "commands": [
+    {
+      "command": "cargo test -p jobsentinel-application --test scheduler_integration_test",
+      "exit_status": 0,
+      "relevant_result": "All 19 application integration tests passed, including the restored job-update and search regression.",
+      "caveat": "None."
+    },
+    {
+      "command": "cargo test -p jobsentinel-storage --test database_integration_test",
+      "exit_status": 0,
+      "relevant_result": "All 22 enabled storage integration tests passed.",
+      "caveat": "One pre-existing aggressive same-row concurrency stress test remains intentionally ignored because its documented SQLite locking pattern can hang."
+    },
+    {
+      "command": "npx vitest run src/features/dashboard/hooks/notificationOrchestration.test.tsx src/features/dashboard/hooks/notifications.test.ts",
+      "exit_status": 0,
+      "relevant_result": "Both files and all 7 focused notification tests passed after the new tests failed against the original orchestration.",
+      "caveat": "The fail-first run produced zero notification evaluations in both new cases, as expected before the fix."
+    },
+    {
+      "command": "npm run verify:full",
+      "exit_status": 0,
+      "relevant_result": "The final source-state gate passed the harness, architecture, security, dependency, SQLx, duplication, test-quality, documentation, lint, type, build, 828-script-test, 2,926-frontend-test, runtime-smoke, and complete standard Rust lanes.",
+      "caveat": "The environment doctor reported local Node and npm versions newer than the repository-owned release baselines; all checks passed."
+    },
+    {
+      "command": "npm run test:e2e:all:budget",
+      "exit_status": 0,
+      "relevant_result": "All 286 browser journeys passed with zero unexpected, flaky, or skipped outcomes in 123,985.431 ms.",
+      "caveat": "The enforced budget was 240,000 ms and 320 tests."
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --workspace --all-features",
+      "exit_status": 0,
+      "relevant_result": "The complete Rust workspace passed with every optional feature enabled.",
+      "caveat": "Tests explicitly classified as live-network, model-download, environment-isolation, manual-browser, or hanging stress checks remained ignored."
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs clippy --workspace --all-features -- -D warnings",
+      "exit_status": 0,
+      "relevant_result": "Strict Rust lint passed across the workspace with every optional feature enabled.",
+      "caveat": "None."
+    },
+    {
+      "command": "cargo deny check",
+      "exit_status": 0,
+      "relevant_result": "Advisories, bans, licenses, and source policy all passed.",
+      "caveat": "None."
+    },
+    {
+      "command": "npm audit --audit-level=moderate",
+      "exit_status": 0,
+      "relevant_result": "npm reported zero vulnerabilities.",
+      "caveat": "None."
+    },
+    {
+      "command": "npm run release:check-deps",
+      "exit_status": 0,
+      "relevant_result": "Direct pins, compatible lockfile entries, runtime tools, package manager, overrides, and hosted action refs were current and exact.",
+      "caveat": "The final check was repeated after compatible transitive releases appeared during the first verification window."
+    },
+    {
+      "command": "npm run release:check-version -- 2.9.5",
+      "exit_status": 0,
+      "relevant_result": "Package, lockfile, Tauri, and Cargo workspace metadata matched version 2.9.5.",
+      "caveat": "None."
+    },
+    {
+      "command": "npm run release:readiness -- --version 2.9.5",
+      "exit_status": 0,
+      "relevant_result": "Release policy, preflight, staged publication, package, checksum, SBOM, attestation, and public-verifier gates passed for 2.9.5.",
+      "caveat": "Public trust signing and notarization remain external release-execution requirements."
+    },
+    {
+      "command": "npm run release:check-env",
+      "exit_status": 0,
+      "relevant_result": "The no-secret local package posture passed for each supported release target.",
+      "caveat": "Public release execution still requires the credentials named by the readiness report."
+    },
+    {
+      "command": "RUSTUP_HOME=target/release-toolchain/rustup JOBSENTINEL_MACOS_NO_ACCOUNT=true npm run tauri:build:macos -- --target universal-apple-darwin",
+      "exit_status": 0,
+      "relevant_result": "The repository built the universal 2.9.5 no-account app and DMG using a generated isolated toolchain root.",
+      "caveat": "The first build attempt stopped before artifact creation because the host toolchain lacked the second architecture target; the isolated root supplied it without changing user-level configuration."
+    },
+    {
+      "command": "npm run tauri:verify:macos -- --dmg target/universal-apple-darwin/release/bundle/dmg/JobSentinel_2.9.5_no-account_universal.dmg --expected-architectures x86_64,arm64 --expected-bundle-id com.jobsentinel.main --expected-product-name JobSentinel --expected-version 2.9.5 --expected-icon-file icon.icns --expected-minimum-system-version 13.0 --launch-smoke --install-smoke --require-checksum",
+      "exit_status": 0,
+      "relevant_result": "Checksum acc45f06ffdb3282dbda10c1fff127a43e659338c2b7fa396ec6175110076ab3, architecture slices, metadata, signature integrity, visible-window launch, private local-data permissions, isolated database creation, and copied-install launch all passed.",
+      "caveat": "The expected public trust rejection remains until release credentials and notarization are available."
+    },
+    {
+      "command": "npm run release:skills -- --version 2.9.5 --out-dir target/release-audit && npm run release:sbom -- --platform macos --version 2.9.5 --out-dir target/release-audit --checksums-out target/release-audit/attestation-subjects.sha256 --require-artifacts",
+      "exit_status": 0,
+      "relevant_result": "Checksummed tar.gz and ZIP skill archives, a 1,438-package SPDX SBOM with 4,022 relationships, a manifest, and attestation subjects were generated against six staged assets and one installable asset.",
+      "caveat": "Generated audit artifacts were retained only through verification and were not published."
+    }
+  ],
+  "source": "docs/releases/v2.9.5.md",
+  "audit": {
+    "source_candidate_complete": true,
+    "local_release_matrix_complete": true,
+    "public_release_executed": false,
+    "generated_artifacts_removed": true,
+    "committed": false
+  }
+}

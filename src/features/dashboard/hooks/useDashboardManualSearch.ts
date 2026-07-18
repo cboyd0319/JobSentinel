@@ -117,7 +117,7 @@ export function useDashboardManualSearch({
         );
       }
 
-      if (statsData.high_matches > 0) {
+      if (notificationCandidates.length > 0) {
         void notifyScrapingComplete(notificationCandidates);
       }
 

@@ -187,10 +187,10 @@ async fn test_recent_matches_include_all_sub_scores() {
 
     set_match_subscores(&pool, resume_id, job_hash, 0.8, 0.75).await;
 
-    let matches = matcher.get_recent_matches(resume_id, 10).await.unwrap();
-    assert_eq!(matches.len(), 1);
-    assert_eq!(matches[0].experience_match_score, Some(0.8));
-    assert_eq!(matches[0].education_match_score, Some(0.75));
+    let recent_matches = matcher.get_recent_matches(resume_id, 10).await.unwrap();
+    assert_eq!(recent_matches.len(), 1);
+    assert_eq!(recent_matches[0].experience_match_score, Some(0.8));
+    assert_eq!(recent_matches[0].education_match_score, Some(0.75));
 }
 
 #[tokio::test]

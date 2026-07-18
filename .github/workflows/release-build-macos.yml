@@ -44,9 +44,9 @@ jobs:
         run: node scripts/harness/npm-pin.mjs
 
       - name: Setup Rust
-        uses: dtolnay/rust-toolchain@4be7066ada62dd38de10e7b70166bc74ed198c30 # stable
+        uses: dtolnay/rust-toolchain@4cda84d5c5c54efe2404f9d843567869ab1699d4 # stable
         with:
-          toolchain: "1.97.0"
+          toolchain: "1.97.1"
           targets: aarch64-apple-darwin,x86_64-apple-darwin
 
       - name: Install frontend dependencies
@@ -320,12 +320,12 @@ jobs:
             --require-artifacts
 
       - name: Attest release artifact provenance
-        uses: actions/attest@a1948c3f048ba23858d222213b7c278aabede763 # v4.1.1
+        uses: actions/attest@f7c74d28b9d84cb8768d0b8ca14a4bac6ef463e6 # v4.2.0
         with:
           subject-path: release-assets/public/*
 
       - name: Attest release artifact SBOM
-        uses: actions/attest@a1948c3f048ba23858d222213b7c278aabede763 # v4.1.1
+        uses: actions/attest@f7c74d28b9d84cb8768d0b8ca14a4bac6ef463e6 # v4.2.0
         with:
           subject-path: |
             release-assets/public/*.dmg
