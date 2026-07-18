@@ -1,11 +1,7 @@
 {
-  "schema": "jobsentinel.feature_list.v1", "project": "JobSentinel",
-  "last_updated": "2026-07-18",
-  "active_status": "active",
+  "schema": "jobsentinel.feature_list.v1", "project": "JobSentinel", "last_updated": "2026-07-18", "active_status": "active",
   "rules": {
-    "single_active_feature": true,
-    "passing_requires_evidence": true,
-    "passing_is_irreversible": true
+    "single_active_feature": true, "passing_requires_evidence": true, "passing_is_irreversible": true
   },
   "features": [
     {
@@ -152,9 +148,13 @@
       "evidence": ["docs/harness/evidence/v2.9.5-release-cut-2026-07-18.json"], "blocker": "", "next_trigger": "A regression against the public v2.9.5 release requires a bounded corrective feature."
     }, { "id": "v3-workstream-selection", "priority": 13, "area": "product planning", "title": "Approve the comprehensive v3 execution plan",
       "behavior": "The v3 strategy package and every unfinished maintained-doc commitment are dispositioned in one ordered, user-approved master plan before implementation begins.",
-      "user_visible_behavior": "The next major investment targets a clear job-seeker burden with explicit privacy, usability, and verification boundaries.", "status": "active",
-      "verification": ["npm run harness:check", "npm run lint:docs"],
-      "evidence": [], "blocker": "", "next_trigger": "Approve the v3 master plan and activate Milestone 0 as the sole bounded workstream."
+      "user_visible_behavior": "The next major investment has explicit privacy, usability, and verification boundaries.", "status": "passing", "verification": ["npm run harness:check", "npm run lint:docs"],
+      "evidence": ["docs/harness/evidence/v3-gate-0-approval-2026-07-18.json"], "blocker": "", "next_trigger": "A user-approved scope change requires an updated disposition and dependency review."
+    }, { "id": "v3-milestone-0-repository-truth", "priority": 14, "area": "product planning", "title": "Reconcile v3 planning authority and repository truth",
+      "behavior": "Gate 0 approval is recorded, stale release, debt, testing, and release-pipeline claims are reconciled, and deterministic plan-integrity checks prevent v3 inventory drift before contract work begins.",
+      "user_visible_behavior": "V3 implementation starts from one approved plan and accurate release, trust, and verification records.", "status": "active",
+      "verification": ["npm run harness:check", "npm run lint:docs", "npm run lint:deps:why", "npm run lint:dup -- --list", "npm run lint:file-size", "npm run test:scripts", "git diff --check"],
+      "evidence": [], "blocker": "", "next_trigger": "Complete Milestone 0, record its evidence, and activate Milestone 1."
     }
   ]
 }

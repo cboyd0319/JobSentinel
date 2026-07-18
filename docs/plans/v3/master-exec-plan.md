@@ -319,6 +319,7 @@ relevant result, and caveat.
 | 2026-07-18 | Drafted | Consolidated v3 strategy, 233 indexed ideas, the foundation plan, maintained roadmap commitments, open debt, testing gaps, research evaluations, and deferred release work. Activated canonical routing and absorbed the foundation plan. Awaiting Gate 0 approval. |
 | 2026-07-18 | Scope updated | User promoted all maintained veteran and military-transition work into v3.0. R10 moved to Milestone 9 with cross-milestone source, evidence, application-review, and release requirements. |
 | 2026-07-18 | Priorities reconciled | Absorbed U17 and R14 into v3.0, moved the A20 build decision to Gate 1, promoted six outcomes to v3.x trains, and consolidated E09, X03, and X04 into their canonical IDs. |
+| 2026-07-18 | Gate 0 approved | User authorized full execution of this plan on `feat/v3-major-line` through draft PR 329. Milestone 0 is the sole active feature. |
 
 ## Discoveries
 
@@ -343,6 +344,8 @@ relevant result, and caveat.
 
 - Treat v3 as a major line: v3.0 freezes durable contracts and ships the first
   coherent vertical product; v3.x delivers accepted dependent enhancements.
+- Record the user's full-execution instruction as Gate 0 approval and activate
+  Milestone 0 before any product implementation.
 - Accept `Now` and `Next` items, defer `Later` and `Moonshot` items, and retain
   all cut lines unless the user approves a future product-boundary change.
 - Promote R10 into v3.0 and treat veteran and military-transition support as
@@ -369,11 +372,12 @@ relevant result, and caveat.
 
 ## Handoff
 
-- Current state: master plan drafted; no v3 implementation has started.
+- Current state: Gate 0 approved; Milestone 0 repository-truth reconciliation
+  is active; no v3 runtime implementation has started.
 - Evidence: repository inventory, live state files, plan index, idea index,
   roadmaps, debt tracker, docs marker audit, and current harness baseline.
-- Next step: obtain Gate 0 user approval, complete Milestone 0, then activate
-  Milestone 1 as the sole feature.
+- Next step: complete and verify Milestone 0, then activate Milestone 1 as the
+  sole feature.
 - Open risks: scope remains large, contract freeze is irreversible within the
   v3 compatibility line, and some final distribution evidence depends on
   external credentials.

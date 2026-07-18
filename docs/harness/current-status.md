@@ -33,24 +33,22 @@ Last updated: 2026-07-18
   dependencies, and Rust support have canonical owners. All maintained scopes
   are at zero duplication under the 14-line contract, the full gate passed, and
   the post-cleanup review recorded a bounded concerns verdict.
-- Post-cleanup corrections and the v2.9.5 source-candidate closure are complete.
-  Database settings and FTS updates are sound, saved alerts evaluate new jobs,
-  maintained links and release records are current, and dependencies are fresh.
-  The full gate, 286 browser journeys, all-feature Rust lane, universal package
-  smoke, skills archives, and SBOM generation passed with structured evidence.
 - The v2.9.5 GUI QA and release publication are complete. All 288 browser
   journeys and hosted release gates passed. The public release contains 20
   checksummed assets with SBOM and provenance validation. The no-account Mac
   package passed fresh-download installation and launch smoke verification.
+- Gate 0 is approved. The comprehensive v3 master plan and its 230 canonical
+  idea dispositions are the sole execution authority for the v3 major line.
 
 ## In Progress
 
-- Active feature: `v3-workstream-selection`
+- Active feature: `v3-milestone-0-repository-truth`
 - Status: `active`
-- Objective: Approve one comprehensive v3 plan and its first bounded milestone.
+- Objective: Reconcile planning authority, release truth, debt, testing claims,
+  and deferred release work before v3 contracts freeze.
 - Branch: `feat/v3-major-line`
-- Current slice: Review the repo-wide v3 master plan and backlog dispositions.
-- Next action: Approve the master plan, then activate Milestone 0.
+- Current slice: Complete Milestone 0 with deterministic plan and docs audits.
+- Next action: Verify Milestone 0, record evidence, then activate Milestone 1.
 
 ## Deferred
 
