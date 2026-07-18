@@ -414,10 +414,9 @@ export function runDoctor(options = {}) {
     fix: "Install clippy with rustup component add clippy",
   });
 
-  checkLinuxTauriDependencies(results, root, {
-    platform,
-    execFileSync: options.execFileSync,
-  });
+  if (options.native !== false) {
+    checkLinuxTauriDependencies(results, root, { platform, execFileSync: options.execFileSync });
+  }
 
   checkPath(results, root, "package-lock.json", "npm lockfile");
   if (!options.preflight) {
@@ -492,6 +491,7 @@ export function formatDoctorResults(results) {
 if (process.argv[1] === scriptPath) {
   process.env.PATH = repositoryToolchainEnvironment(defaultRoot).PATH;
   const results = runDoctor({
+    native: !process.argv.includes("--skip-native"),
     preflight: process.argv.includes("--preflight"),
     strictPlaywright: process.argv.includes("--e2e"),
   });

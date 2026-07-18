@@ -150,7 +150,7 @@ jobs:
         run: npm run harness:check
 
       - name: Run environment doctor
-        run: npm run doctor
+        run: npm run doctor -- --skip-native
 
       - name: Check latest stable dependency pins
         run: npm run release:check-deps
@@ -202,7 +202,7 @@ jobs:
         run: ./node_modules/.bin/playwright install --with-deps chromium
 
       - name: Check end-to-end readiness
-        run: npm run doctor:e2e
+        run: npm run doctor:e2e -- --skip-native
 
       - name: Run complete end-to-end suite
         run: npm run test:e2e:all

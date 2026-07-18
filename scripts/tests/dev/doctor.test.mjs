@@ -206,6 +206,27 @@ test("runDoctor checks Linux AppImage FUSE compatibility", () => {
   });
 });
 
+test("runDoctor can skip native Linux prerequisites for isolated hosted lanes", () => {
+  withDoctorFixture((root) => {
+    const results = runDoctor({
+      root,
+      platform: "linux",
+      nodeVersion: "v24.18.0",
+      native: false,
+      execFileSync: createMockExec({
+        hasLibfuse: false,
+        installedPkgConfigPackages: [],
+      }),
+    });
+
+    assert.equal(
+      results.some((result) => result.label.startsWith("Linux ")),
+      false,
+      formatDoctorResults(results),
+    );
+  });
+});
+
 test("runDoctor warns on Playwright readiness by default", () => {
   withDoctorFixture((root) => {
     const results = runDoctor({
