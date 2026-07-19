@@ -69,6 +69,37 @@ minimized request fingerprint. Any change requires review again.
 | User-opened search links | LinkedIn and other destination links opened by the user |
 | Preferred expansion path | Official company career pages and public hiring-platform sources such as Greenhouse, Lever, Ashby, Workable, SmartRecruiters, and USAJobs |
 
+## Veteran And U.S. Public-Service References
+
+The machine-readable reviewed index is
+`crates/jobsentinel-domain/src/fixtures/v3_veteran_public_service_index_v1.json`.
+It is intentionally incomplete. Inclusion means only that JobSentinel has
+recorded a bounded use for the reference. It does not mean complete coverage,
+current employer hiring, veteran-friendly status, civilian equivalence,
+qualification, preference, protected veteran status, or federal eligibility.
+
+| Reference | Reviewed use | Runtime boundary |
+| --------- | ------------ | ---------------- |
+| [USAJOBS API](https://developer.usajobs.gov/guides/authentication) | Official federal job search | User-provided API key and registered email; secure local credential storage |
+| [O*NET Military Crosswalk](https://www.onetcenter.org/crosswalks.html) | Government-sponsored occupation linkage suggestions | Packaged public data; August 2024 source release recorded |
+| [Department of Defense COOL](https://www.cool.osd.mil/research-military-occupations.htm) | Occupation and credential research | Manual review only |
+| [OPM Veteran Job Seekers guidance](https://www.opm.gov/fedshirevets/veteran-job-seekers/vets/) | General federal veteran-hiring guidance | Manual review only; never an individual eligibility decision |
+| [Department of Labor VEVRAA guidance](https://www.dol.gov/agencies/ofccp/faqs/vevraa) | General protected-status guidance | Manual review only; answers remain voluntary and user selected |
+| [VetSec remote security employer list](https://github.com/VetSec/companies-hiring-security-remote) | Community employer-discovery seed | Manual review only; verify each official careers site |
+| [VetSec resume prompt examples](https://github.com/VetSec/AI-ML/tree/main/resume/ChatGPT) | Evaluation reference | Manual review only; never an external-AI default or approval bypass |
+| [MOS Directory](https://mos.directory/) | Community occupation comparison | Manual review only |
+| [Military Money MOS lists](https://www.militarymoney.com/careers/mos-lists/) | Older commercial occupation comparison | Manual review only; page showed a September 30, 2022 update date |
+| [COECCC service-to-sector mapping](https://coeccc.net/from-service-to-sector-mapping-military-skills-to-civilian-careers/) | California San Diego and Imperial regional workforce research | Manual review only |
+| [Best Military Resume MOS chart](https://bestmilitaryresume.com/blog/career-transition/mos-to-civilian-job-chart-all-branches-2026) | Commercial occupation comparison | Manual review only |
+| [Military Transition Toolkit](https://www.militarytransitiontoolkit.com/mos) | Commercial occupation comparison | Manual review only |
+
+Occupation, credential, and sector mappings are suggestions only. JobSentinel
+may use them to help a user find civilian language, but every resulting duty,
+tool, credential, date, clearance, achievement, and qualification must come
+from user-confirmed evidence. Service history, federal hiring eligibility, and
+protected veteran status remain separate concepts. JobSentinel never derives
+one from another.
+
 ## Boundaries
 
 | Rule | Requirement |

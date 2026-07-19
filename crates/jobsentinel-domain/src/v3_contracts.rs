@@ -25,6 +25,8 @@ pub enum SchemaId {
     RegionManifestV1,
     #[serde(rename = "jobsentinel.v3.source-manifest.v1")]
     SourceManifestV1,
+    #[serde(rename = "jobsentinel.v3.veteran-public-service-index.v1")]
+    VeteranPublicServiceIndexV1,
     #[serde(rename = "jobsentinel.v3.edition-manifest.v1")]
     EditionManifestV1,
     #[serde(rename = "jobsentinel.v3.model-provenance.v1")]
@@ -43,6 +45,7 @@ impl SchemaId {
             Self::PackManifestV1 => "jobsentinel.v3.pack-manifest.v1",
             Self::RegionManifestV1 => "jobsentinel.v3.region-manifest.v1",
             Self::SourceManifestV1 => "jobsentinel.v3.source-manifest.v1",
+            Self::VeteranPublicServiceIndexV1 => "jobsentinel.v3.veteran-public-service-index.v1",
             Self::EditionManifestV1 => "jobsentinel.v3.edition-manifest.v1",
             Self::ModelProvenanceV1 => "jobsentinel.v3.model-provenance.v1",
             Self::VectorFreshnessV1 => "jobsentinel.v3.vector-freshness.v1",

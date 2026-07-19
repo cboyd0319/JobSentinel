@@ -21,6 +21,7 @@ pub mod v3_source_consent;
 pub mod v3_source_manifest;
 #[cfg(test)]
 mod v3_source_manifest_tests;
+pub mod v3_veteran_public_service;
 
 pub use application_assistance::{
     screening_question_matches, AnswerSource, AnswerStatistics, AnswerSuggestion,
