@@ -1,7 +1,7 @@
 {
   "schema": "jobsentinel.feature_evidence.v1",
   "feature_id": "v3-milestone-0-repository-truth",
-  "behavior": "Gate 0 approval is recorded, stale release, debt, testing, and release-pipeline claims are reconciled, and deterministic plan-integrity checks prevent v3 inventory drift before contract work begins.",
+  "behavior": "Gate 0 records and deterministic plan checks keep release, debt, test, and pipeline claims accurate.",
   "result": "passing",
   "verified_at": "2026-07-18T23:08:31Z",
   "revision": "469abb3f76a3e36d277996dcacd00310eda65d9b",

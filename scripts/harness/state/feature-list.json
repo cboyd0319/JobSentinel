@@ -1,5 +1,5 @@
 {
-  "schema": "jobsentinel.feature_list.v1", "project": "JobSentinel", "last_updated": "2026-07-18", "active_status": "active",
+  "schema": "jobsentinel.feature_list.v1", "project": "JobSentinel", "last_updated": "2026-07-19", "active_status": "active",
   "rules": {
     "single_active_feature": true, "passing_requires_evidence": true, "passing_is_irreversible": true
   },
@@ -146,15 +146,15 @@
       "user_visible_behavior": "The next major investment has explicit privacy, usability, and verification boundaries.", "status": "passing", "verification": ["npm run harness:check", "npm run lint:docs"],
       "evidence": ["docs/harness/evidence/v3-gate-0-approval-2026-07-18.json"], "blocker": "", "next_trigger": "A user-approved scope change requires an updated disposition and dependency review."
     }, { "id": "v3-milestone-0-repository-truth", "priority": 14, "area": "product planning", "title": "Reconcile v3 planning authority and repository truth",
-      "behavior": "Gate 0 approval is recorded, stale release, debt, testing, and release-pipeline claims are reconciled, and deterministic plan-integrity checks prevent v3 inventory drift before contract work begins.",
-      "user_visible_behavior": "V3 implementation starts from one approved plan and accurate release, trust, and verification records.", "status": "passing",
+      "behavior": "Gate 0 records and deterministic plan checks keep release, debt, test, and pipeline claims accurate.", "user_visible_behavior": "V3 starts from one approved plan and accurate trust records.", "status": "passing",
       "verification": ["npm run harness:check", "npm run lint:docs", "npm run lint:deps:why", "npm run lint:dup -- --list", "npm run lint:file-size", "npm run test:scripts", "git diff --check"],
-      "evidence": ["docs/harness/evidence/v3-milestone-0-repository-truth-2026-07-18.json"], "blocker": "", "next_trigger": "A release-truth, dependency, testing, or plan-inventory regression requires a focused correction."
+      "evidence": ["docs/harness/evidence/v3-milestone-0-repository-truth-2026-07-18.json"], "blocker": "", "next_trigger": "A planning-truth regression reopens this feature."
     }, { "id": "v3-milestone-1-contract-evaluation-baseline", "priority": 15, "area": "v3 contracts and evaluation", "title": "Freeze the v3 contract, evaluation, and quality baseline",
-      "behavior": "Versioned Rust-owned v3 schemas, compatibility fixtures, privacy-safe evaluation sets, typed-job evidence, deterministic file-input coverage, and measured quality budgets fail closed before durable v3 data work starts.",
-      "user_visible_behavior": "The v3 foundation has stable privacy, recovery, compatibility, accessibility, veteran, and quality rules before user data is migrated.", "status": "active",
-      "verification": ["npm run harness:check", "npm run lint:security", "npm run test:scripts", "node scripts/dev/run-cargo.mjs test -p jobsentinel-domain --all-features", "npm run test:e2e:smoke"],
-      "evidence": [], "blocker": "", "next_trigger": "Complete Gate 1 with revision-bound contract, evaluation, typed-job, and native-input evidence, then activate Milestone 2."
-    }
-  ]
-}
+      "behavior": "Versioned contracts, synthetic evals, typed-job evidence, deterministic file input, and budgets fail closed.", "user_visible_behavior": "V3 rules are stable before data migration.", "status": "passing",
+      "verification": ["npm run harness:check", "env -u JOBSENTINEL_LIVE_KEYRING_TESTS node scripts/dev/run-cargo.mjs test -p jobsentinel-domain --all-features", "npm run test:e2e:smoke:budget"],
+      "evidence": ["docs/harness/evidence/v3-milestone-1-contract-evaluation-baseline-2026-07-19.json"], "blocker": "", "next_trigger": "A baseline regression reopens this feature."
+    }, { "id": "v3-milestone-2-local-data-foundation", "priority": 16, "area": "v3 local data", "title": "Build the v3 local data foundation",
+      "behavior": "Append-only migrations and typed operations add bounded local v3 records safely.", "user_visible_behavior": "V3 organizes evidence without leaking private payloads into events.", "status": "active",
+      "verification": ["npm run harness:check", "npm run lint:security", "npm run lint:sqlx", "npm run lint:architecture", "focused storage, domain, and application tests"],
+      "evidence": [], "blocker": "", "next_trigger": "Complete Gate 2, then activate Milestone 3."
+    } ] }

@@ -1,6 +1,6 @@
 # Current Status
 
-Last updated: 2026-07-18
+Last updated: 2026-07-19
 
 ## Done
 
@@ -41,20 +41,20 @@ Last updated: 2026-07-18
   idea dispositions are the sole execution authority for the v3 major line.
 - Milestone 0 is complete. Release truth, debt, testing claims, dependency
   ownership, and the deferred release-pipeline decision are reconciled.
+- Milestone 1 is complete. Contracts and evals fail closed, scheduler
+  ownership is sufficient, A20 is deferred, and native file input passed.
 
 ## In Progress
 
-- Active feature: `v3-milestone-1-contract-evaluation-baseline`
+- Active feature: `v3-milestone-2-local-data-foundation`
 - Status: `active`
-- Objective: Freeze privacy-safe v3 contracts, evals, job ownership, native input, and quality budgets.
+- Objective: Add the local, typed, bounded, migration-safe v3 data foundation without a renderer surface.
 - Branch: `feat/v3-major-line`
-- Current slice: Complete Gate 1 without A20 unless existing application and Tokio owners fail.
-- Next action: Inventory existing contract owners and write the first fail-closed
-  schema and compatibility tests.
+- Current slice: Write fail-first Milestone 2 tests, then complete Gate 2.
+- Next action: Define minimum local records from tests before the migration.
 
 ## Deferred
 
-- Hosted general CI remains intentionally absent under the named
-  `pre-alpha-private-no-ci` user override.
+- Hosted general CI remains absent under `pre-alpha-private-no-ci`.
 
 Keep this current; put command history and long evidence under `docs/harness/evidence/`.
