@@ -67,11 +67,11 @@ impl DesktopServices {
             db_path = %path_label_for_logging(&database_path),
             "Connecting to database"
         );
-        let database = Database::connect(&database_path)
+        let database = Database::connect_with_staged_restore(&database_path)
             .await
             .map_err(|error| DesktopStartupError::Database(error.to_string()))?;
 
-        Self::initialize_loaded(config_path, config, is_first_run, database).await
+        Self::initialize_ready(config_path, config, is_first_run, database).await
     }
 
     #[cfg(test)]
@@ -83,9 +83,10 @@ impl DesktopServices {
         Self::initialize_loaded(config_path, config, is_first_run, database).await
     }
 
+    #[cfg(test)]
     async fn initialize_loaded(
         config_path: PathBuf,
-        mut config: Config,
+        config: Config,
         is_first_run: bool,
         database: Database,
     ) -> Result<Self, DesktopStartupError> {
@@ -94,7 +95,15 @@ impl DesktopServices {
             .await
             .map_err(|error| DesktopStartupError::Database(error.to_string()))?;
         tracing::info!("Database initialized successfully");
+        Self::initialize_ready(config_path, config, is_first_run, database).await
+    }
 
+    async fn initialize_ready(
+        config_path: PathBuf,
+        mut config: Config,
+        is_first_run: bool,
+        database: Database,
+    ) -> Result<Self, DesktopStartupError> {
         let database = Arc::new(database);
         let credentials = Arc::new(CredentialService::new(database.credentials()));
         if migrate_plaintext_credentials_to_secure_storage(&config_path, credentials.as_ref()).await

@@ -4,6 +4,8 @@
 
 mod backups;
 mod portable_backup;
+mod portable_restore;
+mod portable_restore_promotion;
 
 pub use portable_backup::PortableBackupInfo;
 
@@ -11,7 +13,10 @@ use sqlx::{
     sqlite::{SqlitePool, SqlitePoolOptions},
     Row,
 };
-use std::path::PathBuf;
+use std::{
+    fs::{File, OpenOptions},
+    path::{Path, PathBuf},
+};
 
 use super::encryption::{
     connect_encrypted_pool, encrypt_plaintext_database, load_or_create_database_key,
@@ -27,6 +32,7 @@ pub struct Database {
     pool: SqlitePool,
     /// Path to the on-disk database file. `None` for in-memory databases.
     db_path: Option<PathBuf>,
+    _owner_lock: Option<File>,
 }
 
 impl Database {
@@ -37,7 +43,7 @@ impl Database {
     }
 
     /// Connect to SQLite database with optimized settings
-    pub async fn connect(path: &std::path::Path) -> Result<Self, sqlx::Error> {
+    pub async fn connect(path: &Path) -> Result<Self, sqlx::Error> {
         // Ensure parent directory exists
         if let Some(parent) = path
             .parent()
@@ -58,6 +64,7 @@ impl Database {
                 sqlx::Error::Io(e)
             })?;
         }
+        let owner_lock = Self::acquire_owner_lock(path)?;
 
         let plaintext_version = if path.exists() {
             probe_plaintext_user_version(path).await.ok()
@@ -90,6 +97,7 @@ impl Database {
         Ok(Database {
             pool,
             db_path: Some(path.to_path_buf()),
+            _owner_lock: Some(owner_lock),
         })
     }
 
@@ -312,7 +320,33 @@ impl Database {
         Ok(Database {
             pool,
             db_path: None,
+            _owner_lock: None,
         })
+    }
+
+    pub(super) fn acquire_owner_lock(path: &Path) -> Result<File, sqlx::Error> {
+        let lock_path = Self::sibling_path(path, ".owner.lock");
+        let lock = OpenOptions::new()
+            .read(true)
+            .write(true)
+            .create(true)
+            .truncate(false)
+            .open(&lock_path)
+            .map_err(sqlx::Error::Io)?;
+        jobsentinel_platform::ensure_private_file(&lock_path).map_err(sqlx::Error::Io)?;
+        lock.try_lock().map_err(|error| match error {
+            std::fs::TryLockError::WouldBlock => {
+                sqlx::Error::Protocol("JobSentinel database is in use".into())
+            }
+            std::fs::TryLockError::Error(error) => sqlx::Error::Io(error),
+        })?;
+        Ok(lock)
+    }
+
+    fn sibling_path(path: &Path, suffix: &str) -> PathBuf {
+        let mut name = path.file_name().unwrap_or_default().to_os_string();
+        name.push(suffix);
+        path.with_file_name(name)
     }
 
     /// Configure SQLite PRAGMA settings compatible with in-memory databases (tests).

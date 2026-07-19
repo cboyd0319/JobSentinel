@@ -2,6 +2,7 @@ use super::*;
 
 mod migration_tests;
 mod portable_backup_tests;
+mod portable_restore_tests;
 
 #[cfg(test)]
 mod memory_tests {

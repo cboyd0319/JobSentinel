@@ -20,6 +20,7 @@ impl Database {
         Database {
             pool,
             db_path: None,
+            _owner_lock: None,
         }
     }
 

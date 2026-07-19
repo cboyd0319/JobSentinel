@@ -363,19 +363,6 @@ impl Database {
             .finish_backup_operation(operation_id, Some(crate::database_error_kind(error)))
             .await;
     }
-
-    pub(super) async fn reconcile_interrupted_recovery_operations(
-        &self,
-    ) -> Result<(), sqlx::Error> {
-        sqlx::query(
-            "UPDATE v3_recovery_operations
-             SET outcome = 'cancelled', completed_at = datetime('now')
-             WHERE outcome = 'started'",
-        )
-        .execute(&self.pool)
-        .await?;
-        Ok(())
-    }
 }
 
 async fn export_pool_to_encrypted(
@@ -417,7 +404,7 @@ async fn export_pool_to_encrypted(
     Ok(())
 }
 
-async fn export_encrypted_to_encrypted(
+pub(super) async fn export_encrypted_to_encrypted(
     source: &Path,
     source_key: &str,
     destination: &Path,
