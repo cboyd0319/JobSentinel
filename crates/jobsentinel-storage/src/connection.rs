@@ -5,6 +5,7 @@
 mod backups;
 mod portable_backup;
 mod portable_restore;
+mod portable_restore_bundle;
 mod portable_restore_promotion;
 mod reviewed_export;
 mod reviewed_export_inspect;
@@ -13,6 +14,7 @@ mod reviewed_export_schema;
 
 pub use maintenance::{PortableBackupHistory, StorageHealth, StorageMaintenanceReport};
 pub use portable_backup::PortableBackupInfo;
+pub use portable_restore::PortableRestoreStatus;
 pub use reviewed_export::{ReviewedExportInfo, ReviewedExportPlan, ReviewedExportSelection};
 
 use sqlx::{
@@ -317,20 +319,65 @@ impl Database {
 
     pub(super) fn acquire_owner_lock(path: &Path) -> Result<File, sqlx::Error> {
         let lock_path = Self::sibling_path(path, ".owner.lock");
-        let lock = OpenOptions::new()
-            .read(true)
-            .write(true)
-            .create(true)
-            .truncate(false)
-            .open(&lock_path)
-            .map_err(sqlx::Error::Io)?;
-        jobsentinel_platform::ensure_private_file(&lock_path).map_err(sqlx::Error::Io)?;
+        let lock = loop {
+            match std::fs::symlink_metadata(&lock_path) {
+                Ok(metadata) if metadata.file_type().is_file() => {
+                    break OpenOptions::new()
+                        .read(true)
+                        .write(true)
+                        .open(&lock_path)
+                        .map_err(sqlx::Error::Io)?;
+                }
+                Ok(_) => {
+                    return Err(sqlx::Error::Protocol(
+                        "JobSentinel owner lock is invalid".into(),
+                    ));
+                }
+                Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
+                    match OpenOptions::new()
+                        .read(true)
+                        .write(true)
+                        .create_new(true)
+                        .open(&lock_path)
+                    {
+                        Ok(lock) => break lock,
+                        Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => {}
+                        Err(error) => return Err(sqlx::Error::Io(error)),
+                    }
+                }
+                Err(error) => return Err(sqlx::Error::Io(error)),
+            }
+        };
         lock.try_lock().map_err(|error| match error {
             std::fs::TryLockError::WouldBlock => {
                 sqlx::Error::Protocol("JobSentinel database is in use".into())
             }
             std::fs::TryLockError::Error(error) => sqlx::Error::Io(error),
         })?;
+        if !owner_lock_matches(&lock, &lock_path).map_err(sqlx::Error::Io)? {
+            return Err(sqlx::Error::Protocol(
+                "JobSentinel owner lock is invalid".into(),
+            ));
+        }
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::PermissionsExt;
+
+            let original_permissions = lock.metadata().map_err(sqlx::Error::Io)?.permissions();
+            lock.set_permissions(std::fs::Permissions::from_mode(0o600))
+                .map_err(sqlx::Error::Io)?;
+            if !owner_lock_matches(&lock, &lock_path).map_err(sqlx::Error::Io)? {
+                let _ = lock.set_permissions(original_permissions);
+                return Err(sqlx::Error::Protocol(
+                    "JobSentinel owner lock is invalid".into(),
+                ));
+            }
+        }
+        if !owner_lock_matches(&lock, &lock_path).map_err(sqlx::Error::Io)? {
+            return Err(sqlx::Error::Protocol(
+                "JobSentinel owner lock is invalid".into(),
+            ));
+        }
         Ok(lock)
     }
 
@@ -406,6 +453,33 @@ impl Database {
     pub(crate) const fn pool(&self) -> &SqlitePool {
         &self.pool
     }
+}
+
+fn owner_lock_matches(file: &File, path: &Path) -> std::io::Result<bool> {
+    let path_metadata = std::fs::symlink_metadata(path)?;
+    if !path_metadata.file_type().is_file() {
+        return Ok(false);
+    }
+    let opened_metadata = file.metadata()?;
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::MetadataExt;
+        Ok((opened_metadata.dev(), opened_metadata.ino())
+            == (path_metadata.dev(), path_metadata.ino())
+            && opened_metadata.nlink() == 1)
+    }
+    #[cfg(windows)]
+    {
+        use std::os::windows::fs::MetadataExt;
+        Ok(
+            opened_metadata.volume_serial_number() == path_metadata.volume_serial_number()
+                && opened_metadata.file_index() == path_metadata.file_index()
+                && opened_metadata.file_index().is_some()
+                && opened_metadata.number_of_links() == Some(1),
+        )
+    }
+    #[cfg(not(any(unix, windows)))]
+    Ok(true)
 }
 
 mod maintenance;

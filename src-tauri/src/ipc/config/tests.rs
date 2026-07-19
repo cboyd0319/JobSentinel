@@ -278,6 +278,10 @@ fn first_run_check_is_true_only_when_config_is_missing() {
 
     std::fs::write(&config_path, "{}").unwrap();
     assert!(!is_first_run_for_path(&config_path).unwrap());
+    assert_eq!(
+        first_run_or_recovery(&config_path, true),
+        Err("JobSentinel started in local recovery mode.".to_string())
+    );
 }
 
 #[tokio::test]

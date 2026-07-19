@@ -12,7 +12,7 @@ use debug_log::{clear_debug_log, format_debug_log, get_debug_log, TimestampedEve
 use sanitizer::{ConfigSummary, Sanitizer};
 use system_info::SystemInfo;
 
-use crate::bootstrap::AppState;
+use crate::bootstrap::{AppState, StartupRecoveryState};
 use serde::Serialize;
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
@@ -223,11 +223,19 @@ pub(crate) async fn get_config_summary(
 #[tauri::command]
 pub(crate) async fn generate_feedback_report(
     state: State<'_, AppState>,
+    recovery: State<'_, StartupRecoveryState>,
     category: String,
     description: String,
     include_debug_info: bool,
 ) -> Result<String, String> {
-    report::generate_feedback_report_impl(state, category, description, include_debug_info).await
+    report::generate_feedback_report_impl(
+        state,
+        recovery,
+        category,
+        description,
+        include_debug_info,
+    )
+    .await
 }
 
 /// Sanitize renderer-composed feedback text before clipboard or file use.

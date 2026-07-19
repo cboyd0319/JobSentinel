@@ -33,6 +33,7 @@
 
 mod credential_vault_key;
 mod database_key;
+mod platform_health;
 mod private_files;
 mod secure_storage;
 
@@ -42,6 +43,13 @@ pub use credential_vault_key::{
     CredentialVaultKeyStoragePolicy, SECURE_STORAGE_UNAVAILABLE_MESSAGE,
 };
 pub use database_key::{load_or_create_database_key, DatabaseKeyError};
+pub use platform_health::{
+    inspect_platform_health, repair_platform_permissions, PackageRepairAction,
+    PackageRepairActionId, PackageRepairGuidance, PackageRepairMode, PlatformHealthReport,
+    PlatformPermissionAction, PlatformPermissionCheck, PlatformPermissionRepair,
+    PlatformPermissionRepairOutcome, PlatformPermissionState, PlatformStorageArea,
+    PLATFORM_HEALTH_SCHEMA_VERSION,
+};
 pub use private_files::write_file_atomic_private;
 pub use secure_storage::{
     delete_device_secret, retrieve_device_secret, store_device_secret, SecureStorageError,

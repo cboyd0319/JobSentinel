@@ -238,7 +238,7 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
         isOpen
         onClose={onClose}
         title="Job Sources"
-        description="Check whether job sources are available and when they last found jobs."
+        description="Check whether job sources are available and when they last found jobs. Internet is required. Checking contacts the selected source or every enabled source."
         size="wide"
       >
         <div className="space-y-6">

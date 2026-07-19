@@ -3,8 +3,37 @@ use std::{collections::HashMap, sync::Arc};
 use tokio::sync::{watch, Mutex, RwLock};
 
 use crate::application::{config::Config, credentials::CredentialService, scheduler::Scheduler};
-use crate::desktop::{BookmarkletServer, Database, DesktopServices, SchedulerStatus};
+use crate::desktop::{
+    BookmarkletServer, Database, DesktopServices, DesktopStartupFailureKind, SchedulerStatus,
+};
 use jobsentinel_application::PendingUrlImports;
+
+pub(crate) struct StartupRecoveryState {
+    platform: bool,
+    failure: Option<DesktopStartupFailureKind>,
+}
+
+impl StartupRecoveryState {
+    pub(crate) const fn new(platform: bool, failure: Option<DesktopStartupFailureKind>) -> Self {
+        Self { platform, failure }
+    }
+
+    pub(crate) const fn required(&self) -> bool {
+        self.platform || self.failure.is_some()
+    }
+
+    pub(crate) const fn platform(&self) -> bool {
+        self.platform
+    }
+
+    pub(crate) const fn configuration(&self) -> bool {
+        matches!(self.failure, Some(DesktopStartupFailureKind::Configuration))
+    }
+
+    pub(crate) const fn database(&self) -> bool {
+        matches!(self.failure, Some(DesktopStartupFailureKind::Database))
+    }
+}
 
 pub(crate) struct AppState {
     pub config: Arc<RwLock<Config>>,

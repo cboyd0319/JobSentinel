@@ -5,9 +5,13 @@ use crate::encryption::{
 use sqlx::{sqlite::SqlitePool, Executor};
 use std::path::{Path, PathBuf};
 
-const BACKUP_PASSPHRASE: &str = "correct ' restore battery staple";
+pub(super) const BACKUP_PASSPHRASE: &str = "correct ' restore battery staple";
 
-async fn database_with_probe(path: &Path, value: &str, include_secrets: bool) -> Database {
+pub(super) async fn database_with_probe(
+    path: &Path,
+    value: &str,
+    include_secrets: bool,
+) -> Database {
     let database = Database::connect(path).await.unwrap();
     database.migrate().await.unwrap();
     database
@@ -48,7 +52,7 @@ async fn database_with_probe(path: &Path, value: &str, include_secrets: bool) ->
     database
 }
 
-async fn portable_backup(root: &Path) -> PathBuf {
+pub(super) async fn portable_backup(root: &Path) -> PathBuf {
     let source_dir = root.join("source");
     let backup_dir = root.join("input");
     std::fs::create_dir_all(&backup_dir).unwrap();
@@ -67,7 +71,7 @@ async fn portable_backup(root: &Path) -> PathBuf {
     backup
 }
 
-fn sibling(path: &Path, suffix: &str) -> PathBuf {
+pub(super) fn sibling(path: &Path, suffix: &str) -> PathBuf {
     let mut name = path.file_name().unwrap().to_os_string();
     name.push(suffix);
     path.with_file_name(name)
@@ -97,7 +101,7 @@ fn rollback_path(database_path: &Path, restore_id: &str) -> PathBuf {
         .join(format!("restore_rollback_{restore_id}.db"))
 }
 
-fn database_bytes(path: &Path) -> Vec<Option<Vec<u8>>> {
+pub(super) fn database_bytes(path: &Path) -> Vec<Option<Vec<u8>>> {
     std::iter::once(path.to_path_buf())
         .chain(
             ["-wal", "-shm", "-journal"]
@@ -198,6 +202,134 @@ async fn valid_stage_is_device_encrypted_and_contains_no_secrets_or_plaintext_ar
 }
 
 #[tokio::test]
+async fn failed_primary_can_stage_and_cancel_a_portable_restore_offline() {
+    let temp_dir = tempfile::tempdir().unwrap();
+    let backup = portable_backup(temp_dir.path()).await;
+    let db_path = temp_dir.path().join("primary/jobs.db");
+    std::fs::create_dir_all(db_path.parent().unwrap()).unwrap();
+    std::fs::write(&db_path, b"invalid primary retained verbatim").unwrap();
+    let before = std::fs::read(&db_path).unwrap();
+
+    Database::stage_portable_restore_at(&db_path, &backup, BACKUP_PASSPHRASE)
+        .await
+        .unwrap();
+
+    assert_eq!(
+        Database::staged_restore_status(&db_path).unwrap(),
+        PortableRestoreStatus::Ready
+    );
+    assert_eq!(std::fs::read(&db_path).unwrap(), before);
+    assert!(Database::cancel_staged_restore_at(&db_path).unwrap());
+    assert_eq!(
+        Database::staged_restore_status(&db_path).unwrap(),
+        PortableRestoreStatus::None
+    );
+    assert_eq!(std::fs::read(&db_path).unwrap(), before);
+}
+
+#[tokio::test]
+async fn corrupt_primary_is_quarantined_before_staged_restore_promotion() {
+    let temp_dir = tempfile::tempdir().unwrap();
+    let backup = portable_backup(temp_dir.path()).await;
+    let db_path = temp_dir.path().join("primary/jobs.db");
+    std::fs::create_dir_all(db_path.parent().unwrap()).unwrap();
+    let corrupt = b"corrupt private primary retained verbatim";
+    std::fs::write(&db_path, corrupt).unwrap();
+    Database::stage_portable_restore_at(&db_path, &backup, BACKUP_PASSPHRASE)
+        .await
+        .unwrap();
+
+    let restored = Database::connect_with_staged_restore(&db_path)
+        .await
+        .unwrap();
+
+    let value: String = sqlx::query_scalar("SELECT value FROM restore_probe")
+        .fetch_one(restored.pool())
+        .await
+        .unwrap();
+    assert_eq!(value, "restored private history");
+    let quarantine = std::fs::read_dir(db_path.parent().unwrap().join("backups"))
+        .unwrap()
+        .flatten()
+        .map(|entry| entry.path())
+        .find(|path| {
+            path.file_name()
+                .is_some_and(|name| name.to_string_lossy().starts_with("restore_quarantine_"))
+        })
+        .unwrap();
+    assert_eq!(std::fs::read(quarantine).unwrap(), corrupt);
+}
+
+#[tokio::test]
+async fn interrupted_corrupt_primary_promotion_restores_the_quarantine() {
+    let temp_dir = tempfile::tempdir().unwrap();
+    let backup = portable_backup(temp_dir.path()).await;
+    let db_path = temp_dir.path().join("primary/jobs.db");
+    std::fs::create_dir_all(db_path.parent().unwrap()).unwrap();
+    let corrupt = b"interrupted corrupt primary";
+    std::fs::write(&db_path, corrupt).unwrap();
+    Database::stage_portable_restore_at(&db_path, &backup, BACKUP_PASSPHRASE)
+        .await
+        .unwrap();
+    let restore_id = restore_id(&db_path);
+    let quarantine = db_path
+        .parent()
+        .unwrap()
+        .join("backups")
+        .join(format!("restore_quarantine_{restore_id}.db"));
+    std::fs::create_dir_all(quarantine.parent().unwrap()).unwrap();
+    std::fs::hard_link(&db_path, &quarantine).unwrap();
+    rewrite_request(&db_path, "phase", "promoting");
+
+    assert!(!Database::promote_staged_restore(&db_path).await.unwrap());
+
+    assert_eq!(std::fs::read(&db_path).unwrap(), corrupt);
+    assert_eq!(std::fs::read(&quarantine).unwrap(), corrupt);
+    std::fs::write(&db_path, b"primary changed after rollback").unwrap();
+    assert_eq!(std::fs::read(&quarantine).unwrap(), corrupt);
+    assert!(!sibling(&db_path, ".restore-request.json").exists());
+    assert!(!sibling(&db_path, ".restore-stage").exists());
+}
+
+#[tokio::test]
+async fn static_restore_mutations_refuse_a_live_primary_owner() {
+    let temp_dir = tempfile::tempdir().unwrap();
+    let backup = portable_backup(temp_dir.path()).await;
+    let db_path = temp_dir.path().join("primary/jobs.db");
+    let database = database_with_probe(&db_path, "current local history", false).await;
+
+    let stage_error = Database::stage_portable_restore_at(&db_path, &backup, BACKUP_PASSPHRASE)
+        .await
+        .unwrap_err();
+    assert!(stage_error.to_string().contains("in use"));
+
+    let stage = sibling(&db_path, ".restore-stage");
+    std::fs::write(&stage, b"incomplete stage").unwrap();
+    let cancel_error = Database::cancel_staged_restore_at(&db_path).unwrap_err();
+    assert!(cancel_error.to_string().contains("in use"));
+    assert!(stage.exists());
+    drop(database);
+}
+
+#[cfg(unix)]
+#[test]
+fn incomplete_dangling_restore_link_is_visible_and_removable() {
+    use std::os::unix::fs::symlink;
+
+    let temp_dir = tempfile::tempdir().unwrap();
+    let db_path = temp_dir.path().join("jobs.db");
+    let stage = sibling(&db_path, ".restore-stage");
+    symlink(temp_dir.path().join("missing-target"), &stage).unwrap();
+
+    assert_eq!(
+        Database::staged_restore_status(&db_path).unwrap(),
+        PortableRestoreStatus::Incomplete
+    );
+    assert!(Database::cancel_staged_restore_at(&db_path).unwrap());
+    assert!(std::fs::symlink_metadata(stage).is_err());
+}
+
+#[tokio::test]
 async fn startup_ignores_stage_without_marker_and_preserves_primary() {
     let temp_dir = tempfile::tempdir().unwrap();
     let backup = portable_backup(temp_dir.path()).await;
@@ -210,6 +342,8 @@ async fn startup_ignores_stage_without_marker_and_preserves_primary() {
     let stage = sibling(&db_path, ".restore-stage");
     std::fs::remove_file(sibling(&db_path, ".restore-request.json")).unwrap();
     database.checkpoint_wal().await.unwrap();
+    database.pool().close().await;
+    drop(database);
     let before = database_bytes(&db_path);
 
     assert!(!Database::promote_staged_restore(&db_path).await.unwrap());

@@ -43,6 +43,8 @@ import { useSettingsSearchPreferenceInputs } from "./search/useSettingsSearchPre
 import { useSettingsGhostConfig } from "./search/useSettingsGhostConfig";
 import { SettingsTabs } from "./shared/SettingsTabs";
 import { useSettingsSave } from "./useSettingsSave";
+import { LocalRecoveryPanel } from "./support/LocalRecoveryPanel";
+import { PortableRecoveryPanel } from "./support/PortableRecoveryPanel";
 import {
   SettingsLoadFailure,
   SettingsLoadingState,
@@ -456,6 +458,10 @@ export default function Settings({ linkedinWorkbench, onClose }: SettingsProps) 
           onExportConfig={handleExportConfig}
           onImportConfig={handleImportConfig}
         />
+
+        <LocalRecoveryPanel />
+
+        <PortableRecoveryPanel />
 
         <SettingsSupportSection
           copyingDebugReport={copyingDebugReport}

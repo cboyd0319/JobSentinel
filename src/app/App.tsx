@@ -17,11 +17,10 @@ import { KeyboardShortcutsProvider } from "./keyboard/KeyboardShortcutsProvider"
 import { useKeyboardShortcuts } from "./keyboard/useKeyboardShortcuts";
 import { logError } from "../shared/errorReporting/logger";
 import { defaultTourSteps } from "./onboarding/tourSteps";
-import {
-  copySanitizedDebugReport,
-  saveSanitizedDebugReport,
-} from "../shared/errorReporting/supportReport";
 import type { CompanyResearchPanelProps } from "../shared/companyResearch";
+import { StartupRecovery } from "./StartupRecovery";
+
+export { StartupRecovery } from "./StartupRecovery";
 
 // Lazy load pages for better initial load performance
 const SetupWizard = lazy(() => import("../features/onboarding"));
@@ -109,96 +108,6 @@ function TourStartTrigger({
   }, [shouldStart, hasCompletedTour, startTour, onStarted]);
 
   return null;
-}
-
-export function StartupRecovery({ onRetry }: { onRetry: () => void }) {
-  const [reportStatus, setReportStatus] = useState<
-    "idle" | "copying" | "copied" | "saving" | "saved" | "failed"
-  >("idle");
-
-  const copyReport = async () => {
-    setReportStatus("copying");
-    try {
-      await copySanitizedDebugReport();
-      setReportStatus("copied");
-    } catch (error) {
-      logError("Failed to copy startup support report:", error);
-      setReportStatus("failed");
-    }
-  };
-
-  const saveReport = async () => {
-    setReportStatus("saving");
-    try {
-      const saved = await saveSanitizedDebugReport();
-      setReportStatus(saved ? "saved" : "idle");
-    } catch (error) {
-      logError("Failed to save startup support report:", error);
-      setReportStatus("failed");
-    }
-  };
-
-  return (
-    <ErrorBoundary>
-      <SkipToContent />
-      <main
-        className="min-h-screen bg-surface-950 text-white flex items-center justify-center px-6"
-        id="main-content"
-        tabIndex={-1}
-      >
-        <section className="w-full max-w-lg rounded-card border border-surface-700 bg-surface-900 p-8 shadow-xl">
-          <h1 className="font-display text-display-lg mb-3">
-            JobSentinel could not open saved setup
-          </h1>
-          <p className="text-sm text-surface-300 mb-6">
-            Your saved jobs and settings stay on this device. Try again, or save
-            a safe support report before closing and reopening JobSentinel.
-          </p>
-          <div className="space-y-3">
-            <button
-              className="w-full rounded-lg bg-sentinel-500 px-4 py-3 text-sm font-semibold text-white hover:bg-sentinel-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-sentinel-400"
-              onClick={onRetry}
-            >
-              Try Again
-            </button>
-            <button
-              className="w-full rounded-lg bg-surface-800 px-4 py-3 text-sm font-semibold text-surface-100 hover:bg-surface-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-surface-400 disabled:opacity-50"
-              disabled={reportStatus === "copying"}
-              onClick={() => void copyReport()}
-            >
-              {reportStatus === "copying"
-                ? "Copying..."
-                : "Copy Safe Support Report"}
-            </button>
-            <button
-              className="w-full rounded-lg bg-surface-800 px-4 py-3 text-sm font-semibold text-surface-100 hover:bg-surface-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-surface-400 disabled:opacity-50"
-              disabled={reportStatus === "saving"}
-              onClick={() => void saveReport()}
-            >
-              {reportStatus === "saving"
-                ? "Saving..."
-                : "Save Safe Support Report"}
-            </button>
-          </div>
-          {reportStatus === "copied" && (
-            <p className="mt-4 text-sm text-success" role="status">
-              Safe support report copied
-            </p>
-          )}
-          {reportStatus === "saved" && (
-            <p className="mt-4 text-sm text-success" role="status">
-              Safe support report saved for review
-            </p>
-          )}
-          {reportStatus === "failed" && (
-            <p className="mt-4 text-sm text-danger" role="status">
-              Could not create safe support report
-            </p>
-          )}
-        </section>
-      </main>
-    </ErrorBoundary>
-  );
 }
 
 function App() {

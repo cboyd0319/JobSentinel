@@ -9,10 +9,35 @@ use chrono::{Duration, Utc};
 use std::sync::Arc;
 use tauri::{Emitter, Manager};
 
-pub(crate) use state::AppState;
+pub(crate) use state::{AppState, StartupRecoveryState};
 
 fn background_cycle_allowed(scheduler: &crate::application::scheduler::Scheduler) -> bool {
     !scheduler.is_shutdown_requested()
+}
+
+const fn primary_initialization_allowed(platform_recovery_required: bool) -> bool {
+    !platform_recovery_required
+}
+
+fn startup_recovery_command_allowed(command: &str) -> bool {
+    matches!(
+        command,
+        "is_first_run"
+            | "get_startup_recovery_status"
+            | "repair_invalid_startup_config"
+            | "repair_local_permissions"
+            | "stage_portable_restore"
+            | "get_staged_restore_status"
+            | "cancel_staged_restore"
+            | "generate_feedback_report"
+            | "sanitize_feedback_text"
+            | "get_feedback_filename"
+            | "save_feedback_file"
+    )
+}
+
+fn command_handler() -> impl Fn(tauri::ipc::Invoke<tauri::Wry>) -> bool + Send + Sync + 'static {
+    crate::ipc::jobsentinel_command_handlers!()
 }
 
 pub(crate) fn run() {
@@ -28,29 +53,74 @@ pub(crate) fn run() {
         .with_line_number(true)
         .init();
 
-    // Initialize platform-specific features
-    if let Err(e) = desktop::initialize() {
-        eprintln!("Failed to initialize platform: {}", e);
-        std::process::exit(1);
+    let platform_recovery_required = desktop::initialize().is_err();
+    if platform_recovery_required {
+        tracing::error!("Platform initialization failed; entering local recovery mode");
     }
 
+    let command_handler = command_handler();
     desktop::preserve_main_window_on_close(policy::builder())
-        .invoke_handler(crate::ipc::jobsentinel_command_handlers!())
-        .setup(|app| {
-            let services =
-                tauri::async_runtime::block_on(DesktopServices::initialize()).map_err(|error| {
-                    let message =
-                        ipc::errors::user_friendly_error(error.context(), &error);
-                    tracing::error!(error = %message, "Failed to initialize desktop services");
-                    message
-                })?;
+        .invoke_handler(move |invoke: tauri::ipc::Invoke<tauri::Wry>| {
+            let recovery_active = invoke
+                .message
+                .state_ref()
+                .try_get::<StartupRecoveryState>()
+                .is_some_and(|state| state.required());
+            if recovery_active
+                && !startup_recovery_command_allowed(invoke.message.command())
+            {
+                invoke
+                    .resolver
+                    .reject("This command is unavailable during local startup recovery.");
+                true
+            } else {
+                command_handler(invoke)
+            }
+        })
+        .setup(move |app| {
+            let initialize_recovery = || {
+                tauri::async_runtime::block_on(DesktopServices::initialize_recovery()).map_err(
+                    |recovery_error| {
+                        let message = ipc::errors::user_friendly_error(
+                            recovery_error.context(),
+                            &recovery_error,
+                        );
+                        tracing::error!(
+                            error = %message,
+                            "Failed to initialize local recovery services"
+                        );
+                        message
+                    },
+                )
+            };
+            let (services, startup_failure) = if primary_initialization_allowed(
+                platform_recovery_required,
+            ) {
+                match tauri::async_runtime::block_on(DesktopServices::initialize()) {
+                    Ok(services) => (services, None),
+                    Err(error) => {
+                        let failure = error.kind();
+                        let message =
+                            ipc::errors::user_friendly_error(error.context(), &error);
+                        tracing::error!(error = %message, "Failed to initialize desktop services");
+                        (initialize_recovery()?, Some(failure))
+                    }
+                }
+            } else {
+                (initialize_recovery()?, None)
+            };
+            let recovery_required = platform_recovery_required || startup_failure.is_some();
             let is_first_run = services.is_first_run;
             let config_arc = Arc::clone(&services.config);
             let scheduler_arc = Arc::clone(&services.scheduler);
             let scheduler_status = Arc::clone(&services.scheduler_status);
             app.manage(AppState::from(services));
+            app.manage(StartupRecoveryState::new(
+                platform_recovery_required,
+                startup_failure,
+            ));
 
-            if !is_first_run {
+            if !is_first_run && !recovery_required {
                 tracing::info!("Starting background scheduler");
 
                 let scheduler_clone = Arc::clone(&scheduler_arc);
@@ -176,8 +246,10 @@ pub(crate) fn run() {
                 });
 
                 tracing::info!("Background scheduler started successfully");
-            } else {
+            } else if is_first_run {
                 tracing::info!("First run detected, background scheduler will start after setup");
+            } else {
+                tracing::info!("Local recovery mode active; background scheduler will not start");
             }
 
             desktop::initialize_tray(app)?;
@@ -197,7 +269,9 @@ pub(crate) fn run() {
 
 #[cfg(test)]
 mod tests {
-    use super::background_cycle_allowed;
+    use super::{
+        background_cycle_allowed, primary_initialization_allowed, startup_recovery_command_allowed,
+    };
     use crate::application::{desktop::Database, scheduler::Scheduler, Config};
     use std::sync::Arc;
 
@@ -209,5 +283,23 @@ mod tests {
         scheduler.shutdown().unwrap();
 
         assert!(!background_cycle_allowed(&scheduler));
+    }
+
+    #[test]
+    fn startup_recovery_rejects_normal_and_network_commands() {
+        assert!(startup_recovery_command_allowed(
+            "get_startup_recovery_status"
+        ));
+        assert!(startup_recovery_command_allowed("stage_portable_restore"));
+        assert!(startup_recovery_command_allowed("generate_feedback_report"));
+        assert!(!startup_recovery_command_allowed("run_scraping_cycle"));
+        assert!(!startup_recovery_command_allowed("save_config"));
+        assert!(!startup_recovery_command_allowed("store_credential"));
+    }
+
+    #[test]
+    fn platform_failure_skips_primary_storage_initialization() {
+        assert!(!primary_initialization_allowed(true));
+        assert!(primary_initialization_allowed(false));
     }
 }

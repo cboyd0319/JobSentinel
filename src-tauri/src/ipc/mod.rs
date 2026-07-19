@@ -19,6 +19,7 @@ pub(crate) mod limits;
 pub(crate) mod linkedin_auth;
 pub(crate) mod linkedin_workbench;
 pub(crate) mod market;
+pub(crate) mod recovery;
 pub(crate) mod resume;
 mod resume_file_names;
 pub(crate) mod salary;

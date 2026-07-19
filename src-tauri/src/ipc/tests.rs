@@ -347,19 +347,6 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn test_is_first_run() {
-        use crate::ipc::config::is_first_run;
-
-        // Note: This test is environment-dependent and difficult to test in isolation
-        // without mocking Config::default_path(). In a real scenario, you'd use
-        // dependency injection or a trait to make this testable.
-
-        // We can at least verify the function doesn't panic
-        let result = is_first_run().await;
-        assert!(result.is_ok(), "is_first_run should not panic");
-    }
-
-    #[tokio::test]
     async fn test_complete_setup_config_serialization() {
         let config = Config {
             title_allowlist: vec!["Care Coordinator".to_string()],

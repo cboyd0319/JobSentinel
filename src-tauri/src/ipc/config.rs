@@ -6,7 +6,7 @@ use crate::application::config::{AutoRefreshConfig, Config, EmailConfig};
 use crate::application::credentials::{
     decode_smtp_password_for_binding, CredentialKey, CredentialService, SmtpCredentialBinding,
 };
-use crate::bootstrap::AppState;
+use crate::bootstrap::{AppState, StartupRecoveryState};
 use crate::desktop::path_label_for_logging;
 use crate::desktop::Database;
 use crate::ipc::errors::user_friendly_error;
@@ -96,6 +96,14 @@ fn is_first_run_for_path(config_path: &Path) -> Result<bool, String> {
         );
         "JobSentinel could not read saved setup status. Check local file permissions, then try again.".to_string()
     })
+}
+
+fn first_run_or_recovery(config_path: &Path, recovery_required: bool) -> Result<bool, String> {
+    if recovery_required {
+        Err("JobSentinel started in local recovery mode.".to_string())
+    } else {
+        is_first_run_for_path(config_path)
+    }
 }
 
 async fn resolve_smtp_password_for_test(
@@ -337,12 +345,14 @@ pub(crate) async fn validate_slack_webhook(
 
 /// Check if first-run setup is complete
 #[tauri::command]
-pub(crate) async fn is_first_run() -> Result<bool, String> {
+pub(crate) async fn is_first_run(
+    recovery: State<'_, StartupRecoveryState>,
+) -> Result<bool, String> {
     tracing::info!("Command: is_first_run");
 
     // Check if configuration file exists
     let config_path = Config::default_path();
-    let first_run = is_first_run_for_path(&config_path)?;
+    let first_run = first_run_or_recovery(&config_path, recovery.required())?;
 
     tracing::info!("First run: {}", first_run);
     Ok(first_run)

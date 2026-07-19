@@ -51,6 +51,16 @@ impl PendingUrlImports {
         self.write_entries().retain(|entry| entry.id != id);
     }
 
+    pub(crate) fn current_count(&self, now: DateTime<Utc>) -> usize {
+        let mut entries = self.write_entries();
+        retain_current(&mut entries, now);
+        entries.len()
+    }
+
+    pub(crate) const fn capacity() -> usize {
+        MAX_PENDING_URL_IMPORTS
+    }
+
     fn write_entries(&self) -> std::sync::RwLockWriteGuard<'_, Vec<PendingUrlImport>> {
         match self.entries.write() {
             Ok(entries) => entries,
@@ -95,5 +105,17 @@ mod tests {
         assert!(pending
             .find(&replacement_id, now + Duration::minutes(31))
             .is_none());
+    }
+
+    #[test]
+    fn queued_work_count_is_bounded_and_expires_without_exposing_jobs() {
+        let pending = PendingUrlImports::default();
+        let now = Utc::now();
+        pending.queue(job("first"), now);
+        pending.queue(job("second"), now);
+
+        assert_eq!(pending.current_count(now), 2);
+        assert_eq!(PendingUrlImports::capacity(), 20);
+        assert_eq!(pending.current_count(now + Duration::minutes(30)), 0);
     }
 }

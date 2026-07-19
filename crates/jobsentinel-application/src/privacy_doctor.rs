@@ -92,6 +92,7 @@ pub struct PrivacyDoctorCheck {
     pub state: PrivacyDoctorState,
     pub message: &'static str,
     pub action: Option<PrivacyDoctorAction>,
+    pub connectivity_required: bool,
 }
 
 /// Local-only Privacy Doctor report.
@@ -371,6 +372,7 @@ fn privacy_check(
         state,
         message,
         action,
+        connectivity_required: false,
     }
 }
 

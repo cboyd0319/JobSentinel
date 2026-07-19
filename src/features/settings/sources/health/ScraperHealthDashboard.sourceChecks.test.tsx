@@ -45,6 +45,20 @@ describe("ScraperHealthDashboard source checks", () => {
       });
     });
 
+    it("discloses internet use and source contact before a check runs", async () => {
+      render(<ScraperHealthDashboard onClose={onClose} />);
+
+      const dialog = await screen.findByRole("dialog", { name: "Job Sources" });
+      const disclosure = screen.getByText(
+        /internet is required\. checking contacts the selected source or every enabled source\./i,
+      );
+
+      expect(disclosure).toBeVisible();
+      expect(dialog).toHaveAccessibleDescription(
+        /internet is required\. checking contacts the selected source or every enabled source\./i,
+      );
+    });
+
     it("runs all source checks when button clicked", async () => {
       const user = userEvent.setup();
       render(<ScraperHealthDashboard onClose={onClose} />);

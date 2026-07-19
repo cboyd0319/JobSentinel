@@ -65,6 +65,10 @@ async fn default_doctor_is_local_read_only_and_keychain_free() {
         PrivacyDoctorState::OptionalImprovement
     );
     assert!(!report.connectivity_required);
+    assert!(report
+        .checks
+        .iter()
+        .all(|check| !check.connectivity_required));
     let serialized = serde_json::to_string(&report).unwrap();
     for private in [
         "registered_nurse",
@@ -294,6 +298,7 @@ fn serialized_doctor_contains_no_private_inputs_or_owner_internals() {
 
     assert_eq!(value["schema_version"], 1);
     assert_eq!(value["connectivity_required"], false);
+    assert_eq!(value["checks"][0]["connectivity_required"], false);
     assert!(value["checks"].as_array().is_some_and(|checks| {
         checks.iter().any(|check| {
             check["id"] == "backup_history"

@@ -13,7 +13,14 @@ use tauri::State;
 use super::debug_log::{format_event_for_support, get_recent_events};
 use super::sanitizer::{ConfigSummary, Sanitizer};
 use super::system_info::{summarize_config, SystemInfo};
-use crate::bootstrap::AppState;
+use crate::bootstrap::{AppState, StartupRecoveryState};
+
+#[derive(Clone, Copy)]
+struct StartupRecoverySummary {
+    platform: bool,
+    configuration: bool,
+    database: bool,
+}
 
 /// Feedback category
 #[derive(Debug, Clone, Serialize)]
@@ -40,6 +47,7 @@ impl FeedbackCategory {
 /// Called by the Tauri command wrapper in mod.rs.
 pub(super) async fn generate_feedback_report_impl(
     state: State<'_, AppState>,
+    recovery: State<'_, StartupRecoveryState>,
     category: String,
     description: String,
     include_debug_info: bool,
@@ -55,7 +63,12 @@ pub(super) async fn generate_feedback_report_impl(
     // Get system info
     let system_info = SystemInfo::current();
 
-    let config = if include_debug_info {
+    let startup_recovery = recovery.required().then(|| StartupRecoverySummary {
+        platform: recovery.platform(),
+        configuration: recovery.configuration(),
+        database: recovery.database(),
+    });
+    let config = if include_debug_info && startup_recovery.is_none() {
         Some(state.config.read().await.clone())
     } else {
         None
@@ -86,19 +99,21 @@ pub(super) async fn generate_feedback_report_impl(
     };
 
     // Generate report
-    let report = format_feedback_report(
+    let report = format_feedback_report_with_recovery(
         &category_enum,
         &description,
         &system_info,
         config_summary.as_ref(),
         &debug_events,
         privacy_doctor.as_ref(),
+        startup_recovery,
     );
 
     Ok(report)
 }
 
 /// Format a feedback report as plain text
+#[cfg(test)]
 fn format_feedback_report(
     category: &FeedbackCategory,
     description: &str,
@@ -106,6 +121,26 @@ fn format_feedback_report(
     config_summary: Option<&ConfigSummary>,
     debug_events: &[super::debug_log::TimestampedEvent],
     privacy_doctor: Option<&PrivacyDoctorReport>,
+) -> String {
+    format_feedback_report_with_recovery(
+        category,
+        description,
+        system_info,
+        config_summary,
+        debug_events,
+        privacy_doctor,
+        None,
+    )
+}
+
+fn format_feedback_report_with_recovery(
+    category: &FeedbackCategory,
+    description: &str,
+    system_info: &SystemInfo,
+    config_summary: Option<&ConfigSummary>,
+    debug_events: &[super::debug_log::TimestampedEvent],
+    privacy_doctor: Option<&PrivacyDoctorReport>,
+    startup_recovery: Option<StartupRecoverySummary>,
 ) -> String {
     let now: DateTime<Local> = Local::now();
     let now_utc: DateTime<Utc> = Utc::now();
@@ -147,7 +182,7 @@ fn format_feedback_report(
     report.push_str("\n");
 
     // Config summary (if provided)
-    if let Some(summary) = config_summary {
+    if let Some(summary) = config_summary.filter(|_| startup_recovery.is_none()) {
         report
             .push_str("───────────────────────────────────────────────────────────────────────\n");
         report.push_str("JOBSENTINEL SETUP (counts only)\n");
@@ -218,7 +253,39 @@ fn format_feedback_report(
         report.push_str("\n");
     }
 
-    if let Some(doctor) = privacy_doctor {
+    if let Some(startup) = startup_recovery {
+        report
+            .push_str("───────────────────────────────────────────────────────────────────────\n");
+        report.push_str("STARTUP RECOVERY\n");
+        report
+            .push_str("───────────────────────────────────────────────────────────────────────\n");
+        report.push_str("\n");
+        report.push_str(&format!(
+            "platform: {}\n",
+            if startup.platform {
+                "needs_repair"
+            } else {
+                "not_reported"
+            }
+        ));
+        report.push_str(&format!(
+            "configuration: {}\n",
+            if startup.configuration {
+                "needs_recovery"
+            } else {
+                "not_reported"
+            }
+        ));
+        report.push_str(&format!(
+            "database: {}\n",
+            if startup.database {
+                "needs_recovery"
+            } else {
+                "not_reported"
+            }
+        ));
+        report.push_str("connectivity_required: false\n\n");
+    } else if let Some(doctor) = privacy_doctor {
         report
             .push_str("───────────────────────────────────────────────────────────────────────\n");
         report.push_str("LOCAL PRIVACY AND RECOVERY\n");
@@ -269,7 +336,7 @@ fn format_feedback_report(
     report.push_str(&format!("debug_events_count: {}\n", debug_events.len()));
     report.push_str(&format!(
         "privacy_doctor_present: {}\n",
-        privacy_doctor.is_some()
+        privacy_doctor.is_some() && startup_recovery.is_none()
     ));
     report.push_str("\n");
 
@@ -290,202 +357,4 @@ pub(super) fn get_feedback_filename_impl() -> String {
 // Note: save_feedback_file command moved to mod.rs
 
 #[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::ipc::feedback::debug_log::{DebugEvent, TimestampedEvent};
-    use chrono::Utc;
-    use jobsentinel_application::privacy_doctor::{
-        PrivacyDoctorAction, PrivacyDoctorCheck, PrivacyDoctorCheckId, PrivacyDoctorState,
-    };
-
-    #[test]
-    fn test_format_feedback_report_minimal() {
-        let category = FeedbackCategory::Bug;
-        let description = "Test bug description";
-        let system_info = SystemInfo {
-            app_version: "2.6.3".to_string(),
-            platform: "macos".to_string(),
-            os_version: "14.0".to_string(),
-            architecture: "arm64".to_string(),
-        };
-
-        let report = format_feedback_report(&category, description, &system_info, None, &[], None);
-
-        // Should contain all required sections
-        assert!(report.contains("JOBSENTINEL SAFE SUPPORT REPORT"));
-        assert!(report.contains("Report type: Problem Report"));
-        assert!(report.contains("WHAT YOU WROTE"));
-        assert!(report.contains("Test bug description"));
-        assert!(report.contains("APP AND DEVICE"));
-        assert!(report.contains("App version: 2.6.3"));
-        assert!(report.contains("Device: macos 14.0"));
-        assert!(report.contains("System type: arm64"));
-        assert!(report.contains("SUPPORT SUMMARY"));
-        assert!(report.contains("END OF SAFE SUPPORT REPORT"));
-    }
-
-    #[test]
-    fn test_format_feedback_report_with_config() {
-        let category = FeedbackCategory::Feature;
-        let description = "Add dark mode";
-        let system_info = SystemInfo::current();
-        let config_summary = ConfigSummary {
-            scrapers_enabled: 3,
-            keywords_count: 5,
-            has_location_prefs: true,
-            has_salary_prefs: true,
-            has_blocked_companies: false,
-            has_preferred_companies: true,
-            notifications_configured: 2,
-            has_resume: true,
-        };
-
-        let report = format_feedback_report(
-            &category,
-            description,
-            &system_info,
-            Some(&config_summary),
-            &[],
-            None,
-        );
-
-        assert!(report.contains("JOBSENTINEL SETUP"));
-        assert!(report.contains("Job sources turned on: 3"));
-        assert!(report.contains("Search words saved: 5"));
-        assert!(report.contains("Location preferences: configured"));
-        assert!(report.contains("Salary preferences: configured"));
-        assert!(report.contains("Hidden companies: not set"));
-        assert!(report.contains("Preferred companies: set"));
-        assert!(report.contains("Notifications: 2 channel(s)"));
-    }
-
-    #[test]
-    fn test_format_feedback_report_with_debug_events() {
-        let category = FeedbackCategory::Bug;
-        let description = "Scraper failed";
-        let system_info = SystemInfo::current();
-
-        let events = vec![
-            TimestampedEvent {
-                timestamp: Utc::now(),
-                event: DebugEvent::ViewNavigated {
-                    from: "Jobs".to_string(),
-                    to: "Dashboard".to_string(),
-                },
-            },
-            TimestampedEvent {
-                timestamp: Utc::now(),
-                event: DebugEvent::ScraperRun {
-                    scraper: "indeed".to_string(),
-                    jobs_found: 0,
-                    success: false,
-                },
-            },
-        ];
-
-        let report =
-            format_feedback_report(&category, description, &system_info, None, &events, None);
-
-        assert!(report.contains("RECENT APP ACTIVITY"));
-        assert!(report.contains("Screen changed: Jobs to Dashboard"));
-        assert!(report.contains("Job source checked: indeed; Result: failed; Jobs found: 0"));
-        assert!(report.contains("indeed"));
-        assert!(!report.contains("ViewNavigated"));
-        assert!(!report.contains("ScraperRun"));
-    }
-
-    #[test]
-    fn test_report_sanitizes_description() {
-        let category = FeedbackCategory::Bug;
-        let description = concat!(
-            "Error at /",
-            "Users",
-            "/johnsmith/file.txt\n",
-            "Email john@example.com\n",
-            "Salary floor: $125,000\n",
-            "Resume text: Led retention project for oncology team\n",
-            "Private note: laid off last month\n"
-        );
-        let system_info = SystemInfo::current();
-
-        let report = format_feedback_report(&category, description, &system_info, None, &[], None);
-
-        // Should sanitize PII in description
-        assert!(report.contains("[LOCAL_PATH]"));
-        assert!(report.contains("[EMAIL]"));
-        assert!(report.contains("Salary floor: [JOB_SEARCH_DETAIL_REDACTED]"));
-        assert!(report.contains("Resume text: [JOB_SEARCH_DETAIL_REDACTED]"));
-        assert!(report.contains("Private note: [JOB_SEARCH_DETAIL_REDACTED]"));
-        assert!(!report.contains("johnsmith"));
-        assert!(!report.contains("file.txt"));
-        assert!(!report.contains("john@example.com"));
-        assert!(!report.contains("$125,000"));
-        assert!(!report.contains("oncology team"));
-        assert!(!report.contains("laid off"));
-    }
-
-    #[test]
-    fn test_report_redacts_unlabeled_job_search_narrative() {
-        let category = FeedbackCategory::Bug;
-        let description =
-            r#"Issue while applying to "Acme Health" for care manager role after layoff"#;
-        let system_info = SystemInfo::current();
-
-        let report = format_feedback_report(&category, description, &system_info, None, &[], None);
-
-        assert!(report.contains("[JOB_SEARCH_DETAIL_REDACTED]"));
-        assert!(!report.contains("Acme Health"));
-        assert!(!report.contains("care manager"));
-        assert!(!report.contains("layoff"));
-    }
-
-    #[test]
-    fn test_feedback_category_as_str() {
-        assert_eq!(FeedbackCategory::Bug.as_str(), "Problem Report");
-        assert_eq!(FeedbackCategory::Feature.as_str(), "Improvement Idea");
-        assert_eq!(FeedbackCategory::Question.as_str(), "General Feedback");
-    }
-
-    #[test]
-    fn safe_support_report_includes_only_typed_local_privacy_and_recovery_states() {
-        let privacy_doctor = PrivacyDoctorReport {
-            schema_version: 1,
-            overall: PrivacyDoctorState::NeedsAttention,
-            checks: vec![PrivacyDoctorCheck {
-                id: PrivacyDoctorCheckId::BackupHistory,
-                state: PrivacyDoctorState::NeedsAttention,
-                message: "Portable backup history could not be checked.",
-                action: Some(PrivacyDoctorAction::ReviewBackup),
-            }],
-            connectivity_required: false,
-        };
-        let report = format_feedback_report(
-            &FeedbackCategory::Bug,
-            "User generated a safe support report from JobSentinel.",
-            &SystemInfo::current(),
-            None,
-            &[],
-            Some(&privacy_doctor),
-        );
-
-        assert!(report.contains("LOCAL PRIVACY AND RECOVERY"));
-        assert!(report.contains("schema_version: 1.1"));
-        assert!(report.contains("privacy_doctor_overall: needs_attention"));
-        assert!(report
-            .contains("privacy_doctor_check: backup_history | needs_attention | review_backup"));
-        assert!(report.contains("privacy_doctor_connectivity_required: false"));
-        let delivered = Sanitizer::sanitize_support_report_text(&report);
-        assert!(delivered.contains("schema_version: 1.1"));
-        assert!(delivered.contains("privacy_doctor_overall: needs_attention"));
-        assert!(delivered
-            .contains("privacy_doctor_check: backup_history | needs_attention | review_backup"));
-        for private_detail in [
-            "/Users/private/jobs.db",
-            "Alice Resume.pdf",
-            "external_ai_openai_api_key",
-            "https://provider.example/private",
-        ] {
-            assert!(!report.contains(private_detail));
-        }
-    }
-}
+mod tests;
