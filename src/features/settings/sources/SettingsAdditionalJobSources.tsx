@@ -352,42 +352,6 @@ export function SettingsAdditionalJobSources({
             renderRestrictedSourceAcknowledgement("dice")}
         </div>
 
-        {/* YC Work at a Startup */}
-        <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-3">
-          <div className="flex flex-col gap-3 mb-2 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex min-w-0 flex-wrap items-center gap-2">
-              <SettingsSymbol
-                icon="rocket"
-                className="h-5 w-5 text-surface-500 dark:text-surface-400"
-              />
-              <span className="font-medium text-surface-800 dark:text-surface-200">
-                YC Startups
-              </span>
-              <span className="text-xs text-surface-500">(Y Combinator)</span>
-            </div>
-            <label className="relative inline-flex flex-shrink-0 items-center cursor-pointer">
-              <input
-                type="checkbox"
-                aria-label="Turn YC Startup scheduled job checks on or off"
-                checked={config.yc_startup?.enabled ?? false}
-                onChange={(e) =>
-                  setConfig({
-                    ...config,
-                    yc_startup: {
-                      ...config.yc_startup,
-                      enabled: e.target.checked,
-                      remote_only: config.yc_startup?.remote_only ?? false,
-                      limit: config.yc_startup?.limit ?? 50,
-                    },
-                  })
-                }
-                className="sr-only peer"
-              />
-              <div className="w-9 h-5 bg-surface-200 peer-focus-visible:ring-2 peer-focus-visible:ring-sentinel-300 rounded-full peer dark:bg-surface-700 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-sentinel-500"></div>
-            </label>
-          </div>
-        </div>
-
         {/* SimplyHired */}
         <div className="border border-surface-200 dark:border-surface-700 rounded-lg p-3">
           <div className="flex flex-col gap-3 mb-2 sm:flex-row sm:items-center sm:justify-between">

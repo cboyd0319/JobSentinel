@@ -40,6 +40,9 @@ pub enum ImportError {
     #[error("Import preview is missing or expired")]
     PendingImportNotFound,
 
+    #[error("Automated source access is unavailable")]
+    SourcePolicyBlocked,
+
     #[error("Timeout while fetching URL")]
     Timeout,
 

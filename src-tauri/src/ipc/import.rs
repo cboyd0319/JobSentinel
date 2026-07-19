@@ -98,6 +98,9 @@ fn format_import_error(error: &ImportError) -> String {
         ImportError::PendingImportNotFound => {
             "This job preview expired. Check the job link again before saving.".to_string()
         }
+        ImportError::SourcePolicyBlocked => {
+            "This source can only be opened in your browser. JobSentinel will not fetch or capture it.".to_string()
+        }
     }
 }
 
@@ -134,6 +137,14 @@ mod tests {
         assert_eq!(
             message,
             "Paste an https job posting link from your browser address bar."
+        );
+    }
+
+    #[test]
+    fn format_import_error_explains_retired_source_policy() {
+        assert_eq!(
+            format_import_error(&ImportError::SourcePolicyBlocked),
+            "This source can only be opened in your browser. JobSentinel will not fetch or capture it."
         );
     }
 

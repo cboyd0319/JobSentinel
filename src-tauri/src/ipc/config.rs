@@ -311,7 +311,6 @@ fn any_job_source_enabled(config: &Config) -> bool {
         || config.builtin.enabled
         || config.hn_hiring.enabled
         || config.dice.enabled
-        || config.yc_startup.enabled
         || config.usajobs.enabled
         || config.simplyhired.enabled
         || config.glassdoor.enabled

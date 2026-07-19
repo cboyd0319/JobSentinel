@@ -85,10 +85,6 @@ fn apply_config_backed_scraper_toggle(
             config.dice.enabled = enabled;
             ensure_source_limit(&mut config.dice.limit, DEFAULT_SCRAPER_LIMIT);
         }
-        "yc_startup" => {
-            config.yc_startup.enabled = enabled;
-            ensure_source_limit(&mut config.yc_startup.limit, DEFAULT_SCRAPER_LIMIT);
-        }
         "usajobs" => {
             if enabled && config.usajobs.email.trim().is_empty() {
                 return false;
@@ -350,6 +346,18 @@ mod tests {
         assert!(msg.contains("Failed to load scraper health"));
         assert!(!msg.contains("SELECT"));
         assert!(!msg.contains("secret"));
+    }
+
+    #[test]
+    fn retired_yc_startup_cannot_be_toggled() {
+        let mut config = create_health_toggle_test_config();
+
+        assert!(!apply_config_backed_scraper_toggle(
+            &mut config,
+            "yc_startup",
+            true,
+        ));
+        assert!(!config.yc_startup.enabled);
     }
 
     #[tokio::test]

@@ -369,19 +369,22 @@ export const JOB_SOURCE_BOARDS_DISCOVERY_ENTRIES: readonly model.JobSourceDiscov
     id: "yc-work-at-a-startup",
     label: "Y Combinator Work at a Startup",
     category: "startup-job-board",
-    accessModel: "native-public",
-    status: "supported",
+    accessModel: "review-required",
+    status: "manual-only",
     regions: ["global"],
     careerProfileIds: [
       ...model.TECH_PROFILE_IDS,
       ...model.BUSINESS_PROFILE_IDS,
       ...model.CREATIVE_PROFILE_IDS,
     ],
-    hostPatterns: ["ycombinator.com/companies/jobs"],
+    hostPatterns: [
+      "ycombinator.com/jobs",
+      "ycombinator.com/companies/jobs",
+    ],
     examples: ["YC startup jobs"],
-    implementationPath: "Native YC adapter.",
+    implementationPath: "Open the YC search in the user's browser.",
     notes:
-      "Useful for startup discovery and direct company career-page expansion.",
+      "Automated extraction is unavailable because current YC terms prohibit scraping and similar data gathering.",
   },
   {
     id: "hacker-news-who-is-hiring",

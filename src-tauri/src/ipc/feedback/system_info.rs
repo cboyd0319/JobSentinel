@@ -119,9 +119,6 @@ pub(super) fn summarize_config(config: &Config) -> ConfigSummary {
         if config.dice.enabled {
             count += 1;
         }
-        if config.yc_startup.enabled {
-            count += 1;
-        }
         if config.usajobs.enabled {
             count += 1;
         }

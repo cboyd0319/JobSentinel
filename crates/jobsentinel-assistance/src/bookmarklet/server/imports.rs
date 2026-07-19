@@ -11,7 +11,10 @@ use crate::bookmarklet::{
     },
     BookmarkletJobData, BookmarkletRepository,
 };
-use jobsentinel_domain::{calculate_job_hash, canonicalize_job_url, Job};
+use jobsentinel_domain::{
+    calculate_job_hash, canonicalize_job_url,
+    v3_source_authorization::automated_source_url_is_blocked, Job,
+};
 
 use super::{
     bookmarklet_job_values, bookmarklet_payload_matches_request_origin,
@@ -305,6 +308,9 @@ fn normalize_bookmarklet_job_data(
         .filter(|value| !value.is_empty());
     job_data.url = canonicalize_job_url(job_data.url.trim())
         .map_err(|_| "Job link must be a public https address".to_string())?;
+    if automated_source_url_is_blocked(&job_data.url) {
+        return Err("Automated YC Startup access is unavailable".to_string());
+    }
     validate_bookmarklet_job_storage_lengths(&job_data)?;
 
     Ok(job_data)

@@ -72,6 +72,25 @@ async fn restricted_smoke_test_is_unavailable_without_distinct_reviewed_scope() 
 }
 
 #[tokio::test]
+async fn retired_yc_startup_smoke_stops_locally() {
+    let database = Database::connect_memory().await.unwrap();
+    database.migrate().await.unwrap();
+    let config = minimal_test_config();
+
+    let result = run_smoke_test(&database, &config, "yc_startup")
+        .await
+        .unwrap();
+
+    assert!(result.passed);
+    assert_eq!(
+        result
+            .details
+            .and_then(|details| details["reason"].as_str().map(str::to_string)),
+        Some(YC_STARTUP_AUTOMATION_UNAVAILABLE.to_string())
+    );
+}
+
+#[tokio::test]
 async fn public_ats_smoke_stops_before_network_without_current_governance() {
     let database = Database::connect_memory().await.unwrap();
     database.migrate().await.unwrap();

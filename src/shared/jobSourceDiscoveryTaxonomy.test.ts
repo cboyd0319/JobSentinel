@@ -369,7 +369,12 @@ describe("jobSourceDiscoveryTaxonomy", () => {
       expect.arrayContaining(["greenhouse", "indeed", "builtin", "dice"]),
     );
     expect(publicAgreementIds).toEqual(
-      expect.arrayContaining(["indeed", "builtin", "dice", "glassdoor"]),
+      expect.arrayContaining([
+        "indeed",
+        "builtin",
+        "dice",
+        "glassdoor",
+      ]),
     );
     expect(authenticatedIds).toEqual(
       expect.arrayContaining([
@@ -401,7 +406,6 @@ describe("jobSourceDiscoveryTaxonomy", () => {
         "remote-first-jobs",
         "we-work-remotely",
         "hacker-news-who-is-hiring",
-        "yc-work-at-a-startup",
       ]),
     );
 
@@ -412,6 +416,19 @@ describe("jobSourceDiscoveryTaxonomy", () => {
         "authenticated-user-session",
       );
     }
+  });
+
+  it("keeps YC user-opened without an automation agreement path", () => {
+    const yc = JOB_SOURCE_DISCOVERY_TAXONOMY.find(
+      (entry) => entry.id === "yc-work-at-a-startup",
+    );
+
+    expect(yc).toMatchObject({
+      accessModel: "review-required",
+      status: "manual-only",
+      implementationPath: "Open the YC search in the user's browser.",
+    });
+    expect(yc?.requiresUserAgreement).not.toBe(true);
   });
 
   it("caps restricted authenticated interactive sessions and forbids auth storage", () => {

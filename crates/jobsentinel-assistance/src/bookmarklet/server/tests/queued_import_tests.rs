@@ -1,6 +1,39 @@
 use super::*;
 
 #[tokio::test]
+async fn test_bookmarklet_import_rejects_retired_yc_automation() {
+    for url in [
+        "https://ycombinator.com/jobs/1",
+        "https://www.ycombinator.com/jobs/2",
+    ] {
+        let database = bookmarklet_test_database().await;
+        let auth_state = bookmarklet_auth_state(TEST_AUTH_TOKEN, bookmarklet_auth_expiry());
+        let pending_imports = bookmarklet_pending_imports();
+        let body = bookmarklet_import_body(serde_json::json!({
+            "title": "Care Coordinator",
+            "company": "Example",
+            "url": url
+        }));
+
+        let (response, _) = handle_import_request(
+            &bookmarklet_import_request(&body),
+            &auth_state,
+            pending_imports.clone(),
+            database.clone(),
+        )
+        .await;
+        let parsed: serde_json::Value = serde_json::from_str(&response).unwrap();
+
+        assert_eq!(
+            parsed["error"],
+            "Automated YC Startup access is unavailable"
+        );
+        assert!(pending_bookmarklet_import_previews(&pending_imports).is_empty());
+        assert_eq!(stored_job_count(&database).await, 0);
+    }
+}
+
+#[tokio::test]
 async fn test_bookmarklet_import_queues_valid_job_for_review_without_insert() {
     let database = bookmarklet_test_database().await;
     let auth_state = bookmarklet_auth_state(TEST_AUTH_TOKEN, bookmarklet_auth_expiry());

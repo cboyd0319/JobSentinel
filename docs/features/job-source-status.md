@@ -8,7 +8,7 @@ plain-language status and safe next steps.
 
 | Area | Current behavior |
 | ---- | ---------------- |
-| Scheduled source status | Tracks Greenhouse, Lever, RemoteOK, WeWorkRemotely, BuiltIn, startup and tech job posts, JobsWithGPT, Dice, YC Startup Jobs, USAJobs, SimplyHired, and Glassdoor |
+| Scheduled source status | Tracks Greenhouse, Lever, RemoteOK, WeWorkRemotely, BuiltIn, startup and tech job posts, JobsWithGPT, Dice, USAJobs, SimplyHired, and Glassdoor |
 | Source-check coverage | Includes scheduled sources plus Indeed, Wellfound, and ZipRecruiter availability checks |
 | User-opened search links and Workbench | LinkedIn and similar destination links are opened by the user, with local-only Workbench actions and no background monitoring |
 | Restricted-site gate | Risky source actions explain in plain language that some sites have rules about automated tools, then continue only after user acknowledgement |

@@ -305,6 +305,10 @@ fn test_dashboard_source_check_handles_arrays_and_endpoint_sources() {
     let disabled = create_dashboard_test_config();
     assert!(!any_job_source_enabled(&disabled));
 
+    let mut retired_yc = create_dashboard_test_config();
+    retired_yc.yc_startup.enabled = true;
+    assert!(!any_job_source_enabled(&retired_yc));
+
     let mut greenhouse = create_dashboard_test_config();
     greenhouse.greenhouse_urls = vec!["https://boards.greenhouse.io/example".to_string()];
     assert!(any_job_source_enabled(&greenhouse));

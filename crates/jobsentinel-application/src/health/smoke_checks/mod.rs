@@ -13,7 +13,7 @@ use std::time::Instant;
 use self::sources::{
     test_builtin, test_dice, test_glassdoor, test_greenhouse, test_hn_hiring, test_indeed,
     test_jobswithgpt, test_lever, test_remoteok, test_simplyhired, test_usajobs, test_wellfound,
-    test_weworkremotely, test_yc_startup, test_ziprecruiter,
+    test_weworkremotely, test_ziprecruiter,
 };
 use jobsentinel_storage::health::{record_smoke_test, SmokeTestResult, SmokeTestType};
 
@@ -28,7 +28,6 @@ const SMOKE_TEST_SCRAPERS: &[&str] = &[
     "hn_hiring",
     "jobswithgpt",
     "dice",
-    "yc_startup",
     "ziprecruiter",
     "usajobs",
     "simplyhired",
@@ -65,6 +64,8 @@ const GREENHOUSE_SOURCE_CHECK_UNAVAILABLE: &str =
     "This Greenhouse connectivity check is unavailable until its reviewed source governance is current.";
 const LEVER_SOURCE_CHECK_UNAVAILABLE: &str =
     "This Lever connectivity check is unavailable until its reviewed source governance is current.";
+const YC_STARTUP_AUTOMATION_UNAVAILABLE: &str =
+    "Automated YC Startup access is unavailable after source-policy review. Use the user-opened YC search link.";
 // Mirrors restricted public unauthenticated source-check helpers from the
 // shared source taxonomy. Source-specific reasons live in
 // src/shared/restrictedSourceTaxonomy.ts and docs/features/scrapers.md.
@@ -165,7 +166,6 @@ fn smoke_rate_limit(scraper_name: &str) -> u32 {
         "builtin" => limits::BUILTIN,
         "jobswithgpt" => limits::JOBSWITHGPT,
         "dice" => limits::DICE,
-        "yc_startup" => limits::YC_STARTUP,
         "ziprecruiter" => 300,
         "simplyhired" => limits::SIMPLYHIRED,
         "glassdoor" => limits::GLASSDOOR,
@@ -216,6 +216,15 @@ pub async fn run_smoke_test_with_credentials(
     credentials: &CredentialService,
 ) -> Result<SmokeTestResult> {
     let start = Instant::now();
+    if scraper_name == "yc_startup" {
+        return record_skipped_smoke_test(
+            db,
+            scraper_name,
+            start,
+            YC_STARTUP_AUTOMATION_UNAVAILABLE,
+        )
+        .await;
+    }
     if is_restricted_source_check(scraper_name) {
         return record_skipped_smoke_test(
             db,
@@ -342,7 +351,6 @@ pub async fn run_smoke_test_with_credentials(
         },
         "jobswithgpt" => test_jobswithgpt(config).await,
         "dice" => test_dice().await,
-        "yc_startup" => test_yc_startup().await,
         "ziprecruiter" => test_ziprecruiter().await,
         "usajobs" => test_usajobs(config, credentials).await,
         "simplyhired" => test_simplyhired().await,

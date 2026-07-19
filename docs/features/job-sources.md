@@ -63,10 +63,10 @@ minimized request fingerprint. Any change requires review again.
 
 | Category | Sources |
 | -------- | ------- |
-| Scheduled job checks | Greenhouse, Lever, RemoteOK, WeWorkRemotely, BuiltIn, community hiring posts, JobsWithGPT, Dice, YC Startup Jobs, USAJobs, SimplyHired, Glassdoor |
+| Scheduled job checks | Greenhouse, Lever, RemoteOK, WeWorkRemotely, BuiltIn, community hiring posts, JobsWithGPT, Dice, USAJobs, SimplyHired, Glassdoor |
 | Source-check helpers | Scheduled job checks plus Indeed, Wellfound, and ZipRecruiter availability checks |
 | Company careers discovery | Employer careers pages that JobSentinel can classify before choosing a safe source path |
-| User-opened search links | LinkedIn and other destination links opened by the user |
+| User-opened search links | LinkedIn, Y Combinator Jobs, and other destination links opened by the user |
 | Preferred expansion path | Official company career pages and public hiring-platform sources such as Greenhouse, Lever, Ashby, Workable, SmartRecruiters, and USAJobs |
 
 ## Veteran And U.S. Public-Service References
@@ -306,13 +306,17 @@ Representative source pacing:
 | Dice | Medium | Public job feed |
 | WeWorkRemotely | Moderate | Public feed/page |
 | BuiltIn | Moderate | Public page |
-| YC Startup Jobs | Moderate | Public page |
 | SimplyHired | Conservative | Best-effort public source; may be blocked |
 | Glassdoor | Conservative | Best-effort public source; may ask for human checks |
 | JobsWithGPT | Feed-controlled | User-approved job-source feed |
 
 Checks that cannot operate within source boundaries should fail closed and
 show a clear user-facing explanation.
+
+YC Startup Jobs is user-opened only. A 2026-07-19 review of Y Combinator's
+current Terms of Use found an explicit prohibition on scraping, robots, data
+mining, and similar extraction. JobSentinel therefore does not schedule,
+recommend, probe, fetch, import, or capture YC pages.
 
 Source Status keeps restricted public unauthenticated helpers such as Indeed,
 Wellfound, BuiltIn, Dice, ZipRecruiter, SimplyHired, and Glassdoor skipped. A

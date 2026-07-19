@@ -3,7 +3,6 @@ import {
   BUILTIN_TECH_CITY_TERMS,
   GOVERNMENT_SOURCE_TERMS,
   REMOTE_INTENT_TERMS,
-  STARTUP_SOURCE_TERMS,
 } from "../../../shared/jobSourceRecommendationTaxonomy";
 import { searchLooksTechFocused } from "../../../shared/jobSourceRecommendations";
 import {
@@ -70,25 +69,6 @@ export function useJobBoardRecommendations(
               weworkremotely: {
                 ...config.weworkremotely,
                 enabled: true,
-                limit: 50,
-              },
-            }),
-        });
-      }
-    }
-
-    if (includesAnyTerm(keywords, STARTUP_SOURCE_TERMS)) {
-      if (!config.yc_startup?.enabled) {
-        recommendations.push({
-          board: "YC Startups",
-          reason: "You're interested in startups",
-          enable: () =>
-            setConfig({
-              ...config,
-              yc_startup: {
-                ...config.yc_startup,
-                enabled: true,
-                remote_only: false,
                 limit: 50,
               },
             }),

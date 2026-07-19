@@ -92,28 +92,6 @@ pub(super) fn validate_scrapers(config: &Config, errors: &mut ValidationErrors) 
         }
     }
 
-    // Validate YC Startup scraper
-    if config.yc_startup.enabled {
-        if let Some(query) = &config.yc_startup.query {
-            if query.len() > MAX_QUERY_LENGTH {
-                errors.add(ValidationError::too_long(
-                    "yc_startup.query",
-                    query.len(),
-                    MAX_QUERY_LENGTH,
-                ));
-            }
-        }
-
-        if config.yc_startup.limit == 0 || config.yc_startup.limit > MAX_SCRAPER_LIMIT {
-            errors.add(ValidationError::out_of_range(
-                "yc_startup.limit",
-                config.yc_startup.limit,
-                Some(1_usize),
-                Some(MAX_SCRAPER_LIMIT),
-            ));
-        }
-    }
-
     // Validate USAJobs scraper
     if config.usajobs.enabled {
         if config.usajobs.email.is_empty() {

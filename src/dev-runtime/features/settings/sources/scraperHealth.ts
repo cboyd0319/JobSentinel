@@ -133,13 +133,6 @@ const MOCK_SCRAPERS: readonly MockScraperDefinition[] = [
     rate_limit_per_hour: 45,
   },
   {
-    scraper_name: "yc_startup",
-    display_name: "YC Startup Jobs",
-    requires_auth: false,
-    scraper_type: "html",
-    rate_limit_per_hour: 45,
-  },
-  {
     scraper_name: "ziprecruiter",
     display_name: "ZipRecruiter",
     requires_auth: false,

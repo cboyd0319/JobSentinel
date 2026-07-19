@@ -23,12 +23,14 @@ function renderRecommendations(config: Config) {
 }
 
 describe("useJobBoardRecommendations", () => {
-  it("recommends startup sources from shared startup intent terms", () => {
+  it("does not recommend retired YC automation for startup intent", () => {
     const recommendations = renderRecommendations(
       makeConfig({ keywords_boost: ["seed stage operations"] }),
     );
 
-    expect(recommendations.map((item) => item.board)).toContain("YC Startups");
+    expect(recommendations.map((item) => item.board)).not.toContain(
+      "YC Startups",
+    );
   });
 
   it("recommends USAJobs from shared government intent terms", () => {

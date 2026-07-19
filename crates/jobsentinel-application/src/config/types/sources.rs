@@ -147,13 +147,12 @@ pub struct DiceConfig {
     pub limit: usize,
 }
 
-/// Y Combinator Work at a Startup scraper configuration
+/// Legacy Y Combinator Work at a Startup configuration.
 ///
-/// Scrapes curated positions from YC-backed startups.
-/// No authentication required.
+/// Retained for config compatibility. Automated access is unavailable.
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct YcStartupConfig {
-    /// Enable YC Startup job scraping
+    /// Legacy automation flag; retained but ignored.
     #[serde(default)]
     pub enabled: bool,
 

@@ -173,6 +173,12 @@ describe("Settings source setup", () => {
         name: /Turn startup and tech hiring post checks on or off/i,
       }),
     ).toBeInTheDocument();
+    await user.click(screen.getByText("More Job Boards"));
+    expect(
+      screen.queryByRole("checkbox", {
+        name: /Turn YC Startup scheduled job checks on or off/i,
+      }),
+    ).not.toBeInTheDocument();
   });
 
   it("labels USAJobs source setup as optional scheduled checks", async () => {

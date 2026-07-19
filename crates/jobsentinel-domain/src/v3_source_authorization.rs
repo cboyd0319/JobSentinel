@@ -1,4 +1,5 @@
 use chrono::{Days, NaiveDate};
+use url::Url;
 
 use crate::{
     v3_foundation::{SourceAccess, SourcePolicy},
@@ -33,6 +34,17 @@ pub enum SourceActionDecision {
     Stale,
     Revoked,
     Unsupported,
+}
+
+#[must_use]
+pub fn automated_source_url_is_blocked(value: &str) -> bool {
+    let Ok(url) = Url::parse(value) else {
+        return false;
+    };
+    url.host_str().is_some_and(|host| {
+        let host = host.trim_end_matches('.').to_ascii_lowercase();
+        host == "ycombinator.com" || host.ends_with(".ycombinator.com")
+    })
 }
 
 impl SourceManifest {
@@ -151,5 +163,29 @@ impl SourceOperation {
                 | Self::RegionalPackCheck
                 | Self::RestrictedWorkbench
         )
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::automated_source_url_is_blocked;
+
+    #[test]
+    fn yc_automation_block_matches_domain_boundaries() {
+        for blocked in [
+            "https://ycombinator.com/jobs",
+            "https://www.ycombinator.com/jobs",
+            "https://jobs.ycombinator.com/role/1",
+        ] {
+            assert!(automated_source_url_is_blocked(blocked), "{blocked}");
+        }
+
+        for allowed in [
+            "https://example.com/jobs",
+            "https://ycombinator.com.example/jobs",
+            "https://notycombinator.com/jobs",
+        ] {
+            assert!(!automated_source_url_is_blocked(allowed), "{allowed}");
+        }
     }
 }

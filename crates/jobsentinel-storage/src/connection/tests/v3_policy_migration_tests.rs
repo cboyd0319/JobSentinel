@@ -43,5 +43,26 @@ async fn migration_13_backfills_existing_policy_once() {
             .fetch_one(database.pool())
             .await
             .unwrap();
-    assert_eq!(migration_version, 15);
+    assert_eq!(migration_version, 16);
+}
+
+#[tokio::test]
+async fn migration_16_retires_yc_startup_source_metadata() {
+    let database = Database::connect_memory().await.unwrap();
+    MIGRATOR.run_to(15, database.pool()).await.unwrap();
+    let before: i64 =
+        sqlx::query_scalar("SELECT COUNT(*) FROM scraper_config WHERE scraper_name = 'yc_startup'")
+            .fetch_one(database.pool())
+            .await
+            .unwrap();
+    assert_eq!(before, 1);
+
+    MIGRATOR.run(database.pool()).await.unwrap();
+
+    let after: i64 =
+        sqlx::query_scalar("SELECT COUNT(*) FROM scraper_config WHERE scraper_name = 'yc_startup'")
+            .fetch_one(database.pool())
+            .await
+            .unwrap();
+    assert_eq!(after, 0);
 }

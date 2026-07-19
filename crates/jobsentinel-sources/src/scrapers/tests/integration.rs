@@ -9,7 +9,7 @@
 use super::{
     linkedin::LinkedInScraper, BuiltInScraper, DiceScraper, GreenhouseCompany, GreenhouseScraper,
     HnHiringScraper, JobScraper, LeverCompany, LeverScraper, RemoteOkScraper,
-    WeWorkRemotelyScraper, YcStartupScraper,
+    WeWorkRemotelyScraper,
 };
 
 // ============================================================================
@@ -50,22 +50,6 @@ fn test_dice_scraper_with_location() {
     let scraper = DiceScraper::new("accountant".to_string(), Some("Denver, CO".to_string()), 10);
     assert_eq!(scraper.name(), "dice");
     assert_eq!(scraper.location, Some("Denver, CO".to_string()));
-}
-
-#[test]
-fn test_yc_startup_scraper_construction() {
-    let scraper = YcStartupScraper::new(None, false, 20);
-    assert_eq!(scraper.name(), "yc_startup");
-    assert!(!scraper.remote_only);
-    assert!(scraper.query.is_none());
-}
-
-#[test]
-fn test_yc_startup_scraper_with_filters() {
-    let scraper = YcStartupScraper::new(Some("rust".to_string()), true, 10);
-    assert_eq!(scraper.name(), "yc_startup");
-    assert!(scraper.remote_only);
-    assert_eq!(scraper.query, Some("rust".to_string()));
 }
 
 #[test]
@@ -209,9 +193,6 @@ fn test_all_scrapers_implement_job_scraper() {
     let dice = DiceScraper::new("test".to_string(), None, 10);
     assert_job_scraper(&dice);
 
-    let yc = YcStartupScraper::new(None, false, 10);
-    assert_job_scraper(&yc);
-
     let remoteok = RemoteOkScraper::new(vec![], 10);
     assert_job_scraper(&remoteok);
 
@@ -239,7 +220,6 @@ fn test_all_scrapers_implement_job_scraper() {
 fn test_scraper_names_are_unique() {
     let names = vec![
         DiceScraper::new("test".to_string(), None, 10).name(),
-        YcStartupScraper::new(None, false, 10).name(),
         RemoteOkScraper::new(vec![], 10).name(),
         WeWorkRemotelyScraper::new(None, 10).name(),
         HnHiringScraper::new(10, false).name(),
@@ -267,8 +247,8 @@ fn test_scraper_names_are_unique() {
 /// Verify we have the expected number of scrapers tested
 #[test]
 fn test_scraper_count() {
-    // We test 11 scrapers:
-    // - dice, ziprecruiter, yc_startup (new)
+    // We test 10 scrapers:
+    // - dice, ziprecruiter
     // - remoteok, weworkremotely, hn_hiring
     // - greenhouse, lever
     // - linkedin, indeed
@@ -277,7 +257,6 @@ fn test_scraper_count() {
     let names = vec![
         "dice",
         "ziprecruiter",
-        "yc_startup",
         "remoteok",
         "weworkremotely",
         "hn_hiring",
@@ -287,5 +266,5 @@ fn test_scraper_count() {
         "indeed",
         "builtin",
     ];
-    assert_eq!(names.len(), 11, "Expected 11 scrapers to be tested");
+    assert_eq!(names.len(), 10, "Expected 10 scrapers to be tested");
 }

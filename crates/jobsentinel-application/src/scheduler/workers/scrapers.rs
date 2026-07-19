@@ -13,8 +13,7 @@ mod weworkremotely_worker;
 use crate::{config::Config, credentials::CredentialService};
 use jobsentinel_domain::Job;
 use jobsentinel_sources::{
-    BuiltInScraper, DiceScraper, JobScraper, ScraperError, YcStartupScraper,
-    LINKEDIN_AUTOMATION_DISABLED_MESSAGE,
+    BuiltInScraper, DiceScraper, JobScraper, ScraperError, LINKEDIN_AUTOMATION_DISABLED_MESSAGE,
 };
 use jobsentinel_storage::Database;
 use std::sync::{
@@ -296,26 +295,6 @@ pub(crate) async fn run_scrapers(
             )
             .await;
         }
-    }
-
-    // 10. Y Combinator Work at a Startup scraper
-    if config.yc_startup.enabled {
-        tracing::info!("Running YC Startup scraper");
-        let yc_startup = YcStartupScraper::new(
-            config.yc_startup.query.clone(),
-            config.yc_startup.remote_only,
-            config.yc_startup.limit,
-        );
-        run_scraper(
-            db,
-            &yc_startup,
-            "yc_startup",
-            "YC Startup",
-            shutdown_requested,
-            &mut all_jobs,
-            &mut errors,
-        )
-        .await;
     }
 
     federal::run_usajobs(

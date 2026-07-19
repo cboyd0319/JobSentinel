@@ -213,9 +213,6 @@ pub mod limits {
     /// SimplyHired: 200 requests/hour (conservative due to Cloudflare)
     pub const SIMPLYHIRED: u32 = 200;
 
-    /// YC Startup: 300 requests/hour (job board)
-    pub const YC_STARTUP: u32 = 300;
-
     /// BuiltIn: 300 requests/hour (job board)
     pub const BUILTIN: u32 = 300;
 }

@@ -102,7 +102,6 @@ mod simplyhired;
 mod source_adapters;
 mod usajobs;
 mod weworkremotely;
-mod yc_startup;
 
 pub use builtin::BuiltInScraper;
 pub use dice::DiceScraper;
@@ -118,7 +117,6 @@ pub use remoteok::RemoteOkScraper;
 pub use simplyhired::SimplyHiredScraper;
 pub use usajobs::UsaJobsScraper;
 pub use weworkremotely::WeWorkRemotelyScraper;
-pub use yc_startup::YcStartupScraper;
 
 // NOTE: SimplyHired and Glassdoor have Cloudflare protection.
 // These scrapers attempt to use RSS/JSON-LD but may return empty if blocked.
@@ -126,6 +124,9 @@ pub use yc_startup::YcStartupScraper;
 // NOTE: GovernmentJobs.com and ClearanceJobs.com explicitly prohibit scraping in their ToS.
 // Use Deep Link Generator and Bookmarklet features instead; see docs/user/DEEP_LINKS.md and
 // docs/BOOKMARKLET.md for supported alternatives.
+//
+// Y Combinator's Terms of Use also prohibit scraping and similar extraction.
+// Keep YC access user-opened or manual.
 
 /// Scraper result type using ScraperError for better error context
 ///

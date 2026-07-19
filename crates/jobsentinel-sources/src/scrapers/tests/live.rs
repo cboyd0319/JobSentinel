@@ -8,7 +8,7 @@
 use super::{
     BuiltInScraper, DiceScraper, GlassdoorScraper, GreenhouseCompany, GreenhouseScraper,
     HnHiringScraper, JobScraper, LeverCompany, LeverScraper, RemoteOkScraper, SimplyHiredScraper,
-    WeWorkRemotelyScraper, YcStartupScraper,
+    WeWorkRemotelyScraper,
 };
 
 // ============================================================================
@@ -177,22 +177,6 @@ async fn test_dice_live() {
         Err(e) => {
             println!("Dice: {}", e);
             println!("    (May require JavaScript rendering)");
-        }
-    }
-}
-
-#[tokio::test]
-#[ignore = "Live network scraper check; run manually"]
-async fn test_yc_startups_live() {
-    let scraper = YcStartupScraper::new(Some("operations".to_string()), false, 50);
-
-    let result = scraper.scrape().await;
-    match result {
-        Ok(jobs) => {
-            println!("YC Startups: found {} jobs", jobs.len());
-        }
-        Err(e) => {
-            println!("YC Startups: {}", e);
         }
     }
 }

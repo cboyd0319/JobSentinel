@@ -13,6 +13,19 @@ This brief condenses research and source-governance guidance for job monitoring.
 - Provenance matters. Users need to know where a job came from and how current
   it may be.
 
+## Reviewed source decisions
+
+### Y Combinator Jobs
+
+Reviewed 2026-07-19 against the current
+[Y Combinator Terms of Use](https://www.ycombinator.com/legal/#terms-of-use).
+The terms prohibit scraping, data mining, robots, and similar gathering or
+extraction methods. JobSentinel retires its YC HTML adapter, scheduled checks,
+connectivity probe, and Settings recommendation. The user-opened YC search link
+remains available. URL import and Browser Import fail closed before fetching or
+extracting YC pages. Reconsider automated access only if Y Combinator publishes
+an official feed or grants written authorization.
+
 ## Product implications
 
 - Prefer official-source job monitoring where public feeds or employer pages are
@@ -166,7 +179,8 @@ Patterns to avoid:
 | ------------ | ---------------- | ------------- | -------- | -------------- |
 | Official API or feed | Public unauthenticated or local API key | Native scheduled source | USAJobs, Adzuna, Reed, Remotive, official RSS or JSON feeds | Normal source opt-in; API key or source setup plus any required attribution or rate limit when needed |
 | Public ATS postings | Public unauthenticated | Native scheduled source | Greenhouse, Lever, Ashby, Workable, SmartRecruiters, Recruitee, Personio | Normal source opt-in, no restricted-source acknowledgement unless the source is reclassified after review |
-| Public community or remote source | Public unauthenticated | Native scheduled source with conservative limits and attribution where required | Hacker News hiring posts, YC job listings, We Work Remotely, RemoteOK, Remote First Jobs | Normal source opt-in |
+| Public community or remote source | Public unauthenticated | Native scheduled source with conservative limits and attribution where required | Hacker News hiring posts, We Work Remotely, RemoteOK, Remote First Jobs | Normal source opt-in |
+| Policy-blocked website | Public page whose current terms prohibit extraction | User-opened search link only | YC job listings | No automated fetch, import, capture, probe, or scheduled action |
 | Employer-owned web API | Public unauthenticated when reviewed | Company discovery first, then native adapter after fixtures prove the endpoint is stable | Workday CXS tenants, Amazon Jobs, Google Careers, Microsoft Careers, GitHub iCIMS/Jibe, Tesla Careers | Normal source opt-in when public; keep Browser Import or manual entry fallback if the endpoint is unstable or blocked in the user's environment |
 | Employer career system | Unknown until reviewed | Company discovery first, then classify into public API, public page import, restricted, or manual | Best Choice Products, Champion Petfoods, Ascend Wellness Holdings, Yourgi Pet, AC Lion, ForceBrands, Berri Organics, Renovation Brands, and other direct employer pages | Treat as review-required until source terms, structure, and rate limits are recorded |
 | Restricted public board | Public unauthenticated with terms/account-risk warning | Search link, pasted individual job link, Browser Import, or explicitly acknowledged scheduled check | Indeed, Glassdoor, Monster, ZipRecruiter, Built In, Dice, Naukri, Shine, Foundit, CV-Library, Totaljobs, Wellfound, ClearanceJobs | Prominent warning and explicit local acknowledgement before the risky action; no sign-in-session rules unless a sign-in session is opened |

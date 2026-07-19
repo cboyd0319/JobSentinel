@@ -108,6 +108,14 @@ mod validation_tests {
     }
 
     #[test]
+    fn retired_yc_startup_config_stays_loadable() {
+        let mut config = create_minimal_valid_config();
+        config.yc_startup.enabled = true;
+
+        assert!(validate_config(&config).is_ok());
+    }
+
+    #[test]
     fn test_discord_invalid_user_id_format() {
         let mut config = create_minimal_valid_config();
         config.alerts.discord.enabled = true;

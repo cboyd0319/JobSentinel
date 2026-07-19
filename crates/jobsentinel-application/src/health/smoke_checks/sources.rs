@@ -257,25 +257,6 @@ pub(super) async fn test_dice() -> Result<serde_json::Value> {
     }))
 }
 
-pub(super) async fn test_yc_startup() -> Result<serde_json::Value> {
-    let url = "https://www.ycombinator.com/jobs";
-    let response = require_success(
-        smoke_request(
-            ExternalHttpRequest::get(url).user_agent(MINIMAL_BROWSER_USER_AGENT),
-            "YC startup smoke test request failed",
-        )
-        .await?,
-    )?;
-    let html = response.body;
-    let has_jobs = html.contains("job-listing") || html.contains("JobListing");
-
-    Ok(serde_json::json!({
-        "status": response.status,
-        "selectors_found": has_jobs,
-        "html_size_kb": html.len() / 1024
-    }))
-}
-
 pub(super) async fn test_ziprecruiter() -> Result<serde_json::Value> {
     let url = "https://www.ziprecruiter.com/jobs-rss?search=customer+support&location=Remote";
     let response = require_success(

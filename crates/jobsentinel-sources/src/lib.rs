@@ -16,7 +16,7 @@ pub use scrapers::{
     limits, BuiltInScraper, DiceScraper, GlassdoorScraper, GreenhouseCompany, GreenhouseScraper,
     HnHiringScraper, JobQuery, JobScraper, JobsWithGptScraper, LeverCompany, LeverScraper,
     RateLimiter, RemoteOkScraper, ScraperError, SimplyHiredScraper, UsaJobsScraper,
-    WeWorkRemotelyScraper, YcStartupScraper, LINKEDIN_AUTOMATION_DISABLED_MESSAGE,
+    WeWorkRemotelyScraper, LINKEDIN_AUTOMATION_DISABLED_MESSAGE,
 };
 
 use anyhow::{bail, Context, Result};
