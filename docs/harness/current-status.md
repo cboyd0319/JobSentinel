@@ -41,17 +41,17 @@ Last updated: 2026-07-19
 - Milestone 0 reconciled release truth, debt, tests, dependencies, and release policy.
 - Milestone 1 froze fail-closed contracts and evals, retained existing scheduler ownership, and passed native input.
 - Milestone 2 passed the local data model, migration recovery, v2.9 preservation, and newer-data refusal.
-- Milestone 3 includes encrypted portability, staged recovery, reviewed export,
-  storage cleanup, local Privacy Doctor and support, exact source consent, and
-  governed Outside AI approval, audit, cancellation, and recovery activity.
+- Milestone 3 passed encrypted portability, staged recovery, reviewed export,
+  offline cleanup and recovery, Privacy Doctor, safe support, exact source
+  consent, governed Outside AI, platform health, and fail-closed publication.
 
 ## In Progress
 
-- Active feature: `v3-milestone-3-recovery-portability-policy-repair`
+- Active feature: `v3-milestone-4-source-graph-browser-companion`
 - Status: `active`
-- Objective: Make v3 recovery, portability, policy, consent, support, and repair local and offline-safe.
-- Current slice: Complete Milestone 3 offline repair and platform-health behavior.
-- Next action: Write fail-first offline-repair and platform-health tests before adding user-facing operations.
+- Objective: Build the governed source graph and browser companion boundary.
+- Current slice: Define source identity, policy, permission, freshness, lineage, and stop conditions before browser UI.
+- Next action: Write fail-first source-graph and protocol threat tests for Milestone 4.
 
 ## Deferred
 

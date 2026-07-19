@@ -22,6 +22,8 @@ the current account and keeps local database files owner-only.
 | Local-data backups | Local only, Sensitive | Backup files stay on the user's device and leave saved connection details out. |
 | Reviewed plaintext exports | Local only, Sensitive | Exports require a separate review, leave managed credentials and paths out, and never overwrite an existing file. |
 | Storage health and cleanup | Local only, Aggregate | Inspection reports only health and byte totals; cleanup preserves application records and works offline. |
+| Offline recovery and repair | Local only, Sensitive | Recovery starts without primary storage or credentials, exposes only bounded local state, and labels connectivity before an action. |
+| Platform health | Local only, Aggregate | Inspection and app-owned Unix permission repair stay local; ambiguous links and Windows permission state require manual review. |
 | Location detection | Sensitive | Public-IP lookup happens only after explicit user action. |
 
 External AI is not required for user-data management. If an outside-AI send is
@@ -148,7 +150,43 @@ the user:
 - Full local recovery verifies compatibility and stages the replacement before
   startup promotes it. The previous compatible database remains available for
   rollback until recovery finishes.
+- Recovery can inspect, stage, cancel, and clean incomplete restore work without
+  network access. Corrupt primary data is preserved independently before a
+  staged replacement is published.
 - Copy or save a safe support report before full local recovery.
+
+### Offline Recovery And Repair
+
+If primary startup fails, JobSentinel opens a local recovery surface instead of
+starting the normal app. This fallback uses temporary in-memory services and
+does not initialize the primary database, production credential service,
+scheduler, normal command surface, or tray search.
+
+The recovery surface can work without connectivity to:
+
+- preserve malformed configuration as a new private file before resetting it;
+- inspect bounded storage, Privacy Doctor, platform-health, and queued local
+  work state;
+- create an encrypted portable backup from readable primary storage;
+- stage, inspect, cancel, or clean an encrypted restore;
+- preserve and clear a malformed restore marker;
+- create a reviewed plaintext export or safe support report; and
+- inspect or repair app-owned Unix file permissions.
+
+Queued local work reports only a count and fixed capacity. It never exposes
+queued URLs or other content, and stale entries expire locally.
+
+Restore and repair operations fail closed on symlinks, hard links, non-regular
+files, identity changes, unreadable state, and a live database owner. Invalid
+configuration, corrupt-primary quarantine, and rollback publication use
+independent copies so later writes through another path cannot change the
+preserved recovery artifact.
+
+On Windows, permission state is reported as unchecked and repair guidance is
+manual. Package repair is guidance only: an already downloaded, verified
+installer can be used offline; obtaining another installer is labeled as
+requiring connectivity before the user acts. JobSentinel does not run a shell,
+elevate, download, or install a package from this recovery surface.
 
 ### Reviewed Plaintext Export
 

@@ -249,7 +249,7 @@ pack privileges, and opaque hiring-probability claims.
 | 0. Planning authority and repository truth | [x] Verify this file remains active in the plan index, v3 planning, plans hub, current status, and feature state.<br>[x] Correct stale v2.9.5 release records.<br>[x] Reconcile DRY-002 and close stale DRY-003 with live evidence.<br>[x] Reconcile testing future-work claims against existing coverage.<br>[x] Re-audit the deferred release-pipeline decision.<br>[x] Add a deterministic idea-disposition check and a focused docs-marker audit for inventory drift.<br>[x] Record Gate 0 and activate Milestone 1.<br>Verify: `npm run harness:check`, `npm run lint:docs`, `npm run lint:deps:why`, `npm run lint:dup -- --list`, `npm run lint:file-size`, and `git diff --check`. | Planning and harness owners.<br>Exit: one active plan, one active feature, no contradictory current-state docs, and no unowned open debt. |
 | 1. Contract, evaluation, and quality baseline | [x] Define versioned Rust-owned schemas for compatibility, manifests, privacy receipts, agent tasks, packs, regions, editions, model provenance, and vector freshness.<br>[x] Add fixtures for current v2.9, malformed, unsupported-newer, and forward-compatible unknown input.<br>[x] Create public or synthetic eval sets for source truth, resume evidence, pay clarity, posting risk, employer context, accessibility, recovery, modest hardware, military-to-civilian evidence, protected veteran-status answers, and commercial comparison.<br>[x] Prove whether existing application and Tokio owners satisfy typed-job scheduling, cancellation, recovery, observability, and resource-bound requirements; keep A20 deferred unless the evidence shows a concrete gap.<br>[x] Make drag-and-drop E2E deterministic and add installed-app native file-picker smoke coverage.<br>[x] Set benchmark budgets and use mutation testing only where it can disprove high-risk test quality.<br>[x] Complete Gate 1. | `jobsentinel-domain`, security, local AI, platform, harness contracts, tests, and closest docs.<br>Exit: schemas and evals fail closed, are versioned, require no database migration, and do not add a runtime kernel without evidence. |
 | 2. V3 local data foundation | [x] Write fail-first tests for case-file create/reuse, sanitized events, metadata limits, privacy receipts, source policy upsert, compatibility reads, failed migration, retry, and backup restore.<br>[x] Add append-only SQLx migrations for case files, typed events, career/source graph records, receipts, source policies, and compatibility metadata.<br>[x] Exclude raw resumes, notes, credentials, browser storage, provider payloads, and unrelated history from event metadata.<br>[x] Add application-layer operations without frontend commands.<br>[x] Prove fresh install and v2.9 fixture migration, then complete Gate 2. | Storage, domain, application, and `.sqlx/`.<br>Exit: the foundation is local, typed, bounded, migration-safe, and has no renderer surface. |
-| 3. Recovery, portability, policy, and repair | [x] Implement encrypted backup and restore, migration provenance, compatible rollback, newer-data refusal, export without lock-in, and storage cleanup.<br>[ ] Make recovery, local record access, queued local work, and repair guidance available without network access; identify actions that require connectivity before the user commits work.<br>[x] Build Privacy Doctor, safe support bundle, policy ledger, smart consent, and governed external-send audit.<br>[ ] Build the remaining offline recovery and repair services.<br>[x] Keep secret export disabled unless a separate design passes threat review and explicit approval.<br>[ ] Add platform-health and package-repair contracts with plain fallbacks. | Storage, security, credentials, application, platform, Settings, and user-data docs.<br>Exit: destructive and irreversible paths have backup, restore, cancel, offline, support, and test evidence. |
+| 3. Recovery, portability, policy, and repair | [x] Implement encrypted backup and restore, migration provenance, compatible rollback, newer-data refusal, export without lock-in, and storage cleanup.<br>[x] Make recovery, local record access, queued local work, and repair guidance available without network access; identify actions that require connectivity before the user commits work.<br>[x] Build Privacy Doctor, safe support bundle, policy ledger, smart consent, and governed external-send audit.<br>[x] Build the remaining offline recovery and repair services.<br>[x] Keep secret export disabled unless a separate design passes threat review and explicit approval.<br>[x] Add platform-health and package-repair contracts with plain fallbacks. | Storage, security, credentials, application, platform, Settings, and user-data docs.<br>Exit: destructive and irreversible paths have backup, restore, cancel, offline, support, and test evidence. |
 | 4. Source graph and browser companion | [ ] Implement source identity, class, policy, rate limit, permission, fixture, confidence, freshness, lineage, and stop-condition records.<br>[ ] Consolidate official APIs, public ATS pages, employer discovery, regional packs, restricted Workbench, visible capture, smart paste, and applied logging behind the graph.<br>[ ] Add reviewed veteran and U.S. public-service source and guidance metadata with provenance, dates, eligibility boundaries, and no claim of complete coverage.<br>[ ] Prototype secure loopback pairing, scoped permissions, revocation, replay protection, and no stored restricted-session material.<br>[ ] Add a source simulator, policy fixtures, robots and terms review records, freshness comparison, and adversarial protocol tests.<br>[ ] Complete Gate 3 before browser UI. | Sources, network, security, application, platform, browser assets, Settings, and source docs.<br>Exit: every source action is classified, paced, visible, revocable, and explainable. |
 | 5. Local evidence, resume, and matching engine | [ ] Build a provenance-aware evidence graph shared by resume, requirement, packet, and case-file workflows.<br>[ ] Add requirement states, hard constraints, seniority, recency, profession and regional profiles, transparent blockers, and "why not" diagnostics.<br>[ ] Preserve the Military Transition template and military-service evidence, then add reviewed mappings from user-confirmed military occupations, responsibilities, credentials, and current clearances to civilian wording without inventing equivalence or claims.<br>[ ] Calibrate Qwen3 retrieval and reranking against frozen evals while preserving deterministic fallback and stale-vector repair.<br>[ ] Guard jobs, resumes, models, and packs against prompt injection and poisoned input.<br>[ ] Implement Model Doctor, match debugger, feedback capture, and evidence-bound packets.<br>[ ] Complete Gate 4 model and data decisions. | Documents, intelligence, local AI, assistance, storage, resume UI, and matching docs.<br>Exit: every match claim is evidence-linked, bounded, reproducible, and useful without external AI. |
 | 6. Opportunity case file and daily workflow | [ ] Ship plain-language first run, one useful initial search path, and clear skip and recovery choices.<br>[ ] Make the case file the shared view for job, source, risk, evidence, packet, application, interview, contact, offer, and outcome state.<br>[ ] Deliver the core campaign operating model through the mission board, timeline, evidence wall, decision summary, "why not this job," "prepare this job," debrief, and drag-and-drop import; leave inbox, simulation, and adaptive campaign extensions to train 12A.<br>[ ] Keep the local campaign, saved evidence, drafts, and review actions useful offline, with explicit stale and connectivity-required states for source actions.<br>[ ] Preserve user control over voluntary or protected veteran-status answers, clearance claims, and eligibility questions throughout application review.<br>[ ] Preserve focused feature ownership and typed application commands.<br>[ ] Test empty, partial, duplicate, offline, failed-source, and restored-data states at desktop and narrow layouts. | Application, storage, assistance, `src/features/`, shared UI, and closest docs.<br>Exit: the primary v3 campaign works end to end without hidden automation or required connectivity. |
@@ -327,6 +327,7 @@ relevant result, and caveat.
 | 2026-07-19 | Milestone 3 safe storage cleanup complete | Added offline aggregate health inspection, integrity-first refusal, checked WAL cleanup, bounded native incremental vacuum, sanitized provenance, and new-database activation at `4304fbb5`. Milestone 3 remains active. |
 | 2026-07-19 | Milestone 3 restricted scheduled-source consent complete | Added append-only source-policy history and exact durable consent for the four shipped restricted scheduled sources at `80218596`. Policy or request drift revokes, renderer and config booleans cannot authorize transport, and fixed restricted health probes remain unavailable pending distinct reviewed scope. Milestone 3 remains active. |
 | 2026-07-19 | Milestone 3 Outside AI governance complete | Added backend-verified public-job provenance, trusted native confirmation, exact single-use approval, immutable receipt-bound lifecycle, no-retry transport, durable cancellation, explicit ambiguity, and bounded local recovery activity at `02465456`. Two adversarial reviewers returned PASS. Milestone 3 remains active. |
+| 2026-07-19 | Milestone 3 complete | Added isolated offline startup recovery, bounded queued-work state, independent invalid-state preservation, encrypted restore controls, fail-closed publication and rollback, platform health, app-owned Unix permission repair, explicit package connectivity guidance, and Settings recovery controls at `aaa9f28c`. Focused product and security reviewers returned PASS. Activated Milestone 4. |
 
 ## Discoveries
 
@@ -431,20 +432,22 @@ relevant result, and caveat.
   native confirmation, consumes one exact approval, records an immutable bound
   receipt before one provider attempt, preserves cancellation and uncertain
   delivery as ambiguous, and exposes only bounded lifecycle recovery metadata
-  in Settings. The milestone remains active.
+  in Settings. Primary startup failure now enters an isolated in-memory recovery
+  service that skips primary storage, credentials, scheduled work, normal IPC,
+  and tray search. Recovery exposes bounded queued-work and health state, stages
+  or cancels encrypted restore, preserves invalid configuration and corrupt
+  primary data independently, refuses linked or ambiguous filesystem entries,
+  and labels package connectivity before user action. Platform repair is local
+  and handle-verified on Unix and manual on Windows. Milestone 3 is passing.
 
 ## Handoff
 
-- Current state: Milestones 0 through 2 are passing. Milestone 3 recovery,
-  portability, policy, and repair work is the sole active feature. Encrypted
-  portable backup, staged restore, rollback, reviewed plaintext export, and
-  offline storage cleanup are implemented. Privacy Doctor and the safe support
-  bundle are implemented as local application and desktop operations.
-  Append-only policy history and exact consent protect the four shipped
-  restricted scheduled sources. The shipped Outside AI summary now has
-  backend-verified provenance, trusted native confirmation, a single-use
-  receipt-bound lifecycle, durable cancellation, no automatic retry, and a
-  bounded recovery view.
+- Current state: Milestones 0 through 3 are passing. Milestone 4 source graph
+  and browser companion work is the sole active feature. Milestone 3 provides
+  encrypted portability, staged restore and rollback, reviewed plaintext
+  export, offline cleanup and recovery, Privacy Doctor, safe support, exact
+  restricted-source consent, governed Outside AI sends, platform health, and
+  plain package-repair guidance.
 - Evidence: `docs/harness/evidence/v3-milestone-3-reviewed-export-2026-07-19.json`
   binds the reviewed-export slice at `3b4f635b`, and
   `docs/harness/evidence/v3-milestone-3-storage-cleanup-2026-07-19.json` binds
@@ -454,12 +457,14 @@ relevant result, and caveat.
   `docs/harness/evidence/v3-milestone-3-policy-consent-2026-07-19.json` binds
   restricted scheduled-source policy and consent at `80218596`, and
   `docs/harness/evidence/v3-milestone-3-outside-ai-governance-2026-07-19.json`
-  binds the governed Outside AI lifecycle at `02465456`; prior milestone
-  evidence remains authoritative for its completed scope.
-- Next step: write fail-first offline-repair and platform-health tests before
-  adding more user-facing operations.
+  binds the governed Outside AI lifecycle at `02465456`.
+  `docs/harness/evidence/v3-milestone-3-offline-recovery-platform-repair-2026-07-19.json`
+  binds final offline recovery and platform repair at `aaa9f28c`; prior
+  milestone evidence remains authoritative for its completed scope.
+- Next step: write fail-first source-graph and browser protocol threat tests
+  before browser UI.
 - Open risks: scope remains large, contract freeze is irreversible within the
-  v3 compatibility line, live recovery behavior still needs Windows 11,
-  macOS 26, and Linux release-matrix proof, Privacy Doctor presentation still
-  needs Settings GUI and accessibility evidence, and some final distribution
+  v3 compatibility line, recovery and permission behavior still needs Windows
+  11, macOS 26, and Linux release-matrix proof, installed recovery UI still
+  needs keyboard and screen-reader evidence, and some final distribution
   evidence depends on external credentials.
