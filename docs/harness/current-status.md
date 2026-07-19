@@ -7,8 +7,7 @@ Last updated: 2026-07-19
 - Rust ownership is implemented across the declared crates. `jobsentinel-core`
   is deleted, storage hides its raw SQLx pool, and Tauri delegates product
   behavior through `jobsentinel-application`.
-- Desktop, frontend, script, workflow, and maintained-file ownership match the
-  executable contracts.
+- Desktop, frontend, script, workflow, and maintained-file ownership match the executable contracts.
 - The final structural batch eliminated 17 temporary exceptions through focused
   suite splits, fixture extraction, taxonomy compaction, and reusable release
   workflows. The sole retained exception is the unchanged initial SQLx migration,
@@ -42,6 +41,8 @@ Last updated: 2026-07-19
 - Milestone 0 reconciled release truth, debt, tests, dependencies, and release policy.
 - Milestone 1 froze fail-closed contracts and evals, retained existing scheduler ownership, and passed native input.
 - Milestone 2 passed the local data model, migration recovery, v2.9 preservation, and newer-data refusal.
+- Milestone 3 now includes encrypted portability, staged recovery, reviewed
+  plaintext export, storage cleanup, local-only Privacy Doctor, and safe support.
 
 ## In Progress
 
@@ -49,8 +50,8 @@ Last updated: 2026-07-19
 - Status: `active`
 - Objective: Make v3 recovery, portability, policy, consent, support, and repair local and offline-safe.
 - Branch: `feat/v3-major-line`
-- Current slice: Complete Milestone 3 cleanup, repair, privacy, consent, and support behavior.
-- Next action: Define Privacy Doctor and safe support behavior with fail-first tests.
+- Current slice: Complete Milestone 3 policy, consent, offline repair, and platform-health behavior.
+- Next action: Write fail-first policy-ledger and smart-consent tests before adding user-facing operations.
 
 ## Deferred
 

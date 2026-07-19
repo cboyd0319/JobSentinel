@@ -104,10 +104,23 @@ page error recovery. Reports are local by default and should avoid full private
 details.
 
 Safe support reports can include high-level app state, feature names, timestamps,
-sanitized error categories, and redacted settings summaries. They should not
-include full notes, resumes, full search text, salary floors, secrets, private
-paths, cookies, connection links, tokens, raw field names such as `url`, or
-full application history.
+sanitized error categories, redacted settings summaries, and fixed Privacy
+Doctor identifiers, states, and next actions. The report excludes renderer
+error messages and arbitrary error context. Final sanitization removes complete
+absolute paths and all trailing filename text from their lines, including
+Windows drive, UNC, mounted, temporary, and home paths. Reports should not
+include full notes, resumes, full
+search text, salary floors, secrets, private paths, cookies, connection links,
+tokens, raw field names such as `url`, provider or model names, or full
+application history.
+
+Privacy Doctor is passive and offline. It inspects local storage, structural
+portable-backup history, credential-vault metadata, configured external-AI
+safeguards, Browser Import code state, restricted-source acknowledgements, and
+the no-telemetry product contract. It does not read secrets or test Keychain.
+A recorded backup creation does not prove the file still exists, and system
+credential storage is reported as unchecked until the user performs an action
+that needs it.
 
 App Problem History hides crash details from the visible list. If JobSentinel
 help asks for more detail, users can copy or save a safe support report and
