@@ -232,7 +232,8 @@ impl CareerGraphLink {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct SourceGraphLink {
     pub link_id: String,
     pub source_id: String,

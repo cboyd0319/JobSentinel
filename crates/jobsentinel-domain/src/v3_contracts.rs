@@ -23,6 +23,8 @@ pub enum SchemaId {
     PackManifestV1,
     #[serde(rename = "jobsentinel.v3.region-manifest.v1")]
     RegionManifestV1,
+    #[serde(rename = "jobsentinel.v3.source-manifest.v1")]
+    SourceManifestV1,
     #[serde(rename = "jobsentinel.v3.edition-manifest.v1")]
     EditionManifestV1,
     #[serde(rename = "jobsentinel.v3.model-provenance.v1")]
@@ -40,6 +42,7 @@ impl SchemaId {
             Self::AgentTaskV1 => "jobsentinel.v3.agent-task.v1",
             Self::PackManifestV1 => "jobsentinel.v3.pack-manifest.v1",
             Self::RegionManifestV1 => "jobsentinel.v3.region-manifest.v1",
+            Self::SourceManifestV1 => "jobsentinel.v3.source-manifest.v1",
             Self::EditionManifestV1 => "jobsentinel.v3.edition-manifest.v1",
             Self::ModelProvenanceV1 => "jobsentinel.v3.model-provenance.v1",
             Self::VectorFreshnessV1 => "jobsentinel.v3.vector-freshness.v1",
@@ -246,7 +249,10 @@ impl ArtifactManifest {
     }
 }
 
-fn parse_contract<T: DeserializeOwned>(input: &str, expected: SchemaId) -> Result<T, String> {
+pub(crate) fn parse_contract<T: DeserializeOwned>(
+    input: &str,
+    expected: SchemaId,
+) -> Result<T, String> {
     let value: serde_json::Value =
         serde_json::from_str(input).map_err(|error| format!("malformed contract: {error}"))?;
     let schema = value
