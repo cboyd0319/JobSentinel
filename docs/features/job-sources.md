@@ -117,6 +117,19 @@ one from another.
 | Response size | JobSentinel stops reading very large responses; the current safety limit is 16 MiB |
 | User control | Job-site search links open in the user's browser; restricted-site actions stay user-directed and policy-bound |
 
+## Smart Paste
+
+Smart Paste turns copied job text and an optional public HTTPS job link into a
+local review draft. It does not fetch the page, use external AI, inspect the
+clipboard automatically, or read screenshots. The user pastes the text,
+reviews and edits title, company, location, and link, then confirms the exact
+draft before local storage.
+
+Pasted text and review edits are rejected before queueing if they contain
+password, token, cookie, authorization, or session-like material. Incomplete
+text remains an unsaved review draft until the user supplies the required
+fields. Screenshot and OCR import remain outside the v3.0 Smart Paste boundary.
+
 ## User-Controlled LinkedIn Workbench
 
 The LinkedIn-compatible flow is user-controlled activity capture, not a
@@ -160,6 +173,10 @@ scraper. The release-safe model is assistive capture:
   page. Policy-blocked domains fail closed.
 - **Queue observations locally.** Captured jobs become local records for review,
   scoring, ghost-job checks, reminders, and resume tailoring.
+- **Keep applied logging narrow.** The generic **I Just Applied** browser action
+  reads only the visible title, company, and public page address, then queues a
+  local applied draft with missing details marked. It does not read the
+  description or structured page data.
 - **Keep actions explicit.** Applied, saved, tracking, rejected, interview,
   follow-up, reminder, note, and not-interested events must come from a
   JobSentinel control, a visible user-approved import, or another explicit user

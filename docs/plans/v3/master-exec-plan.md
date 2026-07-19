@@ -250,7 +250,7 @@ pack privileges, and opaque hiring-probability claims.
 | 1. Contract, evaluation, and quality baseline | [x] Define versioned Rust-owned schemas for compatibility, manifests, privacy receipts, agent tasks, packs, regions, editions, model provenance, and vector freshness.<br>[x] Add fixtures for current v2.9, malformed, unsupported-newer, and forward-compatible unknown input.<br>[x] Create public or synthetic eval sets for source truth, resume evidence, pay clarity, posting risk, employer context, accessibility, recovery, modest hardware, military-to-civilian evidence, protected veteran-status answers, and commercial comparison.<br>[x] Prove whether existing application and Tokio owners satisfy typed-job scheduling, cancellation, recovery, observability, and resource-bound requirements; keep A20 deferred unless the evidence shows a concrete gap.<br>[x] Make drag-and-drop E2E deterministic and add installed-app native file-picker smoke coverage.<br>[x] Set benchmark budgets and use mutation testing only where it can disprove high-risk test quality.<br>[x] Complete Gate 1. | `jobsentinel-domain`, security, local AI, platform, harness contracts, tests, and closest docs.<br>Exit: schemas and evals fail closed, are versioned, require no database migration, and do not add a runtime kernel without evidence. |
 | 2. V3 local data foundation | [x] Write fail-first tests for case-file create/reuse, sanitized events, metadata limits, privacy receipts, source policy upsert, compatibility reads, failed migration, retry, and backup restore.<br>[x] Add append-only SQLx migrations for case files, typed events, career/source graph records, receipts, source policies, and compatibility metadata.<br>[x] Exclude raw resumes, notes, credentials, browser storage, provider payloads, and unrelated history from event metadata.<br>[x] Add application-layer operations without frontend commands.<br>[x] Prove fresh install and v2.9 fixture migration, then complete Gate 2. | Storage, domain, application, and `.sqlx/`.<br>Exit: the foundation is local, typed, bounded, migration-safe, and has no renderer surface. |
 | 3. Recovery, portability, policy, and repair | [x] Implement encrypted backup and restore, migration provenance, compatible rollback, newer-data refusal, export without lock-in, and storage cleanup.<br>[x] Make recovery, local record access, queued local work, and repair guidance available without network access; identify actions that require connectivity before the user commits work.<br>[x] Build Privacy Doctor, safe support bundle, policy ledger, smart consent, and governed external-send audit.<br>[x] Build the remaining offline recovery and repair services.<br>[x] Keep secret export disabled unless a separate design passes threat review and explicit approval.<br>[x] Add platform-health and package-repair contracts with plain fallbacks. | Storage, security, credentials, application, platform, Settings, and user-data docs.<br>Exit: destructive and irreversible paths have backup, restore, cancel, offline, support, and test evidence. |
-| 4. Source graph and browser companion | [ ] Implement source identity, class, policy, rate limit, permission, fixture, confidence, freshness, lineage, and stop-condition records.<br>[ ] Consolidate official APIs, public ATS pages, employer discovery, regional packs, restricted Workbench, visible capture, smart paste, and applied logging behind the graph.<br>[ ] Add reviewed veteran and U.S. public-service source and guidance metadata with provenance, dates, eligibility boundaries, and no claim of complete coverage.<br>[ ] Prototype secure loopback pairing, scoped permissions, revocation, replay protection, and no stored restricted-session material.<br>[ ] Add a source simulator, policy fixtures, robots and terms review records, freshness comparison, and adversarial protocol tests.<br>[ ] Complete Gate 3 before browser UI. | Sources, network, security, application, platform, browser assets, Settings, and source docs.<br>Exit: every source action is classified, paced, visible, revocable, and explainable. |
+| 4. Source graph and browser companion | [x] Implement source identity, class, policy, rate limit, permission, fixture, confidence, freshness, lineage, and stop-condition records.<br>[x] Consolidate official APIs, public ATS pages, employer discovery, regional packs, restricted Workbench, visible capture, smart paste, and applied logging behind the graph.<br>[x] Add reviewed veteran and U.S. public-service source and guidance metadata with provenance, dates, eligibility boundaries, and no claim of complete coverage.<br>[x] Prototype secure loopback pairing, scoped permissions, revocation, replay protection, and no stored restricted-session material.<br>[x] Add a source simulator, policy fixtures, robots and terms review records, freshness comparison, and adversarial protocol tests.<br>[x] Complete Gate 3 before browser UI. | Sources, network, security, application, platform, browser assets, Settings, and source docs.<br>Exit: every source action is classified, paced, visible, revocable, and explainable. |
 | 5. Local evidence, resume, and matching engine | [ ] Build a provenance-aware evidence graph shared by resume, requirement, packet, and case-file workflows.<br>[ ] Add requirement states, hard constraints, seniority, recency, profession and regional profiles, transparent blockers, and "why not" diagnostics.<br>[ ] Preserve the Military Transition template and military-service evidence, then add reviewed mappings from user-confirmed military occupations, responsibilities, credentials, and current clearances to civilian wording without inventing equivalence or claims.<br>[ ] Calibrate Qwen3 retrieval and reranking against frozen evals while preserving deterministic fallback and stale-vector repair.<br>[ ] Guard jobs, resumes, models, and packs against prompt injection and poisoned input.<br>[ ] Implement Model Doctor, match debugger, feedback capture, and evidence-bound packets.<br>[ ] Complete Gate 4 model and data decisions. | Documents, intelligence, local AI, assistance, storage, resume UI, and matching docs.<br>Exit: every match claim is evidence-linked, bounded, reproducible, and useful without external AI. |
 | 6. Opportunity case file and daily workflow | [ ] Ship plain-language first run, one useful initial search path, and clear skip and recovery choices.<br>[ ] Make the case file the shared view for job, source, risk, evidence, packet, application, interview, contact, offer, and outcome state.<br>[ ] Deliver the core campaign operating model through the mission board, timeline, evidence wall, decision summary, "why not this job," "prepare this job," debrief, and drag-and-drop import; leave inbox, simulation, and adaptive campaign extensions to train 12A.<br>[ ] Keep the local campaign, saved evidence, drafts, and review actions useful offline, with explicit stale and connectivity-required states for source actions.<br>[ ] Preserve user control over voluntary or protected veteran-status answers, clearance claims, and eligibility questions throughout application review.<br>[ ] Preserve focused feature ownership and typed application commands.<br>[ ] Test empty, partial, duplicate, offline, failed-source, and restored-data states at desktop and narrow layouts. | Application, storage, assistance, `src/features/`, shared UI, and closest docs.<br>Exit: the primary v3 campaign works end to end without hidden automation or required connectivity. |
 | 7. Agent and pack runtime | [ ] Implement local skill execution, reviewed task plans, bounded resume and packet agents, failure views, and eval packs.<br>[ ] Define signed manifests, capability grants, quarantine, self-test, install, update, disable, uninstall, and cleanup.<br>[ ] Limit v3.0 executable packs to reviewed typed actions; keep generic script or dynamic adapter execution deferred until sandbox denial tests and an explicit future promotion pass.<br>[ ] Deny broad shell, filesystem, network, credential, and external-send access by default.<br>[ ] Test injection, malformed packs, signatures, downgrade, revocation, replay, partial install, and rollback.<br>[ ] Keep static Agent Skills compatible and external AI gateway-bound. | Application, security, AI, assistance, platform, `skills/`, pack UI, and security docs.<br>Exit: agents and packs cannot exceed visible user-approved capabilities. |
@@ -333,6 +333,7 @@ relevant result, and caveat.
 | 2026-07-19 | Milestone 4 LinkedIn Workbench governed | Bound current LinkedIn policy evidence and a restricted user-opened manifest; moved review authority from renderer storage to exact append-only backend consent; enforced freshness, revocation, and pre-write credential rejection; separated navigation confirmation from durable consent; blocked LinkedIn Browser Import before DOM access; and required paired browser grants for browser-origin applied logging at `8baa2fea`. Focused checks passed and adversarial review returned APPROVE. Milestone 4 remains active. |
 | 2026-07-19 | Milestone 4 employer discovery governed | Added a user-directed EmployerDiscovery manifest and real Schema.org fixture; canonicalized and hard-blocked pasted destinations before native review; required exact installed policy and manifest authorization before the single credential-free fetch and before storage; retained the nonsecret grant only with bounded in-memory pending work; and persisted the graph-owned source identity at `43675a11`. Focused checks passed and adversarial review returned APPROVE. Milestone 4 remains active. |
 | 2026-07-19 | Milestone 4 starter region manifests added | Added dated, explicitly incomplete UK, EU, and India research manifests with exact regional scope, policy and provenance separation, real frozen evaluation references, current pay semantics, and no native-source or runtime-pack claim at `c5422e63`. Focused checks passed and adversarial review returned APPROVE. Milestone 4 remains active. |
+| 2026-07-19 | Milestone 4 and Gate 3 complete | Replaced legacy Browser Import with origin-bound one-use pairing at `0104af1b`, then added local Smart Paste and a distinct reviewed applied-draft action at `88beaadc`. Exact grants, revocation, replay protection, restricted-domain blocking, credential rejection, simulator drift checks, and explicit save or discard paths passed focused verification. Adversarial review returned APPROVE. Activated Milestone 5. |
 
 ## Discoveries
 
@@ -455,7 +456,22 @@ relevant result, and caveat.
 - Keep in-app local ledger actions inside the exact RestrictedWorkbench
   capability. Require PairedBrowserGrant for browser-origin AppliedLogging and
   VisiblePageCapture. Generic Smart Paste and browser-origin applied logging
-  remain separate Milestone 4 operations.
+  are separate reviewed operations.
+- Approve Gate 3 with coexistence, not replacement: scheduled public checks,
+  retired restricted automation, employer discovery, restricted Workbench,
+  visible Browser Import, Smart Paste, and applied logging retain distinct
+  source classes, permissions, pacing, visibility, and exit controls.
+- Accept the origin-bound bookmarklet companion as the S14 v3.0 minimum. A
+  dedicated extension, side panel, and broader cross-browser packaging remain
+  train 12B work; do not scaffold them in v3.0.
+- Accept source identity, action, provenance, lineage, and governed employer
+  discovery as the S27 Milestone 4 graph minimum. Employer dossiers and registry
+  intelligence remain Milestone 8 work.
+- Keep starter region manifests as dated research metadata. RegionalPackCheck
+  remains unsupported and fail-closed until Milestone 9 and Gate 4.
+- Treat the shared Schema.org source fixture as canonical normalized-output and
+  hash-drift evidence. Smart Paste parsing and applied logging behavior use
+  operation-specific runtime tests rather than an invented shared parser.
 
 ## Outcomes
 
@@ -518,15 +534,20 @@ relevant result, and caveat.
 - Milestone 4 now includes dated UK, EU, and India research manifests. They
   remain explicitly incomplete, English-only metadata with no RegionalPackCheck
   runtime action or claim that an official source is integrated.
+- Milestone 4 now passes Gate 3. Browser Import uses native-confirmed,
+  origin-bound, atomic one-use pairing and visible fields only. Smart Paste is
+  local, editable, screenshot-free, and credential-filtered. Applied logging
+  uses a distinct paired grant, captures only visible title, company, and page
+  address, marks missing details, and requires local review before Applied
+  status. Every supported source action has a typed class, permission, pacing,
+  visible control, revocation or cancellation path, safe explanation, and
+  focused evidence.
 
 ## Handoff
 
-- Current state: Milestones 0 through 3 are passing. Milestone 4 source graph
-  and browser companion work is the sole active feature. Milestone 3 provides
-  encrypted portability, staged restore and rollback, reviewed plaintext
-  export, offline cleanup and recovery, Privacy Doctor, safe support, exact
-  restricted-source consent, governed Outside AI sends, platform health, and
-  plain package-repair guidance.
+- Current state: Milestones 0 through 4 and Gates 0 through 3 are passing.
+  Milestone 5 local evidence, resume, and matching work is the sole active
+  feature.
 - Evidence: `docs/harness/evidence/v3-milestone-3-reviewed-export-2026-07-19.json`
   binds the reviewed-export slice at `3b4f635b`, and
   `docs/harness/evidence/v3-milestone-3-storage-cleanup-2026-07-19.json` binds
@@ -549,10 +570,12 @@ relevant result, and caveat.
   `docs/harness/evidence/v3-milestone-4-employer-discovery-governance-2026-07-19.json`
   at `43675a11`. Starter regional manifests are bound by
   `docs/harness/evidence/v3-milestone-4-starter-region-manifests-2026-07-19.json`
-  at `c5422e63`.
-- Next step: replace legacy Browser Import with origin-bound, one-use visible
-  capture pairing, then disposition generic Smart Paste and browser-origin
-  applied logging before Gate 3.
+  at `c5422e63`. Gate 3 completion is bound by
+  `docs/harness/evidence/v3-milestone-4-gate-3-2026-07-19.json` at
+  `88beaadc`.
+- Next step: inventory the current evidence, resume, matching, vector, and
+  military-transition owners, then start the smallest fail-first Milestone 5
+  contract slice.
 - Open risks: scope remains large, contract freeze is irreversible within the
   v3 compatibility line, recovery and permission behavior still needs Windows
   11, macOS 26, and Linux release-matrix proof, installed recovery UI still

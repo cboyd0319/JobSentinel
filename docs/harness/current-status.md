@@ -43,15 +43,15 @@ Last updated: 2026-07-19
 - Milestone 3 passed encrypted portability, staged recovery, reviewed export,
   offline cleanup, Privacy Doctor, safe support, exact consent, governed Outside
   AI, platform health, and fail-closed publication.
+- Milestone 4 passed Gate 3 with typed source governance, safe discovery and
+  Workbench paths, one-use Browser Import, Smart Paste, and applied drafts.
 
 ## In Progress
 
-- Active feature: `v3-milestone-4-source-graph-browser-companion`
+- Active feature: `v3-milestone-5-local-evidence-resume-matching`
 - Status: `active`
-- Current slice: Governed source actions, starter region manifests, and
-  origin-bound one-use Browser Import pairing.
-- Next action: Govern Smart Paste and browser-origin applied logging, then close
-  the source simulators and Gate 3.
+- Current slice: Provenance-aware local evidence for resume and matching.
+- Next action: Inventory owners, then write the first fail-first contract test.
 
 ## Deferred
 

@@ -9,6 +9,8 @@ add jobs from inside JobSentinel without setting this up.
 - Adds jobs from official career pages and trusted public job pages when the
   page shows enough job details.
 - Uses the browser page you already opened.
+- Offers a separate **I Just Applied** button that creates an applied draft from
+  the visible title, company, and page address.
 - Sends the job only to the JobSentinel app running on your computer.
 - Keeps the review list and saved jobs local.
 
@@ -31,11 +33,12 @@ Use the LinkedIn Workbench to enter or paste only the details you choose.
 2. Find **Install Browser Button**.
 3. Turn on **Browser Import**.
 4. Enter the public HTTPS address of the individual job page.
-5. Click **Copy Browser Button**.
+5. Click **Copy Browser Button**, or **Copy I Just Applied Button** when you
+   want an applied draft.
 6. Review the native confirmation showing the minimized page address and exact
    site. Cancel if either is unexpected.
 7. Create a new browser bookmark.
-8. Name it **Import to JobSentinel**.
+8. Name it **Import to JobSentinel** or **I Just Applied**.
 9. Paste the copied text where the bookmark stores the page address.
 10. Save it to your bookmarks bar.
 
@@ -62,6 +65,18 @@ matches the site you just confirmed in JobSentinel.
 
 If jobs are missing, copy the browser button again and retry. If some details
 are missing, save the job and edit it afterward, or skip it and add it manually.
+
+## Review Applied Drafts
+
+The **I Just Applied** button uses its own exact one-use permission. It reads
+only the visible title, visible company, and public page address. It never reads
+the description or structured page data.
+
+An applied draft enters the same local review list. Missing title or company
+fields are labeled before you save. **Save Applied Draft** creates or updates
+the local application record with Applied status. **Skip** discards the pending
+draft. LinkedIn and Y Combinator pages remain blocked from this browser action;
+use the LinkedIn Workbench or manual entry instead.
 
 ## Where It Works Best
 
@@ -135,6 +150,7 @@ the review looks useful, then fill in any blank details in JobSentinel.
 - Rust rechecks the installed source policy and manifest before queueing and
   again before saving. If authority changes, the item remains pending.
 - Browser Import jobs are not durable saved jobs until you click **Save Job** in
-  the review list.
+  the review list. Applied drafts are not durable until you click
+  **Save Applied Draft**.
 - Safe support reports must redact the browser button details and saved jobs
   details.
