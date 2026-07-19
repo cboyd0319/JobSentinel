@@ -4,6 +4,7 @@ mod bookmarklet;
 mod external_ai;
 mod fetcher;
 mod pending;
+pub mod privacy_doctor;
 mod service;
 #[cfg(test)]
 mod test_support;

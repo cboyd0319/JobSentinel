@@ -163,13 +163,9 @@ fn restricted_source_check_requires_acknowledgement(scraper_name: &str) -> bool 
 }
 
 fn saved_restricted_source_acknowledgement(config: &Config, scraper_name: &str) -> bool {
-    match scraper_name {
-        "builtin" => config.restricted_source_acknowledgements.builtin,
-        "dice" => config.restricted_source_acknowledgements.dice,
-        "simplyhired" => config.restricted_source_acknowledgements.simplyhired,
-        "glassdoor" => config.restricted_source_acknowledgements.glassdoor,
-        _ => false,
-    }
+    config
+        .restricted_source_acknowledgements
+        .contains(scraper_name)
 }
 
 fn restricted_source_check_acknowledged(

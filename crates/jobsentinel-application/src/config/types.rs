@@ -194,6 +194,18 @@ pub struct RestrictedSourceAcknowledgements {
     pub glassdoor: bool,
 }
 
+impl RestrictedSourceAcknowledgements {
+    pub(crate) fn contains(&self, source_id: &str) -> bool {
+        match source_id {
+            "builtin" => self.builtin,
+            "dice" => self.dice,
+            "simplyhired" => self.simplyhired,
+            "glassdoor" => self.glassdoor,
+            _ => false,
+        }
+    }
+}
+
 impl Config {
     #[must_use]
     pub fn first_run() -> Self {
@@ -275,6 +287,19 @@ impl Config {
 
         self.jobswithgpt_payload_preview()
             .is_some_and(|payload| self.jobswithgpt_approval.payload.as_ref() == Some(&payload))
+    }
+
+    pub(crate) fn enabled_restricted_sources_acknowledged(&self) -> bool {
+        [
+            (self.builtin.enabled, "builtin"),
+            (self.dice.enabled, "dice"),
+            (self.simplyhired.enabled, "simplyhired"),
+            (self.glassdoor.enabled, "glassdoor"),
+        ]
+        .into_iter()
+        .all(|(enabled, source_id)| {
+            !enabled || self.restricted_source_acknowledgements.contains(source_id)
+        })
     }
 }
 

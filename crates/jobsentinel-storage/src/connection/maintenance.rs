@@ -19,6 +19,16 @@ pub struct StorageMaintenanceReport {
     pub connectivity_required: bool,
 }
 
+/// Latest recorded portable-backup outcome, without paths or artifact claims.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PortableBackupHistory {
+    NotRecorded,
+    Started,
+    Succeeded,
+    Failed,
+    Cancelled,
+}
+
 impl Database {
     /// Get default database path
     #[must_use]
@@ -80,6 +90,32 @@ impl Database {
             incremental_vacuum_supported: auto_vacuum == 2,
             connectivity_required: false,
         })
+    }
+
+    /// Inspect only the latest recorded portable-backup outcome.
+    pub async fn inspect_portable_backup_history(
+        &self,
+    ) -> Result<PortableBackupHistory, sqlx::Error> {
+        let outcome: Option<String> = sqlx::query_scalar(
+            "SELECT outcome
+             FROM v3_recovery_operations
+             WHERE operation_kind = 'backup'
+             ORDER BY created_at DESC, rowid DESC
+             LIMIT 1",
+        )
+        .fetch_optional(&self.pool)
+        .await?;
+
+        match outcome.as_deref() {
+            None => Ok(PortableBackupHistory::NotRecorded),
+            Some("started") => Ok(PortableBackupHistory::Started),
+            Some("succeeded") => Ok(PortableBackupHistory::Succeeded),
+            Some("failed") => Ok(PortableBackupHistory::Failed),
+            Some("cancelled") => Ok(PortableBackupHistory::Cancelled),
+            Some(_) => Err(maintenance_error(
+                "Portable backup history contains an unsupported outcome",
+            )),
+        }
     }
 
     /// Checkpoint local SQLite state and reclaim up to 100 already-free pages.

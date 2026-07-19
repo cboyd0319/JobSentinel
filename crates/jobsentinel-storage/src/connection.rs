@@ -11,7 +11,7 @@ mod reviewed_export_inspect;
 mod reviewed_export_sanitize;
 mod reviewed_export_schema;
 
-pub use maintenance::{StorageHealth, StorageMaintenanceReport};
+pub use maintenance::{PortableBackupHistory, StorageHealth, StorageMaintenanceReport};
 pub use portable_backup::PortableBackupInfo;
 pub use reviewed_export::{ReviewedExportInfo, ReviewedExportPlan, ReviewedExportSelection};
 

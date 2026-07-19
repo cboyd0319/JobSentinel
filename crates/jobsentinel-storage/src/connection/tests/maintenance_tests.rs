@@ -268,3 +268,84 @@ async fn cleanup_does_not_claim_incremental_reclamation_when_sqlite_disables_it(
     assert!(!report.incremental_vacuum_supported);
     assert_eq!(report.health, StorageHealth::Healthy);
 }
+
+#[tokio::test]
+async fn portable_backup_history_reports_only_the_latest_structural_outcome() {
+    let database = Database::connect_memory().await.unwrap();
+    MIGRATOR.run(database.pool()).await.unwrap();
+    assert_eq!(
+        database.inspect_portable_backup_history().await.unwrap(),
+        PortableBackupHistory::NotRecorded
+    );
+    sqlx::query(
+        "INSERT INTO v3_recovery_operations(
+            operation_id, operation_kind, outcome,
+            source_migration_sequence, target_migration_sequence, created_at
+         ) VALUES ('backup-z', 'backup', 'started', 12, 12, '2026-07-19 01:00:00')",
+    )
+    .execute(database.pool())
+    .await
+    .unwrap();
+    assert_eq!(
+        database.inspect_portable_backup_history().await.unwrap(),
+        PortableBackupHistory::Started
+    );
+    sqlx::query(
+        "UPDATE v3_recovery_operations
+         SET outcome = 'failed', error_kind = 'io', completed_at = datetime('now')
+         WHERE operation_id = 'backup-z'",
+    )
+    .execute(database.pool())
+    .await
+    .unwrap();
+    assert_eq!(
+        database.inspect_portable_backup_history().await.unwrap(),
+        PortableBackupHistory::Failed
+    );
+    sqlx::query(
+        "INSERT INTO v3_recovery_operations(
+            operation_id, operation_kind, outcome,
+            source_migration_sequence, target_migration_sequence, created_at, completed_at
+         ) VALUES (
+             'backup-a', 'backup', 'succeeded', 12, 12,
+             '2026-07-19 01:00:00', '2026-07-19 01:00:01'
+         )",
+    )
+    .execute(database.pool())
+    .await
+    .unwrap();
+    assert_eq!(
+        database.inspect_portable_backup_history().await.unwrap(),
+        PortableBackupHistory::Succeeded
+    );
+    sqlx::query(
+        "INSERT INTO v3_recovery_operations(
+            operation_id, operation_kind, outcome,
+            source_migration_sequence, target_migration_sequence,
+            error_kind, created_at, completed_at
+         ) VALUES (
+             'backup-old', 'backup', 'cancelled', 12, 12, 'unknown',
+             '2026-07-18 01:00:00', '2026-07-18 01:00:01'
+         )",
+    )
+    .execute(database.pool())
+    .await
+    .unwrap();
+    sqlx::query(
+        "INSERT INTO v3_recovery_operations(
+            operation_id, operation_kind, outcome,
+            source_migration_sequence, target_migration_sequence,
+            created_at, completed_at
+         ) VALUES (
+             'cleanup-new', 'cleanup', 'succeeded', 12, 12,
+             '2026-07-20 01:00:00', '2026-07-20 01:00:01'
+         )",
+    )
+    .execute(database.pool())
+    .await
+    .unwrap();
+    assert_eq!(
+        database.inspect_portable_backup_history().await.unwrap(),
+        PortableBackupHistory::Succeeded
+    );
+}

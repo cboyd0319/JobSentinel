@@ -4,6 +4,9 @@
 //! Reports follow the beta feedback workflow in docs/plans/completed/beta-feedback-system.md.
 
 use chrono::{DateTime, Local, Utc};
+use jobsentinel_application::privacy_doctor::{
+    inspect_privacy_doctor, BrowserImportPrivacyState, PrivacyDoctorReport,
+};
 use serde::Serialize;
 use tauri::State;
 
@@ -52,19 +55,34 @@ pub(super) async fn generate_feedback_report_impl(
     // Get system info
     let system_info = SystemInfo::current();
 
-    // Get config summary (if debug info requested)
-    let config_summary = if include_debug_info {
-        let config = state.config.read().await;
-        Some(summarize_config(&config))
+    let config = if include_debug_info {
+        Some(state.config.read().await.clone())
     } else {
         None
     };
+    let config_summary = config.as_ref().map(summarize_config);
 
     // Get debug log (if requested)
     let debug_events = if include_debug_info {
         get_recent_events(20) // Last 20 events
     } else {
         vec![]
+    };
+
+    let privacy_doctor = if let Some(config) = config.as_ref() {
+        let browser_import = {
+            let server = state.bookmarklet_server.read().await;
+            BrowserImportPrivacyState {
+                running: server.is_running(),
+                code_current: server.config().auth_token_is_current(Utc::now()),
+            }
+        };
+        Some(
+            inspect_privacy_doctor(&state.database, config, &state.credentials, browser_import)
+                .await,
+        )
+    } else {
+        None
     };
 
     // Generate report
@@ -74,6 +92,7 @@ pub(super) async fn generate_feedback_report_impl(
         &system_info,
         config_summary.as_ref(),
         &debug_events,
+        privacy_doctor.as_ref(),
     );
 
     Ok(report)
@@ -86,6 +105,7 @@ fn format_feedback_report(
     system_info: &SystemInfo,
     config_summary: Option<&ConfigSummary>,
     debug_events: &[super::debug_log::TimestampedEvent],
+    privacy_doctor: Option<&PrivacyDoctorReport>,
 ) -> String {
     let now: DateTime<Local> = Local::now();
     let now_utc: DateTime<Utc> = Utc::now();
@@ -198,37 +218,59 @@ fn format_feedback_report(
         report.push_str("\n");
     }
 
-    // Support summary (JSON)
+    if let Some(doctor) = privacy_doctor {
+        report
+            .push_str("───────────────────────────────────────────────────────────────────────\n");
+        report.push_str("LOCAL PRIVACY AND RECOVERY\n");
+        report
+            .push_str("───────────────────────────────────────────────────────────────────────\n");
+        report.push_str("\n");
+        report.push_str(&format!(
+            "privacy_doctor_overall: {}\n",
+            doctor.overall.as_str()
+        ));
+        report.push_str(&format!(
+            "privacy_doctor_connectivity_required: {}\n",
+            doctor.connectivity_required
+        ));
+        for check in &doctor.checks {
+            report.push_str(&format!(
+                "privacy_doctor_check: {} | {} | {}\n",
+                check.id.as_str(),
+                check.state.as_str(),
+                check.action.map_or("none", |action| action.as_str())
+            ));
+        }
+        report.push_str("\n");
+    }
+
+    // Stable key-value support summary. Free text is sanitized before composition.
     report.push_str("───────────────────────────────────────────────────────────────────────\n");
     report.push_str("SUPPORT SUMMARY\n");
     report.push_str("───────────────────────────────────────────────────────────────────────\n");
     report.push_str("\n");
-    report.push_str("```json\n");
-
-    // Generate structured JSON
-    let structured = serde_json::json!({
-        "schema_version": "1.0",
-        "app_version": system_info.app_version,
-        "category": match category {
+    report.push_str("schema_version: 1.1\n");
+    report.push_str(&format!("app_version: {}\n", system_info.app_version));
+    report.push_str(&format!(
+        "category: {}\n",
+        match category {
             FeedbackCategory::Bug => "bug",
             FeedbackCategory::Feature => "feature",
             FeedbackCategory::Question => "question",
-        },
-        "timestamp": now_utc.to_rfc3339(),
-        "platform": {
-            "os": system_info.platform,
-            "os_version": system_info.os_version,
-            "arch": system_info.architecture,
-        },
-        "config_summary": config_summary,
-        "debug_events_count": debug_events.len(),
-    });
-
-    if let Ok(json_str) = serde_json::to_string_pretty(&structured) {
-        report.push_str(&json_str);
-    }
-
-    report.push_str("\n```\n");
+        }
+    ));
+    report.push_str(&format!("timestamp: {}\n", now_utc.to_rfc3339()));
+    report.push_str(&format!("platform_os: {}\n", system_info.platform));
+    report.push_str(&format!(
+        "platform_os_version: {}\n",
+        system_info.os_version
+    ));
+    report.push_str(&format!("platform_arch: {}\n", system_info.architecture));
+    report.push_str(&format!("debug_events_count: {}\n", debug_events.len()));
+    report.push_str(&format!(
+        "privacy_doctor_present: {}\n",
+        privacy_doctor.is_some()
+    ));
     report.push_str("\n");
 
     // Footer
@@ -252,6 +294,9 @@ mod tests {
     use super::*;
     use crate::ipc::feedback::debug_log::{DebugEvent, TimestampedEvent};
     use chrono::Utc;
+    use jobsentinel_application::privacy_doctor::{
+        PrivacyDoctorAction, PrivacyDoctorCheck, PrivacyDoctorCheckId, PrivacyDoctorState,
+    };
 
     #[test]
     fn test_format_feedback_report_minimal() {
@@ -264,7 +309,7 @@ mod tests {
             architecture: "arm64".to_string(),
         };
 
-        let report = format_feedback_report(&category, description, &system_info, None, &[]);
+        let report = format_feedback_report(&category, description, &system_info, None, &[], None);
 
         // Should contain all required sections
         assert!(report.contains("JOBSENTINEL SAFE SUPPORT REPORT"));
@@ -301,6 +346,7 @@ mod tests {
             &system_info,
             Some(&config_summary),
             &[],
+            None,
         );
 
         assert!(report.contains("JOBSENTINEL SETUP"));
@@ -337,7 +383,8 @@ mod tests {
             },
         ];
 
-        let report = format_feedback_report(&category, description, &system_info, None, &events);
+        let report =
+            format_feedback_report(&category, description, &system_info, None, &events, None);
 
         assert!(report.contains("RECENT APP ACTIVITY"));
         assert!(report.contains("Screen changed: Jobs to Dashboard"));
@@ -353,22 +400,24 @@ mod tests {
         let description = concat!(
             "Error at /",
             "Users",
-            "/johnsmith/file.txt with email john@example.com\n",
+            "/johnsmith/file.txt\n",
+            "Email john@example.com\n",
             "Salary floor: $125,000\n",
             "Resume text: Led retention project for oncology team\n",
             "Private note: laid off last month\n"
         );
         let system_info = SystemInfo::current();
 
-        let report = format_feedback_report(&category, description, &system_info, None, &[]);
+        let report = format_feedback_report(&category, description, &system_info, None, &[], None);
 
         // Should sanitize PII in description
-        assert!(report.contains("/[USER_PATH]/file.txt"));
+        assert!(report.contains("[LOCAL_PATH]"));
         assert!(report.contains("[EMAIL]"));
         assert!(report.contains("Salary floor: [JOB_SEARCH_DETAIL_REDACTED]"));
         assert!(report.contains("Resume text: [JOB_SEARCH_DETAIL_REDACTED]"));
         assert!(report.contains("Private note: [JOB_SEARCH_DETAIL_REDACTED]"));
         assert!(!report.contains("johnsmith"));
+        assert!(!report.contains("file.txt"));
         assert!(!report.contains("john@example.com"));
         assert!(!report.contains("$125,000"));
         assert!(!report.contains("oncology team"));
@@ -382,7 +431,7 @@ mod tests {
             r#"Issue while applying to "Acme Health" for care manager role after layoff"#;
         let system_info = SystemInfo::current();
 
-        let report = format_feedback_report(&category, description, &system_info, None, &[]);
+        let report = format_feedback_report(&category, description, &system_info, None, &[], None);
 
         assert!(report.contains("[JOB_SEARCH_DETAIL_REDACTED]"));
         assert!(!report.contains("Acme Health"));
@@ -395,5 +444,48 @@ mod tests {
         assert_eq!(FeedbackCategory::Bug.as_str(), "Problem Report");
         assert_eq!(FeedbackCategory::Feature.as_str(), "Improvement Idea");
         assert_eq!(FeedbackCategory::Question.as_str(), "General Feedback");
+    }
+
+    #[test]
+    fn safe_support_report_includes_only_typed_local_privacy_and_recovery_states() {
+        let privacy_doctor = PrivacyDoctorReport {
+            schema_version: 1,
+            overall: PrivacyDoctorState::NeedsAttention,
+            checks: vec![PrivacyDoctorCheck {
+                id: PrivacyDoctorCheckId::BackupHistory,
+                state: PrivacyDoctorState::NeedsAttention,
+                message: "Portable backup history could not be checked.",
+                action: Some(PrivacyDoctorAction::ReviewBackup),
+            }],
+            connectivity_required: false,
+        };
+        let report = format_feedback_report(
+            &FeedbackCategory::Bug,
+            "User generated a safe support report from JobSentinel.",
+            &SystemInfo::current(),
+            None,
+            &[],
+            Some(&privacy_doctor),
+        );
+
+        assert!(report.contains("LOCAL PRIVACY AND RECOVERY"));
+        assert!(report.contains("schema_version: 1.1"));
+        assert!(report.contains("privacy_doctor_overall: needs_attention"));
+        assert!(report
+            .contains("privacy_doctor_check: backup_history | needs_attention | review_backup"));
+        assert!(report.contains("privacy_doctor_connectivity_required: false"));
+        let delivered = Sanitizer::sanitize_support_report_text(&report);
+        assert!(delivered.contains("schema_version: 1.1"));
+        assert!(delivered.contains("privacy_doctor_overall: needs_attention"));
+        assert!(delivered
+            .contains("privacy_doctor_check: backup_history | needs_attention | review_backup"));
+        for private_detail in [
+            "/Users/private/jobs.db",
+            "Alice Resume.pdf",
+            "external_ai_openai_api_key",
+            "https://provider.example/private",
+        ] {
+            assert!(!report.contains(private_detail));
+        }
     }
 }

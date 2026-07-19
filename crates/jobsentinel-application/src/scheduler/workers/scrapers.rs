@@ -159,13 +159,9 @@ fn record_source_credential_failure(errors: &mut Vec<String>, source_label: &'st
 }
 
 fn restricted_source_acknowledged(config: &Config, source_id: &str) -> bool {
-    match source_id {
-        "builtin" => config.restricted_source_acknowledgements.builtin,
-        "dice" => config.restricted_source_acknowledgements.dice,
-        "simplyhired" => config.restricted_source_acknowledgements.simplyhired,
-        "glassdoor" => config.restricted_source_acknowledgements.glassdoor,
-        _ => false,
-    }
+    config
+        .restricted_source_acknowledgements
+        .contains(source_id)
 }
 
 fn restricted_source_acknowledgement_missing_message(source_label: &'static str) -> String {
