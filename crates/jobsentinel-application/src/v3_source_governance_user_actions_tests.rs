@@ -43,7 +43,7 @@ async fn user_source_action_governance_is_installed_with_graph_lineage() {
             .await
             .unwrap()
             .len(),
-        1
+        2
     );
 }
 
@@ -98,6 +98,43 @@ async fn user_source_action_authorization_requires_the_persisted_exact_grant() {
         )
         .await,
         Err(FoundationError::Conflict)
+    );
+}
+
+#[tokio::test]
+async fn visible_page_capture_requires_persisted_pairing_authority() {
+    let database = Database::connect_memory().await.unwrap();
+    database.migrate().await.unwrap();
+    install_user_source_actions(&database).await.unwrap();
+    let today = NaiveDate::from_ymd_opt(2026, 7, 19).unwrap();
+
+    assert_eq!(
+        authorize_user_source_action(
+            &database,
+            SourceOperation::VisiblePageCapture,
+            today,
+            SourceGrantState::Missing,
+        )
+        .await
+        .unwrap(),
+        SourceActionDecision::ReviewRequired
+    );
+    assert_eq!(
+        authorize_user_source_action(
+            &database,
+            SourceOperation::VisiblePageCapture,
+            today,
+            grant(
+                SourceOperation::VisiblePageCapture,
+                SourcePermission::PairedBrowserGrant,
+            ),
+        )
+        .await
+        .unwrap(),
+        SourceActionDecision::Allowed {
+            request_limit_per_hour: 0,
+            connectivity_required: false,
+        }
     );
 }
 

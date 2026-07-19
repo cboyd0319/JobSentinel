@@ -12,6 +12,10 @@
     {
       "operation": "employer_discovery",
       "permission": "user_review"
+    },
+    {
+      "operation": "visible_page_capture",
+      "permission": "paired_browser_grant"
     }
   ],
   "terms_review": {
@@ -53,6 +57,14 @@
       "source_id": "user-source-actions",
       "relation": "lineage",
       "related_id": "source-operation-employer-discovery",
+      "provenance": "migration",
+      "provenance_ref": null
+    },
+    {
+      "link_id": "source-lineage-user-source-actions-visible-page-capture",
+      "source_id": "user-source-actions",
+      "relation": "lineage",
+      "related_id": "source-operation-visible-page-capture",
       "provenance": "migration",
       "provenance_ref": null
     }

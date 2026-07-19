@@ -95,6 +95,71 @@ fn employer_discovery_rejects_cross_operation_and_browser_grants() {
 }
 
 #[test]
+fn visible_page_capture_requires_the_exact_pairing_grant() {
+    let policy = policy();
+    let manifest = parse_source_manifest(USER_SOURCE_ACTIONS_MANIFEST_V1, &policy).unwrap();
+    let today = NaiveDate::from_ymd_opt(2026, 7, 19).unwrap();
+
+    assert_eq!(
+        manifest
+            .authorize(
+                &policy,
+                SourceOperation::VisiblePageCapture,
+                today,
+                SourceGrantState::Missing,
+            )
+            .unwrap(),
+        SourceActionDecision::ReviewRequired
+    );
+    for wrong_grant in [
+        grant(
+            SourceOperation::VisiblePageCapture,
+            SourcePermission::UserReview,
+        ),
+        grant(
+            SourceOperation::EmployerDiscovery,
+            SourcePermission::PairedBrowserGrant,
+        ),
+        SourceGrantState::Granted {
+            source_id: "user-source-actions".to_string(),
+            policy_ref: "jobsentinel.source-policy.user-source-actions".to_string(),
+            permission: SourcePermission::PairedBrowserGrant,
+            operation: SourceOperation::VisiblePageCapture,
+            policy_revision: 2,
+        },
+    ] {
+        assert_eq!(
+            manifest
+                .authorize(
+                    &policy,
+                    SourceOperation::VisiblePageCapture,
+                    today,
+                    wrong_grant,
+                )
+                .unwrap(),
+            SourceActionDecision::Revoked
+        );
+    }
+    assert_eq!(
+        manifest
+            .authorize(
+                &policy,
+                SourceOperation::VisiblePageCapture,
+                today,
+                grant(
+                    SourceOperation::VisiblePageCapture,
+                    SourcePermission::PairedBrowserGrant,
+                ),
+            )
+            .unwrap(),
+        SourceActionDecision::Allowed {
+            request_limit_per_hour: 0,
+            connectivity_required: false,
+        }
+    );
+}
+
+#[test]
 fn employer_discovery_fixture_is_exact_and_drift_blocks() {
     let policy = policy();
     let manifest = parse_source_manifest(USER_SOURCE_ACTIONS_MANIFEST_V1, &policy).unwrap();

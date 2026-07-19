@@ -5,9 +5,11 @@ use jobsentinel_domain::{
     v3_source_authorization::SourceGrantState,
     v3_source_manifest::{SourceOperation, SourcePermission},
 };
-use jobsentinel_security::redacted_secret_for_debug;
+use jobsentinel_security::{
+    redacted_secret_for_debug, validate_credential_free_external_https_url,
+};
+use serde::{Deserialize, Serialize};
 use thiserror::Error;
-use url::Url;
 use uuid::Uuid;
 use zeroize::Zeroize;
 
@@ -55,7 +57,8 @@ impl Drop for CompanionPairingCode {
     }
 }
 
-#[derive(Clone, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct CompanionRequest {
     pub protocol_version: u16,
     pub pairing_id: String,
@@ -224,6 +227,14 @@ impl CompanionPairing {
         })
     }
 
+    #[must_use]
+    pub fn is_current(&self, now: DateTime<Utc>) -> bool {
+        !self.revoked
+            && !self.code.token.is_empty()
+            && now < self.code.expires_at
+            && self.used_nonces.len() < MAX_COMPANION_REQUESTS_PER_PAIRING
+    }
+
     pub fn revoke(&mut self) {
         self.revoked = true;
         self.code.token.zeroize();
@@ -252,14 +263,15 @@ fn valid_identifier(value: &str) -> bool {
 }
 
 fn normalized_origin(value: &str) -> Result<String, CompanionPairingError> {
-    let url = Url::parse(value).map_err(|_| CompanionPairingError::Invalid)?;
-    if !matches!(url.scheme(), "http" | "https")
-        || !url.username().is_empty()
-        || url.password().is_some()
-        || url.path() != "/"
-        || url.query().is_some()
-        || url.fragment().is_some()
+    if value
+        .strip_prefix("https://")
+        .is_none_or(|authority| authority.starts_with('/'))
     {
+        return Err(CompanionPairingError::Invalid);
+    }
+    let url = validate_credential_free_external_https_url(value)
+        .map_err(|_| CompanionPairingError::Invalid)?;
+    if url.path() != "/" {
         return Err(CompanionPairingError::Invalid);
     }
     Ok(url.origin().ascii_serialization())
@@ -363,12 +375,15 @@ mod tests {
     #[test]
     fn pairing_expiry_and_revocation_fail_closed_and_clear_the_secret() {
         let (mut pairing, code, now) = issued_pairing();
+        assert!(pairing.is_current(now));
         assert_eq!(
             pairing.authorize(&request(&code, "nonce-1"), now + TimeDelta::minutes(10)),
             Err(CompanionPairingError::Expired)
         );
+        assert!(!pairing.is_current(now + TimeDelta::minutes(10)));
 
         pairing.revoke();
+        assert!(!pairing.is_current(now));
         assert!(pairing.secret_is_empty());
         assert_eq!(
             pairing.authorize(&request(&code, "nonce-2"), now),
@@ -377,21 +392,49 @@ mod tests {
     }
 
     #[test]
+    fn pairing_readiness_fails_closed_at_request_capacity() {
+        let (mut pairing, code, now) = issued_pairing();
+
+        for index in 0..MAX_COMPANION_REQUESTS_PER_PAIRING {
+            assert!(pairing.is_current(now));
+            pairing
+                .authorize(&request(&code, &format!("nonce-{index}")), now)
+                .unwrap();
+        }
+
+        assert!(!pairing.is_current(now));
+        assert_eq!(
+            pairing.authorize(&request(&code, "nonce-over-capacity"), now),
+            Err(CompanionPairingError::CapacityReached)
+        );
+    }
+
+    #[test]
     fn pairing_issue_rejects_unsafe_or_excessive_scope() {
         let now = Utc.with_ymd_and_hms(2026, 7, 19, 12, 0, 0).unwrap();
-        assert_eq!(
-            CompanionPairing::issue(
-                "browser-client-1",
-                "restricted-jobs",
-                "restricted-jobs-policy",
-                3,
-                "https://jobs.example/path?token=private",
-                vec![SourceOperation::VisiblePageCapture],
-                now,
-            )
-            .unwrap_err(),
-            CompanionPairingError::Invalid
-        );
+        for origin in [
+            "http://jobs.example",
+            "https://localhost",
+            "https://127.0.0.1",
+            "https:///jobs",
+            "https://user:secret@jobs.example",
+            "https://jobs.example/path?token=private",
+        ] {
+            assert_eq!(
+                CompanionPairing::issue(
+                    "browser-client-1",
+                    "restricted-jobs",
+                    "restricted-jobs-policy",
+                    3,
+                    origin,
+                    vec![SourceOperation::VisiblePageCapture],
+                    now,
+                )
+                .unwrap_err(),
+                CompanionPairingError::Invalid,
+                "{origin} must fail closed"
+            );
+        }
         assert_eq!(
             CompanionPairing::issue(
                 "browser-client-1",
@@ -428,5 +471,21 @@ mod tests {
 
         assert!(!output.contains(&code.token));
         assert!(output.contains("[REDACTED]"));
+    }
+
+    #[test]
+    fn companion_request_has_a_structured_wire_envelope() {
+        let (_, code, _) = issued_pairing();
+        let request = request(&code, "nonce-1");
+        let serialized = serde_json::to_string(&request).unwrap();
+        let decoded: CompanionRequest = serde_json::from_str(&serialized).unwrap();
+        let legacy = format!(
+            "{},\"authToken\":\"legacy\"}}",
+            serialized.strip_suffix('}').unwrap()
+        );
+
+        assert_eq!(decoded, request);
+        assert!(!serialized.contains("authToken"));
+        assert!(serde_json::from_str::<CompanionRequest>(&legacy).is_err());
     }
 }
