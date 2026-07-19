@@ -6,15 +6,15 @@ mod browser_sources;
 mod federal;
 mod hn_hiring_worker;
 mod jobswithgpt_worker;
+mod public_ats_worker;
 mod remoteok_worker;
 mod weworkremotely_worker;
 
 use crate::{config::Config, credentials::CredentialService};
 use jobsentinel_domain::Job;
 use jobsentinel_sources::{
-    parse_greenhouse_company_url, parse_lever_company_url, BuiltInScraper, DiceScraper,
-    GreenhouseCompany, GreenhouseScraper, JobScraper, LeverCompany, LeverScraper, ScraperError,
-    YcStartupScraper, LINKEDIN_AUTOMATION_DISABLED_MESSAGE,
+    BuiltInScraper, DiceScraper, JobScraper, ScraperError, YcStartupScraper,
+    LINKEDIN_AUTOMATION_DISABLED_MESSAGE,
 };
 use jobsentinel_storage::Database;
 use std::sync::{
@@ -203,65 +203,9 @@ pub(crate) async fn run_scrapers(
     let mut all_jobs = Vec::new();
     let mut errors = Vec::new();
 
-    // 1. Greenhouse scraper - use URLs from config
-    if !config.greenhouse_urls.is_empty() {
-        let greenhouse_companies: Vec<GreenhouseCompany> = config
-            .greenhouse_urls
-            .iter()
-            .filter_map(|url| {
-                parse_greenhouse_company_url(url)
-                    .ok()
-                    .map(|board| GreenhouseCompany {
-                        id: board.id.clone(),
-                        name: board.id,
-                        url: board.url,
-                    })
-            })
-            .collect();
-
-        if !greenhouse_companies.is_empty() {
-            let greenhouse = GreenhouseScraper::new(greenhouse_companies);
-            run_scraper(
-                db,
-                &greenhouse,
-                "greenhouse",
-                "Greenhouse",
-                shutdown_requested,
-                &mut all_jobs,
-                &mut errors,
-            )
-            .await;
-        }
-    }
-
-    // 2. Lever scraper - use URLs from config
-    if !config.lever_urls.is_empty() {
-        let lever_companies: Vec<LeverCompany> = config
-            .lever_urls
-            .iter()
-            .filter_map(|url| {
-                parse_lever_company_url(url).ok().map(|board| LeverCompany {
-                    id: board.id.clone(),
-                    name: board.id,
-                    url: board.url,
-                })
-            })
-            .collect();
-
-        if !lever_companies.is_empty() {
-            let lever = LeverScraper::new(lever_companies);
-            run_scraper(
-                db,
-                &lever,
-                "lever",
-                "Lever",
-                shutdown_requested,
-                &mut all_jobs,
-                &mut errors,
-            )
-            .await;
-        }
-    }
+    public_ats_worker::run_greenhouse(config, db, shutdown_requested, &mut all_jobs, &mut errors)
+        .await;
+    public_ats_worker::run_lever(config, db, shutdown_requested, &mut all_jobs, &mut errors).await;
 
     jobswithgpt_worker::run_jobswithgpt_scraper(
         config.as_ref(),

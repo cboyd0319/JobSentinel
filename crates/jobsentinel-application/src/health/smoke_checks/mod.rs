@@ -61,6 +61,10 @@ const WEWORKREMOTELY_SOURCE_CHECK_UNAVAILABLE: &str =
 const HN_HIRING_DISABLED: &str = "Hacker News Who Is Hiring scraping not enabled";
 const HN_HIRING_SOURCE_CHECK_UNAVAILABLE: &str =
     "This Hacker News Who Is Hiring connectivity check is unavailable until its reviewed source governance is current.";
+const GREENHOUSE_SOURCE_CHECK_UNAVAILABLE: &str =
+    "This Greenhouse connectivity check is unavailable until its reviewed source governance is current.";
+const LEVER_SOURCE_CHECK_UNAVAILABLE: &str =
+    "This Lever connectivity check is unavailable until its reviewed source governance is current.";
 // Mirrors restricted public unauthenticated source-check helpers from the
 // shared source taxonomy. Source-specific reasons live in
 // src/shared/restrictedSourceTaxonomy.ts and docs/features/scrapers.md.
@@ -156,8 +160,6 @@ fn validate_smoke_details(scraper_name: &str, details: &serde_json::Value) -> Re
 
 fn smoke_rate_limit(scraper_name: &str) -> u32 {
     match scraper_name {
-        "greenhouse" => limits::GREENHOUSE,
-        "lever" => limits::LEVER,
         "indeed" => limits::INDEED,
         "wellfound" => 200,
         "builtin" => limits::BUILTIN,
@@ -247,6 +249,22 @@ pub async fn run_smoke_test_with_credentials(
     }
 
     let governed_decision = match scraper_name {
+        "greenhouse" => Some(
+            crate::v3_source_governance::authorize_greenhouse(
+                db,
+                SourceOperation::ConnectivityCheck,
+                Utc::now().date_naive(),
+            )
+            .await,
+        ),
+        "lever" => Some(
+            crate::v3_source_governance::authorize_lever(
+                db,
+                SourceOperation::ConnectivityCheck,
+                Utc::now().date_naive(),
+            )
+            .await,
+        ),
         "usajobs" => Some(
             crate::v3_source_governance::authorize_usajobs(
                 db,
@@ -288,6 +306,8 @@ pub async fn run_smoke_test_with_credentials(
         })) => Some(u32::from(request_limit_per_hour)),
         Some(_) => {
             let reason = match scraper_name {
+                "greenhouse" => GREENHOUSE_SOURCE_CHECK_UNAVAILABLE,
+                "lever" => LEVER_SOURCE_CHECK_UNAVAILABLE,
                 "usajobs" => USAJOBS_SOURCE_CHECK_UNAVAILABLE,
                 "remoteok" => REMOTEOK_SOURCE_CHECK_UNAVAILABLE,
                 "weworkremotely" => WEWORKREMOTELY_SOURCE_CHECK_UNAVAILABLE,

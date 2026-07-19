@@ -298,8 +298,8 @@ Representative source pacing:
 
 | Source | Check pace | Access pattern |
 | ------ | ------------- | -------------- |
-| Greenhouse | High | Official public postings |
-| Lever | High | Official public postings |
+| Greenhouse | Paced, at most 1,000/hour | Official public Job Board API |
+| Lever | Paced, at most 1,000/hour | Official public Postings API |
 | USAJobs | High | Official source with user-provided access code |
 | RemoteOK | Medium | Public job feed |
 | Hacker News Who Is Hiring | Medium | Public community posts through Algolia HN Search |
@@ -335,6 +335,19 @@ The manifest binds the exact API endpoint, local-credential requirement,
 reviewed list and detail fixture hashes, and a paced 60-request-per-hour rate
 with no automatic retries or multi-request burst. Missing, stale, disabled, or
 drifted governance stops before credential access or network work.
+
+Greenhouse and Lever scheduled and connectivity checks require exact persisted
+Public ATS manifests and policies before network access. Each manifest binds
+the public GET API prefix, reviewed synthetic parser fixture, hash-bound policy
+review record, current policy revision, robots review, and a paced local
+1,000-request-per-hour ceiling with burst one and no automatic retries. That
+ceiling is JobSentinel policy, not a provider-published GET allowance.
+Greenhouse uses only its documented public Job Board API. It no longer switches
+to hosted-board HTML after an API failure or empty result. Lever uses only its
+public Postings API and never submits an application. Normalized postings
+remain local and are not sent to external model training. Missing, stale,
+disabled, or drifted governance stops both the scheduled source and its fixed
+connectivity check before network access.
 
 RemoteOK scheduled and connectivity checks use the same exact persisted-policy
 and manifest gate before network access. The reviewed first-party API notice

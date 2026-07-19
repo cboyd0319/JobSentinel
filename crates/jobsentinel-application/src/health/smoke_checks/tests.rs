@@ -72,6 +72,36 @@ async fn restricted_smoke_test_is_unavailable_without_distinct_reviewed_scope() 
 }
 
 #[tokio::test]
+async fn public_ats_smoke_stops_before_network_without_current_governance() {
+    let database = Database::connect_memory().await.unwrap();
+    database.migrate().await.unwrap();
+    let credential_database = Database::connect_memory().await.unwrap();
+    credential_database.migrate().await.unwrap();
+    let credentials =
+        CredentialService::with_fixed_master_key(credential_database.credentials(), [7; 32], false);
+    let config = minimal_test_config();
+
+    for (source, reason) in [
+        ("greenhouse", GREENHOUSE_SOURCE_CHECK_UNAVAILABLE),
+        ("lever", LEVER_SOURCE_CHECK_UNAVAILABLE),
+    ] {
+        let result = run_smoke_test_with_credentials(&database, &config, source, &credentials)
+            .await
+            .unwrap();
+
+        assert!(result.passed);
+        assert_eq!(
+            result.details.and_then(|details| {
+                details["reason"]
+                    .as_str()
+                    .map(std::string::ToString::to_string)
+            }),
+            Some(reason.to_string())
+        );
+    }
+}
+
+#[tokio::test]
 async fn renderer_and_legacy_booleans_cannot_authorize_restricted_health_checks() {
     let mut config = jobswithgpt_smoke_config("https://example.test/jobs");
     config.restricted_source_acknowledgements.dice = true;

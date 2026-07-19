@@ -4,8 +4,10 @@ use jobsentinel_domain::{
     v3_manifests::SourceClass,
     v3_source_authorization::{SourceActionDecision, SourceGrantState},
     v3_source_manifest::{
-        parse_source_manifest, SourceOperation, HN_HIRING_REQUEST_LIMIT_PER_HOUR,
-        HN_HIRING_SOURCE_MANIFEST_V1, REMOTEOK_REQUEST_LIMIT_PER_HOUR, REMOTEOK_SOURCE_MANIFEST_V1,
+        parse_source_manifest, SourceOperation, GREENHOUSE_REQUEST_LIMIT_PER_HOUR,
+        GREENHOUSE_SOURCE_MANIFEST_V1, HN_HIRING_REQUEST_LIMIT_PER_HOUR,
+        HN_HIRING_SOURCE_MANIFEST_V1, LEVER_REQUEST_LIMIT_PER_HOUR, LEVER_SOURCE_MANIFEST_V1,
+        REMOTEOK_REQUEST_LIMIT_PER_HOUR, REMOTEOK_SOURCE_MANIFEST_V1,
         USAJOBS_REQUEST_LIMIT_PER_HOUR, USAJOBS_SOURCE_MANIFEST_V1,
         WEWORKREMOTELY_REQUEST_LIMIT_PER_HOUR, WEWORKREMOTELY_SOURCE_MANIFEST_V1,
     },
@@ -18,12 +20,13 @@ const POLICY_REVIEWED_AT: &str = "2026-07-19T00:00:00Z";
 
 fn reviewed_policy(
     source_id: &str,
+    source_class: SourceClass,
     policy_ref: &str,
     request_limit_per_hour: u16,
 ) -> Result<SourcePolicy, FoundationError> {
     Ok(SourcePolicy {
         source_id: source_id.to_string(),
-        source_class: SourceClass::OfficialPublicApi,
+        source_class,
         access: SourceAccess::ScheduledPublic,
         request_limit_per_hour,
         user_review_required: false,
@@ -39,6 +42,7 @@ fn reviewed_policy(
 pub(crate) fn usajobs_policy() -> Result<SourcePolicy, FoundationError> {
     reviewed_policy(
         "usajobs",
+        SourceClass::OfficialPublicApi,
         "jobsentinel.source-policy.usajobs.api",
         USAJOBS_REQUEST_LIMIT_PER_HOUR,
     )
@@ -47,6 +51,7 @@ pub(crate) fn usajobs_policy() -> Result<SourcePolicy, FoundationError> {
 pub(crate) fn remoteok_policy() -> Result<SourcePolicy, FoundationError> {
     reviewed_policy(
         "remoteok",
+        SourceClass::OfficialPublicApi,
         "jobsentinel.source-policy.remoteok.api",
         REMOTEOK_REQUEST_LIMIT_PER_HOUR,
     )
@@ -55,6 +60,7 @@ pub(crate) fn remoteok_policy() -> Result<SourcePolicy, FoundationError> {
 pub(crate) fn weworkremotely_policy() -> Result<SourcePolicy, FoundationError> {
     reviewed_policy(
         "weworkremotely",
+        SourceClass::OfficialPublicApi,
         "jobsentinel.source-policy.weworkremotely.rss",
         WEWORKREMOTELY_REQUEST_LIMIT_PER_HOUR,
     )
@@ -63,8 +69,27 @@ pub(crate) fn weworkremotely_policy() -> Result<SourcePolicy, FoundationError> {
 pub(crate) fn hn_hiring_policy() -> Result<SourcePolicy, FoundationError> {
     reviewed_policy(
         "hn_hiring",
+        SourceClass::OfficialPublicApi,
         "jobsentinel.source-policy.hn-hiring.algolia",
         HN_HIRING_REQUEST_LIMIT_PER_HOUR,
+    )
+}
+
+pub(crate) fn greenhouse_policy() -> Result<SourcePolicy, FoundationError> {
+    reviewed_policy(
+        "greenhouse",
+        SourceClass::PublicAts,
+        "jobsentinel.source-policy.greenhouse.public-job-board-api",
+        GREENHOUSE_REQUEST_LIMIT_PER_HOUR,
+    )
+}
+
+pub(crate) fn lever_policy() -> Result<SourcePolicy, FoundationError> {
+    reviewed_policy(
+        "lever",
+        SourceClass::PublicAts,
+        "jobsentinel.source-policy.lever.public-postings-api",
+        LEVER_REQUEST_LIMIT_PER_HOUR,
     )
 }
 
@@ -204,4 +229,98 @@ pub(crate) async fn authorize_hn_hiring(
         today,
     )
     .await
+}
+
+pub(crate) async fn install_greenhouse(database: &Database) -> Result<(), FoundationError> {
+    install_reviewed(
+        database,
+        greenhouse_policy()?,
+        GREENHOUSE_SOURCE_MANIFEST_V1,
+    )
+    .await
+}
+
+pub(crate) async fn authorize_greenhouse(
+    database: &Database,
+    operation: SourceOperation,
+    today: NaiveDate,
+) -> Result<SourceActionDecision, FoundationError> {
+    authorize_reviewed(
+        database,
+        greenhouse_policy()?,
+        GREENHOUSE_SOURCE_MANIFEST_V1,
+        operation,
+        today,
+    )
+    .await
+}
+
+pub(crate) async fn install_lever(database: &Database) -> Result<(), FoundationError> {
+    install_reviewed(database, lever_policy()?, LEVER_SOURCE_MANIFEST_V1).await
+}
+
+pub(crate) async fn authorize_lever(
+    database: &Database,
+    operation: SourceOperation,
+    today: NaiveDate,
+) -> Result<SourceActionDecision, FoundationError> {
+    authorize_reviewed(
+        database,
+        lever_policy()?,
+        LEVER_SOURCE_MANIFEST_V1,
+        operation,
+        today,
+    )
+    .await
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn reviewed_public_ats_manifests_authorize_only_their_policy_rates() {
+        let database = Database::connect_memory().await.unwrap();
+        database.migrate().await.unwrap();
+        install_greenhouse(&database).await.unwrap();
+        install_lever(&database).await.unwrap();
+        let today = NaiveDate::from_ymd_opt(2026, 7, 19).unwrap();
+
+        assert_eq!(
+            authorize_greenhouse(&database, SourceOperation::ScheduledCheck, today)
+                .await
+                .unwrap(),
+            SourceActionDecision::Allowed {
+                request_limit_per_hour: GREENHOUSE_REQUEST_LIMIT_PER_HOUR,
+                connectivity_required: true,
+            }
+        );
+        assert_eq!(
+            authorize_lever(&database, SourceOperation::ConnectivityCheck, today)
+                .await
+                .unwrap(),
+            SourceActionDecision::Allowed {
+                request_limit_per_hour: LEVER_REQUEST_LIMIT_PER_HOUR,
+                connectivity_required: true,
+            }
+        );
+    }
+
+    #[tokio::test]
+    async fn public_ats_authorization_fails_closed_without_installed_manifests() {
+        let database = Database::connect_memory().await.unwrap();
+        database.migrate().await.unwrap();
+        let today = NaiveDate::from_ymd_opt(2026, 7, 19).unwrap();
+
+        assert!(
+            authorize_greenhouse(&database, SourceOperation::ScheduledCheck, today)
+                .await
+                .is_err()
+        );
+        assert!(
+            authorize_lever(&database, SourceOperation::ScheduledCheck, today)
+                .await
+                .is_err()
+        );
+    }
 }

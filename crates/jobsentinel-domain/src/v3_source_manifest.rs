@@ -26,6 +26,13 @@ pub const HN_HIRING_SOURCE_MANIFEST_V1: &str =
 pub const HN_HIRING_REQUEST_LIMIT_PER_HOUR: u16 = 500;
 pub const HN_HIRING_SEARCH_ENDPOINT: &str = "https://hn.algolia.com/api/v1/search_by_date";
 pub const HN_HIRING_ITEM_ENDPOINT_PREFIX: &str = "https://hn.algolia.com/api/v1/items/";
+pub const GREENHOUSE_SOURCE_MANIFEST_V1: &str =
+    include_str!("fixtures/source_manifests/greenhouse_v1.json");
+pub const GREENHOUSE_REQUEST_LIMIT_PER_HOUR: u16 = 1_000;
+pub const GREENHOUSE_API_ENDPOINT_PREFIX: &str = "https://boards-api.greenhouse.io/v1/boards/";
+pub const LEVER_SOURCE_MANIFEST_V1: &str = include_str!("fixtures/source_manifests/lever_v1.json");
+pub const LEVER_REQUEST_LIMIT_PER_HOUR: u16 = 1_000;
+pub const LEVER_API_ENDPOINT_PREFIX: &str = "https://api.lever.co/v0/postings/";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]

@@ -201,12 +201,6 @@ pub mod limits {
     /// Indeed: 500 requests/hour (more generous, has public API)
     pub const INDEED: u32 = 500;
 
-    /// Greenhouse: 1000 requests/hour (official API)
-    pub const GREENHOUSE: u32 = 1000;
-
-    /// Lever: 1000 requests/hour (official API)
-    pub const LEVER: u32 = 1000;
-
     /// JobsWithGPT: 10,000 requests/hour (MCP server)
     pub const JOBSWITHGPT: u32 = 10_000;
 

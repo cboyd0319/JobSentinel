@@ -275,15 +275,12 @@ async fn test_limits_constants_are_reasonable() {
     // Verify constants are defined and reasonable
     assert!(limits::LINKEDIN > 0);
     assert!(limits::INDEED > 0);
-    assert!(limits::GREENHOUSE > 0);
-    assert!(limits::LEVER > 0);
     assert!(limits::JOBSWITHGPT > 0);
 
     // Verify conservative LinkedIn limit
     assert!(limits::LINKEDIN < limits::INDEED);
 
     // Verify MCP server has highest limit
-    assert!(limits::JOBSWITHGPT > limits::GREENHOUSE);
 }
 
 #[tokio::test]

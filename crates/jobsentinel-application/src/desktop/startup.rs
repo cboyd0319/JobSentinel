@@ -175,6 +175,18 @@ impl DesktopServices {
                 "Hacker News Who Is Hiring source governance could not be refreshed; scheduled checks remain blocked"
             );
         }
+        if let Err(error) = crate::v3_source_governance::install_greenhouse(&database).await {
+            tracing::warn!(
+                error = %error,
+                "Greenhouse source governance could not be refreshed; scheduled checks remain blocked"
+            );
+        }
+        if let Err(error) = crate::v3_source_governance::install_lever(&database).await {
+            tracing::warn!(
+                error = %error,
+                "Lever source governance could not be refreshed; scheduled checks remain blocked"
+            );
+        }
         let credentials = CredentialService::new(database.credentials());
         if migrate_plaintext_credentials_to_secure_storage(&config_path, &credentials).await {
             config = Config::load(&config_path)

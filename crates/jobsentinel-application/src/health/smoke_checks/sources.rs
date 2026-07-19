@@ -4,7 +4,8 @@ use crate::{
 };
 use anyhow::Result;
 use jobsentinel_domain::v3_source_manifest::{
-    HN_HIRING_ITEM_ENDPOINT_PREFIX, HN_HIRING_SEARCH_ENDPOINT,
+    GREENHOUSE_API_ENDPOINT_PREFIX, HN_HIRING_ITEM_ENDPOINT_PREFIX, HN_HIRING_SEARCH_ENDPOINT,
+    LEVER_API_ENDPOINT_PREFIX,
 };
 use jobsentinel_network::{
     send_external_http_text_with_retry, ExternalHttpRequest, ExternalTextResponse,
@@ -34,11 +35,10 @@ fn parse_json(response: &ExternalTextResponse) -> Result<serde_json::Value> {
 }
 
 pub(super) async fn test_greenhouse() -> Result<serde_json::Value> {
-    // Test with a known company (Cloudflare has a public Greenhouse board)
-    let url = "https://boards-api.greenhouse.io/v1/boards/cloudflare/jobs";
+    let url = format!("{GREENHOUSE_API_ENDPOINT_PREFIX}cloudflare/jobs");
     let response = require_success(
         smoke_request(
-            ExternalHttpRequest::get(url),
+            ExternalHttpRequest::get(&url).without_retries(),
             "Greenhouse smoke test request failed",
         )
         .await?,
@@ -58,11 +58,10 @@ pub(super) async fn test_greenhouse() -> Result<serde_json::Value> {
 }
 
 pub(super) async fn test_lever() -> Result<serde_json::Value> {
-    // Test with a known company
-    let url = "https://api.lever.co/v0/postings/netflix?mode=json";
+    let url = format!("{LEVER_API_ENDPOINT_PREFIX}netflix");
     let response = require_success(
         smoke_request(
-            ExternalHttpRequest::get(url),
+            ExternalHttpRequest::get(&url).without_retries(),
             "Lever smoke test request failed",
         )
         .await?,

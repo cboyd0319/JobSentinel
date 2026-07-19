@@ -1,6 +1,54 @@
 use super::*;
 
 #[test]
+fn reviewed_fixture_exercises_the_production_parser() {
+    let company = GreenhouseCompany {
+        id: "example".to_string(),
+        name: "Example".to_string(),
+        url: "https://job-boards.greenhouse.io/example".to_string(),
+    };
+    let payload = include_str!("../../fixtures/greenhouse_list_v1.json");
+    let json = serde_json::from_str(payload).unwrap();
+
+    let jobs = GreenhouseScraper::parse_api_jobs(
+        &json,
+        &company,
+        "https://boards-api.greenhouse.io/v1/boards/example/jobs",
+    )
+    .unwrap();
+
+    assert_eq!(jobs.len(), 1);
+    assert_eq!(jobs[0].title, "Inventory Planner");
+    assert_eq!(
+        jobs[0].url,
+        "https://job-boards.greenhouse.io/example/jobs/123456"
+    );
+}
+
+#[test]
+fn provider_error_object_is_parser_drift_not_an_empty_success() {
+    let company = GreenhouseCompany {
+        id: "example".to_string(),
+        name: "Example".to_string(),
+        url: "https://job-boards.greenhouse.io/example".to_string(),
+    };
+
+    assert!(GreenhouseScraper::parse_api_jobs(
+        &serde_json::json!({"error": "schema changed"}),
+        &company,
+        "https://boards-api.greenhouse.io/v1/boards/example/jobs",
+    )
+    .is_err());
+    assert!(GreenhouseScraper::parse_api_jobs(
+        &serde_json::json!({"jobs": []}),
+        &company,
+        "https://boards-api.greenhouse.io/v1/boards/example/jobs",
+    )
+    .unwrap()
+    .is_empty());
+}
+
+#[test]
 fn test_parse_api_response_single_job() {
     let json_data = r#"
     {
@@ -322,72 +370,6 @@ fn test_hash_with_query_parameters_normalized() {
     assert_eq!(hash1, hash2);
     assert_eq!(hash1, hash3);
     assert_eq!(hash2, hash3);
-}
-
-#[test]
-fn test_parse_job_element_all_fields_present() {
-    let scraper = GreenhouseScraper::new(vec![]);
-    let company = GreenhouseCompany {
-        id: "test".to_string(),
-        name: "Test Company".to_string(),
-        url: "https://boards.greenhouse.io/test".to_string(),
-    };
-
-    let html = r#"
-        <div class="opening">
-            <a href="/test/jobs/999">Customer Support Manager</a>
-            <span class="location">Remote - Worldwide</span>
-        </div>
-    "#;
-
-    let document = Html::parse_document(html);
-    let selector = Selector::parse(".opening").unwrap();
-    let element = document.select(&selector).next().unwrap();
-
-    let job = scraper
-        .parse_job_element(&element, &company)
-        .expect("should parse job")
-        .expect("should have job");
-
-    assert_eq!(job.title, "Customer Support Manager");
-    assert_eq!(job.company, "Test Company");
-    assert_eq!(job.location, Some("Remote - Worldwide".to_string()));
-    assert_eq!(job.source, "greenhouse");
-    assert_eq!(job.description, None);
-    assert_eq!(job.remote, None);
-    assert_eq!(job.hash.len(), 64);
-}
-
-#[test]
-fn test_parse_job_element_nested_text() {
-    let scraper = GreenhouseScraper::new(vec![]);
-    let company = GreenhouseCompany {
-        id: "test".to_string(),
-        name: "Test".to_string(),
-        url: "https://boards.greenhouse.io/test".to_string(),
-    };
-
-    let html = r#"
-        <div class="opening">
-            <a href="/test/jobs/1">
-                <span class="title">Senior</span>
-                <span>Coordinator</span>
-            </a>
-            <span class="location">Boston, MA</span>
-        </div>
-    "#;
-
-    let document = Html::parse_document(html);
-    let selector = Selector::parse(".opening").unwrap();
-    let element = document.select(&selector).next().unwrap();
-
-    let job = scraper
-        .parse_job_element(&element, &company)
-        .expect("should parse job")
-        .expect("should have job");
-
-    assert!(job.title.contains("Senior"));
-    assert!(job.title.contains("Coordinator"));
 }
 
 #[test]

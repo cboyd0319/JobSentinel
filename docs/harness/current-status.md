@@ -28,10 +28,9 @@ Last updated: 2026-07-19
   from 778 lines across 38 regions to zero. Shared resume, score, dashboard,
   market, feedback, error, and desktop-adapter behavior now has canonical owners,
   and the full local gate passed.
-- Residual cleanup is complete. Fixtures, file-size policy, records,
-  dependencies, and Rust support have canonical owners. All maintained scopes
-  are at zero duplication under the 14-line contract, the full gate passed, and
-  the post-cleanup review recorded a bounded concerns verdict.
+- Residual cleanup is complete. Fixtures, file-size policy, records, dependencies, and Rust support have owners.
+  All maintained scopes are at zero duplication under the 14-line contract, the full gate passed, and the
+  post-cleanup review recorded a bounded concerns verdict.
 - The v2.9.5 GUI QA and release publication are complete. All 288 browser
   journeys and hosted release gates passed. The public release contains 20
   checksummed assets with SBOM and provenance validation. The no-account Mac
@@ -42,16 +41,17 @@ Last updated: 2026-07-19
 - Milestone 1 froze fail-closed contracts and evals, retained existing scheduler ownership, and passed native input.
 - Milestone 2 passed the local data model, migration recovery, v2.9 preservation, and newer-data refusal.
 - Milestone 3 passed encrypted portability, staged recovery, reviewed export,
-  offline cleanup and recovery, Privacy Doctor, safe support, exact source
-  consent, governed Outside AI, platform health, and fail-closed publication.
+  offline cleanup, Privacy Doctor, safe support, exact consent, governed Outside
+  AI, platform health, and fail-closed publication.
 
 ## In Progress
 
 - Active feature: `v3-milestone-4-source-graph-browser-companion`
 - Status: `active`
 - Objective: Build the governed source graph and browser companion boundary.
-- Current slice: Define source identity, policy, permission, freshness, lineage, and stop conditions before browser UI.
-- Next action: Write fail-first source-graph and protocol threat tests for Milestone 4.
+- Current slice: Consolidate every shipped source action behind reviewed
+  manifests, grants, pacing, and stop conditions before browser UI.
+- Next action: Govern remaining source paths, then complete the Gate 3 simulator and adversarial protocol evidence.
 
 ## Deferred
 
