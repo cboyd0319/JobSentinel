@@ -39,19 +39,18 @@ Last updated: 2026-07-19
   package passed fresh-download installation and launch smoke verification.
 - Gate 0 is approved. The comprehensive v3 master plan and its 230 canonical
   idea dispositions are the sole execution authority for the v3 major line.
-- Milestone 0 is complete. Release truth, debt, testing claims, dependency
-  ownership, and the deferred release-pipeline decision are reconciled.
-- Milestone 1 is complete. Contracts and evals fail closed, scheduler
-  ownership is sufficient, A20 is deferred, and native file input passed.
+- Milestone 0 reconciled release truth, debt, tests, dependencies, and release policy.
+- Milestone 1 froze fail-closed contracts and evals, retained existing scheduler ownership, and passed native input.
+- Milestone 2 passed the local data model, migration recovery, v2.9 preservation, and newer-data refusal.
 
 ## In Progress
 
-- Active feature: `v3-milestone-2-local-data-foundation`
+- Active feature: `v3-milestone-3-recovery-portability-policy-repair`
 - Status: `active`
-- Objective: Add the local, typed, bounded, migration-safe v3 data foundation without a renderer surface.
+- Objective: Make v3 recovery, portability, policy, consent, support, and repair local and offline-safe.
 - Branch: `feat/v3-major-line`
-- Current slice: Write fail-first Milestone 2 tests, then complete Gate 2.
-- Next action: Define minimum local records from tests before the migration.
+- Current slice: Write fail-first Milestone 3 recovery and portability tests.
+- Next action: Define backup, export, restore, rollback, and cleanup behavior with fail-first tests.
 
 ## Deferred
 

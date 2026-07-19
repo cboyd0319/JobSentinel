@@ -248,7 +248,7 @@ pack privileges, and opaque hiring-probability claims.
 | --- | --- | --- |
 | 0. Planning authority and repository truth | [x] Verify this file remains active in the plan index, v3 planning, plans hub, current status, and feature state.<br>[x] Correct stale v2.9.5 release records.<br>[x] Reconcile DRY-002 and close stale DRY-003 with live evidence.<br>[x] Reconcile testing future-work claims against existing coverage.<br>[x] Re-audit the deferred release-pipeline decision.<br>[x] Add a deterministic idea-disposition check and a focused docs-marker audit for inventory drift.<br>[x] Record Gate 0 and activate Milestone 1.<br>Verify: `npm run harness:check`, `npm run lint:docs`, `npm run lint:deps:why`, `npm run lint:dup -- --list`, `npm run lint:file-size`, and `git diff --check`. | Planning and harness owners.<br>Exit: one active plan, one active feature, no contradictory current-state docs, and no unowned open debt. |
 | 1. Contract, evaluation, and quality baseline | [x] Define versioned Rust-owned schemas for compatibility, manifests, privacy receipts, agent tasks, packs, regions, editions, model provenance, and vector freshness.<br>[x] Add fixtures for current v2.9, malformed, unsupported-newer, and forward-compatible unknown input.<br>[x] Create public or synthetic eval sets for source truth, resume evidence, pay clarity, posting risk, employer context, accessibility, recovery, modest hardware, military-to-civilian evidence, protected veteran-status answers, and commercial comparison.<br>[x] Prove whether existing application and Tokio owners satisfy typed-job scheduling, cancellation, recovery, observability, and resource-bound requirements; keep A20 deferred unless the evidence shows a concrete gap.<br>[x] Make drag-and-drop E2E deterministic and add installed-app native file-picker smoke coverage.<br>[x] Set benchmark budgets and use mutation testing only where it can disprove high-risk test quality.<br>[x] Complete Gate 1. | `jobsentinel-domain`, security, local AI, platform, harness contracts, tests, and closest docs.<br>Exit: schemas and evals fail closed, are versioned, require no database migration, and do not add a runtime kernel without evidence. |
-| 2. V3 local data foundation | [ ] Write fail-first tests for case-file create/reuse, sanitized events, metadata limits, privacy receipts, source policy upsert, compatibility reads, failed migration, retry, and backup restore.<br>[ ] Add append-only SQLx migrations for case files, typed events, career/source graph records, receipts, source policies, and compatibility metadata.<br>[ ] Exclude raw resumes, notes, credentials, browser storage, provider payloads, and unrelated history from event metadata.<br>[ ] Add application-layer operations without frontend commands.<br>[ ] Prove fresh install and v2.9 fixture migration, then complete Gate 2. | Storage, domain, application, and `.sqlx/`.<br>Exit: the foundation is local, typed, bounded, migration-safe, and has no renderer surface. |
+| 2. V3 local data foundation | [x] Write fail-first tests for case-file create/reuse, sanitized events, metadata limits, privacy receipts, source policy upsert, compatibility reads, failed migration, retry, and backup restore.<br>[x] Add append-only SQLx migrations for case files, typed events, career/source graph records, receipts, source policies, and compatibility metadata.<br>[x] Exclude raw resumes, notes, credentials, browser storage, provider payloads, and unrelated history from event metadata.<br>[x] Add application-layer operations without frontend commands.<br>[x] Prove fresh install and v2.9 fixture migration, then complete Gate 2. | Storage, domain, application, and `.sqlx/`.<br>Exit: the foundation is local, typed, bounded, migration-safe, and has no renderer surface. |
 | 3. Recovery, portability, policy, and repair | [ ] Implement encrypted backup and restore, migration provenance, compatible rollback, newer-data refusal, export without lock-in, and storage cleanup.<br>[ ] Make recovery, local record access, queued local work, and repair guidance available without network access; identify actions that require connectivity before the user commits work.<br>[ ] Build Privacy Doctor, safe support bundle, policy ledger, smart consent, and recovery/repair services.<br>[ ] Keep secret export disabled unless a separate design passes threat review and explicit approval.<br>[ ] Add platform-health and package-repair contracts with plain fallbacks. | Storage, security, credentials, application, platform, Settings, and user-data docs.<br>Exit: destructive and irreversible paths have backup, restore, cancel, offline, support, and test evidence. |
 | 4. Source graph and browser companion | [ ] Implement source identity, class, policy, rate limit, permission, fixture, confidence, freshness, lineage, and stop-condition records.<br>[ ] Consolidate official APIs, public ATS pages, employer discovery, regional packs, restricted Workbench, visible capture, smart paste, and applied logging behind the graph.<br>[ ] Add reviewed veteran and U.S. public-service source and guidance metadata with provenance, dates, eligibility boundaries, and no claim of complete coverage.<br>[ ] Prototype secure loopback pairing, scoped permissions, revocation, replay protection, and no stored restricted-session material.<br>[ ] Add a source simulator, policy fixtures, robots and terms review records, freshness comparison, and adversarial protocol tests.<br>[ ] Complete Gate 3 before browser UI. | Sources, network, security, application, platform, browser assets, Settings, and source docs.<br>Exit: every source action is classified, paced, visible, revocable, and explainable. |
 | 5. Local evidence, resume, and matching engine | [ ] Build a provenance-aware evidence graph shared by resume, requirement, packet, and case-file workflows.<br>[ ] Add requirement states, hard constraints, seniority, recency, profession and regional profiles, transparent blockers, and "why not" diagnostics.<br>[ ] Preserve the Military Transition template and military-service evidence, then add reviewed mappings from user-confirmed military occupations, responsibilities, credentials, and current clearances to civilian wording without inventing equivalence or claims.<br>[ ] Calibrate Qwen3 retrieval and reranking against frozen evals while preserving deterministic fallback and stale-vector repair.<br>[ ] Guard jobs, resumes, models, and packs against prompt injection and poisoned input.<br>[ ] Implement Model Doctor, match debugger, feedback capture, and evidence-bound packets.<br>[ ] Complete Gate 4 model and data decisions. | Documents, intelligence, local AI, assistance, storage, resume UI, and matching docs.<br>Exit: every match claim is evidence-linked, bounded, reproducible, and useful without external AI. |
@@ -322,6 +322,7 @@ relevant result, and caveat.
 | 2026-07-18 | Gate 0 approved | User authorized full execution of this plan on `feat/v3-major-line` through draft PR 329. Milestone 0 is the sole active feature. |
 | 2026-07-18 | Milestone 0 complete | Corrected release truth, closed DRY-002 and DRY-003, reconciled testing claims, resolved the release-pipeline decision, added deterministic plan audits, and activated Milestone 1 with evidence at `469abb3f`. |
 | 2026-07-19 | Milestone 1 complete | Froze fail-closed v3 contracts and synthetic evaluations, proved existing scheduler ownership, made drag input deterministic, passed isolated native picker smoke, retained measured budgets, deferred A20, and activated Milestone 2 with evidence at `5c8d23c7`. |
+| 2026-07-19 | Milestone 2 complete | Added the typed local case, event, graph, receipt, source-policy, and compatibility foundation; proved fresh and v2.9 migration, failure, retry, snapshot restore, and newer-data refusal; completed Gate 2; and activated Milestone 3 with implementation at `69acdf3c`. |
 
 ## Discoveries
 
@@ -384,6 +385,13 @@ relevant result, and caveat.
 - Keep immediate notification delivery at one claimed attempt for now. A
   failed or ambiguous provider attempt remains visible and is not retried
   automatically; per-channel durable retry needs later storage design.
+- Approve the Gate 2 minimum local data model. Keep legacy application events
+  historical, write v3 history to a typed bounded ledger, use concrete graph
+  links, require local and sensitive labels for protected records, and keep
+  source policy monotonic.
+- Treat the migration snapshot as same-device encrypted recovery for one exact
+  transition. Portable backup, reviewed export, user-facing restore, rollback,
+  cleanup, and repair remain Milestone 3 responsibilities.
 
 ## Outcomes
 
@@ -392,15 +400,21 @@ relevant result, and caveat.
 - Milestone 1 established fail-closed v3 contracts, privacy-safe evaluation
   fixtures, proven scheduler lifecycle ownership, deterministic drag input,
   installed-app native picker evidence, and a measured smoke budget.
+- Milestone 2 established a typed local data foundation with bounded event
+  metadata, protected privacy receipts, concrete provenance links, monotonic
+  source policy, compatibility reads, atomic case reuse, and recovery-first
+  migration behavior.
 
 ## Handoff
 
-- Current state: Milestones 0 and 1 are passing. Milestone 2 local data
-  foundation work is the sole active feature.
-- Evidence: `docs/harness/evidence/v3-milestone-1-contract-evaluation-baseline-2026-07-19.json`
-  binds the clean implementation and native smoke at `5c8d23c7`.
-- Next step: write fail-first case-file, event, receipt, policy,
-  compatibility, migration, retry, and restore tests before adding storage.
+- Current state: Milestones 0 through 2 are passing. Milestone 3 recovery,
+  portability, policy, and repair work is the sole active feature.
+- Evidence: `docs/harness/evidence/v3-milestone-2-local-data-foundation-2026-07-19.json`
+  binds the clean implementation at `69acdf3c`.
+- Next step: write fail-first encrypted backup, reviewed export, restore,
+  rollback, offline recovery, cleanup, Privacy Doctor, support-bundle, policy,
+  consent, and repair tests before adding user-facing operations.
 - Open risks: scope remains large, contract freeze is irreversible within the
-  v3 compatibility line, and some final distribution evidence depends on
-  external credentials.
+  v3 compatibility line, live recovery behavior still needs Windows 11,
+  macOS 26, and Linux release-matrix proof, and some final distribution
+  evidence depends on external credentials.
