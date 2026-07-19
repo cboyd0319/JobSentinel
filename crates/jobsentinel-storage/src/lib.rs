@@ -38,7 +38,7 @@ mod tests;
 pub use types::{DuplicateGroup, GhostStatistics, Statistics};
 
 // Re-export Database struct
-pub use connection::Database;
+pub use connection::{Database, PortableBackupInfo};
 pub use credentials::{
     CredentialKeyWrapRecord, CredentialRepository, CredentialSecretRecord, CredentialStorageError,
 };

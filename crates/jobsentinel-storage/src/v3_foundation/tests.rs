@@ -382,5 +382,9 @@ async fn fresh_database_exposes_typed_compatibility_metadata() {
     metadata.validate().unwrap();
     assert_eq!(metadata.compatibility_line, 3);
     assert_eq!(metadata.database_schema, 2);
-    assert_eq!(metadata.migration_version, 11);
+    let current: i64 = sqlx::query_scalar("SELECT MAX(version) FROM _sqlx_migrations")
+        .fetch_one(database.pool())
+        .await
+        .unwrap();
+    assert_eq!(metadata.migration_version, current);
 }

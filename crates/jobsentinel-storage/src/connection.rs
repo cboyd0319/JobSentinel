@@ -3,6 +3,9 @@
 //! Handles SQLite connection, PRAGMA configuration, and migrations.
 
 mod backups;
+mod portable_backup;
+
+pub use portable_backup::PortableBackupInfo;
 
 use sqlx::{
     sqlite::{SqlitePool, SqlitePoolOptions},
@@ -247,6 +250,7 @@ impl Database {
             };
 
         migrator.run(&self.pool).await?;
+        self.reconcile_interrupted_recovery_operations().await?;
         Self::configure_database(&self.pool).await?;
         sqlx::query("PRAGMA user_version = 2")
             .execute(&self.pool)

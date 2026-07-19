@@ -1,5 +1,3 @@
-//! SQLCipher-backed SQLite encryption.
-
 use sqlx::{
     sqlite::{
         SqliteConnectOptions, SqliteJournalMode, SqlitePool, SqlitePoolOptions, SqliteSynchronous,
@@ -83,6 +81,31 @@ pub(super) async fn connect_encrypted_pool(
         }
         return Err(error);
     }
+    Ok(pool)
+}
+
+pub(super) async fn connect_encrypted_read_only_pool(
+    path: &Path,
+    key: &str,
+) -> Result<SqlitePool, sqlx::Error> {
+    if ["-wal", "-shm", "-journal"]
+        .into_iter()
+        .any(|suffix| sqlite_sidecar_path(path, suffix).exists())
+    {
+        return Err(sqlx::Error::Protocol(
+            "Portable backup sidecars are not supported".into(),
+        ));
+    }
+    let options = SqliteConnectOptions::new()
+        .filename(path)
+        .read_only(true)
+        .pragma("key", sqlcipher_key_pragma_value(key))
+        .immutable(true);
+    let pool = SqlitePoolOptions::new()
+        .max_connections(1)
+        .connect_with(options)
+        .await?;
+    verify_sqlcipher_connection(&pool).await?;
     Ok(pool)
 }
 
@@ -226,13 +249,13 @@ async fn export_plaintext_database_to_encrypted(
     Ok(())
 }
 
-fn remove_sqlite_sidecars(db_path: &Path) {
+pub(super) fn remove_sqlite_sidecars(db_path: &Path) {
     for suffix in ["-wal", "-shm"] {
         let _ = std::fs::remove_file(sqlite_sidecar_path(db_path, suffix));
     }
 }
 
-fn sqlite_sidecar_path(db_path: &Path, suffix: &str) -> PathBuf {
+pub(super) fn sqlite_sidecar_path(db_path: &Path, suffix: &str) -> PathBuf {
     let mut sidecar_name = db_path.file_name().unwrap_or_default().to_os_string();
     sidecar_name.push(suffix);
     db_path.with_file_name(sidecar_name)
@@ -259,7 +282,7 @@ fn database_encryption_error() -> sqlx::Error {
 }
 
 fn sqlcipher_key_pragma_value(key: &str) -> String {
-    format!("'{key}'")
+    format!("'{}'", key.replace('\'', "''"))
 }
 
 fn package_smoke_logging_enabled() -> bool {

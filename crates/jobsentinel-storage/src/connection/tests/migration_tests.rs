@@ -187,26 +187,32 @@ async fn failed_migration_reuses_one_baseline_until_retry_succeeds() {
     let db_path = temp_dir.path().join("jobs.db");
     let database = v29_database(&db_path).await;
     database.migrate().await.unwrap();
+    let current = MIGRATOR
+        .iter()
+        .map(|migration| migration.version)
+        .max()
+        .unwrap();
+    let next = current + 1;
     let failing = migrator_with(test_migration(
-        12,
+        next,
         "injected failure",
         "CREATE TABLE injected_failure (id INTEGER); SELECT missing_function();",
     ));
 
     assert!(database.migrate_with(&failing).await.is_err());
     let backup_dir = temp_dir.path().join("backups");
-    let snapshots = transition_snapshots(&backup_dir, 11, 12);
+    let snapshots = transition_snapshots(&backup_dir, current, next);
     assert_eq!(snapshots.len(), 1);
     assert!(database.migrate_with(&failing).await.is_err());
-    assert_eq!(transition_snapshots(&backup_dir, 11, 12), snapshots);
+    assert_eq!(transition_snapshots(&backup_dir, current, next), snapshots);
     let applied: i64 = sqlx::query_scalar("SELECT MAX(version) FROM _sqlx_migrations")
         .fetch_one(database.pool())
         .await
         .unwrap();
-    assert_eq!(applied, 11);
+    assert_eq!(applied, current);
 
     let repaired = migrator_with(test_migration(
-        12,
+        next,
         "injected repair",
         "CREATE TABLE injected_repair (id INTEGER PRIMARY KEY);",
     ));
