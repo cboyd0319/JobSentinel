@@ -3,6 +3,7 @@ use super::*;
 mod migration_tests;
 mod portable_backup_tests;
 mod portable_restore_tests;
+mod reviewed_export_tests;
 
 #[cfg(test)]
 mod memory_tests {

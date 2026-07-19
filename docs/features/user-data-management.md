@@ -20,6 +20,7 @@ the current account and keeps local database files owner-only.
 | Notification preferences | Local only, Sensitive | Preferences stay local; external channels are used only if the user turns them on. |
 | Safe support reports | Local only, Sensitive | Reports are sanitized before copy or save. |
 | Local-data backups | Local only, Sensitive | Backup files stay on the user's device and leave saved connection details out. |
+| Reviewed plaintext exports | Local only, Sensitive | Exports require a separate review, leave managed credentials and paths out, and never overwrite an existing file. |
 | Location detection | Sensitive | Public-IP lookup happens only after explicit user action. |
 
 External AI is not required for user-data management. If an outside-AI send is
@@ -122,15 +123,44 @@ After restoring a backup, users review settings and choose **Save Changes**.
 Saved connection details must be added again if the restored settings use an
 external alert channel or source that needs them.
 
-Portable backup files include a recovery guide so the app and the user see the
-same plain-language coverage:
+Backup and recovery review shows the same plain-language coverage to the app and
+the user:
 
-- Portable backup: settings, saved searches, and cover letter templates.
-- Not included: saved connection details, passwords, tokens, cookies, browser
-  sessions, local database records, or safe support reports.
-- Full local recovery can replace local jobs, applications, resumes, notes,
-  reminders, and history.
+- Settings backup: settings, saved searches, and cover letter templates.
+- Encrypted portable backup: local jobs, applications, resumes, notes,
+  reminders, and history for full recovery on another device.
+- Neither backup includes saved connection details, passwords, tokens, cookies,
+  browser sessions, or safe support reports.
+- Full local recovery verifies compatibility and stages the replacement before
+  startup promotes it. The previous compatible database remains available for
+  rollback until recovery finishes.
 - Copy or save a safe support report before full local recovery.
+
+### Reviewed Plaintext Export
+
+Reviewed export provides a documented JSON Lines file for leaving JobSentinel
+without copying its private database format. Review happens before any file is
+written and names each selected category and record count. The export is
+created entirely offline, uses a fixed field allowlist, ends with a completion
+record, and refuses database tables this version does not understand. The
+completion record detects incomplete writes; it is not a signature or
+tamper-proof seal.
+
+JobSentinel-managed credentials, encryption keys, authentication state,
+dedicated app-managed file paths and connection-link fields, diagnostic caches,
+and reproducible public datasets are never included. Legacy job, profile,
+interview-location, and structured resume-draft links are cleaned before
+writing. Protected application answers, clearance fields, military service,
+veteran status, and disability information inside structured drafts are
+excluded by default and require a separate explicit selection. Review shows
+application-answer and structured resume-draft record counts separately.
+
+User-authored resumes, descriptions, notes, cover letters, and similar text are
+copied as written. They can contain accidentally pasted passwords, tokens,
+private links, protected facts, or other sensitive details that JobSentinel
+cannot identify reliably without damaging the user's records. Review the
+plaintext artifact before sharing it. The destination must remain private.
+JobSentinel does not overwrite an existing destination.
 
 ## Older Local Data
 
@@ -146,10 +176,11 @@ JobSentinel and check Settings.
 - Use Settings backup before moving devices or making larger search changes.
   The backup covers settings, saved searches, and cover letter templates.
 - Use safe support reports before changing more data if something looks wrong.
-- JobSentinel has internal SQLite integrity backups and a WAL-safe restore
-  helper for support/recovery paths. Full local recovery is separate from
+- Use encrypted portable backup for full local recovery. It is separate from
   Settings restore because it can replace jobs, applications, resumes, notes,
   reminders, and history.
+- Use reviewed plaintext export when a readable, application-independent copy
+  is needed. Treat the resulting JSON Lines file as sensitive.
 
 ## When Something Does Not Work
 

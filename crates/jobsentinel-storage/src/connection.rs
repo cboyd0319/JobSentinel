@@ -6,8 +6,13 @@ mod backups;
 mod portable_backup;
 mod portable_restore;
 mod portable_restore_promotion;
+mod reviewed_export;
+mod reviewed_export_inspect;
+mod reviewed_export_sanitize;
+mod reviewed_export_schema;
 
 pub use portable_backup::PortableBackupInfo;
+pub use reviewed_export::{ReviewedExportInfo, ReviewedExportPlan, ReviewedExportSelection};
 
 use sqlx::{
     sqlite::{SqlitePool, SqlitePoolOptions},
