@@ -10,7 +10,7 @@ fn jobswithgpt_smoke_config(endpoint: &str) -> Config {
 }
 
 #[tokio::test]
-async fn jobswithgpt_smoke_rejects_plain_http_endpoint() {
+async fn jobswithgpt_smoke_reports_provider_review_before_endpoint_checks() {
     let db = Database::connect_memory()
         .await
         .expect("test database should connect");
@@ -21,9 +21,13 @@ async fn jobswithgpt_smoke_rejects_plain_http_endpoint() {
         .await
         .expect("smoke test should record a failed result");
 
-    assert!(!result.passed);
-    assert!(result.details.is_none());
-    assert!(!result.error.unwrap_or_default().contains("http://"));
+    assert!(result.passed);
+    assert_eq!(
+        result
+            .details
+            .and_then(|details| details["reason"].as_str().map(str::to_string)),
+        Some("JobsWithGPT provider endpoint and usage policy require review".to_string())
+    );
 }
 
 #[tokio::test]

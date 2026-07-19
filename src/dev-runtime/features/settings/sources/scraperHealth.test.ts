@@ -23,6 +23,7 @@ describe("Settings source health mock commands", () => {
     expect(scrapers).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ scraper_name: "greenhouse", is_enabled: true }),
+        expect.objectContaining({ scraper_name: "jobswithgpt", is_enabled: false }),
       ]),
     );
 
@@ -67,6 +68,20 @@ describe("Settings source health mock commands", () => {
     expect(restricted).toMatchObject({
       scraper_name: "dice",
       details: { status: "skipped" },
+    });
+
+    const jobsWithGpt = await mockInvoke<{
+      scraper_name: string;
+      passed: boolean;
+      details: { status: string; reason: string };
+    }>("run_scraper_smoke_test", { scraperName: "jobswithgpt" });
+    expect(jobsWithGpt).toMatchObject({
+      scraper_name: "jobswithgpt",
+      passed: true,
+      details: {
+        status: "skipped",
+        reason: "JobsWithGPT provider endpoint and usage policy require review",
+      },
     });
 
     const allSmoke = await mockInvoke<

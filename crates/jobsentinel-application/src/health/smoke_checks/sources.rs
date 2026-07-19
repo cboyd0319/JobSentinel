@@ -210,31 +210,10 @@ pub(super) async fn test_hn_hiring(request_limit_per_hour: u32) -> Result<serde_
     }))
 }
 
-pub(super) async fn test_jobswithgpt(config: &Config) -> Result<serde_json::Value> {
-    let Some(payload) = config.jobswithgpt_payload_preview() else {
-        return Ok(serde_json::json!({
-            "status": "skipped",
-            "reason": "JobsWithGPT endpoint and reviewed payload not configured"
-        }));
-    };
-
-    if !config.jobswithgpt_payload_approved() {
-        return Ok(serde_json::json!({
-            "status": "skipped",
-            "reason": "JobsWithGPT payload has not been reviewed and approved",
-            "title_count": payload.titles.len(),
-            "has_location": payload.location.is_some(),
-            "remote_only": payload.remote_only,
-            "limit": payload.limit
-        }));
-    }
-
-    jobsentinel_security::validate_external_https_url(&payload.endpoint)
-        .map_err(|reason| anyhow::anyhow!("Invalid JobsWithGPT endpoint: {}", reason))?;
-
+pub(super) async fn test_jobswithgpt(_config: &Config) -> Result<serde_json::Value> {
     Ok(serde_json::json!({
         "status": "skipped",
-        "reason": "Use scheduled request history for JobsWithGPT status"
+        "reason": "JobsWithGPT provider endpoint and usage policy require review"
     }))
 }
 

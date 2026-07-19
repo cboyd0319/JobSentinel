@@ -196,7 +196,7 @@ describe("Settings — handleSave flow", () => {
     expect(onClose).toHaveBeenCalled();
   });
 
-  it("saves JobsWithGPT only after exact payload approval", async () => {
+  it("keeps the connected source disabled while provider review is pending", async () => {
     const user = userEvent.setup();
     const onClose = vi.fn();
     const loadedConfig = {
@@ -272,16 +272,19 @@ describe("Settings — handleSave flow", () => {
       ),
     ).not.toBeInTheDocument();
 
-    await user.click(
-      screen.getByRole("button", { name: "Approve these exact details" }),
-    );
-    await waitFor(() => {
-      expect(
-        screen.getByText(/Approved for these exact details/i),
-      ).toBeInTheDocument();
-    });
-    await user.click(screen.getByRole("button", { name: /save changes/i }));
+    expect(
+      screen.getByText(
+        "Scheduled contact is disabled while JobSentinel verifies the provider endpoint and usage policy.",
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Provider review pending" }),
+    ).toBeDisabled();
+    expect(
+      screen.queryByRole("button", { name: "Approve these exact details" }),
+    ).not.toBeInTheDocument();
 
+    await user.click(screen.getByRole("button", { name: /save changes/i }));
     await waitFor(() => {
       expect(mockToast.success).toHaveBeenCalledWith(
         "Settings saved",
@@ -292,14 +295,8 @@ describe("Settings — handleSave flow", () => {
     expect(savedConfig?.jobswithgpt_endpoint).toBe(
       "https://api.jobswithgpt.example/mcp",
     );
-    expect(savedConfig?.jobswithgpt_approval.enabled).toBe(true);
-    expect(savedConfig?.jobswithgpt_approval.payload).toEqual({
-      endpoint: "https://api.jobswithgpt.example/mcp",
-      titles: ["Case Manager"],
-      location: null,
-      remote_only: true,
-      limit: 100,
-    });
+    expect(savedConfig?.jobswithgpt_approval.enabled).toBe(false);
+    expect(savedConfig?.jobswithgpt_approval.payload).toBeNull();
   });
 
   it("shows connected source contact history as minimized metadata", async () => {

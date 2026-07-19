@@ -47,6 +47,18 @@ fn fixtures() -> [(&'static str, &'static [u8]); 3] {
 }
 
 #[test]
+fn disabled_source_manifest_does_not_claim_an_unverified_endpoint() {
+    let mut disabled = policy();
+    disabled.access = SourceAccess::Disabled;
+    disabled.request_limit_per_hour = 0;
+    let mut manifest = parse_source_manifest(MANIFEST, &policy()).unwrap();
+    manifest.endpoint_patterns.clear();
+
+    assert!(manifest.validate(&disabled).is_ok());
+    assert!(manifest.validate(&policy()).is_err());
+}
+
+#[test]
 fn source_simulator_reuses_authorization_and_reports_expiry() {
     let policy = policy();
     let report = parse_source_manifest(MANIFEST, &policy)

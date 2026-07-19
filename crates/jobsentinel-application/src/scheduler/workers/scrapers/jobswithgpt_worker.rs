@@ -1,6 +1,9 @@
 use super::{record_audit_failure, run_scraper, ScraperRunOutcome};
 use crate::{config::Config, health::SourceRequestOutcome};
-use jobsentinel_domain::Job;
+use chrono::Utc;
+use jobsentinel_domain::{
+    v3_source_authorization::SourceActionDecision, v3_source_manifest::SourceOperation, Job,
+};
 use jobsentinel_sources::{JobQuery, JobsWithGptScraper};
 use jobsentinel_storage::Database;
 use std::sync::{
@@ -67,6 +70,29 @@ pub(super) async fn run_jobswithgpt_scraper(
         return;
     }
 
+    if !matches!(
+        crate::v3_source_governance::authorize_jobswithgpt(
+            db,
+            SourceOperation::ScheduledCheck,
+            Utc::now().date_naive(),
+        )
+        .await,
+        Ok(SourceActionDecision::Allowed {
+            connectivity_required: true,
+            ..
+        })
+    ) {
+        tracing::warn!(
+            source = "JobsWithGPT",
+            "JobsWithGPT source check skipped because its provider policy requires review"
+        );
+        errors.push(
+            "JobsWithGPT source check skipped because its provider policy requires review"
+                .to_string(),
+        );
+        return;
+    }
+
     let jobswithgpt_query = JobQuery {
         titles: jobswithgpt_payload.titles.clone(),
         location: jobswithgpt_payload.location.clone(),
@@ -129,6 +155,7 @@ pub(super) async fn run_jobswithgpt_scraper(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::test_support::minimal_test_config;
 
     #[test]
     fn unavailable_request_audit_stops_the_external_source() {
@@ -164,6 +191,40 @@ mod tests {
         assert_eq!(
             errors,
             ["JobsWithGPT source check failed (audit_unavailable)"]
+        );
+    }
+
+    #[tokio::test]
+    async fn exact_payload_approval_does_not_bypass_missing_source_governance() {
+        let database = Arc::new(Database::connect_memory().await.unwrap());
+        database.migrate().await.unwrap();
+        let mut config = minimal_test_config();
+        config.title_allowlist = vec!["Case Manager".to_string()];
+        config.jobswithgpt_endpoint = "https://api.jobswithgpt.example/mcp".to_string();
+        config.jobswithgpt_approval.enabled = true;
+        config.jobswithgpt_approval.payload = config.jobswithgpt_payload_preview();
+        let mut jobs = Vec::new();
+        let mut errors = Vec::new();
+
+        run_jobswithgpt_scraper(
+            &config,
+            &database,
+            &AtomicBool::new(false),
+            &mut jobs,
+            &mut errors,
+        )
+        .await;
+
+        assert!(jobs.is_empty());
+        assert!(
+            crate::health::get_latest_source_request(&database, "jobswithgpt")
+                .await
+                .unwrap()
+                .is_none()
+        );
+        assert_eq!(
+            errors,
+            ["JobsWithGPT source check skipped because its provider policy requires review"]
         );
     }
 }

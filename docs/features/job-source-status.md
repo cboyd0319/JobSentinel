@@ -54,10 +54,13 @@ Source status must follow the same rules for job sources:
   restricted-source checks run.
 - Do not include raw credentials, cookies, private notes, resumes, salary floors,
   or application history in health errors or support reports.
-- For optional user-approved job-source feeds such as JobsWithGPT, disclose
-  that JobsWithGPT receives only saved job titles, location, remote preference,
-  and result limit for job-site checks. These feeds must stay off unless turned
-  on and the exact details are reviewed and approved locally.
+- JobsWithGPT scheduled contact remains disabled while its provider endpoint
+  and usage-policy review is unresolved. A saved exact-payload approval cannot
+  authorize contact by itself.
+- If a configured feed is later reviewed and enabled, disclose that it receives
+  only saved job titles, location, remote preference, and result limit. It must
+  stay off unless both provider governance and the exact local payload approval
+  are current.
   The latest approved contact can be shown locally as contact time, website
   contacted, count-only request categories, and outcome. Do not store raw
   titles, raw location, private notes, resumes, salary floors, application

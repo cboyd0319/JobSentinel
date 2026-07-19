@@ -53,6 +53,28 @@ fn test_parse_mcp_job_complete() {
 }
 
 #[test]
+fn manifest_fixture_remains_parseable_by_the_jobswithgpt_adapter() {
+    let scraper = JobsWithGptScraper::new(
+        "https://api.jobswithgpt.example/mcp".to_string(),
+        JobQuery {
+            titles: vec!["Case Manager".to_string()],
+            location: None,
+            remote_only: true,
+            limit: 100,
+        },
+    );
+    let fixture: serde_json::Value =
+        serde_json::from_str(include_str!("../../fixtures/jobswithgpt_list_v1.json")).unwrap();
+
+    let job = scraper.parse_mcp_job(&fixture).unwrap().unwrap();
+
+    assert_eq!(job.title, "Case Manager");
+    assert_eq!(job.company, "Community Care Network");
+    assert_eq!(job.url, "https://example.com/jobs/case-manager");
+    assert_eq!(job.source, "jobswithgpt");
+}
+
+#[test]
 fn test_parse_mcp_job_minimal() {
     let scraper = JobsWithGptScraper::new(
         "http://localhost:3000/mcp".to_string(),

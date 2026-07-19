@@ -63,7 +63,8 @@ minimized request fingerprint. Any change requires review again.
 
 | Category | Sources |
 | -------- | ------- |
-| Scheduled job checks | Greenhouse, Lever, RemoteOK, WeWorkRemotely, BuiltIn, community hiring posts, JobsWithGPT, Dice, USAJobs, SimplyHired, Glassdoor |
+| Scheduled job checks | Greenhouse, Lever, RemoteOK, WeWorkRemotely, BuiltIn, community hiring posts, Dice, USAJobs, SimplyHired, Glassdoor |
+| Disabled configured feeds | JobsWithGPT legacy settings remain local while provider endpoint and usage-policy review is unresolved |
 | Source-check helpers | Scheduled job checks plus Indeed, Wellfound, and ZipRecruiter availability checks |
 | Company careers discovery | Employer careers pages that JobSentinel can classify before choosing a safe source path |
 | User-opened search links | LinkedIn, Y Combinator Jobs, and other destination links opened by the user |
@@ -308,7 +309,7 @@ Representative source pacing:
 | BuiltIn | Moderate | Public page |
 | SimplyHired | Conservative | Best-effort public source; may be blocked |
 | Glassdoor | Conservative | Best-effort public source; may ask for human checks |
-| JobsWithGPT | Feed-controlled | User-approved job-source feed |
+| JobsWithGPT | Disabled | Provider endpoint and usage-policy review required |
 
 Checks that cannot operate within source boundaries should fail closed and
 show a clear user-facing explanation.
@@ -418,24 +419,30 @@ claims that source is ready:
 
 ## User-Approved Job-Source Feeds
 
-JobsWithGPT is disabled unless the user adds a job-source feed and approves the
-exact details for that feed. Source checks send only the reviewed search fields
-needed by that feed: saved job titles, location, remote preference, and result
-limit. If titles, feed, or remote settings change, the approval no longer
-matches and JobSentinel skips that source until the user reviews the new
-details. Do not send resumes, salary floors, private notes, application history,
-screening answers, or unrelated profile details to a job-source feed.
-When the user approves a job-source feed, Settings should keep showing the exact
-approved details and explain that any change turns the source off until the user
-approves again.
-JobSentinel writes minimized request metadata before the approved feed request.
-If that local audit write fails, nothing is sent. The POST is attempted once
-without automatic retries, and interrupted or incomplete terminal records remain
-visible as uncertain attempts. Settings shows the latest contact attempt as
-local status details only: attempt time, website, count-only request categories,
-and outcome. The contact history must not store raw titles, raw location,
-resumes, salary floors, private notes, application history, or full source
-links.
+JobsWithGPT scheduled contact is disabled. The legacy terms URL now redirects
+to a differently named provider, and the reviewed first-party terms describe a
+website but do not identify an exact feed endpoint, client authorization, or
+request limits. An exact local payload approval cannot override that unresolved
+provider-policy boundary. JobSentinel stops before writing a request attempt or
+sending saved search preferences.
+
+Settings may retain a configured endpoint, prior exact approval, and minimized
+historical contact records locally so users can inspect or remove them. The
+provider must not be re-enabled until a dated manifest verifies the exact
+endpoint, permitted client behavior, pacing, and stop conditions. Re-enabling
+would also require a current exact user approval for the saved job titles,
+location, remote preference, and result limit. Any change would revoke that
+approval. Do not send resumes, salary floors, private notes, application
+history, screening answers, or unrelated profile details to a job-source feed.
+
+For any reviewed feed, JobSentinel must write minimized request metadata before
+the approved request. If that local audit write fails, nothing is sent. The
+request is attempted once without automatic retries, and interrupted or
+incomplete terminal records remain visible as uncertain attempts. Settings
+shows the latest contact attempt as local status details only: attempt time,
+website, count-only request categories, and outcome. The contact history must
+not store raw titles, raw location, resumes, salary floors, private notes,
+application history, or full source links.
 The contact summary also names sensitive data that was not sent so users can
 verify that resumes, salary floors, private notes, application history, and full
 source links stayed out of the source request.

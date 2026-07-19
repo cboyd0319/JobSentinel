@@ -45,6 +45,34 @@ describe("ScraperHealthDashboard sources and history", () => {
       expect(screen.getByText("Monster")).toBeInTheDocument();
     });
 
+    it("does not offer to enable JobsWithGPT while provider review is pending", async () => {
+      mockInvoke.mockImplementation((cmd: string) => {
+        if (cmd === "get_health_summary") return Promise.resolve(mockSummary);
+        if (cmd === "get_scraper_health") {
+          return Promise.resolve([
+            ...mockScrapers,
+            {
+              ...mockScrapers[2],
+              scraper_name: "jobswithgpt",
+              display_name: "JobsWithGPT",
+            },
+          ]);
+        }
+        return Promise.resolve(null);
+      });
+
+      render(<ScraperHealthDashboard onClose={onClose} />);
+
+      expect(
+        await screen.findByRole("button", {
+          name: "JobsWithGPT provider review pending",
+        }),
+      ).toBeDisabled();
+      expect(
+        screen.getByText("Provider endpoint and usage policy review pending."),
+      ).toBeInTheDocument();
+    });
+
     it("does not display internal source ids", async () => {
       render(<ScraperHealthDashboard onClose={onClose} />);
 

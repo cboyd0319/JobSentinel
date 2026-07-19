@@ -1,7 +1,4 @@
-import {
-  hasConfiguredJobsWithGpt,
-  hasEnabledMockScraperSource,
-} from "./sources/scraperHealth";
+import { hasEnabledMockScraperSource } from "./sources/scraperHealth";
 import {
   getArg,
   getDefaultGhostConfig,
@@ -482,7 +479,6 @@ function anyMockJobSourceEnabled(config: MockConfig): boolean {
   return (
     hasEnabledMockScraperSource(configRecord) ||
     hasConfiguredUrlList(configRecord, "greenhouse_urls") ||
-    hasConfiguredUrlList(configRecord, "lever_urls") ||
-    hasConfiguredJobsWithGpt(configRecord)
+    hasConfiguredUrlList(configRecord, "lever_urls")
   );
 }

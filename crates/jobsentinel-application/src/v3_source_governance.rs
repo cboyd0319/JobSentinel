@@ -6,8 +6,8 @@ use jobsentinel_domain::{
     v3_source_manifest::{
         parse_source_manifest, SourceOperation, GREENHOUSE_REQUEST_LIMIT_PER_HOUR,
         GREENHOUSE_SOURCE_MANIFEST_V1, HN_HIRING_REQUEST_LIMIT_PER_HOUR,
-        HN_HIRING_SOURCE_MANIFEST_V1, LEVER_REQUEST_LIMIT_PER_HOUR, LEVER_SOURCE_MANIFEST_V1,
-        REMOTEOK_REQUEST_LIMIT_PER_HOUR, REMOTEOK_SOURCE_MANIFEST_V1,
+        HN_HIRING_SOURCE_MANIFEST_V1, JOBSWITHGPT_SOURCE_MANIFEST_V1, LEVER_REQUEST_LIMIT_PER_HOUR,
+        LEVER_SOURCE_MANIFEST_V1, REMOTEOK_REQUEST_LIMIT_PER_HOUR, REMOTEOK_SOURCE_MANIFEST_V1,
         USAJOBS_REQUEST_LIMIT_PER_HOUR, USAJOBS_SOURCE_MANIFEST_V1,
         WEWORKREMOTELY_REQUEST_LIMIT_PER_HOUR, WEWORKREMOTELY_SOURCE_MANIFEST_V1,
     },
@@ -91,6 +91,22 @@ pub(crate) fn lever_policy() -> Result<SourcePolicy, FoundationError> {
         "jobsentinel.source-policy.lever.public-postings-api",
         LEVER_REQUEST_LIMIT_PER_HOUR,
     )
+}
+
+pub(crate) fn jobswithgpt_policy() -> Result<SourcePolicy, FoundationError> {
+    Ok(SourcePolicy {
+        source_id: "jobswithgpt".to_string(),
+        source_class: SourceClass::RestrictedPublicScheduled,
+        access: SourceAccess::Disabled,
+        request_limit_per_hour: 0,
+        user_review_required: true,
+        policy_ref: "jobsentinel.source-policy.jobswithgpt.provider-review".to_string(),
+        revision: 1,
+        restriction_reason_code: Some("provider-policy-review-required".to_string()),
+        reviewed_at: POLICY_REVIEWED_AT
+            .parse::<DateTime<Utc>>()
+            .map_err(|_| FoundationError::InvalidInput)?,
+    })
 }
 
 async fn install_reviewed(
@@ -274,6 +290,30 @@ pub(crate) async fn authorize_lever(
     .await
 }
 
+pub(crate) async fn install_jobswithgpt(database: &Database) -> Result<(), FoundationError> {
+    install_reviewed(
+        database,
+        jobswithgpt_policy()?,
+        JOBSWITHGPT_SOURCE_MANIFEST_V1,
+    )
+    .await
+}
+
+pub(crate) async fn authorize_jobswithgpt(
+    database: &Database,
+    operation: SourceOperation,
+    today: NaiveDate,
+) -> Result<SourceActionDecision, FoundationError> {
+    authorize_reviewed(
+        database,
+        jobswithgpt_policy()?,
+        JOBSWITHGPT_SOURCE_MANIFEST_V1,
+        operation,
+        today,
+    )
+    .await
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -321,6 +361,59 @@ mod tests {
             authorize_lever(&database, SourceOperation::ScheduledCheck, today)
                 .await
                 .is_err()
+        );
+    }
+
+    #[tokio::test]
+    async fn jobswithgpt_stays_disabled_while_provider_policy_is_unresolved() {
+        let database = Database::connect_memory().await.unwrap();
+        database.migrate().await.unwrap();
+        install_jobswithgpt(&database).await.unwrap();
+        let today = NaiveDate::from_ymd_opt(2026, 7, 19).unwrap();
+
+        assert_eq!(
+            authorize_jobswithgpt(&database, SourceOperation::ScheduledCheck, today)
+                .await
+                .unwrap(),
+            SourceActionDecision::Blocked(
+                jobsentinel_domain::v3_source_manifest::SourceStopCondition::PolicyDisabled
+            )
+        );
+    }
+
+    #[test]
+    fn jobswithgpt_simulator_binds_parser_and_provider_review_fixtures() {
+        let policy = jobswithgpt_policy().unwrap();
+        let manifest = parse_source_manifest(JOBSWITHGPT_SOURCE_MANIFEST_V1, &policy).unwrap();
+        let fixtures = [
+            (
+                "crates/jobsentinel-sources/src/fixtures/jobswithgpt_list_v1.json",
+                include_bytes!("../../jobsentinel-sources/src/fixtures/jobswithgpt_list_v1.json")
+                    .as_slice(),
+            ),
+            (
+                "crates/jobsentinel-domain/src/fixtures/source_reviews/jobswithgpt_v1.json",
+                include_bytes!(
+                    "../../jobsentinel-domain/src/fixtures/source_reviews/jobswithgpt_v1.json"
+                )
+                .as_slice(),
+            ),
+        ];
+
+        assert_eq!(
+            manifest
+                .simulate(
+                    &policy,
+                    SourceOperation::ScheduledCheck,
+                    NaiveDate::from_ymd_opt(2026, 7, 19).unwrap(),
+                    SourceGrantState::Missing,
+                    &fixtures,
+                )
+                .unwrap()
+                .decision,
+            SourceActionDecision::Blocked(
+                jobsentinel_domain::v3_source_manifest::SourceStopCondition::PolicyDisabled
+            )
         );
     }
 }

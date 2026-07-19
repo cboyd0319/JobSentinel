@@ -89,13 +89,13 @@
       "name": "User-approved job-source feeds",
       "labels": ["Sensitive"],
       "dataCategories": ["career_goals", "location_preferences"],
-      "defaultDataFlow": "Off unless the user configures a job-source feed and approves the exact JobsWithGPT details. Source checks send only reviewed saved job titles, location, remote preference, and result limit to that feed. Latest approved contact history is stored locally as safe status details only.",
+      "defaultDataFlow": "JobsWithGPT scheduled contact is disabled while provider endpoint and usage-policy review is unresolved. Configured details, prior exact approval, and minimized contact history remain local for inspection or removal. A future reviewed feed would also require a current exact local payload approval.",
       "externalAi": {
         "allowed": false,
         "required": false,
         "fallback": "Leave the job-source feed blank and use local, official, or user-opened source paths."
       },
-      "sensitivityNote": "Search titles and locations can reveal career goals. The scheduler must skip JobsWithGPT unless the current details match the local approval record. The local contact-history ledger must not store raw titles, raw location, resumes, salary floors, private notes, application history, screening answers, profile details, or full source links."
+      "sensitivityNote": "Search titles and locations can reveal career goals. The scheduler must skip JobsWithGPT while provider governance is unresolved, regardless of a saved payload approval. The local contact-history ledger must not store raw titles, raw location, resumes, salary floors, private notes, application history, screening answers, profile details, or full source links."
     },
     {
       "id": "ghost-job-heuristic-scoring",

@@ -170,6 +170,8 @@ const RESTRICTED_SMOKE_TEST_SOURCES = new Set([
   "simplyhired",
   "glassdoor",
 ]);
+const JOBSWITHGPT_PROVIDER_REVIEW_REASON =
+  "JobsWithGPT provider endpoint and usage policy require review";
 
 export function hasEnabledMockScraperSource(configRecord: Record<string, unknown>): boolean {
   return MOCK_SCRAPERS.some((scraper) =>
@@ -218,7 +220,9 @@ export function getMockScraperHealth(
   scraperEnabledOverrides: MockScraperEnabledOverrides,
 ): MockScraperHealthMetrics[] {
   return MOCK_SCRAPERS.map((scraper, index) => {
-    const isEnabled = scraperEnabledOverrides[scraper.scraper_name] ?? true;
+    const isEnabled =
+      scraper.scraper_name !== "jobswithgpt" &&
+      (scraperEnabledOverrides[scraper.scraper_name] ?? true);
     const status: MockHealthStatus = isEnabled
       ? index % 7 === 0
         ? "degraded"
@@ -228,7 +232,8 @@ export function getMockScraperHealth(
       ...scraper,
       is_enabled: isEnabled,
       health_status: status,
-      selector_health: status === "degraded" ? "degraded" : "healthy",
+      selector_health:
+        status === "disabled" ? "unknown" : status === "degraded" ? "degraded" : "healthy",
       success_rate_24h: status === "healthy" ? 96 : status === "degraded" ? 82 : 0,
       avg_duration_ms: isEnabled ? 850 + index * 75 : null,
       last_success: isEnabled
@@ -345,6 +350,19 @@ function getMockSmokeTestResult(
   scraperName: string,
   scraperEnabledOverrides: MockScraperEnabledOverrides,
 ): MockSmokeTestResult {
+  if (scraperName === "jobswithgpt") {
+    return {
+      scraper_name: scraperName,
+      test_type: "connectivity",
+      passed: true,
+      duration_ms: 0,
+      details: {
+        status: "skipped",
+        reason: JOBSWITHGPT_PROVIDER_REVIEW_REASON,
+      },
+      error: null,
+    };
+  }
   if (RESTRICTED_SMOKE_TEST_SOURCES.has(scraperName)) {
     return {
       scraper_name: scraperName,
