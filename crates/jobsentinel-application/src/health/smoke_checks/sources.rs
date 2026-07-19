@@ -3,10 +3,14 @@ use crate::{
     Config,
 };
 use anyhow::Result;
+use jobsentinel_domain::v3_source_manifest::{
+    HN_HIRING_ITEM_ENDPOINT_PREFIX, HN_HIRING_SEARCH_ENDPOINT,
+};
 use jobsentinel_network::{
     send_external_http_text_with_retry, ExternalHttpRequest, ExternalTextResponse,
     MINIMAL_BROWSER_USER_AGENT, MINIMAL_WEBKIT_USER_AGENT,
 };
+use jobsentinel_sources::{HnHiringScraper, RateLimiter};
 
 async fn smoke_request(
     request: ExternalHttpRequest,
@@ -171,30 +175,38 @@ pub(super) async fn test_builtin() -> Result<serde_json::Value> {
     }))
 }
 
-pub(super) async fn test_hn_hiring() -> Result<serde_json::Value> {
-    // Search for most recent "Who is hiring" thread
-    let url = "https://hn.algolia.com/api/v1/search_by_date";
+pub(super) async fn test_hn_hiring(request_limit_per_hour: u32) -> Result<serde_json::Value> {
+    let url = HN_HIRING_SEARCH_ENDPOINT;
     let response = require_success(
         smoke_request(
-            ExternalHttpRequest::get(url).query([
-                ("query".to_string(), "Ask HN: Who is hiring".to_string()),
-                ("tags".to_string(), "story".to_string()),
-                ("hitsPerPage".to_string(), "1".to_string()),
+            ExternalHttpRequest::get(url).without_retries().query([
+                ("tags".to_string(), "story,author_whoishiring".to_string()),
+                ("hitsPerPage".to_string(), "10".to_string()),
             ]),
             "HN Hiring smoke test request failed",
         )
         .await?,
     )?;
     let json = parse_json(&response)?;
-    let has_hits = json
-        .get("hits")
-        .and_then(|h| h.as_array())
-        .map(|a| !a.is_empty())
-        .unwrap_or(false);
+    let thread_id = HnHiringScraper::canonical_thread_id(&json)
+        .ok_or_else(|| anyhow::anyhow!("HN hiring thread not found"))?;
+
+    RateLimiter::shared()
+        .wait_paced("hn_hiring", request_limit_per_hour)
+        .await;
+    let thread_url = format!("{HN_HIRING_ITEM_ENDPOINT_PREFIX}{thread_id}");
+    let thread_response = require_success(
+        smoke_request(
+            ExternalHttpRequest::get(&thread_url).without_retries(),
+            "HN Hiring item smoke test request failed",
+        )
+        .await?,
+    )?;
+    let thread = parse_json(&thread_response)?;
 
     Ok(serde_json::json!({
-        "status": response.status,
-        "found_hiring_thread": has_hits,
+        "status": thread_response.status,
+        "selectors_found": HnHiringScraper::is_canonical_thread_item(&thread, thread_id),
         "api": "algolia"
     }))
 }

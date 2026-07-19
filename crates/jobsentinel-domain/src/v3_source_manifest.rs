@@ -21,6 +21,11 @@ pub const REMOTEOK_REQUEST_LIMIT_PER_HOUR: u16 = 500;
 pub const WEWORKREMOTELY_SOURCE_MANIFEST_V1: &str =
     include_str!("fixtures/source_manifests/weworkremotely_v1.json");
 pub const WEWORKREMOTELY_REQUEST_LIMIT_PER_HOUR: u16 = 1;
+pub const HN_HIRING_SOURCE_MANIFEST_V1: &str =
+    include_str!("fixtures/source_manifests/hn_hiring_v1.json");
+pub const HN_HIRING_REQUEST_LIMIT_PER_HOUR: u16 = 500;
+pub const HN_HIRING_SEARCH_ENDPOINT: &str = "https://hn.algolia.com/api/v1/search_by_date";
+pub const HN_HIRING_ITEM_ENDPOINT_PREFIX: &str = "https://hn.algolia.com/api/v1/items/";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]

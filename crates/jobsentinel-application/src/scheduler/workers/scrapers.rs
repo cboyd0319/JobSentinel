@@ -4,6 +4,7 @@
 
 mod browser_sources;
 mod federal;
+mod hn_hiring_worker;
 mod jobswithgpt_worker;
 mod remoteok_worker;
 mod weworkremotely_worker;
@@ -12,8 +13,8 @@ use crate::{config::Config, credentials::CredentialService};
 use jobsentinel_domain::Job;
 use jobsentinel_sources::{
     parse_greenhouse_company_url, parse_lever_company_url, BuiltInScraper, DiceScraper,
-    GreenhouseCompany, GreenhouseScraper, HnHiringScraper, JobScraper, LeverCompany, LeverScraper,
-    ScraperError, YcStartupScraper, LINKEDIN_AUTOMATION_DISABLED_MESSAGE,
+    GreenhouseCompany, GreenhouseScraper, JobScraper, LeverCompany, LeverScraper, ScraperError,
+    YcStartupScraper, LINKEDIN_AUTOMATION_DISABLED_MESSAGE,
 };
 use jobsentinel_storage::Database;
 use std::sync::{
@@ -320,21 +321,14 @@ pub(crate) async fn run_scrapers(
         }
     }
 
-    // 8. Hacker News Who's Hiring scraper
-    if config.hn_hiring.enabled {
-        tracing::info!("Running HN Who's Hiring scraper");
-        let hn_hiring = HnHiringScraper::new(config.hn_hiring.limit, config.hn_hiring.remote_only);
-        run_scraper(
-            db,
-            &hn_hiring,
-            "hn_hiring",
-            "HN Who's Hiring",
-            shutdown_requested,
-            &mut all_jobs,
-            &mut errors,
-        )
-        .await;
-    }
+    hn_hiring_worker::run_hn_hiring(
+        config.as_ref(),
+        db,
+        shutdown_requested,
+        &mut all_jobs,
+        &mut errors,
+    )
+    .await;
 
     // 9. Dice scraper - tech job board
     if config.dice.enabled && !config.dice.query.is_empty() {

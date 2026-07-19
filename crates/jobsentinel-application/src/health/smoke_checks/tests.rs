@@ -234,6 +234,67 @@ async fn disabled_weworkremotely_smoke_skips_before_governance_and_network() {
     );
 }
 
+#[tokio::test]
+async fn hn_hiring_smoke_stops_before_network_without_current_governance() {
+    let database = Database::connect_memory().await.unwrap();
+    database.migrate().await.unwrap();
+    let mut config = minimal_test_config();
+    config.hn_hiring.enabled = true;
+
+    let result = run_smoke_test(&database, &config, "hn_hiring")
+        .await
+        .unwrap();
+
+    assert!(result.passed);
+    assert_eq!(
+        result.details.and_then(|details| {
+            details["reason"]
+                .as_str()
+                .map(std::string::ToString::to_string)
+        }),
+        Some(HN_HIRING_SOURCE_CHECK_UNAVAILABLE.to_string())
+    );
+}
+
+#[tokio::test]
+async fn disabled_hn_hiring_smoke_skips_before_governance_and_network() {
+    let database = Database::connect_memory().await.unwrap();
+    database.migrate().await.unwrap();
+    let config = minimal_test_config();
+
+    let result = run_smoke_test(&database, &config, "hn_hiring")
+        .await
+        .unwrap();
+
+    assert!(result.passed);
+    assert_eq!(
+        result.details.and_then(|details| {
+            details["reason"]
+                .as_str()
+                .map(std::string::ToString::to_string)
+        }),
+        Some(HN_HIRING_DISABLED.to_string())
+    );
+}
+
+#[test]
+fn hn_hiring_health_contract_requires_the_selected_item_schema() {
+    let list: serde_json::Value = serde_json::from_str(include_str!(
+        "../../../../jobsentinel-sources/src/fixtures/hn_hiring_list_v1.json"
+    ))
+    .unwrap();
+    let mut detail: serde_json::Value = serde_json::from_str(include_str!(
+        "../../../../jobsentinel-sources/src/fixtures/hn_hiring_detail_v1.json"
+    ))
+    .unwrap();
+
+    let thread_id = jobsentinel_sources::HnHiringScraper::canonical_thread_id(&list).unwrap();
+    assert!(jobsentinel_sources::HnHiringScraper::is_canonical_thread_item(&detail, thread_id));
+
+    detail["id"] = serde_json::json!(0);
+    assert!(!jobsentinel_sources::HnHiringScraper::is_canonical_thread_item(&detail, thread_id));
+}
+
 #[test]
 fn validate_smoke_details_allows_skipped_sources() {
     let details = serde_json::json!({

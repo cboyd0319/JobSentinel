@@ -302,7 +302,7 @@ Representative source pacing:
 | Lever | High | Official public postings |
 | USAJobs | High | Official source with user-provided access code |
 | RemoteOK | Medium | Public job feed |
-| Community hiring posts | Medium | Public/community source |
+| Hacker News Who Is Hiring | Medium | Public community posts through Algolia HN Search |
 | Dice | Medium | Public job feed |
 | WeWorkRemotely | Moderate | Public feed/page |
 | BuiltIn | Moderate | Public page |
@@ -358,6 +358,20 @@ legacy category settings to reviewed feed URLs, reject all other categories,
 pace one request per hour with burst one, and disable automatic retries. Policy
 drift, unexpected access controls, attribution loss, parser drift, and stale
 review stop the source before network access.
+
+Hacker News Who Is Hiring scheduled and connectivity checks use the
+[Algolia HN Search API](https://hn.algolia.com/api) to locate only the monthly
+thread posted by the `whoishiring` account. JobSentinel then reads the exact
+numeric thread item and treats only its direct replies as job posts, so nested
+discussion is not imported as listings. The exact persisted manifest and
+policy gate the source action before either request, and the health check
+validates both reviewed endpoints. Checks use a paced 500-request-per-hour
+policy with burst one and no automatic retries. JobSentinel preserves canonical
+Hacker News comment links, keeps normalized results local, and does not export
+the raw community corpus or send it to external model training. Schema drift,
+service retirement, or lost attribution fails the current check without
+storing mismatched records. Stale review or policy change stops the source
+before network access, and malformed individual replies are skipped.
 
 ## Debug And Release Verification
 

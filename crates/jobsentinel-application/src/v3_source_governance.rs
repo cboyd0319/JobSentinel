@@ -4,8 +4,9 @@ use jobsentinel_domain::{
     v3_manifests::SourceClass,
     v3_source_authorization::{SourceActionDecision, SourceGrantState},
     v3_source_manifest::{
-        parse_source_manifest, SourceOperation, REMOTEOK_REQUEST_LIMIT_PER_HOUR,
-        REMOTEOK_SOURCE_MANIFEST_V1, USAJOBS_REQUEST_LIMIT_PER_HOUR, USAJOBS_SOURCE_MANIFEST_V1,
+        parse_source_manifest, SourceOperation, HN_HIRING_REQUEST_LIMIT_PER_HOUR,
+        HN_HIRING_SOURCE_MANIFEST_V1, REMOTEOK_REQUEST_LIMIT_PER_HOUR, REMOTEOK_SOURCE_MANIFEST_V1,
+        USAJOBS_REQUEST_LIMIT_PER_HOUR, USAJOBS_SOURCE_MANIFEST_V1,
         WEWORKREMOTELY_REQUEST_LIMIT_PER_HOUR, WEWORKREMOTELY_SOURCE_MANIFEST_V1,
     },
 };
@@ -56,6 +57,14 @@ pub(crate) fn weworkremotely_policy() -> Result<SourcePolicy, FoundationError> {
         "weworkremotely",
         "jobsentinel.source-policy.weworkremotely.rss",
         WEWORKREMOTELY_REQUEST_LIMIT_PER_HOUR,
+    )
+}
+
+pub(crate) fn hn_hiring_policy() -> Result<SourcePolicy, FoundationError> {
+    reviewed_policy(
+        "hn_hiring",
+        "jobsentinel.source-policy.hn-hiring.algolia",
+        HN_HIRING_REQUEST_LIMIT_PER_HOUR,
     )
 }
 
@@ -172,6 +181,25 @@ pub(crate) async fn authorize_weworkremotely(
         database,
         weworkremotely_policy()?,
         WEWORKREMOTELY_SOURCE_MANIFEST_V1,
+        operation,
+        today,
+    )
+    .await
+}
+
+pub(crate) async fn install_hn_hiring(database: &Database) -> Result<(), FoundationError> {
+    install_reviewed(database, hn_hiring_policy()?, HN_HIRING_SOURCE_MANIFEST_V1).await
+}
+
+pub(crate) async fn authorize_hn_hiring(
+    database: &Database,
+    operation: SourceOperation,
+    today: NaiveDate,
+) -> Result<SourceActionDecision, FoundationError> {
+    authorize_reviewed(
+        database,
+        hn_hiring_policy()?,
+        HN_HIRING_SOURCE_MANIFEST_V1,
         operation,
         today,
     )

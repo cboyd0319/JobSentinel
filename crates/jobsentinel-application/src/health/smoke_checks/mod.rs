@@ -58,6 +58,9 @@ const REMOTEOK_SOURCE_CHECK_UNAVAILABLE: &str =
 const WEWORKREMOTELY_DISABLED: &str = "We Work Remotely scraping not enabled";
 const WEWORKREMOTELY_SOURCE_CHECK_UNAVAILABLE: &str =
     "This We Work Remotely connectivity check is unavailable until its reviewed source governance is current.";
+const HN_HIRING_DISABLED: &str = "Hacker News Who Is Hiring scraping not enabled";
+const HN_HIRING_SOURCE_CHECK_UNAVAILABLE: &str =
+    "This Hacker News Who Is Hiring connectivity check is unavailable until its reviewed source governance is current.";
 // Mirrors restricted public unauthenticated source-check helpers from the
 // shared source taxonomy. Source-specific reasons live in
 // src/shared/restrictedSourceTaxonomy.ts and docs/features/scrapers.md.
@@ -158,7 +161,6 @@ fn smoke_rate_limit(scraper_name: &str) -> u32 {
         "indeed" => limits::INDEED,
         "wellfound" => 200,
         "builtin" => limits::BUILTIN,
-        "hn_hiring" => limits::HN_HIRING,
         "jobswithgpt" => limits::JOBSWITHGPT,
         "dice" => limits::DICE,
         "yc_startup" => limits::YC_STARTUP,
@@ -240,6 +242,9 @@ pub async fn run_smoke_test_with_credentials(
     if scraper_name == "weworkremotely" && !config.weworkremotely.enabled {
         return record_skipped_smoke_test(db, scraper_name, start, WEWORKREMOTELY_DISABLED).await;
     }
+    if scraper_name == "hn_hiring" && !config.hn_hiring.enabled {
+        return record_skipped_smoke_test(db, scraper_name, start, HN_HIRING_DISABLED).await;
+    }
 
     let governed_decision = match scraper_name {
         "usajobs" => Some(
@@ -266,6 +271,14 @@ pub async fn run_smoke_test_with_credentials(
             )
             .await,
         ),
+        "hn_hiring" => Some(
+            crate::v3_source_governance::authorize_hn_hiring(
+                db,
+                SourceOperation::ConnectivityCheck,
+                Utc::now().date_naive(),
+            )
+            .await,
+        ),
         _ => None,
     };
     let governed_limit = match governed_decision {
@@ -277,7 +290,8 @@ pub async fn run_smoke_test_with_credentials(
             let reason = match scraper_name {
                 "usajobs" => USAJOBS_SOURCE_CHECK_UNAVAILABLE,
                 "remoteok" => REMOTEOK_SOURCE_CHECK_UNAVAILABLE,
-                _ => WEWORKREMOTELY_SOURCE_CHECK_UNAVAILABLE,
+                "weworkremotely" => WEWORKREMOTELY_SOURCE_CHECK_UNAVAILABLE,
+                _ => HN_HIRING_SOURCE_CHECK_UNAVAILABLE,
             };
             return record_skipped_smoke_test(db, scraper_name, start, reason).await;
         }
@@ -300,7 +314,12 @@ pub async fn run_smoke_test_with_credentials(
         "wellfound" => test_wellfound().await,
         "weworkremotely" => test_weworkremotely().await,
         "builtin" => test_builtin().await,
-        "hn_hiring" => test_hn_hiring().await,
+        "hn_hiring" => match governed_limit {
+            Some(limit) => test_hn_hiring(limit).await,
+            None => Err(anyhow::anyhow!(
+                "Hacker News Who Is Hiring governance rate unavailable"
+            )),
+        },
         "jobswithgpt" => test_jobswithgpt(config).await,
         "dice" => test_dice().await,
         "yc_startup" => test_yc_startup().await,

@@ -219,9 +219,6 @@ pub mod limits {
     /// SimplyHired: 200 requests/hour (conservative due to Cloudflare)
     pub const SIMPLYHIRED: u32 = 200;
 
-    /// HN Hiring: 500 requests/hour (Algolia API)
-    pub const HN_HIRING: u32 = 500;
-
     /// YC Startup: 300 requests/hour (job board)
     pub const YC_STARTUP: u32 = 300;
 
