@@ -3,7 +3,7 @@ use crate::{
     credentials::CredentialService,
 };
 use jobsentinel_domain::ExternalAiProvider;
-use jobsentinel_security::validate_external_https_url;
+use jobsentinel_security::validate_credential_free_external_https_url;
 use jobsentinel_storage::{Database, PortableBackupHistory, StorageHealth};
 use serde::Serialize;
 
@@ -295,7 +295,7 @@ fn external_ai_check(config: &ExternalAiConfig) -> PrivacyDoctorCheck {
         || (config
             .enabled_providers
             .contains(&ExternalAiProvider::Custom)
-            && validate_external_https_url(config.custom_endpoint.trim()).is_err())
+            && validate_credential_free_external_https_url(config.custom_endpoint.trim()).is_err())
     {
         return privacy_check(
             PrivacyDoctorCheckId::ExternalAi,

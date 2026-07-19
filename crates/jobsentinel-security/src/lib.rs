@@ -9,7 +9,8 @@ pub use logging::path_label_for_logging;
 pub use output::{encode_html_text, redacted_secret_for_debug};
 pub use url::{
     canonicalize_user_supplied_job_url, sanitize_url_for_logging, strip_sensitive_url_components,
-    validate_external_http_url, validate_external_https_url, validate_resolved_ips,
+    validate_credential_free_external_https_url, validate_external_http_url,
+    validate_external_https_url, validate_resolved_ips,
 };
 pub use webhook::{validate_webhook_target, WebhookTarget};
 

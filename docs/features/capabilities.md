@@ -181,11 +181,14 @@ keys stay in the local secure vault. Users can configure more than one provider
 and set preference order and model names.
 
 The shipped provider-backed UI action remains public job-posting summary from a
-job card. It uses reviewed public posting fields only, after preview, edit,
-cancel, approval, redaction, and backend validation. Metadata-only request
-history is stored locally.
+job card. It uses unchanged stored public posting fields only, after preview,
+optional field removal, cancel, redaction, backend validation, and trusted
+native confirmation. The exact request needs an expiring, single-use backend
+approval, a durable metadata-only lifecycle, and a bound privacy receipt before
+provider transport. Settings shows a bounded projection of that durable
+lifecycle without payloads, responses, credentials, or raw errors.
 
-No private-data external AI feature ships in the current maintenance line. Any
+No private-data external AI feature ships in the v3 execution line. Any
 future resume, salary-floor, private-note, or application-history send needs
 feature-specific payload minimization, privacy labels, backend validation,
 preview, edit, cancel, approval, redaction, and tests before it can be enabled.

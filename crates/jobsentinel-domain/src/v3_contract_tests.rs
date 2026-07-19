@@ -149,7 +149,11 @@ fn every_receipt_privacy_bound_fails_independently() {
         );
     }
 
-    for pointer in ["/external_destination", "/gateway_policy_id"] {
+    for pointer in [
+        "/external_destination",
+        "/gateway_policy_id",
+        "/approval_reference",
+    ] {
         let mut receipt = fixture("privacy_receipt");
         receipt[pointer.trim_start_matches('/')] = serde_json::json!("unexpected");
         assert!(

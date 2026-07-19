@@ -152,18 +152,24 @@ mod validation_tests {
 
     #[test]
     fn test_external_ai_custom_provider_requires_public_https_endpoint() {
-        let mut config = create_minimal_valid_config();
-        config.external_ai.enabled = true;
-        config.external_ai.provider = ExternalAiProvider::Custom;
-        config.external_ai.enabled_providers = vec![ExternalAiProvider::Custom];
-        config.external_ai.provider_order = vec![ExternalAiProvider::Custom];
-        config.external_ai.custom_endpoint = "http://127.0.0.1:9000/model".to_string();
+        for endpoint in [
+            "http://127.0.0.1:9000/model",
+            "https://provider.example/model?candidate=private",
+            "https://provider.example/model#private",
+        ] {
+            let mut config = create_minimal_valid_config();
+            config.external_ai.enabled = true;
+            config.external_ai.provider = ExternalAiProvider::Custom;
+            config.external_ai.enabled_providers = vec![ExternalAiProvider::Custom];
+            config.external_ai.provider_order = vec![ExternalAiProvider::Custom];
+            config.external_ai.custom_endpoint = endpoint.to_string();
 
-        let result = validate_config(&config);
+            let result = validate_config(&config);
 
-        assert!(result.is_err());
-        let fields = validation_error_fields(result);
-        assert!(fields.contains(&"external_ai.custom_endpoint".to_string()));
+            assert!(result.is_err());
+            let fields = validation_error_fields(result);
+            assert!(fields.contains(&"external_ai.custom_endpoint".to_string()));
+        }
     }
 
     #[test]

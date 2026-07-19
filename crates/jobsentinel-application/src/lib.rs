@@ -30,7 +30,10 @@ pub mod v3_foundation;
 pub use bookmarklet::{bookmarklet_repository, confirm_bookmarklet_imports};
 pub use config::Config;
 pub use external_ai::{
-    send_external_ai_request, ExternalAiCommandRequest, ExternalAiCommandResponse,
+    cancel_external_ai_request, list_external_ai_activity, prepare_external_ai_request,
+    send_external_ai_request, ExternalAiActivityEntry, ExternalAiActivityStatus,
+    ExternalAiCancelOutcome, ExternalAiCancelResponse, ExternalAiCommandRequest,
+    ExternalAiCommandResponse, ExternalAiPrepareResponse,
 };
 pub use jobsentinel_domain::Job;
 pub use pending::PendingUrlImports;

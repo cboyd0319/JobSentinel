@@ -7,7 +7,7 @@ use crate::v3_contracts::{
 
 mod privacy_validation;
 
-const EXTERNAL_AI_GATEWAY_POLICY: &str = "jobsentinel.external-ai-gateway.v1";
+pub const EXTERNAL_AI_GATEWAY_POLICY: &str = "jobsentinel.external-ai-gateway.v1";
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum PrivacyLabel {

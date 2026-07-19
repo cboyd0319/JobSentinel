@@ -54,7 +54,10 @@ impl PrivacyReceipt {
             if has_protected_data {
                 return Err("military and protected-answer data must remain local".to_string());
             }
-        } else if self.external_destination.is_some() || self.gateway_policy_id.is_some() {
+        } else if self.external_destination.is_some()
+            || self.gateway_policy_id.is_some()
+            || self.approval_reference.is_some()
+        {
             return Err("local receipt cannot record an external route".to_string());
         }
         Ok(())
@@ -102,12 +105,7 @@ fn is_protected_local_category(category: DataCategory) -> bool {
 }
 
 fn is_safe_external_destination(value: &str) -> bool {
-    jobsentinel_security::validate_external_https_url(value).is_ok_and(|url| {
-        url.username().is_empty()
-            && url.password().is_none()
-            && url.query().is_none()
-            && url.fragment().is_none()
-    })
+    jobsentinel_security::validate_credential_free_external_https_url(value).is_ok()
 }
 
 fn require_identifier(label: &str, value: &str, max_bytes: usize) -> Result<(), String> {

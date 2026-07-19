@@ -105,6 +105,17 @@ impl DesktopServices {
         database: Database,
     ) -> Result<Self, DesktopStartupError> {
         let database = Arc::new(database);
+        let reconciled = database
+            .reconcile_outside_ai_operations()
+            .await
+            .map_err(|error| DesktopStartupError::Database(error.to_string()))?;
+        if reconciled.ambiguous > 0 || reconciled.cancelled > 0 {
+            tracing::warn!(
+                ambiguous = reconciled.ambiguous,
+                cancelled = reconciled.cancelled,
+                "Reconciled interrupted Outside AI operations"
+            );
+        }
         let credentials = Arc::new(CredentialService::new(database.credentials()));
         if migrate_plaintext_credentials_to_secure_storage(&config_path, credentials.as_ref()).await
         {
