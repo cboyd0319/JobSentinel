@@ -191,6 +191,49 @@ async fn disabled_remoteok_smoke_skips_before_governance_and_network() {
     );
 }
 
+#[tokio::test]
+async fn weworkremotely_smoke_stops_before_network_without_current_governance() {
+    let database = Database::connect_memory().await.unwrap();
+    database.migrate().await.unwrap();
+    let mut config = minimal_test_config();
+    config.weworkremotely.enabled = true;
+
+    let result = run_smoke_test(&database, &config, "weworkremotely")
+        .await
+        .unwrap();
+
+    assert!(result.passed);
+    assert_eq!(
+        result.details.and_then(|details| {
+            details["reason"]
+                .as_str()
+                .map(std::string::ToString::to_string)
+        }),
+        Some(WEWORKREMOTELY_SOURCE_CHECK_UNAVAILABLE.to_string())
+    );
+}
+
+#[tokio::test]
+async fn disabled_weworkremotely_smoke_skips_before_governance_and_network() {
+    let database = Database::connect_memory().await.unwrap();
+    database.migrate().await.unwrap();
+    let config = minimal_test_config();
+
+    let result = run_smoke_test(&database, &config, "weworkremotely")
+        .await
+        .unwrap();
+
+    assert!(result.passed);
+    assert_eq!(
+        result.details.and_then(|details| {
+            details["reason"]
+                .as_str()
+                .map(std::string::ToString::to_string)
+        }),
+        Some(WEWORKREMOTELY_DISABLED.to_string())
+    );
+}
+
 #[test]
 fn validate_smoke_details_allows_skipped_sources() {
     let details = serde_json::json!({

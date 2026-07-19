@@ -18,6 +18,9 @@ pub const USAJOBS_REQUEST_LIMIT_PER_HOUR: u16 = 60;
 pub const REMOTEOK_SOURCE_MANIFEST_V1: &str =
     include_str!("fixtures/source_manifests/remoteok_v1.json");
 pub const REMOTEOK_REQUEST_LIMIT_PER_HOUR: u16 = 500;
+pub const WEWORKREMOTELY_SOURCE_MANIFEST_V1: &str =
+    include_str!("fixtures/source_manifests/weworkremotely_v1.json");
+pub const WEWORKREMOTELY_REQUEST_LIMIT_PER_HOUR: u16 = 1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -345,12 +348,15 @@ fn validate_fixture_path(value: &str) -> Result<(), String> {
         || value.len() > 256
         || value.contains(['\\', ':'])
         || path.is_absolute()
-        || path.extension().and_then(|value| value.to_str()) != Some("json")
+        || !matches!(
+            path.extension().and_then(|value| value.to_str()),
+            Some("json" | "xml")
+        )
         || path
             .components()
             .any(|component| !matches!(component, Component::Normal(_)))
     {
-        return Err("source fixture path must be a repo-relative JSON path".to_string());
+        return Err("source fixture path must be a repo-relative JSON or XML path".to_string());
     }
     Ok(())
 }

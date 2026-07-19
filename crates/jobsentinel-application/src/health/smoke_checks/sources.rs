@@ -134,10 +134,10 @@ pub(super) async fn test_wellfound() -> Result<serde_json::Value> {
 }
 
 pub(super) async fn test_weworkremotely() -> Result<serde_json::Value> {
-    let url = "https://weworkremotely.com/categories/remote-programming-jobs.rss";
+    let url = "https://weworkremotely.com/remote-jobs.rss";
     let response = require_success(
         smoke_request(
-            ExternalHttpRequest::get(url),
+            ExternalHttpRequest::get(url).without_retries(),
             "We Work Remotely smoke test request failed",
         )
         .await?,

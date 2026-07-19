@@ -346,6 +346,19 @@ local user-directed job search, never sends it to model training, paces the
 authorized 500-request-per-hour rate without a multi-request burst, and does
 not retry failed requests automatically.
 
+We Work Remotely scheduled and connectivity checks use only its
+[advertised public RSS feeds](https://weworkremotely.com/remote-job-rss-feed).
+That page permits anyone to populate a remote-job feed when links are
+attributed back to We Work Remotely. JobSentinel preserves the source label and
+canonical WWR listing link, keeps normalized results local, and does not send
+feed content to external model training. The separate partner API is not used.
+Its token requirement and terms do not authorize JobSentinel's job-search
+workflow. The exact persisted manifest and policy gate every RSS request, map
+legacy category settings to reviewed feed URLs, reject all other categories,
+pace one request per hour with burst one, and disable automatic retries. Policy
+drift, unexpected access controls, attribution loss, parser drift, and stale
+review stop the source before network access.
+
 ## Debug And Release Verification
 
 Every source JobSentinel uses must have release evidence before JobSentinel

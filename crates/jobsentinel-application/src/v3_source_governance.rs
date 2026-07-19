@@ -6,6 +6,7 @@ use jobsentinel_domain::{
     v3_source_manifest::{
         parse_source_manifest, SourceOperation, REMOTEOK_REQUEST_LIMIT_PER_HOUR,
         REMOTEOK_SOURCE_MANIFEST_V1, USAJOBS_REQUEST_LIMIT_PER_HOUR, USAJOBS_SOURCE_MANIFEST_V1,
+        WEWORKREMOTELY_REQUEST_LIMIT_PER_HOUR, WEWORKREMOTELY_SOURCE_MANIFEST_V1,
     },
 };
 use jobsentinel_storage::Database;
@@ -47,6 +48,14 @@ pub(crate) fn remoteok_policy() -> Result<SourcePolicy, FoundationError> {
         "remoteok",
         "jobsentinel.source-policy.remoteok.api",
         REMOTEOK_REQUEST_LIMIT_PER_HOUR,
+    )
+}
+
+pub(crate) fn weworkremotely_policy() -> Result<SourcePolicy, FoundationError> {
+    reviewed_policy(
+        "weworkremotely",
+        "jobsentinel.source-policy.weworkremotely.rss",
+        WEWORKREMOTELY_REQUEST_LIMIT_PER_HOUR,
     )
 }
 
@@ -139,6 +148,30 @@ pub(crate) async fn authorize_remoteok(
         database,
         remoteok_policy()?,
         REMOTEOK_SOURCE_MANIFEST_V1,
+        operation,
+        today,
+    )
+    .await
+}
+
+pub(crate) async fn install_weworkremotely(database: &Database) -> Result<(), FoundationError> {
+    install_reviewed(
+        database,
+        weworkremotely_policy()?,
+        WEWORKREMOTELY_SOURCE_MANIFEST_V1,
+    )
+    .await
+}
+
+pub(crate) async fn authorize_weworkremotely(
+    database: &Database,
+    operation: SourceOperation,
+    today: NaiveDate,
+) -> Result<SourceActionDecision, FoundationError> {
+    authorize_reviewed(
+        database,
+        weworkremotely_policy()?,
+        WEWORKREMOTELY_SOURCE_MANIFEST_V1,
         operation,
         today,
     )

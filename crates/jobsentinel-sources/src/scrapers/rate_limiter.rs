@@ -219,9 +219,6 @@ pub mod limits {
     /// SimplyHired: 200 requests/hour (conservative due to Cloudflare)
     pub const SIMPLYHIRED: u32 = 200;
 
-    /// WeWorkRemotely: 300 requests/hour (RSS feed)
-    pub const WEWORKREMOTELY: u32 = 300;
-
     /// HN Hiring: 500 requests/hour (Algolia API)
     pub const HN_HIRING: u32 = 500;
 

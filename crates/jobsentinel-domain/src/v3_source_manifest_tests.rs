@@ -256,6 +256,32 @@ fn fixture_hashes_bind_to_real_synthetic_payloads() {
 }
 
 #[test]
+fn source_manifest_accepts_reviewed_web_fixture_formats_only() {
+    let policy = scheduled_policy();
+    for extension in ["json", "xml"] {
+        let mut value = fixture();
+        value["fixtures"][0]["path"] = json!(format!(
+            "crates/jobsentinel-sources/src/fixtures/source.{extension}"
+        ));
+        assert!(
+            parse_source_manifest(&value.to_string(), &policy).is_ok(),
+            "{extension} fixtures should be supported"
+        );
+    }
+
+    for extension in ["html", "txt"] {
+        let mut value = fixture();
+        value["fixtures"][0]["path"] = json!(format!(
+            "crates/jobsentinel-sources/src/fixtures/source.{extension}"
+        ));
+        assert!(
+            parse_source_manifest(&value.to_string(), &policy).is_err(),
+            "{extension} fixtures should remain unsupported"
+        );
+    }
+}
+
+#[test]
 fn explicit_user_actions_cannot_be_permissionless() {
     let policy = scheduled_policy();
     for operation in ["restricted_workbench", "smart_paste", "applied_logging"] {

@@ -92,9 +92,12 @@ fn test_weworkremotely_scraper_construction() {
 
 #[test]
 fn test_weworkremotely_scraper_with_category() {
-    let scraper = WeWorkRemotelyScraper::new(Some("programming".to_string()), 20);
+    let scraper = WeWorkRemotelyScraper::new(Some("remote-programming-jobs".to_string()), 20);
     assert_eq!(scraper.name(), "weworkremotely");
-    assert_eq!(scraper.category, Some("programming".to_string()));
+    assert_eq!(
+        scraper.category,
+        Some("remote-programming-jobs".to_string())
+    );
 }
 
 #[test]

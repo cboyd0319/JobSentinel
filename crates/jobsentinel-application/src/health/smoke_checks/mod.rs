@@ -55,6 +55,9 @@ const USAJOBS_EMAIL_MISSING: &str = "USAJobs email not configured";
 const REMOTEOK_DISABLED: &str = "RemoteOK scraping not enabled";
 const REMOTEOK_SOURCE_CHECK_UNAVAILABLE: &str =
     "This RemoteOK connectivity check is unavailable until its reviewed source governance is current.";
+const WEWORKREMOTELY_DISABLED: &str = "We Work Remotely scraping not enabled";
+const WEWORKREMOTELY_SOURCE_CHECK_UNAVAILABLE: &str =
+    "This We Work Remotely connectivity check is unavailable until its reviewed source governance is current.";
 // Mirrors restricted public unauthenticated source-check helpers from the
 // shared source taxonomy. Source-specific reasons live in
 // src/shared/restrictedSourceTaxonomy.ts and docs/features/scrapers.md.
@@ -154,7 +157,6 @@ fn smoke_rate_limit(scraper_name: &str) -> u32 {
         "lever" => limits::LEVER,
         "indeed" => limits::INDEED,
         "wellfound" => 200,
-        "weworkremotely" => limits::WEWORKREMOTELY,
         "builtin" => limits::BUILTIN,
         "hn_hiring" => limits::HN_HIRING,
         "jobswithgpt" => limits::JOBSWITHGPT,
@@ -235,6 +237,9 @@ pub async fn run_smoke_test_with_credentials(
     if scraper_name == "remoteok" && !config.remoteok.enabled {
         return record_skipped_smoke_test(db, scraper_name, start, REMOTEOK_DISABLED).await;
     }
+    if scraper_name == "weworkremotely" && !config.weworkremotely.enabled {
+        return record_skipped_smoke_test(db, scraper_name, start, WEWORKREMOTELY_DISABLED).await;
+    }
 
     let governed_decision = match scraper_name {
         "usajobs" => Some(
@@ -253,6 +258,14 @@ pub async fn run_smoke_test_with_credentials(
             )
             .await,
         ),
+        "weworkremotely" => Some(
+            crate::v3_source_governance::authorize_weworkremotely(
+                db,
+                SourceOperation::ConnectivityCheck,
+                Utc::now().date_naive(),
+            )
+            .await,
+        ),
         _ => None,
     };
     let governed_limit = match governed_decision {
@@ -261,10 +274,10 @@ pub async fn run_smoke_test_with_credentials(
             connectivity_required: true,
         })) => Some(u32::from(request_limit_per_hour)),
         Some(_) => {
-            let reason = if scraper_name == "usajobs" {
-                USAJOBS_SOURCE_CHECK_UNAVAILABLE
-            } else {
-                REMOTEOK_SOURCE_CHECK_UNAVAILABLE
+            let reason = match scraper_name {
+                "usajobs" => USAJOBS_SOURCE_CHECK_UNAVAILABLE,
+                "remoteok" => REMOTEOK_SOURCE_CHECK_UNAVAILABLE,
+                _ => WEWORKREMOTELY_SOURCE_CHECK_UNAVAILABLE,
             };
             return record_skipped_smoke_test(db, scraper_name, start, reason).await;
         }
