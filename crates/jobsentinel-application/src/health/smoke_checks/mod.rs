@@ -52,6 +52,9 @@ const USAJOBS_SOURCE_CHECK_UNAVAILABLE: &str =
     "This USAJobs connectivity check is unavailable until its reviewed source governance is current.";
 const USAJOBS_DISABLED: &str = "USAJobs scraping not enabled";
 const USAJOBS_EMAIL_MISSING: &str = "USAJobs email not configured";
+const REMOTEOK_DISABLED: &str = "RemoteOK scraping not enabled";
+const REMOTEOK_SOURCE_CHECK_UNAVAILABLE: &str =
+    "This RemoteOK connectivity check is unavailable until its reviewed source governance is current.";
 // Mirrors restricted public unauthenticated source-check helpers from the
 // shared source taxonomy. Source-specific reasons live in
 // src/shared/restrictedSourceTaxonomy.ts and docs/features/scrapers.md.
@@ -150,7 +153,6 @@ fn smoke_rate_limit(scraper_name: &str) -> u32 {
         "greenhouse" => limits::GREENHOUSE,
         "lever" => limits::LEVER,
         "indeed" => limits::INDEED,
-        "remoteok" => limits::REMOTEOK,
         "wellfound" => 200,
         "weworkremotely" => limits::WEWORKREMOTELY,
         "builtin" => limits::BUILTIN,
@@ -230,34 +232,46 @@ pub async fn run_smoke_test_with_credentials(
             return record_skipped_smoke_test(db, scraper_name, start, reason).await;
         }
     }
+    if scraper_name == "remoteok" && !config.remoteok.enabled {
+        return record_skipped_smoke_test(db, scraper_name, start, REMOTEOK_DISABLED).await;
+    }
 
-    let usajobs_limit = if scraper_name == "usajobs" {
-        match crate::v3_usajobs_governance::authorize(
-            db,
-            SourceOperation::ConnectivityCheck,
-            Utc::now().date_naive(),
-        )
-        .await
-        {
-            Ok(SourceActionDecision::Allowed {
-                request_limit_per_hour,
-                connectivity_required: true,
-            }) => Some(u32::from(request_limit_per_hour)),
-            Ok(_) | Err(_) => {
-                return record_skipped_smoke_test(
-                    db,
-                    scraper_name,
-                    start,
-                    USAJOBS_SOURCE_CHECK_UNAVAILABLE,
-                )
-                .await;
-            }
+    let governed_decision = match scraper_name {
+        "usajobs" => Some(
+            crate::v3_source_governance::authorize_usajobs(
+                db,
+                SourceOperation::ConnectivityCheck,
+                Utc::now().date_naive(),
+            )
+            .await,
+        ),
+        "remoteok" => Some(
+            crate::v3_source_governance::authorize_remoteok(
+                db,
+                SourceOperation::ConnectivityCheck,
+                Utc::now().date_naive(),
+            )
+            .await,
+        ),
+        _ => None,
+    };
+    let governed_limit = match governed_decision {
+        Some(Ok(SourceActionDecision::Allowed {
+            request_limit_per_hour,
+            connectivity_required: true,
+        })) => Some(u32::from(request_limit_per_hour)),
+        Some(_) => {
+            let reason = if scraper_name == "usajobs" {
+                USAJOBS_SOURCE_CHECK_UNAVAILABLE
+            } else {
+                REMOTEOK_SOURCE_CHECK_UNAVAILABLE
+            };
+            return record_skipped_smoke_test(db, scraper_name, start, reason).await;
         }
-    } else {
-        None
+        None => None,
     };
 
-    if let Some(limit) = usajobs_limit {
+    if let Some(limit) = governed_limit {
         RateLimiter::shared().wait_paced(scraper_name, limit).await;
     } else {
         RateLimiter::shared()

@@ -336,6 +336,16 @@ reviewed list and detail fixture hashes, and a paced 60-request-per-hour rate
 with no automatic retries or multi-request burst. Missing, stale, disabled, or
 drifted governance stops before credential access or network work.
 
+RemoteOK scheduled and connectivity checks use the same exact persisted-policy
+and manifest gate before network access. The reviewed first-party API notice
+requires attribution and a followed link to the RemoteOK listing and prohibits
+unapproved logo use. The reviewed robots policy allows ordinary public paths
+with a one-second crawl delay, reserves model-training use, and excludes user
+profiles and query endpoints. JobSentinel uses only the exact `/api` feed for a
+local user-directed job search, never sends it to model training, paces the
+authorized 500-request-per-hour rate without a multi-request burst, and does
+not retry failed requests automatically.
+
 ## Debug And Release Verification
 
 Every source JobSentinel uses must have release evidence before JobSentinel

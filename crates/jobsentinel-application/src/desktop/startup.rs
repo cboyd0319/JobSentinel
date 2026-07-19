@@ -151,10 +151,16 @@ impl DesktopServices {
                 "Reconciled interrupted Outside AI operations"
             );
         }
-        if let Err(error) = crate::v3_usajobs_governance::install(&database).await {
+        if let Err(error) = crate::v3_source_governance::install_usajobs(&database).await {
             tracing::warn!(
                 error = %error,
                 "USAJobs source governance could not be refreshed; scheduled checks remain blocked"
+            );
+        }
+        if let Err(error) = crate::v3_source_governance::install_remoteok(&database).await {
+            tracing::warn!(
+                error = %error,
+                "RemoteOK source governance could not be refreshed; scheduled checks remain blocked"
             );
         }
         let credentials = CredentialService::new(database.credentials());

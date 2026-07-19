@@ -213,9 +213,6 @@ pub mod limits {
     /// Dice: 500 requests/hour (public job board)
     pub const DICE: u32 = 500;
 
-    /// RemoteOK: 500 requests/hour (public API)
-    pub const REMOTEOK: u32 = 500;
-
     /// Glassdoor: 200 requests/hour (conservative due to Cloudflare)
     pub const GLASSDOOR: u32 = 200;
 

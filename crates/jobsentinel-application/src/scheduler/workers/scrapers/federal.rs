@@ -32,7 +32,7 @@ pub(super) async fn run_usajobs(
         if shutdown_requested.load(Ordering::Acquire) {
             return;
         }
-        let request_limit_per_hour = match crate::v3_usajobs_governance::authorize(
+        let request_limit_per_hour = match crate::v3_source_governance::authorize_usajobs(
             db,
             SourceOperation::ScheduledCheck,
             Utc::now().date_naive(),
@@ -147,12 +147,12 @@ mod tests {
         database.migrate().await.unwrap();
         let today = chrono::NaiveDate::from_ymd_opt(2026, 7, 19).unwrap();
 
-        crate::v3_usajobs_governance::install(&database)
+        crate::v3_source_governance::install_usajobs(&database)
             .await
             .unwrap();
 
         assert_eq!(
-            crate::v3_usajobs_governance::authorize(
+            crate::v3_source_governance::authorize_usajobs(
                 &database,
                 SourceOperation::ScheduledCheck,
                 today,
@@ -168,7 +168,7 @@ mod tests {
 
     #[test]
     fn usajobs_manifest_hashes_bind_to_reviewed_parser_fixtures() {
-        let policy = crate::v3_usajobs_governance::policy().unwrap();
+        let policy = crate::v3_source_governance::usajobs_policy().unwrap();
         let manifest = jobsentinel_domain::v3_source_manifest::parse_source_manifest(
             jobsentinel_domain::v3_source_manifest::USAJOBS_SOURCE_MANIFEST_V1,
             &policy,
@@ -270,7 +270,7 @@ mod tests {
     async fn same_revision_policy_drift_stops_before_credential_access() {
         let database = Arc::new(Database::connect_memory().await.unwrap());
         database.migrate().await.unwrap();
-        let mut policy = crate::v3_usajobs_governance::policy().unwrap();
+        let mut policy = crate::v3_source_governance::usajobs_policy().unwrap();
         policy.request_limit_per_hour = 24;
         database.upsert_source_policy(&policy).await.unwrap();
         let manifest = jobsentinel_domain::v3_source_manifest::parse_source_manifest(
@@ -292,7 +292,7 @@ mod tests {
     async fn same_revision_manifest_drift_stops_before_credential_access() {
         let database = Arc::new(Database::connect_memory().await.unwrap());
         database.migrate().await.unwrap();
-        let policy = crate::v3_usajobs_governance::policy().unwrap();
+        let policy = crate::v3_source_governance::usajobs_policy().unwrap();
         database.upsert_source_policy(&policy).await.unwrap();
         let mut manifest = jobsentinel_domain::v3_source_manifest::parse_source_manifest(
             jobsentinel_domain::v3_source_manifest::USAJOBS_SOURCE_MANIFEST_V1,

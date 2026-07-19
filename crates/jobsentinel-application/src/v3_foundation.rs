@@ -189,7 +189,7 @@ pub(crate) fn map_error(error: anyhow::Error) -> FoundationError {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::v3_usajobs_governance::{install, policy};
+    use crate::v3_source_governance::{install_usajobs, usajobs_policy};
     use jobsentinel_domain::{
         v3_foundation::{CaseFileEventInput, CaseFileEventKind, EventMetadata, EventOrigin},
         v3_foundation::{SourceAccess, SourcePolicy},
@@ -435,15 +435,15 @@ mod tests {
     async fn usajobs_governance_never_overwrites_same_or_newer_policy_state() {
         let database = Database::connect_memory().await.unwrap();
         database.migrate().await.unwrap();
-        install(&database).await.unwrap();
+        install_usajobs(&database).await.unwrap();
         let today = chrono::NaiveDate::from_ymd_opt(2026, 7, 19).unwrap();
 
-        let mut newer = policy().unwrap();
+        let mut newer = usajobs_policy().unwrap();
         newer.revision = 2;
         newer.access = SourceAccess::Disabled;
         newer.request_limit_per_hour = 0;
         database.upsert_source_policy(&newer).await.unwrap();
-        install(&database).await.unwrap();
+        install_usajobs(&database).await.unwrap();
 
         assert_eq!(
             database.get_source_policy("usajobs").await.unwrap(),
@@ -464,14 +464,14 @@ mod tests {
 
         let conflicting_database = Database::connect_memory().await.unwrap();
         conflicting_database.migrate().await.unwrap();
-        let mut conflicting = policy().unwrap();
+        let mut conflicting = usajobs_policy().unwrap();
         conflicting.request_limit_per_hour = 24;
         conflicting_database
             .upsert_source_policy(&conflicting)
             .await
             .unwrap();
         assert_eq!(
-            install(&conflicting_database).await.unwrap_err(),
+            install_usajobs(&conflicting_database).await.unwrap_err(),
             FoundationError::Conflict
         );
     }

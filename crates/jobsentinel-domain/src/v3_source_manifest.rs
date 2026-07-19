@@ -15,6 +15,9 @@ use crate::{
 pub const USAJOBS_SOURCE_MANIFEST_V1: &str =
     include_str!("fixtures/source_manifests/usajobs_v1.json");
 pub const USAJOBS_REQUEST_LIMIT_PER_HOUR: u16 = 60;
+pub const REMOTEOK_SOURCE_MANIFEST_V1: &str =
+    include_str!("fixtures/source_manifests/remoteok_v1.json");
+pub const REMOTEOK_REQUEST_LIMIT_PER_HOUR: u16 = 500;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]

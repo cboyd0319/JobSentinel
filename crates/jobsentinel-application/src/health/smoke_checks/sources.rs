@@ -96,7 +96,7 @@ pub(super) async fn test_remoteok() -> Result<serde_json::Value> {
     let url = "https://remoteok.com/api";
     let response = require_success(
         smoke_request(
-            ExternalHttpRequest::get(url),
+            ExternalHttpRequest::get(url).without_retries(),
             "RemoteOK smoke test request failed",
         )
         .await?,
