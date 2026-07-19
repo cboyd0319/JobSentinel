@@ -330,6 +330,7 @@ relevant result, and caveat.
 | 2026-07-19 | Milestone 3 complete | Added isolated offline startup recovery, bounded queued-work state, independent invalid-state preservation, encrypted restore controls, fail-closed publication and rollback, platform health, app-owned Unix permission repair, explicit package connectivity guidance, and Settings recovery controls at `aaa9f28c`. Focused product and security reviewers returned PASS. Activated Milestone 4. |
 | 2026-07-19 | Milestone 4 connected source governed | Classified the legacy JobsWithGPT path, disabled scheduled contact before audit or transport, preserved local configuration and history, corrected source health through migration 17, and bound provider-review and parser fixtures at `8ef539ad`. Focused checks passed and adversarial correction review returned PASS. Milestone 4 remains active. |
 | 2026-07-19 | Milestone 4 restricted scheduled sources retired | Bound current first-party policy evidence and disabled manifests for Built In, Dice HTML, SimplyHired, and Glassdoor; removed legacy adapters, UI controls, and health metadata; cleared stale config authority; blocked pasted-URL fetches before transport; and kept visible Browser Import as a separate reviewed path at `8a7d3439`. Migration 18 prevents health-row recreation, focused checks passed, and adversarial review returned SOUND. Milestone 4 remains active. |
+| 2026-07-19 | Milestone 4 LinkedIn Workbench governed | Bound current LinkedIn policy evidence and a restricted user-opened manifest; moved review authority from renderer storage to exact append-only backend consent; enforced freshness, revocation, and pre-write credential rejection; separated navigation confirmation from durable consent; blocked LinkedIn Browser Import before DOM access; and required paired browser grants for browser-origin applied logging at `8baa2fea`. Focused checks passed and adversarial review returned APPROVE. Milestone 4 remains active. |
 
 ## Discoveries
 
@@ -366,6 +367,16 @@ relevant result, and caveat.
   Import receives user-selected information already visible in the user's
   browser. The four retired boards allow only the latter local review path;
   YC remains blocked for both operations.
+- Current LinkedIn terms prohibit unauthorized scraping, copying, browser
+  plugins, and automated activity. LinkedIn Browser Import must therefore stop
+  before DOM access or localhost transport, even when the user starts it.
+- The prior LinkedIn acknowledgement lived only in renderer storage, while
+  native IPC could write local job and application records directly. Restricted
+  Workbench authority must live in the backend and bind exact current policy,
+  behavior, destination, request, and data categories.
+- The generated Browser Import button currently produces one posting, not a
+  visible-card batch. Maintained UI and feature docs must describe that current
+  behavior while broader companion capture remains planned work.
 - Deleted health metadata still needs defense in depth. A hostile restored row
   must remain inert in storage, native IPC, development mocks, and renderer
   controls.
@@ -432,6 +443,17 @@ relevant result, and caveat.
 - Treat Dice's official MCP as a separate review-required candidate. Do not
   scaffold it until exact schema, privacy, pacing, endpoint, and fixture
   contracts are approved.
+- Treat LinkedIn as a restricted user-opened Workbench under current dated
+  first-party evidence. Keep user-opened navigation behind a native confirmation
+  that creates no durable consent. Keep Workbench writes behind exact append-only
+  backend consent and fresh policy evidence.
+- Block LinkedIn Browser Import before iframe creation, DOM access, or transport,
+  and retain server rejection as defense in depth. A renderer acknowledgement
+  cannot authorize capture.
+- Keep in-app local ledger actions inside the exact RestrictedWorkbench
+  capability. Require PairedBrowserGrant for browser-origin AppliedLogging and
+  VisiblePageCapture. Generic Smart Paste and browser-origin applied logging
+  remain separate Milestone 4 operations.
 
 ## Outcomes
 
@@ -480,6 +502,12 @@ relevant result, and caveat.
   restore transport. Pasted-URL fetches stop before network access, while
   user-opened links, visible Browser Import, and manual entry remain explicit
   local alternatives.
+- Milestone 4 now governs the LinkedIn Workbench with a current restricted
+  user-opened manifest, exact backend-owned append-only consent, stale-policy
+  pause, revocation, and pre-write structured credential rejection. LinkedIn
+  Browser Import stops before page access, navigation confirmation grants no
+  durable consent, and browser-origin applied logging cannot downgrade from a
+  paired grant.
 
 ## Handoff
 
@@ -505,9 +533,11 @@ relevant result, and caveat.
   connected-source governance is bound at `8ef539ad`, and restricted scheduled
   source retirement is bound by
   `docs/harness/evidence/v3-milestone-4-restricted-source-retirement-2026-07-19.json`
-  at `8a7d3439`.
-- Next step: govern employer discovery, regional packs, restricted Workbench,
-  visible capture, Smart Paste, and source-context applied logging, then close
+  at `8a7d3439`. LinkedIn Workbench governance is bound by
+  `docs/harness/evidence/v3-milestone-4-linkedin-workbench-governance-2026-07-19.json`
+  at `8baa2fea`.
+- Next step: govern employer discovery, starter regional packs, generic visible
+  capture, generic Smart Paste, and browser-origin applied logging, then close
   Gate 3.
 - Open risks: scope remains large, contract freeze is irreversible within the
   v3 compatibility line, recovery and permission behavior still needs Windows
