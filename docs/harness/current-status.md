@@ -48,10 +48,10 @@ Last updated: 2026-07-19
 
 - Active feature: `v3-milestone-4-source-graph-browser-companion`
 - Status: `active`
-- Objective: Build the governed source graph and browser companion boundary.
-- Current slice: Governed official, ATS, and community sources; retired YC
-  automation; disabled JobsWithGPT pending provider review; completed simulator fixtures.
-- Next action: Govern remaining source paths, then complete Gate 3 evidence.
+- Current slice: Governed official, ATS, and community sources; retired YC and
+  four policy-blocked adapters; disabled JobsWithGPT; simulator fixtures complete.
+- Next action: Govern employer discovery, regional packs, restricted Workbench,
+  visible capture, Smart Paste, and applied logging, then complete Gate 3.
 
 ## Deferred
 

@@ -329,6 +329,7 @@ relevant result, and caveat.
 | 2026-07-19 | Milestone 3 Outside AI governance complete | Added backend-verified public-job provenance, trusted native confirmation, exact single-use approval, immutable receipt-bound lifecycle, no-retry transport, durable cancellation, explicit ambiguity, and bounded local recovery activity at `02465456`. Two adversarial reviewers returned PASS. Milestone 3 remains active. |
 | 2026-07-19 | Milestone 3 complete | Added isolated offline startup recovery, bounded queued-work state, independent invalid-state preservation, encrypted restore controls, fail-closed publication and rollback, platform health, app-owned Unix permission repair, explicit package connectivity guidance, and Settings recovery controls at `aaa9f28c`. Focused product and security reviewers returned PASS. Activated Milestone 4. |
 | 2026-07-19 | Milestone 4 connected source governed | Classified the legacy JobsWithGPT path, disabled scheduled contact before audit or transport, preserved local configuration and history, corrected source health through migration 17, and bound provider-review and parser fixtures at `8ef539ad`. Focused checks passed and adversarial correction review returned PASS. Milestone 4 remains active. |
+| 2026-07-19 | Milestone 4 restricted scheduled sources retired | Bound current first-party policy evidence and disabled manifests for Built In, Dice HTML, SimplyHired, and Glassdoor; removed legacy adapters, UI controls, and health metadata; cleared stale config authority; blocked pasted-URL fetches before transport; and kept visible Browser Import as a separate reviewed path at `8a7d3439`. Migration 18 prevents health-row recreation, focused checks passed, and adversarial review returned SOUND. Milestone 4 remains active. |
 
 ## Discoveries
 
@@ -357,6 +358,17 @@ relevant result, and caveat.
 - The legacy JobsWithGPT terms URL now redirects to a renamed provider whose
   first-party terms do not identify an exact feed endpoint, client authorization,
   or pacing contract.
+- Current Built In, Dice, SimplyHired, and Glassdoor provider terms do not
+  authorize the retired scheduled or pasted-URL fetch paths. A local
+  acknowledgement cannot override those provider boundaries.
+- Pasted-URL import and visible Browser Import are different operations.
+  Pasted-URL import performs an application-owned network fetch, while Browser
+  Import receives user-selected information already visible in the user's
+  browser. The four retired boards allow only the latter local review path;
+  YC remains blocked for both operations.
+- Deleted health metadata still needs defense in depth. A hostile restored row
+  must remain inert in storage, native IPC, development mocks, and renderer
+  controls.
 
 ## Decisions
 
@@ -409,6 +421,17 @@ relevant result, and caveat.
 - Keep JobsWithGPT configuration, exact prior approval, and minimized contact
   history locally inspectable, but disable new contact until a dated provider
   review verifies the endpoint, authorization, pacing, and stop conditions.
+- Supersede Milestone 3 scheduled consent for Built In, Dice, SimplyHired, and
+  Glassdoor with Milestone 4 disabled policies after current provider review.
+  Preserve append-only policy and consent history, but revoke remembered
+  consent and clear runtime and saved enablement.
+- Treat direct pasted-URL fetches as automation. Block the four retired board
+  domains and their subdomains before transport. Keep visible Browser Import,
+  user-opened search links, employer follow-through, and manual entry separate.
+  Keep YC's stricter no-fetch and no-capture boundary.
+- Treat Dice's official MCP as a separate review-required candidate. Do not
+  scaffold it until exact schema, privacy, pacing, endpoint, and fixture
+  contracts are approved.
 
 ## Outcomes
 
@@ -449,6 +472,14 @@ relevant result, and caveat.
 - Milestone 4 now classifies JobsWithGPT as a disabled restricted scheduled
   source. Exact local approval cannot bypass the policy, source health cannot
   re-enable it, and the worker stops before request audit or transport.
+- Milestone 4 now binds disabled manifests and current first-party evidence for
+  Built In, Dice HTML, SimplyHired, and Glassdoor. Legacy scheduler adapters,
+  live health helpers, onboarding and Settings controls, and source
+  recommendations are removed. Migration 18 deletes their health rows and
+  prevents recreation. Stale configuration and local acknowledgement cannot
+  restore transport. Pasted-URL fetches stop before network access, while
+  user-opened links, visible Browser Import, and manual entry remain explicit
+  local alternatives.
 
 ## Handoff
 
@@ -471,8 +502,13 @@ relevant result, and caveat.
   `docs/harness/evidence/v3-milestone-3-offline-recovery-platform-repair-2026-07-19.json`
   binds final offline recovery and platform repair at `aaa9f28c`; prior
   milestone evidence remains authoritative for its completed scope. Milestone 4
-  connected-source governance is bound at `8ef539ad`.
-- Next step: govern the remaining restricted scheduled sources, then close Gate 3.
+  connected-source governance is bound at `8ef539ad`, and restricted scheduled
+  source retirement is bound by
+  `docs/harness/evidence/v3-milestone-4-restricted-source-retirement-2026-07-19.json`
+  at `8a7d3439`.
+- Next step: govern employer discovery, regional packs, restricted Workbench,
+  visible capture, Smart Paste, and source-context applied logging, then close
+  Gate 3.
 - Open risks: scope remains large, contract freeze is irreversible within the
   v3 compatibility line, recovery and permission behavior still needs Windows
   11, macOS 26, and Linux release-matrix proof, installed recovery UI still
