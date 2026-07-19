@@ -328,6 +328,7 @@ relevant result, and caveat.
 | 2026-07-19 | Milestone 3 restricted scheduled-source consent complete | Added append-only source-policy history and exact durable consent for the four shipped restricted scheduled sources at `80218596`. Policy or request drift revokes, renderer and config booleans cannot authorize transport, and fixed restricted health probes remain unavailable pending distinct reviewed scope. Milestone 3 remains active. |
 | 2026-07-19 | Milestone 3 Outside AI governance complete | Added backend-verified public-job provenance, trusted native confirmation, exact single-use approval, immutable receipt-bound lifecycle, no-retry transport, durable cancellation, explicit ambiguity, and bounded local recovery activity at `02465456`. Two adversarial reviewers returned PASS. Milestone 3 remains active. |
 | 2026-07-19 | Milestone 3 complete | Added isolated offline startup recovery, bounded queued-work state, independent invalid-state preservation, encrypted restore controls, fail-closed publication and rollback, platform health, app-owned Unix permission repair, explicit package connectivity guidance, and Settings recovery controls at `aaa9f28c`. Focused product and security reviewers returned PASS. Activated Milestone 4. |
+| 2026-07-19 | Milestone 4 connected source governed | Classified the legacy JobsWithGPT path, disabled scheduled contact before audit or transport, preserved local configuration and history, corrected source health through migration 17, and bound provider-review and parser fixtures at `8ef539ad`. Focused checks passed and adversarial correction review returned PASS. Milestone 4 remains active. |
 
 ## Discoveries
 
@@ -353,6 +354,9 @@ relevant result, and caveat.
   a release published with `github.token` cannot trigger the separate
   `release.published` verifier. That verifier also authenticates downloads and
   lacks its previously recorded macOS platform condition.
+- The legacy JobsWithGPT terms URL now redirects to a renamed provider whose
+  first-party terms do not identify an exact feed endpoint, client authorization,
+  or pacing contract.
 
 ## Decisions
 
@@ -402,6 +406,9 @@ relevant result, and caveat.
   shipped restricted scheduled sources. Milestone 4 owns the complete source
   graph, new source operations, browser permissions, and any distinct reviewed
   health-check scope.
+- Keep JobsWithGPT configuration, exact prior approval, and minimized contact
+  history locally inspectable, but disable new contact until a dated provider
+  review verifies the endpoint, authorization, pacing, and stop conditions.
 
 ## Outcomes
 
@@ -439,6 +446,9 @@ relevant result, and caveat.
   primary data independently, refuses linked or ambiguous filesystem entries,
   and labels package connectivity before user action. Platform repair is local
   and handle-verified on Unix and manual on Windows. Milestone 3 is passing.
+- Milestone 4 now classifies JobsWithGPT as a disabled restricted scheduled
+  source. Exact local approval cannot bypass the policy, source health cannot
+  re-enable it, and the worker stops before request audit or transport.
 
 ## Handoff
 
@@ -460,9 +470,9 @@ relevant result, and caveat.
   binds the governed Outside AI lifecycle at `02465456`.
   `docs/harness/evidence/v3-milestone-3-offline-recovery-platform-repair-2026-07-19.json`
   binds final offline recovery and platform repair at `aaa9f28c`; prior
-  milestone evidence remains authoritative for its completed scope.
-- Next step: write fail-first source-graph and browser protocol threat tests
-  before browser UI.
+  milestone evidence remains authoritative for its completed scope. Milestone 4
+  connected-source governance is bound at `8ef539ad`.
+- Next step: govern the remaining restricted scheduled sources, then close Gate 3.
 - Open risks: scope remains large, contract freeze is irreversible within the
   v3 compatibility line, recovery and permission behavior still needs Windows
   11, macOS 26, and Linux release-matrix proof, installed recovery UI still
