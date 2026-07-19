@@ -3,12 +3,17 @@
 //! Provides a local HTTP server that receives job data from browser bookmarklets.
 //! This allows users to import jobs from any website by clicking a bookmark.
 
+mod pairing;
 mod pending;
 mod server;
 
 use async_trait::async_trait;
 use jobsentinel_domain::Job;
 
+pub use pairing::{
+    CompanionPairing, CompanionPairingCode, CompanionPairingError, CompanionRequest,
+    COMPANION_PROTOCOL_VERSION,
+};
 pub use pending::{
     BookmarkletImportConfirmResult, PendingBookmarkletImportPreview, PendingBookmarkletImports,
 };
@@ -38,6 +43,19 @@ where
 }
 
 use serde::{Deserialize, Serialize};
+
+pub(super) fn constant_time_ascii_eq(left: &str, right: &str) -> bool {
+    let left_bytes = left.as_bytes();
+    let right_bytes = right.as_bytes();
+    let mut diff = left_bytes.len() ^ right_bytes.len();
+    for index in 0..left_bytes.len().max(right_bytes.len()) {
+        diff |= usize::from(
+            left_bytes.get(index).copied().unwrap_or(0)
+                ^ right_bytes.get(index).copied().unwrap_or(0),
+        );
+    }
+    diff == 0
+}
 
 /// Job data received from bookmarklet
 #[derive(Debug, Clone, Serialize, Deserialize)]

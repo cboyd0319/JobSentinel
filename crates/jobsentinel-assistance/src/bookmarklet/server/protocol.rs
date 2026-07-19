@@ -10,21 +10,6 @@ pub(super) fn http_response_data(status: &str, content_type: &str, response: &st
     )
 }
 
-pub(super) fn constant_time_ascii_eq(left: &str, right: &str) -> bool {
-    let left_bytes = left.as_bytes();
-    let right_bytes = right.as_bytes();
-    let max_len = left_bytes.len().max(right_bytes.len());
-    let mut diff = left_bytes.len() ^ right_bytes.len();
-
-    for index in 0..max_len {
-        let left_byte = left_bytes.get(index).copied().unwrap_or(0);
-        let right_byte = right_bytes.get(index).copied().unwrap_or(0);
-        diff |= usize::from(left_byte ^ right_byte);
-    }
-
-    diff == 0
-}
-
 pub(super) fn has_valid_bookmarklet_token(request: &str, auth_token: &str) -> bool {
     !auth_token.is_empty()
         && request_header_value(request, BOOKMARKLET_TOKEN_HEADER)

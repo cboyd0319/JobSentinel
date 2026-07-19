@@ -6,7 +6,7 @@ use super::pending::{
     new_pending_bookmarklet_imports, pending_bookmarklet_import_previews,
     PendingBookmarkletImportPreview, PendingBookmarkletImports,
 };
-use super::BookmarkletRepository;
+use super::{constant_time_ascii_eq, BookmarkletRepository};
 use chrono::{DateTime, TimeDelta, Utc};
 #[cfg(test)]
 use jobsentinel_domain::calculate_job_hash;
