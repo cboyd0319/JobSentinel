@@ -327,13 +327,21 @@ screening answers, or unrelated profile details to a job-source feed.
 When the user approves a job-source feed, Settings should keep showing the exact
 approved details and explain that any change turns the source off until the user
 approves again.
-Settings also shows the latest approved contact as local status details only:
-contact time, website contacted, count-only request categories, and outcome. The
-contact history must not store raw titles, raw location, resumes, salary floors,
-private notes, application history, or full source links.
+JobSentinel writes minimized request metadata before the approved feed request.
+If that local audit write fails, nothing is sent. The POST is attempted once
+without automatic retries, and interrupted or incomplete terminal records remain
+visible as uncertain attempts. Settings shows the latest contact attempt as
+local status details only: attempt time, website, count-only request categories,
+and outcome. The contact history must not store raw titles, raw location,
+resumes, salary floors, private notes, application history, or full source
+links.
 The contact summary also names sensitive data that was not sent so users can
 verify that resumes, salary floors, private notes, application history, and full
 source links stayed out of the source request.
+
+Source Status does not make a separate JobsWithGPT connectivity request.
+Scheduled request history is the status owner, which avoids unreviewed or
+repeated provider contact.
 
 ## Duplicate Handling
 

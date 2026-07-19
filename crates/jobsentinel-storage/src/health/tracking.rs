@@ -68,11 +68,15 @@ pub async fn finish_source_request(
     request_id: i64,
     outcome: SourceRequestOutcome,
 ) -> Result<()> {
-    sqlx::query(
+    anyhow::ensure!(
+        outcome != SourceRequestOutcome::Started,
+        "Source request audit needs a terminal outcome"
+    );
+    let result = sqlx::query(
         r#"
         UPDATE source_request_log
         SET outcome = ?
-        WHERE id = ?
+        WHERE id = ? AND outcome = 'started'
         "#,
     )
     .bind(outcome.as_str())
@@ -80,7 +84,19 @@ pub async fn finish_source_request(
     .execute(db.pool())
     .await?;
 
-    Ok(())
+    require_terminal_write(result.rows_affected())
+}
+
+/// Mark request attempts left without a terminal audit as failed.
+pub async fn interrupt_started_source_requests(db: &Database) -> Result<u64> {
+    let result = sqlx::query(
+        "UPDATE source_request_log
+         SET outcome = 'failure'
+         WHERE outcome = 'started'",
+    )
+    .execute(db.pool())
+    .await?;
+    Ok(result.rows_affected())
 }
 
 /// Retrieve the latest minimized source request record.
@@ -365,6 +381,42 @@ mod tests {
     use super::*;
 
     #[tokio::test]
+    async fn interrupt_started_source_requests_marks_only_unfinished_attempts() {
+        let database = crate::test_support::migrated_database().await;
+        record_source_request_started(&database, "interrupted", None, 1, false, true, 10)
+            .await
+            .unwrap();
+        let finished =
+            record_source_request_started(&database, "finished", None, 1, false, true, 10)
+                .await
+                .unwrap();
+        finish_source_request(&database, finished, SourceRequestOutcome::Success)
+            .await
+            .unwrap();
+
+        assert_eq!(
+            interrupt_started_source_requests(&database).await.unwrap(),
+            1
+        );
+        assert_eq!(
+            get_latest_source_request(&database, "interrupted")
+                .await
+                .unwrap()
+                .unwrap()
+                .outcome,
+            SourceRequestOutcome::Failure
+        );
+        assert_eq!(
+            get_latest_source_request(&database, "finished")
+                .await
+                .unwrap()
+                .unwrap()
+                .outcome,
+            SourceRequestOutcome::Success
+        );
+    }
+
+    #[tokio::test]
     async fn interrupt_running_runs_reconciles_all_sources() {
         let database = crate::test_support::migrated_database().await;
         let first = start_run(&database, "disabled-source").await.unwrap();
@@ -404,6 +456,11 @@ mod tests {
         .await
         .is_err());
         assert!(timeout_run(&database, i64::MAX, 1).await.is_err());
+        assert!(
+            finish_source_request(&database, i64::MAX, SourceRequestOutcome::Failure)
+                .await
+                .is_err()
+        );
     }
 
     #[tokio::test]
@@ -414,6 +471,24 @@ mod tests {
 
         assert!(
             fail_run(&database, run_id, 2, "Late failure", Some("late_failure"))
+                .await
+                .is_err()
+        );
+
+        let request_id =
+            record_source_request_started(&database, "jobswithgpt", None, 1, false, true, 10)
+                .await
+                .unwrap();
+        assert!(
+            finish_source_request(&database, request_id, SourceRequestOutcome::Started)
+                .await
+                .is_err()
+        );
+        finish_source_request(&database, request_id, SourceRequestOutcome::Success)
+            .await
+            .unwrap();
+        assert!(
+            finish_source_request(&database, request_id, SourceRequestOutcome::Failure)
                 .await
                 .is_err()
         );

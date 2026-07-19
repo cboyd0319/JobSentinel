@@ -74,9 +74,13 @@ impl Scheduler {
 
     /// Reconcile source checks interrupted before their terminal audit write.
     pub async fn recover_interrupted_runs(&self) -> Result<u64> {
-        crate::health::interrupt_running_runs(&self.database)
+        let scraper_runs = crate::health::interrupt_running_runs(&self.database)
             .await
-            .map_err(|_| anyhow::anyhow!("Could not recover interrupted source checks"))
+            .map_err(|_| anyhow::anyhow!("Could not recover interrupted source checks"))?;
+        let request_attempts = crate::health::interrupt_started_source_requests(&self.database)
+            .await
+            .map_err(|_| anyhow::anyhow!("Could not recover interrupted source requests"))?;
+        Ok(scraper_runs.saturating_add(request_attempts))
     }
 
     /// Start the scheduler

@@ -46,7 +46,7 @@ function formatSourceRequestOutcome(outcome: SourceRequestOutcome): string {
       return "Took too long";
     case "started":
     default:
-      return "Started";
+      return "Outcome unknown; request may not have been sent.";
   }
 }
 
@@ -154,7 +154,7 @@ export function SettingsConnectedJobSource({
           {(jobsWithGptLastRequest || jobsWithGptPayloadApproved) && (
             <div className="mt-3 rounded-md border border-surface-200 dark:border-surface-700 bg-white dark:bg-surface-900 p-2 text-xs text-surface-600 dark:text-surface-300">
               <p className="font-semibold text-surface-700 dark:text-surface-200">
-                Last contacted:{" "}
+                Last contact attempt:{" "}
                 {jobsWithGptLastRequest
                   ? formatSourceRequestTime(jobsWithGptLastRequest.sentAt)
                   : "Not yet"}

@@ -1,12 +1,11 @@
-use super::SOURCE_CHECK_NETWORK_ERROR;
 use crate::{
     credentials::{CredentialKey, CredentialService},
     Config,
 };
 use anyhow::Result;
 use jobsentinel_network::{
-    send_external_http_text_with_retry, ExternalFetchError, ExternalHttpRequest,
-    ExternalTextResponse, MINIMAL_BROWSER_USER_AGENT, MINIMAL_WEBKIT_USER_AGENT,
+    send_external_http_text_with_retry, ExternalHttpRequest, ExternalTextResponse,
+    MINIMAL_BROWSER_USER_AGENT, MINIMAL_WEBKIT_USER_AGENT,
 };
 
 async fn smoke_request(
@@ -222,17 +221,10 @@ pub(super) async fn test_jobswithgpt(config: &Config) -> Result<serde_json::Valu
     jobsentinel_security::validate_external_https_url(&payload.endpoint)
         .map_err(|reason| anyhow::anyhow!("Invalid JobsWithGPT endpoint: {}", reason))?;
 
-    match send_external_http_text_with_retry(ExternalHttpRequest::get(&payload.endpoint)).await {
-        Ok(response) => Ok(serde_json::json!({
-            "status": response.status,
-            "reachable": true
-        })),
-        Err(ExternalFetchError::Request | ExternalFetchError::Timeout) => Ok(serde_json::json!({
-            "status": "unreachable",
-            "error": SOURCE_CHECK_NETWORK_ERROR
-        })),
-        Err(_) => Err(anyhow::anyhow!("JobsWithGPT smoke test request failed")),
-    }
+    Ok(serde_json::json!({
+        "status": "skipped",
+        "reason": "Use scheduled request history for JobsWithGPT status"
+    }))
 }
 
 pub(super) async fn test_dice() -> Result<serde_json::Value> {

@@ -334,7 +334,7 @@ describe("Settings — handleSave flow", () => {
           hasLocation: false,
           remoteOnly: true,
           resultLimit: 100,
-          outcome: "failure",
+          outcome: "started",
         };
       }
       if (cmd === "has_credential") return false;
@@ -352,7 +352,9 @@ describe("Settings — handleSave flow", () => {
     await user.click(screen.getByRole("tab", { name: "Sources & Alerts" }));
     await user.click(screen.getByText("More Job Boards"));
 
-    const contactSummary = screen.getByText(/Last contacted:/i).closest("div");
+    const contactSummary = screen
+      .getByText(/Last contact attempt:/i)
+      .closest("div");
     expect(contactSummary).not.toBeNull();
     expect(
       within(contactSummary!).getByText("Website contacted"),
@@ -364,10 +366,12 @@ describe("Settings — handleSave flow", () => {
       within(contactSummary!).getByText("api.jobswithgpt.example"),
     ).toBeInTheDocument();
     expect(
-      within(contactSummary!).getByText("Needs attention"),
+      within(contactSummary!).getByText(
+        "Outcome unknown; request may not have been sent.",
+      ),
     ).toBeInTheDocument();
     expect(
-      within(contactSummary!).queryByText("Failed"),
+      within(contactSummary!).queryByText("Started"),
     ).not.toBeInTheDocument();
     expect(
       within(contactSummary!).getByText("Remote-only filter"),

@@ -27,6 +27,22 @@ async fn jobswithgpt_smoke_rejects_plain_http_endpoint() {
 }
 
 #[tokio::test]
+async fn jobswithgpt_smoke_uses_local_request_history_without_provider_contact() {
+    let db = Database::connect_memory().await.unwrap();
+    db.migrate().await.unwrap();
+    let config = jobswithgpt_smoke_config("https://example.test/jobs");
+
+    let result = run_smoke_test(&db, &config, "jobswithgpt").await.unwrap();
+
+    assert_eq!(
+        result
+            .details
+            .and_then(|details| details["status"].as_str().map(str::to_string)),
+        Some("skipped".to_string())
+    );
+}
+
+#[tokio::test]
 async fn restricted_smoke_test_is_unavailable_without_distinct_reviewed_scope() {
     let db = Database::connect_memory()
         .await

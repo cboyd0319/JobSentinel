@@ -1,5 +1,15 @@
 use super::*;
 
+#[test]
+fn jobswithgpt_post_disables_automatic_retries() {
+    let request = jobswithgpt_request(
+        "https://api.jobswithgpt.example/mcp",
+        serde_json::json!({"jsonrpc": "2.0"}),
+    );
+
+    assert!(format!("{request:?}").contains("max_retries: 0"));
+}
+
 // MCP job parsing tests
 #[test]
 fn test_parse_mcp_job_complete() {
