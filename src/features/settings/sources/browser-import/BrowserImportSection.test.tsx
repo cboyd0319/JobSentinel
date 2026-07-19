@@ -17,13 +17,19 @@ describe("BrowserImportSection", () => {
     window.localStorage.clear();
   });
 
-  it("copies the hidden browser button without exposing the local auth token to the page", async () => {
-    mockInvoke
-      .mockResolvedValueOnce({
-        port: 4321,
-        enabled: true,
-      })
-      .mockResolvedValueOnce(undefined);
+  it("copies an origin-bound browser button without exposing its pairing secret", async () => {
+    mockInvoke.mockImplementation((command: string) => {
+      if (command === "get_bookmarklet_config") {
+        return Promise.resolve({ port: 4321, enabled: true });
+      }
+      if (command === "get_pending_bookmarklet_imports") {
+        return Promise.resolve([]);
+      }
+      if (command === "copy_bookmarklet_code") {
+        return Promise.resolve(true);
+      }
+      return Promise.resolve(undefined);
+    });
 
     render(<BrowserImportSection />);
 
@@ -31,17 +37,18 @@ describe("BrowserImportSection", () => {
       name: /copy browser button/i,
     });
     expect(copyButton).toBeDisabled();
-    fireEvent.click(
-      screen.getByLabelText(
-        /I understand this risk and want to use Browser Import/i,
-      ),
-    );
+    fireEvent.change(screen.getByLabelText(/job page address/i), {
+      target: { value: "https://jobs.example/posting/1" },
+    });
     await waitFor(() => expect(copyButton).toBeEnabled());
     fireEvent.click(copyButton);
 
     expect(mockInvoke).toHaveBeenCalledWith("get_bookmarklet_config");
-    expect(mockInvoke).toHaveBeenCalledWith("copy_bookmarklet_code");
+    expect(mockInvoke).toHaveBeenCalledWith("copy_bookmarklet_code", {
+      targetUrl: "https://jobs.example/posting/1",
+    });
     expect(screen.queryByText(/token-123/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/pairing secret/i)).not.toBeInTheDocument();
   });
 
   it("uses plain browser-import copy instead of server and structured-data jargon", async () => {
@@ -69,14 +76,13 @@ describe("BrowserImportSection", () => {
       screen.getByRole("button", { name: /copy browser button/i }),
     ).toBeInTheDocument();
     expect(
-      screen.getAllByText(/copy.*after each import/i).length,
+      screen.getAllByText(/copy a fresh.*every import/i).length,
     ).toBeGreaterThan(0);
     expect(
       screen.getByText(/copy a fresh browser button/i),
     ).toBeInTheDocument();
-    expect(screen.getAllByText(/closed and reopened/i).length).toBeGreaterThan(
-      0,
-    );
+    expect(screen.getByText(/expires after about ten minutes/i)).toBeInTheDocument();
+    expect(screen.queryByText(/closed and reopened/i)).not.toBeInTheDocument();
     expect(
       screen.queryByText(/when JobSentinel restarts/i),
     ).not.toBeInTheDocument();
@@ -154,18 +160,15 @@ describe("BrowserImportSection", () => {
       screen.getByText(/do not let JobSentinel read saved pages/i),
     ).toBeInTheDocument();
     expect(screen.getByText(/respects those controls/i)).toBeInTheDocument();
-    expect(screen.getByText(/Restricted Site Warning/i)).toBeInTheDocument();
-    expect(
-      screen.getByText(/rules about automated tools/i),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByLabelText(
-        /I understand this risk and want to use Browser Import/i,
-      ),
-    ).toBeInTheDocument();
+    expect(screen.getByLabelText(/job page address/i)).toHaveAttribute(
+      "type",
+      "url",
+    );
+    expect(screen.queryByText(/Restricted Site Warning/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole("checkbox")).not.toBeInTheDocument();
   });
 
-  it("gates Browser Import until the user accepts restricted-site risk", async () => {
+  it("starts the local receiver without a renderer-only risk acknowledgement", async () => {
     mockInvoke
       .mockResolvedValueOnce({
         port: 4321,
@@ -182,22 +185,6 @@ describe("BrowserImportSection", () => {
     const turnOnButton = await screen.findByRole("button", {
       name: /turn on/i,
     });
-    fireEvent.click(turnOnButton);
-
-    expect(
-      await screen.findByText(
-        /Review the restricted-site warning and check the box/i,
-      ),
-    ).toBeInTheDocument();
-    expect(mockInvoke).not.toHaveBeenCalledWith("start_bookmarklet_server", {
-      port: 4321,
-    });
-
-    fireEvent.click(
-      screen.getByLabelText(
-        /I understand this risk and want to use Browser Import/i,
-      ),
-    );
     fireEvent.click(turnOnButton);
 
     await waitFor(() =>
@@ -221,12 +208,7 @@ describe("BrowserImportSection", () => {
 
     render(<BrowserImportSection />);
 
-    fireEvent.click(
-      await screen.findByLabelText(
-        /I understand this risk and want to use Browser Import/i,
-      ),
-    );
-    fireEvent.click(screen.getByRole("button", { name: /turn on/i }));
+    fireEvent.click(await screen.findByRole("button", { name: /turn on/i }));
 
     expect(
       await screen.findByText(
@@ -257,11 +239,9 @@ describe("BrowserImportSection", () => {
     const copyButton = await screen.findByRole("button", {
       name: /copy browser button/i,
     });
-    fireEvent.click(
-      screen.getByLabelText(
-        /I understand this risk and want to use Browser Import/i,
-      ),
-    );
+    fireEvent.change(screen.getByLabelText(/job page address/i), {
+      target: { value: "https://jobs.example/posting/1" },
+    });
     await waitFor(() => expect(copyButton).toBeEnabled());
     fireEvent.click(copyButton);
 
@@ -311,11 +291,6 @@ describe("BrowserImportSection", () => {
     const turnOnButton = await screen.findByRole("button", {
       name: /turn on/i,
     });
-    fireEvent.click(
-      screen.getByLabelText(
-        /I understand this risk and want to use Browser Import/i,
-      ),
-    );
     fireEvent.click(turnOnButton);
 
     expect(

@@ -185,7 +185,6 @@ impl DesktopServices {
         ));
         let bookmarklet_server = Arc::new(RwLock::new(BookmarkletServer::new(BookmarkletConfig {
             port: bookmarklet_port,
-            ..Default::default()
         })));
 
         Self {

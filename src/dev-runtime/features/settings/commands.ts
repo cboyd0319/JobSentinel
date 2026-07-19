@@ -188,7 +188,7 @@ export function handleMockSettingsCommand(
     case "validate_slack_webhook":
     case "test_email_notification":
     case "copy_bookmarklet_code":
-      return withoutSave(state, undefined);
+      return withoutSave(state, true);
 
     case "get_bookmarklet_config":
       return withoutSave(state, state.bookmarkletConfig);

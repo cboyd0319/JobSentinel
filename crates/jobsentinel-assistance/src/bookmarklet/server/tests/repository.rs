@@ -1,17 +1,34 @@
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 
 use async_trait::async_trait;
-use jobsentinel_domain::Job;
+use jobsentinel_domain::{v3_source_authorization::SourceGrantState, Job};
 
 use super::super::BookmarkletRepository;
 
-#[derive(Default)]
 pub(super) struct TestBookmarkletRepository {
+    authorization_allowed: AtomicBool,
     jobs: Mutex<Vec<Job>>,
+}
+
+impl Default for TestBookmarkletRepository {
+    fn default() -> Self {
+        Self {
+            authorization_allowed: AtomicBool::new(true),
+            jobs: Mutex::new(Vec::new()),
+        }
+    }
 }
 
 #[async_trait]
 impl BookmarkletRepository for TestBookmarkletRepository {
+    async fn authorize_visible_page_capture(
+        &self,
+        _grant: &SourceGrantState,
+    ) -> Result<bool, String> {
+        Ok(self.authorization_allowed.load(Ordering::Relaxed))
+    }
+
     async fn job_exists_by_hash(&self, hash: &str) -> Result<bool, String> {
         Ok(self.jobs().iter().any(|job| job.hash == hash))
     }
@@ -28,6 +45,10 @@ impl BookmarkletRepository for TestBookmarkletRepository {
 }
 
 impl TestBookmarkletRepository {
+    pub(super) fn set_authorization_allowed(&self, allowed: bool) {
+        self.authorization_allowed.store(allowed, Ordering::Relaxed);
+    }
+
     pub(super) fn jobs(&self) -> Vec<Job> {
         self.jobs
             .lock()

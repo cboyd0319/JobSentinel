@@ -1,5 +1,6 @@
 use super::BookmarkletJobData;
 use chrono::{DateTime, Utc};
+use jobsentinel_domain::v3_source_authorization::SourceGrantState;
 use serde::Serialize;
 use std::collections::HashSet;
 use std::sync::{Arc, RwLock};
@@ -16,6 +17,7 @@ pub struct PendingBookmarkletImport {
     hash: String,
     received_at: DateTime<Utc>,
     job_data: BookmarkletJobData,
+    grant: SourceGrantState,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -43,12 +45,13 @@ pub(super) struct BookmarkletImportQueueResult {
 }
 
 impl PendingBookmarkletImport {
-    pub fn new(hash: String, job_data: BookmarkletJobData) -> Self {
+    pub fn new(hash: String, job_data: BookmarkletJobData, grant: SourceGrantState) -> Self {
         Self {
             id: Uuid::new_v4().to_string(),
             hash,
             received_at: Utc::now(),
             job_data,
+            grant,
         }
     }
 
@@ -62,6 +65,10 @@ impl PendingBookmarkletImport {
 
     pub fn job_data(&self) -> BookmarkletJobData {
         self.job_data.clone()
+    }
+
+    pub fn grant(&self) -> SourceGrantState {
+        self.grant.clone()
     }
 
     pub fn preview(&self) -> PendingBookmarkletImportPreview {
@@ -215,15 +222,29 @@ mod tests {
         }
     }
 
+    fn grant() -> SourceGrantState {
+        SourceGrantState::Granted {
+            source_id: "user-source-actions".to_string(),
+            policy_ref: "jobsentinel.source-policy.user-source-actions".to_string(),
+            permission:
+                jobsentinel_domain::v3_source_manifest::SourcePermission::PairedBrowserGrant,
+            operation: jobsentinel_domain::v3_source_manifest::SourceOperation::VisiblePageCapture,
+            policy_revision: 1,
+        }
+    }
+
     #[test]
     fn queue_cap_keeps_existing_pending_imports() {
         let pending_imports = new_pending_bookmarklet_imports();
         let initial_imports = (0..MAX_PENDING_BOOKMARKLET_IMPORTS)
-            .map(|index| PendingBookmarkletImport::new(format!("hash-{index}"), job(index)))
+            .map(|index| {
+                PendingBookmarkletImport::new(format!("hash-{index}"), job(index), grant())
+            })
             .collect();
         let overflow_imports = vec![PendingBookmarkletImport::new(
             "hash-overflow".to_string(),
             job(999),
+            grant(),
         )];
 
         let initial_result = queue_pending_bookmarklet_imports(&pending_imports, initial_imports);

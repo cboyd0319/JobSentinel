@@ -6,7 +6,8 @@ mod startup_recovery;
 pub use jobsentinel_assistance::{
     discard_pending_bookmarklet_imports, generate_all_links, generate_link_for_site, get_all_sites,
     get_sites_by_category, BookmarkletConfig, BookmarkletImportConfirmResult, BookmarkletServer,
-    DeepLink, PendingBookmarkletImportPreview, RemoteType, SearchCriteria, SiteCategory, SiteInfo,
+    CompanionPairingCode, CompanionRequest, DeepLink, PendingBookmarkletImportPreview, RemoteType,
+    SearchCriteria, SiteCategory, SiteInfo,
 };
 pub use jobsentinel_intelligence::GhostConfig;
 #[cfg(feature = "embedded-ml")]

@@ -352,7 +352,9 @@ async fn portable_backup_refuses_a_newer_migration_ledger() {
     sqlx::query(
         "INSERT INTO _sqlx_migrations(
             version, description, success, checksum, execution_time
-         ) VALUES (16, 'future migration', 1, zeroblob(48), 0)",
+         )
+         SELECT COALESCE(MAX(version), 0) + 1, 'future migration', 1, zeroblob(48), 0
+         FROM _sqlx_migrations",
     )
     .execute(&backup)
     .await

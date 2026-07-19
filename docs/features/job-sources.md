@@ -108,7 +108,7 @@ one from another.
 | Rule | Requirement |
 | ---- | ----------- |
 | Official source first | Prefer official posting sources, public feeds, and company or application-platform postings |
-| Restricted-site user gate | Warn prominently before user-directed restricted-site import, Browser Import, or search-link open; acknowledgement cannot override a provider automation prohibition |
+| Restricted-site user gate | Warn before user-directed restricted-site import or search-link open. Browser Import requires a native per-site confirmation and exact persisted pairing authority; no acknowledgement can override a provider automation prohibition |
 | Technical auth classification | Keep public unauthenticated sources, local API-key sources, authenticated user-session sources, and unknown review-required sources distinct in the shared source taxonomy |
 | Restricted-domain rationale | Every domain in `RESTRICTED_JOB_SOURCE_DOMAINS` must come from a structured record with a specific reason, category, and source reference; do not add undocumented domains |
 | No secret capture or evasion | Do not add hidden data paths, session-cookie collection, human-check workarounds, or platform-control evasion |

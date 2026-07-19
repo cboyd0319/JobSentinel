@@ -86,7 +86,7 @@ const privacyActionLabels: Record<PrivacyAction, string> = {
   unlock_credential_vault: "Unlock saved details in Settings.",
   review_recovery: "Review encrypted backup recovery before maintenance.",
   review_external_ai: "Review Outside AI settings before sending.",
-  refresh_browser_import_code: "Refresh the Browser Import code.",
+  refresh_browser_import_code: "Copy a fresh one-use Browser Import button.",
   review_source_safety: "Review restricted source safety settings.",
 };
 

@@ -33,7 +33,10 @@ mod v3_source_governance_tests;
 #[cfg(test)]
 mod v3_source_governance_user_actions_tests;
 
-pub use bookmarklet::{bookmarklet_repository, confirm_bookmarklet_imports};
+pub use bookmarklet::{
+    bookmarklet_repository, confirm_bookmarklet_imports, issue_browser_import_pairing,
+    prepare_browser_import_target,
+};
 pub use config::Config;
 pub use external_ai::{
     cancel_external_ai_request, list_external_ai_activity, prepare_external_ai_request,

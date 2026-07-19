@@ -30,19 +30,27 @@ Use the LinkedIn Workbench to enter or paste only the details you choose.
 1. Open JobSentinel Settings.
 2. Find **Install Browser Button**.
 3. Turn on **Browser Import**.
-4. Click **Copy Browser Button**.
-5. Create a new browser bookmark.
-6. Name it **Import to JobSentinel**.
-7. Paste the copied text where the bookmark stores the page address.
-8. Save it to your bookmarks bar.
+4. Enter the public HTTPS address of the individual job page.
+5. Click **Copy Browser Button**.
+6. Review the native confirmation showing the minimized page address and exact
+   site. Cancel if either is unexpected.
+7. Create a new browser bookmark.
+8. Name it **Import to JobSentinel**.
+9. Paste the copied text where the bookmark stores the page address.
+10. Save it to your bookmarks bar.
 
 If another app is using the saved button setup number, JobSentinel chooses an
 available local number and saves it for next time. Settings tells you when this
 happens. Copy a fresh browser button before importing.
 
-Copy the browser button again after each import or after changing the button
-setup number. If JobSentinel was closed and reopened, copy it again before
-importing more jobs.
+Each copied button works once for the confirmed site and expires after about
+ten minutes. Copy a fresh button for every import, after changing the button
+setup number, or after restarting JobSentinel.
+
+Your browser may ask whether the confirmed site can connect to devices or apps
+on your local network. This permission is required for that site to reach the
+JobSentinel receiver on your computer. Grant it only when the displayed site
+matches the site you just confirmed in JobSentinel.
 
 ## Review And Save Jobs
 
@@ -78,9 +86,11 @@ not work.
 - Turn on **Browser Import** in Settings.
 - Leave **Button setup number** unchanged unless JobSentinel help instructions
   tell you otherwise. JobSentinel handles a number already in use.
-- Copy the browser button again if you already saved a job, restarted
-  JobSentinel, or waited about one hour.
+- Copy a fresh browser button if you already attempted an import, restarted
+  JobSentinel, or waited about ten minutes.
 - If your firewall asks, allow connections for JobSentinel.
+- If the browser denies local network access, allow it for the confirmed site
+  in the browser's site settings, then copy a fresh browser button.
 
 ### Job Already Exists
 
@@ -89,8 +99,8 @@ search for the company or title.
 
 ### Job Did Not Appear For Review
 
-- Make sure you are on an individual job page or a supported visible job-list
-  page.
+- Make sure you are on an individual job page at the site confirmed by
+  JobSentinel.
 - Try opening the job on the company career site.
 - Some job sites block browser buttons from sending to apps on your computer.
   If that happens, copy the job link and use **Import Job from Link** inside
@@ -105,15 +115,25 @@ the review looks useful, then fill in any blank details in JobSentinel.
 ## Privacy
 
 - JobSentinel creates the browser button on your computer.
-- Hidden details include a private one-use browser button detail that stays out
-  of normal setup.
-- The private one-use detail is refreshed when the browser button is copied,
-  works for one browser import, and expires after about one hour.
+- The renderer sends only the job page address to Rust. Rust validates and
+  minimizes it before a native confirmation.
+- A private pairing secret stays in Rust memory and the copied one-use button.
+  It never enters renderer responses, configuration, logs, pending review
+  records, durable storage, or safe support reports.
+- The pairing is bound to the confirmed public HTTPS origin, works for one
+  request, and expires after about ten minutes. Starting, stopping, or replacing
+  Browser Import revokes the active pairing.
+- The local receiver requires the browser `Origin` header, the paired origin,
+  and every submitted job URL to agree.
 - The button sends only to the JobSentinel app running on your computer.
-- If copying fails, the previous browser button keeps working until its safety
-  code is used once or expires.
+- The button checks restricted sites and its approved origin before reading the
+  page. It reads visible posting fields only, not cookies, authorization
+  headers, browser storage, hidden page state, screenshots, or network traffic.
+- If copying fails, the previous pairing remains unchanged.
 - Job data stays local unless you choose to share it.
 - LinkedIn page capture is blocked before data enters the local review queue.
+- Rust rechecks the installed source policy and manifest before queueing and
+  again before saving. If authority changes, the item remains pending.
 - Browser Import jobs are not durable saved jobs until you click **Save Job** in
   the review list.
 - Safe support reports must redact the browser button details and saved jobs

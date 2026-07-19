@@ -8,7 +8,7 @@ mod pending;
 mod server;
 
 use async_trait::async_trait;
-use jobsentinel_domain::Job;
+use jobsentinel_domain::{v3_source_authorization::SourceGrantState, Job};
 
 pub use pairing::{
     CompanionPairing, CompanionPairingCode, CompanionPairingError, CompanionRequest,
@@ -24,6 +24,10 @@ pub use server::{
 
 #[async_trait]
 pub trait BookmarkletRepository: Send + Sync {
+    async fn authorize_visible_page_capture(
+        &self,
+        grant: &SourceGrantState,
+    ) -> Result<bool, String>;
     async fn job_exists_by_hash(&self, hash: &str) -> Result<bool, String>;
     async fn upsert_job(&self, job: &Job) -> Result<i64, String>;
 }
@@ -33,6 +37,13 @@ impl<T> BookmarkletRepository for std::sync::Arc<T>
 where
     T: BookmarkletRepository + ?Sized,
 {
+    async fn authorize_visible_page_capture(
+        &self,
+        grant: &SourceGrantState,
+    ) -> Result<bool, String> {
+        self.as_ref().authorize_visible_page_capture(grant).await
+    }
+
     async fn job_exists_by_hash(&self, hash: &str) -> Result<bool, String> {
         self.as_ref().job_exists_by_hash(hash).await
     }

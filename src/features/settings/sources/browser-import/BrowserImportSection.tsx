@@ -36,8 +36,7 @@ export function BrowserImportSection() {
   const [connectionNotice, setConnectionNotice] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
-  const [restrictedSiteAcknowledged, setRestrictedSiteAcknowledged] =
-    useState(false);
+  const [targetUrl, setTargetUrl] = useState("");
   const [pendingImports, setPendingImports] = useState<
     PendingBookmarkletImport[]
   >([]);
@@ -55,6 +54,16 @@ export function BrowserImportSection() {
       parsedPort > MAX_BROWSER_IMPORT_PORT)
       ? `Use a number from ${MIN_BROWSER_IMPORT_PORT} to ${MAX_BROWSER_IMPORT_PORT}.`
       : null;
+  let targetUrlError: string | null = null;
+  if (targetUrl.trim()) {
+    try {
+      if (new URL(targetUrl).protocol !== "https:") {
+        targetUrlError = "Enter a public https job page address.";
+      }
+    } catch {
+      targetUrlError = "Enter a public https job page address.";
+    }
+  }
 
   const loadPendingImports = useCallback(async () => {
     try {
@@ -122,12 +131,6 @@ export function BrowserImportSection() {
         await invoke("stop_bookmarklet_server");
         setConfig({ ...config, enabled: false });
       } else {
-        if (!restrictedSiteAcknowledged) {
-          setError(
-            "Review the restricted-site warning and check the box if you want to turn on Browser Import.",
-          );
-          return;
-        }
         const startedConfig = await invoke<BookmarkletConfig>(
           "start_bookmarklet_server",
           {
@@ -175,15 +178,20 @@ export function BrowserImportSection() {
   };
 
   const copyBookmarklet = async () => {
-    if (!restrictedSiteAcknowledged) {
-      setError(
-        "Review the restricted-site warning and check the box before copying the Browser Button.",
-      );
+    if (!targetUrl.trim() || targetUrlError) {
+      setError("Enter a public https job page address before copying.");
       return;
     }
 
     try {
-      await invoke("copy_bookmarklet_code");
+      const approved = await invoke<boolean>("copy_bookmarklet_code", {
+        targetUrl: targetUrl.trim(),
+      });
+      if (!approved) {
+        setCopied(false);
+        setError(null);
+        return;
+      }
       setCopied(true);
       setError(null);
       setConnectionNotice(null);
@@ -353,14 +361,15 @@ export function BrowserImportSection() {
           loading={loading}
           onCopy={copyBookmarklet}
           onPortInputChange={setPortInput}
-          onRestrictedSiteAcknowledgedChange={setRestrictedSiteAcknowledged}
           onSavePort={updatePort}
+          onTargetUrlChange={setTargetUrl}
           onToggleAdvanced={() => setShowAdvanced((current) => !current)}
           portChanged={portChanged}
           portInput={portInput}
           portInputError={portInputError}
-          restrictedSiteAcknowledged={restrictedSiteAcknowledged}
           showAdvanced={showAdvanced}
+          targetUrl={targetUrl}
+          targetUrlError={targetUrlError}
         />
       </div>
     </Card>

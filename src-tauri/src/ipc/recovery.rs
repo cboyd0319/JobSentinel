@@ -11,7 +11,6 @@ use crate::{
     bootstrap::{AppState, StartupRecoveryState},
     ipc::errors::user_friendly_error,
 };
-use chrono::Utc;
 use serde::Serialize;
 use tauri::{AppHandle, State};
 use tauri_plugin_dialog::{DialogExt, MessageDialogButtons, MessageDialogKind};
@@ -96,7 +95,7 @@ pub(crate) async fn get_local_recovery_report(
         let server = state.bookmarklet_server.read().await;
         BrowserImportPrivacyState {
             running: server.is_running(),
-            code_current: server.config().auth_token_is_current(Utc::now()),
+            code_current: server.pairing_is_current(),
         }
     };
 

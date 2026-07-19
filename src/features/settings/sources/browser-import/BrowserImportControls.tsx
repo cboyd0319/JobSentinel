@@ -1,5 +1,4 @@
 import { Button } from "../../../../ui/Button";
-import { RESTRICTED_JOB_SOURCE_WARNING } from "../../../../shared/restrictedSourceTaxonomy";
 
 export const MIN_BROWSER_IMPORT_PORT = 1024;
 export const MAX_BROWSER_IMPORT_PORT = 65535;
@@ -10,14 +9,15 @@ interface BrowserImportControlsProps {
   loading: boolean;
   onCopy: () => void;
   onPortInputChange: (value: string) => void;
-  onRestrictedSiteAcknowledgedChange: (value: boolean) => void;
   onSavePort: () => void;
+  onTargetUrlChange: (value: string) => void;
   onToggleAdvanced: () => void;
   portChanged: boolean;
   portInput: string;
   portInputError: string | null;
-  restrictedSiteAcknowledged: boolean;
   showAdvanced: boolean;
+  targetUrl: string;
+  targetUrlError: string | null;
 }
 
 export function BrowserImportControls({
@@ -26,14 +26,15 @@ export function BrowserImportControls({
   loading,
   onCopy,
   onPortInputChange,
-  onRestrictedSiteAcknowledgedChange,
   onSavePort,
+  onTargetUrlChange,
   onToggleAdvanced,
   portChanged,
   portInput,
   portInputError,
-  restrictedSiteAcknowledged,
   showAdvanced,
+  targetUrl,
+  targetUrlError,
 }: BrowserImportControlsProps) {
   return (
     <>
@@ -107,20 +108,63 @@ export function BrowserImportControls({
         </h4>
         <div className="space-y-3">
           <div className="bg-gray-800/50 rounded-lg p-4">
+            <label
+              htmlFor="browser-import-target"
+              className="mb-2 block text-sm font-medium text-gray-300"
+            >
+              Job page address
+            </label>
+            <input
+              id="browser-import-target"
+              type="url"
+              value={targetUrl}
+              onChange={(event) => onTargetUrlChange(event.target.value)}
+              disabled={!enabled || loading}
+              placeholder="https://company.example/jobs/123"
+              autoComplete="url"
+              aria-invalid={Boolean(targetUrlError)}
+              aria-describedby={
+                targetUrlError
+                  ? "browser-import-target-error"
+                  : "browser-import-target-help"
+              }
+              className="w-full rounded-lg border border-gray-700 bg-gray-900 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+            />
+            {targetUrlError ? (
+              <p
+                id="browser-import-target-error"
+                className="mt-1 text-xs text-red-400"
+              >
+                {targetUrlError}
+              </p>
+            ) : (
+              <p
+                id="browser-import-target-help"
+                className="mt-1 text-xs text-gray-500"
+              >
+                Enter the public https page you plan to import. JobSentinel
+                confirms the site in a native dialog before copying.
+              </p>
+            )}
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs text-gray-400">Browser button</span>
               <Button
                 onClick={onCopy}
                 size="sm"
                 variant="ghost"
-                disabled={!enabled || !restrictedSiteAcknowledged}
+                disabled={
+                  !enabled ||
+                  loading ||
+                  !targetUrl.trim() ||
+                  Boolean(targetUrlError)
+                }
               >
                 {copied ? "Copied!" : "Copy Browser Button"}
               </Button>
             </div>
             <p className="text-xs text-gray-500">
-              For your safety, copy a fresh browser button after each import,
-              after about one hour, or if JobSentinel was closed and reopened.
+              Each button works once for the confirmed site and expires after
+              about ten minutes. Copy a fresh one for every import.
             </p>
           </div>
 
@@ -136,15 +180,13 @@ export function BrowserImportControls({
             </p>
             <ol className="text-sm text-gray-300 space-y-2 list-decimal list-inside">
               <li>Turn on Browser Import above</li>
-              <li>Copy the browser button using the button above</li>
+              <li>Enter the individual job page address above</li>
+              <li>Copy the browser button and confirm the site</li>
               <li>Use your browser's Add Bookmark option</li>
               <li>Name it "Import to JobSentinel"</li>
               <li>Paste the copied text into the bookmark link field</li>
               <li>Save the bookmark to your bookmarks bar</li>
-              <li>
-                Copy the browser button again after each import, after about one
-                hour, or if JobSentinel was closed and reopened
-              </li>
+              <li>Copy a fresh browser button for every import</li>
             </ol>
           </div>
 
@@ -193,30 +235,6 @@ export function BrowserImportControls({
               details, edit it after saving or use JobSentinel's search link for
               that site.
             </p>
-          </div>
-
-          <div className="bg-amber-500/15 border-2 border-amber-400/60 rounded-lg p-5">
-            <h5 className="text-base font-semibold text-amber-200 mb-2">
-              Restricted Site Warning
-            </h5>
-            <p className="text-sm leading-6 text-amber-50">
-              {RESTRICTED_JOB_SOURCE_WARNING} Use Browser Import only on pages
-              you choose, and verify the saved details before using them.
-            </p>
-            <label className="mt-4 flex items-start gap-3 text-sm font-medium text-amber-50">
-              <input
-                type="checkbox"
-                className="mt-0.5 h-5 w-5 rounded border-amber-300 bg-gray-900 text-amber-400 focus:ring-amber-400"
-                checked={restrictedSiteAcknowledged}
-                onChange={(event) =>
-                  onRestrictedSiteAcknowledgedChange(event.target.checked)
-                }
-              />
-              <span>
-                I understand this risk and want to use Browser Import on pages I
-                choose.
-              </span>
-            </label>
           </div>
         </div>
       </div>

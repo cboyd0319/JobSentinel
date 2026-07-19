@@ -104,7 +104,7 @@ pub struct PrivacyDoctorReport {
     pub connectivity_required: bool,
 }
 
-/// Caller-owned Browser Import state used without starting the helper.
+/// Caller-owned Browser Import state used without starting the receiver.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct BrowserImportPrivacyState {
     pub running: bool,
@@ -326,14 +326,14 @@ fn browser_import_check(state: BrowserImportPrivacyState) -> PrivacyDoctorCheck 
         privacy_check(
             PrivacyDoctorCheckId::BrowserImport,
             PrivacyDoctorState::NeedsAttention,
-            "The running Browser Import helper needs a new local code.",
+            "The running Browser Import receiver has no active one-use pairing.",
             Some(PrivacyDoctorAction::RefreshBrowserImportCode),
         )
     } else {
         privacy_check(
             PrivacyDoctorCheckId::BrowserImport,
             PrivacyDoctorState::LooksGood,
-            "Browser Import is stopped or using a current local code.",
+            "Browser Import is stopped or has a current one-use pairing.",
             None,
         )
     }
