@@ -324,6 +324,7 @@ relevant result, and caveat.
 | 2026-07-19 | Milestone 1 complete | Froze fail-closed v3 contracts and synthetic evaluations, proved existing scheduler ownership, made drag input deterministic, passed isolated native picker smoke, retained measured budgets, deferred A20, and activated Milestone 2 with evidence at `5c8d23c7`. |
 | 2026-07-19 | Milestone 2 complete | Added the typed local case, event, graph, receipt, source-policy, and compatibility foundation; proved fresh and v2.9 migration, failure, retry, snapshot restore, and newer-data refusal; completed Gate 2; and activated Milestone 3 with implementation at `69acdf3c`. |
 | 2026-07-19 | Milestone 3 reviewed export complete | Added a fixed-schema reviewed JSON Lines export with no-clobber publication, structural inspection, managed-credential and private-path exclusion, separate protected-record review, and fail-closed URL sanitation at `3b4f635b`. Milestone 3 remains active. |
+| 2026-07-19 | Milestone 3 safe storage cleanup complete | Added offline aggregate health inspection, integrity-first refusal, checked WAL cleanup, bounded native incremental vacuum, sanitized provenance, and new-database activation at `4304fbb5`. Milestone 3 remains active. |
 
 ## Discoveries
 
@@ -409,19 +410,24 @@ relevant result, and caveat.
 - Milestone 3 now has a reviewed, application-independent plaintext export
   whose fixed schema, private publication, structural completion, managed-secret
   exclusions, and protected-record controls passed focused and adversarial
-  verification. The milestone remains active.
+  verification. It also has offline aggregate storage inspection and an
+  integrity-first cleanup path that preserves records, reclaims only
+  already-free SQLite pages, reports unsupported legacy modes honestly, and
+  passed focused and adversarial verification. The milestone remains active.
 
 ## Handoff
 
 - Current state: Milestones 0 through 2 are passing. Milestone 3 recovery,
   portability, policy, and repair work is the sole active feature. Encrypted
-  portable backup, staged restore, rollback, and reviewed plaintext export are
-  implemented.
+  portable backup, staged restore, rollback, reviewed plaintext export, and
+  offline storage cleanup are implemented.
 - Evidence: `docs/harness/evidence/v3-milestone-3-reviewed-export-2026-07-19.json`
-  binds the reviewed-export slice at `3b4f635b`; prior milestone evidence remains
+  binds the reviewed-export slice at `3b4f635b`, and
+  `docs/harness/evidence/v3-milestone-3-storage-cleanup-2026-07-19.json` binds
+  offline storage cleanup at `4304fbb5`; prior milestone evidence remains
   authoritative for its completed scope.
-- Next step: write fail-first offline cleanup, Privacy Doctor, support-bundle,
-  policy, consent, repair, and platform-health tests before adding user-facing
+- Next step: write fail-first Privacy Doctor, support-bundle, policy, consent,
+  offline repair, and platform-health tests before adding user-facing
   operations.
 - Open risks: scope remains large, contract freeze is irreversible within the
   v3 compatibility line, live recovery behavior still needs Windows 11,

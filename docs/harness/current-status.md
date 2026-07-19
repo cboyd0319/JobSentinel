@@ -50,7 +50,7 @@ Last updated: 2026-07-19
 - Objective: Make v3 recovery, portability, policy, consent, support, and repair local and offline-safe.
 - Branch: `feat/v3-major-line`
 - Current slice: Complete Milestone 3 cleanup, repair, privacy, consent, and support behavior.
-- Next action: Define offline cleanup and repair behavior with fail-first tests.
+- Next action: Define Privacy Doctor and safe support behavior with fail-first tests.
 
 ## Deferred
 
