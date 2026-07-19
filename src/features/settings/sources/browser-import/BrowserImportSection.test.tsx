@@ -128,11 +128,11 @@ describe("BrowserImportSection", () => {
     ).not.toBeInTheDocument();
     expect(
       screen.getByText(
-        /recommended: use the browser button on a job page or supported jobs list/i,
+        /recommended: use the browser button on an individual job page/i,
       ),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/visible job cards you choose/i),
+      screen.getByText(/visible posting details you choose/i),
     ).toBeInTheDocument();
     expect(
       screen.getByText(
@@ -148,13 +148,8 @@ describe("BrowserImportSection", () => {
     expect(
       screen.queryByText(/where the bookmark stores the page address/i),
     ).not.toBeInTheDocument();
-    expect(
-      screen.getByText(/open an individual job page or a supported jobs list/i),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/open an individual job page/i)).toBeInTheDocument();
     expect(screen.getByText(/company application pages/i)).toBeInTheDocument();
-    expect(
-      screen.getByText(/supported job lists with visible cards/i),
-    ).toBeInTheDocument();
     expect(
       screen.getByText(/do not let JobSentinel read saved pages/i),
     ).toBeInTheDocument();
@@ -424,10 +419,10 @@ describe("BrowserImportSection", () => {
           {
             id: "pending-1",
             title: "Principal Systems Security Engineer",
-            company: "Sierra Nevada Corporation",
-            url: "https://www.linkedin.com/jobs/view/100",
+            company: "Example Cooperative",
+            url: "https://careers.example.com/jobs/100",
             location: "Centennial, CO",
-            description_preview: "Rendered LinkedIn card selected by the user",
+            description_preview: "Visible job details selected by the user",
             remote: false,
             received_at: "2026-06-19T12:00:00Z",
           },
@@ -448,7 +443,7 @@ describe("BrowserImportSection", () => {
     expect(
       screen.getByText("Principal Systems Security Engineer"),
     ).toBeInTheDocument();
-    expect(screen.getByText(/Sierra Nevada Corporation/)).toBeInTheDocument();
+    expect(screen.getByText(/Example Cooperative/)).toBeInTheDocument();
     expect(
       screen.getByText(/These jobs are not saved yet/i),
     ).toBeInTheDocument();
@@ -475,9 +470,9 @@ describe("BrowserImportSection", () => {
     ).toContain("Principal Systems Security Engineer");
     expect(
       window.localStorage.getItem(BROWSER_ASSIST_LEARNING_STORAGE_KEY),
-    ).toContain("Sierra Nevada Corporation");
+    ).toContain("Example Cooperative");
     expect(
       window.localStorage.getItem(BROWSER_ASSIST_LEARNING_STORAGE_KEY),
-    ).not.toContain("linkedin.com/jobs/view/100");
+    ).not.toContain("careers.example.com/jobs/100");
   });
 });

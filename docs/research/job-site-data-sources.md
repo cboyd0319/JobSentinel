@@ -39,6 +39,15 @@ User-opened search links, visible Browser Import, and manual entry remain local,
 user-controlled paths. Dice's official MCP is a separate review-required
 candidate, not a substitute for the retired HTML adapter.
 
+Current LinkedIn evidence was reviewed on 2026-07-19 from the
+[LinkedIn User Agreement](https://www.linkedin.com/legal/user-agreement) and
+[LinkedIn automated-activity guidance](https://www.linkedin.com/help/linkedin/answer/a1340567).
+The agreement effective November 3, 2025 and the current guidance prohibit
+unauthorized scraping, copying, browser plugins, and automated activity.
+JobSentinel therefore blocks LinkedIn Browser Import, scheduled access, and
+hidden page access. User-opened navigation and the local Workbench remain
+available after trusted native review, with no session-material storage.
+
 ## Product implications
 
 - Prefer official-source job monitoring where public feeds or employer pages are
@@ -198,7 +207,7 @@ Patterns to avoid:
 | Employer-owned web API | Public unauthenticated when reviewed | Company discovery first, then native adapter after fixtures prove the endpoint is stable | Workday CXS tenants, Amazon Jobs, Google Careers, Microsoft Careers, GitHub iCIMS/Jibe, Tesla Careers | Normal source opt-in when public; keep Browser Import or manual entry fallback if the endpoint is unstable or blocked in the user's environment |
 | Employer career system | Unknown until reviewed | Company discovery first, then classify into public API, public page import, restricted, or manual | Best Choice Products, Champion Petfoods, Ascend Wellness Holdings, Yourgi Pet, AC Lion, ForceBrands, Berri Organics, Renovation Brands, and other direct employer pages | Treat as review-required until source terms, structure, and rate limits are recorded |
 | Restricted public board | Public unauthenticated with terms/account-risk warning | Search link, pasted individual job link, Browser Import, or explicitly acknowledged scheduled check where current policy permits | Indeed, Monster, ZipRecruiter, Naukri, Shine, Foundit, CV-Library, Totaljobs, Wellfound, ClearanceJobs | Prominent warning and explicit local acknowledgement before the risky action; no sign-in-session rules unless a sign-in session is opened |
-| Restricted authenticated source | Authenticated user session | User-initiated interactive use only | LinkedIn search, LinkedIn Jobs Tracker, FlexJobs, Upwork, Freelancer, Toptal, any future account-backed restricted source | Warning before sign-in, fresh sign-in for every use when JobSentinel opens the session, no auth/session/browser-storage persistence, no background or offline collection, and a visible privacy reminder for supported interactive sessions |
+| Restricted authenticated source | Authenticated user session | User-initiated interactive use within current provider policy | LinkedIn search, LinkedIn Jobs Tracker, FlexJobs, Upwork, Freelancer, Toptal, any future account-backed restricted source | Warning before sign-in, fresh user initiation, no auth/session/browser-storage persistence, no background collection, and no page capture where provider policy prohibits it |
 | Unknown or changing source | Unknown review required | Manual entry or search link until reviewed | New country or niche boards | Treat as restricted until source terms, robots policy, rate limits, and practical access are reviewed |
 
 ## Company-Careers Discovery Examples
@@ -216,8 +225,8 @@ token.
 | Klaviyo, Faire, and Mindgruve careers | Verified Greenhouse public board tokens from direct board API probes | Treat as Greenhouse native sources when the user adds these employers |
 | `https://www.tesla.com/careers/search/?site=US` | Tesla employer-owned careers system; local direct fetch can be blocked by edge controls | Keep browser-open and manual import fallback until stable public fixtures are captured without bypassing controls |
 | `https://builtin.com/jobs`, state/city filters such as `?state=California&country=USA&allLocations=true`, and `https://www.builtincolorado.com/jobs` | Policy-blocked Built In network with regional city job boards | Use a user-opened search link, visible Browser Import, or manual entry; do not fetch the pasted URL or schedule collection |
-| `https://www.linkedin.com/company/fivetran/jobs/` and search-results URLs with `keywords`, `geoId`, `f_TPR`, or `f_AL` filters | Restricted LinkedIn jobs and company jobs pages | User-gated restricted discovery only; preserve user-entered query intent and selected filters, but do not persist referral, origin, landing-job, or other session-like identifiers |
-| `https://www.linkedin.com/jobs-tracker/?stage=applied` | Restricted LinkedIn Jobs Tracker for user-reviewed jobs | User-gated restricted tracking only for jobs the user already saved or applied to; no broad background discovery, login capture, session-cookie storage, or hidden background access |
+| `https://www.linkedin.com/company/fivetran/jobs/` and search-results URLs with `keywords`, `geoId`, `f_TPR`, or `f_AL` filters | Restricted LinkedIn jobs and company jobs pages | User-opened navigation after trusted review; use manual or sanitized user-selected Workbench details, with no Browser Import, hidden access, or session-like storage |
+| `https://www.linkedin.com/jobs-tracker/?stage=applied` | Restricted LinkedIn Jobs Tracker for user-reviewed jobs | User-opened navigation and local Workbench logging only; no page capture, broad background discovery, login capture, session-cookie storage, or hidden access |
 | LinkedIn Jobs home anchors for Preferences, Job tracker, and My Career Insights | Restricted LinkedIn navigation surfaces | User-opened navigation only; use these to help a user reach the right LinkedIn area, not as stored source-query or session state |
 | `https://www.google.com/about/careers/applications/jobs/results?hl=en_US` | Google employer-owned careers web app with public job-search surfaces | Add a source-specific adapter only after a stable public fixture is reviewed; keep user-opened search fallback |
 | `https://www.yahooinc.com/careers/` | Yahoo custom career site with server-rendered search pages | User-opened employer search or source-specific adapter after endpoint and terms review |

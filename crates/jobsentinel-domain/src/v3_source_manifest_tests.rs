@@ -278,6 +278,7 @@ fn reviewed_source_manifests_bind_policy_evidence() {
         HN_HIRING_SOURCE_MANIFEST_V1,
         GREENHOUSE_SOURCE_MANIFEST_V1,
         LEVER_SOURCE_MANIFEST_V1,
+        LINKEDIN_WORKBENCH_SOURCE_MANIFEST_V1,
     ] {
         let value: Value = serde_json::from_str(raw).unwrap();
         assert!(

@@ -113,7 +113,12 @@ const commandGroups: readonly MockCommandGroup[] = [
     adapter: applyMockJobImportCommand,
   },
   {
-    commands: ["record_linkedin_workbench_event"],
+    commands: [
+      "get_linkedin_workbench_review_status",
+      "review_linkedin_workbench",
+      "revoke_linkedin_workbench_review",
+      "record_linkedin_workbench_event",
+    ],
     adapter: applyMockLinkedInCommand,
   },
   {

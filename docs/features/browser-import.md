@@ -1,15 +1,13 @@
 # Browser Import Button
 
-The browser import button adds the job page or visible job list you choose to a
-local JobSentinel review list. You decide what to save. It is optional. You can
-still add jobs from inside JobSentinel without setting this up.
+The browser import button adds the visible job posting you choose to a local
+JobSentinel review list. You decide what to save. It is optional. You can still
+add jobs from inside JobSentinel without setting this up.
 
 ## What It Does
 
 - Adds jobs from official career pages and trusted public job pages when the
   page shows enough job details.
-- Adds visible job cards from supported job-list pages, including LinkedIn Jobs
-  pages the user opened, without storing login details.
 - Uses the browser page you already opened.
 - Sends the job only to the JobSentinel app running on your computer.
 - Keeps the review list and saved jobs local.
@@ -20,15 +18,12 @@ Use the browser import button when:
 
 - You find a job while browsing outside JobSentinel.
 - A job source does not load inside JobSentinel.
-- You want to save one visible job, or the visible job cards on a supported
-  search page, without copying details by hand.
+- You want to save one visible job without copying details by hand.
 
-Some sites, including LinkedIn, Indeed, Glassdoor, Monster, ZipRecruiter,
-Naukri, and similar boards, have rules about automated tools. Misusing those
-tools can affect your account or create legal/privacy risk. JobSentinel keeps
-you in control: use Browser Import only for pages you choose yourself, and do
-not use it to bypass login walls, human checks, platform controls, or another
-person's privacy.
+Some sites have rules that prohibit third-party page capture. JobSentinel
+blocks those domains before adding anything to the review queue. LinkedIn is
+currently blocked based on its reviewed user agreement and automation policy.
+Use the LinkedIn Workbench to enter or paste only the details you choose.
 
 ## Set It Up
 
@@ -51,8 +46,7 @@ importing more jobs.
 
 ## Review And Save Jobs
 
-1. Open an individual job posting, or a supported job-list page such as
-   LinkedIn Jobs, in your browser.
+1. Open a supported public job posting in your browser.
 2. Use the **Import to JobSentinel** bookmark.
 3. Wait for the confirmation message.
 4. Open JobSentinel Settings and find **Jobs waiting for review**.
@@ -69,7 +63,6 @@ The browser import button works best on:
 - Company application pages.
 - Trusted public pages that show the full job description, employer name, and
   location.
-- LinkedIn Jobs pages with visible job cards.
 - Pages you opened yourself in your browser.
 
 Some job search result pages may not include enough job details. Some large job
@@ -120,10 +113,7 @@ the review looks useful, then fill in any blank details in JobSentinel.
 - If copying fails, the previous browser button keeps working until its safety
   code is used once or expires.
 - Job data stays local unless you choose to share it.
-- On LinkedIn Jobs pages, JobSentinel adds only visible job-card fields from the
-  page you clicked on to the local review list. It does not save cookies, login
-  tokens, browser storage, hidden page state, network traffic, or pages you did
-  not open.
+- LinkedIn page capture is blocked before data enters the local review queue.
 - Browser Import jobs are not durable saved jobs until you click **Save Job** in
   the review list.
 - Safe support reports must redact the browser button details and saved jobs

@@ -99,15 +99,19 @@ export const applyMockJobImportCommand: MockCommandAdapter = (
 };
 
 export const applyMockLinkedInCommand: MockCommandAdapter = (
-  _command,
+  command,
   args,
 ) => {
-  const result = handleMockLinkedInWorkbenchCommand(args, {
+  const result = handleMockLinkedInWorkbenchCommand(command, args, {
     jobs: mockRuntimeState.jobs,
     applications: mockRuntimeState.applications,
     pendingReminders: mockRuntimeState.pendingReminders,
+    reviewed: mockRuntimeState.linkedinWorkbenchReviewed,
   });
-  Object.assign(mockRuntimeState, result.state);
+  mockRuntimeState.jobs = result.state.jobs;
+  mockRuntimeState.applications = result.state.applications;
+  mockRuntimeState.pendingReminders = result.state.pendingReminders;
+  mockRuntimeState.linkedinWorkbenchReviewed = result.state.reviewed;
   saveMockState();
   return result.value;
 };

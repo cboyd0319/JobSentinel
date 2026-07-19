@@ -123,31 +123,30 @@ The LinkedIn-compatible flow is user-controlled activity capture, not a
 scheduled scraper. It is reachable from Dashboard quick actions and Settings:
 
 1. The user starts the LinkedIn session from JobSentinel.
-2. JobSentinel shows short, friendly copy about what it can help with.
+2. JobSentinel shows a trusted native review with short, friendly copy about
+   what it can help with. The exact review is stored in the append-only local
+   source consent ledger.
 3. The user signs in and uses LinkedIn directly.
-4. The user can click the Browser Import button on a LinkedIn Jobs page to save
-   the visible job cards into local job records for review.
-5. JobSentinel shows local controls beside the browser: save, applied, track,
+4. JobSentinel shows local controls beside the browser: save, applied, track,
    rejected, interview, follow up, reminder, note, not interested, and paste
    details.
-6. JobSentinel stores only visible-page imports and user-confirmed local
-   records.
-7. Local analysis runs after the record exists in JobSentinel.
+5. JobSentinel stores only user-entered or user-selected details and
+   user-confirmed local records.
+6. Local analysis runs after the record exists in JobSentinel.
 
 `Log applied` should be a one-click action. If title, company, or link are not
 known yet, create a draft application record with `Needs details` fields and
 prompt the user to finish it later. Optional details should come after the
 click, not before it.
 
-Prefill is allowed only from explicit user action: Browser Import on the page
-the user opened, pasted job links, pasted details, selected text the user sends
-to JobSentinel, or previously confirmed local records. For restricted
-authenticated sites, Browser Import may read only the current visible page after
-the user clicks the button; do not prefill by reading network traffic, browser
-storage, hidden page state, screenshots, or background pages. Prefilled values
-remain suggestions until the user confirms them. Pasted Workbench notes must
-remove session-like URL query fields, cookies, and token-like fields before
-local storage.
+LinkedIn prefill is allowed only from pasted job links, pasted details,
+selected text the user sends to JobSentinel, or previously confirmed local
+records. Current LinkedIn policy prohibits third-party page capture, so
+JobSentinel blocks LinkedIn Browser Import before anything enters the review
+queue. Do not prefill by reading network traffic, browser storage, hidden page
+state, screenshots, or background pages. Prefilled values remain suggestions
+until the user confirms them. Pasted Workbench notes must remove session-like
+URL query fields, cookies, and token-like fields before local storage.
 When a user pastes selected text into the Workbench, JobSentinel may fill the
 suggestion fields immediately from that pasted text.
 
@@ -156,8 +155,9 @@ suggestion fields immediately from that pasted text.
 JobSentinel should reduce spreadsheet-style work without becoming a hidden
 scraper. The release-safe model is assistive capture:
 
-- **Capture what the user intentionally exposes.** A user-clicked Browser Import
-  action may read the visible posting or visible job cards on the current page.
+- **Capture only where current provider policy permits it.** A user-clicked
+  Browser Import action may read the visible posting on a reviewed supported
+  page. Policy-blocked domains fail closed.
 - **Queue observations locally.** Captured jobs become local records for review,
   scoring, ghost-job checks, reminders, and resume tailoring.
 - **Keep actions explicit.** Applied, saved, tracking, rejected, interview,

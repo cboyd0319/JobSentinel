@@ -309,7 +309,7 @@ fn normalize_bookmarklet_job_data(
     job_data.url = canonicalize_job_url(job_data.url.trim())
         .map_err(|_| "Job link must be a public https address".to_string())?;
     if visible_page_capture_is_blocked(&job_data.url) {
-        return Err("Automated YC Startup access is unavailable".to_string());
+        return Err("Browser Import is unavailable for this source".to_string());
     }
     validate_bookmarklet_job_storage_lengths(&job_data)?;
 

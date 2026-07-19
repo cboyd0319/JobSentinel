@@ -129,10 +129,10 @@ export function BrowserImportControls({
               Choose How to Save Jobs:
             </h5>
             <p className="text-sm text-gray-300 mb-3">
-              Recommended: use the browser button on a job page or supported
-              jobs list. It adds the page or visible job cards you choose to a
-              review list in JobSentinel. Paste a link only when the browser
-              button cannot read the page.
+              Recommended: use the browser button on an individual job page. It
+              adds the visible posting details you choose to a review list in
+              JobSentinel. Paste a link only when the browser button cannot read
+              the page.
             </p>
             <ol className="text-sm text-gray-300 space-y-2 list-decimal list-inside">
               <li>Turn on Browser Import above</li>
@@ -153,14 +153,14 @@ export function BrowserImportControls({
               How to Use:
             </h5>
             <ol className="text-sm text-gray-300 space-y-2 list-decimal list-inside">
-              <li>Open an individual job page or a supported jobs list.</li>
+              <li>Open an individual job page.</li>
               <li>
                 Use the saved "Import to JobSentinel" item in your bookmarks
                 bar.
               </li>
               <li>
-                JobSentinel adds the current posting or visible job cards it can
-                read to your review list
+                JobSentinel adds the current posting details it can read to your
+                review list
               </li>
               <li>Return here, check the details, then save the job.</li>
             </ol>
@@ -183,7 +183,6 @@ export function BrowserImportControls({
                 <p className="font-medium">Best page shape:</p>
                 <ul className="list-disc list-inside text-xs space-y-1 mt-1">
                   <li>Career pages with job details on the page</li>
-                  <li>Supported job lists with visible cards</li>
                   <li>Pages opened by you in your browser</li>
                 </ul>
               </div>

@@ -43,6 +43,39 @@ fn context(revision: u32) -> SourceConsentContext {
     }
 }
 
+fn workbench_policy() -> SourcePolicy {
+    SourcePolicy {
+        source_id: "linkedin-workbench".to_string(),
+        source_class: SourceClass::RestrictedUserOpened,
+        access: SourceAccess::UserOpened,
+        request_limit_per_hour: 0,
+        user_review_required: true,
+        policy_ref: "jobsentinel.source-policy.linkedin-workbench".to_string(),
+        revision: 1,
+        restriction_reason_code: Some("account-backed-source".to_string()),
+        reviewed_at: Utc::now(),
+    }
+}
+
+fn workbench_context() -> SourceConsentContext {
+    SourceConsentContext {
+        source_id: "linkedin-workbench".to_string(),
+        operation: SourceConsentOperation::RestrictedWorkbench,
+        warning_version: 1,
+        behavior_revision: 1,
+        policy_ref: "jobsentinel.source-policy.linkedin-workbench".to_string(),
+        policy_revision: 1,
+        source_class: SourceClass::RestrictedUserOpened,
+        data_categories: vec![
+            DataCategory::PublicJobPosting,
+            DataCategory::ApplicationHistory,
+            DataCategory::CareerGoals,
+        ],
+        destination_sha256: "c".repeat(64),
+        request_sha256: "d".repeat(64),
+    }
+}
+
 #[tokio::test]
 async fn policy_history_is_bounded_ordered_and_database_immutable() {
     let database = migrated_database().await;
@@ -236,6 +269,50 @@ async fn exact_source_consent_resets_on_policy_drift_and_regrants_after_revoke()
 }
 
 #[tokio::test]
+async fn restricted_workbench_review_is_append_only_and_revocable() {
+    let database = migrated_database().await;
+    database
+        .upsert_source_policy(&workbench_policy())
+        .await
+        .unwrap();
+    let context = workbench_context();
+
+    let grant = database.grant_source_consent(&context, None).await.unwrap();
+    assert!(matches!(
+        database.source_consent_status(&context).await.unwrap(),
+        SourceConsentStatus::Remembered { .. }
+    ));
+
+    assert!(database
+        .revoke_source_consent(
+            "linkedin-workbench",
+            SourceConsentOperation::RestrictedWorkbench,
+        )
+        .await
+        .unwrap());
+    assert!(matches!(
+        database.source_consent_status(&context).await.unwrap(),
+        SourceConsentStatus::ReviewRequired {
+            reason: SourceConsentReviewReason::Revoked,
+            ..
+        }
+    ));
+    assert!(database
+        .grant_source_consent(
+            &context,
+            database
+                .source_consent_history("linkedin-workbench", 1)
+                .await
+                .unwrap()
+                .first()
+                .map(|event| event.event_id.as_str()),
+        )
+        .await
+        .is_ok());
+    assert!(!grant.event_id.is_empty());
+}
+
+#[tokio::test]
 async fn stale_or_concurrent_grants_cannot_override_newer_consent_state() {
     let database = migrated_database().await;
     database.upsert_source_policy(&policy(1)).await.unwrap();
@@ -297,6 +374,30 @@ async fn consent_ledger_rejects_private_and_unreviewed_payload_material() {
         .await;
         assert!(inserted.is_err());
     }
+    database
+        .upsert_source_policy(&workbench_policy())
+        .await
+        .unwrap();
+    assert!(sqlx::query(
+        "INSERT INTO v3_source_consent_events (
+            event_id, previous_event_id, source_id, operation,
+            warning_version, behavior_revision, policy_ref, policy_revision,
+            source_class, data_categories_json, destination_sha256,
+            request_sha256, decision, recorded_at
+         ) VALUES (
+            'workbench-protected', NULL, 'linkedin-workbench',
+            'restricted_workbench', 1, 1,
+            'jobsentinel.source-policy.linkedin-workbench', 1,
+            'restricted_user_opened', '[\"protected_veteran_answer\"]',
+            ?, ?, 'granted', ?
+         )"
+    )
+    .bind("a".repeat(64))
+    .bind("b".repeat(64))
+    .bind(Utc::now().to_rfc3339())
+    .execute(database.pool())
+    .await
+    .is_err());
 
     let grant = database
         .grant_source_consent(&context(1), None)

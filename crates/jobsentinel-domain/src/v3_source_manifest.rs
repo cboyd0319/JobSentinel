@@ -35,6 +35,8 @@ pub const LEVER_REQUEST_LIMIT_PER_HOUR: u16 = 1_000;
 pub const LEVER_API_ENDPOINT_PREFIX: &str = "https://api.lever.co/v0/postings/";
 pub const JOBSWITHGPT_SOURCE_MANIFEST_V1: &str =
     include_str!("fixtures/source_manifests/jobswithgpt_v1.json");
+pub const LINKEDIN_WORKBENCH_SOURCE_MANIFEST_V1: &str =
+    include_str!("fixtures/source_manifests/linkedin_workbench_v1.json");
 pub const BUILTIN_SOURCE_MANIFEST_V2: &str =
     include_str!("fixtures/source_manifests/builtin_v2.json");
 pub const DICE_SOURCE_MANIFEST_V2: &str = include_str!("fixtures/source_manifests/dice_v2.json");
@@ -353,10 +355,12 @@ fn validate_action(action: &SourceActionRule, policy: &SourcePolicy) -> Result<(
     {
         return Err("browser grants cannot authorize unrelated source actions".to_string());
     }
-    if matches!(action.operation, SourceOperation::VisiblePageCapture)
-        && !matches!(action.permission, SourcePermission::PairedBrowserGrant)
+    if matches!(
+        action.operation,
+        SourceOperation::VisiblePageCapture | SourceOperation::AppliedLogging
+    ) && !matches!(action.permission, SourcePermission::PairedBrowserGrant)
     {
-        return Err("visible capture requires a paired browser grant".to_string());
+        return Err("browser source actions require a paired browser grant".to_string());
     }
     if matches!(
         action.operation,

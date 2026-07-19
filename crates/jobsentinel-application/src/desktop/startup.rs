@@ -193,6 +193,13 @@ impl DesktopServices {
                 "Connected job source governance could not be refreshed; scheduled checks remain blocked"
             );
         }
+        if let Err(error) = crate::v3_source_governance::install_linkedin_workbench(&database).await
+        {
+            tracing::warn!(
+                error = %error,
+                "LinkedIn Workbench governance could not be refreshed; restricted actions remain blocked"
+            );
+        }
         let credentials = CredentialService::new(database.credentials());
         if migrate_plaintext_credentials_to_secure_storage(&config_path, &credentials).await {
             config = Config::load(&config_path)

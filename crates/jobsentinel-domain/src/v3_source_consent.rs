@@ -11,6 +11,7 @@ use crate::{
 #[serde(rename_all = "snake_case")]
 pub enum SourceConsentOperation {
     ScheduledCheck,
+    RestrictedWorkbench,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -39,7 +40,11 @@ impl SourceConsentContext {
         if self.warning_version == 0 || self.behavior_revision == 0 || self.policy_revision == 0 {
             return Err("source consent revisions must be positive".to_string());
         }
-        if self.source_class != SourceClass::RestrictedPublicScheduled {
+        let expected_class = match self.operation {
+            SourceConsentOperation::ScheduledCheck => SourceClass::RestrictedPublicScheduled,
+            SourceConsentOperation::RestrictedWorkbench => SourceClass::RestrictedUserOpened,
+        };
+        if self.source_class != expected_class {
             return Err("source consent class is not reviewable".to_string());
         }
         if self.data_categories.is_empty()
@@ -52,14 +57,24 @@ impl SourceConsentContext {
         {
             return Err("source consent data categories must be a nonempty set".to_string());
         }
-        if self.data_categories.iter().any(|category| {
-            !matches!(
-                category,
-                DataCategory::PublicJobPosting
-                    | DataCategory::CareerGoals
-                    | DataCategory::LocationPreferences
-            )
-        }) {
+        if self
+            .data_categories
+            .iter()
+            .any(|category| match self.operation {
+                SourceConsentOperation::ScheduledCheck => !matches!(
+                    category,
+                    DataCategory::PublicJobPosting
+                        | DataCategory::CareerGoals
+                        | DataCategory::LocationPreferences
+                ),
+                SourceConsentOperation::RestrictedWorkbench => !matches!(
+                    category,
+                    DataCategory::PublicJobPosting
+                        | DataCategory::ApplicationHistory
+                        | DataCategory::CareerGoals
+                ),
+            })
+        {
             return Err(
                 "remembered source consent contains an unreviewed data category".to_string(),
             );
@@ -89,14 +104,24 @@ impl SourceConsentContext {
 
     #[must_use]
     pub fn matches_policy(&self, policy: &SourcePolicy) -> bool {
+        let policy_ref_matches = self.policy_ref == policy.policy_ref;
         let revision_matches = self.policy_revision == policy.revision;
         policy.validate().is_ok()
             && self.source_id == policy.source_id
-            && self.policy_ref == policy.policy_ref
+            && policy_ref_matches
             && revision_matches
             && self.source_class == policy.source_class
-            && policy.access == crate::v3_foundation::SourceAccess::ScheduledPublic
             && policy.user_review_required
+            && matches!(
+                (self.operation, policy.access),
+                (
+                    SourceConsentOperation::ScheduledCheck,
+                    crate::v3_foundation::SourceAccess::ScheduledPublic
+                ) | (
+                    SourceConsentOperation::RestrictedWorkbench,
+                    crate::v3_foundation::SourceAccess::UserOpened
+                )
+            )
     }
 }
 
@@ -176,6 +201,25 @@ mod tests {
         }
     }
 
+    fn workbench_context() -> SourceConsentContext {
+        SourceConsentContext {
+            source_id: "linkedin-workbench".to_string(),
+            operation: SourceConsentOperation::RestrictedWorkbench,
+            warning_version: 1,
+            behavior_revision: 1,
+            policy_ref: "jobsentinel.source-policy.linkedin-workbench".to_string(),
+            policy_revision: 1,
+            source_class: SourceClass::RestrictedUserOpened,
+            data_categories: vec![
+                DataCategory::PublicJobPosting,
+                DataCategory::ApplicationHistory,
+                DataCategory::CareerGoals,
+            ],
+            destination_sha256: "c".repeat(64),
+            request_sha256: "d".repeat(64),
+        }
+    }
+
     #[test]
     fn exact_context_match_is_order_independent() {
         let expected = context();
@@ -244,6 +288,30 @@ mod tests {
         invalid = context();
         invalid.source_class = SourceClass::OfficialPublicApi;
         assert!(invalid.validate().is_err());
+    }
+
+    #[test]
+    fn restricted_workbench_review_matches_only_current_user_opened_policy() {
+        let context = workbench_context();
+        let policy = SourcePolicy {
+            source_id: context.source_id.clone(),
+            source_class: context.source_class,
+            access: crate::v3_foundation::SourceAccess::UserOpened,
+            request_limit_per_hour: 0,
+            user_review_required: true,
+            policy_ref: context.policy_ref.clone(),
+            revision: context.policy_revision,
+            restriction_reason_code: Some("account-backed-source".to_string()),
+            reviewed_at: Utc::now(),
+        };
+
+        assert!(context.validate().is_ok());
+        assert!(context.matches_policy(&policy));
+
+        let mut scheduled = context;
+        scheduled.operation = SourceConsentOperation::ScheduledCheck;
+        assert!(scheduled.validate().is_err());
+        assert!(!scheduled.matches_policy(&policy));
     }
 
     #[test]

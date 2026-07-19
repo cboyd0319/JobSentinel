@@ -32,7 +32,7 @@ account, telemetry, cloud sync, or external AI provider.
 | Mechanic | Current behavior |
 | --- | --- |
 | Source taxonomy and routing | Public feeds, employer career pages, ATS families, regional boards, public boards, restricted sources, search links, Browser Import, and manual paths are treated as distinct source classes. |
-| Restricted-source Workbench | Sign-in-backed sources stay user-started and visible, with acknowledgement, local ledger actions, visible-job import, and no stored session material. |
+| Restricted-source Workbench | Sign-in-backed sources stay user-started and visible, with native review, local ledger actions, user-entered details, and no page capture or stored session material. |
 | Evidence-bounded resume matching | Resume help connects requirements to concrete local resume evidence, readability signals, hard gaps, and truthful draft suggestions. |
 | Local model governance | `crates/jobsentinel-local-ai/models.lock.toml` controls model identity, revision, hashes, size, license, backend compatibility, instructions, thresholds, and stale-vector rules. |
 | Hybrid ranking | Dense retrieval, BM25, exact skill taxonomy hits, required coverage, seniority, blocker caps, reranker scores, and provenance are scored separately. |
@@ -112,7 +112,7 @@ acknowledgement or sign-in-session boundaries.
 | Reviewed ATS families | Greenhouse, Lever, Ashby, Workable, SmartRecruiters, Workday, iCIMS/Jibe, Breezy, JazzHR, Bullhorn, Eightfold, Jobvite, Teamtailor, Recruitee, Taleo, SAP SuccessFactors, Oracle Recruiting, Phenom, Radancy/TalentBrew | Taxonomy-backed discovery, with native scheduled support only after source-specific review and fixtures |
 | Native source-adapter contracts from API research | Workday Candidate Experience listing JSON, Phenom widget refineSearch JSON, Radancy/TalentBrew static HTML | Parser and canonical-record contracts exist; live scheduling still needs tenant-specific policy, robots, rate-limit, endpoint-stability, and parser checks |
 | Restricted authenticated sources | LinkedIn and similar sign-in-backed sources | User starts the session, sees the warning before sign-in, uses the site directly, and imports or logs only user-selected visible information |
-| Search-link destinations | LinkedIn, USAJobs, Google Jobs Search, regional boards, company search pages | Open in the user's browser, then use Browser Import, pasted links, or manual entry if the user chooses |
+| Search-link destinations | LinkedIn, USAJobs, Google Jobs Search, regional boards, company search pages | Open in the user's browser, then use a policy-permitted import, pasted details, or manual entry; LinkedIn page capture is blocked |
 
 Restricted-source support is intentionally explicit. JobSentinel should make
 the secure local path easy, but it must not store login details, session

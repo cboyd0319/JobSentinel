@@ -7,7 +7,8 @@ use jobsentinel_domain::{
         parse_source_manifest, SourceOperation, GREENHOUSE_REQUEST_LIMIT_PER_HOUR,
         GREENHOUSE_SOURCE_MANIFEST_V1, HN_HIRING_REQUEST_LIMIT_PER_HOUR,
         HN_HIRING_SOURCE_MANIFEST_V1, JOBSWITHGPT_SOURCE_MANIFEST_V1, LEVER_REQUEST_LIMIT_PER_HOUR,
-        LEVER_SOURCE_MANIFEST_V1, REMOTEOK_REQUEST_LIMIT_PER_HOUR, REMOTEOK_SOURCE_MANIFEST_V1,
+        LEVER_SOURCE_MANIFEST_V1, LINKEDIN_WORKBENCH_SOURCE_MANIFEST_V1,
+        REMOTEOK_REQUEST_LIMIT_PER_HOUR, REMOTEOK_SOURCE_MANIFEST_V1,
         USAJOBS_REQUEST_LIMIT_PER_HOUR, USAJOBS_SOURCE_MANIFEST_V1,
         WEWORKREMOTELY_REQUEST_LIMIT_PER_HOUR, WEWORKREMOTELY_SOURCE_MANIFEST_V1,
     },
@@ -103,6 +104,22 @@ pub(crate) fn jobswithgpt_policy() -> Result<SourcePolicy, FoundationError> {
         policy_ref: "jobsentinel.source-policy.jobswithgpt.provider-review".to_string(),
         revision: 1,
         restriction_reason_code: Some("provider-policy-review-required".to_string()),
+        reviewed_at: POLICY_REVIEWED_AT
+            .parse::<DateTime<Utc>>()
+            .map_err(|_| FoundationError::InvalidInput)?,
+    })
+}
+
+pub(crate) fn linkedin_workbench_policy() -> Result<SourcePolicy, FoundationError> {
+    Ok(SourcePolicy {
+        source_id: "linkedin-workbench".to_string(),
+        source_class: SourceClass::RestrictedUserOpened,
+        access: SourceAccess::UserOpened,
+        request_limit_per_hour: 0,
+        user_review_required: true,
+        policy_ref: "jobsentinel.source-policy.linkedin-workbench".to_string(),
+        revision: 1,
+        restriction_reason_code: Some("account-backed-source".to_string()),
         reviewed_at: POLICY_REVIEWED_AT
             .parse::<DateTime<Utc>>()
             .map_err(|_| FoundationError::InvalidInput)?,
@@ -295,6 +312,15 @@ pub(crate) async fn install_jobswithgpt(database: &Database) -> Result<(), Found
         database,
         jobswithgpt_policy()?,
         JOBSWITHGPT_SOURCE_MANIFEST_V1,
+    )
+    .await
+}
+
+pub(crate) async fn install_linkedin_workbench(database: &Database) -> Result<(), FoundationError> {
+    install_reviewed(
+        database,
+        linkedin_workbench_policy()?,
+        LINKEDIN_WORKBENCH_SOURCE_MANIFEST_V1,
     )
     .await
 }

@@ -56,7 +56,7 @@ async fn portable_backup_is_encrypted_verified_and_excludes_secrets() {
 
     assert_eq!(created.format_version, 1);
     assert_eq!(created.database_schema, 2);
-    assert_eq!(created.migration_sequence, 18);
+    assert_eq!(created.migration_sequence, 19);
     assert!(!created.backup_id.is_empty());
     assert_eq!(
         Database::inspect_portable_backup(&backup_path, BACKUP_PASSPHRASE)

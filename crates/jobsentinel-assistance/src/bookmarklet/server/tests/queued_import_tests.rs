@@ -1,10 +1,12 @@
 use super::*;
 
 #[tokio::test]
-async fn test_bookmarklet_import_rejects_retired_yc_automation() {
+async fn test_bookmarklet_import_rejects_policy_blocked_page_capture() {
     for url in [
         "https://ycombinator.com/jobs/1",
         "https://www.ycombinator.com/jobs/2",
+        "https://linkedin.com/jobs/view/1",
+        "https://www.linkedin.com/jobs/view/2",
     ] {
         let database = bookmarklet_test_database().await;
         let auth_state = bookmarklet_auth_state(TEST_AUTH_TOKEN, bookmarklet_auth_expiry());
@@ -26,7 +28,7 @@ async fn test_bookmarklet_import_rejects_retired_yc_automation() {
 
         assert_eq!(
             parsed["error"],
-            "Automated YC Startup access is unavailable"
+            "Browser Import is unavailable for this source"
         );
         assert!(pending_bookmarklet_import_previews(&pending_imports).is_empty());
         assert_eq!(stored_job_count(&database).await, 0);
@@ -140,15 +142,15 @@ async fn test_bookmarklet_import_queues_visible_job_batch_for_review_without_ins
         {
             "title": "Principal Systems Security Engineer",
             "company": "Sierra Nevada Corporation",
-            "description": "Rendered LinkedIn card selected by the user",
-            "url": "https://www.linkedin.com/jobs/view/100?currentJobId=100&referralSearchId=private",
+            "description": "Rendered employer card selected by the user",
+            "url": "https://careers.example.com/jobs/100?token=private",
             "location": "Centennial, CO"
         },
         {
             "title": "Lead Platform Security Engineer",
             "company": "HDR",
-            "description": "Rendered LinkedIn card selected by the user",
-            "url": "https://www.linkedin.com/jobs/view/200?origin=private",
+            "description": "Rendered employer card selected by the user",
+            "url": "https://careers.example.com/jobs/200?token=private",
             "location": "Denver, CO"
         }
     ]));
@@ -156,8 +158,8 @@ async fn test_bookmarklet_import_queues_visible_job_batch_for_review_without_ins
     let (response, content_type) = handle_import_request(
         &bookmarklet_import_request_from_origin(
             &body,
-            "https://www.linkedin.com",
-            "https://www.linkedin.com/jobs/",
+            "https://careers.example.com",
+            "https://careers.example.com/jobs/",
         ),
         &auth_state,
         pending_imports.clone(),
@@ -175,10 +177,10 @@ async fn test_bookmarklet_import_queues_visible_job_batch_for_review_without_ins
     assert_eq!(previews.len(), 2);
     assert_eq!(previews[0].title, "Principal Systems Security Engineer");
     assert_eq!(previews[0].company, "Sierra Nevada Corporation");
-    assert_eq!(previews[0].url, "https://www.linkedin.com/jobs/view/100");
+    assert_eq!(previews[0].url, "https://careers.example.com/jobs/100");
     assert_eq!(previews[1].title, "Lead Platform Security Engineer");
     assert_eq!(previews[1].company, "HDR");
-    assert_eq!(previews[1].url, "https://www.linkedin.com/jobs/view/200");
+    assert_eq!(previews[1].url, "https://careers.example.com/jobs/200");
 }
 
 #[tokio::test]

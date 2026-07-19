@@ -243,6 +243,7 @@ export interface MockState {
   scraperEnabledOverrides: MockScraperEnabledOverrides;
   interviewPrepChecklists: MockInterviewPrepState;
   interviewFollowups: MockInterviewFollowUpState;
+  linkedinWorkbenchReviewed: boolean;
 }
 
 export type {

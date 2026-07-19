@@ -50,10 +50,11 @@ const AUTOMATION_BLOCKED_SOURCE_DOMAINS: &[&str] = &[
     "builtincolorado.com",
     "dice.com",
     "glassdoor.com",
+    "linkedin.com",
     "simplyhired.com",
     "ycombinator.com",
 ];
-const VISIBLE_CAPTURE_BLOCKED_SOURCE_DOMAINS: &[&str] = &["ycombinator.com"];
+const VISIBLE_CAPTURE_BLOCKED_SOURCE_DOMAINS: &[&str] = &["linkedin.com", "ycombinator.com"];
 
 #[must_use]
 pub fn automated_url_fetch_is_blocked(value: &str) -> bool {
@@ -270,6 +271,8 @@ mod tests {
             "https://www.dice.com/job-detail/1",
             "https://glassdoor.com/jobs",
             "https://jobs.glassdoor.com/role/1",
+            "https://linkedin.com/jobs",
+            "https://www.linkedin.com/jobs/view/1",
             "https://simplyhired.com/search",
             "https://www.simplyhired.com/job/1",
             "https://ycombinator.com/jobs",
@@ -283,6 +286,8 @@ mod tests {
             "https://example.com/jobs",
             "https://dice.com.example/jobs",
             "https://notglassdoor.com/jobs",
+            "https://linkedin.com.example/jobs",
+            "https://notlinkedin.com/jobs",
             "https://ycombinator.com.example/jobs",
             "https://notycombinator.com/jobs",
         ] {
@@ -291,10 +296,13 @@ mod tests {
     }
 
     #[test]
-    fn visible_capture_keeps_the_narrow_yc_policy_boundary() {
-        assert!(visible_page_capture_is_blocked(
-            "https://www.ycombinator.com/jobs/1"
-        ));
+    fn visible_capture_blocks_only_policy_prohibited_domains() {
+        for blocked in [
+            "https://www.linkedin.com/jobs/view/1",
+            "https://www.ycombinator.com/jobs/1",
+        ] {
+            assert!(visible_page_capture_is_blocked(blocked), "{blocked}");
+        }
 
         for allowed in [
             "https://builtin.com/jobs/1",

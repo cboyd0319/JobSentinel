@@ -93,6 +93,7 @@ function createDefaultState(): MockRuntimeState {
     scraperEnabledOverrides: {},
     interviewPrepChecklists: {},
     interviewFollowups: {},
+    linkedinWorkbenchReviewed: false,
     automationBrowserRunning: false,
     nextAutomationAttemptId: 1,
   };
@@ -232,6 +233,10 @@ export function loadMockState(): void {
         state.interviewFollowups,
       );
     }
+    if (typeof state.linkedinWorkbenchReviewed === "boolean") {
+      mockRuntimeState.linkedinWorkbenchReviewed =
+        state.linkedinWorkbenchReviewed;
+    }
   } catch {
     window.localStorage.removeItem(MOCK_STATE_KEY);
   }
@@ -262,6 +267,7 @@ export function resetMockState(): void {
     marketAlerts: defaults.marketAlerts,
     applicationProfile: defaults.applicationProfile,
     screeningAnswers: defaults.screeningAnswers,
+    linkedinWorkbenchReviewed: defaults.linkedinWorkbenchReviewed,
   });
   saveMockState();
 }

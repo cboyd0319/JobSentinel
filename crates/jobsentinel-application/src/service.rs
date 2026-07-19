@@ -178,6 +178,8 @@ mod tests {
             ("https://www.dice.com/jobs/1", true),
             ("https://jobs.glassdoor.com/jobs/1", true),
             ("https://www.simplyhired.com/job/1", true),
+            ("https://linkedin.com/jobs/view/1", false),
+            ("https://www.linkedin.com/jobs/view/2", false),
             ("https://ycombinator.com/jobs", false),
             ("https://www.ycombinator.com/jobs", false),
         ] {
