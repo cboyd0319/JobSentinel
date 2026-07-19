@@ -24,12 +24,10 @@ pub use server::{
 
 #[async_trait]
 pub trait BookmarkletRepository: Send + Sync {
-    async fn authorize_visible_page_capture(
-        &self,
-        grant: &SourceGrantState,
-    ) -> Result<bool, String>;
+    async fn authorize_browser_action(&self, grant: &SourceGrantState) -> Result<bool, String>;
     async fn job_exists_by_hash(&self, hash: &str) -> Result<bool, String>;
     async fn upsert_job(&self, job: &Job) -> Result<i64, String>;
+    async fn mark_job_applied(&self, hash: &str) -> Result<(), String>;
 }
 
 #[async_trait]
@@ -37,11 +35,8 @@ impl<T> BookmarkletRepository for std::sync::Arc<T>
 where
     T: BookmarkletRepository + ?Sized,
 {
-    async fn authorize_visible_page_capture(
-        &self,
-        grant: &SourceGrantState,
-    ) -> Result<bool, String> {
-        self.as_ref().authorize_visible_page_capture(grant).await
+    async fn authorize_browser_action(&self, grant: &SourceGrantState) -> Result<bool, String> {
+        self.as_ref().authorize_browser_action(grant).await
     }
 
     async fn job_exists_by_hash(&self, hash: &str) -> Result<bool, String> {
@@ -50,6 +45,10 @@ where
 
     async fn upsert_job(&self, job: &Job) -> Result<i64, String> {
         self.as_ref().upsert_job(job).await
+    }
+
+    async fn mark_job_applied(&self, hash: &str) -> Result<(), String> {
+        self.as_ref().mark_job_applied(hash).await
     }
 }
 

@@ -43,7 +43,7 @@ async fn user_source_action_governance_is_installed_with_graph_lineage() {
             .await
             .unwrap()
             .len(),
-        2
+        4
     );
 }
 
@@ -135,6 +135,60 @@ async fn visible_page_capture_requires_persisted_pairing_authority() {
             request_limit_per_hour: 0,
             connectivity_required: false,
         }
+    );
+}
+
+#[tokio::test]
+async fn smart_paste_and_applied_logging_use_distinct_persisted_authority() {
+    let database = Database::connect_memory().await.unwrap();
+    database.migrate().await.unwrap();
+    install_user_source_actions(&database).await.unwrap();
+    let today = NaiveDate::from_ymd_opt(2026, 7, 19).unwrap();
+
+    assert_eq!(
+        authorize_user_source_action(
+            &database,
+            SourceOperation::SmartPaste,
+            today,
+            grant(SourceOperation::SmartPaste, SourcePermission::UserReview),
+        )
+        .await
+        .unwrap(),
+        SourceActionDecision::Allowed {
+            request_limit_per_hour: 0,
+            connectivity_required: false,
+        }
+    );
+    assert_eq!(
+        authorize_user_source_action(
+            &database,
+            SourceOperation::AppliedLogging,
+            today,
+            grant(
+                SourceOperation::AppliedLogging,
+                SourcePermission::PairedBrowserGrant,
+            ),
+        )
+        .await
+        .unwrap(),
+        SourceActionDecision::Allowed {
+            request_limit_per_hour: 0,
+            connectivity_required: false,
+        }
+    );
+    assert_eq!(
+        authorize_user_source_action(
+            &database,
+            SourceOperation::AppliedLogging,
+            today,
+            grant(
+                SourceOperation::VisiblePageCapture,
+                SourcePermission::PairedBrowserGrant,
+            ),
+        )
+        .await
+        .unwrap(),
+        SourceActionDecision::Revoked
     );
 }
 

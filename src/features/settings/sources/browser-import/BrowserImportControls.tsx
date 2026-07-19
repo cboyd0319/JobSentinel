@@ -4,10 +4,11 @@ export const MIN_BROWSER_IMPORT_PORT = 1024;
 export const MAX_BROWSER_IMPORT_PORT = 65535;
 
 interface BrowserImportControlsProps {
-  copied: boolean;
+  copiedAction: "import" | "applied" | null;
   enabled: boolean;
   loading: boolean;
   onCopy: () => void;
+  onCopyApplied: () => void;
   onPortInputChange: (value: string) => void;
   onSavePort: () => void;
   onTargetUrlChange: (value: string) => void;
@@ -21,10 +22,11 @@ interface BrowserImportControlsProps {
 }
 
 export function BrowserImportControls({
-  copied,
+  copiedAction,
   enabled,
   loading,
   onCopy,
+  onCopyApplied,
   onPortInputChange,
   onSavePort,
   onTargetUrlChange,
@@ -146,25 +148,45 @@ export function BrowserImportControls({
                 confirms the site in a native dialog before copying.
               </p>
             )}
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs text-gray-400">Browser button</span>
-              <Button
-                onClick={onCopy}
-                size="sm"
-                variant="ghost"
-                disabled={
-                  !enabled ||
-                  loading ||
-                  !targetUrl.trim() ||
-                  Boolean(targetUrlError)
-                }
-              >
-                {copied ? "Copied!" : "Copy Browser Button"}
-              </Button>
+            <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+              <span className="text-xs text-gray-400">Browser action</span>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  onClick={onCopyApplied}
+                  size="sm"
+                  variant="secondary"
+                  disabled={
+                    !enabled ||
+                    loading ||
+                    !targetUrl.trim() ||
+                    Boolean(targetUrlError)
+                  }
+                >
+                  {copiedAction === "applied"
+                    ? "Copied!"
+                    : "Copy I Just Applied Button"}
+                </Button>
+                <Button
+                  onClick={onCopy}
+                  size="sm"
+                  variant="ghost"
+                  disabled={
+                    !enabled ||
+                    loading ||
+                    !targetUrl.trim() ||
+                    Boolean(targetUrlError)
+                  }
+                >
+                  {copiedAction === "import"
+                    ? "Copied!"
+                    : "Copy Browser Button"}
+                </Button>
+              </div>
             </div>
             <p className="text-xs text-gray-500">
               Each button works once for the confirmed site and expires after
-              about ten minutes. Copy a fresh one for every import.
+              about ten minutes. The applied button creates a local review draft
+              and marks details it could not read.
             </p>
           </div>
 

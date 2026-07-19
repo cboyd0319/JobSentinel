@@ -2,7 +2,9 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-function generatedBrowserButtonCode(): string {
+function generatedBrowserButtonCode(
+  action: "import" | "applied" = "import",
+): string {
   const source = readFileSync(
     resolve(process.cwd(), "src-tauri/src/ipc/bookmarklet.rs"),
     "utf8",
@@ -19,6 +21,20 @@ function generatedBrowserButtonCode(): string {
     .replaceAll("__PORT__", "4321")
     .replaceAll("__ORIGIN__", JSON.stringify("https://jobs.example"))
     .replaceAll(
+      "__DESCRIPTION_CAPTURE__",
+      action === "applied"
+        ? "var desc=null;"
+        : `var desc=first('[class*="description"],[class*="desc"]');`,
+    )
+    .replaceAll(
+      "__SUCCESS_MESSAGE__",
+      JSON.stringify(
+        action === "applied"
+          ? "Applied draft sent. Return to JobSentinel to review missing details."
+          : "Request sent. Return to JobSentinel and check the review list. Copy a fresh button before retrying or importing another job.",
+      ),
+    )
+    .replaceAll(
       "__PAIRING__",
       JSON.stringify({
         protocol_version: 1,
@@ -27,7 +43,8 @@ function generatedBrowserButtonCode(): string {
         source_id: "user-source-actions",
         policy_ref: "jobsentinel.source-policy.user-source-actions",
         policy_revision: 1,
-        operation: "visible_page_capture",
+        operation:
+          action === "applied" ? "applied_logging" : "visible_page_capture",
         origin: "https://jobs.example",
         nonce: "nonce-1",
         token: "test-token",
@@ -41,27 +58,34 @@ describe("generated Browser Import button", () => {
     document.body.innerHTML = "";
   });
 
-  it("blocks LinkedIn before reading or transporting page data", () => {
+  it("blocks restricted domains for both actions before page access", () => {
     const alertSpy = vi.spyOn(window, "alert").mockImplementation(() => {});
     const createElementSpy = vi.spyOn(document, "createElement");
     const querySelectorAllSpy = vi.spyOn(document, "querySelectorAll");
     const fetchSpy = vi.spyOn(window, "fetch");
-    const code = generatedBrowserButtonCode().replace(/^javascript:/, "");
-    const run = new Function("location", code);
+    for (const action of ["import", "applied"] as const) {
+      const code = generatedBrowserButtonCode(action).replace(
+        /^javascript:/,
+        "",
+      );
+      const run = new Function("location", code);
 
-    for (const hostname of [
-      "linkedin.com",
-      "www.linkedin.com",
-      "jobs.linkedin.com",
-    ]) {
-      run({
-        hostname,
-        href: `https://${hostname}/jobs/`,
-        pathname: "/jobs",
-      });
+      for (const hostname of [
+        "linkedin.com",
+        "www.linkedin.com",
+        "jobs.linkedin.com",
+        "ycombinator.com",
+        "www.ycombinator.com",
+      ]) {
+        run({
+          hostname,
+          href: `https://${hostname}/jobs/`,
+          pathname: "/jobs",
+        });
+      }
     }
 
-    expect(alertSpy).toHaveBeenCalledTimes(3);
+    expect(alertSpy).toHaveBeenCalledTimes(10);
     expect(alertSpy).toHaveBeenLastCalledWith(
       "Browser Import is unavailable for this source",
     );
@@ -186,9 +210,7 @@ describe("generated Browser Import button", () => {
     run(locationStub, documentStub, { location: locationStub }, alertSpy);
     await Promise.resolve();
 
-    const payload = JSON.parse(
-      fetchSpy.mock.calls[0]?.[1]?.body as string,
-    ) as {
+    const payload = JSON.parse(fetchSpy.mock.calls[0]?.[1]?.body as string) as {
       job: { title: string; company: string; description: string };
     };
     expect(payload.job).toEqual({

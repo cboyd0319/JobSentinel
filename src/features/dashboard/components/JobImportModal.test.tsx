@@ -72,6 +72,18 @@ describe("JobImportModal", () => {
     ).not.toBeInTheDocument();
   });
 
+  it("opens Smart Paste from the existing import entry point", async () => {
+    const user = userEvent.setup();
+    renderModal();
+
+    await user.click(
+      screen.getByRole("button", { name: "Paste Job Details" }),
+    );
+
+    expect(screen.getByLabelText("Pasted job details")).toBeInTheDocument();
+    expect(screen.queryByLabelText("Job link")).not.toBeInTheDocument();
+  });
+
   it("guides users when the job link is missing", async () => {
     const user = userEvent.setup();
     renderModal();

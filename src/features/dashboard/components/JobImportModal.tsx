@@ -27,6 +27,7 @@ import {
   type JobImportPreview,
   type JobImportResult,
 } from "./jobImportModel";
+import { SmartPasteFlow } from "./SmartPasteFlow";
 
 interface JobImportModalProps {
   isOpen: boolean;
@@ -46,6 +47,7 @@ export function JobImportModal({
   const [error, setError] = useState<string | null>(null);
   const [restrictedSourceAcknowledged, setRestrictedSourceAcknowledged] =
     useState(false);
+  const [smartPaste, setSmartPaste] = useState(false);
 
   const toast = useToast();
   const policyBlockedAutomation = isPolicyBlockedAutomationUrl(url.trim());
@@ -61,6 +63,7 @@ export function JobImportModal({
       setLoading(false);
       setImporting(false);
       setRestrictedSourceAcknowledged(false);
+      setSmartPaste(false);
     }
   }, [isOpen]);
 
@@ -192,11 +195,19 @@ export function JobImportModal({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Import Job from Link"
+      title={smartPaste ? "Smart Paste Job" : "Import Job from Link"}
       size="lg"
       aria-labelledby="import-job-title"
       aria-describedby="import-job-description"
     >
+      {smartPaste ? (
+        <SmartPasteFlow
+          onClose={onClose}
+          onUseLink={() => setSmartPaste(false)}
+          onImportSuccess={onImportSuccess}
+        />
+      ) : (
+        <>
       <div className="space-y-4">
         {/* Description */}
         <p
@@ -207,6 +218,10 @@ export function JobImportModal({
           career site. JobSentinel will check for job details you can review
           before saving.
         </p>
+
+        <Button onClick={() => setSmartPaste(true)} variant="secondary">
+          Paste Job Details
+        </Button>
 
         {/* URL Input */}
         <div>
@@ -428,6 +443,8 @@ export function JobImportModal({
           </Button>
         )}
       </ModalFooter>
+        </>
+      )}
     </Modal>
   );
 }

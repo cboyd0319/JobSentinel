@@ -309,19 +309,19 @@ async fn test_bookmarklet_import_rejects_batch_origin_mismatch() {
 #[tokio::test]
 async fn test_bookmarklet_import_rejects_invalid_batch_without_partial_insert() {
     let database = bookmarklet_test_database().await;
-    let (active_pairing, code) = bookmarklet_pairing("https://www.linkedin.com");
+    let (active_pairing, code) = bookmarklet_pairing("https://example.com");
     let body = bookmarklet_import_batch_body(
         &code,
         serde_json::json!([
             {
                 "title": "Principal Systems Security Engineer",
                 "company": "Sierra Nevada Corporation",
-                "url": "https://www.linkedin.com/jobs/view/100"
+                "url": "https://example.com/jobs/100"
             },
             {
                 "title": "Missing Company",
                 "company": "",
-                "url": "https://www.linkedin.com/jobs/view/200"
+                "url": "https://example.com/jobs/200"
             }
         ]),
     );
@@ -329,8 +329,8 @@ async fn test_bookmarklet_import_rejects_invalid_batch_without_partial_insert() 
     let (response, content_type) = handle_import_request(
         &bookmarklet_import_request_from_origin(
             &body,
-            "https://www.linkedin.com",
-            "https://www.linkedin.com/jobs/",
+            "https://example.com",
+            "https://example.com/jobs/",
         ),
         &active_pairing,
         bookmarklet_pending_imports(),

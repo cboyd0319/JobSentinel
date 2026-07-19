@@ -6,6 +6,7 @@ mod fetcher;
 mod pending;
 pub mod privacy_doctor;
 mod service;
+mod smart_paste;
 #[cfg(test)]
 mod test_support;
 mod types;
@@ -34,8 +35,8 @@ mod v3_source_governance_tests;
 mod v3_source_governance_user_actions_tests;
 
 pub use bookmarklet::{
-    bookmarklet_repository, confirm_bookmarklet_imports, issue_browser_import_pairing,
-    prepare_browser_import_target,
+    bookmarklet_repository, confirm_bookmarklet_imports, issue_browser_applied_pairing,
+    issue_browser_import_pairing, prepare_browser_import_target,
 };
 pub use config::Config;
 pub use external_ai::{
@@ -49,5 +50,9 @@ pub use pending::PendingUrlImports;
 pub use service::{
     confirm_job_import, employer_discovery_review_grant, prepare_job_import_target,
     preview_job_import,
+};
+pub use smart_paste::{
+    confirm_smart_paste, preview_smart_paste, preview_smart_paste_draft, smart_paste_review_grant,
+    SmartPasteEdits,
 };
 pub use types::{ImportError, ImportedJobSummary, JobImportPreview};

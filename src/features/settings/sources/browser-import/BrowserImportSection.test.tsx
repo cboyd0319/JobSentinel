@@ -81,7 +81,9 @@ describe("BrowserImportSection", () => {
     expect(
       screen.getByText(/copy a fresh browser button/i),
     ).toBeInTheDocument();
-    expect(screen.getByText(/expires after about ten minutes/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/expires after about ten minutes/i),
+    ).toBeInTheDocument();
     expect(screen.queryByText(/closed and reopened/i)).not.toBeInTheDocument();
     expect(
       screen.queryByText(/when JobSentinel restarts/i),
@@ -154,7 +156,9 @@ describe("BrowserImportSection", () => {
     expect(
       screen.queryByText(/where the bookmark stores the page address/i),
     ).not.toBeInTheDocument();
-    expect(screen.getByText(/open an individual job page/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/open an individual job page/i),
+    ).toBeInTheDocument();
     expect(screen.getByText(/company application pages/i)).toBeInTheDocument();
     expect(
       screen.getByText(/do not let JobSentinel read saved pages/i),
@@ -164,7 +168,9 @@ describe("BrowserImportSection", () => {
       "type",
       "url",
     );
-    expect(screen.queryByText(/Restricted Site Warning/i)).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/Restricted Site Warning/i),
+    ).not.toBeInTheDocument();
     expect(screen.queryByRole("checkbox")).not.toBeInTheDocument();
   });
 
@@ -399,6 +405,8 @@ describe("BrowserImportSection", () => {
             location: "Centennial, CO",
             description_preview: "Visible job details selected by the user",
             remote: false,
+            operation: "visible_page_capture",
+            missing_fields: [],
             received_at: "2026-06-19T12:00:00Z",
           },
         ]);
@@ -450,4 +458,5 @@ describe("BrowserImportSection", () => {
       window.localStorage.getItem(BROWSER_ASSIST_LEARNING_STORAGE_KEY),
     ).not.toContain("careers.example.com/jobs/100");
   });
+
 });

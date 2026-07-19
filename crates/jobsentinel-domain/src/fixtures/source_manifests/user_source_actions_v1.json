@@ -16,6 +16,14 @@
     {
       "operation": "visible_page_capture",
       "permission": "paired_browser_grant"
+    },
+    {
+      "operation": "smart_paste",
+      "permission": "user_review"
+    },
+    {
+      "operation": "applied_logging",
+      "permission": "paired_browser_grant"
     }
   ],
   "terms_review": {
@@ -65,6 +73,22 @@
       "source_id": "user-source-actions",
       "relation": "lineage",
       "related_id": "source-operation-visible-page-capture",
+      "provenance": "migration",
+      "provenance_ref": null
+    },
+    {
+      "link_id": "source-lineage-user-source-actions-smart-paste",
+      "source_id": "user-source-actions",
+      "relation": "lineage",
+      "related_id": "source-operation-smart-paste",
+      "provenance": "migration",
+      "provenance_ref": null
+    },
+    {
+      "link_id": "source-lineage-user-source-actions-applied-logging",
+      "source_id": "user-source-actions",
+      "relation": "lineage",
+      "related_id": "source-operation-applied-logging",
       "provenance": "migration",
       "provenance_ref": null
     }

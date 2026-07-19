@@ -34,7 +34,9 @@ export function BrowserImportSection() {
   const [hasLoaded, setHasLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [connectionNotice, setConnectionNotice] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
+  const [copiedAction, setCopiedAction] = useState<"import" | "applied" | null>(
+    null,
+  );
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [targetUrl, setTargetUrl] = useState("");
   const [pendingImports, setPendingImports] = useState<
@@ -177,28 +179,29 @@ export function BrowserImportSection() {
     }
   };
 
-  const copyBookmarklet = async () => {
+  const copyBookmarklet = async (applied = false) => {
     if (!targetUrl.trim() || targetUrlError) {
       setError("Enter a public https job page address before copying.");
       return;
     }
 
     try {
-      const approved = await invoke<boolean>("copy_bookmarklet_code", {
-        targetUrl: targetUrl.trim(),
-      });
+      const approved = await invoke<boolean>(
+        applied ? "copy_applied_bookmarklet_code" : "copy_bookmarklet_code",
+        { targetUrl: targetUrl.trim() },
+      );
       if (!approved) {
-        setCopied(false);
+        setCopiedAction(null);
         setError(null);
         return;
       }
-      setCopied(true);
+      setCopiedAction(applied ? "applied" : "import");
       setError(null);
       setConnectionNotice(null);
-      setTimeout(() => setCopied(false), 2000);
+      setTimeout(() => setCopiedAction(null), 2000);
     } catch (err) {
       logError("Could not copy browser import button:", err);
-      setCopied(false);
+      setCopiedAction(null);
       setError(
         "Could not copy Browser Button. Allow clipboard access, then click Copy Browser Button again. If this keeps happening, copy or save a safe support report from Settings.",
       );
@@ -225,7 +228,8 @@ export function BrowserImportSection() {
         for (const item of selectedImports) {
           recordBrowserAssistLearningSignalIfEnabled({
             source: "browser-import",
-            action: "import_saved",
+            action:
+              item.operation === "applied_logging" ? "applied" : "import_saved",
             title: item.title,
             company: item.company,
             recordedAt: new Date().toISOString(),
@@ -236,7 +240,12 @@ export function BrowserImportSection() {
         current.filter((item) => !ids.includes(item.id)),
       );
       const savedLabel =
-        result.imported === 1 ? "browser import" : "browser imports";
+        selectedImports.length === 1 &&
+        selectedImports[0]?.operation === "applied_logging"
+          ? "applied draft"
+          : result.imported === 1
+            ? "browser import"
+            : "browser imports";
       const skippedCopy =
         result.skipped > 0 ? ` ${result.skipped} already existed.` : "";
       setPendingMessage(
@@ -356,10 +365,11 @@ export function BrowserImportSection() {
         />
 
         <BrowserImportControls
-          copied={copied}
+          copiedAction={copiedAction}
           enabled={config.enabled}
           loading={loading}
-          onCopy={copyBookmarklet}
+          onCopy={() => void copyBookmarklet()}
+          onCopyApplied={() => void copyBookmarklet(true)}
           onPortInputChange={setPortInput}
           onSavePort={updatePort}
           onTargetUrlChange={setTargetUrl}

@@ -109,8 +109,8 @@ pub async fn record_event(
         .unwrap_or_else(|| DEFAULT_TITLE.to_string());
     let company = trim_to_limit(input.company.as_deref(), MAX_COMPANY_CHARS)
         .unwrap_or_else(|| DEFAULT_COMPANY.to_string());
-    ensure_credential_free_workbench_text(&title)?;
-    ensure_credential_free_workbench_text(&company)?;
+    ensure_credential_free_source_text(&title)?;
+    ensure_credential_free_source_text(&company)?;
     let notes = sanitize_workbench_notes(input.notes.as_deref())?;
     let user_url = input
         .url
@@ -387,7 +387,7 @@ fn sanitize_workbench_notes(value: Option<&str>) -> Result<Option<String>> {
             canonicalize_job_url(raw_url).unwrap_or_else(|_| sanitize_url_for_logging(raw_url))
         })
         .to_string();
-    ensure_credential_free_workbench_text(&without_sensitive_urls)?;
+    ensure_credential_free_source_text(&without_sensitive_urls)?;
 
     Ok(Some(
         without_sensitive_urls
@@ -397,7 +397,7 @@ fn sanitize_workbench_notes(value: Option<&str>) -> Result<Option<String>> {
     ))
 }
 
-fn ensure_credential_free_workbench_text(value: &str) -> Result<()> {
+pub(crate) fn ensure_credential_free_source_text(value: &str) -> Result<()> {
     let without_safe_markers = value.replace("[REDACTED]", "").replace("[removed]", "");
     let bearer_credential = |value: &str| {
         let value = value.trim_matches(['"', '\'', ',', ';', '(', ')']);

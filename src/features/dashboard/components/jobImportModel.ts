@@ -116,6 +116,12 @@ function getSafeImportSpecificMessage(error: unknown): string | null {
     /^The job link redirects to another page\. Paste the final public job posting link from your browser address bar\.$/,
     /^This job is already in your saved jobs\.?$/,
     /^This job preview expired\. Check the job link again before saving\.$/,
+    /^This Smart Paste draft expired\. Create it again before saving\.$/,
+    /^Create and review the Smart Paste draft before saving\.$/,
+    /^Smart Paste is paused because the reviewed source policy changed\. Restart JobSentinel and try again\.$/,
+    /^Paste no more than 50,000 characters of job details at a time\.$/,
+    /^Shorten the pasted [A-Za-z ]+ before reviewing this draft\.$/,
+    /^Remove passwords, tokens, cookies, and authorization details before creating this draft\.$/,
     /^JobSentinel cannot fetch this pasted link\. Open it in your browser and use visible Browser Import or manual entry\.$/,
   ];
 

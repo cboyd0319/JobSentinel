@@ -160,7 +160,86 @@ fn visible_page_capture_requires_the_exact_pairing_grant() {
 }
 
 #[test]
-fn employer_discovery_fixture_is_exact_and_drift_blocks() {
+fn smart_paste_requires_the_exact_review_grant_without_connectivity() {
+    let policy = policy();
+    let manifest = parse_source_manifest(USER_SOURCE_ACTIONS_MANIFEST_V1, &policy).unwrap();
+    let today = NaiveDate::from_ymd_opt(2026, 7, 19).unwrap();
+
+    assert_eq!(
+        manifest
+            .authorize(
+                &policy,
+                SourceOperation::SmartPaste,
+                today,
+                SourceGrantState::Missing,
+            )
+            .unwrap(),
+        SourceActionDecision::ReviewRequired
+    );
+    assert_eq!(
+        manifest
+            .authorize(
+                &policy,
+                SourceOperation::SmartPaste,
+                today,
+                grant(SourceOperation::SmartPaste, SourcePermission::UserReview),
+            )
+            .unwrap(),
+        SourceActionDecision::Allowed {
+            request_limit_per_hour: 0,
+            connectivity_required: false,
+        }
+    );
+}
+
+#[test]
+fn browser_applied_logging_requires_the_exact_pairing_grant() {
+    let policy = policy();
+    let manifest = parse_source_manifest(USER_SOURCE_ACTIONS_MANIFEST_V1, &policy).unwrap();
+    let today = NaiveDate::from_ymd_opt(2026, 7, 19).unwrap();
+
+    for grant in [
+        SourceGrantState::Missing,
+        grant(
+            SourceOperation::AppliedLogging,
+            SourcePermission::UserReview,
+        ),
+        grant(
+            SourceOperation::VisiblePageCapture,
+            SourcePermission::PairedBrowserGrant,
+        ),
+    ] {
+        assert_ne!(
+            manifest
+                .authorize(&policy, SourceOperation::AppliedLogging, today, grant)
+                .unwrap(),
+            SourceActionDecision::Allowed {
+                request_limit_per_hour: 0,
+                connectivity_required: false,
+            }
+        );
+    }
+    assert_eq!(
+        manifest
+            .authorize(
+                &policy,
+                SourceOperation::AppliedLogging,
+                today,
+                grant(
+                    SourceOperation::AppliedLogging,
+                    SourcePermission::PairedBrowserGrant,
+                ),
+            )
+            .unwrap(),
+        SourceActionDecision::Allowed {
+            request_limit_per_hour: 0,
+            connectivity_required: false,
+        }
+    );
+}
+
+#[test]
+fn user_source_action_fixture_hash_gates_every_declared_operation() {
     let policy = policy();
     let manifest = parse_source_manifest(USER_SOURCE_ACTIONS_MANIFEST_V1, &policy).unwrap();
     let today = NaiveDate::from_ymd_opt(2026, 7, 19).unwrap();
@@ -168,19 +247,35 @@ fn employer_discovery_fixture_is_exact_and_drift_blocks() {
         "crates/jobsentinel-domain/src/fixtures/source_simulator/user_source_actions_v1.json";
     let fixture = include_bytes!("fixtures/source_simulator/user_source_actions_v1.json");
 
-    assert_eq!(
-        manifest
-            .simulate(
-                &policy,
-                SourceOperation::EmployerDiscovery,
-                today,
-                SourceGrantState::Missing,
-                &[(path, fixture)],
-            )
-            .unwrap()
-            .decision,
-        SourceActionDecision::ReviewRequired
-    );
+    for (operation, permission) in [
+        (
+            SourceOperation::EmployerDiscovery,
+            SourcePermission::UserReview,
+        ),
+        (
+            SourceOperation::VisiblePageCapture,
+            SourcePermission::PairedBrowserGrant,
+        ),
+        (SourceOperation::SmartPaste, SourcePermission::UserReview),
+        (
+            SourceOperation::AppliedLogging,
+            SourcePermission::PairedBrowserGrant,
+        ),
+    ] {
+        assert!(matches!(
+            manifest
+                .simulate(
+                    &policy,
+                    operation,
+                    today,
+                    grant(operation, permission),
+                    &[(path, fixture)],
+                )
+                .unwrap()
+                .decision,
+            SourceActionDecision::Allowed { .. }
+        ));
+    }
     assert!(matches!(
         manifest
             .simulate(

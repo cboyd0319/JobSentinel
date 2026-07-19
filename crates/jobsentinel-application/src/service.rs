@@ -56,11 +56,28 @@ pub async fn confirm_job_import(
     pending: &PendingUrlImports,
     import_id: &str,
 ) -> ImportResult<ImportedJobSummary> {
+    confirm_pending_job(
+        database,
+        pending,
+        import_id,
+        SourceOperation::EmployerDiscovery,
+        true,
+    )
+    .await
+}
+
+pub(super) async fn confirm_pending_job(
+    database: &Database,
+    pending: &PendingUrlImports,
+    import_id: &str,
+    operation: SourceOperation,
+    connectivity_required: bool,
+) -> ImportResult<ImportedJobSummary> {
     let now = Utc::now();
     let (job, grant) = pending
         .find(import_id, now)
         .ok_or(ImportError::PendingImportNotFound)?;
-    require_employer_discovery_authorization(database, grant).await?;
+    require_user_source_authorization(database, operation, connectivity_required, grant).await?;
 
     match database
         .insert_job_if_new(&job)
@@ -88,18 +105,21 @@ async fn require_employer_discovery_authorization(
     database: &Database,
     grant: SourceGrantState,
 ) -> ImportResult<()> {
-    match authorize_user_source_action(
-        database,
-        SourceOperation::EmployerDiscovery,
-        Utc::now().date_naive(),
-        grant,
-    )
-    .await
-    {
+    require_user_source_authorization(database, SourceOperation::EmployerDiscovery, true, grant)
+        .await
+}
+
+pub(super) async fn require_user_source_authorization(
+    database: &Database,
+    operation: SourceOperation,
+    connectivity_required: bool,
+    grant: SourceGrantState,
+) -> ImportResult<()> {
+    match authorize_user_source_action(database, operation, Utc::now().date_naive(), grant).await {
         Ok(SourceActionDecision::Allowed {
-            connectivity_required: true,
+            connectivity_required: actual,
             ..
-        }) => Ok(()),
+        }) if actual == connectivity_required => Ok(()),
         Ok(SourceActionDecision::ReviewRequired) => Err(ImportError::SourceReviewRequired),
         _ => Err(ImportError::SourceAuthorizationUnavailable),
     }

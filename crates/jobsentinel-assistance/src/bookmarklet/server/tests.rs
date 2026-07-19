@@ -8,6 +8,8 @@ use tokio::io::AsyncWriteExt;
 mod repository;
 use repository::*;
 
+mod applied_logging_tests;
+
 #[test]
 fn job_hash_is_stable() {
     let hash1 = calculate_job_hash(
@@ -254,6 +256,25 @@ fn bookmarklet_pairing(origin: &str) -> (ActiveCompanionPairing, CompanionPairin
     bookmarklet_pairing_at(origin, Utc::now())
 }
 
+fn bookmarklet_pairing_for_operation(
+    origin: &str,
+    operation: SourceOperation,
+) -> (ActiveCompanionPairing, CompanionPairingCode) {
+    let (pairing, code) = CompanionPairing::issue(
+        "browser-import",
+        "user-source-actions",
+        "jobsentinel.source-policy.user-source-actions",
+        1,
+        origin,
+        vec![operation],
+        Utc::now(),
+    )
+    .unwrap();
+    let active = new_active_pairing();
+    replace_active_pairing(&active, pairing);
+    (active, code)
+}
+
 fn bookmarklet_pairing_at(
     origin: &str,
     now: chrono::DateTime<Utc>,
@@ -281,7 +302,7 @@ fn bookmarklet_pairing_request(code: &CompanionPairingCode) -> CompanionRequest 
         source_id: code.source_id.clone(),
         policy_ref: code.policy_ref.clone(),
         policy_revision: code.policy_revision,
-        operation: SourceOperation::VisiblePageCapture,
+        operation: code.operations[0],
         origin: code.origin.clone(),
         nonce: "test-nonce".to_string(),
         token: code.token.clone(),

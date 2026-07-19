@@ -13,6 +13,7 @@ use jobsentinel_domain::{
     Job,
 };
 use jobsentinel_security::validate_external_https_url;
+use jobsentinel_storage::application_tracking::ApplicationStatus;
 use jobsentinel_storage::Database;
 
 struct StorageBookmarkletRepository {
@@ -48,13 +49,28 @@ pub fn issue_browser_import_pairing(
     origin: &str,
     now: chrono::DateTime<chrono::Utc>,
 ) -> Result<(CompanionPairing, CompanionPairingCode), String> {
+    issue_browser_pairing(origin, SourceOperation::VisiblePageCapture, now)
+}
+
+pub fn issue_browser_applied_pairing(
+    origin: &str,
+    now: chrono::DateTime<chrono::Utc>,
+) -> Result<(CompanionPairing, CompanionPairingCode), String> {
+    issue_browser_pairing(origin, SourceOperation::AppliedLogging, now)
+}
+
+fn issue_browser_pairing(
+    origin: &str,
+    operation: SourceOperation,
+    now: chrono::DateTime<chrono::Utc>,
+) -> Result<(CompanionPairing, CompanionPairingCode), String> {
     CompanionPairing::issue(
         "browser-import",
         "user-source-actions",
         "jobsentinel.source-policy.user-source-actions",
         1,
         origin,
-        vec![SourceOperation::VisiblePageCapture],
+        vec![operation],
         now,
     )
     .map_err(|_| "Browser Import could not create a safe page pairing.".to_string())
@@ -62,14 +78,14 @@ pub fn issue_browser_import_pairing(
 
 #[async_trait]
 impl BookmarkletRepository for StorageBookmarkletRepository {
-    async fn authorize_visible_page_capture(
-        &self,
-        grant: &SourceGrantState,
-    ) -> Result<bool, String> {
+    async fn authorize_browser_action(&self, grant: &SourceGrantState) -> Result<bool, String> {
+        let SourceGrantState::Granted { operation, .. } = grant else {
+            return Ok(false);
+        };
         Ok(matches!(
             crate::v3_source_governance::authorize_user_source_action(
                 &self.database,
-                SourceOperation::VisiblePageCapture,
+                *operation,
                 chrono::Utc::now().date_naive(),
                 grant.clone(),
             )
@@ -90,8 +106,36 @@ impl BookmarkletRepository for StorageBookmarkletRepository {
     }
 
     async fn upsert_job(&self, job: &Job) -> Result<i64, String> {
+        for value in [
+            job.title.as_str(),
+            job.company.as_str(),
+            job.description.as_deref().unwrap_or_default(),
+        ] {
+            crate::linkedin_workbench::ensure_credential_free_source_text(value).map_err(|_| {
+                "Browser Import cannot save credential or session text.".to_string()
+            })?;
+        }
         self.database
             .upsert_job(job)
+            .await
+            .map_err(|error| error.to_string())
+    }
+
+    async fn mark_job_applied(&self, hash: &str) -> Result<(), String> {
+        let tracker = self.database.application_tracker();
+        let application_id = match tracker
+            .find_application_id_by_job_hash(hash)
+            .await
+            .map_err(|error| error.to_string())?
+        {
+            Some(application_id) => application_id,
+            None => tracker
+                .create_application(hash)
+                .await
+                .map_err(|error| error.to_string())?,
+        };
+        tracker
+            .update_status(application_id, ApplicationStatus::Applied)
             .await
             .map_err(|error| error.to_string())
     }
@@ -158,6 +202,22 @@ mod tests {
         assert_eq!(code.origin, "https://jobs.example");
     }
 
+    #[test]
+    fn applied_logging_pairing_has_one_exact_operation() {
+        let now = chrono::Utc::now();
+        let (_pairing, code) = issue_browser_applied_pairing("https://jobs.example", now).unwrap();
+
+        assert_eq!(code.client_id, "browser-import");
+        assert_eq!(code.source_id, "user-source-actions");
+        assert_eq!(
+            code.policy_ref,
+            "jobsentinel.source-policy.user-source-actions"
+        );
+        assert_eq!(code.policy_revision, 1);
+        assert_eq!(code.operations, vec![SourceOperation::AppliedLogging]);
+        assert_eq!(code.origin, "https://jobs.example");
+    }
+
     #[tokio::test]
     async fn storage_adapter_rechecks_the_installed_visible_capture_contract() {
         let database = Arc::new(Database::connect_memory().await.unwrap());
@@ -175,13 +235,57 @@ mod tests {
             policy_revision: 1,
         };
 
-        assert!(repository
-            .authorize_visible_page_capture(&grant)
-            .await
-            .unwrap());
+        assert!(repository.authorize_browser_action(&grant).await.unwrap());
         assert!(!repository
-            .authorize_visible_page_capture(&SourceGrantState::Missing)
+            .authorize_browser_action(&SourceGrantState::Missing)
             .await
             .unwrap());
+        let applied_grant = SourceGrantState::Granted {
+            source_id: "user-source-actions".to_string(),
+            policy_ref: "jobsentinel.source-policy.user-source-actions".to_string(),
+            permission:
+                jobsentinel_domain::v3_source_manifest::SourcePermission::PairedBrowserGrant,
+            operation: SourceOperation::AppliedLogging,
+            policy_revision: 1,
+        };
+        assert!(repository
+            .authorize_browser_action(&applied_grant)
+            .await
+            .unwrap());
+    }
+
+    #[tokio::test]
+    async fn storage_adapter_rejects_credential_text_before_job_storage() {
+        let database = Arc::new(Database::connect_memory().await.unwrap());
+        database.migrate().await.unwrap();
+        let repository = StorageBookmarkletRepository {
+            database: database.clone(),
+        };
+        for (title, company, description) in [
+            (
+                "Authorization: Bearer secret-token-value-1234567890",
+                "Example",
+                None,
+            ),
+            ("Role", "sessionid=secret-session-value-1234567890", None),
+            (
+                "Role",
+                "Example",
+                Some("access_token=secret-token-value-1234567890"),
+            ),
+        ] {
+            let mut job = Job::newly_discovered(
+                title,
+                company,
+                "https://jobs.example/posting/1",
+                None,
+                "user-source-actions",
+                chrono::Utc::now(),
+            );
+            job.description = description.map(str::to_string);
+
+            assert!(repository.upsert_job(&job).await.is_err());
+        }
+        assert!(database.get_recent_jobs(1).await.unwrap().is_empty());
     }
 }
