@@ -16,6 +16,7 @@ pub mod resume;
 pub mod salary;
 pub mod user_data;
 pub mod v3_foundation;
+pub mod v3_source_consent;
 
 // Internal modules
 mod analytics;

@@ -153,7 +153,7 @@ pub async fn inspect_privacy_doctor(
         backup,
         vault,
         external_ai: config.external_ai.clone(),
-        restricted_sources_safe: restricted_sources_safe(config),
+        restricted_sources_safe: restricted_sources_safe(database, config).await,
         browser_import,
     })
 }
@@ -338,9 +338,26 @@ fn browser_import_check(state: BrowserImportPrivacyState) -> PrivacyDoctorCheck 
     }
 }
 
-fn restricted_sources_safe(config: &Config) -> bool {
-    config.enabled_restricted_sources_acknowledged()
-        && (!config.jobswithgpt_approval.enabled || config.jobswithgpt_payload_approved())
+async fn restricted_sources_safe(database: &Database, config: &Config) -> bool {
+    if config.jobswithgpt_approval.enabled && !config.jobswithgpt_payload_approved() {
+        return false;
+    }
+    for (enabled, source_id) in [
+        (config.builtin.enabled, "builtin"),
+        (config.dice.enabled, "dice"),
+        (config.simplyhired.enabled, "simplyhired"),
+        (config.glassdoor.enabled, "glassdoor"),
+    ] {
+        if enabled
+            && !crate::restricted_source_consent::restricted_source_consent_remembered(
+                database, config, source_id,
+            )
+            .await
+        {
+            return false;
+        }
+    }
+    true
 }
 
 fn privacy_check(

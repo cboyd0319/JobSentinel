@@ -5,6 +5,7 @@ mod migration_tests;
 mod portable_backup_tests;
 mod portable_restore_tests;
 mod reviewed_export_tests;
+mod v3_policy_migration_tests;
 
 #[cfg(test)]
 mod memory_tests {

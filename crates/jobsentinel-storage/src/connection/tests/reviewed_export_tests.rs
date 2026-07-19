@@ -303,6 +303,8 @@ async fn reviewed_export_is_complete_and_excludes_secrets_paths_and_protected_re
         "/private/draft-file-path-marker.pdf",
         "draft-meeting-link-marker",
         "export-protected-answer-marker",
+        "v3_source_consent_events",
+        "v3_source_policy_ledger",
     ] {
         assert!(!raw.contains(forbidden), "export leaked {forbidden}");
     }

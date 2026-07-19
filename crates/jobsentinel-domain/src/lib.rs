@@ -16,6 +16,7 @@ mod v3_evaluation_tests;
 pub mod v3_evaluations;
 pub mod v3_foundation;
 pub mod v3_manifests;
+pub mod v3_source_consent;
 
 pub use application_assistance::{
     screening_question_matches, AnswerSource, AnswerStatistics, AnswerSuggestion,

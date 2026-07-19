@@ -328,13 +328,21 @@ async fn test_restricted_scheduled_source_skips_without_acknowledgement() {
 
 #[tokio::test]
 async fn test_restricted_scheduled_source_runs_after_acknowledgement() {
-    let mut config = create_test_config();
+    let previous = create_test_config();
+    let mut config = previous.clone();
     config.glassdoor.enabled = true;
     config.glassdoor.query = "care coordinator".to_string();
     config.restricted_source_acknowledgements.glassdoor = true;
-    let config = Arc::new(config);
     let db = Database::connect_memory().await.unwrap();
     db.migrate().await.unwrap();
+    crate::restricted_source_consent::reconcile_restricted_source_consents(
+        &db,
+        &previous,
+        &mut config,
+    )
+    .await
+    .unwrap();
+    let config = Arc::new(config);
     let database = Arc::new(db);
 
     let scheduler = Scheduler::new(Arc::clone(&config), Arc::clone(&database));

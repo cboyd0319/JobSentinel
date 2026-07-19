@@ -57,6 +57,18 @@ describe("Settings source health mock commands", () => {
     );
     expect(smoke).toMatchObject({ scraper_name: "greenhouse", passed: true });
 
+    const restricted = await mockInvoke<{
+      scraper_name: string;
+      details: { status: string };
+    }>("run_scraper_smoke_test", {
+      scraperName: "dice",
+      restrictedSourceAcknowledged: true,
+    });
+    expect(restricted).toMatchObject({
+      scraper_name: "dice",
+      details: { status: "skipped" },
+    });
+
     const allSmoke = await mockInvoke<
       Array<{ scraper_name: string; passed: boolean }>
     >("run_all_smoke_tests");

@@ -94,11 +94,13 @@ describe("Settings source connection saves", () => {
         name: /Turn Dice scheduled job checks on or off/i,
       }),
     );
-    await user.click(
-      screen.getByLabelText(
-        /I understand and accept this risk\. Run Dice scheduled checks from this computer/i,
-      ),
+    const acknowledgement = screen.getByLabelText(
+      /I understand and accept this risk\. Run Dice scheduled checks from this computer/i,
     );
+    expect(acknowledgement).toHaveAccessibleDescription(
+      /dice\.com receives search words "Data Analyst SQL", location "Denver".*No resume.*military or veteran information.*Changing this request pauses.*revokes future checks/i,
+    );
+    await user.click(acknowledgement);
     await user.click(screen.getByRole("button", { name: /save changes/i }));
 
     await waitFor(() => {

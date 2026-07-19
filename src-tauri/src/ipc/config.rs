@@ -121,9 +121,18 @@ async fn save_config_to_runtime_and_path(
     config: Value,
     runtime_config: &RwLock<Config>,
     config_path: &Path,
+    database: &Database,
 ) -> Result<(), String> {
-    let parsed_config: Config = serde_json::from_value(config)
+    let mut parsed_config: Config = serde_json::from_value(config)
         .map_err(|e| user_friendly_error("Invalid configuration", e))?;
+    let previous = runtime_config.read().await.clone();
+    jobsentinel_application::restricted_source_consent::reconcile_restricted_source_consents(
+        database,
+        &previous,
+        &mut parsed_config,
+    )
+    .await
+    .map_err(|error| user_friendly_error("Failed to update restricted-source review", error))?;
 
     parsed_config.save(config_path).map_err(|e| {
         let message = user_friendly_error("Failed to save configuration", &e);
@@ -149,8 +158,6 @@ async fn complete_setup_to_runtime_and_paths(
     config_path: &Path,
     db_path: &Path,
 ) -> Result<(), String> {
-    save_config_to_runtime_and_path(config, runtime_config, config_path).await?;
-
     let database = connect_setup_database(db_path).await.map_err(|e| {
         let message = user_friendly_error("Failed to initialize database", &e);
         tracing::error!(
@@ -166,6 +173,7 @@ async fn complete_setup_to_runtime_and_paths(
         tracing::error!(error = %message, "Failed to migrate setup database");
         message
     })?;
+    save_config_to_runtime_and_path(config, runtime_config, config_path, &database).await?;
 
     Ok(())
 }
@@ -183,7 +191,13 @@ pub(crate) async fn save_config(config: Value, state: State<'_, AppState>) -> Re
     tracing::info!("Command: save_config");
 
     let config_path = Config::default_path();
-    save_config_to_runtime_and_path(config, state.config.as_ref(), &config_path).await?;
+    save_config_to_runtime_and_path(
+        config,
+        state.config.as_ref(),
+        &config_path,
+        state.database.as_ref(),
+    )
+    .await?;
 
     tracing::info!("Configuration saved successfully");
     Ok(())

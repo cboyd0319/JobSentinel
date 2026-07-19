@@ -42,8 +42,8 @@ const SOURCE_CHECK_READ_ERROR: &str =
     "JobSentinel could not read this source response. Try again later.";
 const SOURCE_CHECK_DEFAULT_ERROR: &str =
     "This source check could not finish. Try again later or save a safe support report.";
-const RESTRICTED_SOURCE_CHECK_ACK_REQUIRED: &str =
-    "Review and accept the restricted-source warning before checking this source.";
+const RESTRICTED_SOURCE_CHECK_UNAVAILABLE: &str =
+    "This restricted connectivity check is unavailable. Use the reviewed scheduled source, a search link, Browser Import, or manual entry.";
 // Mirrors restricted public unauthenticated source-check helpers from the
 // shared source taxonomy. Source-specific reasons live in
 // src/shared/restrictedSourceTaxonomy.ts and docs/features/scrapers.md.
@@ -158,24 +158,8 @@ fn smoke_rate_limit(scraper_name: &str) -> u32 {
     }
 }
 
-fn restricted_source_check_requires_acknowledgement(scraper_name: &str) -> bool {
+fn is_restricted_source_check(scraper_name: &str) -> bool {
     RESTRICTED_SOURCE_CHECK_SCRAPERS.contains(&scraper_name)
-}
-
-fn saved_restricted_source_acknowledgement(config: &Config, scraper_name: &str) -> bool {
-    config
-        .restricted_source_acknowledgements
-        .contains(scraper_name)
-}
-
-fn restricted_source_check_acknowledged(
-    config: &Config,
-    scraper_name: &str,
-    one_time_acknowledged: bool,
-) -> bool {
-    !restricted_source_check_requires_acknowledgement(scraper_name)
-        || one_time_acknowledged
-        || saved_restricted_source_acknowledgement(config, scraper_name)
 }
 
 /// Run a connectivity smoke test for a specific scraper
@@ -195,27 +179,8 @@ pub async fn run_smoke_test_with_credentials(
     scraper_name: &str,
     credentials: &CredentialService,
 ) -> Result<SmokeTestResult> {
-    run_smoke_test_with_credentials_and_acknowledgement(
-        db,
-        config,
-        scraper_name,
-        credentials,
-        false,
-    )
-    .await
-}
-
-/// Run a connectivity smoke test with an explicit credential provider and
-/// one-time restricted-source acknowledgement from the user action that started it.
-pub async fn run_smoke_test_with_credentials_and_acknowledgement(
-    db: &Database,
-    config: &Config,
-    scraper_name: &str,
-    credentials: &CredentialService,
-    restricted_source_acknowledged: bool,
-) -> Result<SmokeTestResult> {
     let start = Instant::now();
-    if !restricted_source_check_acknowledged(config, scraper_name, restricted_source_acknowledged) {
+    if is_restricted_source_check(scraper_name) {
         let smoke_result = SmokeTestResult {
             scraper_name: scraper_name.to_string(),
             test_type: SmokeTestType::Connectivity,
@@ -223,7 +188,7 @@ pub async fn run_smoke_test_with_credentials_and_acknowledgement(
             duration_ms: start.elapsed().as_millis() as i64,
             details: Some(serde_json::json!({
                 "status": "skipped",
-                "reason": RESTRICTED_SOURCE_CHECK_ACK_REQUIRED,
+                "reason": RESTRICTED_SOURCE_CHECK_UNAVAILABLE,
             })),
             error: None,
         };
@@ -296,28 +261,10 @@ pub async fn run_all_smoke_tests_with_credentials(
     config: &Config,
     credentials: &CredentialService,
 ) -> Result<Vec<SmokeTestResult>> {
-    run_all_smoke_tests_with_credentials_and_acknowledgement(db, config, credentials, false).await
-}
-
-/// Run all smoke tests, using a one-time restricted-source acknowledgement for
-/// this user-triggered source check batch.
-pub async fn run_all_smoke_tests_with_credentials_and_acknowledgement(
-    db: &Database,
-    config: &Config,
-    credentials: &CredentialService,
-    restricted_source_acknowledged: bool,
-) -> Result<Vec<SmokeTestResult>> {
     let mut results = Vec::new();
 
     for scraper in SMOKE_TEST_SCRAPERS {
-        let result = run_smoke_test_with_credentials_and_acknowledgement(
-            db,
-            config,
-            scraper,
-            credentials,
-            restricted_source_acknowledged,
-        )
-        .await?;
+        let result = run_smoke_test_with_credentials(db, config, scraper, credentials).await?;
         results.push(result);
     }
 

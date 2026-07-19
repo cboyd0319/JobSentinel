@@ -8,13 +8,13 @@ use crate::application::health::{
     get_all_scraper_health, get_health_summary as health_summary,
     get_latest_source_request as latest_source_request, get_scraper_configs as scraper_configs,
     get_scraper_runs as scraper_runs, is_known_scraper_name,
-    run_all_smoke_tests_with_credentials_and_acknowledgement as all_smoke_tests,
-    run_smoke_test_with_credentials_and_acknowledgement as run_smoke_test,
-    set_scraper_enabled as scraper_enabled, HealthSummary, ScraperConfig, ScraperHealthMetrics,
-    ScraperRun, SmokeTestResult, SourceRequestSummary,
+    run_all_smoke_tests_with_credentials as all_smoke_tests,
+    run_smoke_test_with_credentials as run_smoke_test, set_scraper_enabled as scraper_enabled,
+    HealthSummary, ScraperConfig, ScraperHealthMetrics, ScraperRun, SmokeTestResult,
+    SourceRequestSummary,
 };
 use crate::bootstrap::AppState;
-use crate::desktop::path_label_for_logging;
+use crate::desktop::{path_label_for_logging, Database};
 use crate::ipc::errors::user_friendly_error;
 use crate::ipc::limits::validate_optional_command_limit_i32;
 use std::path::Path;
@@ -130,15 +130,33 @@ async fn set_config_backed_scraper_enabled_in_runtime_and_path(
     enabled: bool,
     runtime_config: &RwLock<Config>,
     config_path: &Path,
+    database: &Database,
 ) -> Result<bool, String> {
-    let mut next_config = {
+    let previous = {
         let config = runtime_config.read().await;
         config.clone()
     };
+    let mut next_config = previous.clone();
 
     if !apply_config_backed_scraper_toggle(&mut next_config, scraper_name, enabled) {
         return Ok(false);
     }
+    if !enabled {
+        match scraper_name {
+            "builtin" => next_config.restricted_source_acknowledgements.builtin = false,
+            "dice" => next_config.restricted_source_acknowledgements.dice = false,
+            "simplyhired" => next_config.restricted_source_acknowledgements.simplyhired = false,
+            "glassdoor" => next_config.restricted_source_acknowledgements.glassdoor = false,
+            _ => {}
+        }
+    }
+    jobsentinel_application::restricted_source_consent::reconcile_restricted_source_consents(
+        database,
+        &previous,
+        &mut next_config,
+    )
+    .await
+    .map_err(|error| user_friendly_error("Failed to update restricted-source review", error))?;
 
     next_config.save(config_path).map_err(|e| {
         let message = user_friendly_error("Failed to save configuration", &e);
@@ -202,6 +220,7 @@ pub(crate) async fn set_scraper_enabled(
         enabled,
         state.config.as_ref(),
         &config_path,
+        state.database.as_ref(),
     )
     .await?;
     scraper_enabled(&state.database, &scraper_name, enabled)
@@ -240,7 +259,6 @@ pub(crate) async fn get_latest_source_request(
 pub(crate) async fn run_scraper_smoke_test(
     state: State<'_, AppState>,
     scraper_name: String,
-    restricted_source_acknowledged: Option<bool>,
 ) -> Result<SmokeTestResult, String> {
     validate_scraper_name(&scraper_name)?;
     let config = state.config.read().await.clone();
@@ -249,7 +267,6 @@ pub(crate) async fn run_scraper_smoke_test(
         &config,
         &scraper_name,
         state.credentials.as_ref(),
-        restricted_source_acknowledged.unwrap_or(false),
     )
     .await
     .map_err(|e| health_command_error("Failed to run scraper smoke test", e))
@@ -259,17 +276,11 @@ pub(crate) async fn run_scraper_smoke_test(
 #[tauri::command]
 pub(crate) async fn run_all_smoke_tests(
     state: State<'_, AppState>,
-    restricted_source_acknowledged: Option<bool>,
 ) -> Result<Vec<SmokeTestResult>, String> {
     let config = state.config.read().await.clone();
-    all_smoke_tests(
-        &state.database,
-        &config,
-        state.credentials.as_ref(),
-        restricted_source_acknowledged.unwrap_or(false),
-    )
-    .await
-    .map_err(|e| health_command_error("Failed to run scraper smoke tests", e))
+    all_smoke_tests(&state.database, &config, state.credentials.as_ref())
+        .await
+        .map_err(|e| health_command_error("Failed to run scraper smoke tests", e))
 }
 
 #[cfg(test)]
@@ -344,6 +355,8 @@ mod tests {
     #[tokio::test]
     async fn config_backed_source_toggle_updates_runtime_config_and_disk() {
         let runtime_config = RwLock::new(create_health_toggle_test_config());
+        let database = Database::connect_memory().await.unwrap();
+        database.migrate().await.unwrap();
         let temp_dir = tempfile::tempdir().unwrap();
         let config_path = temp_dir.path().join("config.json");
 
@@ -352,6 +365,7 @@ mod tests {
             true,
             &runtime_config,
             &config_path,
+            &database,
         )
         .await
         .unwrap();
@@ -359,5 +373,56 @@ mod tests {
         assert!(updated);
         assert!(runtime_config.read().await.remoteok.enabled);
         assert!(Config::load(&config_path).unwrap().remoteok.enabled);
+    }
+
+    #[tokio::test]
+    async fn restricted_source_toggle_revokes_and_never_silently_regrants() {
+        let database = Database::connect_memory().await.unwrap();
+        database.migrate().await.unwrap();
+        let previous = create_health_toggle_test_config();
+        let mut reviewed = previous.clone();
+        reviewed.dice.enabled = true;
+        reviewed.dice.query = "security analyst".to_string();
+        reviewed.dice.limit = 25;
+        reviewed.restricted_source_acknowledgements.dice = true;
+        jobsentinel_application::restricted_source_consent::reconcile_restricted_source_consents(
+            &database,
+            &previous,
+            &mut reviewed,
+        )
+        .await
+        .unwrap();
+        let runtime_config = RwLock::new(reviewed);
+        let temp_dir = tempfile::tempdir().unwrap();
+        let config_path = temp_dir.path().join("config.json");
+
+        set_config_backed_scraper_enabled_in_runtime_and_path(
+            "dice",
+            false,
+            &runtime_config,
+            &config_path,
+            &database,
+        )
+        .await
+        .unwrap();
+        set_config_backed_scraper_enabled_in_runtime_and_path(
+            "dice",
+            true,
+            &runtime_config,
+            &config_path,
+            &database,
+        )
+        .await
+        .unwrap();
+
+        let config = runtime_config.read().await;
+        assert!(config.dice.enabled);
+        assert!(!config.restricted_source_acknowledgements.dice);
+        assert!(
+            !jobsentinel_application::restricted_source_consent::restricted_source_consent_remembered(
+                &database, &config, "dice"
+            )
+            .await
+        );
     }
 }

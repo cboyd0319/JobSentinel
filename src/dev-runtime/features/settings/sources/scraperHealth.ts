@@ -168,6 +168,15 @@ const MOCK_SCRAPERS: readonly MockScraperDefinition[] = [
     rate_limit_per_hour: 45,
   },
 ] as const;
+const RESTRICTED_SMOKE_TEST_SOURCES = new Set([
+  "indeed",
+  "wellfound",
+  "builtin",
+  "dice",
+  "ziprecruiter",
+  "simplyhired",
+  "glassdoor",
+]);
 
 export function hasEnabledMockScraperSource(configRecord: Record<string, unknown>): boolean {
   return MOCK_SCRAPERS.some((scraper) =>
@@ -343,6 +352,20 @@ function getMockSmokeTestResult(
   scraperName: string,
   scraperEnabledOverrides: MockScraperEnabledOverrides,
 ): MockSmokeTestResult {
+  if (RESTRICTED_SMOKE_TEST_SOURCES.has(scraperName)) {
+    return {
+      scraper_name: scraperName,
+      test_type: "connectivity",
+      passed: true,
+      duration_ms: 0,
+      details: {
+        status: "skipped",
+        reason:
+          "This restricted connectivity check is unavailable. Use the reviewed scheduled source, a search link, Browser Import, or manual entry.",
+      },
+      error: null,
+    };
+  }
   return {
     scraper_name: scraperName,
     test_type: "connectivity",

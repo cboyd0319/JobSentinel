@@ -300,8 +300,8 @@ fn scraper_failure_kind_keeps_coarse_timeout_category() {
     assert_eq!(scraper_failure_kind(&error), "timeout");
 }
 
-#[test]
-fn restricted_source_acknowledged_reads_local_user_acceptance() {
+#[tokio::test]
+async fn restricted_source_requires_matching_durable_consent() {
     let mut config = Config {
         title_allowlist: vec![],
         title_blocklist: vec![],
@@ -345,10 +345,27 @@ fn restricted_source_acknowledged_reads_local_user_acceptance() {
         blocked_companies: vec![],
     };
 
-    assert!(!restricted_source_acknowledged(&config, "dice"));
+    let database = Database::connect_memory().await.unwrap();
+    database.migrate().await.unwrap();
+
+    assert!(!restricted_source_acknowledged(&database, &config, "dice").await);
     config.restricted_source_acknowledgements.dice = true;
-    assert!(restricted_source_acknowledged(&config, "dice"));
-    assert!(!restricted_source_acknowledged(&config, "unknown"));
+    assert!(!restricted_source_acknowledged(&database, &config, "dice").await);
+
+    let previous = Config {
+        restricted_source_acknowledgements: Default::default(),
+        ..config.clone()
+    };
+    crate::restricted_source_consent::reconcile_restricted_source_consents(
+        &database,
+        &previous,
+        &mut config,
+    )
+    .await
+    .unwrap();
+
+    assert!(restricted_source_acknowledged(&database, &config, "dice").await);
+    assert!(!restricted_source_acknowledged(&database, &config, "unknown").await);
 }
 
 #[test]

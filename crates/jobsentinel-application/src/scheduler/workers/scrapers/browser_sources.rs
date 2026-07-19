@@ -19,7 +19,7 @@ pub(super) async fn run_restricted_browser_sources(
 ) {
     // 12. SimplyHired job aggregator (v2.5.5) - may be blocked by Cloudflare
     if config.simplyhired.enabled && !config.simplyhired.query.is_empty() {
-        if !restricted_source_acknowledged(config, "simplyhired") {
+        if !restricted_source_acknowledged(db, config, "simplyhired").await {
             record_restricted_source_acknowledgement_missing(errors, "simplyhired", "SimplyHired");
         } else {
             tracing::info!("Running SimplyHired scraper");
@@ -49,7 +49,7 @@ pub(super) async fn run_restricted_browser_sources(
 
     // 13. Glassdoor job board (v2.5.5) - may be blocked by Cloudflare
     if config.glassdoor.enabled && !config.glassdoor.query.is_empty() {
-        if !restricted_source_acknowledged(config, "glassdoor") {
+        if !restricted_source_acknowledged(db, config, "glassdoor").await {
             record_restricted_source_acknowledgement_missing(errors, "glassdoor", "Glassdoor");
         } else {
             tracing::info!("Running Glassdoor scraper");

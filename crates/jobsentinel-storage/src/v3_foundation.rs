@@ -43,7 +43,7 @@ struct EventRow {
 }
 
 #[derive(FromRow)]
-struct SourcePolicyRow {
+pub(crate) struct SourcePolicyRow {
     source_id: String,
     source_class: String,
     access: String,
@@ -336,7 +336,7 @@ fn event_from_row(row: EventRow) -> Result<CaseFileEvent> {
     })
 }
 
-fn source_policy_from_row(row: SourcePolicyRow) -> Result<SourcePolicy> {
+pub(crate) fn source_policy_from_row(row: SourcePolicyRow) -> Result<SourcePolicy> {
     let policy = SourcePolicy {
         source_id: row.source_id,
         source_class: parse_enum(&row.source_class)?,
@@ -356,14 +356,14 @@ fn source_policy_from_row(row: SourcePolicyRow) -> Result<SourcePolicy> {
     Ok(policy)
 }
 
-fn enum_text(value: impl Serialize) -> Result<String> {
+pub(crate) fn enum_text(value: impl Serialize) -> Result<String> {
     serde_json::to_value(value)
         .ok()
         .and_then(|value| value.as_str().map(str::to_string))
         .ok_or_else(|| anyhow!("invalid typed storage value"))
 }
 
-fn parse_enum<T: DeserializeOwned>(value: &str) -> Result<T> {
+pub(crate) fn parse_enum<T: DeserializeOwned>(value: &str) -> Result<T> {
     serde_json::from_str(&format!("\"{value}\"")).map_err(|_| anyhow!("invalid stored enum"))
 }
 

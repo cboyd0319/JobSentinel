@@ -111,6 +111,12 @@ impl DesktopServices {
             config = Config::load(&config_path)
                 .map_err(|error| DesktopStartupError::Configuration(error.to_string()))?;
         }
+        crate::restricted_source_consent::refresh_restricted_source_acknowledgements(
+            database.as_ref(),
+            &mut config,
+        )
+        .await
+        .map_err(|error| DesktopStartupError::Database(error.to_string()))?;
 
         let bookmarklet_port = config.bookmarklet_port;
         let config = Arc::new(RwLock::new(config));

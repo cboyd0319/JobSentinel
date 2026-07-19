@@ -33,12 +33,6 @@ describe("ScraperHealthDashboard source checks", () => {
     user: ReturnType<typeof userEvent.setup>,
   ) {
     await user.click(screen.getByText("Check Sources Now"));
-    const reviewDialog = await screen.findByRole("dialog", {
-      name: /review source check/i,
-    });
-    await user.click(
-      within(reviewDialog).getByRole("button", { name: /continue checking/i }),
-    );
   }
 
   describe("source check all", () => {
@@ -61,22 +55,12 @@ describe("ScraperHealthDashboard source checks", () => {
 
       await user.click(screen.getByText("Check Sources Now"));
 
-      const reviewDialog = await screen.findByRole("dialog", {
-        name: /review source check/i,
-      });
-      expect(reviewDialog).toHaveTextContent(/some job boards have rules/i);
-      expect(mockInvoke).not.toHaveBeenCalledWith(
-        "run_all_smoke_tests",
-        expect.anything(),
-      );
-      await user.click(
-        within(reviewDialog).getByRole("button", { name: /continue checking/i }),
-      );
+      expect(
+        screen.queryByRole("dialog", { name: /review source check/i }),
+      ).not.toBeInTheDocument();
 
       await waitFor(() => {
-        expect(mockInvoke).toHaveBeenCalledWith("run_all_smoke_tests", {
-          restrictedSourceAcknowledged: true,
-        });
+        expect(mockInvoke).toHaveBeenCalledWith("run_all_smoke_tests", {});
       });
     });
 
@@ -169,6 +153,7 @@ describe("ScraperHealthDashboard source checks", () => {
       await waitFor(() => {
         expect(screen.getByText("Skipped")).toBeInTheDocument();
       });
+      expect(screen.getByText("USAJobs API key not saved")).toBeInTheDocument();
       expect(screen.queryByText("Worked")).not.toBeInTheDocument();
     });
 

@@ -27,7 +27,7 @@ async fn jobswithgpt_smoke_rejects_plain_http_endpoint() {
 }
 
 #[tokio::test]
-async fn restricted_smoke_test_skips_without_user_acknowledgement() {
+async fn restricted_smoke_test_is_unavailable_without_distinct_reviewed_scope() {
     let db = Database::connect_memory()
         .await
         .expect("test database should connect");
@@ -51,26 +51,26 @@ async fn restricted_smoke_test_skips_without_user_acknowledgement() {
             .details
             .as_ref()
             .and_then(|details| details.get("reason")),
-        Some(&serde_json::json!(RESTRICTED_SOURCE_CHECK_ACK_REQUIRED))
+        Some(&serde_json::json!(RESTRICTED_SOURCE_CHECK_UNAVAILABLE))
     );
 }
 
-#[test]
-fn restricted_source_check_accepts_one_time_or_saved_acknowledgement() {
+#[tokio::test]
+async fn renderer_and_legacy_booleans_cannot_authorize_restricted_health_checks() {
     let mut config = jobswithgpt_smoke_config("https://example.test/jobs");
-
-    assert!(!restricted_source_check_acknowledged(
-        &config, "dice", false
-    ));
-    assert!(restricted_source_check_acknowledged(&config, "dice", true));
-
     config.restricted_source_acknowledgements.dice = true;
-    assert!(restricted_source_check_acknowledged(&config, "dice", false));
-    assert!(restricted_source_check_acknowledged(
-        &config,
-        "greenhouse",
-        false
-    ));
+    let db = Database::connect_memory().await.unwrap();
+    db.migrate().await.unwrap();
+
+    let result = run_smoke_test(&db, &config, "dice").await.unwrap();
+
+    assert_eq!(
+        result
+            .details
+            .and_then(|details| details["status"].as_str().map(str::to_string)),
+        Some("skipped".to_string())
+    );
+    assert!(!is_restricted_source_check("greenhouse"));
 }
 
 #[test]

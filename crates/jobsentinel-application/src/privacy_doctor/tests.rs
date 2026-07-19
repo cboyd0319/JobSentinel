@@ -231,62 +231,44 @@ fn backup_and_browser_states_do_not_claim_more_than_local_evidence() {
     );
 }
 
-#[test]
-fn restricted_source_acknowledgement_and_payload_drift_pause_safely() {
+#[tokio::test]
+async fn restricted_source_consent_and_payload_drift_pause_safely() {
+    let database = Database::connect_memory().await.unwrap();
+    database.migrate().await.unwrap();
     let mut signals = safe_signals();
-    for mut config in [
-        {
-            let mut config = Config::first_run();
-            config.builtin.enabled = true;
-            config
-        },
-        {
-            let mut config = Config::first_run();
-            config.dice.enabled = true;
-            config
-        },
-        {
-            let mut config = Config::first_run();
-            config.simplyhired.enabled = true;
-            config
-        },
-        {
-            let mut config = Config::first_run();
-            config.glassdoor.enabled = true;
-            config
-        },
-    ] {
-        signals.restricted_sources_safe = restricted_sources_safe(&config);
-        assert_eq!(
-            check(
-                &build_privacy_doctor(signals.clone()),
-                PrivacyDoctorCheckId::Sources
-            )
-            .state,
-            PrivacyDoctorState::PausedForSafety
-        );
-        config.restricted_source_acknowledgements.builtin = true;
-        config.restricted_source_acknowledgements.dice = true;
-        config.restricted_source_acknowledgements.simplyhired = true;
-        config.restricted_source_acknowledgements.glassdoor = true;
-        assert!(restricted_sources_safe(&config));
-    }
-
     let mut config = Config::first_run();
     config.dice.enabled = true;
+    config.dice.query = "security analyst".to_string();
+    config.dice.limit = 25;
     config.restricted_source_acknowledgements.dice = true;
-    signals.restricted_sources_safe = restricted_sources_safe(&config);
+    signals.restricted_sources_safe = restricted_sources_safe(&database, &config).await;
     assert_eq!(
         check(
             &build_privacy_doctor(signals.clone()),
             PrivacyDoctorCheckId::Sources
         )
         .state,
-        PrivacyDoctorState::LooksGood
+        PrivacyDoctorState::PausedForSafety
     );
 
+    let previous = Config {
+        restricted_source_acknowledgements: Default::default(),
+        ..config.clone()
+    };
+    crate::restricted_source_consent::reconcile_restricted_source_consents(
+        &database,
+        &previous,
+        &mut config,
+    )
+    .await
+    .unwrap();
+    assert!(restricted_sources_safe(&database, &config).await);
+
+    config.dice.query = "incident responder".to_string();
+    assert!(!restricted_sources_safe(&database, &config).await);
+
     config.jobswithgpt_approval.enabled = true;
-    signals.restricted_sources_safe = restricted_sources_safe(&config);
+    signals.restricted_sources_safe = restricted_sources_safe(&database, &config).await;
     assert_eq!(
         check(
             &build_privacy_doctor(signals),

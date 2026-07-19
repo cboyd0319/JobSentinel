@@ -221,17 +221,9 @@ describe("ScraperHealthDashboard sources and history", () => {
 
       await user.click(screen.getByRole("button", { name: /check indeed now/i }));
 
-      const reviewDialog = await screen.findByRole("dialog", {
-        name: /review source check/i,
-      });
-      await user.click(
-        within(reviewDialog).getByRole("button", { name: /continue checking/i }),
-      );
-
       await waitFor(() => {
         expect(mockInvoke).toHaveBeenCalledWith("run_scraper_smoke_test", {
           scraperName: "indeed",
-          restrictedSourceAcknowledged: true,
         });
       });
     });

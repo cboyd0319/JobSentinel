@@ -4,6 +4,7 @@ use jobsentinel_domain::{
         SourceGraphLink, SourcePolicy,
     },
     v3_manifests::PrivacyReceipt,
+    v3_source_consent::{SourceConsentContext, SourceConsentEvent, SourceConsentStatus},
 };
 use jobsentinel_storage::Database;
 use thiserror::Error;
@@ -12,6 +13,8 @@ use thiserror::Error;
 pub enum FoundationError {
     #[error("The v3 foundation input is invalid.")]
     InvalidInput,
+    #[error("The reviewed v3 state changed.")]
+    Conflict,
     #[error("Local v3 data is unavailable ({0}).")]
     Storage(&'static str),
 }
@@ -87,6 +90,46 @@ pub async fn set_source_policy(
         .map_err(map_error)
 }
 
+pub(crate) async fn remember_source_consent(
+    database: &Database,
+    context: &SourceConsentContext,
+    expected_latest_event_id: Option<&str>,
+) -> Result<SourceConsentEvent, FoundationError> {
+    context
+        .validate()
+        .map_err(|_| FoundationError::InvalidInput)?;
+    database
+        .grant_source_consent(context, expected_latest_event_id)
+        .await
+        .map_err(map_error)
+}
+
+pub(crate) async fn review_source_consent(
+    database: &Database,
+    context: &SourceConsentContext,
+) -> Result<SourceConsentStatus, FoundationError> {
+    context
+        .validate()
+        .map_err(|_| FoundationError::InvalidInput)?;
+    database
+        .source_consent_status(context)
+        .await
+        .map_err(map_error)
+}
+
+pub(crate) async fn revoke_source_consent(
+    database: &Database,
+    source_id: &str,
+) -> Result<bool, FoundationError> {
+    database
+        .revoke_source_consent(
+            source_id,
+            jobsentinel_domain::v3_source_consent::SourceConsentOperation::ScheduledCheck,
+        )
+        .await
+        .map_err(map_error)
+}
+
 pub async fn read_compatibility_metadata(
     database: &Database,
 ) -> Result<CompatibilityMetadata, FoundationError> {
@@ -97,6 +140,13 @@ pub async fn read_compatibility_metadata(
 }
 
 fn map_error(error: anyhow::Error) -> FoundationError {
+    if let Some(kind) = jobsentinel_storage::v3_source_consent::error_kind(&error) {
+        return match kind {
+            "invalid" => FoundationError::InvalidInput,
+            "conflict" => FoundationError::Conflict,
+            kind => FoundationError::Storage(kind),
+        };
+    }
     match jobsentinel_storage::v3_foundation::error_kind(&error) {
         "invalid" => FoundationError::InvalidInput,
         kind => FoundationError::Storage(kind),
@@ -108,6 +158,12 @@ mod tests {
     use super::*;
     use jobsentinel_domain::{
         v3_foundation::{CaseFileEventInput, CaseFileEventKind, EventMetadata, EventOrigin},
+        v3_foundation::{SourceAccess, SourcePolicy},
+        v3_manifests::{DataCategory, SourceClass},
+        v3_source_consent::{
+            SourceConsentContext, SourceConsentOperation, SourceConsentReviewReason,
+            SourceConsentStatus,
+        },
         PrivacyLabel,
     };
     use jobsentinel_storage::Database;
@@ -163,5 +219,83 @@ mod tests {
         .unwrap_err();
 
         assert_eq!(error, FoundationError::InvalidInput);
+    }
+
+    fn consent_context() -> SourceConsentContext {
+        SourceConsentContext {
+            source_id: "dice".to_string(),
+            operation: SourceConsentOperation::ScheduledCheck,
+            warning_version: 1,
+            behavior_revision: 1,
+            policy_ref: "jobsentinel.source-policy.dice".to_string(),
+            policy_revision: 1,
+            source_class: SourceClass::RestrictedPublicScheduled,
+            data_categories: vec![
+                DataCategory::PublicJobPosting,
+                DataCategory::CareerGoals,
+                DataCategory::LocationPreferences,
+            ],
+            destination_sha256: "a".repeat(64),
+            request_sha256: "b".repeat(64),
+        }
+    }
+
+    #[tokio::test]
+    async fn source_consent_operations_fail_closed_and_revoke_locally() {
+        let database = Database::connect_memory().await.unwrap();
+        database.migrate().await.unwrap();
+        let context = consent_context();
+        set_source_policy(
+            &database,
+            &SourcePolicy {
+                source_id: "dice".to_string(),
+                source_class: SourceClass::RestrictedPublicScheduled,
+                access: SourceAccess::ScheduledPublic,
+                request_limit_per_hour: 1,
+                user_review_required: true,
+                policy_ref: "jobsentinel.source-policy.dice".to_string(),
+                revision: 1,
+                restriction_reason_code: Some("terms-review".to_string()),
+                reviewed_at: chrono::Utc::now(),
+            },
+        )
+        .await
+        .unwrap();
+
+        assert_eq!(
+            review_source_consent(&database, &context).await.unwrap(),
+            SourceConsentStatus::ReviewRequired {
+                reason: SourceConsentReviewReason::Missing,
+                latest_event_id: None,
+            }
+        );
+        remember_source_consent(&database, &context, None)
+            .await
+            .unwrap();
+        assert!(matches!(
+            review_source_consent(&database, &context).await.unwrap(),
+            SourceConsentStatus::Remembered { .. }
+        ));
+        assert!(revoke_source_consent(&database, "dice").await.unwrap());
+        assert_eq!(
+            review_source_consent(&database, &context).await.unwrap(),
+            SourceConsentStatus::ReviewRequired {
+                reason: SourceConsentReviewReason::Revoked,
+                latest_event_id: Some(
+                    database.source_consent_history("dice", 1).await.unwrap()[0]
+                        .event_id
+                        .clone()
+                ),
+            }
+        );
+
+        let mut invalid = context;
+        invalid.data_categories = vec![DataCategory::ProtectedVeteranAnswer];
+        assert_eq!(
+            remember_source_consent(&database, &invalid, None)
+                .await
+                .unwrap_err(),
+            FoundationError::InvalidInput
+        );
     }
 }

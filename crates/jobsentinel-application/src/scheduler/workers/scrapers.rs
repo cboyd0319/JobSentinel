@@ -158,10 +158,15 @@ fn record_source_credential_failure(errors: &mut Vec<String>, source_label: &'st
     errors.push(source_failure_message(source_label, failure_kind));
 }
 
-fn restricted_source_acknowledged(config: &Config, source_id: &str) -> bool {
-    config
-        .restricted_source_acknowledgements
-        .contains(source_id)
+async fn restricted_source_acknowledged(
+    database: &Database,
+    config: &Config,
+    source_id: &str,
+) -> bool {
+    crate::restricted_source_consent::restricted_source_consent_remembered(
+        database, config, source_id,
+    )
+    .await
 }
 
 fn restricted_source_acknowledgement_missing_message(source_label: &'static str) -> String {
@@ -308,7 +313,7 @@ pub(crate) async fn run_scrapers(
 
     // 7. BuiltIn scraper - tech job board
     if config.builtin.enabled {
-        if !restricted_source_acknowledged(config, "builtin") {
+        if !restricted_source_acknowledged(db, config, "builtin").await {
             record_restricted_source_acknowledgement_missing(&mut errors, "builtin", "BuiltIn");
         } else {
             let mode = if config.builtin.remote_only {
@@ -349,7 +354,7 @@ pub(crate) async fn run_scrapers(
 
     // 9. Dice scraper - tech job board
     if config.dice.enabled && !config.dice.query.is_empty() {
-        if !restricted_source_acknowledged(config, "dice") {
+        if !restricted_source_acknowledged(db, config, "dice").await {
             record_restricted_source_acknowledgement_missing(&mut errors, "dice", "Dice");
         } else {
             tracing::info!("Running Dice scraper");

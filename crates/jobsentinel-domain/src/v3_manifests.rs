@@ -140,6 +140,7 @@ pub enum SourceClass {
     PublicAts,
     PublicEmployerPage,
     RegionalBoard,
+    RestrictedPublicScheduled,
     UserImport,
     RestrictedUserOpened,
 }

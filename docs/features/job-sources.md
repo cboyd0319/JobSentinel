@@ -54,9 +54,10 @@ not need to understand source internals to make an informed choice. The secure
 path is the easy path: official feeds first, user-opened and reviewed paths
 next, restricted automation only after explicit local acknowledgement.
 
-Saved acknowledgements can reduce repeat friction. Keep them local, tied to the
-source and warning version, and reset them when the warning, source class, or
-data behavior changes.
+Saved acknowledgements can reduce repeat friction. Keep them in the local,
+append-only consent ledger and bind them to the exact source, operation,
+warning, behavior revision, current policy, destination, data categories, and
+minimized request fingerprint. Any change requires review again.
 
 ## Source Model
 
@@ -282,18 +283,20 @@ Representative source pacing:
 Checks that cannot operate within source boundaries should fail closed and
 show a clear user-facing explanation.
 
-Source Status must show a one-time review prompt before checking restricted
-public unauthenticated helpers such as Indeed, Wellfound, BuiltIn, Dice,
-ZipRecruiter, SimplyHired, and Glassdoor. The prompt explains that some job
-boards have rules about automated tools and points users to search links,
-Browser Import, pasted links, employer pages, or manual entry if a site blocks
-the check or asks for human review.
+Source Status keeps restricted public unauthenticated helpers such as Indeed,
+Wellfound, BuiltIn, Dice, ZipRecruiter, SimplyHired, and Glassdoor skipped. A
+scheduled-source acknowledgement does not authorize these different fixed
+connectivity probes. A future source-scoped health-check flow must review its
+own exact destination and request. Until then, Source Status points users to
+Settings, search links, Browser Import, pasted links, employer pages, or manual
+entry.
 
 Restricted scheduled sources such as BuiltIn, Dice, SimplyHired, and Glassdoor
-must also require a saved local acknowledgement before the scheduler runs them.
-If a config file or backup turns one on without that acknowledgement, the
-scheduler skips the source and returns a plain recovery message telling the
-user to review the restricted-source risk in Settings.
+require exact current consent in the local ledger before the scheduler runs
+them. Config booleans are only a projected Settings state and never authorize a
+request. Restored or hand-edited config cannot create or preserve consent.
+Changing the policy or active request pauses the source and returns a plain
+recovery message telling the user to review it again in Settings.
 
 ## Debug And Release Verification
 

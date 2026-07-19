@@ -159,6 +159,8 @@ async fn save_config_updates_runtime_config_after_disk_save() {
     let runtime_config = RwLock::new(create_dashboard_test_config());
     let temp_dir = tempfile::tempdir().unwrap();
     let config_path = temp_dir.path().join("config.json");
+    let database = Database::connect_memory().await.unwrap();
+    database.migrate().await.unwrap();
 
     let mut new_config = create_dashboard_test_config();
     new_config.salary_floor_usd = 95_000;
@@ -166,7 +168,7 @@ async fn save_config_updates_runtime_config_after_disk_save() {
     new_config.keywords_boost = vec!["case management".to_string()];
     let payload = serde_json::to_value(&new_config).unwrap();
 
-    save_config_to_runtime_and_path(payload, &runtime_config, &config_path)
+    save_config_to_runtime_and_path(payload, &runtime_config, &config_path, &database)
         .await
         .unwrap();
 
@@ -180,6 +182,60 @@ async fn save_config_updates_runtime_config_after_disk_save() {
     assert_eq!(saved.salary_floor_usd, 95_000);
     assert!(saved.use_resume_matching);
     assert_eq!(saved.keywords_boost, vec!["case management"]);
+}
+
+#[tokio::test]
+async fn save_config_reconciles_restricted_source_review_with_the_local_ledger() {
+    let previous = create_dashboard_test_config();
+    let runtime_config = RwLock::new(previous.clone());
+    let database = Database::connect_memory().await.unwrap();
+    database.migrate().await.unwrap();
+    let temp_dir = tempfile::tempdir().unwrap();
+    let config_path = temp_dir.path().join("config.json");
+
+    let mut reviewed = previous;
+    reviewed.dice.enabled = true;
+    reviewed.dice.query = "security analyst".to_string();
+    reviewed.dice.limit = 25;
+    reviewed.restricted_source_acknowledgements.dice = true;
+    save_config_to_runtime_and_path(
+        serde_json::to_value(&reviewed).unwrap(),
+        &runtime_config,
+        &config_path,
+        &database,
+    )
+    .await
+    .unwrap();
+    assert!(
+        runtime_config
+            .read()
+            .await
+            .restricted_source_acknowledgements
+            .dice
+    );
+
+    reviewed.dice.query = "incident responder".to_string();
+    save_config_to_runtime_and_path(
+        serde_json::to_value(&reviewed).unwrap(),
+        &runtime_config,
+        &config_path,
+        &database,
+    )
+    .await
+    .unwrap();
+    assert!(
+        !runtime_config
+            .read()
+            .await
+            .restricted_source_acknowledgements
+            .dice
+    );
+    assert!(
+        !Config::load(&config_path)
+            .unwrap()
+            .restricted_source_acknowledgements
+            .dice
+    );
 }
 
 #[tokio::test]

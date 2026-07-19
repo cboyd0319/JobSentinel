@@ -78,7 +78,10 @@ pub struct Config {
     #[serde(default)]
     pub linkedin: LinkedInConfig,
 
-    /// User acknowledgements for restricted scheduled job-board checks.
+    /// Projected Settings state for restricted scheduled job-board review.
+    ///
+    /// The local consent ledger is authoritative. These booleans never authorize
+    /// a source request and are reset when the reviewed context changes.
     #[serde(default)]
     pub restricted_source_acknowledgements: RestrictedSourceAcknowledgements,
 
@@ -287,19 +290,6 @@ impl Config {
 
         self.jobswithgpt_payload_preview()
             .is_some_and(|payload| self.jobswithgpt_approval.payload.as_ref() == Some(&payload))
-    }
-
-    pub(crate) fn enabled_restricted_sources_acknowledged(&self) -> bool {
-        [
-            (self.builtin.enabled, "builtin"),
-            (self.dice.enabled, "dice"),
-            (self.simplyhired.enabled, "simplyhired"),
-            (self.glassdoor.enabled, "glassdoor"),
-        ]
-        .into_iter()
-        .all(|(enabled, source_id)| {
-            !enabled || self.restricted_source_acknowledgements.contains(source_id)
-        })
     }
 }
 

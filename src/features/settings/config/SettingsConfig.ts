@@ -1,5 +1,8 @@
 import type { ReactNode } from "react";
-import type { RestrictedSourceAcknowledgements } from "../../../shared/restrictedSourceTaxonomy";
+import type {
+  RestrictedScheduledJobSourceId,
+  RestrictedSourceAcknowledgements,
+} from "../../../shared/restrictedSourceTaxonomy";
 import {
   DEFAULT_EXTERNAL_AI_CONFIG,
   type ExternalAiProvider,
@@ -127,8 +130,7 @@ export interface Config {
   };
   builtin: {
     enabled: boolean;
-    cities: string[];
-    category?: string;
+    remote_only: boolean;
     limit: number;
   };
   hn_hiring: {
@@ -177,6 +179,22 @@ export interface Config {
   jobswithgpt_approval: JobsWithGptApproval;
   external_ai: ExternalAiSettings;
   use_resume_matching: boolean;
+}
+
+export function getRestrictedSourceConsentScope(
+  config: Config,
+  sourceId: RestrictedScheduledJobSourceId,
+): string {
+  switch (sourceId) {
+    case "builtin":
+      return `builtin.com receives the ${config.builtin.remote_only ? "remote-only" : "all locations"} setting and a ${config.builtin.limit}-result limit.`;
+    case "dice":
+      return `dice.com receives search words "${config.dice.query}", location "${config.dice.location ?? "not set"}", and a ${config.dice.limit}-result limit.`;
+    case "simplyhired":
+      return `simplyhired.com receives search words "${config.simplyhired.query}", location "${config.simplyhired.location ?? "not set"}", and a ${config.simplyhired.limit}-result limit.`;
+    case "glassdoor":
+      return `glassdoor.com receives search words "${config.glassdoor.query}", location "${config.glassdoor.location ?? "not set"}", and a ${config.glassdoor.limit}-result limit.`;
+  }
 }
 
 export { DEFAULT_EXTERNAL_AI_CONFIG };

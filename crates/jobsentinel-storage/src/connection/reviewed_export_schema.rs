@@ -351,6 +351,8 @@ pub(super) const EXCLUDED_TABLES: &[&str] = &[
     "skill_demand_trends",
     "source_request_log",
     "v3_compatibility_metadata",
+    "v3_source_consent_events",
+    "v3_source_policy_ledger",
 ];
 
 pub(super) const EXCLUDED_DATA: &[&str] = &[

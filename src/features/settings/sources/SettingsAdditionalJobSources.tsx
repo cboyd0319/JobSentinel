@@ -15,6 +15,7 @@ import type {
 } from "../config/SettingsConfig";
 import {
   buildSettingsSourceQuery,
+  getRestrictedSourceConsentScope,
   getSettingsSourceLocation,
 } from "../config/SettingsConfig";
 
@@ -73,6 +74,7 @@ export function SettingsAdditionalJobSources({
       (item) => item.id === sourceId,
     );
     const label = restrictedScheduledJobSourceLabel(sourceId);
+    const scopeId = `restricted-source-${sourceId}-scope`;
 
     return (
       <div className="mt-3 rounded-lg border-2 border-amber-300 bg-amber-50 p-4 text-amber-800 dark:border-amber-700 dark:bg-amber-900/25 dark:text-amber-200">
@@ -93,15 +95,19 @@ export function SettingsAdditionalJobSources({
               JobSentinel will only run this scheduled check from this computer
               after you accept the risk below.
             </p>
-            <p className="text-sm">
-              This is not a sign-in session. Sign-in rules apply only to sources
-              that ask you to log in.
+            <p id={scopeId} className="text-sm leading-6">
+              Approved scope: {getRestrictedSourceConsentScope(config, sourceId)} No resume,
+              application history, credentials, military or veteran information,
+              clearance claims, pay preferences, or protected answers are sent.
+              Changing this request pauses scheduled checks until you review it
+              again. Unchecking this box revokes future checks.
             </p>
             <label className="flex items-start gap-3 text-sm font-medium text-amber-900 dark:text-amber-100">
               <input
                 type="checkbox"
                 className="mt-0.5 h-5 w-5 rounded border-amber-300 text-amber-700 focus:ring-amber-500"
                 checked={restrictedSourceAcknowledgements[sourceId]}
+                aria-describedby={scopeId}
                 onChange={(event) =>
                   setRestrictedSourceAcknowledgement(
                     sourceId,
@@ -241,7 +247,7 @@ export function SettingsAdditionalJobSources({
                     builtin: {
                       ...config.builtin,
                       enabled: e.target.checked,
-                      cities: config.builtin?.cities ?? [],
+                      remote_only: config.builtin?.remote_only ?? false,
                       limit: config.builtin?.limit ?? 50,
                     },
                     restricted_source_acknowledgements: e.target.checked

@@ -316,6 +316,17 @@ impl SourcePolicy {
                 "restricted sources need a reason and cannot run scheduled checks".to_string(),
             );
         }
+        if matches!(self.source_class, SourceClass::RestrictedPublicScheduled)
+            && (matches!(self.access, SourceAccess::UserOpened)
+                || (matches!(self.access, SourceAccess::ScheduledPublic)
+                    && !self.user_review_required)
+                || self.restriction_reason_code.is_none())
+        {
+            return Err(
+                "restricted scheduled sources need review when active and a restriction reason"
+                    .to_string(),
+            );
+        }
         Ok(())
     }
 }
@@ -341,7 +352,7 @@ impl CompatibilityMetadata {
     }
 }
 
-fn validate_identifier(label: &str, value: &str) -> Result<(), String> {
+pub(crate) fn validate_identifier(label: &str, value: &str) -> Result<(), String> {
     let valid = !value.is_empty()
         && value.len() <= MAX_IDENTIFIER_BYTES
         && value
@@ -444,23 +455,6 @@ mod tests {
         };
 
         assert!(link.validate().is_err());
-    }
-
-    #[test]
-    fn restricted_sources_cannot_be_scheduled() {
-        let policy = SourcePolicy {
-            source_id: "restricted.example".to_string(),
-            source_class: SourceClass::RestrictedUserOpened,
-            access: SourceAccess::ScheduledPublic,
-            request_limit_per_hour: 10,
-            user_review_required: false,
-            policy_ref: "policy-1".to_string(),
-            revision: 1,
-            restriction_reason_code: None,
-            reviewed_at: Utc::now(),
-        };
-
-        assert!(policy.validate().is_err());
     }
 
     #[test]

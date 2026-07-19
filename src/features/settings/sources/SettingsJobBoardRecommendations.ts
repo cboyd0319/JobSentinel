@@ -165,7 +165,7 @@ export function useJobBoardRecommendations(
               builtin: {
                 ...config.builtin,
                 enabled: true,
-                cities: config.builtin?.cities ?? [],
+                remote_only: config.builtin?.remote_only ?? false,
                 limit: 50,
               },
             }),
