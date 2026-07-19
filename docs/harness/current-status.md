@@ -49,8 +49,8 @@ Last updated: 2026-07-19
 - Status: `active`
 - Objective: Make v3 recovery, portability, policy, consent, support, and repair local and offline-safe.
 - Branch: `feat/v3-major-line`
-- Current slice: Write fail-first Milestone 3 recovery and portability tests.
-- Next action: Define backup, export, restore, rollback, and cleanup behavior with fail-first tests.
+- Current slice: Complete Milestone 3 cleanup, repair, privacy, consent, and support behavior.
+- Next action: Define offline cleanup and repair behavior with fail-first tests.
 
 ## Deferred
 

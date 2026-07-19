@@ -323,6 +323,7 @@ relevant result, and caveat.
 | 2026-07-18 | Milestone 0 complete | Corrected release truth, closed DRY-002 and DRY-003, reconciled testing claims, resolved the release-pipeline decision, added deterministic plan audits, and activated Milestone 1 with evidence at `469abb3f`. |
 | 2026-07-19 | Milestone 1 complete | Froze fail-closed v3 contracts and synthetic evaluations, proved existing scheduler ownership, made drag input deterministic, passed isolated native picker smoke, retained measured budgets, deferred A20, and activated Milestone 2 with evidence at `5c8d23c7`. |
 | 2026-07-19 | Milestone 2 complete | Added the typed local case, event, graph, receipt, source-policy, and compatibility foundation; proved fresh and v2.9 migration, failure, retry, snapshot restore, and newer-data refusal; completed Gate 2; and activated Milestone 3 with implementation at `69acdf3c`. |
+| 2026-07-19 | Milestone 3 reviewed export complete | Added a fixed-schema reviewed JSON Lines export with no-clobber publication, structural inspection, managed-credential and private-path exclusion, separate protected-record review, and fail-closed URL sanitation at `3b4f635b`. Milestone 3 remains active. |
 
 ## Discoveries
 
@@ -380,8 +381,9 @@ relevant result, and caveat.
   Do not add a broader credential only to trigger another workflow.
 - Freeze the Gate 1 compatibility line at v3, the vector backend at
   `sqlite_blob_v1`, and executable packs at static content or reviewed typed
-  workflows. Backups are encrypted; reviewed plaintext exports contain no
-  secrets and require explicit user review.
+  workflows. Backups are encrypted. Reviewed plaintext exports exclude
+  JobSentinel-managed credentials and app-managed private paths, preserve
+  user-authored text verbatim, and require explicit user review.
 - Keep immediate notification delivery at one claimed attempt for now. A
   failed or ambiguous provider attempt remains visible and is not retried
   automatically; per-channel durable retry needs later storage design.
@@ -404,16 +406,23 @@ relevant result, and caveat.
   metadata, protected privacy receipts, concrete provenance links, monotonic
   source policy, compatibility reads, atomic case reuse, and recovery-first
   migration behavior.
+- Milestone 3 now has a reviewed, application-independent plaintext export
+  whose fixed schema, private publication, structural completion, managed-secret
+  exclusions, and protected-record controls passed focused and adversarial
+  verification. The milestone remains active.
 
 ## Handoff
 
 - Current state: Milestones 0 through 2 are passing. Milestone 3 recovery,
-  portability, policy, and repair work is the sole active feature.
-- Evidence: `docs/harness/evidence/v3-milestone-2-local-data-foundation-2026-07-19.json`
-  binds the clean implementation at `69acdf3c`.
-- Next step: write fail-first encrypted backup, reviewed export, restore,
-  rollback, offline recovery, cleanup, Privacy Doctor, support-bundle, policy,
-  consent, and repair tests before adding user-facing operations.
+  portability, policy, and repair work is the sole active feature. Encrypted
+  portable backup, staged restore, rollback, and reviewed plaintext export are
+  implemented.
+- Evidence: `docs/harness/evidence/v3-milestone-3-reviewed-export-2026-07-19.json`
+  binds the reviewed-export slice at `3b4f635b`; prior milestone evidence remains
+  authoritative for its completed scope.
+- Next step: write fail-first offline cleanup, Privacy Doctor, support-bundle,
+  policy, consent, repair, and platform-health tests before adding user-facing
+  operations.
 - Open risks: scope remains large, contract freeze is irreversible within the
   v3 compatibility line, live recovery behavior still needs Windows 11,
   macOS 26, and Linux release-matrix proof, and some final distribution
