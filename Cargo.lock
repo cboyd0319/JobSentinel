@@ -3446,6 +3446,7 @@ dependencies = [
  "chrono",
  "hex",
  "hf-hub",
+ "jobsentinel-domain",
  "jobsentinel-security",
  "serde",
  "serde_json",

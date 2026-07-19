@@ -44,8 +44,8 @@ pub use evaluation::{
 };
 pub use hybrid::{HybridCandidate, HybridScore, HybridScorer, HybridWeights};
 pub use manifest::{
-    load_model_manifest, model_lock_hash, InstructionProfile, ModelFileSpec, ModelKind,
-    ModelManifest, ModelSpec, ScoreThresholds,
+    load_model_manifest, model_lock_hash, validate_v3_vector_contract, InstructionProfile,
+    ModelFileSpec, ModelKind, ModelManifest, ModelSpec, ScoreThresholds,
 };
 pub use matcher::{SemanticMatchResult, SemanticMatcher};
 pub use model::status::ModelStatus;

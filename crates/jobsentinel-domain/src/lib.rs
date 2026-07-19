@@ -6,6 +6,10 @@ mod job;
 mod job_hash;
 pub mod normalization;
 mod scoring_config;
+#[cfg(test)]
+mod v3_contract_tests;
+pub mod v3_contracts;
+pub mod v3_manifests;
 
 pub use application_assistance::{
     screening_question_matches, AnswerSource, AnswerStatistics, AnswerSuggestion,
@@ -17,3 +21,5 @@ pub use job::Job;
 pub use job_hash::calculate_job_hash;
 pub use normalization::canonicalize_job_url;
 pub use scoring_config::ScoringConfig;
+pub use v3_contracts::{read_v3_compatibility, CompatibilityDecision, CompatibilityInputKind};
+pub use v3_manifests::{PackExecutionClass, PrivacyLabel};
