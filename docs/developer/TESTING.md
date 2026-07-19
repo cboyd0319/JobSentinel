@@ -392,6 +392,10 @@ non-interactive. Run live keyring checks only when you are ready for OS prompts:
 JOBSENTINEL_LIVE_KEYRING_TESTS=1 cargo test -p jobsentinel --lib credential_integration_tests -- --nocapture
 ```
 
+Repository npm Rust-verification wrappers remove this opt-in from child
+environments even if the parent shell set it. Use the explicit raw Cargo command
+above only for attended live credential verification.
+
 For the no-CI exception and separately authorized release automation, see
 [CI_CD.md](./CI_CD.md).
 
