@@ -41,8 +41,8 @@ Last updated: 2026-07-19
 - Milestone 0 reconciled release truth, debt, tests, dependencies, and release policy.
 - Milestone 1 froze fail-closed contracts and evals, retained existing scheduler ownership, and passed native input.
 - Milestone 2 passed the local data model, migration recovery, v2.9 preservation, and newer-data refusal.
-- Milestone 3 now includes encrypted portability, staged recovery, reviewed
-  plaintext export, storage cleanup, local-only Privacy Doctor, and safe support.
+- Milestone 3 includes encrypted portability, staged recovery, reviewed export,
+  storage cleanup, local Privacy Doctor and support, plus exact source consent.
 
 ## In Progress
 
@@ -50,8 +50,8 @@ Last updated: 2026-07-19
 - Status: `active`
 - Objective: Make v3 recovery, portability, policy, consent, support, and repair local and offline-safe.
 - Branch: `feat/v3-major-line`
-- Current slice: Complete Milestone 3 policy, consent, offline repair, and platform-health behavior.
-- Next action: Write fail-first policy-ledger and smart-consent tests before adding user-facing operations.
+- Current slice: Complete Milestone 3 external-send audit, offline repair, and platform-health behavior.
+- Next action: Test external-send audit, offline repair, and platform health before adding user-facing operations.
 
 ## Deferred
 

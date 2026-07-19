@@ -325,6 +325,7 @@ relevant result, and caveat.
 | 2026-07-19 | Milestone 2 complete | Added the typed local case, event, graph, receipt, source-policy, and compatibility foundation; proved fresh and v2.9 migration, failure, retry, snapshot restore, and newer-data refusal; completed Gate 2; and activated Milestone 3 with implementation at `69acdf3c`. |
 | 2026-07-19 | Milestone 3 reviewed export complete | Added a fixed-schema reviewed JSON Lines export with no-clobber publication, structural inspection, managed-credential and private-path exclusion, separate protected-record review, and fail-closed URL sanitation at `3b4f635b`. Milestone 3 remains active. |
 | 2026-07-19 | Milestone 3 safe storage cleanup complete | Added offline aggregate health inspection, integrity-first refusal, checked WAL cleanup, bounded native incremental vacuum, sanitized provenance, and new-database activation at `4304fbb5`. Milestone 3 remains active. |
+| 2026-07-19 | Milestone 3 restricted scheduled-source consent complete | Added append-only source-policy history and exact durable consent for the four shipped restricted scheduled sources at `80218596`. Policy or request drift revokes, renderer and config booleans cannot authorize transport, and fixed restricted health probes remain unavailable pending distinct reviewed scope. Milestone 3 remains active. |
 
 ## Discoveries
 
@@ -395,6 +396,10 @@ relevant result, and caveat.
 - Treat the migration snapshot as same-device encrypted recovery for one exact
   transition. Portable backup, reviewed export, user-facing restore, rollback,
   cleanup, and repair remain Milestone 3 responsibilities.
+- Milestone 3 owns append-only policy history and exact consent for already
+  shipped restricted scheduled sources. Milestone 4 owns the complete source
+  graph, new source operations, browser permissions, and any distinct reviewed
+  health-check scope.
 
 ## Outcomes
 
@@ -417,6 +422,10 @@ relevant result, and caveat.
   reports bounded recovery and privacy states without reading secrets, and the
   safe support bundle preserves those typed states through final sanitization
   while removing arbitrary renderer details and complete private paths. The
+  milestone also has append-only source-policy history and exact durable
+  consent for shipped restricted scheduled sources. Material drift revokes,
+  restored booleans cannot authorize transport, and fixed restricted health
+  probes remain unavailable until a different exact scope is reviewed. The
   milestone remains active.
 
 ## Handoff
@@ -426,15 +435,19 @@ relevant result, and caveat.
   portable backup, staged restore, rollback, reviewed plaintext export, and
   offline storage cleanup are implemented. Privacy Doctor and the safe support
   bundle are implemented as local application and desktop operations.
+  Append-only policy history and exact consent protect the four shipped
+  restricted scheduled sources.
 - Evidence: `docs/harness/evidence/v3-milestone-3-reviewed-export-2026-07-19.json`
   binds the reviewed-export slice at `3b4f635b`, and
   `docs/harness/evidence/v3-milestone-3-storage-cleanup-2026-07-19.json` binds
   offline storage cleanup at `4304fbb5`.
   `docs/harness/evidence/v3-milestone-3-privacy-doctor-support-2026-07-19.json`
-  binds Privacy Doctor and safe support behavior at `154408e5`; prior milestone
-  evidence remains authoritative for its completed scope.
-- Next step: write fail-first policy-ledger, smart-consent, offline-repair, and
-  platform-health tests before adding user-facing operations.
+  binds Privacy Doctor and safe support behavior at `154408e5`, and
+  `docs/harness/evidence/v3-milestone-3-policy-consent-2026-07-19.json` binds
+  restricted scheduled-source policy and consent at `80218596`; prior
+  milestone evidence remains authoritative for its completed scope.
+- Next step: write fail-first external-send audit, offline-repair, and
+  platform-health tests before adding more user-facing operations.
 - Open risks: scope remains large, contract freeze is irreversible within the
   v3 compatibility line, live recovery behavior still needs Windows 11,
   macOS 26, and Linux release-matrix proof, Privacy Doctor presentation still
