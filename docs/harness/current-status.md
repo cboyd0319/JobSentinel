@@ -42,16 +42,16 @@ Last updated: 2026-07-19
 - Milestone 1 froze fail-closed contracts and evals, retained existing scheduler ownership, and passed native input.
 - Milestone 2 passed the local data model, migration recovery, v2.9 preservation, and newer-data refusal.
 - Milestone 3 includes encrypted portability, staged recovery, reviewed export,
-  storage cleanup, local Privacy Doctor and support, plus exact source consent.
+  storage cleanup, local Privacy Doctor and support, exact source consent, and
+  governed Outside AI approval, audit, cancellation, and recovery activity.
 
 ## In Progress
 
 - Active feature: `v3-milestone-3-recovery-portability-policy-repair`
 - Status: `active`
 - Objective: Make v3 recovery, portability, policy, consent, support, and repair local and offline-safe.
-- Branch: `feat/v3-major-line`
-- Current slice: Complete Milestone 3 external-send audit, offline repair, and platform-health behavior.
-- Next action: Test external-send audit, offline repair, and platform health before adding user-facing operations.
+- Current slice: Complete Milestone 3 offline repair and platform-health behavior.
+- Next action: Write fail-first offline-repair and platform-health tests before adding user-facing operations.
 
 ## Deferred
 

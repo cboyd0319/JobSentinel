@@ -157,4 +157,4 @@
     }, { "id": "v3-milestone-3-recovery-portability-policy-repair", "priority": 17, "area": "v3 recovery", "title": "Build recovery, portability, policy, and repair", "status": "active",
       "behavior": "Recovery, portability, policy, consent, support, and repair paths fail closed and work offline.", "user_visible_behavior": "Users can recover, inspect, move, repair, or remove local data safely.",
       "verification": ["npm run harness:check", "npm run lint:security"],
-      "evidence": ["docs/harness/evidence/v3-milestone-3-policy-consent-2026-07-19.json"], "blocker": "", "next_trigger": "Complete external-send audit, offline repair, and platform health before Milestone 4." } ] }
+      "evidence": ["docs/harness/evidence/v3-milestone-3-outside-ai-governance-2026-07-19.json"], "blocker": "", "next_trigger": "Complete offline repair and platform health before Milestone 4." } ] }
