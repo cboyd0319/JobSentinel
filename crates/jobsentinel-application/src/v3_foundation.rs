@@ -1,10 +1,13 @@
+use chrono::NaiveDate;
 use jobsentinel_domain::{
     v3_foundation::{
         CareerGraphLink, CaseFile, CaseFileEvent, CaseFileEventInput, CompatibilityMetadata,
         SourceGraphLink, SourcePolicy,
     },
     v3_manifests::PrivacyReceipt,
+    v3_source_authorization::{SourceActionDecision, SourceGrantState},
     v3_source_consent::{SourceConsentContext, SourceConsentEvent, SourceConsentStatus},
+    v3_source_manifest::SourceOperation,
 };
 use jobsentinel_storage::Database;
 use thiserror::Error;
@@ -139,6 +142,36 @@ pub async fn read_compatibility_metadata(
         .map_err(map_error)
 }
 
+pub async fn authorize_source_action(
+    database: &Database,
+    source_id: &str,
+    operation: SourceOperation,
+    today: NaiveDate,
+    grant: SourceGrantState,
+) -> Result<SourceActionDecision, FoundationError> {
+    if source_id.is_empty()
+        || source_id.len() > 128
+        || !source_id
+            .bytes()
+            .all(|byte| byte.is_ascii_alphanumeric() || matches!(byte, b'.' | b'_' | b':' | b'-'))
+    {
+        return Err(FoundationError::InvalidInput);
+    }
+    let policy = database
+        .get_source_policy(source_id)
+        .await
+        .map_err(map_error)?
+        .ok_or(FoundationError::Conflict)?;
+    let manifest = database
+        .get_source_manifest(source_id)
+        .await
+        .map_err(map_error)?
+        .ok_or(FoundationError::Conflict)?;
+    manifest
+        .authorize(&policy, operation, today, grant)
+        .map_err(|_| FoundationError::InvalidInput)
+}
+
 fn map_error(error: anyhow::Error) -> FoundationError {
     if let Some(kind) = jobsentinel_storage::v3_source_consent::error_kind(&error) {
         return match kind {
@@ -160,10 +193,12 @@ mod tests {
         v3_foundation::{CaseFileEventInput, CaseFileEventKind, EventMetadata, EventOrigin},
         v3_foundation::{SourceAccess, SourcePolicy},
         v3_manifests::{DataCategory, SourceClass},
+        v3_source_authorization::{SourceActionDecision, SourceGrantState},
         v3_source_consent::{
             SourceConsentContext, SourceConsentOperation, SourceConsentReviewReason,
             SourceConsentStatus,
         },
+        v3_source_manifest::{parse_source_manifest, SourceOperation, SourceStopCondition},
         PrivacyLabel,
     };
     use jobsentinel_storage::Database;
@@ -296,6 +331,102 @@ mod tests {
                 .await
                 .unwrap_err(),
             FoundationError::InvalidInput
+        );
+    }
+
+    #[tokio::test]
+    async fn source_actions_require_a_governed_manifest_and_current_policy() {
+        let database = Database::connect_memory().await.unwrap();
+        database.migrate().await.unwrap();
+        let today = chrono::NaiveDate::from_ymd_opt(2026, 7, 20).unwrap();
+
+        assert_eq!(
+            authorize_source_action(
+                &database,
+                "synthetic-official-jobs",
+                SourceOperation::ScheduledCheck,
+                today,
+                SourceGrantState::NotRequired,
+            )
+            .await
+            .unwrap_err(),
+            FoundationError::Conflict
+        );
+        assert_eq!(
+            authorize_source_action(
+                &database,
+                "private source",
+                SourceOperation::ScheduledCheck,
+                today,
+                SourceGrantState::NotRequired,
+            )
+            .await
+            .unwrap_err(),
+            FoundationError::InvalidInput
+        );
+
+        let mut policy = SourcePolicy {
+            source_id: "synthetic-official-jobs".to_string(),
+            source_class: SourceClass::OfficialPublicApi,
+            access: SourceAccess::ScheduledPublic,
+            request_limit_per_hour: 60,
+            user_review_required: false,
+            policy_ref: "synthetic-official-jobs-v1".to_string(),
+            revision: 1,
+            restriction_reason_code: None,
+            reviewed_at: chrono::DateTime::parse_from_rfc3339("2026-07-19T00:00:00Z")
+                .unwrap()
+                .to_utc(),
+        };
+        database.upsert_source_policy(&policy).await.unwrap();
+        assert_eq!(
+            authorize_source_action(
+                &database,
+                &policy.source_id,
+                SourceOperation::ScheduledCheck,
+                today,
+                SourceGrantState::NotRequired,
+            )
+            .await
+            .unwrap_err(),
+            FoundationError::Conflict
+        );
+
+        let manifest = parse_source_manifest(
+            include_str!("../../jobsentinel-domain/src/fixtures/v3_source_manifest_v1.json"),
+            &policy,
+        )
+        .unwrap();
+        database.store_source_manifest(&manifest).await.unwrap();
+        assert_eq!(
+            authorize_source_action(
+                &database,
+                &policy.source_id,
+                SourceOperation::ScheduledCheck,
+                today,
+                SourceGrantState::NotRequired,
+            )
+            .await
+            .unwrap(),
+            SourceActionDecision::Allowed {
+                request_limit_per_hour: 60,
+                connectivity_required: true,
+            }
+        );
+
+        policy.revision = 2;
+        database.upsert_source_policy(&policy).await.unwrap();
+        assert_eq!(
+            authorize_source_action(
+                &database,
+                &policy.source_id,
+                SourceOperation::ScheduledCheck,
+                today,
+                SourceGrantState::NotRequired,
+            )
+            .await
+            .unwrap(),
+            SourceActionDecision::Blocked(SourceStopCondition::PolicyChanged)
         );
     }
 }
