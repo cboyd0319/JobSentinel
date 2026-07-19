@@ -49,6 +49,27 @@ fn external_receipt_destination_must_be_public_and_credential_free() {
 }
 
 #[test]
+fn protected_receipts_are_sensitive_and_local_even_without_egress() {
+    let mut receipt = fixture("privacy_receipt");
+    receipt["labels"] = serde_json::json!(["public_data_only"]);
+    receipt["data_categories"] = serde_json::json!(["protected_veteran_answer"]);
+
+    assert!(parse_privacy_receipt(&receipt.to_string()).is_err());
+
+    receipt["labels"] = serde_json::json!(["local_only", "sensitive", "external_ai_optional"]);
+    assert!(parse_privacy_receipt(&receipt.to_string()).is_err());
+}
+
+#[test]
+fn protected_agent_tasks_are_sensitive_and_local() {
+    let mut task = fixture("agent_task");
+    task["privacy_labels"] = serde_json::json!(["public_data_only"]);
+    task["data_categories"] = serde_json::json!(["military_service"]);
+
+    assert!(parse_agent_task(&task.to_string()).is_err());
+}
+
+#[test]
 fn every_archive_privacy_bound_fails_independently() {
     for (pointer, invalid) in [
         ("/backup/kind", serde_json::json!("export")),

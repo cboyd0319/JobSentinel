@@ -15,6 +15,7 @@ pub mod market_intelligence;
 pub mod resume;
 pub mod salary;
 pub mod user_data;
+pub mod v3_foundation;
 
 // Internal modules
 mod analytics;

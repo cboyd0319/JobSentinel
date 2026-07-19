@@ -5,6 +5,8 @@ use crate::v3_contracts::{
     Platform, SchemaId,
 };
 
+mod privacy_validation;
+
 const EXTERNAL_AI_GATEWAY_POLICY: &str = "jobsentinel.external-ai-gateway.v1";
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -245,62 +247,6 @@ pub struct VectorFreshness {
     pub content_sha256: String,
 }
 
-impl PrivacyReceipt {
-    pub fn validate(&self) -> Result<(), String> {
-        require_schema(self.schema, SchemaId::PrivacyReceiptV1)?;
-        require_nonempty("receipt id", &self.receipt_id)?;
-        require_nonempty("task id", &self.task_id)?;
-        require_nonempty("delete or revoke action", &self.delete_or_revoke_action)?;
-        if self.labels.is_empty() || self.data_categories.is_empty() || !self.stored_locally {
-            return Err("privacy receipt must retain typed local audit metadata".to_string());
-        }
-        if self.data_left_device {
-            if self.labels.contains(&PrivacyLabel::LocalOnly)
-                || !self.labels.contains(&PrivacyLabel::ExternalAiOptional)
-                || self.approval_reference.as_deref().is_none_or(str::is_empty)
-                || self.gateway_policy_id.as_deref() != Some(EXTERNAL_AI_GATEWAY_POLICY)
-                || !self
-                    .external_destination
-                    .as_deref()
-                    .is_some_and(is_safe_external_destination)
-            {
-                return Err(
-                    "external data flow requires the governed gateway and explicit approval"
-                        .to_string(),
-                );
-            }
-            if self
-                .data_categories
-                .iter()
-                .copied()
-                .any(is_protected_local_category)
-            {
-                return Err("military and protected-answer data must remain local".to_string());
-            }
-        } else if self.external_destination.is_some() || self.gateway_policy_id.is_some() {
-            return Err("local receipt cannot record an external route".to_string());
-        }
-        Ok(())
-    }
-}
-
-impl AgentTask {
-    pub fn validate(&self) -> Result<(), String> {
-        require_schema(self.schema, SchemaId::AgentTaskV1)?;
-        require_nonempty("task id", &self.task_id)?;
-        if self.privacy_labels.is_empty()
-            || self.data_categories.is_empty()
-            || !(1..=3600).contains(&self.max_duration_seconds)
-            || !(1..=10 * 1024 * 1024).contains(&self.max_output_bytes)
-            || !(1..=3).contains(&self.max_attempts)
-            || !self.user_review_required
-        {
-            return Err("agent task privacy, review, and resource bounds are invalid".to_string());
-        }
-        Ok(())
-    }
-}
-
 impl PackManifest {
     pub fn validate(&self) -> Result<(), String> {
         require_schema(self.schema, SchemaId::PackManifestV1)?;
@@ -475,24 +421,6 @@ impl VectorFreshness {
         }
         Ok(())
     }
-}
-
-fn is_protected_local_category(category: DataCategory) -> bool {
-    matches!(
-        category,
-        DataCategory::MilitaryService
-            | DataCategory::ClearanceClaim
-            | DataCategory::ProtectedVeteranAnswer
-    )
-}
-
-fn is_safe_external_destination(value: &str) -> bool {
-    jobsentinel_security::validate_external_https_url(value).is_ok_and(|url| {
-        url.username().is_empty()
-            && url.password().is_none()
-            && url.query().is_none()
-            && url.fragment().is_none()
-    })
 }
 
 fn is_upper_ascii_code(value: &str, len: usize) -> bool {

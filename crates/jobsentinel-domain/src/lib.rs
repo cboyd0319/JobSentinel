@@ -14,6 +14,7 @@ pub mod v3_evaluation_inputs;
 #[cfg(test)]
 mod v3_evaluation_tests;
 pub mod v3_evaluations;
+pub mod v3_foundation;
 pub mod v3_manifests;
 
 pub use application_assistance::{

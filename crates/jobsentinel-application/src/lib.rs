@@ -23,6 +23,7 @@ pub mod salary;
 pub mod scheduler;
 pub mod scoring;
 pub mod user_data;
+pub mod v3_foundation;
 
 pub use bookmarklet::{bookmarklet_repository, confirm_bookmarklet_imports};
 pub use config::Config;
