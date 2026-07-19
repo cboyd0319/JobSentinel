@@ -37,6 +37,12 @@
       "kind": "detail",
       "path": "crates/jobsentinel-domain/src/fixtures/source_simulator/synthetic_official_detail.json",
       "payload_sha256": "d891ed340c99748bdad341932d051a67ca690ed91c26460f34621062b9eff2c0"
+    },
+    {
+      "fixture_id": "synthetic-official-policy-review-v1",
+      "kind": "policy",
+      "path": "crates/jobsentinel-domain/src/fixtures/source_reviews/synthetic_official_v1.json",
+      "payload_sha256": "938da915456a928b23dc8a5c249830048eaa1139beae7ec43a243cf680aca745"
     }
   ],
   "supported_fields": ["title", "company", "location", "description", "salary"],

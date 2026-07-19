@@ -149,12 +149,14 @@ pub(super) async fn run_lever(
 mod tests {
     use std::sync::{atomic::AtomicBool, Arc};
 
-    use jobsentinel_domain::v3_source_manifest::{
-        parse_source_manifest, GREENHOUSE_API_ENDPOINT_PREFIX, GREENHOUSE_SOURCE_MANIFEST_V1,
-        LEVER_API_ENDPOINT_PREFIX, LEVER_SOURCE_MANIFEST_V1,
+    use jobsentinel_domain::{
+        v3_source_authorization::{SourceActionDecision, SourceGrantState},
+        v3_source_manifest::{
+            parse_source_manifest, SourceOperation, GREENHOUSE_API_ENDPOINT_PREFIX,
+            GREENHOUSE_SOURCE_MANIFEST_V1, LEVER_API_ENDPOINT_PREFIX, LEVER_SOURCE_MANIFEST_V1,
+        },
     };
     use jobsentinel_storage::Database;
-    use sha2::{Digest, Sha256};
 
     use crate::test_support::minimal_test_config;
 
@@ -196,14 +198,11 @@ mod tests {
     }
 
     #[test]
-    fn reviewed_manifests_bind_runtime_endpoints_and_parser_fixtures() {
-        for (manifest, endpoint, fixtures) in [
+    fn reviewed_public_ats_source_simulators_bind_runtime_and_policy_fixtures() {
+        for (raw_manifest, policy, endpoint, fixtures) in [
             (
-                parse_source_manifest(
-                    GREENHOUSE_SOURCE_MANIFEST_V1,
-                    &crate::v3_source_governance::greenhouse_policy().unwrap(),
-                )
-                .unwrap(),
+                GREENHOUSE_SOURCE_MANIFEST_V1,
+                crate::v3_source_governance::greenhouse_policy().unwrap(),
                 GREENHOUSE_API_ENDPOINT_PREFIX,
                 [
                     (
@@ -223,11 +222,8 @@ mod tests {
                 ],
             ),
             (
-                parse_source_manifest(
-                    LEVER_SOURCE_MANIFEST_V1,
-                    &crate::v3_source_governance::lever_policy().unwrap(),
-                )
-                .unwrap(),
+                LEVER_SOURCE_MANIFEST_V1,
+                crate::v3_source_governance::lever_policy().unwrap(),
                 LEVER_API_ENDPOINT_PREFIX,
                 [
                     (
@@ -247,18 +243,24 @@ mod tests {
                 ],
             ),
         ] {
+            let manifest = parse_source_manifest(raw_manifest, &policy).unwrap();
             assert_eq!(manifest.endpoint_patterns, [endpoint.to_string()]);
-            for (fixture_path, fixture) in fixtures {
-                let reviewed_fixture = manifest
-                    .fixtures
-                    .iter()
-                    .find(|fixture| fixture.path == fixture_path)
-                    .unwrap();
-                assert_eq!(
-                    reviewed_fixture.payload_sha256,
-                    hex::encode(Sha256::digest(fixture))
-                );
-            }
+            assert_eq!(
+                manifest
+                    .simulate(
+                        &policy,
+                        SourceOperation::ScheduledCheck,
+                        chrono::NaiveDate::from_ymd_opt(2026, 7, 19).unwrap(),
+                        SourceGrantState::NotRequired,
+                        &fixtures,
+                    )
+                    .unwrap()
+                    .decision,
+                SourceActionDecision::Allowed {
+                    request_limit_per_hour: 1_000,
+                    connectivity_required: true,
+                }
+            );
         }
     }
 }

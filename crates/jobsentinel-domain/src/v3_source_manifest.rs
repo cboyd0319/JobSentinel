@@ -258,6 +258,16 @@ impl SourceManifest {
                 return Err("source fixture SHA-256 must be lowercase".to_string());
             }
         }
+        if [&self.terms_review, &self.robots_review]
+            .iter()
+            .any(|review| review.status == SourceReviewStatus::Reviewed)
+            && !self
+                .fixtures
+                .iter()
+                .any(|fixture| fixture.kind == SourceFixtureKind::Policy)
+        {
+            return Err("reviewed source policy evidence must be hash-bound".to_string());
+        }
         require_unique_nonempty("source fields", &self.supported_fields, |value| *value)?;
         if self.max_age_days == 0
             || self.max_age_days > 3_650
@@ -289,6 +299,7 @@ impl SourceManifest {
             SourceStopCondition::PolicyChanged,
             SourceStopCondition::ReviewExpired,
             SourceStopCondition::AccessBlocked,
+            SourceStopCondition::ParserDrift,
         ] {
             if !self.stop_conditions.contains(&required) {
                 return Err("source manifest omits a required stop condition".to_string());

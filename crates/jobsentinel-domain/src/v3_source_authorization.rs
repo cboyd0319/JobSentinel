@@ -1,4 +1,5 @@
 use chrono::{Days, NaiveDate};
+use sha2::{Digest, Sha256};
 use url::Url;
 
 use crate::{
@@ -34,6 +35,14 @@ pub enum SourceActionDecision {
     Stale,
     Revoked,
     Unsupported,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SourceSimulationReport {
+    pub decision: SourceActionDecision,
+    pub manifest_expires_on: NaiveDate,
+    pub review_expires_on: Option<NaiveDate>,
+    pub risk_note_refs: Vec<String>,
 }
 
 #[must_use]
@@ -81,10 +90,7 @@ impl SourceManifest {
         let Some(rule) = self.actions.iter().find(|rule| rule.operation == operation) else {
             return Ok(SourceActionDecision::Unsupported);
         };
-        let expires_on = self
-            .verified_on
-            .checked_add_days(Days::new(self.max_age_days.into()))
-            .ok_or_else(|| "source freshness window is invalid".to_string())?;
+        let expires_on = checked_expiry(self.verified_on, self.max_age_days)?;
         if today > expires_on {
             return Ok(SourceActionDecision::Stale);
         }
@@ -123,6 +129,67 @@ impl SourceManifest {
             connectivity_required: operation.connectivity_required(),
         })
     }
+
+    pub fn simulate(
+        &self,
+        policy: &SourcePolicy,
+        operation: SourceOperation,
+        today: NaiveDate,
+        grant: SourceGrantState,
+        fixtures: &[(&str, &[u8])],
+    ) -> Result<SourceSimulationReport, String> {
+        let authorized = self.authorize(policy, operation, today, grant)?;
+        let decision = if self.fixtures_are_current(fixtures) {
+            authorized
+        } else {
+            SourceActionDecision::Blocked(SourceStopCondition::ParserDrift)
+        };
+
+        let manifest_expires_on = checked_expiry(self.verified_on, self.max_age_days)?;
+        let review_expires_on = [&self.terms_review, &self.robots_review]
+            .into_iter()
+            .filter_map(|review| {
+                (review.status == SourceReviewStatus::Reviewed)
+                    .then_some(review.reviewed_on)
+                    .flatten()
+            })
+            .map(|reviewed_on| checked_expiry(reviewed_on, self.max_age_days))
+            .collect::<Result<Vec<_>, _>>()?
+            .into_iter()
+            .min();
+
+        Ok(SourceSimulationReport {
+            decision,
+            manifest_expires_on,
+            review_expires_on,
+            risk_note_refs: self.risk_note_refs.clone(),
+        })
+    }
+
+    fn fixtures_are_current(&self, fixtures: &[(&str, &[u8])]) -> bool {
+        self.fixtures.len() == fixtures.len()
+            && self.fixtures.iter().all(|expected| {
+                let mut matching = fixtures.iter().filter(|(path, _)| *path == expected.path);
+                let Some((_, payload)) = matching.next() else {
+                    return false;
+                };
+                matching.next().is_none()
+                    && hex::encode(Sha256::digest(payload)) == expected.payload_sha256
+            })
+            && fixtures.iter().all(|(path, _)| {
+                self.fixtures
+                    .iter()
+                    .filter(|expected| expected.path == *path)
+                    .count()
+                    == 1
+            })
+    }
+}
+
+fn checked_expiry(reviewed_on: NaiveDate, max_age_days: u16) -> Result<NaiveDate, String> {
+    reviewed_on
+        .checked_add_days(Days::new(max_age_days.into()))
+        .ok_or_else(|| "source freshness window is invalid".to_string())
 }
 
 impl SourceReview {
@@ -139,9 +206,7 @@ impl SourceReview {
                 Err("source review date cannot be in the future".to_string())
             }
             (SourceReviewStatus::Reviewed, Some(reviewed_on)) => {
-                let expires_on = reviewed_on
-                    .checked_add_days(Days::new(max_age_days.into()))
-                    .ok_or_else(|| "source review freshness window is invalid".to_string())?;
+                let expires_on = checked_expiry(reviewed_on, max_age_days)?;
                 Ok(
                     (today > expires_on).then_some(SourceActionDecision::Blocked(
                         SourceStopCondition::ReviewExpired,

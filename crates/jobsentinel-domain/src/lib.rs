@@ -21,6 +21,8 @@ pub mod v3_source_consent;
 pub mod v3_source_manifest;
 #[cfg(test)]
 mod v3_source_manifest_tests;
+#[cfg(test)]
+mod v3_source_simulator_tests;
 pub mod v3_veteran_public_service;
 
 pub use application_assistance::{

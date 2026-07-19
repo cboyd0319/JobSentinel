@@ -41,6 +41,12 @@
       "kind": "detail",
       "path": "crates/jobsentinel-sources/src/fixtures/remoteok_detail_v1.json",
       "payload_sha256": "2ccaa146536931cccbba578a11e28bf63ec438e8f24182d4d66ed75903c8c925"
+    },
+    {
+      "fixture_id": "remoteok-policy-review-v1",
+      "kind": "policy",
+      "path": "crates/jobsentinel-domain/src/fixtures/source_reviews/remoteok_v1.json",
+      "payload_sha256": "b9502f719caa83088ab7b2dddb9dca645213bc7f848092b195972e09e6677b94"
     }
   ],
   "supported_fields": [

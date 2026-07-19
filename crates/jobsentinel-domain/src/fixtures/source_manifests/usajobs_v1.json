@@ -19,9 +19,9 @@
     }
   ],
   "terms_review": {
-    "status": "reviewed",
+    "status": "review_required",
     "reference": "source-review.usajobs.terms",
-    "reviewed_on": "2026-07-19"
+    "reviewed_on": null
   },
   "robots_review": {
     "status": "not_applicable",
@@ -41,6 +41,12 @@
       "kind": "detail",
       "path": "crates/jobsentinel-sources/src/fixtures/usajobs_detail_v1.json",
       "payload_sha256": "3f76a979052028e4f7a0db151384bfae2f7a93e3f5945b6d1e4b88f2af6b4cd4"
+    },
+    {
+      "fixture_id": "usajobs-policy-review-v1",
+      "kind": "policy",
+      "path": "crates/jobsentinel-domain/src/fixtures/source_reviews/usajobs_v1.json",
+      "payload_sha256": "c717362fb36ee684332bdaf65f111192de18d2dffb7c98b1b4af71a457f5175c"
     }
   ],
   "supported_fields": [

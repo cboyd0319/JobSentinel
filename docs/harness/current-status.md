@@ -50,8 +50,8 @@ Last updated: 2026-07-19
 - Status: `active`
 - Objective: Build the governed source graph and browser companion boundary.
 - Current slice: Official APIs, ATS feeds, and community sources are governed;
-  YC automation is retired under current terms. Consolidate remaining source actions.
-- Next action: Govern user-directed source paths, then complete the Gate 3 simulator and protocol evidence.
+  YC automation is retired; the source simulator and policy fixtures are complete.
+- Next action: Govern remaining source paths, then complete Gate 3 evidence.
 
 ## Deferred
 

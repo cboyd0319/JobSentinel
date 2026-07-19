@@ -127,11 +127,20 @@ fn source_manifest_rejects_unknown_unsafe_or_unverified_input() {
     value["unreviewed_extension"] = json!(true);
     assert!(parse_source_manifest(&value.to_string(), &policy).is_err());
 
+    for required in ["policy_disabled", "parser_drift"] {
+        let mut value = fixture();
+        value["stop_conditions"]
+            .as_array_mut()
+            .unwrap()
+            .retain(|condition| condition != required);
+        assert!(parse_source_manifest(&value.to_string(), &policy).is_err());
+    }
+
     let mut value = fixture();
-    value["stop_conditions"]
+    value["fixtures"]
         .as_array_mut()
         .unwrap()
-        .retain(|condition| condition != "policy_disabled");
+        .retain(|fixture| fixture["kind"] != "policy");
     assert!(parse_source_manifest(&value.to_string(), &policy).is_err());
 }
 
@@ -244,6 +253,10 @@ fn fixture_hashes_bind_to_real_synthetic_payloads() {
             "crates/jobsentinel-domain/src/fixtures/source_simulator/synthetic_official_detail.json",
             include_bytes!("fixtures/source_simulator/synthetic_official_detail.json").as_slice(),
         ),
+        (
+            "crates/jobsentinel-domain/src/fixtures/source_reviews/synthetic_official_v1.json",
+            include_bytes!("fixtures/source_reviews/synthetic_official_v1.json").as_slice(),
+        ),
     ];
     assert_eq!(fixtures.len(), expected.len());
     for (fixture, (path, payload)) in fixtures.iter().zip(expected) {
@@ -251,6 +264,30 @@ fn fixture_hashes_bind_to_real_synthetic_payloads() {
         assert_eq!(
             fixture["payload_sha256"].as_str().unwrap(),
             hex::encode(Sha256::digest(payload))
+        );
+    }
+}
+
+#[test]
+fn reviewed_source_manifests_bind_policy_evidence() {
+    for raw in [
+        BASELINE,
+        USAJOBS_SOURCE_MANIFEST_V1,
+        REMOTEOK_SOURCE_MANIFEST_V1,
+        WEWORKREMOTELY_SOURCE_MANIFEST_V1,
+        HN_HIRING_SOURCE_MANIFEST_V1,
+        GREENHOUSE_SOURCE_MANIFEST_V1,
+        LEVER_SOURCE_MANIFEST_V1,
+    ] {
+        let value: Value = serde_json::from_str(raw).unwrap();
+        assert!(
+            value["fixtures"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .any(|fixture| fixture["kind"] == "policy"),
+            "{} must hash-bind its dated policy review",
+            value["source_id"]
         );
     }
 }

@@ -112,6 +112,7 @@ pub(super) async fn run_usajobs(
 mod tests {
     use super::*;
     use crate::test_support::minimal_test_config;
+    use jobsentinel_domain::v3_source_authorization::SourceGrantState;
 
     #[tokio::test]
     async fn shutdown_skips_usajobs_before_credential_access() {
@@ -142,7 +143,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn installed_usajobs_governance_authorizes_the_current_policy_limit() {
+    async fn installed_usajobs_governance_requires_approved_use_review() {
         let database = Arc::new(Database::connect_memory().await.unwrap());
         database.migrate().await.unwrap();
         let today = chrono::NaiveDate::from_ymd_opt(2026, 7, 19).unwrap();
@@ -159,15 +160,12 @@ mod tests {
             )
             .await
             .unwrap(),
-            SourceActionDecision::Allowed {
-                request_limit_per_hour: 60,
-                connectivity_required: true,
-            }
+            SourceActionDecision::ReviewRequired
         );
     }
 
     #[test]
-    fn usajobs_manifest_hashes_bind_to_reviewed_parser_fixtures() {
+    fn usajobs_source_simulator_binds_reviewed_parser_and_policy_fixtures() {
         let policy = crate::v3_source_governance::usajobs_policy().unwrap();
         let manifest = jobsentinel_domain::v3_source_manifest::parse_source_manifest(
             jobsentinel_domain::v3_source_manifest::USAJOBS_SOURCE_MANIFEST_V1,
@@ -189,18 +187,28 @@ mod tests {
                 )
                 .as_slice(),
             ),
+            (
+                "crates/jobsentinel-domain/src/fixtures/source_reviews/usajobs_v1.json",
+                include_bytes!(
+                    "../../../../../jobsentinel-domain/src/fixtures/source_reviews/usajobs_v1.json"
+                )
+                .as_slice(),
+            ),
         ];
 
-        for (path, payload) in fixtures {
-            let fixture = manifest
-                .fixtures
-                .iter()
-                .find(|fixture| fixture.path == path)
-                .unwrap();
-            use sha2::{Digest, Sha256};
-
-            assert_eq!(fixture.payload_sha256, hex::encode(Sha256::digest(payload)));
-        }
+        assert_eq!(
+            manifest
+                .simulate(
+                    &policy,
+                    SourceOperation::ScheduledCheck,
+                    chrono::NaiveDate::from_ymd_opt(2026, 7, 19).unwrap(),
+                    SourceGrantState::NotRequired,
+                    &fixtures,
+                )
+                .unwrap()
+                .decision,
+            SourceActionDecision::ReviewRequired
+        );
     }
 
     #[tokio::test]

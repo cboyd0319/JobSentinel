@@ -54,6 +54,12 @@
       "kind": "detail",
       "path": "crates/jobsentinel-sources/src/fixtures/weworkremotely_detail_v1.xml",
       "payload_sha256": "d6b6e84bbb07b2990f96d10aca8385a226d81c0c02e5ed87773ac503b614a7e2"
+    },
+    {
+      "fixture_id": "weworkremotely-policy-review-v1",
+      "kind": "policy",
+      "path": "crates/jobsentinel-domain/src/fixtures/source_reviews/weworkremotely_v1.json",
+      "payload_sha256": "1dec6485e08de8abc05e3dd3d38d003df2e0a80c53a959990511675824429ce8"
     }
   ],
   "supported_fields": [

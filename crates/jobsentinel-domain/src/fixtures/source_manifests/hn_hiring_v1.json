@@ -44,6 +44,12 @@
       "kind": "detail",
       "path": "crates/jobsentinel-sources/src/fixtures/hn_hiring_detail_v1.json",
       "payload_sha256": "8535ec4e36c2435bab77002441704b25918b72e56d6db368212baf9c1f04ffe0"
+    },
+    {
+      "fixture_id": "hn-hiring-policy-review-v1",
+      "kind": "policy",
+      "path": "crates/jobsentinel-domain/src/fixtures/source_reviews/hn_hiring_v1.json",
+      "payload_sha256": "5e43e6881e62caee1e7576e50395b3eb152e9cb4d6f11d503c06c7bc5392c30b"
     }
   ],
   "supported_fields": [

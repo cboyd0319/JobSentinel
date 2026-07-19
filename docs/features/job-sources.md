@@ -333,12 +333,13 @@ request. Restored or hand-edited config cannot create or preserve consent.
 Changing the policy or active request pauses the source and returns a plain
 recovery message telling the user to review it again in Settings.
 
-USAJOBS scheduled and connectivity checks require the exact current persisted
-official-API manifest and policy before JobSentinel reads the saved access code.
-The manifest binds the exact API endpoint, local-credential requirement,
-reviewed list and detail fixture hashes, and a paced 60-request-per-hour rate
-with no automatic retries or multi-request burst. Missing, stale, disabled, or
-drifted governance stops before credential access or network work.
+USAJOBS scheduled and connectivity checks are currently review-required and
+stop before JobSentinel reads the saved access code. The current terms limit API
+data to the registered consumer's approved use and prohibit derivative works.
+JobSentinel has not established that every user's registration covers
+normalized local persistence, so the manifest keeps automation fail-closed
+until that approved-use boundary is represented by dated evidence. This is a
+provider-policy boundary, not a legal conclusion.
 
 Greenhouse and Lever scheduled and connectivity checks require exact persisted
 Public ATS manifests and policies before network access. Each manifest binds
@@ -353,15 +354,23 @@ remain local and are not sent to external model training. Missing, stale,
 disabled, or drifted governance stops both the scheduled source and its fixed
 connectivity check before network access.
 
+All six governed API, feed, community, and public ATS manifests use the same
+pure source simulator. It calls the production authorization contract, requires
+every declared parser and policy fixture exactly once, hashes the supplied bytes,
+and reports the action decision, manifest and review expiry, and risk-note
+references. Missing, changed, extra, or duplicate fixtures produce the
+`parser_drift` stop condition. Simulator checks use only committed synthetic
+fixtures and do not contact a source.
+
 RemoteOK scheduled and connectivity checks use the same exact persisted-policy
 and manifest gate before network access. The reviewed first-party API notice
 requires attribution and a followed link to the RemoteOK listing and prohibits
 unapproved logo use. The reviewed robots policy allows ordinary public paths
-with a one-second crawl delay, reserves model-training use, and excludes user
-profiles and query endpoints. JobSentinel uses only the exact `/api` feed for a
-local user-directed job search, never sends it to model training, paces the
-authorized 500-request-per-hour rate without a multi-request burst, and does
-not retry failed requests automatically.
+with a one-second crawl delay, reserves model-training use, and excludes query
+endpoints; named AI crawler groups also exclude user profiles. JobSentinel uses
+only the exact `/api` feed for a local user-directed job search, never sends it
+to model training, paces the authorized 500-request-per-hour rate without a
+multi-request burst, and does not retry failed requests automatically.
 
 We Work Remotely scheduled and connectivity checks use only its
 [advertised public RSS feeds](https://weworkremotely.com/remote-job-rss-feed).
