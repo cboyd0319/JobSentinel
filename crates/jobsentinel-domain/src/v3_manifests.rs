@@ -1,3 +1,5 @@
+use chrono::NaiveDate;
+use jobsentinel_security::validate_credential_free_external_https_url;
 use serde::{Deserialize, Serialize};
 
 use crate::v3_contracts::{
@@ -158,6 +160,7 @@ pub struct LocationRules {
 pub struct RegionManifest {
     pub schema: SchemaId,
     pub region_id: String,
+    pub reviewed_on: NaiveDate,
     pub country_codes: Vec<String>,
     pub languages: Vec<String>,
     pub currencies: Vec<String>,
@@ -168,6 +171,7 @@ pub struct RegionManifest {
     pub cv_profiles: Vec<String>,
     pub taxonomy_ids: Vec<String>,
     pub policy_note_refs: Vec<String>,
+    pub provenance_refs: Vec<String>,
     pub evaluation_fixture_ids: Vec<String>,
     pub incomplete_coverage: bool,
 }
@@ -323,10 +327,11 @@ impl PackManifest {
 }
 
 impl RegionManifest {
-    pub fn validate(&self) -> Result<(), String> {
+    pub fn validate(&self, today: NaiveDate) -> Result<(), String> {
         require_schema(self.schema, SchemaId::RegionManifestV1)?;
         require_nonempty("region id", &self.region_id)?;
-        if !self.incomplete_coverage
+        if self.reviewed_on > today
+            || !self.incomplete_coverage
             || self.country_codes.is_empty()
             || !self
                 .country_codes
@@ -345,6 +350,15 @@ impl RegionManifest {
             || self.cv_profiles.is_empty()
             || self.taxonomy_ids.is_empty()
             || self.policy_note_refs.is_empty()
+            || !self
+                .policy_note_refs
+                .iter()
+                .all(|reference| is_reference(reference))
+            || self.provenance_refs.is_empty()
+            || !self
+                .provenance_refs
+                .iter()
+                .all(|reference| is_reference(reference))
             || self.evaluation_fixture_ids.is_empty()
         {
             return Err("region manifest must declare reviewed starter coverage".to_string());
@@ -426,4 +440,13 @@ impl VectorFreshness {
 
 fn is_upper_ascii_code(value: &str, len: usize) -> bool {
     value.len() == len && value.bytes().all(|byte| byte.is_ascii_uppercase())
+}
+
+fn is_reference(value: &str) -> bool {
+    value.strip_prefix("docs/").is_some_and(|path| {
+        !path.is_empty() && !path.contains("..") && !path.chars().any(char::is_whitespace)
+    }) || (value
+        .strip_prefix("https://")
+        .is_some_and(|authority| !authority.starts_with('/'))
+        && validate_credential_free_external_https_url(value).is_ok())
 }

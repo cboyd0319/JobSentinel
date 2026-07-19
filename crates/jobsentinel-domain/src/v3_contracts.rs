@@ -1,5 +1,6 @@
 use std::collections::BTreeMap;
 
+use chrono::NaiveDate;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 
 use crate::v3_manifests::{
@@ -98,6 +99,8 @@ pub enum PayPeriod {
     Monthly,
     Annual,
     Contract,
+    Stipend,
+    NotDisclosed,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -193,9 +196,9 @@ pub fn parse_pack_manifest(input: &str) -> Result<PackManifest, String> {
     Ok(manifest)
 }
 
-pub fn parse_region_manifest(input: &str) -> Result<RegionManifest, String> {
+pub fn parse_region_manifest(input: &str, today: NaiveDate) -> Result<RegionManifest, String> {
     let manifest: RegionManifest = parse_contract(input, SchemaId::RegionManifestV1)?;
-    manifest.validate()?;
+    manifest.validate(today)?;
     Ok(manifest)
 }
 
@@ -363,6 +366,10 @@ mod tests {
         serde_json::from_str(V3_BASELINE).expect("baseline fixtures must be valid JSON")
     }
 
+    fn today() -> chrono::NaiveDate {
+        chrono::NaiveDate::from_ymd_opt(2026, 7, 19).unwrap()
+    }
+
     #[test]
     fn explicit_pre_v3_config_requires_safe_forward_migration() {
         assert_eq!(
@@ -398,7 +405,7 @@ mod tests {
             .contains(&PrivacyLabel::LocalOnly));
         parse_artifact_manifest(&fixtures.artifact_manifest.to_string()).unwrap();
         parse_agent_task(&fixtures.agent_task.to_string()).unwrap();
-        parse_region_manifest(&fixtures.region_manifest.to_string()).unwrap();
+        parse_region_manifest(&fixtures.region_manifest.to_string(), today()).unwrap();
         parse_edition_manifest(&fixtures.edition_manifest.to_string()).unwrap();
         let model = parse_model_provenance(&fixtures.model_provenance.to_string()).unwrap();
         parse_vector_freshness(&fixtures.vector_freshness.to_string(), &model).unwrap();
@@ -480,7 +487,7 @@ mod tests {
     fn region_and_edition_require_runtime_compatibility_semantics() {
         let mut region = fixtures().region_manifest;
         region.as_object_mut().unwrap().remove("pay_periods");
-        assert!(parse_region_manifest(&region.to_string()).is_err());
+        assert!(parse_region_manifest(&region.to_string(), today()).is_err());
 
         let mut edition = fixtures().edition_manifest;
         edition.as_object_mut().unwrap().remove("platform");

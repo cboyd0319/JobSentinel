@@ -73,6 +73,7 @@
   "region_manifest": {
     "schema": "jobsentinel.v3.region-manifest.v1",
     "region_id": "us",
+    "reviewed_on": "2026-07-19",
     "country_codes": ["US"],
     "languages": ["en"],
     "currencies": ["USD"],
@@ -92,7 +93,11 @@
     "cv_profiles": ["us_general"],
     "taxonomy_ids": ["onet_29_1"],
     "policy_note_refs": ["docs/research/job-site-data-sources.md"],
-    "evaluation_fixture_ids": ["source_truth_us_v1"],
+    "provenance_refs": [
+      "docs/plans/v3/regional-readiness-framework.md",
+      "https://www.onetcenter.org/overview.html"
+    ],
+    "evaluation_fixture_ids": ["source-truth-official-absence-v1"],
     "incomplete_coverage": true
   },
   "edition_manifest": {
