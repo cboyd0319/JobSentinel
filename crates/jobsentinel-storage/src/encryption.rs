@@ -46,6 +46,7 @@ pub(super) async fn connect_encrypted_pool(
         .pragma("checksum_verification", "ON")
         .pragma("trusted_schema", "OFF")
         .pragma("secure_delete", "ON")
+        .pragma("auto_vacuum", "INCREMENTAL")
         .pragma("wal_autocheckpoint", "1000")
         .pragma("cache_size", "-128000")
         .pragma("temp_store", "MEMORY")
@@ -475,7 +476,6 @@ mod tests {
                 .unwrap();
             plaintext_pool.close().await;
         }
-
         let key = super::load_or_create_database_key().await.unwrap();
         super::encrypt_plaintext_database(&db_path, &key, &backup_dir)
             .await

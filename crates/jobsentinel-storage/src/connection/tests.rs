@@ -1,5 +1,6 @@
 use super::*;
 
+mod maintenance_tests;
 mod migration_tests;
 mod portable_backup_tests;
 mod portable_restore_tests;

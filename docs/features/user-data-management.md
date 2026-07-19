@@ -21,6 +21,7 @@ the current account and keeps local database files owner-only.
 | Safe support reports | Local only, Sensitive | Reports are sanitized before copy or save. |
 | Local-data backups | Local only, Sensitive | Backup files stay on the user's device and leave saved connection details out. |
 | Reviewed plaintext exports | Local only, Sensitive | Exports require a separate review, leave managed credentials and paths out, and never overwrite an existing file. |
+| Storage health and cleanup | Local only, Aggregate | Inspection reports only health and byte totals; cleanup preserves application records and works offline. |
 | Location detection | Sensitive | Public-IP lookup happens only after explicit user action. |
 
 External AI is not required for user-data management. If an outside-AI send is
@@ -161,6 +162,25 @@ private links, protected facts, or other sensitive details that JobSentinel
 cannot identify reliably without damaging the user's records. Review the
 plaintext artifact before sharing it. The destination must remain private.
 JobSentinel does not overwrite an existing destination.
+
+### Storage Health And Cleanup
+
+Storage inspection works without network access and reports only whether the
+local database is healthy, the aggregate number of already-free bytes, the
+write-ahead log size when a database file exists, and whether SQLite supports
+incremental page reclamation. It does not expose record contents, table counts,
+credentials, or private file paths.
+
+Cleanup first checks database and relationship integrity. If either check
+fails, cleanup makes no change and directs recovery to a compatible backup.
+For a healthy database, cleanup checkpoints SQLite's write-ahead log and asks
+SQLite to reclaim at most 100 already-free pages when incremental vacuum is
+enabled. It does not delete application records, rebuild indexes or search
+data, contact a service, inspect credentials, or remove backups, exports,
+restore data, model files, or other artifacts. A busy write-ahead log is a
+reported failure rather than a reason to force another process or reader out.
+Each attempted cleanup after the health check records only structural local
+provenance and a sanitized error category.
 
 ## Older Local Data
 

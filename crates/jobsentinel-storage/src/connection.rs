@@ -11,6 +11,7 @@ mod reviewed_export_inspect;
 mod reviewed_export_sanitize;
 mod reviewed_export_schema;
 
+pub use maintenance::{StorageHealth, StorageMaintenanceReport};
 pub use portable_backup::PortableBackupInfo;
 pub use reviewed_export::{ReviewedExportInfo, ReviewedExportPlan, ReviewedExportSelection};
 
@@ -134,21 +135,6 @@ impl Database {
             .await
             .ok(); // Ignore errors (can't change after DB created)
         tracing::debug!("Page size = 4096 bytes (if new DB)");
-
-        // Enable auto_vacuum for automatic space reclamation
-        // Options: NONE (manual), FULL (auto shrink), INCREMENTAL (auto but controlled)
-        sqlx::query("PRAGMA auto_vacuum = INCREMENTAL")
-            .execute(pool)
-            .await?;
-        tracing::debug!("Auto vacuum = INCREMENTAL");
-
-        // Run incremental vacuum to reclaim some free pages immediately
-        // Argument = number of pages to free (0 = free all)
-        sqlx::query("PRAGMA incremental_vacuum(100)")
-            .execute(pool)
-            .await
-            .ok(); // Ignore errors if no pages to free
-        tracing::debug!("Incremental vacuum attempted (100 pages)");
 
         // Set application ID (unique identifier for JobSentinel)
         // Helps identify database files in forensic analysis
