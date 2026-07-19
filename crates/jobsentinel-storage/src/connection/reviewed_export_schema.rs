@@ -274,6 +274,11 @@ pub(super) const EXPORT_TABLES: &[ExportTable] = &[
         "link_id,source_id,relation,related_id,provenance,provenance_ref,created_at"
     ),
     table!(
+        "sources",
+        "v3_source_manifests",
+        "source_id,policy_ref,policy_revision,manifest_json,created_at,updated_at"
+    ),
+    table!(
         "resume",
         "user_education",
         "id,resume_id,degree,field_of_study,institution,graduation_year,gpa,created_at"

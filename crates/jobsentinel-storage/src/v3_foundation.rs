@@ -3,7 +3,7 @@ use chrono::Utc;
 use jobsentinel_domain::{
     v3_foundation::{
         CareerGraphLink, CaseFile, CaseFileEvent, CaseFileEventInput, CompatibilityMetadata,
-        SourceGraphLink, SourcePolicy,
+        SourceGraphLink, SourcePolicy, SourceRelation,
     },
     v3_manifests::PrivacyReceipt,
 };
@@ -162,6 +162,9 @@ impl Database {
     pub async fn insert_source_graph_link(&self, link: &SourceGraphLink) -> Result<()> {
         link.validate()
             .map_err(|_| anyhow!("invalid source graph link"))?;
+        if link.relation == SourceRelation::Lineage {
+            return Err(anyhow!("source lineage is owned by source manifests"));
+        }
         sqlx::query(
             "INSERT INTO source_graph_links (
                 link_id, source_id, relation, related_id,
@@ -283,6 +286,25 @@ impl Database {
         .await?
         .map(source_policy_from_row)
         .transpose()
+    }
+
+    pub(crate) async fn get_source_policy_revision(
+        &self,
+        source_id: &str,
+        revision: i64,
+    ) -> Result<SourcePolicy> {
+        let row = sqlx::query_as::<_, SourcePolicyRow>(
+            "SELECT source_id, source_class, access, request_limit_per_hour,
+                    user_review_required, policy_ref, revision,
+                    restriction_reason_code, reviewed_at
+             FROM v3_source_policy_ledger
+             WHERE source_id = ? AND revision = ?",
+        )
+        .bind(source_id)
+        .bind(revision)
+        .fetch_one(self.pool())
+        .await?;
+        source_policy_from_row(row)
     }
 
     pub async fn read_compatibility_metadata(&self) -> Result<CompatibilityMetadata> {

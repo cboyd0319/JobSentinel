@@ -18,6 +18,7 @@ pub mod salary;
 pub mod user_data;
 pub mod v3_foundation;
 pub mod v3_source_consent;
+pub mod v3_source_manifest;
 
 // Internal modules
 mod analytics;
@@ -37,6 +38,8 @@ mod outside_ai_tests;
 pub(crate) mod test_support;
 #[cfg(test)]
 mod tests;
+#[cfg(test)]
+mod v3_source_manifest_tests;
 
 // Re-export public types
 pub use types::{DuplicateGroup, GhostStatistics, Statistics};

@@ -43,5 +43,5 @@ async fn migration_13_backfills_existing_policy_once() {
             .fetch_one(database.pool())
             .await
             .unwrap();
-    assert_eq!(migration_version, 14);
+    assert_eq!(migration_version, 15);
 }

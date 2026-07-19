@@ -56,7 +56,7 @@ async fn portable_backup_is_encrypted_verified_and_excludes_secrets() {
 
     assert_eq!(created.format_version, 1);
     assert_eq!(created.database_schema, 2);
-    assert_eq!(created.migration_sequence, 12);
+    assert_eq!(created.migration_sequence, 15);
     assert!(!created.backup_id.is_empty());
     assert_eq!(
         Database::inspect_portable_backup(&backup_path, BACKUP_PASSPHRASE)
@@ -352,7 +352,7 @@ async fn portable_backup_refuses_a_newer_migration_ledger() {
     sqlx::query(
         "INSERT INTO _sqlx_migrations(
             version, description, success, checksum, execution_time
-         ) VALUES (15, 'future migration', 1, zeroblob(48), 0)",
+         ) VALUES (16, 'future migration', 1, zeroblob(48), 0)",
     )
     .execute(&backup)
     .await
