@@ -157,4 +157,4 @@
       "evidence": ["docs/harness/evidence/v3-milestone-3-offline-recovery-platform-repair-2026-07-19.json"], "blocker": "", "next_trigger": "A Milestone 3 regression reopens this feature."
     }, { "id": "v3-milestone-4-source-graph-browser-companion", "priority": 18, "area": "v3 sources", "title": "Build the source graph and browser companion", "status": "active",
       "behavior": "Source identity, policy, permissions, lineage, pacing, and browser capture fail closed behind reviewed contracts.", "user_visible_behavior": "Users can understand, control, revoke, and explain every source action.",
-      "verification": ["npm run harness:check"], "evidence": ["docs/harness/evidence/v3-milestone-4-starter-region-manifests-2026-07-19.json"], "blocker": "", "next_trigger": "Pair Browser Import, then complete Gate 3." } ] }
+      "verification": ["npm run harness:check"], "evidence": ["docs/harness/evidence/v3-milestone-4-browser-companion-pairing-2026-07-19.json"], "blocker": "", "next_trigger": "Close remaining source actions and Gate 3." } ] }

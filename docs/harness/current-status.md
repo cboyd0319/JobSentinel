@@ -48,10 +48,10 @@ Last updated: 2026-07-19
 
 - Active feature: `v3-milestone-4-source-graph-browser-companion`
 - Status: `active`
-- Current slice: Governed source actions plus dated, incomplete UK, EU, and
-  India research manifests.
-- Next action: Replace Browser Import with origin-bound, one-use pairing, then
-  disposition Smart Paste and applied logging before Gate 3.
+- Current slice: Governed source actions, starter region manifests, and
+  origin-bound one-use Browser Import pairing.
+- Next action: Govern Smart Paste and browser-origin applied logging, then close
+  the source simulators and Gate 3.
 
 ## Deferred
 
