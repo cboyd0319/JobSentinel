@@ -15,7 +15,10 @@ use jobsentinel_sources::{
     LINKEDIN_AUTOMATION_DISABLED_MESSAGE,
 };
 use jobsentinel_storage::Database;
-use std::sync::Arc;
+use std::sync::{
+    atomic::{AtomicBool, Ordering},
+    Arc,
+};
 
 fn scraper_failure_kind(error: &ScraperError) -> &'static str {
     match error {
@@ -36,11 +39,21 @@ fn source_failure_message(source_label: &'static str, failure_kind: &'static str
     format!("{source_label} source check failed ({failure_kind})")
 }
 
+fn record_audit_failure(errors: &mut Vec<String>, source_label: &'static str) {
+    tracing::error!(
+        source = source_label,
+        failure_kind = "audit_unavailable",
+        "Source check audit unavailable"
+    );
+    errors.push(source_failure_message(source_label, "audit_unavailable"));
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) enum ScraperRunOutcome {
     Success { jobs_found: usize },
     Timeout,
     Failure,
+    Cancelled,
 }
 
 pub(super) async fn run_scraper<S: JobScraper + ?Sized>(
@@ -48,23 +61,38 @@ pub(super) async fn run_scraper<S: JobScraper + ?Sized>(
     scraper: &S,
     source_id: &'static str,
     source_label: &'static str,
+    shutdown_requested: &AtomicBool,
     all_jobs: &mut Vec<Job>,
     errors: &mut Vec<String>,
 ) -> ScraperRunOutcome {
-    let run_id = crate::health::start_run(db, source_id).await.unwrap_or(0);
+    if shutdown_requested.load(Ordering::Acquire) {
+        return ScraperRunOutcome::Cancelled;
+    }
+    let run_id = match crate::health::start_run(db, source_id).await {
+        Ok(run_id) => run_id,
+        Err(_) => {
+            record_audit_failure(errors, source_label);
+            return ScraperRunOutcome::Failure;
+        }
+    };
     let started_at = std::time::Instant::now();
 
     match scraper.scrape().await {
         Ok(jobs) => {
             let jobs_found = jobs.len();
-            let _ = crate::health::complete_run(
+            if crate::health::complete_run(
                 db,
                 run_id,
                 started_at.elapsed().as_millis() as i64,
                 jobs_found,
                 0,
             )
-            .await;
+            .await
+            .is_err()
+            {
+                record_audit_failure(errors, source_label);
+                return ScraperRunOutcome::Failure;
+            }
             tracing::info!(
                 source = source_label,
                 jobs_found,
@@ -104,20 +132,20 @@ pub(super) async fn record_scraper_failure(
     let failure_kind = scraper_failure_kind(error);
     let error_message = source_failure_message(source_label, failure_kind);
 
-    if matches!(error, ScraperError::Timeout { .. }) {
-        let _ = crate::health::timeout_run(db, run_id, duration_ms).await;
+    let audit_result = if matches!(error, ScraperError::Timeout { .. }) {
+        crate::health::timeout_run(db, run_id, duration_ms).await
     } else {
-        let _ =
-            crate::health::fail_run(db, run_id, duration_ms, &error_message, Some(failure_kind))
-                .await;
-    }
-
+        crate::health::fail_run(db, run_id, duration_ms, &error_message, Some(failure_kind)).await
+    };
     tracing::error!(
         source = source_label,
         failure_kind,
         "Scraper source check failed"
     );
     errors.push(error_message);
+    if audit_result.is_err() {
+        record_audit_failure(errors, source_label);
+    }
 }
 
 fn record_source_credential_failure(errors: &mut Vec<String>, source_label: &'static str) {
@@ -166,6 +194,7 @@ pub(crate) async fn run_scrapers(
     config: &Arc<Config>,
     db: &Arc<Database>,
     credentials: &CredentialService,
+    shutdown_requested: &AtomicBool,
 ) -> (Vec<Job>, Vec<String>) {
     tracing::info!("Starting scraper execution across all enabled sources");
     let mut all_jobs = Vec::new();
@@ -194,6 +223,7 @@ pub(crate) async fn run_scrapers(
                 &greenhouse,
                 "greenhouse",
                 "Greenhouse",
+                shutdown_requested,
                 &mut all_jobs,
                 &mut errors,
             )
@@ -217,12 +247,27 @@ pub(crate) async fn run_scrapers(
 
         if !lever_companies.is_empty() {
             let lever = LeverScraper::new(lever_companies);
-            run_scraper(db, &lever, "lever", "Lever", &mut all_jobs, &mut errors).await;
+            run_scraper(
+                db,
+                &lever,
+                "lever",
+                "Lever",
+                shutdown_requested,
+                &mut all_jobs,
+                &mut errors,
+            )
+            .await;
         }
     }
 
-    jobswithgpt_worker::run_jobswithgpt_scraper(config.as_ref(), db, &mut all_jobs, &mut errors)
-        .await;
+    jobswithgpt_worker::run_jobswithgpt_scraper(
+        config.as_ref(),
+        db,
+        shutdown_requested,
+        &mut all_jobs,
+        &mut errors,
+    )
+    .await;
 
     // 4. LinkedIn stays user-directed. Warn without running hidden monitoring.
     if config.linkedin.enabled {
@@ -239,6 +284,7 @@ pub(crate) async fn run_scrapers(
             &remoteok,
             "remoteok",
             "RemoteOK",
+            shutdown_requested,
             &mut all_jobs,
             &mut errors,
         )
@@ -257,6 +303,7 @@ pub(crate) async fn run_scrapers(
             &weworkremotely,
             "weworkremotely",
             "WeWorkRemotely",
+            shutdown_requested,
             &mut all_jobs,
             &mut errors,
         )
@@ -280,6 +327,7 @@ pub(crate) async fn run_scrapers(
                 &builtin,
                 "builtin",
                 "BuiltIn",
+                shutdown_requested,
                 &mut all_jobs,
                 &mut errors,
             )
@@ -296,6 +344,7 @@ pub(crate) async fn run_scrapers(
             &hn_hiring,
             "hn_hiring",
             "HN Who's Hiring",
+            shutdown_requested,
             &mut all_jobs,
             &mut errors,
         )
@@ -313,7 +362,16 @@ pub(crate) async fn run_scrapers(
                 config.dice.location.clone(),
                 config.dice.limit,
             );
-            run_scraper(db, &dice, "dice", "Dice", &mut all_jobs, &mut errors).await;
+            run_scraper(
+                db,
+                &dice,
+                "dice",
+                "Dice",
+                shutdown_requested,
+                &mut all_jobs,
+                &mut errors,
+            )
+            .await;
         }
     }
 
@@ -330,14 +388,30 @@ pub(crate) async fn run_scrapers(
             &yc_startup,
             "yc_startup",
             "YC Startup",
+            shutdown_requested,
             &mut all_jobs,
             &mut errors,
         )
         .await;
     }
 
-    federal::run_usajobs(config, db, credentials, &mut all_jobs, &mut errors).await;
-    browser_sources::run_restricted_browser_sources(config, db, &mut all_jobs, &mut errors).await;
+    federal::run_usajobs(
+        config,
+        db,
+        credentials,
+        shutdown_requested,
+        &mut all_jobs,
+        &mut errors,
+    )
+    .await;
+    browser_sources::run_restricted_browser_sources(
+        config,
+        db,
+        shutdown_requested,
+        &mut all_jobs,
+        &mut errors,
+    )
+    .await;
 
     tracing::info!(
         "Scraper execution complete: {} total jobs, {} errors",

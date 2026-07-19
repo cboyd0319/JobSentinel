@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::sync::{atomic::AtomicBool, Arc};
 
 use crate::config::Config;
 use jobsentinel_domain::Job;
@@ -13,6 +13,7 @@ use super::{
 pub(super) async fn run_restricted_browser_sources(
     config: &Arc<Config>,
     db: &Arc<Database>,
+    shutdown_requested: &AtomicBool,
     all_jobs: &mut Vec<Job>,
     errors: &mut Vec<String>,
 ) {
@@ -34,6 +35,7 @@ pub(super) async fn run_restricted_browser_sources(
                     &simplyhired,
                     "simplyhired",
                     "SimplyHired",
+                    shutdown_requested,
                     all_jobs,
                     errors,
                 )
@@ -58,7 +60,16 @@ pub(super) async fn run_restricted_browser_sources(
             );
 
             if matches!(
-                run_scraper(db, &glassdoor, "glassdoor", "Glassdoor", all_jobs, errors,).await,
+                run_scraper(
+                    db,
+                    &glassdoor,
+                    "glassdoor",
+                    "Glassdoor",
+                    shutdown_requested,
+                    all_jobs,
+                    errors,
+                )
+                .await,
                 ScraperRunOutcome::Success { jobs_found: 0 }
             ) {
                 tracing::warn!("Glassdoor: 0 jobs (may be Cloudflare blocked)");

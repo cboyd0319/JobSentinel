@@ -11,6 +11,10 @@ use tauri::{Emitter, Manager};
 
 pub(crate) use state::AppState;
 
+fn background_cycle_allowed(scheduler: &crate::application::scheduler::Scheduler) -> bool {
+    !scheduler.is_shutdown_requested()
+}
+
 pub(crate) fn run() {
     // Initialize logging with environment filter support
     tracing_subscriber::fmt()
@@ -59,7 +63,21 @@ pub(crate) fn run() {
                 tauri::async_runtime::spawn(async move {
                     tracing::info!("Background scheduler task started");
 
+                    if scheduler_clone.recover_interrupted_runs().await.is_err() {
+                        tracing::error!(
+                            "Background scheduler could not recover interrupted source checks"
+                        );
+                        return;
+                    }
+
                     loop {
+                        if !background_cycle_allowed(&scheduler_clone) {
+                            let mut status = status_clone.write().await;
+                            status.is_running = false;
+                            status.next_run = None;
+                            break;
+                        }
+
                         let auto_refresh_enabled = {
                             let config = config_arc.read().await;
                             config.auto_refresh.enabled
@@ -96,7 +114,6 @@ pub(crate) fn run() {
                             // Keep last_run from previous cycle for continuity
                         }
 
-                        // Run scraping cycle
                         match scheduler_clone.run_scraping_cycle().await {
                             Ok(result) => {
                                 tracing::info!(
@@ -176,4 +193,21 @@ pub(crate) fn run() {
             std::process::exit(1);
         })
         .ok();
+}
+
+#[cfg(test)]
+mod tests {
+    use super::background_cycle_allowed;
+    use crate::application::{desktop::Database, scheduler::Scheduler, Config};
+    use std::sync::Arc;
+
+    #[tokio::test]
+    async fn shutdown_before_bootstrap_cycle_prevents_work() {
+        let database = Database::connect_memory().await.unwrap();
+        database.migrate().await.unwrap();
+        let scheduler = Scheduler::new(Arc::new(Config::first_run()), Arc::new(database));
+        scheduler.shutdown().unwrap();
+
+        assert!(!background_cycle_allowed(&scheduler));
+    }
 }

@@ -3,7 +3,10 @@ use crate::{config::Config, health::SourceRequestOutcome};
 use jobsentinel_domain::Job;
 use jobsentinel_sources::{JobQuery, JobsWithGptScraper};
 use jobsentinel_storage::Database;
-use std::sync::Arc;
+use std::sync::{
+    atomic::{AtomicBool, Ordering},
+    Arc,
+};
 
 fn endpoint_host_for_source_request(endpoint: &str) -> Option<String> {
     url::Url::parse(endpoint)
@@ -24,9 +27,13 @@ async fn finish_source_request_if_recorded(
 pub(super) async fn run_jobswithgpt_scraper(
     config: &Config,
     db: &Arc<Database>,
+    shutdown_requested: &AtomicBool,
     all_jobs: &mut Vec<Job>,
     errors: &mut Vec<String>,
 ) {
+    if shutdown_requested.load(Ordering::Acquire) {
+        return;
+    }
     let Some(jobswithgpt_payload) = config.jobswithgpt_payload_preview() else {
         return;
     };
@@ -89,6 +96,7 @@ pub(super) async fn run_jobswithgpt_scraper(
         &jobswithgpt,
         "jobswithgpt",
         "JobsWithGPT",
+        shutdown_requested,
         all_jobs,
         errors,
     )
@@ -96,7 +104,7 @@ pub(super) async fn run_jobswithgpt_scraper(
     let source_request_outcome = match outcome {
         ScraperRunOutcome::Success { .. } => SourceRequestOutcome::Success,
         ScraperRunOutcome::Timeout => SourceRequestOutcome::Timeout,
-        ScraperRunOutcome::Failure => SourceRequestOutcome::Failure,
+        ScraperRunOutcome::Failure | ScraperRunOutcome::Cancelled => SourceRequestOutcome::Failure,
     };
     finish_source_request_if_recorded(db, source_request_id, source_request_outcome).await;
 }

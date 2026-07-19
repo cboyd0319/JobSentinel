@@ -1,4 +1,7 @@
 use super::*;
+use std::sync::atomic::{AtomicBool, Ordering};
+
+static RUNNING: AtomicBool = AtomicBool::new(false);
 
 enum StubOutcome {
     Success(Vec<Job>),
@@ -18,6 +21,42 @@ impl JobScraper for StubScraper {
             StubOutcome::Timeout => Err(ScraperError::Timeout { timeout_secs: 10 }),
             StubOutcome::Failure => Err(ScraperError::Network),
         }
+    }
+}
+
+struct ObservedScraper {
+    called: AtomicBool,
+}
+
+#[async_trait::async_trait]
+impl JobScraper for ObservedScraper {
+    async fn scrape(&self) -> Result<Vec<Job>, ScraperError> {
+        self.called.store(true, Ordering::Release);
+        Ok(vec![test_job()])
+    }
+}
+
+struct ClosingScraper {
+    database: Arc<Database>,
+}
+
+#[async_trait::async_trait]
+impl JobScraper for ClosingScraper {
+    async fn scrape(&self) -> Result<Vec<Job>, ScraperError> {
+        self.database.close().await;
+        Ok(vec![test_job()])
+    }
+}
+
+struct ClosingFailureScraper {
+    database: Arc<Database>,
+}
+
+#[async_trait::async_trait]
+impl JobScraper for ClosingFailureScraper {
+    async fn scrape(&self) -> Result<Vec<Job>, ScraperError> {
+        self.database.close().await;
+        Err(ScraperError::Network)
     }
 }
 
@@ -47,7 +86,16 @@ async fn scraper_runner_records_and_accumulates_success() {
     let mut jobs = Vec::new();
     let mut errors = Vec::new();
 
-    let outcome = run_scraper(&database, &scraper, "stub", "Stub", &mut jobs, &mut errors).await;
+    let outcome = run_scraper(
+        &database,
+        &scraper,
+        "stub",
+        "Stub",
+        &RUNNING,
+        &mut jobs,
+        &mut errors,
+    )
+    .await;
 
     assert_eq!(outcome, ScraperRunOutcome::Success { jobs_found: 1 });
     assert_eq!(jobs.len(), 1);
@@ -71,6 +119,7 @@ async fn scraper_runner_preserves_partial_results_after_a_later_failure() {
         &successful,
         "first",
         "First",
+        &RUNNING,
         &mut jobs,
         &mut errors,
     )
@@ -80,6 +129,7 @@ async fn scraper_runner_preserves_partial_results_after_a_later_failure() {
         &failed,
         "second",
         "Second",
+        &RUNNING,
         &mut jobs,
         &mut errors,
     )
@@ -99,11 +149,133 @@ async fn scraper_runner_preserves_timeout_outcome() {
     let mut jobs = Vec::new();
     let mut errors = Vec::new();
 
-    let outcome = run_scraper(&database, &scraper, "stub", "Stub", &mut jobs, &mut errors).await;
+    let outcome = run_scraper(
+        &database,
+        &scraper,
+        "stub",
+        "Stub",
+        &RUNNING,
+        &mut jobs,
+        &mut errors,
+    )
+    .await;
 
     assert_eq!(outcome, ScraperRunOutcome::Timeout);
     assert!(jobs.is_empty());
     assert_eq!(errors, ["Stub source check failed (timeout)"]);
+}
+
+#[tokio::test]
+async fn scraper_runner_does_not_call_external_source_without_audit_row() {
+    let database = Arc::new(Database::connect_memory().await.unwrap());
+    let scraper = ObservedScraper {
+        called: AtomicBool::new(false),
+    };
+    let mut jobs = Vec::new();
+    let mut errors = Vec::new();
+
+    let outcome = run_scraper(
+        &database,
+        &scraper,
+        "stub",
+        "Stub",
+        &RUNNING,
+        &mut jobs,
+        &mut errors,
+    )
+    .await;
+
+    assert_eq!(outcome, ScraperRunOutcome::Failure);
+    assert!(!scraper.called.load(Ordering::Acquire));
+    assert!(jobs.is_empty());
+    assert_eq!(errors, ["Stub source check failed (audit_unavailable)"]);
+}
+
+#[tokio::test]
+async fn scraper_runner_does_not_report_success_when_terminal_audit_write_fails() {
+    let database = test_database().await;
+    let scraper = ClosingScraper {
+        database: Arc::clone(&database),
+    };
+    let mut jobs = Vec::new();
+    let mut errors = Vec::new();
+
+    let outcome = run_scraper(
+        &database,
+        &scraper,
+        "stub",
+        "Stub",
+        &RUNNING,
+        &mut jobs,
+        &mut errors,
+    )
+    .await;
+
+    assert_eq!(outcome, ScraperRunOutcome::Failure);
+    assert!(jobs.is_empty());
+    assert_eq!(errors, ["Stub source check failed (audit_unavailable)"]);
+}
+
+#[tokio::test]
+async fn scraper_runner_reports_failed_terminal_error_audit_write() {
+    let database = test_database().await;
+    let scraper = ClosingFailureScraper {
+        database: Arc::clone(&database),
+    };
+    let mut jobs = Vec::new();
+    let mut errors = Vec::new();
+
+    let outcome = run_scraper(
+        &database,
+        &scraper,
+        "stub",
+        "Stub",
+        &RUNNING,
+        &mut jobs,
+        &mut errors,
+    )
+    .await;
+
+    assert_eq!(outcome, ScraperRunOutcome::Failure);
+    assert!(jobs.is_empty());
+    assert_eq!(
+        errors,
+        [
+            "Stub source check failed (network)",
+            "Stub source check failed (audit_unavailable)"
+        ]
+    );
+}
+
+#[tokio::test]
+async fn scraper_runner_stops_before_the_next_external_source() {
+    let database = test_database().await;
+    let scraper = ObservedScraper {
+        called: AtomicBool::new(false),
+    };
+    let shutdown_requested = AtomicBool::new(true);
+    let mut jobs = Vec::new();
+    let mut errors = Vec::new();
+
+    let outcome = run_scraper(
+        &database,
+        &scraper,
+        "stub",
+        "Stub",
+        &shutdown_requested,
+        &mut jobs,
+        &mut errors,
+    )
+    .await;
+
+    assert_eq!(outcome, ScraperRunOutcome::Cancelled);
+    assert!(!scraper.called.load(Ordering::Acquire));
+    assert!(jobs.is_empty());
+    assert!(errors.is_empty());
+    assert!(crate::health::get_scraper_runs(&database, "stub", 1)
+        .await
+        .unwrap()
+        .is_empty());
 }
 
 #[test]
