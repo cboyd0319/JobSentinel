@@ -48,10 +48,10 @@ Last updated: 2026-07-19
 
 - Active feature: `v3-milestone-4-source-graph-browser-companion`
 - Status: `active`
-- Current slice: Governed official, ATS, community, LinkedIn Workbench, and
-  employer-discovery paths; retired blocked adapters; disabled JobsWithGPT.
-- Next action: Add regional manifests and origin-bound visible capture, then
-  disposition Smart Paste and browser-origin applied logging before Gate 3.
+- Current slice: Governed source actions plus dated, incomplete UK, EU, and
+  India research manifests.
+- Next action: Replace Browser Import with origin-bound, one-use pairing, then
+  disposition Smart Paste and applied logging before Gate 3.
 
 ## Deferred
 
