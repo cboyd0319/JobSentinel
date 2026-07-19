@@ -331,6 +331,7 @@ relevant result, and caveat.
 | 2026-07-19 | Milestone 4 connected source governed | Classified the legacy JobsWithGPT path, disabled scheduled contact before audit or transport, preserved local configuration and history, corrected source health through migration 17, and bound provider-review and parser fixtures at `8ef539ad`. Focused checks passed and adversarial correction review returned PASS. Milestone 4 remains active. |
 | 2026-07-19 | Milestone 4 restricted scheduled sources retired | Bound current first-party policy evidence and disabled manifests for Built In, Dice HTML, SimplyHired, and Glassdoor; removed legacy adapters, UI controls, and health metadata; cleared stale config authority; blocked pasted-URL fetches before transport; and kept visible Browser Import as a separate reviewed path at `8a7d3439`. Migration 18 prevents health-row recreation, focused checks passed, and adversarial review returned SOUND. Milestone 4 remains active. |
 | 2026-07-19 | Milestone 4 LinkedIn Workbench governed | Bound current LinkedIn policy evidence and a restricted user-opened manifest; moved review authority from renderer storage to exact append-only backend consent; enforced freshness, revocation, and pre-write credential rejection; separated navigation confirmation from durable consent; blocked LinkedIn Browser Import before DOM access; and required paired browser grants for browser-origin applied logging at `8baa2fea`. Focused checks passed and adversarial review returned APPROVE. Milestone 4 remains active. |
+| 2026-07-19 | Milestone 4 employer discovery governed | Added a user-directed EmployerDiscovery manifest and real Schema.org fixture; canonicalized and hard-blocked pasted destinations before native review; required exact installed policy and manifest authorization before the single credential-free fetch and before storage; retained the nonsecret grant only with bounded in-memory pending work; and persisted the graph-owned source identity at `43675a11`. Focused checks passed and adversarial review returned APPROVE. Milestone 4 remains active. |
 
 ## Discoveries
 
@@ -508,6 +509,11 @@ relevant result, and caveat.
   Browser Import stops before page access, navigation confirmation grants no
   durable consent, and browser-origin applied logging cannot downgrade from a
   paired grant.
+- Milestone 4 now governs user-directed employer discovery with a narrow
+  EmployerDiscovery manifest. Pasted targets are canonicalized and hard-blocked
+  before trusted native review, exact installed policy and manifest state gates
+  both the single credential-free fetch and durable confirmation, and the
+  nonsecret grant expires with bounded in-memory pending work.
 
 ## Handoff
 
@@ -535,10 +541,12 @@ relevant result, and caveat.
   `docs/harness/evidence/v3-milestone-4-restricted-source-retirement-2026-07-19.json`
   at `8a7d3439`. LinkedIn Workbench governance is bound by
   `docs/harness/evidence/v3-milestone-4-linkedin-workbench-governance-2026-07-19.json`
-  at `8baa2fea`.
-- Next step: govern employer discovery, starter regional packs, generic visible
-  capture, generic Smart Paste, and browser-origin applied logging, then close
-  Gate 3.
+  at `8baa2fea`. Reviewed employer discovery is bound by
+  `docs/harness/evidence/v3-milestone-4-employer-discovery-governance-2026-07-19.json`
+  at `43675a11`.
+- Next step: add starter regional manifests and origin-bound generic visible
+  capture, then disposition generic Smart Paste and browser-origin applied
+  logging before Gate 3.
 - Open risks: scope remains large, contract freeze is irreversible within the
   v3 compatibility line, recovery and permission behavior still needs Windows
   11, macOS 26, and Linux release-matrix proof, installed recovery UI still

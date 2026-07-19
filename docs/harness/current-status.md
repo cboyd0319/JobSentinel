@@ -48,10 +48,10 @@ Last updated: 2026-07-19
 
 - Active feature: `v3-milestone-4-source-graph-browser-companion`
 - Status: `active`
-- Current slice: Governed official, ATS, community, and LinkedIn Workbench
-  paths; retired YC and four policy-blocked adapters; disabled JobsWithGPT.
-- Next action: Govern employer discovery, starter regional packs, generic visible
-  capture, Smart Paste, and browser-origin applied logging, then complete Gate 3.
+- Current slice: Governed official, ATS, community, LinkedIn Workbench, and
+  employer-discovery paths; retired blocked adapters; disabled JobsWithGPT.
+- Next action: Add regional manifests and origin-bound visible capture, then
+  disposition Smart Paste and browser-origin applied logging before Gate 3.
 
 ## Deferred
 
