@@ -94,8 +94,7 @@ impl Database {
             return Err(sqlx::Error::Protocol(
                 format!(
                     "Unsupported newer database schema version {stored_version}; this app supports through version {SCHEMA_VERSION}"
-                )
-                .into(),
+                ),
             ));
         }
 
