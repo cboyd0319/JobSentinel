@@ -329,6 +329,13 @@ request. Restored or hand-edited config cannot create or preserve consent.
 Changing the policy or active request pauses the source and returns a plain
 recovery message telling the user to review it again in Settings.
 
+USAJOBS scheduled and connectivity checks require the exact current persisted
+official-API manifest and policy before JobSentinel reads the saved access code.
+The manifest binds the exact API endpoint, local-credential requirement,
+reviewed list and detail fixture hashes, and a paced 60-request-per-hour rate
+with no automatic retries or multi-request burst. Missing, stale, disabled, or
+drifted governance stops before credential access or network work.
+
 ## Debug And Release Verification
 
 Every source JobSentinel uses must have release evidence before JobSentinel

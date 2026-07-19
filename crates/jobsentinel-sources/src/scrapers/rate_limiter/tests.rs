@@ -32,6 +32,33 @@ async fn test_shared_rate_limiter_reuses_buckets_across_handles() {
     first.reset(&source).await;
 }
 
+#[test]
+fn usajobs_policy_uses_a_single_request_burst() {
+    let mut bucket = TokenBucket::new_with_burst(
+        u32::from(jobsentinel_domain::v3_source_manifest::USAJOBS_REQUEST_LIMIT_PER_HOUR),
+        1,
+    );
+
+    assert_eq!(bucket.capacity, 1);
+    assert!(bucket.try_take_token().is_ok());
+    assert_eq!(
+        bucket.try_take_token().unwrap_err(),
+        Duration::from_secs(60)
+    );
+}
+
+#[tokio::test]
+async fn paced_wait_tightens_an_existing_burst_bucket() {
+    let limiter = RateLimiter::new();
+    limiter.wait("usajobs", 60).await;
+    limiter.wait_paced("usajobs", 60).await;
+
+    let buckets = limiter.buckets.lock().await;
+    let bucket = buckets.get("usajobs").unwrap();
+    assert_eq!(bucket.capacity, 1);
+    assert_eq!(bucket.tokens, 0);
+}
+
 #[tokio::test]
 async fn test_rate_limiter_respects_limit() {
     let limiter = RateLimiter::new();

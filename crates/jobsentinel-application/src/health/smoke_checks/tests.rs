@@ -89,6 +89,65 @@ async fn renderer_and_legacy_booleans_cannot_authorize_restricted_health_checks(
     assert!(!is_restricted_source_check("greenhouse"));
 }
 
+#[tokio::test]
+async fn missing_usajobs_governance_stops_before_smoke_credential_access() {
+    let database = Database::connect_memory().await.unwrap();
+    database.migrate().await.unwrap();
+    let credential_database = Database::connect_memory().await.unwrap();
+    credential_database.migrate().await.unwrap();
+    let credentials =
+        CredentialService::with_fixed_master_key(credential_database.credentials(), [7; 32], false);
+    credential_database.close().await;
+    let mut config = minimal_test_config();
+    config.usajobs.enabled = true;
+    config.usajobs.email = "test@example.com".to_string();
+
+    let result = run_smoke_test_with_credentials(&database, &config, "usajobs", &credentials)
+        .await
+        .unwrap();
+
+    assert!(result.passed);
+    assert_eq!(
+        result
+            .details
+            .and_then(|details| details["status"].as_str().map(str::to_string)),
+        Some("skipped".to_string())
+    );
+}
+
+#[tokio::test]
+async fn disabled_or_email_less_usajobs_smoke_skips_before_governance_and_credentials() {
+    let database = Database::connect_memory().await.unwrap();
+    database.migrate().await.unwrap();
+    let credential_database = Database::connect_memory().await.unwrap();
+    credential_database.migrate().await.unwrap();
+    let credentials =
+        CredentialService::with_fixed_master_key(credential_database.credentials(), [7; 32], false);
+    credential_database.close().await;
+    let mut disabled = minimal_test_config();
+    disabled.usajobs.email = "test@example.com".to_string();
+    let mut email_less = minimal_test_config();
+    email_less.usajobs.enabled = true;
+
+    for (config, reason) in [
+        (disabled, USAJOBS_DISABLED),
+        (email_less, USAJOBS_EMAIL_MISSING),
+    ] {
+        let result = run_smoke_test_with_credentials(&database, &config, "usajobs", &credentials)
+            .await
+            .unwrap();
+        assert!(result.passed);
+        assert_eq!(
+            result.details.and_then(|details| {
+                details["reason"]
+                    .as_str()
+                    .map(std::string::ToString::to_string)
+            }),
+            Some(reason.to_string())
+        );
+    }
+}
+
 #[test]
 fn validate_smoke_details_allows_skipped_sources() {
     let details = serde_json::json!({

@@ -1,13 +1,19 @@
-use std::sync::{
-    atomic::{AtomicBool, Ordering},
-    Arc,
+use std::{
+    num::NonZeroU16,
+    sync::{
+        atomic::{AtomicBool, Ordering},
+        Arc,
+    },
 };
 
 use crate::{
     config::Config,
     credentials::{CredentialKey, CredentialService},
 };
-use jobsentinel_domain::Job;
+use chrono::Utc;
+use jobsentinel_domain::{
+    v3_source_authorization::SourceActionDecision, v3_source_manifest::SourceOperation, Job,
+};
 use jobsentinel_sources::UsaJobsScraper;
 use jobsentinel_storage::Database;
 
@@ -26,6 +32,36 @@ pub(super) async fn run_usajobs(
         if shutdown_requested.load(Ordering::Acquire) {
             return;
         }
+        let request_limit_per_hour = match crate::v3_usajobs_governance::authorize(
+            db,
+            SourceOperation::ScheduledCheck,
+            Utc::now().date_naive(),
+        )
+        .await
+        {
+            Ok(SourceActionDecision::Allowed {
+                request_limit_per_hour,
+                connectivity_required: true,
+            }) => NonZeroU16::new(request_limit_per_hour),
+            Ok(_) | Err(_) => {
+                tracing::warn!(
+                    source = "usajobs",
+                    "USAJobs source check skipped because current source governance did not authorize it"
+                );
+                errors.push(
+                    "USAJobs source check skipped because its reviewed source policy is unavailable or stale"
+                        .to_string(),
+                );
+                return;
+            }
+        };
+        let Some(request_limit_per_hour) = request_limit_per_hour else {
+            errors.push(
+                "USAJobs source check skipped because its reviewed source policy is invalid"
+                    .to_string(),
+            );
+            return;
+        };
         match credentials.retrieve(CredentialKey::UsaJobsApiKey).await {
             Ok(Some(api_key)) => {
                 tracing::info!("Running USAJobs scraper");
@@ -48,7 +84,8 @@ pub(super) async fn run_usajobs(
                 }
                 scraper = scraper
                     .posted_within_days(config.usajobs.date_posted_days)
-                    .with_limit(config.usajobs.limit);
+                    .with_limit(config.usajobs.limit)
+                    .with_request_limit_per_hour(request_limit_per_hour);
 
                 run_scraper(
                     db,
@@ -102,5 +139,174 @@ mod tests {
 
         assert!(jobs.is_empty());
         assert!(errors.is_empty());
+    }
+
+    #[tokio::test]
+    async fn installed_usajobs_governance_authorizes_the_current_policy_limit() {
+        let database = Arc::new(Database::connect_memory().await.unwrap());
+        database.migrate().await.unwrap();
+        let today = chrono::NaiveDate::from_ymd_opt(2026, 7, 19).unwrap();
+
+        crate::v3_usajobs_governance::install(&database)
+            .await
+            .unwrap();
+
+        assert_eq!(
+            crate::v3_usajobs_governance::authorize(
+                &database,
+                SourceOperation::ScheduledCheck,
+                today,
+            )
+            .await
+            .unwrap(),
+            SourceActionDecision::Allowed {
+                request_limit_per_hour: 60,
+                connectivity_required: true,
+            }
+        );
+    }
+
+    #[test]
+    fn usajobs_manifest_hashes_bind_to_reviewed_parser_fixtures() {
+        let policy = crate::v3_usajobs_governance::policy().unwrap();
+        let manifest = jobsentinel_domain::v3_source_manifest::parse_source_manifest(
+            jobsentinel_domain::v3_source_manifest::USAJOBS_SOURCE_MANIFEST_V1,
+            &policy,
+        )
+        .unwrap();
+        let fixtures = [
+            (
+                "crates/jobsentinel-sources/src/fixtures/usajobs_list_v1.json",
+                include_bytes!(
+                    "../../../../../jobsentinel-sources/src/fixtures/usajobs_list_v1.json"
+                )
+                .as_slice(),
+            ),
+            (
+                "crates/jobsentinel-sources/src/fixtures/usajobs_detail_v1.json",
+                include_bytes!(
+                    "../../../../../jobsentinel-sources/src/fixtures/usajobs_detail_v1.json"
+                )
+                .as_slice(),
+            ),
+        ];
+
+        for (path, payload) in fixtures {
+            let fixture = manifest
+                .fixtures
+                .iter()
+                .find(|fixture| fixture.path == path)
+                .unwrap();
+            use sha2::{Digest, Sha256};
+
+            assert_eq!(fixture.payload_sha256, hex::encode(Sha256::digest(payload)));
+        }
+    }
+
+    #[tokio::test]
+    async fn missing_governance_stops_before_credential_repository_access() {
+        let database = Arc::new(Database::connect_memory().await.unwrap());
+        database.migrate().await.unwrap();
+        let credentials =
+            CredentialService::with_fixed_master_key(database.credentials(), [7; 32], false);
+        database.close().await;
+        let mut config = minimal_test_config();
+        config.usajobs.enabled = true;
+        config.usajobs.email = "test@example.com".to_string();
+        let mut jobs = Vec::new();
+        let mut errors = Vec::new();
+
+        run_usajobs(
+            &Arc::new(config),
+            &database,
+            &credentials,
+            &AtomicBool::new(false),
+            &mut jobs,
+            &mut errors,
+        )
+        .await;
+
+        assert!(jobs.is_empty());
+        assert_eq!(
+            errors,
+            vec![
+                "USAJobs source check skipped because its reviewed source policy is unavailable or stale"
+            ]
+        );
+    }
+
+    async fn unavailable_credentials() -> CredentialService {
+        let database = Database::connect_memory().await.unwrap();
+        database.migrate().await.unwrap();
+        let credentials =
+            CredentialService::with_fixed_master_key(database.credentials(), [7; 32], false);
+        database.close().await;
+        credentials
+    }
+
+    async fn run_enabled_usajobs(
+        database: Arc<Database>,
+        credentials: &CredentialService,
+    ) -> Vec<String> {
+        let mut config = minimal_test_config();
+        config.usajobs.enabled = true;
+        config.usajobs.email = "test@example.com".to_string();
+        let mut jobs = Vec::new();
+        let mut errors = Vec::new();
+        run_usajobs(
+            &Arc::new(config),
+            &database,
+            credentials,
+            &AtomicBool::new(false),
+            &mut jobs,
+            &mut errors,
+        )
+        .await;
+        assert!(jobs.is_empty());
+        errors
+    }
+
+    #[tokio::test]
+    async fn same_revision_policy_drift_stops_before_credential_access() {
+        let database = Arc::new(Database::connect_memory().await.unwrap());
+        database.migrate().await.unwrap();
+        let mut policy = crate::v3_usajobs_governance::policy().unwrap();
+        policy.request_limit_per_hour = 24;
+        database.upsert_source_policy(&policy).await.unwrap();
+        let manifest = jobsentinel_domain::v3_source_manifest::parse_source_manifest(
+            jobsentinel_domain::v3_source_manifest::USAJOBS_SOURCE_MANIFEST_V1,
+            &policy,
+        )
+        .unwrap();
+        database.store_source_manifest(&manifest).await.unwrap();
+
+        assert_eq!(
+            run_enabled_usajobs(database, &unavailable_credentials().await).await,
+            vec![
+                "USAJobs source check skipped because its reviewed source policy is unavailable or stale"
+            ]
+        );
+    }
+
+    #[tokio::test]
+    async fn same_revision_manifest_drift_stops_before_credential_access() {
+        let database = Arc::new(Database::connect_memory().await.unwrap());
+        database.migrate().await.unwrap();
+        let policy = crate::v3_usajobs_governance::policy().unwrap();
+        database.upsert_source_policy(&policy).await.unwrap();
+        let mut manifest = jobsentinel_domain::v3_source_manifest::parse_source_manifest(
+            jobsentinel_domain::v3_source_manifest::USAJOBS_SOURCE_MANIFEST_V1,
+            &policy,
+        )
+        .unwrap();
+        manifest.confidence_percent -= 1;
+        database.store_source_manifest(&manifest).await.unwrap();
+
+        assert_eq!(
+            run_enabled_usajobs(database, &unavailable_credentials().await).await,
+            vec![
+                "USAJobs source check skipped because its reviewed source policy is unavailable or stale"
+            ]
+        );
     }
 }

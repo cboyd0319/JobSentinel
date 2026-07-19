@@ -146,6 +146,7 @@ impl SourceOperation {
         matches!(
             self,
             Self::ScheduledCheck
+                | Self::ConnectivityCheck
                 | Self::EmployerDiscovery
                 | Self::RegionalPackCheck
                 | Self::RestrictedWorkbench

@@ -172,7 +172,7 @@ pub async fn authorize_source_action(
         .map_err(|_| FoundationError::InvalidInput)
 }
 
-fn map_error(error: anyhow::Error) -> FoundationError {
+pub(crate) fn map_error(error: anyhow::Error) -> FoundationError {
     if let Some(kind) = jobsentinel_storage::v3_source_consent::error_kind(&error) {
         return match kind {
             "invalid" => FoundationError::InvalidInput,
@@ -189,6 +189,7 @@ fn map_error(error: anyhow::Error) -> FoundationError {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::v3_usajobs_governance::{install, policy};
     use jobsentinel_domain::{
         v3_foundation::{CaseFileEventInput, CaseFileEventKind, EventMetadata, EventOrigin},
         v3_foundation::{SourceAccess, SourcePolicy},
@@ -427,6 +428,51 @@ mod tests {
             .await
             .unwrap(),
             SourceActionDecision::Blocked(SourceStopCondition::PolicyChanged)
+        );
+    }
+
+    #[tokio::test]
+    async fn usajobs_governance_never_overwrites_same_or_newer_policy_state() {
+        let database = Database::connect_memory().await.unwrap();
+        database.migrate().await.unwrap();
+        install(&database).await.unwrap();
+        let today = chrono::NaiveDate::from_ymd_opt(2026, 7, 19).unwrap();
+
+        let mut newer = policy().unwrap();
+        newer.revision = 2;
+        newer.access = SourceAccess::Disabled;
+        newer.request_limit_per_hour = 0;
+        database.upsert_source_policy(&newer).await.unwrap();
+        install(&database).await.unwrap();
+
+        assert_eq!(
+            database.get_source_policy("usajobs").await.unwrap(),
+            Some(newer)
+        );
+        assert_eq!(
+            authorize_source_action(
+                &database,
+                "usajobs",
+                SourceOperation::ScheduledCheck,
+                today,
+                SourceGrantState::NotRequired,
+            )
+            .await
+            .unwrap(),
+            SourceActionDecision::Blocked(SourceStopCondition::PolicyChanged)
+        );
+
+        let conflicting_database = Database::connect_memory().await.unwrap();
+        conflicting_database.migrate().await.unwrap();
+        let mut conflicting = policy().unwrap();
+        conflicting.request_limit_per_hour = 24;
+        conflicting_database
+            .upsert_source_policy(&conflicting)
+            .await
+            .unwrap();
+        assert_eq!(
+            install(&conflicting_database).await.unwrap_err(),
+            FoundationError::Conflict
         );
     }
 }

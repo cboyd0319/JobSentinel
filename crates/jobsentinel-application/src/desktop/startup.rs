@@ -151,6 +151,12 @@ impl DesktopServices {
                 "Reconciled interrupted Outside AI operations"
             );
         }
+        if let Err(error) = crate::v3_usajobs_governance::install(&database).await {
+            tracing::warn!(
+                error = %error,
+                "USAJobs source governance could not be refreshed; scheduled checks remain blocked"
+            );
+        }
         let credentials = CredentialService::new(database.credentials());
         if migrate_plaintext_credentials_to_secure_storage(&config_path, &credentials).await {
             config = Config::load(&config_path)

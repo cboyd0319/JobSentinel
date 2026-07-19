@@ -288,20 +288,6 @@ pub(super) async fn test_usajobs(
     config: &Config,
     credentials: &CredentialService,
 ) -> Result<serde_json::Value> {
-    if !config.usajobs.enabled {
-        return Ok(serde_json::json!({
-            "status": "skipped",
-            "reason": "USAJobs scraping not enabled"
-        }));
-    }
-
-    if config.usajobs.email.is_empty() {
-        return Ok(serde_json::json!({
-            "status": "skipped",
-            "reason": "USAJobs email not configured"
-        }));
-    }
-
     let api_key = match credentials
         .retrieve(CredentialKey::UsaJobsApiKey)
         .await
@@ -320,6 +306,7 @@ pub(super) async fn test_usajobs(
     let response = require_success(
         smoke_request(
             ExternalHttpRequest::get(url)
+                .without_retries()
                 .header("Host", "data.usajobs.gov")
                 .user_agent(&config.usajobs.email)
                 .header("Authorization-Key", api_key.trim()),

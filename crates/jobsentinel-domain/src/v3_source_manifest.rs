@@ -12,6 +12,10 @@ use crate::{
     v3_manifests::SourceClass,
 };
 
+pub const USAJOBS_SOURCE_MANIFEST_V1: &str =
+    include_str!("fixtures/source_manifests/usajobs_v1.json");
+pub const USAJOBS_REQUEST_LIMIT_PER_HOUR: u16 = 60;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum SourceAuthRequirement {
@@ -24,6 +28,7 @@ pub enum SourceAuthRequirement {
 #[serde(rename_all = "snake_case")]
 pub enum SourceOperation {
     ScheduledCheck,
+    ConnectivityCheck,
     EmployerDiscovery,
     RegionalPackCheck,
     RestrictedWorkbench,

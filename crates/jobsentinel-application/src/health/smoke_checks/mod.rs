@@ -2,6 +2,10 @@
 
 use crate::{credentials::CredentialService, Config};
 use anyhow::Result;
+use chrono::Utc;
+use jobsentinel_domain::{
+    v3_source_authorization::SourceActionDecision, v3_source_manifest::SourceOperation,
+};
 use jobsentinel_sources::{limits, RateLimiter};
 use jobsentinel_storage::Database;
 use std::time::Instant;
@@ -44,6 +48,10 @@ const SOURCE_CHECK_DEFAULT_ERROR: &str =
     "This source check could not finish. Try again later or save a safe support report.";
 const RESTRICTED_SOURCE_CHECK_UNAVAILABLE: &str =
     "This restricted connectivity check is unavailable. Use the reviewed scheduled source, a search link, Browser Import, or manual entry.";
+const USAJOBS_SOURCE_CHECK_UNAVAILABLE: &str =
+    "This USAJobs connectivity check is unavailable until its reviewed source governance is current.";
+const USAJOBS_DISABLED: &str = "USAJobs scraping not enabled";
+const USAJOBS_EMAIL_MISSING: &str = "USAJobs email not configured";
 // Mirrors restricted public unauthenticated source-check helpers from the
 // shared source taxonomy. Source-specific reasons live in
 // src/shared/restrictedSourceTaxonomy.ts and docs/features/scrapers.md.
@@ -151,7 +159,6 @@ fn smoke_rate_limit(scraper_name: &str) -> u32 {
         "dice" => limits::DICE,
         "yc_startup" => limits::YC_STARTUP,
         "ziprecruiter" => 300,
-        "usajobs" => limits::USAJOBS,
         "simplyhired" => limits::SIMPLYHIRED,
         "glassdoor" => limits::GLASSDOOR,
         _ => 60,
@@ -160,6 +167,27 @@ fn smoke_rate_limit(scraper_name: &str) -> u32 {
 
 fn is_restricted_source_check(scraper_name: &str) -> bool {
     RESTRICTED_SOURCE_CHECK_SCRAPERS.contains(&scraper_name)
+}
+
+async fn record_skipped_smoke_test(
+    db: &Database,
+    scraper_name: &str,
+    start: Instant,
+    reason: &str,
+) -> Result<SmokeTestResult> {
+    let result = SmokeTestResult {
+        scraper_name: scraper_name.to_string(),
+        test_type: SmokeTestType::Connectivity,
+        passed: true,
+        duration_ms: start.elapsed().as_millis() as i64,
+        details: Some(serde_json::json!({
+            "status": "skipped",
+            "reason": reason,
+        })),
+        error: None,
+    };
+    record_smoke_test(db, &result).await?;
+    Ok(result)
 }
 
 /// Run a connectivity smoke test for a specific scraper
@@ -181,24 +209,61 @@ pub async fn run_smoke_test_with_credentials(
 ) -> Result<SmokeTestResult> {
     let start = Instant::now();
     if is_restricted_source_check(scraper_name) {
-        let smoke_result = SmokeTestResult {
-            scraper_name: scraper_name.to_string(),
-            test_type: SmokeTestType::Connectivity,
-            passed: true,
-            duration_ms: start.elapsed().as_millis() as i64,
-            details: Some(serde_json::json!({
-                "status": "skipped",
-                "reason": RESTRICTED_SOURCE_CHECK_UNAVAILABLE,
-            })),
-            error: None,
-        };
-        record_smoke_test(db, &smoke_result).await?;
-        return Ok(smoke_result);
+        return record_skipped_smoke_test(
+            db,
+            scraper_name,
+            start,
+            RESTRICTED_SOURCE_CHECK_UNAVAILABLE,
+        )
+        .await;
     }
 
-    RateLimiter::shared()
-        .wait(scraper_name, smoke_rate_limit(scraper_name))
-        .await;
+    if scraper_name == "usajobs" {
+        let reason = if !config.usajobs.enabled {
+            Some(USAJOBS_DISABLED)
+        } else if config.usajobs.email.is_empty() {
+            Some(USAJOBS_EMAIL_MISSING)
+        } else {
+            None
+        };
+        if let Some(reason) = reason {
+            return record_skipped_smoke_test(db, scraper_name, start, reason).await;
+        }
+    }
+
+    let usajobs_limit = if scraper_name == "usajobs" {
+        match crate::v3_usajobs_governance::authorize(
+            db,
+            SourceOperation::ConnectivityCheck,
+            Utc::now().date_naive(),
+        )
+        .await
+        {
+            Ok(SourceActionDecision::Allowed {
+                request_limit_per_hour,
+                connectivity_required: true,
+            }) => Some(u32::from(request_limit_per_hour)),
+            Ok(_) | Err(_) => {
+                return record_skipped_smoke_test(
+                    db,
+                    scraper_name,
+                    start,
+                    USAJOBS_SOURCE_CHECK_UNAVAILABLE,
+                )
+                .await;
+            }
+        }
+    } else {
+        None
+    };
+
+    if let Some(limit) = usajobs_limit {
+        RateLimiter::shared().wait_paced(scraper_name, limit).await;
+    } else {
+        RateLimiter::shared()
+            .wait(scraper_name, smoke_rate_limit(scraper_name))
+            .await;
+    }
 
     let result = match scraper_name {
         "greenhouse" => test_greenhouse().await,
