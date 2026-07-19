@@ -9,7 +9,7 @@ use jobsentinel_domain::v3_source_manifest::{
 };
 use jobsentinel_network::{
     send_external_http_text_with_retry, ExternalHttpRequest, ExternalTextResponse,
-    MINIMAL_BROWSER_USER_AGENT, MINIMAL_WEBKIT_USER_AGENT,
+    MINIMAL_BROWSER_USER_AGENT,
 };
 use jobsentinel_sources::{HnHiringScraper, RateLimiter};
 
@@ -155,25 +155,6 @@ pub(super) async fn test_weworkremotely() -> Result<serde_json::Value> {
     }))
 }
 
-pub(super) async fn test_builtin() -> Result<serde_json::Value> {
-    let url = "https://builtin.com/jobs/remote/dev-engineering";
-    let response = require_success(
-        smoke_request(
-            ExternalHttpRequest::get(url).user_agent(MINIMAL_BROWSER_USER_AGENT),
-            "Built In smoke test request failed",
-        )
-        .await?,
-    )?;
-    let html = response.body;
-    let has_jobs = html.contains("data-id") || html.contains("job-card");
-
-    Ok(serde_json::json!({
-        "status": response.status,
-        "selectors_found": has_jobs,
-        "html_size_kb": html.len() / 1024
-    }))
-}
-
 pub(super) async fn test_hn_hiring(request_limit_per_hour: u32) -> Result<serde_json::Value> {
     let url = HN_HIRING_SEARCH_ENDPOINT;
     let response = require_success(
@@ -214,25 +195,6 @@ pub(super) async fn test_jobswithgpt(_config: &Config) -> Result<serde_json::Val
     Ok(serde_json::json!({
         "status": "skipped",
         "reason": "JobsWithGPT provider endpoint and usage policy require review"
-    }))
-}
-
-pub(super) async fn test_dice() -> Result<serde_json::Value> {
-    let url = "https://www.dice.com/jobs?q=software%20engineer&countryCode=US&radius=30&radiusUnit=mi&page=1&pageSize=20";
-    let response = require_success(
-        smoke_request(
-            ExternalHttpRequest::get(url).user_agent(MINIMAL_BROWSER_USER_AGENT),
-            "Dice smoke test request failed",
-        )
-        .await?,
-    )?;
-    let html = response.body;
-    let has_jobs = html.contains("search-card") || html.contains("job-card");
-
-    Ok(serde_json::json!({
-        "status": response.status,
-        "selectors_found": has_jobs,
-        "html_size_kb": html.len() / 1024
     }))
 }
 
@@ -295,53 +257,5 @@ pub(super) async fn test_usajobs(
         "status": response.status,
         "jobs_found": job_count,
         "api": "usajobs"
-    }))
-}
-
-pub(super) async fn test_simplyhired() -> Result<serde_json::Value> {
-    let url = "https://www.simplyhired.com/search?q=customer+support&l=remote&output=rss";
-    let response = require_success(
-        smoke_request(
-            ExternalHttpRequest::get(url)
-                .user_agent(MINIMAL_WEBKIT_USER_AGENT)
-                .header(
-                    "Accept",
-                    "application/rss+xml, application/xml, text/xml, */*",
-                ),
-            "SimplyHired smoke test request failed",
-        )
-        .await?,
-    )?;
-    let rss = response.body;
-    let item_count = rss.matches("<item>").count();
-
-    Ok(serde_json::json!({
-        "status": response.status,
-        "jobs_found": item_count,
-        "format": "rss"
-    }))
-}
-
-pub(super) async fn test_glassdoor() -> Result<serde_json::Value> {
-    let url = "https://www.glassdoor.com/Job/jobs.htm?sc.keyword=customer+support&jobType=all";
-    let response = require_success(
-        smoke_request(
-            ExternalHttpRequest::get(url)
-                .user_agent(MINIMAL_WEBKIT_USER_AGENT)
-                .header(
-                    "Accept",
-                    "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-                ),
-            "Glassdoor smoke test request failed",
-        )
-        .await?,
-    )?;
-    let html = response.body;
-    let has_jobs = html.contains("jobListing") || html.contains("job-card");
-
-    Ok(serde_json::json!({
-        "status": response.status,
-        "selectors_found": has_jobs,
-        "html_size_kb": html.len() / 1024
     }))
 }

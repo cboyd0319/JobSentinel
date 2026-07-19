@@ -98,9 +98,12 @@ fn format_import_error(error: &ImportError) -> String {
         ImportError::PendingImportNotFound => {
             "This job preview expired. Check the job link again before saving.".to_string()
         }
-        ImportError::SourcePolicyBlocked => {
-            "This source can only be opened in your browser. JobSentinel will not fetch or capture it.".to_string()
-        }
+        ImportError::SourcePolicyBlocked {
+            visible_capture_allowed: true,
+        } => "JobSentinel cannot fetch this pasted link. Open it in your browser and use visible Browser Import or manual entry.".to_string(),
+        ImportError::SourcePolicyBlocked {
+            visible_capture_allowed: false,
+        } => "JobSentinel cannot fetch or capture this source. Open it in your browser or use manual entry.".to_string(),
     }
 }
 
@@ -143,8 +146,16 @@ mod tests {
     #[test]
     fn format_import_error_explains_retired_source_policy() {
         assert_eq!(
-            format_import_error(&ImportError::SourcePolicyBlocked),
-            "This source can only be opened in your browser. JobSentinel will not fetch or capture it."
+            format_import_error(&ImportError::SourcePolicyBlocked {
+                visible_capture_allowed: true,
+            }),
+            "JobSentinel cannot fetch this pasted link. Open it in your browser and use visible Browser Import or manual entry."
+        );
+        assert_eq!(
+            format_import_error(&ImportError::SourcePolicyBlocked {
+                visible_capture_allowed: false,
+            }),
+            "JobSentinel cannot fetch or capture this source. Open it in your browser or use manual entry."
         );
     }
 

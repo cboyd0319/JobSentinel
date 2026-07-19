@@ -185,7 +185,7 @@ async fn save_config_updates_runtime_config_after_disk_save() {
 }
 
 #[tokio::test]
-async fn save_config_reconciles_restricted_source_review_with_the_local_ledger() {
+async fn save_config_clears_legacy_review_for_a_retired_source() {
     let previous = create_dashboard_test_config();
     let runtime_config = RwLock::new(previous.clone());
     let database = Database::connect_memory().await.unwrap();
@@ -206,30 +206,10 @@ async fn save_config_reconciles_restricted_source_review_with_the_local_ledger()
     )
     .await
     .unwrap();
-    assert!(
-        runtime_config
-            .read()
-            .await
-            .restricted_source_acknowledgements
-            .dice
-    );
-
-    reviewed.dice.query = "incident responder".to_string();
-    save_config_to_runtime_and_path(
-        serde_json::to_value(&reviewed).unwrap(),
-        &runtime_config,
-        &config_path,
-        &database,
-    )
-    .await
-    .unwrap();
-    assert!(
-        !runtime_config
-            .read()
-            .await
-            .restricted_source_acknowledgements
-            .dice
-    );
+    let runtime = runtime_config.read().await;
+    assert!(!runtime.dice.enabled);
+    assert!(!runtime.restricted_source_acknowledgements.dice);
+    drop(runtime);
     assert!(
         !Config::load(&config_path)
             .unwrap()

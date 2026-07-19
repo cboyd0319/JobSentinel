@@ -11,6 +11,7 @@ import { Button } from "../../../ui/Button";
 import { useToast } from "../../../shared/toast/useToast";
 import { invalidateCacheByCommand, invoke } from "../../../platform/tauri";
 import {
+  isPolicyBlockedAutomationUrl,
   isRestrictedJobSourceUrl,
   RESTRICTED_JOB_SOURCE_WARNING,
 } from "../../../shared/restrictedSourceTaxonomy";
@@ -20,6 +21,7 @@ import {
   formatMissingDetails,
   fullJobLinkMessage,
   getSafeJobImportError,
+  policyBlockedPastedLinkMessage,
   publicJobLinkMessage,
   secureJobLinkMessage,
   type JobImportPreview,
@@ -46,7 +48,9 @@ export function JobImportModal({
     useState(false);
 
   const toast = useToast();
-  const needsRestrictedSourceGate = isRestrictedJobSourceUrl(url.trim());
+  const policyBlockedAutomation = isPolicyBlockedAutomationUrl(url.trim());
+  const needsRestrictedSourceGate =
+    !policyBlockedAutomation && isRestrictedJobSourceUrl(url.trim());
 
   // Reset state when modal closes
   useEffect(() => {
@@ -64,6 +68,11 @@ export function JobImportModal({
   const handlePreview = useCallback(async () => {
     if (!url.trim()) {
       setError("Add a job link from your browser address bar.");
+      return;
+    }
+
+    if (policyBlockedAutomation) {
+      setError(policyBlockedPastedLinkMessage);
       return;
     }
 
@@ -128,7 +137,13 @@ export function JobImportModal({
     } finally {
       setLoading(false);
     }
-  }, [url, toast, needsRestrictedSourceGate, restrictedSourceAcknowledged]);
+  }, [
+    url,
+    toast,
+    policyBlockedAutomation,
+    needsRestrictedSourceGate,
+    restrictedSourceAcknowledged,
+  ]);
 
   // Import the job
   const handleImport = useCallback(async () => {
@@ -214,7 +229,14 @@ export function JobImportModal({
           />
         </div>
 
-        {needsRestrictedSourceGate && (
+        {policyBlockedAutomation ? (
+          <div
+            role="alert"
+            className="rounded-lg border-2 border-amber-300 bg-amber-50 p-4 text-sm leading-6 text-amber-900 dark:border-amber-700 dark:bg-amber-900/25 dark:text-amber-100"
+          >
+            {policyBlockedPastedLinkMessage}
+          </div>
+        ) : needsRestrictedSourceGate ? (
           <div className="rounded-lg border-2 border-amber-300 bg-amber-50 p-4 dark:border-amber-700 dark:bg-amber-900/25">
             <p className="mb-2 text-base font-semibold text-amber-900 dark:text-amber-100">
               Restricted source warning
@@ -238,7 +260,7 @@ export function JobImportModal({
               </span>
             </label>
           </div>
-        )}
+        ) : null}
 
         {/* Error Display */}
         {error && (
@@ -259,6 +281,7 @@ export function JobImportModal({
               disabled={
                 loading ||
                 importing ||
+                policyBlockedAutomation ||
                 (needsRestrictedSourceGate && !restrictedSourceAcknowledged)
               }
               loading={loading}

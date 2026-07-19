@@ -7,9 +7,8 @@
 //! Integration tests focus on the scraper owner's internal trait interface.
 
 use super::{
-    linkedin::LinkedInScraper, BuiltInScraper, DiceScraper, GreenhouseCompany, GreenhouseScraper,
-    HnHiringScraper, JobScraper, LeverCompany, LeverScraper, RemoteOkScraper,
-    WeWorkRemotelyScraper,
+    linkedin::LinkedInScraper, GreenhouseCompany, GreenhouseScraper, HnHiringScraper, JobScraper,
+    LeverCompany, LeverScraper, RemoteOkScraper, WeWorkRemotelyScraper,
 };
 
 // ============================================================================
@@ -35,22 +34,6 @@ fn test_lever_company() -> LeverCompany {
 // ============================================================================
 // Scraper Construction Tests
 // ============================================================================
-
-#[test]
-fn test_dice_scraper_construction() {
-    let scraper = DiceScraper::new("operations manager".to_string(), None, 20);
-    assert_eq!(scraper.name(), "dice");
-    assert_eq!(scraper.query, "operations manager");
-    assert_eq!(scraper.limit, 20);
-    assert!(scraper.location.is_none());
-}
-
-#[test]
-fn test_dice_scraper_with_location() {
-    let scraper = DiceScraper::new("accountant".to_string(), Some("Denver, CO".to_string()), 10);
-    assert_eq!(scraper.name(), "dice");
-    assert_eq!(scraper.location, Some("Denver, CO".to_string()));
-}
 
 #[test]
 fn test_remoteok_scraper_construction() {
@@ -164,22 +147,6 @@ fn test_linkedin_scraper_construction() {
     assert_eq!(scraper.location, "Chicago");
 }
 
-#[test]
-fn test_builtin_scraper_construction() {
-    let scraper = BuiltInScraper::new(false, 50);
-    assert_eq!(scraper.name(), "builtin");
-    assert!(!scraper.remote_only);
-    assert_eq!(scraper.limit, 50);
-}
-
-#[test]
-fn test_builtin_scraper_remote_only() {
-    let scraper = BuiltInScraper::new(true, 25);
-    assert_eq!(scraper.name(), "builtin");
-    assert!(scraper.remote_only);
-    assert_eq!(scraper.limit, 25);
-}
-
 // ============================================================================
 // Scraper Trait Implementation Tests
 // ============================================================================
@@ -189,9 +156,6 @@ fn test_builtin_scraper_remote_only() {
 fn test_all_scrapers_implement_job_scraper() {
     // This test verifies at compile time that all scrapers implement JobScraper
     fn assert_job_scraper<T: JobScraper>(_: &T) {}
-
-    let dice = DiceScraper::new("test".to_string(), None, 10);
-    assert_job_scraper(&dice);
 
     let remoteok = RemoteOkScraper::new(vec![], 10);
     assert_job_scraper(&remoteok);
@@ -210,23 +174,18 @@ fn test_all_scrapers_implement_job_scraper() {
 
     let linkedin = LinkedInScraper::new("query".to_string(), "location".to_string());
     assert_job_scraper(&linkedin);
-
-    let builtin = BuiltInScraper::new(false, 10);
-    assert_job_scraper(&builtin);
 }
 
 /// Verify all scrapers return distinct names
 #[test]
 fn test_scraper_names_are_unique() {
     let names = vec![
-        DiceScraper::new("test".to_string(), None, 10).name(),
         RemoteOkScraper::new(vec![], 10).name(),
         WeWorkRemotelyScraper::new(None, 10).name(),
         HnHiringScraper::new(10, false).name(),
         GreenhouseScraper::new(vec![test_greenhouse_company()]).name(),
         LeverScraper::new(vec![test_lever_company()]).name(),
         LinkedInScraper::new("q".to_string(), "l".to_string()).name(),
-        BuiltInScraper::new(false, 10).name(),
     ];
 
     // Check all names are unique (case-insensitive to catch duplicates)
@@ -247,15 +206,13 @@ fn test_scraper_names_are_unique() {
 /// Verify we have the expected number of scrapers tested
 #[test]
 fn test_scraper_count() {
-    // We test 10 scrapers:
-    // - dice, ziprecruiter
+    // We test 8 source owners:
+    // - ziprecruiter
     // - remoteok, weworkremotely, hn_hiring
     // - greenhouse, lever
     // - linkedin, indeed
-    // - builtin
     // (wellfound, jobswithgpt have more complex constructors - tested separately)
     let names = vec![
-        "dice",
         "ziprecruiter",
         "remoteok",
         "weworkremotely",
@@ -264,7 +221,6 @@ fn test_scraper_count() {
         "lever",
         "linkedin",
         "indeed",
-        "builtin",
     ];
-    assert_eq!(names.len(), 10, "Expected 10 scrapers to be tested");
+    assert_eq!(names.len(), 8, "Expected 8 source owners to be tested");
 }

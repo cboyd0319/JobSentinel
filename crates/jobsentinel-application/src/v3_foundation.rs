@@ -6,7 +6,7 @@ use jobsentinel_domain::{
     },
     v3_manifests::PrivacyReceipt,
     v3_source_authorization::{SourceActionDecision, SourceGrantState},
-    v3_source_consent::{SourceConsentContext, SourceConsentEvent, SourceConsentStatus},
+    v3_source_consent::{SourceConsentContext, SourceConsentStatus},
     v3_source_manifest::SourceOperation,
 };
 use jobsentinel_storage::Database;
@@ -89,20 +89,6 @@ pub async fn set_source_policy(
         .map_err(|_| FoundationError::InvalidInput)?;
     database
         .upsert_source_policy(policy)
-        .await
-        .map_err(map_error)
-}
-
-pub(crate) async fn remember_source_consent(
-    database: &Database,
-    context: &SourceConsentContext,
-    expected_latest_event_id: Option<&str>,
-) -> Result<SourceConsentEvent, FoundationError> {
-    context
-        .validate()
-        .map_err(|_| FoundationError::InvalidInput)?;
-    database
-        .grant_source_consent(context, expected_latest_event_id)
         .await
         .map_err(map_error)
 }
@@ -305,9 +291,7 @@ mod tests {
                 latest_event_id: None,
             }
         );
-        remember_source_consent(&database, &context, None)
-            .await
-            .unwrap();
+        database.grant_source_consent(&context, None).await.unwrap();
         assert!(matches!(
             review_source_consent(&database, &context).await.unwrap(),
             SourceConsentStatus::Remembered { .. }
@@ -323,15 +307,6 @@ mod tests {
                         .clone()
                 ),
             }
-        );
-
-        let mut invalid = context;
-        invalid.data_categories = vec![DataCategory::ProtectedVeteranAnswer];
-        assert_eq!(
-            remember_source_consent(&database, &invalid, None)
-                .await
-                .unwrap_err(),
-            FoundationError::InvalidInput
         );
     }
 

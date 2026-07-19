@@ -1,3 +1,5 @@
+import { isPolicyBlockedScheduledSourceId } from "../../../../shared/restrictedSourceTaxonomy";
+
 export type MockScraperEnabledOverrides = Record<string, boolean>;
 
 type MockScraperType = "api" | "html" | "rss" | "graphql" | "hybrid";
@@ -112,25 +114,11 @@ const MOCK_SCRAPERS: readonly MockScraperDefinition[] = [
     rate_limit_per_hour: 45,
   },
   {
-    scraper_name: "builtin",
-    display_name: "Built In",
-    requires_auth: false,
-    scraper_type: "html",
-    rate_limit_per_hour: 60,
-  },
-  {
     scraper_name: "jobswithgpt",
     display_name: "JobsWithGPT",
     requires_auth: false,
     scraper_type: "api",
     rate_limit_per_hour: 60,
-  },
-  {
-    scraper_name: "dice",
-    display_name: "Dice",
-    requires_auth: false,
-    scraper_type: "html",
-    rate_limit_per_hour: 45,
   },
   {
     scraper_name: "ziprecruiter",
@@ -145,20 +133,6 @@ const MOCK_SCRAPERS: readonly MockScraperDefinition[] = [
     requires_auth: true,
     scraper_type: "api",
     rate_limit_per_hour: 120,
-  },
-  {
-    scraper_name: "simplyhired",
-    display_name: "SimplyHired",
-    requires_auth: false,
-    scraper_type: "html",
-    rate_limit_per_hour: 45,
-  },
-  {
-    scraper_name: "glassdoor",
-    display_name: "Glassdoor",
-    requires_auth: false,
-    scraper_type: "html",
-    rate_limit_per_hour: 45,
   },
 ] as const;
 const RESTRICTED_SMOKE_TEST_SOURCES = new Set([
@@ -336,7 +310,7 @@ export function updateMockScraperEnabled(
   scraperEnabledOverrides: MockScraperEnabledOverrides,
 ): MockScraperEnabledOverrides {
   const scraperName = getStringArg(args, "scraperName") ?? getStringArg(args, "scraper_name");
-  if (!scraperName) {
+  if (!scraperName || isPolicyBlockedScheduledSourceId(scraperName)) {
     return scraperEnabledOverrides;
   }
 
@@ -372,7 +346,7 @@ function getMockSmokeTestResult(
       details: {
         status: "skipped",
         reason:
-          "This restricted connectivity check is unavailable. Use the reviewed scheduled source, a search link, Browser Import, or manual entry.",
+          "Automated access is unavailable after provider policy review. Use a user-opened search link, Browser Import, or manual entry.",
       },
       error: null,
     };

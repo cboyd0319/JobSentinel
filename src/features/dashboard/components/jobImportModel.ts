@@ -20,6 +20,11 @@ export interface JobImportResult {
   jobId: number;
 }
 
+export const policyBlockedPastedLinkMessage =
+  "JobSentinel cannot fetch this pasted link. Open it in your browser and use visible Browser Import or manual entry.";
+const policyBlockedCaptureMessage =
+  "JobSentinel cannot fetch or capture this source. Open it in your browser or use manual entry.";
+
 const missingDetailLabels = new Map<string, string>([
   ["title", "job title"],
   ["job_title", "job title"],
@@ -91,6 +96,8 @@ function extractImportErrorMessage(error: unknown): string {
 function getSafeImportSpecificMessage(error: unknown): string | null {
   const message = extractImportErrorMessage(error).trim();
   if (!message) return null;
+  if (message === policyBlockedPastedLinkMessage) return message;
+  if (message === policyBlockedCaptureMessage) return message;
 
   const safePatterns = [
     new RegExp(`^${fullJobLinkMessage.replace(/\./g, "\\.")}$`),
@@ -109,6 +116,7 @@ function getSafeImportSpecificMessage(error: unknown): string | null {
     /^The job link redirects to another page\. Paste the final public job posting link from your browser address bar\.$/,
     /^This job is already in your saved jobs\.?$/,
     /^This job preview expired\. Check the job link again before saving\.$/,
+    /^JobSentinel cannot fetch this pasted link\. Open it in your browser and use visible Browser Import or manual entry\.$/,
   ];
 
   return safePatterns.some((pattern) => pattern.test(message)) ? message : null;

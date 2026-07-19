@@ -78,10 +78,9 @@ pub struct Config {
     #[serde(default)]
     pub linkedin: LinkedInConfig,
 
-    /// Projected Settings state for restricted scheduled job-board review.
+    /// Legacy restricted-source review flags retained for config compatibility.
     ///
-    /// The local consent ledger is authoritative. These booleans never authorize
-    /// a source request and are reset when the reviewed context changes.
+    /// These booleans never authorize a source request and are always cleared.
     #[serde(default)]
     pub restricted_source_acknowledgements: RestrictedSourceAcknowledgements,
 
@@ -93,7 +92,7 @@ pub struct Config {
     #[serde(default)]
     pub weworkremotely: WeWorkRemotelyConfig,
 
-    /// BuiltIn scraper configuration
+    /// Legacy Built In configuration retained for deserialization compatibility.
     #[serde(default)]
     pub builtin: BuiltInConfig,
 
@@ -101,7 +100,7 @@ pub struct Config {
     #[serde(default)]
     pub hn_hiring: HnHiringConfig,
 
-    /// Dice scraper configuration
+    /// Legacy Dice configuration retained for deserialization compatibility.
     #[serde(default)]
     pub dice: DiceConfig,
 
@@ -113,11 +112,11 @@ pub struct Config {
     #[serde(default)]
     pub usajobs: UsaJobsConfig,
 
-    /// SimplyHired job aggregator scraper configuration (v2.5.5)
+    /// Legacy SimplyHired configuration retained for deserialization compatibility.
     #[serde(default)]
     pub simplyhired: SimplyHiredConfig,
 
-    /// Glassdoor job board scraper configuration (v2.5.5)
+    /// Legacy Glassdoor configuration retained for deserialization compatibility.
     #[serde(default)]
     pub glassdoor: GlassdoorConfig,
 
@@ -195,18 +194,6 @@ pub struct RestrictedSourceAcknowledgements {
     pub simplyhired: bool,
     #[serde(default)]
     pub glassdoor: bool,
-}
-
-impl RestrictedSourceAcknowledgements {
-    pub(crate) fn contains(&self, source_id: &str) -> bool {
-        match source_id {
-            "builtin" => self.builtin,
-            "dice" => self.dice,
-            "simplyhired" => self.simplyhired,
-            "glassdoor" => self.glassdoor,
-            _ => false,
-        }
-    }
 }
 
 impl Config {

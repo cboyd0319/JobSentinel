@@ -236,7 +236,7 @@ fn backup_and_browser_states_do_not_claim_more_than_local_evidence() {
 }
 
 #[tokio::test]
-async fn restricted_source_consent_and_payload_drift_pause_safely() {
+async fn retired_source_flags_are_safe_but_payload_drift_pauses() {
     let database = Database::connect_memory().await.unwrap();
     database.migrate().await.unwrap();
     let mut signals = safe_signals();
@@ -245,14 +245,14 @@ async fn restricted_source_consent_and_payload_drift_pause_safely() {
     config.dice.query = "security analyst".to_string();
     config.dice.limit = 25;
     config.restricted_source_acknowledgements.dice = true;
-    signals.restricted_sources_safe = restricted_sources_safe(&database, &config).await;
+    signals.restricted_sources_safe = restricted_sources_safe(&config);
     assert_eq!(
         check(
             &build_privacy_doctor(signals.clone()),
             PrivacyDoctorCheckId::Sources
         )
         .state,
-        PrivacyDoctorState::PausedForSafety
+        PrivacyDoctorState::LooksGood
     );
 
     let previous = Config {
@@ -266,13 +266,13 @@ async fn restricted_source_consent_and_payload_drift_pause_safely() {
     )
     .await
     .unwrap();
-    assert!(restricted_sources_safe(&database, &config).await);
+    assert!(restricted_sources_safe(&config));
 
     config.dice.query = "incident responder".to_string();
-    assert!(!restricted_sources_safe(&database, &config).await);
+    assert!(restricted_sources_safe(&config));
 
     config.jobswithgpt_approval.enabled = true;
-    signals.restricted_sources_safe = restricted_sources_safe(&database, &config).await;
+    signals.restricted_sources_safe = restricted_sources_safe(&config);
     assert_eq!(
         check(
             &build_privacy_doctor(signals),

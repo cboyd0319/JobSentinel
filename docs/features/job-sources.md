@@ -42,30 +42,32 @@ messages, and quality checks, not restricted-source acknowledgements or
 authenticated-session time gates.
 
 Do not confuse restricted public boards with authenticated sessions. A job board
-can be technically public and unauthenticated while still requiring a prominent
-user agreement because its terms, anti-automation controls, or data-use
-expectations are unclear. Those restricted public unauthenticated sources may
-run as user-approved source checks with rate limits and safe errors; they do
-not receive LinkedIn-style sign-in-session restrictions unless the flow opens an
-account-backed sign-in session.
+can be technically public and unauthenticated while still prohibiting or
+restricting automated access. Local user consent never overrides provider
+policy. Built In, Dice, SimplyHired, and Glassdoor scheduled automation is
+disabled after current first-party policy review. Pasted-URL import for those
+domains also stops before transport. Dice's official MCP remains review-required
+until privacy, schema, and pacing contracts are reviewed.
 
 The warning must be prominent in the UI and public docs because users should
 not need to understand source internals to make an informed choice. The secure
-path is the easy path: official feeds first, user-opened and reviewed paths
-next, restricted automation only after explicit local acknowledgement.
+path is the easy path: official feeds first, then user-opened and reviewed
+paths. Automation remains disabled whenever source policy does not authorize it.
 
-Saved acknowledgements can reduce repeat friction. Keep them in the local,
-append-only consent ledger and bind them to the exact source, operation,
+Legacy acknowledgement booleans remain loadable only for config compatibility.
+They are always cleared and cannot authorize transport. Any future source
+consent must be local, append-only, and bound to the exact source, operation,
 warning, behavior revision, current policy, destination, data categories, and
-minimized request fingerprint. Any change requires review again.
+minimized request fingerprint.
 
 ## Source Model
 
 | Category | Sources |
 | -------- | ------- |
-| Scheduled job checks | Greenhouse, Lever, RemoteOK, WeWorkRemotely, BuiltIn, community hiring posts, Dice, USAJobs, SimplyHired, Glassdoor |
-| Disabled configured feeds | JobsWithGPT legacy settings remain local while provider endpoint and usage-policy review is unresolved |
-| Source-check helpers | Scheduled job checks plus Indeed, Wellfound, and ZipRecruiter availability checks |
+| Scheduled job checks | Greenhouse, Lever, RemoteOK, WeWorkRemotely, and community hiring posts |
+| Review-required configured source | USAJobs stops before credential access until approved-use evidence is current |
+| Disabled legacy sources | JobsWithGPT, Built In, Dice HTML, SimplyHired, and Glassdoor settings remain loadable but cannot authorize transport |
+| Source-check helpers | Active scheduled sources plus locally skipped Indeed, Wellfound, and ZipRecruiter availability checks |
 | Company careers discovery | Employer careers pages that JobSentinel can classify before choosing a safe source path |
 | User-opened search links | LinkedIn, Y Combinator Jobs, and other destination links opened by the user |
 | Preferred expansion path | Official company career pages and public hiring-platform sources such as Greenhouse, Lever, Ashby, Workable, SmartRecruiters, and USAJobs |
@@ -106,14 +108,14 @@ one from another.
 | Rule | Requirement |
 | ---- | ----------- |
 | Official source first | Prefer official posting sources, public feeds, and company or application-platform postings |
-| Restricted-site user gate | Warn prominently and require explicit acknowledgement before user-directed restricted-site import, browser import, search-link open, or scheduled restricted-source check |
+| Restricted-site user gate | Warn prominently before user-directed restricted-site import, Browser Import, or search-link open; acknowledgement cannot override a provider automation prohibition |
 | Technical auth classification | Keep public unauthenticated sources, local API-key sources, authenticated user-session sources, and unknown review-required sources distinct in the shared source taxonomy |
 | Restricted-domain rationale | Every domain in `RESTRICTED_JOB_SOURCE_DOMAINS` must come from a structured record with a specific reason, category, and source reference; do not add undocumented domains |
 | No secret capture or evasion | Do not add hidden data paths, session-cookie collection, human-check workarounds, or platform-control evasion |
 | Local-first storage | Source results, run history, and notes stay local |
 | Rate limits | Every source check must wait within that source's limits |
 | Response size | JobSentinel stops reading very large responses; the current safety limit is 16 MiB |
-| User control | Job-site search links open in the user's browser; restricted-site actions continue only after acknowledgement |
+| User control | Job-site search links open in the user's browser; restricted-site actions stay user-directed and policy-bound |
 
 ## User-Controlled LinkedIn Workbench
 
@@ -210,9 +212,10 @@ The discovery order is:
    Phenom.
 2. Normalize to a native scheduled source only when the public source path and
    source terms are reviewed.
-3. Offer a user-opened search link, pasted job link import, Browser Import, or
-   manual entry when the employer page is custom, restricted, blocked, or still
-   under review.
+3. Offer a user-opened search link, Browser Import, or manual entry when the
+   employer page is custom, restricted, blocked, or still under review. Offer
+   pasted job link import only when current provider policy permits an
+   automated fetch.
 
 Examples from the 2026-06-19 source pass:
 
@@ -304,12 +307,9 @@ Representative source pacing:
 | USAJobs | High | Official source with user-provided access code |
 | RemoteOK | Medium | Public job feed |
 | Hacker News Who Is Hiring | Medium | Public community posts through Algolia HN Search |
-| Dice | Medium | Public job feed |
 | WeWorkRemotely | Moderate | Public feed/page |
-| BuiltIn | Moderate | Public page |
-| SimplyHired | Conservative | Best-effort public source; may be blocked |
-| Glassdoor | Conservative | Best-effort public source; may ask for human checks |
 | JobsWithGPT | Disabled | Provider endpoint and usage-policy review required |
+| Built In, Dice HTML, SimplyHired, Glassdoor | Disabled | Provider policy does not authorize the retired adapters |
 
 Checks that cannot operate within source boundaries should fail closed and
 show a clear user-facing explanation.
@@ -319,20 +319,14 @@ current Terms of Use found an explicit prohibition on scraping, robots, data
 mining, and similar extraction. JobSentinel therefore does not schedule,
 recommend, probe, fetch, import, or capture YC pages.
 
-Source Status keeps restricted public unauthenticated helpers such as Indeed,
-Wellfound, BuiltIn, Dice, ZipRecruiter, SimplyHired, and Glassdoor skipped. A
-scheduled-source acknowledgement does not authorize these different fixed
-connectivity probes. A future source-scoped health-check flow must review its
-own exact destination and request. Until then, Source Status points users to
-Settings, search links, Browser Import, pasted links, employer pages, or manual
-entry.
-
-Restricted scheduled sources such as BuiltIn, Dice, SimplyHired, and Glassdoor
-require exact current consent in the local ledger before the scheduler runs
-them. Config booleans are only a projected Settings state and never authorize a
-request. Restored or hand-edited config cannot create or preserve consent.
-Changing the policy or active request pauses the source and returns a plain
-recovery message telling the user to review it again in Settings.
+Source Status keeps Indeed, Wellfound, and ZipRecruiter connectivity helpers
+locally skipped. Built In, Dice, SimplyHired, and Glassdoor health rows are
+removed by migration and cannot be restored. A direct legacy check identifier
+still stops locally with the provider-policy explanation. Restored or
+hand-edited config cannot re-enable transport. Users can instead choose a
+user-opened search link, Browser Import, an official employer page, or manual
+entry. Pasted-URL import for these four retired domains also stops before
+transport.
 
 USAJOBS scheduled and connectivity checks are currently review-required and
 stop before JobSentinel reads the saved access code. The current terms limit API

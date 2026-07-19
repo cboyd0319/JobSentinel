@@ -41,7 +41,7 @@ describe("useJobBoardRecommendations", () => {
     expect(recommendations.map((item) => item.board)).toContain("USAJobs");
   });
 
-  it("recommends BuiltIn for technical searches in shared tech city markets", () => {
+  it("does not recommend retired restricted scheduled sources", () => {
     const recommendations = renderRecommendations(
       makeConfig({
         title_allowlist: ["Software Engineer"],
@@ -54,6 +54,8 @@ describe("useJobBoardRecommendations", () => {
       }),
     );
 
-    expect(recommendations.map((item) => item.board)).toContain("BuiltIn");
+    const boards = recommendations.map((item) => item.board);
+    expect(boards).not.toContain("BuiltIn");
+    expect(boards).not.toContain("Dice");
   });
 });

@@ -203,18 +203,6 @@ pub mod limits {
 
     /// JobsWithGPT: 10,000 requests/hour (MCP server)
     pub const JOBSWITHGPT: u32 = 10_000;
-
-    /// Dice: 500 requests/hour (public job board)
-    pub const DICE: u32 = 500;
-
-    /// Glassdoor: 200 requests/hour (conservative due to Cloudflare)
-    pub const GLASSDOOR: u32 = 200;
-
-    /// SimplyHired: 200 requests/hour (conservative due to Cloudflare)
-    pub const SIMPLYHIRED: u32 = 200;
-
-    /// BuiltIn: 300 requests/hour (job board)
-    pub const BUILTIN: u32 = 300;
 }
 
 #[cfg(test)]

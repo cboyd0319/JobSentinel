@@ -6,20 +6,23 @@ use jobsentinel_domain::{
         SourceConsentContext, SourceConsentOperation, SourceConsentReviewReason,
         SourceConsentStatus,
     },
+    v3_source_manifest::{
+        parse_source_manifest, BUILTIN_SOURCE_MANIFEST_V2, DICE_SOURCE_MANIFEST_V2,
+        GLASSDOOR_SOURCE_MANIFEST_V2, SIMPLYHIRED_SOURCE_MANIFEST_V2,
+    },
 };
 use jobsentinel_storage::Database;
 use sha2::{Digest, Sha256};
 
 use crate::{
     v3_foundation::{
-        remember_source_consent, review_source_consent, revoke_source_consent, set_source_policy,
-        FoundationError,
+        review_source_consent, revoke_source_consent, set_source_policy, FoundationError,
     },
     Config,
 };
 
 const RESTRICTED_SOURCE_IDS: [&str; 4] = ["builtin", "dice", "simplyhired", "glassdoor"];
-const POLICY_REVISION: u32 = 1;
+const POLICY_REVISION: u32 = 2;
 const WARNING_VERSION: u32 = 1;
 const BEHAVIOR_REVISION: u32 = 1;
 const POLICY_REVIEWED_AT: &str = "2026-07-19T00:00:00Z";
@@ -33,65 +36,34 @@ pub async fn review_restricted_source_consent(
     review_source_consent(database, &context).await
 }
 
-pub async fn restricted_source_consent_remembered(
-    database: &Database,
-    config: &Config,
-    source_id: &str,
-) -> bool {
-    matches!(
-        review_restricted_source_consent(database, config, source_id).await,
-        Ok(SourceConsentStatus::Remembered { .. })
-    )
-}
-
 pub async fn refresh_restricted_source_acknowledgements(
     database: &Database,
     config: &mut Config,
 ) -> Result<(), FoundationError> {
     for source_id in RESTRICTED_SOURCE_IDS {
         ensure_current_policy(database, source_id).await?;
-        let remembered = match review_restricted_source_consent(database, config, source_id).await?
-        {
-            SourceConsentStatus::Remembered { .. } => true,
+        match review_restricted_source_consent(database, config, source_id).await? {
+            SourceConsentStatus::Remembered { .. } => {
+                revoke_source_consent(database, source_id).await?;
+            }
             SourceConsentStatus::ReviewRequired {
                 reason: SourceConsentReviewReason::ContextChanged,
                 latest_event_id: Some(_),
             } => {
                 revoke_source_consent(database, source_id).await?;
-                false
             }
-            SourceConsentStatus::ReviewRequired { .. } => false,
-        };
-        set_acknowledgement(config, source_id, remembered);
+            SourceConsentStatus::ReviewRequired { .. } => {}
+        }
+        retire_source_config(config, source_id);
     }
     Ok(())
 }
 
 pub async fn reconcile_restricted_source_consents(
     database: &Database,
-    previous: &Config,
+    _previous: &Config,
     requested: &mut Config,
 ) -> Result<(), FoundationError> {
-    for source_id in RESTRICTED_SOURCE_IDS {
-        let was_acknowledged = acknowledgement(previous, source_id);
-        let acknowledgement_requested = acknowledgement(requested, source_id);
-
-        if was_acknowledged && !acknowledgement_requested {
-            revoke_source_consent(database, source_id).await?;
-        } else if !was_acknowledged && acknowledgement_requested {
-            ensure_current_policy(database, source_id).await?;
-            let context = consent_context(requested, source_id)?;
-            match review_source_consent(database, &context).await? {
-                SourceConsentStatus::Remembered { .. } => {}
-                SourceConsentStatus::ReviewRequired {
-                    latest_event_id, ..
-                } => {
-                    remember_source_consent(database, &context, latest_event_id.as_deref()).await?;
-                }
-            }
-        }
-    }
-
     refresh_restricted_source_acknowledgements(database, requested).await
 }
 
@@ -121,12 +93,12 @@ fn current_policy(source_id: &str) -> Result<SourcePolicy, FoundationError> {
     Ok(SourcePolicy {
         source_id: source_id.to_string(),
         source_class: SourceClass::RestrictedPublicScheduled,
-        access: SourceAccess::ScheduledPublic,
-        request_limit_per_hour: 1,
+        access: SourceAccess::Disabled,
+        request_limit_per_hour: 0,
         user_review_required: true,
         policy_ref: format!("jobsentinel.source-policy.{source_id}.scheduled"),
         revision: POLICY_REVISION,
-        restriction_reason_code: Some("restricted-public-scheduled".to_string()),
+        restriction_reason_code: Some("provider-automation-prohibited".to_string()),
         reviewed_at,
     })
 }
@@ -151,6 +123,30 @@ async fn ensure_current_policy(
                 Err(FoundationError::Conflict)
             }
         }
+    }?;
+
+    let raw_manifest = match source_id {
+        "builtin" => BUILTIN_SOURCE_MANIFEST_V2,
+        "dice" => DICE_SOURCE_MANIFEST_V2,
+        "simplyhired" => SIMPLYHIRED_SOURCE_MANIFEST_V2,
+        "glassdoor" => GLASSDOOR_SOURCE_MANIFEST_V2,
+        _ => return Err(FoundationError::InvalidInput),
+    };
+    let expected_manifest = parse_source_manifest(raw_manifest, &expected)
+        .map_err(|_| FoundationError::InvalidInput)?;
+    match database
+        .get_source_manifest(source_id)
+        .await
+        .map_err(|_| FoundationError::Storage("source-manifest"))?
+    {
+        Some(stored) if stored == expected_manifest => Ok(()),
+        Some(stored) if stored.policy_revision >= expected_manifest.policy_revision => {
+            Err(FoundationError::Conflict)
+        }
+        _ => database
+            .store_source_manifest(&expected_manifest)
+            .await
+            .map_err(|_| FoundationError::Storage("source-manifest")),
     }
 }
 
@@ -252,25 +248,34 @@ const fn bool_bytes(value: bool) -> &'static [u8] {
     }
 }
 
-fn acknowledgement(config: &Config, source_id: &str) -> bool {
-    config
-        .restricted_source_acknowledgements
-        .contains(source_id)
-}
-
-fn set_acknowledgement(config: &mut Config, source_id: &str, acknowledged: bool) {
+fn retire_source_config(config: &mut Config, source_id: &str) {
     match source_id {
-        "builtin" => config.restricted_source_acknowledgements.builtin = acknowledged,
-        "dice" => config.restricted_source_acknowledgements.dice = acknowledged,
-        "simplyhired" => config.restricted_source_acknowledgements.simplyhired = acknowledged,
-        "glassdoor" => config.restricted_source_acknowledgements.glassdoor = acknowledged,
+        "builtin" => {
+            config.builtin.enabled = false;
+            config.restricted_source_acknowledgements.builtin = false;
+        }
+        "dice" => {
+            config.dice.enabled = false;
+            config.restricted_source_acknowledgements.dice = false;
+        }
+        "simplyhired" => {
+            config.simplyhired.enabled = false;
+            config.restricted_source_acknowledgements.simplyhired = false;
+        }
+        "glassdoor" => {
+            config.glassdoor.enabled = false;
+            config.restricted_source_acknowledgements.glassdoor = false;
+        }
         _ => {}
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use jobsentinel_domain::v3_source_consent::{SourceConsentReviewReason, SourceConsentStatus};
+    use jobsentinel_domain::{
+        v3_foundation::SourceAccess,
+        v3_source_consent::{SourceConsentReviewReason, SourceConsentStatus},
+    };
     use jobsentinel_storage::Database;
 
     use crate::Config;
@@ -319,100 +324,49 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn exact_user_review_is_remembered_and_request_drift_resets_it() {
+    async fn provider_policy_retirement_cannot_be_overridden_by_local_consent() {
         let database = database().await;
         let previous = dice_config();
-        let mut reviewed = previous.clone();
-        reviewed.restricted_source_acknowledgements.dice = true;
+        let mut requested = previous.clone();
+        requested.builtin.enabled = true;
+        requested.simplyhired.enabled = true;
+        requested.glassdoor.enabled = true;
+        requested.restricted_source_acknowledgements.builtin = true;
+        requested.restricted_source_acknowledgements.dice = true;
+        requested.restricted_source_acknowledgements.simplyhired = true;
+        requested.restricted_source_acknowledgements.glassdoor = true;
 
-        reconcile_restricted_source_consents(&database, &previous, &mut reviewed)
+        reconcile_restricted_source_consents(&database, &previous, &mut requested)
             .await
             .unwrap();
-        assert!(reviewed.restricted_source_acknowledgements.dice);
-        assert!(matches!(
-            review_restricted_source_consent(&database, &reviewed, "dice")
+
+        assert!(!requested.restricted_source_acknowledgements.builtin);
+        assert!(!requested.restricted_source_acknowledgements.dice);
+        assert!(!requested.restricted_source_acknowledgements.simplyhired);
+        assert!(!requested.restricted_source_acknowledgements.glassdoor);
+        assert!(!requested.builtin.enabled);
+        assert!(!requested.dice.enabled);
+        assert!(!requested.simplyhired.enabled);
+        assert!(!requested.glassdoor.enabled);
+        for source_id in ["builtin", "dice", "simplyhired", "glassdoor"] {
+            let policy = database
+                .get_source_policy(source_id)
                 .await
-                .unwrap(),
-            SourceConsentStatus::Remembered { .. }
-        ));
-
-        let mut changed = reviewed.clone();
-        changed.dice.query = "incident responder".to_string();
-        reconcile_restricted_source_consents(&database, &reviewed, &mut changed)
-            .await
-            .unwrap();
-
-        assert!(!changed.restricted_source_acknowledgements.dice);
-        assert!(matches!(
-            review_restricted_source_consent(&database, &changed, "dice")
+                .unwrap()
+                .unwrap();
+            assert_eq!(policy.access, SourceAccess::Disabled);
+            assert_eq!(policy.revision, 2);
+            assert!(database
+                .get_source_manifest(source_id)
                 .await
-                .unwrap(),
-            SourceConsentStatus::ReviewRequired {
-                reason: SourceConsentReviewReason::Revoked,
-                ..
-            }
-        ));
-    }
-
-    #[tokio::test]
-    async fn request_drift_cannot_restore_an_old_grant_after_reload() {
-        let database = database().await;
-        let previous = dice_config();
-        let mut reviewed = previous.clone();
-        reviewed.restricted_source_acknowledgements.dice = true;
-        reconcile_restricted_source_consents(&database, &previous, &mut reviewed)
-            .await
-            .unwrap();
-
-        let mut changed = reviewed.clone();
-        changed.dice.query = "incident responder".to_string();
-        reconcile_restricted_source_consents(&database, &reviewed, &mut changed)
-            .await
-            .unwrap();
-
-        let mut restored_after_reload = previous;
-        refresh_restricted_source_acknowledgements(&database, &mut restored_after_reload)
-            .await
-            .unwrap();
-
-        assert!(
-            !restored_after_reload
-                .restricted_source_acknowledgements
-                .dice
-        );
-        assert!(matches!(
-            review_restricted_source_consent(&database, &restored_after_reload, "dice")
-                .await
-                .unwrap(),
-            SourceConsentStatus::ReviewRequired {
-                reason: SourceConsentReviewReason::Revoked,
-                ..
-            }
-        ));
-    }
-
-    #[tokio::test]
-    async fn review_and_revocation_are_scoped_to_one_source() {
-        let database = database().await;
-        let previous = dice_config();
-        let mut reviewed = previous.clone();
-        reviewed.builtin.enabled = true;
-        reviewed.restricted_source_acknowledgements.dice = true;
-
-        reconcile_restricted_source_consents(&database, &previous, &mut reviewed)
-            .await
-            .unwrap();
-
-        assert!(reviewed.restricted_source_acknowledgements.dice);
-        assert!(!reviewed.restricted_source_acknowledgements.builtin);
-
-        let mut revoked = reviewed.clone();
-        revoked.restricted_source_acknowledgements.dice = false;
-        reconcile_restricted_source_consents(&database, &reviewed, &mut revoked)
-            .await
-            .unwrap();
-
-        assert!(!revoked.restricted_source_acknowledgements.dice);
-        assert!(!revoked.restricted_source_acknowledgements.builtin);
+                .unwrap()
+                .is_some());
+            assert!(!matches!(
+                review_restricted_source_consent(&database, &requested, source_id)
+                    .await
+                    .unwrap(),
+                SourceConsentStatus::Remembered { .. }
+            ));
+        }
     }
 }

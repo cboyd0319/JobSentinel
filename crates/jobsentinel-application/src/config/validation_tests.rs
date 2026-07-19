@@ -251,8 +251,8 @@ mod validation_tests {
     #[test]
     fn test_scraper_limit_too_large_fails() {
         let mut config = create_minimal_valid_config();
-        config.builtin.enabled = true;
-        config.builtin.limit = 1001;
+        config.weworkremotely.enabled = true;
+        config.weworkremotely.limit = 1001;
 
         let result = validate_config(&config);
         assert!(result.is_err());
@@ -279,32 +279,18 @@ mod validation_tests {
     }
 
     #[test]
-    fn test_dice_enabled_requires_query() {
+    fn retired_source_fields_remain_loadable_but_inert() {
         let mut config = create_minimal_valid_config();
+        config.builtin.enabled = true;
+        config.builtin.limit = 0;
         config.dice.enabled = true;
         config.dice.query = "".to_string();
-
-        let result = validate_config(&config);
-        assert!(result.is_err());
-    }
-
-    #[test]
-    fn test_glassdoor_enabled_requires_query() {
-        let mut config = create_minimal_valid_config();
+        config.simplyhired.enabled = true;
+        config.simplyhired.query = "".to_string();
         config.glassdoor.enabled = true;
         config.glassdoor.query = "".to_string();
 
         let result = validate_config(&config);
-        assert!(result.is_err());
-    }
-
-    #[test]
-    fn test_simplyhired_enabled_requires_query() {
-        let mut config = create_minimal_valid_config();
-        config.simplyhired.enabled = true;
-        config.simplyhired.query = "".to_string();
-
-        let result = validate_config(&config);
-        assert!(result.is_err());
+        assert!(result.is_ok());
     }
 }

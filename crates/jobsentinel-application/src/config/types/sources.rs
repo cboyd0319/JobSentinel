@@ -83,16 +83,12 @@ pub struct WeWorkRemotelyConfig {
     pub limit: usize,
 }
 
-/// BuiltIn scraper configuration
+/// Legacy Built In configuration.
 ///
-/// BuiltIn covers tech jobs from startups and tech companies.
-/// No authentication required.
-///
-/// Note: BuiltIn changed their URL structure in late 2025.
-/// City-specific URLs no longer work. Use remote_only filter instead.
+/// Retained for config compatibility. Automated access is unavailable.
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct BuiltInConfig {
-    /// Enable BuiltIn job scraping
+    /// Legacy automation flag; retained but ignored.
     #[serde(default)]
     pub enabled: bool,
 
@@ -124,13 +120,12 @@ pub struct HnHiringConfig {
     pub limit: usize,
 }
 
-/// Dice scraper configuration
+/// Legacy Dice configuration.
 ///
-/// Dice is a tech-focused job board with IT and technology positions.
-/// No authentication required.
+/// Retained for config compatibility. The legacy HTML adapter is unavailable.
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct DiceConfig {
-    /// Enable Dice job scraping
+    /// Legacy automation flag; retained but ignored.
     #[serde(default)]
     pub enabled: bool,
 
@@ -169,13 +164,12 @@ pub struct YcStartupConfig {
     pub limit: usize,
 }
 
-/// SimplyHired scraper configuration (v2.5.5)
+/// Legacy SimplyHired configuration.
 ///
-/// SimplyHired job aggregator. Uses RSS feeds.
-/// Note: May be blocked by Cloudflare, returns empty if so.
+/// Retained for config compatibility. Automated access is unavailable.
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct SimplyHiredConfig {
-    /// Enable SimplyHired job scraping
+    /// Legacy automation flag; retained but ignored.
     #[serde(default)]
     pub enabled: bool,
 
@@ -192,13 +186,12 @@ pub struct SimplyHiredConfig {
     pub limit: usize,
 }
 
-/// Glassdoor scraper configuration (v2.5.5)
+/// Legacy Glassdoor configuration.
 ///
-/// Glassdoor job board with company reviews.
-/// Note: Has strong Cloudflare protection, may return empty if blocked.
+/// Retained for config compatibility. Automated access is unavailable.
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct GlassdoorConfig {
-    /// Enable Glassdoor job scraping
+    /// Legacy automation flag; retained but ignored.
     #[serde(default)]
     pub enabled: bool,
 

@@ -1,8 +1,5 @@
 import type { ReactNode } from "react";
-import type {
-  RestrictedScheduledJobSourceId,
-  RestrictedSourceAcknowledgements,
-} from "../../../shared/restrictedSourceTaxonomy";
+import type { RestrictedSourceAcknowledgements } from "../../../shared/restrictedSourceTaxonomy";
 import {
   DEFAULT_EXTERNAL_AI_CONFIG,
   type ExternalAiProvider,
@@ -181,22 +178,6 @@ export interface Config {
   use_resume_matching: boolean;
 }
 
-export function getRestrictedSourceConsentScope(
-  config: Config,
-  sourceId: RestrictedScheduledJobSourceId,
-): string {
-  switch (sourceId) {
-    case "builtin":
-      return `builtin.com receives the ${config.builtin.remote_only ? "remote-only" : "all locations"} setting and a ${config.builtin.limit}-result limit.`;
-    case "dice":
-      return `dice.com receives search words "${config.dice.query}", location "${config.dice.location ?? "not set"}", and a ${config.dice.limit}-result limit.`;
-    case "simplyhired":
-      return `simplyhired.com receives search words "${config.simplyhired.query}", location "${config.simplyhired.location ?? "not set"}", and a ${config.simplyhired.limit}-result limit.`;
-    case "glassdoor":
-      return `glassdoor.com receives search words "${config.glassdoor.query}", location "${config.glassdoor.location ?? "not set"}", and a ${config.glassdoor.limit}-result limit.`;
-  }
-}
-
 export { DEFAULT_EXTERNAL_AI_CONFIG };
 export type { ExternalAiProvider, ExternalAiSettings };
 
@@ -296,25 +277,6 @@ export function isCurrentJobsWithGptPayloadApproved(
     config.jobswithgpt_approval.enabled &&
     sameJobsWithGptPayload(config.jobswithgpt_approval.payload, payload)
   );
-}
-
-export function buildSettingsSourceQuery(
-  config: Pick<Config, "title_allowlist" | "keywords_boost">,
-): string {
-  return [...config.title_allowlist, ...config.keywords_boost]
-    .map((term) => term.trim())
-    .filter((term) => term.length > 0)
-    .slice(0, 4)
-    .join(" ")
-    .slice(0, 200);
-}
-
-export function getSettingsSourceLocation(
-  config: Pick<Config, "location_preferences">,
-): string | undefined {
-  return config.location_preferences.cities
-    .map((city) => city.trim())
-    .find((city) => city.length > 0);
 }
 
 export const isValidEmail = (email: string): boolean => {

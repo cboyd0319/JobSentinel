@@ -35,6 +35,13 @@ pub const LEVER_REQUEST_LIMIT_PER_HOUR: u16 = 1_000;
 pub const LEVER_API_ENDPOINT_PREFIX: &str = "https://api.lever.co/v0/postings/";
 pub const JOBSWITHGPT_SOURCE_MANIFEST_V1: &str =
     include_str!("fixtures/source_manifests/jobswithgpt_v1.json");
+pub const BUILTIN_SOURCE_MANIFEST_V2: &str =
+    include_str!("fixtures/source_manifests/builtin_v2.json");
+pub const DICE_SOURCE_MANIFEST_V2: &str = include_str!("fixtures/source_manifests/dice_v2.json");
+pub const SIMPLYHIRED_SOURCE_MANIFEST_V2: &str =
+    include_str!("fixtures/source_manifests/simplyhired_v2.json");
+pub const GLASSDOOR_SOURCE_MANIFEST_V2: &str =
+    include_str!("fixtures/source_manifests/glassdoor_v2.json");
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]

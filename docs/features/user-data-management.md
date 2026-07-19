@@ -81,9 +81,10 @@ When a starting path is selected, setup previews sample job titles and search
 words as editable suggestions before the search is saved.
 Software, security, and data paths can suggest tech-heavy job sources, but
 first-run setup keeps them off until the user checks those sources in review.
-Non-technical searches can suggest SimplyHired as a broad public source. It
-also stays off until the user checks it, and setup fills only the reviewed
-search words into the source config after that opt-in.
+Non-technical searches do not suggest the retired SimplyHired scheduled
+adapter. Users can add reviewed active sources later or use user-opened search
+links, Browser Import, and manual entry. Pasted-URL import for the four retired
+domains stops before transport.
 
 ### Notification Preferences
 
@@ -118,8 +119,8 @@ application history.
 
 Privacy Doctor is passive and offline. It inspects local storage, structural
 portable-backup history, credential-vault metadata, configured external-AI
-safeguards, Browser Import code state, restricted-source acknowledgements, and
-the no-telemetry product contract. It does not read secrets or test Keychain.
+safeguards, Browser Import code state, governed source state, and the
+no-telemetry product contract. It does not read secrets or test Keychain.
 A recorded backup creation does not prove the file still exists, and system
 credential storage is reported as unchecked until the user performs an action
 that needs it.

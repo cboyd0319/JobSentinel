@@ -11,9 +11,8 @@ use jobsentinel_storage::Database;
 use std::time::Instant;
 
 use self::sources::{
-    test_builtin, test_dice, test_glassdoor, test_greenhouse, test_hn_hiring, test_indeed,
-    test_jobswithgpt, test_lever, test_remoteok, test_simplyhired, test_usajobs, test_wellfound,
-    test_weworkremotely, test_ziprecruiter,
+    test_greenhouse, test_hn_hiring, test_indeed, test_jobswithgpt, test_lever, test_remoteok,
+    test_usajobs, test_wellfound, test_weworkremotely, test_ziprecruiter,
 };
 use jobsentinel_storage::health::{record_smoke_test, SmokeTestResult, SmokeTestType};
 
@@ -46,7 +45,7 @@ const SOURCE_CHECK_READ_ERROR: &str =
 const SOURCE_CHECK_DEFAULT_ERROR: &str =
     "This source check could not finish. Try again later or save a safe support report.";
 const RESTRICTED_SOURCE_CHECK_UNAVAILABLE: &str =
-    "This restricted connectivity check is unavailable. Use the reviewed scheduled source, a search link, Browser Import, or manual entry.";
+    "Automated access is unavailable after provider policy review. Use a user-opened search link, Browser Import, or manual entry.";
 const USAJOBS_SOURCE_CHECK_UNAVAILABLE: &str =
     "This USAJobs connectivity check is unavailable until its reviewed source governance is current.";
 const USAJOBS_DISABLED: &str = "USAJobs scraping not enabled";
@@ -163,12 +162,8 @@ fn smoke_rate_limit(scraper_name: &str) -> u32 {
     match scraper_name {
         "indeed" => limits::INDEED,
         "wellfound" => 200,
-        "builtin" => limits::BUILTIN,
         "jobswithgpt" => limits::JOBSWITHGPT,
-        "dice" => limits::DICE,
         "ziprecruiter" => 300,
-        "simplyhired" => limits::SIMPLYHIRED,
-        "glassdoor" => limits::GLASSDOOR,
         _ => 60,
     }
 }
@@ -342,7 +337,6 @@ pub async fn run_smoke_test_with_credentials(
         "remoteok" => test_remoteok().await,
         "wellfound" => test_wellfound().await,
         "weworkremotely" => test_weworkremotely().await,
-        "builtin" => test_builtin().await,
         "hn_hiring" => match governed_limit {
             Some(limit) => test_hn_hiring(limit).await,
             None => Err(anyhow::anyhow!(
@@ -350,11 +344,8 @@ pub async fn run_smoke_test_with_credentials(
             )),
         },
         "jobswithgpt" => test_jobswithgpt(config).await,
-        "dice" => test_dice().await,
         "ziprecruiter" => test_ziprecruiter().await,
         "usajobs" => test_usajobs(config, credentials).await,
-        "simplyhired" => test_simplyhired().await,
-        "glassdoor" => test_glassdoor().await,
         _ => Err(anyhow::anyhow!("Unknown scraper")),
     };
 

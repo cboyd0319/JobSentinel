@@ -41,7 +41,7 @@ pub enum ImportError {
     PendingImportNotFound,
 
     #[error("Automated source access is unavailable")]
-    SourcePolicyBlocked,
+    SourcePolicyBlocked { visible_capture_allowed: bool },
 
     #[error("Timeout while fetching URL")]
     Timeout,

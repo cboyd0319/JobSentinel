@@ -67,14 +67,14 @@ export const JOB_SOURCE_BOARDS_DISCOVERY_ENTRIES: readonly model.JobSourceDiscov
     label: "Glassdoor",
     category: "broad-job-board",
     accessModel: "restricted-user-gated",
-    status: "restricted",
+    status: "manual-only",
     regions: ["global"],
     careerProfileIds: "all",
     hostPatterns: ["glassdoor.com"],
     examples: ["Glassdoor job search"],
     implementationPath:
-      "Use user-opened import or explicit user-gated access only.",
-    notes: model.RESTRICTED_BOARD_NOTES,
+      "Use a user-opened search, visible Browser Import, or manual entry. Scheduled and pasted-URL fetches are policy-disabled.",
+    notes: model.POLICY_BLOCKED_AUTOMATION_NOTES,
     requiresUserAgreement: true,
   },
   {
@@ -82,14 +82,14 @@ export const JOB_SOURCE_BOARDS_DISCOVERY_ENTRIES: readonly model.JobSourceDiscov
     label: "SimplyHired",
     category: "broad-job-board",
     accessModel: "restricted-user-gated",
-    status: "restricted",
+    status: "manual-only",
     regions: ["US"],
     careerProfileIds: "all",
     hostPatterns: ["simplyhired.com"],
     examples: ["SimplyHired search results"],
     implementationPath:
-      "Use user-opened import or explicit user-gated access only.",
-    notes: model.RESTRICTED_BOARD_NOTES,
+      "Use a user-opened search, visible Browser Import, or manual entry. Scheduled and pasted-URL fetches are policy-disabled.",
+    notes: model.POLICY_BLOCKED_AUTOMATION_NOTES,
     requiresUserAgreement: true,
   },
   {
@@ -197,7 +197,7 @@ export const JOB_SOURCE_BOARDS_DISCOVERY_ENTRIES: readonly model.JobSourceDiscov
     label: "Built In",
     category: "regional-local",
     accessModel: "restricted-user-gated",
-    status: "restricted",
+    status: "manual-only",
     regions: ["US"],
     careerProfileIds: [
       ...model.TECH_PROFILE_IDS,
@@ -220,8 +220,8 @@ export const JOB_SOURCE_BOARDS_DISCOVERY_ENTRIES: readonly model.JobSourceDiscov
       "Built In Chicago",
     ],
     implementationPath:
-      "Use employer discovery from listings and explicit user-gated access only for board scraping.",
-    notes: model.RESTRICTED_BOARD_NOTES,
+      "Use a user-opened search, visible Browser Import, or manual entry. Scheduled and pasted-URL fetches are policy-disabled.",
+    notes: model.POLICY_BLOCKED_AUTOMATION_NOTES,
     requiresUserAgreement: true,
   },
   {
@@ -336,14 +336,14 @@ export const JOB_SOURCE_BOARDS_DISCOVERY_ENTRIES: readonly model.JobSourceDiscov
     label: "Dice",
     category: "broad-job-board",
     accessModel: "restricted-user-gated",
-    status: "restricted",
+    status: "manual-only",
     regions: ["US"],
     careerProfileIds: model.TECH_PROFILE_IDS,
     hostPatterns: ["dice.com"],
     examples: ["Technology job search"],
     implementationPath:
-      "Use user-opened import or explicit user-gated access only.",
-    notes: model.RESTRICTED_BOARD_NOTES,
+      "Use a user-opened search, visible Browser Import, or manual entry. Scheduled and pasted-URL fetches are policy-disabled.",
+    notes: model.POLICY_BLOCKED_AUTOMATION_NOTES,
     requiresUserAgreement: true,
   },
   {

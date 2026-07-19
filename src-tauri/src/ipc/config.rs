@@ -308,12 +308,8 @@ pub(crate) async fn set_resume_matching_enabled(
 fn any_job_source_enabled(config: &Config) -> bool {
     config.remoteok.enabled
         || config.weworkremotely.enabled
-        || config.builtin.enabled
         || config.hn_hiring.enabled
-        || config.dice.enabled
         || config.usajobs.enabled
-        || config.simplyhired.enabled
-        || config.glassdoor.enabled
         || config
             .greenhouse_urls
             .iter()

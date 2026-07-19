@@ -106,7 +106,8 @@ acknowledgement or sign-in-session boundaries.
 | Source class | Examples | Current behavior |
 | ------------ | -------- | ---------------- |
 | Official hiring APIs and feeds | Greenhouse, Lever, RemoteOK, USAJobs, public employer feeds | Normal opt-in source checks with rate limits, safe errors, and local storage |
-| Public job boards and aggregators | WeWorkRemotely, BuiltIn, Dice, SimplyHired, Glassdoor | User-approved checks with source-specific warnings where terms or access risk is unclear |
+| Reviewed public job feed | WeWorkRemotely | Governed opt-in checks with a reviewed endpoint, pacing, fixtures, and safe errors |
+| Retired restricted scheduled adapters | Built In, Dice HTML, SimplyHired, Glassdoor | Disabled after provider policy review; stale config cannot restore transport |
 | Employer career pages | Fivetran, SpaceX, Google, Microsoft, Amazon, GitHub, OpenAI, Anthropic, and other company pages | Classify the platform first, then use native support, Browser Import, pasted link import, or manual entry |
 | Reviewed ATS families | Greenhouse, Lever, Ashby, Workable, SmartRecruiters, Workday, iCIMS/Jibe, Breezy, JazzHR, Bullhorn, Eightfold, Jobvite, Teamtailor, Recruitee, Taleo, SAP SuccessFactors, Oracle Recruiting, Phenom, Radancy/TalentBrew | Taxonomy-backed discovery, with native scheduled support only after source-specific review and fixtures |
 | Native source-adapter contracts from API research | Workday Candidate Experience listing JSON, Phenom widget refineSearch JSON, Radancy/TalentBrew static HTML | Parser and canonical-record contracts exist; live scheduling still needs tenant-specific policy, robots, rate-limit, endpoint-stability, and parser checks |
@@ -202,7 +203,7 @@ preview, edit, cancel, approval, redaction, and tests before it can be enabled.
 | Hide keywords, add invisible text, or prompt-inject resumes | These tactics are deceptive and unsafe. |
 | Guarantee employer response or hiring outcome | JobSentinel provides candidate-side decision support, not employer predictions. |
 | Treat pay guidance as legal advice | Pay cues help users ask better questions and review written ranges. |
-| Run hidden restricted-source monitoring | Restricted sources require explicit user action and acknowledgement. |
+| Run hidden restricted-source monitoring | Restricted sources remain user-directed, and provider automation prohibitions cannot be overridden locally. |
 | Store restricted-site cookies, tokens, browser storage, or auth headers | Credential and session capture is outside the product boundary. |
 | Solve human checks or bypass platform controls | Source boundaries and user privacy remain non-negotiable. |
 | Upload the local job database by default | Core workflows are local-first. |

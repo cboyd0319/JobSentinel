@@ -43,6 +43,7 @@ describe("JobImportModal", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockInvoke.mockReset();
   });
 
   it("uses plain job-link copy and broad role examples", () => {
@@ -117,6 +118,27 @@ describe("JobImportModal", () => {
         /raw-secret|private@example\.test|resume=private-file/,
       ),
     ).not.toBeInTheDocument();
+  });
+
+  it("shows the static policy recovery path for a blocked pasted link", async () => {
+    const message =
+      "JobSentinel cannot fetch this pasted link. Open it in your browser and use visible Browser Import or manual entry.";
+    renderModal();
+
+    fireEvent.change(screen.getByLabelText("Job link"), {
+      target: { value: "https://www.dice.com/jobs/1" },
+    });
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(message);
+    expect(
+      screen.queryByLabelText(
+        /I understand this risk and want JobSentinel to check this job link/i,
+      ),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Check Job Link" }),
+    ).toBeDisabled();
+    expect(invoke).not.toHaveBeenCalled();
   });
 
   it.each([

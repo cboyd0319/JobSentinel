@@ -307,7 +307,7 @@ async fn test_scraping_cycle_with_linkedin_enabled_without_credentials() {
 }
 
 #[tokio::test]
-async fn test_restricted_scheduled_source_skips_without_acknowledgement() {
+async fn test_retired_scheduled_source_stops_without_transport() {
     let mut config = create_test_config();
     config.dice.enabled = true;
     config.dice.query = "care coordinator".to_string();
@@ -321,13 +321,13 @@ async fn test_restricted_scheduled_source_skips_without_acknowledgement() {
     let result = scheduler.run_scraping_cycle().await.unwrap();
 
     assert!(result.errors.iter().any(|error| {
-        error.contains("Dice source check skipped")
-            && error.contains("review and accept restricted-source risk")
+        error
+            == "Dice scheduled access is unavailable after provider policy review. Use the user-opened search link, Browser Import, or manual entry."
     }));
 }
 
 #[tokio::test]
-async fn test_restricted_scheduled_source_runs_after_acknowledgement() {
+async fn test_local_acknowledgement_cannot_restore_a_retired_source() {
     let previous = create_test_config();
     let mut config = previous.clone();
     config.glassdoor.enabled = true;
@@ -342,6 +342,8 @@ async fn test_restricted_scheduled_source_runs_after_acknowledgement() {
     )
     .await
     .unwrap();
+    assert!(!config.glassdoor.enabled);
+    assert!(!config.restricted_source_acknowledgements.glassdoor);
     let config = Arc::new(config);
     let database = Arc::new(db);
 
@@ -349,13 +351,8 @@ async fn test_restricted_scheduled_source_runs_after_acknowledgement() {
 
     let result = scheduler.run_scraping_cycle().await.unwrap();
 
-    assert!(
-        !result
-            .errors
-            .iter()
-            .any(|error| error.contains("Glassdoor source check skipped")),
-        "acknowledged source should not be skipped before adapter execution"
-    );
+    assert_eq!(result.jobs_found, 0);
+    assert!(result.errors.is_empty());
 }
 
 // ========================================

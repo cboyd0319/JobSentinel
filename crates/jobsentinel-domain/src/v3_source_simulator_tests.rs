@@ -1,10 +1,15 @@
 use chrono::{NaiveDate, TimeZone, Utc};
+use sha2::{Digest, Sha256};
 
 use crate::{
     v3_foundation::{SourceAccess, SourcePolicy},
     v3_manifests::SourceClass,
     v3_source_authorization::{SourceActionDecision, SourceGrantState},
-    v3_source_manifest::{parse_source_manifest, SourceOperation, SourceStopCondition},
+    v3_source_manifest::{
+        parse_source_manifest, SourceOperation, SourcePermission, SourceStopCondition,
+        BUILTIN_SOURCE_MANIFEST_V2, DICE_SOURCE_MANIFEST_V2, GLASSDOOR_SOURCE_MANIFEST_V2,
+        SIMPLYHIRED_SOURCE_MANIFEST_V2,
+    },
 };
 
 const MANIFEST: &str = include_str!("fixtures/v3_source_manifest_v1.json");
@@ -114,6 +119,73 @@ fn source_simulator_blocks_missing_changed_extra_and_duplicate_fixtures() {
                 .unwrap()
                 .decision,
             SourceActionDecision::Blocked(SourceStopCondition::ParserDrift)
+        );
+    }
+}
+
+#[test]
+fn retired_restricted_scrapers_bind_policy_evidence_and_ignore_user_grants() {
+    let reviewed_at = Utc.with_ymd_and_hms(2026, 7, 19, 0, 0, 0).unwrap();
+    let today = NaiveDate::from_ymd_opt(2026, 7, 19).unwrap();
+    let policy_fixture =
+        include_bytes!("fixtures/source_reviews/restricted_scheduled_retirement_v2.json")
+            .as_slice();
+
+    for (source_id, policy_ref, raw_manifest) in [
+        (
+            "builtin",
+            "jobsentinel.source-policy.builtin.scheduled",
+            BUILTIN_SOURCE_MANIFEST_V2,
+        ),
+        (
+            "dice",
+            "jobsentinel.source-policy.dice.scheduled",
+            DICE_SOURCE_MANIFEST_V2,
+        ),
+        (
+            "simplyhired",
+            "jobsentinel.source-policy.simplyhired.scheduled",
+            SIMPLYHIRED_SOURCE_MANIFEST_V2,
+        ),
+        (
+            "glassdoor",
+            "jobsentinel.source-policy.glassdoor.scheduled",
+            GLASSDOOR_SOURCE_MANIFEST_V2,
+        ),
+    ] {
+        let policy = SourcePolicy {
+            source_id: source_id.to_string(),
+            source_class: SourceClass::RestrictedPublicScheduled,
+            access: SourceAccess::Disabled,
+            request_limit_per_hour: 0,
+            user_review_required: true,
+            policy_ref: policy_ref.to_string(),
+            revision: 2,
+            restriction_reason_code: Some("provider-automation-prohibited".to_string()),
+            reviewed_at,
+        };
+        let manifest = parse_source_manifest(raw_manifest, &policy).unwrap();
+
+        assert_eq!(
+            manifest.fixtures[0].payload_sha256,
+            hex::encode(Sha256::digest(policy_fixture))
+        );
+        assert_eq!(
+            manifest
+                .authorize(
+                    &policy,
+                    SourceOperation::ScheduledCheck,
+                    today,
+                    SourceGrantState::Granted {
+                        source_id: source_id.to_string(),
+                        policy_ref: policy_ref.to_string(),
+                        permission: SourcePermission::UserReview,
+                        operation: SourceOperation::ScheduledCheck,
+                        policy_revision: 2,
+                    },
+                )
+                .unwrap(),
+            SourceActionDecision::Blocked(SourceStopCondition::PolicyDisabled)
         );
     }
 }

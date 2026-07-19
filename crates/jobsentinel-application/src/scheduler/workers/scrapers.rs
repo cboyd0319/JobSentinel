@@ -2,7 +2,6 @@
 //!
 //! Runs all configured scrapers and collects jobs
 
-mod browser_sources;
 mod federal;
 mod hn_hiring_worker;
 mod jobswithgpt_worker;
@@ -12,9 +11,7 @@ mod weworkremotely_worker;
 
 use crate::{config::Config, credentials::CredentialService};
 use jobsentinel_domain::Job;
-use jobsentinel_sources::{
-    BuiltInScraper, DiceScraper, JobScraper, ScraperError, LINKEDIN_AUTOMATION_DISABLED_MESSAGE,
-};
+use jobsentinel_sources::{JobScraper, ScraperError, LINKEDIN_AUTOMATION_DISABLED_MESSAGE};
 use jobsentinel_storage::Database;
 use std::sync::{
     atomic::{AtomicBool, Ordering},
@@ -159,35 +156,18 @@ fn record_source_credential_failure(errors: &mut Vec<String>, source_label: &'st
     errors.push(source_failure_message(source_label, failure_kind));
 }
 
-async fn restricted_source_acknowledged(
-    database: &Database,
-    config: &Config,
-    source_id: &str,
-) -> bool {
-    crate::restricted_source_consent::restricted_source_consent_remembered(
-        database, config, source_id,
-    )
-    .await
-}
-
-fn restricted_source_acknowledgement_missing_message(source_label: &'static str) -> String {
+fn retired_restricted_source_message(source_label: &'static str) -> String {
     format!(
-        "{source_label} source check skipped until you review and accept restricted-source risk in Settings"
+        "{source_label} scheduled access is unavailable after provider policy review. Use the user-opened search link, Browser Import, or manual entry."
     )
 }
 
-fn record_restricted_source_acknowledgement_missing(
-    errors: &mut Vec<String>,
-    source_id: &'static str,
-    source_label: &'static str,
-) {
+fn record_retired_restricted_source(errors: &mut Vec<String>, source_label: &'static str) {
     tracing::warn!(
-        source = source_id,
-        "Restricted source check skipped because the user has not accepted the source risk"
+        source = source_label,
+        "Restricted scheduled source disabled by provider policy"
     );
-    errors.push(restricted_source_acknowledgement_missing_message(
-        source_label,
-    ));
+    errors.push(retired_restricted_source_message(source_label));
 }
 
 /// Run all configured scrapers and return jobs and errors
@@ -239,29 +219,8 @@ pub(crate) async fn run_scrapers(
     )
     .await;
 
-    // 7. BuiltIn scraper - tech job board
     if config.builtin.enabled {
-        if !restricted_source_acknowledged(db, config, "builtin").await {
-            record_restricted_source_acknowledgement_missing(&mut errors, "builtin", "BuiltIn");
-        } else {
-            let mode = if config.builtin.remote_only {
-                "remote"
-            } else {
-                "all"
-            };
-            tracing::info!("Running BuiltIn scraper ({})", mode);
-            let builtin = BuiltInScraper::new(config.builtin.remote_only, config.builtin.limit);
-            run_scraper(
-                db,
-                &builtin,
-                "builtin",
-                "BuiltIn",
-                shutdown_requested,
-                &mut all_jobs,
-                &mut errors,
-            )
-            .await;
-        }
+        record_retired_restricted_source(&mut errors, "BuiltIn");
     }
 
     hn_hiring_worker::run_hn_hiring(
@@ -273,28 +232,8 @@ pub(crate) async fn run_scrapers(
     )
     .await;
 
-    // 9. Dice scraper - tech job board
-    if config.dice.enabled && !config.dice.query.is_empty() {
-        if !restricted_source_acknowledged(db, config, "dice").await {
-            record_restricted_source_acknowledgement_missing(&mut errors, "dice", "Dice");
-        } else {
-            tracing::info!("Running Dice scraper");
-            let dice = DiceScraper::new(
-                config.dice.query.clone(),
-                config.dice.location.clone(),
-                config.dice.limit,
-            );
-            run_scraper(
-                db,
-                &dice,
-                "dice",
-                "Dice",
-                shutdown_requested,
-                &mut all_jobs,
-                &mut errors,
-            )
-            .await;
-        }
+    if config.dice.enabled {
+        record_retired_restricted_source(&mut errors, "Dice");
     }
 
     federal::run_usajobs(
@@ -306,14 +245,12 @@ pub(crate) async fn run_scrapers(
         &mut errors,
     )
     .await;
-    browser_sources::run_restricted_browser_sources(
-        config,
-        db,
-        shutdown_requested,
-        &mut all_jobs,
-        &mut errors,
-    )
-    .await;
+    if config.simplyhired.enabled {
+        record_retired_restricted_source(&mut errors, "SimplyHired");
+    }
+    if config.glassdoor.enabled {
+        record_retired_restricted_source(&mut errors, "Glassdoor");
+    }
 
     tracing::info!(
         "Scraper execution complete: {} total jobs, {} errors",

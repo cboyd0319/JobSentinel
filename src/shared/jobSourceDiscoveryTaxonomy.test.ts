@@ -311,6 +311,7 @@ describe("jobSourceDiscoveryTaxonomy", () => {
 
     expect(builtin).toMatchObject({
       accessModel: "restricted-user-gated",
+      status: "manual-only",
       requiresUserAgreement: true,
     });
     expect("technicalAccess" in builtin!).toBe(false);
@@ -354,6 +355,20 @@ describe("jobSourceDiscoveryTaxonomy", () => {
     expect(linkedinJobsTracker?.searchParameterPatterns).toEqual(
       expect.arrayContaining(["stage=applied", "stage=saved"]),
     );
+  });
+
+  it("keeps retired scheduled boards manual-only after policy review", () => {
+    for (const id of ["builtin", "dice", "glassdoor", "simplyhired"]) {
+      const source = JOB_SOURCE_DISCOVERY_TAXONOMY.find((entry) => entry.id === id);
+
+      expect(source).toMatchObject({
+        status: "manual-only",
+        requiresUserAgreement: true,
+      });
+      expect(source?.implementationPath).toContain(
+        "Scheduled and pasted-URL fetches are policy-disabled.",
+      );
+    }
   });
 
   it("separates public consent-gated sources from authenticated user sessions", () => {

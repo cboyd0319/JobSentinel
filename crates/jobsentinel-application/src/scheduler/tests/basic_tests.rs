@@ -295,49 +295,18 @@ async fn test_scheduler_shutdown_is_sticky_for_late_subscribers() {
 }
 
 #[tokio::test]
-async fn test_scheduler_shutdown_does_not_drop_a_polled_cycle() {
+async fn test_shutdown_does_not_drop_an_active_cycle() {
     let config = Arc::new(RwLock::new(create_test_config()));
     let config_guard = config.write().await;
     let db = Database::connect_memory().await.unwrap();
     db.migrate().await.unwrap();
-    crate::health::start_run(&db, "startup-probe")
-        .await
-        .unwrap();
     let database = Arc::new(db);
     let scheduler = Arc::new(Scheduler::new_shared(
         Arc::clone(&config),
         Arc::clone(&database),
     ));
     let scheduler_clone = Arc::clone(&scheduler);
-    let mut handle = tokio::spawn(async move { scheduler_clone.start().await });
-
-    tokio::time::timeout(Duration::from_secs(1), async {
-        loop {
-            let run = crate::health::get_scraper_runs(&database, "startup-probe", 1)
-                .await
-                .unwrap()
-                .pop()
-                .unwrap();
-            if run.status == crate::health::RunStatus::Failure {
-                break;
-            }
-            tokio::task::yield_now().await;
-        }
-    })
-    .await
-    .unwrap();
-    tokio::task::yield_now().await;
-
-    let (writer_acquired_tx, writer_acquired_rx) = tokio::sync::oneshot::channel();
-    let (release_writer_tx, release_writer_rx) = tokio::sync::oneshot::channel();
-    let writer_config = Arc::clone(&config);
-    let writer = tokio::spawn(async move {
-        let _guard = writer_config.write().await;
-        writer_acquired_tx.send(()).unwrap();
-        release_writer_rx.await.unwrap();
-    });
-    drop(config_guard);
-    writer_acquired_rx.await.unwrap();
+    let mut handle = tokio::spawn(async move { scheduler_clone.run_scraping_cycle().await });
 
     tokio::time::timeout(Duration::from_secs(1), async {
         loop {
@@ -359,13 +328,16 @@ async fn test_scheduler_shutdown_does_not_drop_a_polled_cycle() {
         "an active cycle must reach a safe completion boundary before shutdown"
     );
 
-    release_writer_tx.send(()).unwrap();
-    writer.await.unwrap();
-    assert!(tokio::time::timeout(Duration::from_secs(1), handle)
+    drop(config_guard);
+    let error = tokio::time::timeout(Duration::from_secs(1), handle)
         .await
         .unwrap()
         .unwrap()
-        .is_ok());
+        .unwrap_err();
+    assert_eq!(
+        error.to_string(),
+        "Scraping cycle stopped after source audit completion"
+    );
 }
 
 #[tokio::test]

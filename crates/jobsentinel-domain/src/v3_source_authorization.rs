@@ -45,14 +45,38 @@ pub struct SourceSimulationReport {
     pub risk_note_refs: Vec<String>,
 }
 
+const AUTOMATION_BLOCKED_SOURCE_DOMAINS: &[&str] = &[
+    "builtin.com",
+    "builtincolorado.com",
+    "dice.com",
+    "glassdoor.com",
+    "simplyhired.com",
+    "ycombinator.com",
+];
+const VISIBLE_CAPTURE_BLOCKED_SOURCE_DOMAINS: &[&str] = &["ycombinator.com"];
+
 #[must_use]
-pub fn automated_source_url_is_blocked(value: &str) -> bool {
+pub fn automated_url_fetch_is_blocked(value: &str) -> bool {
+    url_matches_source_domain(value, AUTOMATION_BLOCKED_SOURCE_DOMAINS)
+}
+
+#[must_use]
+pub fn visible_page_capture_is_blocked(value: &str) -> bool {
+    url_matches_source_domain(value, VISIBLE_CAPTURE_BLOCKED_SOURCE_DOMAINS)
+}
+
+fn url_matches_source_domain(value: &str, domains: &[&str]) -> bool {
     let Ok(url) = Url::parse(value) else {
         return false;
     };
     url.host_str().is_some_and(|host| {
         let host = host.trim_end_matches('.').to_ascii_lowercase();
-        host == "ycombinator.com" || host.ends_with(".ycombinator.com")
+        domains.iter().any(|domain| {
+            host == *domain
+                || host
+                    .strip_suffix(domain)
+                    .is_some_and(|prefix| prefix.ends_with('.'))
+        })
     })
 }
 
@@ -233,24 +257,52 @@ impl SourceOperation {
 
 #[cfg(test)]
 mod tests {
-    use super::automated_source_url_is_blocked;
+    use super::{automated_url_fetch_is_blocked, visible_page_capture_is_blocked};
 
     #[test]
-    fn yc_automation_block_matches_domain_boundaries() {
+    fn policy_blocked_automation_matches_domain_boundaries() {
         for blocked in [
+            "https://builtin.com/jobs",
+            "https://jobs.builtin.com/role/1",
+            "https://builtincolorado.com/jobs",
+            "https://www.builtincolorado.com/jobs",
+            "https://dice.com/jobs",
+            "https://www.dice.com/job-detail/1",
+            "https://glassdoor.com/jobs",
+            "https://jobs.glassdoor.com/role/1",
+            "https://simplyhired.com/search",
+            "https://www.simplyhired.com/job/1",
             "https://ycombinator.com/jobs",
             "https://www.ycombinator.com/jobs",
             "https://jobs.ycombinator.com/role/1",
         ] {
-            assert!(automated_source_url_is_blocked(blocked), "{blocked}");
+            assert!(automated_url_fetch_is_blocked(blocked), "{blocked}");
         }
 
         for allowed in [
             "https://example.com/jobs",
+            "https://dice.com.example/jobs",
+            "https://notglassdoor.com/jobs",
             "https://ycombinator.com.example/jobs",
             "https://notycombinator.com/jobs",
         ] {
-            assert!(!automated_source_url_is_blocked(allowed), "{allowed}");
+            assert!(!automated_url_fetch_is_blocked(allowed), "{allowed}");
+        }
+    }
+
+    #[test]
+    fn visible_capture_keeps_the_narrow_yc_policy_boundary() {
+        assert!(visible_page_capture_is_blocked(
+            "https://www.ycombinator.com/jobs/1"
+        ));
+
+        for allowed in [
+            "https://builtin.com/jobs/1",
+            "https://www.dice.com/jobs/1",
+            "https://www.simplyhired.com/job/1",
+            "https://jobs.glassdoor.com/jobs/1",
+        ] {
+            assert!(!visible_page_capture_is_blocked(allowed), "{allowed}");
         }
     }
 }

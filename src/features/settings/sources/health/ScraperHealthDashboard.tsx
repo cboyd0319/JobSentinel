@@ -5,6 +5,7 @@ import { StatCard } from "../../../../ui/StatCard";
 import { LoadingSpinner } from "../../../../ui/LoadingSpinner";
 import { Modal } from "../../../../ui/Modal";
 import { getUserFriendlyError } from "../../../../shared/errorReporting/messages";
+import { isPolicyBlockedScheduledSourceId } from "../../../../shared/restrictedSourceTaxonomy";
 import {
   type HealthSummary,
   type ScraperHealthMetrics,
@@ -60,7 +61,11 @@ export const ScraperHealthDashboard = memo(function ScraperHealthDashboard({
       if (signal?.aborted) return;
 
       setSummary(summaryData);
-      setScrapers(scrapersData);
+      setScrapers(
+        scrapersData.filter(
+          (scraper) => !isPolicyBlockedScheduledSourceId(scraper.scraper_name),
+        ),
+      );
     } catch (err: unknown) {
       if (signal?.aborted) return;
       const friendly = getUserFriendlyError(err);

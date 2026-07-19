@@ -34,6 +34,39 @@ async fn test_bookmarklet_import_rejects_retired_yc_automation() {
 }
 
 #[tokio::test]
+async fn test_bookmarklet_import_allows_visible_capture_for_fetch_blocked_boards() {
+    for url in [
+        "https://builtin.com/jobs/1",
+        "https://www.dice.com/jobs/2",
+        "https://www.simplyhired.com/job/3",
+        "https://jobs.glassdoor.com/jobs/4",
+    ] {
+        let database = bookmarklet_test_database().await;
+        let auth_state = bookmarklet_auth_state(TEST_AUTH_TOKEN, bookmarklet_auth_expiry());
+        let pending_imports = bookmarklet_pending_imports();
+        let body = bookmarklet_import_body(serde_json::json!({
+            "title": "Care Coordinator",
+            "company": "Example",
+            "url": url
+        }));
+
+        let (response, _) = handle_import_request(
+            &bookmarklet_import_request(&body),
+            &auth_state,
+            pending_imports.clone(),
+            database,
+        )
+        .await;
+        let parsed: serde_json::Value = serde_json::from_str(&response).unwrap();
+        let previews = pending_bookmarklet_import_previews(&pending_imports);
+
+        assert_eq!(parsed["success"], true, "{url}");
+        assert_eq!(previews.len(), 1, "{url}");
+        assert_eq!(previews[0].url, url);
+    }
+}
+
+#[tokio::test]
 async fn test_bookmarklet_import_queues_valid_job_for_review_without_insert() {
     let database = bookmarklet_test_database().await;
     let auth_state = bookmarklet_auth_state(TEST_AUTH_TOKEN, bookmarklet_auth_expiry());

@@ -43,7 +43,7 @@ async fn migration_13_backfills_existing_policy_once() {
             .fetch_one(database.pool())
             .await
             .unwrap();
-    assert_eq!(migration_version, 17);
+    assert_eq!(migration_version, 18);
 }
 
 #[tokio::test]
@@ -100,4 +100,48 @@ async fn migration_17_disables_jobswithgpt_health_metadata() {
     .execute(database.pool())
     .await
     .is_err());
+}
+
+#[tokio::test]
+async fn migration_18_retires_restricted_source_health_metadata() {
+    let database = Database::connect_memory().await.unwrap();
+    MIGRATOR.run_to(17, database.pool()).await.unwrap();
+
+    MIGRATOR.run(database.pool()).await.unwrap();
+
+    for source_id in ["builtin", "dice", "simplyhired", "glassdoor"] {
+        let rows: i64 =
+            sqlx::query_scalar("SELECT COUNT(*) FROM scraper_config WHERE scraper_name = ?")
+                .bind(source_id)
+                .fetch_one(database.pool())
+                .await
+                .unwrap();
+        assert_eq!(rows, 0, "{source_id} health metadata was not retired");
+        assert!(
+            sqlx::query("INSERT INTO scraper_config (scraper_name, display_name) VALUES (?, ?)")
+                .bind(source_id)
+                .bind(source_id)
+                .execute(database.pool())
+                .await
+                .is_err(),
+            "{source_id} health metadata could be restored"
+        );
+        assert!(
+            sqlx::query(
+                "UPDATE scraper_config SET scraper_name = ? WHERE scraper_name = 'greenhouse'"
+            )
+            .bind(source_id)
+            .execute(database.pool())
+            .await
+            .is_err(),
+            "{source_id} health metadata could be restored by renaming a row"
+        );
+    }
+
+    let migration_version: i64 =
+        sqlx::query_scalar("SELECT migration_version FROM v3_compatibility_metadata")
+            .fetch_one(database.pool())
+            .await
+            .unwrap();
+    assert_eq!(migration_version, 18);
 }

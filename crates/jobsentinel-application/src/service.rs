@@ -1,7 +1,9 @@
 use chrono::Utc;
 
 use jobsentinel_domain::{
-    canonicalize_job_url, v3_source_authorization::automated_source_url_is_blocked, Job,
+    canonicalize_job_url,
+    v3_source_authorization::{automated_url_fetch_is_blocked, visible_page_capture_is_blocked},
+    Job,
 };
 use jobsentinel_sources::{parse_single_job_page, JobPageParseError, ParsedJobPage};
 use jobsentinel_storage::Database;
@@ -18,8 +20,10 @@ pub async fn preview_job_import(
     url: &str,
 ) -> ImportResult<JobImportPreview> {
     let canonical_url = canonicalize_job_url(url).map_err(ImportError::InvalidUrl)?;
-    if automated_source_url_is_blocked(&canonical_url) {
-        return Err(ImportError::SourcePolicyBlocked);
+    if automated_url_fetch_is_blocked(&canonical_url) {
+        return Err(ImportError::SourcePolicyBlocked {
+            visible_capture_allowed: !visible_page_capture_is_blocked(&canonical_url),
+        });
     }
     let html = fetch_job_page(&canonical_url).await?;
     preview_job_from_html(database, pending, canonical_url, &html).await
@@ -164,16 +168,26 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn url_preview_rejects_yc_before_transport() {
+    async fn url_preview_rejects_policy_blocked_sources_before_transport() {
         let database = database().await;
         let pending = PendingUrlImports::default();
 
-        for url in [
-            "https://ycombinator.com/jobs",
-            "https://www.ycombinator.com/jobs",
+        for (url, visible_capture_allowed) in [
+            ("https://builtin.com/jobs/1", true),
+            ("https://www.builtincolorado.com/jobs/1", true),
+            ("https://www.dice.com/jobs/1", true),
+            ("https://jobs.glassdoor.com/jobs/1", true),
+            ("https://www.simplyhired.com/job/1", true),
+            ("https://ycombinator.com/jobs", false),
+            ("https://www.ycombinator.com/jobs", false),
         ] {
             let result = preview_job_import(&database, &pending, url).await;
-            assert!(matches!(result, Err(ImportError::SourcePolicyBlocked)));
+            assert!(matches!(
+                result,
+                Err(ImportError::SourcePolicyBlocked {
+                    visible_capture_allowed: actual
+                }) if actual == visible_capture_allowed
+            ));
         }
     }
 
