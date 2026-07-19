@@ -43,6 +43,12 @@ pub enum ImportError {
     #[error("Automated source access is unavailable")]
     SourcePolicyBlocked { visible_capture_allowed: bool },
 
+    #[error("Source review is required")]
+    SourceReviewRequired,
+
+    #[error("Reviewed source authorization is unavailable")]
+    SourceAuthorizationUnavailable,
+
     #[error("Timeout while fetching URL")]
     Timeout,
 

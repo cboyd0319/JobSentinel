@@ -28,6 +28,10 @@ pub mod scoring;
 pub mod user_data;
 pub mod v3_foundation;
 mod v3_source_governance;
+#[cfg(test)]
+mod v3_source_governance_tests;
+#[cfg(test)]
+mod v3_source_governance_user_actions_tests;
 
 pub use bookmarklet::{bookmarklet_repository, confirm_bookmarklet_imports};
 pub use config::Config;
@@ -39,5 +43,8 @@ pub use external_ai::{
 };
 pub use jobsentinel_domain::Job;
 pub use pending::PendingUrlImports;
-pub use service::{confirm_job_import, preview_job_import};
+pub use service::{
+    confirm_job_import, employer_discovery_review_grant, prepare_job_import_target,
+    preview_job_import,
+};
 pub use types::{ImportError, ImportedJobSummary, JobImportPreview};

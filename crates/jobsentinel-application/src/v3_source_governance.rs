@@ -10,7 +10,8 @@ use jobsentinel_domain::{
         LEVER_SOURCE_MANIFEST_V1, LINKEDIN_WORKBENCH_SOURCE_MANIFEST_V1,
         REMOTEOK_REQUEST_LIMIT_PER_HOUR, REMOTEOK_SOURCE_MANIFEST_V1,
         USAJOBS_REQUEST_LIMIT_PER_HOUR, USAJOBS_SOURCE_MANIFEST_V1,
-        WEWORKREMOTELY_REQUEST_LIMIT_PER_HOUR, WEWORKREMOTELY_SOURCE_MANIFEST_V1,
+        USER_SOURCE_ACTIONS_MANIFEST_V1, WEWORKREMOTELY_REQUEST_LIMIT_PER_HOUR,
+        WEWORKREMOTELY_SOURCE_MANIFEST_V1,
     },
 };
 use jobsentinel_storage::Database;
@@ -126,6 +127,22 @@ pub(crate) fn linkedin_workbench_policy() -> Result<SourcePolicy, FoundationErro
     })
 }
 
+pub(crate) fn user_source_actions_policy() -> Result<SourcePolicy, FoundationError> {
+    Ok(SourcePolicy {
+        source_id: "user-source-actions".to_string(),
+        source_class: SourceClass::UserImport,
+        access: SourceAccess::UserOpened,
+        request_limit_per_hour: 0,
+        user_review_required: true,
+        policy_ref: "jobsentinel.source-policy.user-source-actions".to_string(),
+        revision: 1,
+        restriction_reason_code: None,
+        reviewed_at: POLICY_REVIEWED_AT
+            .parse::<DateTime<Utc>>()
+            .map_err(|_| FoundationError::InvalidInput)?,
+    })
+}
+
 async fn install_reviewed(
     database: &Database,
     expected: SourcePolicy,
@@ -160,6 +177,25 @@ async fn authorize_reviewed(
     operation: SourceOperation,
     today: NaiveDate,
 ) -> Result<SourceActionDecision, FoundationError> {
+    authorize_reviewed_with_grant(
+        database,
+        expected_policy,
+        raw_manifest,
+        operation,
+        today,
+        SourceGrantState::NotRequired,
+    )
+    .await
+}
+
+async fn authorize_reviewed_with_grant(
+    database: &Database,
+    expected_policy: SourcePolicy,
+    raw_manifest: &str,
+    operation: SourceOperation,
+    today: NaiveDate,
+    grant: SourceGrantState,
+) -> Result<SourceActionDecision, FoundationError> {
     let policy = database
         .get_source_policy(&expected_policy.source_id)
         .await
@@ -179,7 +215,7 @@ async fn authorize_reviewed(
         return Err(FoundationError::Conflict);
     }
     manifest
-        .authorize(&policy, operation, today, SourceGrantState::NotRequired)
+        .authorize(&policy, operation, today, grant)
         .map_err(|_| FoundationError::InvalidInput)
 }
 
@@ -325,6 +361,65 @@ pub(crate) async fn install_linkedin_workbench(database: &Database) -> Result<()
     .await
 }
 
+pub(crate) async fn install_user_source_actions(
+    database: &Database,
+) -> Result<(), FoundationError> {
+    install_reviewed(
+        database,
+        user_source_actions_policy()?,
+        USER_SOURCE_ACTIONS_MANIFEST_V1,
+    )
+    .await
+}
+
+pub(crate) async fn authorize_user_source_action(
+    database: &Database,
+    operation: SourceOperation,
+    today: NaiveDate,
+    grant: SourceGrantState,
+) -> Result<SourceActionDecision, FoundationError> {
+    authorize_reviewed_with_grant(
+        database,
+        user_source_actions_policy()?,
+        USER_SOURCE_ACTIONS_MANIFEST_V1,
+        operation,
+        today,
+        grant,
+    )
+    .await
+}
+
+pub(crate) async fn install_startup_source_governance(database: &Database) {
+    for (source, result) in [
+        ("USAJobs", install_usajobs(database).await),
+        ("RemoteOK", install_remoteok(database).await),
+        ("We Work Remotely", install_weworkremotely(database).await),
+        (
+            "Hacker News Who Is Hiring",
+            install_hn_hiring(database).await,
+        ),
+        ("Greenhouse", install_greenhouse(database).await),
+        ("Lever", install_lever(database).await),
+        ("connected job source", install_jobswithgpt(database).await),
+        (
+            "LinkedIn Workbench",
+            install_linkedin_workbench(database).await,
+        ),
+        (
+            "user-directed source actions",
+            install_user_source_actions(database).await,
+        ),
+    ] {
+        if let Err(error) = result {
+            tracing::warn!(
+                error = %error,
+                source,
+                "Source governance could not be refreshed; affected actions remain blocked"
+            );
+        }
+    }
+}
+
 pub(crate) async fn authorize_jobswithgpt(
     database: &Database,
     operation: SourceOperation,
@@ -338,108 +433,4 @@ pub(crate) async fn authorize_jobswithgpt(
         today,
     )
     .await
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[tokio::test]
-    async fn reviewed_public_ats_manifests_authorize_only_their_policy_rates() {
-        let database = Database::connect_memory().await.unwrap();
-        database.migrate().await.unwrap();
-        install_greenhouse(&database).await.unwrap();
-        install_lever(&database).await.unwrap();
-        let today = NaiveDate::from_ymd_opt(2026, 7, 19).unwrap();
-
-        assert_eq!(
-            authorize_greenhouse(&database, SourceOperation::ScheduledCheck, today)
-                .await
-                .unwrap(),
-            SourceActionDecision::Allowed {
-                request_limit_per_hour: GREENHOUSE_REQUEST_LIMIT_PER_HOUR,
-                connectivity_required: true,
-            }
-        );
-        assert_eq!(
-            authorize_lever(&database, SourceOperation::ConnectivityCheck, today)
-                .await
-                .unwrap(),
-            SourceActionDecision::Allowed {
-                request_limit_per_hour: LEVER_REQUEST_LIMIT_PER_HOUR,
-                connectivity_required: true,
-            }
-        );
-    }
-
-    #[tokio::test]
-    async fn public_ats_authorization_fails_closed_without_installed_manifests() {
-        let database = Database::connect_memory().await.unwrap();
-        database.migrate().await.unwrap();
-        let today = NaiveDate::from_ymd_opt(2026, 7, 19).unwrap();
-
-        assert!(
-            authorize_greenhouse(&database, SourceOperation::ScheduledCheck, today)
-                .await
-                .is_err()
-        );
-        assert!(
-            authorize_lever(&database, SourceOperation::ScheduledCheck, today)
-                .await
-                .is_err()
-        );
-    }
-
-    #[tokio::test]
-    async fn jobswithgpt_stays_disabled_while_provider_policy_is_unresolved() {
-        let database = Database::connect_memory().await.unwrap();
-        database.migrate().await.unwrap();
-        install_jobswithgpt(&database).await.unwrap();
-        let today = NaiveDate::from_ymd_opt(2026, 7, 19).unwrap();
-
-        assert_eq!(
-            authorize_jobswithgpt(&database, SourceOperation::ScheduledCheck, today)
-                .await
-                .unwrap(),
-            SourceActionDecision::Blocked(
-                jobsentinel_domain::v3_source_manifest::SourceStopCondition::PolicyDisabled
-            )
-        );
-    }
-
-    #[test]
-    fn jobswithgpt_simulator_binds_parser_and_provider_review_fixtures() {
-        let policy = jobswithgpt_policy().unwrap();
-        let manifest = parse_source_manifest(JOBSWITHGPT_SOURCE_MANIFEST_V1, &policy).unwrap();
-        let fixtures = [
-            (
-                "crates/jobsentinel-sources/src/fixtures/jobswithgpt_list_v1.json",
-                include_bytes!("../../jobsentinel-sources/src/fixtures/jobswithgpt_list_v1.json")
-                    .as_slice(),
-            ),
-            (
-                "crates/jobsentinel-domain/src/fixtures/source_reviews/jobswithgpt_v1.json",
-                include_bytes!(
-                    "../../jobsentinel-domain/src/fixtures/source_reviews/jobswithgpt_v1.json"
-                )
-                .as_slice(),
-            ),
-        ];
-
-        assert_eq!(
-            manifest
-                .simulate(
-                    &policy,
-                    SourceOperation::ScheduledCheck,
-                    NaiveDate::from_ymd_opt(2026, 7, 19).unwrap(),
-                    SourceGrantState::Missing,
-                    &fixtures,
-                )
-                .unwrap()
-                .decision,
-            SourceActionDecision::Blocked(
-                jobsentinel_domain::v3_source_manifest::SourceStopCondition::PolicyDisabled
-            )
-        );
-    }
 }

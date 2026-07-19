@@ -4,20 +4,34 @@ use crate::bootstrap::AppState;
 use crate::desktop::sanitize_url_for_logging;
 use crate::ipc::errors::user_friendly_error;
 use jobsentinel_application::{
-    confirm_job_import as confirm_reviewed_job_import, preview_job_import as stage_job_import,
-    ImportError, ImportedJobSummary, JobImportPreview,
+    confirm_job_import as confirm_reviewed_job_import, employer_discovery_review_grant,
+    prepare_job_import_target, preview_job_import as stage_job_import, ImportError,
+    ImportedJobSummary, JobImportPreview,
 };
 use tauri::State;
+use tauri_plugin_dialog::{DialogExt, MessageDialogButtons, MessageDialogKind};
+use tokio::sync::oneshot;
 
 #[tauri::command]
-#[tracing::instrument(skip(state, url), fields(url = %sanitize_url_for_logging(&url)), level = "info")]
+#[tracing::instrument(skip(app, state, url), fields(url = %sanitize_url_for_logging(&url)), level = "info")]
 pub(crate) async fn preview_job_import(
+    app: tauri::AppHandle,
     url: String,
     state: State<'_, AppState>,
 ) -> Result<JobImportPreview, String> {
-    let preview = stage_job_import(state.database.as_ref(), &state.pending_url_imports, &url)
-        .await
-        .map_err(|error| format_import_error(&error))?;
+    let canonical_url =
+        prepare_job_import_target(&url).map_err(|error| format_import_error(&error))?;
+    if !confirm_native_job_link_fetch(&app, &canonical_url).await? {
+        return Err("Job link check was canceled. No request was sent.".to_string());
+    }
+    let preview = stage_job_import(
+        state.database.as_ref(),
+        &state.pending_url_imports,
+        &canonical_url,
+        employer_discovery_review_grant(),
+    )
+    .await
+    .map_err(|error| format_import_error(&error))?;
 
     tracing::info!(
         title_chars = preview.title.chars().count(),
@@ -42,6 +56,32 @@ pub(crate) async fn confirm_job_import(
     )
     .await
     .map_err(|error| format_import_error(&error))
+}
+
+fn job_link_review_message(url: &str) -> String {
+    format!(
+        "Check this public page?\n\n{}\n\nJobSentinel will make one HTTPS request without \
+         browser cookies or account credentials. Nothing is saved until you review the result.",
+        sanitize_url_for_logging(url)
+    )
+}
+
+async fn confirm_native_job_link_fetch(app: &tauri::AppHandle, url: &str) -> Result<bool, String> {
+    let (decision, received) = oneshot::channel();
+    app.dialog()
+        .message(job_link_review_message(url))
+        .title("Check Job Link")
+        .kind(MessageDialogKind::Warning)
+        .buttons(MessageDialogButtons::OkCancelCustom(
+            "Check Page".to_string(),
+            "Cancel".to_string(),
+        ))
+        .show(move |approved| {
+            let _ = decision.send(approved);
+        });
+    received
+        .await
+        .map_err(|_| "Job link confirmation could not be completed.".to_string())
 }
 
 fn format_import_error(error: &ImportError) -> String {
@@ -104,70 +144,15 @@ fn format_import_error(error: &ImportError) -> String {
         ImportError::SourcePolicyBlocked {
             visible_capture_allowed: false,
         } => "JobSentinel cannot fetch or capture this source. Open it in your browser or use manual entry.".to_string(),
+        ImportError::SourceReviewRequired => {
+            "Review the destination before JobSentinel checks this page.".to_string()
+        }
+        ImportError::SourceAuthorizationUnavailable => {
+            "Job link checks are paused because the reviewed source policy changed. Restart JobSentinel and try again.".to_string()
+        }
     }
 }
 
 #[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn format_import_error_sanitizes_internal_details() {
-        let cases = [
-            ImportError::InvalidUrl(
-                "https://user:pass@example.com/job?token=secret#private".to_string(),
-            ),
-            ImportError::HtmlParseError("selector failed near private content".to_string()),
-            ImportError::InvalidJsonLd("candidate-specific payload".to_string()),
-            ImportError::DatabaseError("sqlite locked at a private path".to_string()),
-        ];
-
-        for error in cases {
-            let message = format_import_error(&error);
-            assert!(!message.contains("secret"));
-            assert!(!message.contains("private content"));
-            assert!(!message.contains("candidate-specific"));
-            assert!(!message.contains("private path"));
-        }
-    }
-
-    #[test]
-    fn format_import_error_explains_https_required() {
-        let message = format_import_error(&ImportError::InvalidUrl(
-            "Blocked insecure URL: https required".to_string(),
-        ));
-
-        assert_eq!(
-            message,
-            "Paste an https job posting link from your browser address bar."
-        );
-    }
-
-    #[test]
-    fn format_import_error_explains_retired_source_policy() {
-        assert_eq!(
-            format_import_error(&ImportError::SourcePolicyBlocked {
-                visible_capture_allowed: true,
-            }),
-            "JobSentinel cannot fetch this pasted link. Open it in your browser and use visible Browser Import or manual entry."
-        );
-        assert_eq!(
-            format_import_error(&ImportError::SourcePolicyBlocked {
-                visible_capture_allowed: false,
-            }),
-            "JobSentinel cannot fetch or capture this source. Open it in your browser or use manual entry."
-        );
-    }
-
-    #[test]
-    fn format_import_error_explains_stale_and_duplicate_previews() {
-        assert_eq!(
-            format_import_error(&ImportError::PendingImportNotFound),
-            "This job preview expired. Check the job link again before saving."
-        );
-        assert_eq!(
-            format_import_error(&ImportError::AlreadyExists),
-            "This job is already in your saved jobs."
-        );
-    }
-}
+#[path = "import_tests.rs"]
+mod tests;

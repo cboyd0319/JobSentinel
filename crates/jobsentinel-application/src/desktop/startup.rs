@@ -151,55 +151,7 @@ impl DesktopServices {
                 "Reconciled interrupted Outside AI operations"
             );
         }
-        if let Err(error) = crate::v3_source_governance::install_usajobs(&database).await {
-            tracing::warn!(
-                error = %error,
-                "USAJobs source governance could not be refreshed; scheduled checks remain blocked"
-            );
-        }
-        if let Err(error) = crate::v3_source_governance::install_remoteok(&database).await {
-            tracing::warn!(
-                error = %error,
-                "RemoteOK source governance could not be refreshed; scheduled checks remain blocked"
-            );
-        }
-        if let Err(error) = crate::v3_source_governance::install_weworkremotely(&database).await {
-            tracing::warn!(
-                error = %error,
-                "We Work Remotely source governance could not be refreshed; scheduled checks remain blocked"
-            );
-        }
-        if let Err(error) = crate::v3_source_governance::install_hn_hiring(&database).await {
-            tracing::warn!(
-                error = %error,
-                "Hacker News Who Is Hiring source governance could not be refreshed; scheduled checks remain blocked"
-            );
-        }
-        if let Err(error) = crate::v3_source_governance::install_greenhouse(&database).await {
-            tracing::warn!(
-                error = %error,
-                "Greenhouse source governance could not be refreshed; scheduled checks remain blocked"
-            );
-        }
-        if let Err(error) = crate::v3_source_governance::install_lever(&database).await {
-            tracing::warn!(
-                error = %error,
-                "Lever source governance could not be refreshed; scheduled checks remain blocked"
-            );
-        }
-        if let Err(error) = crate::v3_source_governance::install_jobswithgpt(&database).await {
-            tracing::warn!(
-                error = %error,
-                "Connected job source governance could not be refreshed; scheduled checks remain blocked"
-            );
-        }
-        if let Err(error) = crate::v3_source_governance::install_linkedin_workbench(&database).await
-        {
-            tracing::warn!(
-                error = %error,
-                "LinkedIn Workbench governance could not be refreshed; restricted actions remain blocked"
-            );
-        }
+        crate::v3_source_governance::install_startup_source_governance(&database).await;
         let credentials = CredentialService::new(database.credentials());
         if migrate_plaintext_credentials_to_secure_storage(&config_path, &credentials).await {
             config = Config::load(&config_path)
