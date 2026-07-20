@@ -50,8 +50,8 @@ Last updated: 2026-07-20
 
 - Active feature: `v3-milestone-5-local-evidence-resume-matching`
 - Status: `active`
-- Current slice: Saved matches accept one clearable local useful or not-relevant label without changing ranking.
-- Next action: Bind v3 pack manifests to exact payload bytes before any pack content is accepted.
+- Current slice: Pack manifests verify exact payload bytes without claiming publisher trust or safe content.
+- Next action: Store one bounded sqlite_blob_v1 vector and remove it on stale, missing-model, or malformed reads.
 
 ## Deferred
 
