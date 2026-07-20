@@ -539,6 +539,13 @@ no result when the resume changes or is deleted during matching. Citations
 contain no resume content, filesystem path, source identifier, or raw revision.
 This command boundary is not yet the visible Resume Match page.
 
+The visible active saved-resume review is application-owned. It brackets the
+existing local analysis with exact active-resume, revision, parsed-text, file,
+bounded HTML-source, and ordered-skill reads. A change or deletion refuses the
+whole result with a safe retry action instead of returning stale citations. HTML
+format-source reads use one file handle and stop after the 10 MiB boundary plus
+one sentinel byte. The result shape and visible review remain unchanged.
+
 The skill list is self-contained and deterministic. Same input should produce
 the same local result. Optional OCR is available for scanned PDFs when the app
 is built with OCR support and local OCR tools are installed.

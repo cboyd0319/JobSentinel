@@ -50,8 +50,8 @@ Last updated: 2026-07-20
 
 - Active feature: `v3-milestone-5-local-evidence-resume-matching`
 - Status: `active`
-- Current slice: Every positive semantic claim has exact revision-bound resume evidence.
-- Next action: Reject stale active saved-resume analysis.
+- Current slice: Active saved-resume review rejects mid-analysis evidence changes.
+- Next action: Bind copied-resume claims to ephemeral local evidence.
 
 ## Deferred
 
