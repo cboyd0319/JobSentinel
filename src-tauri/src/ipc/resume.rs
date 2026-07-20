@@ -4,8 +4,8 @@
 //! resume builder, and ATS analysis.
 
 use crate::application::resume::{
-    AtsAnalysisResult, AtsAnalyzer, MatchResult, MatchResultWithJob, NewSkill, Resume,
-    ResumeAnalysisInput, ResumeEvidenceSnapshot, ResumeExporter, ResumeMatchFeedback,
+    ActiveResumeAnalysisError, AtsAnalysisResult, AtsAnalyzer, MatchResult, MatchResultWithJob,
+    NewSkill, Resume, ResumeAnalysisInput, ResumeExporter, ResumeMatchFeedback,
     ResumeMatchFeedbackLabel, SkillUpdate, StructuredResume, Template, TemplateId,
     TemplateRenderer, UserSkill,
 };
@@ -22,12 +22,12 @@ pub(crate) mod resume_builder_commands;
 
 #[path = "resume_file_commands.rs"]
 pub(crate) mod resume_file_commands;
-use resume_file_commands::read_html_resume_source_for_format_review;
+#[cfg(test)]
+use crate::application::resume::MAX_RESUME_FILE_BYTES;
 #[cfg(test)]
 use resume_file_commands::{
     delete_resume_with_file_cleanup, has_json_extension, managed_resume_upload_cleanup_path,
     safe_resume_upload_file_name, supported_resume_extension, validate_selected_resume,
-    MAX_SELECTED_RESUME_UPLOAD_BYTES,
 };
 
 const MAX_RESUME_TEXT_PREVIEW_CHARS: usize = 6_000;
@@ -409,42 +409,27 @@ pub(crate) async fn analyze_active_resume_for_job(
         return Err("Paste the job post, then review again.".to_string());
     }
 
-    let matcher = state.database.resume_matcher();
-    let resume = matcher
-        .get_active_resume()
-        .await
-        .map_err(|e| user_friendly_error("Failed to get active resume", e))?
-        .ok_or_else(|| "Choose or add a resume before reviewing job fit.".to_string())?;
-
-    let readable_text = resume.parsed_text.as_deref().unwrap_or("").trim();
-    if readable_text.is_empty() {
-        return Err(
-            "JobSentinel could not find readable text in the active resume. Add a PDF, DOCX, TXT, Markdown, or HTML resume with readable text, or use Import from Resume App."
-                .to_string(),
-        );
-    }
-
-    let skill_names = matcher
-        .get_user_skills(resume.id)
-        .await
-        .map_err(|e| user_friendly_error("Failed to get resume skills", e))?
-        .into_iter()
-        .map(|skill| skill.skill_name)
-        .collect::<Vec<_>>();
-
-    let source_text = read_html_resume_source_for_format_review(&resume.file_path);
-    let evidence_snapshot = ResumeEvidenceSnapshot {
-        source_id: format!("resume:{}", resume.id),
-        revision: resume.updated_at.to_rfc3339(),
-    };
-
-    Ok(AtsAnalyzer::analyze_text_for_job_with_source_and_snapshot(
-        readable_text,
-        &skill_names,
+    crate::application::resume::analyze_active_resume_for_job(
+        state.database.as_ref(),
         &job_description,
-        source_text.as_deref(),
-        &evidence_snapshot,
-    ))
+    )
+    .await
+    .map_err(|error| match error {
+        ActiveResumeAnalysisError::Missing => {
+            "Choose or add a resume before reviewing job fit.".to_string()
+        }
+        ActiveResumeAnalysisError::Unreadable => {
+            "JobSentinel could not find readable text in the active resume. Add a PDF, DOCX, TXT, Markdown, or HTML resume with readable text, or use Import from Resume App."
+                .to_string()
+        }
+        ActiveResumeAnalysisError::Changed => {
+            "Your active resume changed while the review was running. Review it and try again."
+                .to_string()
+        }
+        ActiveResumeAnalysisError::Internal(error) => {
+            user_friendly_error("Failed to analyze active resume", error)
+        }
+    })
 }
 
 /// Analyze resume format without job context

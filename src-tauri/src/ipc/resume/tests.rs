@@ -224,26 +224,11 @@ fn selected_resume_validation_rejects_oversized_file_without_path_leak() {
     let temp_dir = tempfile::tempdir().unwrap();
     let resume_path = temp_dir.path().join("Private Large Resume.pdf");
     let file = std::fs::File::create(&resume_path).unwrap();
-    file.set_len(MAX_SELECTED_RESUME_UPLOAD_BYTES + 1).unwrap();
+    file.set_len(MAX_RESUME_FILE_BYTES + 1).unwrap();
 
     let err = validate_selected_resume(&resume_path).unwrap_err();
 
     assert!(err.contains("too large"));
     assert!(!err.contains(temp_dir.path().to_string_lossy().as_ref()));
     assert!(!err.contains("Private Large Resume"));
-}
-
-#[test]
-fn html_resume_source_is_available_only_for_format_review() {
-    let temp_dir = tempfile::tempdir().unwrap();
-    let html_path = temp_dir.path().join("Private Resume.html");
-    let txt_path = temp_dir.path().join("Private Resume.txt");
-    std::fs::write(&html_path, "<html><body>Jordan Lee</body></html>").unwrap();
-    std::fs::write(&txt_path, "Jordan Lee").unwrap();
-
-    let source = read_html_resume_source_for_format_review(&html_path.to_string_lossy())
-        .expect("HTML source should be available for local format review");
-
-    assert!(source.contains("Jordan Lee"));
-    assert!(read_html_resume_source_for_format_review(&txt_path.to_string_lossy()).is_none());
 }

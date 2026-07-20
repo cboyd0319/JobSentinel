@@ -1,4 +1,4 @@
-use crate::application::resume::ResumeMatcher;
+use crate::application::resume::{ResumeMatcher, MAX_RESUME_FILE_BYTES};
 use crate::bootstrap::AppState;
 use crate::desktop;
 use crate::desktop::path_label_for_logging;
@@ -10,7 +10,6 @@ use tauri_plugin_dialog::DialogExt;
 use uuid::Uuid;
 
 const MAX_JSON_RESUME_IMPORT_BYTES: u64 = 5 * 1024 * 1024;
-pub(super) const MAX_SELECTED_RESUME_UPLOAD_BYTES: u64 = 10 * 1024 * 1024;
 const MANAGED_RESUME_UPLOAD_DIR: &str = "resume-uploads";
 const SUPPORTED_RESUME_UPLOAD_EXTENSIONS: &[&str] = &["pdf", "docx", "txt", "md", "html", "htm"];
 
@@ -206,7 +205,7 @@ pub(super) fn validate_selected_resume(path: &Path) -> Result<(), String> {
         return Err("Choose a resume file, not a folder.".to_string());
     }
 
-    if metadata.len() > MAX_SELECTED_RESUME_UPLOAD_BYTES {
+    if metadata.len() > MAX_RESUME_FILE_BYTES {
         return Err(
             "That resume file is too large for local review. Choose a file under 10 MB or export a smaller readable PDF, DOCX, TXT, Markdown, or HTML resume."
                 .to_string(),
@@ -312,19 +311,4 @@ pub(super) async fn delete_resume_with_file_cleanup(
         .await
         .map_err(|e| user_friendly_error("Failed to delete resume", e))?;
     delete_managed_resume_upload_file(Some(&resume.file_path), managed_dir)
-}
-
-pub(super) fn read_html_resume_source_for_format_review(file_path: &str) -> Option<String> {
-    let path = Path::new(file_path);
-    let extension = path.extension()?.to_str()?.to_ascii_lowercase();
-    if !matches!(extension.as_str(), "html" | "htm") {
-        return None;
-    }
-
-    let metadata = std::fs::metadata(path).ok()?;
-    if !metadata.is_file() || metadata.len() > MAX_SELECTED_RESUME_UPLOAD_BYTES {
-        return None;
-    }
-
-    std::fs::read_to_string(path).ok()
 }
