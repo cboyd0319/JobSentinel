@@ -6,7 +6,9 @@
 //! the system instructions or credentials.
 
 use jobsentinel_domain::{ExternalAiConfig, ExternalAiProvider};
-use jobsentinel_security::contains_prompt_injection_phrase;
+use jobsentinel_security::{
+    contains_prompt_injection_phrase, contains_review_required_invisible_control,
+};
 use provider::{send_provider_request, ProviderRequest};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -318,7 +320,7 @@ fn value_has_prompt_like_content(value: &Value) -> bool {
 }
 
 fn text_has_prompt_like_content(text: &str) -> bool {
-    if text.chars().any(is_zero_width_character) || contains_prompt_injection_phrase(text) {
+    if contains_review_required_invisible_control(text) || contains_prompt_injection_phrase(text) {
         return true;
     }
 
@@ -326,13 +328,6 @@ fn text_has_prompt_like_content(text: &str) -> bool {
     HIDDEN_TEXT_MARKERS
         .iter()
         .any(|phrase| normalized.contains(phrase))
-}
-
-const fn is_zero_width_character(character: char) -> bool {
-    matches!(
-        character,
-        '\u{200B}' | '\u{200C}' | '\u{200D}' | '\u{2060}' | '\u{FEFF}'
-    )
 }
 
 fn selected_model(

@@ -25,6 +25,15 @@ It is a local, advisory signal for readability, fit, and preparation.
 
 External AI is not required for resume matching.
 
+Local semantic matching refuses resume skills, job requirements, queries, or
+candidates that contain shared instruction-override phrases or the invisible
+format controls U+200B, U+2060 through U+2064, or U+FEFF. Other Unicode format
+controls are ignored during phrase inspection, so bidirectional text, Persian
+joiners, and emoji sequences remain valid but cannot conceal an override phrase.
+Rejection stops before local model dispatch and returns a content-free
+review-required error. It does not log, persist, or send the rejected value.
+Security work such as "prompt injection testing" also remains valid input.
+
 ## What It Helps With
 
 - **Resume readability**: Confirm and copy the text JobSentinel can read from
