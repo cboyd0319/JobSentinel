@@ -12,19 +12,20 @@ fn unit_vector(dimension: u32, index: usize) -> Vec<f32> {
     vector
 }
 
-fn semantic_result(user_skill: Option<&str>) -> SemanticMatchResult {
+fn semantic_result(user_skills: &[&str]) -> SemanticMatchResult {
     SemanticMatchResult {
         runtime_profile: SemanticRuntimeProfile::DeterministicExact,
-        overall_score: f64::from(user_skill.is_some()),
-        matched_skills: user_skill
-            .map(|user_skill| SkillMatch {
-                job_skill: "Rust".to_string(),
-                user_skill: user_skill.to_string(),
+        overall_score: f64::from(!user_skills.is_empty()),
+        matched_skills: user_skills
+            .iter()
+            .enumerate()
+            .map(|(index, user_skill)| SkillMatch {
+                job_skill: format!("Requirement {index}"),
+                user_skill: (*user_skill).to_string(),
                 similarity: 1.0,
                 reranker_score: None,
                 reranker_rank: None,
             })
-            .into_iter()
             .collect(),
         unmatched_requirements: Vec::new(),
         unmatched_diagnostics: Vec::new(),
@@ -227,8 +228,8 @@ async fn semantic_resume_match_preserves_model_free_fallback_and_purges_cache() 
         .unwrap()
         .unwrap();
     assert_eq!(
-        result.first_match_evidence,
-        ResumeEvidenceCitation::for_field(&snapshot, "skills.0")
+        result.match_evidence,
+        vec![ResumeEvidenceCitation::for_field(&snapshot, "skills.0").unwrap()]
     );
     assert_eq!(
         database
@@ -240,22 +241,25 @@ async fn semantic_resume_match_preserves_model_free_fallback_and_purges_cache() 
 }
 
 #[test]
-fn first_semantic_claim_binds_to_exact_ordered_skill_evidence() {
+fn every_semantic_claim_binds_to_exact_ordered_skill_evidence() {
     let snapshot = ResumeEvidenceSnapshot {
         source_id: "resume:42".to_string(),
         revision: "2026-07-20T00:00:00.000Z".to_string(),
     };
-    let result = bind_first_match_evidence(
+    let result = bind_match_evidence(
         &snapshot,
         &snapshot,
         &["TypeScript".to_string(), "Rust".to_string()],
-        semantic_result(Some("Rust")),
+        semantic_result(&["Rust", "TypeScript"]),
     )
     .unwrap();
 
     assert_eq!(
-        result.first_match_evidence,
-        ResumeEvidenceCitation::for_field(&snapshot, "skills.1")
+        result.match_evidence,
+        vec![
+            ResumeEvidenceCitation::for_field(&snapshot, "skills.1").unwrap(),
+            ResumeEvidenceCitation::for_field(&snapshot, "skills.0").unwrap(),
+        ]
     );
     let value = serde_json::to_value(&result).unwrap();
     assert_eq!(value["runtime_profile"], "deterministic_exact");
@@ -263,6 +267,16 @@ fn first_semantic_claim_binds_to_exact_ordered_skill_evidence() {
     let serialized = value.to_string();
     assert!(!serialized.contains(&snapshot.source_id));
     assert!(!serialized.contains(&snapshot.revision));
+
+    let repeated = bind_match_evidence(
+        &snapshot,
+        &snapshot,
+        &["Rust".to_string()],
+        semantic_result(&["Rust", "Rust"]),
+    )
+    .unwrap();
+    assert_eq!(repeated.match_evidence.len(), 2);
+    assert_eq!(repeated.match_evidence[0], repeated.match_evidence[1]);
 }
 
 #[test]
@@ -277,11 +291,11 @@ fn semantic_claim_evidence_rejects_stale_missing_and_ambiguous_sources() {
     };
 
     assert_eq!(
-        bind_first_match_evidence(
+        bind_match_evidence(
             &snapshot,
             &edited,
             &["Rust".to_string()],
-            semantic_result(Some("Rust")),
+            semantic_result(&["Rust"]),
         )
         .unwrap_err()
         .to_string(),
@@ -292,17 +306,23 @@ fn semantic_claim_evidence_rejects_stale_missing_and_ambiguous_sources() {
         vec!["Rust".to_string(), "Rust".to_string()],
     ] {
         assert_eq!(
-            bind_first_match_evidence(
-                &snapshot,
-                &snapshot,
-                &skills,
-                semantic_result(Some("Rust")),
-            )
-            .unwrap_err()
-            .to_string(),
+            bind_match_evidence(&snapshot, &snapshot, &skills, semantic_result(&["Rust"]),)
+                .unwrap_err()
+                .to_string(),
             "semantic match evidence is unavailable"
         );
     }
+    assert_eq!(
+        bind_match_evidence(
+            &snapshot,
+            &snapshot,
+            &["Rust".to_string()],
+            semantic_result(&["Rust", "Missing"]),
+        )
+        .unwrap_err()
+        .to_string(),
+        "semantic match evidence is unavailable"
+    );
 }
 
 #[test]
@@ -312,13 +332,12 @@ fn result_without_a_positive_claim_needs_no_evidence_link() {
         revision: "2026-07-20T00:00:00.000Z".to_string(),
     };
 
-    let result =
-        bind_first_match_evidence(&snapshot, &snapshot, &[], semantic_result(None)).unwrap();
+    let result = bind_match_evidence(&snapshot, &snapshot, &[], semantic_result(&[])).unwrap();
 
-    assert!(result.first_match_evidence.is_none());
+    assert!(result.match_evidence.is_empty());
     assert!(!serde_json::to_string(&result)
         .unwrap()
-        .contains("first_match_evidence"));
+        .contains("match_evidence"));
 }
 
 #[tokio::test]

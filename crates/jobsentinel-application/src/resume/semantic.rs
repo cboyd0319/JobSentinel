@@ -22,11 +22,12 @@ const RESUME_VECTOR_NORMALIZER: &str = "exact_utf8_v1";
 pub struct EvidenceBoundSemanticMatch {
     #[serde(flatten)]
     pub semantic_match: SemanticMatchResult,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub first_match_evidence: Option<ResumeEvidenceCitation>,
+    /// One citation per matched skill, in the same order.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub match_evidence: Vec<ResumeEvidenceCitation>,
 }
 
-fn bind_first_match_evidence(
+fn bind_match_evidence(
     matched_snapshot: &ResumeEvidenceSnapshot,
     current_snapshot: &ResumeEvidenceSnapshot,
     user_skills: &[String],
@@ -36,29 +37,28 @@ fn bind_first_match_evidence(
         matched_snapshot == current_snapshot,
         "resume changed during local matching"
     );
-    let Some(first_match) = semantic_match.matched_skills.first() else {
-        return Ok(EvidenceBoundSemanticMatch {
-            semantic_match,
-            first_match_evidence: None,
-        });
-    };
-    let mut matching_indexes = user_skills
+    let match_evidence = semantic_match
+        .matched_skills
         .iter()
-        .enumerate()
-        .filter_map(|(index, skill)| (skill == &first_match.user_skill).then_some(index));
-    let index = matching_indexes
-        .next()
-        .context("semantic match evidence is unavailable")?;
-    anyhow::ensure!(
-        matching_indexes.next().is_none(),
-        "semantic match evidence is unavailable"
-    );
-    let first_match_evidence =
-        ResumeEvidenceCitation::for_field(matched_snapshot, &format!("skills.{index}"))
-            .context("semantic match evidence is unavailable")?;
+        .map(|matched| {
+            let mut matching_indexes = user_skills
+                .iter()
+                .enumerate()
+                .filter_map(|(index, skill)| (skill == &matched.user_skill).then_some(index));
+            let index = matching_indexes
+                .next()
+                .context("semantic match evidence is unavailable")?;
+            anyhow::ensure!(
+                matching_indexes.next().is_none(),
+                "semantic match evidence is unavailable"
+            );
+            ResumeEvidenceCitation::for_field(matched_snapshot, &format!("skills.{index}"))
+                .context("semantic match evidence is unavailable")
+        })
+        .collect::<Result<Vec<_>>>()?;
     Ok(EvidenceBoundSemanticMatch {
         semantic_match,
-        first_match_evidence: Some(first_match_evidence),
+        match_evidence,
     })
 }
 
@@ -196,7 +196,7 @@ pub async fn match_resume_semantic(
         .get_resume_evidence_snapshot(resume_id)
         .await?
         .context("resume not found")?;
-    bind_first_match_evidence(&snapshot, &current, &user_skills, semantic_match)
+    bind_match_evidence(&snapshot, &current, &user_skills, semantic_match)
 }
 
 #[cfg(test)]
