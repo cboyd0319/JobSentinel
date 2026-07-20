@@ -50,8 +50,8 @@ Last updated: 2026-07-20
 
 - Active feature: `v3-milestone-5-local-evidence-resume-matching`
 - Status: `active`
-- Current slice: Six-pair Qwen requirement calibration is frozen; Gate 4 remains open.
-- Next action: Measure model-free Essentials under an 8 GiB budget.
+- Current slice: The macOS arm64 model-free baseline is measured; Gate 4 remains open.
+- Next action: Prove Essentials on actual 8 GiB hardware and complete the installed journey.
 
 ## Deferred
 

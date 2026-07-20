@@ -345,6 +345,7 @@ relevant result, and caveat.
 | 2026-07-20 | Milestone 5 matching profile evals frozen | Added the strict versioned synthetic profile baseline at `75e4a347`. All nine role profiles now have exact non-baseline review ordering with unchanged requirement states and zero score deltas. Bounded regional spelling cases exercise all four declared profiles with exact deltas, preserve a distinct-concept negative, and keep a missing required licence behind its hard-constraint cap. The documents library passed 318 tests with one private-path test ignored; production clippy, harness, file-size, formatting, diff validation, and adversarial re-review passed. This does not validate Qwen3 or region-pack completeness. Milestone 5 remains active. |
 | 2026-07-20 | Gate 4 operating boundaries frozen | Froze model-free setup, the exact wired Qwen3 Candle pair, legacy-only MiniLM fallback, live-first employer evidence, no-authority static region packs, per-source expiry, and the Essentials component boundary at `d7f0c2a4`. Removed speculative matching-provider compatibility. Gate 4 remains open because production-wide calibration, an 8 GiB model-free performance report, installed setup and removal, employer and regional evals, and the platform matrix are not yet proven. All 75 default embedded local-AI tests passed with 10 explicit model tests ignored; all 151 domain tests, strict clippy, docs, security, harness, and adversarial review passed. |
 | 2026-07-20 | Milestone 5 Qwen3 requirement calibration expanded | Expanded the frozen requirement hard-negative set from three to six synthetic pairs at `da5ce3df`. The new cases distinguish civilian RN licensure from Army combat-medic experience, people-management ownership from mentoring, and GAAP close ownership from accounts-payable processing without changing the `0.30` retrieval or `3.0` reranker threshold. The original three pairs retain full production, cached-vector, and abstention proof; the three new pairs freeze direct Qwen3 embedding and reranker behavior. Both opt-in pinned-model tests passed on one macOS 27 arm64 64 GiB host, all 77 default local-AI tests passed with 11 model tests ignored, strict clippy, architecture, security, harness, and adversarial re-review passed. Gate 4 remains open because six synthetic requirement pairs are not production-wide, cross-platform, modest-hardware, installed-setup, employer, or regional evidence. |
+| 2026-07-20 | Milestone 5 macOS Essentials baseline measured | Added exact native launch-coalition measurement and bounded app-scoped cleanup at `8a321b55`. A model-free arm64 no-account DMG measured 14,224,509 bytes, its installed app measured 29,704,192 bytes, and three final-verifier launches reached a visible window in a median upper bound of 825 ms with a median aggregate observed maximum RSS of 240,480 KiB across six app-coalition processes. Mounted and copied-app smoke, private local data, empty stderr, model-free payload checks, 19 verifier tests, all 842 script tests, security, harness, and final adversarial review passed. Gate 4 remains open because this low-pressure 64 GiB host does not prove actual 8 GiB behavior, the complete installed Essentials journey, numeric release thresholds, or the platform matrix. |
 
 ## Discoveries
 
@@ -591,10 +592,14 @@ relevant result, and caveat.
   at `d7f0c2a4`. The six-pair Qwen3 requirement calibration and its retained
   limitations are bound by
   `docs/harness/evidence/v3-milestone-5-qwen-requirement-calibration-2026-07-20.json`
-  at `da5ce3df`.
-- Next step: measure the model-free Essentials package, startup, memory, and
-  core journey under an 8 GiB budget without enabling model or external-AI
-  paths.
+  at `da5ce3df`. The first model-free macOS arm64 package, launch, and observed
+  memory baseline is bound by
+  `docs/harness/evidence/v3-milestone-5-essentials-macos-footprint-2026-07-20.json`
+  at `8a321b55`; its application artifact was built from `62405463`, with only
+  verifier and verifier-test files changed between those revisions.
+- Next step: run the complete installed model-free Essentials journey on actual
+  8 GiB hardware or an equivalent controlled guest, then extend the package
+  and runtime matrix without enabling model or external-AI paths.
 - Open risks: scope remains large, contract freeze is irreversible within the
   v3 compatibility line, recovery and permission behavior still needs Windows
   11, macOS 26, and Linux release-matrix proof, installed recovery UI still

@@ -71,7 +71,8 @@ or bundled model download, and region packs remain separately installed
 options. This approves the component boundary, not a numeric footprint or
 performance claim. Installer size, installed size, peak memory, startup time,
 and workflow latency remain blocked until the model-free 8 GiB journey and
-platform package matrix are measured.
+platform package matrix are measured. A revision-bound macOS arm64 low-pressure
+baseline now exists, but its 64 GiB host cannot satisfy the 8 GiB requirement.
 
 ## Runtime Profiles
 
