@@ -50,8 +50,8 @@ Last updated: 2026-07-19
 
 - Active feature: `v3-milestone-5-local-evidence-resume-matching`
 - Status: `active`
-- Current slice: Packet claims use fresh case evidence confirmed by the user and keep military and clearance boundaries.
-- Next action: Build dated, provenance-labeled military occupation suggestions from user-confirmed duties.
+- Current slice: Military role suggestions require fresh evidence, exact user review, and manual-only source context.
+- Next action: Reject prompt-like job and resume text before local semantic matching.
 
 ## Deferred
 
