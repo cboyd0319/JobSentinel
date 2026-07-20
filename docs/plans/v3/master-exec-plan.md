@@ -340,6 +340,7 @@ relevant result, and caveat.
 | 2026-07-20 | Milestone 5 semantic evidence coverage completed | Replaced the singular citation boundary with one exact same-order citation for every positive embedded semantic claim at `0d38d46b`. Repeated use of one resume skill repeats its citation without losing cardinality, while any unmappable claim rejects the whole result. Seven focused tests, production clippy, desktop compilation, and adversarial re-review passed. The visible Resume Match page remains unchanged and Milestone 5 remains active. |
 | 2026-07-20 | Milestone 5 active saved-resume analysis stabilized | Moved the visible active saved-resume analysis behind application ownership at `c59df6dd`. Exact before-and-after context rejects resume revision, content, file, bounded HTML source, ordered-skill, active-selection, and deletion changes without returning stale evidence. The Tauri command retains existing validation, result shape, and safe missing or unreadable guidance. Six application tests, 11 Tauri resume tests, 5 document citation tests, strict application and desktop clippy, and adversarial re-review passed. Milestone 5 remains active. |
 | 2026-07-20 | Milestone 5 copied-resume evidence bound | Moved copied structured-resume analysis behind application ownership at `91a8a3ff`. Renderer-supplied evidence identity is discarded, canonical local content determines the opaque ephemeral revision, custom-section ordering is deterministic, and content over 10 MiB fails before analysis. Nothing is persisted or sent. Nine focused application tests, strict application and desktop clippy, desktop compilation, security and architecture checks, and adversarial review passed. Milestone 5 remains active. |
+| 2026-07-20 | Milestone 5 veteran transition evidence bound | Bound proposed civilian wording to exact current saved-resume occupation, responsibility, credential, and current-clearance evidence at `e69063f9`. Preparation requires same-case user-confirmed citations and preserves every military source phrase beside its proposed wording. Confirmation atomically rechecks resume revision, full content hash, and evidence links before returning only the reviewed wording. O*NET and DoD COOL remain manual review resources, and no status, eligibility, verification, or equivalence is inferred. Eight application military tests, storage consistency tests, strict clippy, desktop compilation, security and architecture checks, and adversarial re-review passed. Milestone 5 remains active. |
 
 ## Discoveries
 
@@ -553,7 +554,7 @@ relevant result, and caveat.
 
 - Current state: Milestones 0 through 4 and Gates 0 through 3 are passing.
   Milestone 5 local evidence, resume, and matching work is the sole active
-  feature. Its current implementation is committed through `91a8a3ff`.
+  feature. Its current implementation is committed through `e69063f9`.
 - Evidence: `docs/harness/evidence/v3-milestone-3-reviewed-export-2026-07-19.json`
   binds the reviewed-export slice at `3b4f635b`, and
   `docs/harness/evidence/v3-milestone-3-storage-cleanup-2026-07-19.json` binds
@@ -579,9 +580,8 @@ relevant result, and caveat.
   at `c5422e63`. Gate 3 completion is bound by
   `docs/harness/evidence/v3-milestone-4-gate-3-2026-07-19.json` at
   `88beaadc`.
-- Next step: expand reviewed mappings from user-confirmed military
-  responsibilities, credentials, and current-clearance evidence to civilian
-  wording without inventing equivalence, verification, eligibility, or claims.
+- Next step: add reviewed profession and regional matching profiles without
+  weakening evidence requirements or claiming regional completeness.
 - Open risks: scope remains large, contract freeze is irreversible within the
   v3 compatibility line, recovery and permission behavior still needs Windows
   11, macOS 26, and Linux release-matrix proof, installed recovery UI still

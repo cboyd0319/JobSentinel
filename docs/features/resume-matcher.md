@@ -593,15 +593,22 @@ identifiers, source revisions, raw field paths, or excerpts. Clearance labels
 do not verify current status, and military-service labels do not claim civilian
 equivalence.
 
-The Milestone 5 application contract prepares military occupation wording as a
-move-only, in-memory review draft. It returns a suggestion only after a typed
+The Milestone 5 application contract prepares military-to-civilian wording as a
+move-only, in-memory review draft. The occupation code, every described military
+responsibility or credential, and any current-clearance label must appear in the
+current bounded saved-resume text and have same-case, user-confirmed military
+evidence. Current-clearance evidence uses its own citation. The draft preserves
+each exact military source phrase beside the proposed civilian wording for
+explicit review. It returns only the reviewed civilian wording after a typed
 user-action receipt names that exact draft and a fresh atomic read confirms the
-same case's current user-confirmed `military_info` evidence. The wording is
-user-reviewed. The dated O*NET crosswalk entry remains a manual review resource,
-not the author or verifier of the branch, occupation, civilian role, duties,
-credentials, clearance, veteran status, eligibility, or equivalence. No review
-draft or suggestion is persisted, serialized, logged, sent, or generated from a
-packaged crosswalk.
+same resume revision, content hash, and evidence links.
+
+The dated O*NET occupation crosswalk and DoD COOL credential site remain manual
+review resources. They do not author or verify the branch, occupation, civilian
+role, responsibilities, credentials, clearance, veteran status, eligibility, or
+equivalence. Missing, changed, deleted, ambiguous, unconfirmed, or near-match
+source evidence fails closed. No review draft or suggestion is persisted,
+serialized, logged, sent, or generated from a packaged crosswalk.
 
 Resume Match also shows a compact Role Coverage card backed by
 `src/features/resumes/shared/resumeRoleFamilyTaxonomy.ts`. The shared contract covers technical,

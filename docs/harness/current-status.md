@@ -50,8 +50,8 @@ Last updated: 2026-07-20
 
 - Active feature: `v3-milestone-5-local-evidence-resume-matching`
 - Status: `active`
-- Current slice: Copied-resume claims use bounded, content-derived local evidence.
-- Next action: Expand reviewed military responsibility, credential, and current-clearance mappings.
+- Current slice: Veteran transition wording is bound to exact current saved-resume evidence.
+- Next action: Add reviewed profession and regional matching profiles.
 
 ## Deferred
 
