@@ -518,6 +518,14 @@ The current local matcher:
   label. Feedback stays local, stores only the saved match ID, closed label, and
   time, and does not change ranking or retain extra resume or job content.
 
+The v3 storage foundation keeps derived vectors in the local database as bounded
+little-endian `f32` bytes with model and content provenance. It stores no source
+text in the vector table and excludes the table from reviewed plaintext export.
+A read returns bytes only when model availability, provenance, dimension, and
+every value remain valid; otherwise it removes the row and requests a rebuild.
+Encrypted portable backups include the local table. Row deletion is lifecycle
+cleanup, not a secure-erasure claim.
+
 The skill list is self-contained and deterministic. Same input should produce
 the same local result. Optional OCR is available for scanned PDFs when the app
 is built with OCR support and local OCR tools are installed.

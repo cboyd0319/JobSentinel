@@ -19,6 +19,7 @@ pub mod user_data;
 pub mod v3_foundation;
 pub mod v3_source_consent;
 pub mod v3_source_manifest;
+pub mod v3_vectors;
 
 // Internal modules
 mod analytics;
