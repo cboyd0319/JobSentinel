@@ -65,7 +65,8 @@ describe("Resume page", () => {
           education_match_score: 0.25,
           matching_skills: ["Scheduling"],
           missing_skills: ["Case Management"],
-          gap_analysis: null,
+          gap_analysis:
+            "Why not: Score limited because skill evidence was not found: Case Management\nScoring sources: skill coverage, required coverage",
           created_at: "2026-05-21T12:00:00Z",
         },
       ],
@@ -85,6 +86,14 @@ describe("Resume page", () => {
     expect(screen.getByText("Education fit")).toBeInTheDocument();
     expect(screen.getByText("Skills found in both (1)")).toBeInTheDocument();
     expect(screen.getByText("Skills to review (1)")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Why not: Score limited because skill evidence was not found: Case Management",
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Scoring sources: skill coverage, required coverage"),
+    ).toBeInTheDocument();
     expect(screen.getByText("75%")).toBeInTheDocument();
     expect(screen.getByText("50%")).toBeInTheDocument();
     expect(screen.getByText("25%")).toBeInTheDocument();

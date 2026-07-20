@@ -20,7 +20,7 @@ pub use ats_types::{
 pub use export::ResumeExporter;
 pub use jobsentinel_domain::{ResumeEvidenceCitation, ResumeEvidenceSnapshot};
 pub use parser::ResumeParser;
-pub use resume_match_score::calculate_resume_match_score;
+pub use resume_match_score::{calculate_resume_match_score, ResumeMatchScore};
 pub use skills::{ExtractedSkill, SkillExtractor};
 pub use structured_resume::{
     ResumeAnalysisInput, ResumeCertification, ResumeEducation, ResumeExperience,

@@ -511,6 +511,9 @@ The current local matcher:
 - treats job posts with too little recognized requirement detail as
   insufficient evidence instead of a perfect match;
 - stores results locally so recent job comparisons can be reviewed later.
+- shows only the scoring signals actually used in each recent local result,
+  and, when embedded local scoring applies a limit, shows its first stable
+  evidence blocker as plain **Why not** and **Scoring sources** lines.
 
 The skill list is self-contained and deterministic. Same input should produce
 the same local result. Optional OCR is available for scanned PDFs when the app
