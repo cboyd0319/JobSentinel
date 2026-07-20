@@ -264,10 +264,12 @@ Run feature-gated tests:
 cargo test -p jobsentinel --features embedded-ml
 ```
 
-Run ignored tests that require model files:
+Run ignored tests that require model files. Downloading tests set the same
+anonymous app-scoped download policy the desktop shell sets at startup; that
+state is process-global, so run them single-threaded:
 
 ```bash
-cargo test -p jobsentinel --features embedded-ml -- --ignored
+cargo test -p jobsentinel --features embedded-ml -- --ignored --test-threads=1
 ```
 
 ## Commands

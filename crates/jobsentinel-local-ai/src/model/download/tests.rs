@@ -94,6 +94,69 @@ fn staging_file_preserves_the_longest_safe_partial_for_resume() {
     assert_eq!(std::fs::read(staged_path).unwrap(), b"partial");
 }
 
+#[tokio::test]
+async fn download_fails_closed_without_the_anonymous_policy_env() {
+    let app_data_dir = tempfile::tempdir().unwrap();
+    let manager = ModelManager::new(app_data_dir.path().to_path_buf());
+    std::env::remove_var("HF_HUB_DISABLE_IMPLICIT_TOKEN");
+
+    let error = manager
+        .download_default_semantic_models()
+        .await
+        .expect_err("download must fail closed without the app policy");
+
+    let ml_error = error
+        .downcast_ref::<MlError>()
+        .expect("policy failure should be a typed download error");
+    assert!(matches!(
+        ml_error,
+        MlError::DownloadFailed(message)
+            if message.contains("Anonymous model download policy is not initialized")
+    ));
+}
+
+/// Live opt-in proof of governed setup and removal. Downloads the complete
+/// pinned Qwen3 pair from Hugging Face; run alone with `--test-threads=1`.
+#[tokio::test]
+#[ignore]
+async fn governed_download_sets_up_and_removes_default_semantic_models() {
+    let app_data_dir = tempfile::tempdir().unwrap();
+    crate::model::set_download_policy_env(app_data_dir.path());
+    let manager = ModelManager::new(app_data_dir.path().to_path_buf());
+    let embedding = ModelManager::default_embedding_model_spec().unwrap();
+    let reranker = ModelManager::default_reranker_model_spec().unwrap();
+    let reports = Arc::new(std::sync::Mutex::new(Vec::<(u64, u64)>::new()));
+    let recorded = Arc::clone(&reports);
+
+    let paths = manager
+        .download_default_semantic_models_with_progress(Arc::new(move |completed, total| {
+            recorded.lock().unwrap().push((completed, total));
+        }))
+        .await
+        .unwrap_or_else(|error| panic!("governed download should complete: {error:#?}"));
+
+    assert_eq!(paths.len(), 2);
+    assert!(manager.is_default_semantic_runtime_downloaded());
+    let reports = reports.lock().unwrap();
+    let total_locked: u64 = [&embedding, &reranker]
+        .into_iter()
+        .flat_map(|spec| spec.required_files())
+        .filter_map(|file| file.size_bytes)
+        .sum();
+    assert!(reports.windows(2).all(|pair| pair[0].0 <= pair[1].0));
+    assert_eq!(reports.last().unwrap(), &(total_locked, total_locked));
+    let cache_root = app_data_dir.path().join("ml_models");
+    assert!(!cache_root.join(".xet").exists());
+    for spec in [&embedding, &reranker] {
+        assert!(!manager.model_cache_dir(spec).join(".download").exists());
+    }
+
+    assert!(manager.remove_default_semantic_model_caches().unwrap());
+    assert!(!cache_root.join(&embedding.id).exists());
+    assert!(!cache_root.join(&reranker.id).exists());
+    assert!(!manager.is_default_semantic_runtime_downloaded());
+}
+
 #[cfg(unix)]
 #[test]
 fn download_preparation_rejects_symlinked_cache_paths() {
