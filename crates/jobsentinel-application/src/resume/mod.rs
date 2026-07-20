@@ -5,4 +5,4 @@ mod semantic;
 
 pub use jobsentinel_storage::resume::*;
 #[cfg(feature = "embedded-ml")]
-pub use semantic::match_resume_semantic;
+pub use semantic::{match_resume_semantic, EvidenceBoundSemanticMatch};
