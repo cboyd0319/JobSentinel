@@ -50,8 +50,8 @@ Last updated: 2026-07-20
 
 - Active feature: `v3-milestone-5-local-evidence-resume-matching`
 - Status: `active`
-- Current slice: Frozen synthetic profile evals bind role ordering and regional deltas.
-- Next action: Resolve Gate 4 model and data decisions from evaluation evidence.
+- Current slice: Gate 4 operating boundaries are frozen; release evidence remains open.
+- Next action: Expand Qwen requirement calibration evidence.
 
 ## Deferred
 
