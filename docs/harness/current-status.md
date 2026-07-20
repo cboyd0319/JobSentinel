@@ -1,6 +1,6 @@
 # Current Status
 
-Last updated: 2026-07-19
+Last updated: 2026-07-20
 
 ## Done
 
@@ -50,8 +50,8 @@ Last updated: 2026-07-19
 
 - Active feature: `v3-milestone-5-local-evidence-resume-matching`
 - Status: `active`
-- Current slice: Model Doctor can remove an integrity-invalid default model cache after native review.
-- Next action: Preserve one existing hybrid blocker and its actual scoring sources in resume-match output.
+- Current slice: Saved matches show one stable embedded blocker and only used scoring sources.
+- Next action: Capture one clearable local useful or not-relevant label on a saved match, without ranking changes.
 
 ## Deferred
 

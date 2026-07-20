@@ -1,5 +1,5 @@
 {
-  "schema": "jobsentinel.feature_list.v1", "project": "JobSentinel", "last_updated": "2026-07-19", "active_status": "active",
+  "schema": "jobsentinel.feature_list.v1", "project": "JobSentinel", "last_updated": "2026-07-20", "active_status": "active",
   "rules": { "single_active_feature": true, "passing_requires_evidence": true, "passing_is_irreversible": true },
   "features": [
     {
@@ -157,4 +157,4 @@
       "verification": ["npm run harness:check", "npm run lint:security"], "evidence": ["docs/harness/evidence/v3-milestone-4-gate-3-2026-07-19.json"], "blocker": "", "next_trigger": "Regression reopens."
     }, { "id": "v3-milestone-5-local-evidence-resume-matching", "priority": 19, "area": "v3 matching", "title": "Build local evidence and matching", "status": "active",
       "behavior": "Local evidence keeps resume and match claims bounded and reproducible.", "user_visible_behavior": "Users can see why a job matches and the evidence behind it.",
-      "verification": ["npm run harness:check"], "evidence": [], "blocker": "", "next_trigger": "Show a hybrid match blocker." } ] }
+      "verification": ["npm run harness:check"], "evidence": [], "blocker": "", "next_trigger": "Capture saved-match feedback." } ] }
