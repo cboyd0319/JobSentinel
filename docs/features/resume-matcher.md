@@ -528,6 +528,11 @@ Visible matched-word and requirement review surfaces, including live Resume
 Builder tooltips and Resume Match rows, use plain evidence labels such as
 current role experience, recent role experience, work experience, and skills
 list instead of backend section names.
+Requirement rows and live Resume Builder details can also show the matching
+resume locations as keyboard-visible human labels. They never show citation
+identifiers, source revisions, raw field paths, or excerpts. Clearance labels
+do not verify current status, and military-service labels do not claim civilian
+equivalence.
 Resume Match also shows a compact Role Coverage card backed by
 `src/features/resumes/shared/resumeRoleFamilyTaxonomy.ts`. The shared contract covers technical,
 content, operations, healthcare, service, trades, education, sales, and
