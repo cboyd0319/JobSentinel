@@ -461,6 +461,17 @@ pub use evidence::{
     read_case_file_evidence_links, EvidenceBoundPacketClaim, PacketEvidenceBoundary,
 };
 
+mod military;
+pub use military::{
+    confirm_military_occupation_review, prepare_military_occupation_review,
+    MilitaryOccupationReviewDraft, MilitaryOccupationSuggestion, MilitaryReviewResource,
+    MilitarySuggestionBoundary, MilitarySuggestionReviewStatus,
+};
+
 #[cfg(test)]
 #[path = "v3_foundation/evidence_tests.rs"]
 mod evidence_tests;
+
+#[cfg(test)]
+#[path = "v3_foundation/military_tests.rs"]
+mod military_tests;

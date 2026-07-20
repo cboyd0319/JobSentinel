@@ -533,6 +533,17 @@ resume locations as keyboard-visible human labels. They never show citation
 identifiers, source revisions, raw field paths, or excerpts. Clearance labels
 do not verify current status, and military-service labels do not claim civilian
 equivalence.
+
+The Milestone 5 application contract prepares military occupation wording as a
+move-only, in-memory review draft. It returns a suggestion only after a typed
+user-action receipt names that exact draft and a fresh atomic read confirms the
+same case's current user-confirmed `military_info` evidence. The wording is
+user-reviewed. The dated O*NET crosswalk entry remains a manual review resource,
+not the author or verifier of the branch, occupation, civilian role, duties,
+credentials, clearance, veteran status, eligibility, or equivalence. No review
+draft or suggestion is persisted, serialized, logged, sent, or generated from a
+packaged crosswalk.
+
 Resume Match also shows a compact Role Coverage card backed by
 `src/features/resumes/shared/resumeRoleFamilyTaxonomy.ts`. The shared contract covers technical,
 content, operations, healthcare, service, trades, education, sales, and

@@ -49,7 +49,7 @@ pub enum EmployerSourceClass {
     UserOwnedLocalObservation,
 }
 
-#[derive(Clone, Copy, Debug, Deserialize)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq)]
 #[serde(rename_all = "snake_case")]
 pub enum MilitaryBranch {
     Army,

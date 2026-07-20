@@ -9,6 +9,8 @@ use crate::{
     v3_foundation::validate_identifier,
 };
 
+const INDEX: &str = include_str!("fixtures/v3_veteran_public_service_index_v1.json");
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum VeteranResourceAuthority {
@@ -80,6 +82,17 @@ pub fn parse_veteran_public_service_index(
         parse_contract(input, SchemaId::VeteranPublicServiceIndexV1)?;
     index.validate(today)?;
     Ok(index)
+}
+
+pub fn reviewed_veteran_public_service_resource(
+    resource_id: &str,
+    today: NaiveDate,
+) -> Result<VeteranPublicServiceResource, String> {
+    parse_veteran_public_service_index(INDEX, today)?
+        .resources
+        .into_iter()
+        .find(|resource| resource.resource_id == resource_id)
+        .ok_or_else(|| "veteran resource is not in the reviewed index".to_string())
 }
 
 impl VeteranPublicServiceIndex {
@@ -308,8 +321,6 @@ mod tests {
     use chrono::NaiveDate;
 
     use super::*;
-
-    const INDEX: &str = include_str!("fixtures/v3_veteran_public_service_index_v1.json");
 
     fn today() -> NaiveDate {
         NaiveDate::from_ymd_opt(2026, 7, 19).unwrap()
