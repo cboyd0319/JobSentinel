@@ -50,8 +50,8 @@ Last updated: 2026-07-19
 
 - Active feature: `v3-milestone-5-local-evidence-resume-matching`
 - Status: `active`
-- Current slice: Exact-only deterministic matching remains available without verified model files or downloads.
-- Next action: Distinguish missing, incomplete, and checksum-invalid local model caches in Model Doctor.
+- Current slice: Model Doctor distinguishes absent, damaged, and ready caches without exposing local paths.
+- Next action: Preserve typed matcher runtime, dense-score, and reranker provenance.
 
 ## Deferred
 
