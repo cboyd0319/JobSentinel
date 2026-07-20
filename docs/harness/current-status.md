@@ -50,8 +50,8 @@ Last updated: 2026-07-20
 
 - Active feature: `v3-milestone-5-local-evidence-resume-matching`
 - Status: `active`
-- Current slice: Explicit role and regional resume matching profiles are local and reviewable.
-- Next action: Freeze profession and regional matching evaluation deltas.
+- Current slice: Frozen synthetic profile evals bind role ordering and regional deltas.
+- Next action: Resolve Gate 4 model and data decisions from evaluation evidence.
 
 ## Deferred
 

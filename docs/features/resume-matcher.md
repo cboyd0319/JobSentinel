@@ -628,6 +628,17 @@ session state, and never trigger network access. The controls remain locked
 while a review is running so an older profile result cannot appear under a
 newer selection.
 
+The versioned synthetic `matching-profiles-v1` evaluation fixture freezes this
+limited behavior. All nine role profiles must produce an exact review order
+that differs from unprofiled analysis while preserving requirement states and
+zero keyword and overall score deltas. The bounded United Kingdom, European
+Union, and India spelling cases produce exact positive match-score deltas; the
+United States control remains unchanged. Separate cases preserve the
+`project evaluation` / `program evaluation` distinction and the required
+licence hard-constraint cap. These are regression values, not claims that
+Qwen3, regional terminology, employers, occupations, sources, or a region pack
+are complete or ready to ship.
+
 Resume Match also shows a compact Role Coverage card backed by
 `src/features/resumes/shared/resumeRoleFamilyTaxonomy.ts`. The shared contract covers technical,
 content, operations, healthcare, service, trades, education, sales, and

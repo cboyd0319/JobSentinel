@@ -342,6 +342,7 @@ relevant result, and caveat.
 | 2026-07-20 | Milestone 5 copied-resume evidence bound | Moved copied structured-resume analysis behind application ownership at `91a8a3ff`. Renderer-supplied evidence identity is discarded, canonical local content determines the opaque ephemeral revision, custom-section ordering is deterministic, and content over 10 MiB fails before analysis. Nothing is persisted or sent. Nine focused application tests, strict application and desktop clippy, desktop compilation, security and architecture checks, and adversarial review passed. Milestone 5 remains active. |
 | 2026-07-20 | Milestone 5 veteran transition evidence bound | Bound proposed civilian wording to exact current saved-resume occupation, responsibility, credential, and current-clearance evidence at `e69063f9`. Preparation requires same-case user-confirmed citations and preserves every military source phrase beside its proposed wording. Confirmation atomically rechecks resume revision, full content hash, and evidence links before returning only the reviewed wording. O*NET and DoD COOL remain manual review resources, and no status, eligibility, verification, or equivalence is inferred. Eight application military tests, storage consistency tests, strict clippy, desktop compilation, security and architecture checks, and adversarial re-review passed. Milestone 5 remains active. |
 | 2026-07-20 | Milestone 5 explicit matching profiles added | Added user-selected role evidence and regional spelling profiles at `6a75e007` for active and copied resume review. Role profiles only mark preferred evidence sections and break otherwise equal review ordering. Regional profiles recognize a bounded spelling set and can change recognized matches and scores without weakening hard constraints or treating different concepts as equivalent. Profiles are local, never inferred, explicitly incomplete, and locked during an in-flight review. Six document profile tests, application and Tauri owner tests, 18 UI and dev-runtime tests, strict clippy, harness, architecture, security, file-size, and adversarial re-review passed. Milestone 5 remains active. |
+| 2026-07-20 | Milestone 5 matching profile evals frozen | Added the strict versioned synthetic profile baseline at `75e4a347`. All nine role profiles now have exact non-baseline review ordering with unchanged requirement states and zero score deltas. Bounded regional spelling cases exercise all four declared profiles with exact deltas, preserve a distinct-concept negative, and keep a missing required licence behind its hard-constraint cap. The documents library passed 318 tests with one private-path test ignored; production clippy, harness, file-size, formatting, diff validation, and adversarial re-review passed. This does not validate Qwen3 or region-pack completeness. Milestone 5 remains active. |
 
 ## Discoveries
 
@@ -555,7 +556,7 @@ relevant result, and caveat.
 
 - Current state: Milestones 0 through 4 and Gates 0 through 3 are passing.
   Milestone 5 local evidence, resume, and matching work is the sole active
-  feature. Its current implementation is committed through `6a75e007`.
+  feature. Its current implementation is committed through `75e4a347`.
 - Evidence: `docs/harness/evidence/v3-milestone-3-reviewed-export-2026-07-19.json`
   binds the reviewed-export slice at `3b4f635b`, and
   `docs/harness/evidence/v3-milestone-3-storage-cleanup-2026-07-19.json` binds
@@ -580,9 +581,11 @@ relevant result, and caveat.
   `docs/harness/evidence/v3-milestone-4-starter-region-manifests-2026-07-19.json`
   at `c5422e63`. Gate 3 completion is bound by
   `docs/harness/evidence/v3-milestone-4-gate-3-2026-07-19.json` at
-  `88beaadc`.
-- Next step: freeze profession and regional matching evaluation deltas before
-  considering broader matching or ranking changes.
+  `88beaadc`. The strict synthetic matching-profile baseline is versioned at
+  `crates/jobsentinel-documents/src/eval_fixtures/matching_profiles_v1.json`
+  and bound by `75e4a347`.
+- Next step: resolve Gate 4 model and data decisions from evaluation evidence,
+  adding focused frozen cases where current evidence is insufficient.
 - Open risks: scope remains large, contract freeze is irreversible within the
   v3 compatibility line, recovery and permission behavior still needs Windows
   11, macOS 26, and Linux release-matrix proof, installed recovery UI still
