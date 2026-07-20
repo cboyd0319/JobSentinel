@@ -164,33 +164,9 @@ async fn complete_setup_to_runtime_and_paths(
     config: Value,
     runtime_config: &RwLock<Config>,
     config_path: &Path,
-    db_path: &Path,
+    database: &Database,
 ) -> Result<(), String> {
-    let database = connect_setup_database(db_path).await.map_err(|e| {
-        let message = user_friendly_error("Failed to initialize database", &e);
-        tracing::error!(
-            db_path = %path_label_for_logging(db_path),
-            error = %message,
-            "Failed to connect to setup database"
-        );
-        message
-    })?;
-
-    database.migrate().await.map_err(|e| {
-        let message = user_friendly_error("Failed to initialize database", &e);
-        tracing::error!(error = %message, "Failed to migrate setup database");
-        message
-    })?;
-    save_config_to_runtime_and_path(config, runtime_config, config_path, &database).await?;
-
-    Ok(())
-}
-
-async fn connect_setup_database(_db_path: &Path) -> anyhow::Result<Database> {
-    #[cfg(test)]
-    return Ok(Database::connect_memory().await?);
-    #[cfg(not(test))]
-    Ok(Database::connect(_db_path).await?)
+    save_config_to_runtime_and_path(config, runtime_config, config_path, database).await
 }
 
 /// Save user configuration
@@ -362,9 +338,13 @@ pub(crate) async fn complete_setup(
     tracing::info!("Command: complete_setup");
 
     let config_path = Config::default_path();
-    let db_path = Database::default_path();
-    complete_setup_to_runtime_and_paths(config, state.config.as_ref(), &config_path, &db_path)
-        .await?;
+    complete_setup_to_runtime_and_paths(
+        config,
+        state.config.as_ref(),
+        &config_path,
+        state.database.as_ref(),
+    )
+    .await?;
 
     tracing::info!("Setup complete");
     Ok(())

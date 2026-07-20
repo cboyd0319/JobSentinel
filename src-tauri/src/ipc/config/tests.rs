@@ -219,11 +219,12 @@ async fn save_config_clears_legacy_review_for_a_retired_source() {
 }
 
 #[tokio::test]
-async fn complete_setup_updates_runtime_config_without_system_credentials() {
+async fn complete_setup_reuses_the_owned_database() {
     let runtime_config = RwLock::new(create_dashboard_test_config());
     let temp_dir = tempfile::tempdir().unwrap();
     let config_path = temp_dir.path().join("config.json");
-    let db_path = temp_dir.path().join("jobs.db");
+    let database = Database::connect_memory().await.unwrap();
+    database.migrate().await.unwrap();
 
     let mut setup_config = create_dashboard_test_config();
     setup_config.salary_floor_usd = 82_000;
@@ -232,7 +233,7 @@ async fn complete_setup_updates_runtime_config_without_system_credentials() {
     setup_config.remoteok.limit = 50;
     let payload = serde_json::to_value(&setup_config).unwrap();
 
-    complete_setup_to_runtime_and_paths(payload, &runtime_config, &config_path, &db_path)
+    complete_setup_to_runtime_and_paths(payload, &runtime_config, &config_path, &database)
         .await
         .unwrap();
 
