@@ -50,8 +50,8 @@ Last updated: 2026-07-19
 
 - Active feature: `v3-milestone-5-local-evidence-resume-matching`
 - Status: `active`
-- Current slice: Typed match diagnostics explain local abstention without exposing private inputs.
-- Next action: Add reviewed removal of an integrity-invalid, lock-listed model cache.
+- Current slice: Model Doctor can remove an integrity-invalid default model cache after native review.
+- Next action: Preserve one existing hybrid blocker and its actual scoring sources in resume-match output.
 
 ## Deferred
 
