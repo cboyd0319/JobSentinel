@@ -50,8 +50,8 @@ Last updated: 2026-07-19
 
 - Active feature: `v3-milestone-5-local-evidence-resume-matching`
 - Status: `active`
-- Current slice: Resume matching shows safe evidence locations without citation internals.
-- Next action: Bind packet claims to reviewed evidence without copying private text.
+- Current slice: Packet claims use fresh case evidence confirmed by the user and keep military and clearance boundaries.
+- Next action: Build dated, provenance-labeled military occupation suggestions from user-confirmed duties.
 
 ## Deferred
 
