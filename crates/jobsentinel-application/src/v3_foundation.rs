@@ -456,7 +456,10 @@ mod tests {
 }
 
 mod evidence;
-pub use evidence::{confirm_resume_evidence_for_case, read_case_file_evidence_links};
+pub use evidence::{
+    confirm_resume_evidence_for_case, prepare_evidence_bound_packet_claim,
+    read_case_file_evidence_links, EvidenceBoundPacketClaim, PacketEvidenceBoundary,
+};
 
 #[cfg(test)]
 #[path = "v3_foundation/evidence_tests.rs"]

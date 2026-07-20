@@ -121,3 +121,49 @@ async fn extracted_skills_and_their_snapshot_revision_commit_together() {
     assert!(after.updated_at > before.updated_at);
     assert_ne!(citation(&after).evidence_id, citation(&before).evidence_id);
 }
+
+#[tokio::test]
+async fn resume_evidence_snapshot_reads_current_revision_without_resume_contents() {
+    let database = crate::Database::connect_memory().await.unwrap();
+    database.migrate().await.unwrap();
+    let matcher = database.resume_matcher();
+    let resume_id = sqlx::query(
+        "INSERT INTO resumes (name, file_path, parsed_text, updated_at)
+         VALUES ('Private resume', '/private/path', 'private resume text',
+                 '2026-07-19 12:00:00.000')",
+    )
+    .execute(database.pool())
+    .await
+    .unwrap()
+    .last_insert_rowid();
+
+    let first = matcher
+        .get_resume_evidence_snapshot(resume_id)
+        .await
+        .unwrap()
+        .unwrap();
+    assert_eq!(first.source_id, format!("resume:{resume_id}"));
+    assert_eq!(first.revision, "2026-07-19T12:00:00+00:00");
+
+    sqlx::query(
+        "UPDATE resumes
+         SET updated_at = '2026-07-19 12:00:01.000'
+         WHERE id = ?",
+    )
+    .bind(resume_id)
+    .execute(database.pool())
+    .await
+    .unwrap();
+
+    let second = matcher
+        .get_resume_evidence_snapshot(resume_id)
+        .await
+        .unwrap()
+        .unwrap();
+    assert_ne!(first, second);
+    assert!(matcher
+        .get_resume_evidence_snapshot(resume_id + 1)
+        .await
+        .unwrap()
+        .is_none());
+}

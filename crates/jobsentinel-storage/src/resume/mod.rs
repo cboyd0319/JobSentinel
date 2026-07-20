@@ -145,6 +145,30 @@ impl ResumeMatcher {
         })
     }
 
+    /// Read the reproducible identity of a saved resume without loading its contents.
+    pub async fn get_resume_evidence_snapshot(
+        &self,
+        resume_id: i64,
+    ) -> Result<Option<ResumeEvidenceSnapshot>> {
+        let revision = sqlx::query_scalar::<_, String>(
+            "SELECT updated_at
+             FROM resumes
+             WHERE id = ?",
+        )
+        .bind(resume_id)
+        .fetch_optional(&self.db)
+        .await?;
+
+        revision
+            .map(|revision| {
+                Ok(ResumeEvidenceSnapshot {
+                    source_id: format!("resume:{resume_id}"),
+                    revision: parse_sqlite_datetime(&revision)?.to_rfc3339(),
+                })
+            })
+            .transpose()
+    }
+
     /// Get active resume (most recently created)
     pub async fn get_active_resume(&self) -> Result<Option<Resume>> {
         let row = sqlx::query(

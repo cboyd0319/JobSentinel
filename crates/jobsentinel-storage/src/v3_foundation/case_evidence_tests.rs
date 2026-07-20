@@ -206,3 +206,57 @@ async fn case_evidence_rolls_back_when_its_confirmation_event_fails() {
         .unwrap()
         .is_empty());
 }
+
+#[tokio::test]
+async fn packet_context_reads_resume_revision_and_case_evidence_consistently() {
+    let (_temp_dir, database, case_file_id) = case_evidence_database().await;
+    let resume_id = sqlx::query(
+        "INSERT INTO resumes (name, file_path, updated_at)
+         VALUES ('Resume', 'resume.txt', '2026-07-19 12:00:00.000')",
+    )
+    .execute(database.pool())
+    .await
+    .unwrap()
+    .last_insert_rowid();
+    let evidence_id = "f".repeat(64);
+    let (link, event) = reviewed_evidence(&case_file_id, &evidence_id);
+    database
+        .insert_case_file_evidence(&link, &event)
+        .await
+        .unwrap();
+
+    let mut writer = database.pool().begin().await.unwrap();
+    sqlx::query(
+        "UPDATE resumes
+         SET updated_at = '2026-07-19 12:00:01.000'
+         WHERE id = ?",
+    )
+    .bind(resume_id)
+    .execute(&mut *writer)
+    .await
+    .unwrap();
+    let (before_commit, links) = database
+        .read_case_file_resume_evidence_context(&case_file_id, resume_id)
+        .await
+        .unwrap()
+        .unwrap();
+    assert_eq!(before_commit.revision, "2026-07-19T12:00:00+00:00");
+    assert_eq!(links, vec![link]);
+
+    writer.commit().await.unwrap();
+    let (after_commit, _) = database
+        .read_case_file_resume_evidence_context(&case_file_id, resume_id)
+        .await
+        .unwrap()
+        .unwrap();
+    assert_eq!(after_commit.revision, "2026-07-19T12:00:01+00:00");
+    assert!(database
+        .read_case_file_resume_evidence_context(&case_file_id, resume_id + 1)
+        .await
+        .unwrap()
+        .is_none());
+    assert!(database
+        .read_case_file_resume_evidence_context("missing-case", resume_id)
+        .await
+        .is_err());
+}

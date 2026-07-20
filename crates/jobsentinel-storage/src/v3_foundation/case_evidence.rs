@@ -1,6 +1,9 @@
 use super::*;
-use jobsentinel_domain::v3_foundation::{
-    CareerRelation, CaseFileEventKind, EventMetadata, EventOrigin, GraphProvenance,
+use jobsentinel_domain::{
+    v3_foundation::{
+        CareerRelation, CaseFileEventKind, EventMetadata, EventOrigin, GraphProvenance,
+    },
+    ResumeEvidenceSnapshot,
 };
 
 #[derive(FromRow)]
@@ -105,6 +108,58 @@ impl Database {
         .await?;
         transaction.commit().await?;
         rows.into_iter().map(career_graph_link_from_row).collect()
+    }
+
+    pub async fn read_case_file_resume_evidence_context(
+        &self,
+        case_file_id: &str,
+        resume_id: i64,
+    ) -> Result<Option<(ResumeEvidenceSnapshot, Vec<CareerGraphLink>)>> {
+        let mut transaction = self.pool().begin().await?;
+        let case_exists: bool = sqlx::query_scalar(
+            "SELECT EXISTS(
+                SELECT 1 FROM opportunity_case_files WHERE case_file_id = ?
+             )",
+        )
+        .bind(case_file_id)
+        .fetch_one(&mut *transaction)
+        .await?;
+        if !case_exists {
+            return Err(anyhow!("case file does not exist"));
+        }
+        let revision = sqlx::query_scalar::<_, String>(
+            "SELECT updated_at
+             FROM resumes
+             WHERE id = ?",
+        )
+        .bind(resume_id)
+        .fetch_optional(&mut *transaction)
+        .await?;
+        let Some(revision) = revision else {
+            transaction.commit().await?;
+            return Ok(None);
+        };
+        let rows = sqlx::query_as::<_, CareerGraphRow>(
+            "SELECT link_id, subject_id, relation, object_id,
+                    provenance, provenance_ref
+             FROM career_graph_links
+             WHERE subject_id = ? AND relation = 'evidence'
+             ORDER BY created_at, link_id",
+        )
+        .bind(case_file_id)
+        .fetch_all(&mut *transaction)
+        .await?;
+        transaction.commit().await?;
+
+        Ok(Some((
+            ResumeEvidenceSnapshot {
+                source_id: format!("resume:{resume_id}"),
+                revision: parse_sqlite_datetime(&revision)?.to_rfc3339(),
+            },
+            rows.into_iter()
+                .map(career_graph_link_from_row)
+                .collect::<Result<_>>()?,
+        )))
     }
 }
 
