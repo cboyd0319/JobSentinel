@@ -1,8 +1,8 @@
 use chrono::NaiveDate;
 use jobsentinel_domain::{
     v3_foundation::{
-        CareerGraphLink, CaseFile, CaseFileEvent, CaseFileEventInput, CompatibilityMetadata,
-        SourceGraphLink, SourcePolicy,
+        CareerGraphLink, CaseFile, CaseFileEvent, CaseFileEventInput, CaseFileEventKind,
+        CompatibilityMetadata, SourceGraphLink, SourcePolicy,
     },
     v3_manifests::PrivacyReceipt,
     v3_source_authorization::{SourceActionDecision, SourceGrantState},
@@ -39,6 +39,9 @@ pub async fn record_case_file_event(
     input
         .validate()
         .map_err(|_| FoundationError::InvalidInput)?;
+    if input.kind == CaseFileEventKind::EvidenceLinked {
+        return Err(FoundationError::InvalidInput);
+    }
     database
         .append_case_file_event(input)
         .await
@@ -209,12 +212,12 @@ mod tests {
             &database,
             &CaseFileEventInput {
                 case_file_id: first.case_file_id,
-                kind: CaseFileEventKind::EvidenceLinked,
+                kind: CaseFileEventKind::PrivacyReceiptRecorded,
                 origin: EventOrigin::User,
                 user_action: true,
                 privacy_labels: [PrivacyLabel::LocalOnly, PrivacyLabel::Sensitive],
                 metadata: EventMetadata::LocalReference {
-                    reference_id: "evidence-1".to_string(),
+                    reference_id: "receipt-1".to_string(),
                 },
             },
         )
@@ -451,3 +454,10 @@ mod tests {
         );
     }
 }
+
+mod evidence;
+pub use evidence::{confirm_resume_evidence_for_case, read_case_file_evidence_links};
+
+#[cfg(test)]
+#[path = "v3_foundation/evidence_tests.rs"]
+mod evidence_tests;

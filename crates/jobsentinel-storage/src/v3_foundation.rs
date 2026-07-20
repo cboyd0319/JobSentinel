@@ -2,8 +2,8 @@ use anyhow::{anyhow, Result};
 use chrono::Utc;
 use jobsentinel_domain::{
     v3_foundation::{
-        CareerGraphLink, CaseFile, CaseFileEvent, CaseFileEventInput, CompatibilityMetadata,
-        SourceGraphLink, SourcePolicy, SourceRelation,
+        CareerGraphLink, CareerRelation, CaseFile, CaseFileEvent, CaseFileEventInput,
+        CaseFileEventKind, CompatibilityMetadata, SourceGraphLink, SourcePolicy, SourceRelation,
     },
     v3_manifests::PrivacyReceipt,
 };
@@ -91,6 +91,9 @@ impl Database {
         input
             .validate()
             .map_err(|_| anyhow!("invalid case event"))?;
+        if input.kind == CaseFileEventKind::EvidenceLinked {
+            return Err(anyhow!("case evidence requires atomic confirmation"));
+        }
         let event_id = Uuid::new_v4().to_string();
         let created_at = Utc::now();
         let metadata_json = input
@@ -141,6 +144,9 @@ impl Database {
     pub async fn insert_career_graph_link(&self, link: &CareerGraphLink) -> Result<()> {
         link.validate()
             .map_err(|_| anyhow!("invalid career graph link"))?;
+        if link.relation == CareerRelation::Evidence {
+            return Err(anyhow!("case evidence requires explicit confirmation"));
+        }
         sqlx::query(
             "INSERT INTO career_graph_links (
                 link_id, subject_id, relation, object_id,
@@ -388,6 +394,12 @@ pub(crate) fn enum_text(value: impl Serialize) -> Result<String> {
 pub(crate) fn parse_enum<T: DeserializeOwned>(value: &str) -> Result<T> {
     serde_json::from_str(&format!("\"{value}\"")).map_err(|_| anyhow!("invalid stored enum"))
 }
+
+mod case_evidence;
+
+#[cfg(test)]
+#[path = "v3_foundation/case_evidence_tests.rs"]
+mod case_evidence_tests;
 
 #[cfg(test)]
 mod tests;

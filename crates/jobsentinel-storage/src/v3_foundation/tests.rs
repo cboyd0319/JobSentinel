@@ -67,18 +67,18 @@ async fn case_file_create_is_atomic_and_reuses_the_job() {
 }
 
 #[tokio::test]
-async fn typed_events_round_trip_without_private_payload_fields() {
+async fn generic_typed_events_round_trip_without_private_payload_fields() {
     let database = case_file_database().await;
     let case_file = database.ensure_case_file("job-1").await.unwrap();
     database
         .append_case_file_event(&CaseFileEventInput {
             case_file_id: case_file.case_file_id.clone(),
-            kind: CaseFileEventKind::EvidenceLinked,
+            kind: CaseFileEventKind::PrivacyReceiptRecorded,
             origin: EventOrigin::User,
             user_action: true,
             privacy_labels: [PrivacyLabel::LocalOnly, PrivacyLabel::Sensitive],
             metadata: EventMetadata::LocalReference {
-                reference_id: "evidence-1".to_string(),
+                reference_id: "receipt-1".to_string(),
             },
         })
         .await
@@ -92,7 +92,7 @@ async fn typed_events_round_trip_without_private_payload_fields() {
     assert_eq!(
         events[0].metadata,
         EventMetadata::LocalReference {
-            reference_id: "evidence-1".to_string()
+            reference_id: "receipt-1".to_string()
         }
     );
     let stored: String = sqlx::query_scalar("SELECT metadata_json FROM v3_job_events LIMIT 1")
@@ -182,8 +182,8 @@ async fn graph_links_are_typed_and_duplicate_safe() {
     let career = CareerGraphLink {
         link_id: "career-link-1".to_string(),
         subject_id: "skill-1".to_string(),
-        relation: CareerRelation::Evidence,
-        object_id: "evidence-1".to_string(),
+        relation: CareerRelation::Related,
+        object_id: "skill-2".to_string(),
         provenance: GraphProvenance::UserConfirmed,
         provenance_ref: None,
     };

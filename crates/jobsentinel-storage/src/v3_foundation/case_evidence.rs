@@ -1,0 +1,153 @@
+use super::*;
+use jobsentinel_domain::v3_foundation::{
+    CareerRelation, CaseFileEventKind, EventMetadata, EventOrigin, GraphProvenance,
+};
+
+#[derive(FromRow)]
+struct CareerGraphRow {
+    link_id: String,
+    subject_id: String,
+    relation: String,
+    object_id: String,
+    provenance: String,
+    provenance_ref: Option<String>,
+}
+
+impl Database {
+    pub async fn insert_case_file_evidence(
+        &self,
+        link: &CareerGraphLink,
+        confirmation: &CaseFileEventInput,
+    ) -> Result<bool> {
+        validate_case_evidence(link, confirmation)?;
+        let metadata_json = confirmation
+            .metadata
+            .to_json()
+            .map_err(|_| anyhow!("invalid case evidence confirmation"))?;
+        let created_at = Utc::now().to_rfc3339();
+        let mut transaction = self.pool().begin().await?;
+        let inserted = sqlx::query(
+            "INSERT INTO career_graph_links (
+                link_id, subject_id, relation, object_id,
+                provenance, provenance_ref, created_at
+             ) VALUES (?, ?, ?, ?, ?, ?, ?)
+             ON CONFLICT(subject_id, relation, object_id) DO NOTHING",
+        )
+        .bind(&link.link_id)
+        .bind(&link.subject_id)
+        .bind(enum_text(link.relation)?)
+        .bind(&link.object_id)
+        .bind(enum_text(link.provenance)?)
+        .bind(&link.provenance_ref)
+        .bind(&created_at)
+        .execute(&mut *transaction)
+        .await?
+        .rows_affected()
+            == 1;
+        if inserted {
+            sqlx::query(
+                "INSERT INTO v3_job_events (
+                    event_id, case_file_id, event_kind, origin, user_action,
+                    local_only, sensitive, metadata_json, created_at
+                 ) VALUES (?, ?, ?, ?, ?, 1, 1, ?, ?)",
+            )
+            .bind(Uuid::new_v4().to_string())
+            .bind(&confirmation.case_file_id)
+            .bind(enum_text(confirmation.kind)?)
+            .bind(enum_text(confirmation.origin)?)
+            .bind(confirmation.user_action)
+            .bind(&metadata_json)
+            .bind(&created_at)
+            .execute(&mut *transaction)
+            .await?;
+        } else {
+            let case_exists: bool = sqlx::query_scalar(
+                "SELECT EXISTS(
+                    SELECT 1 FROM opportunity_case_files WHERE case_file_id = ?
+                 )",
+            )
+            .bind(&confirmation.case_file_id)
+            .fetch_one(&mut *transaction)
+            .await?;
+            if !case_exists {
+                return Err(anyhow!("case file does not exist"));
+            }
+        }
+        transaction.commit().await?;
+        Ok(inserted)
+    }
+
+    pub async fn list_case_file_evidence_links(
+        &self,
+        case_file_id: &str,
+    ) -> Result<Vec<CareerGraphLink>> {
+        let mut transaction = self.pool().begin().await?;
+        let case_exists: bool = sqlx::query_scalar(
+            "SELECT EXISTS(
+                SELECT 1 FROM opportunity_case_files WHERE case_file_id = ?
+             )",
+        )
+        .bind(case_file_id)
+        .fetch_one(&mut *transaction)
+        .await?;
+        if !case_exists {
+            return Err(anyhow!("case file does not exist"));
+        }
+        let rows = sqlx::query_as::<_, CareerGraphRow>(
+            "SELECT link_id, subject_id, relation, object_id,
+                    provenance, provenance_ref
+             FROM career_graph_links
+             WHERE subject_id = ? AND relation = 'evidence'
+             ORDER BY created_at, link_id",
+        )
+        .bind(case_file_id)
+        .fetch_all(&mut *transaction)
+        .await?;
+        transaction.commit().await?;
+        rows.into_iter().map(career_graph_link_from_row).collect()
+    }
+}
+
+fn validate_case_evidence(link: &CareerGraphLink, confirmation: &CaseFileEventInput) -> Result<()> {
+    link.validate()
+        .map_err(|_| anyhow!("invalid case evidence link"))?;
+    confirmation
+        .validate()
+        .map_err(|_| anyhow!("invalid case evidence confirmation"))?;
+    let reference_matches = matches!(
+        &confirmation.metadata,
+        EventMetadata::LocalReference { reference_id } if reference_id == &link.object_id
+    );
+    let opaque_evidence_id = link.object_id.len() == 64
+        && link
+            .object_id
+            .bytes()
+            .all(|byte| byte.is_ascii_digit() || (b'a'..=b'f').contains(&byte));
+    if Uuid::parse_str(&link.link_id).is_err()
+        || !opaque_evidence_id
+        || link.relation != CareerRelation::Evidence
+        || link.provenance != GraphProvenance::UserConfirmed
+        || confirmation.kind != CaseFileEventKind::EvidenceLinked
+        || confirmation.origin != EventOrigin::User
+        || !confirmation.user_action
+        || confirmation.case_file_id != link.subject_id
+        || !reference_matches
+    {
+        return Err(anyhow!("invalid case evidence confirmation"));
+    }
+    Ok(())
+}
+
+fn career_graph_link_from_row(row: CareerGraphRow) -> Result<CareerGraphLink> {
+    let link = CareerGraphLink {
+        link_id: row.link_id,
+        subject_id: row.subject_id,
+        relation: parse_enum(&row.relation)?,
+        object_id: row.object_id,
+        provenance: parse_enum(&row.provenance)?,
+        provenance_ref: row.provenance_ref,
+    };
+    link.validate()
+        .map_err(|_| anyhow!("invalid stored case evidence link"))?;
+    Ok(link)
+}
