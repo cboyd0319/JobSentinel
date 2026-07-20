@@ -12,8 +12,8 @@ pub use jobsentinel_assistance::{
 pub use jobsentinel_intelligence::GhostConfig;
 #[cfg(feature = "embedded-ml")]
 pub use jobsentinel_local_ai::{
-    load_model_manifest, model_lock_hash, ModelKind, ModelManager, ModelManifest, ModelSpec,
-    ModelStatus, SemanticMatcher,
+    load_model_manifest, model_lock_hash, ModelCacheHealth, ModelKind, ModelManager, ModelManifest,
+    ModelSpec, ModelStatus, SemanticMatcher,
 };
 pub use jobsentinel_network::{validate_external_https_url_for_fetch, HttpBodyReadError};
 pub use jobsentinel_platform::{

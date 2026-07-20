@@ -3,17 +3,21 @@
 #[cfg(feature = "embedded-ml")]
 use crate::desktop;
 #[cfg(feature = "embedded-ml")]
-use crate::desktop::{load_model_manifest, model_lock_hash, ModelKind, ModelManager, ModelSpec};
+use crate::desktop::{
+    load_model_manifest, model_lock_hash, ModelCacheHealth, ModelKind, ModelManager, ModelSpec,
+};
 #[cfg(feature = "embedded-ml")]
 use crate::ipc::errors::user_friendly_error;
 
-#[derive(Debug, Clone, serde::Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
 pub(crate) enum SemanticMatchingRuntimeStatus {
     #[cfg(feature = "embedded-ml")]
     Ready,
     #[cfg(feature = "embedded-ml")]
     NeedsModelDownload,
+    #[cfg(feature = "embedded-ml")]
+    Misconfigured,
     #[cfg(not(feature = "embedded-ml"))]
     DisabledInThisBuild,
 }
@@ -85,39 +89,105 @@ fn semantic_matching_diagnostics() -> Result<SemanticMatchingDiagnostics, String
     let manifest = load_model_manifest()
         .map_err(|error| user_friendly_error("Failed to read local model lock", error))?;
     let manager = ModelManager::new(desktop::get_data_dir());
+    Ok(semantic_matching_diagnostics_for(&manifest, &manager))
+}
 
-    let mut models = Vec::new();
-    for model in &manifest.models {
-        models.push(model_diagnostic(&manager, &manifest, model));
-    }
-
-    let qwen3_models_ready = manifest
-        .default_embedding()
-        .is_some_and(|model| manager.is_model_downloaded_for(model))
-        && manifest
-            .default_reranker()
-            .is_some_and(|model| manager.is_model_downloaded_for(model));
-    let runtime_status = if qwen3_models_ready {
-        SemanticMatchingRuntimeStatus::Ready
-    } else {
-        SemanticMatchingRuntimeStatus::NeedsModelDownload
+#[cfg(feature = "embedded-ml")]
+fn semantic_matching_diagnostics_for(
+    manifest: &crate::desktop::ModelManifest,
+    manager: &ModelManager,
+) -> SemanticMatchingDiagnostics {
+    let model_health = manifest
+        .models
+        .iter()
+        .map(|model| (model, manager.cache_health_for(model)))
+        .collect::<Vec<_>>();
+    let models = model_health
+        .iter()
+        .map(|(model, health)| model_diagnostic(manager, manifest, model, *health))
+        .collect();
+    let health_for = |id: &str| {
+        model_health
+            .iter()
+            .find(|(model, _)| model.id == id)
+            .map_or(ModelCacheHealth::IntegrityMismatch, |(_, health)| *health)
     };
+    let legacy_health = health_for(&manifest.defaults.legacy_runtime_embedding);
+    let runtime_status = semantic_runtime_status(
+        health_for(&manifest.defaults.embedding),
+        health_for(&manifest.defaults.reranker),
+        legacy_health,
+    );
+    let (active_profile, user_action) = semantic_runtime_copy(runtime_status, legacy_health);
 
-    Ok(SemanticMatchingDiagnostics {
+    SemanticMatchingDiagnostics {
         build_enabled: true,
         runtime_status,
-        active_profile: "Qwen3 embedding plus Qwen3 reranker, with built-in local fallback"
-            .to_string(),
+        active_profile: active_profile.to_string(),
         privacy_mode: "Local only. Model downloads fetch model files only and never send resume or job-search data."
             .to_string(),
         manifest_hash: Some(model_lock_hash()),
         models,
         scoring_signals: base_scoring_signals(),
         eval_contract: base_eval_contract(),
-        user_action: (!qwen3_models_ready).then_some(
-            "Download the pinned local models before using Qwen3 semantic matching.".to_string(),
+        user_action: user_action.map(str::to_string),
+    }
+}
+
+#[cfg(feature = "embedded-ml")]
+fn semantic_runtime_status(
+    embedding: ModelCacheHealth,
+    reranker: ModelCacheHealth,
+    legacy: ModelCacheHealth,
+) -> SemanticMatchingRuntimeStatus {
+    match (embedding, reranker, legacy) {
+        (ModelCacheHealth::Ready, ModelCacheHealth::Ready, _) => {
+            SemanticMatchingRuntimeStatus::Ready
+        }
+        (_, _, ModelCacheHealth::Incomplete | ModelCacheHealth::IntegrityMismatch) => {
+            SemanticMatchingRuntimeStatus::Misconfigured
+        }
+        (ModelCacheHealth::Missing, ModelCacheHealth::Missing, _) => {
+            SemanticMatchingRuntimeStatus::NeedsModelDownload
+        }
+        _ => SemanticMatchingRuntimeStatus::Misconfigured,
+    }
+}
+
+#[cfg(feature = "embedded-ml")]
+fn semantic_runtime_copy(
+    status: SemanticMatchingRuntimeStatus,
+    legacy: ModelCacheHealth,
+) -> (&'static str, Option<&'static str>) {
+    match (status, legacy == ModelCacheHealth::Ready) {
+        (SemanticMatchingRuntimeStatus::Ready, _) => {
+            ("Qwen3 embedding plus Qwen3 reranker", None)
+        }
+        (SemanticMatchingRuntimeStatus::NeedsModelDownload, true) => (
+            "Verified MiniLM local matching; Qwen3 models are not installed",
+            Some(
+                "Download the pinned Qwen3 models to enable advanced matching. Verified MiniLM matching remains active.",
+            ),
         ),
-    })
+        (SemanticMatchingRuntimeStatus::NeedsModelDownload, false) => (
+            "Exact-only deterministic matching; Qwen3 models are not installed",
+            Some(
+                "Download the pinned Qwen3 models to enable advanced matching. Exact-only local matching remains active.",
+            ),
+        ),
+        (SemanticMatchingRuntimeStatus::Misconfigured, true) => (
+            "Verified MiniLM local matching; Qwen3 model cache needs attention",
+            Some(
+                "Local model files are incomplete or failed integrity checks. Download the pinned models again before using Qwen3 matching. Verified MiniLM matching remains active.",
+            ),
+        ),
+        (SemanticMatchingRuntimeStatus::Misconfigured, false) => (
+            "Exact-only deterministic matching; local model cache needs attention",
+            Some(
+                "Local model files are incomplete or failed integrity checks. Download the pinned models again before using advanced matching. Exact-only local matching remains active.",
+            ),
+        ),
+    }
 }
 
 #[cfg(feature = "embedded-ml")]
@@ -125,10 +195,9 @@ fn model_diagnostic(
     manager: &ModelManager,
     manifest: &crate::desktop::ModelManifest,
     model: &ModelSpec,
+    health: ModelCacheHealth,
 ) -> SemanticMatchingModelDiagnostic {
     let required_files = model.required_files().count();
-    let required_files_present = manager.required_files_present(model);
-    let downloaded = manager.is_model_downloaded_for(model);
 
     SemanticMatchingModelDiagnostic {
         id: model.id.clone(),
@@ -140,9 +209,9 @@ fn model_diagnostic(
         dimension: model.dimension,
         max_tokens: model.max_tokens,
         required_files,
-        required_files_present,
+        required_files_present: manager.required_files_present(model),
         locked_size_bytes: locked_size_bytes(model),
-        downloaded,
+        downloaded: health == ModelCacheHealth::Ready,
         required_for_qwen3_runtime: model.id == manifest.defaults.embedding
             || model.id == manifest.defaults.reranker,
     }
@@ -228,45 +297,4 @@ fn base_eval_contract() -> Vec<String> {
 }
 
 #[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[cfg(not(feature = "embedded-ml"))]
-    #[test]
-    fn diagnostics_explain_disabled_build_without_private_data() {
-        let diagnostics = semantic_matching_diagnostics().expect("diagnostics should build");
-
-        assert!(!diagnostics.build_enabled);
-        assert!(matches!(
-            diagnostics.runtime_status,
-            SemanticMatchingRuntimeStatus::DisabledInThisBuild
-        ));
-        assert!(diagnostics.models.is_empty());
-        assert!(diagnostics.privacy_mode.contains("No resume or job text"));
-    }
-
-    #[cfg(feature = "embedded-ml")]
-    #[test]
-    fn diagnostics_report_qwen3_model_lock_entries() {
-        let diagnostics = semantic_matching_diagnostics().expect("diagnostics should build");
-
-        assert!(diagnostics.build_enabled);
-        assert_eq!(diagnostics.manifest_hash.as_deref().map(str::len), Some(64));
-        assert!(diagnostics
-            .models
-            .iter()
-            .any(|model| model.id == "qwen3-embedding-0.6b"
-                && model.role == "Default embedding"
-                && model.required_for_qwen3_runtime));
-        assert!(diagnostics
-            .models
-            .iter()
-            .any(|model| model.id == "qwen3-reranker-0.6b"
-                && model.role == "Default reranker"
-                && model.required_for_qwen3_runtime));
-        assert!(diagnostics
-            .scoring_signals
-            .iter()
-            .any(|signal| signal.id == "qwen3_reranker"));
-    }
-}
+mod tests;

@@ -48,7 +48,7 @@ pub use manifest::{
     ModelFileSpec, ModelKind, ModelManifest, ModelSpec, ScoreThresholds,
 };
 pub use matcher::{SemanticMatchResult, SemanticMatcher};
-pub use model::status::ModelStatus;
+pub use model::status::{ModelCacheHealth, ModelStatus};
 pub use model::ModelManager;
 pub use qwen3::{Qwen3EmbeddingBackend, Qwen3RerankerBackend};
 pub use runtime::{

@@ -40,6 +40,14 @@ Product integration evidence: the Settings **Local Match Check** panel calls
 fallback. `embedded-ml` builds report the checked-in Qwen3 model lock, required
 file presence, cache readiness, scoring signals, local-only privacy mode, and
 quality checks without loading model weights or exposing resume/job text.
+Model Doctor reports absent default caches as needing a download. Any mixed,
+partial, unreadable, symlinked, non-file, wrong-size, or checksum-invalid cache
+reports a misconfiguration with a pinned re-download action. Inspection
+requires regular files with exact pinned sizes before hashing. Diagnostics
+expose model lock metadata and safe required-file counts, never cache paths or
+file contents. When Qwen3 needs attention but verified MiniLM is ready, the
+diagnostic names MiniLM as the active local matcher instead of claiming the
+exact-only fallback is active.
 Direct matcher calls now use Qwen3 dense retrieval plus bounded Qwen3
 reranking when the governed model pair is present, fall back to verified MiniLM
 when it is present, and use exact-only deterministic matching when no verified
@@ -239,12 +247,12 @@ truth.
 | Problem | Safe response |
 | ------- | ------------- |
 | Model download fails | Keep deterministic matching available and let the user retry later. |
-| Model checksum fails | Delete or replace the local model cache through a reviewed app flow, then retry the pinned download. |
+| Model files are absent | Show exact-only local matching and an explicit pinned download action. |
+| Model cache is partial, unreadable, unsafe, wrong-size, or checksum-invalid | Report a misconfiguration without paths or file contents, name the active verified fallback, and require a pinned re-download before advanced matching. |
 | Runtime dimension differs from vector index | Refuse to use the stale index and rebuild vectors after user-visible setup. |
 | Instruction profile changes | Mark existing vectors stale and rebuild before using semantic scores. |
 | Reranker is unavailable | Use dense retrieval, exact skill matching, BM25, and mark output as not reranked. |
 | Metal acceleration is unavailable | Fall back to CPU inference. |
-| Model files are missing | Show local matching fallback and an explicit download action. |
 | Matching output looks wrong | Let the user edit skills and visible assumptions before using the result. |
 
 Do not log raw resume text, private notes, salary floors, local file paths, or

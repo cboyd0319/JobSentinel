@@ -1,9 +1,21 @@
 use super::integrity::verify_model_file_checksum;
-use super::{fallback_runtime_model_spec, status::ModelStatus, ModelManager};
+use super::{
+    fallback_runtime_model_spec,
+    status::{ModelCacheHealth, ModelStatus},
+    ModelManager,
+};
 use crate::manifest::model_lock_hash;
-use crate::manifest::ModelSpec;
+use crate::manifest::{ModelFileSpec, ModelSpec};
 use crate::MlError;
-use anyhow::{Context, Result};
+use anyhow::Result;
+use std::io::ErrorKind;
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum RequiredFilePresence {
+    Missing,
+    Invalid,
+    Present,
+}
 
 impl ModelManager {
     /// Check if the legacy runtime embedding model is already downloaded.
@@ -16,23 +28,71 @@ impl ModelManager {
 
     /// Return whether every required file exists and matches the model lock.
     pub fn is_model_downloaded_for(&self, spec: &ModelSpec) -> bool {
-        let model_dir = self.model_cache_dir(spec);
+        self.cache_health_for(spec) == ModelCacheHealth::Ready
+    }
 
-        if !model_dir.exists() {
-            return false;
+    /// Inspect required model files without returning paths or raw errors.
+    pub fn cache_health_for(&self, spec: &ModelSpec) -> ModelCacheHealth {
+        let required_files = spec.required_files().collect::<Vec<_>>();
+        if required_files.is_empty() {
+            return ModelCacheHealth::Missing;
         }
 
-        spec.required_files().all(|file| {
-            let path = self.model_file_path(spec, file);
-            path.exists() && verify_model_file_checksum(&path, &file.sha256).is_ok()
-        })
+        let mut missing = 0;
+        for file in &required_files {
+            match self.required_file_presence(spec, file) {
+                RequiredFilePresence::Missing => missing += 1,
+                RequiredFilePresence::Invalid => {
+                    return ModelCacheHealth::IntegrityMismatch;
+                }
+                RequiredFilePresence::Present => {}
+            }
+        }
+
+        if missing == required_files.len() {
+            return ModelCacheHealth::Missing;
+        }
+        if missing > 0 {
+            return ModelCacheHealth::Incomplete;
+        }
+        if required_files.iter().all(|file| {
+            verify_model_file_checksum(&self.model_file_path(spec, file), &file.sha256).is_ok()
+        }) {
+            ModelCacheHealth::Ready
+        } else {
+            ModelCacheHealth::IntegrityMismatch
+        }
     }
 
     /// Count required files present in the private model cache.
     pub fn required_files_present(&self, spec: &ModelSpec) -> usize {
         spec.required_files()
-            .filter(|file| self.model_file_path(spec, file).exists())
+            .filter(|file| self.required_file_presence(spec, file) == RequiredFilePresence::Present)
             .count()
+    }
+
+    fn required_file_presence(
+        &self,
+        spec: &ModelSpec,
+        file: &ModelFileSpec,
+    ) -> RequiredFilePresence {
+        let path = self.model_file_path(spec, file);
+        let metadata = match std::fs::symlink_metadata(path) {
+            Ok(metadata) => metadata,
+            Err(error) if error.kind() == ErrorKind::NotFound => {
+                return RequiredFilePresence::Missing;
+            }
+            Err(_) => return RequiredFilePresence::Invalid,
+        };
+        if !metadata.file_type().is_file()
+            || file
+                .size_bytes
+                .is_some_and(|expected| metadata.len() != expected)
+        {
+            RequiredFilePresence::Invalid
+        } else {
+            RequiredFilePresence::Present
+        }
     }
 
     pub fn is_default_embedding_downloaded(&self) -> bool {
@@ -98,20 +158,16 @@ impl ModelManager {
     }
 
     pub(super) fn verify_model_cache(&self, spec: &ModelSpec) -> Result<()> {
-        for file in spec.required_files() {
-            let path = self.model_file_path(spec, file);
-            if !path.exists() {
-                return Err(MlError::ModelNotDownloaded(format!(
-                    "required model file is missing: {}",
-                    file.path
-                ))
-                .into());
+        match self.cache_health_for(spec) {
+            ModelCacheHealth::Ready => Ok(()),
+            ModelCacheHealth::Missing | ModelCacheHealth::Incomplete => Err(
+                MlError::ModelNotDownloaded("required model cache is incomplete".to_string())
+                    .into(),
+            ),
+            ModelCacheHealth::IntegrityMismatch => {
+                Err(MlError::ModelLoadFailed("cached model validation failed".to_string()).into())
             }
-            verify_model_file_checksum(&path, &file.sha256)
-                .context("cached model file failed integrity check")?;
         }
-
-        Ok(())
     }
 }
 
@@ -123,3 +179,6 @@ fn model_size_bytes(manager: &ModelManager, spec: &ModelSpec) -> Option<u64> {
         .ok()
         .map(|m| m.len())
 }
+
+#[cfg(test)]
+mod tests;
