@@ -159,6 +159,7 @@ const commandGroups: readonly MockCommandGroup[] = [
       "update_user_skill",
       "delete_user_skill",
       "get_recent_matches",
+      "set_resume_match_feedback",
       "match_resume_to_job",
       "create_resume_draft",
       "get_resume_draft",

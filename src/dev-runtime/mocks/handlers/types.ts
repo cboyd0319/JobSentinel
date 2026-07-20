@@ -182,6 +182,11 @@ export interface MockMatchResult {
   matching_skills: string[];
   missing_skills: string[];
   gap_analysis: string | null;
+  feedback: {
+    match_id: number;
+    label: "useful" | "not_relevant";
+    recorded_at: string;
+  } | null;
   created_at: string;
 }
 

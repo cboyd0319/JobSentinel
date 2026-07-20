@@ -364,7 +364,7 @@ Requirements:
 - Rust 1.97.1 from `rust-toolchain.toml`
 - Platform packages from [developer setup](docs/developer/GETTING_STARTED.md)
 
-Current backend surface: **218 registered Tauri commands**.
+Current backend surface: **226 registered Tauri commands**.
 
 ```bash
 git clone https://github.com/cboyd0319/JobSentinel

@@ -129,6 +129,35 @@ export function handleMockResumeCommand(
       );
     }
 
+    case "set_resume_match_feedback": {
+      const matchId = getNumericArg(args, "matchId");
+      const payload = args?.payload as Record<string, unknown> | undefined;
+      const rawLabel = Object.prototype.hasOwnProperty.call(args ?? {}, "label")
+        ? args?.label
+        : payload?.label;
+      if (
+        typeof matchId !== "number" ||
+        (rawLabel !== null && rawLabel !== "useful" && rawLabel !== "not_relevant") ||
+        !state.recentMatches.some((match) => match.id === matchId)
+      ) {
+        throw new Error("Invalid saved resume match feedback");
+      }
+      const label: "useful" | "not_relevant" | null = rawLabel;
+      const feedback =
+        label === null
+          ? null
+          : { match_id: matchId, label, recorded_at: new Date().toISOString() };
+      return withSave(
+        {
+          ...state,
+          recentMatches: state.recentMatches.map((match) =>
+            match.id === matchId ? { ...match, feedback } : match,
+          ),
+        },
+        feedback,
+      );
+    }
+
     case "match_resume_to_job":
       return matchResumeToJob(args, state);
 

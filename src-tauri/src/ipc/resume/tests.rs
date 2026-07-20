@@ -1,6 +1,31 @@
 use super::*;
 
 #[test]
+fn resume_match_feedback_is_closed_and_content_free() {
+    assert_eq!(
+        serde_json::from_str::<ResumeMatchFeedbackLabel>("\"not_relevant\"").unwrap(),
+        ResumeMatchFeedbackLabel::NotRelevant
+    );
+    assert!(serde_json::from_str::<ResumeMatchFeedbackLabel>("\"maybe\"").is_err());
+
+    let value = serde_json::to_value(ResumeMatchFeedback {
+        match_id: 42,
+        label: ResumeMatchFeedbackLabel::Useful,
+        recorded_at: Utc::now(),
+    })
+    .unwrap();
+    let mut keys = value
+        .as_object()
+        .unwrap()
+        .keys()
+        .cloned()
+        .collect::<Vec<_>>();
+    keys.sort();
+
+    assert_eq!(keys, ["label", "match_id", "recorded_at"]);
+}
+
+#[test]
 fn resume_summary_serialization_omits_file_path_and_parsed_text() {
     let now = Utc::now();
     let resume = Resume {

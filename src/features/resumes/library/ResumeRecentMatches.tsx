@@ -6,13 +6,20 @@ import {
   isScoreFraction,
   parseGapAnalysisLine,
   type MatchResult,
+  type ResumeMatchFeedbackLabel,
 } from "./resumePageModel";
 
 interface ResumeRecentMatchesProps {
   matches: MatchResult[];
+  savingFeedback: boolean;
+  onFeedback: (match: MatchResult, label: ResumeMatchFeedbackLabel) => void;
 }
 
-export function ResumeRecentMatches({ matches }: ResumeRecentMatchesProps) {
+export function ResumeRecentMatches({
+  matches,
+  savingFeedback,
+  onFeedback,
+}: ResumeRecentMatchesProps) {
   return (
     <Card className="lg:col-span-3 dark:bg-surface-800">
       <h2 className="font-display text-display-sm text-surface-900 dark:text-white mb-4">
@@ -176,6 +183,37 @@ export function ResumeRecentMatches({ matches }: ResumeRecentMatchesProps) {
                     </ul>
                   </div>
                 )}
+
+                <div className="mt-3 pt-3 border-t border-surface-200 dark:border-surface-700">
+                  <p className="text-xs text-surface-500 dark:text-surface-400 mb-2">
+                    Was this local match useful? This stays on this device and does not change
+                    ranking yet.
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {([
+                      ["useful", "Useful"],
+                      ["not_relevant", "Not relevant"],
+                    ] as const).map(([label, text]) => {
+                      const selected = match.feedback?.label === label;
+                      return (
+                        <button
+                          key={label}
+                          type="button"
+                          aria-pressed={selected}
+                          disabled={savingFeedback}
+                          onClick={() => onFeedback(match, label)}
+                          className={`rounded-md border px-3 py-1.5 text-sm font-medium disabled:opacity-50 ${
+                            selected
+                              ? "border-sentinel-600 bg-sentinel-50 text-sentinel-800 dark:bg-sentinel-900/30 dark:text-sentinel-200"
+                              : "border-surface-300 text-surface-600 hover:bg-surface-50 dark:border-surface-600 dark:text-surface-300 dark:hover:bg-surface-700"
+                          }`}
+                        >
+                          {text}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
             );
           })}

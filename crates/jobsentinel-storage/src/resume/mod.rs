@@ -67,8 +67,9 @@ pub use jobsentinel_documents::{
     JobSkill, KeywordImportance, KeywordMatch, MatchResult, MatchResultWithJob, MissingKeyword,
     NewSkill, RequirementMatchState, RequirementReview, Resume, ResumeAnalysisInput,
     ResumeCertification, ResumeEducation, ResumeEvidenceSnapshot, ResumeExperience, ResumeExporter,
-    ResumePersonalInfo, ResumeProject, ResumeSkill, ResumeSkillCategory, SkillUpdate,
-    StructuredResume, SuggestionCategory, Template, TemplateId, TemplateRenderer, UserSkill,
+    ResumeMatchFeedback, ResumeMatchFeedbackLabel, ResumePersonalInfo, ResumeProject, ResumeSkill,
+    ResumeSkillCategory, SkillUpdate, StructuredResume, SuggestionCategory, Template, TemplateId,
+    TemplateRenderer, UserSkill,
 };
 
 /// Main resume matcher service

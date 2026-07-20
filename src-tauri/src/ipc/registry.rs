@@ -53,6 +53,7 @@ macro_rules! jobsentinel_command_handlers {
             jobsentinel::ipc::resume::match_resume_to_job,
             jobsentinel::ipc::resume::get_match_result,
             jobsentinel::ipc::resume::get_recent_matches,
+            jobsentinel::ipc::resume::set_resume_match_feedback,
             jobsentinel::ipc::resume::get_resume_text_preview,
             jobsentinel::ipc::resume::update_user_skill,
             jobsentinel::ipc::resume::delete_user_skill,

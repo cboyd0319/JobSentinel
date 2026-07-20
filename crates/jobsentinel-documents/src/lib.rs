@@ -30,5 +30,6 @@ pub use structured_resume::{
 pub use templates::{Template, TemplateRenderer};
 pub use types::{
     DegreeLevel, EducationRequirement, ExperienceRequirement, JobSkill, MatchResult,
-    MatchResultWithJob, NewSkill, NullableFieldUpdate, Resume, SkillUpdate, UserSkill,
+    MatchResultWithJob, NewSkill, NullableFieldUpdate, Resume, ResumeMatchFeedback,
+    ResumeMatchFeedbackLabel, SkillUpdate, UserSkill,
 };

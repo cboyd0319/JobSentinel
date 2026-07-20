@@ -5,8 +5,9 @@
 
 use crate::application::resume::{
     AtsAnalysisResult, AtsAnalyzer, MatchResult, MatchResultWithJob, NewSkill, Resume,
-    ResumeAnalysisInput, ResumeEvidenceSnapshot, ResumeExporter, SkillUpdate, StructuredResume,
-    Template, TemplateId, TemplateRenderer, UserSkill,
+    ResumeAnalysisInput, ResumeEvidenceSnapshot, ResumeExporter, ResumeMatchFeedback,
+    ResumeMatchFeedbackLabel, SkillUpdate, StructuredResume, Template, TemplateId,
+    TemplateRenderer, UserSkill,
 };
 use crate::bootstrap::AppState;
 use crate::ipc::errors::user_friendly_error;
@@ -234,6 +235,27 @@ pub(crate) async fn get_recent_matches(
         .get_recent_matches(resume_id, limit)
         .await
         .map_err(|e| user_friendly_error("Failed to get recent matches", e))
+}
+
+/// Set or clear an explicit local label on one saved resume match.
+#[tauri::command]
+pub(crate) async fn set_resume_match_feedback(
+    match_id: i64,
+    label: Option<ResumeMatchFeedbackLabel>,
+    state: State<'_, AppState>,
+) -> Result<Option<ResumeMatchFeedback>, String> {
+    tracing::info!(
+        match_id,
+        has_label = label.is_some(),
+        "Command: set resume match feedback"
+    );
+
+    state
+        .database
+        .resume_matcher()
+        .set_match_feedback(match_id, label)
+        .await
+        .map_err(|e| user_friendly_error("Failed to save resume match feedback", e))
 }
 
 // ============================================================================

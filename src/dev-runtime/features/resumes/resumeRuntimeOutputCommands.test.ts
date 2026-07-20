@@ -8,10 +8,17 @@ type MockJobSummary = {
 };
 
 type MockMatchResult = {
+  id: number;
   overall_match_score: number;
   skills_match_score: number | null;
   experience_match_score: number | null;
   education_match_score: number | null;
+};
+
+type MockMatchFeedback = {
+  match_id: number;
+  label: "useful" | "not_relevant";
+  recorded_at: string;
 };
 
 type ResumeTextPreview = {
@@ -62,5 +69,37 @@ describe("mock resume runtime output commands", () => {
     expect(JSON.stringify(summary)).not.toContain("app-owned://");
     expect(JSON.stringify(preview)).not.toContain("app-owned://");
     expect(JSON.stringify(preview)).not.toContain("file_path");
+  });
+
+  it("stores and clears only a closed local match label", async () => {
+    const [job] = await mockInvoke<MockJobSummary[]>("get_jobs", {});
+    const resumeId = await mockInvoke<number>("select_and_upload_resume");
+    const match = await mockInvoke<MockMatchResult>("match_resume_to_job", {
+      resumeId,
+      jobHash: job.hash,
+    });
+
+    const feedback = await mockInvoke<MockMatchFeedback>("set_resume_match_feedback", {
+      matchId: match.id,
+      label: "not_relevant",
+    });
+
+    expect(feedback).toMatchObject({
+      match_id: match.id,
+      label: "not_relevant",
+    });
+    expect(Object.keys(feedback).sort()).toEqual(["label", "match_id", "recorded_at"]);
+    await expect(
+      mockInvoke("set_resume_match_feedback", {
+        matchId: match.id,
+        label: "maybe",
+      }),
+    ).rejects.toThrow("Invalid saved resume match feedback");
+    await expect(
+      mockInvoke("set_resume_match_feedback", {
+        matchId: match.id,
+        label: null,
+      }),
+    ).resolves.toBeNull();
   });
 });

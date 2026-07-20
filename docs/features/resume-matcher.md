@@ -514,6 +514,9 @@ The current local matcher:
 - shows only the scoring signals actually used in each recent local result,
   and, when embedded local scoring applies a limit, shows its first stable
   evidence blocker as plain **Why not** and **Scoring sources** lines.
+- lets the user mark a saved match **Useful** or **Not relevant** and clear the
+  label. Feedback stays local, stores only the saved match ID, closed label, and
+  time, and does not change ranking or retain extra resume or job content.
 
 The skill list is self-contained and deterministic. Same input should produce
 the same local result. Optional OCR is available for scanned PDFs when the app

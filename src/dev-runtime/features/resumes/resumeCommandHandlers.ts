@@ -237,6 +237,7 @@ export function matchResumeToJob(
     matching_skills: skills.slice(0, 3),
     missing_skills: ["Role-specific evidence"],
     gap_analysis: "Matching: Existing skills align\nMissing: Add one role-specific example",
+    feedback: null,
     created_at: new Date().toISOString(),
   };
 
