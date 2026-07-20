@@ -34,6 +34,17 @@ Rejection stops before local model dispatch and returns a content-free
 review-required error. It does not log, persist, or send the rejected value.
 Security work such as "prompt injection testing" also remains valid input.
 
+Requirement diagnostics are rebuilt locally from one database snapshot of the
+current case-file job description, saved resume text, saved skills, resume
+revision, job revision, and reviewed case evidence. Direct, Strong, Partial, and
+Implied states require exact same-case UserConfirmed citations. Missing results
+cannot carry citations. The in-memory result exposes only its case identifier,
+job revision, requirement, importance, bounded match state, opaque evidence
+IDs, hard-constraint status, and a bounded Partial, Implied, or Missing "why
+not" reason. It does not trust caller-supplied match state, recommendation text,
+importance, blockers, or citations, and it performs no write or external AI
+call.
+
 ## What It Helps With
 
 - **Resume readability**: Confirm and copy the text JobSentinel can read from

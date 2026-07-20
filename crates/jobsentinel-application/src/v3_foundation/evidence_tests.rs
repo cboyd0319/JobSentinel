@@ -105,10 +105,17 @@ async fn application_requires_explicit_exact_resume_evidence_confirmation() {
     );
 }
 
-async fn saved_snapshot(database: &Database) -> ResumeEvidenceSnapshot {
+pub(super) async fn saved_snapshot(database: &Database) -> ResumeEvidenceSnapshot {
+    saved_snapshot_with_text(database, "Customer service and scheduling").await
+}
+
+pub(super) async fn saved_snapshot_with_text(
+    database: &Database,
+    text: &str,
+) -> ResumeEvidenceSnapshot {
     let directory = tempfile::tempdir().unwrap();
     let path = directory.path().join("resume.txt");
-    std::fs::write(&path, "Customer service and scheduling").unwrap();
+    std::fs::write(&path, text).unwrap();
     let resume_id = database
         .resume_matcher()
         .upload_resume("Resume", path.to_str().unwrap())
@@ -122,7 +129,7 @@ async fn saved_snapshot(database: &Database) -> ResumeEvidenceSnapshot {
         .unwrap()
 }
 
-async fn confirm_field(
+pub(super) async fn confirm_field(
     database: &Database,
     case_file_id: &str,
     snapshot: &ResumeEvidenceSnapshot,

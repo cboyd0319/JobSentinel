@@ -458,7 +458,9 @@ mod tests {
 mod evidence;
 pub use evidence::{
     confirm_resume_evidence_for_case, prepare_evidence_bound_packet_claim,
-    read_case_file_evidence_links, EvidenceBoundPacketClaim, PacketEvidenceBoundary,
+    prepare_evidence_bound_requirement_diagnostic, read_case_file_evidence_links,
+    EvidenceBoundPacketClaim, EvidenceBoundRequirementDiagnostic, PacketEvidenceBoundary,
+    RequirementWhyNot,
 };
 
 mod military;
@@ -471,6 +473,10 @@ pub use military::{
 #[cfg(test)]
 #[path = "v3_foundation/evidence_tests.rs"]
 mod evidence_tests;
+
+#[cfg(test)]
+#[path = "v3_foundation/evidence_diagnostic_tests.rs"]
+mod evidence_diagnostic_tests;
 
 #[cfg(test)]
 #[path = "v3_foundation/military_tests.rs"]

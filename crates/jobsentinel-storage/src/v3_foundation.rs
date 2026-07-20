@@ -396,6 +396,7 @@ pub(crate) fn parse_enum<T: DeserializeOwned>(value: &str) -> Result<T> {
 }
 
 mod case_evidence;
+pub use case_evidence::CaseRequirementEvidenceContext;
 
 #[cfg(test)]
 #[path = "v3_foundation/case_evidence_tests.rs"]

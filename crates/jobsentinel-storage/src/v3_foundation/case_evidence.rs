@@ -16,6 +16,56 @@ struct CareerGraphRow {
     provenance_ref: Option<String>,
 }
 
+#[derive(FromRow)]
+struct RequirementContextRow {
+    job_revision: String,
+    job_description: String,
+    resume_revision: String,
+    resume_text: String,
+}
+
+/// One read-only snapshot of the inputs needed to reproduce a local requirement review.
+pub struct CaseRequirementEvidenceContext {
+    snapshot: ResumeEvidenceSnapshot,
+    job_revision: String,
+    job_description: String,
+    resume_text: String,
+    skills: Vec<String>,
+    links: Vec<CareerGraphLink>,
+}
+
+impl CaseRequirementEvidenceContext {
+    #[must_use]
+    pub fn snapshot(&self) -> &ResumeEvidenceSnapshot {
+        &self.snapshot
+    }
+
+    #[must_use]
+    pub fn job_revision(&self) -> &str {
+        &self.job_revision
+    }
+
+    #[must_use]
+    pub fn job_description(&self) -> &str {
+        &self.job_description
+    }
+
+    #[must_use]
+    pub fn resume_text(&self) -> &str {
+        &self.resume_text
+    }
+
+    #[must_use]
+    pub fn skills(&self) -> &[String] {
+        &self.skills
+    }
+
+    #[must_use]
+    pub fn links(&self) -> &[CareerGraphLink] {
+        &self.links
+    }
+}
+
 impl Database {
     pub async fn insert_case_file_evidence(
         &self,
@@ -160,6 +210,69 @@ impl Database {
                 .map(career_graph_link_from_row)
                 .collect::<Result<_>>()?,
         )))
+    }
+
+    pub async fn read_case_requirement_evidence_context(
+        &self,
+        case_file_id: &str,
+        resume_id: i64,
+    ) -> Result<Option<CaseRequirementEvidenceContext>> {
+        let mut transaction = self.pool().begin().await?;
+        let row = sqlx::query_as::<_, RequirementContextRow>(
+            "SELECT j.updated_at AS job_revision,
+                    j.description AS job_description,
+                    r.updated_at AS resume_revision,
+                    r.parsed_text AS resume_text
+             FROM opportunity_case_files AS c
+             JOIN jobs AS j ON j.hash = c.job_hash
+             JOIN resumes AS r ON r.id = ?
+             WHERE c.case_file_id = ?
+               AND j.description IS NOT NULL
+               AND r.parsed_text IS NOT NULL",
+        )
+        .bind(resume_id)
+        .bind(case_file_id)
+        .fetch_optional(&mut *transaction)
+        .await?;
+        let Some(row) = row else {
+            transaction.commit().await?;
+            return Ok(None);
+        };
+        let skills = sqlx::query_scalar::<_, String>(
+            "SELECT skill_name
+             FROM user_skills
+             WHERE resume_id = ?
+             ORDER BY confidence_score DESC, skill_name ASC",
+        )
+        .bind(resume_id)
+        .fetch_all(&mut *transaction)
+        .await?;
+        let links = sqlx::query_as::<_, CareerGraphRow>(
+            "SELECT link_id, subject_id, relation, object_id,
+                    provenance, provenance_ref
+             FROM career_graph_links
+             WHERE subject_id = ? AND relation = 'evidence'
+             ORDER BY created_at, link_id",
+        )
+        .bind(case_file_id)
+        .fetch_all(&mut *transaction)
+        .await?;
+        transaction.commit().await?;
+
+        Ok(Some(CaseRequirementEvidenceContext {
+            snapshot: ResumeEvidenceSnapshot {
+                source_id: format!("resume:{resume_id}"),
+                revision: parse_sqlite_datetime(&row.resume_revision)?.to_rfc3339(),
+            },
+            job_revision: parse_sqlite_datetime(&row.job_revision)?.to_rfc3339(),
+            job_description: row.job_description,
+            resume_text: row.resume_text,
+            skills,
+            links: links
+                .into_iter()
+                .map(career_graph_link_from_row)
+                .collect::<Result<_>>()?,
+        }))
     }
 }
 
