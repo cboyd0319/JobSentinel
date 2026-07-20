@@ -8,6 +8,10 @@ use crate::desktop::{
 };
 #[cfg(feature = "embedded-ml")]
 use crate::ipc::errors::user_friendly_error;
+#[cfg(feature = "embedded-ml")]
+use tauri_plugin_dialog::{DialogExt, MessageDialogButtons, MessageDialogKind};
+#[cfg(feature = "embedded-ml")]
+use tokio::sync::oneshot;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -49,6 +53,8 @@ pub(crate) struct SemanticMatchingModelDiagnostic {
     pub required_files_present: usize,
     pub locked_size_bytes: Option<u64>,
     pub downloaded: bool,
+    #[cfg(feature = "embedded-ml")]
+    pub health: ModelCacheHealth,
     pub required_for_qwen3_runtime: bool,
 }
 
@@ -64,6 +70,41 @@ pub(crate) struct SemanticMatchingSignal {
 pub(crate) async fn get_semantic_matching_diagnostics(
 ) -> Result<SemanticMatchingDiagnostics, String> {
     semantic_matching_diagnostics()
+}
+
+#[cfg(not(feature = "embedded-ml"))]
+#[tauri::command]
+pub(crate) async fn repair_semantic_matching_model_cache(
+    _app: tauri::AppHandle,
+    _model_id: String,
+) -> Result<bool, String> {
+    Err("Local model repair is unavailable in this build.".to_string())
+}
+
+#[cfg(feature = "embedded-ml")]
+#[tauri::command]
+pub(crate) async fn repair_semantic_matching_model_cache(
+    app: tauri::AppHandle,
+    model_id: String,
+) -> Result<bool, String> {
+    let manifest = load_model_manifest()
+        .map_err(|_| "Local model repair could not be prepared.".to_string())?;
+    let model = [manifest.default_embedding(), manifest.default_reranker()]
+        .into_iter()
+        .flatten()
+        .find(|model| model.id == model_id)
+        .ok_or_else(|| "Local model repair is not available.".to_string())?;
+    let manager = ModelManager::new(desktop::get_data_dir());
+    if manager.cache_health_for(model) != ModelCacheHealth::IntegrityMismatch {
+        return Err("Local model repair is not available.".to_string());
+    }
+    if !confirm_model_cache_removal(&app, model_role(&manifest, model)).await? {
+        return Ok(false);
+    }
+    manager
+        .repair_invalid_default_cache(&model_id)
+        .map_err(|_| "Local model repair could not be completed.".to_string())?;
+    Ok(true)
 }
 
 #[cfg(not(feature = "embedded-ml"))]
@@ -212,9 +253,32 @@ fn model_diagnostic(
         required_files_present: manager.required_files_present(model),
         locked_size_bytes: locked_size_bytes(model),
         downloaded: health == ModelCacheHealth::Ready,
+        health,
         required_for_qwen3_runtime: model.id == manifest.defaults.embedding
             || model.id == manifest.defaults.reranker,
     }
+}
+
+#[cfg(feature = "embedded-ml")]
+async fn confirm_model_cache_removal(app: &tauri::AppHandle, role: &str) -> Result<bool, String> {
+    let (decision, received) = oneshot::channel();
+    app.dialog()
+        .message(format!(
+            "Remove the integrity-invalid files for {role}? No resume or job data is involved. \
+             JobSentinel will not download replacement files automatically."
+        ))
+        .title("Review Local Model Repair")
+        .kind(MessageDialogKind::Warning)
+        .buttons(MessageDialogButtons::OkCancelCustom(
+            "Remove Damaged Files".to_string(),
+            "Keep Files".to_string(),
+        ))
+        .show(move |approved| {
+            let _ = decision.send(approved);
+        });
+    received
+        .await
+        .map_err(|_| "Local model repair confirmation could not be completed.".to_string())
 }
 
 #[cfg(feature = "embedded-ml")]

@@ -3,6 +3,7 @@ import { invoke } from "@tauri-apps/api/core";
 import {
   getSemanticMatchingDiagnostics,
   normalizeSemanticMatchingDiagnostics,
+  repairSemanticMatchingModelCache,
 } from "./semanticMatchingDiagnostics";
 
 vi.mock("@tauri-apps/api/core", () => ({
@@ -32,6 +33,7 @@ function diagnosticPayload() {
         required_files_present: 2,
         locked_size_bytes: 123456,
         downloaded: false,
+        health: "incomplete",
         required_for_qwen3_runtime: true,
       },
     ],
@@ -71,5 +73,34 @@ describe("semantic matching diagnostics service", () => {
         runtime_status: "surprise",
       }),
     ).toThrow("unknown status");
+  });
+
+  it("rejects an unknown model cache health state", () => {
+    const payload = diagnosticPayload();
+    payload.models[0].health = "surprise";
+
+    expect(() => normalizeSemanticMatchingDiagnostics(payload)).toThrow(
+      "unknown model cache health",
+    );
+  });
+
+  it("requests native-reviewed repair for one model id", async () => {
+    mockInvoke.mockResolvedValueOnce(true);
+
+    await expect(
+      repairSemanticMatchingModelCache("qwen3-embedding-0.6b"),
+    ).resolves.toBe(true);
+    expect(mockInvoke).toHaveBeenCalledWith(
+      "repair_semantic_matching_model_cache",
+      { modelId: "qwen3-embedding-0.6b" },
+    );
+  });
+
+  it("rejects an unreadable repair response", async () => {
+    mockInvoke.mockResolvedValueOnce("yes");
+
+    await expect(
+      repairSemanticMatchingModelCache("qwen3-embedding-0.6b"),
+    ).rejects.toThrow("unreadable repair response");
   });
 });

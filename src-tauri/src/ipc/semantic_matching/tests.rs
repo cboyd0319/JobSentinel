@@ -26,6 +26,10 @@ fn diagnostics_report_qwen3_model_lock_entries() {
         .iter()
         .any(|model| model.id == "qwen3-embedding-0.6b"
             && model.role == "Default embedding"
+            && matches!(
+                model.health,
+                ModelCacheHealth::Missing | ModelCacheHealth::Ready
+            )
             && model.required_for_qwen3_runtime));
     assert!(diagnostics
         .models
@@ -123,6 +127,15 @@ fn partial_cache_diagnostics_expose_no_path_or_file_contents() {
     assert_eq!(
         diagnostics.runtime_status,
         SemanticMatchingRuntimeStatus::Misconfigured
+    );
+    assert_eq!(
+        diagnostics
+            .models
+            .iter()
+            .find(|diagnostic| diagnostic.id == model.id)
+            .unwrap()
+            .health,
+        ModelCacheHealth::IntegrityMismatch
     );
     assert!(!serialized.contains(&app_data_dir.path().display().to_string()));
     assert!(!serialized.contains("private partial model contents"));

@@ -2,13 +2,18 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { SemanticMatchingDiagnosticsPanel } from "./SemanticMatchingDiagnosticsPanel";
-import { getSemanticMatchingDiagnostics } from "./semanticMatchingDiagnostics";
+import {
+  getSemanticMatchingDiagnostics,
+  repairSemanticMatchingModelCache,
+} from "./semanticMatchingDiagnostics";
 
 vi.mock("./semanticMatchingDiagnostics", () => ({
   getSemanticMatchingDiagnostics: vi.fn(),
+  repairSemanticMatchingModelCache: vi.fn(),
 }));
 
 const mockGetDiagnostics = vi.mocked(getSemanticMatchingDiagnostics);
+const mockRepairModel = vi.mocked(repairSemanticMatchingModelCache);
 
 function disabledDiagnostics() {
   return {
@@ -53,6 +58,7 @@ function readyDiagnostics() {
         required_files_present: 3,
         locked_size_bytes: 641000000,
         downloaded: true,
+        health: "ready" as const,
         required_for_qwen3_runtime: true,
       },
       {
@@ -68,6 +74,7 @@ function readyDiagnostics() {
         required_files_present: 4,
         locked_size_bytes: 690000000,
         downloaded: true,
+        health: "ready" as const,
         required_for_qwen3_runtime: true,
       },
     ],
@@ -125,6 +132,28 @@ describe("SemanticMatchingDiagnosticsPanel", () => {
 
     await user.click(screen.getByRole("button", { name: /Refresh/ }));
 
+    await waitFor(() => {
+      expect(mockGetDiagnostics).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  it("offers native-reviewed repair only for an integrity-invalid default model", async () => {
+    const user = userEvent.setup();
+    const damaged = readyDiagnostics();
+    damaged.runtime_status = "misconfigured";
+    damaged.models[0].downloaded = false;
+    damaged.models[0].health = "integrity_mismatch";
+    mockGetDiagnostics.mockResolvedValue(damaged);
+    mockRepairModel.mockResolvedValueOnce(true);
+
+    render(<SemanticMatchingDiagnosticsPanel />);
+
+    expect(await screen.findByText("Integrity check failed")).toBeInTheDocument();
+    await user.click(
+      screen.getByRole("button", { name: "Review local model repair" }),
+    );
+
+    expect(mockRepairModel).toHaveBeenCalledWith("qwen3-embedding-0.6b");
     await waitFor(() => {
       expect(mockGetDiagnostics).toHaveBeenCalledTimes(2);
     });

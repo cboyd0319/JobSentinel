@@ -81,6 +81,7 @@ const commandGroups: readonly MockCommandGroup[] = [
       "set_bookmarklet_port",
       "send_external_ai_request",
       "get_semantic_matching_diagnostics",
+      "repair_semantic_matching_model_cache",
     ],
     adapter: applyMockSettingsCommand,
   },

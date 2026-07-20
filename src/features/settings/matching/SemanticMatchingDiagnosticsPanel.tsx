@@ -2,7 +2,9 @@ import { useCallback, useEffect, useState } from "react";
 import { SettingsSymbol } from "../shared/SettingsIcons";
 import {
   getSemanticMatchingDiagnostics,
+  repairSemanticMatchingModelCache,
   type SemanticMatchingDiagnostics,
+  type ModelCacheHealth,
   type SemanticMatchingModelDiagnostic,
   type SemanticMatchingRuntimeStatus,
 } from "./semanticMatchingDiagnostics";
@@ -29,10 +31,18 @@ const STATUS_COPY: Record<
   },
 };
 
+const HEALTH_LABELS: Record<ModelCacheHealth, string> = {
+  missing: "Not downloaded",
+  incomplete: "Incomplete",
+  integrity_mismatch: "Integrity check failed",
+  ready: "Ready",
+};
+
 export function SemanticMatchingDiagnosticsPanel() {
   const [diagnostics, setDiagnostics] =
     useState<SemanticMatchingDiagnostics | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [repairingModelId, setRepairingModelId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
@@ -54,6 +64,27 @@ export function SemanticMatchingDiagnosticsPanel() {
   useEffect(() => {
     void refresh();
   }, [refresh]);
+
+  const repair = useCallback(
+    async (modelId: string) => {
+      setRepairingModelId(modelId);
+      setError(null);
+      try {
+        if (await repairSemanticMatchingModelCache(modelId)) {
+          await refresh();
+        }
+      } catch (repairError) {
+        setError(
+          repairError instanceof Error
+            ? repairError.message
+            : "Local model repair could not be completed.",
+        );
+      } finally {
+        setRepairingModelId(null);
+      }
+    },
+    [refresh],
+  );
 
   return (
     <section className="mb-6">
@@ -85,7 +116,13 @@ export function SemanticMatchingDiagnosticsPanel() {
           </p>
         ) : null}
 
-        {diagnostics ? <DiagnosticsSummary diagnostics={diagnostics} /> : null}
+        {diagnostics ? (
+          <DiagnosticsSummary
+            diagnostics={diagnostics}
+            repairingModelId={repairingModelId}
+            onRepair={repair}
+          />
+        ) : null}
       </div>
     </section>
   );
@@ -93,8 +130,12 @@ export function SemanticMatchingDiagnosticsPanel() {
 
 function DiagnosticsSummary({
   diagnostics,
+  repairingModelId,
+  onRepair,
 }: {
   diagnostics: SemanticMatchingDiagnostics;
+  repairingModelId: string | null;
+  onRepair: (modelId: string) => Promise<void>;
 }) {
   const status = STATUS_COPY[diagnostics.runtime_status];
   const highlightedModels = diagnostics.models.filter(
@@ -141,13 +182,25 @@ function DiagnosticsSummary({
         </p>
       ) : null}
 
-      <ModelList models={highlightedModels} />
+      <ModelList
+        models={highlightedModels}
+        repairingModelId={repairingModelId}
+        onRepair={onRepair}
+      />
       <SignalList diagnostics={diagnostics} />
     </div>
   );
 }
 
-function ModelList({ models }: { models: SemanticMatchingModelDiagnostic[] }) {
+function ModelList({
+  models,
+  repairingModelId,
+  onRepair,
+}: {
+  models: SemanticMatchingModelDiagnostic[];
+  repairingModelId: string | null;
+  onRepair: (modelId: string) => Promise<void>;
+}) {
   if (models.length === 0) {
     return (
       <p className="text-sm text-surface-600 dark:text-surface-400">
@@ -185,12 +238,25 @@ function ModelList({ models }: { models: SemanticMatchingModelDiagnostic[] }) {
             </div>
             <div className="text-left sm:text-right">
               <div className="text-sm font-semibold text-surface-900 dark:text-white">
-                {model.downloaded ? "Ready" : "Not downloaded"}
+                {HEALTH_LABELS[model.health]}
               </div>
               <div className="text-xs text-surface-500 dark:text-surface-400">
                 {model.required_files_present}/{model.required_files} files
                 present
               </div>
+              {model.health === "integrity_mismatch" &&
+              model.required_for_qwen3_runtime ? (
+                <button
+                  type="button"
+                  onClick={() => void onRepair(model.id)}
+                  disabled={repairingModelId !== null}
+                  className="mt-2 rounded-md border border-danger/40 px-2 py-1 text-xs font-medium text-danger disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {repairingModelId === model.id
+                    ? "Reviewing repair..."
+                    : "Review local model repair"}
+                </button>
+              ) : null}
             </div>
           </div>
         ))}

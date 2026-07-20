@@ -90,6 +90,7 @@ macro_rules! jobsentinel_command_handlers {
             jobsentinel::ipc::scoring::reset_scoring_config_cmd,
             jobsentinel::ipc::scoring::validate_scoring_config,
             jobsentinel::ipc::semantic_matching::get_semantic_matching_diagnostics,
+            jobsentinel::ipc::semantic_matching::repair_semantic_matching_model_cache,
             jobsentinel::ipc::market::get_trending_skills,
             jobsentinel::ipc::market::get_active_companies,
             jobsentinel::ipc::market::get_hottest_locations,

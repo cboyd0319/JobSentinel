@@ -6,6 +6,12 @@ export type SemanticMatchingRuntimeStatus =
   | "disabled_in_this_build"
   | "misconfigured";
 
+export type ModelCacheHealth =
+  | "missing"
+  | "incomplete"
+  | "integrity_mismatch"
+  | "ready";
+
 export interface SemanticMatchingModelDiagnostic {
   id: string;
   role: string;
@@ -19,6 +25,7 @@ export interface SemanticMatchingModelDiagnostic {
   required_files_present: number;
   locked_size_bytes: number | null;
   downloaded: boolean;
+  health: ModelCacheHealth;
   required_for_qwen3_runtime: boolean;
 }
 
@@ -47,10 +54,29 @@ const STATUSES = new Set<SemanticMatchingRuntimeStatus>([
   "disabled_in_this_build",
   "misconfigured",
 ]);
+const CACHE_HEALTH = new Set<ModelCacheHealth>([
+  "missing",
+  "incomplete",
+  "integrity_mismatch",
+  "ready",
+]);
 
 export async function getSemanticMatchingDiagnostics(): Promise<SemanticMatchingDiagnostics> {
   const payload = await invoke<unknown>("get_semantic_matching_diagnostics");
   return normalizeSemanticMatchingDiagnostics(payload);
+}
+
+export async function repairSemanticMatchingModelCache(
+  modelId: string,
+): Promise<boolean> {
+  const repaired = await invoke<unknown>(
+    "repair_semantic_matching_model_cache",
+    { modelId },
+  );
+  if (typeof repaired !== "boolean") {
+    throw new Error("Local model repair returned an unreadable repair response.");
+  }
+  return repaired;
 }
 
 export function normalizeSemanticMatchingDiagnostics(
@@ -80,6 +106,12 @@ export function normalizeSemanticMatchingDiagnostics(
 
 function normalizeModelDiagnostic(value: unknown): SemanticMatchingModelDiagnostic {
   const record = asRecord(value);
+  const health = stringField(record, "health");
+  if (!CACHE_HEALTH.has(health as ModelCacheHealth)) {
+    throw new Error(
+      "Local matching diagnostics returned an unknown model cache health.",
+    );
+  }
 
   return {
     id: stringField(record, "id"),
@@ -94,6 +126,7 @@ function normalizeModelDiagnostic(value: unknown): SemanticMatchingModelDiagnost
     required_files_present: numberField(record, "required_files_present"),
     locked_size_bytes: nullableNumberField(record, "locked_size_bytes"),
     downloaded: booleanField(record, "downloaded"),
+    health: health as ModelCacheHealth,
     required_for_qwen3_runtime: booleanField(record, "required_for_qwen3_runtime"),
   };
 }

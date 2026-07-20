@@ -4,8 +4,7 @@ use super::{
     status::{ModelCacheHealth, ModelStatus},
     ModelManager,
 };
-use crate::manifest::model_lock_hash;
-use crate::manifest::{ModelFileSpec, ModelSpec};
+use crate::manifest::{load_model_manifest, model_lock_hash, ModelFileSpec, ModelSpec};
 use crate::MlError;
 use anyhow::Result;
 use std::io::ErrorKind;
@@ -16,6 +15,8 @@ enum RequiredFilePresence {
     Invalid,
     Present,
 }
+
+const MODEL_CACHE_NOT_REPAIRABLE: &str = "local model cache cannot be repaired";
 
 impl ModelManager {
     /// Check if the legacy runtime embedding model is already downloaded.
@@ -111,6 +112,36 @@ impl ModelManager {
 
     pub fn is_default_semantic_runtime_downloaded(&self) -> bool {
         self.is_default_embedding_downloaded() && self.is_default_reranker_downloaded()
+    }
+
+    /// Remove one integrity-invalid default cache selected by its lock-owned ID.
+    pub fn repair_invalid_default_cache(&self, model_id: &str) -> Result<()> {
+        let manifest = load_model_manifest()?;
+        let spec = [manifest.default_embedding(), manifest.default_reranker()]
+            .into_iter()
+            .flatten()
+            .find(|spec| spec.id == model_id)
+            .ok_or_else(|| anyhow::anyhow!(MODEL_CACHE_NOT_REPAIRABLE))?;
+        self.remove_integrity_invalid_cache(spec)
+    }
+
+    fn remove_integrity_invalid_cache(&self, spec: &ModelSpec) -> Result<()> {
+        if self.cache_health_for(spec) != ModelCacheHealth::IntegrityMismatch {
+            anyhow::bail!(MODEL_CACHE_NOT_REPAIRABLE);
+        }
+
+        let model_root = self.cache_dir.join(&spec.id);
+        let revision_root = model_root.join(&spec.revision);
+        let cache_root = revision_root.join(model_lock_hash());
+        for directory in [&self.cache_dir, &model_root, &revision_root, &cache_root] {
+            let metadata = std::fs::symlink_metadata(directory)
+                .map_err(|_| anyhow::anyhow!(MODEL_CACHE_NOT_REPAIRABLE))?;
+            if !metadata.file_type().is_dir() {
+                anyhow::bail!(MODEL_CACHE_NOT_REPAIRABLE);
+            }
+        }
+
+        std::fs::remove_dir_all(cache_root).map_err(|_| anyhow::anyhow!(MODEL_CACHE_NOT_REPAIRABLE))
     }
 
     /// Get model status for the default semantic runtime.

@@ -254,6 +254,7 @@ export function handleMockSettingsCommand(
             required_files_present: 0,
             locked_size_bytes: 641000000,
             downloaded: false,
+            health: "missing",
             required_for_qwen3_runtime: true,
           },
           {
@@ -269,6 +270,7 @@ export function handleMockSettingsCommand(
             required_files_present: 0,
             locked_size_bytes: 690000000,
             downloaded: false,
+            health: "missing",
             required_for_qwen3_runtime: true,
           },
         ],

@@ -48,6 +48,11 @@ expose model lock metadata and safe required-file counts, never cache paths or
 file contents. When Qwen3 needs attention but verified MiniLM is ready, the
 diagnostic names MiniLM as the active local matcher instead of claiming the
 exact-only fallback is active.
+An integrity-invalid default Qwen3 cache offers a native-reviewed removal
+action. The backend accepts only an exact embedding or reranker ID from the
+checked-in lock, rechecks the cache after confirmation, rejects missing,
+incomplete, ready, legacy, unknown, and path-like requests, and never downloads
+replacement files automatically. Cache paths and file contents remain private.
 Direct matcher calls now use Qwen3 dense retrieval plus bounded Qwen3
 reranking when the governed model pair is present, fall back to verified MiniLM
 when it is present, and use exact-only deterministic matching when no verified
