@@ -256,11 +256,18 @@ mod tests {
             })
             .collect::<Vec<_>>();
 
-        assert_eq!(hard_negatives.len(), 6);
+        assert_eq!(hard_negatives.len(), 10);
         for query in [
+            "Experience making product help clear for customers",
+            "Experience with patient intake and electronic health records",
+            "Experience building cloud audit detections for privilege escalation",
             "Current unrestricted registered nurse (RN) license required",
             "Experience managing at least ten software engineers",
             "Experience owning a GAAP month-end close",
+            "Current state journeyman electrician license required",
+            "Valid Class A commercial driver's license (CDL-A) required",
+            "Current state teaching credential for secondary mathematics required",
+            "Experience owning full profit-and-loss responsibility for a retail store",
         ] {
             assert!(
                 hard_negatives.iter().any(|example| example.query == query),
