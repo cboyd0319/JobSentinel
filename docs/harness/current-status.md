@@ -50,8 +50,8 @@ Last updated: 2026-07-19
 
 - Active feature: `v3-milestone-5-local-evidence-resume-matching`
 - Status: `active`
-- Current slice: Military role suggestions require fresh evidence, exact user review, and manual-only source context.
-- Next action: Reject prompt-like job and resume text before local semantic matching.
+- Current slice: Unsafe local matching input stops before model dispatch without content exposure.
+- Next action: Build an evidence-bound requirement diagnostic with bounded "why not" reasons.
 
 ## Deferred
 
