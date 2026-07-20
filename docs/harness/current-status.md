@@ -50,8 +50,8 @@ Last updated: 2026-07-19
 
 - Active feature: `v3-milestone-5-local-evidence-resume-matching`
 - Status: `active`
-- Current slice: Typed local match results preserve runtime, dense-score, and reranker provenance.
-- Next action: Run frozen requirement hard negatives through the pinned Qwen3 production path.
+- Current slice: Pinned Qwen3 calibration separates retrieval, acceptance, and safe abstention.
+- Next action: Add typed explanations for unmatched requirements at retrieval and acceptance gates.
 
 ## Deferred
 
