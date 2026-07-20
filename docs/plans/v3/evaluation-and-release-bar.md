@@ -281,6 +281,30 @@ Required platform checks:
 
 If a platform lacks a feature, the UI must say so plainly and offer a fallback.
 
+### Essentials Numeric Thresholds
+
+These Gate 4 release thresholds are derived from measured evidence on the
+macOS 27 arm64 host and the enforced 8 GiB zero-swap Linux guest recorded in
+`docs/harness/evidence/`. They bind release claims only for measured
+platforms; Windows 11 and macOS 26 must be measured before claiming them.
+
+| Threshold | Limit | Measured basis |
+| --- | --- | --- |
+| Model-free macOS DMG size | <= 25,000,000 bytes | 14,224,509 bytes |
+| Model-free installed macOS app size | <= 50,000,000 bytes | 29,704,192 bytes |
+| Model-free Debian package size | <= 30,000,000 bytes | 16,181,176 bytes |
+| Model-free AppImage size | <= 120,000,000 bytes | 89,344,504 bytes |
+| Model-free installed Linux binary size | <= 60,000,000 bytes | 39,689,664 bytes |
+| Installed first visible window, polling upper bound | <= 2,000 ms | 825 ms, 582 ms, 277 ms |
+| Complete Essentials first-run journey peak memory on an enforced 8 GiB zero-swap profile | <= 1,073,741,824 bytes with zero memory-limit and OOM events | 687,190,016 bytes |
+| Persistence relaunch peak memory on the same profile | <= 1,073,741,824 bytes | 717,479,936 bytes |
+| Aggregate app-coalition observed maximum RSS on an unconstrained macOS host | <= 536,870,912 bytes | 246,251,520 bytes |
+| Model-payload filenames inside model-free packages | exactly 0 matches | 0 matches |
+
+The stronger-local download payload is not a threshold: the lock owns the
+exact 2,406,043,460-byte required total for the governed Qwen3 pair, and
+changing it requires a model-lock change with fresh calibration evidence.
+
 ## Triage Framework
 
 Classify each v3 idea before implementation:
