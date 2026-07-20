@@ -23,6 +23,7 @@ mod hybrid;
 mod manifest;
 mod matcher;
 mod model;
+mod provenance;
 mod qwen3;
 mod runtime;
 
@@ -48,11 +49,13 @@ pub use manifest::{
     ModelFileSpec, ModelKind, ModelManifest, ModelSpec, ScoreThresholds,
 };
 pub use matcher::{
-    SemanticMatchResult, SemanticMatcher, SemanticRuntimeProfile, SemanticUnmatchedReason,
-    SkillMatch, UnmatchedRequirementDiagnostic,
+    validate_local_matching_inputs, validate_resume_embeddings, SemanticMatchResult,
+    SemanticMatcher, SemanticRuntimeProfile, SemanticUnmatchedReason, SkillMatch,
+    UnmatchedRequirementDiagnostic,
 };
 pub use model::status::{ModelCacheHealth, ModelStatus};
 pub use model::ModelManager;
+pub use provenance::default_resume_embedding_provenance;
 pub use qwen3::{Qwen3EmbeddingBackend, Qwen3RerankerBackend};
 pub use runtime::{
     EmbeddingBackend, EmbeddingInput, EmbeddingInputKind, RerankCandidate, RerankQuery,

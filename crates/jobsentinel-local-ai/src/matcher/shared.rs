@@ -77,6 +77,32 @@ pub(super) fn require_embedding_count(expected: usize, actual: usize) -> Result<
     Ok(())
 }
 
+pub(super) fn validate_resume_embeddings(
+    expected_count: usize,
+    expected_dimension: usize,
+    embeddings: &[Vec<f32>],
+) -> Result<()> {
+    require_embedding_count(expected_count, embeddings.len())?;
+    if expected_dimension == 0
+        || embeddings.iter().any(|embedding| {
+            if embedding.len() != expected_dimension
+                || embedding.iter().any(|value| !value.is_finite())
+            {
+                return true;
+            }
+            let norm = embedding
+                .iter()
+                .map(|value| f64::from(*value).powi(2))
+                .sum::<f64>()
+                .sqrt();
+            !norm.is_finite() || (norm - 1.0).abs() > 0.001
+        })
+    {
+        anyhow::bail!("invalid local embedding output");
+    }
+    Ok(())
+}
+
 pub(super) fn build_match_result(
     runtime_profile: SemanticRuntimeProfile,
     user_skills: &[String],

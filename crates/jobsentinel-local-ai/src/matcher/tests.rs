@@ -76,6 +76,16 @@ fn model_score_and_embedding_cardinality_validation_fail_closed() {
     assert!(shared::require_embedding_count(2, 1).is_err());
     assert!(shared::require_embedding_count(2, 3).is_err());
     assert!(shared::require_embedding_count(2, 2).is_ok());
+    assert!(shared::validate_resume_embeddings(2, 2, &[vec![1.0, 0.0], vec![0.0, 1.0]]).is_ok());
+    for invalid in [
+        vec![vec![1.0, 0.0]],
+        vec![vec![1.0], vec![0.0]],
+        vec![vec![f32::NAN, 0.0], vec![0.0, 1.0]],
+        vec![vec![0.5, 0.0], vec![0.0, 1.0]],
+        vec![vec![0.0, 0.0], vec![0.0, 1.0]],
+    ] {
+        assert!(shared::validate_resume_embeddings(2, 2, &invalid).is_err());
+    }
 }
 
 #[test]
@@ -242,6 +252,20 @@ fn public_matcher_methods_reject_before_runtime_dispatch() {
             .to_string(),
         LOCAL_MATCH_INPUT_REVIEW_REQUIRED
     );
+}
+
+#[test]
+fn model_free_runtime_rejects_precomputed_model_vectors() {
+    let app_data_dir = tempfile::tempdir().unwrap();
+    let matcher = SemanticMatcher::new(app_data_dir.path().to_path_buf()).unwrap();
+
+    assert!(matcher
+        .match_skills_with_resume_vectors(
+            &[String::from("Rust")],
+            &[String::from("Rust")],
+            &[vec![1.0]],
+        )
+        .is_err());
 }
 
 // Requires local model files and remains outside the default automated lane.

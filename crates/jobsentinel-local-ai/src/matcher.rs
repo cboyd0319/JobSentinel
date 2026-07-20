@@ -20,6 +20,26 @@ use qwen3::Qwen3SemanticRuntime;
 
 const LOCAL_MATCH_INPUT_REVIEW_REQUIRED: &str = "local matching input requires review";
 
+pub fn validate_resume_embeddings(
+    expected_count: usize,
+    expected_dimension: usize,
+    embeddings: &[Vec<f32>],
+) -> Result<()> {
+    shared::validate_resume_embeddings(expected_count, expected_dimension, embeddings)
+}
+
+pub fn validate_local_matching_inputs(
+    user_skills: &[String],
+    job_requirements: &[String],
+) -> Result<()> {
+    validate_local_matching_input(
+        user_skills
+            .iter()
+            .chain(job_requirements)
+            .map(String::as_str),
+    )
+}
+
 /// Local runtime that produced a match result.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -126,20 +146,53 @@ impl SemanticMatcher {
         user_skills: &[String],
         job_requirements: &[String],
     ) -> Result<SemanticMatchResult> {
-        validate_local_matching_input(
-            user_skills
-                .iter()
-                .chain(job_requirements)
-                .map(String::as_str),
-        )?;
+        self.match_skills_inner(user_skills, job_requirements, None)
+    }
+
+    pub fn match_skills_with_resume_vectors(
+        &self,
+        user_skills: &[String],
+        job_requirements: &[String],
+        resume_vectors: &[Vec<f32>],
+    ) -> Result<SemanticMatchResult> {
+        self.match_skills_inner(user_skills, job_requirements, Some(resume_vectors))
+    }
+
+    pub fn uses_persistent_resume_vectors(&self) -> bool {
+        matches!(self.runtime, SemanticMatcherRuntime::Qwen3(_))
+    }
+
+    pub fn embed_resume_chunks(&self, chunks: &[String]) -> Result<Vec<Vec<f32>>> {
+        validate_local_matching_input(chunks.iter().map(String::as_str))?;
         match &self.runtime {
-            SemanticMatcherRuntime::Qwen3(runtime) => {
-                runtime.match_skills(user_skills, job_requirements)
-            }
+            SemanticMatcherRuntime::Qwen3(runtime) => runtime.embed_resume_chunks(chunks),
+            _ => anyhow::bail!("persistent resume vectors require the governed Qwen3 runtime"),
+        }
+    }
+
+    fn match_skills_inner(
+        &self,
+        user_skills: &[String],
+        job_requirements: &[String],
+        resume_vectors: Option<&[Vec<f32>]>,
+    ) -> Result<SemanticMatchResult> {
+        validate_local_matching_inputs(user_skills, job_requirements)?;
+        match &self.runtime {
+            SemanticMatcherRuntime::Qwen3(runtime) => runtime.match_skills_with_resume_vectors(
+                user_skills,
+                job_requirements,
+                resume_vectors,
+            ),
             SemanticMatcherRuntime::Legacy(generator) => {
+                if resume_vectors.is_some() {
+                    anyhow::bail!("persistent resume vectors require the governed Qwen3 runtime");
+                }
                 legacy::match_skills(generator.as_ref(), user_skills, job_requirements)
             }
             SemanticMatcherRuntime::Deterministic => {
+                if resume_vectors.is_some() {
+                    anyhow::bail!("persistent resume vectors require the governed Qwen3 runtime");
+                }
                 deterministic::match_skills(user_skills, job_requirements)
             }
             #[cfg(test)]

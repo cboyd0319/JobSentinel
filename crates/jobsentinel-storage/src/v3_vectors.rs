@@ -1,4 +1,8 @@
-use jobsentinel_domain::v3_manifests::{ModelProvenance, VectorFreshness};
+use chrono::{DateTime, Utc};
+use jobsentinel_domain::{
+    v3_manifests::{ModelProvenance, VectorFreshness},
+    ResumeEvidenceSnapshot,
+};
 
 use crate::Database;
 
@@ -14,6 +18,13 @@ pub enum StoredVectorRead {
     RebuildNeeded,
 }
 
+pub fn resume_vector_subject(resume_id: i64) -> Result<String, sqlx::Error> {
+    if resume_id <= 0 {
+        return Err(protocol_error("Resume id is invalid"));
+    }
+    Ok(format!("resume:{resume_id}"))
+}
+
 impl Database {
     pub async fn store_v3_vector(
         &self,
@@ -22,27 +33,8 @@ impl Database {
         model: &ModelProvenance,
         values: &[f32],
     ) -> Result<(), sqlx::Error> {
-        validate_subject_id(subject_id)?;
-        validate_freshness(freshness, model)?;
-        let dimension = usize::try_from(freshness.dimension)
-            .map_err(|_| protocol_error("Vector dimension is invalid"))?;
-        if dimension == 0
-            || dimension > MAX_VECTOR_DIMENSION
-            || values.len() != dimension
-            || values.iter().any(|value| !value.is_finite())
-        {
-            return Err(protocol_error("Vector values are invalid"));
-        }
-
-        let freshness_json = serde_json::to_string(freshness)
-            .map_err(|_| protocol_error("Vector freshness is invalid"))?;
-        if freshness_json.len() > MAX_FRESHNESS_BYTES {
-            return Err(protocol_error("Vector freshness is too large"));
-        }
-        let vector_blob = values
-            .iter()
-            .flat_map(|value| value.to_le_bytes())
-            .collect::<Vec<_>>();
+        let (freshness_json, dimension, vector_blob) =
+            prepare_vector(subject_id, freshness, model, values)?;
 
         sqlx::query(
             "INSERT INTO v3_local_vectors
@@ -57,8 +49,56 @@ impl Database {
         )
         .bind(subject_id)
         .bind(freshness_json)
-        .bind(i64::from(freshness.dimension))
+        .bind(dimension)
         .bind(vector_blob)
+        .execute(self.pool())
+        .await?;
+        Ok(())
+    }
+
+    pub async fn store_v3_resume_vector_if_current(
+        &self,
+        resume_id: i64,
+        snapshot: &ResumeEvidenceSnapshot,
+        freshness: &VectorFreshness,
+        model: &ModelProvenance,
+        values: &[f32],
+    ) -> Result<(), sqlx::Error> {
+        let subject_id = resume_vector_subject(resume_id)?;
+        if snapshot.source_id != subject_id {
+            return Err(protocol_error("Resume vector snapshot is invalid"));
+        }
+        let revision = DateTime::parse_from_rfc3339(&snapshot.revision)
+            .map_err(|_| protocol_error("Resume vector snapshot is invalid"))?
+            .with_timezone(&Utc)
+            .format("%Y-%m-%dT%H:%M:%S%.3fZ")
+            .to_string();
+        let (freshness_json, dimension, vector_blob) =
+            prepare_vector(&subject_id, freshness, model, values)?;
+
+        sqlx::query(
+            "INSERT INTO v3_local_vectors
+             (subject_id, freshness_json, dimension, vector_blob, revision, updated_at)
+             SELECT ?, ?, ?, ?, 1, strftime('%Y-%m-%dT%H:%M:%fZ', 'now')
+             WHERE EXISTS (
+                 SELECT 1
+                 FROM resumes
+                 WHERE id = ?
+                   AND strftime('%Y-%m-%dT%H:%M:%fZ', updated_at) = ?
+             )
+             ON CONFLICT(subject_id) DO UPDATE SET
+                 freshness_json = excluded.freshness_json,
+                 dimension = excluded.dimension,
+                 vector_blob = excluded.vector_blob,
+                 revision = v3_local_vectors.revision + 1,
+                 updated_at = excluded.updated_at",
+        )
+        .bind(subject_id)
+        .bind(freshness_json)
+        .bind(dimension)
+        .bind(vector_blob)
+        .bind(resume_id)
+        .bind(revision)
         .execute(self.pool())
         .await?;
         Ok(())
@@ -100,6 +140,35 @@ impl Database {
         delete_if_unchanged(self, subject_id, &row).await?;
         Ok(StoredVectorRead::RebuildNeeded)
     }
+}
+
+fn prepare_vector(
+    subject_id: &str,
+    freshness: &VectorFreshness,
+    model: &ModelProvenance,
+    values: &[f32],
+) -> Result<(String, i64, Vec<u8>), sqlx::Error> {
+    validate_subject_id(subject_id)?;
+    validate_freshness(freshness, model)?;
+    let dimension = usize::try_from(freshness.dimension)
+        .map_err(|_| protocol_error("Vector dimension is invalid"))?;
+    if dimension == 0
+        || dimension > MAX_VECTOR_DIMENSION
+        || values.len() != dimension
+        || values.iter().any(|value| !value.is_finite())
+    {
+        return Err(protocol_error("Vector values are invalid"));
+    }
+    let freshness_json = serde_json::to_string(freshness)
+        .map_err(|_| protocol_error("Vector freshness is invalid"))?;
+    if freshness_json.len() > MAX_FRESHNESS_BYTES {
+        return Err(protocol_error("Vector freshness is too large"));
+    }
+    let vector_blob = values
+        .iter()
+        .flat_map(|value| value.to_le_bytes())
+        .collect();
+    Ok((freshness_json, i64::from(freshness.dimension), vector_blob))
 }
 
 fn validate_subject_id(subject_id: &str) -> Result<(), sqlx::Error> {

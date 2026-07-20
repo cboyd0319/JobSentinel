@@ -526,6 +526,14 @@ every value remain valid; otherwise it removes the row and requests a rebuild.
 Encrypted portable backups include the local table. Row deletion is lifecycle
 cleanup, not a secure-erasure claim.
 
+The embedded semantic command caches only the first skill in the existing
+deterministic skill order. It rebuilds that local vector when content or model
+provenance changes and removes it when the skill set changes, the resume is
+deleted, or the governed Qwen3 runtime is unavailable. Remaining skill
+vectors are generated in memory for that request. MiniLM and model-free
+installs keep their existing local matching behavior and never consume the
+Qwen3 cache. This command boundary is not yet the visible Resume Match page.
+
 The skill list is self-contained and deterministic. Same input should produce
 the same local result. Optional OCR is available for scanned PDFs when the app
 is built with OCR support and local OCR tools are installed.

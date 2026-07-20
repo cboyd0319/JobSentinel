@@ -329,3 +329,139 @@ async fn stale_cleanup_preserves_an_aba_replacement() {
         StoredVectorRead::Ready(vec![1.0, 0.5, -0.25])
     );
 }
+
+async fn seed_resume_vector(database: &crate::Database, resume_id: i64) {
+    sqlx::query(
+        "INSERT INTO v3_local_vectors
+         (subject_id, freshness_json, dimension, vector_blob, revision, updated_at)
+         VALUES (?, '{}', 1, X'00000000', 1, '2026-07-20T00:00:00Z')",
+    )
+    .bind(format!("resume:{resume_id}"))
+    .execute(database.pool())
+    .await
+    .unwrap();
+}
+
+async fn resume_vector_count(database: &crate::Database, resume_id: i64) -> i64 {
+    sqlx::query_scalar("SELECT COUNT(*) FROM v3_local_vectors WHERE subject_id = ?")
+        .bind(format!("resume:{resume_id}"))
+        .fetch_one(database.pool())
+        .await
+        .unwrap()
+}
+
+#[tokio::test]
+async fn resume_skill_mutations_invalidate_the_cached_vector() {
+    let database = migrated_database().await;
+    let matcher = database.resume_matcher();
+    let resume_id =
+        sqlx::query("INSERT INTO resumes (name, file_path) VALUES ('Resume', 'resume.txt')")
+            .execute(database.pool())
+            .await
+            .unwrap()
+            .last_insert_rowid();
+
+    seed_resume_vector(&database, resume_id).await;
+    matcher
+        .add_user_skill(
+            resume_id,
+            crate::resume::NewSkill {
+                skill_name: "Rust".to_string(),
+                ..crate::resume::NewSkill::default()
+            },
+        )
+        .await
+        .unwrap();
+
+    assert_eq!(resume_vector_count(&database, resume_id).await, 0);
+}
+
+#[tokio::test]
+async fn deleting_a_resume_removes_its_cached_vector() {
+    let database = migrated_database().await;
+    let matcher = database.resume_matcher();
+    let resume_id =
+        sqlx::query("INSERT INTO resumes (name, file_path) VALUES ('Resume', 'resume.txt')")
+            .execute(database.pool())
+            .await
+            .unwrap()
+            .last_insert_rowid();
+    seed_resume_vector(&database, resume_id).await;
+
+    matcher.delete_resume(resume_id).await.unwrap();
+
+    assert_eq!(resume_vector_count(&database, resume_id).await, 0);
+}
+
+#[tokio::test]
+async fn late_vector_write_cannot_recreate_a_deleted_resume_owner() {
+    let database = migrated_database().await;
+    let matcher = database.resume_matcher();
+    let resume_id =
+        sqlx::query("INSERT INTO resumes (name, file_path) VALUES ('Resume', 'resume.txt')")
+            .execute(database.pool())
+            .await
+            .unwrap()
+            .last_insert_rowid();
+    let snapshot = matcher
+        .get_resume_evidence_snapshot(resume_id)
+        .await
+        .unwrap()
+        .unwrap();
+    matcher.delete_resume(resume_id).await.unwrap();
+    let model = model();
+
+    database
+        .store_v3_resume_vector_if_current(
+            resume_id,
+            &snapshot,
+            &freshness(&model),
+            &model,
+            &[0.25, -0.5, 1.0],
+        )
+        .await
+        .unwrap();
+
+    assert_eq!(resume_vector_count(&database, resume_id).await, 0);
+}
+
+#[tokio::test]
+async fn late_vector_write_cannot_cross_a_resume_revision_change() {
+    let database = migrated_database().await;
+    let matcher = database.resume_matcher();
+    let resume_id =
+        sqlx::query("INSERT INTO resumes (name, file_path) VALUES ('Resume', 'resume.txt')")
+            .execute(database.pool())
+            .await
+            .unwrap()
+            .last_insert_rowid();
+    let snapshot = matcher
+        .get_resume_evidence_snapshot(resume_id)
+        .await
+        .unwrap()
+        .unwrap();
+    matcher
+        .add_user_skill(
+            resume_id,
+            crate::resume::NewSkill {
+                skill_name: "Rust".to_string(),
+                ..crate::resume::NewSkill::default()
+            },
+        )
+        .await
+        .unwrap();
+    let model = model();
+
+    database
+        .store_v3_resume_vector_if_current(
+            resume_id,
+            &snapshot,
+            &freshness(&model),
+            &model,
+            &[0.25, -0.5, 1.0],
+        )
+        .await
+        .unwrap();
+
+    assert_eq!(resume_vector_count(&database, resume_id).await, 0);
+}

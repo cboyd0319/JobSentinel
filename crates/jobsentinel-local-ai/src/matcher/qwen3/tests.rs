@@ -236,8 +236,23 @@ fn pinned_qwen3_ranks_all_frozen_requirement_hard_negatives() {
         );
 
         let paired_result = runtime
-            .match_skills(&user_skills, std::slice::from_ref(&requirement))
+            .match_skills_with_resume_vectors(
+                &user_skills,
+                std::slice::from_ref(&requirement),
+                None,
+            )
             .expect("production matching should complete");
+        let cached_result = runtime
+            .match_skills_with_resume_vectors(
+                &user_skills,
+                std::slice::from_ref(&requirement),
+                Some(&user_embeddings),
+            )
+            .expect("persisted-vector matching should complete");
+        assert_eq!(
+            serde_json::to_value(&cached_result).unwrap(),
+            serde_json::to_value(&paired_result).unwrap()
+        );
         assert_eq!(
             paired_result.runtime_profile,
             SemanticRuntimeProfile::Qwen3Reranked
@@ -250,9 +265,10 @@ fn pinned_qwen3_ranks_all_frozen_requirement_hard_negatives() {
             .is_some_and(|score| score >= runtime.reranker_acceptance));
 
         let hard_negative_result = runtime
-            .match_skills(
+            .match_skills_with_resume_vectors(
                 std::slice::from_ref(&user_skills[1]),
                 std::slice::from_ref(&requirement),
+                None,
             )
             .expect("hard-negative-only production matching should complete");
         assert_eq!(

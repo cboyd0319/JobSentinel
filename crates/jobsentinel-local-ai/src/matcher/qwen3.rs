@@ -1,7 +1,7 @@
 use super::shared::{
     build_match_result, checked_cosine_similarity, dense_candidates, empty_match_result,
     qwen3_match_threshold, qwen3_reranker_acceptance_threshold, require_embedding_count,
-    QWEN3_REQUIREMENT_INSTRUCTION, QWEN3_RERANK_TOP_K,
+    validate_resume_embeddings, QWEN3_REQUIREMENT_INSTRUCTION, QWEN3_RERANK_TOP_K,
 };
 use super::{SemanticMatchResult, SemanticRuntimeProfile, SemanticUnmatchedReason, SkillMatch};
 use crate::runtime::{
@@ -119,10 +119,25 @@ impl Qwen3SemanticRuntime {
         }
     }
 
-    pub(super) fn match_skills(
+    pub(super) fn embed_resume_chunks(&self, chunks: &[String]) -> Result<Vec<Vec<f32>>> {
+        let inputs = chunks
+            .iter()
+            .map(|text| EmbeddingInput {
+                text: text.clone(),
+                instruction: None,
+                input_kind: EmbeddingInputKind::ResumeChunk,
+            })
+            .collect::<Vec<_>>();
+        let embeddings = self.embedding.embed_documents(&inputs)?;
+        validate_resume_embeddings(chunks.len(), self.embedding.dimension(), &embeddings)?;
+        Ok(embeddings)
+    }
+
+    pub(super) fn match_skills_with_resume_vectors(
         &self,
         user_skills: &[String],
         job_requirements: &[String],
+        resume_vectors: Option<&[Vec<f32>]>,
     ) -> Result<SemanticMatchResult> {
         if user_skills.is_empty() || job_requirements.is_empty() {
             return Ok(empty_match_result(
@@ -133,16 +148,18 @@ impl Qwen3SemanticRuntime {
             ));
         }
 
-        let user_inputs: Vec<EmbeddingInput> = user_skills
-            .iter()
-            .map(|skill| EmbeddingInput {
-                text: skill.clone(),
-                instruction: None,
-                input_kind: EmbeddingInputKind::ResumeChunk,
-            })
-            .collect();
-        let user_embeddings = self.embedding.embed_documents(&user_inputs)?;
-        require_embedding_count(user_skills.len(), user_embeddings.len())?;
+        let generated;
+        let user_embeddings = if let Some(resume_vectors) = resume_vectors {
+            validate_resume_embeddings(
+                user_skills.len(),
+                self.embedding.dimension(),
+                resume_vectors,
+            )?;
+            resume_vectors
+        } else {
+            generated = self.embed_resume_chunks(user_skills)?;
+            &generated
+        };
 
         let job_inputs: Vec<EmbeddingInput> = job_requirements
             .iter()
@@ -163,12 +180,8 @@ impl Qwen3SemanticRuntime {
         let mut unmatched_reasons = vec![None; job_requirements.len()];
 
         for (job_idx, job_emb) in job_embeddings.iter().enumerate() {
-            let dense_candidates = dense_candidates(
-                job_emb,
-                &user_embeddings,
-                self.threshold,
-                QWEN3_RERANK_TOP_K,
-            )?;
+            let dense_candidates =
+                dense_candidates(job_emb, user_embeddings, self.threshold, QWEN3_RERANK_TOP_K)?;
 
             let selected = self.reranked_best_match(
                 job_idx,

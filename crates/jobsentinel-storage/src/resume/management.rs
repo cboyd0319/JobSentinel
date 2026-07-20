@@ -1,5 +1,6 @@
 use super::*;
 use crate::sqlite_time::parse_sqlite_datetime;
+use crate::v3_vectors::resume_vector_subject;
 
 fn match_feedback(row: &sqlx::sqlite::SqliteRow) -> Result<Option<ResumeMatchFeedback>> {
     let label = row.try_get::<Option<String>, _>("feedback_label")?;
@@ -168,28 +169,33 @@ impl ResumeMatcher {
 
     /// Delete a resume and its associated skills
     pub async fn delete_resume(&self, resume_id: i64) -> Result<()> {
-        // Delete associated skills first
+        let mut transaction = self.db.begin().await?;
+
         sqlx::query("DELETE FROM user_skills WHERE resume_id = ?")
             .bind(resume_id)
-            .execute(&self.db)
+            .execute(&mut *transaction)
             .await?;
 
-        // Delete associated matches
         sqlx::query("DELETE FROM resume_job_matches WHERE resume_id = ?")
             .bind(resume_id)
-            .execute(&self.db)
+            .execute(&mut *transaction)
             .await?;
 
-        // Delete the resume
+        sqlx::query("DELETE FROM v3_local_vectors WHERE subject_id = ?")
+            .bind(resume_vector_subject(resume_id)?)
+            .execute(&mut *transaction)
+            .await?;
+
         let result = sqlx::query("DELETE FROM resumes WHERE id = ?")
             .bind(resume_id)
-            .execute(&self.db)
+            .execute(&mut *transaction)
             .await?;
 
         if result.rows_affected() == 0 {
             anyhow::bail!("Resume with id {} not found", resume_id);
         }
 
+        transaction.commit().await?;
         tracing::info!("Deleted resume {} and associated data", resume_id);
         Ok(())
     }

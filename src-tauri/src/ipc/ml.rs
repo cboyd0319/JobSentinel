@@ -84,29 +84,16 @@ pub(crate) async fn match_resume_semantic(
         "Command: match_resume_semantic"
     );
 
-    // Get app data directory
     let app_data_dir = desktop::get_data_dir();
 
-    let resume_matcher = state.database.resume_matcher();
-    let user_skills = resume_matcher
-        .get_user_skills(resume_id)
-        .await
-        .map_err(|e| user_friendly_error("Failed to fetch user skills", e))?
-        .into_iter()
-        .map(|skill| skill.skill_name)
-        .collect::<Vec<_>>();
-
-    let job_skills = resume_matcher
-        .get_job_skill_names(&job_hash)
-        .await
-        .map_err(|e| user_friendly_error("Failed to fetch job skills", e))?;
-
-    let matcher = SemanticMatcher::new(app_data_dir)
-        .map_err(|e| user_friendly_error("Failed to create matcher", e))?;
-
-    let result = matcher
-        .match_skills(&user_skills, &job_skills)
-        .map_err(|e| user_friendly_error("Failed to match skills", e))?;
+    let result = jobsentinel_application::resume::match_resume_semantic(
+        state.database.as_ref(),
+        app_data_dir,
+        resume_id,
+        &job_hash,
+    )
+    .await
+    .map_err(|e| user_friendly_error("Failed to match skills", e))?;
 
     serde_json::to_value(&result).map_err(|e| user_friendly_error("Failed to serialize result", e))
 }
