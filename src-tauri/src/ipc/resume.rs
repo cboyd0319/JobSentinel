@@ -392,9 +392,10 @@ pub(crate) fn export_resume_text(resume: StructuredResume) -> String {
 pub(crate) fn analyze_resume_for_job(
     resume: ResumeAnalysisInput,
     job_description: String,
-) -> AtsAnalysisResult {
+) -> Result<AtsAnalysisResult, String> {
     tracing::info!("Command: analyze_resume_for_job");
-    AtsAnalyzer::analyze_for_job(&resume, &job_description)
+    crate::application::resume::analyze_structured_resume_for_job(resume, &job_description)
+        .map_err(|error| user_friendly_error("Failed to analyze resume", error))
 }
 
 /// Analyze the active saved resume against a job description without returning raw resume text.
