@@ -50,8 +50,8 @@ Last updated: 2026-07-19
 
 - Active feature: `v3-milestone-5-local-evidence-resume-matching`
 - Status: `active`
-- Current slice: Resume evidence citations are local, opaque, and revision-bound.
-- Next action: Link reviewed citations to cases without storing private text.
+- Current slice: Reviewed resume citations link to cases as opaque, atomic local evidence.
+- Next action: Surface safe evidence locations without exposing identifiers or private text.
 
 ## Deferred
 
