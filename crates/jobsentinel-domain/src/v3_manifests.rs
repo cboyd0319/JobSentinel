@@ -1,6 +1,7 @@
 use chrono::NaiveDate;
 use jobsentinel_security::validate_credential_free_external_https_url;
 use serde::{Deserialize, Serialize};
+use sha2::{Digest, Sha256};
 
 use crate::v3_contracts::{
     require_nonempty, require_schema, require_sha256, require_v3_semver, Architecture, PayPeriod,
@@ -323,6 +324,18 @@ impl PackManifest {
             return Err("pack cannot declare an unused external AI gateway".to_string());
         }
         Ok(())
+    }
+
+    pub fn verify_payload(&self, payload: &[u8]) -> Result<(), String> {
+        self.validate()?;
+        let expected = hex::decode(&self.payload_sha256)
+            .map_err(|_| "pack payload integrity check failed".to_string())?;
+        let actual: [u8; 32] = Sha256::digest(payload).into();
+        if actual.as_slice() == expected {
+            Ok(())
+        } else {
+            Err("pack payload integrity check failed".to_string())
+        }
     }
 }
 
