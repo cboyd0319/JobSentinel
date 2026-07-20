@@ -50,8 +50,8 @@ Last updated: 2026-07-20
 
 - Active feature: `v3-milestone-5-local-evidence-resume-matching`
 - Status: `active`
-- Current slice: Pack manifests verify exact payload bytes without claiming publisher trust or safe content.
-- Next action: Store one bounded sqlite_blob_v1 vector and remove it on stale, missing-model, or malformed reads.
+- Current slice: Bounded `sqlite_blob_v1` vectors stay local and fail closed.
+- Next action: Rebuild one resume-chunk vector and preserve model-free matching.
 
 ## Deferred
 

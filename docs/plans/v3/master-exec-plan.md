@@ -334,6 +334,7 @@ relevant result, and caveat.
 | 2026-07-19 | Milestone 4 employer discovery governed | Added a user-directed EmployerDiscovery manifest and real Schema.org fixture; canonicalized and hard-blocked pasted destinations before native review; required exact installed policy and manifest authorization before the single credential-free fetch and before storage; retained the nonsecret grant only with bounded in-memory pending work; and persisted the graph-owned source identity at `43675a11`. Focused checks passed and adversarial review returned APPROVE. Milestone 4 remains active. |
 | 2026-07-19 | Milestone 4 starter region manifests added | Added dated, explicitly incomplete UK, EU, and India research manifests with exact regional scope, policy and provenance separation, real frozen evaluation references, current pay semantics, and no native-source or runtime-pack claim at `c5422e63`. Focused checks passed and adversarial review returned APPROVE. Milestone 4 remains active. |
 | 2026-07-19 | Milestone 4 and Gate 3 complete | Replaced legacy Browser Import with origin-bound one-use pairing at `0104af1b`, then added local Smart Paste and a distinct reviewed applied-draft action at `88beaadc`. Exact grants, revocation, replay protection, restricted-domain blocking, credential rejection, simulator drift checks, and explicit save or discard paths passed focused verification. Adversarial review returned APPROVE. Activated Milestone 5. |
+| 2026-07-20 | Milestone 5 vector storage added | Added the frozen `sqlite_blob_v1` owner at `d29cd573`. Exact current vectors round-trip as bounded little-endian values; stale, missing-model, malformed, dimension-invalid, and non-finite rows fail closed and are removed without an ABA race. Derived vectors remain local, stay out of reviewed plaintext export, and store no source text. Focused checks passed and adversarial review returned APPROVE. Milestone 5 remains active. |
 
 ## Discoveries
 
@@ -547,7 +548,7 @@ relevant result, and caveat.
 
 - Current state: Milestones 0 through 4 and Gates 0 through 3 are passing.
   Milestone 5 local evidence, resume, and matching work is the sole active
-  feature.
+  feature. Its current implementation is committed through `d29cd573`.
 - Evidence: `docs/harness/evidence/v3-milestone-3-reviewed-export-2026-07-19.json`
   binds the reviewed-export slice at `3b4f635b`, and
   `docs/harness/evidence/v3-milestone-3-storage-cleanup-2026-07-19.json` binds
@@ -573,9 +574,9 @@ relevant result, and caveat.
   at `c5422e63`. Gate 3 completion is bound by
   `docs/harness/evidence/v3-milestone-4-gate-3-2026-07-19.json` at
   `88beaadc`.
-- Next step: inventory the current evidence, resume, matching, vector, and
-  military-transition owners, then start the smallest fail-first Milestone 5
-  contract slice.
+- Next step: rebuild one resume-chunk vector after a missing or stale storage
+  read, then prove the existing deterministic matcher remains useful when the
+  governed local model is absent.
 - Open risks: scope remains large, contract freeze is irreversible within the
   v3 compatibility line, recovery and permission behavior still needs Windows
   11, macOS 26, and Linux release-matrix proof, installed recovery UI still
