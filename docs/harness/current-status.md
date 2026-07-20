@@ -50,8 +50,8 @@ Last updated: 2026-07-19
 
 - Active feature: `v3-milestone-5-local-evidence-resume-matching`
 - Status: `active`
-- Current slice: Reviewed resume citations link to cases as opaque, atomic local evidence.
-- Next action: Surface safe evidence locations without exposing identifiers or private text.
+- Current slice: Resume matching shows safe evidence locations without citation internals.
+- Next action: Bind packet claims to reviewed evidence without copying private text.
 
 ## Deferred
 
