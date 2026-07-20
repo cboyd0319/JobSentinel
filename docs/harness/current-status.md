@@ -50,8 +50,8 @@ Last updated: 2026-07-20
 
 - Active feature: `v3-milestone-5-local-evidence-resume-matching`
 - Status: `active`
-- Current slice: One revision-guarded resume-skill vector rebuilds locally.
-- Next action: Bind one semantic match claim to exact local resume evidence.
+- Current slice: First positive semantic claim is revision-bound and fails closed on resume change.
+- Next action: Cite all positive semantic claims from exact resume evidence.
 
 ## Deferred
 

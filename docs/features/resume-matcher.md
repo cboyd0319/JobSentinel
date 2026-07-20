@@ -532,7 +532,12 @@ provenance changes and removes it when the skill set changes, the resume is
 deleted, or the governed Qwen3 runtime is unavailable. Remaining skill
 vectors are generated in memory for that request. MiniLM and model-free
 installs keep their existing local matching behavior and never consume the
-Qwen3 cache. This command boundary is not yet the visible Resume Match page.
+Qwen3 cache. The command binds its first positive match to the exact skill in
+the same revision-guarded local order. It returns no uncited positive claim
+when that skill is missing or ambiguous, and returns no result when the resume
+changes or is deleted during matching. The citation contains no resume content,
+filesystem path, source identifier, or raw revision. This command boundary is
+not yet the visible Resume Match page.
 
 The skill list is self-contained and deterministic. Same input should produce
 the same local result. Optional OCR is available for scanned PDFs when the app
