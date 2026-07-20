@@ -69,10 +69,11 @@ Gate 4 freezes the Essentials composition as the `Lighter` profile with
 deterministic matching, public sources, and safe support. It has no automatic
 or bundled model download, and region packs remain separately installed
 options. This approves the component boundary, not a numeric footprint or
-performance claim. Installer size, installed size, peak memory, startup time,
-and workflow latency remain blocked until the model-free 8 GiB journey and
-platform package matrix are measured. A revision-bound macOS arm64 low-pressure
-baseline now exists, but its 64 GiB host cannot satisfy the 8 GiB requirement.
+performance claim. A controlled zero-swap Linux amd64 guest now proves the
+model-free installed journey under an enforced 8 GiB limit, and a revision-bound
+macOS arm64 low-pressure baseline exists on a 64 GiB host. Approved numeric
+thresholds and the Windows 11, macOS 26, and Linux platform package matrix remain
+blocked.
 
 ## Runtime Profiles
 

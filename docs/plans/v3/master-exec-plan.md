@@ -346,6 +346,7 @@ relevant result, and caveat.
 | 2026-07-20 | Gate 4 operating boundaries frozen | Froze model-free setup, the exact wired Qwen3 Candle pair, legacy-only MiniLM fallback, live-first employer evidence, no-authority static region packs, per-source expiry, and the Essentials component boundary at `d7f0c2a4`. Removed speculative matching-provider compatibility. Gate 4 remains open because production-wide calibration, an 8 GiB model-free performance report, installed setup and removal, employer and regional evals, and the platform matrix are not yet proven. All 75 default embedded local-AI tests passed with 10 explicit model tests ignored; all 151 domain tests, strict clippy, docs, security, harness, and adversarial review passed. |
 | 2026-07-20 | Milestone 5 Qwen3 requirement calibration expanded | Expanded the frozen requirement hard-negative set from three to six synthetic pairs at `da5ce3df`. The new cases distinguish civilian RN licensure from Army combat-medic experience, people-management ownership from mentoring, and GAAP close ownership from accounts-payable processing without changing the `0.30` retrieval or `3.0` reranker threshold. The original three pairs retain full production, cached-vector, and abstention proof; the three new pairs freeze direct Qwen3 embedding and reranker behavior. Both opt-in pinned-model tests passed on one macOS 27 arm64 64 GiB host, all 77 default local-AI tests passed with 11 model tests ignored, strict clippy, architecture, security, harness, and adversarial re-review passed. Gate 4 remains open because six synthetic requirement pairs are not production-wide, cross-platform, modest-hardware, installed-setup, employer, or regional evidence. |
 | 2026-07-20 | Milestone 5 macOS Essentials baseline measured | Added exact native launch-coalition measurement and bounded app-scoped cleanup at `8a321b55`. A model-free arm64 no-account DMG measured 14,224,509 bytes, its installed app measured 29,704,192 bytes, and three final-verifier launches reached a visible window in a median upper bound of 825 ms with a median aggregate observed maximum RSS of 240,480 KiB across six app-coalition processes. Mounted and copied-app smoke, private local data, empty stderr, model-free payload checks, 19 verifier tests, all 842 script tests, security, harness, and final adversarial review passed. Gate 4 remains open because this low-pressure 64 GiB host does not prove actual 8 GiB behavior, the complete installed Essentials journey, numeric release thresholds, or the platform matrix. |
+| 2026-07-20 | Milestone 5 Linux 8 GiB Essentials journey measured | Reused the already-owned database during setup at `d442138f`, removing a redundant credential-backed reconnect and migration that blocked installed first-run completion. The exact source tree produced amd64 Debian and AppImage packages and installed the Debian package inside a controlled 8 GiB, zero-swap Ubuntu guest. Build peak was 4,027,662,336 bytes; the complete installed journey peak was 687,190,016 bytes; persistence relaunch peak was 717,479,936 bytes; and every memory-limit and OOM counter remained zero. Setup, an explicit Greenhouse source check, synthetic veteran resume import, deterministic match review, tracker update, pay abstention, a support report with zero tested private-marker matches, and restart persistence passed. Focused config tests, strict desktop clippy, formatting, AppImage model-payload inspection, and adversarial review passed. Gate 4 remains open for numeric thresholds, Windows 11 and macOS 26 installed evidence, stronger-local setup and removal, broader Qwen3 calibration, employer and regional evaluation, and signed release artifacts. |
 
 ## Discoveries
 
@@ -596,10 +597,14 @@ relevant result, and caveat.
   memory baseline is bound by
   `docs/harness/evidence/v3-milestone-5-essentials-macos-footprint-2026-07-20.json`
   at `8a321b55`; its application artifact was built from `62405463`, with only
-  verifier and verifier-test files changed between those revisions.
-- Next step: run the complete installed model-free Essentials journey on actual
-  8 GiB hardware or an equivalent controlled guest, then extend the package
-  and runtime matrix without enabling model or external-AI paths.
+  verifier and verifier-test files changed between those revisions. The
+  controlled 8 GiB Linux package, complete installed journey, setup correction,
+  and persistence relaunch are bound by
+  `docs/harness/evidence/v3-milestone-5-essentials-linux-8g-journey-2026-07-20.json`
+  at `d442138f`.
+- Next step: extend the installed package and runtime matrix, approve numeric
+  thresholds, and close the remaining stronger-local, employer, regional, and
+  cross-platform Gate 4 evidence without enabling external AI by default.
 - Open risks: scope remains large, contract freeze is irreversible within the
   v3 compatibility line, recovery and permission behavior still needs Windows
   11, macOS 26, and Linux release-matrix proof, installed recovery UI still

@@ -50,8 +50,8 @@ Last updated: 2026-07-20
 
 - Active feature: `v3-milestone-5-local-evidence-resume-matching`
 - Status: `active`
-- Current slice: The macOS arm64 model-free baseline is measured; Gate 4 remains open.
-- Next action: Prove Essentials on actual 8 GiB hardware and complete the installed journey.
+- Current slice: The 8 GiB Linux Essentials journey is measured; Gate 4 remains open.
+- Next action: Extend the package matrix and close the remaining Gate 4 evidence.
 
 ## Deferred
 
