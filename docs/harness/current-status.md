@@ -50,8 +50,8 @@ Last updated: 2026-07-19
 
 - Active feature: `v3-milestone-5-local-evidence-resume-matching`
 - Status: `active`
-- Current slice: Requirement diagnostics recompute from current case, job, resume, and reviewed evidence.
-- Next action: Add an exact-only deterministic matcher fallback when verified local models are unavailable.
+- Current slice: Exact-only deterministic matching remains available without verified model files or downloads.
+- Next action: Distinguish missing, incomplete, and checksum-invalid local model caches in Model Doctor.
 
 ## Deferred
 
