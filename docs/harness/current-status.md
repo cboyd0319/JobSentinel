@@ -50,8 +50,8 @@ Last updated: 2026-07-20
 
 - Active feature: `v3-milestone-5-local-evidence-resume-matching`
 - Status: `active`
-- Current slice: Veteran transition wording is bound to exact current saved-resume evidence.
-- Next action: Add reviewed profession and regional matching profiles.
+- Current slice: Explicit role and regional resume matching profiles are local and reviewable.
+- Next action: Freeze profession and regional matching evaluation deltas.
 
 ## Deferred
 

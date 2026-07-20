@@ -610,6 +610,24 @@ equivalence. Missing, changed, deleted, ambiguous, unconfirmed, or near-match
 source evidence fails closed. No review draft or suggestion is persisted,
 serialized, logged, sent, or generated from a packaged crosswalk.
 
+Resume Match offers an optional local matching profile only after the user
+selects both a role evidence focus and job-market wording. The role focus marks
+preferred evidence sections and breaks ties only after requirement importance
+and match state. It does not upgrade evidence, change a requirement state, or
+change a score. The regional profile recognizes a small reviewed set of
+`program` / `programme` and `license` / `licence` spellings, so it can change
+recognized matches and scores. It does not treat different concepts as
+equivalent, and a missing required licence remains a hard constraint.
+
+United States, United Kingdom, European Union, and India are explicit starter
+choices, not inferred locations. They do not claim complete terminology,
+employer, occupation, or regional coverage. Unselected analysis keeps the
+existing result contract without profile fields. Selected profiles reach both
+active saved-resume and copied structured-resume analysis, stay in local
+session state, and never trigger network access. The controls remain locked
+while a review is running so an older profile result cannot appear under a
+newer selection.
+
 Resume Match also shows a compact Role Coverage card backed by
 `src/features/resumes/shared/resumeRoleFamilyTaxonomy.ts`. The shared contract covers technical,
 content, operations, healthcare, service, trades, education, sales, and
