@@ -50,8 +50,8 @@ Last updated: 2026-07-19
 
 - Active feature: `v3-milestone-5-local-evidence-resume-matching`
 - Status: `active`
-- Current slice: Unsafe local matching input stops before model dispatch without content exposure.
-- Next action: Build an evidence-bound requirement diagnostic with bounded "why not" reasons.
+- Current slice: Requirement diagnostics recompute from current case, job, resume, and reviewed evidence.
+- Next action: Add an exact-only deterministic matcher fallback when verified local models are unavailable.
 
 ## Deferred
 

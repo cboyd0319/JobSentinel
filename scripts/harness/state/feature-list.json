@@ -157,4 +157,4 @@
       "verification": ["npm run harness:check", "npm run lint:security"], "evidence": ["docs/harness/evidence/v3-milestone-4-gate-3-2026-07-19.json"], "blocker": "", "next_trigger": "Regression reopens."
     }, { "id": "v3-milestone-5-local-evidence-resume-matching", "priority": 19, "area": "v3 matching", "title": "Build local evidence and matching", "status": "active",
       "behavior": "Local evidence keeps resume and match claims bounded and reproducible.", "user_visible_behavior": "Users can see why a job matches and the evidence behind it.",
-      "verification": ["npm run harness:check"], "evidence": [], "blocker": "", "next_trigger": "Build an evidence-bound requirement diagnostic." } ] }
+      "verification": ["npm run harness:check"], "evidence": [], "blocker": "", "next_trigger": "Add exact-only deterministic matcher fallback." } ] }
