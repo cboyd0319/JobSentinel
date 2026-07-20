@@ -337,6 +337,7 @@ relevant result, and caveat.
 | 2026-07-20 | Milestone 5 vector storage added | Added the frozen `sqlite_blob_v1` owner at `d29cd573`. Exact current vectors round-trip as bounded little-endian values; stale, missing-model, malformed, dimension-invalid, and non-finite rows fail closed and are removed without an ABA race. Derived vectors remain local, stay out of reviewed plaintext export, and store no source text. Focused checks passed and adversarial review returned APPROVE. Milestone 5 remains active. |
 | 2026-07-20 | Milestone 5 first vector integration added | Integrated one first-ordered resume-skill vector into the embedded semantic command at `915647f8`. Qwen3 rebuilds only the missing, stale, or invalid local vector; remaining vectors stay in memory. Exact resume-revision guards prevent late writes after edits or deletion, poisoned inputs stop before model or cache work, and MiniLM or model-free installs preserve existing local matching while purging the Qwen3 row. The visible Resume Match page is unchanged. Focused tests and adversarial correction review passed. Milestone 5 remains active. |
 | 2026-07-20 | Milestone 5 first semantic evidence citation added | Bound the embedded semantic command's first positive claim to the exact revision-scoped local resume skill at `5b4c316d`. Missing, ambiguous, changed, or deleted evidence fails closed without partial output; the citation exposes no resume content, filesystem path, source identifier, or raw revision. Existing semantic fields remain top-level and the visible Resume Match page remains unchanged. Seven focused tests, production clippy, desktop compilation, and adversarial review passed. Milestone 5 remains active. |
+| 2026-07-20 | Milestone 5 semantic evidence coverage completed | Replaced the singular citation boundary with one exact same-order citation for every positive embedded semantic claim at `0d38d46b`. Repeated use of one resume skill repeats its citation without losing cardinality, while any unmappable claim rejects the whole result. Seven focused tests, production clippy, desktop compilation, and adversarial re-review passed. The visible Resume Match page remains unchanged and Milestone 5 remains active. |
 
 ## Discoveries
 
@@ -550,7 +551,7 @@ relevant result, and caveat.
 
 - Current state: Milestones 0 through 4 and Gates 0 through 3 are passing.
   Milestone 5 local evidence, resume, and matching work is the sole active
-  feature. Its current implementation is committed through `5b4c316d`.
+  feature. Its current implementation is committed through `0d38d46b`.
 - Evidence: `docs/harness/evidence/v3-milestone-3-reviewed-export-2026-07-19.json`
   binds the reviewed-export slice at `3b4f635b`, and
   `docs/harness/evidence/v3-milestone-3-storage-cleanup-2026-07-19.json` binds
@@ -576,9 +577,8 @@ relevant result, and caveat.
   at `c5422e63`. Gate 3 completion is bound by
   `docs/harness/evidence/v3-milestone-4-gate-3-2026-07-19.json` at
   `88beaadc`.
-- Next step: bind every positive semantic match claim to exact local resume
-  evidence while preserving deterministic fallback and leaving the visible
-  Resume Match page unchanged.
+- Next step: use the cited semantic result in active saved-resume analysis
+  without duplicating the deterministic analyzer or requiring a local model.
 - Open risks: scope remains large, contract freeze is irreversible within the
   v3 compatibility line, recovery and permission behavior still needs Windows
   11, macOS 26, and Linux release-matrix proof, installed recovery UI still
