@@ -2,7 +2,7 @@ use super::shared::{
     build_match_result, checked_cosine_similarity, dense_candidates, empty_match_result,
     require_embedding_count, SIMILARITY_THRESHOLD,
 };
-use super::{SemanticMatchResult, SemanticRuntimeProfile, SkillMatch};
+use super::{SemanticMatchResult, SemanticRuntimeProfile, SemanticUnmatchedReason, SkillMatch};
 use crate::embeddings::EmbeddingGenerator;
 use anyhow::Result;
 use std::cmp::Ordering;
@@ -18,6 +18,7 @@ pub(super) fn match_skills(
             SemanticRuntimeProfile::MiniLm,
             user_skills,
             job_requirements,
+            SemanticUnmatchedReason::BelowRetrievalThreshold,
         ));
     }
 
@@ -42,6 +43,8 @@ pub(super) fn match_skills(
     let mut matched_skills = Vec::new();
     let mut matched_job_indices = HashSet::new();
     let mut matched_user_indices = HashSet::new();
+    let mut unmatched_reasons =
+        vec![Some(SemanticUnmatchedReason::BelowRetrievalThreshold); job_requirements.len()];
 
     for (job_idx, job_emb) in job_embeddings.iter().enumerate() {
         let best_match = dense_candidates(job_emb, &user_embeddings, SIMILARITY_THRESHOLD, 1)?
@@ -58,17 +61,19 @@ pub(super) fn match_skills(
             });
             matched_job_indices.insert(job_idx);
             matched_user_indices.insert(user_idx);
+            unmatched_reasons[job_idx] = None;
         }
     }
 
-    Ok(build_match_result(
+    build_match_result(
         SemanticRuntimeProfile::MiniLm,
         user_skills,
         job_requirements,
         matched_skills,
+        unmatched_reasons,
         matched_job_indices,
         matched_user_indices,
-    ))
+    )
 }
 
 pub(super) fn find_similar_skills(

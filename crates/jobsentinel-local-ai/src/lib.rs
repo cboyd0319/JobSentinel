@@ -47,7 +47,10 @@ pub use manifest::{
     load_model_manifest, model_lock_hash, validate_v3_vector_contract, InstructionProfile,
     ModelFileSpec, ModelKind, ModelManifest, ModelSpec, ScoreThresholds,
 };
-pub use matcher::{SemanticMatchResult, SemanticMatcher, SemanticRuntimeProfile, SkillMatch};
+pub use matcher::{
+    SemanticMatchResult, SemanticMatcher, SemanticRuntimeProfile, SemanticUnmatchedReason,
+    SkillMatch, UnmatchedRequirementDiagnostic,
+};
 pub use model::status::{ModelCacheHealth, ModelStatus};
 pub use model::ModelManager;
 pub use qwen3::{Qwen3EmbeddingBackend, Qwen3RerankerBackend};

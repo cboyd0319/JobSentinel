@@ -3,7 +3,7 @@ use super::shared::{
     qwen3_match_threshold, qwen3_reranker_acceptance_threshold, require_embedding_count,
     QWEN3_REQUIREMENT_INSTRUCTION, QWEN3_RERANK_TOP_K,
 };
-use super::{SemanticMatchResult, SemanticRuntimeProfile, SkillMatch};
+use super::{SemanticMatchResult, SemanticRuntimeProfile, SemanticUnmatchedReason, SkillMatch};
 use crate::runtime::{
     EmbeddingBackend, EmbeddingInput, EmbeddingInputKind, RerankCandidate, RerankQuery,
     RerankQueryKind, RerankScore, RerankerBackend,
@@ -96,6 +96,19 @@ fn apply_reranker_acceptance(
     Ok(selected.filter(|candidate| candidate.reranker_score >= minimum_score))
 }
 
+fn qwen_unmatched_reason(
+    dense_candidates: &[(usize, f32)],
+    selected: Option<&RerankedMatch>,
+) -> Option<SemanticUnmatchedReason> {
+    if selected.is_some() {
+        None
+    } else if dense_candidates.is_empty() {
+        Some(SemanticUnmatchedReason::BelowRetrievalThreshold)
+    } else {
+        Some(SemanticUnmatchedReason::BelowRerankerAcceptance)
+    }
+}
+
 impl Qwen3SemanticRuntime {
     pub(super) fn new(embedding: Qwen3EmbeddingBackend, reranker: Qwen3RerankerBackend) -> Self {
         Self {
@@ -116,6 +129,7 @@ impl Qwen3SemanticRuntime {
                 SemanticRuntimeProfile::Qwen3Reranked,
                 user_skills,
                 job_requirements,
+                SemanticUnmatchedReason::BelowRetrievalThreshold,
             ));
         }
 
@@ -146,6 +160,7 @@ impl Qwen3SemanticRuntime {
         let mut matched_skills = Vec::new();
         let mut matched_job_indices = HashSet::new();
         let mut matched_user_indices = HashSet::new();
+        let mut unmatched_reasons = vec![None; job_requirements.len()];
 
         for (job_idx, job_emb) in job_embeddings.iter().enumerate() {
             let dense_candidates = dense_candidates(
@@ -155,9 +170,15 @@ impl Qwen3SemanticRuntime {
                 QWEN3_RERANK_TOP_K,
             )?;
 
-            if let Some(selected) =
-                self.reranked_best_match(job_idx, job_requirements, user_skills, &dense_candidates)?
-            {
+            let selected = self.reranked_best_match(
+                job_idx,
+                job_requirements,
+                user_skills,
+                &dense_candidates,
+            )?;
+            unmatched_reasons[job_idx] =
+                qwen_unmatched_reason(&dense_candidates, selected.as_ref());
+            if let Some(selected) = selected {
                 matched_skills.push(SkillMatch {
                     job_skill: job_requirements[job_idx].clone(),
                     user_skill: user_skills[selected.user_index].clone(),
@@ -170,14 +191,15 @@ impl Qwen3SemanticRuntime {
             }
         }
 
-        Ok(build_match_result(
+        build_match_result(
             SemanticRuntimeProfile::Qwen3Reranked,
             user_skills,
             job_requirements,
             matched_skills,
+            unmatched_reasons,
             matched_job_indices,
             matched_user_indices,
-        ))
+        )
     }
 
     fn reranked_best_match(

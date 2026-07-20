@@ -1,4 +1,5 @@
 use super::*;
+use std::collections::HashSet;
 
 #[test]
 fn qwen3_threshold_comes_from_model_lock() {
@@ -15,6 +16,19 @@ fn runtime_profiles_have_stable_wire_names() {
         ])
         .unwrap(),
         serde_json::json!(["qwen3_reranked", "minilm", "deterministic_exact"])
+    );
+    assert_eq!(
+        serde_json::to_value([
+            SemanticUnmatchedReason::NoExactEvidence,
+            SemanticUnmatchedReason::BelowRetrievalThreshold,
+            SemanticUnmatchedReason::BelowRerankerAcceptance,
+        ])
+        .unwrap(),
+        serde_json::json!([
+            "no_exact_evidence",
+            "below_retrieval_threshold",
+            "below_reranker_acceptance"
+        ])
     );
 }
 
@@ -62,6 +76,87 @@ fn model_score_and_embedding_cardinality_validation_fail_closed() {
     assert!(shared::require_embedding_count(2, 1).is_err());
     assert!(shared::require_embedding_count(2, 3).is_err());
     assert!(shared::require_embedding_count(2, 2).is_ok());
+}
+
+#[test]
+fn unmatched_diagnostics_are_ordered_bounded_and_internally_complete() {
+    let user_skills = vec!["private candidate text".to_string()];
+    let requirements = vec![
+        "Matched requirement".to_string(),
+        "Second requirement".to_string(),
+        "Third requirement".to_string(),
+    ];
+    let matched_skills = vec![SkillMatch {
+        job_skill: requirements[0].clone(),
+        user_skill: user_skills[0].clone(),
+        similarity: 0.9,
+        reranker_score: None,
+        reranker_rank: None,
+    }];
+    let reasons = vec![
+        None,
+        Some(SemanticUnmatchedReason::BelowRetrievalThreshold),
+        Some(SemanticUnmatchedReason::BelowRerankerAcceptance),
+    ];
+    let result = shared::build_match_result(
+        SemanticRuntimeProfile::MiniLm,
+        &user_skills,
+        &requirements,
+        matched_skills.clone(),
+        reasons.clone(),
+        HashSet::from([0]),
+        HashSet::from([0]),
+    )
+    .unwrap();
+
+    assert_eq!(
+        serde_json::to_value(&result.unmatched_diagnostics).unwrap(),
+        serde_json::json!([
+            {
+                "requirement": "Second requirement",
+                "reason": "below_retrieval_threshold"
+            },
+            {
+                "requirement": "Third requirement",
+                "reason": "below_reranker_acceptance"
+            }
+        ])
+    );
+    let serialized = serde_json::to_string(&result.unmatched_diagnostics).unwrap();
+    for forbidden in [
+        "private candidate text",
+        "model_path",
+        "provider",
+        "prompt",
+        "reranker_score",
+    ] {
+        assert!(!serialized.contains(forbidden));
+    }
+    assert!(shared::build_match_result(
+        SemanticRuntimeProfile::MiniLm,
+        &user_skills,
+        &requirements,
+        matched_skills.clone(),
+        vec![None; requirements.len()],
+        HashSet::from([0]),
+        HashSet::from([0]),
+    )
+    .is_err());
+    assert!(shared::build_match_result(
+        SemanticRuntimeProfile::MiniLm,
+        &user_skills,
+        &requirements,
+        matched_skills,
+        [
+            Some(SemanticUnmatchedReason::BelowRetrievalThreshold),
+            reasons[1],
+            reasons[2],
+        ]
+        .to_vec(),
+        HashSet::from([0]),
+        HashSet::from([0]),
+    )
+    .is_err());
 }
 
 fn deterministic_value(seed: &mut u64) -> f32 {

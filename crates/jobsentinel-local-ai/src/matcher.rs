@@ -30,6 +30,22 @@ pub enum SemanticRuntimeProfile {
     DeterministicExact,
 }
 
+/// Bounded explanation for why one requirement remains unmatched.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum SemanticUnmatchedReason {
+    NoExactEvidence,
+    BelowRetrievalThreshold,
+    BelowRerankerAcceptance,
+}
+
+/// Safe requirement-level diagnostic without candidate or model content.
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+pub struct UnmatchedRequirementDiagnostic {
+    pub requirement: String,
+    pub reason: SemanticUnmatchedReason,
+}
+
 /// Result of semantic skill matching
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct SemanticMatchResult {
@@ -43,6 +59,10 @@ pub struct SemanticMatchResult {
 
     /// Job requirements that didn't match any user skills
     pub unmatched_requirements: Vec<String>,
+
+    /// Stable reason for each unmatched requirement, in requirement order.
+    #[serde(default)]
+    pub unmatched_diagnostics: Vec<UnmatchedRequirementDiagnostic>,
 
     /// User skills that didn't match any job requirements
     pub unused_skills: Vec<String>,

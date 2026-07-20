@@ -1,5 +1,5 @@
 use super::shared::{build_match_result, empty_match_result};
-use super::{SemanticMatchResult, SemanticRuntimeProfile, SkillMatch};
+use super::{SemanticMatchResult, SemanticRuntimeProfile, SemanticUnmatchedReason, SkillMatch};
 use std::collections::HashSet;
 
 pub(super) fn match_skills(
@@ -11,6 +11,7 @@ pub(super) fn match_skills(
             SemanticRuntimeProfile::DeterministicExact,
             user_skills,
             job_requirements,
+            SemanticUnmatchedReason::NoExactEvidence,
         ));
     }
 
@@ -21,6 +22,8 @@ pub(super) fn match_skills(
     let mut matched_skills = Vec::new();
     let mut matched_job_indices = HashSet::new();
     let mut matched_user_indices = HashSet::new();
+    let mut unmatched_reasons =
+        vec![Some(SemanticUnmatchedReason::NoExactEvidence); job_requirements.len()];
     let mut seen_requirements = HashSet::new();
     for (job_index, requirement) in job_requirements.iter().enumerate() {
         let normalized_requirement = normalize(requirement);
@@ -42,17 +45,19 @@ pub(super) fn match_skills(
             });
             matched_job_indices.insert(job_index);
             matched_user_indices.insert(user_index);
+            unmatched_reasons[job_index] = None;
         }
     }
 
-    Ok(build_match_result(
+    build_match_result(
         SemanticRuntimeProfile::DeterministicExact,
         user_skills,
         job_requirements,
         matched_skills,
+        unmatched_reasons,
         matched_job_indices,
         matched_user_indices,
-    ))
+    )
 }
 
 pub(super) fn find_similar_skills(
@@ -82,7 +87,10 @@ fn normalize(value: &str) -> String {
 
 #[cfg(test)]
 mod tests {
-    use super::super::{SemanticMatcher, LOCAL_MATCH_INPUT_REVIEW_REQUIRED};
+    use super::super::{
+        SemanticMatcher, SemanticUnmatchedReason, UnmatchedRequirementDiagnostic,
+        LOCAL_MATCH_INPUT_REVIEW_REQUIRED,
+    };
 
     #[test]
     fn empty_cache_uses_exact_only_matching_without_writes() {
@@ -109,6 +117,13 @@ mod tests {
             "  PYTHON\tPROGRAMMING "
         );
         assert_eq!(result.unmatched_requirements, ["Python"]);
+        assert_eq!(
+            result.unmatched_diagnostics,
+            [UnmatchedRequirementDiagnostic {
+                requirement: "Python".to_string(),
+                reason: SemanticUnmatchedReason::NoExactEvidence,
+            }]
+        );
         assert_eq!(result.unused_skills, ["Rust"]);
         let serialized = serde_json::to_string(&result).unwrap();
         assert!(serialized.contains(r#""runtime_profile":"deterministic_exact""#));

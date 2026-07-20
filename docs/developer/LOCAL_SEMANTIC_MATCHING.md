@@ -264,8 +264,8 @@ The local matcher:
    available.
 3. Otherwise matches only case- and whitespace-normalized exact strings,
    without reusing normalized duplicate requirements.
-4. Returns matched skills, unmatched requirements, unused skills, and an
-   advisory overall result.
+4. Returns matched skills, unmatched requirements with bounded diagnostics,
+   unused skills, and an advisory overall result.
 
 Every result names its producing runtime as `qwen3_reranked`, `minilm`, or
 `deterministic_exact`. Each skill match keeps `similarity` as its dense cosine
@@ -276,6 +276,13 @@ scores. Unknown or duplicate candidate IDs, missing candidates, non-finite
 scores, invalid ranks, invalid dense scores, and inconsistent reranker ordering
 fail closed. Embedding and reranker batches require exact input/output
 cardinality, and every reranker row must contain exactly one finite scalar.
+
+Every unmatched requirement has exactly one ordered reason:
+`no_exact_evidence`, `below_retrieval_threshold`, or
+`below_reranker_acceptance`. Matched requirements have no unmatched diagnostic.
+The diagnostic contains only the already-returned requirement text and the
+closed reason value. It does not expose candidate text, model paths, provider
+data, prompts, or raw scores, and it does not claim the user is unqualified.
 
 The current similarity threshold is implementation detail. User-facing copy
 should describe outcomes as estimates based on visible evidence, not objective

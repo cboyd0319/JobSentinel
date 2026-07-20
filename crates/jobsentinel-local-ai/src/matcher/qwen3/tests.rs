@@ -1,5 +1,5 @@
 use super::*;
-use crate::{EvalDatasetKind, EvalFixtureSet, RerankScore};
+use crate::{EvalDatasetKind, EvalFixtureSet, RerankScore, UnmatchedRequirementDiagnostic};
 use std::path::PathBuf;
 
 #[test]
@@ -82,6 +82,26 @@ fn reranker_acceptance_abstains_below_calibrated_minimum() {
         .is_none());
     assert!(apply_reranker_acceptance(None, 3.0).unwrap().is_none());
     assert!(apply_reranker_acceptance(None, f32::NAN).is_err());
+}
+
+#[test]
+fn qwen_abstention_reasons_distinguish_retrieval_from_acceptance() {
+    let selected = RerankedMatch {
+        user_index: 0,
+        dense_score: 0.42,
+        reranker_score: 5.24,
+        reranker_rank: 1,
+    };
+
+    assert_eq!(
+        qwen_unmatched_reason(&[], None),
+        Some(SemanticUnmatchedReason::BelowRetrievalThreshold)
+    );
+    assert_eq!(
+        qwen_unmatched_reason(&[(0, 0.42)], None),
+        Some(SemanticUnmatchedReason::BelowRerankerAcceptance)
+    );
+    assert_eq!(qwen_unmatched_reason(&[(0, 0.42)], Some(&selected)), None);
 }
 
 #[test]
@@ -241,6 +261,13 @@ fn pinned_qwen3_ranks_all_frozen_requirement_hard_negatives() {
         );
         assert!(hard_negative_result.matched_skills.is_empty());
         assert_eq!(hard_negative_result.unmatched_requirements, [requirement]);
+        assert_eq!(
+            hard_negative_result.unmatched_diagnostics,
+            [UnmatchedRequirementDiagnostic {
+                requirement: hard_negative_result.unmatched_requirements[0].clone(),
+                reason: SemanticUnmatchedReason::BelowRerankerAcceptance,
+            }]
+        );
         assert_eq!(hard_negative_result.overall_score, 0.0);
     }
 }

@@ -1,4 +1,7 @@
-use super::{SemanticMatchResult, SemanticRuntimeProfile, SkillMatch};
+use super::{
+    SemanticMatchResult, SemanticRuntimeProfile, SemanticUnmatchedReason, SkillMatch,
+    UnmatchedRequirementDiagnostic,
+};
 use crate::manifest::load_model_manifest;
 use anyhow::Result;
 use std::cmp::Ordering;
@@ -79,9 +82,13 @@ pub(super) fn build_match_result(
     user_skills: &[String],
     job_requirements: &[String],
     matched_skills: Vec<SkillMatch>,
+    unmatched_reasons: Vec<Option<SemanticUnmatchedReason>>,
     matched_job_indices: HashSet<usize>,
     matched_user_indices: HashSet<usize>,
-) -> SemanticMatchResult {
+) -> Result<SemanticMatchResult> {
+    if unmatched_reasons.len() != job_requirements.len() {
+        anyhow::bail!("invalid local matching diagnostics");
+    }
     let coverage = matched_job_indices.len() as f64 / job_requirements.len() as f64;
     let avg_similarity = if matched_skills.is_empty() {
         0.0
@@ -94,11 +101,24 @@ pub(super) fn build_match_result(
     };
     let overall_score = coverage * 0.7 + avg_similarity * 0.3;
 
-    let unmatched_requirements: Vec<String> = job_requirements
+    let unmatched_diagnostics = job_requirements
         .iter()
         .enumerate()
-        .filter(|(idx, _)| !matched_job_indices.contains(idx))
-        .map(|(_, skill)| skill.clone())
+        .filter_map(|(idx, requirement)| {
+            let matched = matched_job_indices.contains(&idx);
+            match (matched, unmatched_reasons[idx]) {
+                (true, None) => None,
+                (false, Some(reason)) => Some(Ok(UnmatchedRequirementDiagnostic {
+                    requirement: requirement.clone(),
+                    reason,
+                })),
+                _ => Some(Err(anyhow::anyhow!("invalid local matching diagnostics"))),
+            }
+        })
+        .collect::<Result<Vec<_>>>()?;
+    let unmatched_requirements = unmatched_diagnostics
+        .iter()
+        .map(|diagnostic| diagnostic.requirement.clone())
         .collect();
 
     let unused_skills: Vec<String> = user_skills
@@ -108,25 +128,34 @@ pub(super) fn build_match_result(
         .map(|(_, skill)| skill.clone())
         .collect();
 
-    SemanticMatchResult {
+    Ok(SemanticMatchResult {
         runtime_profile,
         overall_score,
         matched_skills,
         unmatched_requirements,
+        unmatched_diagnostics,
         unused_skills,
-    }
+    })
 }
 
 pub(super) fn empty_match_result(
     runtime_profile: SemanticRuntimeProfile,
     user_skills: &[String],
     job_requirements: &[String],
+    reason: SemanticUnmatchedReason,
 ) -> SemanticMatchResult {
     SemanticMatchResult {
         runtime_profile,
         overall_score: 0.0,
         matched_skills: Vec::new(),
         unmatched_requirements: job_requirements.to_vec(),
+        unmatched_diagnostics: job_requirements
+            .iter()
+            .map(|requirement| UnmatchedRequirementDiagnostic {
+                requirement: requirement.clone(),
+                reason,
+            })
+            .collect(),
         unused_skills: user_skills.to_vec(),
     }
 }
