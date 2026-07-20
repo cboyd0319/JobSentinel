@@ -1,6 +1,6 @@
-use super::{SemanticMatchResult, SkillMatch};
-use crate::embeddings::EmbeddingGenerator;
+use super::{SemanticMatchResult, SemanticRuntimeProfile, SkillMatch};
 use crate::manifest::load_model_manifest;
+use anyhow::Result;
 use std::cmp::Ordering;
 use std::collections::HashSet;
 
@@ -15,16 +15,17 @@ pub(super) fn dense_candidates(
     candidate_embeddings: &[Vec<f32>],
     threshold: f32,
     top_k: usize,
-) -> Vec<(usize, f32)> {
-    let mut candidates: Vec<(usize, f32)> = candidate_embeddings
-        .iter()
-        .enumerate()
-        .filter_map(|(candidate_idx, candidate_embedding)| {
-            let similarity =
-                EmbeddingGenerator::cosine_similarity(query_embedding, candidate_embedding);
-            (similarity >= threshold).then_some((candidate_idx, similarity))
-        })
-        .collect();
+) -> Result<Vec<(usize, f32)>> {
+    if !threshold.is_finite() || !(0.0..=1.0).contains(&threshold) {
+        anyhow::bail!("invalid local matching threshold");
+    }
+    let mut candidates = Vec::new();
+    for (candidate_idx, candidate_embedding) in candidate_embeddings.iter().enumerate() {
+        let similarity = checked_cosine_similarity(query_embedding, candidate_embedding)?;
+        if similarity >= threshold {
+            candidates.push((candidate_idx, similarity));
+        }
+    }
 
     candidates.sort_by(|left, right| {
         right
@@ -34,10 +35,47 @@ pub(super) fn dense_candidates(
             .then_with(|| left.0.cmp(&right.0))
     });
     candidates.truncate(top_k);
-    candidates
+    Ok(candidates)
+}
+
+pub(super) fn checked_cosine_similarity(left: &[f32], right: &[f32]) -> Result<f32> {
+    if left.is_empty()
+        || left.len() != right.len()
+        || left.iter().chain(right).any(|value| !value.is_finite())
+    {
+        anyhow::bail!("invalid local embedding output");
+    }
+    let (dot, left_norm, right_norm) =
+        left.iter()
+            .zip(right)
+            .fold((0.0_f64, 0.0_f64, 0.0_f64), |totals, (left, right)| {
+                let left = f64::from(*left);
+                let right = f64::from(*right);
+                (
+                    totals.0 + left * right,
+                    totals.1 + left * left,
+                    totals.2 + right * right,
+                )
+            });
+    if !left_norm.is_finite() || !right_norm.is_finite() || left_norm <= 0.0 || right_norm <= 0.0 {
+        anyhow::bail!("invalid local embedding output");
+    }
+    let similarity = dot / (left_norm.sqrt() * right_norm.sqrt());
+    if !similarity.is_finite() {
+        anyhow::bail!("invalid local matching score");
+    }
+    Ok(similarity.clamp(-1.0, 1.0) as f32)
+}
+
+pub(super) fn require_embedding_count(expected: usize, actual: usize) -> Result<()> {
+    if expected != actual {
+        anyhow::bail!("invalid local embedding output");
+    }
+    Ok(())
 }
 
 pub(super) fn build_match_result(
+    runtime_profile: SemanticRuntimeProfile,
     user_skills: &[String],
     job_requirements: &[String],
     matched_skills: Vec<SkillMatch>,
@@ -71,10 +109,25 @@ pub(super) fn build_match_result(
         .collect();
 
     SemanticMatchResult {
+        runtime_profile,
         overall_score,
         matched_skills,
         unmatched_requirements,
         unused_skills,
+    }
+}
+
+pub(super) fn empty_match_result(
+    runtime_profile: SemanticRuntimeProfile,
+    user_skills: &[String],
+    job_requirements: &[String],
+) -> SemanticMatchResult {
+    SemanticMatchResult {
+        runtime_profile,
+        overall_score: 0.0,
+        matched_skills: Vec::new(),
+        unmatched_requirements: job_requirements.to_vec(),
+        unused_skills: user_skills.to_vec(),
     }
 }
 

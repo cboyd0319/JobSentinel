@@ -1,5 +1,5 @@
-use super::shared::build_match_result;
-use super::{SemanticMatchResult, SkillMatch};
+use super::shared::{build_match_result, empty_match_result};
+use super::{SemanticMatchResult, SemanticRuntimeProfile, SkillMatch};
 use std::collections::HashSet;
 
 pub(super) fn match_skills(
@@ -7,12 +7,11 @@ pub(super) fn match_skills(
     job_requirements: &[String],
 ) -> anyhow::Result<SemanticMatchResult> {
     if user_skills.is_empty() || job_requirements.is_empty() {
-        return Ok(SemanticMatchResult {
-            overall_score: 0.0,
-            matched_skills: Vec::new(),
-            unmatched_requirements: job_requirements.to_vec(),
-            unused_skills: user_skills.to_vec(),
-        });
+        return Ok(empty_match_result(
+            SemanticRuntimeProfile::DeterministicExact,
+            user_skills,
+            job_requirements,
+        ));
     }
 
     let normalized_user_skills = user_skills
@@ -38,6 +37,8 @@ pub(super) fn match_skills(
                 job_skill: requirement.clone(),
                 user_skill: user_skills[user_index].clone(),
                 similarity: 1.0,
+                reranker_score: None,
+                reranker_rank: None,
             });
             matched_job_indices.insert(job_index);
             matched_user_indices.insert(user_index);
@@ -45,6 +46,7 @@ pub(super) fn match_skills(
     }
 
     Ok(build_match_result(
+        SemanticRuntimeProfile::DeterministicExact,
         user_skills,
         job_requirements,
         matched_skills,
@@ -94,14 +96,31 @@ mod tests {
             .unwrap();
 
         assert!((result.overall_score - 0.65).abs() < f64::EPSILON);
+        assert_eq!(
+            result.runtime_profile,
+            super::super::SemanticRuntimeProfile::DeterministicExact
+        );
         assert_eq!(result.matched_skills.len(), 1);
         assert_eq!(result.matched_skills[0].similarity, 1.0);
+        assert_eq!(result.matched_skills[0].reranker_score, None);
+        assert_eq!(result.matched_skills[0].reranker_rank, None);
         assert_eq!(
             result.matched_skills[0].user_skill,
             "  PYTHON\tPROGRAMMING "
         );
         assert_eq!(result.unmatched_requirements, ["Python"]);
         assert_eq!(result.unused_skills, ["Rust"]);
+        let serialized = serde_json::to_string(&result).unwrap();
+        assert!(serialized.contains(r#""runtime_profile":"deterministic_exact""#));
+        for forbidden in [
+            "reranker_score",
+            "reranker_rank",
+            "model_path",
+            "provider",
+            "prompt",
+        ] {
+            assert!(!serialized.contains(forbidden));
+        }
         assert_eq!(std::fs::read_dir(app_data_dir.path()).unwrap().count(), 0);
     }
 

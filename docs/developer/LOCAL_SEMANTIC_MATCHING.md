@@ -238,6 +238,16 @@ The local matcher:
 4. Returns matched skills, unmatched requirements, unused skills, and an
    advisory overall result.
 
+Every result names its producing runtime as `qwen3_reranked`, `minilm`, or
+`deterministic_exact`. Each skill match keeps `similarity` as its dense cosine
+or exact score. Qwen3 matches also retain the selected raw reranker score and
+rank as separate fields. Raw reranker scores are query-kind-specific logit
+differences, not probabilities, and must not replace or be compared as dense
+scores. Unknown or duplicate candidate IDs, missing candidates, non-finite
+scores, invalid ranks, invalid dense scores, and inconsistent reranker ordering
+fail closed. Embedding and reranker batches require exact input/output
+cardinality, and every reranker row must contain exactly one finite scalar.
+
 The current similarity threshold is implementation detail. User-facing copy
 should describe outcomes as estimates based on visible evidence, not objective
 truth.
