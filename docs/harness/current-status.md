@@ -50,8 +50,8 @@ Last updated: 2026-07-19
 
 - Active feature: `v3-milestone-5-local-evidence-resume-matching`
 - Status: `active`
-- Current slice: Pinned Qwen3 calibration separates retrieval, acceptance, and safe abstention.
-- Next action: Add typed explanations for unmatched requirements at retrieval and acceptance gates.
+- Current slice: Typed match diagnostics explain local abstention without exposing private inputs.
+- Next action: Add reviewed removal of an integrity-invalid, lock-listed model cache.
 
 ## Deferred
 
