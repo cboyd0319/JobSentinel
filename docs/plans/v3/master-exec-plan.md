@@ -348,6 +348,7 @@ relevant result, and caveat.
 | 2026-07-20 | Milestone 5 macOS Essentials baseline measured | Added exact native launch-coalition measurement and bounded app-scoped cleanup at `8a321b55`. A model-free arm64 no-account DMG measured 14,224,509 bytes, its installed app measured 29,704,192 bytes, and three final-verifier launches reached a visible window in a median upper bound of 825 ms with a median aggregate observed maximum RSS of 240,480 KiB across six app-coalition processes. Mounted and copied-app smoke, private local data, empty stderr, model-free payload checks, 19 verifier tests, all 842 script tests, security, harness, and final adversarial review passed. Gate 4 remains open because this low-pressure 64 GiB host does not prove actual 8 GiB behavior, the complete installed Essentials journey, numeric release thresholds, or the platform matrix. |
 | 2026-07-20 | Milestone 5 Linux 8 GiB Essentials journey measured | Reused the already-owned database during setup at `d442138f`, removing a redundant credential-backed reconnect and migration that blocked installed first-run completion. The exact source tree produced amd64 Debian and AppImage packages and installed the Debian package inside a controlled 8 GiB, zero-swap Ubuntu guest. Build peak was 4,027,662,336 bytes; the complete installed journey peak was 687,190,016 bytes; persistence relaunch peak was 717,479,936 bytes; and every memory-limit and OOM counter remained zero. Setup, an explicit Greenhouse source check, synthetic veteran resume import, deterministic match review, tracker update, pay abstention, a support report with zero tested private-marker matches, and restart persistence passed. Focused config tests, strict desktop clippy, formatting, AppImage model-payload inspection, and adversarial review passed. Gate 4 remains open for numeric thresholds, Windows 11 and macOS 26 installed evidence, stronger-local setup and removal, broader Qwen3 calibration, employer and regional evaluation, and signed release artifacts. |
 | 2026-07-20 | Milestone 5 governed model setup and removal added | Added visible Settings setup, cancellation, and removal for the stronger-local Qwen3 pair at `8bd764c0`. Downloads require native confirmation naming host, size, license, and the local-only data boundary, then stream into app-owned staged files with locked sizes, checksum-verified promotion, resume, symlink rejection, a pinned anonymous Hugging Face endpoint, and an app-scoped Xet transfer cache that is reset before and cleared after each transfer. One lifecycle reservation serializes download, cancel, removal, and repair; cancellation works during confirmation, mid-transfer, on panel exit, and for orphaned downloads after a renderer reload. Removal deletes all cached data under the two governed model identities, including stale revisions and superseded lock layouts, and refuses on any symlink inside the governed tree. Progress events are byte-only and throttled. Built-in matching stays available throughout. 88 local-AI tests, focused desktop and 16 UI tests, strict production clippy, harness, docs, security checks, and adversarial review passed after one MAJOR and six smaller findings were fixed and re-review returned APPROVE. Milestone 5 remains active. |
+| 2026-07-20 | Milestone 5 governed model lifecycle proven live | Ran the complete governed setup and removal against Hugging Face at `a2ec0549`. The opt-in lifecycle test downloaded the full 2,406,043,460-byte pinned Qwen3 pair into a fresh app-data directory in 145.96 seconds on the macOS 27 arm64 64 GiB host, verified every locked size and checksum, confirmed monotonic byte-only progress ending exactly at the locked total, confirmed transfer and staging cache cleanup, and removed both governed identities completely. A new fail-closed test proves download stops before any network client without the app-set anonymous policy, and opt-in downloading tests now set that same policy and run single-threaded. 89 default local-AI tests passed with 12 model tests ignored. This is direct production-path proof, not installed-app GUI, modest-hardware, or Windows or Linux evidence. Milestone 5 remains active. |
 
 ## Discoveries
 
@@ -561,7 +562,7 @@ relevant result, and caveat.
 
 - Current state: Milestones 0 through 4 and Gates 0 through 3 are passing.
   Milestone 5 local evidence, resume, and matching work is the sole active
-  feature. Its current implementation is committed through `8bd764c0`.
+  feature. Its current implementation is committed through `a2ec0549`.
 - Evidence: `docs/harness/evidence/v3-milestone-3-reviewed-export-2026-07-19.json`
   binds the reviewed-export slice at `3b4f635b`, and
   `docs/harness/evidence/v3-milestone-3-storage-cleanup-2026-07-19.json` binds
@@ -602,7 +603,9 @@ relevant result, and caveat.
   controlled 8 GiB Linux package, complete installed journey, setup correction,
   and persistence relaunch are bound by
   `docs/harness/evidence/v3-milestone-5-essentials-linux-8g-journey-2026-07-20.json`
-  at `d442138f`.
+  at `d442138f`. The live governed model setup and removal proof is bound by
+  `docs/harness/evidence/v3-milestone-5-governed-model-lifecycle-2026-07-20.json`
+  at `a2ec0549`.
 - Next step: extend the installed package and runtime matrix, approve numeric
   thresholds, and close the remaining stronger-local, employer, regional, and
   cross-platform Gate 4 evidence without enabling external AI by default.
