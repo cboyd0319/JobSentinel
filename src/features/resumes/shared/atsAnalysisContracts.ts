@@ -32,11 +32,18 @@ export interface MissingKeyword {
   importance: KeywordImportance;
 }
 
+export interface ResumeEvidenceCitation {
+  evidence_id: string;
+  source_revision: string;
+  field_path: string;
+}
+
 export interface RequirementReview {
   keyword: string;
   importance: KeywordImportance;
   match_state: RequirementMatchState;
   evidence_sections: string[];
+  evidence_citations?: ResumeEvidenceCitation[];
   hard_constraint: boolean;
   recommendation: string;
 }

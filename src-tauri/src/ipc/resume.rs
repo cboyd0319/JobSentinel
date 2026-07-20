@@ -5,8 +5,8 @@
 
 use crate::application::resume::{
     AtsAnalysisResult, AtsAnalyzer, MatchResult, MatchResultWithJob, NewSkill, Resume,
-    ResumeAnalysisInput, ResumeExporter, SkillUpdate, StructuredResume, Template, TemplateId,
-    TemplateRenderer, UserSkill,
+    ResumeAnalysisInput, ResumeEvidenceSnapshot, ResumeExporter, SkillUpdate, StructuredResume,
+    Template, TemplateId, TemplateRenderer, UserSkill,
 };
 use crate::bootstrap::AppState;
 use crate::ipc::errors::user_friendly_error;
@@ -411,12 +411,17 @@ pub(crate) async fn analyze_active_resume_for_job(
         .collect::<Vec<_>>();
 
     let source_text = read_html_resume_source_for_format_review(&resume.file_path);
+    let evidence_snapshot = ResumeEvidenceSnapshot {
+        source_id: format!("resume:{}", resume.id),
+        revision: resume.updated_at.to_rfc3339(),
+    };
 
-    Ok(AtsAnalyzer::analyze_text_for_job_with_source(
+    Ok(AtsAnalyzer::analyze_text_for_job_with_source_and_snapshot(
         readable_text,
         &skill_names,
         &job_description,
         source_text.as_deref(),
+        &evidence_snapshot,
     ))
 }
 

@@ -1,5 +1,5 @@
 use anyhow::Result;
-use sqlx::{Row, SqlitePool};
+use sqlx::{Row, Sqlite, SqlitePool, Transaction};
 
 use super::{types, ResumeMatcher, UserSkill};
 use types::NullableFieldUpdate;
@@ -54,14 +54,15 @@ impl ResumeMatcher {
             return Ok(());
         }
 
-        ensure_user_skill_exists(&self.db, skill_id).await?;
+        let mut transaction = self.db.begin().await?;
+        let resume_id = require_user_skill_resume_id(&mut transaction, skill_id).await?;
 
         if let Some(name) = updates.skill_name {
             let name = normalize_skill_name(&name)?;
             sqlx::query("UPDATE user_skills SET skill_name = ? WHERE id = ?")
                 .bind(name)
                 .bind(skill_id)
-                .execute(&self.db)
+                .execute(&mut *transaction)
                 .await?;
         }
         if !updates.skill_category.is_unset() {
@@ -73,7 +74,7 @@ impl ResumeMatcher {
             sqlx::query("UPDATE user_skills SET skill_category = ? WHERE id = ?")
                 .bind(category)
                 .bind(skill_id)
-                .execute(&self.db)
+                .execute(&mut *transaction)
                 .await?;
         }
         if !updates.proficiency_level.is_unset() {
@@ -85,7 +86,7 @@ impl ResumeMatcher {
             sqlx::query("UPDATE user_skills SET proficiency_level = ? WHERE id = ?")
                 .bind(level)
                 .bind(skill_id)
-                .execute(&self.db)
+                .execute(&mut *transaction)
                 .await?;
         }
         if !updates.years_experience.is_unset() {
@@ -97,25 +98,31 @@ impl ResumeMatcher {
             sqlx::query("UPDATE user_skills SET years_experience = ? WHERE id = ?")
                 .bind(years)
                 .bind(skill_id)
-                .execute(&self.db)
+                .execute(&mut *transaction)
                 .await?;
         }
 
+        advance_resume_snapshot(&mut transaction, resume_id).await?;
+        transaction.commit().await?;
         tracing::info!("Updated skill {}", skill_id);
         Ok(())
     }
 
     /// Delete a user skill
     pub async fn delete_user_skill(&self, skill_id: i64) -> Result<()> {
+        let mut transaction = self.db.begin().await?;
+        let resume_id = require_user_skill_resume_id(&mut transaction, skill_id).await?;
         let result = sqlx::query("DELETE FROM user_skills WHERE id = ?")
             .bind(skill_id)
-            .execute(&self.db)
+            .execute(&mut *transaction)
             .await?;
 
         if result.rows_affected() == 0 {
             anyhow::bail!("Skill with id {} not found", skill_id);
         }
 
+        advance_resume_snapshot(&mut transaction, resume_id).await?;
+        transaction.commit().await?;
         tracing::info!("Deleted skill {}", skill_id);
         Ok(())
     }
@@ -126,6 +133,7 @@ impl ResumeMatcher {
         let skill_category = normalize_optional_skill_text(skill.skill_category);
         let proficiency_level = normalize_optional_skill_text(skill.proficiency_level);
         let years_experience = validate_skill_years(skill.years_experience)?;
+        let mut transaction = self.db.begin().await?;
 
         let result = sqlx::query(
             r#"
@@ -141,10 +149,12 @@ impl ResumeMatcher {
         .bind(&skill_category)
         .bind(&proficiency_level)
         .bind(years_experience)
-        .execute(&self.db)
+        .execute(&mut *transaction)
         .await?;
 
         let skill_id = result.last_insert_rowid();
+        advance_resume_snapshot(&mut transaction, resume_id).await?;
+        transaction.commit().await?;
         tracing::info!(
             resume_id,
             skill_id,
@@ -164,16 +174,37 @@ fn normalize_skill_name(name: &str) -> Result<String> {
     Ok(trimmed.to_string())
 }
 
-async fn ensure_user_skill_exists(db: &SqlitePool, skill_id: i64) -> Result<()> {
-    let row = sqlx::query("SELECT id FROM user_skills WHERE id = ?")
+async fn require_user_skill_resume_id(
+    transaction: &mut Transaction<'_, Sqlite>,
+    skill_id: i64,
+) -> Result<i64> {
+    let row = sqlx::query_scalar("SELECT resume_id FROM user_skills WHERE id = ?")
         .bind(skill_id)
-        .fetch_optional(db)
+        .fetch_optional(&mut **transaction)
         .await?;
 
-    if row.is_none() {
-        anyhow::bail!("Skill with id {} not found", skill_id);
-    }
+    row.ok_or_else(|| anyhow::anyhow!("Skill with id {} not found", skill_id))
+}
 
+pub(super) async fn advance_resume_snapshot(
+    transaction: &mut Transaction<'_, Sqlite>,
+    resume_id: i64,
+) -> Result<()> {
+    let result = sqlx::query(
+        "UPDATE resumes
+         SET updated_at = CASE
+             WHEN updated_at >= strftime('%Y-%m-%d %H:%M:%f', 'now')
+             THEN strftime('%Y-%m-%d %H:%M:%f', updated_at, '+0.001 seconds')
+             ELSE strftime('%Y-%m-%d %H:%M:%f', 'now')
+         END
+         WHERE id = ?",
+    )
+    .bind(resume_id)
+    .execute(&mut **transaction)
+    .await?;
+    if result.rows_affected() == 0 {
+        anyhow::bail!("Resume with id {} not found", resume_id);
+    }
     Ok(())
 }
 
@@ -197,6 +228,10 @@ fn validate_skill_years(value: Option<f64>) -> Result<Option<f64>> {
         other => Ok(other),
     }
 }
+
+#[cfg(test)]
+#[path = "skill_store_tests.rs"]
+mod mutation_tests;
 
 #[cfg(test)]
 mod query_tests {

@@ -1,11 +1,13 @@
 use super::super::ats_types::{
-    KeywordImportance, KeywordMatch, MissingKeyword, RequirementMatchState, RequirementReview,
+    HardConstraintCategory, KeywordImportance, KeywordMatch, MissingKeyword, RequirementMatchState,
+    RequirementReview,
 };
 use super::hard_constraints;
+use super::matching::MatchedKeyword;
 
 pub(super) fn build_requirement_reviews(
     job_keywords: &[(String, KeywordImportance)],
-    keyword_matches: &[KeywordMatch],
+    keyword_matches: &[MatchedKeyword],
     missing_keyword_details: &[MissingKeyword],
 ) -> Vec<RequirementReview> {
     let mut reviews = Vec::new();
@@ -13,14 +15,21 @@ pub(super) fn build_requirement_reviews(
     for (keyword, importance) in job_keywords {
         if let Some(matched) = keyword_matches
             .iter()
-            .find(|item| item.keyword.eq_ignore_ascii_case(keyword))
+            .find(|item| item.keyword_match.keyword.eq_ignore_ascii_case(keyword))
         {
-            let match_state = classify_requirement_match_state(matched);
+            let match_state = if hard_constraints::hard_constraint_category(keyword)
+                == Some(HardConstraintCategory::SecurityClearance)
+            {
+                RequirementMatchState::Implied
+            } else {
+                classify_requirement_match_state(&matched.keyword_match)
+            };
             reviews.push(RequirementReview {
                 keyword: keyword.clone(),
                 importance: *importance,
                 match_state,
-                evidence_sections: matched.found_in.clone(),
+                evidence_sections: matched.keyword_match.found_in.clone(),
+                evidence_citations: matched.evidence_citations.clone(),
                 hard_constraint: hard_constraints::hard_constraint_category(keyword).is_some(),
                 recommendation: requirement_recommendation(match_state),
             });
@@ -33,6 +42,7 @@ pub(super) fn build_requirement_reviews(
                 importance: *importance,
                 match_state: RequirementMatchState::Missing,
                 evidence_sections: Vec::new(),
+                evidence_citations: Vec::new(),
                 hard_constraint: hard_constraints::hard_constraint_category(keyword).is_some(),
                 recommendation: requirement_recommendation(RequirementMatchState::Missing),
             });

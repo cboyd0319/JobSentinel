@@ -3400,6 +3400,7 @@ dependencies = [
  "anyhow",
  "chrono",
  "docx-rs",
+ "jobsentinel-domain",
  "jobsentinel-local-ai",
  "jobsentinel-security",
  "pdf-extract",

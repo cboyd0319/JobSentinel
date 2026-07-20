@@ -1,5 +1,6 @@
 //! Resume readability analyzer result types.
 
+use jobsentinel_domain::ResumeEvidenceCitation;
 use serde::{Deserialize, Serialize};
 
 /// Complete readability analysis result for a resume
@@ -77,6 +78,9 @@ pub struct RequirementReview {
     pub match_state: RequirementMatchState,
     /// Resume areas where evidence was found
     pub evidence_sections: Vec<String>,
+    /// Opaque references to exact local resume fields that support the match
+    #[serde(default)]
+    pub evidence_citations: Vec<ResumeEvidenceCitation>,
     /// Whether this looks like a hard requirement to verify before tailoring
     pub hard_constraint: bool,
     /// Plain next step for the job seeker

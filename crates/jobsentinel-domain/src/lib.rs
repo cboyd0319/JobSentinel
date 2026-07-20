@@ -14,6 +14,7 @@ pub mod v3_evaluation_inputs;
 #[cfg(test)]
 mod v3_evaluation_tests;
 pub mod v3_evaluations;
+pub mod v3_evidence;
 pub mod v3_foundation;
 pub mod v3_manifests;
 #[cfg(test)]
@@ -47,4 +48,5 @@ pub use v3_evaluations::{
     EvaluationVerificationTarget, MilitaryServiceBasis, ProtectedVeteranAnswerBasis,
     V3EvaluationCase, V3EvaluationSet,
 };
+pub use v3_evidence::{ResumeEvidenceCitation, ResumeEvidenceSnapshot};
 pub use v3_manifests::{PackExecutionClass, PrivacyLabel};

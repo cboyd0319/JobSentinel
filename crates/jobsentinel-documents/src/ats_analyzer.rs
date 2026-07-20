@@ -11,6 +11,7 @@ use super::structured_resume::{
     ResumeEducation, ResumeExperience, ResumePersonalInfo, ResumeSkill, ResumeSkillCategory,
     StructuredResume,
 };
+use jobsentinel_domain::ResumeEvidenceSnapshot;
 
 mod bullet_prompts;
 mod format_result;
@@ -73,7 +74,22 @@ impl AtsAnalyzer {
         skills: &[String],
         job_description: &str,
     ) -> AtsAnalysisResult {
-        Self::analyze_text_for_job_with_source(resume_text, skills, job_description, None)
+        Self::analyze_text_for_job_context(resume_text, skills, job_description, None, None)
+    }
+
+    pub fn analyze_text_for_job_with_snapshot(
+        resume_text: &str,
+        skills: &[String],
+        job_description: &str,
+        evidence_snapshot: &ResumeEvidenceSnapshot,
+    ) -> AtsAnalysisResult {
+        Self::analyze_text_for_job_context(
+            resume_text,
+            skills,
+            job_description,
+            None,
+            Some(evidence_snapshot),
+        )
     }
 
     /// Analyze readable resume text against a job description with optional source markup for
@@ -84,14 +100,44 @@ impl AtsAnalyzer {
         job_description: &str,
         source_text: Option<&str>,
     ) -> AtsAnalysisResult {
+        Self::analyze_text_for_job_context(resume_text, skills, job_description, source_text, None)
+    }
+
+    pub fn analyze_text_for_job_with_source_and_snapshot(
+        resume_text: &str,
+        skills: &[String],
+        job_description: &str,
+        source_text: Option<&str>,
+        evidence_snapshot: &ResumeEvidenceSnapshot,
+    ) -> AtsAnalysisResult {
+        Self::analyze_text_for_job_context(
+            resume_text,
+            skills,
+            job_description,
+            source_text,
+            Some(evidence_snapshot),
+        )
+    }
+
+    fn analyze_text_for_job_context(
+        resume_text: &str,
+        skills: &[String],
+        job_description: &str,
+        source_text: Option<&str>,
+        evidence_snapshot: Option<&ResumeEvidenceSnapshot>,
+    ) -> AtsAnalysisResult {
         let job_keywords = Self::extract_job_keywords(job_description);
         let format_result = if source_text.is_some() {
             plain_text_format::analyze_plain_text_format_with_source(resume_text, source_text)
         } else {
             plain_text_format::analyze_plain_text_format(resume_text)
         };
-        let (keyword_matches, missing_keyword_details) =
-            Self::find_keyword_matches_in_text(resume_text, skills, &job_keywords);
+        let (keyword_matches, missing_keyword_details) = Self::find_keyword_matches_in_text(
+            resume_text,
+            skills,
+            &job_keywords,
+            evidence_snapshot,
+        );
 
         Self::build_job_analysis_result(
             job_description,
@@ -220,7 +266,7 @@ impl AtsAnalyzer {
         job_description: &str,
         job_keywords: &[(String, KeywordImportance)],
         mut format_result: AtsAnalysisResult,
-        keyword_matches: Vec<KeywordMatch>,
+        keyword_matches: Vec<matching::MatchedKeyword>,
         missing_keyword_details: Vec<MissingKeyword>,
     ) -> AtsAnalysisResult {
         let missing_keywords = missing_keyword_details
@@ -287,6 +333,10 @@ impl AtsAnalyzer {
         if let Some(cap) = score_cap {
             overall_score = overall_score.min(cap);
         }
+        let keyword_matches = keyword_matches
+            .into_iter()
+            .map(|matched| matched.keyword_match)
+            .collect();
 
         AtsAnalysisResult {
             overall_score,

@@ -13,6 +13,8 @@ mod credential_summary_tests;
 mod current_experience_evidence;
 #[path = "ats_analyzer_tests/degree_requirement_equivalences.rs"]
 mod degree_requirement_equivalences;
+#[path = "ats_analyzer_tests/evidence_citations.rs"]
+mod evidence_citations;
 #[path = "ats_analyzer_tests/experience_requirement_constraints.rs"]
 mod experience_requirement_constraints;
 #[path = "ats_analyzer_tests/format_safety_tests.rs"]
@@ -86,6 +88,7 @@ fn sample_resume() -> ResumeAnalysisInput {
             military_info: None,
         },
         custom_sections: HashMap::new(),
+        evidence_snapshot: None,
     }
 }
 

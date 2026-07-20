@@ -70,13 +70,10 @@ impl ResumeMatcher {
         let result = sqlx::query(
             r#"
             UPDATE resumes
-            SET
-                is_active = CASE WHEN id = ? THEN 1 ELSE 0 END,
-                updated_at = CASE WHEN id = ? THEN datetime('now') ELSE updated_at END
+            SET is_active = CASE WHEN id = ? THEN 1 ELSE 0 END
             WHERE EXISTS (SELECT 1 FROM resumes WHERE id = ?)
             "#,
         )
-        .bind(resume_id)
         .bind(resume_id)
         .bind(resume_id)
         .execute(&self.db)

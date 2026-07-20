@@ -18,6 +18,7 @@ ocr = []
 anyhow.workspace = true
 chrono.workspace = true
 docx-rs.workspace = true
+jobsentinel-domain.workspace = true
 jobsentinel-local-ai = { workspace = true, optional = true }
 jobsentinel-security.workspace = true
 pdf-extract.workspace = true

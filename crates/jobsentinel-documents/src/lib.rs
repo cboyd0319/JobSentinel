@@ -18,6 +18,7 @@ pub use ats_types::{
     RequirementReview, SuggestionCategory,
 };
 pub use export::ResumeExporter;
+pub use jobsentinel_domain::{ResumeEvidenceCitation, ResumeEvidenceSnapshot};
 pub use parser::ResumeParser;
 pub use resume_match_score::calculate_resume_match_score;
 pub use skills::{ExtractedSkill, SkillExtractor};

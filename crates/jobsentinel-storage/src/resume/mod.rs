@@ -66,9 +66,9 @@ pub use jobsentinel_documents::{
     ExperienceRequirement, FormatIssue, HardConstraintCategory, HardConstraintRisk, IssueSeverity,
     JobSkill, KeywordImportance, KeywordMatch, MatchResult, MatchResultWithJob, MissingKeyword,
     NewSkill, RequirementMatchState, RequirementReview, Resume, ResumeAnalysisInput,
-    ResumeCertification, ResumeEducation, ResumeExperience, ResumeExporter, ResumePersonalInfo,
-    ResumeProject, ResumeSkill, ResumeSkillCategory, SkillUpdate, StructuredResume,
-    SuggestionCategory, Template, TemplateId, TemplateRenderer, UserSkill,
+    ResumeCertification, ResumeEducation, ResumeEvidenceSnapshot, ResumeExperience, ResumeExporter,
+    ResumePersonalInfo, ResumeProject, ResumeSkill, ResumeSkillCategory, SkillUpdate,
+    StructuredResume, SuggestionCategory, Template, TemplateId, TemplateRenderer, UserSkill,
 };
 
 /// Main resume matcher service
@@ -189,6 +189,7 @@ impl ResumeMatcher {
 
         // Extract skills using keyword-based approach
         let extracted_skills = self.skill_extractor.extract_skills(&text);
+        let mut transaction = self.db.begin().await?;
 
         // Insert skills into database
         for skill in &extracted_skills {
@@ -205,9 +206,11 @@ impl ResumeMatcher {
             .bind(&skill.skill_name)
             .bind(&skill.skill_category)
             .bind(skill.confidence_score)
-            .execute(&self.db)
+            .execute(&mut *transaction)
             .await?;
         }
+        skill_store::advance_resume_snapshot(&mut transaction, resume_id).await?;
+        transaction.commit().await?;
 
         // Fetch inserted skills
         self.get_user_skills(resume_id).await
