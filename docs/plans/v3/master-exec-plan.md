@@ -577,8 +577,10 @@ relevant result, and caveat.
   at `c5422e63`. Gate 3 completion is bound by
   `docs/harness/evidence/v3-milestone-4-gate-3-2026-07-19.json` at
   `88beaadc`.
-- Next step: use the cited semantic result in active saved-resume analysis
-  without duplicating the deterministic analyzer or requiring a local model.
+- Next step: move active saved-resume analysis behind application ownership and
+  reject resume, skill, active-selection, or deletion changes before returning
+  the existing result. Do not merge the separate persisted-job semantic command
+  into the visible analyzer.
 - Open risks: scope remains large, contract freeze is irreversible within the
   v3 compatibility line, recovery and permission behavior still needs Windows
   11, macOS 26, and Linux release-matrix proof, installed recovery UI still
