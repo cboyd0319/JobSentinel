@@ -17,11 +17,16 @@ document = "Job posting, job summary, or role requirement."
 strong = 0.82
 medium = 0.65
 weak = 0.48
+retrieval = 0.30
 
 [thresholds.job_search]
 strong = 0.76
 medium = 0.60
 weak = 0.42
+retrieval = 0.42
+
+[reranker_acceptance]
+resume_requirement = 3.0
 
 [[models]]
 id = "qwen3-embedding-0.6b"

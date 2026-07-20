@@ -138,7 +138,19 @@ pub(super) fn qwen3_match_threshold() -> f32 {
             manifest
                 .thresholds
                 .get("resume_requirement")
-                .map(|thresholds| thresholds.medium)
+                .map(|thresholds| thresholds.retrieval)
         })
         .unwrap_or(SIMILARITY_THRESHOLD)
+}
+
+pub(super) fn qwen3_reranker_acceptance_threshold() -> f32 {
+    load_model_manifest()
+        .ok()
+        .and_then(|manifest| {
+            manifest
+                .reranker_acceptance
+                .get("resume_requirement")
+                .copied()
+        })
+        .unwrap_or(f32::INFINITY)
 }

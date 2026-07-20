@@ -2,7 +2,7 @@ use super::*;
 
 #[test]
 fn qwen3_threshold_comes_from_model_lock() {
-    assert!((shared::qwen3_match_threshold() - 0.65).abs() < f32::EPSILON);
+    assert!((shared::qwen3_match_threshold() - 0.30).abs() < f32::EPSILON);
 }
 
 #[test]

@@ -162,6 +162,35 @@ and unit tests. If JobSentinel adds a standalone CLI later, the command surface
 should map to retrieval, reranker, fairness, self-preference, and explanation
 evals without changing the underlying fixture schema.
 
+The pinned production-path baseline runs all three frozen
+`job_requirement_to_resume_evidence` hard negatives through the verified Qwen3
+embedding and reranker pair. The reviewed positives produced dense scores of
+`0.4218491`, `0.67955077`, and `0.63454574`, then ranked first over their paired
+hard negatives, which scored `0.35205674`, `0.4145699`, and `0.48090482`.
+The matcher uses a distinct manifest-owned `0.30` retrieval floor so all six
+frozen candidates reach the bounded reranker. The test allows at most `0.01`
+dense-score drift and requires every candidate to retain at least `0.04`
+retrieval margin. The existing `0.48`, `0.65`, and `0.82` weak, medium, and
+strong score bands remain unchanged, but the current matcher does not classify
+results with those bands.
+
+The paired positive reranker scores were `5.246351`, `5.893036`, and
+`6.3774714`; the hard negatives scored `-7.0783405`, `-3.9874773`, and
+`1.2468202`. A separate manifest-owned `3.0` acceptance floor prevents a
+retrieved candidate from becoming a match solely because it ranked first. The
+test allows at most `0.1` reranker-score drift, requires at least `1.0` margin
+on each side of the floor, proves each pair selects the positive through
+production matching, and proves each hard negative alone leaves the requirement
+unmatched. The opt-in ignored test requires an explicit
+`JOBSENTINEL_QWEN3_TEST_CACHE`; it does not make model download part of the
+default test lane.
+
+This is a seed baseline, not broad calibration evidence. It covers three
+synthetic requirement-level pairs on one macOS arm64 host. Larger reviewed
+datasets, other query kinds, modest-hardware budgets, and Windows 11, macOS 26,
+and Linux release-matrix runs remain required before Gate 4 can freeze model
+and footprint decisions.
+
 The research-backed evaluation contract is summarized in
 [Semantic resume-job matching](../research/semantic-resume-job-matching.md).
 

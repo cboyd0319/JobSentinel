@@ -1,7 +1,7 @@
 use super::shared::{
     build_match_result, checked_cosine_similarity, dense_candidates, empty_match_result,
-    qwen3_match_threshold, require_embedding_count, QWEN3_REQUIREMENT_INSTRUCTION,
-    QWEN3_RERANK_TOP_K,
+    qwen3_match_threshold, qwen3_reranker_acceptance_threshold, require_embedding_count,
+    QWEN3_REQUIREMENT_INSTRUCTION, QWEN3_RERANK_TOP_K,
 };
 use super::{SemanticMatchResult, SemanticRuntimeProfile, SkillMatch};
 use crate::runtime::{
@@ -20,6 +20,7 @@ pub(super) struct Qwen3SemanticRuntime {
     embedding: Qwen3EmbeddingBackend,
     reranker: Qwen3RerankerBackend,
     threshold: f32,
+    reranker_acceptance: f32,
 }
 
 #[derive(Debug, PartialEq)]
@@ -85,12 +86,23 @@ fn select_reranked_match(
     Ok(selected)
 }
 
+fn apply_reranker_acceptance(
+    selected: Option<RerankedMatch>,
+    minimum_score: f32,
+) -> Result<Option<RerankedMatch>> {
+    if !minimum_score.is_finite() {
+        anyhow::bail!("invalid reranker acceptance threshold");
+    }
+    Ok(selected.filter(|candidate| candidate.reranker_score >= minimum_score))
+}
+
 impl Qwen3SemanticRuntime {
     pub(super) fn new(embedding: Qwen3EmbeddingBackend, reranker: Qwen3RerankerBackend) -> Self {
         Self {
             embedding,
             reranker,
             threshold: qwen3_match_threshold(),
+            reranker_acceptance: qwen3_reranker_acceptance_threshold(),
         }
     }
 
@@ -196,7 +208,10 @@ impl Qwen3SemanticRuntime {
             &candidates,
         )?;
 
-        select_reranked_match(dense_candidates, &scores)
+        apply_reranker_acceptance(
+            select_reranked_match(dense_candidates, &scores)?,
+            self.reranker_acceptance,
+        )
     }
 
     pub(super) fn find_similar_skills(

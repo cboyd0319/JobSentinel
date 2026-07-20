@@ -16,6 +16,8 @@ pub struct ModelManifest {
     #[serde(default)]
     pub thresholds: BTreeMap<String, ScoreThresholds>,
     #[serde(default)]
+    pub reranker_acceptance: BTreeMap<String, f32>,
+    #[serde(default)]
     pub models: Vec<ModelSpec>,
 }
 
@@ -37,6 +39,7 @@ pub struct ScoreThresholds {
     pub strong: f32,
     pub medium: f32,
     pub weak: f32,
+    pub retrieval: f32,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Deserialize, serde::Serialize)]
@@ -173,7 +176,32 @@ impl ModelManifest {
         for model in &self.models {
             model.validate()?;
         }
+        for (name, thresholds) in &self.thresholds {
+            thresholds.validate(name)?;
+        }
+        if self
+            .reranker_acceptance
+            .values()
+            .any(|threshold| !threshold.is_finite())
+        {
+            anyhow::bail!("model lockfile reranker acceptance must be finite");
+        }
 
+        Ok(())
+    }
+}
+
+impl ScoreThresholds {
+    fn validate(&self, name: &str) -> Result<()> {
+        if ![self.retrieval, self.weak, self.medium, self.strong]
+            .into_iter()
+            .all(|threshold| threshold.is_finite() && (0.0..=1.0).contains(&threshold))
+            || self.retrieval > self.weak
+            || self.weak > self.medium
+            || self.medium > self.strong
+        {
+            anyhow::bail!("model lockfile threshold order is invalid for {name}");
+        }
         Ok(())
     }
 }
@@ -271,6 +299,41 @@ mod tests {
                 .map(|model| model.id.as_str()),
             Some("all-minilm-l6-v2-baseline")
         );
+        assert_eq!(
+            manifest
+                .thresholds
+                .get("resume_requirement")
+                .map(|thresholds| thresholds.retrieval),
+            Some(0.30)
+        );
+        assert_eq!(
+            manifest
+                .reranker_acceptance
+                .get("resume_requirement")
+                .copied(),
+            Some(3.0)
+        );
+    }
+
+    #[test]
+    fn retrieval_threshold_must_not_exceed_weak_score_band() {
+        let invalid = MODEL_LOCK_TOML.replacen("retrieval = 0.30", "retrieval = 0.49", 1);
+
+        let error = ModelManifest::from_lock_str(&invalid)
+            .expect_err("retrieval above the weak band must fail closed");
+
+        assert!(error.to_string().contains("threshold order"));
+    }
+
+    #[test]
+    fn reranker_acceptance_threshold_must_be_finite() {
+        let invalid =
+            MODEL_LOCK_TOML.replacen("resume_requirement = 3.0", "resume_requirement = nan", 1);
+
+        let error = ModelManifest::from_lock_str(&invalid)
+            .expect_err("non-finite reranker acceptance must fail closed");
+
+        assert!(error.to_string().contains("reranker acceptance"));
     }
 
     #[test]
