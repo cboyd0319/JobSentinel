@@ -12,7 +12,7 @@ external AI.
 | Default app behavior | Disabled unless built with the feature |
 | Core workflow dependency | None; deterministic matching remains available |
 | Data flow | Resume and job-skill matching runs locally |
-| Model governance | `crates/jobsentinel-local-ai/models.lock.toml` pins model identity, revision, hashes, size, license, backend compatibility, instruction profiles, and score thresholds |
+| Model governance | `crates/jobsentinel-local-ai/models.lock.toml` pins model identity, revision, hashes, size, license, wired backend, instruction profiles, and score thresholds |
 | Target embedding profile | `Qwen/Qwen3-Embedding-0.6B` at revision `97b0c614be4d77ee51c0cef4e5f07c00f9eb65b3`, 768-dimensional balanced profile |
 | Target reranker profile | `Qwen/Qwen3-Reranker-0.6B` at revision `e61197ed45024b0ed8a2d74b80b4d909f1255473` |
 | Current wired runtime | Direct matcher calls prefer the governed Qwen3 embedding plus reranker pair when both models are downloaded and checksum-verified, then verified `sentence-transformers/all-MiniLM-L6-v2`, then exact-only deterministic matching without a model download; embedded-ML resume/job scoring uses the hybrid scorer |
@@ -58,6 +58,14 @@ reranking when the governed model pair is present, fall back to verified MiniLM
 when it is present, and use exact-only deterministic matching when no verified
 model is available. The deterministic path does not claim related terms are
 equivalent and does not download or write model files.
+
+Gate 4 keeps the runtime matrix narrower than the model research. Deterministic
+matching is the model-free default. The optional stronger path is the exact
+checksum-verified Qwen3 Candle embedding and reranker pair. Verified MiniLM is
+a legacy fallback only. FastEmbed, local HTTP, Python sidecars, OS-native
+helpers, local LLM servers, and external AI are not approved matching
+providers. The model lock therefore declares no alternative compatible backend
+for either Qwen3 model.
 
 Focused hybrid ranking evidence: `core::ml::hybrid` tests prove the ranking
 core prefers direct evidence over keyword-only near misses, caps otherwise
@@ -193,8 +201,11 @@ default test lane.
 This is a seed baseline, not broad calibration evidence. It covers three
 synthetic requirement-level pairs on one macOS arm64 host. Larger reviewed
 datasets, other query kinds, modest-hardware budgets, and Windows 11, macOS 26,
-and Linux release-matrix runs remain required before Gate 4 can freeze model
-and footprint decisions.
+and Linux release-matrix runs remain required before Gate 4 can close. The
+current `0.30` retrieval and `3.0` reranker acceptance values apply only to the
+resume-requirement query kind. Weak, medium, and strong score bands, job-search
+thresholds, and the MiniLM threshold are not approved user-facing
+classifications.
 
 The research-backed evaluation contract is summarized in
 [Semantic resume-job matching](../research/semantic-resume-job-matching.md).

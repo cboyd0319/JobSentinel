@@ -355,16 +355,20 @@ mod tests {
     }
 
     #[test]
-    fn qwen3_embedding_lock_contains_runtime_critical_files() {
+    fn qwen3_lock_approves_only_wired_candle_backends() {
         let manifest = load_model_manifest().expect("model lockfile should parse");
         let model = manifest
             .default_embedding()
             .expect("default embedding model should exist");
+        let reranker = manifest
+            .default_reranker()
+            .expect("default reranker model should exist");
 
         assert_eq!(model.repo, "Qwen/Qwen3-Embedding-0.6B");
         assert_eq!(model.dimension, Some(768));
         assert_eq!(model.native_dimension, Some(1024));
-        assert!(model.supports_backend("fastembed-qwen3"));
+        assert!(model.backend_compatibility.is_empty());
+        assert!(reranker.backend_compatibility.is_empty());
         assert!(model.file("config.json").is_some());
         assert!(model.file("tokenizer.json").is_some());
         assert!(model.file("model.safetensors").is_some());

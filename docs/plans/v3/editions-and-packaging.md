@@ -65,6 +65,14 @@ Essentials should avoid by default:
 - background jobs that can make older machines feel stuck
 - advanced settings unless expert mode is enabled
 
+Gate 4 freezes the Essentials composition as the `Lighter` profile with
+deterministic matching, public sources, and safe support. It has no automatic
+or bundled model download, and region packs remain separately installed
+options. This approves the component boundary, not a numeric footprint or
+performance claim. Installer size, installed size, peak memory, startup time,
+and workflow latency remain blocked until the model-free 8 GiB journey and
+platform package matrix are measured.
+
 ## Runtime Profiles
 
 V3 should expose a simple runtime profile without making users tune model
