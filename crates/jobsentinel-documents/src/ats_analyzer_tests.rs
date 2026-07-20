@@ -473,3 +473,6 @@ fn test_requirement_reviews_explain_direct_partial_and_missing_evidence() {
     assert_eq!(salesforce.match_state, RequirementMatchState::Missing);
     assert!(salesforce.recommendation.contains("Only add it if true"));
 }
+
+#[path = "ats_analyzer_tests/matching_profile_tests.rs"]
+mod matching_profile_tests;

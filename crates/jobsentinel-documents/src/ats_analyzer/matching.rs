@@ -1,7 +1,9 @@
 use chrono::{Datelike, Utc};
 use jobsentinel_domain::{ResumeEvidenceCitation, ResumeEvidenceSnapshot};
 
-use super::super::ats_types::{KeywordImportance, KeywordMatch, MissingKeyword};
+use super::super::ats_types::{
+    KeywordImportance, KeywordMatch, MissingKeyword, RegionalMatchingProfile,
+};
 use super::super::format_taxonomy::resume_format_taxonomy;
 use super::super::structured_resume::ResumeExperience;
 use super::{term_expansion, AtsAnalyzer};
@@ -19,13 +21,15 @@ impl AtsAnalyzer {
         skills: &[String],
         job_keywords: &[(String, KeywordImportance)],
         evidence_snapshot: Option<&ResumeEvidenceSnapshot>,
+        region: Option<RegionalMatchingProfile>,
     ) -> (Vec<MatchedKeyword>, Vec<MissingKeyword>) {
         let mut matches = Vec::new();
         let mut missing = Vec::new();
 
         for (keyword, importance) in job_keywords {
             let keyword_lower = keyword.to_lowercase();
-            let search_terms = term_expansion::conservative_keyword_search_terms(&keyword_lower);
+            let search_terms =
+                term_expansion::conservative_keyword_search_terms(&keyword_lower, region);
             let (mut found_in, mut frequency, mut evidence_citations) =
                 Self::plain_text_search_term_hits(resume_text, &search_terms, evidence_snapshot);
 

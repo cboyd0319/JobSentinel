@@ -19,6 +19,41 @@ export type SuggestionCategory =
   | "AddSection"
   | "ReorderContent"
   | "FormatFix";
+export type ProfessionMatchingProfile =
+  | "technical"
+  | "content"
+  | "operations"
+  | "healthcare"
+  | "service"
+  | "trades"
+  | "education"
+  | "sales"
+  | "early_career";
+export type RegionalMatchingProfile = "us" | "uk" | "eu" | "india";
+
+export interface ResumeMatchingProfile {
+  profession: ProfessionMatchingProfile;
+  region: RegionalMatchingProfile;
+}
+
+export function isResumeMatchingProfile(
+  value: unknown,
+): value is ResumeMatchingProfile {
+  if (!value || typeof value !== "object") return false;
+  const profile = value as Partial<ResumeMatchingProfile>;
+  return [
+    "technical",
+    "content",
+    "operations",
+    "healthcare",
+    "service",
+    "trades",
+    "education",
+    "sales",
+    "early_career",
+  ].includes(profile.profession ?? "") &&
+    ["us", "uk", "eu", "india"].includes(profile.region ?? "");
+}
 
 export interface KeywordMatch {
   keyword: string;
@@ -45,6 +80,7 @@ export interface RequirementReview {
   evidence_sections: string[];
   evidence_citations?: ResumeEvidenceCitation[];
   hard_constraint: boolean;
+  profile_preferred_section?: boolean;
   recommendation: string;
 }
 
@@ -80,4 +116,5 @@ export interface AtsAnalysisResult {
   hard_constraint_risks?: HardConstraintRisk[];
   format_issues: FormatIssue[];
   suggestions: AtsSuggestion[];
+  matching_profile?: ResumeMatchingProfile;
 }

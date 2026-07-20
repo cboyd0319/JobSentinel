@@ -30,6 +30,7 @@ import type {
   MockResumeCommandResult,
   MockResumeCommandState,
 } from "./resumeCommandTypes";
+import { parseMockMatchingProfile } from "./resumeMatchingProfile";
 
 export function getMockActiveResume(
   resumes: MockResumeData[],
@@ -461,6 +462,7 @@ export function analyzeActiveResumeForJob(
         custom_sections: {},
       },
       getStringArg(args, "jobDescription") ?? "",
+      parseMockMatchingProfile(getArg(args, "matchingProfile")),
     ),
   );
 }

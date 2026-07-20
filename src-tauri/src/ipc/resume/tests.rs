@@ -1,4 +1,27 @@
 use super::*;
+use crate::application::resume::{
+    ProfessionMatchingProfile, RegionalMatchingProfile, ResumeMatchingProfile,
+};
+
+#[test]
+fn explicit_matching_profile_reaches_the_application_owner() {
+    let mut resume = ResumeAnalysisInput::default();
+    resume.resume.summary = Some("Led program evaluation.".to_string());
+    let profile = ResumeMatchingProfile {
+        profession: ProfessionMatchingProfile::Operations,
+        region: RegionalMatchingProfile::UnitedKingdom,
+    };
+
+    let result = analyze_resume_for_job(
+        resume,
+        "Required: programme evaluation".to_string(),
+        Some(profile),
+    )
+    .unwrap();
+
+    assert_eq!(result.matching_profile, Some(profile));
+    assert_eq!(result.keyword_matches[0].keyword, "program evaluation");
+}
 
 #[test]
 fn resume_match_feedback_is_closed_and_content_free() {

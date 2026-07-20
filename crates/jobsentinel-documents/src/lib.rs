@@ -14,8 +14,9 @@ mod types;
 pub use ats_analyzer::AtsAnalyzer;
 pub use ats_types::{
     AtsAnalysisResult, AtsSuggestion, FormatIssue, HardConstraintCategory, HardConstraintRisk,
-    IssueSeverity, KeywordImportance, KeywordMatch, MissingKeyword, RequirementMatchState,
-    RequirementReview, SuggestionCategory,
+    IssueSeverity, KeywordImportance, KeywordMatch, MissingKeyword, ProfessionMatchingProfile,
+    RegionalMatchingProfile, RequirementMatchState, RequirementReview, ResumeMatchingProfile,
+    SuggestionCategory,
 };
 pub use export::ResumeExporter;
 pub use jobsentinel_domain::{ResumeEvidenceCitation, ResumeEvidenceSnapshot};

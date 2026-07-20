@@ -65,11 +65,12 @@ pub use jobsentinel_documents::{
     AtsAnalysisResult, AtsAnalyzer, AtsSuggestion, DegreeLevel, EducationRequirement,
     ExperienceRequirement, FormatIssue, HardConstraintCategory, HardConstraintRisk, IssueSeverity,
     JobSkill, KeywordImportance, KeywordMatch, MatchResult, MatchResultWithJob, MissingKeyword,
-    NewSkill, RequirementMatchState, RequirementReview, Resume, ResumeAnalysisInput,
-    ResumeCertification, ResumeEducation, ResumeEvidenceSnapshot, ResumeExperience, ResumeExporter,
-    ResumeMatchFeedback, ResumeMatchFeedbackLabel, ResumePersonalInfo, ResumeProject, ResumeSkill,
-    ResumeSkillCategory, SkillUpdate, StructuredResume, SuggestionCategory, Template, TemplateId,
-    TemplateRenderer, UserSkill,
+    NewSkill, ProfessionMatchingProfile, RegionalMatchingProfile, RequirementMatchState,
+    RequirementReview, Resume, ResumeAnalysisInput, ResumeCertification, ResumeEducation,
+    ResumeEvidenceSnapshot, ResumeExperience, ResumeExporter, ResumeMatchFeedback,
+    ResumeMatchFeedbackLabel, ResumeMatchingProfile, ResumePersonalInfo, ResumeProject,
+    ResumeSkill, ResumeSkillCategory, SkillUpdate, StructuredResume, SuggestionCategory, Template,
+    TemplateId, TemplateRenderer, UserSkill,
 };
 
 /// Main resume matcher service

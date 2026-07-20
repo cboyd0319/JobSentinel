@@ -1,7 +1,7 @@
 use super::{sort_keyword_matches, sort_missing_keywords, MatchedKeyword};
 use crate::{
     ats_analyzer::{term_expansion, AtsAnalyzer},
-    ats_types::{KeywordImportance, KeywordMatch, MissingKeyword},
+    ats_types::{KeywordImportance, KeywordMatch, MissingKeyword, RegionalMatchingProfile},
     structured_resume::ResumeAnalysisInput,
 };
 use jobsentinel_domain::{ResumeEvidenceCitation, ResumeEvidenceSnapshot};
@@ -10,6 +10,7 @@ impl AtsAnalyzer {
     pub(in crate::ats_analyzer) fn find_keyword_matches(
         input: &ResumeAnalysisInput,
         job_keywords: &[(String, KeywordImportance)],
+        region: Option<RegionalMatchingProfile>,
     ) -> (Vec<MatchedKeyword>, Vec<MissingKeyword>) {
         let resume = &input.resume;
         let evidence_snapshot = input.evidence_snapshot.as_ref();
@@ -20,7 +21,7 @@ impl AtsAnalyzer {
             let mut evidence_citations = Vec::new();
             let mut frequency = 0;
             let search_terms =
-                term_expansion::conservative_keyword_search_terms(&keyword.to_lowercase());
+                term_expansion::conservative_keyword_search_terms(&keyword.to_lowercase(), region);
             if let Some(summary) = resume.summary.as_deref() {
                 let count = Self::keyword_frequency_for_search_terms(
                     &summary.to_lowercase(),

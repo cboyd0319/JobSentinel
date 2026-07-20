@@ -121,28 +121,59 @@ pub async fn analyze_active_resume_for_job(
     database: &Database,
     job_description: &str,
 ) -> Result<AtsAnalysisResult, ActiveResumeAnalysisError> {
+    analyze_active_resume_for_job_with_profile(database, job_description, None).await
+}
+
+pub async fn analyze_active_resume_for_job_with_profile(
+    database: &Database,
+    job_description: &str,
+    profile: Option<ResumeMatchingProfile>,
+) -> Result<AtsAnalysisResult, ActiveResumeAnalysisError> {
     let context = load_active_resume_analysis_context(database).await?;
     let evidence_snapshot = ResumeEvidenceSnapshot {
         source_id: format!("resume:{}", context.resume_id),
         revision: context.revision.to_rfc3339(),
     };
-    let result = AtsAnalyzer::analyze_text_for_job_with_source_and_snapshot(
-        context.parsed_text.trim(),
-        &context.skill_names,
-        job_description,
-        context.source_text.as_deref(),
-        &evidence_snapshot,
-    );
+    let result = match profile {
+        Some(profile) => AtsAnalyzer::analyze_text_for_job_with_source_snapshot_and_profile(
+            context.parsed_text.trim(),
+            &context.skill_names,
+            job_description,
+            context.source_text.as_deref(),
+            &evidence_snapshot,
+            profile,
+        ),
+        None => AtsAnalyzer::analyze_text_for_job_with_source_and_snapshot(
+            context.parsed_text.trim(),
+            &context.skill_names,
+            job_description,
+            context.source_text.as_deref(),
+            &evidence_snapshot,
+        ),
+    };
     ensure_active_resume_analysis_context(database, &context).await?;
     Ok(result)
 }
 
 pub fn analyze_structured_resume_for_job(
-    mut input: ResumeAnalysisInput,
+    input: ResumeAnalysisInput,
     job_description: &str,
 ) -> anyhow::Result<AtsAnalysisResult> {
+    analyze_structured_resume_for_job_with_profile(input, job_description, None)
+}
+
+pub fn analyze_structured_resume_for_job_with_profile(
+    mut input: ResumeAnalysisInput,
+    job_description: &str,
+    profile: Option<ResumeMatchingProfile>,
+) -> anyhow::Result<AtsAnalysisResult> {
     input.evidence_snapshot = Some(ephemeral_resume_snapshot(&input)?);
-    Ok(AtsAnalyzer::analyze_for_job(&input, job_description))
+    Ok(match profile {
+        Some(profile) => {
+            AtsAnalyzer::analyze_for_job_with_profile(&input, job_description, profile)
+        }
+        None => AtsAnalyzer::analyze_for_job(&input, job_description),
+    })
 }
 
 fn ephemeral_resume_snapshot(
@@ -272,6 +303,35 @@ mod active_analysis_tests {
             .requirement_reviews
             .iter()
             .any(|review| !review.evidence_citations.is_empty()));
+    }
+
+    #[tokio::test]
+    async fn active_saved_resume_analysis_accepts_only_an_explicit_profile() {
+        let database = Database::connect_memory().await.unwrap();
+        database.migrate().await.unwrap();
+        let directory = tempfile::tempdir().unwrap();
+        saved_resume(
+            &database,
+            &directory,
+            "resume",
+            "Experience\nLed program evaluation.",
+        )
+        .await;
+        let profile = ResumeMatchingProfile {
+            profession: ProfessionMatchingProfile::Operations,
+            region: RegionalMatchingProfile::UnitedKingdom,
+        };
+
+        let result = analyze_active_resume_for_job_with_profile(
+            &database,
+            "Required: programme evaluation",
+            Some(profile),
+        )
+        .await
+        .unwrap();
+
+        assert_eq!(result.matching_profile, Some(profile));
+        assert!(!result.requirement_reviews[0].evidence_citations.is_empty());
     }
 
     #[tokio::test]

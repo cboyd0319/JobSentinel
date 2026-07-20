@@ -6,8 +6,8 @@
 use crate::application::resume::{
     ActiveResumeAnalysisError, AtsAnalysisResult, AtsAnalyzer, MatchResult, MatchResultWithJob,
     NewSkill, Resume, ResumeAnalysisInput, ResumeExporter, ResumeMatchFeedback,
-    ResumeMatchFeedbackLabel, SkillUpdate, StructuredResume, Template, TemplateId,
-    TemplateRenderer, UserSkill,
+    ResumeMatchFeedbackLabel, ResumeMatchingProfile, SkillUpdate, StructuredResume, Template,
+    TemplateId, TemplateRenderer, UserSkill,
 };
 use crate::bootstrap::AppState;
 use crate::ipc::errors::user_friendly_error;
@@ -392,16 +392,22 @@ pub(crate) fn export_resume_text(resume: StructuredResume) -> String {
 pub(crate) fn analyze_resume_for_job(
     resume: ResumeAnalysisInput,
     job_description: String,
+    matching_profile: Option<ResumeMatchingProfile>,
 ) -> Result<AtsAnalysisResult, String> {
     tracing::info!("Command: analyze_resume_for_job");
-    crate::application::resume::analyze_structured_resume_for_job(resume, &job_description)
-        .map_err(|error| user_friendly_error("Failed to analyze resume", error))
+    crate::application::resume::analyze_structured_resume_for_job_with_profile(
+        resume,
+        &job_description,
+        matching_profile,
+    )
+    .map_err(|error| user_friendly_error("Failed to analyze resume", error))
 }
 
 /// Analyze the active saved resume against a job description without returning raw resume text.
 #[tauri::command]
 pub(crate) async fn analyze_active_resume_for_job(
     job_description: String,
+    matching_profile: Option<ResumeMatchingProfile>,
     state: State<'_, AppState>,
 ) -> Result<AtsAnalysisResult, String> {
     tracing::info!("Command: analyze_active_resume_for_job");
@@ -410,9 +416,10 @@ pub(crate) async fn analyze_active_resume_for_job(
         return Err("Paste the job post, then review again.".to_string());
     }
 
-    crate::application::resume::analyze_active_resume_for_job(
+    crate::application::resume::analyze_active_resume_for_job_with_profile(
         state.database.as_ref(),
         &job_description,
+        matching_profile,
     )
     .await
     .map_err(|error| match error {

@@ -18,6 +18,7 @@ mod format_result;
 mod hard_constraints;
 mod keyword_catalog;
 mod matching;
+mod matching_profiles;
 mod plain_text_format;
 mod requirement_reviews;
 mod requirement_rules;
@@ -53,18 +54,42 @@ impl AtsAnalyzer {
         resume: &ResumeAnalysisInput,
         job_description: &str,
     ) -> AtsAnalysisResult {
-        let job_keywords = Self::extract_job_keywords(job_description);
+        Self::analyze_for_job_context(resume, job_description, None)
+    }
+
+    pub fn analyze_for_job_with_profile(
+        resume: &ResumeAnalysisInput,
+        job_description: &str,
+        profile: ResumeMatchingProfile,
+    ) -> AtsAnalysisResult {
+        Self::analyze_for_job_context(resume, job_description, Some(profile))
+    }
+
+    fn analyze_for_job_context(
+        resume: &ResumeAnalysisInput,
+        job_description: &str,
+        profile: Option<ResumeMatchingProfile>,
+    ) -> AtsAnalysisResult {
+        let normalized_job = profile.map(|profile| {
+            matching_profiles::normalize_job_description(job_description, profile.region)
+        });
+        let job_keywords =
+            Self::extract_job_keywords(normalized_job.as_deref().unwrap_or(job_description));
         let format_result = Self::analyze_format(resume);
 
         // Find keyword matches
-        let (keyword_matches, missing_keyword_details) =
-            Self::find_keyword_matches(resume, &job_keywords);
+        let (keyword_matches, missing_keyword_details) = Self::find_keyword_matches(
+            resume,
+            &job_keywords,
+            profile.map(|profile| profile.region),
+        );
         Self::build_job_analysis_result(
             job_description,
             &job_keywords,
             format_result,
             keyword_matches,
             missing_keyword_details,
+            profile,
         )
     }
 
@@ -74,7 +99,23 @@ impl AtsAnalyzer {
         skills: &[String],
         job_description: &str,
     ) -> AtsAnalysisResult {
-        Self::analyze_text_for_job_context(resume_text, skills, job_description, None, None)
+        Self::analyze_text_for_job_context(resume_text, skills, job_description, None, None, None)
+    }
+
+    pub fn analyze_text_for_job_with_profile(
+        resume_text: &str,
+        skills: &[String],
+        job_description: &str,
+        profile: ResumeMatchingProfile,
+    ) -> AtsAnalysisResult {
+        Self::analyze_text_for_job_context(
+            resume_text,
+            skills,
+            job_description,
+            None,
+            None,
+            Some(profile),
+        )
     }
 
     pub fn analyze_text_for_job_with_snapshot(
@@ -89,6 +130,7 @@ impl AtsAnalyzer {
             job_description,
             None,
             Some(evidence_snapshot),
+            None,
         )
     }
 
@@ -100,7 +142,14 @@ impl AtsAnalyzer {
         job_description: &str,
         source_text: Option<&str>,
     ) -> AtsAnalysisResult {
-        Self::analyze_text_for_job_context(resume_text, skills, job_description, source_text, None)
+        Self::analyze_text_for_job_context(
+            resume_text,
+            skills,
+            job_description,
+            source_text,
+            None,
+            None,
+        )
     }
 
     pub fn analyze_text_for_job_with_source_and_snapshot(
@@ -116,6 +165,25 @@ impl AtsAnalyzer {
             job_description,
             source_text,
             Some(evidence_snapshot),
+            None,
+        )
+    }
+
+    pub fn analyze_text_for_job_with_source_snapshot_and_profile(
+        resume_text: &str,
+        skills: &[String],
+        job_description: &str,
+        source_text: Option<&str>,
+        evidence_snapshot: &ResumeEvidenceSnapshot,
+        profile: ResumeMatchingProfile,
+    ) -> AtsAnalysisResult {
+        Self::analyze_text_for_job_context(
+            resume_text,
+            skills,
+            job_description,
+            source_text,
+            Some(evidence_snapshot),
+            Some(profile),
         )
     }
 
@@ -125,8 +193,13 @@ impl AtsAnalyzer {
         job_description: &str,
         source_text: Option<&str>,
         evidence_snapshot: Option<&ResumeEvidenceSnapshot>,
+        profile: Option<ResumeMatchingProfile>,
     ) -> AtsAnalysisResult {
-        let job_keywords = Self::extract_job_keywords(job_description);
+        let normalized_job = profile.map(|profile| {
+            matching_profiles::normalize_job_description(job_description, profile.region)
+        });
+        let job_keywords =
+            Self::extract_job_keywords(normalized_job.as_deref().unwrap_or(job_description));
         let format_result = if source_text.is_some() {
             plain_text_format::analyze_plain_text_format_with_source(resume_text, source_text)
         } else {
@@ -137,6 +210,7 @@ impl AtsAnalyzer {
             skills,
             &job_keywords,
             evidence_snapshot,
+            profile.map(|profile| profile.region),
         );
 
         Self::build_job_analysis_result(
@@ -145,6 +219,7 @@ impl AtsAnalyzer {
             format_result,
             keyword_matches,
             missing_keyword_details,
+            profile,
         )
     }
 
@@ -268,6 +343,7 @@ impl AtsAnalyzer {
         mut format_result: AtsAnalysisResult,
         keyword_matches: Vec<matching::MatchedKeyword>,
         missing_keyword_details: Vec<MissingKeyword>,
+        profile: Option<ResumeMatchingProfile>,
     ) -> AtsAnalysisResult {
         let missing_keywords = missing_keyword_details
             .iter()
@@ -320,6 +396,7 @@ impl AtsAnalyzer {
             job_keywords,
             &keyword_matches,
             &missing_keyword_details,
+            profile.map(|profile| profile.profession),
         );
         let hard_constraint_risks =
             hard_constraints::build_hard_constraint_risks(&requirement_reviews);
@@ -350,6 +427,7 @@ impl AtsAnalyzer {
             requirement_reviews,
             hard_constraint_risks,
             suggestions,
+            matching_profile: profile,
         }
     }
 }

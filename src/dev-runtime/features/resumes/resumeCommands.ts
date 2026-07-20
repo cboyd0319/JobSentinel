@@ -47,6 +47,7 @@ import {
 } from "../../mocks/handlers/commandHelpers";
 import { extractMockAtsKeywords } from "./resumeKeywordMatching";
 import { toMockResumeSummary } from "./resumeSummaryViews";
+import { parseMockMatchingProfile } from "./resumeMatchingProfile";
 
 export function handleMockResumeCommand(
   command: string,
@@ -220,6 +221,7 @@ export function handleMockResumeCommand(
         analyzeMockResumeForJob(
           getArg(args, "resume"),
           getStringArg(args, "jobDescription") ?? "",
+          parseMockMatchingProfile(getArg(args, "matchingProfile")),
         ),
       );
 

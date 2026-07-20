@@ -1,14 +1,16 @@
 use super::super::ats_types::{
-    HardConstraintCategory, KeywordImportance, KeywordMatch, MissingKeyword, RequirementMatchState,
-    RequirementReview,
+    HardConstraintCategory, KeywordImportance, KeywordMatch, MissingKeyword,
+    ProfessionMatchingProfile, RequirementMatchState, RequirementReview,
 };
 use super::hard_constraints;
 use super::matching::MatchedKeyword;
+use super::matching_profiles;
 
 pub(super) fn build_requirement_reviews(
     job_keywords: &[(String, KeywordImportance)],
     keyword_matches: &[MatchedKeyword],
     missing_keyword_details: &[MissingKeyword],
+    profession: Option<ProfessionMatchingProfile>,
 ) -> Vec<RequirementReview> {
     let mut reviews = Vec::new();
 
@@ -24,15 +26,19 @@ pub(super) fn build_requirement_reviews(
             } else {
                 classify_requirement_match_state(&matched.keyword_match)
             };
-            reviews.push(RequirementReview {
+            let mut review = RequirementReview {
                 keyword: keyword.clone(),
                 importance: *importance,
                 match_state,
                 evidence_sections: matched.keyword_match.found_in.clone(),
                 evidence_citations: matched.evidence_citations.clone(),
                 hard_constraint: hard_constraints::hard_constraint_category(keyword).is_some(),
+                profile_preferred_section: None,
                 recommendation: requirement_recommendation(match_state),
-            });
+            };
+            review.profile_preferred_section = profession
+                .map(|profile| matching_profiles::profile_prefers_section(profile, &review));
+            reviews.push(review);
         } else if missing_keyword_details
             .iter()
             .any(|item| item.keyword.eq_ignore_ascii_case(keyword))
@@ -44,6 +50,7 @@ pub(super) fn build_requirement_reviews(
                 evidence_sections: Vec::new(),
                 evidence_citations: Vec::new(),
                 hard_constraint: hard_constraints::hard_constraint_category(keyword).is_some(),
+                profile_preferred_section: profession.map(|_| false),
                 recommendation: requirement_recommendation(RequirementMatchState::Missing),
             });
         }
@@ -65,6 +72,11 @@ pub(super) fn build_requirement_reviews(
         imp_order(a.importance)
             .cmp(&imp_order(b.importance))
             .then(state_order(a.match_state).cmp(&state_order(b.match_state)))
+            .then(
+                b.profile_preferred_section
+                    .unwrap_or(false)
+                    .cmp(&a.profile_preferred_section.unwrap_or(false)),
+            )
             .then(a.keyword.cmp(&b.keyword))
     });
 
