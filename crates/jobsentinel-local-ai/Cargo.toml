@@ -11,7 +11,7 @@ categories.workspace = true
 
 [features]
 default = []
-embedded-ml = ["basic-toml", "candle-core", "candle-nn", "hf-hub", "tokenizers"]
+embedded-ml = ["basic-toml", "candle-core", "candle-nn", "futures-util", "hf-hub", "tokenizers"]
 
 [dependencies]
 anyhow.workspace = true
@@ -19,6 +19,7 @@ basic-toml = { workspace = true, optional = true }
 candle-core = { workspace = true, optional = true }
 candle-nn = { workspace = true, optional = true }
 chrono.workspace = true
+futures-util = { workspace = true, optional = true }
 hex.workspace = true
 hf-hub = { workspace = true, optional = true }
 jobsentinel-security.workspace = true

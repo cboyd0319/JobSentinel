@@ -8,6 +8,7 @@ use crate::manifest::{load_model_manifest, model_lock_hash, ModelFileSpec, Model
 use crate::MlError;
 use anyhow::Result;
 use std::io::ErrorKind;
+use std::path::PathBuf;
 
 #[derive(Clone, Copy, PartialEq, Eq)]
 enum RequiredFilePresence {
@@ -17,6 +18,7 @@ enum RequiredFilePresence {
 }
 
 const MODEL_CACHE_NOT_REPAIRABLE: &str = "local model cache cannot be repaired";
+const XET_TRANSFER_CACHE_DIR: &str = ".xet";
 
 impl ModelManager {
     /// Check if the legacy runtime embedding model is already downloaded.
@@ -34,6 +36,11 @@ impl ModelManager {
 
     /// Inspect required model files without returning paths or raw errors.
     pub fn cache_health_for(&self, spec: &ModelSpec) -> ModelCacheHealth {
+        match self.validated_cache_root(spec) {
+            Err(_) => return ModelCacheHealth::IntegrityMismatch,
+            Ok(None) => return ModelCacheHealth::Missing,
+            Ok(Some(_)) => {}
+        }
         let required_files = spec.required_files().collect::<Vec<_>>();
         if required_files.is_empty() {
             return ModelCacheHealth::Missing;
@@ -70,6 +77,11 @@ impl ModelManager {
         spec.required_files()
             .filter(|file| self.required_file_presence(spec, file) == RequiredFilePresence::Present)
             .count()
+    }
+
+    pub fn cache_exists_for(&self, spec: &ModelSpec) -> bool {
+        std::fs::symlink_metadata(self.cache_dir.join(&spec.id))
+            .is_ok_and(|metadata| metadata.is_dir())
     }
 
     fn required_file_presence(
@@ -125,23 +137,95 @@ impl ModelManager {
         self.remove_integrity_invalid_cache(spec)
     }
 
+    /// Remove all locally cached data for the governed Qwen3 model identities,
+    /// including stale revisions and superseded lock layouts.
+    pub fn remove_default_semantic_model_caches(&self) -> Result<bool> {
+        let manifest = load_model_manifest()?;
+        let specs = [
+            manifest
+                .default_embedding()
+                .ok_or_else(|| anyhow::anyhow!(MODEL_CACHE_NOT_REPAIRABLE))?,
+            manifest
+                .default_reranker()
+                .ok_or_else(|| anyhow::anyhow!(MODEL_CACHE_NOT_REPAIRABLE))?,
+        ];
+        let mut roots = specs
+            .iter()
+            .map(|spec| self.validated_cache_child(&spec.id))
+            .collect::<Result<Vec<_>>>()?;
+        roots.push(self.validated_xet_transfer_cache()?);
+        let roots = roots.into_iter().flatten().collect::<Vec<_>>();
+        for root in &roots {
+            ensure_symlink_free(root)?;
+        }
+
+        let mut removed = false;
+        for root in roots {
+            std::fs::remove_dir_all(root)
+                .map_err(|_| anyhow::anyhow!(MODEL_CACHE_NOT_REPAIRABLE))?;
+            removed = true;
+        }
+        Ok(removed)
+    }
+
+    pub(crate) fn reset_xet_transfer_cache(&self) -> Result<PathBuf> {
+        let root = self.cache_dir.join(XET_TRANSFER_CACHE_DIR);
+        if let Some(existing) = self.validated_xet_transfer_cache()? {
+            std::fs::remove_dir_all(existing)
+                .map_err(|_| anyhow::anyhow!(MODEL_CACHE_NOT_REPAIRABLE))?;
+        }
+        std::fs::create_dir(&root).map_err(|_| anyhow::anyhow!(MODEL_CACHE_NOT_REPAIRABLE))?;
+        Ok(root)
+    }
+
+    pub(crate) fn clear_xet_transfer_cache(&self) -> Result<()> {
+        if let Some(root) = self.validated_xet_transfer_cache()? {
+            std::fs::remove_dir_all(root)
+                .map_err(|_| anyhow::anyhow!(MODEL_CACHE_NOT_REPAIRABLE))?;
+        }
+        Ok(())
+    }
+
     fn remove_integrity_invalid_cache(&self, spec: &ModelSpec) -> Result<()> {
         if self.cache_health_for(spec) != ModelCacheHealth::IntegrityMismatch {
             anyhow::bail!(MODEL_CACHE_NOT_REPAIRABLE);
         }
 
+        let cache_root = self
+            .validated_cache_root(spec)?
+            .ok_or_else(|| anyhow::anyhow!(MODEL_CACHE_NOT_REPAIRABLE))?;
+        std::fs::remove_dir_all(cache_root).map_err(|_| anyhow::anyhow!(MODEL_CACHE_NOT_REPAIRABLE))
+    }
+
+    fn validated_cache_root(&self, spec: &ModelSpec) -> Result<Option<std::path::PathBuf>> {
         let model_root = self.cache_dir.join(&spec.id);
         let revision_root = model_root.join(&spec.revision);
         let cache_root = revision_root.join(model_lock_hash());
         for directory in [&self.cache_dir, &model_root, &revision_root, &cache_root] {
-            let metadata = std::fs::symlink_metadata(directory)
-                .map_err(|_| anyhow::anyhow!(MODEL_CACHE_NOT_REPAIRABLE))?;
-            if !metadata.file_type().is_dir() {
-                anyhow::bail!(MODEL_CACHE_NOT_REPAIRABLE);
+            match std::fs::symlink_metadata(directory) {
+                Err(error) if error.kind() == ErrorKind::NotFound => return Ok(None),
+                Ok(metadata) if metadata.file_type().is_dir() => {}
+                _ => anyhow::bail!(MODEL_CACHE_NOT_REPAIRABLE),
             }
         }
 
-        std::fs::remove_dir_all(cache_root).map_err(|_| anyhow::anyhow!(MODEL_CACHE_NOT_REPAIRABLE))
+        Ok(Some(cache_root))
+    }
+
+    fn validated_xet_transfer_cache(&self) -> Result<Option<PathBuf>> {
+        self.validated_cache_child(XET_TRANSFER_CACHE_DIR)
+    }
+
+    fn validated_cache_child(&self, name: &str) -> Result<Option<PathBuf>> {
+        let root = self.cache_dir.join(name);
+        for directory in [&self.cache_dir, &root] {
+            match std::fs::symlink_metadata(directory) {
+                Err(error) if error.kind() == ErrorKind::NotFound => return Ok(None),
+                Ok(metadata) if metadata.file_type().is_dir() => {}
+                _ => anyhow::bail!(MODEL_CACHE_NOT_REPAIRABLE),
+            }
+        }
+        Ok(Some(root))
     }
 
     /// Get model status for the default semantic runtime.
@@ -200,6 +284,23 @@ impl ModelManager {
             }
         }
     }
+}
+
+fn ensure_symlink_free(path: &std::path::Path) -> Result<()> {
+    let metadata =
+        std::fs::symlink_metadata(path).map_err(|_| anyhow::anyhow!(MODEL_CACHE_NOT_REPAIRABLE))?;
+    if metadata.file_type().is_symlink() {
+        anyhow::bail!(MODEL_CACHE_NOT_REPAIRABLE);
+    }
+    if metadata.is_dir() {
+        let entries =
+            std::fs::read_dir(path).map_err(|_| anyhow::anyhow!(MODEL_CACHE_NOT_REPAIRABLE))?;
+        for entry in entries {
+            let entry = entry.map_err(|_| anyhow::anyhow!(MODEL_CACHE_NOT_REPAIRABLE))?;
+            ensure_symlink_free(&entry.path())?;
+        }
+    }
+    Ok(())
 }
 
 fn model_size_bytes(manager: &ModelManager, spec: &ModelSpec) -> Option<u64> {

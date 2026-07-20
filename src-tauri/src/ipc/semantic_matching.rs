@@ -53,6 +53,7 @@ pub(crate) struct SemanticMatchingModelDiagnostic {
     pub required_files_present: usize,
     pub locked_size_bytes: Option<u64>,
     pub downloaded: bool,
+    pub cache_present: bool,
     #[cfg(feature = "embedded-ml")]
     pub health: ModelCacheHealth,
     pub required_for_qwen3_runtime: bool,
@@ -87,6 +88,7 @@ pub(crate) async fn repair_semantic_matching_model_cache(
     app: tauri::AppHandle,
     model_id: String,
 ) -> Result<bool, String> {
+    let _reservation = crate::ipc::ml::reserve_model_lifecycle(None)?;
     let manifest = load_model_manifest()
         .map_err(|_| "Local model repair could not be prepared.".to_string())?;
     let model = [manifest.default_embedding(), manifest.default_reranker()]
@@ -253,6 +255,7 @@ fn model_diagnostic(
         required_files_present: manager.required_files_present(model),
         locked_size_bytes: locked_size_bytes(model),
         downloaded: health == ModelCacheHealth::Ready,
+        cache_present: manager.cache_exists_for(model),
         health,
         required_for_qwen3_runtime: model.id == manifest.defaults.embedding
             || model.id == manifest.defaults.reranker,

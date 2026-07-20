@@ -224,8 +224,14 @@ impl ModelSpec {
     }
 
     fn validate(&self) -> Result<()> {
-        if self.id.trim().is_empty() {
-            anyhow::bail!("model id cannot be empty");
+        if self.id.is_empty()
+            || matches!(self.id.as_str(), "." | "..")
+            || !self
+                .id
+                .chars()
+                .all(|value| value.is_ascii_alphanumeric() || matches!(value, '-' | '_' | '.'))
+        {
+            anyhow::bail!("model id must be one portable path component");
         }
 
         if self.revision.len() != 40
@@ -473,7 +479,6 @@ tokenizer_family = "test"
 pooling = "score"
 normalization = "raw"
 supports_instruction = false
-
 [[models.files]]
 path = "model.safetensors"
 sha256 = "2222222222222222222222222222222222222222222222222222222222222222"
@@ -481,5 +486,14 @@ sha256 = "2222222222222222222222222222222222222222222222222222222222222222"
 
         let error = ModelManifest::from_lock_str(lock).expect_err("unsafe path should fail");
         assert!(error.to_string().contains("unsafe file path"));
+    }
+    #[test]
+    fn model_ids_must_be_single_portable_path_components() {
+        let manifest = load_model_manifest().unwrap();
+        for id in ["../qwen3", "folder/model", r"folder\model", "C:model", "."] {
+            let mut model = manifest.models[0].clone();
+            model.id = id.to_string();
+            assert!(model.validate().is_err());
+        }
     }
 }

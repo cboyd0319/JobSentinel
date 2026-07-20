@@ -1,7 +1,13 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { listen } from "../../../platform/tauri/events";
 import { SettingsSymbol } from "../shared/SettingsIcons";
+import { SemanticMatchingModelControls } from "./SemanticMatchingModelControls";
 import {
+  cancelSemanticMatchingModelDownload,
+  downloadSemanticMatchingModels,
+  formatSemanticMatchingBytes,
   getSemanticMatchingDiagnostics,
+  removeSemanticMatchingModels,
   repairSemanticMatchingModelCache,
   type SemanticMatchingDiagnostics,
   type ModelCacheHealth,
@@ -43,8 +49,14 @@ export function SemanticMatchingDiagnosticsPanel() {
     useState<SemanticMatchingDiagnostics | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [repairingModelId, setRepairingModelId] = useState<string | null>(null);
+  const [modelAction, setModelAction] = useState<
+    "downloading" | "removing" | null
+  >(null);
+  const [downloadProgress, setDownloadProgress] = useState<{
+    completed_bytes: number;
+    total_bytes: number;
+  } | null>(null);
   const [error, setError] = useState<string | null>(null);
-
   const refresh = useCallback(async () => {
     setIsLoading(true);
     setError(null);
@@ -64,7 +76,17 @@ export function SemanticMatchingDiagnosticsPanel() {
   useEffect(() => {
     void refresh();
   }, [refresh]);
-
+  useEffect(() => {
+    const unlisten = listen<{
+      completed_bytes: number;
+      total_bytes: number;
+    }>("local-model-download-progress", ({ payload }) => {
+      setDownloadProgress(payload);
+    });
+    return () => {
+      void unlisten.then((stopListening) => stopListening());
+    };
+  }, []);
   const repair = useCallback(
     async (modelId: string) => {
       setRepairingModelId(modelId);
@@ -85,7 +107,68 @@ export function SemanticMatchingDiagnosticsPanel() {
     },
     [refresh],
   );
-
+  const downloadModels = useCallback(async () => {
+    setModelAction("downloading");
+    setDownloadProgress(null);
+    setError(null);
+    try {
+      await downloadSemanticMatchingModels();
+      await refresh();
+    } catch (downloadError) {
+      const canceledOrphan = await cancelSemanticMatchingModelDownload().catch(
+        () => false,
+      );
+      setError(
+        canceledOrphan
+          ? "A previous model download was still running and has been canceled. Try again."
+          : downloadError instanceof Error
+            ? downloadError.message
+            : "Local model download could not be completed.",
+      );
+    } finally {
+      setModelAction(null);
+    }
+  }, [refresh]);
+  const removeModels = useCallback(async () => {
+    setModelAction("removing");
+    setError(null);
+    try {
+      if (await removeSemanticMatchingModels()) {
+        await refresh();
+      }
+    } catch (removeError) {
+      setError(
+        removeError instanceof Error
+          ? removeError.message
+          : "Local models could not be removed.",
+      );
+    } finally {
+      setModelAction(null);
+    }
+  }, [refresh]);
+  const cancelDownload = useCallback(async () => {
+    try {
+      await cancelSemanticMatchingModelDownload();
+    } catch (cancelError) {
+      setError(
+        cancelError instanceof Error
+          ? cancelError.message
+          : "Local model download could not be canceled.",
+      );
+    }
+  }, []);
+  const modelActionRef = useRef(modelAction);
+  useEffect(() => {
+    modelActionRef.current = modelAction;
+  }, [modelAction]);
+  useEffect(
+    () => () => {
+      if (modelActionRef.current === "downloading") {
+        void cancelSemanticMatchingModelDownload().catch(() => {});
+      }
+    },
+    [],
+  );
   return (
     <section className="mb-6">
       <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
@@ -120,7 +203,18 @@ export function SemanticMatchingDiagnosticsPanel() {
           <DiagnosticsSummary
             diagnostics={diagnostics}
             repairingModelId={repairingModelId}
+            modelLifecycleBusy={modelAction !== null}
             onRepair={repair}
+          />
+        ) : null}
+        {diagnostics ? (
+          <SemanticMatchingModelControls
+            diagnostics={diagnostics}
+            modelAction={modelAction}
+            downloadProgress={downloadProgress}
+            onDownload={downloadModels}
+            onCancel={cancelDownload}
+            onRemove={removeModels}
           />
         ) : null}
       </div>
@@ -131,10 +225,12 @@ export function SemanticMatchingDiagnosticsPanel() {
 function DiagnosticsSummary({
   diagnostics,
   repairingModelId,
+  modelLifecycleBusy,
   onRepair,
 }: {
   diagnostics: SemanticMatchingDiagnostics;
   repairingModelId: string | null;
+  modelLifecycleBusy: boolean;
   onRepair: (modelId: string) => Promise<void>;
 }) {
   const status = STATUS_COPY[diagnostics.runtime_status];
@@ -185,6 +281,7 @@ function DiagnosticsSummary({
       <ModelList
         models={highlightedModels}
         repairingModelId={repairingModelId}
+        modelLifecycleBusy={modelLifecycleBusy}
         onRepair={onRepair}
       />
       <SignalList diagnostics={diagnostics} />
@@ -195,10 +292,12 @@ function DiagnosticsSummary({
 function ModelList({
   models,
   repairingModelId,
+  modelLifecycleBusy,
   onRepair,
 }: {
   models: SemanticMatchingModelDiagnostic[];
   repairingModelId: string | null;
+  modelLifecycleBusy: boolean;
   onRepair: (modelId: string) => Promise<void>;
 }) {
   if (models.length === 0) {
@@ -232,7 +331,7 @@ function ModelList({
                 {model.backend} - {formatRevision(model.revision)}
                 {model.dimension ? ` - ${model.dimension} dims` : ""}
                 {model.locked_size_bytes
-                  ? ` - ${formatBytes(model.locked_size_bytes)}`
+                  ? ` - ${formatSemanticMatchingBytes(model.locked_size_bytes)}`
                   : ""}
               </div>
             </div>
@@ -249,7 +348,7 @@ function ModelList({
                 <button
                   type="button"
                   onClick={() => void onRepair(model.id)}
-                  disabled={repairingModelId !== null}
+                  disabled={modelLifecycleBusy || repairingModelId !== null}
                   className="mt-2 rounded-md border border-danger/40 px-2 py-1 text-xs font-medium text-danger disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {repairingModelId === model.id
@@ -317,10 +416,4 @@ function SignalList({
 
 function formatRevision(revision: string): string {
   return revision.length > 12 ? revision.slice(0, 12) : revision;
-}
-
-function formatBytes(bytes: number): string {
-  if (!Number.isFinite(bytes) || bytes <= 0) return "0 MB";
-  const mb = bytes / 1_000_000;
-  return `${mb.toFixed(mb >= 100 ? 0 : 1)} MB`;
 }

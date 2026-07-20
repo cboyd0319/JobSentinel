@@ -97,6 +97,75 @@ fn default_cache_repair_removes_a_tampered_lock_owned_cache() {
 }
 
 #[test]
+fn default_cache_removal_deletes_only_the_governed_qwen3_caches() {
+    let app_data_dir = tempfile::tempdir().unwrap();
+    let manager = ModelManager::new(app_data_dir.path().to_path_buf());
+    let embedding = ModelManager::default_embedding_model_spec().unwrap();
+    let reranker = ModelManager::default_reranker_model_spec().unwrap();
+    let legacy = ModelManager::runtime_model_spec().unwrap();
+    let xet_cache = app_data_dir.path().join("ml_models").join(".xet");
+
+    for spec in [&embedding, &reranker, &legacy] {
+        let model_dir = manager.model_cache_dir(spec);
+        std::fs::create_dir_all(model_dir.join(".download")).unwrap();
+        std::fs::write(model_dir.join(".download").join("partial"), b"partial").unwrap();
+    }
+    std::fs::create_dir_all(&xet_cache).unwrap();
+    std::fs::write(xet_cache.join("chunk"), b"temporary").unwrap();
+
+    assert!(manager.remove_default_semantic_model_caches().unwrap());
+    assert!(!manager.model_cache_dir(&embedding).exists());
+    assert!(!manager.model_cache_dir(&reranker).exists());
+    assert!(manager.model_cache_dir(&legacy).exists());
+    assert!(!xet_cache.exists());
+    assert!(!manager.remove_default_semantic_model_caches().unwrap());
+}
+
+#[test]
+fn default_cache_removal_deletes_stale_revision_and_lock_caches() {
+    let app_data_dir = tempfile::tempdir().unwrap();
+    let manager = ModelManager::new(app_data_dir.path().to_path_buf());
+    let embedding = ModelManager::default_embedding_model_spec().unwrap();
+    let stale = app_data_dir
+        .path()
+        .join("ml_models")
+        .join(&embedding.id)
+        .join("0000000000000000000000000000000000000000")
+        .join("stale-lock-hash");
+    std::fs::create_dir_all(&stale).unwrap();
+    std::fs::write(stale.join("model.safetensors"), b"stale").unwrap();
+
+    assert!(manager.cache_exists_for(&embedding));
+    assert!(manager.remove_default_semantic_model_caches().unwrap());
+    assert!(!app_data_dir
+        .path()
+        .join("ml_models")
+        .join(&embedding.id)
+        .exists());
+}
+
+#[cfg(unix)]
+#[test]
+fn default_cache_removal_rejects_a_symlinked_cache_root() {
+    use std::os::unix::fs::symlink;
+
+    let app_data_dir = tempfile::tempdir().unwrap();
+    let outside = tempfile::tempdir().unwrap();
+    let manager = ModelManager::new(app_data_dir.path().to_path_buf());
+    let embedding = ModelManager::default_embedding_model_spec().unwrap();
+    let cache_root = manager.model_cache_dir(&embedding);
+    std::fs::create_dir_all(cache_root.parent().unwrap()).unwrap();
+    std::fs::write(outside.path().join("keep"), b"private").unwrap();
+    symlink(outside.path(), &cache_root).unwrap();
+
+    assert!(manager.remove_default_semantic_model_caches().is_err());
+    assert_eq!(
+        std::fs::read(outside.path().join("keep")).unwrap(),
+        b"private"
+    );
+}
+
+#[test]
 fn repair_rejects_missing_incomplete_and_ready_caches() {
     let app_data_dir = tempfile::tempdir().unwrap();
     let manager = ModelManager::new(app_data_dir.path().to_path_buf());

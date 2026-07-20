@@ -3447,6 +3447,7 @@ dependencies = [
  "candle-core",
  "candle-nn",
  "chrono",
+ "futures-util",
  "hex",
  "hf-hub",
  "jobsentinel-domain",

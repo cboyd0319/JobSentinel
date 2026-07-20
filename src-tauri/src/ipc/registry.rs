@@ -230,6 +230,10 @@ macro_rules! jobsentinel_command_handlers {
             #[cfg(feature = "embedded-ml")]
             jobsentinel::ipc::ml::download_ml_model,
             #[cfg(feature = "embedded-ml")]
+            jobsentinel::ipc::ml::cancel_ml_model_download,
+            #[cfg(feature = "embedded-ml")]
+            jobsentinel::ipc::ml::remove_ml_models,
+            #[cfg(feature = "embedded-ml")]
             jobsentinel::ipc::ml::get_ml_status,
             #[cfg(feature = "embedded-ml")]
             jobsentinel::ipc::ml::semantic_match_skills,

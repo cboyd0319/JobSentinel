@@ -53,6 +53,25 @@ action. The backend accepts only an exact embedding or reranker ID from the
 checked-in lock, rechecks the cache after confirmation, rejects missing,
 incomplete, ready, legacy, unknown, and path-like requests, and never downloads
 replacement files automatically. Cache paths and file contents remain private.
+In `embedded-ml` builds, the same panel also offers governed setup and full
+Qwen3 cache removal. Setup requires native confirmation that names the download
+host, approximate size, license, local-only data boundary, and built-in
+fallback, including notice that setup may need additional temporary disk
+space. The Hugging Face client pins `https://huggingface.co`, disables implicit
+ambient tokens before runtime startup, uses a fixed JobSentinel user agent, and
+reports byte progress without exposing filenames to the renderer. Required
+files stream directly into validated, app-owned partial files instead of the
+Hugging Face cache layout. Dropping the stream cancels Xet-backed transfers;
+verified files and the paired partial files remain available for retry. The
+Xet transport cache is pinned under JobSentinel app data, reset before each
+transfer, and cleared after success or explicit removal. Retry skips files that
+already match the lock. Full removal requires native confirmation and deletes
+all locally cached data under the two governed Qwen3 model identities,
+including stale revisions, superseded lock layouts, and incomplete app-owned
+staging and transfer data. Removal refuses to proceed if any entry inside the
+governed tree is a symlink. On Windows, removal fails closed while model files
+are in use by an active match and succeeds on retry. Built-in matching remains
+available throughout.
 Direct matcher calls now use Qwen3 dense retrieval plus bounded Qwen3
 reranking when the governed model pair is present, fall back to verified MiniLM
 when it is present, and use exact-only deterministic matching when no verified
@@ -263,13 +282,15 @@ These commands are registered only when the app is built with `embedded-ml`:
 
 | Command | Purpose |
 | ------- | ------- |
-| `download_ml_model` | Downloads model files into the app data model cache |
+| `download_ml_model` | Native-reviews and starts the governed Qwen3 download with privacy-safe progress |
+| `cancel_ml_model_download` | Cancels the active governed model download |
+| `remove_ml_models` | Native-reviews and removes all cached data for the governed Qwen3 model identities, including stale revisions and incomplete app-owned staging and transfer data |
 | `get_ml_status` | Reports model id, revision, backend, model-lock hash, and whether files are available locally |
 | `semantic_match_skills` | Compares user skills with job requirements |
 | `match_resume_semantic` | Compares stored resume skills with stored job skills |
 
-Developer note: do not expose these commands in user-facing UI without the
-product contract above.
+The Settings surface exposes the three lifecycle commands only when diagnostics
+confirm that the app was built with `embedded-ml`.
 
 ## Current matching behavior
 

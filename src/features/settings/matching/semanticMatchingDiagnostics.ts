@@ -25,6 +25,7 @@ export interface SemanticMatchingModelDiagnostic {
   required_files_present: number;
   locked_size_bytes: number | null;
   downloaded: boolean;
+  cache_present: boolean;
   health: ModelCacheHealth;
   required_for_qwen3_runtime: boolean;
 }
@@ -79,6 +80,35 @@ export async function repairSemanticMatchingModelCache(
   return repaired;
 }
 
+export async function downloadSemanticMatchingModels(): Promise<boolean> {
+  return booleanCommand("download_ml_model");
+}
+
+export async function cancelSemanticMatchingModelDownload(): Promise<boolean> {
+  return booleanCommand("cancel_ml_model_download");
+}
+
+export async function removeSemanticMatchingModels(): Promise<boolean> {
+  return booleanCommand("remove_ml_models");
+}
+
+export function formatSemanticMatchingBytes(bytes: number): string {
+  if (!Number.isFinite(bytes) || bytes <= 0) return "0 MB";
+  if (bytes >= 1_000_000_000) {
+    return `${(bytes / 1_000_000_000).toFixed(1)} GB`;
+  }
+  const mb = bytes / 1_000_000;
+  return `${mb.toFixed(mb >= 100 ? 0 : 1)} MB`;
+}
+
+async function booleanCommand(command: string): Promise<boolean> {
+  const result = await invoke<unknown>(command);
+  if (typeof result !== "boolean") {
+    throw new Error("Local model command returned an unreadable response.");
+  }
+  return result;
+}
+
 export function normalizeSemanticMatchingDiagnostics(
   value: unknown,
 ): SemanticMatchingDiagnostics {
@@ -126,6 +156,7 @@ function normalizeModelDiagnostic(value: unknown): SemanticMatchingModelDiagnost
     required_files_present: numberField(record, "required_files_present"),
     locked_size_bytes: nullableNumberField(record, "locked_size_bytes"),
     downloaded: booleanField(record, "downloaded"),
+    cache_present: booleanField(record, "cache_present"),
     health: health as ModelCacheHealth,
     required_for_qwen3_runtime: booleanField(record, "required_for_qwen3_runtime"),
   };

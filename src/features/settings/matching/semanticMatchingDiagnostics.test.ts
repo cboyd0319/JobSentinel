@@ -1,8 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { invoke } from "@tauri-apps/api/core";
 import {
+  cancelSemanticMatchingModelDownload,
+  downloadSemanticMatchingModels,
   getSemanticMatchingDiagnostics,
   normalizeSemanticMatchingDiagnostics,
+  removeSemanticMatchingModels,
   repairSemanticMatchingModelCache,
 } from "./semanticMatchingDiagnostics";
 
@@ -33,6 +36,7 @@ function diagnosticPayload() {
         required_files_present: 2,
         locked_size_bytes: 123456,
         downloaded: false,
+        cache_present: true,
         health: "incomplete",
         required_for_qwen3_runtime: true,
       },
@@ -94,6 +98,20 @@ describe("semantic matching diagnostics service", () => {
       "repair_semantic_matching_model_cache",
       { modelId: "qwen3-embedding-0.6b" },
     );
+  });
+
+  it.each([
+    ["download_ml_model", downloadSemanticMatchingModels],
+    ["cancel_ml_model_download", cancelSemanticMatchingModelDownload],
+    ["remove_ml_models", removeSemanticMatchingModels],
+  ])("validates the %s command response", async (command, action) => {
+    mockInvoke.mockResolvedValueOnce(true);
+
+    await expect(action()).resolves.toBe(true);
+    expect(mockInvoke).toHaveBeenCalledWith(command);
+
+    mockInvoke.mockResolvedValueOnce("yes");
+    await expect(action()).rejects.toThrow("unreadable response");
   });
 
   it("rejects an unreadable repair response", async () => {
