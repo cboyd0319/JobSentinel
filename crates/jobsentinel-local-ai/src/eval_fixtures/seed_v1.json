@@ -132,6 +132,30 @@
       "hard_negative": "Used cloud identity permissions while deploying application infrastructure.",
       "mining_source": "seed_fixture",
       "reason": "Shares cloud identity vocabulary but lacks detection-building evidence."
+    },
+    {
+      "dataset_kind": "job_requirement_to_resume_evidence",
+      "query": "Current unrestricted registered nurse (RN) license required",
+      "positive": "Registered nurse (RN) license, Colorado: current, active, and unrestricted through 2028.",
+      "hard_negative": "Served as an Army combat medic and provided emergency care during field exercises.",
+      "mining_source": "seed_fixture",
+      "reason": "Military medical experience can be relevant, but it does not evidence the required civilian registered nurse license."
+    },
+    {
+      "dataset_kind": "job_requirement_to_resume_evidence",
+      "query": "Experience managing at least ten software engineers",
+      "positive": "Engineering manager led twelve software engineers, completed performance reviews, and owned hiring decisions.",
+      "hard_negative": "Senior software engineer mentored two junior developers and led technical design reviews.",
+      "mining_source": "seed_fixture",
+      "reason": "Mentoring and technical leadership do not evidence the required people-management scope."
+    },
+    {
+      "dataset_kind": "job_requirement_to_resume_evidence",
+      "query": "Experience owning a GAAP month-end close",
+      "positive": "Owned the monthly GAAP close, prepared journal entries, and reconciled the general ledger.",
+      "hard_negative": "Processed vendor invoices and matched purchase orders for accounts payable.",
+      "mining_source": "seed_fixture",
+      "reason": "Accounts-payable processing shares accounting context but does not evidence ownership of a GAAP close."
     }
   ],
   "pairwise_preferences": [

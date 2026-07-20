@@ -1,6 +1,20 @@
 use super::*;
-use crate::{EvalDatasetKind, EvalFixtureSet, RerankScore, UnmatchedRequirementDiagnostic};
+use crate::{
+    EvalDatasetKind, EvalFixtureSet, HardNegativeExample, RerankScore,
+    UnmatchedRequirementDiagnostic,
+};
 use std::path::PathBuf;
+
+const ORIGINAL_QWEN3_REQUIREMENT_QUERIES: [&str; 3] = [
+    "Experience making product help clear for customers",
+    "Experience with patient intake and electronic health records",
+    "Experience building cloud audit detections for privilege escalation",
+];
+const EXPANDED_QWEN3_REQUIREMENT_QUERIES: [&str; 3] = [
+    "Current unrestricted registered nurse (RN) license required",
+    "Experience managing at least ten software engineers",
+    "Experience owning a GAAP month-end close",
+];
 
 #[test]
 fn reranker_selection_preserves_dense_score_and_typed_provenance() {
@@ -106,7 +120,7 @@ fn qwen_abstention_reasons_distinguish_retrieval_from_acceptance() {
 
 #[test]
 #[ignore]
-fn pinned_qwen3_ranks_all_frozen_requirement_hard_negatives() {
+fn pinned_qwen3_preserves_original_requirement_hard_negative_baseline() {
     const EXPECTED_DENSE_SCORES: [[f32; 2]; 3] = [
         [0.4218491, 0.35205674],
         [0.67955077, 0.4145699],
@@ -129,14 +143,8 @@ fn pinned_qwen3_ranks_all_frozen_requirement_hard_negatives() {
         Qwen3EmbeddingBackend::new(app_data_dir.clone()).expect("embedding model should load"),
         Qwen3RerankerBackend::new(app_data_dir).expect("reranker model should load"),
     );
-    let fixtures = EvalFixtureSet::seed().expect("frozen eval fixtures should load");
-    let hard_negatives = fixtures
-        .hard_negatives
-        .into_iter()
-        .filter(|fixture| fixture.dataset_kind == EvalDatasetKind::JobRequirementToResumeEvidence)
-        .collect::<Vec<_>>();
+    let hard_negatives = selected_requirement_hard_negatives(&ORIGINAL_QWEN3_REQUIREMENT_QUERIES);
 
-    assert_eq!(hard_negatives.len(), 3);
     for (fixture_index, fixture) in hard_negatives.into_iter().enumerate() {
         let user_skills = vec![fixture.positive, fixture.hard_negative];
         let requirement = fixture.query;
@@ -286,6 +294,169 @@ fn pinned_qwen3_ranks_all_frozen_requirement_hard_negatives() {
         );
         assert_eq!(hard_negative_result.overall_score, 0.0);
     }
+}
+
+#[test]
+#[ignore]
+fn pinned_qwen3_calibrates_expanded_requirement_hard_negatives() {
+    const EXPECTED_DENSE_SCORES: [[f32; 2]; 3] = [
+        [0.65237284, 0.2954709],
+        [0.6330073, 0.60327697],
+        [0.70158964, 0.31112427],
+    ];
+    const EXPECTED_RERANKER_SCORES: [[f32; 2]; 3] = [
+        [5.5918465, -9.155273],
+        [7.062503, 1.0978334],
+        [7.194971, -4.8113165],
+    ];
+    const DENSE_SCORE_TOLERANCE: f32 = 0.01;
+    const RERANKER_SCORE_TOLERANCE: f32 = 0.1;
+    const MINIMUM_POSITIVE_RETRIEVAL_MARGIN: f32 = 0.25;
+    const MINIMUM_ACCEPTANCE_MARGIN: f32 = 1.0;
+
+    let app_data_dir = std::env::var_os("JOBSENTINEL_QWEN3_TEST_CACHE")
+        .map(PathBuf::from)
+        .expect("JOBSENTINEL_QWEN3_TEST_CACHE must name an explicit verified test cache");
+    let runtime = Qwen3SemanticRuntime::new(
+        Qwen3EmbeddingBackend::new(app_data_dir.clone()).expect("embedding model should load"),
+        Qwen3RerankerBackend::new(app_data_dir).expect("reranker model should load"),
+    );
+    let hard_negatives = selected_requirement_hard_negatives(&EXPANDED_QWEN3_REQUIREMENT_QUERIES);
+
+    for (fixture_index, fixture) in hard_negatives.into_iter().enumerate() {
+        let evidence = [fixture.positive, fixture.hard_negative];
+        let evidence_embeddings = runtime
+            .embedding
+            .embed_documents(
+                &evidence
+                    .iter()
+                    .map(|text| EmbeddingInput {
+                        text: text.clone(),
+                        instruction: None,
+                        input_kind: EmbeddingInputKind::ResumeChunk,
+                    })
+                    .collect::<Vec<_>>(),
+            )
+            .expect("frozen resume evidence should embed");
+        let requirement_embedding = runtime
+            .embedding
+            .embed_query(&EmbeddingInput {
+                text: fixture.query.clone(),
+                instruction: Some(QWEN3_REQUIREMENT_INSTRUCTION.to_string()),
+                input_kind: EmbeddingInputKind::Requirement,
+            })
+            .expect("frozen requirement should embed");
+        let dense = [
+            checked_cosine_similarity(&requirement_embedding, &evidence_embeddings[0])
+                .expect("positive embedding should compare"),
+            checked_cosine_similarity(&requirement_embedding, &evidence_embeddings[1])
+                .expect("hard-negative embedding should compare"),
+        ];
+        let retrieved = dense_candidates(
+            &requirement_embedding,
+            &evidence_embeddings,
+            runtime.threshold,
+            QWEN3_RERANK_TOP_K,
+        )
+        .expect("dense retrieval should complete");
+
+        assert!(retrieved.iter().any(|(candidate_id, _)| *candidate_id == 0));
+        assert_eq!(
+            retrieved.iter().any(|(candidate_id, _)| *candidate_id == 1),
+            dense[1] >= runtime.threshold
+        );
+        assert!(dense[0] - runtime.threshold >= MINIMUM_POSITIVE_RETRIEVAL_MARGIN);
+        for candidate_id in 0..2 {
+            assert!(
+                (dense[candidate_id] - EXPECTED_DENSE_SCORES[fixture_index][candidate_id]).abs()
+                    <= DENSE_SCORE_TOLERANCE,
+                "expanded fixture {fixture_index} candidate {candidate_id} dense score drifted"
+            );
+        }
+
+        let scores = runtime
+            .reranker
+            .rerank(
+                &RerankQuery {
+                    text: fixture.query,
+                    instruction: Some(QWEN3_REQUIREMENT_INSTRUCTION.to_string()),
+                    query_kind: RerankQueryKind::ResumeRequirement,
+                },
+                &evidence
+                    .iter()
+                    .enumerate()
+                    .map(|(id, text)| RerankCandidate {
+                        id: id.to_string(),
+                        text: text.clone(),
+                        metadata: serde_json::Value::Null,
+                    })
+                    .collect::<Vec<_>>(),
+            )
+            .expect("frozen candidates should rerank");
+
+        assert_eq!(scores.len(), 2);
+        assert_eq!(scores[0].candidate_id, "0");
+        assert_eq!(scores[0].rank, 1);
+        assert_eq!(scores[1].candidate_id, "1");
+        assert_eq!(scores[1].rank, 2);
+        let mut observed_reranker_scores = [0.0; 2];
+        for score in &scores {
+            let candidate_id = score.candidate_id.parse::<usize>().unwrap();
+            observed_reranker_scores[candidate_id] = score.score;
+            assert!(
+                (score.score - EXPECTED_RERANKER_SCORES[fixture_index][candidate_id]).abs()
+                    <= RERANKER_SCORE_TOLERANCE,
+                "expanded fixture {fixture_index} candidate {candidate_id} reranker score drifted"
+            );
+        }
+        assert!(
+            observed_reranker_scores[0] - runtime.reranker_acceptance >= MINIMUM_ACCEPTANCE_MARGIN
+        );
+        assert!(
+            runtime.reranker_acceptance - observed_reranker_scores[1] >= MINIMUM_ACCEPTANCE_MARGIN
+        );
+    }
+}
+
+#[test]
+fn requirement_hard_negative_selection_follows_requested_query_order() {
+    let requested = [
+        EXPANDED_QWEN3_REQUIREMENT_QUERIES[2],
+        EXPANDED_QWEN3_REQUIREMENT_QUERIES[0],
+        EXPANDED_QWEN3_REQUIREMENT_QUERIES[1],
+    ];
+    let selected = selected_requirement_hard_negatives(&requested);
+
+    assert_eq!(
+        selected
+            .iter()
+            .map(|fixture| fixture.query.as_str())
+            .collect::<Vec<_>>(),
+        requested
+    );
+}
+
+fn selected_requirement_hard_negatives(queries: &[&str]) -> Vec<HardNegativeExample> {
+    let fixtures = EvalFixtureSet::seed().expect("frozen eval fixtures should load");
+    let all = fixtures
+        .hard_negatives
+        .into_iter()
+        .filter(|fixture| fixture.dataset_kind == EvalDatasetKind::JobRequirementToResumeEvidence)
+        .collect::<Vec<_>>();
+    queries
+        .iter()
+        .map(|query| {
+            let mut matches = all.iter().filter(|fixture| fixture.query == *query);
+            let selected = matches
+                .next()
+                .expect("selected requirement query should be frozen");
+            assert!(
+                matches.next().is_none(),
+                "selected requirement query should be unique"
+            );
+            selected.clone()
+        })
+        .collect()
 }
 
 fn score(candidate_id: &str, score: f32, rank: usize) -> RerankScore {
