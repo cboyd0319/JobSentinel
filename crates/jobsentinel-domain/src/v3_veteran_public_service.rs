@@ -37,7 +37,6 @@ pub enum VeteranResourceUse {
 #[serde(rename_all = "snake_case")]
 pub enum VeteranResourceAccess {
     CredentialedApi,
-    PackagedPublicDownload,
     ManualReviewOnly,
 }
 
@@ -207,22 +206,25 @@ fn validate_reviewed_identity(
                 EligibilityBoundary::GeneralGuidanceOnly,
             )
         ),
-        "onet-military-crosswalk" => matches!(
-            (
-                host,
-                resource.authority,
-                resource.intended_use,
-                resource.runtime_access,
-                resource.eligibility_boundary,
-            ),
-            (
-                "www.onetcenter.org",
-                VeteranResourceAuthority::GovernmentSponsored,
-                VeteranResourceUse::OccupationCrosswalk,
-                VeteranResourceAccess::PackagedPublicDownload,
-                EligibilityBoundary::NotApplicable,
-            )
-        ),
+        "onet-military-crosswalk" => {
+            resource.url == "https://www.onetcenter.org/crosswalks.html"
+                && matches!(
+                    (
+                        host,
+                        resource.authority,
+                        resource.intended_use,
+                        resource.runtime_access,
+                        resource.eligibility_boundary,
+                    ),
+                    (
+                        "www.onetcenter.org",
+                        VeteranResourceAuthority::GovernmentSponsored,
+                        VeteranResourceUse::OccupationCrosswalk,
+                        VeteranResourceAccess::ManualReviewOnly,
+                        EligibilityBoundary::NotApplicable,
+                    )
+                )
+        }
         "opm-veteran-job-seekers" => matches!(
             (
                 host,
@@ -262,6 +264,7 @@ fn validate_reviewed_identity(
             ) && !matches!(
                 resource.intended_use,
                 VeteranResourceUse::OfficialJobSearch
+                    | VeteranResourceUse::OccupationCrosswalk
                     | VeteranResourceUse::VeteranHiringGuidance
                     | VeteranResourceUse::ProtectedStatusGuidance
             )
@@ -349,13 +352,13 @@ mod tests {
                 .runtime_access,
             VeteranResourceAccess::CredentialedApi
         );
-        assert!(index
+        let onet = index
             .resources
             .iter()
             .find(|resource| resource.resource_id == "onet-military-crosswalk")
-            .unwrap()
-            .intended_use
-            .requires_user_confirmed_evidence());
+            .unwrap();
+        assert_eq!(onet.runtime_access, VeteranResourceAccess::ManualReviewOnly);
+        assert!(onet.intended_use.requires_user_confirmed_evidence());
     }
 
     #[test]
@@ -406,6 +409,16 @@ mod tests {
         let mut value: serde_json::Value = serde_json::from_str(INDEX).unwrap();
         let usajobs = resource_mut(&mut value, "usajobs-api");
         usajobs["url"] = serde_json::json!("https://www.dol.gov/jobs");
+        assert!(parse_veteran_public_service_index(&value.to_string(), today()).is_err());
+
+        let mut value: serde_json::Value = serde_json::from_str(INDEX).unwrap();
+        resource_mut(&mut value, "onet-military-crosswalk")["runtime_access"] =
+            serde_json::json!("packaged_public_download");
+        assert!(parse_veteran_public_service_index(&value.to_string(), today()).is_err());
+
+        let mut value: serde_json::Value = serde_json::from_str(INDEX).unwrap();
+        resource_mut(&mut value, "onet-military-crosswalk")["url"] =
+            serde_json::json!("https://www.onetcenter.org/technology.html");
         assert!(parse_veteran_public_service_index(&value.to_string(), today()).is_err());
 
         let mut value: serde_json::Value = serde_json::from_str(INDEX).unwrap();

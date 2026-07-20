@@ -84,7 +84,7 @@ qualification, preference, protected veteran status, or federal eligibility.
 | Reference | Reviewed use | Runtime boundary |
 | --------- | ------------ | ---------------- |
 | [USAJOBS API](https://developer.usajobs.gov/guides/authentication) | Official federal job search | User-provided API key and registered email; secure local credential storage |
-| [O*NET Military Crosswalk](https://www.onetcenter.org/crosswalks.html) | Government-sponsored occupation linkage suggestions | Packaged public data; August 2024 source release recorded |
+| [O*NET Military Crosswalk](https://www.onetcenter.org/crosswalks.html) | Government-sponsored occupation linkage suggestions | Manual review only; August 2024 source and [O*NET Web Services external-data license exclusions](https://services.onetcenter.org/help/license_data) recorded |
 | [Department of Defense COOL](https://www.cool.osd.mil/research-military-occupations.htm) | Occupation and credential research | Manual review only |
 | [OPM Veteran Job Seekers guidance](https://www.opm.gov/fedshirevets/veteran-job-seekers/vets/) | General federal veteran-hiring guidance | Manual review only; never an individual eligibility decision |
 | [Department of Labor VEVRAA guidance](https://www.dol.gov/agencies/ofccp/faqs/vevraa) | General protected-status guidance | Manual review only; answers remain voluntary and user selected |

@@ -22,11 +22,11 @@
       "authority": "government_sponsored",
       "url": "https://www.onetcenter.org/crosswalks.html",
       "intended_use": "occupation_crosswalk",
-      "runtime_access": "packaged_public_download",
+      "runtime_access": "manual_review_only",
       "reviewed_on": "2026-07-19",
       "source_release": "August 2024",
       "jurisdiction": "US",
-      "policy_note": "Crosswalks are dated linkage suggestions. They do not prove civilian equivalence, experience, credentials, or qualification.",
+      "policy_note": "O*NET identifies the DMDC and COOL crosswalk content as external-source data excluded from its Web Services site and data licenses. Keep it manual-review-only until redistribution rights are recorded. Links remain dated suggestions, not proof of equivalence, experience, credentials, or qualification.",
       "eligibility_boundary": "not_applicable"
     },
     {
