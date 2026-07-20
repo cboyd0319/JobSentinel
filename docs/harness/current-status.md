@@ -50,8 +50,8 @@ Last updated: 2026-07-19
 
 - Active feature: `v3-milestone-5-local-evidence-resume-matching`
 - Status: `active`
-- Current slice: Provenance-aware local evidence for resume and matching.
-- Next action: Inventory owners, then write the first fail-first contract test.
+- Current slice: Resume evidence citations are local, opaque, and revision-bound.
+- Next action: Link reviewed citations to cases without storing private text.
 
 ## Deferred
 
