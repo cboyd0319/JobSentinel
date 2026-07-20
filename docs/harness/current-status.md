@@ -50,8 +50,8 @@ Last updated: 2026-07-19
 
 - Active feature: `v3-milestone-5-local-evidence-resume-matching`
 - Status: `active`
-- Current slice: Model Doctor distinguishes absent, damaged, and ready caches without exposing local paths.
-- Next action: Preserve typed matcher runtime, dense-score, and reranker provenance.
+- Current slice: Typed local match results preserve runtime, dense-score, and reranker provenance.
+- Next action: Run frozen requirement hard negatives through the pinned Qwen3 production path.
 
 ## Deferred
 
