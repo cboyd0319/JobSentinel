@@ -344,6 +344,7 @@ relevant result, and caveat.
 | 2026-07-20 | Milestone 5 explicit matching profiles added | Added user-selected role evidence and regional spelling profiles at `6a75e007` for active and copied resume review. Role profiles only mark preferred evidence sections and break otherwise equal review ordering. Regional profiles recognize a bounded spelling set and can change recognized matches and scores without weakening hard constraints or treating different concepts as equivalent. Profiles are local, never inferred, explicitly incomplete, and locked during an in-flight review. Six document profile tests, application and Tauri owner tests, 18 UI and dev-runtime tests, strict clippy, harness, architecture, security, file-size, and adversarial re-review passed. Milestone 5 remains active. |
 | 2026-07-20 | Milestone 5 matching profile evals frozen | Added the strict versioned synthetic profile baseline at `75e4a347`. All nine role profiles now have exact non-baseline review ordering with unchanged requirement states and zero score deltas. Bounded regional spelling cases exercise all four declared profiles with exact deltas, preserve a distinct-concept negative, and keep a missing required licence behind its hard-constraint cap. The documents library passed 318 tests with one private-path test ignored; production clippy, harness, file-size, formatting, diff validation, and adversarial re-review passed. This does not validate Qwen3 or region-pack completeness. Milestone 5 remains active. |
 | 2026-07-20 | Gate 4 operating boundaries frozen | Froze model-free setup, the exact wired Qwen3 Candle pair, legacy-only MiniLM fallback, live-first employer evidence, no-authority static region packs, per-source expiry, and the Essentials component boundary at `d7f0c2a4`. Removed speculative matching-provider compatibility. Gate 4 remains open because production-wide calibration, an 8 GiB model-free performance report, installed setup and removal, employer and regional evals, and the platform matrix are not yet proven. All 75 default embedded local-AI tests passed with 10 explicit model tests ignored; all 151 domain tests, strict clippy, docs, security, harness, and adversarial review passed. |
+| 2026-07-20 | Milestone 5 Qwen3 requirement calibration expanded | Expanded the frozen requirement hard-negative set from three to six synthetic pairs at `da5ce3df`. The new cases distinguish civilian RN licensure from Army combat-medic experience, people-management ownership from mentoring, and GAAP close ownership from accounts-payable processing without changing the `0.30` retrieval or `3.0` reranker threshold. The original three pairs retain full production, cached-vector, and abstention proof; the three new pairs freeze direct Qwen3 embedding and reranker behavior. Both opt-in pinned-model tests passed on one macOS 27 arm64 64 GiB host, all 77 default local-AI tests passed with 11 model tests ignored, strict clippy, architecture, security, harness, and adversarial re-review passed. Gate 4 remains open because six synthetic requirement pairs are not production-wide, cross-platform, modest-hardware, installed-setup, employer, or regional evidence. |
 
 ## Discoveries
 
@@ -557,7 +558,7 @@ relevant result, and caveat.
 
 - Current state: Milestones 0 through 4 and Gates 0 through 3 are passing.
   Milestone 5 local evidence, resume, and matching work is the sole active
-  feature. Its current implementation is committed through `d7f0c2a4`.
+  feature. Its current implementation is committed through `da5ce3df`.
 - Evidence: `docs/harness/evidence/v3-milestone-3-reviewed-export-2026-07-19.json`
   binds the reviewed-export slice at `3b4f635b`, and
   `docs/harness/evidence/v3-milestone-3-storage-cleanup-2026-07-19.json` binds
@@ -587,9 +588,13 @@ relevant result, and caveat.
   and bound by `75e4a347`. Gate 4 operating decisions and their retained release
   blockers are bound by
   `docs/harness/evidence/v3-milestone-5-gate-4-operating-decisions-2026-07-20.json`
-  at `d7f0c2a4`.
-- Next step: expand the Qwen3 requirement calibration evidence beyond the
-  three-pair seed without widening the approved provider or query-kind scope.
+  at `d7f0c2a4`. The six-pair Qwen3 requirement calibration and its retained
+  limitations are bound by
+  `docs/harness/evidence/v3-milestone-5-qwen-requirement-calibration-2026-07-20.json`
+  at `da5ce3df`.
+- Next step: measure the model-free Essentials package, startup, memory, and
+  core journey under an 8 GiB budget without enabling model or external-AI
+  paths.
 - Open risks: scope remains large, contract freeze is irreversible within the
   v3 compatibility line, recovery and permission behavior still needs Windows
   11, macOS 26, and Linux release-matrix proof, installed recovery UI still

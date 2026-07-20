@@ -50,8 +50,8 @@ Last updated: 2026-07-20
 
 - Active feature: `v3-milestone-5-local-evidence-resume-matching`
 - Status: `active`
-- Current slice: Gate 4 operating boundaries are frozen; release evidence remains open.
-- Next action: Expand Qwen requirement calibration evidence.
+- Current slice: Six-pair Qwen requirement calibration is frozen; Gate 4 remains open.
+- Next action: Measure model-free Essentials under an 8 GiB budget.
 
 ## Deferred
 
