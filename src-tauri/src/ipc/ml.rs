@@ -87,12 +87,6 @@ pub(crate) async fn match_resume_semantic(
     // Get app data directory
     let app_data_dir = desktop::get_data_dir();
 
-    // Check if ML is available
-    let manager = ModelManager::new(app_data_dir.clone());
-    if !manager.is_default_semantic_runtime_downloaded() && !manager.is_model_downloaded() {
-        return Err("ML model not downloaded. Call download_ml_model() first.".to_string());
-    }
-
     let resume_matcher = state.database.resume_matcher();
     let user_skills = resume_matcher
         .get_user_skills(resume_id)
@@ -107,7 +101,6 @@ pub(crate) async fn match_resume_semantic(
         .await
         .map_err(|e| user_friendly_error("Failed to fetch job skills", e))?;
 
-    // Perform semantic matching
     let matcher = SemanticMatcher::new(app_data_dir)
         .map_err(|e| user_friendly_error("Failed to create matcher", e))?;
 

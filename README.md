@@ -294,8 +294,9 @@ an embedded-ML build has verified model files, matching uses:
 | Blockers and evidence classes | Flags missing hard requirements, salary/location mismatch, seniority mismatch, and weak evidence. |
 | Model governance | `crates/jobsentinel-local-ai/models.lock.toml` pins model identity, revisions, hashes, sizes, licenses, and instruction profiles. |
 
-If local model files are not present, JobSentinel falls back to deterministic
-matching. Resume and job text stays local either way. See
+If no verified local model is present, JobSentinel falls back to exact-only
+deterministic matching without downloading a model. Resume and job text stays
+local either way. See
 [Local Semantic Matching](docs/developer/LOCAL_SEMANTIC_MATCHING.md) and the
 [semantic matching research notes](docs/research/semantic-resume-job-matching.md).
 

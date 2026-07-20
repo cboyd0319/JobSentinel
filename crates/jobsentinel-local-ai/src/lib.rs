@@ -6,10 +6,10 @@
 //! ## Features
 //! - Pinned model lock with revision and SHA-256 verification
 //! - Qwen3 embedding and reranker profiles for the production direction
-//! - Qwen3-first semantic matching with a legacy all-MiniLM fallback
+//! - Qwen3-first semantic matching, verified all-MiniLM fallback, and exact-only
+//!   deterministic matching when neither model is available
 //! - Explicit model download on user or developer action
 //! - Pure Rust inference with Metal acceleration (macOS)
-//! - Graceful fallback to keyword matching if disabled
 //!
 //! ## Usage
 //! Enable with `embedded-ml` feature flag in Cargo.toml

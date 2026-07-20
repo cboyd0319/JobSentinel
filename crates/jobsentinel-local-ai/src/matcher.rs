@@ -11,6 +11,7 @@ use jobsentinel_security::{
 };
 use std::path::PathBuf;
 
+mod deterministic;
 mod legacy;
 mod qwen3;
 mod shared;
@@ -51,6 +52,7 @@ pub struct SemanticMatcher {
 enum SemanticMatcherRuntime {
     Qwen3(Box<Qwen3SemanticRuntime>),
     Legacy(Box<EmbeddingGenerator>),
+    Deterministic,
     #[cfg(test)]
     RejectOnly,
 }
@@ -69,9 +71,14 @@ impl SemanticMatcher {
             });
         }
 
-        let generator = EmbeddingGenerator::new(app_data_dir)?;
+        if manager.is_model_downloaded() {
+            let generator = EmbeddingGenerator::new(app_data_dir)?;
+            return Ok(Self {
+                runtime: SemanticMatcherRuntime::Legacy(Box::new(generator)),
+            });
+        }
         Ok(Self {
-            runtime: SemanticMatcherRuntime::Legacy(Box::new(generator)),
+            runtime: SemanticMatcherRuntime::Deterministic,
         })
     }
 
@@ -93,6 +100,9 @@ impl SemanticMatcher {
             }
             SemanticMatcherRuntime::Legacy(generator) => {
                 legacy::match_skills(generator.as_ref(), user_skills, job_requirements)
+            }
+            SemanticMatcherRuntime::Deterministic => {
+                deterministic::match_skills(user_skills, job_requirements)
             }
             #[cfg(test)]
             SemanticMatcherRuntime::RejectOnly => {
@@ -121,6 +131,9 @@ impl SemanticMatcher {
                 candidate_skills,
                 top_k,
             ),
+            SemanticMatcherRuntime::Deterministic => {
+                deterministic::find_similar_skills(query_skill, candidate_skills, top_k)
+            }
             #[cfg(test)]
             SemanticMatcherRuntime::RejectOnly => {
                 unreachable!("unsafe matching input reached runtime dispatch")
@@ -257,17 +270,5 @@ mod tests {
         assert!(result.overall_score > 0.5);
         assert!(result.matched_skills.len() >= 2);
         assert!(result.unmatched_requirements.contains(&"Java".to_string()));
-    }
-
-    #[test]
-    fn test_empty_skills() {
-        // This test doesn't require model download
-        let user_skills: Vec<String> = vec![];
-        let job_requirements = vec!["Python".to_string()];
-
-        // We can't actually run the matcher without the model,
-        // but we can test the expected behavior
-        assert_eq!(user_skills.len(), 0);
-        assert_eq!(job_requirements.len(), 1);
     }
 }
