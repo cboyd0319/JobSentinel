@@ -164,7 +164,7 @@ impl Database {
         &self,
         case_file_id: &str,
         resume_id: i64,
-    ) -> Result<Option<(ResumeEvidenceSnapshot, Vec<CareerGraphLink>)>> {
+    ) -> Result<Option<(ResumeEvidenceSnapshot, Option<String>, Vec<CareerGraphLink>)>> {
         let mut transaction = self.pool().begin().await?;
         let case_exists: bool = sqlx::query_scalar(
             "SELECT EXISTS(
@@ -177,15 +177,15 @@ impl Database {
         if !case_exists {
             return Err(anyhow!("case file does not exist"));
         }
-        let revision = sqlx::query_scalar::<_, String>(
-            "SELECT updated_at
+        let resume = sqlx::query_as::<_, (String, Option<String>)>(
+            "SELECT updated_at, parsed_text
              FROM resumes
              WHERE id = ?",
         )
         .bind(resume_id)
         .fetch_optional(&mut *transaction)
         .await?;
-        let Some(revision) = revision else {
+        let Some((revision, parsed_text)) = resume else {
             transaction.commit().await?;
             return Ok(None);
         };
@@ -206,6 +206,7 @@ impl Database {
                 source_id: format!("resume:{resume_id}"),
                 revision: parse_sqlite_datetime(&revision)?.to_rfc3339(),
             },
+            parsed_text,
             rows.into_iter()
                 .map(career_graph_link_from_row)
                 .collect::<Result<_>>()?,

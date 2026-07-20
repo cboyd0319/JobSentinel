@@ -255,7 +255,7 @@ pub async fn prepare_evidence_bound_packet_claim(
         return Err(FoundationError::InvalidInput);
     }
     let resume_id = saved_resume_id(snapshot)?;
-    let (current_snapshot, links) = database
+    let (current_snapshot, _, links) = database
         .read_case_file_resume_evidence_context(case_file_id, resume_id)
         .await
         .map_err(map_error)?

@@ -211,8 +211,8 @@ async fn case_evidence_rolls_back_when_its_confirmation_event_fails() {
 async fn packet_context_reads_resume_revision_and_case_evidence_consistently() {
     let (_temp_dir, database, case_file_id) = case_evidence_database().await;
     let resume_id = sqlx::query(
-        "INSERT INTO resumes (name, file_path, updated_at)
-         VALUES ('Resume', 'resume.txt', '2026-07-19 12:00:00.000')",
+        "INSERT INTO resumes (name, file_path, parsed_text, updated_at)
+         VALUES ('Resume', 'resume.txt', 'Resume text', '2026-07-19 12:00:00.000')",
     )
     .execute(database.pool())
     .await
@@ -235,21 +235,34 @@ async fn packet_context_reads_resume_revision_and_case_evidence_consistently() {
     .execute(&mut *writer)
     .await
     .unwrap();
-    let (before_commit, links) = database
+    let (before_commit, resume_text, links) = database
         .read_case_file_resume_evidence_context(&case_file_id, resume_id)
         .await
         .unwrap()
         .unwrap();
     assert_eq!(before_commit.revision, "2026-07-19T12:00:00+00:00");
+    assert_eq!(resume_text.as_deref(), Some("Resume text"));
     assert_eq!(links, vec![link]);
 
     writer.commit().await.unwrap();
-    let (after_commit, _) = database
+    let (after_commit, _, _) = database
         .read_case_file_resume_evidence_context(&case_file_id, resume_id)
         .await
         .unwrap()
         .unwrap();
     assert_eq!(after_commit.revision, "2026-07-19T12:00:01+00:00");
+    sqlx::query("UPDATE resumes SET parsed_text = 'Changed text' WHERE id = ?")
+        .bind(resume_id)
+        .execute(database.pool())
+        .await
+        .unwrap();
+    let (same_revision, changed_text, _) = database
+        .read_case_file_resume_evidence_context(&case_file_id, resume_id)
+        .await
+        .unwrap()
+        .unwrap();
+    assert_eq!(same_revision, after_commit);
+    assert_eq!(changed_text.as_deref(), Some("Changed text"));
     assert!(database
         .read_case_file_resume_evidence_context(&case_file_id, resume_id + 1)
         .await

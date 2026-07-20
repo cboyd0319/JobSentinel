@@ -35,7 +35,7 @@ fn user_reference(
 async fn saved_snapshot(database: &Database, name: &str) -> ResumeEvidenceSnapshot {
     let directory = tempfile::tempdir().unwrap();
     let path = directory.path().join(format!("{name}.txt"));
-    std::fs::write(&path, "User-authored military duties").unwrap();
+    std::fs::write(&path, "Army 25B user-authored military duties").unwrap();
     let resume_id = database
         .resume_matcher()
         .upload_resume(name, path.to_str().unwrap())
@@ -81,22 +81,37 @@ async fn confirmed_context() -> (
     (database, case_file.case_file_id, snapshot, citation)
 }
 
-fn review(
+async fn review(
+    database: &Database,
     case_file_id: &str,
     snapshot: &ResumeEvidenceSnapshot,
     citation: &ResumeEvidenceCitation,
 ) -> MilitaryOccupationReviewDraft {
-    prepare_military_occupation_review(
+    prepare_military_transition_review(
+        database,
         case_file_id,
         MilitaryBranch::Army,
-        "25B".to_string(),
-        "Technical support specialist".to_string(),
+        transition_wording("25B", "Technical support specialist"),
         snapshot,
         citation,
-        "onet-military-crosswalk",
+        None,
         today(),
     )
+    .await
     .unwrap()
+}
+
+fn transition_wording(
+    occupation_code: impl Into<String>,
+    civilian_role: impl Into<String>,
+) -> MilitaryTransitionWording {
+    MilitaryTransitionWording {
+        occupation_code: occupation_code.into(),
+        civilian_role: civilian_role.into(),
+        responsibility_mappings: Vec::new(),
+        credential_mappings: Vec::new(),
+        current_clearance: None,
+    }
 }
 
 async fn confirm(
@@ -109,7 +124,7 @@ async fn confirm(
         review.review_id(),
         CaseFileEventKind::PrivacyReceiptRecorded,
     );
-    confirm_military_occupation_review(database, review, &receipt).await
+    confirm_military_transition_review(database, review, &receipt).await
 }
 
 #[tokio::test]
@@ -124,7 +139,7 @@ async fn exact_review_draft_becomes_a_user_reviewed_suggestion_without_writes() 
         .await
         .unwrap()
         .len();
-    let review = review(&case_file_id, &snapshot, &citation);
+    let review = review(&database, &case_file_id, &snapshot, &citation).await;
 
     assert_eq!(
         review.boundary(),
@@ -134,12 +149,14 @@ async fn exact_review_draft_becomes_a_user_reviewed_suggestion_without_writes() 
     assert_eq!(review.occupation_code(), "25B");
     assert_eq!(review.civilian_role(), "Technical support specialist");
     assert_eq!(review.evidence_id(), citation.evidence_id);
+    assert!(review.credential_review_resource().is_none());
+    assert_eq!(review.user_confirmed_current_clearance(), None);
     assert_eq!(
-        review.review_resource().intended_use(),
+        review.occupation_review_resource().intended_use(),
         VeteranResourceUse::OccupationCrosswalk
     );
     assert_eq!(
-        review.review_resource().runtime_access(),
+        review.occupation_review_resource().runtime_access(),
         VeteranResourceAccess::ManualReviewOnly
     );
 
@@ -149,6 +166,7 @@ async fn exact_review_draft_becomes_a_user_reviewed_suggestion_without_writes() 
     assert_eq!(suggestion.occupation_code(), "25B");
     assert_eq!(suggestion.civilian_role(), "Technical support specialist");
     assert_eq!(suggestion.evidence_id(), citation.evidence_id);
+    assert_eq!(suggestion.clearance_evidence_id(), None);
     assert_eq!(
         suggestion.review_status(),
         MilitarySuggestionReviewStatus::UserReviewed
@@ -158,20 +176,23 @@ async fn exact_review_draft_becomes_a_user_reviewed_suggestion_without_writes() 
         MilitarySuggestionBoundary::SuggestionOnly
     );
     assert_eq!(
-        suggestion.review_resource().resource_id(),
+        suggestion.occupation_review_resource().resource_id(),
         "onet-military-crosswalk"
     );
     assert_eq!(
-        suggestion.review_resource().display_name(),
+        suggestion.occupation_review_resource().display_name(),
         "O*NET Military Crosswalk"
     );
     assert_eq!(
-        suggestion.review_resource().url(),
+        suggestion.occupation_review_resource().url(),
         "https://www.onetcenter.org/crosswalks.html"
     );
-    assert_eq!(suggestion.review_resource().reviewed_on(), today());
     assert_eq!(
-        suggestion.review_resource().source_release(),
+        suggestion.occupation_review_resource().reviewed_on(),
+        today()
+    );
+    assert_eq!(
+        suggestion.occupation_review_resource().source_release(),
         Some("August 2024")
     );
     assert_eq!(
@@ -191,61 +212,33 @@ async fn exact_review_draft_becomes_a_user_reviewed_suggestion_without_writes() 
     );
 }
 
-#[test]
-fn review_draft_rejects_unsafe_text_source_and_evidence_substitution() {
+#[tokio::test]
+async fn review_draft_rejects_unsafe_text_and_evidence_substitution() {
+    let database = Database::connect_memory().await.unwrap();
     let snapshot = ResumeEvidenceSnapshot {
         source_id: "resume:1".to_string(),
         revision: "revision".to_string(),
     };
     let citation = ResumeEvidenceCitation::for_field(&snapshot, "military_info").unwrap();
-    for (code, role, source) in [
-        (
-            "".to_string(),
-            "Support specialist".to_string(),
-            "onet-military-crosswalk",
-        ),
-        (
-            " 25B".to_string(),
-            "Support specialist".to_string(),
-            "onet-military-crosswalk",
-        ),
-        (
-            "25B".to_string(),
-            "Technical\nsupport".to_string(),
-            "onet-military-crosswalk",
-        ),
-        (
-            "X".repeat(33),
-            "Support specialist".to_string(),
-            "onet-military-crosswalk",
-        ),
-        (
-            "25B".to_string(),
-            "X".repeat(257),
-            "onet-military-crosswalk",
-        ),
-        (
-            "25B".to_string(),
-            "Support specialist".to_string(),
-            "usajobs-api",
-        ),
-        (
-            "25B".to_string(),
-            "Support specialist".to_string(),
-            "dod-cool-military-occupations",
-        ),
+    for (code, role) in [
+        ("".to_string(), "Support specialist".to_string()),
+        (" 25B".to_string(), "Support specialist".to_string()),
+        ("25B".to_string(), "Technical\nsupport".to_string()),
+        ("X".repeat(33), "Support specialist".to_string()),
+        ("25B".to_string(), "X".repeat(257)),
     ] {
         assert_eq!(
-            prepare_military_occupation_review(
+            prepare_military_transition_review(
+                &database,
                 "case-1",
                 MilitaryBranch::Army,
-                code,
-                role,
+                transition_wording(code, role),
                 &snapshot,
                 &citation,
-                source,
+                None,
                 today(),
             )
+            .await
             .err()
             .unwrap(),
             FoundationError::InvalidInput
@@ -271,16 +264,17 @@ fn review_draft_rejects_unsafe_text_source_and_evidence_substitution() {
         (&draft, &draft_citation),
     ] {
         assert_eq!(
-            prepare_military_occupation_review(
+            prepare_military_transition_review(
+                &database,
                 "case-1",
                 MilitaryBranch::Army,
-                "25B".to_string(),
-                "Support specialist".to_string(),
+                transition_wording("25B", "Support specialist"),
                 invalid_snapshot,
                 invalid_citation,
-                "onet-military-crosswalk",
+                None,
                 today(),
             )
+            .await
             .err()
             .unwrap(),
             FoundationError::InvalidInput
@@ -291,21 +285,21 @@ fn review_draft_rejects_unsafe_text_source_and_evidence_substitution() {
 #[tokio::test]
 async fn confirmation_requires_exact_user_receipt_and_current_confirmed_evidence() {
     let (database, case_file_id, snapshot, citation) = confirmed_context().await;
-    let wrong_review = review(&case_file_id, &snapshot, &citation);
+    let wrong_review = review(&database, &case_file_id, &snapshot, &citation).await;
     let wrong_receipt = user_reference(
         &case_file_id,
         &Uuid::new_v4().to_string(),
         CaseFileEventKind::PrivacyReceiptRecorded,
     );
     assert_eq!(
-        confirm_military_occupation_review(&database, wrong_review, &wrong_receipt)
+        confirm_military_transition_review(&database, wrong_review, &wrong_receipt)
             .await
             .err()
             .unwrap(),
         FoundationError::InvalidInput
     );
 
-    let system_review = review(&case_file_id, &snapshot, &citation);
+    let system_review = review(&database, &case_file_id, &snapshot, &citation).await;
     let mut system_receipt = user_reference(
         &case_file_id,
         system_review.review_id(),
@@ -314,7 +308,7 @@ async fn confirmation_requires_exact_user_receipt_and_current_confirmed_evidence
     system_receipt.origin = EventOrigin::System;
     system_receipt.user_action = false;
     assert_eq!(
-        confirm_military_occupation_review(&database, system_review, &system_receipt)
+        confirm_military_transition_review(&database, system_review, &system_receipt)
             .await
             .err()
             .unwrap(),
@@ -327,10 +321,15 @@ async fn confirmation_requires_exact_user_receipt_and_current_confirmed_evidence
     };
     let stale_citation = ResumeEvidenceCitation::for_field(&stale, "military_info").unwrap();
     assert_eq!(
-        confirm(
+        prepare_military_transition_review(
             &database,
             &case_file_id,
-            review(&case_file_id, &stale, &stale_citation)
+            MilitaryBranch::Army,
+            transition_wording("25B", "Support specialist"),
+            &stale,
+            &stale_citation,
+            None,
+            today(),
         )
         .await
         .err()
@@ -342,10 +341,15 @@ async fn confirmation_requires_exact_user_receipt_and_current_confirmed_evidence
     let unconfirmed =
         ResumeEvidenceCitation::for_field(&unconfirmed_snapshot, "military_info").unwrap();
     assert_eq!(
-        confirm(
+        prepare_military_transition_review(
             &database,
             &case_file_id,
-            review(&case_file_id, &unconfirmed_snapshot, &unconfirmed),
+            MilitaryBranch::Army,
+            transition_wording("25B", "Support specialist"),
+            &unconfirmed_snapshot,
+            &unconfirmed,
+            None,
+            today(),
         )
         .await
         .err()
@@ -355,7 +359,7 @@ async fn confirmation_requires_exact_user_receipt_and_current_confirmed_evidence
 }
 
 #[tokio::test]
-async fn confirmation_rejects_evidence_confirmed_for_another_case() {
+async fn preparation_rejects_evidence_confirmed_for_another_case() {
     let (database, _, snapshot, citation) = confirmed_context().await;
     database
         .insert_job_if_new(&test_job("job-other", "Technician", "Example"))
@@ -365,10 +369,15 @@ async fn confirmation_rejects_evidence_confirmed_for_another_case() {
         .await
         .unwrap();
     assert_eq!(
-        confirm(
+        prepare_military_transition_review(
             &database,
             &other_case.case_file_id,
-            review(&other_case.case_file_id, &snapshot, &citation),
+            MilitaryBranch::Army,
+            transition_wording("25B", "Support specialist"),
+            &snapshot,
+            &citation,
+            None,
+            today(),
         )
         .await
         .err()

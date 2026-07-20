@@ -465,9 +465,10 @@ pub use evidence::{
 
 mod military;
 pub use military::{
-    confirm_military_occupation_review, prepare_military_occupation_review,
+    confirm_military_transition_review, prepare_military_transition_review,
     MilitaryOccupationReviewDraft, MilitaryOccupationSuggestion, MilitaryReviewResource,
-    MilitarySuggestionBoundary, MilitarySuggestionReviewStatus,
+    MilitarySuggestionBoundary, MilitarySuggestionReviewStatus, MilitaryTransitionWording,
+    MilitaryWordingMapping,
 };
 
 #[cfg(test)]
@@ -481,3 +482,7 @@ mod evidence_diagnostic_tests;
 #[cfg(test)]
 #[path = "v3_foundation/military_tests.rs"]
 mod military_tests;
+
+#[cfg(test)]
+#[path = "v3_foundation/military_transition_tests.rs"]
+mod military_transition_tests;
