@@ -546,6 +546,11 @@ whole result with a safe retry action instead of returning stale citations. HTML
 format-source reads use one file handle and stop after the 10 MiB boundary plus
 one sentinel byte. The result shape and visible review remain unchanged.
 
+Copied structured-resume review is also application-owned. It discards any
+renderer-supplied evidence identity, derives an opaque local revision from
+canonical resume content, and stops before analysis when that content exceeds
+10 MiB. The copied resume and its derived identity are not persisted.
+
 The skill list is self-contained and deterministic. Same input should produce
 the same local result. Optional OCR is available for scanned PDFs when the app
 is built with OCR support and local OCR tools are installed.

@@ -50,8 +50,8 @@ Last updated: 2026-07-20
 
 - Active feature: `v3-milestone-5-local-evidence-resume-matching`
 - Status: `active`
-- Current slice: Active saved-resume review rejects mid-analysis evidence changes.
-- Next action: Bind copied-resume claims to ephemeral local evidence.
+- Current slice: Copied-resume claims use bounded, content-derived local evidence.
+- Next action: Expand reviewed military responsibility, credential, and current-clearance mappings.
 
 ## Deferred
 
