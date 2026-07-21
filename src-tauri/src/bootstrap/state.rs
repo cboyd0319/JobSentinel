@@ -6,7 +6,7 @@ use crate::application::{config::Config, credentials::CredentialService, schedul
 use crate::desktop::{
     BookmarkletServer, Database, DesktopServices, DesktopStartupFailureKind, SchedulerStatus,
 };
-use jobsentinel_application::PendingUrlImports;
+use jobsentinel_application::{v3_foundation::PendingMilitaryTransitionReviews, PendingUrlImports};
 
 pub(crate) struct StartupRecoveryState {
     platform: bool,
@@ -43,6 +43,7 @@ pub(crate) struct AppState {
     pub scheduler_status: Arc<RwLock<SchedulerStatus>>,
     pub bookmarklet_server: Arc<RwLock<BookmarkletServer>>,
     pub pending_url_imports: PendingUrlImports,
+    pub pending_military_transition_reviews: PendingMilitaryTransitionReviews,
     pub outside_ai_cancellations: Arc<Mutex<HashMap<String, watch::Sender<bool>>>>,
 }
 
@@ -56,6 +57,7 @@ impl From<DesktopServices> for AppState {
             scheduler_status: services.scheduler_status,
             bookmarklet_server: services.bookmarklet_server,
             pending_url_imports: services.pending_url_imports,
+            pending_military_transition_reviews: Default::default(),
             outside_ai_cancellations: Default::default(),
         }
     }

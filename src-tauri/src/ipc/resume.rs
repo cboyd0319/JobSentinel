@@ -24,6 +24,11 @@ pub(crate) mod resume_builder_commands;
 pub(crate) mod resume_file_commands;
 #[path = "resume_match_debugger_commands.rs"]
 pub(crate) mod resume_match_debugger_commands;
+#[path = "resume_military_transition_commands.rs"]
+pub(crate) mod resume_military_transition_commands;
+#[cfg(test)]
+#[path = "resume_military_transition_tests.rs"]
+mod resume_military_transition_tests;
 #[cfg(test)]
 use crate::application::resume::MAX_RESUME_FILE_BYTES;
 #[cfg(test)]
