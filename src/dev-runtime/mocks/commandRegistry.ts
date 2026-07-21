@@ -3,12 +3,14 @@ import {
   applyMockApplicationsCommand,
   applyMockCoverLetterTemplateCommand,
   applyMockDashboardCommand,
+  applyMockExternalAiCommand,
   applyMockInterviewCommand,
   applyMockJobImportCommand,
   applyMockLinkedInCommand,
   applyMockMarketCommand,
   applyMockNotificationCommand,
   applyMockOnboardingCommand,
+  applyMockRecoveryCommand,
   applyMockResumeCommand,
   applyMockSalaryCommand,
   applyMockSavedSearchCommand,
@@ -79,7 +81,6 @@ const commandGroups: readonly MockCommandGroup[] = [
       "start_bookmarklet_server",
       "stop_bookmarklet_server",
       "set_bookmarklet_port",
-      "send_external_ai_request",
       "get_semantic_matching_diagnostics",
       "download_ml_model",
       "cancel_ml_model_download",
@@ -87,6 +88,15 @@ const commandGroups: readonly MockCommandGroup[] = [
       "repair_semantic_matching_model_cache",
     ],
     adapter: applyMockSettingsCommand,
+  },
+  {
+    commands: [
+      "prepare_external_ai_request",
+      "send_external_ai_request",
+      "cancel_external_ai_request",
+      "list_external_ai_activity",
+    ],
+    adapter: applyMockExternalAiCommand,
   },
   {
     commands: [
@@ -104,6 +114,20 @@ const commandGroups: readonly MockCommandGroup[] = [
   },
   {
     commands: [
+      "get_local_recovery_report",
+      "run_local_storage_cleanup",
+      "repair_local_permissions",
+      "repair_invalid_startup_config",
+      "create_portable_backup",
+      "stage_portable_restore",
+      "get_staged_restore_status",
+      "cancel_staged_restore",
+      "create_reviewed_export",
+    ],
+    adapter: applyMockRecoveryCommand,
+  },
+  {
+    commands: [
       "get_supported_sites",
       "get_sites_by_category_cmd",
       "generate_deep_links",
@@ -113,7 +137,12 @@ const commandGroups: readonly MockCommandGroup[] = [
     adapter: applyMockSearchLinksCommand,
   },
   {
-    commands: ["preview_job_import", "confirm_job_import"],
+    commands: [
+      "preview_job_import",
+      "confirm_job_import",
+      "preview_smart_paste",
+      "confirm_smart_paste",
+    ],
     adapter: applyMockJobImportCommand,
   },
   {

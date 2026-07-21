@@ -223,13 +223,6 @@ export function handleMockSettingsCommand(
         state.bookmarkletConfig.enabled,
       );
 
-    case "send_external_ai_request":
-      return withoutSave(state, {
-        text: "Mock outside AI summary: review the original posting before using this summary.",
-        provider: "open_ai",
-        model: "mock-local-development",
-      });
-
     case "get_semantic_matching_diagnostics":
       return withoutSave(state, {
         build_enabled: true,

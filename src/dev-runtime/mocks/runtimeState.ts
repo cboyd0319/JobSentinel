@@ -41,7 +41,25 @@ const defaultCredentialUnlock: MockCredentialUnlockState = {
   unlocked: true,
 };
 
-interface MockRuntimeState extends MockState {
+export interface MockExternalAiApproval {
+  approvalId: string;
+  request: Record<string, unknown>;
+  providerId: string;
+  model: string;
+}
+
+export interface MockExternalAiState {
+  pendingExternalAiApproval: MockExternalAiApproval | null;
+}
+
+export interface MockRecoveryState {
+  stagedRestoreStatus: "none" | "ready";
+}
+
+export interface MockRuntimeState
+  extends MockState,
+    MockExternalAiState,
+    MockRecoveryState {
   automationBrowserRunning: boolean;
   nextAutomationAttemptId: number;
   pendingUrlImports: MockPendingUrlImport[];
@@ -94,6 +112,8 @@ function createDefaultState(): MockRuntimeState {
     interviewPrepChecklists: {},
     interviewFollowups: {},
     linkedinWorkbenchReviewed: false,
+    pendingExternalAiApproval: null,
+    stagedRestoreStatus: "none",
     automationBrowserRunning: false,
     nextAutomationAttemptId: 1,
   };
@@ -108,6 +128,7 @@ export function saveMockState(): void {
   delete persistedState.automationBrowserRunning;
   delete persistedState.nextAutomationAttemptId;
   delete persistedState.pendingUrlImports;
+  delete persistedState.pendingExternalAiApproval;
   window.localStorage.setItem(MOCK_STATE_KEY, JSON.stringify(persistedState));
 }
 
@@ -118,7 +139,7 @@ export function loadMockState(): void {
   if (!rawState) return;
 
   try {
-    const state = JSON.parse(rawState) as Partial<MockState>;
+    const state = JSON.parse(rawState) as Partial<MockRuntimeState>;
     if (Array.isArray(state.jobs)) mockRuntimeState.jobs = state.jobs;
     if (state.config && typeof state.config === "object") {
       mockRuntimeState.config = { ...mockConfig, ...state.config };
@@ -237,6 +258,12 @@ export function loadMockState(): void {
       mockRuntimeState.linkedinWorkbenchReviewed =
         state.linkedinWorkbenchReviewed;
     }
+    if (
+      state.stagedRestoreStatus === "none" ||
+      state.stagedRestoreStatus === "ready"
+    ) {
+      mockRuntimeState.stagedRestoreStatus = state.stagedRestoreStatus;
+    }
   } catch {
     window.localStorage.removeItem(MOCK_STATE_KEY);
   }
@@ -268,6 +295,8 @@ export function resetMockState(): void {
     applicationProfile: defaults.applicationProfile,
     screeningAnswers: defaults.screeningAnswers,
     linkedinWorkbenchReviewed: defaults.linkedinWorkbenchReviewed,
+    pendingExternalAiApproval: defaults.pendingExternalAiApproval,
+    stagedRestoreStatus: defaults.stagedRestoreStatus,
   });
   saveMockState();
 }

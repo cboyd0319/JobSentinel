@@ -15,9 +15,11 @@ import {
 import { handleMockSalaryCommand } from "../features/salary/commands";
 import { handleMockSearchLinksCommand } from "../features/search-links/commands";
 import { handleMockSettingsCommand } from "../features/settings/commands";
+import { handleMockExternalAiCommand } from "../features/settings/externalAiCommands";
 import { handleMockNotificationCommand } from "../features/settings/notificationCommands";
 import { handleMockSourceHealthCommand } from "../features/settings/sources/commands";
 import { handleMockSupportCommand } from "../features/settings/support/commands";
+import { handleMockRecoveryCommand } from "../features/settings/support/recoveryCommands";
 import { mockRuntimeState, saveMockState } from "./runtimeState";
 
 export type MockCommandAdapter = (
@@ -74,6 +76,26 @@ export const applyMockSupportCommand: MockCommandAdapter = (command, args) => {
     Boolean(getMockActiveResume(mockRuntimeState.resumes)),
   );
   return result.handled ? result.value : undefined;
+};
+
+export const applyMockExternalAiCommand: MockCommandAdapter = (
+  command,
+  args,
+) => {
+  const result = handleMockExternalAiCommand(command, args, mockRuntimeState);
+  return result.handled ? result.value : undefined;
+};
+
+export const applyMockRecoveryCommand: MockCommandAdapter = (command, args) => {
+  const result = handleMockRecoveryCommand(
+    command,
+    args,
+    mockRuntimeState.pendingUrlImports.length,
+    mockRuntimeState,
+  );
+  if (!result.handled) return undefined;
+  if (result.shouldSave) saveMockState();
+  return result.value;
 };
 
 export const applyMockSearchLinksCommand: MockCommandAdapter = (
