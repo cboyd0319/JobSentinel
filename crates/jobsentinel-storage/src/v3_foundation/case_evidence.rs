@@ -1,4 +1,5 @@
 use super::*;
+use chrono::Utc;
 use jobsentinel_domain::{
     v3_foundation::{
         CareerRelation, CaseFileEventKind, EventMetadata, EventOrigin, GraphProvenance,
@@ -72,60 +73,9 @@ impl Database {
         link: &CareerGraphLink,
         confirmation: &CaseFileEventInput,
     ) -> Result<bool> {
-        validate_case_evidence(link, confirmation)?;
-        let metadata_json = confirmation
-            .metadata
-            .to_json()
-            .map_err(|_| anyhow!("invalid case evidence confirmation"))?;
-        let created_at = Utc::now().to_rfc3339();
         let mut transaction = self.pool().begin().await?;
-        let inserted = sqlx::query(
-            "INSERT INTO career_graph_links (
-                link_id, subject_id, relation, object_id,
-                provenance, provenance_ref, created_at
-             ) VALUES (?, ?, ?, ?, ?, ?, ?)
-             ON CONFLICT(subject_id, relation, object_id) DO NOTHING",
-        )
-        .bind(&link.link_id)
-        .bind(&link.subject_id)
-        .bind(enum_text(link.relation)?)
-        .bind(&link.object_id)
-        .bind(enum_text(link.provenance)?)
-        .bind(&link.provenance_ref)
-        .bind(&created_at)
-        .execute(&mut *transaction)
-        .await?
-        .rows_affected()
-            == 1;
-        if inserted {
-            sqlx::query(
-                "INSERT INTO v3_job_events (
-                    event_id, case_file_id, event_kind, origin, user_action,
-                    local_only, sensitive, metadata_json, created_at
-                 ) VALUES (?, ?, ?, ?, ?, 1, 1, ?, ?)",
-            )
-            .bind(Uuid::new_v4().to_string())
-            .bind(&confirmation.case_file_id)
-            .bind(enum_text(confirmation.kind)?)
-            .bind(enum_text(confirmation.origin)?)
-            .bind(confirmation.user_action)
-            .bind(&metadata_json)
-            .bind(&created_at)
-            .execute(&mut *transaction)
-            .await?;
-        } else {
-            let case_exists: bool = sqlx::query_scalar(
-                "SELECT EXISTS(
-                    SELECT 1 FROM opportunity_case_files WHERE case_file_id = ?
-                 )",
-            )
-            .bind(&confirmation.case_file_id)
-            .fetch_one(&mut *transaction)
-            .await?;
-            if !case_exists {
-                return Err(anyhow!("case file does not exist"));
-            }
-        }
+        let inserted =
+            insert_case_file_evidence_in_transaction(&mut transaction, link, confirmation).await?;
         transaction.commit().await?;
         Ok(inserted)
     }
@@ -305,6 +255,67 @@ fn validate_case_evidence(link: &CareerGraphLink, confirmation: &CaseFileEventIn
         return Err(anyhow!("invalid case evidence confirmation"));
     }
     Ok(())
+}
+
+pub(super) async fn insert_case_file_evidence_in_transaction(
+    transaction: &mut sqlx::Transaction<'_, sqlx::Sqlite>,
+    link: &CareerGraphLink,
+    confirmation: &CaseFileEventInput,
+) -> Result<bool> {
+    validate_case_evidence(link, confirmation)?;
+    let metadata_json = confirmation
+        .metadata
+        .to_json()
+        .map_err(|_| anyhow!("invalid case evidence confirmation"))?;
+    let created_at = Utc::now().to_rfc3339();
+    let inserted = sqlx::query(
+        "INSERT INTO career_graph_links (
+            link_id, subject_id, relation, object_id,
+            provenance, provenance_ref, created_at
+         ) VALUES (?, ?, ?, ?, ?, ?, ?)
+         ON CONFLICT(subject_id, relation, object_id) DO NOTHING",
+    )
+    .bind(&link.link_id)
+    .bind(&link.subject_id)
+    .bind(enum_text(link.relation)?)
+    .bind(&link.object_id)
+    .bind(enum_text(link.provenance)?)
+    .bind(&link.provenance_ref)
+    .bind(&created_at)
+    .execute(&mut **transaction)
+    .await?
+    .rows_affected()
+        == 1;
+    if inserted {
+        sqlx::query(
+            "INSERT INTO v3_job_events (
+                event_id, case_file_id, event_kind, origin, user_action,
+                local_only, sensitive, metadata_json, created_at
+             ) VALUES (?, ?, ?, ?, ?, 1, 1, ?, ?)",
+        )
+        .bind(Uuid::new_v4().to_string())
+        .bind(&confirmation.case_file_id)
+        .bind(enum_text(confirmation.kind)?)
+        .bind(enum_text(confirmation.origin)?)
+        .bind(confirmation.user_action)
+        .bind(&metadata_json)
+        .bind(&created_at)
+        .execute(&mut **transaction)
+        .await?;
+    } else {
+        let case_exists: bool = sqlx::query_scalar(
+            "SELECT EXISTS(
+                SELECT 1 FROM opportunity_case_files WHERE case_file_id = ?
+             )",
+        )
+        .bind(&confirmation.case_file_id)
+        .fetch_one(&mut **transaction)
+        .await?;
+        if !case_exists {
+            return Err(anyhow!("case file does not exist"));
+        }
+    }
+    Ok(inserted)
 }
 
 fn career_graph_link_from_row(row: CareerGraphRow) -> Result<CareerGraphLink> {

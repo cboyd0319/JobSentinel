@@ -2,7 +2,7 @@ use super::*;
 use serde_json::Value;
 use std::path::Path;
 
-async fn database_with_private_export_data(path: &Path) -> Database {
+pub(super) async fn database_with_private_export_data(path: &Path) -> Database {
     let database = Database::connect(path).await.unwrap();
     database.migrate().await.unwrap();
     sqlx::query(
@@ -161,7 +161,7 @@ async fn database_with_private_export_data(path: &Path) -> Database {
     database
 }
 
-fn records(path: &Path) -> Vec<Value> {
+pub(super) fn records(path: &Path) -> Vec<Value> {
     std::fs::read_to_string(path)
         .unwrap()
         .lines()
@@ -169,7 +169,7 @@ fn records(path: &Path) -> Vec<Value> {
         .collect()
 }
 
-fn find_record<'a>(records: &'a [Value], table: &str) -> &'a Value {
+pub(super) fn find_record<'a>(records: &'a [Value], table: &str) -> &'a Value {
     records
         .iter()
         .find(|record| record["kind"] == "record" && record["table"] == table)
@@ -308,35 +308,6 @@ async fn reviewed_export_is_complete_and_excludes_secrets_paths_and_protected_re
     ] {
         assert!(!raw.contains(forbidden), "export leaked {forbidden}");
     }
-}
-
-#[tokio::test]
-async fn protected_records_require_a_separate_review_selection() {
-    let temp_dir = tempfile::tempdir().unwrap();
-    let database =
-        database_with_private_export_data(&temp_dir.path().join("primary/jobs.db")).await;
-    let export_path = temp_dir.path().join("protected.jsonl");
-    let plan = database
-        .review_plaintext_export(ReviewedExportSelection::including_protected_records())
-        .await
-        .unwrap();
-
-    assert!(plan.protected_records_included());
-    assert!(plan.record_count("protected_answers").unwrap() > 0);
-    database
-        .create_reviewed_export(&export_path, plan)
-        .await
-        .unwrap();
-
-    let raw = std::fs::read_to_string(export_path).unwrap();
-    assert!(raw.contains("export-protected-answer-marker"));
-    assert!(raw.contains("\"us_work_authorized\":1"));
-    assert!(raw.contains("draft-clearance-marker"));
-    assert!(raw.contains("draft-military-marker"));
-    assert!(raw.contains("draft-security-clearance-marker"));
-    assert!(raw.contains("draft-military-service-marker"));
-    assert!(raw.contains("draft-protected-veteran-marker"));
-    assert!(raw.contains("draft-disability-marker"));
 }
 
 #[tokio::test]

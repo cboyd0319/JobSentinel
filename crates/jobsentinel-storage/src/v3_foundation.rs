@@ -397,10 +397,25 @@ pub(crate) fn parse_enum<T: DeserializeOwned>(value: &str) -> Result<T> {
 
 mod case_evidence;
 pub use case_evidence::CaseRequirementEvidenceContext;
+mod saved_match_evidence;
+pub use saved_match_evidence::{SavedMatchConfirmedEvidence, SavedMatchEvidenceConfirmation};
+mod evidence_packets;
+pub use evidence_packets::{
+    EvidenceBoundPacketClaimRecord, EvidenceBoundPacketClaimsRead, EvidencePacketBoundary,
+    NewEvidenceBoundPacketClaim,
+};
 
 #[cfg(test)]
 #[path = "v3_foundation/case_evidence_tests.rs"]
 mod case_evidence_tests;
+
+#[cfg(test)]
+#[path = "v3_foundation/evidence_packet_tests.rs"]
+mod evidence_packet_tests;
+
+#[cfg(test)]
+#[path = "v3_foundation/saved_match_evidence_tests.rs"]
+mod saved_match_evidence_tests;
 
 #[cfg(test)]
 mod tests;

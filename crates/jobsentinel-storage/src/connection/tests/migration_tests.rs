@@ -182,6 +182,32 @@ async fn real_v29_boundary_migrates_additively_and_preserves_local_data() {
 }
 
 #[tokio::test]
+async fn evidence_packet_tables_are_present_for_fresh_and_v29_databases() {
+    let fresh = Database::connect_memory().await.unwrap();
+    fresh.migrate().await.unwrap();
+
+    let temp_dir = tempfile::tempdir().unwrap();
+    let migrated = v29_database(&temp_dir.path().join("jobs.db")).await;
+    migrated.migrate().await.unwrap();
+
+    for database in [&fresh, &migrated] {
+        let tables: i64 = sqlx::query_scalar(
+            "SELECT COUNT(*) FROM sqlite_master
+             WHERE type = 'table'
+               AND name IN (
+                   'v3_evidence_packets',
+                   'v3_evidence_packet_evidence',
+                   'v3_evidence_packet_boundaries'
+               )",
+        )
+        .fetch_one(database.pool())
+        .await
+        .unwrap();
+        assert_eq!(tables, 3);
+    }
+}
+
+#[tokio::test]
 async fn failed_migration_reuses_one_baseline_until_retry_succeeds() {
     let temp_dir = tempfile::tempdir().unwrap();
     let db_path = temp_dir.path().join("jobs.db");

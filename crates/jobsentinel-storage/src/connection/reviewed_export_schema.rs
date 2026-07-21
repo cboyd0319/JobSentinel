@@ -214,6 +214,21 @@ pub(super) const EXPORT_TABLES: &[ExportTable] = &[
         "case_file_id,job_hash,created_at"
     ),
     table!(
+        "campaign",
+        "v3_evidence_packets",
+        "packet_id,case_file_id,resume_id,resume_revision,job_revision,claim_id,reviewed_text,local_only,sensitive,created_at"
+    ),
+    table!(
+        "campaign",
+        "v3_evidence_packet_evidence",
+        "packet_id,ordinal,evidence_id"
+    ),
+    table!(
+        "campaign",
+        "v3_evidence_packet_boundaries",
+        "packet_id,ordinal,boundary"
+    ),
+    table!(
         "resume",
         "resume_drafts",
         "id,data,created_at,updated_at",

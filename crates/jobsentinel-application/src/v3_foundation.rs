@@ -462,7 +462,16 @@ pub use evidence::{
     EvidenceBoundPacketClaim, EvidenceBoundRequirementDiagnostic, PacketEvidenceBoundary,
     RequirementWhyNot,
 };
-
+mod saved_match_debugger;
+pub use saved_match_debugger::{
+    confirm_saved_match_debugger_evidence, prepare_saved_match_debugger, SavedMatchDebugger,
+    SavedMatchDebuggerEvidence, SavedMatchDebuggerRequirement,
+};
+mod saved_match_packets;
+pub use saved_match_packets::{
+    list_saved_match_evidence_packet_claims, save_saved_match_evidence_packet_claim,
+    SavedMatchEvidencePacketBoundary, SavedMatchEvidencePacketClaim,
+};
 mod military;
 pub use military::{
     confirm_military_transition_review, prepare_military_transition_review,
@@ -470,19 +479,21 @@ pub use military::{
     MilitarySuggestionBoundary, MilitarySuggestionReviewStatus, MilitaryTransitionWording,
     MilitaryWordingMapping,
 };
-
-#[cfg(test)]
-#[path = "v3_foundation/evidence_tests.rs"]
-mod evidence_tests;
-
 #[cfg(test)]
 #[path = "v3_foundation/evidence_diagnostic_tests.rs"]
 mod evidence_diagnostic_tests;
-
+#[cfg(test)]
+#[path = "v3_foundation/evidence_tests.rs"]
+mod evidence_tests;
 #[cfg(test)]
 #[path = "v3_foundation/military_tests.rs"]
 mod military_tests;
-
 #[cfg(test)]
 #[path = "v3_foundation/military_transition_tests.rs"]
 mod military_transition_tests;
+#[cfg(test)]
+#[path = "v3_foundation/saved_match_debugger_tests.rs"]
+mod saved_match_debugger_tests;
+#[cfg(test)]
+#[path = "v3_foundation/saved_match_packets_tests.rs"]
+mod saved_match_packets_tests;
