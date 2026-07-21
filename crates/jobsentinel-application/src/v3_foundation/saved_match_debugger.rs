@@ -219,12 +219,28 @@ pub(super) async fn load_saved_match_context(
 }
 
 impl SavedMatchContext {
+    pub(super) fn job_hash(&self) -> &str {
+        &self.job_hash
+    }
+
+    pub(super) const fn resume_id(&self) -> i64 {
+        self.resume_id
+    }
+
     pub(super) fn snapshot(&self) -> &ResumeEvidenceSnapshot {
         &self.snapshot
     }
 
     pub(super) fn job_revision(&self) -> &str {
         &self.job_revision
+    }
+
+    pub(super) fn skills(&self) -> &[String] {
+        &self.skills
+    }
+
+    pub(super) const fn saved_match_id(&self) -> i64 {
+        self.saved_match_id
     }
 
     pub(super) fn matches(&self, other: &Self) -> bool {
@@ -354,7 +370,7 @@ fn hash_debugger_value(digest: &mut Sha256, value: &str) {
     digest.update(value.as_bytes());
 }
 
-fn map_saved_match_confirmation_error(error: anyhow::Error) -> FoundationError {
+pub(super) fn map_saved_match_confirmation_error(error: anyhow::Error) -> FoundationError {
     match map_error(error) {
         FoundationError::InvalidInput => FoundationError::Conflict,
         error => error,

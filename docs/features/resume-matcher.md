@@ -599,16 +599,28 @@ responsibility or credential, and any current-clearance label must appear in the
 current bounded saved-resume text and have same-case, user-confirmed military
 evidence. Current-clearance evidence uses its own citation. The draft preserves
 each exact military source phrase beside the proposed civilian wording for
-explicit review. It returns only the reviewed civilian wording after a typed
-user-action receipt names that exact draft and a fresh atomic read confirms the
-same resume revision, content hash, and evidence links.
+explicit review. Saved-match existence, job description, match ID, and skills
+are checked only when preparing that review; they do not author its wording.
+It returns only the reviewed civilian wording after a typed user-action receipt
+names that exact draft and a fresh atomic read confirms the same resume
+revision, content hash, and evidence links. A job or saved-match context change
+cannot revise the prepared civilian wording; skills context cannot revise it
+either, and any resulting resume revision or a changed evidence link fails
+confirmation.
 
 The dated O*NET occupation crosswalk and DoD COOL credential site remain manual
 review resources. They do not author or verify the branch, occupation, civilian
 role, responsibilities, credentials, clearance, veteran status, eligibility, or
 equivalence. Missing, changed, deleted, ambiguous, unconfirmed, or near-match
 source evidence fails closed. No review draft or suggestion is persisted,
-serialized, logged, sent, or generated from a packaged crosswalk.
+logged, sent, or generated from a packaged crosswalk. The native move-only
+draft and suggestion remain non-Serialize. IPC may serialize only an opaque
+pending-review token and, after confirmation, a safe civilian projection:
+role, responsibilities, credential wording, a user-confirmed clearance label,
+and fixed `suggestion_only` / `not_verified` boundaries for clearance
+currentness and military-to-civilian equivalence. It never serializes source-
+evidence fields, raw resume text, citations, IDs, revisions, paths, or
+resources.
 
 Resume Match offers an optional local matching profile only after the user
 selects both a role evidence focus and job-market wording. The role focus marks

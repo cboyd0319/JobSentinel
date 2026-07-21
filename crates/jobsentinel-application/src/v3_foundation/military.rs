@@ -111,6 +111,10 @@ impl MilitaryOccupationReviewDraft {
         &self.review_id
     }
 
+    pub(super) fn case_file_id(&self) -> &str {
+        &self.case_file_id
+    }
+
     #[must_use]
     pub fn branch(&self) -> MilitaryBranch {
         self.branch

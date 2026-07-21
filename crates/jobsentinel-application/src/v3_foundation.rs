@@ -472,7 +472,14 @@ pub use saved_match_packets::{
     list_saved_match_evidence_packet_claims, save_saved_match_evidence_packet_claim,
     SavedMatchEvidencePacketBoundary, SavedMatchEvidencePacketClaim,
 };
+mod saved_match_military_transition;
+pub use saved_match_military_transition::{
+    confirm_pending_saved_match_military_transition_review, confirm_saved_match_military_evidence,
+    prepare_pending_saved_match_military_transition_review, PendingMilitaryTransitionReviews,
+    SavedMatchMilitaryEvidenceKind, SavedMatchMilitaryTransitionConfirmation,
+};
 mod military;
+pub use jobsentinel_domain::v3_evaluation_inputs::MilitaryBranch;
 pub use military::{
     confirm_military_transition_review, prepare_military_transition_review,
     MilitaryOccupationReviewDraft, MilitaryOccupationSuggestion, MilitaryReviewResource,
@@ -480,20 +487,5 @@ pub use military::{
     MilitaryWordingMapping,
 };
 #[cfg(test)]
-#[path = "v3_foundation/evidence_diagnostic_tests.rs"]
-mod evidence_diagnostic_tests;
-#[cfg(test)]
-#[path = "v3_foundation/evidence_tests.rs"]
-mod evidence_tests;
-#[cfg(test)]
-#[path = "v3_foundation/military_tests.rs"]
-mod military_tests;
-#[cfg(test)]
-#[path = "v3_foundation/military_transition_tests.rs"]
-mod military_transition_tests;
-#[cfg(test)]
-#[path = "v3_foundation/saved_match_debugger_tests.rs"]
-mod saved_match_debugger_tests;
-#[cfg(test)]
-#[path = "v3_foundation/saved_match_packets_tests.rs"]
-mod saved_match_packets_tests;
+#[path = "v3_foundation/tests.rs"]
+mod v3_foundation_tests;
