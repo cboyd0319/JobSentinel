@@ -11,7 +11,7 @@ use crate::desktop::{load_model_manifest, ModelManager, ModelStatus, SemanticMat
 use crate::ipc::errors::user_friendly_error;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Arc, LazyLock, Mutex, MutexGuard, PoisonError};
-use tauri::{Emitter, State};
+use tauri::{Emitter, Manager, State};
 use tauri_plugin_dialog::{DialogExt, MessageDialogButtons, MessageDialogKind};
 use tokio::sync::{oneshot, watch};
 
@@ -267,11 +267,15 @@ async fn confirm_model_action(
     confirm_label: &str,
     cancel_label: &str,
 ) -> Result<bool, String> {
+    let parent = app
+        .get_webview_window("main")
+        .ok_or_else(|| "Local model confirmation is unavailable.".to_string())?;
     let (sender, receiver) = oneshot::channel();
     app.dialog()
         .message(message)
         .title(title)
         .kind(MessageDialogKind::Warning)
+        .parent(&parent)
         .buttons(MessageDialogButtons::OkCancelCustom(
             confirm_label.to_string(),
             cancel_label.to_string(),
