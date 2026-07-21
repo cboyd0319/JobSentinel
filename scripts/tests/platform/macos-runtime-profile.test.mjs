@@ -9,6 +9,7 @@ import {
   getRuntimeProfile,
   staleDmgArtifactNames,
 } from "../../platform/build-macos-dmg.mjs";
+import { verifyMacosRuntimeProfile } from "../../platform/macos-runtime-profile.mjs";
 import {
   modelPayloadFiles,
   parseArgs,
@@ -220,6 +221,18 @@ test("macOS builder inserts its default bundle before forwarded Cargo arguments"
     buildTauriArgs(["--", "--bundles", "dmg"]),
     ["build", "--bundles", "app", "--", "--bundles", "dmg"],
   );
+});
+
+test("macOS runtime verifier handles release-sized executable strings", () => {
+  const root = mkdtempSync(join(tmpdir(), "jobsentinel-macos-large-binary-"));
+  const executable = join(root, "jobsentinel");
+
+  try {
+    writeFileSync(executable, "a".repeat(2 * 1024 * 1024));
+    assert.doesNotThrow(() => verifyMacosRuntimeProfile(root, executable, "essentials"));
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 });
 
 test("macOS package verifier rejects case-insensitive model payload suffixes", () => {

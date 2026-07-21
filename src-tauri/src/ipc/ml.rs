@@ -131,6 +131,7 @@ pub(crate) async fn download_ml_model(app: tauri::AppHandle) -> Result<bool, Str
 
 #[tauri::command]
 pub(crate) async fn cancel_ml_model_download() -> Result<bool, String> {
+    tracing::info!("Command: cancel_ml_model_download");
     Ok(matches!(
         model_lifecycle_slot().as_ref(),
         Some(ActiveModelLifecycle::Download(cancellation))
@@ -140,6 +141,7 @@ pub(crate) async fn cancel_ml_model_download() -> Result<bool, String> {
 
 #[tauri::command]
 pub(crate) async fn remove_ml_models(app: tauri::AppHandle) -> Result<bool, String> {
+    tracing::info!("Command: remove_ml_models");
     let _reservation = reserve_model_lifecycle(None)?;
     if !confirm_model_removal(&app).await? {
         return Ok(false);

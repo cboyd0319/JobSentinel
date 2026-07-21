@@ -1,5 +1,4 @@
-import { execFileSync } from "node:child_process";
-import { readdirSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { basename, join, relative } from "node:path";
 
 const essentialsProfile = "essentials";
@@ -140,9 +139,9 @@ export function assertMacosRuntimeProfileArtifact(dmgPath, runtimeProfile) {
   }
 }
 
-export function runtimeProfileCommandViolations(binaryStrings, runtimeProfile) {
+export function runtimeProfileCommandViolations(binaryContents, runtimeProfile) {
   const profile = normalizeMacosRuntimeProfile(runtimeProfile);
-  const commands = strongerLocalNativeCommands.filter((command) => binaryStrings.includes(command));
+  const commands = strongerLocalNativeCommands.filter((command) => binaryContents.includes(command));
 
   if (profile === strongerLocalProfile) {
     return strongerLocalNativeCommands
@@ -175,12 +174,8 @@ export function modelPayloadFiles(appPath) {
 
 export function verifyMacosRuntimeProfile(appPath, executable, runtimeProfile) {
   const profile = normalizeMacosRuntimeProfile(runtimeProfile);
-  console.log(`$ strings -a ${executable}`);
-  const binaryStrings = execFileSync("strings", ["-a", executable], {
-    encoding: "utf8",
-    stdio: ["ignore", "pipe", "pipe"],
-  });
-  const commandViolations = runtimeProfileCommandViolations(binaryStrings, profile);
+  console.log(`Scanning native commands: ${executable}`);
+  const commandViolations = runtimeProfileCommandViolations(readFileSync(executable), profile);
   if (commandViolations.length > 0) {
     throw new Error(`Runtime profile check failed:\n- ${commandViolations.join("\n- ")}`);
   }
