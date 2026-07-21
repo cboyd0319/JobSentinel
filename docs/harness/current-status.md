@@ -1,6 +1,6 @@
 # Current Status
 
-Last updated: 2026-07-20
+Last updated: 2026-07-21
 
 ## Done
 
@@ -50,8 +50,8 @@ Last updated: 2026-07-20
 
 - Active feature: `v3-milestone-5-local-evidence-resume-matching`
 - Status: `active`
-- Current slice: The 8 GiB Linux Essentials journey is measured; Gate 4 remains open.
-- Next action: Extend the package matrix and close the remaining Gate 4 evidence.
+- Current slice: The macOS stronger-local installed lifecycle is proven; Gate 4 remains open.
+- Next action: Complete the remaining Milestone 5 product surfaces and Gate 4 evidence.
 
 ## Deferred
 
