@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { Card } from "../../../ui/Card";
 import { ScoreDisplay } from "../../../ui/score-display/ScoreDisplay";
 import { CheckIcon, XIcon } from "./ResumeIcons";
 import { ResumeScoreBreakdownRow } from "./ResumeScoreBreakdownRow";
+import { MatchDebuggerModal } from "./MatchDebuggerModal";
 import {
   isScoreFraction,
   parseGapAnalysisLine,
@@ -20,6 +22,8 @@ export function ResumeRecentMatches({
   savingFeedback,
   onFeedback,
 }: ResumeRecentMatchesProps) {
+  const [debugMatch, setDebugMatch] = useState<MatchResult | null>(null);
+
   return (
     <Card className="lg:col-span-3 dark:bg-surface-800">
       <h2 className="font-display text-display-sm text-surface-900 dark:text-white mb-4">
@@ -190,6 +194,15 @@ export function ResumeRecentMatches({
                     ranking yet.
                   </p>
                   <div className="flex flex-wrap gap-2">
+                    {Number.isSafeInteger(match.id) && match.id > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => setDebugMatch(match)}
+                        className="rounded-md border border-surface-300 px-3 py-1.5 text-sm font-medium text-surface-600 hover:bg-surface-50 dark:border-surface-600 dark:text-surface-300 dark:hover:bg-surface-700"
+                      >
+                        Inspect evidence
+                      </button>
+                    )}
                     {([
                       ["useful", "Useful"],
                       ["not_relevant", "Not relevant"],
@@ -219,6 +232,11 @@ export function ResumeRecentMatches({
           })}
         </div>
       )}
+      <MatchDebuggerModal
+        isOpen={debugMatch !== null}
+        match={debugMatch}
+        onClose={() => setDebugMatch(null)}
+      />
     </Card>
   );
 }

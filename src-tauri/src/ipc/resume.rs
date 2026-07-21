@@ -22,6 +22,8 @@ pub(crate) mod resume_builder_commands;
 
 #[path = "resume_file_commands.rs"]
 pub(crate) mod resume_file_commands;
+#[path = "resume_match_debugger_commands.rs"]
+pub(crate) mod resume_match_debugger_commands;
 #[cfg(test)]
 use crate::application::resume::MAX_RESUME_FILE_BYTES;
 #[cfg(test)]

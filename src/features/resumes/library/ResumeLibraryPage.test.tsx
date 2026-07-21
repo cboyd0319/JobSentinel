@@ -140,7 +140,6 @@ describe("Resume page", () => {
     expect(screen.queryByText("Education fit")).not.toBeInTheDocument();
     expect(screen.queryByText("NaN%")).not.toBeInTheDocument();
   });
-
   it("records and clears a local saved-match feedback label without sending match content", async () => {
     const user = userEvent.setup();
     mockResumeLibraryResponses({

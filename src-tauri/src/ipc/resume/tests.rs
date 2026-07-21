@@ -1,7 +1,12 @@
+use super::resume_match_debugger_commands::{
+    is_saved_match_debugger_opaque_id, validate_saved_match_debugger_args,
+    validate_saved_match_packet_args,
+};
 use super::*;
 use crate::application::resume::{
     ProfessionMatchingProfile, RegionalMatchingProfile, ResumeMatchingProfile,
 };
+use crate::application::v3_foundation::SavedMatchDebugger;
 
 #[test]
 fn explicit_matching_profile_reaches_the_application_owner() {
@@ -46,6 +51,44 @@ fn resume_match_feedback_is_closed_and_content_free() {
     keys.sort();
 
     assert_eq!(keys, ["label", "match_id", "recorded_at"]);
+}
+
+#[test]
+fn saved_match_debugger_arguments_require_a_saved_job_and_positive_resume() {
+    assert_eq!(validate_saved_match_debugger_args("saved-job", 7), Ok(()));
+    assert!(validate_saved_match_debugger_args("", 7).is_err());
+    assert!(validate_saved_match_debugger_args("saved-job", 0).is_err());
+    assert!(validate_saved_match_debugger_args(&"a".repeat(129), 7).is_err());
+    assert!(is_saved_match_debugger_opaque_id(&"a".repeat(64)));
+    assert!(!is_saved_match_debugger_opaque_id(&"a".repeat(63)));
+    assert!(!is_saved_match_debugger_opaque_id(&"g".repeat(64)));
+}
+
+#[test]
+fn saved_match_debugger_response_remains_renderer_serializable() {
+    fn assert_serializable<T: serde::Serialize>() {}
+
+    assert_serializable::<SavedMatchDebugger>();
+}
+
+#[test]
+fn saved_match_packet_arguments_require_reviewed_text_and_current_evidence() {
+    let evidence_id = "a".repeat(64);
+    assert_eq!(
+        validate_saved_match_packet_args("Reviewed scheduling claim", &[evidence_id.clone()]),
+        Ok(())
+    );
+    assert!(validate_saved_match_packet_args("", &[evidence_id.clone()]).is_err());
+    assert!(validate_saved_match_packet_args("Reviewed scheduling claim", &[]).is_err());
+    assert!(validate_saved_match_packet_args(
+        "Reviewed scheduling claim",
+        &[evidence_id.clone(), evidence_id.clone()],
+    )
+    .is_err());
+    assert!(
+        validate_saved_match_packet_args("Reviewed scheduling claim", &["g".repeat(64)]).is_err()
+    );
+    assert!(validate_saved_match_packet_args(&"x".repeat(8_193), &[evidence_id]).is_err());
 }
 
 #[test]

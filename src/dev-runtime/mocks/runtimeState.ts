@@ -105,6 +105,7 @@ function createDefaultState(): MockRuntimeState {
     userSkills: [],
     resumeDrafts: [],
     recentMatches: [],
+    savedMatchEvidence: {},
     marketAlerts: getDefaultMarketAlerts(),
     applicationProfile: getDefaultMockApplicationProfile(),
     screeningAnswers: getDefaultMockScreeningAnswers(),
@@ -219,6 +220,9 @@ export function loadMockState(): void {
     }
     if (Array.isArray(state.recentMatches))
       mockRuntimeState.recentMatches = state.recentMatches;
+    if (state.savedMatchEvidence && typeof state.savedMatchEvidence === "object") {
+      mockRuntimeState.savedMatchEvidence = state.savedMatchEvidence;
+    }
     if (Array.isArray(state.marketAlerts))
       mockRuntimeState.marketAlerts = state.marketAlerts;
     if ("applicationProfile" in state) {
@@ -291,6 +295,7 @@ export function resetMockState(): void {
     userSkills: defaults.userSkills,
     resumeDrafts: defaults.resumeDrafts,
     recentMatches: defaults.recentMatches,
+    savedMatchEvidence: defaults.savedMatchEvidence,
     marketAlerts: defaults.marketAlerts,
     applicationProfile: defaults.applicationProfile,
     screeningAnswers: defaults.screeningAnswers,

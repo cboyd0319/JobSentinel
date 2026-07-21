@@ -242,6 +242,7 @@ export interface MockState {
   userSkills: MockUserSkill[];
   resumeDrafts: MockResumeDraft[];
   recentMatches: MockMatchResult[];
+  savedMatchEvidence: Record<string, MockSavedMatchEvidenceState>;
   marketAlerts: MockMarketAlert[];
   applicationProfile: MockApplicationProfile | null;
   screeningAnswers: MockScreeningAnswer[];
@@ -249,6 +250,19 @@ export interface MockState {
   interviewPrepChecklists: MockInterviewPrepState;
   interviewFollowups: MockInterviewFollowUpState;
   linkedinWorkbenchReviewed: boolean;
+}
+
+export interface MockSavedMatchEvidenceState {
+  confirmedEvidenceIds: string[];
+  packetClaims: Array<{
+    claim_id: string;
+    reviewed_text: string;
+    evidence_ids: string[];
+    boundaries: [
+      "clearance_currentness_unverified",
+      "military_civilian_equivalence_unverified",
+    ];
+  }>;
 }
 
 export type {
