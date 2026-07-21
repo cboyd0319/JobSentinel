@@ -29,7 +29,11 @@ import {
   verifyLocalDmgChecksum,
   bundleMetadataViolations,
 } from "./macos-package-contract.mjs";
-
+import {
+  assertMacosRuntimeProfileArtifact,
+  normalizeMacosRuntimeProfile,
+  verifyMacosRuntimeProfile,
+} from "../platform/macos-runtime-profile.mjs";
 export {
   getArgValue,
   hasArg,
@@ -50,6 +54,9 @@ export {
   parseSha256Checksum,
   verifyLocalDmgChecksum,
   bundleMetadataViolations,
+  modelPayloadFiles,
+  runtimeProfileArtifactViolations,
+  runtimeProfileCommandViolations,
 } from "./macos-package-contract.mjs";
 
 import {
@@ -337,6 +344,7 @@ async function verifyAppBundle({
   expectedArchitectures,
   launchSmoke,
   requireGatekeeper,
+  runtimeProfile,
   smokeSeconds,
   bundleLabel = "App bundle",
 }) {
@@ -345,6 +353,7 @@ async function verifyAppBundle({
 
   const executable = join(appPath, "Contents", "MacOS", getBundleExecutable(appPath));
   assertPathExists(executable, "App executable");
+  verifyMacosRuntimeProfile(appPath, executable, runtimeProfile);
 
   const lipoOutput = runChecked("lipo", ["-info", executable]);
   const architectures = parseLipoArchitectures(lipoOutput);
@@ -374,6 +383,7 @@ async function verifyInstalledApp({
   expectedBundleMetadata,
   expectedArchitectures,
   requireGatekeeper,
+  runtimeProfile,
   smokeSeconds,
 }) {
   const installRoot = mkdtempSync(join(tmpdir(), "jobsentinel-macos-install-"));
@@ -388,6 +398,7 @@ async function verifyInstalledApp({
       expectedArchitectures,
       launchSmoke: true,
       requireGatekeeper,
+      runtimeProfile,
       smokeSeconds,
     });
     console.log(`Install smoke passed: copied app launched from ${installedAppPath}.`);
@@ -398,7 +409,9 @@ async function verifyInstalledApp({
 
 export async function verifyMacosPackage(options) {
   requireMacos();
+  const runtimeProfile = normalizeMacosRuntimeProfile(options.runtimeProfile);
   assertPathExists(options.dmgPath, "DMG");
+  assertMacosRuntimeProfileArtifact(options.dmgPath, runtimeProfile);
   verifyLocalDmgChecksum(options.dmgPath, {
     requireChecksum: options.requireChecksum,
     verifyChecksum: options.verifyChecksum,
@@ -436,6 +449,7 @@ export async function verifyMacosPackage(options) {
       expectedArchitectures: options.expectedArchitectures,
       launchSmoke: options.launchSmoke,
       requireGatekeeper: options.requireGatekeeper,
+      runtimeProfile,
       smokeSeconds: options.smokeSeconds,
     });
 
@@ -446,6 +460,7 @@ export async function verifyMacosPackage(options) {
         expectedBundleMetadata: options.expectedBundleMetadata,
         expectedArchitectures: options.expectedArchitectures,
         requireGatekeeper: options.requireGatekeeper,
+        runtimeProfile,
         smokeSeconds: options.smokeSeconds,
       });
     }
@@ -466,12 +481,11 @@ export async function verifyMacosPackage(options) {
 export async function main({ args = process.argv.slice(2) } = {}) {
   const options = parseArgs(args);
   if (!options.dmgPath) {
-    throw new Error("Usage: verify-macos-package.mjs --dmg <path-to-dmg> [--expected-architectures x86_64,arm64] [--expected-bundle-id com.example.app] [--expected-product-name AppName] [--expected-version X.Y.Z] [--expected-icon-file icon.icns] [--expected-minimum-system-version 13.0] [--launch-smoke] [--install-smoke] [--require-checksum] [--require-gatekeeper]");
+    throw new Error("Usage: verify-macos-package.mjs --dmg <path-to-dmg> [--runtime-profile essentials|stronger-local] [--expected-architectures x86_64,arm64] [--expected-bundle-id com.example.app] [--expected-product-name AppName] [--expected-version X.Y.Z] [--expected-icon-file icon.icns] [--expected-minimum-system-version 13.0] [--launch-smoke] [--install-smoke] [--require-checksum] [--require-gatekeeper]");
   }
   if (!Number.isFinite(options.smokeSeconds) || options.smokeSeconds < 1) {
     throw new Error(`Invalid --smoke-seconds value: ${options.smokeSeconds}`);
   }
-
   await verifyMacosPackage(options);
 }
 

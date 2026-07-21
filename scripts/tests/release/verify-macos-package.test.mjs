@@ -3,10 +3,7 @@ import { chmodSync, mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync }
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
-import {
-  developerIdSignatureViolations,
-  parseCodesignDetails,
-} from "../../platform/macos-signature.mjs";
+import { developerIdSignatureViolations, parseCodesignDetails } from "../../platform/macos-signature.mjs";
 import {
   buildGatekeeperAssessArgs,
   buildMacosCoalitionKillArgs,
@@ -53,6 +50,7 @@ test("macOS verifier parses positional and flagged DMG arguments", () => {
     launchSmoke: false,
     requireChecksum: false,
     requireGatekeeper: false,
+    runtimeProfile: "essentials",
     verifyChecksum: true,
     smokeSeconds: 12,
   });
@@ -95,6 +93,7 @@ test("macOS verifier parses positional and flagged DMG arguments", () => {
       launchSmoke: true,
       requireChecksum: true,
       requireGatekeeper: true,
+      runtimeProfile: "essentials",
       verifyChecksum: true,
       smokeSeconds: 3,
     },
@@ -115,6 +114,7 @@ test("macOS verifier parses positional and flagged DMG arguments", () => {
     launchSmoke: false,
     requireChecksum: false,
     requireGatekeeper: false,
+    runtimeProfile: "essentials",
     verifyChecksum: false,
     smokeSeconds: 12,
   });
