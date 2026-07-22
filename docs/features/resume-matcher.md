@@ -539,6 +539,13 @@ no result when the resume changes or is deleted during matching. Citations
 contain no resume content, filesystem path, source identifier, or raw revision.
 This command boundary is not yet the visible Resume Match page.
 
+Settings calls the Model Doctor surface **Local Match Check**. It reports the
+active local profile, privacy mode, fallback, model revision, backend, license,
+dimension, required-file count, and cache integrity. Missing or incomplete
+models keep built-in matching available. Integrity-invalid lock-owned caches
+can be removed only after native review; stale vector provenance is rebuilt at
+the application boundary rather than presented as current evidence.
+
 The visible active saved-resume review is application-owned. It brackets the
 existing local analysis with exact active-resume, revision, parsed-text, file,
 bounded HTML-source, and ordered-skill reads. A change or deletion refuses the
@@ -621,6 +628,13 @@ and fixed `suggestion_only` / `not_verified` boundaries for clearance
 currentness and military-to-civilian equivalence. It never serializes source-
 evidence fields, raw resume text, citations, IDs, revisions, paths, or
 resources.
+
+Each recent saved match also offers **Inspect evidence**. The debugger shows
+bounded requirement states, hard-constraint blockers, plain **Why not**
+reasons, and opaque current citations. Users must confirm exact current
+evidence before saving a reviewed packet claim. Packet claims persist only the
+reviewed text, ordered opaque evidence links, and fixed uncertainty boundaries;
+stale resume, skill, or job evidence refuses the write or reload.
 
 Resume Match offers an optional local matching profile only after the user
 selects both a role evidence focus and job-market wording. The role focus marks

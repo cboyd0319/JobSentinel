@@ -12,8 +12,6 @@ Last updated: 2026-07-21
   suite splits, fixture extraction, taxonomy compaction, and reusable release
   workflows. The sole retained exception is the unchanged initial SQLx migration,
   protected by an exact checksum-compatible no-growth contract.
-- Release workflow policy sensors now aggregate the focused reusable owners
-  while retaining root-level dispatch, publication, and permission checks.
 - The final repository audit passed the full local gate, all 286 browser
   journeys, and the Rust workspace all-features lane. The feature is `passing`
   with fresh structured evidence in the canonical ledger.
@@ -40,18 +38,19 @@ Last updated: 2026-07-21
 - Milestone 0 reconciled release truth, debt, tests, dependencies, and release policy.
 - Milestone 1 froze fail-closed contracts and evals, retained existing scheduler ownership, and passed native input.
 - Milestone 2 passed the local data model, migration recovery, v2.9 preservation, and newer-data refusal.
-- Milestone 3 passed encrypted portability, staged recovery, reviewed export,
-  offline cleanup, Privacy Doctor, safe support, exact consent, governed Outside
-  AI, platform health, and fail-closed publication.
+- Milestone 3 passed encrypted portability, staged recovery, reviewed export, offline cleanup, Privacy Doctor,
+  safe support, exact consent, governed Outside AI, platform health, and fail-closed publication.
 - Milestone 4 passed Gate 3 with typed source governance, safe discovery and
   Workbench paths, one-use Browser Import, Smart Paste, and applied drafts.
+- Milestone 5 passed with revision-bound local evidence, requirement diagnostics, feedback, packet claims,
+  military wording, governed model lifecycle, and Gate 4 decisions. Later release proof remains explicit.
 
 ## In Progress
 
-- Active feature: `v3-milestone-5-local-evidence-resume-matching`
+- Active feature: `v3-milestone-6-opportunity-case-file-daily-workflow`
 - Status: `active`
-- Current slice: The macOS stronger-local installed lifecycle is proven; Gate 4 remains open.
-- Next action: Complete the remaining Milestone 5 product surfaces and Gate 4 evidence.
+- Current slice: Milestone 6 opportunity case file and daily workflow.
+- Next action: Reconcile the current case-file surfaces, then implement the hardest missing offline workflow contract.
 
 ## Deferred
 
