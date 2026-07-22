@@ -354,6 +354,7 @@ relevant result, and caveat.
 | 2026-07-21 | Milestone 5 stronger-local macOS package and installed lifecycle proven | Added the explicit stronger-local no-account packaging and verification path through `b3b5d2fa`, then attached both model lifecycle confirmations to the installed main window at `fc165239`. The rebuilt arm64 DMG passed checksum, integrity, profile, command, no-model-payload, signature-integrity, mounted-launch, copied-install, private-data, and empty-stderr checks. In an isolated installed-app GUI journey, both governed Qwen3 groups reached 7/7 ready after the exact 2,406,043,460-byte download; confirmed removal returned them to 0/7 and left the governed model root empty. Focused Rust tests, formatting, diff validation, the final package verifier, and read-only review passed. Gate 4 remains open for exact Windows 11 and macOS 26 evidence, signed and notarized release artifacts, employer and regional evaluations, and the remaining Milestone 5 product surfaces. |
 | 2026-07-21 | Milestone 5 and Gate 4 decisions complete | Added durable saved-match evidence, reviewed packet claims, the visible match debugger, and reviewed military-transition wording through `a450f883`. Focused owner tests, frontend contract tests, docs, security, architecture, and adversarial review passed. Gate 4 now approves the frozen model, setup, employer-data, regional-delivery, expiry, and Essentials decisions. Exact Windows 11 and macOS 26 behavior, signed and notarized artifacts, employer dossier evaluation, regional readiness, and the full platform matrix remain later release evidence under Milestones 8, 9, and 11; they are not decision-gate claims. Activated Milestone 6. |
 | 2026-07-21 | Milestone 6 opportunity-case checkpoint | Added an explicit local case-open boundary and the first dashboard case summary with source risk, decision state, evidence freshness, and a sanitized timeline. Focused application, IPC validation, renderer, and mock-command tests cover the exposed boundary and UI states; direct storage aggregation coverage remains open. Milestone 6 remains active; the mission board, preparation and debrief, drag-and-drop import, and first-run state coverage remain open. |
+| 2026-07-22 | Milestone 6 aggregation and daily-mission checkpoint | Added direct storage aggregation coverage and corrected status-only offer projection plus same-time timeline order. Replaced aggregate review categories with a deterministic three-to-seven-action daily mission that targets specific reminders and opportunities, remains useful with sparse or empty local state, opens quiet roles without bulk status mutation, and routes offer and source actions to their existing review surfaces. Focused Rust and renderer tests, affected-library clippy, type checking, lint, harness, and file-size checks passed. Milestone 6 remains active; the evidence wall, blocker explanations, preparation, debrief, drag-and-drop import, and first-run state coverage remain open. |
 
 ## Discoveries
 
@@ -587,8 +588,9 @@ relevant result, and caveat.
   Milestone 6 opportunity case file and daily workflow is the sole active
   feature. Milestone 5 implementation and Gate 4 evidence are committed through
   `ece87161`. The current Milestone 6 checkpoint adds the typed local
-  opportunity-case read boundary and first dashboard summary; the remaining
-  workflow surfaces listed above are still open.
+  opportunity-case read boundary, direct aggregation coverage, first dashboard
+  summary, and concrete daily mission; the remaining workflow surfaces listed
+  above are still open.
 - Evidence: `docs/harness/evidence/v3-milestone-3-reviewed-export-2026-07-19.json`
   binds the reviewed-export slice at `3b4f635b`, and
   `docs/harness/evidence/v3-milestone-3-storage-cleanup-2026-07-19.json` binds
@@ -636,8 +638,9 @@ relevant result, and caveat.
   bound by
   `docs/harness/evidence/v3-milestone-5-local-evidence-completion-2026-07-21.json`
   at `a450f883`.
-- Next step: implement Milestone 6's opportunity case file and daily workflow
-  without hidden automation or required connectivity.
+- Next step: complete Milestone 6's evidence wall and blocker explanations,
+  then its remaining workflow paths without hidden automation or required
+  connectivity.
 - Open risks: scope remains large, contract freeze is irreversible within the
   v3 compatibility line, recovery and permission behavior still needs Windows
   11, macOS 26, and Linux release-matrix proof, installed recovery UI still

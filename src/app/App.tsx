@@ -121,6 +121,9 @@ function App() {
   const [startupError, setStartupError] = useState(false);
   const [currentPage, setCurrentPage] = useState<Page>("dashboard");
   const [showSettings, setShowSettings] = useState(false);
+  const [settingsInitialTab, setSettingsInitialTab] = useState<
+    "basic" | "advanced"
+  >("basic");
   const [openImportOnDashboard, setOpenImportOnDashboard] = useState(false);
   const [shouldStartTour, setShouldStartTour] = useState(false);
 
@@ -155,7 +158,14 @@ function App() {
 
   // Moved before early returns to comply with hooks rules
   const openSettings = useCallback(() => {
+    setSettingsInitialTab("basic");
     setShowSettings(true);
+  }, []);
+
+  const openSourcesFromApplications = useCallback(() => {
+    setSettingsInitialTab("advanced");
+    setShowSettings(true);
+    setCurrentPage("dashboard");
   }, []);
 
   const openJobImportFromApplications = useCallback(() => {
@@ -240,6 +250,7 @@ function App() {
                       </Suspense>
                     )}
                     settingsPage={Settings}
+                    settingsInitialTab={settingsInitialTab}
                     linkedinWorkbench={<LinkedInWorkbench />}
                     renderCompanyResearch={renderCompanyResearch}
                     showSettings={showSettings}
@@ -257,6 +268,8 @@ function App() {
                   <Applications
                     onBack={() => navigateTo("dashboard")}
                     onImportJob={openJobImportFromApplications}
+                    onOpenSalary={() => navigateTo("salary")}
+                    onOpenSources={openSourcesFromApplications}
                     renderCompanyResearch={renderCompanyResearch}
                   />
                 </PageErrorBoundary>

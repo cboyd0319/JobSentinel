@@ -18,6 +18,7 @@ export interface GhostConfig {
 
 export interface SettingsProps {
   onClose: () => void;
+  initialTab?: "basic" | "advanced";
   linkedinWorkbench?: ReactNode;
 }
 

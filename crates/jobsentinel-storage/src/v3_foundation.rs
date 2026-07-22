@@ -420,4 +420,8 @@ mod evidence_packet_tests;
 mod saved_match_evidence_tests;
 
 #[cfg(test)]
+#[path = "v3_foundation/opportunity_case_tests.rs"]
+mod opportunity_case_tests;
+
+#[cfg(test)]
 mod tests;

@@ -45,17 +45,21 @@ External AI is not required for application tracking.
 ## Everyday Workflow
 
 1. Open **Applications**.
-2. Start with **Search review**. It highlights due reminders, quiet roles,
-   interviews, offers, and saved roles that need an apply-or-skip decision.
-3. Use each **After this** cue to move from the current review into posting
-   review, outreach, interview prep, offer review, or weekly replanning.
+2. Start with **Daily mission**. It shows three to seven concrete actions for
+   specific reminders or opportunities, ordered by urgency and capped to keep
+   the list usable.
+3. Use each **After this** cue to move from the current review into application
+   tracking, outreach, interview prep, offer review, source settings, or weekly
+   replanning. Offer and source actions open those exact existing surfaces.
 4. Review the board and pending follow-ups.
 5. Move each card when status changes.
 6. Open a card to add notes, contact details, salary information, or next steps.
-7. Use interviews, reminders, local summaries, and no-response review to decide
-   where to spend time next.
-8. Use **Replan this week** to compare tracker evidence before changing lanes,
-   sources, pacing, or stop rules.
+7. A quiet-role action opens that opportunity for review. It does not silently
+   move one or more applications to **No Response**.
+8. Use interviews, reminders, local summaries, and explicit status changes to
+   decide where to spend time next.
+9. Use **Review this week's plan** to compare tracker evidence before changing
+   lanes, sources, pacing, or stop rules.
 
 JobSentinel should make this usable for a person who has never used a project
 management tool. The board should answer plain questions:
@@ -79,9 +83,9 @@ connectivity action. The summary intentionally excludes raw notes, contact
 values, resumes, packet text, event payloads, and full posting content; those
 remain with their existing feature owners.
 
-This is the first Milestone 6 case-file slice. The mission board, preparation
-and debrief flows, drag-and-drop import, and first-run state coverage remain in
-progress.
+The first Milestone 6 case-file and daily-mission slices are implemented.
+Evidence-wall and blocker detail, preparation and debrief flows, drag-and-drop
+import, and first-run state coverage remain in progress.
 
 ## Statuses
 
@@ -111,6 +115,7 @@ Follow-up reminders should help the user spend energy carefully:
 
 - A reminder suggests a next step; it does not send messages automatically.
 - A quiet-period warning means "review this role" rather than "you failed."
+- Selecting a mission action never changes an application status automatically.
 - No-response review should help the user stop wasting time on stale or
   non-responsive roles.
 - Recent applications with no contact note must not be moved to **No Response**

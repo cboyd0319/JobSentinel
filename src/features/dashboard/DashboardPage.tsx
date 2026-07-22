@@ -51,6 +51,7 @@ export default function Dashboard({
   renderApplicationAssistAction,
   renderCompanyResearch,
   settingsPage: SettingsPage,
+  settingsInitialTab,
   linkedinWorkbench,
   showSettings: showSettingsProp,
   onShowSettingsChange,
@@ -270,6 +271,7 @@ export default function Dashboard({
       <DashboardSettingsPanel onClose={handleSettingsClose}>
         {SettingsPage ? (
           <SettingsPage
+            initialTab={settingsInitialTab}
             linkedinWorkbench={linkedinWorkbench}
             onClose={handleSettingsClose}
           />

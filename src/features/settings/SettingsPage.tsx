@@ -50,14 +50,14 @@ import {
   SettingsLoadingState,
 } from "./SettingsPageStartup";
 
-export default function Settings({ linkedinWorkbench, onClose }: SettingsProps) {
+export default function Settings({ initialTab = "basic", linkedinWorkbench, onClose }: SettingsProps) {
   const [config, setConfig] = useState<Config | null>(null);
   const [loading, setLoading] = useState(true);
   const [showHealthDashboard, setShowHealthDashboard] = useState(false);
   const [jobsWithGptLastRequest, setJobsWithGptLastRequest] =
     useState<SourceRequestSummary | null>(null);
   const [showJobsWithGptEndpoint, setShowJobsWithGptEndpoint] = useState(false);
-  const [activeTab, setActiveTab] = useState<"basic" | "advanced">("basic");
+  const [activeTab, setActiveTab] = useState<"basic" | "advanced">(initialTab);
   const toast = useToast();
   const {
     error: toastError,

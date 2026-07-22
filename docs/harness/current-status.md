@@ -1,6 +1,6 @@
 # Current Status
 
-Last updated: 2026-07-21
+Last updated: 2026-07-22
 
 ## Done
 
@@ -49,8 +49,8 @@ Last updated: 2026-07-21
 
 - Active feature: `v3-milestone-6-opportunity-case-file-daily-workflow`
 - Status: `active`
-- Current slice: Typed opportunity-case read boundary and first local/offline case summary.
-- Next action: Add aggregation coverage, then finish remaining Milestone 6 workflow paths through existing owners.
+- Current slice: Case aggregation coverage and a concrete three-to-seven-action daily mission are implemented.
+- Next action: Complete the case evidence wall and blocker explanations, then remaining Milestone 6 workflow paths.
 
 ## Deferred
 

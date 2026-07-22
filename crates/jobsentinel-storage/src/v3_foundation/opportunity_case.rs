@@ -143,6 +143,12 @@ impl Database {
                 Some(true) => "accepted".to_string(),
                 Some(false) => "declined".to_string(),
                 None => "pending".to_string(),
+            })
+            .or_else(|| match application.status.as_str() {
+                "offer_received" => Some("pending".to_string()),
+                "offer_accepted" => Some("accepted".to_string()),
+                "offer_rejected" => Some("declined".to_string()),
+                _ => None,
             });
             (upcoming, completed, offer)
         } else {
@@ -161,11 +167,7 @@ impl Database {
         if let Some(application) = &application {
             timeline.extend(application_timeline(&mut transaction, application.id).await?);
         }
-        timeline.sort_by(|left, right| {
-            left.at
-                .cmp(&right.at)
-                .then_with(|| left.kind.cmp(&right.kind))
-        });
+        timeline.sort_by_key(|event| event.at);
         transaction.commit().await?;
 
         Ok(OpportunityCaseRead {

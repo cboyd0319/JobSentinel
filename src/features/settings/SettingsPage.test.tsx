@@ -16,6 +16,10 @@ import {
 } from "./SettingsPage.testSupport";
 import Settings from "./SettingsPage";
 
+vi.mock("@tauri-apps/api/event", () => ({
+  listen: vi.fn(() => Promise.resolve(() => {})),
+}));
+
 describe("Settings — handleSave flow", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -51,6 +55,18 @@ describe("Settings — handleSave flow", () => {
       expect(searchTab).toHaveAttribute("aria-selected", "true");
       expect(searchTab).toHaveFocus();
     });
+  });
+
+  it("opens Sources and Alerts when requested by another workflow", async () => {
+    setupHappyPath();
+    render(<Settings initialTab="advanced" onClose={vi.fn()} />);
+
+    expect(
+      await screen.findByRole("tab", { name: "Sources & Alerts" }),
+    ).toHaveAttribute("aria-selected", "true");
+    expect(
+      screen.getByRole("tab", { name: "Search Preferences" }),
+    ).toHaveAttribute("aria-selected", "false");
   });
 
   it("enables the saved-details passphrase lock from Settings", async () => {
