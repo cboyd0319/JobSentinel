@@ -359,6 +359,7 @@ relevant result, and caveat.
 | 2026-07-22 | Milestone 6 preparation checkpoint | Added an in-case local preparation workup over the existing safe snapshot. It separates source freshness from refresh, keeps missing or changed evidence and reviewed claims in review, requires manual material selection, exact employer-question wording, and current records for factual claims, leaves voluntary protected veteran-status answers with the user, and never adds a command, write, network, AI, send, or submit action. Focused renderer state tests, TypeScript, lint, harness, architecture, file-size, and docs checks passed. Milestone 6 remains active; debrief, drag-and-drop import, the broader protected-answer review flow, first-run, and remaining workflow coverage remain open. |
 | 2026-07-22 | Milestone 6 post-interview debrief checkpoint | Added an explicit local debrief to the existing Interview Schedule owner for signal strength, questions asked, concerns, promised next steps, and an optional follow-up deadline. Saving completes the selected interview atomically without changing application status, scoring performance, calculating hiring probability, calling AI, notifying anyone, or sending data. Overdue incomplete interviews remain open for debrief, completed history retains saved debriefs without an arbitrary age cutoff, the dev runtime follows production query rules, and reminder reads wait until completed history is opened. Focused renderer, dev-runtime, and Rust storage tests, affected-library clippy, formatting, TypeScript, lint, harness, architecture, file-size, docs, and script-contract checks passed. Milestone 6 remains active; drag-and-drop import, the broader protected-answer review flow, first-run, and remaining workflow state coverage remain open. |
 | 2026-07-22 | Milestone 6 native file-drop checkpoint | Added one reviewed native main-window drop for resumes, UTF-8 job-posting text, and encrypted backups. Rust copies one regular source into private app-owned staging without following a final symlink or Windows reparse point, exposes only an opaque token and sanitized name, and routes explicit choices through the existing resume, Smart Paste, or staged-recovery owners. Replacement and completion races retain the newest drop, no drop writes a job or restores data automatically, and the renderer has no filesystem capability. Source-pack drops remain with Milestone 7's quarantine and installer. Focused Rust, renderer, startup, TypeScript, lint, harness, architecture, file-size, dependency, documentation, and script-contract checks passed; adversarial re-review returned SOUND after file-swap and stale-result races were fixed with fail-first tests. Windows reparse behavior is source-reviewed but not live-run on this macOS host. Milestone 6 remains active; protected-answer review, first-run, and remaining workflow-state coverage remain open. |
+| 2026-07-22 | Milestone 6 protected-answer checkpoint | Added one shared classifier for voluntary or sensitive personal questions and applied it at saved-answer lookup, suggestions, learned and historical answers, usage recording, application preview, and live form preparation. Explicitly saved selections remain in the local answer bank, but protected records are not suggested, learned, previewed, or filled; the renderer receives only a bounded manual-review topic. Opportunity-case preparation covers protected veteran status, disability, race or ethnicity, gender, and other voluntary sensitive questions without adding storage or automation. Focused domain, assistance, storage, Tauri, renderer, dev-runtime, TypeScript, lint, harness, architecture, file-size, documentation, and script-contract checks passed. Adversarial re-review returned SOUND after EEO wording and dev-runtime parity blockers were fixed. Care Coordinator remains a civilian role and does not trigger protected handling. Milestone 6 remains active; first-run and remaining workflow-state coverage remain open. |
 
 ## Discoveries
 
@@ -602,7 +603,8 @@ relevant result, and caveat.
   summary, concrete daily mission, active-resume evidence wall, four-way
   decision summary, plain blocker explanations, local preparation workup,
   explicit local post-interview debrief, and reviewed native resume,
-  job-posting, and encrypted-backup drops;
+  job-posting, and encrypted-backup drops, plus manual-only protected-answer
+  review across the case, preview, suggestion, learning, and form-fill paths;
   the remaining workflow surfaces listed above are still open.
 - Evidence: `docs/harness/evidence/v3-milestone-3-reviewed-export-2026-07-19.json`
   binds the reviewed-export slice at `3b4f635b`, and
@@ -651,8 +653,8 @@ relevant result, and caveat.
   bound by
   `docs/harness/evidence/v3-milestone-5-local-evidence-completion-2026-07-21.json`
   at `a450f883`.
-- Next step: complete Milestone 6's protected-answer review, first-run, and
-  remaining workflow paths without hidden automation or required connectivity.
+- Next step: complete Milestone 6's first-run and remaining workflow paths
+  without hidden automation or required connectivity.
 - Publication checkpoint: after each pushed checkpoint, keep draft PR 329's
   description aligned with the exact remote-head commit, implemented scope,
   focused verification, known gaps, and next planned work before pausing or

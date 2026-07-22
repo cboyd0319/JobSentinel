@@ -100,6 +100,10 @@ screening answers, and final review explicit. It does not select attachments,
 infer protected veteran status or eligibility, refresh a source, call AI, write
 case state, send data, or submit an application. The user compares exact
 employer wording with confirmed records and completes any employer-site action.
+Protected veteran status, disability, race or ethnicity, gender, and other
+voluntary sensitive personal questions remain local and manual-only. The case
+does not prepare an answer; Application Assist leaves matching live-form fields
+untouched and exposes only a generic manual-review topic.
 
 The existing **Interview Schedule** owns the post-interview debrief. An explicit
 local save records signal strength, questions asked, concerns, promised next
@@ -128,9 +132,8 @@ The user explicitly chooses the existing owner:
 
 The existing Add resume, Import Job, and Backup/Recovery controls remain the
 keyboard and non-drop paths. Source-pack drops remain with Milestone 7 because
-they require the signed-pack quarantine and installer. The broader
-protected-answer review flow, first-run, and remaining workflow state coverage
-remain in progress.
+they require the signed-pack quarantine and installer. First-run and remaining
+workflow state coverage remain in progress.
 
 ## Statuses
 

@@ -216,6 +216,7 @@ export interface MockDashboardPreferences {
 export interface MockFillResultWithAttempt {
   filledFields: string[];
   unfilledFields: string[];
+  manualReviewTopics?: string[];
   captchaDetected: boolean;
   readyForReview: boolean;
   errorMessage: string | null;

@@ -142,8 +142,9 @@ describe("OpportunityCaseAction", () => {
     expect(screen.getByText(/refresh is separate and needs a connection/i)).toBeVisible();
     expect(screen.getByText(/Verify this required qualification before deciding/i)).toBeVisible();
     expect(screen.getByText(/1 reviewed claim needs confirmation/i)).toBeVisible();
-    expect(screen.getByText(/confirm factual answers from current records/i)).toBeVisible();
-    expect(screen.getByText(/Voluntary questions about protected veteran status remain your decision/i)).toBeVisible();
+    expect(screen.getByText(/employer's exact wording and current records for citizenship/i)).toBeVisible();
+    expect(screen.getByText(/protected veteran status, disability, race\/ethnicity, gender, and other voluntary sensitive personal questions/i)).toBeVisible();
+    expect(screen.getByText(/Use the employer's exact wording and current records for citizenship, work authorization, clearance, and eligibility/i)).toBeVisible();
     expect(screen.getByText(/Resolve the listed blockers before preparing or submitting/i)).toBeVisible();
     expect(screen.queryByText(/submit on the employer site yourself/i)).not.toBeInTheDocument();
     expect(mockInvoke).toHaveBeenCalledTimes(1);

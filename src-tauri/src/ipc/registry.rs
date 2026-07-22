@@ -180,6 +180,7 @@ macro_rules! jobsentinel_command_handlers {
             jobsentinel::ipc::automation::get_application_profile_preview,
             jobsentinel::ipc::automation::upsert_screening_answer,
             jobsentinel::ipc::automation::get_screening_answers,
+            jobsentinel::ipc::automation::get_application_screening_answer_previews,
             jobsentinel::ipc::automation::find_answer_for_question,
             jobsentinel::ipc::automation::get_suggested_answers,
             jobsentinel::ipc::automation::record_answer_usage,

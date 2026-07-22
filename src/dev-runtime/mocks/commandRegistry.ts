@@ -257,6 +257,7 @@ const commandGroups: readonly MockCommandGroup[] = [
       "select_application_resume_file",
       "upsert_application_profile",
       "get_screening_answers",
+      "get_application_screening_answer_previews",
       "upsert_screening_answer",
       "get_automation_stats",
       "detect_ats_platform",

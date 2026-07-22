@@ -33,9 +33,9 @@ mod v3_source_simulator_tests;
 pub mod v3_veteran_public_service;
 
 pub use application_assistance::{
-    screening_question_matches, AnswerSource, AnswerStatistics, AnswerSuggestion,
-    ApplicationAttempt, ApplicationProfile, ApplicationProfileInput, AtsPlatform, AutomationStats,
-    AutomationStatus, ModificationExample, ScreeningAnswer,
+    requires_user_answer, screening_question_matches, AnswerSource, AnswerStatistics,
+    AnswerSuggestion, ApplicationAttempt, ApplicationProfile, ApplicationProfileInput, AtsPlatform,
+    AutomationStats, AutomationStatus, ModificationExample, ScreeningAnswer,
 };
 pub use external_ai::{ExternalAiConfig, ExternalAiProvider, ExternalAiRedactionConfig};
 pub use job::Job;

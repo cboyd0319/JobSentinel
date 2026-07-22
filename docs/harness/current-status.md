@@ -49,8 +49,8 @@ Last updated: 2026-07-22
 
 - Active feature: `v3-milestone-6-opportunity-case-file-daily-workflow`
 - Status: `active`
-- Current slice: Case aggregation through reviewed native file drops works without hidden automation.
-- Next action: Complete protected-answer review, first-run, and remaining workflow-state coverage.
+- Current slice: Case aggregation through protected-answer review works without hidden automation.
+- Next action: Complete first-run and remaining workflow-state coverage.
 
 ## Deferred
 

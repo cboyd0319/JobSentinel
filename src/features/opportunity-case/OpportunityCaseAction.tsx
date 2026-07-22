@@ -168,7 +168,7 @@ function getPreparationRows(caseFile: CaseFile) {
     },
     {
       label: "Screening answers",
-      detail: "Use the employer's exact wording and confirm factual answers from current records, including clearance, work authorization, citizenship, and eligibility. Voluntary questions about protected veteran status remain your decision.",
+      detail: "Use the employer's exact wording and current records for citizenship, work authorization, clearance, and eligibility. Protected veteran status, disability, race/ethnicity, gender, and other voluntary sensitive personal questions stay local and are yours to answer.",
     },
     { label: "Final review", detail: finalReview },
   ];
