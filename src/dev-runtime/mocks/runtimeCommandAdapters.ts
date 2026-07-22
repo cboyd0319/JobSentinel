@@ -162,6 +162,8 @@ export const applyMockResumeCommand: MockCommandAdapter = (command, args) => {
     resumeDrafts: mockRuntimeState.resumeDrafts,
     recentMatches: mockRuntimeState.recentMatches,
     savedMatchEvidence: mockRuntimeState.savedMatchEvidence,
+    pendingMilitaryTransitionReviews:
+      mockRuntimeState.pendingMilitaryTransitionReviews,
   });
   if (!result.handled) return undefined;
   Object.assign(mockRuntimeState, result.state);

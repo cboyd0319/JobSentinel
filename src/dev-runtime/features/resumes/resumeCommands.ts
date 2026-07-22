@@ -48,6 +48,7 @@ import {
 import { extractMockAtsKeywords } from "./resumeKeywordMatching";
 import { toMockResumeSummary } from "./resumeSummaryViews";
 import { parseMockMatchingProfile } from "./resumeMatchingProfile";
+import { handleMockMilitaryTransitionCommand } from "./resumeMilitaryTransitionCommands";
 
 const textEncoder = new TextEncoder();
 
@@ -56,6 +57,14 @@ export function handleMockResumeCommand(
   args: Record<string, unknown> | undefined,
   state: MockResumeCommandState,
 ): MockResumeCommandResult {
+  const militaryTransitionResult = handleMockMilitaryTransitionCommand(
+    command,
+    args,
+    state,
+    () => getSavedMatchDebuggerMatch(args, state),
+  );
+  if (militaryTransitionResult) return militaryTransitionResult;
+
   switch (command) {
     case "get_active_resume": {
       const activeResume = getMockActiveResume(state.resumes);
@@ -406,7 +415,11 @@ function savedMatchEvidenceIdentity(match: MockResumeCommandState["recentMatches
 }
 
 function emptySavedMatchEvidence() {
-  return { confirmedEvidenceIds: [], packetClaims: [] };
+  return {
+    confirmedEvidenceIds: [],
+    confirmedMilitaryEvidenceKinds: [],
+    packetClaims: [],
+  };
 }
 
 function isMockOpaqueId(value: string) {

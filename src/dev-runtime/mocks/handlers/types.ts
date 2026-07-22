@@ -254,6 +254,9 @@ export interface MockState {
 
 export interface MockSavedMatchEvidenceState {
   confirmedEvidenceIds: string[];
+  confirmedMilitaryEvidenceKinds: Array<
+    "military_service" | "current_clearance"
+  >;
   packetClaims: Array<{
     claim_id: string;
     reviewed_text: string;

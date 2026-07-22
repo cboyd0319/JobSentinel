@@ -26,6 +26,7 @@ import {
 import { getDefaultMarketAlerts } from "../../features/market/mockHandlers";
 import type { MockPendingUrlImport } from "../features/dashboard/jobImportCommands";
 import { normalizeResumeDraft } from "../features/resumes/resumeBuilder";
+import type { MockPendingMilitaryTransitionReview } from "../features/resumes/resumeCommandTypes";
 import { normalizeMockNotificationPreferences } from "../features/settings/notificationCommands";
 import {
   cloneApplications,
@@ -63,6 +64,7 @@ export interface MockRuntimeState
   automationBrowserRunning: boolean;
   nextAutomationAttemptId: number;
   pendingUrlImports: MockPendingUrlImport[];
+  pendingMilitaryTransitionReviews: MockPendingMilitaryTransitionReview[];
 }
 
 function canUseStorage(): boolean {
@@ -106,6 +108,7 @@ function createDefaultState(): MockRuntimeState {
     resumeDrafts: [],
     recentMatches: [],
     savedMatchEvidence: {},
+    pendingMilitaryTransitionReviews: [],
     marketAlerts: getDefaultMarketAlerts(),
     applicationProfile: getDefaultMockApplicationProfile(),
     screeningAnswers: getDefaultMockScreeningAnswers(),
@@ -130,6 +133,7 @@ export function saveMockState(): void {
   delete persistedState.nextAutomationAttemptId;
   delete persistedState.pendingUrlImports;
   delete persistedState.pendingExternalAiApproval;
+  delete persistedState.pendingMilitaryTransitionReviews;
   window.localStorage.setItem(MOCK_STATE_KEY, JSON.stringify(persistedState));
 }
 
@@ -296,6 +300,7 @@ export function resetMockState(): void {
     resumeDrafts: defaults.resumeDrafts,
     recentMatches: defaults.recentMatches,
     savedMatchEvidence: defaults.savedMatchEvidence,
+    pendingMilitaryTransitionReviews: defaults.pendingMilitaryTransitionReviews,
     marketAlerts: defaults.marketAlerts,
     applicationProfile: defaults.applicationProfile,
     screeningAnswers: defaults.screeningAnswers,
