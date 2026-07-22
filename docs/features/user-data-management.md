@@ -63,6 +63,11 @@ Interview prep keeps logistics, company notes, role-specific questions,
 follow-up reminders, and thank-you status near the application. Checklists are
 for preparation, not performance scoring.
 
+After an interview, an explicit local debrief save keeps signal strength,
+questions asked, concerns, promised next steps, and an optional follow-up
+deadline with that interview. Saving a debrief does not change application
+status, calculate a hiring probability, notify anyone, or send data.
+
 ### Saved Searches
 
 Saved searches store repeatable searches such as:

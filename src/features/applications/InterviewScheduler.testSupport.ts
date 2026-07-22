@@ -9,6 +9,8 @@ export const mockCachedInvoke = vi.fn();
 vi.mock("../../platform/tauri", () => ({
   cachedInvoke: (...args: unknown[]) => mockCachedInvoke(...args),
   invalidateCacheByCommand: vi.fn(),
+  safeInvoke: (...args: unknown[]) => mockInvoke(...args),
+  safeInvokeWithToast: (...args: unknown[]) => mockInvoke(...args),
 }));
 
 export const mockToast = {

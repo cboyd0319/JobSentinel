@@ -357,6 +357,7 @@ relevant result, and caveat.
 | 2026-07-22 | Milestone 6 aggregation and daily-mission checkpoint | Added direct storage aggregation coverage and corrected status-only offer projection plus same-time timeline order. Replaced aggregate review categories with a deterministic three-to-seven-action daily mission that targets specific reminders and opportunities, remains useful with sparse or empty local state, opens quiet roles without bulk status mutation, and routes offer and source actions to their existing review surfaces. Focused Rust and renderer tests, affected-library clippy, type checking, lint, harness, and file-size checks passed. Milestone 6 remains active; the evidence wall, blocker explanations, preparation, debrief, drag-and-drop import, and first-run state coverage remain open. |
 | 2026-07-22 | Milestone 6 evidence-wall checkpoint | Added a renderer-safe evidence wall for the active saved resume's exact job match, a deterministic Apply, Maybe, Skip, or Research more summary, and plain "Why not this job?" reasons. The case never substitutes an inactive resume, exposes only evidence categories and confirmation state, omits resume text and opaque IDs, keeps military-section evidence and required hard constraints behind review, treats accepted offers as closed outcomes, and remains read-only and offline. Focused application, saved-match serialization, renderer, and dev-runtime tests, Rust formatting and clippy, TypeScript, lint, harness, architecture, file-size, and docs checks passed. Milestone 6 remains active; preparation, debrief, drag-and-drop import, protected-answer review, first-run, and remaining responsive state coverage remain open. |
 | 2026-07-22 | Milestone 6 preparation checkpoint | Added an in-case local preparation workup over the existing safe snapshot. It separates source freshness from refresh, keeps missing or changed evidence and reviewed claims in review, requires manual material selection, exact employer-question wording, and current records for factual claims, leaves voluntary protected veteran-status answers with the user, and never adds a command, write, network, AI, send, or submit action. Focused renderer state tests, TypeScript, lint, harness, architecture, file-size, and docs checks passed. Milestone 6 remains active; debrief, drag-and-drop import, the broader protected-answer review flow, first-run, and remaining workflow coverage remain open. |
+| 2026-07-22 | Milestone 6 post-interview debrief checkpoint | Added an explicit local debrief to the existing Interview Schedule owner for signal strength, questions asked, concerns, promised next steps, and an optional follow-up deadline. Saving completes the selected interview atomically without changing application status, scoring performance, calculating hiring probability, calling AI, notifying anyone, or sending data. Overdue incomplete interviews remain open for debrief, completed history retains saved debriefs without an arbitrary age cutoff, the dev runtime follows production query rules, and reminder reads wait until completed history is opened. Focused renderer, dev-runtime, and Rust storage tests, affected-library clippy, formatting, TypeScript, lint, harness, architecture, file-size, docs, and script-contract checks passed. Milestone 6 remains active; drag-and-drop import, the broader protected-answer review flow, first-run, and remaining workflow state coverage remain open. |
 
 ## Discoveries
 
@@ -592,7 +593,8 @@ relevant result, and caveat.
   `ece87161`. The current Milestone 6 checkpoint adds the typed local
   opportunity-case read boundary, direct aggregation coverage, first dashboard
   summary, concrete daily mission, active-resume evidence wall, four-way
-  decision summary, plain blocker explanations, and local preparation workup;
+  decision summary, plain blocker explanations, local preparation workup, and
+  explicit local post-interview debrief;
   the remaining workflow surfaces listed above are still open.
 - Evidence: `docs/harness/evidence/v3-milestone-3-reviewed-export-2026-07-19.json`
   binds the reviewed-export slice at `3b4f635b`, and
@@ -641,8 +643,8 @@ relevant result, and caveat.
   bound by
   `docs/harness/evidence/v3-milestone-5-local-evidence-completion-2026-07-21.json`
   at `a450f883`.
-- Next step: complete Milestone 6's debrief path, then its remaining workflow
-  paths without hidden automation or required connectivity.
+- Next step: complete Milestone 6's drag-and-drop import, then its remaining
+  workflow paths without hidden automation or required connectivity.
 - Publication checkpoint: after each pushed checkpoint, keep draft PR 329's
   description aligned with the actual remote head, implemented scope, focused
   verification, and remaining gaps before pausing.

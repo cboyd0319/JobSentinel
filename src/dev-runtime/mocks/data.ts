@@ -3,6 +3,8 @@
  * Shows diverse job types across different career paths
  */
 
+import type { MockInterview } from "./handlers/types";
+
 export const mockJobs = [
   {
     id: 1,
@@ -269,21 +271,7 @@ export const mockApplicationStats = {
   ],
 };
 
-export const mockUpcomingInterviews: Array<{
-  id: number;
-  application_id: number;
-  interview_type: string;
-  scheduled_at: string;
-  duration_minutes: number;
-  location: string | null;
-  interviewer_name: string | null;
-  interviewer_title: string | null;
-  notes: string | null;
-  completed: boolean;
-  outcome: string | null;
-  job_title: string;
-  company: string;
-}> = [
+export const mockUpcomingInterviews: MockInterview[] = [
   {
     id: 1,
     application_id: 3,
@@ -296,6 +284,7 @@ export const mockUpcomingInterviews: Array<{
     notes: "Prepare examples of SEO campaigns",
     completed: false,
     outcome: null,
+    post_interview_notes: null,
     job_title: "Content Marketing Manager",
     company: "Mailchimp",
   },
@@ -311,6 +300,7 @@ export const mockUpcomingInterviews: Array<{
     notes: "Case study: conversion optimization",
     completed: false,
     outcome: null,
+    post_interview_notes: null,
     job_title: "E-Commerce Manager",
     company: "Wayfair",
   },

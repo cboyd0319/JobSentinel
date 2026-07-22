@@ -202,6 +202,7 @@ export interface MockInterview {
   notes: string | null;
   completed: boolean;
   outcome: string | null;
+  post_interview_notes: string | null;
   job_title: string;
   company: string;
 }

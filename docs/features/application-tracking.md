@@ -83,10 +83,10 @@ connectivity action. The summary intentionally excludes raw notes, contact
 values, resumes, packet text, event payloads, and full posting content; those
 remain with their existing feature owners.
 
-The first Milestone 6 case-file, daily-mission, evidence-wall, and preparation
-slices are implemented. The case compares only the active saved resume's exact
-saved match; it never silently substitutes another resume. It shows
-requirement-level evidence categories without resume text or opaque IDs, a
+The first Milestone 6 case-file, daily-mission, evidence-wall, preparation, and
+debrief slices are implemented. The case compares only the active saved
+resume's exact saved match; it never silently substitutes another resume. It
+shows requirement-level evidence categories without resume text or opaque IDs, a
 deterministic Apply, Maybe, Skip, or Research more summary, and plain "Why not
 this job?" reasons. Missing, unconfirmed, stale, changed, military-section, or
 required hard-constraint evidence stays reviewable rather than becoming a
@@ -100,8 +100,15 @@ infer protected veteran status or eligibility, refresh a source, call AI, write
 case state, send data, or submit an application. The user compares exact
 employer wording with confirmed records and completes any employer-site action.
 
-Debrief, drag-and-drop import, the broader protected-answer review flow, and
-first-run state coverage remain in progress.
+The existing **Interview Schedule** owns the post-interview debrief. An explicit
+local save records signal strength, questions asked, concerns, promised next
+steps, and an optional follow-up deadline without scoring performance, changing
+application status, or sending data. Incomplete interviews remain open after
+their scheduled time so the debrief is reachable, and saved debriefs remain in
+completed interview history without an arbitrary age cutoff.
+
+Drag-and-drop import, the broader protected-answer review flow, first-run, and
+remaining workflow state coverage remain in progress.
 
 ## Statuses
 

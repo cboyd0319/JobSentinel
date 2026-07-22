@@ -106,11 +106,34 @@ export function handleMockApplicationsCommand(
         ].filter((bucket) => bucket.count > 0),
       );
 
-    case "get_upcoming_interviews":
-      return withoutSave(state, state.interviews);
+    case "get_upcoming_interviews": {
+      const now = Date.now();
+      const inThirtyDays = now + 30 * 24 * 60 * 60 * 1000;
+      return withoutSave(
+        state,
+        state.interviews
+          .filter(
+            (interview) =>
+              !interview.completed && Date.parse(interview.scheduled_at) <= inThirtyDays,
+          )
+          .sort(
+            (left, right) =>
+              Math.abs(Date.parse(left.scheduled_at) - now) -
+              Math.abs(Date.parse(right.scheduled_at) - now),
+          ),
+      );
+    }
 
     case "get_past_interviews":
-      return withoutSave(state, []);
+      return withoutSave(
+        state,
+        state.interviews
+          .filter((interview) => interview.completed)
+          .sort(
+            (left, right) =>
+              Date.parse(right.scheduled_at) - Date.parse(left.scheduled_at),
+          ),
+      );
 
     case "schedule_interview":
       return scheduleInterview(args, state);
@@ -127,6 +150,7 @@ export function handleMockApplicationsCommand(
                   ...interview,
                   completed: true,
                   outcome: getArg(args, "outcome") as string,
+                  post_interview_notes: (getArg(args, "notes") as string | null) ?? null,
                 }
               : interview,
           ),
@@ -273,6 +297,7 @@ function scheduleInterview(
     notes: (getArg(args, "notes") as string) || null,
     completed: false,
     outcome: null,
+    post_interview_notes: null,
     job_title: "Mock Job",
     company: "Mock Company",
   };
