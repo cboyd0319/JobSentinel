@@ -132,8 +132,13 @@ The user explicitly chooses the existing owner:
 
 The existing Add resume, Import Job, and Backup/Recovery controls remain the
 keyboard and non-drop paths. Source-pack drops remain with Milestone 7 because
-they require the signed-pack quarantine and installer. First-run and remaining
-workflow state coverage remain in progress.
+they require the signed-pack quarantine and installer.
+
+First-run setup saves reviewed search settings, allows a disclosed session-only
+skip, and retains every choice for retry after a failed save. The case workflow
+has browser coverage for empty, partial, duplicate, offline, failed-source, and
+restored-data states at desktop and narrow widths without hidden refresh, merge,
+status change, send, or submit work.
 
 ## Statuses
 

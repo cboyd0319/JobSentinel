@@ -42,15 +42,16 @@ Last updated: 2026-07-22
   safe support, exact consent, governed Outside AI, platform health, and fail-closed publication.
 - Milestone 4 passed Gate 3 with typed source governance, safe discovery and
   Workbench paths, one-use Browser Import, Smart Paste, and applied drafts.
-- Milestone 5 passed with revision-bound local evidence, requirement diagnostics, feedback, packet claims,
-  military wording, governed model lifecycle, and Gate 4 decisions. Later release proof remains explicit.
+- Milestone 5 passed local evidence, matching, model lifecycle, and Gate 4 decisions with later release proof explicit.
+- Milestone 6 passed the offline case, daily workflow, reviewed native drops, protected answers,
+  first-run choices, and desktop and narrow state matrix without hidden automation.
 
 ## In Progress
 
-- Active feature: `v3-milestone-6-opportunity-case-file-daily-workflow`
+- Active feature: `v3-milestone-7-agent-pack-runtime`
 - Status: `active`
-- Current slice: Case aggregation through protected-answer review works without hidden automation.
-- Next action: Complete first-run and remaining workflow-state coverage.
+- Current slice: Milestone 7 is active; no agent or pack execution surface has started.
+- Next action: Prove the signed-pack quarantine and capability boundary before execution.
 
 ## Deferred
 

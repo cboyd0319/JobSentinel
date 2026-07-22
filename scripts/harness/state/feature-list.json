@@ -145,6 +145,9 @@
     }, { "id": "v3-milestone-5-local-evidence-resume-matching", "priority": 19, "area": "v3 matching", "title": "Build local evidence and matching", "status": "passing",
       "behavior": "Local evidence keeps resume and match claims bounded and reproducible.", "user_visible_behavior": "Users can see why a job matches and the evidence behind it.",
       "verification": ["npm run harness:check"], "evidence": ["docs/harness/evidence/v3-milestone-5-local-evidence-completion-2026-07-21.json"]
-    }, { "id": "v3-milestone-6-opportunity-case-file-daily-workflow", "priority": 20, "area": "v3 workflow", "title": "Build opportunity case files", "status": "active",
+    }, { "id": "v3-milestone-6-opportunity-case-file-daily-workflow", "priority": 20, "area": "v3 workflow", "title": "Build opportunity case files", "status": "passing",
       "behavior": "Case files keep daily job-search evidence and actions local, reviewable, and useful offline.", "user_visible_behavior": "Users can manage each opportunity and next action offline.",
+      "verification": ["npm run harness:check"], "evidence": ["docs/harness/evidence/v3-milestone-6-opportunity-case-workflow-2026-07-22.json"]
+    }, { "id": "v3-milestone-7-agent-pack-runtime", "priority": 21, "area": "v3 agent runtime", "title": "Build reviewed agents and packs", "status": "active",
+      "behavior": "Local agents and signed packs remain capability-bounded, reviewable, and reversible.", "user_visible_behavior": "Users can run reviewed local help and manage packs without granting hidden authority.",
       "verification": ["npm run harness:check"], "evidence": [] } ] }

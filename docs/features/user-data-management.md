@@ -83,7 +83,9 @@ First-run starting paths include office and administration, retail and
 hospitality, trades and field service, healthcare, education, customer support,
 sales, finance, operations, creative, legal, data, security, and software work.
 When a starting path is selected, setup previews sample job titles and search
-words as editable suggestions before the search is saved.
+words as editable suggestions before the search setup is saved. Setup persists
+those ranking, source, and alert settings; it does not create a dashboard Saved
+Search filter snapshot. Users create those snapshots explicitly from Dashboard.
 Software, security, and data paths can suggest tech-heavy job sources, but
 first-run setup keeps them off until the user checks those sources in review.
 Non-technical searches do not suggest the retired SimplyHired scheduled
@@ -103,6 +105,10 @@ modes without user choice. Location starts broad across remote, hybrid, and
 on-site, and pay stays unset unless the user enters a floor. First-run pay can
 be entered as yearly or hourly; hourly pay is converted to an annual floor for
 local pay comparisons while the review keeps the hourly meaning visible.
+
+Users can skip setup for the current session without saving settings or starting
+source work. The wizard states that setup returns next time. A failed save keeps
+every reviewed choice visible and offers a bounded retry before entering the app.
 
 ### Safe Support Reports
 
