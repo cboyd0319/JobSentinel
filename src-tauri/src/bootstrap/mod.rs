@@ -115,6 +115,7 @@ pub(crate) fn run() {
             let scheduler_arc = Arc::clone(&services.scheduler);
             let scheduler_status = Arc::clone(&services.scheduler_status);
             app.manage(AppState::from(services));
+            app.manage(ipc::native_file_drop::NativeFileDropState::default());
             app.manage(StartupRecoveryState::new(
                 platform_recovery_required,
                 startup_failure,
@@ -291,6 +292,9 @@ mod tests {
             "get_startup_recovery_status"
         ));
         assert!(startup_recovery_command_allowed("stage_portable_restore"));
+        assert!(!startup_recovery_command_allowed(
+            "stage_dropped_portable_restore"
+        ));
         assert!(startup_recovery_command_allowed("generate_feedback_report"));
         assert!(!startup_recovery_command_allowed("run_scraping_cycle"));
         assert!(!startup_recovery_command_allowed("save_config"));

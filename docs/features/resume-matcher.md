@@ -142,6 +142,8 @@ The current local matcher:
 - extracts readable text from PDF, DOCX, TXT, Markdown, and HTML resumes;
 - keeps selected resume uploads local and rejects files over 10 MB before
   copying them into managed local storage;
+- routes an explicitly confirmed dropped resume through the same validation,
+  managed storage, and Resume-page review path without exposing its source path;
 - shows the resume format and whether readable text is available before review;
 - provides an explicit local preview of readable resume text without returning
   the saved file path;

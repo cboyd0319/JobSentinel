@@ -156,6 +156,9 @@ the user:
 - Full local recovery verifies compatibility and stages the replacement before
   startup promotes it. The previous compatible database remains available for
   rollback until recovery finishes.
+- A dropped encrypted backup is first copied into private app-owned staging,
+  then requires its passphrase and an explicit stage action. It never restores
+  data during the current session.
 - Recovery can inspect, stage, cancel, and clean incomplete restore work without
   network access. Corrupt primary data is preserved independently before a
   staged replacement is published.

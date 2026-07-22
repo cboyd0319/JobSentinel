@@ -31,20 +31,29 @@ pub(crate) async fn select_and_upload_resume(
     let source_path = file_path
         .into_path()
         .map_err(|_| "Could not read the selected resume file.".to_string())?;
-    let (name, managed_path) = copy_selected_resume_to_managed_storage(&source_path)?;
-    let resume_id = match upload_resume_from_managed_path(name, managed_path.clone(), state).await {
-        Ok(resume_id) => resume_id,
+    let name = selected_resume_name(&source_path, "Resume");
+    let resume_id = import_selected_resume_from_path(name, &source_path, state).await?;
+
+    Ok(Some(resume_id))
+}
+
+pub(crate) async fn import_selected_resume_from_path(
+    name: String,
+    source_path: &Path,
+    state: State<'_, AppState>,
+) -> Result<i64, String> {
+    let managed_path = copy_selected_resume_to_managed_storage(source_path)?;
+    match upload_resume_from_managed_path(name, managed_path.clone(), state).await {
+        Ok(resume_id) => Ok(resume_id),
         Err(error) => {
             delete_managed_resume_upload_file(
                 Some(managed_path.to_string_lossy().as_ref()),
                 &managed_resume_upload_dir(),
             )
             .ok();
-            return Err(error);
+            Err(error)
         }
-    };
-
-    Ok(Some(resume_id))
+    }
 }
 
 async fn upload_resume_from_managed_path(
@@ -199,9 +208,9 @@ pub(super) fn validate_selected_resume(path: &Path) -> Result<(), String> {
         return Err("Choose a PDF, DOCX, TXT, Markdown, or HTML resume file.".to_string());
     }
 
-    let metadata = std::fs::metadata(path)
+    let metadata = std::fs::symlink_metadata(path)
         .map_err(|_| "JobSentinel could not read that resume file.".to_string())?;
-    if !metadata.is_file() {
+    if metadata.file_type().is_symlink() || !metadata.is_file() {
         return Err("Choose a resume file, not a folder.".to_string());
     }
 
@@ -215,9 +224,8 @@ pub(super) fn validate_selected_resume(path: &Path) -> Result<(), String> {
     Ok(())
 }
 
-fn copy_selected_resume_to_managed_storage(path: &Path) -> Result<(String, PathBuf), String> {
+fn copy_selected_resume_to_managed_storage(path: &Path) -> Result<PathBuf, String> {
     validate_selected_resume(path)?;
-    let name = selected_resume_name(path, "Resume");
     let managed_dir = managed_resume_upload_dir();
     std::fs::create_dir_all(&managed_dir)
         .map_err(|_| "Could not prepare local resume storage.".to_string())?;
@@ -225,7 +233,7 @@ fn copy_selected_resume_to_managed_storage(path: &Path) -> Result<(String, PathB
     std::fs::copy(path, &destination)
         .map_err(|_| "Could not copy the selected resume file.".to_string())?;
 
-    Ok((name, destination))
+    Ok(destination)
 }
 
 fn validate_managed_resume_upload_file_name(file_name: &str) -> bool {

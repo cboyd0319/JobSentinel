@@ -73,10 +73,21 @@ pub(crate) async fn preview_smart_paste(
     location: Option<String>,
     state: State<'_, AppState>,
 ) -> Result<JobImportPreview, String> {
+    stage_smart_paste_text(&state, &text, title, company, job_url, location).await
+}
+
+pub(crate) async fn stage_smart_paste_text(
+    state: &AppState,
+    text: &str,
+    title: Option<String>,
+    company: Option<String>,
+    job_url: Option<String>,
+    location: Option<String>,
+) -> Result<JobImportPreview, String> {
     stage_smart_paste(
         state.database.as_ref(),
         &state.pending_url_imports,
-        &text,
+        text,
         SmartPasteEdits {
             title,
             company,

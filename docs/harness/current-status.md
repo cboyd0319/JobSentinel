@@ -49,9 +49,8 @@ Last updated: 2026-07-22
 
 - Active feature: `v3-milestone-6-opportunity-case-file-daily-workflow`
 - Status: `active`
-- Current slice: Case aggregation, daily mission, evidence wall, preparation, and
-  local debrief are implemented without hidden automation.
-- Next action: Complete drag-and-drop import, then remaining Milestone 6 paths.
+- Current slice: Case aggregation through reviewed native file drops works without hidden automation.
+- Next action: Complete protected-answer review, first-run, and remaining workflow-state coverage.
 
 ## Deferred
 

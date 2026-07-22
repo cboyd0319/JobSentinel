@@ -193,14 +193,34 @@ pub(crate) async fn stage_portable_restore(
     let backup = file
         .into_path()
         .map_err(|_| "The selected encrypted backup is unavailable.".to_string())?;
+    stage_portable_restore_at_validated_path(&state, &recovery, &backup, &passphrase).await
+}
+
+pub(crate) async fn stage_portable_restore_from_path(
+    state: &AppState,
+    recovery: &StartupRecoveryState,
+    backup: &std::path::Path,
+    passphrase: &str,
+) -> Result<PortableRestoreActionResult, String> {
+    require_restore_available(recovery)?;
+    validate_portable_passphrase(passphrase)?;
+    stage_portable_restore_at_validated_path(state, recovery, backup, passphrase).await
+}
+
+async fn stage_portable_restore_at_validated_path(
+    state: &AppState,
+    recovery: &StartupRecoveryState,
+    backup: &std::path::Path,
+    passphrase: &str,
+) -> Result<PortableRestoreActionResult, String> {
     if recovery.database() {
-        Database::stage_portable_restore_at(&Database::default_path(), &backup, &passphrase)
+        Database::stage_portable_restore_at(&Database::default_path(), backup, passphrase)
             .await
             .map_err(|error| user_friendly_error("Encrypted restore could not be staged", error))?;
     } else {
         state
             .database
-            .stage_portable_restore(&backup, &passphrase)
+            .stage_portable_restore(backup, passphrase)
             .await
             .map_err(|error| user_friendly_error("Encrypted restore could not be staged", error))?;
     }

@@ -60,6 +60,7 @@ jobsentinel-sources = { path = "crates/jobsentinel-sources", version = "=2.9.5" 
 jobsentinel-storage = { path = "crates/jobsentinel-storage", version = "=2.9.5" }
 keyring = "=4.1.5"
 lettre = { version = "=0.11.22", default-features = false, features = ["tokio1-rustls-tls", "builder", "smtp-transport"] }
+libc = "=0.2.186"
 libsqlite3-sys = { version = "=0.37.0", default-features = false, features = ["bundled-sqlcipher-vendored-openssl"] }
 objc2 = "=0.6.4"
 objc2-foundation = { version = "=0.3.2", default-features = false, features = ["std", "NSString"] }

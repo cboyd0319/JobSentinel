@@ -267,7 +267,7 @@ Priority:
 | N04 | Tray or menu bar helper | 3 | 4 | Later | Quick capture, source status, reminders, privacy lock. |
 | N05 | Global shortcut for quick capture | 3 | 3 | Later | Disabled by default. |
 | N06 | Clipboard import helper | 3 | 2 | Next | Explicit user action and token scrubbing. |
-| N07 | Drag-and-drop import | 4 | 2 | Now | Resume, job, pack, and backup import. |
+| N07 | Drag-and-drop import | 4 | 2 | Now | Milestone 6 owns resume, job, and backup import; Milestone 7 adds source packs after quarantine and installer controls. |
 | N08 | Native print and PDF export | 3 | 3 | Next | Resumes, packets, and reports. |
 | N09 | OS search metadata | 3 | 4 | Later | Safe metadata only, no private text by default. |
 | N10 | Platform health diagnostics | 4 | 3 | Now | Vault, database, sources, browser, model cache, permissions. |

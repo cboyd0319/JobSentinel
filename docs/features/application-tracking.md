@@ -83,9 +83,10 @@ connectivity action. The summary intentionally excludes raw notes, contact
 values, resumes, packet text, event payloads, and full posting content; those
 remain with their existing feature owners.
 
-The first Milestone 6 case-file, daily-mission, evidence-wall, preparation, and
-debrief slices are implemented. The case compares only the active saved
-resume's exact saved match; it never silently substitutes another resume. It
+The first Milestone 6 case-file, daily-mission, evidence-wall, preparation,
+debrief, and native file-drop slices are implemented. The case compares only
+the active saved resume's exact saved match; it never silently substitutes
+another resume. It
 shows requirement-level evidence categories without resume text or opaque IDs, a
 deterministic Apply, Maybe, Skip, or Research more summary, and plain "Why not
 this job?" reasons. Missing, unconfirmed, stale, changed, military-section, or
@@ -107,8 +108,29 @@ application status, or sending data. Incomplete interviews remain open after
 their scheduled time so the debrief is reachable, and saved debriefs remain in
 completed interview history without an arbitrary age cutoff.
 
-Drag-and-drop import, the broader protected-answer review flow, first-run, and
-remaining workflow state coverage remain in progress.
+The installed main window accepts one regular file drop at a time. Rust opens
+the source once without following a final symlink or Windows reparse point,
+copies its bytes into private app-owned staging, and sends the review surface
+only an opaque token and sanitized file name. Replacement, cancel, completion,
+and restart clean staged copies. JobSentinel does not subscribe to Tauri's
+built-in raw-path event, grants the renderer no filesystem capability, and
+never renders or logs the source path.
+
+The user explicitly chooses the existing owner:
+
+- **Add resume** reuses the local PDF, DOCX, text, Markdown, or HTML validation,
+  managed copy, and Resume-page review path.
+- **Review job posting** accepts bounded UTF-8 text, creates an editable Smart
+  Paste draft, and requires **Save Job**. Duplicate drafts cannot be saved. It
+  does not fetch a source, call AI, or create a durable job on drop.
+- **Backup/Recovery** requires the backup passphrase and stages the encrypted
+  restore for restart without changing the current session.
+
+The existing Add resume, Import Job, and Backup/Recovery controls remain the
+keyboard and non-drop paths. Source-pack drops remain with Milestone 7 because
+they require the signed-pack quarantine and installer. The broader
+protected-answer review flow, first-run, and remaining workflow state coverage
+remain in progress.
 
 ## Statuses
 

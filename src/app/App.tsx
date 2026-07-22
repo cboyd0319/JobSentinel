@@ -19,6 +19,7 @@ import { logError } from "../shared/errorReporting/logger";
 import { defaultTourSteps } from "./onboarding/tourSteps";
 import type { CompanyResearchPanelProps } from "../shared/companyResearch";
 import { StartupRecovery } from "./StartupRecovery";
+import { NativeFileDropReview } from "./NativeFileDropReview";
 
 export { StartupRecovery } from "./StartupRecovery";
 
@@ -204,6 +205,7 @@ function App() {
       >
         <OnboardingProvider steps={defaultTourSteps}>
           <SkipToContent />
+          <NativeFileDropReview />
           <CommandPalette />
           <GlobalKeyboardHelp />
           <TourStartTrigger
