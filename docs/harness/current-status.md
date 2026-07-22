@@ -49,9 +49,9 @@ Last updated: 2026-07-22
 
 - Active feature: `v3-milestone-7-agent-pack-runtime`
 - Status: `active`
-- Current slice: Signed releases fail closed on Ed25519 trust, publisher ceilings, version bounds, identity,
-  integrity, and gateway routing; installation and execution have not started.
-- Next action: Prove type-specific self-tests, quarantine, and transactional lifecycle recovery.
+- Current slice: Signed releases and strict typed self-tests fail closed for disabled sources, compiled agents,
+  static skills, and complete local eval packs; lifecycle and execution have not started.
+- Next action: Prove transactional quarantine, replay, downgrade, rollback, revocation, and cleanup recovery.
 
 ## Deferred
 

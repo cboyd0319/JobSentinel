@@ -361,6 +361,8 @@ relevant result, and caveat.
 | 2026-07-22 | Milestone 6 native file-drop checkpoint | Added one reviewed native main-window drop for resumes, UTF-8 job-posting text, and encrypted backups. Rust copies one regular source into private app-owned staging without following a final symlink or Windows reparse point, exposes only an opaque token and sanitized name, and routes explicit choices through the existing resume, Smart Paste, or staged-recovery owners. Replacement and completion races retain the newest drop, no drop writes a job or restores data automatically, and the renderer has no filesystem capability. Source-pack drops remain with Milestone 7's quarantine and installer. Focused Rust, renderer, startup, TypeScript, lint, harness, architecture, file-size, dependency, documentation, and script-contract checks passed; adversarial re-review returned SOUND after file-swap and stale-result races were fixed with fail-first tests. Windows reparse behavior is source-reviewed but not live-run on this macOS host. Milestone 6 remains active; protected-answer review, first-run, and remaining workflow-state coverage remain open. |
 | 2026-07-22 | Milestone 6 protected-answer checkpoint | Added one shared classifier for voluntary or sensitive personal questions and applied it at saved-answer lookup, suggestions, learned and historical answers, usage recording, application preview, and live form preparation. Explicitly saved selections remain in the local answer bank, but protected records are not suggested, learned, previewed, or filled; the renderer receives only a bounded manual-review topic. Opportunity-case preparation covers protected veteran status, disability, race or ethnicity, gender, and other voluntary sensitive questions without adding storage or automation. Focused domain, assistance, storage, Tauri, renderer, dev-runtime, TypeScript, lint, harness, architecture, file-size, documentation, and script-contract checks passed. Adversarial re-review returned SOUND after EEO wording and dev-runtime parity blockers were fixed. Care Coordinator remains a civilian role and does not trigger protected handling. Milestone 6 remains active; first-run and remaining workflow-state coverage remain open. |
 | 2026-07-22 | Milestone 6 complete | Added a truthful reviewed search setup with a disclosed session-only skip and retained-choice retry, exposed existing repost, posting-risk, contact-presence, and completed-interview state in the shared case, and proved empty, partial, duplicate, offline, failed-source, and restored-data behavior at desktop and narrow widths. Focused UI, Rust persistence, browser, type, lint, architecture, file-size, harness, and documentation checks passed; adversarial re-review returned SOUND. Source-pack installation remains Milestone 7, first-run doctor work remains Milestone 9, and installed release-platform proof remains Milestone 11. Activated Milestone 7. |
+| 2026-07-22 | Milestone 7 signed release trust checkpoint | Added a bounded non-executing Ed25519 release verifier at `6b86b970` with publisher ceilings, compiled-runtime compatibility, publisher-qualified identity, exact payload integrity, strict JSON, and gateway-bound Outside AI. Focused domain and security checks passed. Installation, persistent trust, and execution remain open. |
+| 2026-07-22 | Milestone 7 typed payload self-test checkpoint | Added a closed signed payload parser and non-executing self-tests for disabled source packs with exact fixtures, the compiled Evidence Reviewer and Application Packet Builder plans, static text-only Agent Skills, and complete synthetic local evaluation packs. Unsupported types, scripts, dynamic adapters, external destinations, host installation tasks, injected plan text, capability drift, fixture drift, partial evals, ambiguous static metadata, and filesystem-ambiguous resource paths fail closed. Fifteen new focused tests, production clippy, formatting, patch validation, Agent Skills compatibility, and hard file-size checks passed; adversarial re-review returned SOUND. Transactional quarantine, replay and downgrade state, rollback, revocation, native source-pack drop, UI, and execution remain open. |
 
 ## Discoveries
 
@@ -596,17 +598,14 @@ relevant result, and caveat.
 
 ## Handoff
 
-- Current state: Milestones 0 through 5 and Gates 0 through 4 are passing.
-  Milestone 6 opportunity case file and daily workflow is the sole active
-  feature. Milestone 5 implementation and Gate 4 evidence are committed through
-  `ece87161`. The current Milestone 6 checkpoint adds the typed local
-  opportunity-case read boundary, direct aggregation coverage, first dashboard
-  summary, concrete daily mission, active-resume evidence wall, four-way
-  decision summary, plain blocker explanations, local preparation workup,
-  explicit local post-interview debrief, and reviewed native resume,
-  job-posting, and encrypted-backup drops, plus manual-only protected-answer
-  review across the case, preview, suggestion, learning, and form-fill paths;
-  the remaining workflow surfaces listed above are still open.
+- Current state: Milestones 0 through 6 and Gates 0 through 4 are passing.
+  Milestone 7 agent and pack runtime is the sole active feature. Signed release
+  trust is committed at `6b86b970`; the current checkpoint adds strict,
+  non-executing typed payload self-tests for disabled source packs, the two
+  compiled reviewed agents, static Agent Skills, and complete local eval packs.
+  Transactional quarantine and lifecycle state, replay and downgrade refusal,
+  rollback, installed-pack revocation, native source-pack drop, pack UI,
+  capability grants, and execution remain open.
 - Evidence: `docs/harness/evidence/v3-milestone-3-reviewed-export-2026-07-19.json`
   binds the reviewed-export slice at `3b4f635b`, and
   `docs/harness/evidence/v3-milestone-3-storage-cleanup-2026-07-19.json` binds
@@ -653,9 +652,11 @@ relevant result, and caveat.
   at `c93ac516`. Milestone 5 and the superseding Gate 4 decision closure are
   bound by
   `docs/harness/evidence/v3-milestone-5-local-evidence-completion-2026-07-21.json`
-  at `a450f883`.
-- Next step: complete Milestone 6's first-run and remaining workflow paths
-  without hidden automation or required connectivity.
+  at `a450f883`. Milestone 6 completion is bound by
+  `docs/harness/evidence/v3-milestone-6-opportunity-case-workflow-2026-07-22.json`
+  at `48a47eaf`.
+- Next step: add transactional quarantine and lifecycle recovery without making
+  any pack content executable or lowering the durable release high-water mark.
 - Publication checkpoint: after each pushed checkpoint, keep draft PR 329's
   description aligned with the exact remote-head commit, implemented scope,
   focused verification, known gaps, and next planned work before pausing or

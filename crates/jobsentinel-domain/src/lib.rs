@@ -18,6 +18,11 @@ pub mod v3_evidence;
 pub mod v3_foundation;
 pub mod v3_manifests;
 #[cfg(test)]
+mod v3_pack_payload_tests;
+pub mod v3_pack_payloads;
+#[cfg(test)]
+mod v3_pack_static_skill_tests;
+#[cfg(test)]
 mod v3_region_manifest_tests;
 #[cfg(test)]
 mod v3_signed_pack_tests;
