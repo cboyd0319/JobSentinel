@@ -1,0 +1,162 @@
+import { expect, test, type Page } from "@playwright/test";
+import { DashboardPage } from "./page-objects/DashboardPage";
+
+const MOCK_INVOKE_CONTROLS_KEY = "jobsentinel.mockInvokeControls.v1";
+const MOCK_STATE_KEY = "jobsentinel.mockState.v1";
+
+const baseCase = {
+  job: {
+    job_hash: "job-hash-1",
+    title: "SEO Manager",
+    company: "Shopify",
+    location: "Remote",
+    remote: true,
+    times_seen: 1,
+  },
+  source: {
+    name: "Saved job source",
+    last_seen_at: "2026-07-21T12:00:00Z",
+    connectivity_required: true,
+    stale: false,
+  },
+  posting_risk: { score: 0, reasons: [] },
+  application: null,
+  interviews: null,
+  offer: null,
+  outcome: null,
+  evidence: {
+    confirmed_count: 0,
+    current_packet_count: 0,
+    stale_packet_count: 0,
+    review_status: "ready",
+    requirements: [],
+  },
+  decision: {
+    kind: "research_more",
+    reasons: ["Review the posting before tailoring."],
+  },
+  timeline: [],
+};
+
+const cases = [
+  {
+    name: "empty",
+    caseFile: baseCase,
+    expected: "The posting does not contain enough recognized requirements for an evidence review.",
+  },
+  {
+    name: "partial",
+    caseFile: {
+      ...baseCase,
+      application: { status: "applied", has_contact: false },
+      interviews: { upcoming_count: 1, completed_count: 2 },
+      evidence: {
+        ...baseCase.evidence,
+        review_status: "ready",
+        requirements: [
+          {
+            requirement: "Calendar coordination",
+            importance: "required",
+            match_state: "partial",
+            hard_constraint: false,
+            blocking: false,
+            why_not: "partial_evidence",
+            evidence: [],
+          },
+        ],
+      },
+    },
+    expected: "Needs support",
+  },
+  {
+    name: "duplicate",
+    caseFile: { ...baseCase, job: { ...baseCase.job, times_seen: 2 } },
+    expected: "Seen 2 times. Review duplicate postings before preparing.",
+  },
+  {
+    name: "offline",
+    caseFile: {
+      ...baseCase,
+      source: { ...baseCase.source, connectivity_required: false },
+    },
+    expected: "Review remains available offline.",
+  },
+  {
+    name: "failed source",
+    caseFile: {
+      ...baseCase,
+      source: { ...baseCase.source, stale: true },
+      timeline: [{ at: "2026-07-20T12:00:00Z", kind: "source_checked_failed" }],
+    },
+    expected: "Source check failed",
+  },
+  {
+    name: "restored data",
+    caseFile: {
+      ...baseCase,
+      timeline: [{ at: "2026-07-21T12:00:00Z", kind: "recovery_restored" }],
+    },
+    expected: "Data restored",
+  },
+] as const;
+
+async function setCaseResponse(page: Page, caseFile: object): Promise<void> {
+  await page.addInitScript(
+    ({ controlsKey, stateKey, response }) => {
+      window.localStorage.removeItem(stateKey);
+      window.localStorage.setItem(
+        controlsKey,
+        JSON.stringify({ delayMs: 0, responses: { open_opportunity_case: response } }),
+      );
+    },
+    { controlsKey: MOCK_INVOKE_CONTROLS_KEY, stateKey: MOCK_STATE_KEY, response: caseFile },
+  );
+}
+
+async function expectNoHorizontalOverflow(page: Page): Promise<void> {
+  const widths = await page.evaluate(() => [
+    window.innerWidth,
+    document.body.scrollWidth,
+    document.documentElement.scrollWidth,
+  ]);
+  expect(Math.max(widths[1], widths[2])).toBeLessThanOrEqual(widths[0]);
+}
+
+test.describe("Opportunity case workflow states", () => {
+  for (const viewport of [
+    { name: "desktop", width: 1440, height: 1000 },
+    { name: "narrow", width: 390, height: 844 },
+  ]) {
+    for (const state of cases) {
+      test(`keeps ${state.name} state actionable at ${viewport.name} width`, async ({ page }) => {
+        await page.setViewportSize(viewport);
+        await setCaseResponse(page, state.caseFile);
+        const dashboard = new DashboardPage(page);
+
+        await dashboard.navigateTo();
+        const card = dashboard.jobCards.first();
+        await card.getByRole("button", { name: "Open case" }).click();
+        const dialog = page.getByRole("dialog", { name: "Opportunity case" });
+
+        await expect(dialog).toBeVisible();
+        if (state.name !== "offline") {
+          await expect(dialog.getByText(state.expected, { exact: true })).toBeVisible();
+        }
+        await expectNoHorizontalOverflow(page);
+
+        if (state.name === "partial") {
+          await expect(dialog.getByText("Application: Applied. No contact recorded.")).toBeVisible();
+          await expect(dialog.getByText("1 upcoming interview, 2 completed interviews.")).toBeVisible();
+        }
+        if (state.name === "offline") {
+          await dialog.getByRole("button", { name: "Prepare this job" }).click();
+          await expect(dialog.getByText("Review remains available offline.")).toBeVisible();
+        }
+        if (state.name === "failed source") {
+          await expect(dialog.getByText(/Source may be stale.*Source refresh needs a connection/)).toBeVisible();
+        }
+        await expectNoHorizontalOverflow(page);
+      });
+    }
+  }
+});

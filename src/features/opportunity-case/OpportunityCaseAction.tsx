@@ -226,6 +226,7 @@ export function OpportunityCaseAction({ jobHash }: OpportunityCaseActionProps) {
             <header>
               <h3 className="text-lg font-semibold text-surface-900 dark:text-white">{caseFile.job.title}</h3>
               <p>{caseFile.job.company}{caseFile.job.location ? `, ${caseFile.job.location}` : ""}</p>
+              <p>{caseFile.job.times_seen > 1 ? `Seen ${caseFile.job.times_seen} times. Review duplicate postings before preparing.` : "Seen once."}</p>
             </header>
 
             <Button
@@ -260,6 +261,18 @@ export function OpportunityCaseAction({ jobHash }: OpportunityCaseActionProps) {
             <section aria-labelledby="case-status">
               <h4 id="case-status" className="font-semibold text-surface-900 dark:text-white">Case status</h4>
               <p>{getCaseStatus(caseFile)}</p>
+            </section>
+
+            <section aria-labelledby="case-progress">
+              <h4 id="case-progress" className="font-semibold text-surface-900 dark:text-white">Case progress</h4>
+              <p>{caseFile.application ? `Application: ${titleCase(caseFile.application.status)}. ${caseFile.application.has_contact ? "Contact recorded." : "No contact recorded."}` : "No application activity yet."}</p>
+              {caseFile.interviews && <p>{caseFile.interviews.upcoming_count} upcoming interview{caseFile.interviews.upcoming_count === 1 ? "" : "s"}, {caseFile.interviews.completed_count} completed interview{caseFile.interviews.completed_count === 1 ? "" : "s"}.</p>}
+            </section>
+
+            <section aria-labelledby="case-risk">
+              <h4 id="case-risk" className="font-semibold text-surface-900 dark:text-white">Posting risk</h4>
+              <p>{caseFile.posting_risk.score === null ? "Posting risk has not been scored." : `Posting risk: ${Math.round(caseFile.posting_risk.score * 100)}%.`}</p>
+              {caseFile.posting_risk.reasons.map((reason) => <p key={reason}>{reason}</p>)}
             </section>
 
             <section aria-labelledby="case-decision">

@@ -91,7 +91,12 @@ describe("OpportunityCaseAction", () => {
       }),
     );
     expect(await screen.findByRole("heading", { name: "Office Assistant" })).toBeVisible();
+    expect(screen.getByText("Seen 2 times. Review duplicate postings before preparing.")).toBeVisible();
+    expect(screen.getByText("Posting risk: 40%.")).toBeVisible();
+    expect(screen.getByText("Verify the role on the employer site before tailoring.")).toBeVisible();
     expect(screen.getByText("Case status")).toBeVisible();
+    expect(screen.getByText("Case progress")).toBeVisible();
+    expect(screen.getByText("No application activity yet.")).toBeVisible();
     expect(screen.getByText("Decision summary")).toBeVisible();
     expect(screen.getByText("Research more")).toBeVisible();
     expect(screen.getByText("Why not this job?")).toBeVisible();
@@ -216,6 +221,9 @@ describe("OpportunityCaseAction", () => {
     await user.click(screen.getByRole("button", { name: "Open case" }));
 
     expect(await screen.findByText(/The saved source snapshot may be stale/i)).toBeVisible();
+    expect(screen.getByText("Posting risk has not been scored.")).toBeVisible();
+    expect(screen.getByText("Application: Applied. No contact recorded.")).toBeVisible();
+    expect(screen.getByText("1 upcoming interview, 0 completed interviews.")).toBeVisible();
     expect(screen.getByText("0 confirmed, 0 current packets.")).toBeVisible();
     expect(
       screen.getByText("Compare this job with your active saved resume to build the evidence wall."),

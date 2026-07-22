@@ -248,6 +248,7 @@ async fn complete_setup_reuses_the_owned_database() {
     assert_eq!(saved.salary_floor_usd, 82_000);
     assert_eq!(saved.title_allowlist, vec!["Program Coordinator"]);
     assert!(saved.remoteok.enabled);
+    assert!(!is_first_run_for_path(&config_path).unwrap());
 }
 
 #[test]

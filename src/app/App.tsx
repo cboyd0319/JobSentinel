@@ -153,6 +153,10 @@ function App() {
     setShouldStartTour(true);
   };
 
+  const handleSetupSkip = () => {
+    setIsFirstRun(false);
+  };
+
   const navigateTo = (page: Page) => {
     setCurrentPage(page);
   };
@@ -190,7 +194,7 @@ function App() {
           <Suspense
             fallback={<PageLoader message="Getting JobSentinel ready..." />}
           >
-            <SetupWizard onComplete={handleSetupComplete} />
+            <SetupWizard onComplete={handleSetupComplete} onSkip={handleSetupSkip} />
           </Suspense>
         </div>
       </ErrorBoundary>

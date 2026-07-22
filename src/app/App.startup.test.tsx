@@ -4,6 +4,8 @@ import { invoke } from "@tauri-apps/api/core";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import App, { StartupRecovery } from "./App";
 import * as supportReport from "../shared/errorReporting/supportReport";
+import { ToastProvider } from "./providers/ToastProvider";
+import { UndoProvider } from "./providers/UndoProvider";
 
 const mockInvoke = vi.mocked(invoke);
 
@@ -37,6 +39,25 @@ describe("App startup recovery", () => {
       screen.getByRole("button", { name: "Save Safe Support Report" }),
     ).toBeInTheDocument();
     expect(screen.queryByText(/pick a career path/i)).not.toBeInTheDocument();
+  });
+
+  it("enters the local app for this session when first-run setup is skipped", async () => {
+    const user = userEvent.setup();
+    mockInvoke.mockResolvedValueOnce(true);
+
+    render(
+      <ToastProvider>
+        <UndoProvider>
+          <App />
+        </UndoProvider>
+      </ToastProvider>,
+    );
+
+    await user.click(await screen.findByRole("button", { name: "Skip for now" }));
+
+    expect(await screen.findByRole("navigation", { name: "Main navigation" })).toBeInTheDocument();
+    expect(mockInvoke).toHaveBeenCalledWith("is_first_run");
+    expect(mockInvoke.mock.calls.some(([command]) => command === "complete_setup")).toBe(false);
   });
 
   it("lets users copy a safe support report from startup recovery", async () => {
