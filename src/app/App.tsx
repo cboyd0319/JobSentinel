@@ -61,6 +61,11 @@ const ApplyButton = lazy(() =>
     default: module.ApplyButton,
   })),
 );
+const OpportunityCaseAction = lazy(() =>
+  import("../features/opportunity-case/OpportunityCaseAction").then((module) => ({
+    default: module.OpportunityCaseAction,
+  })),
+);
 
 // Loading fallback for lazy-loaded pages
 function PageLoader({ message = "Loading..." }: { message?: string }) {
@@ -216,19 +221,22 @@ function App() {
                       onOpenApplicationAssist,
                     ) => (
                       <Suspense fallback={null}>
-                        <ApplyButton
-                          job={{
-                            id: job.id,
-                            hash: job.hash ?? `job-${job.id}`,
-                            title: job.title,
-                            company: job.company,
-                            location: job.location ?? "",
-                            url: job.url,
-                            description: job.description ?? undefined,
-                            score: job.score ?? undefined,
-                          }}
-                          onOpenApplicationAssist={onOpenApplicationAssist}
-                        />
+                        <div className="flex flex-wrap items-center gap-2">
+                          {job.hash && <OpportunityCaseAction jobHash={job.hash} />}
+                          <ApplyButton
+                            job={{
+                              id: job.id,
+                              hash: job.hash ?? `job-${job.id}`,
+                              title: job.title,
+                              company: job.company,
+                              location: job.location ?? "",
+                              url: job.url,
+                              description: job.description ?? undefined,
+                              score: job.score ?? undefined,
+                            }}
+                            onOpenApplicationAssist={onOpenApplicationAssist}
+                          />
+                        </div>
                       </Suspense>
                     )}
                     settingsPage={Settings}

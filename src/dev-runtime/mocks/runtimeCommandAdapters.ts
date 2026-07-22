@@ -7,6 +7,7 @@ import { handleMockJobImportCommand } from "../features/dashboard/jobImportComma
 import { handleMockSavedSearchCommand } from "../features/dashboard/savedSearchCommands";
 import { handleMockLinkedInWorkbenchCommand } from "../features/linkedin-workbench/commands";
 import { handleMockMarketCommand } from "../features/market/commands";
+import { handleMockOpportunityCaseCommand } from "../features/opportunity-case/commands";
 import { handleMockOnboardingCommand } from "../features/onboarding/commands";
 import {
   getMockActiveResume,
@@ -152,6 +153,17 @@ export const applyMockApplicationsCommand: MockCommandAdapter = (
   Object.assign(mockRuntimeState, result.state);
   if (result.shouldSave) saveMockState();
   return result.value;
+};
+
+export const applyMockOpportunityCaseCommand: MockCommandAdapter = (
+  command,
+  args,
+) => {
+  const result = handleMockOpportunityCaseCommand(command, args, {
+    jobs: mockRuntimeState.jobs,
+    applications: mockRuntimeState.applications,
+  });
+  return result.handled ? result.value : undefined;
 };
 
 export const applyMockResumeCommand: MockCommandAdapter = (command, args) => {

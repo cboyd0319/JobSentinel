@@ -67,6 +67,22 @@ management tool. The board should answer plain questions:
   tailoring time on them?
 - Which opportunities are worth extra preparation?
 
+## Opportunity Case
+
+The dashboard's explicit **Open case** action creates or reuses a local case for
+the selected job. Its first summary combines the job and source state, stale or
+repost signals, application and contact presence, interview counts, offer and
+any terminal application outcome, evidence freshness, and a sanitized timeline.
+
+Opening and reviewing a case works offline. Source refresh remains an explicit
+connectivity action. The summary intentionally excludes raw notes, contact
+values, resumes, packet text, event payloads, and full posting content; those
+remain with their existing feature owners.
+
+This is the first Milestone 6 case-file slice. The mission board, preparation
+and debrief flows, drag-and-drop import, and first-run state coverage remain in
+progress.
+
 ## Statuses
 
 The application board supports the full job-search path:

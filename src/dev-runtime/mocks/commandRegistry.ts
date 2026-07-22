@@ -10,6 +10,7 @@ import {
   applyMockMarketCommand,
   applyMockNotificationCommand,
   applyMockOnboardingCommand,
+  applyMockOpportunityCaseCommand,
   applyMockRecoveryCommand,
   applyMockResumeCommand,
   applyMockSalaryCommand,
@@ -175,6 +176,10 @@ const commandGroups: readonly MockCommandGroup[] = [
       "merge_duplicates",
     ],
     adapter: applyMockApplicationsCommand,
+  },
+  {
+    commands: ["open_opportunity_case"],
+    adapter: applyMockOpportunityCaseCommand,
   },
   {
     commands: [

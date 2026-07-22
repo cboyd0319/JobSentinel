@@ -404,6 +404,8 @@ pub use evidence_packets::{
     EvidenceBoundPacketClaimRecord, EvidenceBoundPacketClaimsRead, EvidencePacketBoundary,
     NewEvidenceBoundPacketClaim,
 };
+mod opportunity_case;
+pub use opportunity_case::{OpportunityCaseRead, OpportunityCaseTimelineRecord};
 
 #[cfg(test)]
 #[path = "v3_foundation/case_evidence_tests.rs"]

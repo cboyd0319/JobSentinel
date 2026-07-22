@@ -49,8 +49,8 @@ Last updated: 2026-07-21
 
 - Active feature: `v3-milestone-6-opportunity-case-file-daily-workflow`
 - Status: `active`
-- Current slice: Milestone 6 opportunity case file and daily workflow.
-- Next action: Reconcile the current case-file surfaces, then implement the hardest missing offline workflow contract.
+- Current slice: Typed opportunity-case read boundary and first local/offline case summary.
+- Next action: Add aggregation coverage, then finish remaining Milestone 6 workflow paths through existing owners.
 
 ## Deferred
 

@@ -486,6 +486,14 @@ pub use military::{
     MilitarySuggestionBoundary, MilitarySuggestionReviewStatus, MilitaryTransitionWording,
     MilitaryWordingMapping,
 };
+mod opportunity_case;
+pub use opportunity_case::{
+    open_opportunity_case, OpportunityCaseApplication, OpportunityCaseEvidence,
+    OpportunityCaseInterviewSummary, OpportunityCaseJob, OpportunityCaseOffer,
+    OpportunityCaseOfferStatus, OpportunityCaseOutcome, OpportunityCasePostingRisk,
+    OpportunityCaseSnapshot, OpportunityCaseSource, OpportunityCaseTimelineItem,
+    OpportunityCaseTimelineKind,
+};
 #[cfg(test)]
 #[path = "v3_foundation/tests.rs"]
 mod v3_foundation_tests;

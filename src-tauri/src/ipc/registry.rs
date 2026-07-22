@@ -44,6 +44,7 @@ macro_rules! jobsentinel_command_handlers {
             jobsentinel::ipc::ats::get_past_interviews,
             jobsentinel::ipc::ats::complete_interview,
             jobsentinel::ipc::ats::delete_interview,
+            jobsentinel::ipc::opportunity_case::open_opportunity_case,
             jobsentinel::ipc::resume::resume_file_commands::select_and_upload_resume,
             jobsentinel::ipc::resume::resume_file_commands::import_json_resume,
             jobsentinel::ipc::resume::resume_file_commands::select_and_import_json_resume,
