@@ -3517,6 +3517,7 @@ dependencies = [
 name = "jobsentinel-security"
 version = "2.9.5"
 dependencies = [
+ "ring",
  "url",
 ]
 

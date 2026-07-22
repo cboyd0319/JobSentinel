@@ -26,9 +26,8 @@ Last updated: 2026-07-22
   from 778 lines across 38 regions to zero. Shared resume, score, dashboard,
   market, feedback, error, and desktop-adapter behavior now has canonical owners,
   and the full local gate passed.
-- Residual cleanup is complete. Fixtures, file-size policy, records, dependencies, and Rust support have owners.
-  All maintained scopes are at zero duplication under the 14-line contract, the full gate passed, and the
-  post-cleanup review recorded a bounded concerns verdict.
+- Residual cleanup is complete. Fixtures, file-size policy, records, dependencies, and Rust support have owners;
+  maintained scopes have zero duplication, the full gate passed, and review recorded a bounded concerns verdict.
 - The v2.9.5 GUI QA and release publication are complete. All 288 browser
   journeys and hosted release gates passed. The public release contains 20
   checksummed assets with SBOM and provenance validation. The no-account Mac
@@ -50,8 +49,9 @@ Last updated: 2026-07-22
 
 - Active feature: `v3-milestone-7-agent-pack-runtime`
 - Status: `active`
-- Current slice: Milestone 7 is active; no agent or pack execution surface has started.
-- Next action: Prove the signed-pack quarantine and capability boundary before execution.
+- Current slice: Signed releases fail closed on Ed25519 trust, publisher ceilings, version bounds, identity,
+  integrity, and gateway routing; installation and execution have not started.
+- Next action: Prove type-specific self-tests, quarantine, and transactional lifecycle recovery.
 
 ## Deferred
 

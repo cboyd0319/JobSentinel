@@ -10,6 +10,7 @@ keywords.workspace = true
 categories.workspace = true
 
 [dependencies]
+ring.workspace = true
 url.workspace = true
 
 [lints]

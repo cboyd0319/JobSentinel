@@ -19,6 +19,9 @@ pub mod v3_foundation;
 pub mod v3_manifests;
 #[cfg(test)]
 mod v3_region_manifest_tests;
+#[cfg(test)]
+mod v3_signed_pack_tests;
+pub mod v3_signed_packs;
 pub mod v3_source_authorization;
 pub mod v3_source_consent;
 pub mod v3_source_manifest;
