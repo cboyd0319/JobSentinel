@@ -7,6 +7,13 @@ use jobsentinel_storage::{
 };
 use serde::Serialize;
 
+#[path = "opportunity_case/evidence.rs"]
+mod evidence;
+use evidence::{
+    build_opportunity_case_decision, load_opportunity_case_evidence, OpportunityCaseDecision,
+    OpportunityCaseEvidenceRequirement, OpportunityCaseEvidenceReviewStatus,
+};
+
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct OpportunityCaseSnapshot {
     pub job: OpportunityCaseJob,
@@ -17,6 +24,7 @@ pub struct OpportunityCaseSnapshot {
     pub offer: Option<OpportunityCaseOffer>,
     pub outcome: Option<OpportunityCaseOutcome>,
     pub evidence: OpportunityCaseEvidence,
+    pub decision: OpportunityCaseDecision,
     pub timeline: Vec<OpportunityCaseTimelineItem>,
 }
 
@@ -90,6 +98,8 @@ pub struct OpportunityCaseEvidence {
     pub confirmed_count: u32,
     pub current_packet_count: u32,
     pub stale_packet_count: u32,
+    pub review_status: OpportunityCaseEvidenceReviewStatus,
+    pub requirements: Vec<OpportunityCaseEvidenceRequirement>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
@@ -163,12 +173,14 @@ pub async fn open_opportunity_case(
         .read_opportunity_case(job_hash)
         .await
         .map_err(super::map_error)?;
-    renderer_snapshot(read, stale_threshold_days)
+    let evidence_review = load_opportunity_case_evidence(database, job_hash).await?;
+    renderer_snapshot(read, stale_threshold_days, evidence_review)
 }
 
 fn renderer_snapshot(
     read: OpportunityCaseRead,
     stale_threshold_days: i64,
+    evidence_review: evidence::OpportunityCaseEvidenceReview,
 ) -> Result<OpportunityCaseSnapshot, FoundationError> {
     let application = read
         .application_status
@@ -186,6 +198,11 @@ fn renderer_snapshot(
         .map(outcome_status)
         .transpose()?
         .map(|status| OpportunityCaseOutcome { status });
+    let source_stale = Utc::now()
+        .signed_duration_since(read.last_seen_at)
+        .num_days()
+        >= stale_threshold_days;
+    let decision = build_opportunity_case_decision(&read, source_stale, &evidence_review);
     let timeline = read
         .timeline
         .into_iter()
@@ -203,10 +220,7 @@ fn renderer_snapshot(
         source: OpportunityCaseSource {
             name: read.source_name,
             last_seen_at: read.last_seen_at,
-            stale: Utc::now()
-                .signed_duration_since(read.last_seen_at)
-                .num_days()
-                >= stale_threshold_days,
+            stale: source_stale,
             connectivity_required: true,
         },
         posting_risk: OpportunityCasePostingRisk {
@@ -225,7 +239,10 @@ fn renderer_snapshot(
             confirmed_count: read.confirmed_evidence_count,
             current_packet_count: read.current_packet_count,
             stale_packet_count: read.stale_packet_count,
+            review_status: evidence_review.status,
+            requirements: evidence_review.requirements,
         },
+        decision,
         timeline,
     })
 }

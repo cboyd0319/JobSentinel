@@ -30,6 +30,23 @@ type CaseFile = {
     confirmed_count: number;
     current_packet_count: number;
     stale_packet_count: number;
+    review_status: "ready" | "no_saved_match" | "needs_refresh";
+    requirements: Array<{
+      requirement: string;
+      importance: "required" | "preferred" | "industry";
+      match_state: "direct" | "strong" | "partial" | "implied" | "missing";
+      hard_constraint: boolean;
+      blocking: boolean;
+      why_not: "partial_evidence" | "implied_evidence" | "missing_evidence" | null;
+      evidence: Array<{
+        kind: "resume_bullet" | "project" | "skill" | "certification" | "resume_evidence";
+        confirmed: boolean;
+      }>;
+    }>;
+  };
+  decision: {
+    kind: "apply" | "maybe" | "skip" | "research_more";
+    reasons: string[];
   };
   timeline: Array<{ at: string; kind: string }>;
 };
@@ -64,7 +81,7 @@ function titleCase(value: string) {
   return value.replace(/_/g, " ").replace(/\b\w/g, (letter: string) => letter.toUpperCase());
 }
 
-function getDecision(caseFile: CaseFile) {
+function getCaseStatus(caseFile: CaseFile) {
   if (caseFile.outcome) return `Outcome: ${titleCase(caseFile.outcome.status)}`;
   if (caseFile.offer) return `Offer: ${titleCase(caseFile.offer.status)}`;
   if (caseFile.interviews && caseFile.interviews.upcoming_count > 0) {
@@ -74,27 +91,40 @@ function getDecision(caseFile: CaseFile) {
   return "No application activity yet";
 }
 
-function getWhyReviewReasons(caseFile: CaseFile) {
-  const reasons = [...caseFile.posting_risk.reasons];
-  if (caseFile.job.times_seen > 1) {
-    reasons.push(`Seen ${caseFile.job.times_seen} times, which may be a repost.`);
-  }
-  if (caseFile.source.stale) reasons.push("The saved source snapshot may be stale.");
-  if (caseFile.evidence.stale_packet_count > 0) {
-    reasons.push("Reviewed evidence needs confirmation before reuse.");
-  }
-  if (caseFile.evidence.confirmed_count === 0) {
-    reasons.push("No confirmed evidence is linked yet.");
-  }
-  return [...new Set(reasons)];
-}
+const decisionLabels: Record<CaseFile["decision"]["kind"], string> = {
+  apply: "Apply",
+  maybe: "Maybe",
+  skip: "Skip",
+  research_more: "Research more",
+};
+
+const requirementStateLabels: Record<
+  CaseFile["evidence"]["requirements"][number]["match_state"],
+  string
+> = {
+  direct: "Visible evidence",
+  strong: "Visible evidence",
+  partial: "Needs support",
+  implied: "Check wording",
+  missing: "Not found",
+};
+
+const evidenceKindLabels: Record<
+  CaseFile["evidence"]["requirements"][number]["evidence"][number]["kind"],
+  string
+> = {
+  resume_bullet: "Resume bullet",
+  project: "Project",
+  skill: "Skill",
+  certification: "Certification",
+  resume_evidence: "Resume evidence",
+};
 
 export function OpportunityCaseAction({ jobHash }: OpportunityCaseActionProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [caseFile, setCaseFile] = useState<CaseFile | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [hasError, setHasError] = useState(false);
-  const reviewReasons = caseFile ? getWhyReviewReasons(caseFile) : [];
 
   const openCase = useCallback(async () => {
     setIsLoading(true);
@@ -141,24 +171,73 @@ export function OpportunityCaseAction({ jobHash }: OpportunityCaseActionProps) {
               <p>{caseFile.job.company}{caseFile.job.location ? `, ${caseFile.job.location}` : ""}</p>
             </header>
 
-            <section aria-labelledby="case-decision">
-              <h4 id="case-decision" className="font-semibold text-surface-900 dark:text-white">Decision</h4>
-              <p>{getDecision(caseFile)}</p>
+            <section aria-labelledby="case-status">
+              <h4 id="case-status" className="font-semibold text-surface-900 dark:text-white">Case status</h4>
+              <p>{getCaseStatus(caseFile)}</p>
             </section>
 
-            <section aria-labelledby="case-review">
-              <h4 id="case-review" className="font-semibold text-surface-900 dark:text-white">Why review</h4>
-              {reviewReasons.length > 0 ? (
+            <section aria-labelledby="case-decision">
+              <h4 id="case-decision" className="font-semibold text-surface-900 dark:text-white">Decision summary</h4>
+              <p className="font-medium">{decisionLabels[caseFile.decision.kind]}</p>
+            </section>
+
+            <section aria-labelledby="case-why-not">
+              <h4 id="case-why-not" className="font-semibold text-surface-900 dark:text-white">Why not this job?</h4>
+              {caseFile.decision.kind === "apply" ? (
+                <p>No current blockers recorded.</p>
+              ) : (
                 <ul className="list-disc space-y-1 pl-5">
-                  {reviewReasons.map((reason) => <li key={reason}>{reason}</li>)}
+                  {caseFile.decision.reasons.map((reason) => <li key={reason}>{reason}</li>)}
                 </ul>
-              ) : <p>No current blockers recorded.</p>}
+              )}
             </section>
 
             <section aria-labelledby="case-evidence">
-              <h4 id="case-evidence" className="font-semibold text-surface-900 dark:text-white">Evidence</h4>
+              <h4 id="case-evidence" className="font-semibold text-surface-900 dark:text-white">Evidence wall</h4>
               <p>{caseFile.evidence.confirmed_count} confirmed, {caseFile.evidence.current_packet_count} current packet{caseFile.evidence.current_packet_count === 1 ? "" : "s"}.</p>
               {caseFile.evidence.stale_packet_count > 0 && <p>Evidence needs review before reuse.</p>}
+              {caseFile.evidence.review_status === "no_saved_match" && (
+                <p>Compare this job with your active saved resume to build the evidence wall.</p>
+              )}
+              {caseFile.evidence.review_status === "needs_refresh" && (
+                <p>The saved-resume evidence review changed. Refresh it before relying on the results.</p>
+              )}
+              {caseFile.evidence.review_status === "ready" && caseFile.evidence.requirements.length === 0 && (
+                <p>The posting does not contain enough recognized requirements for an evidence review.</p>
+              )}
+              {caseFile.evidence.requirements.length > 0 && (
+                <div className="mt-3 space-y-3">
+                  {caseFile.evidence.requirements.map((requirement) => (
+                    <article
+                      className="rounded-lg border border-surface-200 p-3 dark:border-surface-700"
+                      key={`${requirement.requirement}-${requirement.importance}`}
+                    >
+                      <div className="flex min-w-0 flex-wrap items-start justify-between gap-2">
+                        <h5 className="break-words font-medium text-surface-900 dark:text-white">
+                          {requirement.requirement}
+                        </h5>
+                        <div className="flex flex-wrap gap-2 text-xs font-medium">
+                          <span>{titleCase(requirement.importance)}</span>
+                          {requirement.blocking && <span>Hard blocker</span>}
+                        </div>
+                      </div>
+                      <p>{requirementStateLabels[requirement.match_state]}</p>
+                      {requirement.why_not && <p>Why not: {requirement.why_not.replace(/_/g, " ")}</p>}
+                      {requirement.evidence.length === 0 ? (
+                        <p>No supporting evidence available</p>
+                      ) : (
+                        <ul className="mt-2 space-y-1">
+                          {requirement.evidence.map((evidence, index) => (
+                            <li key={`${evidence.kind}-${index}`}>
+                              {evidenceKindLabels[evidence.kind]}, {evidence.confirmed ? "confirmed" : "not confirmed"}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </article>
+                  ))}
+                </div>
+              )}
             </section>
 
             <section aria-labelledby="case-timeline">

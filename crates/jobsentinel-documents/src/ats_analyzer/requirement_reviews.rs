@@ -103,7 +103,12 @@ fn classify_requirement_match_state(matched: &KeywordMatch) -> RequirementMatchS
         )
     });
 
-    if has_direct_evidence && (matched.frequency > 1 || matched.found_in.len() > 1) {
+    let evidence_section_count = matched
+        .found_in
+        .iter()
+        .filter(|section| section.as_str() != "military service")
+        .count();
+    if has_direct_evidence && (matched.frequency > 1 || evidence_section_count > 1) {
         RequirementMatchState::Strong
     } else if has_direct_evidence {
         RequirementMatchState::Direct

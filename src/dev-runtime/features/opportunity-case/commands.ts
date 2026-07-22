@@ -61,6 +61,12 @@ export function handleMockOpportunityCaseCommand(
         confirmed_count: 0,
         current_packet_count: 0,
         stale_packet_count: 0,
+        review_status: "no_saved_match",
+        requirements: [],
+      },
+      decision: {
+        kind: "research_more",
+        reasons: ["No current saved-resume evidence review is available."],
       },
       timeline: [],
     },

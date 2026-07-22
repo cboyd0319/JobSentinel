@@ -49,8 +49,9 @@ Last updated: 2026-07-22
 
 - Active feature: `v3-milestone-6-opportunity-case-file-daily-workflow`
 - Status: `active`
-- Current slice: Case aggregation coverage and a concrete three-to-seven-action daily mission are implemented.
-- Next action: Complete the case evidence wall and blocker explanations, then remaining Milestone 6 workflow paths.
+- Current slice: Case aggregation, daily mission, and active-resume evidence
+  wall are implemented with a four-way decision and plain blocker explanations.
+- Next action: Complete the "prepare this job" path, then the remaining Milestone 6 workflow paths.
 
 ## Deferred
 

@@ -35,6 +35,8 @@ pub struct SavedMatchDebuggerRequirement {
     evidence: Vec<SavedMatchDebuggerEvidence>,
     why_not: Option<RequirementWhyNot>,
     blocking: bool,
+    #[serde(skip)]
+    requires_review: bool,
 }
 
 impl SavedMatchDebuggerRequirement {
@@ -72,12 +74,19 @@ impl SavedMatchDebuggerRequirement {
     pub const fn is_blocking(&self) -> bool {
         self.blocking
     }
+
+    #[must_use]
+    pub(crate) const fn requires_review(&self) -> bool {
+        self.requires_review
+    }
 }
 
 /// One current opaque evidence reference and its explicit confirmation status.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct SavedMatchDebuggerEvidence {
     evidence_id: String,
+    #[serde(skip)]
+    kind: SavedMatchDebuggerEvidenceKind,
     confirmed: bool,
 }
 
@@ -88,9 +97,24 @@ impl SavedMatchDebuggerEvidence {
     }
 
     #[must_use]
+    pub(crate) const fn kind(&self) -> SavedMatchDebuggerEvidenceKind {
+        self.kind
+    }
+
+    #[must_use]
     pub const fn confirmed(&self) -> bool {
         self.confirmed
     }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub(crate) enum SavedMatchDebuggerEvidenceKind {
+    ResumeBullet,
+    Project,
+    Skill,
+    Certification,
+    ResumeEvidence,
 }
 
 pub(super) struct SavedMatchContext {
@@ -301,10 +325,17 @@ fn build_debugger(
                     .map(|citation| SavedMatchDebuggerEvidence {
                         confirmed: confirmed_evidence_ids.contains(&citation.evidence_id),
                         evidence_id: citation.evidence_id.clone(),
+                        kind: evidence_kind(&citation.field_path),
                     })
                     .collect(),
                 why_not,
                 blocking,
+                requires_review: (review.hard_constraint
+                    && review.importance == KeywordImportance::Required)
+                    || review
+                        .evidence_sections
+                        .iter()
+                        .any(|section| section == "military service"),
             }
         })
         .collect::<Vec<_>>();
@@ -323,6 +354,20 @@ fn build_debugger(
     SavedMatchDebugger {
         debugger_id: debugger_id(context),
         requirements,
+    }
+}
+
+fn evidence_kind(field_path: &str) -> SavedMatchDebuggerEvidenceKind {
+    if field_path.starts_with("experience.") {
+        SavedMatchDebuggerEvidenceKind::ResumeBullet
+    } else if field_path.starts_with("projects.") {
+        SavedMatchDebuggerEvidenceKind::Project
+    } else if field_path.starts_with("skills.") {
+        SavedMatchDebuggerEvidenceKind::Skill
+    } else if field_path.starts_with("certifications.") {
+        SavedMatchDebuggerEvidenceKind::Certification
+    } else {
+        SavedMatchDebuggerEvidenceKind::ResumeEvidence
     }
 }
 

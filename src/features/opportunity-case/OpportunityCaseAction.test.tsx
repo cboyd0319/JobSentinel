@@ -31,7 +31,42 @@ const caseFile = {
   interviews: null,
   offer: null,
   outcome: null,
-  evidence: { confirmed_count: 0, current_packet_count: 0, stale_packet_count: 1 },
+  evidence: {
+    confirmed_count: 1,
+    current_packet_count: 0,
+    stale_packet_count: 1,
+    review_status: "ready",
+    requirements: [
+      {
+        requirement: "Scheduling",
+        importance: "required",
+        match_state: "direct",
+        hard_constraint: false,
+        blocking: false,
+        why_not: null,
+        evidence: [
+          { kind: "resume_bullet", confirmed: true },
+          { kind: "skill", confirmed: false },
+        ],
+      },
+      {
+        requirement: "Active license",
+        importance: "required",
+        match_state: "missing",
+        hard_constraint: true,
+        blocking: true,
+        why_not: "missing_evidence",
+        evidence: [],
+      },
+    ],
+  },
+  decision: {
+    kind: "research_more",
+    reasons: [
+      "Verify this required qualification before deciding: Active license.",
+      "The saved source snapshot may be stale.",
+    ],
+  },
   timeline: [
     { at: "2026-07-20T12:00:00Z", kind: "source_checked_failed" },
     { at: "2026-07-21T12:00:00Z", kind: "recovery_restored" },
@@ -56,13 +91,22 @@ describe("OpportunityCaseAction", () => {
       }),
     );
     expect(await screen.findByRole("heading", { name: "Office Assistant" })).toBeVisible();
-    expect(screen.getByText("Decision")).toBeVisible();
-    expect(screen.getByText("Why review")).toBeVisible();
-    expect(screen.getByText("Evidence")).toBeVisible();
+    expect(screen.getByText("Case status")).toBeVisible();
+    expect(screen.getByText("Decision summary")).toBeVisible();
+    expect(screen.getByText("Research more")).toBeVisible();
+    expect(screen.getByText("Why not this job?")).toBeVisible();
+    expect(screen.getByText("Evidence wall")).toBeVisible();
     expect(screen.getByText("Timeline")).toBeVisible();
-    expect(screen.getByText(/Seen 2 times, which may be a repost/i)).toBeVisible();
     expect(screen.getByText(/The saved source snapshot may be stale/i)).toBeVisible();
-    expect(screen.getByText(/No confirmed evidence is linked yet/i)).toBeVisible();
+    expect(screen.getByRole("heading", { name: "Scheduling" })).toBeVisible();
+    expect(screen.getByRole("heading", { name: "Active license" })).toBeVisible();
+    expect(screen.getByText("Visible evidence")).toBeVisible();
+    expect(screen.getByText("Not found")).toBeVisible();
+    expect(screen.getByText("Hard blocker")).toBeVisible();
+    expect(screen.getByText("Resume bullet, confirmed")).toBeVisible();
+    expect(screen.getByText("Skill, not confirmed")).toBeVisible();
+    expect(screen.getByText("No supporting evidence available")).toBeVisible();
+    expect(screen.getByText(/Why not: missing evidence/i)).toBeVisible();
     expect(screen.getByText(/Source refresh needs a connection/i)).toBeVisible();
     expect(screen.getByText(/Source may be stale/i)).toBeVisible();
     expect(screen.getByText(/Evidence needs review/i)).toBeVisible();
@@ -97,6 +141,20 @@ describe("OpportunityCaseAction", () => {
       timeline: [],
       application: { status: "applied", has_contact: false },
       interviews: { upcoming_count: 1, completed_count: 0 },
+      evidence: {
+        confirmed_count: 0,
+        current_packet_count: 0,
+        stale_packet_count: 0,
+        review_status: "no_saved_match",
+        requirements: [],
+      },
+      decision: {
+        kind: "research_more",
+        reasons: [
+          "No current saved-resume evidence review is available.",
+          "The saved source snapshot may be stale.",
+        ],
+      },
     });
     render(<OpportunityCaseAction jobHash="job-1" />);
 
@@ -104,6 +162,9 @@ describe("OpportunityCaseAction", () => {
 
     expect(await screen.findByText(/The saved source snapshot may be stale/i)).toBeVisible();
     expect(screen.getByText("0 confirmed, 0 current packets.")).toBeVisible();
+    expect(
+      screen.getByText("Compare this job with your active saved resume to build the evidence wall."),
+    ).toBeVisible();
     expect(screen.getByText("No case activity yet.")).toBeVisible();
     expect(screen.getByText("1 upcoming interview")).toBeVisible();
     expect(screen.getByText((_, element) =>
@@ -112,6 +173,31 @@ describe("OpportunityCaseAction", () => {
     )).toBeVisible();
     expect(screen.getByRole("dialog").querySelector(".min-w-0")).toHaveClass("min-w-0");
     expect(screen.getByRole("dialog").querySelector(".app-modal-panel")).toHaveClass("max-h-[calc(100dvh-2rem)]");
+  });
+
+  it("shows changed evidence and accepted offers as non-apply states", async () => {
+    const user = userEvent.setup();
+    mockInvoke
+      .mockResolvedValueOnce({
+        ...caseFile,
+        evidence: { ...caseFile.evidence, review_status: "needs_refresh", requirements: [] },
+        decision: { kind: "research_more", reasons: ["The saved-resume evidence review needs to be refreshed."] },
+      })
+      .mockResolvedValueOnce({
+        ...caseFile,
+        outcome: { status: "offer_accepted" },
+        decision: { kind: "skip", reasons: ["This opportunity closed with an accepted offer."] },
+      });
+    const { rerender } = render(<OpportunityCaseAction jobHash="job-1" />);
+
+    await user.click(screen.getByRole("button", { name: "Open case" }));
+    expect(await screen.findByText(/evidence review changed/i)).toBeVisible();
+    await user.click(screen.getByRole("button", { name: "Close modal" }));
+    rerender(<OpportunityCaseAction jobHash="job-2" />);
+    await user.click(screen.getByRole("button", { name: "Open case" }));
+
+    expect(await screen.findByText("Skip")).toBeVisible();
+    expect(screen.getByText("This opportunity closed with an accepted offer.")).toBeVisible();
   });
 
   it("shows a loading state before the local snapshot arrives", async () => {

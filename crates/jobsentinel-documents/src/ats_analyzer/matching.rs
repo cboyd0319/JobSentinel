@@ -84,12 +84,15 @@ impl AtsAnalyzer {
         let mut frequency = 0;
         let mut evidence_citations = Vec::new();
         let mut current_section = "resume text";
+        let mut current_section_is_military = false;
         let mut current_experience_is_current = false;
         let mut current_experience_is_recent = false;
 
         for (line_index, line) in resume_text.lines().enumerate() {
             if let Some(section) = Self::plain_text_section_label(line) {
                 current_section = section;
+                current_section_is_military =
+                    section == "experience" && line.to_ascii_lowercase().contains("military");
                 current_experience_is_current = false;
                 current_experience_is_recent = false;
             }
@@ -122,6 +125,9 @@ impl AtsAnalyzer {
                     current_section
                 };
             Self::add_evidence_section(&mut found_in, evidence_section);
+            if current_section_is_military {
+                Self::add_evidence_section(&mut found_in, "military service");
+            }
             if let Some(snapshot) = evidence_snapshot {
                 if let Some(citation) = ResumeEvidenceCitation::for_field(
                     snapshot,

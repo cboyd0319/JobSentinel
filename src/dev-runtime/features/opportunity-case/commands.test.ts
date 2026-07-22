@@ -14,7 +14,17 @@ describe("Opportunity case mock command", () => {
     expect(result.value).toMatchObject({
       job: { job_hash: mockJobs[0].hash, title: mockJobs[0].title },
       source: { connectivity_required: true, stale: false },
-      evidence: { confirmed_count: 0, current_packet_count: 0, stale_packet_count: 0 },
+      evidence: {
+        confirmed_count: 0,
+        current_packet_count: 0,
+        stale_packet_count: 0,
+        review_status: "no_saved_match",
+        requirements: [],
+      },
+      decision: {
+        kind: "research_more",
+        reasons: ["No current saved-resume evidence review is available."],
+      },
       timeline: [],
     });
     expect(result.value).not.toHaveProperty("id");

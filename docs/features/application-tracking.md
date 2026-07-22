@@ -83,9 +83,17 @@ connectivity action. The summary intentionally excludes raw notes, contact
 values, resumes, packet text, event payloads, and full posting content; those
 remain with their existing feature owners.
 
-The first Milestone 6 case-file and daily-mission slices are implemented.
-Evidence-wall and blocker detail, preparation and debrief flows, drag-and-drop
-import, and first-run state coverage remain in progress.
+The first Milestone 6 case-file, daily-mission, and evidence-wall slices are
+implemented. The case compares only the active saved resume's exact saved match;
+it never silently substitutes another resume. It shows requirement-level evidence
+categories without resume text or opaque IDs, a deterministic Apply, Maybe, Skip,
+or Research more summary, and plain "Why not this job?" reasons. Missing,
+unconfirmed, stale, changed, military-section, or required hard-constraint
+evidence stays reviewable rather than becoming a qualification claim. Accepted
+offers are closed outcomes, not Apply recommendations.
+
+Preparation and debrief flows, drag-and-drop import, protected-answer review, and
+first-run state coverage remain in progress.
 
 ## Statuses
 
