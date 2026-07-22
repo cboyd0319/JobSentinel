@@ -119,6 +119,14 @@ fn valid_signed_release_is_verified_before_any_pack_data_is_exposed() {
 
     assert_eq!(verified.pack_version, "1.0.0");
     assert_eq!(verified.release_sequence, 1);
+    assert_eq!(
+        verified.signed_release_sha256,
+        hex::encode(Sha256::digest(SIGNED_RELEASE.as_bytes()))
+    );
+    assert_eq!(
+        verified.publisher_public_key_sha256,
+        hex::encode(Sha256::digest(agent_key().public_key))
+    );
     assert_eq!(verified.runtime_version, "3.0.0");
     assert_eq!(verified.manifest.pack_id, PACK_ID);
 }

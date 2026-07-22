@@ -17,6 +17,7 @@ pub mod resume;
 pub mod salary;
 pub mod user_data;
 pub mod v3_foundation;
+pub mod v3_pack_lifecycle;
 pub mod v3_source_consent;
 pub mod v3_source_manifest;
 pub mod v3_vectors;
@@ -40,6 +41,8 @@ pub(crate) mod test_support;
 #[cfg(test)]
 mod tests;
 #[cfg(test)]
+mod v3_pack_lifecycle_tests;
+#[cfg(test)]
 mod v3_source_manifest_tests;
 
 // Re-export public types
@@ -53,6 +56,7 @@ pub use connection::{
 pub use credentials::{
     CredentialKeyWrapRecord, CredentialRepository, CredentialSecretRecord, CredentialStorageError,
 };
+pub use v3_pack_lifecycle::pack_lifecycle_error_kind;
 
 /// Stable, non-sensitive classification for storage errors used by callers.
 pub fn database_error_kind(error: &sqlx::Error) -> &'static str {

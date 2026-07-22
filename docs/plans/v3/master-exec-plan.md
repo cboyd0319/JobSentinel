@@ -363,6 +363,7 @@ relevant result, and caveat.
 | 2026-07-22 | Milestone 6 complete | Added a truthful reviewed search setup with a disclosed session-only skip and retained-choice retry, exposed existing repost, posting-risk, contact-presence, and completed-interview state in the shared case, and proved empty, partial, duplicate, offline, failed-source, and restored-data behavior at desktop and narrow widths. Focused UI, Rust persistence, browser, type, lint, architecture, file-size, harness, and documentation checks passed; adversarial re-review returned SOUND. Source-pack installation remains Milestone 7, first-run doctor work remains Milestone 9, and installed release-platform proof remains Milestone 11. Activated Milestone 7. |
 | 2026-07-22 | Milestone 7 signed release trust checkpoint | Added a bounded non-executing Ed25519 release verifier at `6b86b970` with publisher ceilings, compiled-runtime compatibility, publisher-qualified identity, exact payload integrity, strict JSON, and gateway-bound Outside AI. Focused domain and security checks passed. Installation, persistent trust, and execution remain open. |
 | 2026-07-22 | Milestone 7 typed payload self-test checkpoint | Added a closed signed payload parser and non-executing self-tests for disabled source packs with exact fixtures, the compiled Evidence Reviewer and Application Packet Builder plans, static text-only Agent Skills, and complete synthetic local evaluation packs. Unsupported types, scripts, dynamic adapters, external destinations, host installation tasks, injected plan text, capability drift, fixture drift, partial evals, ambiguous static metadata, and filesystem-ambiguous resource paths fail closed. Fifteen new focused tests, production clippy, formatting, patch validation, Agent Skills compatibility, and hard file-size checks passed; adversarial re-review returned SOUND. Transactional quarantine, replay and downgrade state, rollback, revocation, native source-pack drop, UI, and execution remain open. |
+| 2026-07-22 | Milestone 7 transactional staging checkpoint | Added a local SQLite release ledger, publisher trust identity, and logical-pack stream state. Externally immutable verified releases bind the authenticated release digest and verification-time public-key fingerprint. They stage quarantined under a publisher-qualified composite identity; known replay is inert, same-sequence equivocation is detected, and unseen releases below the durable high-water mark are rejected. Staging never activates or executes content. Focused migration, storage lifecycle, typed-payload, and signed-release tests passed; adversarial re-review returned SOUND. Self-test promotion, activation, rollback, revocation, uninstall, filesystem promotion, UI, and execution remain open. |
 
 ## Discoveries
 
@@ -600,12 +601,12 @@ relevant result, and caveat.
 
 - Current state: Milestones 0 through 6 and Gates 0 through 4 are passing.
   Milestone 7 agent and pack runtime is the sole active feature. Signed release
-  trust is committed at `6b86b970`; the current checkpoint adds strict,
-  non-executing typed payload self-tests for disabled source packs, the two
-  compiled reviewed agents, static Agent Skills, and complete local eval packs.
-  Transactional quarantine and lifecycle state, replay and downgrade refusal,
-  rollback, installed-pack revocation, native source-pack drop, pack UI,
-  capability grants, and execution remain open.
+  trust is committed at `6b86b970`; strict typed payload self-tests and the
+  current transactional staging checkpoint add publisher-qualified quarantine,
+  inert exact replay, same-sequence equivocation detection, and a durable
+  high-water mark. Self-test promotion, activation, rollback, installed-pack
+  revocation, uninstall, native source-pack drop, pack UI, capability grants,
+  filesystem promotion, cleanup recovery, and execution remain open.
 - Evidence: `docs/harness/evidence/v3-milestone-3-reviewed-export-2026-07-19.json`
   binds the reviewed-export slice at `3b4f635b`, and
   `docs/harness/evidence/v3-milestone-3-storage-cleanup-2026-07-19.json` binds
@@ -655,8 +656,8 @@ relevant result, and caveat.
   at `a450f883`. Milestone 6 completion is bound by
   `docs/harness/evidence/v3-milestone-6-opportunity-case-workflow-2026-07-22.json`
   at `48a47eaf`.
-- Next step: add transactional quarantine and lifecycle recovery without making
-  any pack content executable or lowering the durable release high-water mark.
+- Next step: add self-test promotion and explicit generation-checked activation
+  without making staged pack content executable or lowering the release high-water mark.
 - Publication checkpoint: after each pushed checkpoint, keep draft PR 329's
   description aligned with the exact remote-head commit, implemented scope,
   focused verification, known gaps, and next planned work before pausing or

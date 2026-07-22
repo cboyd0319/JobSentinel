@@ -13,6 +13,7 @@ categories.workspace = true
 anyhow.workspace = true
 chrono.workspace = true
 futures.workspace = true
+hex.workspace = true
 jobsentinel-domain.workspace = true
 jobsentinel-documents.workspace = true
 jobsentinel-platform.workspace = true
@@ -20,6 +21,7 @@ jobsentinel-security.workspace = true
 libsqlite3-sys.workspace = true
 serde.workspace = true
 serde_json.workspace = true
+sha2.workspace = true
 regex.workspace = true
 sqlx.workspace = true
 tempfile.workspace = true
@@ -29,7 +31,8 @@ uuid.workspace = true
 zeroize.workspace = true
 
 [dev-dependencies]
-hex.workspace = true
+jobsentinel-domain = { workspace = true, features = ["test-support"] }
+jobsentinel-security = { workspace = true, features = ["test-support"] }
 serde_json.workspace = true
 
 [lints]

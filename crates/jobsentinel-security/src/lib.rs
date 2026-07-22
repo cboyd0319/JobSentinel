@@ -8,6 +8,8 @@ mod webhook;
 
 pub use logging::path_label_for_logging;
 pub use output::{encode_html_text, redacted_secret_for_debug};
+#[cfg(any(test, feature = "test-support"))]
+pub use signature::sign_ed25519_for_test;
 pub use signature::{verify_ed25519_signature, SignatureVerificationError};
 pub use url::{
     canonicalize_user_supplied_job_url, sanitize_url_for_logging, strip_sensitive_url_components,

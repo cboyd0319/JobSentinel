@@ -7,6 +7,7 @@ mod portable_restore_marker_tests;
 mod portable_restore_tests;
 mod reviewed_export_packet_tests;
 mod reviewed_export_tests;
+mod v3_pack_migration_tests;
 mod v3_policy_migration_tests;
 
 #[cfg(test)]

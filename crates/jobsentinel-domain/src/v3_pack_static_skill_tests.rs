@@ -47,6 +47,8 @@ fn release(payload: String, skill_name: &str) -> VerifiedPackRelease {
         release_id: format!("jobsentinel-test-skill-v1:{pack_id}:1"),
         pack_version: "1.0.0".to_string(),
         release_sequence: 1,
+        signed_release_sha256: hex::encode(Sha256::digest(payload.as_bytes())),
+        publisher_public_key_sha256: hex::encode(Sha256::digest([7; 32])),
         publisher_key_id: manifest.publisher_key_id.clone(),
         publisher_name: "JobSentinel Test".to_string(),
         license: "MIT".to_string(),

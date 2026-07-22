@@ -21,6 +21,19 @@ pub fn verify_ed25519_signature(
         .map_err(|_| SignatureVerificationError)
 }
 
+#[cfg(any(test, feature = "test-support"))]
+pub fn sign_ed25519_for_test(
+    seed: &[u8; 32],
+    message: &[u8],
+) -> Result<([u8; 32], Vec<u8>), ring::error::KeyRejected> {
+    use ring::signature::{Ed25519KeyPair, KeyPair};
+
+    let key_pair = Ed25519KeyPair::from_seed_unchecked(seed)?;
+    let mut public_key = [0; 32];
+    public_key.copy_from_slice(key_pair.public_key().as_ref());
+    Ok((public_key, key_pair.sign(message).as_ref().to_vec()))
+}
+
 fn hex_digit(value: u8) -> Result<u8, SignatureVerificationError> {
     match value {
         b'0'..=b'9' => Ok(value - b'0'),

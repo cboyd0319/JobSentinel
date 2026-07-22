@@ -49,9 +49,9 @@ Last updated: 2026-07-22
 
 - Active feature: `v3-milestone-7-agent-pack-runtime`
 - Status: `active`
-- Current slice: Signed releases and strict typed self-tests fail closed for disabled sources, compiled agents,
-  static skills, and complete local eval packs; lifecycle and execution have not started.
-- Next action: Prove transactional quarantine, replay, downgrade, rollback, revocation, and cleanup recovery.
+- Current slice: Verified releases now stage transactionally into publisher-qualified quarantine with a durable
+  high-water mark; exact replay is inert, while equivocation and unseen downgrade fail closed.
+- Next action: Prove self-test promotion, activation, rollback, revocation, uninstall, and cleanup recovery.
 
 ## Deferred
 

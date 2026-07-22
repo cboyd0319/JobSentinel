@@ -2,6 +2,7 @@
 
 use jobsentinel_security::verify_ed25519_signature;
 use serde::Deserialize;
+use sha2::{Digest, Sha256};
 
 use crate::v3_manifests::{
     AgentTaskKind, ApprovalGate, DataCategory, PackAction, PackExecutionClass, PackManifest,
@@ -39,17 +40,53 @@ pub struct TrustedPublisherKey {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct VerifiedPackRelease {
-    pub release_id: String,
-    pub pack_version: String,
-    pub release_sequence: u64,
-    pub publisher_key_id: String,
-    pub publisher_name: String,
-    pub license: String,
-    pub manifest: PackManifest,
-    pub payload: String,
-    pub fixture_summary: String,
-    pub external_destinations: Vec<String>,
-    pub runtime_version: &'static str,
+    pub(crate) release_id: String,
+    pub(crate) pack_version: String,
+    pub(crate) release_sequence: u64,
+    pub(crate) signed_release_sha256: String,
+    pub(crate) publisher_public_key_sha256: String,
+    pub(crate) publisher_key_id: String,
+    pub(crate) publisher_name: String,
+    pub(crate) license: String,
+    pub(crate) manifest: PackManifest,
+    pub(crate) payload: String,
+    pub(crate) fixture_summary: String,
+    pub(crate) external_destinations: Vec<String>,
+    pub(crate) runtime_version: &'static str,
+}
+
+impl VerifiedPackRelease {
+    pub fn release_id(&self) -> &str {
+        &self.release_id
+    }
+
+    pub fn pack_version(&self) -> &str {
+        &self.pack_version
+    }
+
+    pub const fn release_sequence(&self) -> u64 {
+        self.release_sequence
+    }
+
+    pub fn signed_release_sha256(&self) -> &str {
+        &self.signed_release_sha256
+    }
+
+    pub fn publisher_public_key_sha256(&self) -> &str {
+        &self.publisher_public_key_sha256
+    }
+
+    pub fn publisher_key_id(&self) -> &str {
+        &self.publisher_key_id
+    }
+
+    pub const fn manifest(&self) -> &PackManifest {
+        &self.manifest
+    }
+
+    pub fn payload(&self) -> &str {
+        &self.payload
+    }
 }
 
 #[derive(Debug, Deserialize)]
@@ -152,6 +189,8 @@ fn parse_verified_release(
         release_id: release.release_id,
         pack_version: release.pack_version,
         release_sequence: release.release_sequence,
+        signed_release_sha256: hex::encode(Sha256::digest(signed_release.as_bytes())),
+        publisher_public_key_sha256: hex::encode(Sha256::digest(key.public_key)),
         publisher_key_id: publisher_key_id.to_string(),
         publisher_name: release.publisher_name,
         license: release.license,
@@ -171,8 +210,8 @@ pub(crate) fn parse_verified_signed_release_for_test(
     parse_verified_release(&key.publisher_key_id, signed_release, key, "3.0.0")
 }
 
-#[cfg(test)]
-pub(crate) fn parse_signed_pack_release_for_runtime_test(
+#[cfg(any(test, feature = "test-support"))]
+pub fn parse_signed_pack_release_for_runtime_test(
     input: &[u8],
     trusted_keys: &[TrustedPublisherKey],
     runtime_version: &'static str,
