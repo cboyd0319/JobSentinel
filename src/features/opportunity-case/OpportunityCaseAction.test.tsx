@@ -118,6 +118,60 @@ describe("OpportunityCaseAction", () => {
     expect(screen.queryByText("job-1")).not.toBeInTheDocument();
   });
 
+  it("builds a local preparation workup without another command", async () => {
+    const user = userEvent.setup();
+    mockInvoke.mockResolvedValue(caseFile);
+    render(<OpportunityCaseAction jobHash="job-1" />);
+
+    await user.click(screen.getByRole("button", { name: "Open case" }));
+    await screen.findByRole("heading", { name: "Office Assistant" });
+    await waitFor(() =>
+      expect(screen.getByRole("dialog").querySelector(".app-modal-panel")).toHaveFocus(),
+    );
+    const prepareButton = screen.getByRole("button", { name: "Prepare this job" });
+    await user.click(prepareButton);
+
+    expect(screen.getByRole("heading", { name: "Preparation workup" })).toBeVisible();
+    expect(screen.getByText(/Local only.*nothing is sent or submitted/i)).toBeVisible();
+    expect(screen.getByText("Source and role")).toBeVisible();
+    expect(screen.getByText("Fit and evidence")).toBeVisible();
+    expect(screen.getByText("Reviewed claims")).toBeVisible();
+    expect(screen.getByText("Application materials")).toBeVisible();
+    expect(screen.getByText("Screening answers")).toBeVisible();
+    expect(screen.getByText("Final review")).toBeVisible();
+    expect(screen.getByText(/refresh is separate and needs a connection/i)).toBeVisible();
+    expect(screen.getByText(/Verify this required qualification before deciding/i)).toBeVisible();
+    expect(screen.getByText(/1 reviewed claim needs confirmation/i)).toBeVisible();
+    expect(screen.getByText(/confirm factual answers from current records/i)).toBeVisible();
+    expect(screen.getByText(/Voluntary questions about protected veteran status remain your decision/i)).toBeVisible();
+    expect(screen.getByText(/Resolve the listed blockers before preparing or submitting/i)).toBeVisible();
+    expect(screen.queryByText(/submit on the employer site yourself/i)).not.toBeInTheDocument();
+    expect(mockInvoke).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole("button", { name: "Back to case" })).toHaveFocus();
+
+    await user.click(screen.getByRole("button", { name: "Back to case" }));
+    expect(screen.queryByRole("heading", { name: "Preparation workup" })).not.toBeInTheDocument();
+    expect(screen.getByText("Evidence wall")).toBeVisible();
+    expect(mockInvoke).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps an empty recognized-requirement review unresolved", async () => {
+    const user = userEvent.setup();
+    mockInvoke.mockResolvedValue({
+      ...caseFile,
+      evidence: { ...caseFile.evidence, confirmed_count: 0, stale_packet_count: 0, requirements: [] },
+      decision: { kind: "research_more", reasons: ["Review the posting before tailoring."] },
+    });
+    render(<OpportunityCaseAction jobHash="job-1" />);
+
+    await user.click(screen.getByRole("button", { name: "Open case" }));
+    await screen.findByRole("heading", { name: "Office Assistant" });
+    await user.click(screen.getByRole("button", { name: "Prepare this job" }));
+
+    expect(screen.getByText(/No recognized requirements are available/i)).toBeVisible();
+    expect(screen.getByText(/Resolve the listed blockers before preparing or submitting/i)).toBeVisible();
+  });
+
   it("keeps a safe error in the sheet and retries the same opaque request", async () => {
     const user = userEvent.setup();
     mockInvoke.mockRejectedValueOnce(new Error("network details"));
@@ -173,6 +227,9 @@ describe("OpportunityCaseAction", () => {
     )).toBeVisible();
     expect(screen.getByRole("dialog").querySelector(".min-w-0")).toHaveClass("min-w-0");
     expect(screen.getByRole("dialog").querySelector(".app-modal-panel")).toHaveClass("max-h-[calc(100dvh-2rem)]");
+
+    await user.click(screen.getByRole("button", { name: "Prepare this job" }));
+    expect(screen.getByText(/Compare this job with your active saved resume before tailoring/i)).toBeVisible();
   });
 
   it("shows changed evidence and accepted offers as non-apply states", async () => {
@@ -192,12 +249,17 @@ describe("OpportunityCaseAction", () => {
 
     await user.click(screen.getByRole("button", { name: "Open case" }));
     expect(await screen.findByText(/evidence review changed/i)).toBeVisible();
+    await user.click(screen.getByRole("button", { name: "Prepare this job" }));
+    expect(screen.getByText(/Refresh the active saved-resume evidence review/i)).toBeVisible();
     await user.click(screen.getByRole("button", { name: "Close modal" }));
     rerender(<OpportunityCaseAction jobHash="job-2" />);
     await user.click(screen.getByRole("button", { name: "Open case" }));
 
     expect(await screen.findByText("Skip")).toBeVisible();
     expect(screen.getByText("This opportunity closed with an accepted offer.")).toBeVisible();
+    await user.click(screen.getByRole("button", { name: "Prepare this job" }));
+    expect(screen.getByText(/Review the recorded outcome instead of preparing another submission/i)).toBeVisible();
+    expect(screen.queryByText(/submit on the employer site yourself/i)).not.toBeInTheDocument();
   });
 
   it("shows a loading state before the local snapshot arrives", async () => {

@@ -120,11 +120,66 @@ const evidenceKindLabels: Record<
   resume_evidence: "Resume evidence",
 };
 
+function getPreparationRows(caseFile: CaseFile) {
+  const sourceReview = caseFile.source.stale
+    ? "The saved source may be stale."
+    : "The saved source is current for this local review.";
+  const sourceRefresh = caseFile.source.connectivity_required
+    ? "A refresh is separate and needs a connection."
+    : "Review remains available offline.";
+
+  let evidenceReview: string;
+  if (caseFile.evidence.review_status === "no_saved_match") {
+    evidenceReview = "Compare this job with your active saved resume before tailoring.";
+  } else if (caseFile.evidence.review_status === "needs_refresh") {
+    evidenceReview = "Refresh the active saved-resume evidence review before relying on it.";
+  } else if (caseFile.evidence.requirements.length === 0) {
+    evidenceReview = "No recognized requirements are available. Review the posting before tailoring.";
+  } else {
+    evidenceReview = `${decisionLabels[caseFile.decision.kind]}. ${caseFile.evidence.requirements.length} requirements reviewed and ${caseFile.evidence.confirmed_count} confirmed evidence link${caseFile.evidence.confirmed_count === 1 ? "" : "s"}. ${caseFile.decision.reasons.join(" ")}`;
+  }
+
+  const currentClaims = caseFile.evidence.current_packet_count === 0
+    ? "No current reviewed claims are ready."
+    : `${caseFile.evidence.current_packet_count} current reviewed claim${caseFile.evidence.current_packet_count === 1 ? " is" : "s are"} available. Review the exact wording before reuse.`;
+  const staleClaims = caseFile.evidence.stale_packet_count === 0
+    ? ""
+    : ` ${caseFile.evidence.stale_packet_count} reviewed claim${caseFile.evidence.stale_packet_count === 1 ? " needs" : "s need"} confirmation before reuse.`;
+  const finalReview = caseFile.outcome
+    ? "This opportunity is closed. Review the recorded outcome instead of preparing another submission."
+    : {
+        apply: "Review every field and attachment, then submit on the employer site yourself.",
+        maybe: "Review the listed uncertainties before deciding whether to prepare or submit an application.",
+        skip: "Review the Skip recommendation and its reasons before deciding whether to prepare an application.",
+        research_more: "Resolve the listed blockers before preparing or submitting an application.",
+      }[caseFile.decision.kind];
+
+  return [
+    { label: "Case status", detail: getCaseStatus(caseFile) },
+    {
+      label: "Source and role",
+      detail: `${caseFile.job.title} at ${caseFile.job.company}, saved from ${caseFile.source.name}. ${sourceReview} ${sourceRefresh}`,
+    },
+    { label: "Fit and evidence", detail: evidenceReview },
+    { label: "Reviewed claims", detail: `${currentClaims}${staleClaims}` },
+    {
+      label: "Application materials",
+      detail: "Choose and verify the exact resume, cover note, work samples, references, and other attachments. JobSentinel has not selected or attached files.",
+    },
+    {
+      label: "Screening answers",
+      detail: "Use the employer's exact wording and confirm factual answers from current records, including clearance, work authorization, citizenship, and eligibility. Voluntary questions about protected veteran status remain your decision.",
+    },
+    { label: "Final review", detail: finalReview },
+  ];
+}
+
 export function OpportunityCaseAction({ jobHash }: OpportunityCaseActionProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [caseFile, setCaseFile] = useState<CaseFile | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [hasError, setHasError] = useState(false);
+  const [showPreparation, setShowPreparation] = useState(false);
 
   const openCase = useCallback(async () => {
     setIsLoading(true);
@@ -139,6 +194,7 @@ export function OpportunityCaseAction({ jobHash }: OpportunityCaseActionProps) {
   }, [jobHash]);
 
   const handleOpen = () => {
+    setShowPreparation(false);
     setIsOpen(true);
     void openCase();
   };
@@ -147,6 +203,7 @@ export function OpportunityCaseAction({ jobHash }: OpportunityCaseActionProps) {
     setIsOpen(false);
     setCaseFile(null);
     setHasError(false);
+    setShowPreparation(false);
   };
 
   return (
@@ -171,6 +228,35 @@ export function OpportunityCaseAction({ jobHash }: OpportunityCaseActionProps) {
               <p>{caseFile.job.company}{caseFile.job.location ? `, ${caseFile.job.location}` : ""}</p>
             </header>
 
+            <Button
+              variant="secondary"
+              size="sm"
+              aria-controls="case-preparation"
+              aria-expanded={showPreparation}
+              onClick={() => setShowPreparation((visible) => !visible)}
+            >
+              {showPreparation ? "Back to case" : "Prepare this job"}
+            </Button>
+
+            {showPreparation ? (
+              <section id="case-preparation" aria-labelledby="case-preparation-title" className="min-w-0 space-y-3">
+                <div>
+                  <h4 id="case-preparation-title" className="font-semibold text-surface-900 dark:text-white">
+                    Preparation workup
+                  </h4>
+                  <p>Local only. Nothing is sent or submitted.</p>
+                </div>
+                <dl className="space-y-3">
+                  {getPreparationRows(caseFile).map((row) => (
+                    <div className="min-w-0 rounded-lg border border-surface-200 p-3 dark:border-surface-700" key={row.label}>
+                      <dt className="font-semibold text-surface-900 dark:text-white">{row.label}</dt>
+                      <dd className="break-words">{row.detail}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </section>
+            ) : (
+              <>
             <section aria-labelledby="case-status">
               <h4 id="case-status" className="font-semibold text-surface-900 dark:text-white">Case status</h4>
               <p>{getCaseStatus(caseFile)}</p>
@@ -257,6 +343,8 @@ export function OpportunityCaseAction({ jobHash }: OpportunityCaseActionProps) {
             <p className="rounded-lg bg-surface-50 p-3 text-surface-600 dark:bg-surface-800 dark:text-surface-300">
               Source: {caseFile.source.name}. Last checked <time dateTime={caseFile.source.last_seen_at}>{formatEventDate(caseFile.source.last_seen_at)}</time>. {caseFile.source.stale ? "Source may be stale. " : ""}This local case is available offline.{caseFile.source.connectivity_required ? " Source refresh needs a connection." : ""}
             </p>
+              </>
+            )}
           </div>
         )}
       </Modal>
