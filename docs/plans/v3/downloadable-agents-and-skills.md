@@ -160,6 +160,10 @@ New or updated packs should enter quarantine until local checks pass:
 - banned-file and executable-code checks
 - source policy and region metadata checks when relevant
 
+The Milestone 5 contract verifies the manifest SHA-256 against the exact payload
+bytes before a consumer can accept them. Matching bytes establish integrity
+only, not publisher identity, trust, safe content, or permission to execute.
+
 Users should see plain states:
 
 - "Ready"

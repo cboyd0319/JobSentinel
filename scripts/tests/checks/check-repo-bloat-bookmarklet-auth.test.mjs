@@ -47,28 +47,29 @@ test("checkRepoBloat rejects unauthenticated bookmarklet imports", () => {
 
     assert.ok(
       violations.includes(
-        "require bookmarklet import auth token: crates/jobsentinel-assistance/src/bookmarklet/server.rs",
+        "require structured bookmarklet pairing authorization: crates/jobsentinel-assistance/src/bookmarklet/server.rs",
       ),
       violations.join("\n"),
     );
   });
 });
 
-test("checkRepoBloat rejects bookmarklet code without auth header", () => {
+test("checkRepoBloat rejects bookmarklet code without pairing and origin binding", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(
       root,
-      "src/features/settings/sources/browser-import/BrowserImportSection.tsx",
+      "src-tauri/src/ipc/bookmarklet.rs",
       [
-        "export function code() {",
-        "  return `fetch('http://localhost:4321/api/bookmarklet/import',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(job)})`;",
-        "}",
+        'const TEMPLATE: &str = r#"javascript:(function(){',
+        "document.createElement('iframe');",
+        "fetch('http://localhost:4321/api/bookmarklet/import',{method:'POST'});",
+        '})();"#;',
         "",
       ].join("\n"),
     );
 
-    execFileSync("git", ["add", "package.json", "src/features/settings/sources/browser-import/BrowserImportSection.tsx"], {
+    execFileSync("git", ["add", "package.json", "src-tauri/src/ipc/bookmarklet.rs"], {
       cwd: root,
     });
 
@@ -76,7 +77,42 @@ test("checkRepoBloat rejects bookmarklet code without auth header", () => {
 
     assert.ok(
       violations.includes(
-        "include bookmarklet auth token header: src/features/settings/sources/browser-import/BrowserImportSection.tsx",
+        "bind bookmarklet code to structured pairing and origin: src-tauri/src/ipc/bookmarklet.rs",
+      ),
+      violations.join("\n"),
+    );
+  });
+});
+
+test("checkRepoBloat rejects non-atomic active pairing consumption", () => {
+  withGitFixture((root) => {
+    writeFixtureFile(root, "package.json", "{}\n");
+    writeFixtureFile(
+      root,
+      "crates/jobsentinel-assistance/src/bookmarklet/server/pairing_state.rs",
+      [
+        "fn consume_active_pairing(active: &State, request: &Request) {",
+        "  active.write().unwrap().as_mut().unwrap().authorize(request);",
+        "}",
+        "",
+      ].join("\n"),
+    );
+
+    execFileSync(
+      "git",
+      [
+        "add",
+        "package.json",
+        "crates/jobsentinel-assistance/src/bookmarklet/server/pairing_state.rs",
+      ],
+      { cwd: root },
+    );
+
+    const violations = checkRepoBloat(root);
+
+    assert.ok(
+      violations.includes(
+        "make bookmarklet pairing atomic and one-use: crates/jobsentinel-assistance/src/bookmarklet/server/pairing_state.rs",
       ),
       violations.join("\n"),
     );

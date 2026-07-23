@@ -1,6 +1,10 @@
+/** Verifies the browser-development command facade and deterministic state. */
+
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { registeredMockCommands } from "./commandRegistry";
+import { mockJobs } from "./data";
 import { mockInvoke, resetMockData } from "./handlers";
+import { loadMockState, mockRuntimeState } from "./runtimeState";
 
 type MockJobSummary = { hash: string };
 type SalaryBenchmark = {
@@ -36,6 +40,20 @@ type AnswerSuggestion = {
 };
 
 const MOCK_INVOKE_CONTROLS_KEY = "jobsentinel.mockInvokeControls.v1";
+const MOCK_STATE_KEY = "jobsentinel.mockState.v1";
+
+function outsideAiRequest() {
+  return {
+    feature: "job-description-summary",
+    sourceJobId: mockJobs[0].id,
+    provider: "anthropic",
+    labels: ["External AI optional", "Public-data only"],
+    dataCategories: ["job_posting"],
+    payload: { title: mockJobs[0].title, company: mockJobs[0].company },
+    previewShown: true,
+    userApproved: true,
+  };
+}
 
 describe("mock Tauri command facade", () => {
   let localStore: Record<string, string>;
@@ -63,6 +81,7 @@ describe("mock Tauri command facade", () => {
         "get_config",
         "get_active_resume",
         "fill_application_form",
+        "list_pack_management",
         "record_linkedin_workbench_event",
       ]),
     );
@@ -115,6 +134,75 @@ describe("mock Tauri command facade", () => {
     );
     resetMockData();
     expect(window.localStorage.getItem(MOCK_INVOKE_CONTROLS_KEY)).toBeNull();
+  });
+
+  it("routes reviewed Outside AI and staged recovery commands through the registry", async () => {
+    const request = outsideAiRequest();
+    const prepared = await mockInvoke<{ approvalId: string }>(
+      "prepare_external_ai_request",
+      { request },
+    );
+
+    await expect(
+      mockInvoke("send_external_ai_request", {
+        approvalId: prepared.approvalId,
+        request,
+      }),
+    ).resolves.toMatchObject({
+      provider: "anthropic",
+      text: expect.any(String),
+    });
+
+    await expect(
+      mockInvoke("stage_portable_restore", { passphrase: "sixteen-letters!" }),
+    ).resolves.toMatchObject({ outcome: "staged" });
+    await expect(mockInvoke("get_staged_restore_status")).resolves.toBe("ready");
+    await expect(mockInvoke("cancel_staged_restore")).resolves.toMatchObject({
+      outcome: "cancelled",
+    });
+    await expect(mockInvoke("get_staged_restore_status")).resolves.toBe("none");
+  });
+
+  it("reloads only the staged restore status marker and rejects invalid persisted values", async () => {
+    await mockInvoke("stage_portable_restore", {
+      passphrase: "sixteen-letters!",
+    });
+    const persisted = window.localStorage.getItem(MOCK_STATE_KEY) ?? "";
+    expect(persisted).toContain('"stagedRestoreStatus":"ready"');
+    expect(persisted).not.toContain("sixteen-letters!");
+    expect(JSON.parse(persisted)).not.toHaveProperty("portableRestorePath");
+
+    mockRuntimeState.stagedRestoreStatus = "none";
+    loadMockState();
+    await expect(mockInvoke("get_staged_restore_status")).resolves.toBe("ready");
+
+    window.localStorage.setItem(
+      MOCK_STATE_KEY,
+      JSON.stringify({ stagedRestoreStatus: "promoted" }),
+    );
+    mockRuntimeState.stagedRestoreStatus = "none";
+    loadMockState();
+    await expect(mockInvoke("get_staged_restore_status")).resolves.toBe("none");
+  });
+
+  it("clears transient Outside AI approval and staged recovery state on reset", async () => {
+    const prepared = await mockInvoke<{ approvalId: string }>(
+      "prepare_external_ai_request",
+      { request: outsideAiRequest() },
+    );
+    await mockInvoke("stage_portable_restore", {
+      passphrase: "sixteen-letters!",
+    });
+
+    resetMockData();
+
+    await expect(mockInvoke("get_staged_restore_status")).resolves.toBe("none");
+    expect(
+      JSON.parse(window.localStorage.getItem(MOCK_STATE_KEY) ?? "{}"),
+    ).toMatchObject({ stagedRestoreStatus: "none" });
+    await expect(
+      mockInvoke("cancel_external_ai_request", { approvalId: prepared.approvalId }),
+    ).rejects.toThrow("could not be verified");
   });
 
   it("routes representative runtime commands through feature owners", async () => {

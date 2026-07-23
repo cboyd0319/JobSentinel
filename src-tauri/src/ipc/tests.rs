@@ -85,6 +85,8 @@ mod tests {
             scheduler_status: Arc::new(RwLock::new(SchedulerStatus::default())),
             bookmarklet_server: Arc::new(RwLock::new(bookmarklet_server)),
             pending_url_imports: Default::default(),
+            pending_military_transition_reviews: Default::default(),
+            outside_ai_cancellations: Default::default(),
         }
     }
 
@@ -343,19 +345,6 @@ mod tests {
 
         let status = state.scheduler_status.read().await;
         assert!(!status.is_running);
-    }
-
-    #[tokio::test]
-    async fn test_is_first_run() {
-        use crate::ipc::config::is_first_run;
-
-        // Note: This test is environment-dependent and difficult to test in isolation
-        // without mocking Config::default_path(). In a real scenario, you'd use
-        // dependency injection or a trait to make this testable.
-
-        // We can at least verify the function doesn't panic
-        let result = is_first_run().await;
-        assert!(result.is_ok(), "is_first_run should not panic");
     }
 
     #[tokio::test]

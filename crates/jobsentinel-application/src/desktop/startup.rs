@@ -32,12 +32,26 @@ pub enum DesktopStartupError {
     Database(String),
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum DesktopStartupFailureKind {
+    Configuration,
+    Database,
+}
+
 impl DesktopStartupError {
     #[must_use]
     pub const fn context(&self) -> &'static str {
         match self {
             Self::Configuration(_) => "Configuration error",
             Self::Database(_) => "Failed to initialize database",
+        }
+    }
+
+    #[must_use]
+    pub const fn kind(&self) -> DesktopStartupFailureKind {
+        match self {
+            Self::Configuration(_) => DesktopStartupFailureKind::Configuration,
+            Self::Database(_) => DesktopStartupFailureKind::Database,
         }
     }
 }
@@ -58,6 +72,28 @@ impl DesktopServices {
         Self::initialize_at(Config::default_path(), Database::default_path()).await
     }
 
+    pub async fn initialize_recovery() -> Result<Self, DesktopStartupError> {
+        let database = Database::connect_memory()
+            .await
+            .map_err(|error| DesktopStartupError::Database(error.to_string()))?;
+        database
+            .migrate()
+            .await
+            .map_err(|error| DesktopStartupError::Database(error.to_string()))?;
+        let mut key = [0_u8; 32];
+        key[..16].copy_from_slice(uuid::Uuid::new_v4().as_bytes());
+        key[16..].copy_from_slice(uuid::Uuid::new_v4().as_bytes());
+        let credentials =
+            CredentialService::with_fixed_master_key(database.credentials(), key, false);
+
+        Ok(Self::assemble(
+            Config::first_run(),
+            false,
+            database,
+            credentials,
+        ))
+    }
+
     async fn initialize_at(
         config_path: PathBuf,
         database_path: PathBuf,
@@ -67,11 +103,11 @@ impl DesktopServices {
             db_path = %path_label_for_logging(&database_path),
             "Connecting to database"
         );
-        let database = Database::connect(&database_path)
+        let database = Database::connect_with_staged_restore(&database_path)
             .await
             .map_err(|error| DesktopStartupError::Database(error.to_string()))?;
 
-        Self::initialize_loaded(config_path, config, is_first_run, database).await
+        Self::initialize_ready(config_path, config, is_first_run, database).await
     }
 
     #[cfg(test)]
@@ -83,9 +119,10 @@ impl DesktopServices {
         Self::initialize_loaded(config_path, config, is_first_run, database).await
     }
 
+    #[cfg(test)]
     async fn initialize_loaded(
         config_path: PathBuf,
-        mut config: Config,
+        config: Config,
         is_first_run: bool,
         database: Database,
     ) -> Result<Self, DesktopStartupError> {
@@ -94,16 +131,51 @@ impl DesktopServices {
             .await
             .map_err(|error| DesktopStartupError::Database(error.to_string()))?;
         tracing::info!("Database initialized successfully");
+        Self::initialize_ready(config_path, config, is_first_run, database).await
+    }
 
-        let database = Arc::new(database);
-        let credentials = Arc::new(CredentialService::new(database.credentials()));
-        if migrate_plaintext_credentials_to_secure_storage(&config_path, credentials.as_ref()).await
-        {
+    async fn initialize_ready(
+        config_path: PathBuf,
+        mut config: Config,
+        is_first_run: bool,
+        database: Database,
+    ) -> Result<Self, DesktopStartupError> {
+        let reconciled = database
+            .reconcile_outside_ai_operations()
+            .await
+            .map_err(|error| DesktopStartupError::Database(error.to_string()))?;
+        if reconciled.ambiguous > 0 || reconciled.cancelled > 0 {
+            tracing::warn!(
+                ambiguous = reconciled.ambiguous,
+                cancelled = reconciled.cancelled,
+                "Reconciled interrupted Outside AI operations"
+            );
+        }
+        crate::v3_source_governance::install_startup_source_governance(&database).await;
+        let credentials = CredentialService::new(database.credentials());
+        if migrate_plaintext_credentials_to_secure_storage(&config_path, &credentials).await {
             config = Config::load(&config_path)
                 .map_err(|error| DesktopStartupError::Configuration(error.to_string()))?;
         }
+        crate::restricted_source_consent::refresh_restricted_source_acknowledgements(
+            &database,
+            &mut config,
+        )
+        .await
+        .map_err(|error| DesktopStartupError::Database(error.to_string()))?;
 
+        Ok(Self::assemble(config, is_first_run, database, credentials))
+    }
+
+    fn assemble(
+        config: Config,
+        is_first_run: bool,
+        database: Database,
+        credentials: CredentialService,
+    ) -> Self {
         let bookmarklet_port = config.bookmarklet_port;
+        let database = Arc::new(database);
+        let credentials = Arc::new(credentials);
         let config = Arc::new(RwLock::new(config));
         let scheduler_status = Arc::new(RwLock::new(SchedulerStatus::default()));
         let scheduler = Arc::new(Scheduler::new_shared_with_credentials(
@@ -113,10 +185,9 @@ impl DesktopServices {
         ));
         let bookmarklet_server = Arc::new(RwLock::new(BookmarkletServer::new(BookmarkletConfig {
             port: bookmarklet_port,
-            ..Default::default()
         })));
 
-        Ok(Self {
+        Self {
             config,
             database,
             credentials,
@@ -125,7 +196,7 @@ impl DesktopServices {
             bookmarklet_server,
             pending_url_imports: PendingUrlImports::default(),
             is_first_run,
-        })
+        }
     }
 }
 
@@ -254,6 +325,27 @@ mod tests {
         let result =
             DesktopServices::initialize_at(config_path, temp_dir.path().join("jobs.db")).await;
 
-        assert!(matches!(result, Err(DesktopStartupError::Configuration(_))));
+        let error = match result {
+            Err(error) => error,
+            Ok(_) => panic!("invalid configuration unexpectedly initialized"),
+        };
+        assert!(matches!(error, DesktopStartupError::Configuration(_)));
+        assert_eq!(error.kind(), DesktopStartupFailureKind::Configuration);
+    }
+
+    #[tokio::test]
+    async fn recovery_services_are_ephemeral_offline_and_keychain_free() {
+        let services = DesktopServices::initialize_recovery().await.unwrap();
+
+        assert!(!services.is_first_run);
+        assert!(!services.config.read().await.auto_refresh.enabled);
+        assert_eq!(
+            services.credentials.unlock_status().await.unwrap().unlocked,
+            true
+        );
+        assert_eq!(
+            services.database.get_statistics().await.unwrap().total_jobs,
+            0
+        );
     }
 }

@@ -92,14 +92,13 @@ impl ApplicationTracker {
         Ok(result.last_insert_rowid())
     }
 
-    /// Get upcoming interviews (next 30 days, not completed)
+    /// Get incomplete interviews, including overdue debriefs and the next 30 days.
     pub async fn get_upcoming_interviews(&self) -> Result<Vec<InterviewWithJob>> {
         let interviews = sqlx::query(interview_with_job_query!(
             r#"
                 WHERE i.completed = 0
-                  AND datetime(i.scheduled_at) >= datetime('now')
                   AND datetime(i.scheduled_at) <= datetime('now', '+30 days')
-                ORDER BY i.scheduled_at ASC
+                ORDER BY ABS(julianday(i.scheduled_at) - julianday('now')) ASC
             "#
         ))
         .fetch_all(&self.db)
@@ -111,12 +110,11 @@ impl ApplicationTracker {
             .collect()
     }
 
-    /// Get past interviews (completed, last 90 days)
+    /// Get completed interviews.
     pub async fn get_past_interviews(&self) -> Result<Vec<InterviewWithJob>> {
         let interviews = sqlx::query(interview_with_job_query!(
             r#"
                 WHERE i.completed = 1
-                  AND datetime(i.scheduled_at) >= datetime('now', '-90 days')
                 ORDER BY i.scheduled_at DESC
             "#
         ))
@@ -141,28 +139,22 @@ impl ApplicationTracker {
     ) -> Result<()> {
         let now = Utc::now().to_rfc3339();
 
-        // Update basic fields with compile-time checked query
-        sqlx::query!(
+        sqlx::query(
             r#"
             UPDATE interviews
-            SET completed = 1, outcome = ?, updated_at = ?
+            SET completed = 1,
+                outcome = ?,
+                post_interview_notes = COALESCE(?, post_interview_notes),
+                updated_at = ?
             WHERE id = ?
             "#,
-            outcome,
-            now,
-            interview_id
         )
+        .bind(outcome)
+        .bind(post_notes)
+        .bind(now)
+        .bind(interview_id)
         .execute(&self.db)
         .await?;
-
-        // Store post_notes separately using runtime query (column added via migration)
-        if let Some(notes) = post_notes {
-            sqlx::query("UPDATE interviews SET post_interview_notes = ? WHERE id = ?")
-                .bind(notes)
-                .bind(interview_id)
-                .execute(&self.db)
-                .await?;
-        }
 
         Ok(())
     }
@@ -180,6 +172,7 @@ impl ApplicationTracker {
 #[cfg(test)]
 mod row_mapper_tests {
     use super::*;
+    use chrono::Duration;
 
     #[tokio::test]
     async fn interview_mapper_applies_nullable_column_defaults() {
@@ -204,5 +197,110 @@ mod row_mapper_tests {
         assert_eq!(interview.interview_type, "other");
         assert_eq!(interview.duration_minutes, 60);
         assert!(!interview.completed);
+    }
+
+    #[tokio::test]
+    async fn interview_queries_keep_debriefs_reachable_and_ordered() {
+        let database = crate::Database::connect_memory().await.unwrap();
+        database.migrate().await.unwrap();
+        sqlx::query(
+            "INSERT INTO jobs (hash, title, company, url, source) VALUES ('debrief-job', 'Office Assistant', 'CareBridge', 'https://example.com/job', 'test')",
+        )
+        .execute(database.pool())
+        .await
+        .unwrap();
+        let tracker = ApplicationTracker::new(database.pool().clone());
+        let application_id = tracker.create_application("debrief-job").await.unwrap();
+        let interview_id = tracker
+            .schedule_interview(
+                application_id,
+                "screening_call",
+                &(Utc::now() - Duration::days(120)).to_rfc3339(),
+                30,
+                None,
+                None,
+                None,
+                None,
+            )
+            .await
+            .unwrap();
+        let upcoming_id = tracker
+            .schedule_interview(
+                application_id,
+                "screening_call",
+                &(Utc::now() + Duration::days(3)).to_rfc3339(),
+                30,
+                None,
+                None,
+                None,
+                None,
+            )
+            .await
+            .unwrap();
+        tracker
+            .schedule_interview(
+                application_id,
+                "screening_call",
+                &(Utc::now() + Duration::days(31)).to_rfc3339(),
+                30,
+                None,
+                None,
+                None,
+                None,
+            )
+            .await
+            .unwrap();
+        let recent_id = tracker
+            .schedule_interview(
+                application_id,
+                "screening_call",
+                &(Utc::now() - Duration::days(2)).to_rfc3339(),
+                30,
+                None,
+                None,
+                None,
+                None,
+            )
+            .await
+            .unwrap();
+        tracker
+            .complete_interview(recent_id, "pending", None)
+            .await
+            .unwrap();
+
+        let open_interviews = tracker.get_upcoming_interviews().await.unwrap();
+
+        assert_eq!(
+            open_interviews
+                .iter()
+                .map(|interview| interview.id)
+                .collect::<Vec<_>>(),
+            vec![upcoming_id, interview_id]
+        );
+
+        let debrief = "Questions asked: How would you prioritize urgent requests?\nFollow-up deadline: 2026-08-01";
+        tracker
+            .complete_interview(interview_id, "passed", Some(debrief))
+            .await
+            .unwrap();
+
+        assert_eq!(
+            tracker
+                .get_upcoming_interviews()
+                .await
+                .unwrap()
+                .iter()
+                .map(|interview| interview.id)
+                .collect::<Vec<_>>(),
+            vec![upcoming_id]
+        );
+        let past_interviews = tracker.get_past_interviews().await.unwrap();
+        assert_eq!(past_interviews.len(), 2);
+        assert_eq!(past_interviews[0].id, recent_id);
+        assert_eq!(past_interviews[1].outcome.as_deref(), Some("passed"));
+        assert_eq!(
+            past_interviews[1].post_interview_notes.as_deref(),
+            Some(debrief)
+        );
     }
 }

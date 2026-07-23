@@ -11,6 +11,7 @@ import { Button } from "../../../ui/Button";
 import { useToast } from "../../../shared/toast/useToast";
 import { invalidateCacheByCommand, invoke } from "../../../platform/tauri";
 import {
+  isPolicyBlockedAutomationUrl,
   isRestrictedJobSourceUrl,
   RESTRICTED_JOB_SOURCE_WARNING,
 } from "../../../shared/restrictedSourceTaxonomy";
@@ -20,11 +21,13 @@ import {
   formatMissingDetails,
   fullJobLinkMessage,
   getSafeJobImportError,
+  policyBlockedPastedLinkMessage,
   publicJobLinkMessage,
   secureJobLinkMessage,
   type JobImportPreview,
   type JobImportResult,
 } from "./jobImportModel";
+import { SmartPasteFlow } from "./SmartPasteFlow";
 
 interface JobImportModalProps {
   isOpen: boolean;
@@ -44,9 +47,12 @@ export function JobImportModal({
   const [error, setError] = useState<string | null>(null);
   const [restrictedSourceAcknowledged, setRestrictedSourceAcknowledged] =
     useState(false);
+  const [smartPaste, setSmartPaste] = useState(false);
 
   const toast = useToast();
-  const needsRestrictedSourceGate = isRestrictedJobSourceUrl(url.trim());
+  const policyBlockedAutomation = isPolicyBlockedAutomationUrl(url.trim());
+  const needsRestrictedSourceGate =
+    !policyBlockedAutomation && isRestrictedJobSourceUrl(url.trim());
 
   // Reset state when modal closes
   useEffect(() => {
@@ -57,6 +63,7 @@ export function JobImportModal({
       setLoading(false);
       setImporting(false);
       setRestrictedSourceAcknowledged(false);
+      setSmartPaste(false);
     }
   }, [isOpen]);
 
@@ -64,6 +71,11 @@ export function JobImportModal({
   const handlePreview = useCallback(async () => {
     if (!url.trim()) {
       setError("Add a job link from your browser address bar.");
+      return;
+    }
+
+    if (policyBlockedAutomation) {
+      setError(policyBlockedPastedLinkMessage);
       return;
     }
 
@@ -128,7 +140,13 @@ export function JobImportModal({
     } finally {
       setLoading(false);
     }
-  }, [url, toast, needsRestrictedSourceGate, restrictedSourceAcknowledged]);
+  }, [
+    url,
+    toast,
+    policyBlockedAutomation,
+    needsRestrictedSourceGate,
+    restrictedSourceAcknowledged,
+  ]);
 
   // Import the job
   const handleImport = useCallback(async () => {
@@ -177,11 +195,19 @@ export function JobImportModal({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Import Job from Link"
+      title={smartPaste ? "Smart Paste Job" : "Import Job from Link"}
       size="lg"
       aria-labelledby="import-job-title"
       aria-describedby="import-job-description"
     >
+      {smartPaste ? (
+        <SmartPasteFlow
+          onClose={onClose}
+          onUseLink={() => setSmartPaste(false)}
+          onImportSuccess={onImportSuccess}
+        />
+      ) : (
+        <>
       <div className="space-y-4">
         {/* Description */}
         <p
@@ -192,6 +218,10 @@ export function JobImportModal({
           career site. JobSentinel will check for job details you can review
           before saving.
         </p>
+
+        <Button onClick={() => setSmartPaste(true)} variant="secondary">
+          Paste Job Details
+        </Button>
 
         {/* URL Input */}
         <div>
@@ -214,7 +244,14 @@ export function JobImportModal({
           />
         </div>
 
-        {needsRestrictedSourceGate && (
+        {policyBlockedAutomation ? (
+          <div
+            role="alert"
+            className="rounded-lg border-2 border-amber-300 bg-amber-50 p-4 text-sm leading-6 text-amber-900 dark:border-amber-700 dark:bg-amber-900/25 dark:text-amber-100"
+          >
+            {policyBlockedPastedLinkMessage}
+          </div>
+        ) : needsRestrictedSourceGate ? (
           <div className="rounded-lg border-2 border-amber-300 bg-amber-50 p-4 dark:border-amber-700 dark:bg-amber-900/25">
             <p className="mb-2 text-base font-semibold text-amber-900 dark:text-amber-100">
               Restricted source warning
@@ -238,7 +275,7 @@ export function JobImportModal({
               </span>
             </label>
           </div>
-        )}
+        ) : null}
 
         {/* Error Display */}
         {error && (
@@ -259,6 +296,7 @@ export function JobImportModal({
               disabled={
                 loading ||
                 importing ||
+                policyBlockedAutomation ||
                 (needsRestrictedSourceGate && !restrictedSourceAcknowledged)
               }
               loading={loading}
@@ -405,6 +443,8 @@ export function JobImportModal({
           </Button>
         )}
       </ModalFooter>
+        </>
+      )}
     </Modal>
   );
 }

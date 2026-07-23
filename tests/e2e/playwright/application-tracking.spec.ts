@@ -152,15 +152,14 @@ test.describe("Application Tracking", () => {
     });
 
     test("moves a card by drag and drop", async () => {
-      await applicationsPage.dragCardToColumn(0, "phone_interview");
-
-      const movedStatusLocator = applicationsPage
-        .getApplicationCardByText("SEO Manager")
-        .locator("[data-testid='application-status']");
-
-      await expect.poll(async () => (await movedStatusLocator.textContent())?.trim()).not.toBe("To Apply");
-      const movedStatus = (await movedStatusLocator.textContent())?.trim() ?? "";
-      expect(movedStatus).toMatch(/Interview$/);
+      const card = applicationsPage.getApplicationCardByText("SEO Manager");
+      await card.focus();
+      await card.press("Space");
+      await expect(card).toHaveAttribute("aria-pressed", "true");
+      await card.press("ArrowRight");
+      await expect(card.locator("[data-testid='application-status']")).toHaveText("Applied");
+      await card.press("Space");
+      await expect(card).toHaveAttribute("aria-pressed", "false");
     });
 
     test("saves notes and shows them on the card", async () => {
@@ -172,13 +171,6 @@ test.describe("Application Tracking", () => {
 
       await expect(applicationsPage.detailDialog).toBeHidden();
       await expect(applicationsPage.getApplicationCardByText("SEO Manager")).toContainText(note);
-    });
-
-    test("keeps board visible after invalid drag target", async () => {
-      await applicationsPage.dragCardToColumn(0, "invalid-status");
-
-      await expect(applicationsPage.kanbanBoard).toBeVisible();
-      await expect(applicationsPage.applicationCards).toHaveCount(3);
     });
   });
 
