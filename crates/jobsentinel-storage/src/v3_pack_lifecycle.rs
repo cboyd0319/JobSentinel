@@ -1,3 +1,5 @@
+//! Persists signed pack identity, trust, lifecycle, review, and artifact ownership.
+
 use std::{error::Error, fmt};
 
 use anyhow::{anyhow, Result};
@@ -14,9 +16,11 @@ use crate::Database;
 
 mod artifacts;
 mod lifecycle;
+mod management;
 mod transitions;
 mod types;
 
+use management::ensure_release_review;
 pub use types::*;
 
 #[derive(Debug)]
@@ -117,6 +121,7 @@ impl Database {
             if stored_digest != release.signed_release_sha256() {
                 return Err(equivocation());
             }
+            ensure_release_review(&mut transaction, release).await?;
             let stream = fetch_stream(&mut transaction, release).await?;
             transaction.commit().await?;
             return Ok(PackStageOutcome::Replay(stream));
@@ -173,6 +178,8 @@ impl Database {
         .execute(&mut *transaction)
         .await?;
 
+        ensure_release_review(&mut transaction, release).await?;
+
         let stream = fetch_stream(&mut transaction, release).await?;
         transaction.commit().await?;
         Ok(PackStageOutcome::Staged(stream))
@@ -198,7 +205,8 @@ impl Database {
         let sequence = i64::try_from(release_sequence).map_err(|_| invalid())?;
         let row = sqlx::query_as::<_, StoredPackReleaseRow>(
             "SELECT publisher_key_id, pack_id, release_sequence,
-                    signed_release_sha256, lifecycle_state, quarantine_reason
+                    signed_release_sha256, lifecycle_state, quarantine_reason,
+                    artifact_cleanup_pending
              FROM v3_pack_releases
              WHERE publisher_key_id = ? AND pack_id = ? AND release_sequence = ?",
         )

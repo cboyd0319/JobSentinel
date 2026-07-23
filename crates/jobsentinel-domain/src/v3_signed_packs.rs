@@ -1,4 +1,4 @@
-//! Strict verification for bounded, signed v3 pack releases.
+//! Strict verification for bounded, signed pack releases.
 
 use jobsentinel_security::verify_ed25519_signature;
 use serde::Deserialize;
@@ -42,6 +42,8 @@ pub struct TrustedPublisherKey {
 pub struct VerifiedPackRelease {
     pub(crate) release_id: String,
     pub(crate) pack_version: String,
+    pub(crate) minimum_app_version: String,
+    pub(crate) maximum_app_version: String,
     pub(crate) release_sequence: u64,
     pub(crate) signed_release_sha256: String,
     pub(crate) publisher_public_key_sha256: String,
@@ -50,6 +52,7 @@ pub struct VerifiedPackRelease {
     pub(crate) license: String,
     pub(crate) manifest: PackManifest,
     pub(crate) payload: String,
+    pub(crate) payload_bytes: u64,
     pub(crate) fixture_summary: String,
     pub(crate) external_destinations: Vec<String>,
     pub(crate) runtime_version: &'static str,
@@ -62,6 +65,14 @@ impl VerifiedPackRelease {
 
     pub fn pack_version(&self) -> &str {
         &self.pack_version
+    }
+
+    pub fn minimum_app_version(&self) -> &str {
+        &self.minimum_app_version
+    }
+
+    pub fn maximum_app_version(&self) -> &str {
+        &self.maximum_app_version
     }
 
     pub const fn release_sequence(&self) -> u64 {
@@ -94,6 +105,18 @@ impl VerifiedPackRelease {
 
     pub fn payload(&self) -> &str {
         &self.payload
+    }
+
+    pub const fn payload_bytes(&self) -> u64 {
+        self.payload_bytes
+    }
+
+    pub fn fixture_summary(&self) -> &str {
+        &self.fixture_summary
+    }
+
+    pub fn external_destinations(&self) -> &[String] {
+        &self.external_destinations
     }
 }
 
@@ -196,6 +219,8 @@ fn parse_verified_release(
     Ok(VerifiedPackRelease {
         release_id: release.release_id,
         pack_version: release.pack_version,
+        minimum_app_version: release.min_v3_app_version,
+        maximum_app_version: release.max_v3_app_version,
         release_sequence: release.release_sequence,
         signed_release_sha256: hex::encode(Sha256::digest(signed_release.as_bytes())),
         publisher_public_key_sha256: hex::encode(Sha256::digest(key.public_key)),
@@ -204,6 +229,7 @@ fn parse_verified_release(
         license: release.license,
         manifest,
         payload: release.payload,
+        payload_bytes: release.payload_bytes,
         fixture_summary: release.fixture_summary,
         external_destinations: release.external_destinations,
         runtime_version,

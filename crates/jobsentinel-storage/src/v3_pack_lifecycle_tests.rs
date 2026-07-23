@@ -1,3 +1,5 @@
+//! Exercises signed pack staging, lifecycle, recovery, integrity, and management state.
+
 use chrono::NaiveDate;
 use jobsentinel_domain::{
     v3_contracts::SchemaId,
@@ -130,5 +132,6 @@ fn valid_source_payload() -> String {
 
 mod artifacts;
 mod lifecycle;
+mod management;
 mod recovery;
 mod staging;

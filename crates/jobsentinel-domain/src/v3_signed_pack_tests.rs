@@ -1,3 +1,5 @@
+//! Proves signed pack verification, compatibility, authority, and bounded metadata.
+
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
 
@@ -128,6 +130,14 @@ fn valid_signed_release_is_verified_before_any_pack_data_is_exposed() {
         hex::encode(Sha256::digest(agent_key().public_key))
     );
     assert_eq!(verified.runtime_version, "3.0.0");
+    assert_eq!(verified.minimum_app_version(), "3.0.0");
+    assert_eq!(verified.maximum_app_version(), "3.0.0");
+    assert_eq!(verified.payload_bytes(), 48);
+    assert_eq!(
+        verified.fixture_summary(),
+        "One deterministic local note fixture."
+    );
+    assert!(verified.external_destinations().is_empty());
     assert_eq!(verified.manifest.pack_id, PACK_ID);
 }
 

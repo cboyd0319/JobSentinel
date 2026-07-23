@@ -1,3 +1,5 @@
+//! Proves signed pack artifact staging, activation, rollback, disable, and removal.
+
 use super::*;
 
 #[tokio::test]
@@ -22,10 +24,18 @@ async fn verified_artifact_is_privately_persisted_for_review_without_activation(
     assert_eq!(review.license, "MIT");
     assert_eq!(review.pack_id, PACK_ID);
     assert_eq!(review.release_sequence, 1);
+    assert_eq!(review.execution_class, PackExecutionClass::StaticContent);
+    assert_eq!(review.minimum_app_version, "3.0.0");
+    assert_eq!(review.maximum_app_version, "3.0.0");
+    assert_eq!(review.fixture_summary, "Synthetic source fixtures");
+    assert!(review.payload_bytes > 0);
     assert_eq!(review.state, PackReviewState::NeedsReview);
     assert_eq!(review.generation, 2);
     assert!(review.allowed_data_categories.is_empty());
+    assert!(review.allowed_task_kinds.is_empty());
     assert!(review.allowed_actions.is_empty());
+    assert!(review.gateway_policy_id.is_none());
+    assert!(review.external_destinations.is_empty());
     assert!(!review.uses_external_ai);
     let stream = database
         .get_pack_stream(PUBLISHER_ID, PACK_ID)

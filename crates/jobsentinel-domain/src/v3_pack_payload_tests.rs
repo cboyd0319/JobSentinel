@@ -1,3 +1,5 @@
+//! Proves typed pack payload self-tests, bounds, and signed-manifest agreement.
+
 use chrono::NaiveDate;
 use serde_json::json;
 use sha2::{Digest, Sha256};
@@ -103,6 +105,8 @@ fn release(payload: String, pack_type: PackType) -> VerifiedPackRelease {
     VerifiedPackRelease {
         release_id: "jobsentinel-test-source-v1:jobsentinel.test.synthetic-source:1".to_string(),
         pack_version: "1.0.0".to_string(),
+        minimum_app_version: "3.0.0".to_string(),
+        maximum_app_version: "3.0.0".to_string(),
         release_sequence: 1,
         signed_release_sha256: hex::encode(Sha256::digest(payload.as_bytes())),
         publisher_public_key_sha256: hex::encode(Sha256::digest([7; 32])),
@@ -110,6 +114,7 @@ fn release(payload: String, pack_type: PackType) -> VerifiedPackRelease {
         publisher_name: "JobSentinel Test".to_string(),
         license: "MIT".to_string(),
         manifest,
+        payload_bytes: payload.len() as u64,
         payload,
         fixture_summary: "Three deterministic source fixtures.".to_string(),
         external_destinations: vec![],
@@ -138,6 +143,8 @@ fn evidence_release(payload: String) -> VerifiedPackRelease {
     VerifiedPackRelease {
         release_id: "jobsentinel-test-agent-v1:jobsentinel.test.evidence-review:1".to_string(),
         pack_version: "1.0.0".to_string(),
+        minimum_app_version: "3.0.0".to_string(),
+        maximum_app_version: "3.0.0".to_string(),
         release_sequence: 1,
         signed_release_sha256: hex::encode(Sha256::digest(payload.as_bytes())),
         publisher_public_key_sha256: hex::encode(Sha256::digest([7; 32])),
@@ -145,6 +152,7 @@ fn evidence_release(payload: String) -> VerifiedPackRelease {
         publisher_name: "JobSentinel Test".to_string(),
         license: "MIT".to_string(),
         manifest,
+        payload_bytes: payload.len() as u64,
         payload,
         fixture_summary: "One deterministic evidence-review plan.".to_string(),
         external_destinations: vec![],
@@ -348,6 +356,8 @@ fn evaluation_pack_self_test_reuses_the_synthetic_local_evaluation_contract() {
             release_id: "jobsentinel-test-eval-v1:jobsentinel.eval.synthetic-baseline:1"
                 .to_string(),
             pack_version: "1.0.0".to_string(),
+            minimum_app_version: "3.0.0".to_string(),
+            maximum_app_version: "3.0.0".to_string(),
             release_sequence: 1,
             signed_release_sha256: hex::encode(Sha256::digest(payload.as_bytes())),
             publisher_public_key_sha256: hex::encode(Sha256::digest([7; 32])),
@@ -355,6 +365,7 @@ fn evaluation_pack_self_test_reuses_the_synthetic_local_evaluation_contract() {
             publisher_name: "JobSentinel Test".to_string(),
             license: "MIT".to_string(),
             manifest,
+            payload_bytes: payload.len() as u64,
             payload,
             fixture_summary: "Complete synthetic v3 evaluation set.".to_string(),
             external_destinations: vec![],

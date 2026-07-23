@@ -112,7 +112,8 @@ async fn revoked_or_removed_pack_refuses_start() {
     .await
     .unwrap();
     sqlx::query(
-        "UPDATE v3_pack_releases SET lifecycle_state = 'removed', updated_at = ?
+        "UPDATE v3_pack_releases
+         SET lifecycle_state = 'removed', artifact_cleanup_pending = 1, updated_at = ?
          WHERE publisher_key_id = 'publisher-1' AND pack_id = 'pack-1'",
     )
     .bind(Utc::now().to_rfc3339())
@@ -144,6 +145,7 @@ async fn rollback_replacing_the_active_release_refuses_start() {
     .execute(database.pool())
     .await
     .unwrap();
+    insert_review(database.pool(), 2).await;
     sqlx::query(
         "UPDATE v3_pack_releases SET lifecycle_state = 'self_tested', self_tested_at = ?, updated_at = ?
          WHERE publisher_key_id = 'publisher-1' AND pack_id = 'pack-1' AND release_sequence = 2",
@@ -358,6 +360,7 @@ async fn ready_context(pool: &SqlitePool) -> crate::pack_tasks::PackTaskContext 
     .execute(pool)
     .await
     .unwrap();
+    insert_review(pool, 1).await;
     sqlx::query(
         "UPDATE v3_pack_releases SET lifecycle_state = 'self_tested', self_tested_at = ?, updated_at = ?
          WHERE publisher_key_id = 'publisher-1' AND pack_id = 'pack-1'",
@@ -400,6 +403,28 @@ async fn ready_context(pool: &SqlitePool) -> crate::pack_tasks::PackTaskContext 
         created_at: Utc::now(),
         expires_at: Utc::now() + Duration::minutes(5),
     }
+}
+
+async fn insert_review(pool: &SqlitePool, release_sequence: i64) {
+    sqlx::query(
+        r#"INSERT INTO pack_release_reviews (
+            publisher_key_id, pack_id, release_sequence, publisher_name,
+            license, minimum_app_version, maximum_app_version, payload_bytes,
+            fixture_summary, privacy_labels_json, data_categories_json,
+            task_kinds_json, actions_json, approval_gates_json,
+            gateway_policy_id, external_destinations_json
+         ) VALUES (
+            'publisher-1', 'pack-1', ?, 'Publisher', 'MIT', '3.0.0',
+            '3.0.0', 1, 'Reviewed task fixture', '["local_only","sensitive"]',
+            '["resume_evidence"]', '["evidence_review"]',
+            '["read_selected_resume_evidence","write_local_event"]',
+            '["per_execution_review"]', NULL, '[]'
+         )"#,
+    )
+    .bind(release_sequence)
+    .execute(pool)
+    .await
+    .unwrap();
 }
 
 fn local_receipt(context: &crate::pack_tasks::PackTaskContext) -> PrivacyReceipt {

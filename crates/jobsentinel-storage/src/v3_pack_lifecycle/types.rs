@@ -1,4 +1,10 @@
+//! Defines typed pack lifecycle, release-history, and management records.
+
 use anyhow::Result;
+use jobsentinel_domain::v3_manifests::{
+    AgentTaskKind, ApprovalGate, DataCategory, PackAction, PackExecutionClass, PackType,
+    PrivacyLabel,
+};
 use sqlx::FromRow;
 
 use super::corrupt;
@@ -20,6 +26,43 @@ pub struct PackStream {
     pub rollback_release_sequence: Option<u64>,
     pub availability: PackAvailability,
     pub generation: u64,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct PackManagementStream {
+    pub publisher_key_id: String,
+    pub pack_id: String,
+    pub high_water_sequence: u64,
+    pub active_release_sequence: Option<u64>,
+    pub rollback_release_sequence: Option<u64>,
+    pub availability: PackAvailability,
+    pub generation: u64,
+    pub cleanup_pending: bool,
+    pub releases: Vec<PackManagementRelease>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct PackManagementRelease {
+    pub release_sequence: u64,
+    pub pack_version: String,
+    pub pack_type: PackType,
+    pub execution_class: PackExecutionClass,
+    pub lifecycle_state: PackReleaseState,
+    pub quarantine_reason: Option<PackQuarantineReason>,
+    pub artifact_cleanup_pending: bool,
+    pub publisher_name: String,
+    pub license: String,
+    pub minimum_app_version: String,
+    pub maximum_app_version: String,
+    pub payload_bytes: u64,
+    pub fixture_summary: String,
+    pub privacy_labels: Vec<PrivacyLabel>,
+    pub allowed_data_categories: Vec<DataCategory>,
+    pub allowed_task_kinds: Vec<AgentTaskKind>,
+    pub allowed_actions: Vec<PackAction>,
+    pub approval_gates: Vec<ApprovalGate>,
+    pub gateway_policy_id: Option<String>,
+    pub external_destinations: Vec<String>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -48,6 +91,7 @@ pub struct StoredPackRelease {
     pub signed_release_sha256: String,
     pub lifecycle_state: PackReleaseState,
     pub quarantine_reason: Option<PackQuarantineReason>,
+    pub artifact_cleanup_pending: bool,
 }
 
 #[derive(FromRow)]
@@ -58,6 +102,7 @@ pub(super) struct StoredPackReleaseRow {
     pub(super) signed_release_sha256: String,
     pub(super) lifecycle_state: String,
     pub(super) quarantine_reason: Option<String>,
+    pub(super) artifact_cleanup_pending: bool,
 }
 
 impl TryFrom<StoredPackReleaseRow> for StoredPackRelease {
@@ -75,6 +120,7 @@ impl TryFrom<StoredPackReleaseRow> for StoredPackRelease {
                 .as_deref()
                 .map(pack_quarantine_reason)
                 .transpose()?,
+            artifact_cleanup_pending: row.artifact_cleanup_pending,
         })
     }
 }

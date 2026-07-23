@@ -320,6 +320,10 @@ async fn require_exact_ready_pack(
              AND release.release_sequence = stream.active_release_sequence
             JOIN v3_pack_publishers AS publisher
               ON publisher.publisher_key_id = stream.publisher_key_id
+            JOIN pack_release_reviews AS review
+              ON review.publisher_key_id = release.publisher_key_id
+             AND review.pack_id = release.pack_id
+             AND review.release_sequence = release.release_sequence
             WHERE stream.publisher_key_id = ? AND stream.pack_id = ?
               AND stream.generation = ? AND stream.availability = 'ready'
               AND stream.active_release_sequence = ?

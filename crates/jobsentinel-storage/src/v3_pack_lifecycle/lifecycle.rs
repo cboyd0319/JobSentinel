@@ -1,3 +1,5 @@
+//! Applies generation-guarded pack state changes and release cleanup transitions.
+
 use super::*;
 
 impl Database {
@@ -6,8 +8,14 @@ impl Database {
             "SELECT publisher_key_id, pack_id, high_water_sequence,
                     active_release_sequence, rollback_release_sequence,
                     availability, generation
-             FROM v3_pack_streams
+             FROM v3_pack_streams AS stream
              WHERE availability IN ('ready', 'disabled')
+               AND EXISTS (
+                   SELECT 1 FROM pack_release_reviews AS review
+                   WHERE review.publisher_key_id = stream.publisher_key_id
+                     AND review.pack_id = stream.pack_id
+                     AND review.release_sequence = stream.active_release_sequence
+               )
              ORDER BY publisher_key_id, pack_id",
         )
         .fetch_all(self.pool())
@@ -24,7 +32,8 @@ impl Database {
     ) -> Result<Vec<StoredPackRelease>> {
         sqlx::query_as::<_, StoredPackReleaseRow>(
             "SELECT publisher_key_id, pack_id, release_sequence,
-                    signed_release_sha256, lifecycle_state, quarantine_reason
+                    signed_release_sha256, lifecycle_state, quarantine_reason,
+                    artifact_cleanup_pending
              FROM v3_pack_releases
              WHERE publisher_key_id = ? AND pack_id = ?
              ORDER BY release_sequence",
@@ -126,7 +135,9 @@ impl Database {
             .await?);
         }
         sqlx::query(
-            "UPDATE v3_pack_releases SET lifecycle_state = 'removed', updated_at = ?
+            "UPDATE v3_pack_releases
+             SET lifecycle_state = 'removed', artifact_cleanup_pending = 1,
+                 updated_at = ?
              WHERE publisher_key_id = ? AND pack_id = ?
                AND lifecycle_state <> 'removed'",
         )
@@ -138,6 +149,45 @@ impl Database {
         let stream = fetch_stream_by_id(&mut transaction, publisher_key_id, pack_id).await?;
         transaction.commit().await?;
         Ok(stream)
+    }
+
+    pub async fn complete_pack_release_cleanup(&self, release: &StoredPackRelease) -> Result<()> {
+        let sequence = i64::try_from(release.release_sequence).map_err(|_| invalid())?;
+        let updated = sqlx::query(
+            "UPDATE v3_pack_releases
+             SET artifact_cleanup_pending = 0, updated_at = ?
+             WHERE publisher_key_id = ? AND pack_id = ? AND release_sequence = ?
+               AND signed_release_sha256 = ? AND lifecycle_state = 'removed'
+               AND artifact_cleanup_pending = 1",
+        )
+        .bind(Utc::now().to_rfc3339())
+        .bind(&release.publisher_key_id)
+        .bind(&release.pack_id)
+        .bind(sequence)
+        .bind(&release.signed_release_sha256)
+        .execute(self.pool())
+        .await?;
+        if updated.rows_affected() == 1
+            || sqlx::query_scalar::<_, bool>(
+                "SELECT EXISTS(
+                    SELECT 1 FROM v3_pack_releases
+                    WHERE publisher_key_id = ? AND pack_id = ?
+                      AND release_sequence = ? AND signed_release_sha256 = ?
+                      AND lifecycle_state = 'removed'
+                      AND artifact_cleanup_pending = 0
+                )",
+            )
+            .bind(&release.publisher_key_id)
+            .bind(&release.pack_id)
+            .bind(sequence)
+            .bind(&release.signed_release_sha256)
+            .fetch_one(self.pool())
+            .await?
+        {
+            Ok(())
+        } else {
+            Err(invalid_state())
+        }
     }
 
     pub async fn reconcile_interrupted_pack_lifecycle(&self) -> Result<u64> {

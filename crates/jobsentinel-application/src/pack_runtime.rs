@@ -5,18 +5,24 @@ use std::path::Path;
 use anyhow::{anyhow, Result};
 use chrono::NaiveDate;
 use jobsentinel_domain::{
-    v3_manifests::{ApprovalGate, DataCategory, PackAction, PackType, PrivacyLabel},
+    v3_manifests::{
+        AgentTaskKind, ApprovalGate, DataCategory, PackAction, PackExecutionClass, PackType,
+        PrivacyLabel,
+    },
     v3_pack_payloads::parse_and_self_test_pack_payload,
     v3_signed_packs::{TrustedPublisherKey, VerifiedPackRelease},
 };
 use jobsentinel_storage::{
-    v3_pack_lifecycle::{PackAvailability, PackStageOutcome, PackStream},
+    v3_pack_lifecycle::{
+        PackAvailability, PackReleaseState, PackStageOutcome, PackStream, StoredPackRelease,
+    },
     Database,
 };
 use serde::Serialize;
 
 mod artifact;
 mod execution;
+mod management;
 mod recovery;
 
 use artifact::{load_tested_artifact, persist_artifact, remove_owned_artifact, ArtifactLoadError};
@@ -25,6 +31,10 @@ pub use execution::{
     prepare_draft_packet_task, prepare_evidence_review_task, DraftApplicationPacket,
     DraftPacketTaskResult, DraftPacketTaskReview, EvidenceReviewTaskResult, PackTaskReview,
     PackTaskReviewStep,
+};
+pub use management::{
+    list_pack_management_reviews, PackManagementReleaseReview, PackManagementReview,
+    PackReleaseReviewState, PackReviewQuarantineReason,
 };
 pub use recovery::{reconcile_active_pack_artifacts, PackArtifactReconciliation};
 
@@ -47,11 +57,19 @@ pub struct PackInstallReview {
     pub pack_id: String,
     pub pack_version: String,
     pub pack_type: PackType,
+    pub execution_class: PackExecutionClass,
     pub release_sequence: u64,
+    pub minimum_app_version: String,
+    pub maximum_app_version: String,
+    pub payload_bytes: u64,
+    pub fixture_summary: String,
     pub privacy_labels: Vec<PrivacyLabel>,
     pub allowed_data_categories: Vec<DataCategory>,
+    pub allowed_task_kinds: Vec<AgentTaskKind>,
     pub allowed_actions: Vec<PackAction>,
     pub approval_gates: Vec<ApprovalGate>,
+    pub gateway_policy_id: Option<String>,
+    pub external_destinations: Vec<String>,
     pub uses_external_ai: bool,
     pub state: PackReviewState,
     pub generation: u64,
@@ -245,9 +263,6 @@ pub async fn uninstall_pack_artifacts(
     pack_id: &str,
     expected_generation: u64,
 ) -> Result<PackArtifactRemoval> {
-    let releases = database
-        .list_stored_pack_releases(publisher_key_id, pack_id)
-        .await?;
     let stream = database.get_pack_stream(publisher_key_id, pack_id).await?;
     let removed = if stream.availability == PackAvailability::Removed
         && stream.generation == expected_generation
@@ -258,13 +273,74 @@ pub async fn uninstall_pack_artifacts(
             .uninstall_pack(publisher_key_id, pack_id, expected_generation)
             .await?
     };
-    let cleanup_pending = releases
-        .iter()
-        .any(|release| remove_owned_artifact(artifact_root, release).is_err());
+    let releases = database
+        .list_stored_pack_releases(publisher_key_id, pack_id)
+        .await?;
+    let cleanup_pending = cleanup_removed_pack_artifacts(
+        database,
+        artifact_root,
+        publisher_key_id,
+        pack_id,
+        &releases,
+    )
+    .await?;
     Ok(PackArtifactRemoval {
         generation: removed.generation,
         cleanup_pending,
     })
+}
+
+pub async fn retry_pack_artifact_cleanup(
+    database: &Database,
+    artifact_root: &Path,
+    publisher_key_id: &str,
+    pack_id: &str,
+) -> Result<PackArtifactRemoval> {
+    let releases = database
+        .list_stored_pack_releases(publisher_key_id, pack_id)
+        .await?;
+    let cleanup_pending = cleanup_removed_pack_artifacts(
+        database,
+        artifact_root,
+        publisher_key_id,
+        pack_id,
+        &releases,
+    )
+    .await?;
+    Ok(PackArtifactRemoval {
+        generation: database
+            .get_pack_stream(publisher_key_id, pack_id)
+            .await?
+            .generation,
+        cleanup_pending,
+    })
+}
+
+async fn cleanup_removed_pack_artifacts(
+    database: &Database,
+    artifact_root: &Path,
+    publisher_key_id: &str,
+    pack_id: &str,
+    releases: &[StoredPackRelease],
+) -> Result<bool> {
+    let mut completion_error = None;
+    for release in releases.iter().filter(|release| {
+        release.lifecycle_state == PackReleaseState::Removed && release.artifact_cleanup_pending
+    }) {
+        if remove_owned_artifact(artifact_root, release).is_ok() {
+            if let Err(error) = database.complete_pack_release_cleanup(release).await {
+                completion_error.get_or_insert(error);
+            }
+        }
+    }
+    if let Some(error) = completion_error {
+        return Err(error);
+    }
+    Ok(database
+        .list_stored_pack_releases(publisher_key_id, pack_id)
+        .await?
+        .iter()
+        .any(|release| release.artifact_cleanup_pending))
 }
 
 fn review(
@@ -280,11 +356,19 @@ fn review(
         pack_id: manifest.pack_id.clone(),
         pack_version: release.pack_version().to_string(),
         pack_type: manifest.pack_type,
+        execution_class: manifest.execution_class,
         release_sequence: release.release_sequence(),
+        minimum_app_version: release.minimum_app_version().to_string(),
+        maximum_app_version: release.maximum_app_version().to_string(),
+        payload_bytes: release.payload_bytes(),
+        fixture_summary: release.fixture_summary().to_string(),
         privacy_labels: manifest.privacy_labels.clone(),
         allowed_data_categories: manifest.allowed_data_categories.clone(),
+        allowed_task_kinds: manifest.allowed_task_kinds.clone(),
         allowed_actions: manifest.allowed_actions.clone(),
         approval_gates: manifest.approval_gates.clone(),
+        gateway_policy_id: manifest.gateway_policy_id.clone(),
+        external_destinations: release.external_destinations().to_vec(),
         uses_external_ai: manifest
             .allowed_actions
             .contains(&PackAction::RequestExternalAi),
