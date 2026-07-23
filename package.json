@@ -24,6 +24,7 @@
     "lint:security": "node scripts/checks/security-sensors.mjs && npm run lint:secrets",
     "lint:secrets": "node scripts/checks/secrets.mjs",
     "lint:bloat": "node scripts/checks/repo-bloat.mjs",
+    "lint:file-description": "node scripts/harness/checks/file-descriptions.mjs",
     "lint:file-size": "node scripts/checks/file-sizes.mjs",
     "lint:dup": "node scripts/checks/duplication.mjs",
     "lint:external-ai": "node scripts/checks/external-ai-gateway.mjs",
