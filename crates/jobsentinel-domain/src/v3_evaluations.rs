@@ -1,4 +1,9 @@
-use std::collections::BTreeSet;
+//! Validates synthetic evaluation sets and runs their exact local assertion oracles.
+
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    fmt,
+};
 
 use serde::Deserialize;
 
@@ -18,6 +23,7 @@ use crate::v3_evaluation_inputs::EvaluationInput;
 
 const SCHEMA: &str = "jobsentinel.v3.evaluation-set";
 const SCHEMA_VERSION: u32 = 1;
+const MAX_REVISION_BYTES: usize = 128;
 
 #[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq)]
 #[serde(rename_all = "snake_case")]
@@ -100,6 +106,20 @@ pub struct V3EvaluationSet {
     pub cases: Vec<V3EvaluationCase>,
 }
 
+pub struct EvaluationScorer {
+    evaluation: V3EvaluationSet,
+}
+
+impl fmt::Debug for EvaluationScorer {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        formatter
+            .debug_struct("EvaluationScorer")
+            .field("revision", &self.evaluation.revision)
+            .field("case_count", &self.evaluation.cases.len())
+            .finish()
+    }
+}
+
 pub fn parse_v3_evaluation_set(input: &str) -> Result<V3EvaluationSet, String> {
     let set: V3EvaluationSet =
         serde_json::from_str(input).map_err(|error| format!("invalid evaluation set: {error}"))?;
@@ -118,7 +138,7 @@ impl V3EvaluationSet {
                 self.schema_version
             ));
         }
-        if self.revision.trim().is_empty() || self.data_origin != "synthetic" {
+        if !is_revision(&self.revision) || self.data_origin != "synthetic" {
             return Err("M1 evaluation data must be revisioned and synthetic".to_string());
         }
         if self.contains_personal_data {
@@ -156,6 +176,51 @@ impl V3EvaluationSet {
             );
         }
         Ok(())
+    }
+}
+
+fn is_revision(value: &str) -> bool {
+    !value.is_empty()
+        && value.len() <= MAX_REVISION_BYTES
+        && value
+            .bytes()
+            .all(|byte| byte.is_ascii_alphanumeric() || matches!(byte, b'-' | b'.' | b'_' | b':'))
+}
+
+impl EvaluationScorer {
+    pub(crate) const fn new(evaluation: V3EvaluationSet) -> Self {
+        Self { evaluation }
+    }
+
+    pub fn revision(&self) -> &str {
+        &self.evaluation.revision
+    }
+
+    pub fn case_count(&self) -> usize {
+        self.evaluation.cases.len()
+    }
+
+    /// Score one exact observation set per case without exposing fixture content.
+    pub fn score_observations(
+        &self,
+        observations: &BTreeMap<String, Vec<EvaluationAssertion>>,
+    ) -> Result<BTreeMap<String, bool>, String> {
+        self.evaluation.validate()?;
+        if observations.len() != self.evaluation.cases.len()
+            || self
+                .evaluation
+                .cases
+                .iter()
+                .any(|case| !observations.contains_key(&case.id))
+        {
+            return Err("evaluation observations must cover every case exactly".to_string());
+        }
+        Ok(self
+            .evaluation
+            .cases
+            .iter()
+            .map(|case| (case.id.clone(), case.evaluate(&observations[&case.id])))
+            .collect())
     }
 }
 

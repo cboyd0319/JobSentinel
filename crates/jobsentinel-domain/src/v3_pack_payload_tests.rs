@@ -1,11 +1,14 @@
 //! Proves typed pack payload self-tests, bounds, and signed-manifest agreement.
 
+use std::collections::BTreeMap;
+
 use chrono::NaiveDate;
 use serde_json::json;
 use sha2::{Digest, Sha256};
 
 use crate::{
     v3_contracts::SchemaId,
+    v3_evaluations::parse_v3_evaluation_set,
     v3_foundation::SourceAccess,
     v3_manifests::{
         AgentTaskKind, ApprovalGate, DataCategory, PackAction, PackExecutionClass, PackManifest,
@@ -330,7 +333,7 @@ fn reviewed_workflow_rejects_host_install_escalation_and_injected_plan_copy() {
 }
 
 #[test]
-fn evaluation_pack_self_test_reuses_the_synthetic_local_evaluation_contract() {
+fn evaluation_pack_self_test_retains_an_opaque_local_observation_scorer() {
     let payload = serde_json::to_string(&json!({
         "schema": "jobsentinel.v3.pack-payload.v1",
         "pack_type": "evaluation",
@@ -376,15 +379,39 @@ fn evaluation_pack_self_test_reuses_the_synthetic_local_evaluation_contract() {
     .unwrap()
     .into_payload();
 
-    let SelfTestedPackPayload::Evaluation {
-        revision,
-        case_count,
-    } = tested
-    else {
+    assert!(!format!("{tested:?}").contains("production Rust experience"));
+    let SelfTestedPackPayload::Evaluation { scorer } = tested else {
         panic!("evaluation payload must remain synthetic evaluation content");
     };
-    assert_eq!(revision, "v3.m1.synthetic-baseline.1");
-    assert_eq!(case_count, 12);
+    assert_eq!(scorer.revision(), "v3.m1.synthetic-baseline.1");
+    assert_eq!(scorer.case_count(), 12);
+
+    let evaluation = parse_v3_evaluation_set(EVALUATION_SET).unwrap();
+    let observations = evaluation
+        .cases
+        .iter()
+        .map(|case| (case.id.clone(), case.oracle.required_assertions().to_vec()))
+        .collect::<BTreeMap<_, _>>();
+    let passing = scorer.score_observations(&observations).unwrap();
+    assert_eq!(passing.len(), 12);
+    assert!(passing.values().all(|passed| *passed));
+
+    let mut failing = observations.clone();
+    let first = &evaluation.cases[0];
+    failing.insert(
+        first.id.clone(),
+        first.oracle.forbidden_assertions().to_vec(),
+    );
+    let failed = scorer.score_observations(&failing).unwrap();
+    assert_eq!(failed.get(&first.id), Some(&false));
+    assert_eq!(failed.values().filter(|passed| !**passed).count(), 1);
+
+    failing.remove(&first.id);
+    assert!(scorer.score_observations(&failing).is_err());
+
+    let mut extra = observations;
+    extra.insert("unknown-case".to_string(), vec![]);
+    assert!(scorer.score_observations(&extra).is_err());
 }
 
 #[test]
@@ -393,8 +420,10 @@ fn evaluation_pack_rejects_personal_or_partial_fixture_sets() {
     personal["contains_personal_data"] = json!(true);
     let mut partial: serde_json::Value = serde_json::from_str(EVALUATION_SET).unwrap();
     partial["cases"].as_array_mut().unwrap().pop();
+    let mut fixture_in_revision: serde_json::Value = serde_json::from_str(EVALUATION_SET).unwrap();
+    fixture_in_revision["revision"] = json!("production Rust experience");
 
-    for evaluation in [personal, partial] {
+    for evaluation in [personal, partial, fixture_in_revision] {
         let payload = serde_json::to_string(&json!({
             "schema": "jobsentinel.v3.pack-payload.v1",
             "pack_type": "evaluation",

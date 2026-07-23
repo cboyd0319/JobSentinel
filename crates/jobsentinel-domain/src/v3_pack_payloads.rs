@@ -7,7 +7,7 @@ use jobsentinel_security::{
 use serde::Deserialize;
 
 use crate::{
-    v3_evaluations::parse_v3_evaluation_set,
+    v3_evaluations::{parse_v3_evaluation_set, EvaluationScorer},
     v3_foundation::{SourceAccess, SourcePolicy},
     v3_manifests::{
         AgentTask, AgentTaskKind, ApprovalGate, DataCategory, PackAction, PackExecutionClass,
@@ -58,8 +58,7 @@ pub enum SelfTestedPackPayload {
         handoff: Option<SkillHandoff>,
     },
     Evaluation {
-        revision: String,
-        case_count: usize,
+        scorer: EvaluationScorer,
     },
 }
 
@@ -210,8 +209,7 @@ fn self_test_evaluation(
     let evaluation = parse_v3_evaluation_set(&payload.evaluation_set_json)
         .map_err(|_| "evaluation pack self-test failed".to_string())?;
     Ok(SelfTestedPackPayload::Evaluation {
-        revision: evaluation.revision,
-        case_count: evaluation.cases.len(),
+        scorer: EvaluationScorer::new(evaluation),
     })
 }
 
