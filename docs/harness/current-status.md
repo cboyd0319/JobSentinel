@@ -43,11 +43,14 @@ Last updated: 2026-07-22
 - Status: `active`
 - Current slice: Signed pack persistence, lifecycle, cleanup, reviewed execution, and immutable management facts are
   implemented behind caller-owned runtime inputs. A read-only Settings view now shows current and pending permissions,
-  retained history, quarantine, cleanup, and safe load failures through a fail-closed renderer decoder. It adds no pack
-  lifecycle or execution authority. Startup reconciliation is tested but not wired to production.
+  retained history, quarantine, cleanup, and safe load failures through a fail-closed renderer decoder. Self-tested
+  evaluation packs retain their complete synthetic set behind a private local scorer that accepts exact observation
+  coverage and returns only per-case pass or fail results. These paths add no pack lifecycle or product-target execution
+  authority. Startup reconciliation is tested but not wired to production.
 - Next action: Approve publisher ceilings and the v3.0.0 runtime cut. Then bind the production artifact root and
   startup.
-  Finish source-pack drop, lifecycle controls, reviewed local execution, and live platform proof.
+  Finish source-pack drop, lifecycle controls, product-target evaluation and reviewed local execution, and live
+  platform proof.
 
 ## Deferred
 
