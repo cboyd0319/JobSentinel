@@ -25,6 +25,12 @@ use crate::v3_foundation::{prepare_saved_match_debugger, SavedMatchDebugger};
 
 use super::{artifact::ArtifactLoadError, load_tested_artifact};
 
+mod packet;
+pub use packet::{
+    execute_draft_packet_task, prepare_draft_packet_task, DraftApplicationPacket,
+    DraftPacketTaskResult, DraftPacketTaskReview,
+};
+
 const REVIEW_LIFETIME_MINUTES: i64 = 5;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
@@ -55,13 +61,13 @@ pub struct EvidenceReviewTaskResult {
     pub receipt_id: String,
 }
 
-struct ActiveEvidenceTask {
-    task: AgentTask,
-    plan: Vec<PackTaskReviewStep>,
-    failure_message: String,
-    release_sequence: u64,
-    signed_release_sha256: String,
-    stream_generation: u64,
+pub(super) struct ActiveReviewedTask {
+    pub(super) task: AgentTask,
+    pub(super) plan: Vec<PackTaskReviewStep>,
+    pub(super) failure_message: String,
+    pub(super) release_sequence: u64,
+    pub(super) signed_release_sha256: String,
+    pub(super) stream_generation: u64,
 }
 
 pub async fn cancel_reviewed_pack_task(database: &Database, run_id: &str) -> Result<()> {
@@ -81,7 +87,7 @@ pub async fn prepare_evidence_review_task(
     job_hash: &str,
     resume_id: i64,
 ) -> Result<PackTaskReview> {
-    let active = load_active_evidence_task(
+    let active = load_active_reviewed_task(
         database,
         artifact_root,
         publisher_key_id,
@@ -89,6 +95,7 @@ pub async fn prepare_evidence_review_task(
         expected_generation,
         trusted_publishers,
         today,
+        AgentTaskKind::EvidenceReview,
     )
     .await?;
     let review = prepare_saved_match_debugger(database, job_hash, resume_id)
@@ -148,7 +155,7 @@ pub async fn execute_evidence_review_task(
             "pack task approval is invalid or no longer pending"
         ));
     }
-    let active = load_active_evidence_task(
+    let active = load_active_reviewed_task(
         database,
         artifact_root,
         &run.context.publisher_key_id,
@@ -156,6 +163,7 @@ pub async fn execute_evidence_review_task(
         run.context.stream_generation,
         trusted_publishers,
         today,
+        AgentTaskKind::EvidenceReview,
     )
     .await?;
     if !matches_context(&run.context, &active) {
@@ -201,7 +209,7 @@ pub async fn execute_evidence_review_task(
                 .to_string(),
     };
     if database
-        .complete_evidence_review(run_id, &receipt, job_hash)
+        .complete_reviewed_pack_task(run_id, &receipt, job_hash, None)
         .await
         .is_err()
     {
@@ -210,7 +218,7 @@ pub async fn execute_evidence_review_task(
     Ok(result)
 }
 
-async fn load_active_evidence_task(
+pub(super) async fn load_active_reviewed_task(
     database: &Database,
     artifact_root: &Path,
     publisher_key_id: &str,
@@ -218,7 +226,8 @@ async fn load_active_evidence_task(
     expected_generation: u64,
     trusted_publishers: &[TrustedPublisherKey],
     today: NaiveDate,
-) -> Result<ActiveEvidenceTask> {
+    expected_kind: AgentTaskKind,
+) -> Result<ActiveReviewedTask> {
     let stream = database.get_pack_stream(publisher_key_id, pack_id).await?;
     if stream.publisher_key_id != publisher_key_id
         || stream.pack_id != pack_id
@@ -257,10 +266,10 @@ async fn load_active_evidence_task(
     else {
         return Err(anyhow!("pack does not contain a reviewed task"));
     };
-    if task.kind != AgentTaskKind::EvidenceReview {
+    if task.kind != expected_kind {
         return Err(anyhow!("pack task kind is not supported by this operation"));
     }
-    Ok(ActiveEvidenceTask {
+    Ok(ActiveReviewedTask {
         task,
         plan: review_steps(plan),
         failure_message,
@@ -279,7 +288,7 @@ fn review_steps(plan: Vec<ReviewedTaskPlanStep>) -> Vec<PackTaskReviewStep> {
         .collect()
 }
 
-fn matches_context(context: &PackTaskContext, active: &ActiveEvidenceTask) -> bool {
+pub(super) fn matches_context(context: &PackTaskContext, active: &ActiveReviewedTask) -> bool {
     context.release_sequence == active.release_sequence
         && context.signed_release_sha256 == active.signed_release_sha256
         && context.stream_generation == active.stream_generation
@@ -304,7 +313,7 @@ fn evidence_input_sha256(
     Ok(hex::encode(digest.finalize()))
 }
 
-async fn fail<T>(database: &Database, run_id: &str, message: &str) -> Result<T> {
+pub(super) async fn fail<T>(database: &Database, run_id: &str, message: &str) -> Result<T> {
     database.fail_pack_task(run_id).await?;
     Err(anyhow!(message.to_string()))
 }

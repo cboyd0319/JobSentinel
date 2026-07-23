@@ -11,8 +11,11 @@ use uuid::Uuid;
 
 use crate::{v3_foundation::enum_text, Database};
 
+mod input_guard;
 mod types;
 
+use input_guard::guard_matches_current;
+pub use input_guard::DraftPacketInputGuard;
 use types::{
     canonical_json, invalid, task_kind_text, time_text, validate_context, validate_identifier,
     PackTaskRow,
@@ -130,11 +133,12 @@ impl Database {
         Ok(run)
     }
 
-    pub async fn complete_evidence_review(
+    pub async fn complete_reviewed_pack_task(
         &self,
         run_id: &str,
         receipt: &PrivacyReceipt,
         job_hash: &str,
+        draft_packet_guard: Option<&DraftPacketInputGuard>,
     ) -> Result<PackTaskRun> {
         validate_identifier(run_id)?;
         validate_identifier(job_hash)?;
@@ -151,16 +155,26 @@ impl Database {
         if receipt_json.len() > 8 * 1024 {
             return Err(invalid());
         }
-        let mut transaction = self.pool().begin().await?;
+        let mut transaction = if draft_packet_guard.is_some() {
+            self.pool().begin_with("BEGIN IMMEDIATE").await?
+        } else {
+            self.pool().begin().await?
+        };
         let stored = get_in_transaction(&mut transaction, run_id).await?;
         if stored.status != PackTaskStatus::Started
-            || stored.context.task_kind != AgentTaskKind::EvidenceReview
             || receipt.task_id != stored.context.task_id
             || receipt.pack_id.as_deref() != Some(&stored.context.pack_id)
             || receipt.labels != stored.context.privacy_labels
             || receipt.data_categories != stored.context.data_categories
         {
             return Err(invalid());
+        }
+        match (stored.context.task_kind, draft_packet_guard) {
+            (AgentTaskKind::EvidenceReview, None) => {}
+            (AgentTaskKind::DraftPacket, Some(guard))
+                if guard.digest() == stored.context.input_sha256
+                    && guard_matches_current(&mut transaction, guard, job_hash).await? => {}
+            _ => return Err(invalid()),
         }
         require_exact_ready_pack(&mut transaction, &stored.context, true).await?;
 
@@ -202,6 +216,11 @@ impl Database {
         .bind(time_text(Utc::now()))
         .execute(&mut *transaction)
         .await?;
+        if let Some(guard) = draft_packet_guard {
+            if !guard_matches_current(&mut transaction, guard, job_hash).await? {
+                return Err(invalid());
+            }
+        }
         let updated = sqlx::query(
             "UPDATE pack_task_runs
              SET status = 'succeeded', receipt_id = ?, completed_at = ?

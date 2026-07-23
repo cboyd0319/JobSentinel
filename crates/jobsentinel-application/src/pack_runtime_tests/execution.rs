@@ -6,37 +6,10 @@ use crate::{
         cancel_reviewed_pack_task, disable_pack_artifact, execute_evidence_review_task,
         prepare_evidence_review_task,
     },
-    test_support::test_job,
     v3_foundation::{confirm_saved_match_debugger_evidence, prepare_saved_match_debugger},
 };
 use chrono::Utc;
 use jobsentinel_storage::pack_tasks::PackTaskStatus;
-
-async fn saved_match() -> (Database, String, i64) {
-    let database = Database::connect_memory().await.unwrap();
-    database.migrate().await.unwrap();
-    let mut job = test_job("pack-evidence-review", "Office Assistant", "Example");
-    job.description = Some("Required: scheduling\nPreferred: CRM".to_string());
-    database.insert_job_if_new(&job).await.unwrap();
-    let directory = tempfile::tempdir().unwrap();
-    let resume_path = directory.path().join("resume.txt");
-    std::fs::write(
-        &resume_path,
-        "Experience\nManaged scheduling for a support team.\nImproved scheduling.",
-    )
-    .unwrap();
-    let resume_id = database
-        .resume_matcher()
-        .upload_resume("Resume", resume_path.to_str().unwrap())
-        .await
-        .unwrap();
-    database
-        .resume_matcher()
-        .match_resume_to_job(resume_id, &job.hash)
-        .await
-        .unwrap();
-    (database, job.hash, resume_id)
-}
 
 async fn activated_evidence_pack(
     database: &Database,

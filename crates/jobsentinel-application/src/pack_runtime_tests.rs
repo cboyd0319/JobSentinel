@@ -20,6 +20,7 @@ use crate::pack_runtime::{
     reconcile_active_pack_artifacts, rollback_pack_artifact, stage_pack_artifact,
     uninstall_pack_artifacts, PackReviewState,
 };
+use crate::test_support::test_job;
 
 const PUBLISHER_ID: &str = "jobsentinel-test-source-v1";
 const PACK_ID: &str = "jobsentinel.test.synthetic-source";
@@ -180,6 +181,32 @@ fn signed_envelope(
     .unwrap()
 }
 
+async fn saved_match() -> (Database, String, i64) {
+    let database = Database::connect_memory().await.unwrap();
+    database.migrate().await.unwrap();
+    let mut job = test_job("pack-evidence-review", "Office Assistant", "Example");
+    job.description = Some("Required: scheduling\nPreferred: CRM".to_string());
+    database.insert_job_if_new(&job).await.unwrap();
+    let directory = tempfile::tempdir().unwrap();
+    let resume_path = directory.path().join("resume.txt");
+    std::fs::write(
+        &resume_path,
+        "Experience\nManaged scheduling for a support team.\nImproved scheduling.",
+    )
+    .unwrap();
+    let resume_id = database
+        .resume_matcher()
+        .upload_resume("Resume", resume_path.to_str().unwrap())
+        .await
+        .unwrap();
+    database
+        .resume_matcher()
+        .match_resume_to_job(resume_id, &job.hash)
+        .await
+        .unwrap();
+    (database, job.hash, resume_id)
+}
+
 async fn stage_and_activate(
     database: &Database,
     artifact_root: &std::path::Path,
@@ -270,4 +297,5 @@ fn walk_files(root: &std::path::Path) -> Vec<std::path::PathBuf> {
 mod execution;
 mod integrity;
 mod lifecycle;
+mod packet_execution;
 mod recovery;

@@ -61,7 +61,7 @@ async fn approval_must_remain_unexpired_at_completion() {
     tokio::time::sleep(StdDuration::from_millis(1_100)).await;
 
     assert!(database
-        .complete_evidence_review(&context.run_id, &local_receipt(&context), "job-1")
+        .complete_reviewed_pack_task(&context.run_id, &local_receipt(&context), "job-1", None,)
         .await
         .is_err());
     assert_eq!(

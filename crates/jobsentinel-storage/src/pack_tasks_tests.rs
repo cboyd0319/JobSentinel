@@ -10,6 +10,7 @@ use sqlx::SqlitePool;
 use crate::test_support::migrated_database;
 
 mod expiry;
+mod input_guard;
 
 #[tokio::test]
 async fn creates_an_immutable_pending_evidence_review() {
@@ -192,7 +193,7 @@ async fn successful_evidence_review_records_one_receipt_and_user_action_atomical
     let receipt = local_receipt(&context);
 
     let succeeded = database
-        .complete_evidence_review(&context.run_id, &receipt, "job-1")
+        .complete_reviewed_pack_task(&context.run_id, &receipt, "job-1", None)
         .await
         .unwrap();
 
@@ -231,7 +232,7 @@ async fn invalid_completion_leaves_started_run_and_audit_empty() {
     receipt.task_id = "wrong-task".to_string();
 
     assert!(database
-        .complete_evidence_review(&context.run_id, &receipt, "missing-job")
+        .complete_reviewed_pack_task(&context.run_id, &receipt, "missing-job", None)
         .await
         .is_err());
     assert_eq!(
@@ -267,7 +268,12 @@ async fn missing_completion_case_leaves_started_run_and_audit_empty() {
     database.start_pack_task(&context).await.unwrap();
 
     assert!(database
-        .complete_evidence_review(&context.run_id, &local_receipt(&context), "missing-job")
+        .complete_reviewed_pack_task(
+            &context.run_id,
+            &local_receipt(&context),
+            "missing-job",
+            None,
+        )
         .await
         .is_err());
     assert_eq!(

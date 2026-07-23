@@ -21,8 +21,10 @@ mod recovery;
 
 use artifact::{load_tested_artifact, persist_artifact, remove_owned_artifact, ArtifactLoadError};
 pub use execution::{
-    cancel_reviewed_pack_task, execute_evidence_review_task, prepare_evidence_review_task,
-    EvidenceReviewTaskResult, PackTaskReview, PackTaskReviewStep,
+    cancel_reviewed_pack_task, execute_draft_packet_task, execute_evidence_review_task,
+    prepare_draft_packet_task, prepare_evidence_review_task, DraftApplicationPacket,
+    DraftPacketTaskResult, DraftPacketTaskReview, EvidenceReviewTaskResult, PackTaskReview,
+    PackTaskReviewStep,
 };
 pub use recovery::{reconcile_active_pack_artifacts, PackArtifactReconciliation};
 
