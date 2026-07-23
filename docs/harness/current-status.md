@@ -42,13 +42,14 @@ Last updated: 2026-07-22
 - Active feature: `v3-milestone-7-agent-pack-runtime`
 - Status: `active`
 - Current slice: Signed packs persist under a validated root through self-test, activation, disable, rollback,
-  revocation, uninstall, and cleanup retry. Reviewed evidence and draft-packet tasks use a single-use approval ledger
-  bound to the exact active release and reviewed local source state, enforce time and output limits, and atomically
-  record local audit history. Draft packets expose only deterministic case, selected-resume, evidence, reviewed-claim,
-  checklist, and manual-review material; final submission remains with the user. Startup reconciliation is tested but
-  not wired to production.
-- Next action: Add the durable all-state pack-management projection and cleanup truth, then bind the production
-  artifact root and approved publisher trust before wiring startup, native drop review, and UI.
+  revocation, uninstall, and release-scoped cleanup retry. Immutable verified review facts now support one complete
+  renderer-safe management view across ready, disabled, needs-review, quarantined, removed, update-available, and
+  retained release-history states. Cleanup truth survives crashes, concurrent retries, and restaging without touching
+  a newer artifact. Reviewed evidence and draft-packet tasks remain bound to the exact active reviewed release and
+  local source state; drafts contain only deterministic reviewed material and final submission remains with the user.
+  Startup reconciliation is tested but not wired to production.
+- Next action: Bind the production artifact root and approved publisher trust, then wire startup reconciliation,
+  reviewed native source-pack drop, pack management UI, and live platform proof.
 
 ## Deferred
 
