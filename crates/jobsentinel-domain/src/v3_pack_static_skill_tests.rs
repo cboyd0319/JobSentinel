@@ -5,7 +5,9 @@ use sha2::{Digest, Sha256};
 use crate::{
     v3_contracts::SchemaId,
     v3_manifests::{AgentTaskKind, PackExecutionClass, PackManifest, PackType, PrivacyLabel},
-    v3_pack_payloads::{parse_and_self_test_pack_payload, SelfTestedPackPayload},
+    v3_pack_payloads::{
+        parse_and_self_test_pack_payload, SelfTestedPackPayload, SelfTestedPackRelease,
+    },
     v3_signed_packs::VerifiedPackRelease,
 };
 
@@ -60,7 +62,7 @@ fn release(payload: String, skill_name: &str) -> VerifiedPackRelease {
     }
 }
 
-fn test_payload(payload: serde_json::Value) -> Result<SelfTestedPackPayload, String> {
+fn test_payload(payload: serde_json::Value) -> Result<SelfTestedPackRelease, String> {
     parse_and_self_test_pack_payload(
         &release(
             serde_json::to_string(&payload).unwrap(),
@@ -72,7 +74,7 @@ fn test_payload(payload: serde_json::Value) -> Result<SelfTestedPackPayload, Str
 
 #[test]
 fn static_skill_self_test_preserves_text_only_agent_skill_handoff() {
-    let tested = test_payload(payload()).unwrap();
+    let tested = test_payload(payload()).unwrap().into_payload();
     let SelfTestedPackPayload::StaticSkill {
         skill_name,
         resource_count,

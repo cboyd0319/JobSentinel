@@ -252,6 +252,12 @@ impl Database {
 
         migrator.run(&self.pool).await?;
         self.reconcile_interrupted_recovery_operations().await?;
+        self.reconcile_interrupted_pack_lifecycle()
+            .await
+            .map_err(|_| {
+                tracing::error!("Pack lifecycle startup reconciliation failed");
+                sqlx::Error::Protocol("Pack lifecycle startup reconciliation failed".into())
+            })?;
         Self::configure_database(&self.pool).await?;
         sqlx::query("PRAGMA user_version = 2")
             .execute(&self.pool)

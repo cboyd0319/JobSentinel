@@ -4,12 +4,20 @@ use anyhow::{anyhow, Result};
 use chrono::Utc;
 use jobsentinel_domain::{
     v3_manifests::{PackExecutionClass, PackType},
+    v3_pack_payloads::SelfTestedPackRelease,
     v3_signed_packs::{TrustedPublisherKey, VerifiedPackRelease},
 };
 use sha2::{Digest, Sha256};
-use sqlx::{FromRow, Sqlite, Transaction};
+use sqlx::{Sqlite, Transaction};
 
 use crate::Database;
+
+mod artifacts;
+mod lifecycle;
+mod transitions;
+mod types;
+
+pub use types::*;
 
 #[derive(Debug)]
 enum PackLifecycleError {
@@ -17,6 +25,9 @@ enum PackLifecycleError {
     Revoked,
     Downgrade,
     Equivocation,
+    NotFound,
+    Stale,
+    InvalidState,
     Corrupt,
 }
 
@@ -27,6 +38,9 @@ impl fmt::Display for PackLifecycleError {
             Self::Revoked => "pack publisher is revoked",
             Self::Downgrade => "pack release is older than the retained high-water mark",
             Self::Equivocation => "pack publisher reused a release sequence",
+            Self::NotFound => "pack lifecycle state was not found",
+            Self::Stale => "pack lifecycle generation is stale",
+            Self::InvalidState => "pack lifecycle transition is not allowed",
             Self::Corrupt => "stored pack lifecycle state is invalid",
         })
     }
@@ -40,44 +54,11 @@ pub fn pack_lifecycle_error_kind(error: &anyhow::Error) -> Option<&'static str> 
         PackLifecycleError::Revoked => "revoked",
         PackLifecycleError::Downgrade => "downgrade",
         PackLifecycleError::Equivocation => "equivocation",
+        PackLifecycleError::NotFound => "not_found",
+        PackLifecycleError::Stale => "stale",
+        PackLifecycleError::InvalidState => "invalid_state",
         PackLifecycleError::Corrupt => "corrupt",
     })
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum PackAvailability {
-    Ready,
-    Disabled,
-    Quarantined,
-    Removed,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct PackStream {
-    pub publisher_key_id: String,
-    pub pack_id: String,
-    pub high_water_sequence: u64,
-    pub active_release_sequence: Option<u64>,
-    pub rollback_release_sequence: Option<u64>,
-    pub availability: PackAvailability,
-    pub generation: u64,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum PackStageOutcome {
-    Staged(PackStream),
-    Replay(PackStream),
-}
-
-#[derive(FromRow)]
-struct PackStreamRow {
-    publisher_key_id: String,
-    pack_id: String,
-    high_water_sequence: i64,
-    active_release_sequence: Option<i64>,
-    rollback_release_sequence: Option<i64>,
-    availability: String,
-    generation: i64,
 }
 
 impl Database {
@@ -196,11 +177,57 @@ impl Database {
         transaction.commit().await?;
         Ok(PackStageOutcome::Staged(stream))
     }
+
+    pub async fn get_pack_stream(
+        &self,
+        publisher_key_id: &str,
+        pack_id: &str,
+    ) -> Result<PackStream> {
+        let mut transaction = self.pool().begin().await?;
+        let stream = fetch_stream_by_id(&mut transaction, publisher_key_id, pack_id).await?;
+        transaction.commit().await?;
+        Ok(stream)
+    }
+
+    pub async fn get_stored_pack_release(
+        &self,
+        publisher_key_id: &str,
+        pack_id: &str,
+        release_sequence: u64,
+    ) -> Result<StoredPackRelease> {
+        let sequence = i64::try_from(release_sequence).map_err(|_| invalid())?;
+        let row = sqlx::query_as::<_, StoredPackReleaseRow>(
+            "SELECT publisher_key_id, pack_id, release_sequence,
+                    signed_release_sha256, lifecycle_state, quarantine_reason
+             FROM v3_pack_releases
+             WHERE publisher_key_id = ? AND pack_id = ? AND release_sequence = ?",
+        )
+        .bind(publisher_key_id)
+        .bind(pack_id)
+        .bind(sequence)
+        .fetch_optional(self.pool())
+        .await?
+        .ok_or_else(not_found)?;
+        row.try_into()
+    }
 }
 
 async fn fetch_stream(
     transaction: &mut Transaction<'_, Sqlite>,
     release: &VerifiedPackRelease,
+) -> Result<PackStream> {
+    fetch_stream_by_id(
+        transaction,
+        release.publisher_key_id(),
+        &release.manifest().pack_id,
+    )
+    .await
+}
+
+async fn fetch_stream_by_id(
+    transaction: &mut Transaction<'_, Sqlite>,
+    publisher_key_id: &str,
+    pack_id: &str,
 ) -> Result<PackStream> {
     let row = sqlx::query_as::<_, PackStreamRow>(
         "SELECT publisher_key_id, pack_id, high_water_sequence,
@@ -209,11 +236,81 @@ async fn fetch_stream(
          FROM v3_pack_streams
          WHERE publisher_key_id = ? AND pack_id = ?",
     )
-    .bind(release.publisher_key_id())
-    .bind(&release.manifest().pack_id)
+    .bind(publisher_key_id)
+    .bind(pack_id)
     .fetch_one(&mut **transaction)
     .await?;
     stream_from_row(row)
+}
+
+async fn stream_guard_error(
+    transaction: &mut Transaction<'_, Sqlite>,
+    publisher_key_id: &str,
+    pack_id: &str,
+    expected_generation: i64,
+) -> Result<anyhow::Error> {
+    let generation = sqlx::query_scalar::<_, i64>(
+        "SELECT generation FROM v3_pack_streams
+         WHERE publisher_key_id = ? AND pack_id = ?",
+    )
+    .bind(publisher_key_id)
+    .bind(pack_id)
+    .fetch_optional(&mut **transaction)
+    .await?;
+    Ok(match generation {
+        None => not_found(),
+        Some(current) if current != expected_generation => stale(),
+        Some(_) => invalid_state(),
+    })
+}
+
+async fn require_current_candidate(
+    transaction: &mut Transaction<'_, Sqlite>,
+    publisher_key_id: &str,
+    pack_id: &str,
+    release_sequence: i64,
+    signed_release_sha256: &str,
+    expected_generation: i64,
+) -> Result<()> {
+    let current = sqlx::query_as::<_, (i64, i64, Option<String>)>(
+        "SELECT generation, high_water_sequence, high_water_signed_release_sha256
+         FROM v3_pack_streams
+         WHERE publisher_key_id = ? AND pack_id = ?",
+    )
+    .bind(publisher_key_id)
+    .bind(pack_id)
+    .fetch_optional(&mut **transaction)
+    .await?;
+    let Some((generation, high_water, digest)) = current else {
+        return Err(not_found());
+    };
+    if generation != expected_generation {
+        return Err(stale());
+    }
+    if high_water != release_sequence || digest.as_deref() != Some(signed_release_sha256) {
+        return Err(invalid_state());
+    }
+    Ok(())
+}
+
+async fn require_trusted_publisher(
+    transaction: &mut Transaction<'_, Sqlite>,
+    publisher_key_id: &str,
+    public_key_sha256: &str,
+) -> Result<()> {
+    let publisher = sqlx::query_as::<_, (String, String)>(
+        "SELECT public_key_sha256, trust_state
+         FROM v3_pack_publishers WHERE publisher_key_id = ?",
+    )
+    .bind(publisher_key_id)
+    .fetch_optional(&mut **transaction)
+    .await?;
+    match publisher {
+        None => Err(not_found()),
+        Some((stored, _)) if stored != public_key_sha256 => Err(equivocation()),
+        Some((_, state)) if state != "trusted" => Err(revoked()),
+        Some(_) => Ok(()),
+    }
 }
 
 fn stream_from_row(row: PackStreamRow) -> Result<PackStream> {
@@ -319,6 +416,18 @@ fn downgrade() -> anyhow::Error {
 
 fn equivocation() -> anyhow::Error {
     anyhow!(PackLifecycleError::Equivocation)
+}
+
+fn not_found() -> anyhow::Error {
+    anyhow!(PackLifecycleError::NotFound)
+}
+
+fn stale() -> anyhow::Error {
+    anyhow!(PackLifecycleError::Stale)
+}
+
+fn invalid_state() -> anyhow::Error {
+    anyhow!(PackLifecycleError::InvalidState)
 }
 
 fn corrupt() -> anyhow::Error {

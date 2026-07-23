@@ -158,7 +158,8 @@ fn source_pack_self_test_requires_exact_fixtures_and_stays_disabled() {
         &release(source_payload(), PackType::Source),
         NaiveDate::from_ymd_opt(2026, 7, 20).unwrap(),
     )
-    .unwrap();
+    .unwrap()
+    .into_payload();
 
     let SelfTestedPackPayload::Source {
         policy,
@@ -172,6 +173,26 @@ fn source_pack_self_test_requires_exact_fixtures_and_stays_disabled() {
     assert_eq!(policy.access, SourceAccess::Disabled);
     assert_eq!(fixture_count, 3);
     assert_eq!(initial_stop, SourceStopCondition::PolicyDisabled);
+}
+
+#[test]
+fn self_tested_release_proof_is_bound_to_the_verified_release_identity() {
+    let release = release(source_payload(), PackType::Source);
+    let tested =
+        parse_and_self_test_pack_payload(&release, NaiveDate::from_ymd_opt(2026, 7, 20).unwrap())
+            .unwrap();
+
+    assert_eq!(tested.publisher_key_id(), release.publisher_key_id);
+    assert_eq!(tested.pack_id(), release.manifest.pack_id);
+    assert_eq!(tested.release_sequence(), release.release_sequence);
+    assert_eq!(
+        tested.signed_release_sha256(),
+        release.signed_release_sha256
+    );
+    assert!(matches!(
+        tested.payload(),
+        SelfTestedPackPayload::Source { .. }
+    ));
 }
 
 #[test]
@@ -220,7 +241,8 @@ fn evidence_reviewer_self_test_accepts_only_the_compiled_reviewed_plan() {
         &evidence_release(payload),
         NaiveDate::from_ymd_opt(2026, 7, 20).unwrap(),
     )
-    .unwrap();
+    .unwrap()
+    .into_payload();
 
     let SelfTestedPackPayload::ReviewedWorkflow { task, plan, .. } = tested else {
         panic!("agent payload must remain a reviewed workflow");
@@ -263,6 +285,7 @@ fn packet_builder_self_test_accepts_only_the_compiled_reviewed_plan() {
     let SelfTestedPackPayload::ReviewedWorkflow { task, plan, .. } =
         parse_and_self_test_pack_payload(&release, NaiveDate::from_ymd_opt(2026, 7, 20).unwrap())
             .unwrap()
+            .into_payload()
     else {
         panic!("agent payload must remain a reviewed workflow");
     };
@@ -339,7 +362,8 @@ fn evaluation_pack_self_test_reuses_the_synthetic_local_evaluation_contract() {
         },
         NaiveDate::from_ymd_opt(2026, 7, 20).unwrap(),
     )
-    .unwrap();
+    .unwrap()
+    .into_payload();
 
     let SelfTestedPackPayload::Evaluation {
         revision,

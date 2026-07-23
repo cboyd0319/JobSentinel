@@ -2,27 +2,26 @@ use chrono::NaiveDate;
 use jobsentinel_domain::{
     v3_contracts::SchemaId,
     v3_manifests::{PackExecutionClass, PackManifest, PackType, PrivacyLabel},
-    v3_pack_payloads::parse_and_self_test_pack_payload,
-    v3_signed_packs::{
-        parse_signed_pack_release_for_runtime_test, TrustedPublisherKey, VerifiedPackRelease,
-    },
+    v3_signed_packs::TrustedPublisherKey,
 };
 use jobsentinel_security::sign_ed25519_for_test;
+use jobsentinel_storage::v3_pack_lifecycle::{PackQuarantineReason, PackReleaseState};
+use jobsentinel_storage::{v3_pack_lifecycle::PackAvailability, Database};
 use serde_json::json;
 use sha2::{Digest, Sha256};
 
-use crate::{
-    pack_lifecycle_error_kind,
-    test_support::migrated_database,
-    v3_pack_lifecycle::{PackAvailability, PackStageOutcome},
+use crate::pack_runtime::{
+    activate_pack_artifact, disable_pack_artifact, enable_pack_artifact,
+    reconcile_active_pack_artifacts, rollback_pack_artifact, stage_pack_artifact,
+    uninstall_pack_artifacts, PackReviewState,
 };
 
 const PUBLISHER_ID: &str = "jobsentinel-test-source-v1";
 const PACK_ID: &str = "jobsentinel.test.synthetic-source";
 
-fn publisher(seed: u8) -> TrustedPublisherKey {
-    let (public_key, _) = sign_ed25519_for_test(&[seed; 32], &[]).unwrap();
-    TrustedPublisherKey {
+fn signed_source_pack(sequence: u64) -> (TrustedPublisherKey, Vec<u8>) {
+    let (public_key, _) = sign_ed25519_for_test(&[7; 32], &[]).unwrap();
+    let publisher = TrustedPublisherKey {
         publisher_key_id: PUBLISHER_ID.to_string(),
         public_key,
         revoked: false,
@@ -34,22 +33,11 @@ fn publisher(seed: u8) -> TrustedPublisherKey {
         allowed_actions: vec![],
         allowed_approval_gates: vec![],
         allow_gateway_external_ai: false,
-    }
-}
-
-fn release(sequence: u64, payload: String, publisher: &TrustedPublisherKey) -> VerifiedPackRelease {
-    release_for_pack(PACK_ID, sequence, payload, publisher)
-}
-
-fn release_for_pack(
-    pack_id: &str,
-    sequence: u64,
-    payload: String,
-    publisher: &TrustedPublisherKey,
-) -> VerifiedPackRelease {
+    };
+    let payload = valid_source_payload();
     let manifest = PackManifest {
         schema: SchemaId::PackManifestV1,
-        pack_id: pack_id.to_string(),
+        pack_id: PACK_ID.to_string(),
         pack_type: PackType::Source,
         execution_class: PackExecutionClass::StaticContent,
         publisher_key_id: PUBLISHER_ID.to_string(),
@@ -62,7 +50,7 @@ fn release_for_pack(
         gateway_policy_id: None,
     };
     let signed_release = serde_json::to_string(&json!({
-        "release_id": format!("{PUBLISHER_ID}:{pack_id}:{sequence}"),
+        "release_id": format!("{PUBLISHER_ID}:{PACK_ID}:{sequence}"),
         "pack_version": format!("1.0.{sequence}"),
         "min_v3_app_version": "3.0.0",
         "max_v3_app_version": "3.0.0",
@@ -81,8 +69,7 @@ fn release_for_pack(
         signing_bytes.extend_from_slice(&(value.len() as u64).to_le_bytes());
         signing_bytes.extend_from_slice(value);
     }
-    let (public_key, signature) = sign_ed25519_for_test(&[7; 32], &signing_bytes).unwrap();
-    assert_eq!(public_key, publisher.public_key);
+    let (_, signature) = sign_ed25519_for_test(&[7; 32], &signing_bytes).unwrap();
     let envelope = serde_json::to_vec(&json!({
         "schema": "jobsentinel.v3.signed-pack-envelope.v1",
         "publisher_key_id": PUBLISHER_ID,
@@ -90,8 +77,37 @@ fn release_for_pack(
         "signature": hex::encode(signature)
     }))
     .unwrap();
-    parse_signed_pack_release_for_runtime_test(&envelope, std::slice::from_ref(publisher), "3.0.0")
-        .unwrap()
+    (publisher, envelope)
+}
+
+async fn stage_and_activate(
+    database: &Database,
+    artifact_root: &std::path::Path,
+    publisher: &TrustedPublisherKey,
+    sequence: u64,
+) -> crate::pack_runtime::PackInstallReview {
+    let (_, envelope) = signed_source_pack(sequence);
+    let staged = stage_pack_artifact(
+        database,
+        artifact_root,
+        &envelope,
+        std::slice::from_ref(publisher),
+        NaiveDate::from_ymd_opt(2026, 7, 20).unwrap(),
+    )
+    .await
+    .unwrap();
+    activate_pack_artifact(
+        database,
+        artifact_root,
+        PUBLISHER_ID,
+        PACK_ID,
+        sequence,
+        staged.generation,
+        std::slice::from_ref(publisher),
+        NaiveDate::from_ymd_opt(2026, 7, 20).unwrap(),
+    )
+    .await
+    .unwrap()
 }
 
 fn valid_source_payload() -> String {
@@ -109,26 +125,48 @@ fn valid_source_payload() -> String {
             "restriction_reason_code": null,
             "reviewed_at": "2026-07-19T00:00:00Z"
         },
-        "manifest_json": include_str!("../../jobsentinel-domain/src/fixtures/v3_source_manifest_v1.json"),
+        "manifest_json": include_str!(
+            "../../jobsentinel-domain/src/fixtures/v3_source_manifest_v1.json"
+        ),
         "fixtures": [
             {
                 "path": "crates/jobsentinel-domain/src/fixtures/source_simulator/synthetic_official_list.json",
-                "content": include_str!("../../jobsentinel-domain/src/fixtures/source_simulator/synthetic_official_list.json")
+                "content": include_str!(
+                    "../../jobsentinel-domain/src/fixtures/source_simulator/synthetic_official_list.json"
+                )
             },
             {
                 "path": "crates/jobsentinel-domain/src/fixtures/source_simulator/synthetic_official_detail.json",
-                "content": include_str!("../../jobsentinel-domain/src/fixtures/source_simulator/synthetic_official_detail.json")
+                "content": include_str!(
+                    "../../jobsentinel-domain/src/fixtures/source_simulator/synthetic_official_detail.json"
+                )
             },
             {
                 "path": "crates/jobsentinel-domain/src/fixtures/source_reviews/synthetic_official_v1.json",
-                "content": include_str!("../../jobsentinel-domain/src/fixtures/source_reviews/synthetic_official_v1.json")
+                "content": include_str!(
+                    "../../jobsentinel-domain/src/fixtures/source_reviews/synthetic_official_v1.json"
+                )
             }
         ]
     }))
     .unwrap()
 }
 
-mod artifacts;
+fn walk_files(root: &std::path::Path) -> Vec<std::path::PathBuf> {
+    let mut pending = vec![root.to_path_buf()];
+    let mut files = Vec::new();
+    while let Some(path) = pending.pop() {
+        for entry in std::fs::read_dir(path).unwrap().flatten() {
+            if entry.file_type().unwrap().is_dir() {
+                pending.push(entry.path());
+            } else if entry.file_type().unwrap().is_file() {
+                files.push(entry.path());
+            }
+        }
+    }
+    files
+}
+
+mod integrity;
 mod lifecycle;
 mod recovery;
-mod staging;

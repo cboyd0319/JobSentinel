@@ -63,6 +63,42 @@ pub enum SelfTestedPackPayload {
     },
 }
 
+/// A self-test result inseparable from the signed release that produced it.
+#[derive(Debug)]
+pub struct SelfTestedPackRelease {
+    publisher_key_id: String,
+    pack_id: String,
+    release_sequence: u64,
+    signed_release_sha256: String,
+    payload: SelfTestedPackPayload,
+}
+
+impl SelfTestedPackRelease {
+    pub fn publisher_key_id(&self) -> &str {
+        &self.publisher_key_id
+    }
+
+    pub fn pack_id(&self) -> &str {
+        &self.pack_id
+    }
+
+    pub const fn release_sequence(&self) -> u64 {
+        self.release_sequence
+    }
+
+    pub fn signed_release_sha256(&self) -> &str {
+        &self.signed_release_sha256
+    }
+
+    pub const fn payload(&self) -> &SelfTestedPackPayload {
+        &self.payload
+    }
+
+    pub fn into_payload(self) -> SelfTestedPackPayload {
+        self.payload
+    }
+}
+
 #[derive(Debug, Deserialize)]
 #[serde(tag = "pack_type", rename_all = "snake_case", deny_unknown_fields)]
 enum PackPayloadV1 {
@@ -126,14 +162,14 @@ struct SourceFixturePayloadV1 {
 pub fn parse_and_self_test_pack_payload(
     release: &VerifiedPackRelease,
     today: NaiveDate,
-) -> Result<SelfTestedPackPayload, String> {
+) -> Result<SelfTestedPackRelease, String> {
     release
         .manifest
         .verify_payload(release.payload.as_bytes())
         .map_err(|_| "pack payload self-test failed".to_string())?;
     let payload: PackPayloadV1 = serde_json::from_str(&release.payload)
         .map_err(|_| "pack payload self-test failed".to_string())?;
-    match payload {
+    let payload = match payload {
         PackPayloadV1::Source {
             schema,
             policy,
@@ -148,7 +184,14 @@ pub fn parse_and_self_test_pack_payload(
         }
         PackPayloadV1::Skill(payload) => self_test_static_skill(release, payload),
         PackPayloadV1::Evaluation(payload) => self_test_evaluation(release, payload),
-    }
+    }?;
+    Ok(SelfTestedPackRelease {
+        publisher_key_id: release.publisher_key_id.clone(),
+        pack_id: release.manifest.pack_id.clone(),
+        release_sequence: release.release_sequence,
+        signed_release_sha256: release.signed_release_sha256.clone(),
+        payload,
+    })
 }
 
 fn self_test_evaluation(

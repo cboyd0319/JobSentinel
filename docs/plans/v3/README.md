@@ -51,11 +51,12 @@ That means:
   local, and useful without large model downloads.
 - V3 is the easiest release to install, set up, recover, and use.
 
-V3 is also the first long-term compatibility boundary. Releases before v3 may
-provide best-effort forward migration, but they do not carry a durable backward
-compatibility promise. Starting with v3, JobSentinel should lock the long-term
-architecture, define stable data and config contracts, and support documented
-rollback paths within the v3 compatibility line.
+V3.0.0 is the first supported compatibility baseline. JobSentinel makes no
+forward-migration, rollback, or contract-compatibility promise for databases,
+settings, APIs, packs, or artifacts created before v3.0.0. Starting with v3,
+JobSentinel should lock the long-term architecture, define stable data and
+config contracts, and support documented rollback paths within the v3
+compatibility line.
 
 ## Non-Negotiables
 

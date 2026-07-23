@@ -49,9 +49,9 @@ Last updated: 2026-07-22
 
 - Active feature: `v3-milestone-7-agent-pack-runtime`
 - Status: `active`
-- Current slice: Verified releases now stage transactionally into publisher-qualified quarantine with a durable
-  high-water mark; exact replay is inert, while equivocation and unseen downgrade fail closed.
-- Next action: Prove self-test promotion, activation, rollback, revocation, uninstall, and cleanup recovery.
+- Current slice: Signed packs now persist under a validated root through self-test, activation, disable, rollback,
+  revocation, uninstall, and cleanup retry. The startup reconciliation path is tested but not wired to production.
+- Next action: Bind the production artifact root, provision publisher trust, wire startup, then add drop review and UI.
 
 ## Deferred
 

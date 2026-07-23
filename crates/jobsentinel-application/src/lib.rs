@@ -20,6 +20,9 @@ pub mod health;
 pub mod linkedin_workbench;
 pub mod market_intelligence;
 pub mod notify;
+pub mod pack_runtime;
+#[cfg(test)]
+mod pack_runtime_tests;
 pub mod recovery;
 pub mod restricted_source_consent;
 pub mod resume;

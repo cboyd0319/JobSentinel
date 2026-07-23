@@ -229,10 +229,11 @@ Required checks:
 Because v3 is the first long-term compatibility boundary, verify:
 
 - fresh v3 install
-- v2.9-to-v3 local migration
-- backup-before-migration
-- failed migration retry
-- backup restore
+- v3.0.0 is the first supported compatibility baseline
+- pre-v3 readers, migration shims, fixtures, and release claims are absent
+- backup-before-v3.x migration
+- failed v3.x migration retry
+- v3.x backup restore
 - compatible v3 patch rollback
 - unsupported-newer-data detection
 - source pack compatibility
@@ -374,5 +375,5 @@ V3 is not done until:
 - Main README and wiki reflect the shipped v3 experience.
 - Release assets, checksums, SBOMs, and attestations are produced.
 - Manual UI verification covers every click and action in the shipped surface.
-- Compatibility and rollback docs define what v3 supports and what pre-v3 does
-  not promise.
+- Compatibility and rollback docs define v3.0.0 as the first supported baseline
+  and make clear that pre-v3 upgrades are unsupported.

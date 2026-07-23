@@ -80,6 +80,14 @@ impl VerifiedPackRelease {
         &self.publisher_key_id
     }
 
+    pub fn publisher_name(&self) -> &str {
+        &self.publisher_name
+    }
+
+    pub fn license(&self) -> &str {
+        &self.license
+    }
+
     pub const fn manifest(&self) -> &PackManifest {
         &self.manifest
     }
