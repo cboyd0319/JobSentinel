@@ -1,3 +1,5 @@
+//! Registers every Tauri command exposed by the desktop runtime.
+
 macro_rules! jobsentinel_command_handlers {
     () => {
         ::tauri::generate_handler![
@@ -45,6 +47,7 @@ macro_rules! jobsentinel_command_handlers {
             jobsentinel::ipc::ats::complete_interview,
             jobsentinel::ipc::ats::delete_interview,
             jobsentinel::ipc::opportunity_case::open_opportunity_case,
+            jobsentinel::ipc::pack_management::list_pack_management,
             jobsentinel::ipc::resume::resume_file_commands::select_and_upload_resume,
             jobsentinel::ipc::resume::resume_file_commands::import_json_resume,
             jobsentinel::ipc::resume::resume_file_commands::select_and_import_json_resume,

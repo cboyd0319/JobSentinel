@@ -1,3 +1,5 @@
+/** Verifies the browser-development command facade and deterministic state. */
+
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { registeredMockCommands } from "./commandRegistry";
 import { mockJobs } from "./data";
@@ -79,6 +81,7 @@ describe("mock Tauri command facade", () => {
         "get_config",
         "get_active_resume",
         "fill_application_form",
+        "list_pack_management",
         "record_linkedin_workbench_event",
       ]),
     );

@@ -1,3 +1,5 @@
+/** Adapts desktop command names to deterministic browser-development responses. */
+
 import { handleMockApplicationAssistCommand } from "../features/application-assist/commands";
 import { handleMockApplicationsCommand } from "../features/applications/commands";
 import { handleMockCoverLetterTemplateCommand } from "../features/applications/coverLetterTemplateCommands";
@@ -68,6 +70,9 @@ export const applyMockSettingsCommand: MockCommandAdapter = (command, args) => {
   if (result.shouldSave) saveMockState();
   return result.value;
 };
+
+export const applyMockPackCommand: MockCommandAdapter = (command) =>
+  command === "list_pack_management" ? [] : undefined;
 
 export const applyMockSupportCommand: MockCommandAdapter = (command, args) => {
   const result = handleMockSupportCommand(

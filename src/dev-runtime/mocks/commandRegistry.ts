@@ -1,3 +1,5 @@
+/** Registers browser-development handlers for the desktop command surface. */
+
 import {
   applyMockApplicationAssistCommand,
   applyMockApplicationsCommand,
@@ -11,6 +13,7 @@ import {
   applyMockNotificationCommand,
   applyMockOnboardingCommand,
   applyMockOpportunityCaseCommand,
+  applyMockPackCommand,
   applyMockRecoveryCommand,
   applyMockResumeCommand,
   applyMockSalaryCommand,
@@ -180,6 +183,10 @@ const commandGroups: readonly MockCommandGroup[] = [
   {
     commands: ["open_opportunity_case"],
     adapter: applyMockOpportunityCaseCommand,
+  },
+  {
+    commands: ["list_pack_management"],
+    adapter: applyMockPackCommand,
   },
   {
     commands: [
