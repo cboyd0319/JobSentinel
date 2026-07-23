@@ -1,0 +1,310 @@
+//! Runs single-use, reviewed pack tasks against deterministic local application owners.
+
+use std::{path::Path, time::Duration};
+
+use anyhow::{anyhow, Result};
+use chrono::{Duration as ChronoDuration, NaiveDate, Utc};
+use jobsentinel_domain::{
+    v3_contracts::SchemaId,
+    v3_manifests::{
+        AgentTask, AgentTaskKind, DataCategory, PackAction, PrivacyLabel, PrivacyReceipt,
+    },
+    v3_pack_payloads::{ReviewedTaskPlanStep, SelfTestedPackPayload},
+    v3_signed_packs::TrustedPublisherKey,
+};
+use jobsentinel_storage::{
+    pack_tasks::{PackTaskContext, PackTaskStatus},
+    v3_pack_lifecycle::PackAvailability,
+    Database,
+};
+use serde::Serialize;
+use sha2::{Digest, Sha256};
+use uuid::Uuid;
+
+use crate::v3_foundation::{prepare_saved_match_debugger, SavedMatchDebugger};
+
+use super::{artifact::ArtifactLoadError, load_tested_artifact};
+
+const REVIEW_LIFETIME_MINUTES: i64 = 5;
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PackTaskReviewStep {
+    pub action: PackAction,
+    pub label: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PackTaskReview {
+    pub run_id: String,
+    pub approval_reference: String,
+    pub task_kind: AgentTaskKind,
+    pub plan: Vec<PackTaskReviewStep>,
+    pub failure_message: String,
+    pub privacy_labels: Vec<PrivacyLabel>,
+    pub data_categories: Vec<DataCategory>,
+    pub max_duration_seconds: u32,
+    pub max_output_bytes: u64,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct EvidenceReviewTaskResult {
+    pub review: SavedMatchDebugger,
+    pub receipt_id: String,
+}
+
+struct ActiveEvidenceTask {
+    task: AgentTask,
+    plan: Vec<PackTaskReviewStep>,
+    failure_message: String,
+    release_sequence: u64,
+    signed_release_sha256: String,
+    stream_generation: u64,
+}
+
+pub async fn cancel_reviewed_pack_task(database: &Database, run_id: &str) -> Result<()> {
+    database.cancel_pack_task(run_id).await?;
+    Ok(())
+}
+
+#[allow(clippy::too_many_arguments)]
+pub async fn prepare_evidence_review_task(
+    database: &Database,
+    artifact_root: &Path,
+    publisher_key_id: &str,
+    pack_id: &str,
+    expected_generation: u64,
+    trusted_publishers: &[TrustedPublisherKey],
+    today: NaiveDate,
+    job_hash: &str,
+    resume_id: i64,
+) -> Result<PackTaskReview> {
+    let active = load_active_evidence_task(
+        database,
+        artifact_root,
+        publisher_key_id,
+        pack_id,
+        expected_generation,
+        trusted_publishers,
+        today,
+    )
+    .await?;
+    let review = prepare_saved_match_debugger(database, job_hash, resume_id)
+        .await
+        .map_err(|_| anyhow!("selected evidence is no longer available"))?;
+    let now = Utc::now();
+    let context = PackTaskContext {
+        run_id: format!("pack-task:{}", Uuid::new_v4()),
+        approval_reference: format!("pack-task-approval:{}", Uuid::new_v4()),
+        publisher_key_id: publisher_key_id.to_string(),
+        pack_id: pack_id.to_string(),
+        release_sequence: active.release_sequence,
+        signed_release_sha256: active.signed_release_sha256,
+        stream_generation: active.stream_generation,
+        task_kind: active.task.kind,
+        task_id: active.task.task_id.clone(),
+        input_sha256: evidence_input_sha256(job_hash, resume_id, &review)?,
+        privacy_labels: active.task.privacy_labels.clone(),
+        data_categories: active.task.data_categories.clone(),
+        created_at: now,
+        expires_at: now + ChronoDuration::minutes(REVIEW_LIFETIME_MINUTES),
+    };
+    database.create_pack_task(&context).await?;
+    Ok(PackTaskReview {
+        run_id: context.run_id,
+        approval_reference: context.approval_reference,
+        task_kind: active.task.kind,
+        plan: active.plan,
+        failure_message: active.failure_message,
+        privacy_labels: active.task.privacy_labels,
+        data_categories: active.task.data_categories,
+        max_duration_seconds: active.task.max_duration_seconds,
+        max_output_bytes: active.task.max_output_bytes,
+    })
+}
+
+#[allow(clippy::too_many_arguments)]
+pub async fn execute_evidence_review_task(
+    database: &Database,
+    artifact_root: &Path,
+    trusted_publishers: &[TrustedPublisherKey],
+    today: NaiveDate,
+    run_id: &str,
+    approval_reference: &str,
+    job_hash: &str,
+    resume_id: i64,
+) -> Result<EvidenceReviewTaskResult> {
+    let run = database
+        .get_pack_task(run_id)
+        .await?
+        .ok_or_else(|| anyhow!("pack task was not found"))?;
+    if run.status != PackTaskStatus::Pending
+        || run.context.approval_reference != approval_reference
+        || run.context.task_kind != AgentTaskKind::EvidenceReview
+    {
+        return Err(anyhow!(
+            "pack task approval is invalid or no longer pending"
+        ));
+    }
+    let active = load_active_evidence_task(
+        database,
+        artifact_root,
+        &run.context.publisher_key_id,
+        &run.context.pack_id,
+        run.context.stream_generation,
+        trusted_publishers,
+        today,
+    )
+    .await?;
+    if !matches_context(&run.context, &active) {
+        return Err(anyhow!("pack task definition changed before execution"));
+    }
+    database.start_pack_task(&run.context).await?;
+
+    let execution = tokio::time::timeout(
+        Duration::from_secs(u64::from(active.task.max_duration_seconds)),
+        prepare_saved_match_debugger(database, job_hash, resume_id),
+    )
+    .await;
+    let review = match execution {
+        Ok(Ok(review))
+            if evidence_input_sha256(job_hash, resume_id, &review)
+                .is_ok_and(|digest| digest == run.context.input_sha256) =>
+        {
+            review
+        }
+        _ => return fail(database, run_id, &active.failure_message).await,
+    };
+    let result = EvidenceReviewTaskResult {
+        review,
+        receipt_id: format!("pack-task-receipt:{}", Uuid::new_v4()),
+    };
+    if serde_json::to_vec(&result)?.len() > active.task.max_output_bytes as usize {
+        return fail(database, run_id, &active.failure_message).await;
+    }
+    let receipt = PrivacyReceipt {
+        schema: SchemaId::PrivacyReceiptV1,
+        receipt_id: result.receipt_id.clone(),
+        task_id: active.task.task_id,
+        pack_id: active.task.pack_id,
+        labels: active.task.privacy_labels,
+        data_categories: active.task.data_categories,
+        stored_locally: true,
+        data_left_device: false,
+        external_destination: None,
+        gateway_policy_id: None,
+        approval_reference: None,
+        delete_or_revoke_action:
+            "Disable or remove the pack to prevent future runs; local audit history remains."
+                .to_string(),
+    };
+    if database
+        .complete_evidence_review(run_id, &receipt, job_hash)
+        .await
+        .is_err()
+    {
+        return fail(database, run_id, &active.failure_message).await;
+    }
+    Ok(result)
+}
+
+async fn load_active_evidence_task(
+    database: &Database,
+    artifact_root: &Path,
+    publisher_key_id: &str,
+    pack_id: &str,
+    expected_generation: u64,
+    trusted_publishers: &[TrustedPublisherKey],
+    today: NaiveDate,
+) -> Result<ActiveEvidenceTask> {
+    let stream = database.get_pack_stream(publisher_key_id, pack_id).await?;
+    if stream.publisher_key_id != publisher_key_id
+        || stream.pack_id != pack_id
+        || stream.generation != expected_generation
+        || stream.availability != PackAvailability::Ready
+    {
+        return Err(anyhow!("pack is not ready for execution"));
+    }
+    let release_sequence = stream
+        .active_release_sequence
+        .ok_or_else(|| anyhow!("pack has no active release"))?;
+    let stored = database
+        .get_stored_pack_release(publisher_key_id, pack_id, release_sequence)
+        .await?;
+    let (_, tested, _) =
+        match load_tested_artifact(artifact_root, &stored, trusted_publishers, today) {
+            Ok(loaded) => loaded,
+            Err(ArtifactLoadError::Missing) => {
+                database
+                    .quarantine_unavailable_active_pack_artifact(&stored, expected_generation)
+                    .await?;
+                return Err(anyhow!("pack artifact is unavailable"));
+            }
+            Err(ArtifactLoadError::Invalid) => {
+                database
+                    .quarantine_invalid_active_pack_artifact(&stored, expected_generation)
+                    .await?;
+                return Err(anyhow!("pack artifact verification failed"));
+            }
+        };
+    let SelfTestedPackPayload::ReviewedWorkflow {
+        task,
+        plan,
+        failure_message,
+    } = tested.into_payload()
+    else {
+        return Err(anyhow!("pack does not contain a reviewed task"));
+    };
+    if task.kind != AgentTaskKind::EvidenceReview {
+        return Err(anyhow!("pack task kind is not supported by this operation"));
+    }
+    Ok(ActiveEvidenceTask {
+        task,
+        plan: review_steps(plan),
+        failure_message,
+        release_sequence,
+        signed_release_sha256: stored.signed_release_sha256,
+        stream_generation: stream.generation,
+    })
+}
+
+fn review_steps(plan: Vec<ReviewedTaskPlanStep>) -> Vec<PackTaskReviewStep> {
+    plan.into_iter()
+        .map(|step| PackTaskReviewStep {
+            action: step.action,
+            label: step.label,
+        })
+        .collect()
+}
+
+fn matches_context(context: &PackTaskContext, active: &ActiveEvidenceTask) -> bool {
+    context.release_sequence == active.release_sequence
+        && context.signed_release_sha256 == active.signed_release_sha256
+        && context.stream_generation == active.stream_generation
+        && context.task_kind == active.task.kind
+        && context.task_id == active.task.task_id
+        && context.privacy_labels == active.task.privacy_labels
+        && context.data_categories == active.task.data_categories
+}
+
+fn evidence_input_sha256(
+    job_hash: &str,
+    resume_id: i64,
+    review: &SavedMatchDebugger,
+) -> Result<String> {
+    let mut digest = Sha256::new();
+    digest.update(b"jobsentinel.pack-task.evidence-review.v1\0");
+    let review_json = serde_json::to_vec(review)?;
+    for value in [job_hash.as_bytes(), &resume_id.to_le_bytes(), &review_json] {
+        digest.update((value.len() as u64).to_le_bytes());
+        digest.update(value);
+    }
+    Ok(hex::encode(digest.finalize()))
+}
+
+async fn fail<T>(database: &Database, run_id: &str, message: &str) -> Result<T> {
+    database.fail_pack_task(run_id).await?;
+    Err(anyhow!(message.to_string()))
+}

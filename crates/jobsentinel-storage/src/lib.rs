@@ -13,6 +13,7 @@ pub mod automation;
 pub mod health;
 pub mod market_intelligence;
 pub mod outside_ai;
+pub mod pack_tasks;
 pub mod resume;
 pub mod salary;
 pub mod user_data;
@@ -36,6 +37,8 @@ mod types;
 // Tests
 #[cfg(test)]
 mod outside_ai_tests;
+#[cfg(test)]
+mod pack_tasks_tests;
 #[cfg(test)]
 pub(crate) mod test_support;
 #[cfg(test)]

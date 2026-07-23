@@ -1,3 +1,5 @@
+<!-- Summarizes completed milestones, the active feature, and its next verified action. -->
+
 # Current Status
 
 Last updated: 2026-07-22
@@ -8,16 +10,6 @@ Last updated: 2026-07-22
   is deleted, storage hides its raw SQLx pool, and Tauri delegates product
   behavior through `jobsentinel-application`.
 - Desktop, frontend, script, workflow, and maintained-file ownership match the executable contracts.
-- The final structural batch eliminated 17 temporary exceptions through focused
-  suite splits, fixture extraction, taxonomy compaction, and reusable release
-  workflows. The sole retained exception is the unchanged initial SQLx migration,
-  protected by an exact checksum-compatible no-growth contract.
-- The final repository audit passed the full local gate, all 286 browser
-  journeys, and the Rust workspace all-features lane. The feature is `passing`
-  with fresh structured evidence in the canonical ledger.
-- Repository-root ownership was committed at `880fca80` and passed its complete
-  post-commit gate. Canonical state, contracts, plans, documents, examples, and
-  generated-output boundaries now live at their recorded owners.
 - Crate DRY remediation is complete. Maintained crate production duplication
   fell from 693 lines across 35 regions to zero, and crate test duplication fell
   from 2,184 lines across 79 regions to zero. The baselines are ratcheted to
@@ -49,9 +41,12 @@ Last updated: 2026-07-22
 
 - Active feature: `v3-milestone-7-agent-pack-runtime`
 - Status: `active`
-- Current slice: Signed packs now persist under a validated root through self-test, activation, disable, rollback,
-  revocation, uninstall, and cleanup retry. The startup reconciliation path is tested but not wired to production.
-- Next action: Bind the production artifact root, provision publisher trust, wire startup, then add drop review and UI.
+- Current slice: Signed packs persist under a validated root through self-test, activation, disable, rollback,
+  revocation, uninstall, and cleanup retry. Reviewed evidence tasks now use a single-use approval ledger bound to the
+  exact active release and reviewed input, enforce time and output limits, and atomically record local audit history.
+  Startup reconciliation is tested but not wired to production.
+- Next action: Add the reviewed draft-packet task and durable pack-management projection, then bind the production
+  artifact root and approved publisher trust before wiring startup, native drop review, and UI.
 
 ## Deferred
 

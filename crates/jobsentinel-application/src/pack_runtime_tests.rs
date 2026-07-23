@@ -1,7 +1,12 @@
+//! Exercises signed pack staging, lifecycle, recovery, integrity, and reviewed execution.
+
 use chrono::NaiveDate;
 use jobsentinel_domain::{
     v3_contracts::SchemaId,
-    v3_manifests::{PackExecutionClass, PackManifest, PackType, PrivacyLabel},
+    v3_manifests::{
+        AgentTaskKind, ApprovalGate, DataCategory, PackAction, PackExecutionClass, PackManifest,
+        PackType, PrivacyLabel,
+    },
     v3_signed_packs::TrustedPublisherKey,
 };
 use jobsentinel_security::sign_ed25519_for_test;
@@ -18,6 +23,8 @@ use crate::pack_runtime::{
 
 const PUBLISHER_ID: &str = "jobsentinel-test-source-v1";
 const PACK_ID: &str = "jobsentinel.test.synthetic-source";
+const EVIDENCE_PUBLISHER_ID: &str = "jobsentinel-test-agent-v1";
+const EVIDENCE_PACK_ID: &str = "jobsentinel.test.evidence-review";
 
 fn signed_source_pack(sequence: u64) -> (TrustedPublisherKey, Vec<u8>) {
     let (public_key, _) = sign_ed25519_for_test(&[7; 32], &[]).unwrap();
@@ -49,35 +56,128 @@ fn signed_source_pack(sequence: u64) -> (TrustedPublisherKey, Vec<u8>) {
         approval_gates: vec![],
         gateway_policy_id: None,
     };
+    let envelope = signed_envelope(
+        [7; 32],
+        PUBLISHER_ID,
+        PACK_ID,
+        sequence,
+        &manifest,
+        &payload,
+        "Synthetic source fixtures",
+    );
+    (publisher, envelope)
+}
+
+fn signed_evidence_review_pack(sequence: u64) -> (TrustedPublisherKey, Vec<u8>) {
+    let (public_key, _) = sign_ed25519_for_test(&[8; 32], &[]).unwrap();
+    let actions = vec![
+        PackAction::ReadSelectedResumeEvidence,
+        PackAction::WriteLocalEvent,
+    ];
+    let publisher = TrustedPublisherKey {
+        publisher_key_id: EVIDENCE_PUBLISHER_ID.to_string(),
+        public_key,
+        revoked: false,
+        pack_type: PackType::Agent,
+        execution_class: PackExecutionClass::ReviewedTypedWorkflow,
+        allowed_privacy_labels: vec![PrivacyLabel::LocalOnly, PrivacyLabel::Sensitive],
+        allowed_data_categories: vec![DataCategory::ResumeEvidence],
+        allowed_task_kinds: vec![AgentTaskKind::EvidenceReview],
+        allowed_actions: actions.clone(),
+        allowed_approval_gates: vec![ApprovalGate::PerExecutionReview],
+        allow_gateway_external_ai: false,
+    };
+    let payload = serde_json::to_string(&json!({
+        "schema": "jobsentinel.v3.pack-payload.v1",
+        "pack_type": "agent",
+        "task": {
+            "schema": "jobsentinel.v3.agent-task.v1",
+            "task_id": "review-selected-resume-evidence",
+            "pack_id": EVIDENCE_PACK_ID,
+            "kind": "evidence_review",
+            "privacy_labels": ["local_only", "sensitive"],
+            "data_categories": ["resume_evidence"],
+            "max_duration_seconds": 30,
+            "max_output_bytes": 262_144,
+            "max_attempts": 1,
+            "user_review_required": true
+        },
+        "plan": [
+            {
+                "action": "read_selected_resume_evidence",
+                "label": "Review the selected saved resume evidence"
+            },
+            {
+                "action": "write_local_event",
+                "label": "Record a local review receipt"
+            }
+        ],
+        "failure_message": "The evidence review could not be completed safely."
+    }))
+    .unwrap();
+    let manifest = PackManifest {
+        schema: SchemaId::PackManifestV1,
+        pack_id: EVIDENCE_PACK_ID.to_string(),
+        pack_type: PackType::Agent,
+        execution_class: PackExecutionClass::ReviewedTypedWorkflow,
+        publisher_key_id: EVIDENCE_PUBLISHER_ID.to_string(),
+        payload_sha256: hex::encode(Sha256::digest(payload.as_bytes())),
+        privacy_labels: vec![PrivacyLabel::LocalOnly, PrivacyLabel::Sensitive],
+        allowed_data_categories: vec![DataCategory::ResumeEvidence],
+        allowed_task_kinds: vec![AgentTaskKind::EvidenceReview],
+        allowed_actions: actions,
+        approval_gates: vec![ApprovalGate::PerExecutionReview],
+        gateway_policy_id: None,
+    };
+    let envelope = signed_envelope(
+        [8; 32],
+        EVIDENCE_PUBLISHER_ID,
+        EVIDENCE_PACK_ID,
+        sequence,
+        &manifest,
+        &payload,
+        "Deterministic local evidence review",
+    );
+    (publisher, envelope)
+}
+
+fn signed_envelope(
+    seed: [u8; 32],
+    publisher_key_id: &str,
+    pack_id: &str,
+    sequence: u64,
+    manifest: &PackManifest,
+    payload: &str,
+    fixture_summary: &str,
+) -> Vec<u8> {
     let signed_release = serde_json::to_string(&json!({
-        "release_id": format!("{PUBLISHER_ID}:{PACK_ID}:{sequence}"),
+        "release_id": format!("{publisher_key_id}:{pack_id}:{sequence}"),
         "pack_version": format!("1.0.{sequence}"),
         "min_v3_app_version": "3.0.0",
         "max_v3_app_version": "3.0.0",
         "release_sequence": sequence,
         "publisher_name": "JobSentinel Test",
         "license": "MIT",
-        "manifest_json": serde_json::to_string(&manifest).unwrap(),
+        "manifest_json": serde_json::to_string(manifest).unwrap(),
         "payload": payload,
         "payload_bytes": payload.len(),
-        "fixture_summary": "Synthetic source fixtures",
+        "fixture_summary": fixture_summary,
         "external_destinations": []
     }))
     .unwrap();
     let mut signing_bytes = b"jobsentinel.pack-envelope.v1\0".to_vec();
-    for value in [PUBLISHER_ID.as_bytes(), signed_release.as_bytes()] {
+    for value in [publisher_key_id.as_bytes(), signed_release.as_bytes()] {
         signing_bytes.extend_from_slice(&(value.len() as u64).to_le_bytes());
         signing_bytes.extend_from_slice(value);
     }
-    let (_, signature) = sign_ed25519_for_test(&[7; 32], &signing_bytes).unwrap();
-    let envelope = serde_json::to_vec(&json!({
+    let (_, signature) = sign_ed25519_for_test(&seed, &signing_bytes).unwrap();
+    serde_json::to_vec(&json!({
         "schema": "jobsentinel.v3.signed-pack-envelope.v1",
-        "publisher_key_id": PUBLISHER_ID,
+        "publisher_key_id": publisher_key_id,
         "signed_release": signed_release,
         "signature": hex::encode(signature)
     }))
-    .unwrap();
-    (publisher, envelope)
+    .unwrap()
 }
 
 async fn stage_and_activate(
@@ -167,6 +267,7 @@ fn walk_files(root: &std::path::Path) -> Vec<std::path::PathBuf> {
     files
 }
 
+mod execution;
 mod integrity;
 mod lifecycle;
 mod recovery;
