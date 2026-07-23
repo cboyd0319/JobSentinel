@@ -142,9 +142,11 @@ fn valid_signed_release_is_verified_before_any_pack_data_is_exposed() {
 }
 
 #[test]
-fn pre_v3_binary_rejects_v3_pack_releases() {
-    assert_eq!(CURRENT_V3_RUNTIME_VERSION, "2.9.5");
-    assert!(parse_signed_pack_release(&valid_envelope(), &[agent_key()]).is_err());
+fn v3_binary_accepts_an_exact_compatible_pack_release() {
+    let verified = parse_signed_pack_release(&valid_envelope(), &[agent_key()])
+        .expect("the compiled v3 runtime must accept an exact compatible release");
+    assert_eq!(CURRENT_V3_RUNTIME_VERSION, "3.0.0");
+    assert_eq!(verified.runtime_version, CURRENT_V3_RUNTIME_VERSION);
 }
 
 #[test]

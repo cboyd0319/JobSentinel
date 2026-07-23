@@ -625,9 +625,10 @@ relevant result, and caveat.
   review is committed at `8c663ac1`; current and pending release permissions, failures, and cleanup truth remain
   inspectable without adding lifecycle or execution authority. Self-tested synthetic evaluation packs now retain their
   complete fixture set behind the private scorer committed at `f9f0a849`; exact observation coverage returns only
-  per-case pass or fail results. Product-target evaluation execution, production publisher trust, the v3.0.0 runtime
-  cut, artifact-root binding, startup wiring, native source-pack drop, lifecycle controls, reviewed local skill and
-  agent execution, and platform live proof remain open.
+  per-case pass or fail results. Development source metadata and the compiled signed-pack runtime now identify the
+  unreleased 3.0.0 line, and pack-runtime tests use the production parser. Product-target evaluation execution,
+  production publisher trust, artifact-root binding, startup wiring, native source-pack drop, lifecycle controls,
+  reviewed local skill and agent execution, and platform live proof remain open.
 - Evidence: `docs/harness/evidence/v3-milestone-3-reviewed-export-2026-07-19.json`
   binds the reviewed-export slice at `3b4f635b`, and
   `docs/harness/evidence/v3-milestone-3-storage-cleanup-2026-07-19.json` binds

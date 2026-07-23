@@ -5,9 +5,7 @@ use jobsentinel_domain::{
     v3_contracts::SchemaId,
     v3_manifests::{PackExecutionClass, PackManifest, PackType, PrivacyLabel},
     v3_pack_payloads::parse_and_self_test_pack_payload,
-    v3_signed_packs::{
-        parse_signed_pack_release_for_runtime_test, TrustedPublisherKey, VerifiedPackRelease,
-    },
+    v3_signed_packs::{parse_signed_pack_release, TrustedPublisherKey, VerifiedPackRelease},
 };
 use jobsentinel_security::sign_ed25519_for_test;
 use serde_json::json;
@@ -92,8 +90,7 @@ fn release_for_pack(
         "signature": hex::encode(signature)
     }))
     .unwrap();
-    parse_signed_pack_release_for_runtime_test(&envelope, std::slice::from_ref(publisher), "3.0.0")
-        .unwrap()
+    parse_signed_pack_release(&envelope, std::slice::from_ref(publisher)).unwrap()
 }
 
 fn valid_source_payload() -> String {

@@ -1,3 +1,5 @@
+<!-- Introduces JobSentinel, its release status, downloads, capabilities, and user entry points. -->
+
 # JobSentinel
 
 **JobSentinel is an open-source, local-first job-search assistant for finding
@@ -9,7 +11,7 @@ application, and protect your pay goals from one private desktop workspace.
 Core workflows work locally. JobSentinel is free, will always stay free, and
 will always remain MIT licensed.
 
-[![Source version](https://img.shields.io/badge/source-2.9.5-2563eb)](https://github.com/cboyd0319/JobSentinel/releases/tag/v2.9.5)
+[![Source version](https://img.shields.io/badge/source-3.0.0-2563eb)](package.json)
 [![Release](https://img.shields.io/github/v/release/cboyd0319/JobSentinel?label=release&color=2563eb)](https://github.com/cboyd0319/JobSentinel/releases/latest)
 [![MIT License](https://img.shields.io/badge/license-MIT-111827)](LICENSE)
 [![Rule 0](https://img.shields.io/badge/rule%200-privacy%20%26%20security-991b1b)](PRIVACY.md)

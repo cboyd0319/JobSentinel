@@ -3279,7 +3279,7 @@ dependencies = [
 
 [[package]]
 name = "jobsentinel"
-version = "2.9.5"
+version = "3.0.0"
 dependencies = [
  "anyhow",
  "arboard",
@@ -3304,7 +3304,7 @@ dependencies = [
 
 [[package]]
 name = "jobsentinel-ai"
-version = "2.9.5"
+version = "3.0.0"
 dependencies = [
  "jobsentinel-domain",
  "jobsentinel-network",
@@ -3318,7 +3318,7 @@ dependencies = [
 
 [[package]]
 name = "jobsentinel-application"
-version = "2.9.5"
+version = "3.0.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -3355,7 +3355,7 @@ dependencies = [
 
 [[package]]
 name = "jobsentinel-assistance"
-version = "2.9.5"
+version = "3.0.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -3379,7 +3379,7 @@ dependencies = [
 
 [[package]]
 name = "jobsentinel-credentials"
-version = "2.9.5"
+version = "3.0.0"
 dependencies = [
  "argon2",
  "chacha20poly1305",
@@ -3397,7 +3397,7 @@ dependencies = [
 
 [[package]]
 name = "jobsentinel-documents"
-version = "2.9.5"
+version = "3.0.0"
 dependencies = [
  "anyhow",
  "chrono",
@@ -3417,7 +3417,7 @@ dependencies = [
 
 [[package]]
 name = "jobsentinel-domain"
-version = "2.9.5"
+version = "3.0.0"
 dependencies = [
  "chrono",
  "hex",
@@ -3432,7 +3432,7 @@ dependencies = [
 
 [[package]]
 name = "jobsentinel-intelligence"
-version = "2.9.5"
+version = "3.0.0"
 dependencies = [
  "chrono",
  "regex",
@@ -3442,7 +3442,7 @@ dependencies = [
 
 [[package]]
 name = "jobsentinel-local-ai"
-version = "2.9.5"
+version = "3.0.0"
 dependencies = [
  "anyhow",
  "basic-toml",
@@ -3466,7 +3466,7 @@ dependencies = [
 
 [[package]]
 name = "jobsentinel-network"
-version = "2.9.5"
+version = "3.0.0"
 dependencies = [
  "jobsentinel-security",
  "reqwest",
@@ -3480,7 +3480,7 @@ dependencies = [
 
 [[package]]
 name = "jobsentinel-notifications"
-version = "2.9.5"
+version = "3.0.0"
 dependencies = [
  "anyhow",
  "chrono",
@@ -3495,7 +3495,7 @@ dependencies = [
 
 [[package]]
 name = "jobsentinel-platform"
-version = "2.9.5"
+version = "3.0.0"
 dependencies = [
  "chacha20poly1305",
  "dirs",
@@ -3516,7 +3516,7 @@ dependencies = [
 
 [[package]]
 name = "jobsentinel-security"
-version = "2.9.5"
+version = "3.0.0"
 dependencies = [
  "ring",
  "url",
@@ -3524,7 +3524,7 @@ dependencies = [
 
 [[package]]
 name = "jobsentinel-sources"
-version = "2.9.5"
+version = "3.0.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -3549,7 +3549,7 @@ dependencies = [
 
 [[package]]
 name = "jobsentinel-storage"
-version = "2.9.5"
+version = "3.0.0"
 dependencies = [
  "anyhow",
  "chrono",

@@ -1,3 +1,5 @@
+<!-- Routes readers to JobSentinel's maintained user, developer, security, research, and planning documentation. -->
+
 # JobSentinel Documentation
 
 This directory is the working documentation system for JobSentinel. The root
@@ -41,7 +43,7 @@ The maintained external source index lives in
 
 ## Current State
 
-- Package metadata version: `2.9.5`.
+- Development package metadata version: `3.0.0`. This source line is unreleased.
 - Current public release: `v2.9.5`, published on 2026-07-18 UTC at
   `https://github.com/cboyd0319/JobSentinel/releases/tag/v2.9.5`.
 - Release assets are produced from manual release workflow dispatches on GitHub

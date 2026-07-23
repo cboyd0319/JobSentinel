@@ -397,16 +397,6 @@ fn verify_pack(
     envelope: &[u8],
     trusted_publishers: &[TrustedPublisherKey],
 ) -> Result<VerifiedPackRelease> {
-    #[cfg(test)]
-    {
-        return jobsentinel_domain::v3_signed_packs::parse_signed_pack_release_for_runtime_test(
-            envelope,
-            trusted_publishers,
-            "3.0.0",
-        )
-        .map_err(|_| anyhow!("pack verification failed"));
-    }
-    #[cfg(not(test))]
     jobsentinel_domain::v3_signed_packs::parse_signed_pack_release(envelope, trusted_publishers)
         .map_err(|_| anyhow!("pack verification failed"))
 }

@@ -46,9 +46,9 @@ Last updated: 2026-07-22
   retained history, quarantine, cleanup, and safe load failures through a fail-closed renderer decoder. Self-tested
   evaluation packs retain their complete synthetic set behind a private local scorer that accepts exact observation
   coverage and returns only per-case pass or fail results. These paths add no pack lifecycle or product-target execution
-  authority. Startup reconciliation is tested but not wired to production.
-- Next action: Approve publisher ceilings and the v3.0.0 runtime cut. Then bind the production artifact root and
-  startup.
+  authority. Development metadata and the compiled signed-pack runtime now identify the unreleased 3.0.0 line; exact
+  compatible signed packs reach the production parser. Startup reconciliation is tested but not wired to production.
+- Next action: Approve publisher ceilings. Then bind the production artifact root and startup.
   Finish source-pack drop, lifecycle controls, product-target evaluation and reviewed local execution, and live
   platform proof.
 

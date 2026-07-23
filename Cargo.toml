@@ -1,3 +1,5 @@
+# Defines the Rust workspace members, shared package metadata, dependencies, and lints.
+
 [workspace]
 members = [
   "crates/jobsentinel-ai",
@@ -19,7 +21,7 @@ members = [
 resolver = "2"
 
 [workspace.package]
-version = "2.9.5"
+version = "3.0.0"
 edition = "2021"
 authors = ["Chad Boyd"]
 license = "MIT"
@@ -44,20 +46,20 @@ futures = "=0.3.32"
 futures-util = "=0.3.32"
 hex = "=0.4.3"
 hf-hub = { version = "=1.0.0", default-features = false, features = ["rustls-tls"] }
-jobsentinel-credentials = { path = "crates/jobsentinel-credentials", version = "=2.9.5" }
-jobsentinel-ai = { path = "crates/jobsentinel-ai", version = "=2.9.5" }
-jobsentinel-documents = { path = "crates/jobsentinel-documents", version = "=2.9.5" }
-jobsentinel-application = { path = "crates/jobsentinel-application", version = "=2.9.5" }
-jobsentinel-assistance = { path = "crates/jobsentinel-assistance", version = "=2.9.5" }
-jobsentinel-domain = { path = "crates/jobsentinel-domain", version = "=2.9.5" }
-jobsentinel-intelligence = { path = "crates/jobsentinel-intelligence", version = "=2.9.5" }
-jobsentinel-local-ai = { path = "crates/jobsentinel-local-ai", version = "=2.9.5" }
-jobsentinel-network = { path = "crates/jobsentinel-network", version = "=2.9.5" }
-jobsentinel-notifications = { path = "crates/jobsentinel-notifications", version = "=2.9.5" }
-jobsentinel-platform = { path = "crates/jobsentinel-platform", version = "=2.9.5" }
-jobsentinel-security = { path = "crates/jobsentinel-security", version = "=2.9.5" }
-jobsentinel-sources = { path = "crates/jobsentinel-sources", version = "=2.9.5" }
-jobsentinel-storage = { path = "crates/jobsentinel-storage", version = "=2.9.5" }
+jobsentinel-credentials = { path = "crates/jobsentinel-credentials", version = "=3.0.0" }
+jobsentinel-ai = { path = "crates/jobsentinel-ai", version = "=3.0.0" }
+jobsentinel-documents = { path = "crates/jobsentinel-documents", version = "=3.0.0" }
+jobsentinel-application = { path = "crates/jobsentinel-application", version = "=3.0.0" }
+jobsentinel-assistance = { path = "crates/jobsentinel-assistance", version = "=3.0.0" }
+jobsentinel-domain = { path = "crates/jobsentinel-domain", version = "=3.0.0" }
+jobsentinel-intelligence = { path = "crates/jobsentinel-intelligence", version = "=3.0.0" }
+jobsentinel-local-ai = { path = "crates/jobsentinel-local-ai", version = "=3.0.0" }
+jobsentinel-network = { path = "crates/jobsentinel-network", version = "=3.0.0" }
+jobsentinel-notifications = { path = "crates/jobsentinel-notifications", version = "=3.0.0" }
+jobsentinel-platform = { path = "crates/jobsentinel-platform", version = "=3.0.0" }
+jobsentinel-security = { path = "crates/jobsentinel-security", version = "=3.0.0" }
+jobsentinel-sources = { path = "crates/jobsentinel-sources", version = "=3.0.0" }
+jobsentinel-storage = { path = "crates/jobsentinel-storage", version = "=3.0.0" }
 keyring = "=4.1.5"
 lettre = { version = "=0.11.22", default-features = false, features = ["tokio1-rustls-tls", "builder", "smtp-transport"] }
 libc = "=0.2.186"
