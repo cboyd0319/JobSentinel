@@ -41,13 +41,11 @@ Last updated: 2026-07-22
 
 - Active feature: `v3-milestone-7-agent-pack-runtime`
 - Status: `active`
-- Current slice: Signed pack persistence, lifecycle, cleanup, reviewed execution, and immutable management facts are
-  implemented behind caller-owned runtime inputs. A read-only Settings view now shows current and pending permissions,
-  retained history, quarantine, cleanup, and safe load failures through a fail-closed renderer decoder. Self-tested
-  evaluation packs retain their complete synthetic set behind a private local scorer that accepts exact observation
-  coverage and returns only per-case pass or fail results. These paths add no pack lifecycle or product-target execution
-  authority. Development metadata and the compiled signed-pack runtime now identify the unreleased 3.0.0 line; exact
-  compatible signed packs reach the production parser. Startup reconciliation is tested but not wired to production.
+- Current slice: Pack persistence, lifecycle, cleanup, reviewed execution, management facts, and private evaluation
+  scoring exist behind caller-owned runtime inputs; Settings remains read-only. Source and runtime metadata identify
+  unreleased 3.0.0, and exact compatible packs reach the production parser. A bounded application reader reopens a
+  Ready static Agent Skill only after generation, trust, signature, artifact, and self-test checks, returning plain
+  signed text, resources, and an advisory handoff without execution. Startup reconciliation and skill UI are unwired.
 - Next action: Approve publisher ceilings. Then bind the production artifact root and startup.
   Finish source-pack drop, lifecycle controls, product-target evaluation and reviewed local execution, and live
   platform proof.

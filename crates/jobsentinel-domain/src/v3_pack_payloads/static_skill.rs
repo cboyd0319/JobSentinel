@@ -1,3 +1,5 @@
+//! Validates signed static Agent Skill content and retains its bounded local review data.
+
 use std::path::{Component, Path};
 
 use jobsentinel_security::{
@@ -6,8 +8,8 @@ use jobsentinel_security::{
 use serde::Deserialize;
 
 use super::{
-    is_safe_display_text, SelfTestedPackPayload, SkillHandoff, MAX_FIXTURE_BYTES,
-    PACK_PAYLOAD_SCHEMA,
+    is_safe_display_text, SelfTestedPackPayload, SkillHandoff, StaticSkillResource,
+    MAX_FIXTURE_BYTES, PACK_PAYLOAD_SCHEMA,
 };
 use crate::{
     v3_manifests::{AgentTaskKind, PackExecutionClass, PackType, PrivacyLabel},
@@ -84,7 +86,15 @@ pub(super) fn self_test_static_skill(
     }
     Ok(SelfTestedPackPayload::StaticSkill {
         skill_name: payload.skill_name,
-        resource_count: payload.resources.len(),
+        skill_md: payload.skill_md,
+        resources: payload
+            .resources
+            .into_iter()
+            .map(|resource| StaticSkillResource {
+                path: resource.path,
+                content: resource.content,
+            })
+            .collect(),
         handoff: payload.handoff.map(|handoff| SkillHandoff {
             task_kind: handoff.task_kind,
             label: handoff.label,

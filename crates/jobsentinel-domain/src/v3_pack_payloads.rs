@@ -39,6 +39,12 @@ pub struct SkillHandoff {
     pub label: String,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct StaticSkillResource {
+    pub path: String,
+    pub content: String,
+}
+
 #[derive(Debug)]
 pub enum SelfTestedPackPayload {
     Source {
@@ -54,7 +60,8 @@ pub enum SelfTestedPackPayload {
     },
     StaticSkill {
         skill_name: String,
-        resource_count: usize,
+        skill_md: String,
+        resources: Vec<StaticSkillResource>,
         handoff: Option<SkillHandoff>,
     },
     Evaluation {

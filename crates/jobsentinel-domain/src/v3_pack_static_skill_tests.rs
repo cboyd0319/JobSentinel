@@ -1,4 +1,4 @@
-//! Proves static-skill payload parsing, references, bounds, and safe rendering.
+//! Proves static-skill payload parsing, references, bounds, and retained review content.
 
 use chrono::NaiveDate;
 use serde_json::json;
@@ -82,14 +82,16 @@ fn static_skill_self_test_preserves_text_only_agent_skill_handoff() {
     let tested = test_payload(payload()).unwrap().into_payload();
     let SelfTestedPackPayload::StaticSkill {
         skill_name,
-        resource_count,
+        skill_md,
+        resources,
         handoff,
     } = tested
     else {
         panic!("skill payload must remain static content");
     };
     assert_eq!(skill_name, "resume-evidence-review");
-    assert_eq!(resource_count, 1);
+    assert!(skill_md.contains("## Guardrails"));
+    assert_eq!(resources.len(), 1);
     assert_eq!(handoff.unwrap().task_kind, AgentTaskKind::EvidenceReview);
 }
 

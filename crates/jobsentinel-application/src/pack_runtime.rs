@@ -1,4 +1,4 @@
-//! Signed pack artifact staging and explicit activation.
+//! Owns signed pack staging, lifecycle, recovery, review, and bounded local use.
 
 use std::path::Path;
 
@@ -28,9 +28,9 @@ mod recovery;
 use artifact::{load_tested_artifact, persist_artifact, remove_owned_artifact, ArtifactLoadError};
 pub use execution::{
     cancel_reviewed_pack_task, execute_draft_packet_task, execute_evidence_review_task,
-    prepare_draft_packet_task, prepare_evidence_review_task, DraftApplicationPacket,
-    DraftPacketTaskResult, DraftPacketTaskReview, EvidenceReviewTaskResult, PackTaskReview,
-    PackTaskReviewStep,
+    open_active_static_skill, prepare_draft_packet_task, prepare_evidence_review_task,
+    DraftApplicationPacket, DraftPacketTaskResult, DraftPacketTaskReview, EvidenceReviewTaskResult,
+    PackTaskReview, PackTaskReviewStep, StaticSkillHandoff, StaticSkillResource, StaticSkillReview,
 };
 pub use management::{
     list_pack_management_reviews, PackManagementReleaseReview, PackManagementReview,

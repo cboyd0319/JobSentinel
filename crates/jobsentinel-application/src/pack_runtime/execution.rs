@@ -1,4 +1,4 @@
-//! Runs single-use, reviewed pack tasks against deterministic local application owners.
+//! Loads verified static skills and runs reviewed tasks against deterministic local owners.
 
 use std::{path::Path, time::Duration};
 
@@ -61,6 +61,36 @@ pub struct EvidenceReviewTaskResult {
     pub receipt_id: String,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct StaticSkillResource {
+    pub path: String,
+    pub content: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct StaticSkillHandoff {
+    pub task_kind: AgentTaskKind,
+    pub label: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct StaticSkillReview {
+    pub skill_name: String,
+    pub skill_md: String,
+    pub resources: Vec<StaticSkillResource>,
+    pub handoff: Option<StaticSkillHandoff>,
+}
+
+struct ActivePackPayload {
+    payload: SelfTestedPackPayload,
+    release_sequence: u64,
+    signed_release_sha256: String,
+    stream_generation: u64,
+}
+
 pub(super) struct ActiveReviewedTask {
     pub(super) task: AgentTask,
     pub(super) plan: Vec<PackTaskReviewStep>,
@@ -73,6 +103,53 @@ pub(super) struct ActiveReviewedTask {
 pub async fn cancel_reviewed_pack_task(database: &Database, run_id: &str) -> Result<()> {
     database.cancel_pack_task(run_id).await?;
     Ok(())
+}
+
+#[allow(clippy::too_many_arguments)]
+pub async fn open_active_static_skill(
+    database: &Database,
+    artifact_root: &Path,
+    publisher_key_id: &str,
+    pack_id: &str,
+    expected_generation: u64,
+    trusted_publishers: &[TrustedPublisherKey],
+    today: NaiveDate,
+) -> Result<StaticSkillReview> {
+    let active = load_active_pack_payload(
+        database,
+        artifact_root,
+        publisher_key_id,
+        pack_id,
+        expected_generation,
+        trusted_publishers,
+        today,
+    )
+    .await?;
+    let SelfTestedPackPayload::StaticSkill {
+        skill_name,
+        skill_md,
+        resources,
+        handoff,
+        ..
+    } = active.payload
+    else {
+        return Err(anyhow!("pack does not contain a static skill"));
+    };
+    Ok(StaticSkillReview {
+        skill_name,
+        skill_md,
+        resources: resources
+            .into_iter()
+            .map(|resource| StaticSkillResource {
+                path: resource.path,
+                content: resource.content,
+            })
+            .collect(),
+        handoff: handoff.map(|handoff| StaticSkillHandoff {
+            task_kind: handoff.task_kind,
+            label: handoff.label,
+        }),
+    })
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -228,13 +305,54 @@ pub(super) async fn load_active_reviewed_task(
     today: NaiveDate,
     expected_kind: AgentTaskKind,
 ) -> Result<ActiveReviewedTask> {
+    let active = load_active_pack_payload(
+        database,
+        artifact_root,
+        publisher_key_id,
+        pack_id,
+        expected_generation,
+        trusted_publishers,
+        today,
+    )
+    .await?;
+    let SelfTestedPackPayload::ReviewedWorkflow {
+        task,
+        plan,
+        failure_message,
+    } = active.payload
+    else {
+        return Err(anyhow!("pack does not contain a reviewed task"));
+    };
+    if task.kind != expected_kind {
+        return Err(anyhow!("pack task kind is not supported by this operation"));
+    }
+    Ok(ActiveReviewedTask {
+        task,
+        plan: review_steps(plan),
+        failure_message,
+        release_sequence: active.release_sequence,
+        signed_release_sha256: active.signed_release_sha256,
+        stream_generation: active.stream_generation,
+    })
+}
+
+#[allow(clippy::too_many_arguments)]
+async fn load_active_pack_payload(
+    database: &Database,
+    artifact_root: &Path,
+    publisher_key_id: &str,
+    pack_id: &str,
+    expected_generation: u64,
+    trusted_publishers: &[TrustedPublisherKey],
+    today: NaiveDate,
+) -> Result<ActivePackPayload> {
     let stream = database.get_pack_stream(publisher_key_id, pack_id).await?;
     if stream.publisher_key_id != publisher_key_id
         || stream.pack_id != pack_id
         || stream.generation != expected_generation
         || stream.availability != PackAvailability::Ready
     {
-        return Err(anyhow!("pack is not ready for execution"));
+        return Err(anyhow!("pack is not ready"));
     }
     let release_sequence = stream
         .active_release_sequence
@@ -258,21 +376,8 @@ pub(super) async fn load_active_reviewed_task(
                 return Err(anyhow!("pack artifact verification failed"));
             }
         };
-    let SelfTestedPackPayload::ReviewedWorkflow {
-        task,
-        plan,
-        failure_message,
-    } = tested.into_payload()
-    else {
-        return Err(anyhow!("pack does not contain a reviewed task"));
-    };
-    if task.kind != expected_kind {
-        return Err(anyhow!("pack task kind is not supported by this operation"));
-    }
-    Ok(ActiveReviewedTask {
-        task,
-        plan: review_steps(plan),
-        failure_message,
+    Ok(ActivePackPayload {
+        payload: tested.into_payload(),
         release_sequence,
         signed_release_sha256: stored.signed_release_sha256,
         stream_generation: stream.generation,
