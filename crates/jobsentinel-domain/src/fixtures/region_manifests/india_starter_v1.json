@@ -1,0 +1,58 @@
+{
+  "schema": "jobsentinel.v3.region-starter-data.v1",
+  "region_id": "india",
+  "reviewed_on": "2026-09-11",
+  "taxonomy_mappings": [
+    {
+      "taxonomy_id": "india_nco_2015_research",
+      "source_code": "2512.0204",
+      "source_label": "Software Developer – Application Development",
+      "canonical_term": "software development",
+      "mapping_type": "close",
+      "confidence_note": "Official secondary verification: MSDE/NCAER Annexure 10.1, p. 279, row 30 records this NCO 2015 code and label. The canonical NCO volume was not inspected. JobSentinel's vocabulary alignment remains tentative, not a qualification or eligibility equivalence.",
+      "provenance_url": "https://www.msde.gov.in/static/uploads/2025/07/6a62ad4129b524c392ed1450393804f4.pdf"
+    }
+  ],
+  "cv_profiles": [
+    {
+      "profile_id": "india_cv_research",
+      "label": "India evidence-first CV starter",
+      "sections": [
+        "Contact information",
+        "Role summary",
+        "Relevant work and projects",
+        "Education and verified qualifications",
+        "Skills and languages"
+      ],
+      "guidance": [
+        "These optional sections are JobSentinel guidance, not an official or universal India CV format; check the employer's instructions.",
+        "Keep role titles, dates, language ability, and qualifications grounded in your own records.",
+        "Do not infer NSQF levels, licensing, or work eligibility from an occupation code.",
+        "This English-only starter does not translate a CV or assess qualification equivalence."
+      ],
+      "provenance_urls": [
+        "https://www.ncs.gov.in/"
+      ]
+    }
+  ],
+  "source_notes": [
+    {
+      "source_id": "india_ncs_research",
+      "label": "National Career Service",
+      "url": "https://www.ncs.gov.in/",
+      "access_note": "Public career and job-search research starting point. Individual posting coverage and automated access have not been validated by this starter. Installing this pack grants no source access."
+    },
+    {
+      "source_id": "india_nco_2015_research",
+      "label": "NCO 2015 official secondary reference",
+      "url": "https://www.msde.gov.in/static/uploads/2025/07/6a62ad4129b524c392ed1450393804f4.pdf",
+      "access_note": "MSDE/NCAER's National Skill Gap Study for High Growth Sectors, Annexure 10.1, p. 279, row 30 corroborates the occupation code and label. The canonical NCO volume was not inspected. This static reference grants no source access."
+    },
+    {
+      "source_id": "india_nsqf_nos_research",
+      "label": "NSQF/NOS technical qualification research (cached)",
+      "url": "https://www.nqr.gov.in/qualifications/13568",
+      "access_note": "Cached NQR record and qualification-file research identifies Software Product Developer, NOS SSC/N0514 and SSC/N0502, and NCO 2511.0103, not 2512.0204. This is not an equivalence or user-qualification claim. Live retrieval was unavailable on 2026-09-11; verify the current record."
+    }
+  ]
+}

@@ -1,3 +1,5 @@
+/** Provides shared dashboard job-card fixtures and browser mocks. */
+
 import { render } from "@testing-library/react";
 import { vi } from "vitest";
 import { ToastProvider } from "../../../app/providers/ToastProvider";
@@ -29,6 +31,7 @@ export const mockJob = {
     "We are looking for a helpful support lead to guide our care team.",
   salary_min: 55000,
   salary_max: 72000,
+  currency: "USD",
   remote: false,
   bookmarked: false,
   notes: null,

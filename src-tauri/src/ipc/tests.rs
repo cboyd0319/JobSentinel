@@ -9,14 +9,14 @@ mod tests {
     use crate::bootstrap::AppState;
     use crate::desktop::Database;
     use chrono::Utc;
-    use jobsentinel_application::Job;
+    use jobsentinel_application::{pack_runtime::PackRuntimeEnvironment, Job};
     use std::sync::Arc;
     use tokio::sync::RwLock;
 
     use crate::desktop::SchedulerStatus;
 
     /// Helper to create a test AppState with in-memory database
-    async fn create_test_app_state() -> AppState {
+    pub(crate) async fn create_test_app_state() -> AppState {
         let config = Config {
             title_allowlist: vec!["Care Coordinator".to_string()],
             title_blocklist: vec![],
@@ -29,6 +29,7 @@ mod tests {
                 cities: vec![],
                 states: vec![],
                 country: "US".to_string(),
+                search_country: None,
             },
             salary_floor_usd: 100000,
             immediate_alert_threshold: 0.9,
@@ -72,6 +73,7 @@ mod tests {
             ..Default::default()
         };
         let bookmarklet_server = BookmarkletServer::new(bookmarklet_config);
+        let pack_runtime_data_dir = tempfile::tempdir().expect("Failed to create test data dir");
 
         AppState {
             config: Arc::new(RwLock::new(config)),
@@ -85,6 +87,9 @@ mod tests {
             scheduler_status: Arc::new(RwLock::new(SchedulerStatus::default())),
             bookmarklet_server: Arc::new(RwLock::new(bookmarklet_server)),
             pending_url_imports: Default::default(),
+            pack_runtime: PackRuntimeEnvironment::for_data_dir(pack_runtime_data_dir.path()),
+            pending_military_transition_reviews: Default::default(),
+            outside_ai_cancellations: Default::default(),
         }
     }
 
@@ -105,6 +110,8 @@ mod tests {
             salary_min: Some(150000),
             salary_max: Some(200000),
             currency: Some("USD".to_string()),
+            listed_pay: None,
+            geography: None,
             created_at: Utc::now(),
             updated_at: Utc::now(),
             last_seen: Utc::now(),
@@ -249,6 +256,7 @@ mod tests {
                 cities: vec![],
                 states: vec![],
                 country: "US".to_string(),
+                search_country: None,
             },
             salary_floor_usd: 120000,
             immediate_alert_threshold: 0.85,
@@ -346,19 +354,6 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn test_is_first_run() {
-        use crate::ipc::config::is_first_run;
-
-        // Note: This test is environment-dependent and difficult to test in isolation
-        // without mocking Config::default_path(). In a real scenario, you'd use
-        // dependency injection or a trait to make this testable.
-
-        // We can at least verify the function doesn't panic
-        let result = is_first_run().await;
-        assert!(result.is_ok(), "is_first_run should not panic");
-    }
-
-    #[tokio::test]
     async fn test_complete_setup_config_serialization() {
         let config = Config {
             title_allowlist: vec!["Care Coordinator".to_string()],
@@ -372,6 +367,7 @@ mod tests {
                 cities: vec![],
                 states: vec![],
                 country: "US".to_string(),
+                search_country: None,
             },
             salary_floor_usd: 100000,
             immediate_alert_threshold: 0.9,
@@ -441,3 +437,5 @@ mod tests {
         );
     }
 }
+
+pub(crate) use tests::create_test_app_state;

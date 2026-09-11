@@ -1,6 +1,4 @@
-//! SQLCipher-backed local storage for JobSentinel.
-//!
-//! Handles local database operations through a bounded SQLx-backed facade.
+//! Exposes JobSentinel's SQLCipher-backed storage facade and bounded native evidence decoders.
 
 mod integrity;
 mod scoring_config;
@@ -12,9 +10,16 @@ pub mod application_tracking;
 pub mod automation;
 pub mod health;
 pub mod market_intelligence;
+pub mod outside_ai;
+pub mod pack_tasks;
 pub mod resume;
 pub mod salary;
 pub mod user_data;
+pub mod v3_foundation;
+pub mod v3_pack_lifecycle;
+pub mod v3_source_consent;
+pub mod v3_source_manifest;
+pub mod v3_vectors;
 
 // Internal modules
 mod analytics;
@@ -29,18 +34,48 @@ mod types;
 
 // Tests
 #[cfg(test)]
+mod outside_ai_tests;
+#[cfg(test)]
+mod pack_tasks_tests;
+#[cfg(test)]
 pub(crate) mod test_support;
 #[cfg(test)]
 mod tests;
+#[cfg(test)]
+mod v3_pack_lifecycle_tests;
+#[cfg(test)]
+mod v3_source_manifest_tests;
 
 // Re-export public types
 pub use types::{DuplicateGroup, GhostStatistics, Statistics};
 
 // Re-export Database struct
-pub use connection::Database;
+pub use connection::{
+    Database, PortableBackupHistory, PortableBackupInfo, PortableRestoreStatus, ReviewedExportInfo,
+    ReviewedExportPlan, ReviewedExportSelection, StorageHealth, StorageMaintenanceReport,
+};
 pub use credentials::{
     CredentialKeyWrapRecord, CredentialRepository, CredentialSecretRecord, CredentialStorageError,
 };
+pub use v3_pack_lifecycle::pack_lifecycle_error_kind;
+
+/// Decodes persisted listed pay without falling back to legacy salary fields.
+pub(crate) fn decode_listed_pay_json(
+    json: Option<&str>,
+) -> Result<Option<jobsentinel_domain::ListedPay>, sqlx::Error> {
+    json.map(jobsentinel_domain::ListedPay::from_canonical_json)
+        .transpose()
+        .map_err(|_| sqlx::Error::Protocol("Stored listed pay JSON is invalid".to_string()))
+}
+
+/// Decodes persisted job geography without inferring from legacy location text.
+pub(crate) fn decode_job_geography_json(
+    json: Option<&str>,
+) -> Result<Option<jobsentinel_domain::JobGeography>, sqlx::Error> {
+    json.map(jobsentinel_domain::JobGeography::from_canonical_json)
+        .transpose()
+        .map_err(|_| sqlx::Error::Protocol("Stored job geography JSON is invalid".to_string()))
+}
 
 /// Stable, non-sensitive classification for storage errors used by callers.
 pub fn database_error_kind(error: &sqlx::Error) -> &'static str {

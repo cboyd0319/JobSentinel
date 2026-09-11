@@ -1,20 +1,14 @@
+/** Renders one saved job with bounded evidence, guidance, and user actions. */
 import { useEffect, useState, memo, type ReactNode } from "react";
 import { ScoreDisplay } from "../../../ui/score-display/ScoreDisplay";
 import { GhostIndicatorCompact } from "./GhostIndicator";
 import { ExternalAiJobSummary } from "./ExternalAiJobSummary";
-import {
-  JobFitFeedbackControls,
-} from "./JobFitFeedback";
+import { JobFitFeedbackControls } from "./JobFitFeedback";
 import { logError } from "../../../shared/errorReporting/logger";
 import { formatRelativeDate } from "../../../shared/dateFormatting";
-import {
-  formatSalaryRange,
-  truncateJobDescription,
-} from "../jobDisplayFormatting";
-import {
-  GOOD_JOB_MATCH_THRESHOLD,
-  STRONG_JOB_MATCH_THRESHOLD,
-} from "../../../shared/jobMatchScore";
+import { truncateJobDescription } from "../jobDisplayFormatting";
+import { formatJobListedPay, getJobUsdAnnualPayBounds } from "../../../shared/listedPay";
+import { GOOD_JOB_MATCH_THRESHOLD, STRONG_JOB_MATCH_THRESHOLD } from "../../../shared/jobMatchScore";
 import { useToast } from "../../../shared/toast/useToast";
 import { isValidJobUrl } from "../jobUrlValidation";
 import { openDeepLink } from "../../../shared/search-links";
@@ -26,9 +20,7 @@ import {
   getSalaryRangeQualityGuidance,
   getScamRiskGuidance,
 } from "./jobCardGuidance";
-import {
-  recordBrowserAssistLearningSignalIfEnabled,
-} from "../../../shared/browserAssistLearning";
+import { recordBrowserAssistLearningSignalIfEnabled } from "../../../shared/browserAssistLearning";
 import {
   ArrowIcon,
   BookmarkIcon,
@@ -41,19 +33,12 @@ import {
   SalaryIcon,
   SourceIcon,
 } from "./JobCardIcons";
-import {
-  applyJobFeedbackScoreAdjustment,
-  clearJobFeedbackSignal,
-  getJobFeedbackKey,
-  readJobFeedbackSignal,
-  writeJobFeedbackSignal,
-  type JobFeedbackSignal,
-  type JobFeedbackVerdict,
-} from "../../../shared/jobFeedbackScoring";
+import { applyJobFeedbackScoreAdjustment, clearJobFeedbackSignal, getJobFeedbackKey, readJobFeedbackSignal, writeJobFeedbackSignal, type JobFeedbackSignal, type JobFeedbackVerdict } from "../../../shared/jobFeedbackScoring";
 import { getPayTransparencyGuidance } from "../../../shared/payTransparencyRules";
 import type { Job } from "../types";
 import { JobCardGuidancePanels } from "./JobCardGuidancePanels";
 import { JobScoreModal } from "./JobScoreModal";
+import { formatDashboardWorkArrangement, getDashboardWorkArrangement } from "../workArrangement";
 
 interface JobCardProps {
   job: Job;
@@ -61,7 +46,7 @@ interface JobCardProps {
   onHideJob?: (id: number) => void;
   onToggleBookmark?: (id: number) => void;
   onEditNotes?: (id: number, currentNotes?: string | null) => void;
-  onResearchCompany?: (company: string) => void;
+  onResearchCompany?: (company: string, jobHash: string | undefined) => void;
   renderApplicationAssistAction?: (job: Job) => ReactNode;
   isSelected?: boolean;
   salaryFloorUsd?: number | null;
@@ -152,7 +137,16 @@ export const JobCard = memo(function JobCard({
   const displayedScoreValue = hasValidScore ? displayedScore : job.score;
   const isHighMatch = displayedScore >= STRONG_JOB_MATCH_THRESHOLD;
   const isGoodMatch = displayedScore >= GOOD_JOB_MATCH_THRESHOLD;
-  const salaryText = formatSalaryRange(job.salary_min, job.salary_max);
+  const workArrangement = getDashboardWorkArrangement(job);
+  const countryScopeLabel = typeof job.search_country === "string" && /^[A-Z]{2}$/.test(job.search_country)
+    ? job.country_scope === "match" ? "Country location match"
+      : job.country_scope === "mismatch" ? "Outside search country" : "Country scope unclear"
+    : null;
+  const salaryText = formatJobListedPay(job);
+  const comparablePay = getJobUsdAnnualPayBounds(job);
+  const usesLegacyUsdPay =
+    (job.listed_pay === null || job.listed_pay === undefined) &&
+    job.currency === "USD";
   const descSnippet = truncateJobDescription(job.description);
   const rawPostingRiskScore = job.ghost_score;
   const postingRiskScore =
@@ -167,23 +161,30 @@ export const JobCard = memo(function JobCard({
     job.ghost_reasons,
   ) ?? getLowDetailPostingGuidance(job.title, job.description);
   const scamRiskGuidance = getScamRiskGuidance(job.description);
-  const payFloorGuidance = getPayFloorGuidance(
-    job.salary_min,
-    job.salary_max,
-    salaryFloorUsd,
-  );
-  const payTransparencyGuidance = getPayTransparencyGuidance({
-    location: job.location,
-    salaryMin: job.salary_min,
-    salaryMax: job.salary_max,
-  });
+  const payFloorGuidance = comparablePay
+    ? getPayFloorGuidance(
+        comparablePay.min,
+        comparablePay.max,
+        salaryFloorUsd,
+      )
+    : usesLegacyUsdPay
+      ? getPayFloorGuidance(job.salary_min, job.salary_max, salaryFloorUsd)
+      : null;
+  const payTransparencyGuidance = comparablePay || usesLegacyUsdPay
+    ? getPayTransparencyGuidance({
+        location: job.location,
+        salaryMin: comparablePay?.min ?? job.salary_min,
+        salaryMax: comparablePay?.max ?? job.salary_max,
+      })
+    : null;
   const salaryRangeQualityGuidance =
     payFloorGuidance?.title === "Open-ended listed pay"
       ? null
-      : getSalaryRangeQualityGuidance(
-          job.salary_min,
-          job.salary_max,
-        );
+      : comparablePay
+        ? getSalaryRangeQualityGuidance(comparablePay.min, comparablePay.max)
+        : usesLegacyUsdPay
+          ? getSalaryRangeQualityGuidance(job.salary_min, job.salary_max)
+          : null;
   const sourceGuidance = getJobSourceGuidance(job.source);
   const sourceReviewGuidance = sourceGuidance.review;
   const hasSafeJobUrl = isValidJobUrl(job.url);
@@ -345,14 +346,14 @@ export const JobCard = memo(function JobCard({
                   />
                 )}
 
-                {/* Location */}
                 <span className="inline-flex items-center gap-1">
                   <LocationIcon />
-                  {job.remote ? "Remote" : job.location || "Location TBD"}
+                  {formatDashboardWorkArrangement(workArrangement, job.location)}
                 </span>
+                {countryScopeLabel && <span title="Geography only; work authorization is not assessed.">{countryScopeLabel}</span>}
 
                 {/* Salary */}
-                {salaryText ? (
+                {salaryText !== "Pay not listed" ? (
                   <span className="inline-flex items-center gap-1 text-success font-medium">
                     <SalaryIcon />
                     {salaryText}
@@ -404,9 +405,9 @@ export const JobCard = memo(function JobCard({
 
               {onResearchCompany && (
                 <button
-                  onClick={() => onResearchCompany(job.company)}
+                  onClick={() => onResearchCompany(job.company, job.hash)}
                   onKeyDown={(e) =>
-                    handleKeyDown(e, () => onResearchCompany(job.company))
+                    handleKeyDown(e, () => onResearchCompany(job.company, job.hash))
                   }
                   className="p-2 text-surface-400 hover:text-purple-500 dark:hover:text-purple-400 opacity-40 group-hover:opacity-100 focus-visible:opacity-100 transition-colors"
                   aria-label="Research company"

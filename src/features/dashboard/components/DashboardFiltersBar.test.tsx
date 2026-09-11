@@ -1,3 +1,5 @@
+/** Verifies accessible dashboard filtering controls and plain-language choices. */
+
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import type { ComponentProps, RefObject } from "react";
@@ -147,5 +149,13 @@ describe("DashboardFiltersBar plain-language actions", () => {
     expect(screen.getByRole("option", { name: "Saved by you" })).toBeInTheDocument();
     expect(screen.getByRole("option", { name: "City Careers" })).toBeInTheDocument();
     expect(screen.queryByText("manual_import")).not.toBeInTheDocument();
+  });
+
+  it("offers hybrid and unspecified work-arrangement filters", () => {
+    renderFilters();
+    fireEvent.click(screen.getByText("All Locations"));
+
+    expect(screen.getByRole("option", { name: "Hybrid Only" })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "Not disclosed / unspecified" })).toBeInTheDocument();
   });
 });

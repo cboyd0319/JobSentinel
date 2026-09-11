@@ -3,7 +3,9 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
-use crate::calculate_job_hash;
+use crate::{calculate_job_hash, JobGeography, ListedPay};
+
+const MAX_EXACT_SALARY_AMOUNT: i64 = 9_007_199_254_740_991;
 
 /// Canonical job record used across core business logic.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -34,6 +36,12 @@ pub struct Job {
     pub salary_max: Option<i64>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub currency: Option<String>,
+    /// Native listed-pay evidence retained without a USD conversion assumption.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub listed_pay: Option<ListedPay>,
+    /// Directly observed worksite and remote-applicant geography.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub geography: Option<JobGeography>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub last_seen: DateTime<Utc>,
@@ -96,6 +104,8 @@ impl Job {
             salary_min: None,
             salary_max: None,
             currency: None,
+            listed_pay: None,
+            geography: None,
             created_at: discovered_at,
             updated_at: discovered_at,
             last_seen: discovered_at,
@@ -111,11 +121,32 @@ impl Job {
             repost_count: 0,
         }
     }
+
+    /// Returns comparable annual USD bounds without converting or guessing.
+    #[must_use]
+    pub fn usd_annual_salary_bounds(&self) -> Option<(Option<f64>, Option<f64>)> {
+        if let Some(listed_pay) = &self.listed_pay {
+            return listed_pay.usd_annual_bounds();
+        }
+
+        let (min, max) = (self.salary_min, self.salary_max);
+        (self.currency.as_deref() == Some("USD")
+            && (min.is_some() || max.is_some())
+            && min.is_none_or(|amount| (0..=MAX_EXACT_SALARY_AMOUNT).contains(&amount))
+            && max.is_none_or(|amount| (0..=MAX_EXACT_SALARY_AMOUNT).contains(&amount))
+            && min
+                .zip(max)
+                .is_none_or(|(minimum, maximum)| minimum <= maximum))
+        .then_some((
+            min.map(|amount| amount as f64),
+            max.map(|amount| amount as f64),
+        ))
+    }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::Job;
+    use super::{Job, MAX_EXACT_SALARY_AMOUNT};
     use crate::calculate_job_hash;
     use chrono::{TimeZone, Utc};
 
@@ -158,8 +189,27 @@ mod tests {
         assert!(job.salary_min.is_none());
         assert!(job.salary_max.is_none());
         assert!(job.currency.is_none());
+        assert!(job.listed_pay.is_none());
+        assert!(job.geography.is_none());
         assert!(job.notes.is_none());
         assert!(job.ghost_score.is_none());
         assert!(job.ghost_reasons.is_none());
+    }
+
+    #[test]
+    fn legacy_salary_comparison_rejects_non_exact_integer_values() {
+        let discovered_at = Utc.with_ymd_and_hms(2026, 7, 16, 12, 30, 0).unwrap();
+        let mut job = Job::newly_discovered(
+            "Care Coordinator",
+            "Community Care",
+            "https://example.com/jobs/1",
+            None,
+            "Example",
+            discovered_at,
+        );
+        job.salary_min = Some(MAX_EXACT_SALARY_AMOUNT + 1);
+        job.currency = Some("USD".to_string());
+
+        assert_eq!(job.usd_annual_salary_bounds(), None);
     }
 }

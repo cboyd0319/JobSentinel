@@ -1,7 +1,10 @@
+/** Verifies Playwright runner port isolation and transformed-asset readiness. */
+
 import assert from "node:assert/strict";
 import { createServer } from "node:net";
 import { resolve } from "node:path";
 import test from "node:test";
+import playwrightConfig from "../../../playwright.config.ts";
 import {
   createPlaywrightEnv,
   findAvailablePlaywrightPort,
@@ -112,4 +115,8 @@ test("preparePlaywrightEnv rejects an occupied explicit port without reuse", asy
   } finally {
     await closeServer(server);
   }
+});
+
+test("waits for the transformed Tailwind entry before starting browser tests", () => {
+  assert.equal(playwrightConfig.webServer.url, `${playwrightConfig.use.baseURL}/src/index.css`);
 });

@@ -1,3 +1,5 @@
+/** Supports ephemeral pasted-job ATS analysis and routing to saved resume matches. */
+
 import { useState, useCallback, useEffect } from "react";
 import { invoke } from "../../../platform/tauri";
 import { Button } from "../../../ui/Button";
@@ -7,6 +9,11 @@ import { useToast } from "../../../shared/toast/useToast";
 import { logError } from "../../../shared/errorReporting/logger";
 import { ResumeMatchTools } from "./ResumeMatchTools";
 import { ResumeMatchResultsPanel } from "./ResumeMatchResultsPanel";
+import { ResumeMatchingProfileFields } from "./ResumeMatchingProfileFields";
+import {
+  readResumeMatchDraft,
+  writeResumeMatchDraft,
+} from "./resumeMatchDraft";
 import {
   getResumeAnalysisErrorAction,
   getSelectedResumeReadableStatus,
@@ -16,11 +23,7 @@ import {
   type ResumeSummary,
 } from "./resumeMatchModel";
 import { writeStoredResumeJobContext } from "../shared/resumeJobContext";
-import {
-  readStorageValue,
-  removeStorageValue,
-  writeStorageValue,
-} from "../../../shared/browserStorage";
+import type { ResumeMatchingProfile } from "../shared/atsAnalysisContracts";
 
 type Page = "dashboard" | "applications" | "resume" | "resume-builder" | "ats-optimizer" | "salary" | "market" | "automation";
 
@@ -28,45 +31,6 @@ interface ResumeMatchProps {
   onBack: () => void;
   onNavigate?: (page: Page) => void;
 }
-interface ResumeMatchDraft {
-  jobDescription: string;
-  resumeJson: string;
-  analysisResult: AtsAnalysisResult | null;
-  analysisInputSource: "active" | "copied" | null;
-  showAdvancedResumeImport: boolean;
-  showComparison: boolean;
-}
-
-const RESUME_MATCH_DRAFT_STORAGE_KEY = "jobsentinel-resume-match-draft-v1";
-
-function readResumeMatchDraft(): ResumeMatchDraft | null {
-  const raw = readStorageValue("session", RESUME_MATCH_DRAFT_STORAGE_KEY);
-  if (!raw) return null;
-
-  try {
-    const parsed = JSON.parse(raw) as Partial<ResumeMatchDraft>;
-    if (typeof parsed.jobDescription !== "string") return null;
-    if (typeof parsed.resumeJson !== "string") return null;
-
-    removeStorageValue("session", RESUME_MATCH_DRAFT_STORAGE_KEY);
-
-    return {
-      jobDescription: parsed.jobDescription,
-      resumeJson: parsed.resumeJson,
-      analysisResult: parsed.analysisResult ?? null,
-      analysisInputSource:
-        parsed.analysisInputSource === "active" || parsed.analysisInputSource === "copied"
-          ? parsed.analysisInputSource
-          : null,
-      showAdvancedResumeImport: Boolean(parsed.showAdvancedResumeImport),
-      showComparison: Boolean(parsed.showComparison),
-    };
-  } catch {
-    removeStorageValue("session", RESUME_MATCH_DRAFT_STORAGE_KEY);
-    return null;
-  }
-}
-
 async function getActiveResumeSummary(): Promise<ResumeSummary | null> {
   const selected = await invoke<unknown>("get_active_resume");
   return isResumeSummary(selected) ? selected : null;
@@ -89,6 +53,9 @@ export default function ResumeMatch({ onBack, onNavigate }: ResumeMatchProps) {
   const [activeResume, setActiveResume] = useState<ResumeSummary | null>(null);
   const [analysisInputSource, setAnalysisInputSource] = useState<"active" | "copied" | null>(
     initialDraft?.analysisInputSource ?? null,
+  );
+  const [matchingProfile, setMatchingProfile] = useState<ResumeMatchingProfile | null>(
+    initialDraft?.matchingProfile ?? null,
   );
 
   const toast = useToast();
@@ -132,23 +99,26 @@ export default function ResumeMatch({ onBack, onNavigate }: ResumeMatchProps) {
     }
 
     if (onNavigate) {
-      writeStorageValue(
-        "session",
-        RESUME_MATCH_DRAFT_STORAGE_KEY,
-        JSON.stringify({
-          jobDescription,
-          resumeJson,
-          analysisResult,
-          analysisInputSource,
-          showAdvancedResumeImport,
-          showComparison,
-        } satisfies ResumeMatchDraft),
-      );
+      persistDraft();
       onNavigate("resume");
       return;
     }
 
     toast.info("Open Resume Match", "Use the Resumes page to choose or add a resume.");
+  };
+
+  const persistDraft = () => writeResumeMatchDraft({
+    jobDescription, resumeJson, analysisResult, analysisInputSource,
+    matchingProfile, showAdvancedResumeImport, showComparison,
+  });
+
+  const openSavedMatches = () => {
+    if (!onNavigate) {
+      toast.info("Open Resume Library", "Use the Resumes page to review saved matches.");
+      return;
+    }
+    persistDraft();
+    onNavigate("resume");
   };
 
   // Load action words on mount
@@ -189,10 +159,12 @@ export default function ResumeMatch({ onBack, onNavigate }: ResumeMatchProps) {
             return invoke<AtsAnalysisResult>("analyze_resume_for_job", {
               resume,
               jobDescription,
+              ...(matchingProfile ? { matchingProfile } : {}),
             });
           })()
         : await invoke<AtsAnalysisResult>("analyze_active_resume_for_job", {
             jobDescription,
+            ...(matchingProfile ? { matchingProfile } : {}),
           });
 
       setAnalysisResult(result);
@@ -347,6 +319,19 @@ export default function ResumeMatch({ onBack, onNavigate }: ResumeMatchProps) {
             </Card>
 
             <Card>
+              <ResumeMatchingProfileFields
+                disabled={analyzing}
+                initialProfile={matchingProfile}
+                onProfileChange={(profile) => {
+                  setMatchingProfile(profile);
+                  setAnalysisResult(null);
+                  setAnalysisInputSource(null);
+                  setShowComparison(false);
+                }}
+              />
+            </Card>
+
+            <Card>
               <CardHeader title="Resume" />
               <div className="space-y-4">
                 <p className="text-sm text-surface-600 dark:text-surface-300">
@@ -432,6 +417,12 @@ export default function ResumeMatch({ onBack, onNavigate }: ResumeMatchProps) {
                 </p>
               </div>
             )}
+
+            <Card>
+              <CardHeader title="Saved match reviews" />
+              <p className="text-sm text-surface-600 dark:text-surface-300">Pasted-job ATS analysis is not a saved job match. Military wording review requires an active saved resume and that resume’s exact saved job match.</p>
+              <Button type="button" variant="secondary" className="mt-3" onClick={openSavedMatches}>Open saved matches</Button>
+            </Card>
 
             <div className="flex gap-3">
               <Button

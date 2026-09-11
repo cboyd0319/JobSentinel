@@ -1,3 +1,5 @@
+<!-- Defines v3 edition boundaries, model-free packaging, and in-place local model setup. -->
+
 # Editions And Packaging
 
 V3 should not assume every job seeker has a high-end computer, stable
@@ -35,6 +37,15 @@ These are packaging and defaults, not locked feature classes. A user should be
 able to start with Essentials and later enable stronger local ML or more source
 packs.
 
+Milestone 9 uses one upgradable Essentials application package. It includes the
+local inference runtime but no downloaded model or tokenizer payloads. Stronger
+local matching is a reviewed Settings download, not a second app installer.
+The other edition names remain schema and planning options pending Gate 5;
+they are not separately shipped products.
+Gate 5 still owns final names, the component matrix, update/rollback UX, and the
+release cut. It does not block reversible M10 compatibility/recovery
+prerequisites or authorize an unapproved product or signing decision.
+
 ## Essentials Package
 
 Essentials should include:
@@ -64,6 +75,19 @@ Essentials should avoid by default:
 - heavy browser automation dependencies where a user-visible fallback exists
 - background jobs that can make older machines feel stuck
 - advanced settings unless expert mode is enabled
+
+Gate 4 freezes the Essentials composition as the `Lighter` profile with
+deterministic matching, public sources, and safe support. It has no automatic
+or bundled model download, and region packs remain separately installed
+options. This approves the component boundary, not a numeric footprint or
+performance claim. A controlled zero-swap Linux amd64 guest now proves the
+model-free installed journey under an enforced 8 GiB limit, and a revision-bound
+macOS arm64 low-pressure baseline exists on a 64 GiB host. Gate 4 numeric limits
+are owned by [Evaluation And Release Bar](evaluation-and-release-bar.md).
+The upgradable package requires fresh M11 release measurements after M9/M10
+development; historical footprints prove only their original baseline, not
+current size, memory, or platform readiness. Do not refresh the complete
+installed journey as an M9 development-exit gate.
 
 ## Runtime Profiles
 
@@ -136,6 +160,10 @@ No user should need to reinstall the whole app just to try stronger matching.
 ## Verification
 
 Essentials needs its own release checks:
+
+Run the complete list in M11 after major feature development and Gate 5. During
+development, keep only the targeted checks needed to prove the changed boundary
+or resolve a concrete architecture, security, or data-loss risk.
 
 - fresh install on a modest Windows 11 machine profile
 - fresh install on a modest macOS machine profile

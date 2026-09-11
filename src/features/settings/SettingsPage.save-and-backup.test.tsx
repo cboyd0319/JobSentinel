@@ -1,3 +1,5 @@
+/** Verifies Settings saves and local backup behavior without exposing connection details. */
+
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -49,6 +51,38 @@ describe("Settings — handleSave flow", () => {
 
     // Should NOT close on failure
     expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it("saves an optional selected search country", async () => {
+    const user = userEvent.setup();
+    let savedConfig: ReturnType<typeof makeConfig> | null = null;
+
+    mockInvoke.mockImplementation(async (cmd: string, args?: unknown) => {
+      if (cmd === "get_config") return makeConfig();
+      if (cmd === "get_credential_status") return [];
+      if (cmd === "get_credential_unlock_status") {
+        return { mode: "system", configured: false, unlocked: true };
+      }
+      if (cmd === "has_credential") return false;
+      if (cmd === "get_ghost_config") return makeGhostConfig();
+      if (cmd === "get_search_country_options") return [["GB", "United Kingdom"]];
+      if (cmd === "save_config") {
+        savedConfig = (args as { config: ReturnType<typeof makeConfig> }).config;
+      }
+      return null;
+    });
+
+    render(<Settings onClose={vi.fn()} />);
+    const select = await screen.findByRole("combobox", {
+      name: "Search country (optional)",
+    });
+    await screen.findByRole("option", { name: "United Kingdom" });
+    await user.selectOptions(select, "GB");
+    await user.click(screen.getByRole("button", { name: /save changes/i }));
+
+    await waitFor(() => {
+      expect(savedConfig?.location_preferences.search_country).toBe("GB");
+    });
   });
 
   it("does not write connection details when settings save fails", async () => {
@@ -369,6 +403,68 @@ describe("Settings — handleSave flow", () => {
         "Review settings and use Save. Restored 1 template(s) and 1 saved search(es). Saved connection details are not included.",
       );
     });
+  });
+
+  it.each([
+    {
+      name: "rejects an unknown settings-only country",
+      backup: () => ({
+        ...makeConfig(),
+        location_preferences: { ...makeConfig().location_preferences, search_country: "ZZ" },
+      }),
+      countryOptions: [["GB", "United Kingdom"]],
+      localData: false,
+    },
+    {
+      name: "does not import local rows when country lookup is unavailable",
+      backup: () => ({
+        kind: "jobsentinel-local-data-backup",
+        schemaVersion: 1,
+        exportedAt: "2026-06-19T12:00:00Z",
+        settings: {
+          ...makeConfig(),
+          location_preferences: { ...makeConfig().location_preferences, search_country: "GB" },
+        },
+        coverLetterTemplates: [{
+          id: "template-1", name: "General cover letter", content: "Hello hiring team",
+          category: "general", createdAt: "2026-06-19T12:00:00Z", updatedAt: "2026-06-19T12:00:00Z",
+        }],
+        savedSearches: [makeSavedSearch()],
+      }),
+      countryOptions: new Error("unavailable"),
+      localData: true,
+    },
+  ])("$name before restoring data", async ({ backup, countryOptions, localData }) => {
+    const user = userEvent.setup();
+    mockInvoke.mockImplementation(async (command: string) => {
+      if (command === "get_config") return makeConfig();
+      if (command === "get_credential_status") return [];
+      if (command === "get_credential_unlock_status") return { mode: "system", configured: false, unlocked: true };
+      if (command === "has_credential") return false;
+      if (command === "get_ghost_config") return makeGhostConfig();
+      if (command === "get_search_country_options") {
+        if (countryOptions instanceof Error) throw countryOptions;
+        return countryOptions;
+      }
+      return null;
+    });
+    mockSelectSettingsBackupFile.mockResolvedValueOnce({ status: "ok", backup: backup() });
+
+    render(<Settings onClose={vi.fn()} />);
+    await screen.findByText("Settings");
+    await user.click(screen.getByRole("button", { name: "Restore Settings" }));
+
+    await waitFor(() => expect(mockToast.error).toHaveBeenCalledWith(
+      "Could not restore search country", expect.any(String),
+    ));
+    if (!localData) {
+      expect(screen.getByRole("combobox", { name: "Search country (optional)" })).toHaveValue("");
+      expect(mockToast.success).not.toHaveBeenCalledWith("Settings restored", expect.any(String));
+      return;
+    }
+    expect(mockInvoke).not.toHaveBeenCalledWith("import_cover_letter_templates", expect.anything());
+    expect(mockInvoke).not.toHaveBeenCalledWith("import_saved_searches", expect.anything());
+    expect(mockToast.success).not.toHaveBeenCalledWith("Local data restored", expect.any(String));
   });
 
   it("rejects JSON that is not a JobSentinel settings backup", async () => {

@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "evidence_labels": [],
+  "hard_negatives": [
+    {
+      "dataset_kind": "job_requirement_to_resume_evidence",
+      "query": "Experience running monthly PAYE payroll and producing payslips",
+      "positive": "Ran monthly PAYE payroll, processed deductions, and produced payslips for 80 employees.",
+      "hard_negative": "Explained PAYE deductions and payslips during HR onboarding, but did not process payroll.",
+      "mining_source": "seed_fixture",
+      "reason": "The positive documents payroll operation; the negative only explains the terms during onboarding."
+    },
+    {
+      "dataset_kind": "job_requirement_to_resume_evidence",
+      "query": "Experience maintaining warehouse inventory records and reconciling stock",
+      "positive": "Tenu les registres d’inventaire d’entrepôt et rapproché les écarts de stock chaque semaine.",
+      "hard_negative": "Accueilli les clients en magasin, conseillé les ventes et encaissé les achats sans responsabilité des stocks.",
+      "mining_source": "seed_fixture",
+      "reason": "English meaning: maintained warehouse inventory records and reconciled stock discrepancies; the retail-sales negative does not document inventory ownership."
+    },
+    {
+      "dataset_kind": "job_requirement_to_resume_evidence",
+      "query": "Documented assessed competence against SSC/N0514 is required.",
+      "positive": "Training record documents assessed competence against SSC/N0514.",
+      "hard_negative": "Training record documents SSC/N0502 only; the required SSC/N0514 unit is not documented.",
+      "mining_source": "seed_fixture",
+      "reason": "This synthetic evidence comparison requires the exact documented ID; it does not assert qualification equivalence or eligibility."
+    }
+  ],
+  "pairwise_preferences": []
+}

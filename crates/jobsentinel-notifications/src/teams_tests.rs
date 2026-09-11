@@ -1,5 +1,8 @@
+//! Tests Microsoft Teams payload formatting and webhook validation.
+
 use super::*;
 use crate::test_support::notification_fixture;
+use jobsentinel_domain::{v3_contracts::PayPeriod, ListedPay};
 
 #[path = "teams_tests/payload_edge_tests.rs"]
 mod payload_edge_tests;
@@ -9,6 +12,25 @@ mod payload_structure_tests;
 mod payload_tests;
 #[path = "teams_tests/webhook_validation_tests.rs"]
 mod webhook_validation_tests;
+
+#[test]
+fn payload_uses_native_max_only_pay() {
+    let mut notification = notification_fixture();
+    notification.job.listed_pay = Some(ListedPay {
+        min: None,
+        max: Some(220_456.0),
+        currency: Some("USD".to_string()),
+        period: PayPeriod::Annual,
+        qualifiers: Vec::new(),
+        raw_text: None,
+    });
+
+    let payload = build_teams_payload(&notification);
+    assert_eq!(
+        payload["sections"][0]["facts"][1]["value"],
+        "USD Up to 220456 annual"
+    );
+}
 
 fn validation_webhook_test_payload() -> serde_json::Value {
     json!({
@@ -151,7 +173,7 @@ fn test_message_card_payload_structure() {
 #[test]
 fn test_facts_array_structure() {
     let notification = notification_fixture();
-    let salary_display = "$180,000 - $220,000";
+    let salary_display = "USD 180000–220000 period not disclosed";
 
     let facts = json!([
         {"name": "Location:", "value": notification.job.location.as_deref().unwrap_or("N/A")},

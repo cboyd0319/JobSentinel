@@ -74,6 +74,20 @@ mod tests {
     }
 
     #[test]
+    fn serialized_current_config_is_explicitly_classified_for_v3_migration() {
+        use jobsentinel_domain::{
+            read_v3_compatibility, CompatibilityDecision, CompatibilityInputKind,
+        };
+
+        let stored = serde_json::to_string(&Config::first_run()).unwrap();
+
+        assert_eq!(
+            read_v3_compatibility(CompatibilityInputKind::PreV3Config, &stored).unwrap(),
+            CompatibilityDecision::PreV3MigrationRequired
+        );
+    }
+
+    #[test]
     fn test_jobswithgpt_payload_requires_exact_local_approval() {
         let mut config = create_valid_config();
         config.title_allowlist = vec!["  Case Manager  ".to_string(), String::new()];
@@ -99,6 +113,9 @@ mod tests {
 
     #[path = "preference_validation_tests.rs"]
     mod preference_validation_tests;
+
+    #[path = "country_search_validation_tests.rs"]
+    mod country_search_validation_tests;
 
     // ========================================
     // Source URL Configuration Tests

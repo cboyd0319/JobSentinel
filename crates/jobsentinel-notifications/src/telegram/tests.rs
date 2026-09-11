@@ -1,5 +1,25 @@
+//! Tests Telegram message formatting, escaping, and configuration validation.
+
 use super::*;
 use crate::test_support::notification_fixture;
+use jobsentinel_domain::{v3_contracts::PayPeriod, ListedPay};
+
+#[test]
+fn telegram_uses_review_message_for_raw_only_native_pay() {
+    let mut notification = notification_fixture();
+    notification.job.listed_pay = Some(ListedPay {
+        min: None,
+        max: None,
+        currency: Some("USD".to_string()),
+        period: PayPeriod::NotDisclosed,
+        qualifiers: Vec::new(),
+        raw_text: Some("<script>alert('pay')</script>".to_string()),
+    });
+
+    let message = format_telegram_message(&notification.job, &notification.score);
+    assert!(message.contains("Review pay in JobSentinel\\."));
+    assert!(!message.contains("script"));
+}
 
 #[test]
 fn test_telegram_message_formatting() {
@@ -277,7 +297,7 @@ fn test_telegram_message_salary_with_range() {
     let notification = notification_fixture();
     let message = format_telegram_message(&notification.job, &notification.score);
 
-    assert!(message.contains("$180,000 \\- $220,000") || message.contains("180,000"));
+    assert!(message.contains("USD 180000–220000 period not disclosed"));
 }
 
 #[test]
@@ -286,7 +306,7 @@ fn test_telegram_message_salary_min_only() {
     notification.job.salary_max = None;
 
     let message = format_telegram_message(&notification.job, &notification.score);
-    assert!(message.contains("180,000+") || message.contains("180,000\\+"));
+    assert!(message.contains("USD From 180000 period not disclosed"));
 }
 
 #[test]
