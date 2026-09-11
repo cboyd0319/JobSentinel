@@ -16,6 +16,8 @@ pub use jobsentinel_local_ai::{
     ModelSpec, ModelStatus, SemanticMatcher,
 };
 pub use jobsentinel_network::{validate_external_https_url_for_fetch, HttpBodyReadError};
+#[cfg(target_os = "macos")]
+pub use jobsentinel_platform::package_smoke_root;
 pub use jobsentinel_platform::{
     delete_device_secret, get_data_dir, initialize, retrieve_device_secret, store_device_secret,
     SecureStorageError,

@@ -1,10 +1,36 @@
-//! Database query operations
-//!
-//! Search, filter, and retrieve jobs with various criteria.
+//! Retrieves jobs and analytics while retaining native listed-pay evidence.
 
 use super::connection::Database;
-use super::types::{DuplicateGroup, JobRow};
+use super::types::{jobs_from_rows, DuplicateGroup, JobRow};
+use futures::{TryStream, TryStreamExt};
 use jobsentinel_domain::Job;
+
+async fn collect_matching_jobs<F, S>(
+    mut rows: S,
+    limit: i64,
+    matches: F,
+) -> Result<Vec<Job>, sqlx::Error>
+where
+    F: Fn(&Job) -> bool,
+    S: TryStream<Ok = JobRow, Error = sqlx::Error> + Unpin,
+{
+    if limit <= 0 {
+        return Ok(Vec::new());
+    }
+
+    let mut jobs = Vec::new();
+    while jobs.len() < limit as usize {
+        let Some(row) = rows.try_next().await? else {
+            break;
+        };
+        let job = Job::try_from(row)?;
+        if matches(&job) {
+            jobs.push(job);
+        }
+    }
+    Ok(jobs)
+}
+
 impl Database {
     /// Get recent jobs
     #[tracing::instrument(skip(self))]
@@ -12,18 +38,36 @@ impl Database {
         tracing::debug!("Fetching {} recent jobs from database", limit);
         // OPTIMIZATION: Use composite index idx_jobs_hidden_score_created (covering index)
         // Index contains: hidden, score DESC, created_at DESC - perfect for this query
-        let jobs: Vec<Job> = sqlx::query_as::<_, JobRow>(
+        let rows = sqlx::query_as::<_, JobRow>(
             "SELECT * FROM jobs WHERE hidden = 0 ORDER BY score DESC, created_at DESC LIMIT ?",
         )
         .bind(limit)
         .fetch_all(self.pool())
-        .await?
-        .into_iter()
-        .map(Job::from)
-        .collect();
+        .await?;
+        let jobs = jobs_from_rows(rows)?;
 
         tracing::info!("Retrieved {} jobs", jobs.len());
         Ok(jobs)
+    }
+
+    /// Retrieves recent jobs in score order until the supplied predicate fills `limit`.
+    pub async fn get_recent_jobs_matching<F>(
+        &self,
+        limit: i64,
+        matches: F,
+    ) -> Result<Vec<Job>, sqlx::Error>
+    where
+        F: Fn(&Job) -> bool,
+    {
+        collect_matching_jobs(
+            sqlx::query_as::<_, JobRow>(
+                "SELECT * FROM jobs WHERE hidden = 0 ORDER BY score DESC, created_at DESC",
+            )
+            .fetch(self.pool()),
+            limit,
+            matches,
+        )
+        .await
     }
 
     /// Get jobs by minimum score
@@ -32,16 +76,15 @@ impl Database {
         min_score: f64,
         limit: i64,
     ) -> Result<Vec<Job>, sqlx::Error> {
-        let jobs = sqlx::query_as::<_, JobRow>(
+        let rows = sqlx::query_as::<_, JobRow>(
             "SELECT * FROM jobs WHERE score >= ? AND hidden = 0 ORDER BY score DESC, created_at DESC LIMIT ?",
         )
         .bind(min_score)
         .bind(limit)
         .fetch_all(self.pool())
         .await?
-        .into_iter()
-        .map(Job::from)
-        .collect();
+        ;
+        let jobs = jobs_from_rows(rows)?;
 
         Ok(jobs)
     }
@@ -54,16 +97,14 @@ impl Database {
     ) -> Result<Vec<Job>, sqlx::Error> {
         // OPTIMIZATION: Use composite index idx_jobs_hidden_source_created
         // Reordered WHERE clause to match index (hidden first, then source)
-        let jobs = sqlx::query_as::<_, JobRow>(
+        let rows = sqlx::query_as::<_, JobRow>(
             "SELECT * FROM jobs WHERE hidden = 0 AND source = ? ORDER BY created_at DESC LIMIT ?",
         )
         .bind(source)
         .bind(limit)
         .fetch_all(self.pool())
-        .await?
-        .into_iter()
-        .map(Job::from)
-        .collect();
+        .await?;
+        let jobs = jobs_from_rows(rows)?;
 
         Ok(jobs)
     }
@@ -72,30 +113,48 @@ impl Database {
     pub async fn get_bookmarked_jobs(&self, limit: i64) -> Result<Vec<Job>, sqlx::Error> {
         // OPTIMIZATION: Use composite index idx_jobs_bookmarked_score_created
         // This is a covering index with WHERE clause filter
-        let jobs = sqlx::query_as::<_, JobRow>(
+        let rows = sqlx::query_as::<_, JobRow>(
             "SELECT * FROM jobs WHERE bookmarked = 1 AND hidden = 0 ORDER BY score DESC, created_at DESC LIMIT ?",
         )
         .bind(limit)
         .fetch_all(self.pool())
         .await?
-        .into_iter()
-        .map(Job::from)
-        .collect();
+        ;
+        let jobs = jobs_from_rows(rows)?;
 
         Ok(jobs)
     }
 
+    /// Retrieves bookmarked jobs in score order until the supplied predicate fills `limit`.
+    pub async fn get_bookmarked_jobs_matching<F>(
+        &self,
+        limit: i64,
+        matches: F,
+    ) -> Result<Vec<Job>, sqlx::Error>
+    where
+        F: Fn(&Job) -> bool,
+    {
+        collect_matching_jobs(
+            sqlx::query_as::<_, JobRow>(
+                "SELECT * FROM jobs WHERE bookmarked = 1 AND hidden = 0 ORDER BY score DESC, created_at DESC",
+            )
+            .fetch(self.pool()),
+            limit,
+            matches,
+        )
+        .await
+    }
+
     /// Get jobs with notes
     pub async fn get_jobs_with_notes(&self, limit: i64) -> Result<Vec<Job>, sqlx::Error> {
-        let jobs = sqlx::query_as::<_, JobRow>(
+        let rows = sqlx::query_as::<_, JobRow>(
             "SELECT * FROM jobs WHERE notes IS NOT NULL AND hidden = 0 ORDER BY updated_at DESC LIMIT ?",
         )
         .bind(limit)
         .fetch_all(self.pool())
         .await?
-        .into_iter()
-        .map(Job::from)
-        .collect();
+        ;
+        let jobs = jobs_from_rows(rows)?;
 
         Ok(jobs)
     }
@@ -147,13 +206,33 @@ impl Database {
             query_builder = query_builder.bind(id);
         }
 
-        let jobs = query_builder
-            .fetch_all(self.pool())
-            .await?
-            .into_iter()
-            .map(Job::from)
-            .collect();
+        let rows = query_builder.fetch_all(self.pool()).await?;
+        let jobs = jobs_from_rows(rows)?;
         Ok(jobs)
+    }
+
+    /// Searches visible jobs in score order until the supplied predicate fills `limit`.
+    pub async fn search_jobs_matching<F>(
+        &self,
+        query: &str,
+        limit: i64,
+        matches: F,
+    ) -> Result<Vec<Job>, sqlx::Error>
+    where
+        F: Fn(&Job) -> bool,
+    {
+        collect_matching_jobs(
+            sqlx::query_as::<_, JobRow>(
+                "SELECT jobs.* FROM jobs JOIN jobs_fts ON jobs_fts.rowid = jobs.id
+                 WHERE jobs_fts MATCH ? AND jobs.hidden = 0
+                 ORDER BY jobs.score DESC, jobs.created_at DESC",
+            )
+            .bind(query)
+            .fetch(self.pool()),
+            limit,
+            matches,
+        )
+        .await
     }
 
     /// Find potential duplicate jobs (same title + company, different sources)
@@ -164,7 +243,7 @@ impl Database {
     /// we use a single query with ROW_NUMBER() to identify and group duplicates.
     pub async fn find_duplicate_groups(&self) -> Result<Vec<DuplicateGroup>, sqlx::Error> {
         // Single query using window functions to avoid N+1 pattern
-        let jobs: Vec<Job> = sqlx::query_as::<_, JobRow>(
+        let rows = sqlx::query_as::<_, JobRow>(
             r#"
             WITH duplicate_candidates AS (
                 SELECT *,
@@ -176,7 +255,7 @@ impl Database {
                 WHERE hidden = 0
             )
             SELECT id, hash, title, company, url, location, description, score, score_reasons,
-                   source, remote, salary_min, salary_max, currency, created_at, updated_at,
+                   source, remote, salary_min, salary_max, currency, listed_pay, geography, created_at, updated_at,
                    last_seen, times_seen, immediate_alert_sent, included_in_digest, hidden,
                    bookmarked, notes, ghost_score, ghost_reasons, first_seen, repost_count
             FROM duplicate_candidates
@@ -186,9 +265,8 @@ impl Database {
         )
         .fetch_all(self.pool())
         .await?
-        .into_iter()
-        .map(Job::from)
-        .collect();
+        ;
+        let jobs = jobs_from_rows(rows)?;
 
         // Group jobs by normalized title+company in Rust (already sorted by query)
         let mut groups = Vec::new();
@@ -257,7 +335,7 @@ impl Database {
             .await?
         };
 
-        Ok(jobs.into_iter().map(Job::from).collect())
+        jobs_from_rows(jobs)
     }
 
     /// Get jobs with high ghost scores
@@ -268,16 +346,15 @@ impl Database {
     ) -> Result<Vec<Job>, sqlx::Error> {
         // OPTIMIZATION: Use composite index idx_jobs_ghost_score_desc
         // Reordered: Check ghost_score first (indexed), then hidden
-        let jobs = sqlx::query_as::<_, JobRow>(
+        let rows = sqlx::query_as::<_, JobRow>(
             "SELECT * FROM jobs WHERE ghost_score >= ? AND hidden = 0 ORDER BY ghost_score DESC LIMIT ?",
         )
         .bind(min_ghost_score)
         .bind(limit)
         .fetch_all(self.pool())
         .await?
-        .into_iter()
-        .map(Job::from)
-        .collect();
+        ;
+        let jobs = jobs_from_rows(rows)?;
 
         Ok(jobs)
     }
@@ -316,6 +393,8 @@ impl Database {
                 COUNT(*) as count
             FROM jobs
             WHERE hidden = 0
+              AND currency = 'USD'
+              AND (listed_pay IS NULL OR salary_min IS NOT NULL OR salary_max IS NOT NULL)
             GROUP BY range
             ORDER BY
                 CASE range

@@ -45,9 +45,11 @@ pub use execution::{
     StaticSkillHandoff, StaticSkillResource, StaticSkillReview,
 };
 pub(crate) use execution::{
-    execute_draft_packet_task, execute_evidence_review_task, open_active_static_skill,
-    prepare_draft_packet_task, prepare_evidence_review_task,
+    execute_draft_packet_task, execute_evidence_review_task, open_active_region_pack,
+    open_active_static_skill, prepare_draft_packet_task, prepare_evidence_review_task,
 };
+pub use jobsentinel_domain::v3_manifests::RegionManifest;
+pub use jobsentinel_domain::v3_region_starter::RegionPackContent;
 pub use management::{
     list_pack_management_reviews, PackManagementReleaseReview, PackManagementReview, PackPurpose,
     PackReleaseReviewState, PackReviewQuarantineReason,
@@ -57,9 +59,10 @@ pub use production::{
     evaluate_production_active_ats_resume_requirement_pack,
     evaluate_production_active_evidence_reviewer_resume_requirement_pack,
     evaluate_production_active_static_skill_handoff_pack, execute_production_draft_packet_task,
-    execute_production_evidence_review_task, open_production_active_static_skill,
-    prepare_production_draft_packet_task, prepare_production_evidence_review_task,
-    rollback_production_pack_artifact, stage_production_pack_artifact,
+    execute_production_evidence_review_task, open_production_active_region_pack,
+    open_production_active_static_skill, prepare_production_draft_packet_task,
+    prepare_production_evidence_review_task, rollback_production_pack_artifact,
+    stage_production_pack_artifact,
 };
 pub(crate) use recovery::reconcile_active_pack_artifacts;
 pub use recovery::PackArtifactReconciliation;

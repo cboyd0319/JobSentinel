@@ -1,9 +1,8 @@
 /** Provides deterministic, stateful pack management behavior in browser development. */
 
-import type {
-  PackManagementReview,
-  PackReleaseReview,
-} from "../../../shared/packManagementProjection";
+import type { PackManagementReview, PackReleaseReview } from "../../../shared/packManagementProjection";
+import { parseRegionStarterData } from "../../../shared/regionStarterData";
+import ukStarterFixture from "../../../../crates/jobsentinel-domain/src/fixtures/region_manifests/uk_starter_v1.json";
 
 const activeRelease: PackReleaseReview = {
   releaseSequence: 2,
@@ -59,11 +58,36 @@ const defaultPack: PackManagementReview = {
 };
 
 const staticSkillRelease: PackReleaseReview = {
-  ...activeRelease,
-  packVersion: "3.0.0",
-  packType: "skill",
-  purpose: "static_guidance",
+  ...activeRelease, packVersion: "3.0.0", packType: "skill", purpose: "static_guidance",
   fixtureSummary: "Agent Skills structure and local handoff verified",
+};
+
+const regionRelease: PackReleaseReview = {
+  ...activeRelease, packVersion: "3.0.0", packType: "region", purpose: "regional_guidance",
+  fixtureSummary: "English starter research metadata verified",
+};
+
+const ukStarterData = parseRegionStarterData(ukStarterFixture, {
+  region_id: "uk",
+  taxonomy_ids: ["uk_soc_2020_research"],
+  cv_profiles: ["uk_cv_research"],
+});
+if (ukStarterData === null) throw new Error("invalid mock regional starter data");
+
+const regionManifest = {
+  schema: "jobsentinel.v3.region-manifest.v1",
+  region_id: "uk",
+  reviewed_on: "2026-07-19",
+  country_codes: ["GB"], languages: ["en"], currencies: ["GBP"],
+  pay_periods: ["hourly", "annual", "not_disclosed"],
+  location_rules: { remote_labels: ["remote", "hybrid", "onsite"], subdivision_required: false, locality_required: false },
+  work_authorization_labels: ["right_to_work_not_assessed", "not_disclosed"],
+  source_classes: ["regional_board", "user_import"],
+  cv_profiles: ["uk_cv_research"], taxonomy_ids: ["uk_soc_2020_research"],
+  policy_note_refs: ["docs/plans/v3/regional-readiness-framework.md"], provenance_refs: ["https://www.gov.uk/find-a-job"],
+  evaluation_fixture_ids: ["accessibility-keyboard-zoom-motion-v1"],
+  incomplete_coverage: true,
+  starter_data: ukStarterData,
 };
 
 const evidenceReviewerRelease: PackReleaseReview = {
@@ -156,6 +180,11 @@ export function resetMockPackManagement(): void {
       "jobsentinel-skill-publisher-v1",
       "jobsentinel.skill.resume-review",
       staticSkillRelease,
+    ),
+    readyPack(
+      "jobsentinel-region-publisher-v1",
+      "jobsentinel.region.uk",
+      regionRelease,
     ),
     readyPack(
       "jobsentinel-evidence-reviewer-publisher-v1",
@@ -290,6 +319,7 @@ export function handleMockPackCommand(
     command !== "disable_pack" &&
     command !== "uninstall_pack" &&
     command !== "retry_pack_cleanup" &&
+    command !== "open_region_pack" &&
     command !== "open_static_skill" &&
     command !== "prepare_evidence_reviewer" &&
     command !== "prepare_packet_builder"
@@ -297,6 +327,11 @@ export function handleMockPackCommand(
     return undefined;
 
   const pack = selectedPack(args);
+  if (command === "open_region_pack") {
+    if (pack.state !== "ready" || pack.currentRelease.purpose !== "regional_guidance")
+      throw new Error("regional pack is unavailable");
+    return regionManifest;
+  }
   if (command === "open_static_skill") {
     if (
       pack.state !== "ready" ||

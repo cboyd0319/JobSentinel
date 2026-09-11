@@ -4,6 +4,7 @@ macro_rules! jobsentinel_command_handlers {
     () => {
         ::tauri::generate_handler![
             jobsentinel::ipc::jobs::search_jobs,
+            jobsentinel::ipc::jobs::get_search_country_options,
             jobsentinel::ipc::jobs::get_recent_jobs,
             jobsentinel::ipc::jobs::get_job_by_id,
             jobsentinel::ipc::jobs::search_jobs_query,
@@ -51,6 +52,7 @@ macro_rules! jobsentinel_command_handlers {
             jobsentinel::ipc::pack_management::activate_pack,
             jobsentinel::ipc::pack_management::enable_pack,
             jobsentinel::ipc::pack_management::rollback_pack,
+            jobsentinel::ipc::pack_management::open_region_pack,
             jobsentinel::ipc::pack_management::open_static_skill,
             jobsentinel::ipc::pack_management::disable_pack,
             jobsentinel::ipc::pack_management::uninstall_pack,

@@ -1,7 +1,10 @@
+/** Exports and restores local Settings backups without applying invalid country filters. */
+
 import { useCallback, type Dispatch, type SetStateAction } from "react";
 import { invoke } from "../../../platform/tauri";
 import { logError } from "../../../shared/errorReporting/logger";
 import { getUserFriendlyError } from "../../../shared/errorReporting/messages";
+import { parseSearchCountryOptions } from "../../../shared/searchCountry";
 import {
   downloadPrivateSettingsBackup,
   selectSettingsBackupFile,
@@ -19,6 +22,20 @@ interface UseSettingsLocalDataBackupOptions {
   setConfig: Dispatch<SetStateAction<Config | null>>;
   toastError: (title: string, message: string) => void;
   toastSuccess: (title: string, message: string) => void;
+}
+
+async function isBackupSearchCountryAvailable(settings: Config): Promise<boolean> {
+  const searchCountry = settings.location_preferences.search_country;
+  if (searchCountry === null || searchCountry === undefined) return true;
+
+  try {
+    const options = parseSearchCountryOptions(
+      await invoke<unknown>("get_search_country_options"),
+    );
+    return options.some(([code]) => code === searchCountry);
+  } catch {
+    return false;
+  }
 }
 
 export function useSettingsLocalDataBackup({
@@ -72,6 +89,17 @@ export function useSettingsLocalDataBackup({
         toastError(
           "That is not a JobSentinel settings backup",
           "Choose a settings backup created from JobSentinel Settings.",
+        );
+        return;
+      }
+
+      const settings = backupImport.type === "settings"
+        ? backupImport.settings
+        : backupImport.backup.settings;
+      if (!(await isBackupSearchCountryAvailable(settings))) {
+        toastError(
+          "Could not restore search country",
+          "This backup's search country is not available on this device.",
         );
         return;
       }

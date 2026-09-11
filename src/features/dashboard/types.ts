@@ -1,18 +1,19 @@
-// Dashboard.tsx Type Definitions
-// Extracted from Dashboard.tsx to reduce file size
+// Defines dashboard job projections, filter state, and page contracts.
 
 import type { ComponentType, ReactNode } from "react";
 import type { RenderCompanyResearch } from "../../shared/companyResearch";
+import type { JobPayInput } from "../../shared/listedPay";
 
 export type SortOption =
   "score-desc" | "score-asc" | "date-desc" | "date-asc" | "company-asc";
 export type ScoreFilter = "all" | "high" | "medium" | "low";
 export type PostedDateFilter = "all" | "24h" | "7d" | "30d";
 export type GhostFilter = "all" | "real" | "ghost";
+export type WorkArrangement = "remote" | "hybrid" | "onsite" | "unspecified";
 export type Page =
   "dashboard" | "applications" | "resume" | "automation" | "salary" | "market";
 
-export interface Job {
+export interface Job extends JobPayInput {
   id: number;
   hash?: string;
   title: string;
@@ -26,7 +27,12 @@ export interface Job {
   description?: string | null;
   salary_min?: number | null;
   salary_max?: number | null;
+  currency?: string | null;
+  listed_pay?: unknown | null;
   remote?: boolean | null;
+  work_arrangement?: WorkArrangement | null;
+  search_country?: string | null;
+  country_scope?: "unfiltered" | "match" | "mismatch" | "unknown" | null;
   bookmarked?: boolean;
   notes?: string | null;
   // Ghost detection fields (v1.4)
@@ -77,6 +83,7 @@ export interface AutoRefreshConfig {
 }
 
 export interface DashboardPreferences {
+  searchCountry?: string | null;
   autoRefresh: AutoRefreshConfig;
   salaryFloorUsd: number | null;
   anyJobSourceEnabled: boolean;

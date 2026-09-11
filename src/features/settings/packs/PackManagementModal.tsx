@@ -5,6 +5,7 @@ import { invoke } from "../../../platform/tauri";
 import { Button } from "../../../ui/Button";
 import { Modal } from "../../../ui/Modal";
 import { PackLifecycleControls } from "./PackLifecycleControls";
+import { PackRegionReview } from "../../../shared/PackRegionReview";
 import { PackStaticSkillReview } from "./PackStaticSkillReview";
 import {
   parsePackManagementReviews,
@@ -70,7 +71,7 @@ const PURPOSE_COPY: Record<PackPurpose, string> = {
   reviewed_agent: "Runs a reviewed local agent task.",
   reviewed_workflow: "Runs a reviewed local workflow.",
   role_guidance: "Adds role-specific job-search guidance.",
-  regional_guidance: "Adds regional job-search guidance.",
+  regional_guidance: "Provides regional research metadata.",
   source_support: "Adds reviewed job-source support.",
   review_rubric: "Adds a local review rubric.",
   synthetic_product_evaluation:
@@ -294,6 +295,9 @@ function PackCard({
 
       {pack.state === "ready" && release.purpose === "static_guidance" ? (
         <PackStaticSkillReview pack={pack} />
+      ) : null}
+      {pack.state === "ready" && release.purpose === "regional_guidance" ? (
+        <PackRegionReview pack={pack} />
       ) : null}
 
       <PackLifecycleControls

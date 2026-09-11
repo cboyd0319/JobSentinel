@@ -1,9 +1,12 @@
 //! Pure JobSentinel business values and canonical normalization.
 
 mod application_assistance;
+mod country_codes;
 mod external_ai;
 mod job;
+mod job_geography;
 mod job_hash;
+mod listed_pay;
 pub mod normalization;
 mod scoring_config;
 #[cfg(test)]
@@ -28,6 +31,7 @@ pub mod v3_pack_payloads;
 mod v3_pack_static_skill_tests;
 #[cfg(test)]
 mod v3_region_manifest_tests;
+pub mod v3_region_starter;
 #[cfg(test)]
 mod v3_signed_pack_tests;
 pub mod v3_signed_packs;
@@ -51,9 +55,12 @@ pub use application_assistance::{
     AnswerSuggestion, ApplicationAttempt, ApplicationProfile, ApplicationProfileInput, AtsPlatform,
     AutomationStats, AutomationStatus, ModificationExample, ScreeningAnswer,
 };
+pub use country_codes::{country_options, normalize_country_code};
 pub use external_ai::{ExternalAiConfig, ExternalAiProvider, ExternalAiRedactionConfig};
 pub use job::Job;
+pub use job_geography::{CountryObservation, JobGeography, LocationObservation};
 pub use job_hash::calculate_job_hash;
+pub use listed_pay::{ListedPay, PayQualifier};
 pub use normalization::canonicalize_job_url;
 pub use scoring_config::ScoringConfig;
 pub use v3_contracts::{read_v3_compatibility, CompatibilityDecision, CompatibilityInputKind};
@@ -64,3 +71,7 @@ pub use v3_evaluations::{
 };
 pub use v3_evidence::{ResumeEvidenceCitation, ResumeEvidenceSnapshot};
 pub use v3_manifests::{PackExecutionClass, PrivacyLabel};
+pub use v3_region_starter::{
+    parse_region_starter_data, RegionCvProfile, RegionMappingType, RegionPackContent,
+    RegionSourceNote, RegionStarterData, RegionTaxonomyMapping,
+};

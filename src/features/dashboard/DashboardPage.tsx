@@ -1,5 +1,4 @@
-// Dashboard - Main job search interface
-// Refactored for v1.5 modularization - uses extracted hooks and components
+/** Coordinates the saved-job dashboard, current search context, and user actions. */
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { DashboardSkeleton } from "../../ui/Skeleton";
@@ -78,6 +77,7 @@ export default function Dashboard({
   const [showImportModal, setShowImportModal] = useState(false);
   const [showLinkedInWorkbench, setShowLinkedInWorkbench] = useState(false);
   const [salaryFloorUsd, setSalaryFloorUsd] = useState<number | null>(null);
+  const [searchCountry, setSearchCountry] = useState<string | null>(null);
   const [anyJobSourceEnabled, setAnyJobSourceEnabled] = useState<
     boolean | null
   >(null);
@@ -121,6 +121,7 @@ export default function Dashboard({
   const savedSearches = useDashboardSavedSearches();
   const { cooldownSeconds, handleSearchNow, searchCooldown, searching } =
     useDashboardManualSearch({
+      showSettings,
       jobs,
       setAnyJobSourceEnabled,
       setError,
@@ -148,6 +149,7 @@ export default function Dashboard({
     setJobs,
     setLoading,
     setSalaryFloorUsd,
+    setSearchCountry,
     setScrapingStatus,
     setStatistics,
   });
@@ -262,6 +264,7 @@ export default function Dashboard({
 
   const handleSettingsClose = useCallback(() => {
     invalidateCacheByCommand("get_dashboard_preferences");
+    for (const command of ["get_recent_jobs", "search_jobs_query", "get_bookmarked_jobs", "get_job_by_id"]) invalidateCacheByCommand(command);
     setShowSettings(false);
     void fetchDataRef.current?.();
   }, [fetchDataRef, setShowSettings]);
@@ -291,12 +294,13 @@ export default function Dashboard({
     return <DashboardErrorState error={error} onRetry={fetchData} />;
   }
 
-  const noJobsCopy = getNoJobsEmptyStateCopy(anyJobSourceEnabled);
+  const noJobsCopy = getNoJobsEmptyStateCopy(anyJobSourceEnabled, searchCountry);
   const noSourcesEnabled = anyJobSourceEnabled === false;
 
   return (
     <div className="min-h-screen bg-surface-50 dark:bg-surface-900">
       <DashboardHeader
+        searchCountry={searchCountry}
         scrapingStatus={scrapingStatus}
         autoRefreshEnabled={autoRefresh.autoRefreshEnabled}
         nextRefreshTime={autoRefresh.nextRefreshTime}
@@ -385,6 +389,7 @@ export default function Dashboard({
             filteredJobs={filters.filteredAndSortedJobs}
             noJobsCopy={noJobsCopy}
             noSourcesEnabled={noSourcesEnabled}
+            countryFiltered={searchCountry !== null}
             searching={searching}
             jobListRef={jobListRef}
             bulkMode={jobOps.bulkMode}

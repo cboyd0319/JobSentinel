@@ -30,6 +30,51 @@ describe("decodeEmployerDossier", () => {
     expect(decodeEmployerDossier(dossier())).not.toBeNull();
   });
 
+  it("accepts native pay only when legacy projections are null and displays its source context", () => {
+    const value = dossier();
+    value.pay = {
+      clarity: "native_listed",
+      minimum: null,
+      maximum: null,
+      currency: null,
+      listed_pay: {
+        min: 5_000,
+        max: 7_000,
+        currency: "EUR",
+        period: "monthly",
+        qualifiers: ["ctc"],
+        raw_text: "€5,000–€7,000 monthly CTC",
+      },
+      observed_at: "2026-07-20T00:00:00Z",
+    } as unknown as typeof value.pay;
+
+    const decoded = decodeEmployerDossier(value);
+    expect(decoded?.pay.clarity).toBe("native_listed");
+    render(<EmployerDossierSection dossier={decoded!} />);
+    expect(screen.getByText(/5,000–7,000 EUR.*monthly.*CTC.*Source text/i)).toBeVisible();
+  });
+
+  it("rejects native pay that also supplies legacy projections", () => {
+    const value = dossier();
+    value.pay = {
+      clarity: "native_listed",
+      minimum: 100_000,
+      maximum: null,
+      currency: null,
+      listed_pay: {
+        min: 5_000,
+        max: null,
+        currency: "EUR",
+        period: "monthly",
+        qualifiers: [],
+        raw_text: null,
+      },
+      observed_at: "2026-07-20T00:00:00Z",
+    } as unknown as typeof value.pay;
+
+    expect(decodeEmployerDossier(value)).toBeNull();
+  });
+
   it("rejects an unreviewed public host even when it has a Greenhouse-shaped job id", () => {
     const value = dossier();
     value.employer.posting_domain = "evil.example";

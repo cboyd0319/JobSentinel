@@ -1,3 +1,5 @@
+/** Defines the renderer-safe persisted Settings configuration shape. */
+
 import type { ReactNode } from "react";
 import type { RestrictedSourceAcknowledgements } from "../../../shared/restrictedSourceTaxonomy";
 import {
@@ -62,6 +64,7 @@ export interface Config {
     allow_hybrid: boolean;
     allow_onsite: boolean;
     cities: string[];
+    search_country?: string | null;
   };
   salary_floor_usd: number;
   salary_target_usd?: number;

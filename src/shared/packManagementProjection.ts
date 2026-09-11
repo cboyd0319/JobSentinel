@@ -231,7 +231,7 @@ function isSupportedPackContract(value: Record<string, unknown>): boolean {
     !hasExactValues(value.externalDestinations, [])
   ) return false;
 
-  if (["skill", "source", "evaluation"].includes(value.packType as string)) {
+  if (["skill", "region", "source", "evaluation"].includes(value.packType as string)) {
     return (
       value.executionClass === "static_content" &&
       hasExactValues(value.privacyLabels, ["local_only"]) &&

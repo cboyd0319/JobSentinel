@@ -1,5 +1,7 @@
 /** Decodes one bounded, provenance-first employer dossier from untrusted IPC data. */
 
+import { parseListedPay, type ListedPay } from "./listedPay";
+
 const sourceClasses = [
   "official_public_api",
   "public_ats",
@@ -19,7 +21,7 @@ const sourceStatuses = [
   "unavailable",
   "missing",
 ] as const;
-const payClarities = ["range_listed", "minimum_only", "maximum_only", "not_listed", "unusable"] as const;
+const payClarities = ["range_listed", "minimum_only", "maximum_only", "not_listed", "unusable", "native_listed"] as const;
 const salaryCoverages = ["none", "partial", "declared"] as const;
 const applicationChannels = ["public_ats", "official_public_source", "employer_page", "user_provided", "unknown"] as const;
 const uncertainties = [
@@ -44,6 +46,22 @@ type SalaryCoverage = (typeof salaryCoverages)[number];
 type ApplicationChannel = (typeof applicationChannels)[number];
 type Uncertainty = (typeof uncertainties)[number];
 type NextAction = (typeof nextActions)[number];
+type LegacyPayClarity = Exclude<PayClarity, "native_listed">;
+type EmployerLegacyPay = {
+  clarity: LegacyPayClarity;
+  minimum: number | null;
+  maximum: number | null;
+  currency: string | null;
+  observed_at: string;
+};
+type EmployerNativePay = {
+  clarity: "native_listed";
+  minimum: null;
+  maximum: null;
+  currency: null;
+  listed_pay: ListedPay;
+  observed_at: string;
+};
 
 export interface EmployerDossier {
   employer: {
@@ -81,13 +99,7 @@ export interface EmployerDossier {
     salary_coverage: SalaryCoverage | null;
     incomplete_coverage: boolean | null;
   };
-  pay: {
-    clarity: PayClarity;
-    minimum: number | null;
-    maximum: number | null;
-    currency: string | null;
-    observed_at: string;
-  };
+  pay: EmployerLegacyPay | EmployerNativePay;
   local_history: {
     basis: "exact_saved_name";
     saved_job_count: number;
@@ -255,6 +267,8 @@ export function decodeEmployerDossier(value: unknown): EmployerDossier | null {
   const minimum = pay.minimum === null ? null : positiveInteger(pay.minimum, Number.MAX_SAFE_INTEGER);
   const maximum = pay.maximum === null ? null : positiveInteger(pay.maximum, Number.MAX_SAFE_INTEGER);
   const currency = pay.currency === null ? null : boundedString(pay.currency, 3);
+  const hasNativeListedPay = Object.prototype.hasOwnProperty.call(pay, "listed_pay");
+  const nativeListedPay = clarity === "native_listed" ? parseListedPay(pay.listed_pay) : null;
   const historyCounts = [
     localHistory.saved_job_count,
     localHistory.application_count,
@@ -263,10 +277,11 @@ export function decodeEmployerDossier(value: unknown): EmployerDossier | null {
     localHistory.terminal_outcome_count,
   ].map(count);
   const payShapeIsValid =
-    (clarity === "range_listed" && minimum !== null && maximum !== null && maximum >= minimum && currency !== null) ||
-    (clarity === "minimum_only" && minimum !== null && maximum === null && currency !== null) ||
-    (clarity === "maximum_only" && minimum === null && maximum !== null && currency !== null) ||
-    ((clarity === "not_listed" || clarity === "unusable") && minimum === null && maximum === null && currency === null);
+    (clarity === "range_listed" && minimum !== null && maximum !== null && maximum >= minimum && currency !== null && !hasNativeListedPay) ||
+    (clarity === "minimum_only" && minimum !== null && maximum === null && currency !== null && !hasNativeListedPay) ||
+    (clarity === "maximum_only" && minimum === null && maximum !== null && currency !== null && !hasNativeListedPay) ||
+    ((clarity === "not_listed" || clarity === "unusable") && minimum === null && maximum === null && currency === null && !hasNativeListedPay) ||
+    (clarity === "native_listed" && minimum === null && maximum === null && currency === null && nativeListedPay !== null && hasNativeListedPay);
   const sourceProvenance = [
     sourceClass,
     nullableFields.displayName,
@@ -337,11 +352,18 @@ export function decodeEmployerDossier(value: unknown): EmployerDossier | null {
     historyCounts[0] === 0
   ) return null;
 
+  const decodedPay = clarity === "native_listed"
+    ? nativeListedPay === null
+      ? null
+      : { clarity, minimum: null, maximum: null, currency: null, listed_pay: nativeListedPay, observed_at: payObservedAt }
+    : { clarity, minimum, maximum, currency, observed_at: payObservedAt };
+  if (decodedPay === null) return null;
+
   return {
     employer: { name, identity_status: "unverified_saved_name", official_domain: null, posting_domain: postingDomain },
     role: { title, status: "last_observed", posting_url: safePosting?.url ?? null, first_observed_at: firstObservedAt, last_observed_at: lastObservedAt, times_seen: timesSeen, repost_count: repostCount },
     source: { source_id: sourceId, display_name: nullableFields.displayName!, source_class: sourceClass, status: sourceStatus, documentation_url: nullableFields.documentationUrl!, observed_at: observedAt, retrieved_at: nullableFields.retrievedAt!, verified_on: nullableFields.verifiedOn!, expires_on: nullableFields.expiresOn!, jurisdiction: nullableFields.jurisdiction!, confidence_percent: confidence, policy_ref: nullableFields.policyRef!, policy_revision: policyRevision, terms_review_ref: nullableFields.termsReviewRef!, robots_review_ref: nullableFields.robotsReviewRef!, parser_version: nullableFields.parserVersion!, salary_coverage: salaryCoverage, incomplete_coverage: source.incomplete_coverage as boolean | null },
-    pay: { clarity, minimum, maximum, currency, observed_at: payObservedAt },
+    pay: decodedPay,
     local_history: { basis: "exact_saved_name", saved_job_count: historyCounts[0]!, application_count: historyCounts[1]!, interview_count: historyCounts[2]!, offer_count: historyCounts[3]!, terminal_outcome_count: historyCounts[4]! },
     application_channel: channel,
     uncertainty: uncertainty as Uncertainty[],

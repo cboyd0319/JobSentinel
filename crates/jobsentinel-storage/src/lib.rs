@@ -1,6 +1,4 @@
-//! SQLCipher-backed local storage for JobSentinel.
-//!
-//! Handles local database operations through a bounded SQLx-backed facade.
+//! Exposes JobSentinel's SQLCipher-backed storage facade and bounded native evidence decoders.
 
 mod integrity;
 mod scoring_config;
@@ -60,6 +58,24 @@ pub use credentials::{
     CredentialKeyWrapRecord, CredentialRepository, CredentialSecretRecord, CredentialStorageError,
 };
 pub use v3_pack_lifecycle::pack_lifecycle_error_kind;
+
+/// Decodes persisted listed pay without falling back to legacy salary fields.
+pub(crate) fn decode_listed_pay_json(
+    json: Option<&str>,
+) -> Result<Option<jobsentinel_domain::ListedPay>, sqlx::Error> {
+    json.map(jobsentinel_domain::ListedPay::from_canonical_json)
+        .transpose()
+        .map_err(|_| sqlx::Error::Protocol("Stored listed pay JSON is invalid".to_string()))
+}
+
+/// Decodes persisted job geography without inferring from legacy location text.
+pub(crate) fn decode_job_geography_json(
+    json: Option<&str>,
+) -> Result<Option<jobsentinel_domain::JobGeography>, sqlx::Error> {
+    json.map(jobsentinel_domain::JobGeography::from_canonical_json)
+        .transpose()
+        .map_err(|_| sqlx::Error::Protocol("Stored job geography JSON is invalid".to_string()))
+}
 
 /// Stable, non-sensitive classification for storage errors used by callers.
 pub fn database_error_kind(error: &sqlx::Error) -> &'static str {

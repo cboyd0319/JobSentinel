@@ -2,7 +2,7 @@
 
 # Current Status
 
-Last updated: 2026-08-12
+Last updated: 2026-09-11
 
 ## Done
 
@@ -36,15 +36,19 @@ Last updated: 2026-08-12
 
 - Active feature: `v3-milestone-9-regions-access-editions-first-run`
 - Status: `active`
-- Current slice: reconcile the Gate 4 regional and Essentials decisions with the existing manifests, fixtures,
-  onboarding, model lifecycle, packaging profiles, and veteran path before adding new delivery behavior.
-- Next action: define the fail-first Milestone 9 acceptance matrix for region manifests, starter coverage, model-free
-  first run, in-place stronger-local upgrade, accessibility variants, and Gate 5 edition decisions.
+- Current slice: three regional Qwen3 pairs pass selection and negative-only abstention with unchanged thresholds.
+  The India negative's higher dense score was corrected by reranking; broader regional calibration remains unproven.
+- Next action: operational regional selection, country-aware normalization, wider evaluations, and native journeys.
+  Native UI-automation and region-signing approvals, Gate 5, and controlled 8 GiB proof remain open.
+- Verification: setup, fixture contract, inference, and library lint pass; optional test-target lint remains failing.
+  The ignored test cache is retained under target; no user profile or package changed in this test-only slice.
 
 ## Deferred
 
 - Hosted general CI remains absent under `pre-alpha-private-no-ci`.
 
-Evidence: Milestone 8 completion is revision-bound in
+Evidence: `docs/harness/evidence/v3-milestone-9-regional-qwen-matching-2026-09-11.json`
+links earlier regional, access, native-pay, and package evidence. Milestone 9 remains partial.
+Milestone 8 completion remains in
 `docs/harness/evidence/v3-milestone-8-employer-intelligence-2026-08-12.json`. Native Windows 11 execution and exact
 installed macOS 26 accessibility remain accepted Milestone 11 release-proof gaps.

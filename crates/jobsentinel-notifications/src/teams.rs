@@ -1,6 +1,4 @@
-//! Microsoft Teams Notifications via Webhooks
-//!
-//! Sends formatted job alerts to Microsoft Teams using Incoming Webhooks.
+//! Formats and sends bounded job-alert payloads through Microsoft Teams webhooks.
 
 use super::{
     format_salary_range, notification_job_href, notification_provider_failure_summary,
@@ -22,7 +20,7 @@ fn build_teams_payload(notification: &Notification) -> serde_json::Value {
     let score = &notification.score;
 
     let theme_color = teams_theme_color(score.total);
-    let salary_display = format_salary_range(job.salary_min, job.salary_max);
+    let salary_display = format_salary_range(job);
 
     let mut payload = json!({
         "@type": "MessageCard",

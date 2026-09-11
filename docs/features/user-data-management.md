@@ -1,3 +1,5 @@
+<!-- Documents local search data, first-run controls, recovery, privacy inspection, and user-managed exports. -->
+
 # Local Job-Search Data
 
 **Keep job-search history, saved searches, templates, reminders, and safe
@@ -109,6 +111,14 @@ local pay comparisons while the review keeps the hourly meaning visible.
 Users can skip setup for the current session without saving settings or starting
 source work. The wizard states that setup returns next time. A failed save keeps
 every reviewed choice visible and offers a bounded retry before entering the app.
+
+First run also offers **Check this device**, an optional local inspection of
+storage, vault status, permissions, Browser Import, source permissions, and
+model readiness. It runs only when selected, never unlocks, repairs, pairs,
+downloads, or contacts sources, and keeps raw diagnostic details out of setup.
+Source permissions describe local review status, not source connectivity.
+Missing models are optional; unreadable checks offer retry without blocking
+setup. Settings provides the existing review and repair controls.
 
 ### Safe Support Reports
 

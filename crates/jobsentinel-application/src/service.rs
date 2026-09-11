@@ -1,3 +1,5 @@
+//! Reviews source-authorized URL imports and persists the exact confirmed local job.
+
 use chrono::Utc;
 
 use jobsentinel_domain::{
@@ -191,6 +193,8 @@ fn job_from_page(parsed: &ParsedJobPage, preview: &JobImportPreview) -> ImportRe
         salary_min: parsed.salary_min,
         salary_max: parsed.salary_max,
         currency: parsed.currency.clone(),
+        listed_pay: parsed.listed_pay.clone(),
+        geography: parsed.geography.clone(),
         created_at,
         ..Job::newly_discovered(
             preview.title.clone(),
@@ -289,7 +293,7 @@ mod tests {
         assert_eq!(preview.title, "Office Manager");
         assert_eq!(preview.company, "Example Services");
         assert_eq!(preview.location.as_deref(), Some("Denver, CO"));
-        assert_eq!(preview.salary.as_deref(), Some("USD 25-30 per hour"));
+        assert_eq!(preview.salary.as_deref(), Some("USD 25–30 hourly"));
         let import_id = preview.import_id.expect("valid preview should be staged");
 
         let saved = confirm_job_import(&database, &pending, &import_id)
@@ -298,9 +302,57 @@ mod tests {
         let job = database.get_job_by_id(saved.job_id).await.unwrap().unwrap();
         assert_eq!(job.title, "Office Manager");
         assert_eq!(job.source, "user-source-actions");
-        assert_eq!(job.salary_min, Some(52_000));
-        assert_eq!(job.salary_max, Some(62_400));
+        assert_eq!(job.salary_min, None);
+        assert_eq!(job.salary_max, None);
+        let pay = job
+            .listed_pay
+            .expect("reviewed hourly pay must survive saving");
+        assert_eq!(pay.min, Some(25.0));
+        assert_eq!(pay.max, Some(30.0));
+        assert_eq!(pay.currency.as_deref(), Some("USD"));
+        assert_eq!(
+            pay.period,
+            jobsentinel_domain::v3_contracts::PayPeriod::Hourly
+        );
         assert_eq!(job.times_seen, 1);
+    }
+
+    #[tokio::test]
+    async fn regional_monthly_pay_survives_review_and_confirmation_without_conversion() {
+        let database = database().await;
+        let pending = PendingUrlImports::default();
+        let posting = serde_json::json!({
+            "@type": "JobPosting", "title": "Clinic Administrator",
+            "hiringOrganization": {"name": "Example Clinic"},
+            "description": "Coordinate clinic appointments.",
+            "baseSalary": {"@type": "MonetaryAmount", "currency": "EUR",
+                "value": {"minValue": 3200.50, "maxValue": 3800.75, "unitText": "MONTH"}}
+        });
+        let html = format!(r#"<script type="application/ld+json">{posting}</script>"#);
+        let preview = preview_job_from_html(
+            &database,
+            &pending,
+            "https://example.com/jobs/clinic-administrator".to_string(),
+            &html,
+            employer_discovery_review_grant(),
+        )
+        .await
+        .unwrap();
+        assert!(preview.salary.as_deref().unwrap().contains("EUR"));
+        let saved = confirm_job_import(&database, &pending, preview.import_id.as_deref().unwrap())
+            .await
+            .unwrap();
+        let job = database.get_job_by_id(saved.job_id).await.unwrap().unwrap();
+        assert_eq!((job.salary_min, job.salary_max), (None, None));
+        let pay = job
+            .listed_pay
+            .expect("native EUR pay must survive review and persistence");
+        assert_eq!((pay.min, pay.max), (Some(3200.50), Some(3800.75)));
+        assert_eq!(pay.currency.as_deref(), Some("EUR"));
+        assert_eq!(
+            pay.period,
+            jobsentinel_domain::v3_contracts::PayPeriod::Monthly
+        );
     }
 
     #[tokio::test]
@@ -429,4 +481,7 @@ mod tests {
 
         assert!(matches!(result, Err(ImportError::MultipleJobPostings(2))));
     }
+
+    #[path = "geography_tests.rs"]
+    mod geography_tests;
 }

@@ -1,7 +1,10 @@
+//! Verifies Qwen3 retrieval, reranker provenance, acceptance, and opt-in calibrations.
+
 use super::*;
 use crate::RerankScore;
 
 mod calibration;
+mod regional;
 
 #[test]
 fn reranker_selection_preserves_dense_score_and_typed_provenance() {

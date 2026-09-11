@@ -1,3 +1,5 @@
+/** Tests exact saved-match lookup and evidence-bound military review in browser development. */
+
 import { beforeEach, describe, expect, it } from "vitest";
 import { mockInvoke, resetMockData } from "../../mocks/handlers";
 import { loadMockState, mockRuntimeState } from "../../mocks/runtimeState";
@@ -73,6 +75,26 @@ async function confirmMilitaryEvidence(match: Match, includeClearance = true) {
 
 describe("mock saved-match military transition commands", () => {
   beforeEach(setupResumeRuntimeMocks);
+
+  it("looks up an older exact match without a recent-window or inactive-resume fallback", async () => {
+    const match = await savedMatch();
+    const stored = mockRuntimeState.recentMatches.find((item) => item.id === match.id);
+    if (!stored) throw new Error("missing saved-match fixture");
+    mockRuntimeState.recentMatches.unshift(...Array.from({ length: 12 }, (_, index) => ({
+      ...stored, id: stored.id + index + 1, job_hash: `newer-job-${index}`,
+    })));
+    const before = structuredClone(mockRuntimeState.recentMatches);
+    const recent = await mockInvoke<Match[]>("get_recent_matches", { resumeId: match.resume_id, limit: 10 });
+    expect(recent.some((item) => item.id === match.id)).toBe(false);
+    const exact = await mockInvoke("get_match_result", { resumeId: match.resume_id, jobHash: match.job_hash });
+    expect(exact).toMatchObject({ id: match.id, resume_id: match.resume_id, job_hash: match.job_hash });
+    expect(exact).not.toHaveProperty("job_title");
+    expect(exact).not.toHaveProperty("company");
+    expect(exact).not.toHaveProperty("feedback");
+    await expect(mockInvoke("get_match_result", { resumeId: match.resume_id + 1, jobHash: match.job_hash })).resolves.toBeNull();
+    await expect(mockInvoke("get_match_result", { resumeId: match.resume_id, jobHash: "missing-job" })).resolves.toBeNull();
+    expect(mockRuntimeState.recentMatches).toEqual(before);
+  });
 
   it("requires explicit closed evidence before returning a one-use safe projection", async () => {
     const match = await savedMatch();

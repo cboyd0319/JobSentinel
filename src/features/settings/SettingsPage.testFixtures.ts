@@ -1,3 +1,5 @@
+/** Supplies complete renderer-safe Settings fixtures for focused UI tests. */
+
 import { DEFAULT_EXTERNAL_AI_CONFIG } from "./config/SettingsConfig";
 
 export function makeConfig() {
@@ -11,6 +13,7 @@ export function makeConfig() {
       allow_hybrid: false,
       allow_onsite: false,
       cities: [],
+      search_country: null,
     },
     salary_floor_usd: 100000,
     preferred_companies: [],

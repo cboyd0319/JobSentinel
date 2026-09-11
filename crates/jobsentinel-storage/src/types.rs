@@ -1,6 +1,4 @@
-//! Database type definitions
-//!
-//! Contains all struct definitions for database models.
+//! Maps database rows to values and fails closed for native evidence JSON.
 
 use chrono::{DateTime, Utc};
 use jobsentinel_domain::Job;
@@ -22,6 +20,8 @@ pub(super) struct JobRow {
     salary_min: Option<i64>,
     salary_max: Option<i64>,
     currency: Option<String>,
+    listed_pay: Option<String>,
+    geography: Option<String>,
     created_at: DateTime<Utc>,
     updated_at: DateTime<Utc>,
     last_seen: DateTime<Utc>,
@@ -37,8 +37,10 @@ pub(super) struct JobRow {
     repost_count: i64,
 }
 
-impl From<JobRow> for Job {
-    fn from(row: JobRow) -> Self {
+impl TryFrom<JobRow> for Job {
+    type Error = sqlx::Error;
+
+    fn try_from(row: JobRow) -> Result<Self, Self::Error> {
         let mut job = Self::newly_discovered(
             row.title,
             row.company,
@@ -56,6 +58,8 @@ impl From<JobRow> for Job {
         job.salary_min = row.salary_min;
         job.salary_max = row.salary_max;
         job.currency = row.currency;
+        job.listed_pay = crate::decode_listed_pay_json(row.listed_pay.as_deref())?;
+        job.geography = crate::decode_job_geography_json(row.geography.as_deref())?;
         job.updated_at = row.updated_at;
         job.last_seen = row.last_seen;
         job.times_seen = row.times_seen;
@@ -68,8 +72,12 @@ impl From<JobRow> for Job {
         job.ghost_reasons = row.ghost_reasons;
         job.first_seen = row.first_seen;
         job.repost_count = row.repost_count;
-        job
+        Ok(job)
     }
+}
+
+pub(super) fn jobs_from_rows(rows: Vec<JobRow>) -> Result<Vec<Job>, sqlx::Error> {
+    rows.into_iter().map(Job::try_from).collect()
 }
 
 /// Database statistics

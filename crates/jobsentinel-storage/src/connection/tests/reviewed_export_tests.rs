@@ -1,3 +1,5 @@
+//! Verifies reviewed plaintext exports retain native listed-pay evidence safely.
+
 use super::*;
 use serde_json::Value;
 use std::path::Path;
@@ -6,11 +8,13 @@ pub(super) async fn database_with_private_export_data(path: &Path) -> Database {
     let database = Database::connect(path).await.unwrap();
     database.migrate().await.unwrap();
     sqlx::query(
-        "INSERT INTO jobs(hash, title, company, url, source)
+        "INSERT INTO jobs(hash, title, company, url, source, listed_pay, geography)
          VALUES (
             'export-job', 'Exportable Role', 'Example Co',
             'https://user:pass@example.test/job?job=42&utm_source=test&candidate_token=private#fragment',
-            'test'
+            'test',
+            '{\"min\":50000,\"max\":70000,\"currency\":\"INR\",\"period\":\"annual\",\"qualifiers\":[\"ctc\"],\"raw_text\":\"₹50k–₹70k CTC\"}',
+            '{\"worksite_locations\":[{\"raw_location\":\"Bengaluru\",\"country\":{\"raw_country\":\"India\",\"alpha2\":\"IN\"}}],\"remote_applicant_locations\":[]}'
          )",
     )
     .execute(database.pool())
@@ -234,6 +238,10 @@ async fn reviewed_export_is_complete_and_excludes_secrets_paths_and_protected_re
 
     let exported = records(&export_path);
     assert_eq!(
+        Database::inspect_reviewed_export(&export_path).unwrap(),
+        info
+    );
+    assert_eq!(
         exported.first().unwrap()["schema"],
         "jobsentinel.v3.reviewed-export.v1"
     );
@@ -254,6 +262,14 @@ async fn reviewed_export_is_complete_and_excludes_secrets_paths_and_protected_re
     let job = find_record(&exported, "jobs");
     assert_eq!(job["data"]["title"], "Exportable Role");
     assert_eq!(job["data"]["url"], "https://example.test/job?job=42");
+    assert_eq!(
+        job["data"]["listed_pay"],
+        "{\"min\":50000,\"max\":70000,\"currency\":\"INR\",\"period\":\"annual\",\"qualifiers\":[\"ctc\"],\"raw_text\":\"₹50k–₹70k CTC\"}"
+    );
+    assert_eq!(
+        job["data"]["geography"],
+        "{\"worksite_locations\":[{\"raw_location\":\"Bengaluru\",\"country\":{\"raw_country\":\"India\",\"alpha2\":\"IN\"}}],\"remote_applicant_locations\":[]}"
+    );
     let resume = find_record(&exported, "resumes");
     assert_eq!(resume["data"]["parsed_text"], "portable resume evidence");
     assert!(resume["data"].get("file_path").is_none());

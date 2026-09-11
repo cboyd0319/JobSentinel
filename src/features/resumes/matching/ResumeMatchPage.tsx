@@ -1,3 +1,5 @@
+/** Supports ephemeral pasted-job ATS analysis and routing to saved resume matches. */
+
 import { useState, useCallback, useEffect } from "react";
 import { invoke } from "../../../platform/tauri";
 import { Button } from "../../../ui/Button";
@@ -97,20 +99,26 @@ export default function ResumeMatch({ onBack, onNavigate }: ResumeMatchProps) {
     }
 
     if (onNavigate) {
-      writeResumeMatchDraft({
-        jobDescription,
-        resumeJson,
-        analysisResult,
-        analysisInputSource,
-        matchingProfile,
-        showAdvancedResumeImport,
-        showComparison,
-      });
+      persistDraft();
       onNavigate("resume");
       return;
     }
 
     toast.info("Open Resume Match", "Use the Resumes page to choose or add a resume.");
+  };
+
+  const persistDraft = () => writeResumeMatchDraft({
+    jobDescription, resumeJson, analysisResult, analysisInputSource,
+    matchingProfile, showAdvancedResumeImport, showComparison,
+  });
+
+  const openSavedMatches = () => {
+    if (!onNavigate) {
+      toast.info("Open Resume Library", "Use the Resumes page to review saved matches.");
+      return;
+    }
+    persistDraft();
+    onNavigate("resume");
   };
 
   // Load action words on mount
@@ -409,6 +417,12 @@ export default function ResumeMatch({ onBack, onNavigate }: ResumeMatchProps) {
                 </p>
               </div>
             )}
+
+            <Card>
+              <CardHeader title="Saved match reviews" />
+              <p className="text-sm text-surface-600 dark:text-surface-300">Pasted-job ATS analysis is not a saved job match. Military wording review requires an active saved resume and that resume’s exact saved job match.</p>
+              <Button type="button" variant="secondary" className="mt-3" onClick={openSavedMatches}>Open saved matches</Button>
+            </Card>
 
             <div className="flex gap-3">
               <Button

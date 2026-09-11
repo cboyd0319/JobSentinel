@@ -2,6 +2,39 @@
 
 import type { MockInterview } from "./handlers/types";
 
+/** Bounded country choices exposed by browser-development command fixtures. */
+export const mockSearchCountryOptions = [
+  ["US", "United States"],
+  ["GB", "United Kingdom"],
+  ["DE", "Germany"],
+  ["FR", "France"],
+  ["IN", "India"],
+] as const;
+
+export type MockSearchCountry = (typeof mockSearchCountryOptions)[number][0];
+
+export function isMockSearchCountry(value: unknown): value is MockSearchCountry {
+  return mockSearchCountryOptions.some(([code]) => code === value);
+}
+
+export function isMockSearchCountryOrUnset(
+  value: unknown,
+): value is MockSearchCountry | null | undefined {
+  return value === null || value === undefined || isMockSearchCountry(value);
+}
+
+export function hasValidMockSearchCountryPreference(value: unknown): boolean {
+  return (
+    !isRecord(value) ||
+    !("search_country" in value) ||
+    isMockSearchCountryOrUnset(value.search_country)
+  );
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
 export const mockJobs = [
   {
     id: 1,
@@ -147,7 +180,7 @@ export const mockJobs = [
     notes: null,
     created_at: new Date(Date.now() - 691200000).toISOString(),
   },
-];
+].map((job) => ({ ...job, currency: "USD" }));
 
 export const mockConfig = {
   title_allowlist: ["SEO Manager", "E-Commerce Manager", "Digital Marketing"],
@@ -159,6 +192,7 @@ export const mockConfig = {
     allow_hybrid: true,
     allow_onsite: true,
     cities: ["Remote", "Chicago", "Austin", "Atlanta"],
+    search_country: null as string | null,
   },
   salary_floor_usd: 80000,
   bookmarklet_port: 4321,

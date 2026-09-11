@@ -1,3 +1,5 @@
+//! Tests email rendering boundaries for unusual display values.
+
 use super::*;
 
 #[test]
@@ -28,7 +30,7 @@ fn test_salary_formatting_large_values() {
 
     let html = format_html_email(&notification.job, &notification.score);
 
-    assert!(html.contains("$500,000 - $800,000"));
+    assert!(html.contains("USD 500000–800000 period not disclosed"));
 }
 
 #[test]
@@ -39,7 +41,7 @@ fn test_salary_formatting_small_values() {
 
     let text = format_text_email(&notification.job, &notification.score);
 
-    assert!(text.contains("$30,000 - $50,000"));
+    assert!(text.contains("USD 30000–50000 period not disclosed"));
 }
 
 #[test]
@@ -72,7 +74,7 @@ fn test_html_email_with_zero_salary() {
 
     let html = format_html_email(&notification.job, &notification.score);
 
-    assert!(html.contains("$0,000 - $0,000"));
+    assert!(html.contains("USD 0 period not disclosed"));
 }
 
 #[test]

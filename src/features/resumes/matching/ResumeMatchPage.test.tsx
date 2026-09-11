@@ -1,3 +1,5 @@
+/** Verifies ephemeral pasted-job analysis and explicit saved-match navigation. */
+
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -149,6 +151,26 @@ describe("ResumeMatch", () => {
       expect.stringContaining("Need onboarding and retention experience"),
     );
     expect(onNavigate).toHaveBeenCalledWith("resume");
+  });
+
+  it("routes pasted-job analysis to Resume Library saved matches without inventing a saved match", async () => {
+    const user = userEvent.setup();
+    const onNavigate = vi.fn();
+    render(<ResumeMatch onBack={vi.fn()} onNavigate={onNavigate} />);
+
+    fireEvent.change(screen.getByLabelText(/^job post$/i), {
+      target: { value: "Need onboarding and retention experience" },
+    });
+    await user.click(screen.getByRole("button", { name: "Open saved matches" }));
+
+    expect(screen.getByText(/pasted-job ATS analysis is not a saved job match/i)).toBeInTheDocument();
+    expect(mockWriteStorageValue).toHaveBeenCalledWith(
+      "session",
+      "jobsentinel-resume-match-draft-v1",
+      expect.stringContaining("Need onboarding and retention experience"),
+    );
+    expect(onNavigate).toHaveBeenCalledWith("resume");
+    expect(mockInvoke).not.toHaveBeenCalledWith("get_recent_matches", expect.anything());
   });
 
   it("reviews a job against the active saved resume without copied details", async () => {

@@ -11,13 +11,14 @@ use super::evaluation::{
 };
 use super::{
     activate_pack_artifact, enable_pack_artifact, execute_draft_packet_task,
-    execute_evidence_review_task, open_active_static_skill, prepare_draft_packet_task,
-    prepare_evidence_review_task, production_trusted_publishers, rollback_pack_artifact,
-    stage_pack_artifact, AtsResumeRequirementEvaluation, DraftPacketTaskResult,
-    DraftPacketTaskReview, EvidenceReviewTaskResult, EvidenceReviewerResumeRequirementEvaluation,
-    PackInstallReview, PackRuntimeEnvironment, PackStateChange, PackTaskReview,
-    StaticSkillHandoffEvaluation, StaticSkillReview,
+    execute_evidence_review_task, open_active_region_pack, open_active_static_skill,
+    prepare_draft_packet_task, prepare_evidence_review_task, production_trusted_publishers,
+    rollback_pack_artifact, stage_pack_artifact, AtsResumeRequirementEvaluation,
+    DraftPacketTaskResult, DraftPacketTaskReview, EvidenceReviewTaskResult,
+    EvidenceReviewerResumeRequirementEvaluation, PackInstallReview, PackRuntimeEnvironment,
+    PackStateChange, PackTaskReview, StaticSkillHandoffEvaluation, StaticSkillReview,
 };
+use jobsentinel_domain::v3_region_starter::RegionPackContent;
 
 pub async fn evaluate_production_active_ats_resume_requirement_pack(
     database: &Database,
@@ -158,6 +159,25 @@ pub async fn open_production_active_static_skill(
     expected_generation: u64,
 ) -> Result<StaticSkillReview> {
     open_active_static_skill(
+        database,
+        runtime.artifact_root(),
+        publisher_key_id,
+        pack_id,
+        expected_generation,
+        production_trusted_publishers(),
+        Utc::now().date_naive(),
+    )
+    .await
+}
+
+pub async fn open_production_active_region_pack(
+    database: &Database,
+    runtime: &PackRuntimeEnvironment,
+    publisher_key_id: &str,
+    pack_id: &str,
+    expected_generation: u64,
+) -> Result<RegionPackContent> {
+    open_active_region_pack(
         database,
         runtime.artifact_root(),
         publisher_key_id,

@@ -1,15 +1,17 @@
+<!-- Documents local model governance, diagnostics, setup, and matching fallback behavior. -->
+
 # Optional Local Semantic Matching
 
-JobSentinel has an optional `embedded-ml` Cargo feature for local semantic
-matching. It is not required for core workflows, and it is separate from
-external AI.
+JobSentinel shipping builds include the `embedded-ml` runtime for optional local
+semantic matching. Model downloads require explicit review; core workflows need
+no models or external AI. Direct Cargo builds can omit the feature.
 
 ## Status
 
 | Area | Current state |
 | ---- | ------------- |
 | Feature flag | `embedded-ml` |
-| Default app behavior | Disabled unless built with the feature |
+| Default app behavior | Model-free matching with in-place model setup available in Settings |
 | Core workflow dependency | None; deterministic matching remains available |
 | Data flow | Resume and job-skill matching runs locally |
 | Model governance | `crates/jobsentinel-local-ai/models.lock.toml` pins model identity, revision, hashes, size, license, wired backend, instruction profiles, and score thresholds |
@@ -36,8 +38,7 @@ verified checksums, loaded the `qwen3-reranker-candle` backend, and ranked
 direct Kubernetes security evidence above a vocabulary-overlap near miss.
 
 Product integration evidence: the Settings **Local Match Check** panel calls
-`get_semantic_matching_diagnostics`. Normal builds report the built-in local
-fallback. `embedded-ml` builds report the checked-in Qwen3 model lock, required
+`get_semantic_matching_diagnostics`. Shipping builds report the checked-in Qwen3 model lock, required
 file presence, cache readiness, scoring signals, local-only privacy mode, and
 quality checks without loading model weights or exposing resume/job text.
 Model Doctor reports absent default caches as needing a download. Any mixed,
@@ -53,7 +54,7 @@ action. The backend accepts only an exact embedding or reranker ID from the
 checked-in lock, rechecks the cache after confirmation, rejects missing,
 incomplete, ready, legacy, unknown, and path-like requests, and never downloads
 replacement files automatically. Cache paths and file contents remain private.
-In `embedded-ml` builds, the same panel also offers governed setup and full
+The same panel offers governed setup and full
 Qwen3 cache removal. Setup requires native confirmation that names the download
 host, approximate size, license, local-only data boundary, and built-in
 fallback, including notice that setup may need additional temporary disk
@@ -193,6 +194,13 @@ The current repo-native eval pack is
 and unit tests. If JobSentinel adds a standalone CLI later, the command surface
 should map to retrieval, reranker, fairness, self-preference, and explanation
 evals without changing the underlying fixture schema.
+
+A separate `regional_requirement_hard_negatives_v1.json` fixture exercises UK
+PAYE payroll ownership, French warehouse evidence, and exact Indian NOS-unit
+evidence through the same locked Qwen3 path. All three synthetic pairs passed
+selection and negative-only abstention on macOS arm64 without threshold changes.
+This is seed evidence, not regional completeness or general multilingual support;
+see the [regional evaluation record](../harness/evidence/v3-milestone-9-regional-qwen-matching-2026-09-11.json).
 
 The pinned production-path baseline runs all three frozen
 `job_requirement_to_resume_evidence` hard negatives through the verified Qwen3

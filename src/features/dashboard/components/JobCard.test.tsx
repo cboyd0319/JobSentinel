@@ -1,3 +1,5 @@
+/** Verifies dashboard job-card rendering, guidance, and actions. */
+
 import { describe, it, expect, beforeEach } from "vitest";
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -40,10 +42,38 @@ describe("JobCard", () => {
       expect(screen.getByText("Chicago, IL")).toBeInTheDocument();
     });
 
+    it("labels unresolved country scope without inferring it from raw location", () => {
+      renderWithToast(<JobCard job={{ ...mockJob, search_country: "GB", country_scope: "unknown" }} />);
+      expect(screen.getByText("Country scope unclear")).toBeInTheDocument();
+      expect(screen.queryByText("Country location match")).not.toBeInTheDocument();
+    });
+
+    it("renders only the backend country-scope projection", () => {
+      const { rerender } = renderWithToast(<JobCard job={{ ...mockJob, search_country: "GB", country_scope: "match" }} />);
+      expect(screen.getByText("Country location match")).toHaveAttribute("title", expect.stringContaining("not assessed"));
+      rerender(<ToastProvider><JobCard job={{ ...mockJob, search_country: "GB", country_scope: "mismatch" }} /></ToastProvider>);
+      expect(screen.getByText("Outside search country")).toBeInTheDocument();
+      rerender(<ToastProvider><JobCard job={{ ...mockJob, search_country: "GB" }} /></ToastProvider>);
+      expect(screen.getByText("Country scope unclear")).toBeInTheDocument();
+      rerender(<ToastProvider><JobCard job={mockJob} /></ToastProvider>);
+      expect(screen.queryByText("Country scope unclear")).not.toBeInTheDocument();
+    });
+
     it("renders remote label when job is remote", () => {
       const remoteJob = { ...mockJob, remote: true };
       renderWithToast(<JobCard job={remoteJob} />);
-      expect(screen.getByText("Remote")).toBeInTheDocument();
+      expect(screen.getByText("Remote · Chicago, IL")).toBeInTheDocument();
+    });
+
+    it("distinguishes hybrid from unclassified non-remote work", () => {
+      const { rerender } = renderWithToast(
+        <JobCard job={{ ...mockJob, work_arrangement: "hybrid" }} />,
+      );
+      expect(screen.getByText("Hybrid · Chicago, IL")).toBeInTheDocument();
+
+      rerender(<ToastProvider><JobCard job={{ ...mockJob, work_arrangement: undefined }} /></ToastProvider>);
+      expect(screen.getByText("Chicago, IL")).toBeInTheDocument();
+      expect(screen.queryByText("On-site")).not.toBeInTheDocument();
     });
 
     it("renders plain source information", () => {
@@ -119,6 +149,29 @@ describe("JobCard", () => {
       expect(screen.getByText("$55k - $72k")).toBeInTheDocument();
     });
 
+    it("displays non-comparable native pay without USD conversion or missing-pay guidance", () => {
+      renderWithToast(
+        <JobCard
+          job={{
+            ...mockJob,
+            listed_pay: {
+              min: 5_000,
+              max: 7_000,
+              currency: "EUR",
+              period: "monthly",
+              qualifiers: ["ctc"],
+              raw_text: "€5,000–€7,000 monthly CTC",
+            },
+          }}
+          salaryFloorUsd={65_000}
+        />,
+      );
+
+      expect(screen.getByText(/5,000–7,000 EUR.*monthly.*CTC.*Source text/i)).toBeInTheDocument();
+      expect(screen.queryByTestId("pay-floor-guidance")).not.toBeInTheDocument();
+      expect(screen.queryByText("Pay not listed")).not.toBeInTheDocument();
+    });
+
     it("shows malformed listed-pay guidance without treating it as a range", () => {
       const malformedPayJob = {
         ...mockJob,
@@ -128,7 +181,7 @@ describe("JobCard", () => {
 
       renderWithToast(<JobCard job={malformedPayJob} />);
 
-      expect(screen.getByText("Pay not listed")).toBeInTheDocument();
+      expect(screen.getByText("Listed pay could not be read")).toBeInTheDocument();
       expect(screen.getByTestId("salary-range-quality-guidance")).toHaveTextContent(
         "Check listed pay",
       );

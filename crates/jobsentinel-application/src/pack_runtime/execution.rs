@@ -10,6 +10,7 @@ use jobsentinel_domain::{
         AgentTask, AgentTaskKind, DataCategory, PackAction, PrivacyLabel, PrivacyReceipt,
     },
     v3_pack_payloads::{ReviewedTaskPlanStep, SelfTestedPackPayload},
+    v3_region_starter::RegionPackContent,
     v3_signed_packs::TrustedPublisherKey,
 };
 use jobsentinel_storage::{
@@ -147,6 +148,39 @@ pub(crate) async fn open_active_static_skill(
             task_kind: handoff.task_kind,
             label: handoff.label,
         }),
+    })
+}
+
+#[allow(clippy::too_many_arguments)]
+pub(crate) async fn open_active_region_pack(
+    database: &Database,
+    artifact_root: &Path,
+    publisher_key_id: &str,
+    pack_id: &str,
+    expected_generation: u64,
+    trusted_publishers: &[TrustedPublisherKey],
+    today: NaiveDate,
+) -> Result<RegionPackContent> {
+    let active = load_active_pack_payload(
+        database,
+        artifact_root,
+        publisher_key_id,
+        pack_id,
+        expected_generation,
+        trusted_publishers,
+        today,
+    )
+    .await?;
+    let SelfTestedPackPayload::Region {
+        manifest,
+        starter_data,
+    } = active.payload
+    else {
+        return Err(anyhow!("pack does not contain regional research"));
+    };
+    Ok(RegionPackContent {
+        manifest: *manifest,
+        starter_data,
     })
 }
 

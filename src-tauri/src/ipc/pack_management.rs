@@ -2,9 +2,10 @@
 
 use crate::application::pack_runtime::{
     activate_production_pack_artifact, disable_pack_artifact, enable_production_pack_artifact,
-    list_pack_management_reviews, open_production_active_static_skill, retry_pack_artifact_cleanup,
+    list_pack_management_reviews, open_production_active_region_pack,
+    open_production_active_static_skill, retry_pack_artifact_cleanup,
     rollback_production_pack_artifact, uninstall_pack_artifacts, PackArtifactRemoval,
-    PackInstallReview, PackManagementReview, PackStateChange, StaticSkillReview,
+    PackInstallReview, PackManagementReview, PackStateChange, RegionPackContent, StaticSkillReview,
 };
 use crate::bootstrap::AppState;
 use crate::desktop::Database;
@@ -115,6 +116,25 @@ pub(crate) async fn open_static_skill(
     )
     .await
     .map_err(|error| user_friendly_error("Static skill could not be opened", error))
+}
+
+#[tauri::command]
+pub(crate) async fn open_region_pack(
+    publisher_key_id: String,
+    pack_id: String,
+    expected_generation: u64,
+    state: State<'_, AppState>,
+) -> Result<RegionPackContent, String> {
+    validate_pack_identity(&publisher_key_id, &pack_id)?;
+    open_production_active_region_pack(
+        state.database.as_ref(),
+        &state.pack_runtime,
+        &publisher_key_id,
+        &pack_id,
+        expected_generation,
+    )
+    .await
+    .map_err(|error| user_friendly_error("Regional research could not be opened", error))
 }
 
 #[tauri::command]

@@ -1,3 +1,5 @@
+/** Renders the first-run search review without changing saved setup choices. */
+
 import type { SetupSearchSummary } from "./setupWizardPreferences";
 
 interface SetupWizardSearchSummaryProps {
@@ -51,6 +53,10 @@ export function SetupWizardSearchSummary({
           <div className="grid gap-1 sm:grid-cols-[7rem_1fr]">
             <dt className="font-medium text-surface-600">Location</dt>
             <dd className="text-surface-800">{summary.location}</dd>
+          </div>
+          <div className="grid gap-1 sm:grid-cols-[7rem_1fr]">
+            <dt className="font-medium text-surface-600">Search country</dt>
+            <dd className="text-surface-800">{summary.searchCountry}</dd>
           </div>
           <div className="grid gap-1 sm:grid-cols-[7rem_1fr]">
             <dt className="font-medium text-surface-600">Freshness</dt>

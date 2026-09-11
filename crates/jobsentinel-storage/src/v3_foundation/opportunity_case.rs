@@ -22,6 +22,7 @@ pub struct OpportunityCaseRead {
     pub salary_min: Option<i64>,
     pub salary_max: Option<i64>,
     pub currency: Option<String>,
+    pub listed_pay: Option<jobsentinel_domain::ListedPay>,
     pub employer_history: EmployerHistoryRead,
     pub posting_risk_score: Option<f64>,
     pub posting_risk_reasons: Vec<String>,
@@ -70,6 +71,7 @@ struct CaseRow {
     salary_min: Option<i64>,
     salary_max: Option<i64>,
     currency: Option<String>,
+    listed_pay: Option<String>,
     posting_risk_score: Option<f64>,
     posting_risk_reasons: Option<String>,
     job_revision: String,
@@ -124,7 +126,7 @@ impl Database {
                     j.title, j.company, j.url AS job_url, j.location, j.remote, j.times_seen,
                     COALESCE(j.first_seen, j.created_at) AS first_seen_at,
                     j.source AS source_name, j.last_seen AS last_seen_at, j.repost_count,
-                    j.salary_min, j.salary_max, j.currency,
+                    j.salary_min, j.salary_max, j.currency, j.listed_pay,
                     j.ghost_score AS posting_risk_score,
                     j.ghost_reasons AS posting_risk_reasons, j.updated_at AS job_revision
              FROM opportunity_case_files AS c
@@ -216,6 +218,7 @@ impl Database {
             salary_min: case.salary_min,
             salary_max: case.salary_max,
             currency: case.currency,
+            listed_pay: crate::decode_listed_pay_json(case.listed_pay.as_deref())?,
             employer_history,
             posting_risk_score: case.posting_risk_score,
             posting_risk_reasons: sanitized_risk_reasons(case.posting_risk_reasons.as_deref()),

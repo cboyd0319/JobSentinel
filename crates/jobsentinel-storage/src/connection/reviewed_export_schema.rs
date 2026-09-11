@@ -182,7 +182,7 @@ pub(super) const EXPORT_TABLES: &[ExportTable] = &[
     table!(
         "opportunities",
         "jobs",
-        "id,hash,title,company,url,location,description,score,score_reasons,source,remote,salary_min,salary_max,currency,created_at,updated_at,last_seen,times_seen,immediate_alert_sent,included_in_digest,hidden,bookmarked,notes,ghost_score,ghost_reasons,first_seen,repost_count",
+        "id,hash,title,company,url,location,description,score,score_reasons,source,remote,salary_min,salary_max,currency,listed_pay,geography,created_at,updated_at,last_seen,times_seen,immediate_alert_sent,included_in_digest,hidden,bookmarked,notes,ghost_score,ghost_reasons,first_seen,repost_count",
         urls = "url"
     ),
     table!(

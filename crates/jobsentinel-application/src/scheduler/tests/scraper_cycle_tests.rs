@@ -1,3 +1,5 @@
+//! Proves scraper-cycle configuration, orchestration, and duplicate-alert suppression.
+
 use super::*;
 
 // ========================================
@@ -218,6 +220,8 @@ async fn test_scraping_cycle_skips_already_alerted_jobs() {
         salary_min: None,
         salary_max: None,
         currency: None,
+        listed_pay: None,
+        geography: None,
         created_at: now,
         updated_at: now,
         last_seen: now,

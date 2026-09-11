@@ -42,6 +42,17 @@ fn command_handler() -> impl Fn(tauri::ipc::Invoke<tauri::Wry>) -> bool + Send +
     crate::ipc::jobsentinel_command_handlers!()
 }
 
+fn configure_package_smoke_windows(
+    windows: &mut [tauri::utils::config::WindowConfig],
+    package_smoke: bool,
+) {
+    if package_smoke {
+        for window in windows {
+            window.incognito = true;
+        }
+    }
+}
+
 pub(crate) fn run() {
     // Initialize logging with environment filter support
     tracing_subscriber::fmt()
@@ -61,6 +72,13 @@ pub(crate) fn run() {
     }
 
     let command_handler = command_handler();
+    let mut context = tauri::generate_context!();
+    #[cfg(target_os = "macos")]
+    let package_smoke = desktop::package_smoke_root().is_some();
+    #[cfg(not(target_os = "macos"))]
+    let package_smoke = false;
+    configure_package_smoke_windows(&mut context.config_mut().app.windows, package_smoke);
+
     desktop::preserve_main_window_on_close(policy::builder())
         .invoke_handler(move |invoke: tauri::ipc::Invoke<tauri::Wry>| {
             let recovery_active = invoke
@@ -269,7 +287,7 @@ pub(crate) fn run() {
 
             Ok(())
         })
-        .run(tauri::generate_context!())
+        .run(context)
         .map_err(|e| {
             eprintln!("Fatal error running Tauri application: {}", e);
             std::process::exit(1);
@@ -280,7 +298,8 @@ pub(crate) fn run() {
 #[cfg(test)]
 mod tests {
     use super::{
-        background_cycle_allowed, primary_initialization_allowed, startup_recovery_command_allowed,
+        background_cycle_allowed, configure_package_smoke_windows, primary_initialization_allowed,
+        startup_recovery_command_allowed,
     };
     use crate::application::{desktop::Database, scheduler::Scheduler, Config};
     use std::sync::Arc;
@@ -314,5 +333,32 @@ mod tests {
     fn platform_failure_skips_primary_storage_initialization() {
         assert!(!primary_initialization_allowed(true));
         assert!(primary_initialization_allowed(false));
+    }
+
+    #[test]
+    fn package_smoke_marks_every_configured_window_incognito() {
+        let mut windows = vec![
+            tauri::utils::config::WindowConfig::default(),
+            tauri::utils::config::WindowConfig::default(),
+        ];
+
+        configure_package_smoke_windows(&mut windows, true);
+
+        assert!(windows.iter().all(|window| window.incognito));
+    }
+
+    #[test]
+    fn normal_launch_keeps_configured_window_settings() {
+        let mut additional_window = tauri::utils::config::WindowConfig::default();
+        additional_window.incognito = true;
+        let mut windows = vec![
+            tauri::utils::config::WindowConfig::default(),
+            additional_window,
+        ];
+        let expected_windows = serde_json::to_value(&windows).unwrap();
+
+        configure_package_smoke_windows(&mut windows, false);
+
+        assert_eq!(serde_json::to_value(&windows).unwrap(), expected_windows);
     }
 }

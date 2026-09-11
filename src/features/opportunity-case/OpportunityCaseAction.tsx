@@ -7,7 +7,13 @@ import { Button } from "../../ui/Button";
 import { Modal } from "../../ui/Modal";
 import { EmployerDossierSection } from "../../shared/EmployerDossierSection";
 import { decodeEmployerDossier, type EmployerDossier } from "../../shared/employerDossier";
+import { MilitaryTransitionReviewModal } from "../resumes/library/MilitaryTransitionReviewModal";
 import { PackPacketBuilder } from "./PackPacketBuilder";
+import {
+  activeResumeId,
+  exactActiveSavedMatch,
+  type MilitaryReviewMatch,
+} from "./opportunityCaseMilitaryTransition";
 
 type CaseFile = {
   job: {
@@ -179,7 +185,10 @@ export function OpportunityCaseAction({ jobHash }: OpportunityCaseActionProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [showPreparation, setShowPreparation] = useState(false);
+  const [militaryMatch, setMilitaryMatch] = useState<MilitaryReviewMatch | null>(null);
+  const [militaryReviewError, setMilitaryReviewError] = useState<string | null>(null);
   const requestEpoch = useRef(0);
+  const militaryRequest = useRef(0);
 
   useEffect(() => {
     requestEpoch.current += 1;
@@ -188,6 +197,9 @@ export function OpportunityCaseAction({ jobHash }: OpportunityCaseActionProps) {
     setIsLoading(false);
     setHasError(false);
     setShowPreparation(false);
+    militaryRequest.current += 1;
+    setMilitaryMatch(null);
+    setMilitaryReviewError(null);
   }, [jobHash]);
 
   const openCase = useCallback(async () => {
@@ -223,6 +235,41 @@ export function OpportunityCaseAction({ jobHash }: OpportunityCaseActionProps) {
     setCaseFile(null);
     setHasError(false);
     setShowPreparation(false);
+    militaryRequest.current += 1;
+    setMilitaryMatch(null);
+    setMilitaryReviewError(null);
+  };
+
+  const openMilitaryReview = async () => {
+    if (!caseFile) return;
+    const request = ++militaryRequest.current;
+    const caseHash = caseFile.job.job_hash;
+    setMilitaryReviewError(null);
+    try {
+      const resumeId = activeResumeId(await invoke<unknown>("get_active_resume"));
+      if (request !== militaryRequest.current || caseHash !== caseFile.job.job_hash) return;
+      if (resumeId === null) {
+        setMilitaryReviewError("Choose an active saved resume with an exact saved job match before reviewing military wording.");
+        return;
+      }
+      const match = exactActiveSavedMatch(
+        await invoke<unknown>("get_match_result", { resumeId, jobHash: caseHash }),
+        resumeId,
+        caseHash,
+      );
+      if (request !== militaryRequest.current || caseHash !== caseFile.job.job_hash) return;
+      const currentResumeId = activeResumeId(await invoke<unknown>("get_active_resume"));
+      if (request !== militaryRequest.current || caseHash !== caseFile.job.job_hash) return;
+      if (match === null || currentResumeId !== resumeId) {
+        setMilitaryReviewError("Choose an active saved resume with an exact saved job match before reviewing military wording.");
+        return;
+      }
+      setMilitaryMatch(match);
+    } catch {
+      if (request === militaryRequest.current) {
+        setMilitaryReviewError("Could not load an active saved match for military wording review. Try again.");
+      }
+    }
   };
 
   return (
@@ -230,7 +277,7 @@ export function OpportunityCaseAction({ jobHash }: OpportunityCaseActionProps) {
       <Button variant="secondary" size="sm" onClick={handleOpen}>
         Open case
       </Button>
-      <Modal isOpen={isOpen} onClose={close} title="Opportunity case" size="lg">
+      <Modal isOpen={isOpen && militaryMatch === null} onClose={close} title="Opportunity case" size="lg">
         {isLoading && <p role="status">Opening case…</p>}
         {hasError && (
           <div className="space-y-3" role="alert">
@@ -376,6 +423,12 @@ export function OpportunityCaseAction({ jobHash }: OpportunityCaseActionProps) {
                       ))}
                     </div>
                   )}
+                  <div className="mt-3 space-y-2">
+                    <Button variant="secondary" size="sm" onClick={() => void openMilitaryReview()}>
+                      Review military wording
+                    </Button>
+                    {militaryReviewError && <p role="alert">{militaryReviewError}</p>}
+                  </div>
                 </section>
 
                 <section aria-labelledby="case-timeline">
@@ -408,6 +461,14 @@ export function OpportunityCaseAction({ jobHash }: OpportunityCaseActionProps) {
           </div>
         )}
       </Modal>
+      <MilitaryTransitionReviewModal
+        isOpen={militaryMatch !== null}
+        match={militaryMatch}
+        onClose={() => {
+          militaryRequest.current += 1;
+          setMilitaryMatch(null);
+        }}
+      />
     </>
   );
 }

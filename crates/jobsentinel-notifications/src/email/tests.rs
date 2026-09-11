@@ -1,5 +1,25 @@
+//! Tests email notification formatting, escaping, and local-detail boundaries.
+
 use super::*;
 use crate::test_support::notification_fixture;
+use jobsentinel_domain::{v3_contracts::PayPeriod, ListedPay};
+
+#[test]
+fn html_email_uses_validated_native_pay_without_raw_source_text() {
+    let mut notification = notification_fixture();
+    notification.job.listed_pay = Some(ListedPay {
+        min: Some(5_000.0),
+        max: Some(7_000.0),
+        currency: Some("EUR".to_string()),
+        period: PayPeriod::Monthly,
+        qualifiers: Vec::new(),
+        raw_text: Some("<img src=x onerror=alert('pay')>".to_string()),
+    });
+
+    let html = format_html_email(&notification.job, &notification.score);
+    assert!(html.contains("EUR 5000–7000 monthly"));
+    assert!(!html.contains("onerror"));
+}
 
 #[test]
 fn test_html_email_formatting() {
@@ -11,7 +31,7 @@ fn test_html_email_formatting() {
     assert!(html.contains("Community Care Network"));
     assert!(html.contains("95")); // Score percentage
     assert!(html.contains("REMOTE"));
-    assert!(html.contains("$180,000 - $220,000"));
+    assert!(html.contains("USD 180000–220000 period not disclosed"));
     assert!(html.contains("greenhouse"));
     assert!(html.contains(LOCAL_MATCH_DETAILS_MESSAGE));
     assert!(!html.contains("Title matches: Care Coordinator"));
@@ -28,7 +48,7 @@ fn test_text_email_formatting() {
     assert!(text.contains("Community Care Network"));
     assert!(text.contains("95%"));
     assert!(text.contains("Yes")); // Remote
-    assert!(text.contains("$180,000 - $220,000"));
+    assert!(text.contains("USD 180000–220000 period not disclosed"));
     assert!(text.contains(LOCAL_MATCH_DETAILS_MESSAGE));
     assert!(!text.contains("Title matches: Care Coordinator"));
 }
@@ -49,7 +69,7 @@ fn test_html_email_handles_min_salary_only() {
     notification.job.salary_max = None;
 
     let html = format_html_email(&notification.job, &notification.score);
-    assert!(html.contains("$180,000+"));
+    assert!(html.contains("USD From 180000 period not disclosed"));
 }
 
 #[test]
@@ -107,7 +127,7 @@ fn test_text_email_handles_min_salary_only() {
     notification.job.salary_max = None;
 
     let text = format_text_email(&notification.job, &notification.score);
-    assert!(text.contains("$180,000+"));
+    assert!(text.contains("USD From 180000 period not disclosed"));
 }
 
 #[test]

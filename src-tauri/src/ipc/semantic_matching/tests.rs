@@ -1,3 +1,5 @@
+//! Proves model diagnostics, deterministic fallback, and inert model-free inspection.
+
 use super::*;
 
 #[cfg(not(feature = "embedded-ml"))]
@@ -12,6 +14,27 @@ fn diagnostics_explain_disabled_build_without_private_data() {
     ));
     assert!(diagnostics.models.is_empty());
     assert!(diagnostics.privacy_mode.contains("No resume or job text"));
+}
+
+#[cfg(feature = "embedded-ml")]
+#[test]
+fn fresh_essentials_diagnostics_offer_setup_without_creating_model_files() {
+    let app_data = tempfile::tempdir().unwrap();
+    let manifest = load_model_manifest().unwrap();
+    let manager = ModelManager::new(app_data.path().to_path_buf());
+
+    let diagnostics = semantic_matching_diagnostics_for(&manifest, &manager);
+
+    assert!(diagnostics.build_enabled);
+    assert_eq!(
+        diagnostics.runtime_status,
+        SemanticMatchingRuntimeStatus::NeedsModelDownload
+    );
+    assert!(diagnostics.models.iter().all(|model| {
+        !model.downloaded && !model.cache_present && model.required_files_present == 0
+    }));
+    assert!(diagnostics.user_action.is_some());
+    assert!(std::fs::read_dir(app_data.path()).unwrap().next().is_none());
 }
 
 #[cfg(feature = "embedded-ml")]

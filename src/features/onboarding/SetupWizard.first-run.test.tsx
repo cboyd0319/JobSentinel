@@ -1,3 +1,5 @@
+/** Tests first-run choices, optional guidance, and failure-safe setup saves. */
+
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { invoke } from "@tauri-apps/api/core";
@@ -29,6 +31,18 @@ describe("SetupWizard first-run choices", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     window.sessionStorage.clear();
+  });
+
+  it("offers optional military guidance without collecting status or saving setup", async () => {
+    const user = userEvent.setup();
+    renderWizard();
+    const guidance = screen.getByText("Military-to-civilian guidance (optional)");
+    expect(guidance.closest("details")).not.toHaveAttribute("open");
+    await user.click(guidance);
+    expect(guidance.closest("details")).toHaveAttribute("open");
+    expect(screen.getByText(/export.*docx.*resume library/i)).toBeVisible();
+    expect(screen.queryByRole("checkbox", { name: /veteran|disability/i })).not.toBeInTheDocument();
+    expect(mockInvoke).not.toHaveBeenCalled();
   });
 
   it("skips only this session without saving or starting background work", async () => {

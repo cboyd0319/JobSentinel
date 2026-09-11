@@ -1,3 +1,5 @@
+//! Exercises storage job behavior, including native listed-pay persistence.
+
 #[cfg(test)]
 use crate::{Database, DuplicateGroup, Statistics};
 #[cfg(test)]
@@ -22,6 +24,8 @@ fn create_test_job(hash: &str, title: &str, score: f64) -> Job {
         salary_min: Some(150000),
         salary_max: Some(200000),
         currency: Some("USD".to_string()),
+        listed_pay: None,
+        geography: None,
         created_at: Utc::now(),
         updated_at: Utc::now(),
         last_seen: Utc::now(),
@@ -59,6 +63,9 @@ mod job_notes_tests;
 
 #[path = "tests/job_search_tests.rs"]
 mod job_search_tests;
+
+#[path = "tests/job_country_filter_tests.rs"]
+mod job_country_filter_tests;
 
 #[path = "tests/job_duplicate_tests.rs"]
 mod job_duplicate_tests;
@@ -117,6 +124,9 @@ mod job_upsert_tests;
 
 #[path = "tests/job_bookmark_tests.rs"]
 mod job_bookmark_tests;
+
+#[path = "tests/job_geography_tests.rs"]
+mod job_geography_tests;
 
 #[path = "tests/job_duplicate_merge_tests.rs"]
 mod job_duplicate_merge_tests;
@@ -254,3 +264,6 @@ mod job_field_updates;
 
 #[path = "tests/job_insert_tests.rs"]
 mod job_insert_tests;
+
+#[path = "tests/listed_pay_tests.rs"]
+mod listed_pay_tests;

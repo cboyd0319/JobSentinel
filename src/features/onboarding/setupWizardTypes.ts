@@ -1,8 +1,11 @@
+/** Defines first-run setup configuration and its human-readable review summary. */
+
 export interface LocationPreferences {
   allow_remote: boolean;
   allow_hybrid: boolean;
   allow_onsite: boolean;
   cities: string[];
+  search_country?: string | null;
 }
 
 export interface GhostConfig {
@@ -97,6 +100,7 @@ export interface SetupSearchSummary {
   wantedWork: string;
   avoidedWork: string;
   location: string;
+  searchCountry: string;
   freshness: string;
   reviewVolume: string;
   jobSources: string;

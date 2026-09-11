@@ -1,3 +1,5 @@
+/** Verifies first-run search defaults and concise review summaries. */
+
 import { describe, expect, it } from "vitest";
 import {
   applyReviewVolumePreference,
@@ -19,6 +21,7 @@ describe("Setup Wizard preference helpers", () => {
       allow_hybrid: true,
       allow_onsite: true,
       cities: [],
+      search_country: null,
     });
     expect(config.salary_floor_usd).toBe(0);
     expect(config.alerts.desktop.enabled).toBe(false);
@@ -87,6 +90,7 @@ describe("Setup Wizard preference helpers", () => {
         allow_hybrid: true,
         allow_onsite: false,
         cities: ["Denver"],
+        search_country: "GB",
       },
       salary_floor_usd: 60000,
       alerts: {
@@ -104,6 +108,7 @@ describe("Setup Wizard preference helpers", () => {
       wantedWork: "Scheduling",
       avoidedWork: "night shift",
       location: "remote, hybrid near Denver",
+      searchCountry: "United Kingdom",
       freshness: "Balanced",
       reviewVolume: "Broad discovery",
       jobSources: "No outside job sources selected; add reviewed sources in Settings.",

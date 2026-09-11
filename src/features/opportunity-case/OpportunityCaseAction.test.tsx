@@ -1,10 +1,8 @@
 /** Proves current opportunity-case review, preparation eligibility, and request identity. */
-
 import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { OpportunityCaseAction } from "./OpportunityCaseAction";
-
 vi.mock("@tauri-apps/api/core", () => ({ invoke: vi.fn() }));
 vi.mock("./PackPacketBuilder", () => ({
   PackPacketBuilder: ({ jobHash }: { jobHash: string }) => <div data-testid="packet-builder">Packet Builder for {jobHash}</div>,
@@ -147,7 +145,6 @@ describe("OpportunityCaseAction", () => {
     const user = userEvent.setup();
     mockInvoke.mockResolvedValue(caseFile);
     render(<OpportunityCaseAction jobHash="job-1" />);
-
     await user.click(screen.getByRole("button", { name: "Open case" }));
 
     await waitFor(() =>
@@ -236,6 +233,92 @@ describe("OpportunityCaseAction", () => {
     expect(screen.queryByRole("heading", { name: "Preparation workup" })).not.toBeInTheDocument();
     expect(screen.getByText("Evidence wall")).toBeVisible();
     expect(mockInvoke).toHaveBeenCalledTimes(1);
+  });
+
+  it("opens military wording review for an older exact saved match without scanning recent matches", async () => {
+    const user = userEvent.setup();
+    mockInvoke.mockImplementation((command) => {
+      if (command === "open_opportunity_case") return Promise.resolve(caseFile);
+      if (command === "get_active_resume") return Promise.resolve({ id: 42, is_active: true });
+      if (command === "get_match_result") return Promise.resolve({ id: 6, resume_id: 42, job_hash: "job-1" });
+      return Promise.resolve(null);
+    });
+    render(<OpportunityCaseAction jobHash="job-1" />);
+
+    await user.click(screen.getByRole("button", { name: "Open case" }));
+    await screen.findByRole("heading", { name: "Office Assistant" });
+    const initialCaseDialog = screen.getByRole("dialog", { name: "Opportunity case" });
+    await waitFor(() => expect(initialCaseDialog.querySelector(".app-modal-panel")).toHaveFocus());
+    await user.click(screen.getByRole("button", { name: "Review military wording" }));
+    await waitFor(() => expect(mockInvoke).toHaveBeenCalledWith("get_match_result", { resumeId: 42, jobHash: "job-1" }));
+    expect(await screen.findByRole("heading", { name: "Military transition wording review" })).toBeVisible();
+    const militaryDialog = screen.getByRole("dialog", { name: "Military transition wording review" });
+    expect(screen.getAllByRole("dialog")).toHaveLength(1);
+    await waitFor(() => expect(militaryDialog.querySelector(".app-modal-panel")).toHaveFocus());
+    await user.click(screen.getByRole("button", { name: "Close" }));
+    const caseDialog = await screen.findByRole("dialog", { name: "Opportunity case" });
+    expect(screen.getAllByRole("dialog")).toHaveLength(1);
+    expect(screen.getByRole("heading", { name: "Office Assistant" })).toBeVisible();
+    await waitFor(() => expect(caseDialog.querySelector(".app-modal-panel")).toHaveFocus());
+    expect(screen.queryByText("job-1")).not.toBeInTheDocument();
+    expect(mockInvoke).not.toHaveBeenCalledWith("get_recent_matches", expect.anything());
+  });
+
+  it.each([
+    ["has no active resume", null, null, null],
+    ["has no exact active-resume match", { id: 42, is_active: true }, { id: 5, resume_id: 7, job_hash: "job-1" }, null],
+    ["cannot load the active resume", null, null, new Error("unavailable")],
+  ])("keeps military wording review closed when the case %s", async (_name, activeResume, match, activeError) => {
+    const user = userEvent.setup();
+    mockInvoke.mockImplementation((command) => {
+      if (command === "open_opportunity_case") return Promise.resolve(caseFile);
+      if (command === "get_active_resume") return activeError ? Promise.reject(activeError) : Promise.resolve(activeResume);
+      if (command === "get_match_result") return Promise.resolve(match);
+      return Promise.resolve(null);
+    });
+    render(<OpportunityCaseAction jobHash="job-1" />);
+    await user.click(screen.getByRole("button", { name: "Open case" }));
+    await screen.findByRole("heading", { name: "Office Assistant" });
+    await user.click(screen.getByRole("button", { name: "Review military wording" }));
+    expect(await screen.findByText(/active saved resume.*exact saved job match|could not load an active saved match/i)).toBeVisible();
+    expect(screen.queryByRole("heading", { name: "Military transition wording review" })).not.toBeInTheDocument();
+  });
+
+  it("discards a late active-resume response after the case job changes", async () => {
+    const user = userEvent.setup();
+    let resolveActive!: (value: { id: number; is_active: boolean }) => void;
+    mockInvoke.mockImplementation((command) => {
+      if (command === "open_opportunity_case") return Promise.resolve(caseFile);
+      if (command === "get_active_resume") return new Promise((resolve) => { resolveActive = resolve; });
+      return Promise.resolve([]);
+    });
+    const { rerender } = render(<OpportunityCaseAction jobHash="job-1" />);
+    await user.click(screen.getByRole("button", { name: "Open case" }));
+    await screen.findByRole("heading", { name: "Office Assistant" });
+    await user.click(screen.getByRole("button", { name: "Review military wording" }));
+    rerender(<OpportunityCaseAction jobHash="job-2" />);
+    await act(async () => resolveActive({ id: 42, is_active: true }));
+    expect(screen.queryByRole("heading", { name: "Military transition wording review" })).not.toBeInTheDocument();
+    expect(mockInvoke).not.toHaveBeenCalledWith("get_match_result", expect.anything());
+  });
+
+  it("refuses a saved match when the active resume changes during its exact lookup", async () => {
+    const user = userEvent.setup();
+    let resolveMatch!: (value: { id: number; resume_id: number; job_hash: string }) => void;
+    let activeReads = 0;
+    mockInvoke.mockImplementation((command) => {
+      if (command === "open_opportunity_case") return Promise.resolve(caseFile);
+      if (command === "get_active_resume") return Promise.resolve({ id: activeReads++ === 0 ? 42 : 43, is_active: true });
+      if (command === "get_match_result") return new Promise((resolve) => { resolveMatch = resolve; });
+      return Promise.resolve(null);
+    });
+    render(<OpportunityCaseAction jobHash="job-1" />);
+    await user.click(screen.getByRole("button", { name: "Open case" }));
+    await screen.findByRole("heading", { name: "Office Assistant" });
+    await user.click(screen.getByRole("button", { name: "Review military wording" }));
+    await act(async () => resolveMatch({ id: 6, resume_id: 42, job_hash: "job-1" }));
+    expect(await screen.findByText(/active saved resume.*exact saved job match/i)).toBeVisible();
+    expect(screen.queryByRole("heading", { name: "Military transition wording review" })).not.toBeInTheDocument();
   });
 
   it("keeps an empty recognized-requirement review unresolved", async () => {

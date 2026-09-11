@@ -1,13 +1,17 @@
+/** Owns reviewed first-run search choices and optional device and military guidance. */
+
 import { useEffect, useState } from "react";
 import { Button } from "../../ui/Button";
 import { Card } from "../../ui/Card";
 import { useToast } from "../../shared/toast/useToast";
+import { MilitaryTransitionGuidance } from "../../shared/MilitaryTransitionGuidance";
 import { invalidateCacheByCommand, safeInvokeWithToast } from "../../platform/tauri";
 import {
   buildSetupConfigFromCareerProfile,
   findCareerProfileById,
 } from "./careerProfileSetup";
 import { CareerProfileSelector } from "./CareerProfileSelector";
+import { FirstRunDoctor } from "./FirstRunDoctor";
 import { SentinelIcon } from "./SetupWizardIcons";
 import { SetupWizardJobBasicsStep } from "./SetupWizardJobBasicsStep";
 import { SetupWizardLocationStep } from "./SetupWizardLocationStep";
@@ -368,7 +372,6 @@ export default function SetupWizard({ onComplete, onSkip = () => undefined }: Se
             </p>
           </div>
 
-          {/* Step 0: Career Profile Selection */}
           {step === 0 && (
             <div className="motion-safe:animate-slide-up">
               <CareerProfileSelector
@@ -391,9 +394,10 @@ export default function SetupWizard({ onComplete, onSkip = () => undefined }: Se
                   Skipping lasts only for this session and saves no search. Setup returns next time. You can still review or import local jobs.
                 </p>
               </div>
+              <FirstRunDoctor />
+              <MilitaryTransitionGuidance />
             </div>
           )}
-
           {/* Step 1: Job titles, skills, and constraints */}
           {step === 1 && (
             <SetupWizardJobBasicsStep
@@ -447,6 +451,7 @@ export default function SetupWizard({ onComplete, onSkip = () => undefined }: Se
               onDetectLocation={handleDetectLocation}
               onLocationNotSure={handleLocationNotSure}
               onRemoveCity={handleRemoveCity}
+              onSearchCountryChange={(search_country) => setConfig((previous) => ({ ...previous, location_preferences: { ...previous.location_preferences, search_country } }))}
               onUseDetectedLocation={handleUseDetectedLocation}
               onWorkTypeChange={handleWorkTypeChange}
             />

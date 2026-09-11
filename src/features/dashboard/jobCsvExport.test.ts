@@ -1,3 +1,5 @@
+/** Verifies dashboard CSV export data preservation and spreadsheet safety. */
+
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { buildJobsCsv, exportJobsToCsv } from "./jobCsvExport";
 
@@ -16,6 +18,7 @@ const baseJob = {
   remote: true,
   salary_min: 55000,
   salary_max: 72000,
+  currency: "USD",
 };
 
 describe("job CSV export", () => {
@@ -77,6 +80,25 @@ describe("job CSV export", () => {
 
     expect(csv).toContain("N/A");
     expect(csv).not.toContain("NaN%");
+  });
+
+  it("retains valid native pay fields with CSV-safe source text", () => {
+    const csv = buildJobsCsv([
+      {
+        ...baseJob,
+        listed_pay: {
+          min: 5_000,
+          max: 7_000,
+          currency: "EUR",
+          period: "monthly",
+          qualifiers: ["ctc"],
+          raw_text: "=€5,000–€7,000 monthly CTC",
+        },
+      },
+    ]);
+
+    expect(csv).toContain("Native Pay Currency,Native Pay Period,Native Pay Qualifiers,Native Pay Source Text");
+    expect(csv).toContain("5000,7000,EUR,monthly,ctc,\"'=€5,000–€7,000 monthly CTC\"");
   });
 
   it("downloads CSV with a provided or dated filename", () => {

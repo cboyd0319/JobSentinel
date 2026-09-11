@@ -1,3 +1,5 @@
+/** Verifies source-check controls and visible search-country context. */
+
 import { render, screen } from "@testing-library/react";
 import type { ComponentProps, ReactNode } from "react";
 import { describe, expect, it, vi } from "vitest";
@@ -39,6 +41,17 @@ function renderHeader(overrides: Partial<ComponentProps<typeof DashboardHeader>>
 }
 
 describe("DashboardHeader plain source-check copy", () => {
+  it("keeps the selected search country visible independently of job results", () => {
+    renderHeader({ searchCountry: "GB" });
+    expect(screen.getByText("Searching in United Kingdom")).toBeInTheDocument();
+    expect(screen.getByText(/Unclear countries stay visible/i)).toBeInTheDocument();
+  });
+
+  it("does not invent a search country for legacy preferences", () => {
+    renderHeader();
+    expect(screen.queryByText(/Searching in/i)).not.toBeInTheDocument();
+  });
+
   it("uses checking copy while a manual search is running", () => {
     renderHeader({
       searching: true,

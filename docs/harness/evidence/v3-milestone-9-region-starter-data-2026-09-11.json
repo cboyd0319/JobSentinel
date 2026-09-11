@@ -1,0 +1,121 @@
+{
+  "schema": "jobsentinel.v3.milestone-evidence.v1",
+  "feature_id": "v3-milestone-9-regions-access-editions-first-run",
+  "recorded_on": "2026-09-11",
+  "result": "partial",
+  "slice": "Signed regional starter data and local review",
+  "base_revision": "db8ec834b0e113e617702702b7501392e1d2a38d",
+  "platform": "macOS arm64; repository-pinned Rust 1.97.1",
+  "source_snapshot": {
+    "modified_source_count": 105,
+    "modified_source_digest_sha256": "ca546074f321f03616c4bb63b2660f6fe532aa6f0f23f6bc1c9ece18181e01d7",
+    "recipe": "Union git diff --name-only -z and git ls-files --others --exclude-standard -z for crates, src, src-tauri; sort unique paths; SHA256(JSON.stringify(paths.map(path => [path, SHA256(file bytes)]))).",
+    "caveat": "Includes prior uncommitted Milestone 9 work; commands below cover the starter-data slice only."
+  },
+  "delivered": [
+    "Optional strict starter-data schema preserves the frozen RegionManifest v1 and legacy manifest-only IPC shape.",
+    "Signed data binds region and taxonomy/profile IDs, independent nonfuture review date, unique bounded collections, safe text, public query-free HTTPS references, and 64 KiB limits.",
+    "Explicit null or malformed supplied starter data rejects rather than becoming a legacy fallback.",
+    "Local occupation search, CV planning guidance, source notes, and publisher references remain inert; no matching-score, credential, source-grant, or automated CV mutation.",
+    "UK/EU/provisional India fixtures survive signature verification, staging, activation, and review through the real application owner with test publisher keys."
+  ],
+  "red_evidence": [
+    "Domain acceptance initially failed because Region had no starter_data field.",
+    "Application review returned null instead of the signed starter data.",
+    "Canonical ESCO concept URI exceeded the initial frontend source-code limit.",
+    "Frontend byte, duplicate, date, invisible-control, and URL negatives initially failed.",
+    "Explicit null starter data was initially accepted.",
+    "EU staging rejected the query-bearing API reference; the exact concept URI is now retained as source_code with explicitly labelled query-free catalogue/API documentation."
+  ],
+  "checks": [
+    {
+      "command": "./init.sh",
+      "exit_status": 0,
+      "result": "Locked dependency sync, harness, and 9 startup tests passed; Node/npm baseline warnings retained."
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test -p jobsentinel-domain --lib region_pack_",
+      "exit_status": 0,
+      "result": "5 passed."
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test -p jobsentinel-application --lib pack_runtime_tests::region",
+      "exit_status": 0,
+      "result": "3 passed, including all three starter fixtures and existing lifecycle/trust rejection."
+    },
+    {
+      "command": "npx vitest run src/shared/regionStarterData.test.ts src/features/settings/packs/PackRegionReview.test.tsx src/dev-runtime/mocks/handlers.test.ts",
+      "exit_status": 0,
+      "result": "48 passed: parser26, renderer8, mock handlers14; delegated UI owner."
+    },
+    {
+      "command": "npm run typecheck",
+      "exit_status": 0,
+      "result": "Delegated UI owner."
+    },
+    {
+      "command": "npm run lint",
+      "exit_status": 0,
+      "result": "Delegated UI owner."
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs clippy -p jobsentinel-domain -p jobsentinel-application --lib -- -D warnings",
+      "exit_status": 0
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs check -p jobsentinel --lib",
+      "exit_status": 0,
+      "result": "Desktop IPC adapter compiles; not an installed-app journey."
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs fmt --all -- --check",
+      "exit_status": 0
+    },
+    {
+      "command": "npm run harness:check",
+      "exit_status": 0
+    },
+    {
+      "command": "npm run lint:dup -- --list",
+      "exit_status": 0,
+      "result": "Zero duplicated lines in all six scopes."
+    },
+    {
+      "command": "node_modules/.bin/markdownlint --config .markdownlint.json docs/plans/v3/regional-readiness-framework.md",
+      "exit_status": 0
+    },
+    {
+      "command": "git diff --check",
+      "exit_status": 0
+    }
+  ],
+  "source_evidence": {
+    "uk": {
+      "taxonomy": "https://www.ons.gov.uk/methodology/classificationsandstandards/standardoccupationalclassificationsoc/soc2020/soc2020volume1structureanddescriptionsofunitgroups",
+      "cv": "https://nationalcareers.service.gov.uk/careers-advice/cv-sections",
+      "jobs": "https://www.gov.uk/find-a-job",
+      "result": "Inspected official pages; SOC2020 codes2134/2135, bounded CV guidance, and separate Northern Ireland service note."
+    },
+    "eu": {
+      "exact_api_request": "https://ec.europa.eu/esco/api/resource/occupation?uri=http://data.europa.eu/esco/occupation/f2b15a0e-e65a-438a-affb-29b9d50b77d1&language=en",
+      "concept_uri": "http://data.europa.eu/esco/occupation/f2b15a0e-e65a-438a-affb-29b9d50b77d1",
+      "result": "Researcher inspected official API response: preferred label software developer, broader ISCO group2512. No current-version completeness claim.",
+      "catalogue": "https://esco.ec.europa.eu/en/use-esco/use-esco-services-api/esco-web-service-api",
+      "cv": "https://europass.europa.eu/en/create-europass-cv",
+      "jobs": "https://eures.europa.eu/index_en"
+    },
+    "india": {
+      "status": "provisional",
+      "result": "Only indexed official NCO2015 excerpts supported code2512.0204. NCS PDF opens redirected to HTML; DGE replacement and NQR requests timed out. No full publisher document was obtained.",
+      "replacement": "https://dge.gov.in/sites/default/files/2024-05/National_Classification_of_Occupations_Vol_I-2015.pdf",
+      "warning": "Fixture confidence and source notes disclose the gap; CV sections are explicitly JobSentinel guidance, not an official India format."
+    }
+  },
+  "review": "Bounded adversarial review found the EU reference and frontend URL-policy mismatch; final full static re-review returned SOUND after fixes.",
+  "remaining": [
+    "No production region publisher, signing key, or signed distribution artifact was created; signing requires separate authority.",
+    "India full-source verification, broader taxonomy/CV/location/source fixtures, regional matching evaluation, and manual readiness remain incomplete.",
+    "Veteran/access journeys, Gate 5, controlled 8 GiB and remaining release-platform proof remain open.",
+    "No full suite, installer rebuild, external source grant, secret read, user-level configuration change, or publication."
+  ]
+}

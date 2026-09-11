@@ -1,13 +1,21 @@
-//! CRUD operations for jobs
-//!
-//! Create, Read, Update, and Delete operations for job records.
+//! Persists jobs and their validated native evidence projections.
 
 use super::connection::Database;
 use super::types::JobRow;
 use chrono::Utc;
-use jobsentinel_domain::{canonicalize_job_url, Job};
+use jobsentinel_domain::{canonicalize_job_url, Job, JobGeography};
 use jobsentinel_security::validate_external_https_url;
-fn canonicalize_job_for_storage(job: &Job) -> Result<String, sqlx::Error> {
+
+struct StoredPay {
+    listed_pay: Option<String>,
+    salary_min: Option<i64>,
+    salary_max: Option<i64>,
+    currency: Option<String>,
+}
+
+fn canonicalize_job_for_storage(
+    job: &Job,
+) -> Result<(String, StoredPay, Option<String>), sqlx::Error> {
     const MAX_TITLE_LENGTH: usize = 500;
     const MAX_COMPANY_LENGTH: usize = 200;
     const MAX_URL_LENGTH: usize = 2000;
@@ -72,7 +80,43 @@ fn canonicalize_job_for_storage(job: &Job) -> Result<String, sqlx::Error> {
         }
     }
 
-    Ok(canonical_job_url)
+    Ok((
+        canonical_job_url,
+        project_pay_for_storage(job)?,
+        project_geography_for_storage(job.geography.as_ref())?,
+    ))
+}
+
+fn project_geography_for_storage(
+    geography: Option<&JobGeography>,
+) -> Result<Option<String>, sqlx::Error> {
+    geography
+        .map(JobGeography::canonical_json)
+        .transpose()
+        .map_err(|reason| sqlx::Error::Protocol(format!("Invalid job geography: {reason}")))
+}
+
+fn project_pay_for_storage(job: &Job) -> Result<StoredPay, sqlx::Error> {
+    let Some(listed_pay) = &job.listed_pay else {
+        return Ok(StoredPay {
+            listed_pay: None,
+            salary_min: job.salary_min,
+            salary_max: job.salary_max,
+            currency: job.currency.clone(),
+        });
+    };
+
+    let listed_pay_json = listed_pay
+        .canonical_json()
+        .map_err(|reason| sqlx::Error::Protocol(format!("Invalid listed pay: {reason}")))?;
+    let (salary_min, salary_max) = listed_pay.usd_annual_integer_bounds();
+
+    Ok(StoredPay {
+        listed_pay: Some(listed_pay_json),
+        salary_min,
+        salary_max,
+        currency: listed_pay.currency.clone(),
+    })
 }
 
 impl Database {
@@ -97,7 +141,7 @@ impl Database {
         level = "debug"
     )]
     pub async fn upsert_job(&self, job: &Job) -> Result<i64, sqlx::Error> {
-        let canonical_job_url = canonicalize_job_for_storage(job)?;
+        let (canonical_job_url, stored_pay, geography) = canonicalize_job_for_storage(job)?;
         let existing: Option<i64> = sqlx::query_scalar("SELECT id FROM jobs WHERE hash = ?")
             .bind(&job.hash)
             .fetch_optional(self.pool())
@@ -105,11 +149,20 @@ impl Database {
 
         if let Some(existing_id) = existing {
             return self
-                .update_existing_job(existing_id, job, &canonical_job_url)
+                .update_existing_job(
+                    existing_id,
+                    job,
+                    &canonical_job_url,
+                    &stored_pay,
+                    &geography,
+                )
                 .await;
         }
 
-        if let Some(job_id) = self.insert_job_record(job, &canonical_job_url).await? {
+        if let Some(job_id) = self
+            .insert_job_record(job, &canonical_job_url, &stored_pay, &geography)
+            .await?
+        {
             return Ok(job_id);
         }
 
@@ -117,13 +170,20 @@ impl Database {
             .bind(&job.hash)
             .fetch_one(self.pool())
             .await?;
-        self.update_existing_job(existing_id, job, &canonical_job_url)
-            .await
+        self.update_existing_job(
+            existing_id,
+            job,
+            &canonical_job_url,
+            &stored_pay,
+            &geography,
+        )
+        .await
     }
 
     pub async fn insert_job_if_new(&self, job: &Job) -> Result<Option<i64>, sqlx::Error> {
-        let canonical_job_url = canonicalize_job_for_storage(job)?;
-        self.insert_job_record(job, &canonical_job_url).await
+        let (canonical_job_url, stored_pay, geography) = canonicalize_job_for_storage(job)?;
+        self.insert_job_record(job, &canonical_job_url, &stored_pay, &geography)
+            .await
     }
 
     async fn update_existing_job(
@@ -131,6 +191,8 @@ impl Database {
         existing_id: i64,
         job: &Job,
         canonical_job_url: &str,
+        stored_pay: &StoredPay,
+        geography: &Option<String>,
     ) -> Result<i64, sqlx::Error> {
         tracing::debug!(
             job_id = existing_id,
@@ -141,7 +203,7 @@ impl Database {
             UPDATE jobs SET
                 title = ?, company = ?, url = ?, location = ?, description = ?,
                 score = ?, score_reasons = ?, source = ?, remote = ?,
-                salary_min = ?, salary_max = ?, currency = ?, updated_at = ?,
+                salary_min = ?, salary_max = ?, currency = ?, listed_pay = ?, geography = COALESCE(?, geography), updated_at = ?,
                 last_seen = ?, times_seen = times_seen + 1, ghost_score = ?,
                 ghost_reasons = ?, repost_count = ?
             WHERE id = ?
@@ -156,9 +218,11 @@ impl Database {
         .bind(&job.score_reasons)
         .bind(&job.source)
         .bind(job.remote.map(i64::from))
-        .bind(job.salary_min)
-        .bind(job.salary_max)
-        .bind(&job.currency)
+        .bind(stored_pay.salary_min)
+        .bind(stored_pay.salary_max)
+        .bind(&stored_pay.currency)
+        .bind(&stored_pay.listed_pay)
+        .bind(geography)
         .bind(Utc::now())
         .bind(Utc::now())
         .bind(job.ghost_score)
@@ -176,17 +240,19 @@ impl Database {
         &self,
         job: &Job,
         canonical_job_url: &str,
+        stored_pay: &StoredPay,
+        geography: &Option<String>,
     ) -> Result<Option<i64>, sqlx::Error> {
         let result = sqlx::query(
             r#"
             INSERT INTO jobs (
                 hash, title, company, url, location, description,
                 score, score_reasons, source, remote,
-                salary_min, salary_max, currency,
+                salary_min, salary_max, currency, listed_pay, geography,
                 created_at, updated_at, last_seen, times_seen,
                 immediate_alert_sent, included_in_digest,
                 ghost_score, ghost_reasons, first_seen, repost_count
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(hash) DO NOTHING
             "#,
         )
@@ -200,9 +266,11 @@ impl Database {
         .bind(&job.score_reasons)
         .bind(&job.source)
         .bind(job.remote.map(i64::from))
-        .bind(job.salary_min)
-        .bind(job.salary_max)
-        .bind(&job.currency)
+        .bind(stored_pay.salary_min)
+        .bind(stored_pay.salary_max)
+        .bind(&stored_pay.currency)
+        .bind(&stored_pay.listed_pay)
+        .bind(geography)
         .bind(job.created_at)
         .bind(job.updated_at)
         .bind(job.last_seen)
@@ -232,7 +300,8 @@ impl Database {
             .bind(id)
             .fetch_optional(self.pool())
             .await?
-            .map(Job::from);
+            .map(Job::try_from)
+            .transpose()?;
 
         Ok(job)
     }
@@ -244,7 +313,8 @@ impl Database {
             .bind(hash)
             .fetch_optional(self.pool())
             .await?
-            .map(Job::from);
+            .map(Job::try_from)
+            .transpose()?;
 
         Ok(job)
     }

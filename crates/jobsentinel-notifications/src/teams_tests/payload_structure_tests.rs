@@ -1,3 +1,5 @@
+//! Tests the structural contract of Microsoft Teams job-alert payloads.
+
 use super::super::*;
 use super::notification_fixture;
 
@@ -28,7 +30,7 @@ fn test_full_message_card_payload_structure() {
     assert_eq!(facts[0]["name"], "Location:");
     assert_eq!(facts[0]["value"], "Remote");
     assert_eq!(facts[1]["name"], "Salary:");
-    assert_eq!(facts[1]["value"], "$180,000 - $220,000");
+    assert_eq!(facts[1]["value"], "USD 180000–220000 period not disclosed");
     assert_eq!(facts[2]["name"], "Remote:");
     assert_eq!(facts[2]["value"], "✅ Yes");
     assert_eq!(facts[3]["name"], "Match Score:");

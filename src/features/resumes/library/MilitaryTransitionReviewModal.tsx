@@ -1,8 +1,11 @@
+/** Reviews user-confirmed military wording for one exact saved resume match. */
+
 import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { safeInvoke } from "../../../platform/tauri";
 import { Button } from "../../../ui/Button";
 import { Modal, ModalFooter } from "../../../ui/Modal";
 import type { MatchResult } from "./resumePageModel";
+import { MilitaryTransitionGuidance } from "../../../shared/MilitaryTransitionGuidance";
 import {
   FinalReview,
   MappingList,
@@ -34,7 +37,7 @@ export type SafeMilitarySuggestion = {
 
 interface MilitaryTransitionReviewModalProps {
   isOpen: boolean;
-  match: MatchResult | null;
+  match: Pick<MatchResult, "id" | "resume_id" | "job_hash"> | null;
   onClose: () => void;
 }
 
@@ -251,6 +254,7 @@ export function MilitaryTransitionReviewModal({
             clearance status, or military-to-civilian equivalence.
           </p>
         </section>
+        <MilitaryTransitionGuidance />
 
         {suggestion ? (
           <SafeSuggestion suggestion={suggestion} />

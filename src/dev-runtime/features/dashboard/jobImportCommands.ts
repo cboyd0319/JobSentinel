@@ -1,3 +1,5 @@
+/** Builds safe browser-development job-import command projections. */
+
 import {
   getNextId,
   getStringArg,
@@ -264,6 +266,7 @@ function buildMockImportedJob(
     source: usesSmartPasteDefaults ? "user-source-actions" : "import",
     salary_min: usesSmartPasteDefaults ? null : 55000,
     salary_max: usesSmartPasteDefaults ? null : 72000,
+    currency: usesSmartPasteDefaults ? null : "USD",
     remote: preview.remote,
     score: usesSmartPasteDefaults ? null : 1,
     hidden: false,

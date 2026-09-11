@@ -15,7 +15,7 @@ use serde::Serialize;
 
 use crate::v3_foundation::FoundationError;
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct EmployerDossier {
     pub employer: EmployerIdentityEvidence,
     pub role: EmployerRoleEvidence,
@@ -93,18 +93,21 @@ pub enum EmployerSourceStatus {
     Missing,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct EmployerPayEvidence {
     pub clarity: EmployerPayClarity,
     pub minimum: Option<i64>,
     pub maximum: Option<i64>,
     pub currency: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub listed_pay: Option<jobsentinel_domain::ListedPay>,
     pub observed_at: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum EmployerPayClarity {
+    NativeListed,
     RangeListed,
     MinimumOnly,
     MaximumOnly,
@@ -338,6 +341,16 @@ fn validated_posting(source_id: &str, raw: &str) -> Option<(String, String)> {
 }
 
 fn pay_evidence(read: &OpportunityCaseRead) -> EmployerPayEvidence {
+    if let Some(listed_pay) = &read.listed_pay {
+        return EmployerPayEvidence {
+            clarity: EmployerPayClarity::NativeListed,
+            minimum: None,
+            maximum: None,
+            currency: None,
+            listed_pay: Some(listed_pay.clone()),
+            observed_at: read.last_seen_at,
+        };
+    }
     let currency = read
         .currency
         .as_deref()
@@ -369,6 +382,7 @@ fn pay_evidence(read: &OpportunityCaseRead) -> EmployerPayEvidence {
         minimum,
         maximum,
         currency,
+        listed_pay: None,
         observed_at: read.last_seen_at,
     }
 }

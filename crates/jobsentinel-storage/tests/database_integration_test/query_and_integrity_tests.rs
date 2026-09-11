@@ -1,3 +1,5 @@
+//! Verifies integration query and integrity behavior for stored jobs.
+
 use super::*;
 
 // ============================================================================
@@ -46,6 +48,8 @@ async fn test_job_data_preserved_on_upsert() {
         salary_min: Some(65000),
         salary_max: Some(85000),
         currency: Some("USD".to_string()),
+        listed_pay: None,
+        geography: None,
         created_at: chrono::Utc::now(),
         updated_at: chrono::Utc::now(),
         last_seen: chrono::Utc::now(),

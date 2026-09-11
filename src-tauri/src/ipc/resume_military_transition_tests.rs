@@ -1,3 +1,5 @@
+//! Verifies bounded military-transition IPC input and saved confirmation projections.
+
 use super::resume_military_transition_commands::{
     is_exact_military_transition_review_token, validate_military_transition_prepare_args,
     MilitaryTransitionWordingInput, MilitaryWordingMappingInput,
@@ -187,6 +189,8 @@ async fn military_transition_confirmation_serializes_only_the_fixed_safe_project
         salary_min: None,
         salary_max: None,
         currency: None,
+        listed_pay: None,
+        geography: None,
         created_at: now,
         updated_at: now,
         last_seen: now,

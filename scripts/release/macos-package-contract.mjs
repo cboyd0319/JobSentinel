@@ -1,8 +1,9 @@
+// Defines macOS package arguments, metadata, checksum, and isolated smoke-test contracts.
+
 import { spawnSync } from "node:child_process";
 import { createHash, randomBytes } from "node:crypto";
 import { existsSync, lstatSync, readdirSync, readFileSync } from "node:fs";
-import { basename, join } from "node:path";
-import { getMacosRuntimeProfile } from "../platform/macos-runtime-profile.mjs";
+import { basename, dirname, join } from "node:path";
 import { parseSha256Checksum } from "./checksum.mjs";
 
 export { parseSha256Checksum } from "./checksum.mjs";
@@ -69,7 +70,6 @@ export function parseArgs(args, arch = process.arch) {
     launchSmoke: hasArg(args, "--launch-smoke") || Boolean(smokeValue),
     requireChecksum: hasArg(args, "--require-checksum"),
     requireGatekeeper: hasArg(args, "--require-gatekeeper"),
-    runtimeProfile: getMacosRuntimeProfile(args),
     verifyChecksum: !hasArg(args, "--no-checksum"),
     smokeSeconds: smokeValue ? Number(smokeValue) : defaultSmokeSeconds,
   };
@@ -258,6 +258,8 @@ export function buildMacosOpenArgs({
     "-n",
     "--env",
     "ApplePersistenceIgnoreState=YES",
+    "--env",
+    `TMPDIR=${dirname(smokeRoot)}`,
     "--env",
     `${smokeRootEnv}=${smokeRoot}`,
     "--env",

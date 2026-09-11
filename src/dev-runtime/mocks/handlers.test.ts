@@ -80,6 +80,9 @@ describe("mock Tauri command facade", () => {
     expect(registeredMockCommands).toEqual(
       expect.arrayContaining([
         "get_jobs",
+        "get_search_country_options",
+        "get_job_by_id",
+        "search_jobs_query",
         "get_config",
         "get_active_resume",
         "fill_application_form",
@@ -91,6 +94,7 @@ describe("mock Tauri command facade", () => {
         "disable_pack",
         "uninstall_pack",
         "retry_pack_cleanup",
+        "open_region_pack",
         "open_static_skill",
         "prepare_evidence_reviewer",
         "execute_evidence_reviewer",
@@ -105,12 +109,6 @@ describe("mock Tauri command facade", () => {
         "record_linkedin_workbench_event",
       ]),
     );
-  });
-
-  it("keeps native file access unavailable in browser development", async () => {
-    await expect(
-      mockInvoke("preview_dropped_job", { dropId: "opaque" }),
-    ).rejects.toThrow("Native file drop is unavailable in browser development.");
   });
 
   it("mirrors pack lifecycle response generations", async () => {
@@ -247,6 +245,22 @@ describe("mock Tauri command facade", () => {
     expect(skill.resources).toEqual([
       expect.objectContaining({ path: "references/rubric.md" }),
     ]);
+  });
+
+  it("returns incomplete regional research only for its ready generation", async () => {
+    await expect(mockInvoke("open_region_pack", {
+      publisherKeyId: "jobsentinel-region-publisher-v1",
+      packId: "jobsentinel.region.uk",
+      expectedGeneration: 1,
+    })).resolves.toEqual(expect.objectContaining({
+      region_id: "uk", incomplete_coverage: true,
+      starter_data: expect.objectContaining({ reviewed_on: "2026-09-11", taxonomy_mappings: expect.arrayContaining([expect.objectContaining({ source_code: "2134" })]) }),
+    }));
+    await expect(mockInvoke("open_region_pack", {
+      publisherKeyId: "jobsentinel-region-publisher-v1",
+      packId: "jobsentinel.region.uk",
+      expectedGeneration: 2,
+    })).rejects.toThrow("refresh before trying again");
   });
 
   it("supports forced command failures", async () => {

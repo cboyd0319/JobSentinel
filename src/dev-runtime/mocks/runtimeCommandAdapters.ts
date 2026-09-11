@@ -37,6 +37,7 @@ export const applyMockDashboardCommand: MockCommandAdapter = (
 ) => {
   const result = handleMockDashboardCommand(command, args, {
     jobs: mockRuntimeState.jobs,
+    config: mockRuntimeState.config,
   });
   if (!result.handled) return undefined;
   mockRuntimeState.jobs = result.state.jobs;

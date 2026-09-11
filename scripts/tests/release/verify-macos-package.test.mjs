@@ -1,4 +1,4 @@
-/** Verifies macOS package parsing, signature, checksum, and launch-smoke helpers. */
+// Proves macOS artifact verification, launch isolation, and privacy-safe package checks.
 
 import assert from "node:assert/strict";
 import { chmodSync, mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
@@ -46,7 +46,6 @@ function expectedParsedArgs(dmgPath, verifyChecksum) {
     launchSmoke: false,
     requireChecksum: false,
     requireGatekeeper: false,
-    runtimeProfile: "essentials",
     verifyChecksum,
     smokeSeconds: 12,
   };
@@ -99,7 +98,6 @@ test("macOS verifier parses positional and flagged DMG arguments", () => {
       launchSmoke: true,
       requireChecksum: true,
       requireGatekeeper: true,
-      runtimeProfile: "essentials",
       verifyChecksum: true,
       smokeSeconds: 3,
     },
@@ -253,6 +251,8 @@ test("macOS verifier launches app bundles fresh with isolated smoke paths", () =
       "-n",
       "--env",
       "ApplePersistenceIgnoreState=YES",
+      "--env",
+      "TMPDIR=/tmp",
       "--env",
       "JOBSENTINEL_MACOS_PACKAGE_SMOKE_ROOT=/tmp/jobsentinel-macos-smoke-root",
       "--env",

@@ -1,7 +1,4 @@
-//! RemoteOK Job Scraper
-//!
-//! Scrapes remote jobs from RemoteOK's public JSON API.
-//! RemoteOK is a popular remote job board with tech-focused listings.
+//! Fetches rate-limited RemoteOK JSON and parses jobs without assuming pay currency.
 
 use super::error::ScraperError;
 use super::rate_limiter::RateLimiter;
@@ -153,7 +150,6 @@ impl RemoteOkScraper {
             remote: Some(true), // All RemoteOK jobs are remote
             salary_min,
             salary_max,
-            currency: Some("USD".to_string()), // RemoteOK typically uses USD
             ..Job::newly_discovered(title, company, url, location, "remoteok", Utc::now())
         }))
     }

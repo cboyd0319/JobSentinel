@@ -7,6 +7,7 @@ import type {
   mockPendingReminders,
 } from "../data";
 import type { NotificationPreferences } from "../../../shared/notificationPreferences";
+import type { JobPayInput } from "../../../shared/listedPay";
 import type {
   MockApplicationProfile,
   MockScreeningAnswer,
@@ -24,8 +25,31 @@ import type { MockMarketAlert } from "../../../features/market/mockHandlers";
 import type { MockBuilderSkill, MockResumeDraft } from "../../features/resumes/resumeBuilder";
 import type { MockScraperEnabledOverrides } from "../../features/settings/sources/scraperHealth";
 
-export type MockJob = typeof mockJobs[number];
-export type MockConfig = typeof mockConfig;
+export interface MockJobCountry {
+  raw_country: string;
+  alpha2: string;
+}
+
+export interface MockJobLocation {
+  raw_location: string;
+  country: MockJobCountry | null;
+}
+
+export interface MockJobGeography {
+  worksite_locations: MockJobLocation[];
+  remote_applicant_locations: MockJobLocation[];
+}
+
+export type MockJob = Omit<(typeof mockJobs)[number], "currency"> &
+  Pick<JobPayInput, "currency" | "listed_pay"> & {
+    geography?: MockJobGeography | null;
+  };
+export type MockConfig = Omit<typeof mockConfig, "location_preferences"> & {
+  location_preferences: Omit<
+    (typeof mockConfig)["location_preferences"],
+    "search_country"
+  > & { search_country?: string | null };
+};
 export type MockApplicationStatus = keyof typeof mockApplications;
 
 export interface MockApplication {
@@ -214,6 +238,7 @@ export interface MockDashboardPreferences {
   autoRefresh: MockConfig["auto_refresh"];
   salaryFloorUsd: number;
   anyJobSourceEnabled: boolean;
+  searchCountry: string | null;
 }
 
 export interface MockFillResultWithAttempt {

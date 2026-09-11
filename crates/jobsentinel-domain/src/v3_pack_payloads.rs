@@ -15,14 +15,15 @@ use crate::{
     v3_foundation::{SourceAccess, SourcePolicy},
     v3_manifests::{
         AgentTask, AgentTaskKind, ApprovalGate, DataCategory, PackAction, PackExecutionClass,
-        PackType, PrivacyLabel, SourceClass,
+        PackType, PrivacyLabel, RegionManifest, SourceClass,
     },
+    v3_region_starter::{self_test_region, RegionPayloadV1, RegionStarterData},
     v3_signed_packs::VerifiedPackRelease,
     v3_source_authorization::{SourceActionDecision, SourceGrantState},
     v3_source_manifest::{parse_source_manifest, SourceManifest, SourceStopCondition},
 };
 
-const PACK_PAYLOAD_SCHEMA: &str = "jobsentinel.v3.pack-payload.v1";
+pub(crate) const PACK_PAYLOAD_SCHEMA: &str = "jobsentinel.v3.pack-payload.v1";
 const MAX_SOURCE_FIXTURES: usize = 32;
 const MAX_FIXTURE_BYTES: usize = 512 * 1024;
 const MAX_PLAN_STEPS: usize = 8;
@@ -51,6 +52,10 @@ pub struct StaticSkillResource {
 
 #[derive(Debug)]
 pub enum SelfTestedPackPayload {
+    Region {
+        manifest: Box<RegionManifest>,
+        starter_data: Option<Box<RegionStarterData>>,
+    },
     Source {
         policy: SourcePolicy,
         manifest: Box<SourceManifest>,
@@ -128,6 +133,7 @@ enum PackPayloadV1 {
     Workflow(ReviewedWorkflowPayloadV1),
     Skill(StaticSkillPayloadV1),
     Evaluation(EvaluationPayloadV1),
+    Region(RegionPayloadV1),
 }
 
 #[derive(Debug, Deserialize)]
@@ -209,6 +215,7 @@ pub fn parse_and_self_test_pack_payload(
         }
         PackPayloadV1::Skill(payload) => self_test_static_skill(release, payload),
         PackPayloadV1::Evaluation(payload) => self_test_evaluation(release, payload),
+        PackPayloadV1::Region(payload) => self_test_region(release, payload, today),
     }?;
     Ok(SelfTestedPackRelease {
         publisher_key_id: release.publisher_key_id.clone(),

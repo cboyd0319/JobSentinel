@@ -1,3 +1,5 @@
+//! Tests configuration IPC projections and runtime persistence behavior.
+
 use super::*;
 use crate::application::{
     config::{AlertConfig, LocationPreferences},
@@ -21,6 +23,7 @@ fn create_dashboard_test_config() -> Config {
             cities: vec![],
             states: vec![],
             country: "US".to_string(),
+            search_country: None,
         },
         salary_floor_usd: 70_000,
         salary_target_usd: None,
@@ -145,6 +148,7 @@ fn test_dashboard_preferences_are_minimal() {
     config.auto_refresh.enabled = true;
     config.auto_refresh.interval_minutes = 45;
     config.remoteok.enabled = true;
+    config.location_preferences.search_country = Some("GB".to_string());
 
     let preferences = DashboardPreferences::from_config(&config);
 
@@ -152,6 +156,7 @@ fn test_dashboard_preferences_are_minimal() {
     assert!(preferences.auto_refresh.enabled);
     assert_eq!(preferences.auto_refresh.interval_minutes, 45);
     assert!(preferences.any_job_source_enabled);
+    assert_eq!(preferences.search_country.as_deref(), Some("GB"));
 }
 
 #[tokio::test]

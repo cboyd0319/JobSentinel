@@ -1,5 +1,8 @@
+//! Tests Discord notification formatting, payloads, and webhook validation.
+
 use super::*;
 use crate::test_support::notification_fixture;
+use jobsentinel_domain::{v3_contracts::PayPeriod, ListedPay, PayQualifier};
 
 #[path = "discord_tests/display_tests.rs"]
 mod display_tests;
@@ -7,6 +10,31 @@ mod display_tests;
 mod payload_tests;
 #[path = "discord_tests/webhook_url_tests.rs"]
 mod webhook_url_tests;
+
+#[test]
+fn payload_uses_validated_native_pay() {
+    let mut notification = notification_fixture();
+    notification.job.listed_pay = Some(ListedPay {
+        min: Some(2_400_000.0),
+        max: None,
+        currency: Some("INR".to_string()),
+        period: PayPeriod::Annual,
+        qualifiers: vec![PayQualifier::Ctc],
+        raw_text: Some("₹24,00,000 CTC".to_string()),
+    });
+    let config = DiscordConfig {
+        enabled: true,
+        webhook_url: "https://discord.com/api/webhooks/123/token".to_string(),
+        user_id_to_mention: None,
+    };
+
+    let payload = build_discord_payload(&config, &notification);
+    assert_eq!(
+        payload["embeds"][0]["fields"][1]["value"],
+        "INR From 2400000 annual (ctc)"
+    );
+    assert!(!payload.to_string().contains("₹24,00,000 CTC"));
+}
 
 #[test]
 fn test_webhook_url_with_query_params_passes() {
@@ -25,7 +53,7 @@ fn test_webhook_url_with_fragment_passes() {
 #[test]
 fn test_embed_fields_structure() {
     let notification = notification_fixture();
-    let salary_display = "$180,000 - $220,000";
+    let salary_display = "USD 180000–220000 period not disclosed";
 
     let fields = json!([
         {"name": "📍 Location", "value": notification.job.location.as_deref().unwrap_or("N/A"), "inline": true},
@@ -191,7 +219,7 @@ fn test_location_fallback_na() {
 #[test]
 fn test_complete_embed_structure() {
     let notification = notification_fixture();
-    let salary_display = "$180,000 - $220,000";
+    let salary_display = "USD 180000–220000 period not disclosed";
     let color = 0x10b981;
 
     let embed = json!({

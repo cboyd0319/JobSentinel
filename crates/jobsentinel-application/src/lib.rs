@@ -1,6 +1,7 @@
 //! Tauri-free JobSentinel application use cases.
 
 mod bookmarklet;
+mod country_search;
 mod external_ai;
 mod fetcher;
 mod pending;
@@ -42,6 +43,10 @@ pub use bookmarklet::{
     issue_browser_import_pairing, prepare_browser_import_target,
 };
 pub use config::Config;
+pub use country_search::{
+    classify_country_scope, country_options, get_bookmarked_jobs, get_recent_jobs, search_jobs,
+    CountryScope,
+};
 pub use external_ai::{
     cancel_external_ai_request, list_external_ai_activity, prepare_external_ai_request,
     send_external_ai_request, ExternalAiActivityEntry, ExternalAiActivityStatus,

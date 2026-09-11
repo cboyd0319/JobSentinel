@@ -1,3 +1,5 @@
+/** Verifies one exact saved match keeps military wording review manual and bounded. */
+
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it } from "vitest";
@@ -62,6 +64,7 @@ describe("MilitaryTransitionReviewModal", () => {
 
     renderModal();
     expect(screen.getByText(/manual review required/i)).toBeInTheDocument();
+    expect(screen.getByText("Military-to-civilian guidance (optional)")).toBeInTheDocument();
     expect(
       screen.getByText(/O\*NET and DoD COOL do not author or verify wording/i),
     ).toBeInTheDocument();

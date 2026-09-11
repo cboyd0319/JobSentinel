@@ -16,7 +16,7 @@ mod tests {
     use crate::desktop::SchedulerStatus;
 
     /// Helper to create a test AppState with in-memory database
-    async fn create_test_app_state() -> AppState {
+    pub(crate) async fn create_test_app_state() -> AppState {
         let config = Config {
             title_allowlist: vec!["Care Coordinator".to_string()],
             title_blocklist: vec![],
@@ -29,6 +29,7 @@ mod tests {
                 cities: vec![],
                 states: vec![],
                 country: "US".to_string(),
+                search_country: None,
             },
             salary_floor_usd: 100000,
             immediate_alert_threshold: 0.9,
@@ -109,6 +110,8 @@ mod tests {
             salary_min: Some(150000),
             salary_max: Some(200000),
             currency: Some("USD".to_string()),
+            listed_pay: None,
+            geography: None,
             created_at: Utc::now(),
             updated_at: Utc::now(),
             last_seen: Utc::now(),
@@ -253,6 +256,7 @@ mod tests {
                 cities: vec![],
                 states: vec![],
                 country: "US".to_string(),
+                search_country: None,
             },
             salary_floor_usd: 120000,
             immediate_alert_threshold: 0.85,
@@ -363,6 +367,7 @@ mod tests {
                 cities: vec![],
                 states: vec![],
                 country: "US".to_string(),
+                search_country: None,
             },
             salary_floor_usd: 100000,
             immediate_alert_threshold: 0.9,
@@ -432,3 +437,5 @@ mod tests {
         );
     }
 }
+
+pub(crate) use tests::create_test_app_state;

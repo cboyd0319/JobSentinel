@@ -1,3 +1,5 @@
+// Verifies shared URL validation rejects non-public network destinations.
+
 use super::*;
 
 #[test]
@@ -71,6 +73,42 @@ fn blocks_private_ipv4_ranges() {
         "http://0.0.0.0/jobs",
     ] {
         assert!(validate_external_http_url(url).is_err(), "{url}");
+    }
+}
+
+#[test]
+fn blocks_iana_non_global_ipv4_ranges_but_keeps_current_ietf_anycast_exceptions() {
+    let non_global = [
+        Ipv4Addr::new(192, 0, 0, 1),
+        Ipv4Addr::new(192, 0, 2, 1),
+        Ipv4Addr::new(198, 18, 0, 1),
+        Ipv4Addr::new(198, 19, 255, 254),
+        Ipv4Addr::new(198, 51, 100, 1),
+        Ipv4Addr::new(203, 0, 113, 1),
+        Ipv4Addr::new(240, 0, 0, 1),
+    ];
+
+    for ip in non_global {
+        assert!(
+            validate_external_https_url(&format!("https://{ip}/provider")).is_err(),
+            "literal {ip} must be blocked"
+        );
+        assert_eq!(
+            validate_resolved_ips([IpAddr::V4(ip)]).unwrap_err(),
+            "Blocked non-public IP address",
+            "resolved {ip} must be blocked"
+        );
+    }
+
+    for ip in [Ipv4Addr::new(192, 0, 0, 9), Ipv4Addr::new(192, 0, 0, 10)] {
+        assert!(
+            validate_external_https_url(&format!("https://{ip}/provider")).is_ok(),
+            "globally reachable exception {ip} must remain allowed"
+        );
+        assert!(
+            validate_resolved_ips([IpAddr::V4(ip)]).is_ok(),
+            "resolved globally reachable exception {ip} must remain allowed"
+        );
     }
 }
 
@@ -200,3 +238,6 @@ fn empty_resolution_is_rejected() {
         "Could not verify URL host"
     );
 }
+
+#[path = "tests/iana_ipv6_tests.rs"]
+mod iana_ipv6_tests;

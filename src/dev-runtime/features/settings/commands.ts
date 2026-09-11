@@ -1,4 +1,7 @@
+/** Projects browser-development settings commands and validates saved mock preferences. */
+
 import { hasEnabledMockScraperSource } from "./sources/scraperHealth";
+import { hasValidMockSearchCountryPreference } from "../../mocks/data";
 import {
   getArg,
   getDefaultGhostConfig,
@@ -12,7 +15,6 @@ import type {
   MockConfig,
   MockCredentialKey,
   MockCredentialUnlockState,
-  MockDashboardPreferences,
   MockGhostConfig,
   MockPendingBookmarkletImport,
 } from "../../mocks/handlers/types";
@@ -59,7 +61,12 @@ export function handleMockSettingsCommand(
       return withoutSave(state, state.config);
 
     case "get_dashboard_preferences":
-      return withoutSave(state, getMockDashboardPreferences(state.config));
+      return withoutSave(state, {
+        autoRefresh: { ...state.config.auto_refresh },
+        salaryFloorUsd: state.config.salary_floor_usd,
+        anyJobSourceEnabled: anyMockJobSourceEnabled(state.config),
+        searchCountry: state.config.location_preferences.search_country ?? null,
+      });
 
     case "get_resume_matching_preference":
       return withoutSave(state, {
@@ -81,15 +88,7 @@ export function handleMockSettingsCommand(
       };
 
     case "save_config":
-      return {
-        handled: true,
-        shouldSave: true,
-        state: {
-          ...state,
-          config: { ...state.config, ...(getArg(args, "config") as object) },
-        },
-        value: undefined,
-      };
+      return saveConfig(args, state);
 
     case "get_credential_status":
       return withoutSave(
@@ -467,13 +466,24 @@ function updateBookmarkletPort(
   };
 }
 
-function getMockDashboardPreferences(
-  config: MockConfig,
-): MockDashboardPreferences {
+function saveConfig(
+  args: Record<string, unknown> | undefined,
+  state: MockSettingsCommandState,
+): MockSettingsCommandResult {
+  const config = getArg(args, "config");
+  if (!config || typeof config !== "object" || Array.isArray(config)) {
+    throw new Error("Configuration must be an object.");
+  }
+  const configRecord = config as Record<string, unknown>;
+  if (!hasValidMockSearchCountryPreference(configRecord.location_preferences)) {
+    throw new Error("location_preferences.search_country must be a recognized uppercase country code.");
+  }
+
   return {
-    autoRefresh: { ...config.auto_refresh },
-    salaryFloorUsd: config.salary_floor_usd,
-    anyJobSourceEnabled: anyMockJobSourceEnabled(config),
+    handled: true,
+    shouldSave: true,
+    state: { ...state, config: { ...state.config, ...configRecord } },
+    value: undefined,
   };
 }
 

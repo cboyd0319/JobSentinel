@@ -211,6 +211,7 @@ impl Config {
                 cities: vec![],
                 states: vec![],
                 country: "US".to_string(),
+                search_country: None,
             },
             salary_floor_usd: 0,
             salary_target_usd: None,
@@ -298,6 +299,10 @@ pub struct LocationPreferences {
 
     #[serde(default = "super::defaults::default_country")]
     pub country: String,
+
+    /// Optional local job-list filter; this never authorizes a source request.
+    #[serde(default)]
+    pub search_country: Option<String>,
 }
 
 /// Auto-refresh configuration for the frontend

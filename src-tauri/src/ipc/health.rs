@@ -1,7 +1,4 @@
-//! Tauri commands for scraper health monitoring
-//!
-//! Provides frontend access to scraper health metrics, run history,
-//! and smoke tests.
+//! Exposes Tauri commands for scraper health metrics, history, and smoke tests.
 
 use crate::application::config::Config;
 use crate::application::health::{
@@ -254,6 +251,7 @@ mod tests {
                 cities: vec![],
                 states: vec![],
                 country: "US".to_string(),
+                search_country: None,
             },
             salary_floor_usd: 70_000,
             salary_target_usd: None,

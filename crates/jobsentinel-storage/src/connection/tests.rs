@@ -29,6 +29,8 @@ async fn insert_private_credential_rows(database: &Database, key: &str) {
     .unwrap();
 }
 
+mod job_geography_migration_tests;
+mod listed_pay_migration_tests;
 mod maintenance_tests;
 mod migration_tests;
 mod portable_backup_tests;

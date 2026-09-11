@@ -1,4 +1,56 @@
+//! Proves salary scoring uses only comparable annual USD pay and preserves uncertainty.
+
 use super::*;
+
+#[test]
+fn regional_and_unknown_currency_pay_is_neutral_not_a_dollar_bonus_or_missing_penalty() {
+    let mut config = create_test_config();
+    config.penalize_missing_salary = true;
+    let engine = ScoringEngine::new(Arc::new(config));
+    for currency in [Some("EUR"), Some("INR"), None] {
+        let mut job = create_test_job();
+        job.currency = currency.map(str::to_string);
+        job.salary_min = Some(2_000_000);
+        job.salary_max = Some(3_000_000);
+        let score = engine.score(&job);
+        assert_eq!(score.breakdown.salary, 0.125, "{currency:?}");
+        assert!(score
+            .reasons
+            .iter()
+            .any(|reason| reason.contains("manual comparison")));
+        assert!(!score.reasons.iter().any(|reason| reason.contains('$')));
+    }
+}
+
+#[test]
+fn native_pay_controls_comparison_even_when_legacy_fields_disagree() {
+    use jobsentinel_domain::{v3_contracts::PayPeriod, ListedPay, PayQualifier};
+    let engine = ScoringEngine::new(Arc::new(create_test_config()));
+    let mut job = create_test_job();
+    job.listed_pay = Some(ListedPay {
+        min: Some(180_000.25),
+        max: Some(180_000.25),
+        currency: Some("USD".to_string()),
+        period: PayPeriod::Annual,
+        qualifiers: Vec::new(),
+        raw_text: None,
+    });
+    job.salary_min = Some(2_000_000);
+    job.salary_max = Some(3_000_000);
+    assert_eq!(engine.score(&job).breakdown.salary, 0.25);
+    for (currency, period, qualifiers) in [
+        ("EUR", PayPeriod::Annual, Vec::new()),
+        ("USD", PayPeriod::Hourly, Vec::new()),
+        ("USD", PayPeriod::Annual, vec![PayQualifier::ProRata]),
+        ("USD", PayPeriod::Annual, vec![PayQualifier::Ctc]),
+    ] {
+        let pay = job.listed_pay.as_mut().unwrap();
+        pay.currency = Some(currency.to_string());
+        pay.period = period;
+        pay.qualifiers = qualifiers;
+        assert_eq!(engine.score(&job).breakdown.salary, 0.125);
+    }
+}
 
 #[test]
 fn test_salary_above_target_with_bonus() {

@@ -114,6 +114,9 @@ mod tests {
     #[path = "preference_validation_tests.rs"]
     mod preference_validation_tests;
 
+    #[path = "country_search_validation_tests.rs"]
+    mod country_search_validation_tests;
+
     // ========================================
     // Source URL Configuration Tests
     // ========================================

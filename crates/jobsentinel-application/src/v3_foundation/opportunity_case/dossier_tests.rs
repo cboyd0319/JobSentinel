@@ -15,6 +15,45 @@ use jobsentinel_domain::{v3_manifests::SourceClass, v3_source_manifest::SalaryCo
 use jobsentinel_storage::Database;
 
 #[tokio::test]
+async fn dossier_preserves_native_pay_period_and_qualifiers_without_annual_projection() {
+    use jobsentinel_domain::{v3_contracts::PayPeriod, ListedPay, PayQualifier};
+    let database = Database::connect_memory().await.unwrap();
+    database.migrate().await.unwrap();
+    let mut job = test_job(
+        "dossier-native-pay",
+        "Clinic Administrator",
+        "Example Clinic",
+    );
+    let listed_pay = ListedPay {
+        min: Some(3_200.50),
+        max: Some(3_800.75),
+        currency: Some("EUR".to_string()),
+        period: PayPeriod::Monthly,
+        qualifiers: vec![PayQualifier::ProRata],
+        raw_text: None,
+    };
+    job.listed_pay = Some(listed_pay.clone());
+    database.insert_job_if_new(&job).await.unwrap();
+    let snapshot = open_opportunity_case_at(
+        &database,
+        &job.hash,
+        60,
+        NaiveDate::from_ymd_opt(2026, 9, 11).unwrap(),
+    )
+    .await
+    .unwrap();
+    let value = serde_json::to_value(snapshot.employer_dossier).unwrap();
+    assert_eq!(value["pay"]["clarity"], "native_listed");
+    assert_eq!(
+        value["pay"]["listed_pay"],
+        serde_json::to_value(listed_pay).unwrap()
+    );
+    assert!(value["pay"]["minimum"].is_null());
+    assert!(value["pay"]["maximum"].is_null());
+    assert!(value["pay"]["currency"].is_null());
+}
+
+#[tokio::test]
 async fn dossier_separates_current_public_ats_evidence_from_unverified_employer_identity() {
     let database = Database::connect_memory().await.unwrap();
     database.migrate().await.unwrap();

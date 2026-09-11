@@ -2,6 +2,7 @@
 
 import { getStringArg } from "../../mocks/handlers/commandHelpers";
 import type { MockApplications, MockJob } from "../../mocks/handlers/types";
+import { parseListedPay } from "../../../shared/listedPay";
 
 interface MockOpportunityCaseState {
   jobs: MockJob[];
@@ -55,7 +56,47 @@ export function handleMockOpportunityCaseCommand(
     .flat()
     .filter((candidate) => employerJobs.some((candidateJob) => candidateJob.hash === candidate.job_hash));
   const reviewedSource = reviewedSourceById[job.source as keyof typeof reviewedSourceById];
-  const payListed = Boolean(job.salary_min && job.salary_max);
+  const hasNativePay = job.listed_pay !== null && job.listed_pay !== undefined;
+  const nativePay = hasNativePay ? parseListedPay(job.listed_pay) : null;
+  const hasLegacyPay =
+    !hasNativePay &&
+    typeof job.salary_min === "number" &&
+    Number.isFinite(job.salary_min) &&
+    job.salary_min >= 0 &&
+    typeof job.salary_max === "number" &&
+    Number.isFinite(job.salary_max) &&
+    job.salary_max >= job.salary_min &&
+    typeof job.currency === "string" &&
+    /^[A-Z]{3}$/u.test(job.currency);
+  const pay = nativePay
+    ? {
+        clarity: "native_listed",
+        minimum: null,
+        maximum: null,
+        currency: null,
+        listed_pay: nativePay,
+        observed_at: job.created_at,
+      }
+    : hasLegacyPay
+      ? {
+          clarity: "range_listed",
+          minimum: job.salary_min,
+          maximum: job.salary_max,
+          currency: job.currency,
+          observed_at: job.created_at,
+        }
+      : {
+          clarity: hasNativePay ? "unusable" : "not_listed",
+          minimum: null,
+          maximum: null,
+          currency: null,
+          observed_at: job.created_at,
+        };
+  const payUncertainty = nativePay || hasLegacyPay
+    ? "pay_provenance_incomplete"
+    : hasNativePay
+      ? "pay_unusable"
+      : "pay_not_listed";
 
   return {
     handled: true,
@@ -131,13 +172,7 @@ export function handleMockOpportunityCaseCommand(
           salary_coverage: reviewedSource ? "none" : null,
           incomplete_coverage: reviewedSource ? false : null,
         },
-        pay: {
-          clarity: payListed ? "range_listed" : "not_listed",
-          minimum: job.salary_min ?? null,
-          maximum: job.salary_max ?? null,
-          currency: payListed ? "USD" : null,
-          observed_at: job.created_at,
-        },
+        pay,
         local_history: {
           basis: "exact_saved_name",
           saved_job_count: employerJobs.length,
@@ -155,7 +190,7 @@ export function handleMockOpportunityCaseCommand(
           "jurisdiction_unknown",
           "exact_name_history_only",
           ...(reviewedSource ? [] : ["source_missing"]),
-          payListed ? "pay_provenance_incomplete" : "pay_not_listed",
+          payUncertainty,
         ],
         next_action: "verify_on_employer_careers_page",
       },

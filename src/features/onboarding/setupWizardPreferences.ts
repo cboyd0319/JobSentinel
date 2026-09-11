@@ -1,4 +1,7 @@
+/** Builds first-run search defaults, local preference updates, and review summary text. */
+
 import { getSearchSourceDefaults } from "../../shared/jobSourceRecommendations";
+import { searchCountryLabel } from "../../shared/searchCountry";
 export { COMMON_STARTER_JOB_TITLES, COMMON_WORK_TO_AVOID } from "./setupWizardTaxonomy";
 import type {
   FreshnessOption,
@@ -142,6 +145,7 @@ export function createDefaultSetupConfig(
       allow_hybrid: true,
       allow_onsite: true,
       cities: [],
+      search_country: null,
     },
     salary_floor_usd: 0,
     alerts: {
@@ -377,6 +381,9 @@ export function buildSetupSearchSummary(
     wantedWork: formatListSummary(config.keywords_boost, "No extra work preferences yet"),
     avoidedWork: formatListSummary(config.keywords_exclude, "Nothing selected"),
     location: formatLocationSummary(config.location_preferences),
+    searchCountry: config.location_preferences.search_country
+      ? searchCountryLabel(config.location_preferences.search_country)
+      : "Any country",
     freshness: freshnessSummary(freshnessPreference),
     reviewVolume: reviewVolumeSummary(reviewVolumePreference),
     jobSources: formatJobSourceSummary(config),

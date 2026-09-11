@@ -1,7 +1,10 @@
+/** Validates untrusted Settings backup configuration before local import. */
+
 import {
   isExternalAiProvider,
   type ExternalAiSettings,
 } from "../external-ai/externalAiProviders";
+import { isSearchCountryCode } from "../../../shared/searchCountry";
 import type { Config } from "./SettingsConfig";
 
 function isPlainRecord(value: unknown): value is Record<string, unknown> {
@@ -55,6 +58,14 @@ function hasOptionalNullableStringField(
     record[field] === null ||
     typeof record[field] === "string"
   );
+}
+
+function hasOptionalSearchCountryField(
+  record: Record<string, unknown>,
+  field: string,
+): boolean {
+  const value = record[field];
+  return value === undefined || value === null || isSearchCountryCode(value);
 }
 
 function hasOptionalNumberField(
@@ -158,6 +169,7 @@ export function isSettingsBackupConfig(value: unknown): value is Config {
     hasBooleanField(location, "allow_hybrid") &&
     hasBooleanField(location, "allow_onsite") &&
     hasStringArrayField(location, "cities") &&
+    hasOptionalSearchCountryField(location, "search_country") &&
     !!autoRefresh &&
     hasBooleanField(autoRefresh, "enabled") &&
     hasNumberField(autoRefresh, "interval_minutes") &&

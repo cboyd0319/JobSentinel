@@ -386,13 +386,12 @@ fn pack_type_text(pack_type: PackType) -> Result<&'static str> {
         PackType::Skill => Ok("skill"),
         PackType::Agent => Ok("agent"),
         PackType::Workflow => Ok("workflow"),
+        PackType::Region => Ok("region"),
         PackType::Source => Ok("source"),
         PackType::Evaluation => Ok("evaluation"),
-        PackType::Role
-        | PackType::Region
-        | PackType::Rubric
-        | PackType::Template
-        | PackType::OsHelper => Err(invalid()),
+        PackType::Role | PackType::Rubric | PackType::Template | PackType::OsHelper => {
+            Err(invalid())
+        }
     }
 }
 

@@ -19,6 +19,8 @@ use crate::{
 
 const PUBLISHER_ID: &str = "jobsentinel-test-source-v1";
 const PACK_ID: &str = "jobsentinel.test.synthetic-source";
+const REGION_PUBLISHER_ID: &str = "jobsentinel-test-region-v1";
+const REGION_PACK_ID: &str = "jobsentinel.test.region";
 
 fn publisher(seed: u8) -> TrustedPublisherKey {
     let (public_key, _) = sign_ed25519_for_test(&[seed; 32], &[]).unwrap();
@@ -27,6 +29,23 @@ fn publisher(seed: u8) -> TrustedPublisherKey {
         public_key,
         revoked: false,
         pack_type: PackType::Source,
+        execution_class: PackExecutionClass::StaticContent,
+        allowed_privacy_labels: vec![PrivacyLabel::LocalOnly],
+        allowed_data_categories: vec![],
+        allowed_task_kinds: vec![],
+        allowed_actions: vec![],
+        allowed_approval_gates: vec![],
+        allow_gateway_external_ai: false,
+    }
+}
+
+fn region_publisher(seed: u8) -> TrustedPublisherKey {
+    let (public_key, _) = sign_ed25519_for_test(&[seed; 32], &[]).unwrap();
+    TrustedPublisherKey {
+        publisher_key_id: REGION_PUBLISHER_ID.to_string(),
+        public_key,
+        revoked: false,
+        pack_type: PackType::Region,
         execution_class: PackExecutionClass::StaticContent,
         allowed_privacy_labels: vec![PrivacyLabel::LocalOnly],
         allowed_data_categories: vec![],
@@ -125,6 +144,103 @@ fn valid_source_payload() -> String {
         ]
     }))
     .unwrap()
+}
+
+fn valid_region_payload() -> String {
+    serde_json::to_string(&json!({
+        "schema": "jobsentinel.v3.pack-payload.v1",
+        "pack_type": "region",
+        "manifest_json": include_str!("../../jobsentinel-domain/src/fixtures/region_manifests/uk_v1.json")
+    }))
+    .unwrap()
+}
+
+fn region_release(
+    sequence: u64,
+    payload: String,
+    publisher: &TrustedPublisherKey,
+) -> VerifiedPackRelease {
+    let manifest = PackManifest {
+        schema: SchemaId::PackManifestV1,
+        pack_id: REGION_PACK_ID.to_string(),
+        pack_type: PackType::Region,
+        execution_class: PackExecutionClass::StaticContent,
+        publisher_key_id: REGION_PUBLISHER_ID.to_string(),
+        payload_sha256: hex::encode(Sha256::digest(payload.as_bytes())),
+        privacy_labels: vec![PrivacyLabel::LocalOnly],
+        allowed_data_categories: vec![],
+        allowed_task_kinds: vec![],
+        allowed_actions: vec![],
+        approval_gates: vec![],
+        gateway_policy_id: None,
+    };
+    let signed_release = serde_json::to_string(&json!({
+        "release_id": format!("{REGION_PUBLISHER_ID}:{REGION_PACK_ID}:{sequence}"),
+        "pack_version": format!("1.0.{sequence}"),
+        "min_v3_app_version": "3.0.0",
+        "max_v3_app_version": "3.0.0",
+        "release_sequence": sequence,
+        "publisher_name": "JobSentinel Test",
+        "license": "MIT",
+        "manifest_json": serde_json::to_string(&manifest).unwrap(),
+        "payload": payload,
+        "payload_bytes": payload.len(),
+        "fixture_summary": "Incomplete local region research metadata",
+        "external_destinations": []
+    }))
+    .unwrap();
+    let mut signing_bytes = b"jobsentinel.pack-envelope.v1\0".to_vec();
+    for value in [REGION_PUBLISHER_ID.as_bytes(), signed_release.as_bytes()] {
+        signing_bytes.extend_from_slice(&(value.len() as u64).to_le_bytes());
+        signing_bytes.extend_from_slice(value);
+    }
+    let (public_key, signature) = sign_ed25519_for_test(&[7; 32], &signing_bytes).unwrap();
+    assert_eq!(public_key, publisher.public_key);
+    let envelope = serde_json::to_vec(&json!({
+        "schema": "jobsentinel.v3.signed-pack-envelope.v1",
+        "publisher_key_id": REGION_PUBLISHER_ID,
+        "signed_release": signed_release,
+        "signature": hex::encode(signature)
+    }))
+    .unwrap();
+    parse_signed_pack_release(&envelope, std::slice::from_ref(publisher)).unwrap()
+}
+
+#[tokio::test]
+async fn region_release_uses_the_same_signed_static_local_lifecycle() {
+    let database = migrated_database().await;
+    let publisher = region_publisher(7);
+    let release = region_release(1, valid_region_payload(), &publisher);
+    let PackStageOutcome::Staged(staged) = database
+        .stage_verified_pack(&release, &publisher)
+        .await
+        .unwrap()
+    else {
+        panic!("region release must stage");
+    };
+    let tested =
+        parse_and_self_test_pack_payload(&release, NaiveDate::from_ymd_opt(2026, 7, 20).unwrap())
+            .unwrap();
+    let self_tested = database
+        .record_pack_self_test(&tested, staged.generation)
+        .await
+        .unwrap();
+    let active = database
+        .activate_self_tested_pack(&tested, &publisher, self_tested.generation)
+        .await
+        .unwrap();
+
+    assert_eq!(active.availability, PackAvailability::Ready);
+    let pack_type: String = sqlx::query_scalar(
+        "SELECT pack_type FROM v3_pack_releases
+         WHERE publisher_key_id = ? AND pack_id = ? AND release_sequence = 1",
+    )
+    .bind(REGION_PUBLISHER_ID)
+    .bind(REGION_PACK_ID)
+    .fetch_one(database.pool())
+    .await
+    .unwrap();
+    assert_eq!(pack_type, "region");
 }
 
 async fn activate_release(

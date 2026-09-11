@@ -1,3 +1,5 @@
+/** Verifies local Settings backup parsing preserves only validated configuration. */
+
 import { describe, expect, it } from "vitest";
 import type { Config } from "../config/SettingsConfig";
 import {
@@ -69,6 +71,29 @@ describe("settings local-data backup parsing", () => {
       type: "settings",
       settings,
     });
+  });
+
+  it("accepts an optional canonical search country but rejects legacy countryUS values", () => {
+    const settings = makeConfig();
+
+    expect(
+      parseSettingsBackupImport({
+        ...settings,
+        location_preferences: {
+          ...settings.location_preferences,
+          search_country: "GB",
+        },
+      }),
+    ).toMatchObject({ type: "settings" });
+    expect(
+      parseSettingsBackupImport({
+        ...settings,
+        location_preferences: {
+          ...settings.location_preferences,
+          search_country: "countryUS",
+        },
+      }),
+    ).toBeNull();
   });
 
   it("accepts local-data backups created before recovery guidance existed", () => {

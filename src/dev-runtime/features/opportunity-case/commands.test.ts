@@ -3,6 +3,7 @@
 import { describe, expect, it } from "vitest";
 import { mockApplications, mockJobs } from "../../mocks/data";
 import { handleMockOpportunityCaseCommand } from "./commands";
+import type { MockJob } from "../../mocks/handlers/types";
 
 describe("Opportunity case mock command", () => {
   it("returns one local-safe case snapshot for the requested job hash", () => {
@@ -116,6 +117,41 @@ describe("Opportunity case mock command", () => {
     });
     expect(result.value).not.toMatchObject({
       employer_dossier: { uncertainty: expect.arrayContaining(["pay_provenance_incomplete"]) },
+    });
+  });
+
+  it("retains native non-USD pay in the dossier fixture", () => {
+    const nativePayJob = {
+      ...mockJobs[0],
+      hash: "job-native-pay",
+      salary_min: null,
+      salary_max: null,
+      currency: null,
+      listed_pay: {
+        min: 5_000,
+        max: 7_000,
+        currency: "EUR",
+        period: "monthly",
+        qualifiers: ["ctc"],
+        raw_text: "€5,000–€7,000 monthly CTC",
+      },
+    } as unknown as MockJob;
+    const result = handleMockOpportunityCaseCommand(
+      "open_opportunity_case",
+      { jobHash: nativePayJob.hash },
+      { jobs: [nativePayJob], applications: mockApplications },
+    );
+
+    expect(result.value).toMatchObject({
+      employer_dossier: {
+        pay: {
+          clarity: "native_listed",
+          minimum: null,
+          maximum: null,
+          currency: null,
+          listed_pay: { currency: "EUR", period: "monthly", qualifiers: ["ctc"] },
+        },
+      },
     });
   });
 

@@ -1,3 +1,5 @@
+<!-- Defines bounded regional starter coverage, static-pack delivery, and readiness evidence. -->
+
 # Regional Readiness Framework
 
 V3 should try to become useful outside the United States without pretending it
@@ -169,6 +171,32 @@ V3 should expose:
 
 These decisions do not label a region pack ready. Current manifests remain
 English-only starter research metadata with incomplete-coverage labels.
+
+The runtime accepts signed static `Region` payloads containing a validated
+region manifest. Activation, disable, upgrade, rollback, and removal use the
+existing pack lifecycle. Opening a region review re-verifies the active
+artifact and generation, then displays dated research as inert text without
+granting source access. The production registry has no region publisher yet;
+publisher enrollment, signed starter artifacts, regional normalization, and
+readiness evaluations remain required before delivery.
+
+Optional `jobsentinel.v3.region-starter-data.v1` content adds searchable
+occupation codes, source labels, canonical vocabulary, CV planning profiles,
+and public-source notes without changing the frozen region manifest. Its
+independent review date and manifest-bound taxonomy/profile IDs travel inside
+the signed payload. Missing starter data preserves legacy review; malformed
+supplied data fails closed. None of this content changes matching scores,
+invents credentials, fills a CV, or grants source access.
+
+The English-only examples preserve source identifiers and distinguish tentative
+JobSentinel vocabulary alignments from official classifications. The ESCO row
+retains its exact concept URI; its publisher reference documents the catalogue
+API, not the individual record. The India NCO code and label are corroborated by
+the [MSDE/NCAER secondary table](https://www.msde.gov.in/static/uploads/2025/07/6a62ad4129b524c392ed1450393804f4.pdf),
+Annexure 10.1, p. 279, row 30; the canonical NCO volume was not inspected.
+The related NQR qualification reference is cached and identifies a different
+NCO code, not an equivalence. Neither these examples nor successful pack
+self-tests establish full regional readiness.
 
 ## Regional Evaluation
 

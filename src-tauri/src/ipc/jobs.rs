@@ -1,17 +1,49 @@
-//! Job-related Tauri commands
-//!
-//! Commands for job searching, retrieval, bookmarking, notes, and deduplication.
+//! Exposes job retrieval, mutation, analytics, and derived work-arrangement IPC projections.
 
 use crate::bootstrap::AppState;
 use crate::desktop::DuplicateGroup;
 use crate::ipc::errors::user_friendly_error;
 use crate::ipc::limits::validate_command_limit_usize_as_i64;
+use jobsentinel_application::{
+    classify_country_scope, country_options,
+    get_bookmarked_jobs as get_bookmarked_jobs_for_country,
+    get_recent_jobs as get_recent_jobs_for_country, search_jobs as search_jobs_for_country,
+};
 use serde_json::Value;
 use std::sync::Arc;
 use tauri::State;
 
-fn serialize_job(job_id: i64, job: &impl serde::Serialize) -> Option<Value> {
+fn serialize_job(
+    job_id: i64,
+    job: &crate::application::Job,
+    search_country: Option<&str>,
+) -> Option<Value> {
+    let work_arrangement = match crate::application::scoring::detect_remote_status(job) {
+        crate::application::scoring::RemoteStatus::Remote => "remote",
+        crate::application::scoring::RemoteStatus::Hybrid => "hybrid",
+        crate::application::scoring::RemoteStatus::Onsite => "onsite",
+        crate::application::scoring::RemoteStatus::Unspecified => "unspecified",
+    };
+
     serde_json::to_value(job)
+        .and_then(|mut serialized| {
+            if let Value::Object(serialized_job) = &mut serialized {
+                serialized_job.insert(
+                    "work_arrangement".to_string(),
+                    Value::String(work_arrangement.to_string()),
+                );
+                serialized_job.insert(
+                    "country_scope".to_string(),
+                    serde_json::to_value(classify_country_scope(job, search_country))?,
+                );
+                serialized_job.insert(
+                    "search_country".to_string(),
+                    search_country
+                        .map_or(Value::Null, |country| Value::String(country.to_string())),
+                );
+            }
+            Ok(serialized)
+        })
         .inspect_err(|error| {
             let message = user_friendly_error("Failed to serialize job", error);
             tracing::error!(
@@ -21,6 +53,40 @@ fn serialize_job(job_id: i64, job: &impl serde::Serialize) -> Option<Value> {
             );
         })
         .ok()
+}
+
+async fn search_country_snapshot(state: &AppState) -> Option<String> {
+    state
+        .config
+        .read()
+        .await
+        .location_preferences
+        .search_country
+        .clone()
+}
+
+async fn get_job_by_id_for_state(id: i64, state: &AppState) -> Result<Option<Value>, String> {
+    let search_country = search_country_snapshot(state).await;
+    match state.database.get_job_by_id(id).await {
+        Ok(job) => {
+            let found = job.is_some();
+            tracing::debug!(found, "Job lookup complete");
+            Ok(job.and_then(|job| serialize_job(job.id, &job, search_country.as_deref())))
+        }
+        Err(e) => {
+            tracing::error!(
+                error = %user_friendly_error("Failed to get job", &e),
+                "Failed to get job from database"
+            );
+            Err(user_friendly_error("Failed to load job details", e))
+        }
+    }
+}
+
+/// Lists the bounded country choices available for search filtering.
+#[tauri::command]
+pub(crate) fn get_search_country_options() -> Vec<(&'static str, &'static str)> {
+    country_options()
 }
 
 /// Search for jobs from all enabled sources
@@ -81,11 +147,14 @@ pub(crate) async fn get_recent_jobs(
     tracing::debug!("Fetching recent jobs");
 
     let limit = validate_command_limit_usize_as_i64(limit)?;
-    match state.database.get_recent_jobs(limit).await {
+    let search_country = search_country_snapshot(state.inner()).await;
+    match get_recent_jobs_for_country(state.database.as_ref(), limit, search_country.as_deref())
+        .await
+    {
         Ok(jobs) => {
             let jobs_json: Vec<Value> = jobs
                 .into_iter()
-                .filter_map(|job| serialize_job(job.id, &job))
+                .filter_map(|job| serialize_job(job.id, &job, search_country.as_deref()))
                 .collect();
 
             tracing::debug!(returned_count = jobs_json.len(), "Recent jobs fetched");
@@ -108,20 +177,7 @@ pub(crate) async fn get_job_by_id(
     id: i64,
     state: State<'_, AppState>,
 ) -> Result<Option<Value>, String> {
-    match state.database.get_job_by_id(id).await {
-        Ok(job) => {
-            let found = job.is_some();
-            tracing::debug!(found, "Job lookup complete");
-            Ok(job.and_then(|job| serialize_job(job.id, &job)))
-        }
-        Err(e) => {
-            tracing::error!(
-                error = %user_friendly_error("Failed to get job", &e),
-                "Failed to get job from database"
-            );
-            Err(user_friendly_error("Failed to load job details", e))
-        }
-    }
+    get_job_by_id_for_state(id, state.inner()).await
 }
 
 /// Search jobs with filter
@@ -139,11 +195,19 @@ pub(crate) async fn search_jobs_query(
     );
 
     let limit = validate_command_limit_usize_as_i64(limit)?;
-    match state.database.search_jobs(&query, limit).await {
+    let search_country = search_country_snapshot(state.inner()).await;
+    match search_jobs_for_country(
+        state.database.as_ref(),
+        &query,
+        limit,
+        search_country.as_deref(),
+    )
+    .await
+    {
         Ok(jobs) => {
             let jobs_json: Vec<Value> = jobs
                 .into_iter()
-                .filter_map(|job| serialize_job(job.id, &job))
+                .filter_map(|job| serialize_job(job.id, &job, search_country.as_deref()))
                 .collect();
 
             Ok(jobs_json)
@@ -227,11 +291,14 @@ pub(crate) async fn get_bookmarked_jobs(
     tracing::info!("Command: get_bookmarked_jobs (limit: {})", limit);
 
     let limit = validate_command_limit_usize_as_i64(limit)?;
-    match state.database.get_bookmarked_jobs(limit).await {
+    let search_country = search_country_snapshot(state.inner()).await;
+    match get_bookmarked_jobs_for_country(state.database.as_ref(), limit, search_country.as_deref())
+        .await
+    {
         Ok(jobs) => {
             let jobs_json: Vec<Value> = jobs
                 .into_iter()
-                .filter_map(|job| serialize_job(job.id, &job))
+                .filter_map(|job| serialize_job(job.id, &job, search_country.as_deref()))
                 .collect();
 
             Ok(jobs_json)
@@ -413,3 +480,7 @@ pub(crate) async fn get_salary_distribution(
         })
         .map_err(|e| user_friendly_error("Database operation failed", e))
 }
+
+#[cfg(test)]
+#[path = "jobs_tests.rs"]
+mod tests;

@@ -1,0 +1,200 @@
+{
+  "schema": "jobsentinel.v3.milestone-evidence.v1",
+  "feature_id": "v3-milestone-9-regions-access-editions-first-run",
+  "recorded_on": "2026-09-11",
+  "result": "partial",
+  "slice": "Military-transition entry points, optional work history, and URL-validation corrections",
+  "base_revision": "db8ec834b0e113e617702702b7501392e1d2a38d",
+  "platform": "macOS arm64; repository-pinned Rust 1.97.1",
+  "source_snapshot": {
+    "modified_source_count": 129,
+    "modified_source_digest_sha256": "8630091600525c96415bc34145cf405f3f25f6a2b07711d3a9522d89f653992a",
+    "recipe": "Union git diff --name-only -z and git ls-files --others --exclude-standard -z for crates, src, src-tauri; sort unique paths; SHA256(JSON.stringify(paths.map(path => [path, SHA256(file bytes)]))).",
+    "caveat": "Includes earlier uncommitted Milestone 9 changes; checks below cover this slice."
+  },
+  "verified_behavior": {
+    "authoring": "Generic Builder contact, summary, experience, and skills produce a real DOCX that imports into the library, creates a saved match, and supports explicit military and separate clearance evidence confirmation. No new fields, commands, or storage model were needed.",
+    "guidance": "Optional native disclosure connects setup and Builder to the existing export/import/saved-review path. It collects no protected status; work history can be empty. Medical/disability non-disclosure wording is scoped to using these tools.",
+    "matching": "Pasted-job ATS review routes explicitly to saved matches while preserving its draft; it does not invent a saved-job identity.",
+    "case": "Explicit action reads the active resume, retrieves the exact saved match, rechecks active identity, and rejects missing, mismatched, switched, or late results. The case suspends while review opens, leaving one active modal and restoring focus.",
+    "sources": "Only canonical dated O*NET/DoD COOL manual metadata is shown; explicit opening uses the existing guarded native browser command. Nothing opens on disclosure alone; failures remain actionable.",
+    "boundaries": "Reviewed output remains suggestion_only with clearance and civilian equivalence not_verified. Protected-answer behavior remains manual-only; no suggestion is automatically applied, persisted, or submitted.",
+    "development": "The existing native get_match_result command now has an exact-pair, nullable, read-only development projection without a recent-list window.",
+    "security": "Confirmed non-global IPv4/IPv6 ranges are rejected by native URL/DNS validation and the shared frontend policy, preserving documented reachable exceptions and public IPv4-mapped behavior."
+  },
+  "red_evidence": [
+    "Optional guidance was absent and empty work history was blocked.",
+    "Case lookup through ten recent matches could miss older saved matches; exact lookup replaced it.",
+    "Two aria-modal dialogs were active together; suspension/focus regression now passes.",
+    "Development get_match_result returned undefined; exact lookup/absence regression now passes.",
+    "Native and frontend URL checks accepted confirmed IANA non-global ranges; focused literal, DNS-address, boundary, and exception regressions now pass."
+  ],
+  "checks": [
+    {
+      "command": "./init.sh",
+      "exit_status": 0,
+      "result": "Locked dependencies, harness, and 9 startup tests; Node/npm baseline warnings retained."
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test -p jobsentinel-application --lib military_builder_flow_tests",
+      "exit_status": 0,
+      "result": "1 real DOCX/import/saved-review characterization passed after fixture deduplication."
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs check -p jobsentinel-application --tests",
+      "exit_status": 0,
+      "result": "Repaired a prior missing listed_pay field in integration-test support; no broad test execution."
+    },
+    {
+      "command": "npx vitest run src/shared/MilitaryTransitionGuidance.test.tsx src/features/resumes/library/MilitaryTransitionReviewModal.test.tsx src/features/resumes/matching/ResumeMatchPage.test.tsx src/features/opportunity-case/OpportunityCaseAction.test.tsx src/features/onboarding/SetupWizard.first-run.test.tsx src/features/resumes/builder/ResumeBuilderPage.validation.test.ts src/features/resumes/builder/ResumeBuilderPage.test.tsx src/dev-runtime/features/resumes/resumeMilitaryTransition.test.ts src/shared/regionStarterData.test.ts",
+      "exit_status": 0,
+      "result": "109 passed across 9 focused files."
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test -p jobsentinel-security --lib url::tests",
+      "exit_status": 0,
+      "result": "21 URL-owner tests passed."
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs clippy -p jobsentinel-security -p jobsentinel-documents -p jobsentinel-application --lib -- -D warnings",
+      "exit_status": 0
+    },
+    {
+      "command": "npm run typecheck",
+      "exit_status": 0
+    },
+    {
+      "command": "npm run lint",
+      "exit_status": 0
+    },
+    {
+      "command": "npm run build",
+      "exit_status": 0,
+      "result": "Fresh production frontend build; existing ineffective dynamic-import and plugin-timing warnings remain."
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs fmt --all -- --check",
+      "exit_status": 0
+    },
+    {
+      "command": "npm run harness:check",
+      "exit_status": 0
+    },
+    {
+      "command": "npm run lint:dup -- --list",
+      "exit_status": 0,
+      "result": "Zero duplicated lines across all six scopes."
+    },
+    {
+      "command": "node_modules/.bin/markdownlint --config .markdownlint.json docs/features/resume-builder.md",
+      "exit_status": 0
+    },
+    {
+      "command": "git diff --check",
+      "exit_status": 0
+    }
+  ],
+  "address_policy_sources": [
+    "https://www.iana.org/assignments/iana-ipv4-special-registry/",
+    "https://www.iana.org/assignments/iana-ipv6-special-registry/"
+  ],
+  "address_policy_scope": {
+    "ipv4": "Protocol-assignment 192.0.0/24 except .9/.10; documentation networks; benchmarking 198.18/15; reserved 240/4, alongside existing local/private/shared/multicast rejection.",
+    "ipv6": "Documentation 2001:db8/32 and 3fff/20, local translation 64:ff9b:1/48, 100::/64, 100:0:0:1/64, 5f00/16, and non-global 2001::/23 portions. Narrower registry-reachable exceptions and IPv4-mapped public checks remain.",
+    "caveat": "Focused policy evidence, not a universal network-security audit or proof of destination availability."
+  },
+  "review": "First adversarial pass found modal and address-policy concerns; final full scoped pass returned SOUND. Subsequent Rust or-pattern lint cleanup preserves the tested predicates.",
+  "prior_evidence": [
+    "docs/harness/evidence/v3-milestone-9-region-starter-data-2026-09-11.json",
+    "docs/harness/evidence/v3-milestone-9-native-listed-pay-2026-09-11.json",
+    "docs/harness/evidence/v3-milestone-9-runtime-first-run-foundation-2026-09-10.json"
+  ],
+  "inclusive_native_followup": {
+    "source_snapshot": {
+      "modified_source_count": 134,
+      "modified_source_digest_sha256": "47faf27d20c8e6881150f6a0dcb5744c4a28604ddafc0e569d1bfe6c140578b3",
+      "recipe": "Same source_snapshot recipe above; this supersedes the earlier source digest. E2E test source is recorded separately below."
+    },
+    "source_sha256": {
+      "crates/jobsentinel-application/src/v3_foundation/military_builder_flow_tests.rs": "b6c765ac96eec0bdaabc1dd1a3bc6e9c2f4cdde8f48d2233f94befd9b911c24f",
+      "crates/jobsentinel-application/src/desktop/mod.rs": "37792d97bc8d4d58dbe0c9dc9e08609a2a71856a8609884e54ede7806b14cacf",
+      "crates/jobsentinel-platform/src/database_key.rs": "da34bee1c396456d6a324a9e7136467d98ca7b7fc343d1ef6049d6ed35aca995",
+      "src-tauri/src/bootstrap/mod.rs": "0dd3d28e2b1029bdd3f38a9ce6acddb68c210bbc9fa364be450ebb16d533e31b",
+      "src/ui/Modal.tsx": "f67d09bf4d3d26f09412a0ce602edecd949d2aef7f2d0dd8348db16b7bfb90a5",
+      "src/ui/Modal.test.tsx": "857377d9b3637e2f00a6e6e37ee32a497424dc19eecec9fcd6f89587566f705d",
+      "tests/e2e/playwright/military-inclusive-journey.spec.ts": "d8f54effcf12f0c329ca7a5d25f3e5972f9481ba3b5416bc2331e58bba6ed59e"
+    },
+    "behavior": [
+      "Three real Builder/DOCX/upload/saved-review cases cover Army technical support with user-confirmed clearance, Coast Guard logistics without clearance, and Air Force early-career without work history or clearance. Shared assertions retain suggestion-only and unverified currentness/equivalence boundaries.",
+      "Modal focus survives React Strict Mode effect replay and reopening; pending focus remains cancelled on close or unmount.",
+      "Validated macOS smoke mode uses nonpersistent configured WebViews. Missing or malformed ephemeral database keys fail before Keychain access; normal configuration and key selection remain unchanged."
+    ],
+    "behavioral_red": [
+      "Modal replay regression: exit 1, one failed assertion with body focused instead of the panel.",
+      "No-op smoke-window transformation: exit 101, one failed and four passed bootstrap tests.",
+      "Pure selector with prior fail-open semantics: exit 101, one failed and zero passed; missing smoke key returned Ok(None). No actual Keychain call occurred."
+    ],
+    "checks": [
+      { "command": "npx vitest run src/ui/Modal.test.tsx src/features/opportunity-case/OpportunityCaseAction.test.tsx", "exit_status": 0, "passed": 45 },
+      { "command": "node scripts/dev/run-cargo.mjs test -p jobsentinel-application --lib v3_foundation::v3_foundation_tests::military_builder_flow_tests -- --nocapture", "exit_status": 0, "passed": 3 },
+      { "command": "env -u JOBSENTINEL_LIVE_KEYRING_TESTS node scripts/dev/run-cargo.mjs test -p jobsentinel --lib bootstrap::tests", "exit_status": 0, "passed": 5 },
+      { "command": "node scripts/dev/run-cargo.mjs test -p jobsentinel-platform --lib database_key -- --nocapture", "exit_status": 0, "passed": 4 },
+      { "command": "node scripts/dev/run-cargo.mjs clippy -p jobsentinel --lib -- -D warnings", "exit_status": 0 },
+      { "command": "node scripts/dev/run-cargo.mjs clippy -p jobsentinel-platform --lib -- -D warnings", "exit_status": 0 },
+      { "command": "npx eslint src/ui/Modal.tsx src/ui/Modal.test.tsx", "exit_status": 0 },
+      { "command": "npx eslint tests/e2e/playwright/military-inclusive-journey.spec.ts", "exit_status": 0 },
+      { "command": "npm run harness:check", "exit_status": 0 },
+      { "command": "git diff --check", "exit_status": 0 }
+    ],
+    "browser": {
+      "command": "npm run test:e2e -- tests/e2e/playwright/military-inclusive-journey.spec.ts --workers=1 --timeout=180000",
+      "result": "Builder empty-work-history and exact saved-match/case/review/focus cases passed; initial onboarding assertion failed before wizard readiness.",
+      "onboarding_command": "npm run test:e2e -- tests/e2e/playwright/military-inclusive-journey.spec.ts --grep \"onboarding guidance\" --workers=1 --timeout=180000",
+      "onboarding_result": "One passed after adding a bounded wizard-heading readiness wait; measured ready at 53594 ms, total run 54.4 seconds.",
+      "caveat": "Mock-browser evidence only. A later combined retry timed out at 180 seconds during navigation and was stopped. Individual behavior passes do not establish reliable combined startup or the full browser gate."
+    },
+    "package": {
+      "build_command": "env -u APPLE_SIGNING_IDENTITY -u MACOS_SIGNING_IDENTITY -u JOBSENTINEL_LIVE_KEYRING_TESTS JOBSENTINEL_MACOS_SIGNING_IDENTITY=- JOBSENTINEL_MACOS_NO_ACCOUNT=true JOBSENTINEL_MACOS_NOTARIZE_DMG=false npm run tauri:build:macos -- --target aarch64-apple-darwin --config '{\"build\":{\"beforeBuildCommand\":null}}'",
+      "build_exit_status": 0,
+      "frontend_reuse": "Reused the successful tsc/Vite build containing the Modal fix; subsequent changes were Rust-only. That preceding package attempt was stopped before completion when the key fallback was found.",
+      "verify_command": "env -u JOBSENTINEL_LIVE_KEYRING_TESTS npm run tauri:verify:macos -- --dmg target/aarch64-apple-darwin/release/bundle/dmg/JobSentinel_3.0.0_aarch64_no-account_macos.dmg --expected-architectures arm64 --expected-bundle-id com.jobsentinel.main --expected-product-name JobSentinel --expected-version 3.0.0 --expected-icon-file icon.icns --expected-minimum-system-version 13.0 --install-smoke --require-checksum",
+      "verify_exit_status": 0,
+      "sha256": "4123647ee660d6f2422b605807792a9382f5d979464ca1ff84f3e95632721494",
+      "dmg_bytes": 17513884,
+      "installed_app_bytes": 37363111,
+      "executable_bytes": 36467968,
+      "installed_visible_window_upper_bound_ms": 1074,
+      "installed_aggregate_observed_max_rss_kib": 255200,
+      "max_process_count": 6,
+      "rss_sample_count": 62,
+      "max_rss_sample_gap_ms": 1039,
+      "result": "Checksum, metadata, arm64 architecture, signature integrity, in-place model commands, zero model/tokenizer payload, copied installed launch, private data tree, and empty stderr passed on macOS 27 arm64.",
+      "caveat": "Ad hoc local package, not notarized; optional Gatekeeper checks rejected it as expected. This is an unconstrained-host startup sample, not controlled 8 GiB or complete-journey proof."
+    },
+    "offline_launch_attempt": "Direct sandbox-exec copy denied network, user-home file access, and securityd services. It initialized the isolated encrypted database and reached first-run IPC with empty stderr, but exposed no native window to CUA or Accessibility. The standard open-based installed smoke subsequently displayed its window. The full offline GUI journey remains unproven.",
+    "review": "Final updated-scope adversarial review returned SOUND. A proposed path-escape finding was withdrawn after verifying existing no-ParentDir/no-symlink startup and recovery guards. Absolute OS-helper isolation is not claimed."
+  },
+  "browser_readiness_followup": {
+    "source_sha256": {
+      "playwright.config.ts": "ee2c5690a56205a3840d2cf3f990782cd2982c1e6bc89fef202520d09fcfb021",
+      "scripts/tests/dev/run-playwright.test.mjs": "5efc102d0444910385a8ff0825d39f509a411b532ed4e904279eaf8e77c3634d"
+    },
+    "diagnosis": "An isolated Vite server started in 133 ms. Cold document/main/bootstrap/mock-prepare responses took 30/2/6/13 ms; index.css took 21138 ms. After warming it, one headless Chromium navigation reached DOMContentLoaded in 68 ms and main content in 276 ms without console, page, or request failures. The pre-existing server was left untouched and the owned diagnostic server was stopped.",
+    "fix": "Playwright webServer.url now waits for /src/index.css rather than the document, covering Tailwind transformation before per-test deadlines. Base URL, port isolation, cleanup, and timeout values are unchanged.",
+    "red": "With the prior document-only readiness URL, the focused test imported the actual configuration and failed its resolved-URL assertion: exit 1, zero passed and one failed.",
+    "checks": [
+      { "command": "node --test scripts/tests/dev/run-playwright.test.mjs", "exit_status": 0, "passed": 10 },
+      { "command": "npm run test:e2e -- tests/e2e/playwright/military-inclusive-journey.spec.ts --workers=1", "exit_status": 0, "passed": 3, "duration_seconds": 20.6 },
+      { "command": "npx eslint playwright.config.ts scripts/tests/dev/run-playwright.test.mjs", "exit_status": 0, "caveat": "Script lint passed; repository policy ignores playwright.config.ts. Its actual configuration is imported by the passing contract test." },
+      { "command": "git diff --check", "exit_status": 0 }
+    ],
+    "native_ui_boundary": "A fresh copied app used the exact verified open-based launcher, isolated backend profile, ephemeral database key, and smoke-only nonpersistent WebView. CoreGraphics confirmed its PID owned a visible 1176x785 window. CUA still returned cgWindowNotFound (-10005) for both registered and canonical bundle paths, including after a session reset; Accessibility enumerated zero windows. This is a controller/visibility discrepancy, not proof that the native app had no window. No six-surface UI journey was completed; the test processes were stopped.",
+    "caveat": "The three mock-browser journeys now pass together with normal deadlines. This is focused evidence, not the full browser or native release gate; no product source changed and no package rebuild was needed."
+  },
+  "remaining": [
+    "R10 still needs the broader inclusive role/work-mode/credential/pay/accessibility matrix and installed six-surface journey proof.",
+    "Regional production signing awaits explicit approval for a new signing identity; India source verification and broader regional evaluation remain open.",
+    "Gate 5, controlled 8 GiB/current complete-journey evidence, and remaining release-platform proof remain open.",
+    "No full suite, model transfer, live credential access, user-level configuration change, commit, or publication."
+  ]
+}

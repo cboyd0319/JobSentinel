@@ -1,3 +1,5 @@
+/** Dispatches local resume simulation commands with exact saved-match lookups. */
+
 import {
   addResumeEducation,
   addResumeExperience,
@@ -128,6 +130,25 @@ export function handleMockResumeCommand(
         },
         undefined,
       );
+    }
+
+    case "get_match_result": {
+      const resumeId = getResumeIdArg(args);
+      const jobHash = getStringArg(args, "jobHash");
+      const match = state.recentMatches.find((item) => item.resume_id === resumeId && item.job_hash === jobHash);
+      return withoutSave(state, match ? {
+        id: match.id,
+        resume_id: match.resume_id,
+        job_hash: match.job_hash,
+        overall_match_score: match.overall_match_score,
+        skills_match_score: match.skills_match_score,
+        experience_match_score: match.experience_match_score,
+        education_match_score: match.education_match_score,
+        missing_skills: [...match.missing_skills],
+        matching_skills: [...match.matching_skills],
+        gap_analysis: match.gap_analysis,
+        created_at: match.created_at,
+      } : null);
     }
 
     case "get_recent_matches": {

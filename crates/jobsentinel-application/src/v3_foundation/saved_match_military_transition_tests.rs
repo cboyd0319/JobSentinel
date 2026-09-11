@@ -1,3 +1,5 @@
+//! Tests current saved-match evidence and one-use military wording review boundaries.
+
 use super::saved_match_military_transition::{
     confirm_saved_match_military_transition_review, prepare_saved_match_military_transition_review,
 };
@@ -8,7 +10,7 @@ use jobsentinel_storage::{resume::NewSkill, Database};
 
 const RESUME_TEXT: &str = "Army 25B\nConfigured tactical networks\nResolved service incidents\nCompTIA Security+\nCurrent Secret clearance";
 
-fn wording() -> MilitaryTransitionWording {
+pub(super) fn wording() -> MilitaryTransitionWording {
     MilitaryTransitionWording {
         occupation_code: "25B".to_string(),
         civilian_role: "Technical support specialist".to_string(),

@@ -31,6 +31,8 @@ const EVIDENCE_PUBLISHER_ID: &str = "jobsentinel-test-agent-v1";
 const EVIDENCE_PACK_ID: &str = "jobsentinel.test.evidence-review";
 const SKILL_PUBLISHER_ID: &str = "jobsentinel-test-skill-v1";
 const SKILL_PACK_ID: &str = "jobsentinel.skill.resume-evidence-review";
+const REGION_PUBLISHER_ID: &str = "jobsentinel-test-region-v1";
+const REGION_PACK_ID: &str = "jobsentinel.region.uk";
 
 #[test]
 fn runtime_environment_binds_the_app_data_artifact_root_without_creating_it() {
@@ -216,6 +218,59 @@ fn signed_static_skill_pack_with_handoff(
     (publisher, envelope)
 }
 
+fn signed_region_pack(sequence: u64) -> (TrustedPublisherKey, Vec<u8>) {
+    let payload = serde_json::to_string(&json!({
+        "schema": "jobsentinel.v3.pack-payload.v1",
+        "pack_type": "region",
+        "manifest_json": include_str!(
+            "../../jobsentinel-domain/src/fixtures/region_manifests/uk_v1.json"
+        ),
+    }))
+    .unwrap();
+    signed_region_payload(sequence, &payload)
+}
+
+fn signed_region_payload(sequence: u64, payload: &str) -> (TrustedPublisherKey, Vec<u8>) {
+    let (public_key, _) = sign_ed25519_for_test(&[11; 32], &[]).unwrap();
+    let publisher = TrustedPublisherKey {
+        publisher_key_id: REGION_PUBLISHER_ID.to_string(),
+        public_key,
+        revoked: false,
+        pack_type: PackType::Region,
+        execution_class: PackExecutionClass::StaticContent,
+        allowed_privacy_labels: vec![PrivacyLabel::LocalOnly],
+        allowed_data_categories: vec![],
+        allowed_task_kinds: vec![],
+        allowed_actions: vec![],
+        allowed_approval_gates: vec![],
+        allow_gateway_external_ai: false,
+    };
+    let manifest = PackManifest {
+        schema: SchemaId::PackManifestV1,
+        pack_id: REGION_PACK_ID.to_string(),
+        pack_type: PackType::Region,
+        execution_class: PackExecutionClass::StaticContent,
+        publisher_key_id: REGION_PUBLISHER_ID.to_string(),
+        payload_sha256: hex::encode(Sha256::digest(payload.as_bytes())),
+        privacy_labels: vec![PrivacyLabel::LocalOnly],
+        allowed_data_categories: vec![],
+        allowed_task_kinds: vec![],
+        allowed_actions: vec![],
+        approval_gates: vec![],
+        gateway_policy_id: None,
+    };
+    let envelope = signed_envelope(
+        [11; 32],
+        REGION_PUBLISHER_ID,
+        REGION_PACK_ID,
+        sequence,
+        &manifest,
+        payload,
+        "English starter regional research",
+    );
+    (publisher, envelope)
+}
+
 fn signed_envelope(
     seed: [u8; 32],
     publisher_key_id: &str,
@@ -386,4 +441,5 @@ mod lifecycle;
 mod management;
 mod packet_execution;
 mod recovery;
+mod region;
 mod trust;

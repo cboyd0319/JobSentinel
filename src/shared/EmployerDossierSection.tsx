@@ -2,6 +2,7 @@
 
 import { formatEventDate } from "./dateFormatting";
 import type { EmployerDossier } from "./employerDossier";
+import { formatNativeListedPay } from "./listedPay";
 
 type SourceStatus = EmployerDossier["source"]["status"];
 type ApplicationChannel = EmployerDossier["application_channel"];
@@ -49,6 +50,7 @@ function shortDate(value: string): string {
 }
 
 function payLabel(pay: EmployerDossier["pay"]): string {
+  if (pay.clarity === "native_listed") return formatNativeListedPay(pay.listed_pay);
   const number = new Intl.NumberFormat("en-US");
   if (pay.clarity === "range_listed") return `${number.format(pay.minimum!)}–${number.format(pay.maximum!)} ${pay.currency}`;
   if (pay.clarity === "minimum_only") return `From ${number.format(pay.minimum!)} ${pay.currency}`;

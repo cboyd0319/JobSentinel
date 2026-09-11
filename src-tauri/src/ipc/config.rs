@@ -1,6 +1,4 @@
-//! Configuration Tauri commands
-//!
-//! Commands for saving, retrieving, and validating app configuration.
+//! Exposes Tauri commands that save, retrieve, and validate application configuration.
 
 use crate::application::config::{AutoRefreshConfig, Config, EmailConfig};
 use crate::application::credentials::{
@@ -203,6 +201,7 @@ pub(crate) struct DashboardPreferences {
     pub auto_refresh: AutoRefreshConfig,
     pub salary_floor_usd: i64,
     pub any_job_source_enabled: bool,
+    pub search_country: Option<String>,
 }
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -217,6 +216,7 @@ impl DashboardPreferences {
             auto_refresh: config.auto_refresh.clone(),
             salary_floor_usd: config.salary_floor_usd,
             any_job_source_enabled: any_job_source_enabled(config),
+            search_country: config.location_preferences.search_country.clone(),
         }
     }
 }
