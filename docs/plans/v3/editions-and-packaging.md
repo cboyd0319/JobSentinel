@@ -42,6 +42,9 @@ local inference runtime but no downloaded model or tokenizer payloads. Stronger
 local matching is a reviewed Settings download, not a second app installer.
 The other edition names remain schema and planning options pending Gate 5;
 they are not separately shipped products.
+Gate 5 still owns final names, the component matrix, update/rollback UX, and the
+release cut. It does not block reversible M10 compatibility/recovery
+prerequisites or authorize an unapproved product or signing decision.
 
 ## Essentials Package
 
@@ -81,8 +84,10 @@ performance claim. A controlled zero-swap Linux amd64 guest now proves the
 model-free installed journey under an enforced 8 GiB limit, and a revision-bound
 macOS arm64 low-pressure baseline exists on a 64 GiB host. Gate 4 numeric limits
 are owned by [Evaluation And Release Bar](evaluation-and-release-bar.md).
-The upgradable package requires fresh measurements; historical footprints do
-not prove its current size, memory, or platform matrix.
+The upgradable package requires fresh M11 release measurements after M9/M10
+development; historical footprints prove only their original baseline, not
+current size, memory, or platform readiness. Do not refresh the complete
+installed journey as an M9 development-exit gate.
 
 ## Runtime Profiles
 
@@ -155,6 +160,10 @@ No user should need to reinstall the whole app just to try stronger matching.
 ## Verification
 
 Essentials needs its own release checks:
+
+Run the complete list in M11 after major feature development and Gate 5. During
+development, keep only the targeted checks needed to prove the changed boundary
+or resolve a concrete architecture, security, or data-loss risk.
 
 - fresh install on a modest Windows 11 machine profile
 - fresh install on a modest macOS machine profile

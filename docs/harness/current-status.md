@@ -6,10 +6,8 @@ Last updated: 2026-09-11
 
 ## Done
 
-- Rust ownership spans the declared crates; storage hides raw SQLx, and Tauri delegates through the application owner.
-- Desktop, frontend, script, workflow, and maintained-file ownership match the executable contracts.
-- Crate and frontend DRY remediation is complete. Maintained production duplication is zero and owners are canonical.
-- Residual cleanup is complete. Fixtures, file-size policy, records, dependencies, and Rust support have owners.
+- Rust, Tauri, frontend, storage, script, and workflow ownership follows the executable repository contracts.
+- Completed ownership, DRY, and residual cleanup work is recorded in the passing milestone evidence.
 - The v2.9.5 GUI QA and release publication are complete. All 288 browser
   journeys and hosted release gates passed. The public release contains 20
   checksummed assets with SBOM and provenance validation. The no-account Mac
@@ -36,19 +34,21 @@ Last updated: 2026-09-11
 
 - Active feature: `v3-milestone-9-regions-access-editions-first-run`
 - Status: `active`
-- Current slice: three regional Qwen3 pairs pass selection and negative-only abstention with unchanged thresholds.
-  The India negative's higher dense score was corrected by reranking; broader regional calibration remains unproven.
-- Next action: operational regional selection, country-aware normalization, wider evaluations, and native journeys.
-  Native UI-automation and region-signing approvals, Gate 5, and controlled 8 GiB proof remain open.
-- Verification: setup, fixture contract, inference, and library lint pass; optional test-target lint remains failing.
-  The ignored test cache is retained under target; no user profile or package changed in this test-only slice.
+- Source checkpoint: `3874f12c` implements country-aware discovery/alerts, native pay, static Region guidance,
+  inclusive military/early-career paths, model-optional setup, and first-run doctor. M9 is not yet passing.
+- Next action: reconcile M9's focused acceptance once using existing evidence; fix only concrete unmet behavior.
+  Then activate M10 and solve trusted update/rollback candidate preflight before easier UI or release work.
+- Priority: hardest dependency-ready development first, focused red/green tests alongside it, full release proof last.
+- Verification: parser regression 21/21, scoped clippy, formatting, harness, and commit hooks passed.
+  Three regional Qwen3 pairs are bounded evidence, not broad calibration; optional test-target lint remains open.
 
 ## Deferred
 
 - Hosted general CI remains absent under `pre-alpha-private-no-ci`.
+- M11 owns fresh 8 GiB/native journeys, production Region signing/artifacts, and final platform/release proof.
+  OrbStack restart/diagnostic-guest cleanup and native UI access need approval; revisit early only for a concrete
+  changed-boundary risk, not routine release-proof refresh.
+- Gate 5 still needs edition/component/update-UX decisions; it does not block reversible M10 prerequisites.
 
-Evidence: `docs/harness/evidence/v3-milestone-9-regional-qwen-matching-2026-09-11.json`
-links earlier regional, access, native-pay, and package evidence. Milestone 9 remains partial.
-Milestone 8 completion remains in
-`docs/harness/evidence/v3-milestone-8-employer-intelligence-2026-08-12.json`. Native Windows 11 execution and exact
-installed macOS 26 accessibility remain accepted Milestone 11 release-proof gaps.
+The feature ledger links M9's partial evidence. The master plan owns the 2026-09-11 development-first sequencing.
+Historical package/model evidence is not current release certification; Windows 11 and exact macOS 26 remain unproven.

@@ -135,6 +135,11 @@
       "behavior":"Guidance stays sourced.","user_visible_behavior":"Users see sourced context.",
       "verification":["npm run verify:full","npm run test:e2e:all:budget","node scripts/dev/run-cargo.mjs test --workspace --all-features"],"evidence":["docs/harness/evidence/v3-milestone-8-employer-intelligence-2026-08-12.json"]
     }, {"id":"v3-milestone-9-regions-access-editions-first-run","priority":23,"area":"v3 delivery","title":"Regions, access, editions, and first-run doctor","status":"active",
-      "behavior":"Regional and edition delivery is bounded, accessible, and model-optional.",
-      "user_visible_behavior":"Users complete the core journey on modest hardware and can add stronger local capabilities.",
-      "verification":["npm run harness:check"],"evidence":[] } ] }
+      "behavior":"Regional discovery and native pay preserve source evidence; static Region and inclusive first-run workflows remain local and model-optional.",
+      "user_visible_behavior":"Users select a search country, review native pay and regional guidance, and use inclusive first-run paths without required model downloads.",
+      "verification":["npm run harness:check"],
+      "notes":"Checkpoint 3874f12c. Close focused acceptance before passing, then activate M10 preflight. M11 owns fresh installed/platform and production-signing proof; Gate 5 remains open.",
+      "evidence":[
+        "docs/harness/evidence/v3-milestone-9-regional-qwen-matching-2026-09-11.json",
+        "docs/harness/evidence/v3-milestone-9-current-macos-package-2026-09-11.json"
+      ] } ] }

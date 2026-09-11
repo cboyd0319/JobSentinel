@@ -1,9 +1,26 @@
+<!-- Defines required release evidence and distinguishes it from focused development verification. -->
+
 # Evaluation And Release Bar
 
 V3 should not be considered ready because the ideas are exciting. It should be
 ready only when the product works across real job-search workflows, source
 classes, resumes, local models, browser capture paths, privacy boundaries, and
 platforms.
+
+## When To Run These Checks
+
+The master plan owns timing: finish major v3.0 development in M9/M10 before
+M11's full integration, installed-platform, 8 GiB, accessibility, and release
+campaign. Within each later v3.x train, finish its development before its
+release campaign. These requirements are deferred in timing, never waived.
+
+During development, solve the hardest dependency-ready problem first with
+focused red/green tests. Run targeted integration, migration, security, or model
+evaluation when the changed boundary requires it; do not postpone those safety
+checks. Reuse applicable evidence and unchanged model caches. Do not repeatedly
+rebuild installers or rerun the full matrix for incremental checkpoints.
+Historical feasibility evidence is not current-release certification, and
+missing native or production-signing evidence still blocks release claims.
 
 ## Release Bar Summary
 

@@ -177,8 +177,10 @@ region manifest. Activation, disable, upgrade, rollback, and removal use the
 existing pack lifecycle. Opening a region review re-verifies the active
 artifact and generation, then displays dated research as inert text without
 granting source access. The production registry has no region publisher yet;
-publisher enrollment, signed starter artifacts, regional normalization, and
-readiness evaluations remain required before delivery.
+publisher enrollment and signed production starter artifacts remain required
+in M11 before delivery. M9 implements explicit country/work-mode handling and
+native currency/pay-period preservation; it does not infer eligibility or
+convert currencies.
 
 Optional `jobsentinel.v3.region-starter-data.v1` content adds searchable
 occupation codes, source labels, canonical vocabulary, CV planning profiles,
@@ -213,8 +215,12 @@ Each region pack needs tests for:
 - missing-data behavior
 - plain-language warning copy
 
-V3 should not claim a region is ready unless the starter pack passes fixtures
-and manual review.
+Use focused fixtures while developing the affected behavior. M9's three Qwen3
+regional pairs establish only their tested selection and abstention outcomes,
+not broad multilingual calibration. Production signing, installed lifecycle,
+complete regional manual review, and final readiness evidence belong to M11
+after major development. V3 must not claim a region is ready before those
+requirements pass; no permission or requirement is waived by moving the gate.
 
 ## V4 Handoff
 

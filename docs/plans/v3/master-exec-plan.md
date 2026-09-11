@@ -2,7 +2,7 @@
 
 # JobSentinel V3 Master Execution Plan
 
-Last updated: 2026-07-22.
+Last updated: 2026-09-11.
 
 This is the sole execution plan for the v3 major line. The other files in this
 directory provide product, architecture, research, and evaluation detail. They
@@ -221,6 +221,45 @@ pack privileges, and opaque hiring-probability claims.
 | Documentation diverges | Closest feature docs and generated contracts update in the same milestone; stale release claims fail Milestone 0. |
 | Platform-specific work consumes the stream early | Keep native distribution proof in the final release milestone unless an earlier contract test requires a fixture. |
 
+## Hardest-First Development Order
+
+The 2026-09-11 user decision prioritizes completing major development before
+refreshing release-level verification. Preserve every accepted idea, safety
+boundary, numeric threshold, and release requirement.
+
+1. Respect dependencies, then choose the hardest eligible development problem:
+   the unresolved correctness, data-loss, security, or compatibility risk most
+   likely to invalidate the design or force rework. Use user burden as the tie-breaker.
+2. Implement with focused red/green tests. Use characterization tests for
+   unchanged behavior; do not manufacture failures or add duplicate matrices.
+3. Run an early integration check only when it answers a concrete architectural
+   or safety question. Name that question and stop when the evidence answers it.
+4. Reuse evidence while its source, environment, and inputs still apply. Do not
+   repeat full suites, package builds, model downloads, or native journeys merely
+   for a checkpoint, a new turn, or a small unrelated change.
+5. Finish M9/M10 development before M11's full integration and release campaign.
+   Apply the same development-then-release sequence within each M12 train;
+   do not postpone v3.0 release validation until all v3.x development finishes.
+6. Keep one active feature. Close its development acceptance with focused
+   evidence before activating the next; moving release proof never makes an
+   unverified requirement pass.
+
+Next development sequence:
+
+- Close M9's source acceptance once against checkpoint `3874f12c` and existing
+  focused evidence. Fix only a concrete unmet behavior; do not rebuild its
+  inclusive matrix or restart native infrastructure for release proof.
+- Start M10 with trusted update/rollback preflight: bind the selected package's
+  integrity, provenance, version, platform, edition, and component compatibility
+  before any app or local-data mutation. A checksum alone is not publisher trust.
+- Reuse the existing newer-schema refusal, encrypted restore, and verified pack
+  rollback owners. First prove a mismatched digest or incompatible candidate is
+  refused without changing current data or pack state; then implement interrupted
+  update recovery, offline repair, and the reviewed user-facing flow.
+- Finalize Gate 5's product decisions before committing edition-specific UX or
+  freezing the release cut. Safe prerequisite implementation is not blocked by
+  final installer naming, signing credentials, or native QA availability.
+
 ## Orchestration
 
 - The coordinating agent owns this plan, active state, integration, and final
@@ -242,7 +281,7 @@ pack privileges, and opaque hiring-probability claims.
 | 2 | Approve the minimum case-file, event, graph, receipt, and policy data model after migration prototypes. | Milestones 3 through 8 |
 | 3 | Approve browser protocol, source classes, permission model, revocation, and replacement or coexistence of existing capture tools after threat-model tests. | Browser and source UI |
 | 4 | Approve model thresholds, local runtime and provider matrix, setup defaults, employer datasets, regional delivery mode and sources, expiry, and Essentials footprint from eval evidence. | Milestones 5, 8, and 9 release claims |
-| 5 | Approve edition names, component matrix, update and rollback UX, and v3.0 feature cut. | Milestones 10 and 11 |
+| 5 | Approve edition names, component matrix, update and rollback UX, and v3.0 feature cut. The existing single upgradable Essentials package is a proposal, not approval of the final edition cut. | Edition-specific product commitments, final update/rollback UX, and entry to M11 release qualification; not M10's reversible compatibility and recovery prerequisites |
 | 6 | Approve final release after full evidence, known gaps, and external blockers are recorded. | Publication |
 
 ## Milestones
@@ -258,51 +297,45 @@ pack privileges, and opaque hiring-probability claims.
 | 6. Opportunity case file and daily workflow | [x] Ship plain-language first run, one useful initial search path, and clear skip and recovery choices.<br>[x] Make the case file the shared view for job, source, risk, evidence, packet, application, interview, contact, offer, and outcome state.<br>[x] Deliver the core campaign operating model through the mission board, timeline, evidence wall, decision summary, "why not this job," "prepare this job," debrief, and Rust-owned drag-and-drop import for resumes, job postings, and encrypted backups; leave source-pack drop completion with its Milestone 7 quarantine and installer, and leave inbox, simulation, and adaptive campaign extensions to train 12A.<br>[x] Keep the local campaign, saved evidence, drafts, and review actions useful offline, with explicit stale and connectivity-required states for source actions.<br>[x] Preserve user control over voluntary or protected veteran-status answers, clearance claims, and eligibility questions throughout application review.<br>[x] Preserve focused feature ownership and typed application commands.<br>[x] Test empty, partial, duplicate, offline, failed-source, and restored-data states at desktop and narrow layouts. | Application, storage, assistance, `src/features/`, shared UI, and closest docs.<br>Exit: the primary v3 campaign works end to end without hidden automation or required connectivity. |
 | 7. Agent and pack runtime | [x] Implement local skill execution, reviewed task plans, bounded resume and packet agents, failure views, and eval packs.<br>[x] Define signed manifests, capability grants, quarantine, self-test, install, update, disable, uninstall, cleanup, and source-pack drag-and-drop import.<br>[x] Limit v3.0 executable packs to reviewed typed actions; keep generic script or dynamic adapter execution deferred until sandbox denial tests and an explicit future promotion pass.<br>[x] Deny broad shell, filesystem, network, credential, and external-send access by default.<br>[x] Test injection, malformed packs, signatures, downgrade, revocation, replay, partial install, and rollback.<br>[x] Keep static Agent Skills compatible and external AI gateway-bound. | Application, security, AI, assistance, platform, `skills/`, pack UI, and security docs.<br>Exit: agents and packs cannot exceed visible user-approved capabilities. |
 | 8. Employer, pay, and outcome intelligence | [x] Resolve all employer-intelligence open decisions at Gate 4.<br>[x] Build the minimum employer dossier from official public sources, provenance, freshness, user-owned observations, and local outcomes.<br>[x] Integrate source verification, posting history, pay clarity, scam response, application channel, interview context, and offer evidence without verdicts or central private reviews.<br>[x] Revalidate volatile legal, policy, pay, and public-data claims before use. | Intelligence, sources, storage, salary, application, company research, and research docs.<br>Exit: guidance shows source, date, uncertainty, and safe next actions. |
-| 9. Regions, access, editions, and first-run doctor | [ ] Define region manifests, taxonomy bridges, location and pay normalization, CV profiles, public-source fixtures, and starter packs.<br>[ ] Validate starter coverage without claiming regional completeness.<br>[ ] Implement Essentials and stronger-local profiles, download chooser, first-run doctor, model-free startup, and in-place model upgrade.<br>[ ] Ship the veteran and military-transition path across onboarding, resumes, matching, source guidance, application review, and case files; include disability-aware and early-career variants without treating veterans as one profile.<br>[ ] Cover role families, work modes, credentials, pay types, and accessibility needs in examples and tests.<br>[x] Complete Gate 4 regional and footprint decisions.<br>[ ] Complete Gate 5 edition decisions. | Domain, sources, documents, intelligence, local AI, platform, onboarding, Settings, packaging, and region docs.<br>Exit: modest hardware and model-free installs complete the core journey. |
-| 10. Update, rollback, repair, and distribution design | [ ] Implement explicit update availability, package verification, compatible rollback, repair, and component cleanup without silent updates.<br>[ ] Keep the installed application and compatible local data usable when update checks, downloads, or online repair are unavailable.<br>[ ] Bind app, edition, pack, model, browser, region, export, and database compatibility metadata.<br>[ ] Test interrupted update, checksum failure, unsupported package, missing component, rollback restore, and offline recovery.<br>[ ] Freeze the v3.0 feature and component cut at Gate 5. | Application, platform, security, storage, release scripts, Settings, updater docs, and release docs.<br>Exit: update and repair are reversible, inspectable, offline-safe, and need no developer instructions. |
-| 11. V3.0 integration, QA, and release | [ ] Run all end-to-end scenarios and commercial benchmarks in the evaluation bar.<br>[ ] Perform full GUI QA for every shipped action, recovery path, keyboard flow, accessibility state, responsive layout, and installed-app boundary.<br>[ ] Prove the veteran journey from military-service evidence and civilian-role review through source guidance, protected application answers, case-file tracking, and export.<br>[ ] Prove fresh v3.0.0 install, failure recovery, compatible v3 rollback, export/import, pack and model removal, and newer-data refusal.<br>[ ] Resolve release-pipeline and shared-history enforcement decisions; record any retained exception as a gap.<br>[ ] Update all front-door, product, security, migration, release, and support docs.<br>[ ] Verify assets, checksums, SBOMs, attestations, archives, labels, and public downloads.<br>[ ] Perform final live platform and distribution proof last, then complete Gate 6. | All affected owners.<br>Exit: every v3.0 success criterion and the [Evaluation And Release Bar](evaluation-and-release-bar.md) done definition has revision-bound evidence. |
-| 12. V3.x enhancement trains | [ ] Activate one `Next` ID or tightly coupled group at a time.<br>[ ] Preserve v3 compatibility; defer breaking changes to the next major line.<br>[ ] Apply the same red-test, privacy-label, migration, docs, GUI QA, and release-evidence rules as v3.0.<br>[ ] Use the default train order; within an eligible train, sequence by measured user burden, not novelty.<br>[ ] Reorder trains only through a recorded dependency and user-value decision.<br>[ ] Re-score after each minor release without silently promoting `Later` or `Moonshot` work. | Closest canonical owners.<br>Exit: every accepted `Next` ID is shipped, moved with evidence, or retired by user-approved decision. |
+| 9. Regions, access, editions, and first-run doctor | [x] Implement validated Region manifests, inert taxonomy/CV/source guidance, and static-pack lifecycle support.<br>[x] Implement country-aware discovery and alerts, explicit work modes, and native pay without eligibility or currency-conversion claims.<br>[x] Implement model-free Essentials, optional governed stronger-local setup, and first-run doctor.<br>[x] Connect optional military-transition guidance across onboarding, resumes, matching, source guidance, protected application review, and case files; preserve disability-aware and early-career variants.<br>[x] Add focused regional and inclusive examples for role families, work modes, credentials, pay, and accessibility; coverage remains starter-only.<br>[x] Complete Gate 4 regional and footprint decisions.<br>[ ] Reconcile focused source acceptance and record M9 development completion; Gate 5 decisions remain open. | Existing domain, application, sources, storage, local-AI, platform, onboarding, Settings, and documentation owners.<br>Development exit: implemented behavior and focused evidence agree. Production Region signing/artifacts, fresh installed 8 GiB journeys, and complete native-platform proof are required in M11, not M9 exit gates. |
+| 10. Update, rollback, repair, and distribution design | [ ] First implement trusted candidate preflight binding app, edition, pack, model, browser, region, export, and database compatibility metadata before mutation.<br>[ ] Prove refusal of untrusted, checksum-mismatched, or incompatible candidates without changing current data or packs.<br>[ ] Implement interrupted-update recovery, compatible rollback, offline repair, and component cleanup using existing recovery owners.<br>[ ] Implement explicit update availability and reviewed update/rollback UX without silent updates or a new update server.<br>[ ] Keep installed local workflows usable when checks, downloads, or online repair are unavailable.<br>[ ] Cover missing components, interrupted updates, rollback restore, and offline recovery with focused boundary tests.<br>[ ] Complete Gate 5 and freeze the v3.0 feature/component cut. | Application, platform, security, storage, release scripts, Settings, and update/recovery docs.<br>Development exit: update and repair are reversible, inspectable, offline-safe, and understandable. Current installed-package certification follows in M11. |
+| 11. V3.0 integration, QA, and release | [ ] After M9/M10 development and Gate 5, run the full applicable suites, end-to-end scenarios, and commercial benchmarks.<br>[ ] Obtain explicit Region-publisher enrollment/signing authority and produce verified production UK/EU/India starter artifacts.<br>[ ] Prove the current model-free installed Essentials core journey and persistence under an enforced 8 GiB, zero-swap profile with the unchanged numeric thresholds.<br>[ ] Complete Windows 11, exact macOS 26+, and Linux installed-platform, keyboard, screen-reader, responsive, and recovery proof.<br>[ ] Prove the connected veteran journey, fresh v3.0.0 install, failure recovery, compatible v3 rollback, export/import, pack/model removal, and newer-data refusal.<br>[ ] Resolve release-pipeline and shared-history decisions; keep retained exceptions explicit.<br>[ ] Update front-door, product, security, migration, release, and support docs.<br>[ ] Verify final assets, signatures, notarization, checksums, SBOMs, attestations, archives, labels, and public downloads; complete Gate 6 before publication. | All affected owners.<br>Exit: every v3.0 success criterion and the [Evaluation And Release Bar](evaluation-and-release-bar.md) done definition has revision-bound evidence. Historical package/model runs establish only their original scope, not current release readiness. |
+| 12. V3.x enhancement trains | [ ] Activate one `Next` ID or tightly coupled group at a time.<br>[ ] Preserve v3 compatibility; defer breaking changes to the next major line.<br>[ ] Apply the same focused red/green development and full release-proof sequence as v3.0.<br>[ ] Use the default train dependencies; solve the hardest eligible correctness, safety, or compatibility problem first, with measured user burden as the tie-breaker.<br>[ ] Reorder trains only through a recorded dependency and user-value decision.<br>[ ] Re-score after each minor release without silently promoting `Later` or `Moonshot` work. | Closest canonical owners.<br>Exit: every accepted `Next` ID is shipped, moved with evidence, or retired by user-approved decision. |
 | 13. V3 line closure | [ ] Confirm every accepted ID and inventory item has a final disposition.<br>[ ] Remove transition-only `v3` prefixes from ordinary files, modules, types, commands, and live schema names; retain version labels only in immutable compatibility identifiers where the version is part of the contract.<br>[ ] Delete pre-v3 compatibility readers, migration shims, fixtures, and release claims; make v3.0.0 the first supported compatibility baseline.<br>[ ] Audit Rust workspace and module organization against canonical crate ownership, Cargo workspace dependency and lint inheritance, compile boundaries, and repository file-size policy; split only on cohesive ownership boundaries.<br>[ ] Give every maintained hand-authored comment-capable file a one- or two-line native responsibility header; run `npm run lint:file-description -- --all` with zero gaps.<br>[ ] Move completed child plans and evidence to canonical completed owners.<br>[ ] Record compatibility guarantees, unsupported paths, retained exceptions, and the v4 backlog.<br>[ ] Audit docs, architecture, security, dependencies, duplication, migration, GUI, packages, and public artifacts. | Planning, harness, release, and all affected owners.<br>Exit: no transition-only v3 naming, pre-v3 compatibility machinery, or file-description gap remains; Rust code has explicit cohesive owners without boundary leakage, no active v3 work remains outside this plan, current state is compact, and the next major line starts from an explicit backlog. |
 
 ## Verification
 
-Every child feature starts with:
+Initialize once per new environment or dependency refresh with `./init.sh`;
+do not repeat initialization merely for a new turn or checkpoint. Use
+`npm run harness:plan -- --since HEAD` to identify changed owners when needed.
+Its conservative broad commands describe integration coverage, not a mandatory
+per-edit queue; select focused development checks under the
+[Verification Matrix](../../harness/verification-matrix.md).
 
-```bash
-./init.sh
-npm run harness:plan -- --since <valid-ref>
-```
-
-Minimum planning and documentation gate:
+Planning/state changes use the existing fast checks and focused plan contracts:
 
 ```bash
 npm run harness:check
+node --test scripts/tests/harness/check-v3-plan.test.mjs
 npm run lint:docs
 npm run lint:language
 npm run lint:file-size
 git diff --check
 ```
 
-Frontend or desktop behavior gate:
+For implementation, first run the exact failing Vitest, Rust, script, or
+boundary test. After the smallest fix, rerun it and the directly affected
+owner checks, including relevant type/lint, SQLx, architecture, and security
+checks. Select an affected browser journey only for a changed cross-component
+interaction. Do not automatically run every frontend test or the Rust workspace.
 
-```bash
-npm run typecheck
-npm run lint
-npm run test:run
-npm run test:e2e:smoke
-```
+Development-milestone closure reconciles acceptance against applicable focused
+evidence. It does not require a blanket full-suite or installed-package rerun.
+Shared contracts, broad refactors, or uncertain routing still require the
+repository's full lane when scoped proof cannot establish the boundary; this
+exception must name the concrete risk, not just the milestone number.
 
-Rust, migration, security, source, model, pack, or compatibility work adds the
-focused crate tests and:
-
-```bash
-npm run lint:architecture
-npm run lint:security
-npm run lint:sqlx
-npm run verify:rust
-```
-
-Milestone and release cuts run:
+After major development is complete, M11 and each later release cut require:
 
 ```bash
 npm run verify:full
@@ -310,10 +343,12 @@ npm run test:e2e:all:budget
 node scripts/dev/run-cargo.mjs test --workspace --all-features
 ```
 
-Release cuts also run current package, public-artifact, supply-chain, migration,
-rollback, and installed-app commands selected by the verification matrix.
-Evidence records the command, revision, platform or fixture, exit status,
-relevant result, and caveat.
+Then run the current package, public-artifact, supply-chain, migration, rollback,
+accessibility, and installed-app commands selected by the verification matrix.
+Do not redownload unchanged governed models or rebuild packages before this
+phase unless a targeted development check actually needs them. Record command,
+revision, platform/input, exit status, result, and caveat. Deferred or failed
+release checks remain open; they are never replaced by narrow green tests.
 
 ## Progress
 
@@ -388,8 +423,12 @@ relevant result, and caveat.
 | 2026-07-22 | V3 closure and compatibility boundary locked | User decision makes v3.0.0 the first supported compatibility baseline. Pre-v3 upgrade support is out of scope, and Milestone 13 must delete its readers, shims, fixtures, and claims. Closure must also remove transition-only `v3` prefixes from ordinary code and live schema names, retaining version labels only where they are immutable compatibility identifiers. Earlier v2.9 migration proof remains historical evidence, not a release requirement. |
 | 2026-07-22 | Rust organization requirement locked | User made proper Rust workspace and module organization a release requirement. Cargo workspace ownership, shared dependency and lint inheritance, cohesive module boundaries, focused crate checks, and the repository file-size policy are blocking closure checks; extra crates and abstractions remain evidence-driven rather than size-driven. |
 | 2026-07-22 | File responsibility descriptions locked | Every maintained hand-authored comment-capable file must start with a one- or two-line native description of its exact responsibility, after any required format directive. Changed files are enforced immediately; strict commentless formats and canonical non-hand-authored exclusions remain untouched, and Milestone 13 requires the all-files audit to report zero gaps. |
+| 2026-09-11 | M9 development checkpoint and sequencing correction | Checkpoint `3874f12c` contains regional search/pay, static Region review, inclusive guidance, model-optional setup, and focused regressions. The user prioritizes hardest-first major development over repeated release verification. The Hardest-First Development Order and Verification sections supersede blanket per-milestone suite and early installed-journey gates. M9 remains active; M11 retains all deferred release proof and credential approvals. |
 
 ## Discoveries
+
+The observations below explain earlier decisions; dated source and release
+claims are historical, not fresh verification. Current state is in Handoff.
 
 - The v3 package is comprehensive strategy but did not previously have a
   comprehensive execution owner.
@@ -528,7 +567,8 @@ relevant result, and caveat.
   discovery as the S27 Milestone 4 graph minimum. Employer dossiers and registry
   intelligence remain Milestone 8 work.
 - Keep starter region manifests as dated research metadata. RegionalPackCheck
-  remains unsupported and fail-closed until Milestone 9 and Gate 4.
+  does not grant source access. M9 now supports signed static Region review;
+  every network operation still needs its separate current source policy and grant.
 - Treat the shared Schema.org source fixture as canonical normalized-output and
   hash-drift evidence. Smart Paste parsing and applied logging behavior use
   operation-specific runtime tests rather than an invented shared parser.
@@ -538,6 +578,13 @@ relevant result, and caveat.
   claims only for measured platforms; Windows 11 and macOS 26 must be measured
   before claiming them, and the stronger-local payload stays lock-owned rather
   than threshold-owned.
+- On 2026-09-11, the user reprioritized development over repeated release-level
+  testing, with the hardest dependency-ready problem first. M9's fresh installed
+  8 GiB/platform proof and production Region-signing deliverables move to M11
+  without dropping requirements or approving credentials. Gate 5 still owns the
+  final edition/component/UX cut, but does not block safe M10 prerequisites.
+  Existing focused safety tests stay early; no milestone is marked passing by
+  this plan-only change.
 
 ## Outcomes
 
@@ -624,12 +671,32 @@ relevant result, and caveat.
 ## Handoff
 
 - Current state: Milestones 0 through 8 and Gates 0 through 4 are passing. Milestone 9 is the sole active feature.
-- Evidence: Milestone 7 is bound by
-  `docs/harness/evidence/v3-milestone-7-agent-pack-runtime-2026-08-12.json`; Milestone 8 is bound by
-  `docs/harness/evidence/v3-milestone-8-employer-intelligence-2026-08-12.json` at `bff5632d`.
-- Next step: reconcile the existing regional manifests, matching profiles, source fixtures, model lifecycle, onboarding,
-  packaging profiles, veteran path, and Gate 4 decisions into one fail-first Milestone 9 acceptance matrix. Add only
-  behavior that the matrix proves missing, then complete Gate 5 edition decisions.
+- Source checkpoint: `3874f12c` contains regional country/pay handling, Region
+  starter review, optional military guidance, model-optional setup, and focused
+  regressions. M9 evidence is linked from the feature ledger; the latest parser
+  correction passed 21 job-page tests, scoped clippy, formatting, and harness checks.
+- Coverage limit: three regional Qwen3 pairs prove only those selection and
+  abstention cases. The macOS 27 arm64 package smoke is not macOS 26 or current
+  8 GiB core-journey proof; the older Linux/model runs remain scoped history.
+- Next action: finish M9's focused development closeout using existing evidence,
+  then activate M10 and implement trusted candidate/rollback preflight first.
+  Start from `crates/jobsentinel-storage/src/connection.rs`,
+  `crates/jobsentinel-application/src/pack_runtime/recovery.rs`,
+  `src-tauri/src/ipc/recovery.rs`, and `docs/user/UPDATES.md`; do not invent a
+  second recovery owner or a silent updater.
+- Open product decision: Gate 5's final single-installer proposal, edition names,
+  component matrix, update/rollback UX, and v3.0 cut remain unapproved. Bring only
+  choices that materially affect implementation to the user; work on independent
+  authorized prerequisites meanwhile.
+- Security triage: the checkpoint push reported default-branch dependency
+  alerts, not verified v3 findings. Check applicability before claiming the v3
+  candidate is secure; a confirmed applicable high-risk defect takes priority
+  over feature work under the hardest-first rule.
+- M11 blockers, not the next development task: OrbStack restart and cleanup of
+  the empty ARM64 diagnostic guest, production Region-publisher enrollment,
+  native UI-automation access, Windows 11 and exact macOS 26 proof, and final
+  signing/notarization. No restart, secret access, or external mutation is approved
+  by this sequencing change.
 - Publication checkpoint: after each pushed checkpoint, keep draft PR 329's
   description aligned with the exact remote-head commit, implemented scope,
   focused verification, known gaps, and next planned work before pausing or
