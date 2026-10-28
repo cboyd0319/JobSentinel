@@ -8,6 +8,14 @@ use std::path::Path;
 
 #[cfg(feature = "embedded-ml")]
 mod semantic;
+#[cfg(feature = "embedded-ml")]
+mod semantic_review;
+#[cfg(feature = "embedded-ml")]
+pub use semantic_review::{review_active_resume_for_job, review_structured_resume_for_job};
+
+mod review_result;
+use review_result::analyze_captured_resume;
+pub use review_result::{ResumeJobReview, ResumeReviewSnapshot, SemanticUnavailableReason};
 
 pub use jobsentinel_storage::resume::*;
 #[cfg(feature = "embedded-ml")]
@@ -129,30 +137,22 @@ pub async fn analyze_active_resume_for_job_with_profile(
     job_description: &str,
     profile: Option<ResumeMatchingProfile>,
 ) -> Result<AtsAnalysisResult, ActiveResumeAnalysisError> {
+    Ok(
+        review_active_resume_without_semantic(database, job_description, profile)
+            .await?
+            .analysis,
+    )
+}
+
+pub async fn review_active_resume_without_semantic(
+    database: &Database,
+    job_description: &str,
+    profile: Option<ResumeMatchingProfile>,
+) -> Result<ResumeJobReview, ActiveResumeAnalysisError> {
     let context = load_active_resume_analysis_context(database).await?;
-    let evidence_snapshot = ResumeEvidenceSnapshot {
-        source_id: format!("resume:{}", context.resume_id),
-        revision: context.revision.to_rfc3339(),
-    };
-    let result = match profile {
-        Some(profile) => AtsAnalyzer::analyze_text_for_job_with_source_snapshot_and_profile(
-            context.parsed_text.trim(),
-            &context.skill_names,
-            job_description,
-            context.source_text.as_deref(),
-            &evidence_snapshot,
-            profile,
-        ),
-        None => AtsAnalyzer::analyze_text_for_job_with_source_and_snapshot(
-            context.parsed_text.trim(),
-            &context.skill_names,
-            job_description,
-            context.source_text.as_deref(),
-            &evidence_snapshot,
-        ),
-    };
+    let result = analyze_captured_resume(&context, job_description, profile);
     ensure_active_resume_analysis_context(database, &context).await?;
-    Ok(result)
+    Ok(ResumeJobReview::from(result).with_resume_snapshot(&context))
 }
 
 pub fn analyze_structured_resume_for_job(

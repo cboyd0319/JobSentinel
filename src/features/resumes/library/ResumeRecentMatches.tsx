@@ -1,3 +1,5 @@
+/** Presents saved deterministic matches and optional fresh local evidence reviews. */
+import { SavedSemanticReview } from "./SavedSemanticReview";
 import { useState } from "react";
 import { Card } from "../../../ui/Card";
 import { ScoreDisplay } from "../../../ui/score-display/ScoreDisplay";
@@ -14,12 +16,14 @@ import {
 
 interface ResumeRecentMatchesProps {
   matches: MatchResult[];
+  resumeRevision?: string;
   savingFeedback: boolean;
   onFeedback: (match: MatchResult, label: ResumeMatchFeedbackLabel) => void;
 }
 
 export function ResumeRecentMatches({
   matches,
+  resumeRevision,
   savingFeedback,
   onFeedback,
 }: ResumeRecentMatchesProps) {
@@ -103,6 +107,8 @@ export function ResumeRecentMatches({
                     </div>
                   </div>
                 )}
+
+                <SavedSemanticReview resumeId={match.resume_id} jobHash={match.job_hash} resumeRevision={resumeRevision} />
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>

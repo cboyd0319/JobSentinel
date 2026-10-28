@@ -1,3 +1,4 @@
+/** Defines resume readability and local evidence assessment IPC contracts. */
 export type KeywordImportance = "Required" | "Preferred" | "Industry";
 export type IssueSeverity = "Critical" | "Warning" | "Info";
 export type RequirementMatchState = "Direct" | "Strong" | "Partial" | "Implied" | "Missing";
@@ -104,7 +105,19 @@ export interface AtsSuggestion {
   impact: string;
 }
 
+export interface SemanticAssessment {
+  runtime_profile: "qwen3_reranked" | "minilm" | "deterministic_exact";
+  overall_score: number;
+  matched_skills: Array<{ job_skill: string; user_skill: string; similarity: number }>;
+  unmatched_requirements: string[];
+  match_evidence: ResumeEvidenceCitation[];
+  job_description_sha256: string;
+}
+
 export interface AtsAnalysisResult {
+  resume_snapshot?: { resume_id: number; revision: string };
+  semantic_assessment?: SemanticAssessment;
+  semantic_unavailable_reason?: "busy" | "input_unavailable" | "model_unavailable";
   overall_score: number;
   keyword_score: number;
   format_score: number;

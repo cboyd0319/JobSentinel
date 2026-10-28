@@ -413,6 +413,7 @@ describe("ResumeMatch", () => {
 
   it("submits valid copied resume details for format review", async () => {
     const user = userEvent.setup();
+    mockInvokeResponses({ analyze_resume_format: { ...mockAnalysis, resume_snapshot: undefined } });
     render(<ResumeMatch onBack={vi.fn()} />);
 
     await openResumeAppImport(user);
@@ -428,6 +429,7 @@ describe("ResumeMatch", () => {
         resume: validResume,
       });
     });
+    expect(await screen.findByText("Resume Fit")).toBeInTheDocument();
     expect(mockToast.success).toHaveBeenCalledWith(
       "Format review complete",
       "Review the format details below.",

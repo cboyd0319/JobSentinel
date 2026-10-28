@@ -1,6 +1,6 @@
 /** Supports ephemeral pasted-job ATS analysis and routing to saved resume matches. */
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { invoke } from "../../../platform/tauri";
 import { Button } from "../../../ui/Button";
 import { Card, CardHeader } from "../../../ui/Card";
@@ -11,7 +11,7 @@ import { ResumeMatchTools } from "./ResumeMatchTools";
 import { ResumeMatchResultsPanel } from "./ResumeMatchResultsPanel";
 import { ResumeMatchingProfileFields } from "./ResumeMatchingProfileFields";
 import {
-  readResumeMatchDraft,
+  currentResumeAnalysis, readResumeMatchDraft,
   writeResumeMatchDraft,
 } from "./resumeMatchDraft";
 import {
@@ -58,7 +58,16 @@ export default function ResumeMatch({ onBack, onNavigate }: ResumeMatchProps) {
     initialDraft?.matchingProfile ?? null,
   );
 
+  const visibleAnalysis = currentResumeAnalysis(analysisResult, analysisInputSource, activeResume);
   const toast = useToast();
+  const reviewGeneration = useRef(0);
+  const invalidateReview = () => {
+    reviewGeneration.current += 1;
+    setAnalysisResult(null);
+    setAnalysisInputSource(null);
+    setShowComparison(false);
+  };
+  useEffect(() => () => { reviewGeneration.current += 1; }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -87,10 +96,8 @@ export default function ResumeMatch({ onBack, onNavigate }: ResumeMatchProps) {
     try {
       const selected = await getActiveResumeSummary();
       if (selected) {
+        invalidateReview();
         setActiveResume(selected);
-        setAnalysisResult(null);
-        setAnalysisInputSource(null);
-        setShowComparison(false);
         toast.success("Resume selected", `${selected.name} is ready for job match review.`);
         return;
       }
@@ -108,7 +115,7 @@ export default function ResumeMatch({ onBack, onNavigate }: ResumeMatchProps) {
   };
 
   const persistDraft = () => writeResumeMatchDraft({
-    jobDescription, resumeJson, analysisResult, analysisInputSource,
+    jobDescription, resumeJson, analysisResult: visibleAnalysis, analysisInputSource,
     matchingProfile, showAdvancedResumeImport, showComparison,
   });
 
@@ -148,6 +155,7 @@ export default function ResumeMatch({ onBack, onNavigate }: ResumeMatchProps) {
       return;
     }
 
+    const request = ++reviewGeneration.current;
     try {
       setAnalyzing(true);
       const result = useCopiedResume
@@ -167,6 +175,11 @@ export default function ResumeMatch({ onBack, onNavigate }: ResumeMatchProps) {
             ...(matchingProfile ? { matchingProfile } : {}),
           });
 
+      if (!useCopiedResume && request === reviewGeneration.current) {
+        const current = await getActiveResumeSummary();
+        if (request === reviewGeneration.current) setActiveResume(current);
+      }
+      if (request !== reviewGeneration.current) return;
       setAnalysisResult(result);
       setAnalysisInputSource(useCopiedResume ? "copied" : "active");
       setShowComparison(false);
@@ -175,6 +188,7 @@ export default function ResumeMatch({ onBack, onNavigate }: ResumeMatchProps) {
         "Use the details below as a guide before you apply.",
       );
     } catch (err: unknown) {
+      if (request !== reviewGeneration.current) return;
       if (err instanceof Error && err.message === "invalid-copied-resume-details") {
         toast.error(
           "Could not read copied resume details",
@@ -208,15 +222,19 @@ export default function ResumeMatch({ onBack, onNavigate }: ResumeMatchProps) {
       return;
     }
 
+    const request = ++reviewGeneration.current;
     try {
       setAnalyzing(true);
       const result = await invoke<AtsAnalysisResult>("analyze_resume_format", {
         resume,
       });
 
+      if (request !== reviewGeneration.current) return;
       setAnalysisResult(result);
+      setAnalysisInputSource("copied");
       toast.success("Format review complete", "Review the format details below.");
     } catch (err: unknown) {
+      if (request !== reviewGeneration.current) return;
       toast.error("Review could not run", getResumeAnalysisErrorAction(err));
       logError("Format analysis error:", err);
     } finally {
@@ -312,7 +330,7 @@ export default function ResumeMatch({ onBack, onNavigate }: ResumeMatchProps) {
               <textarea
                 id="job-description-input"
                 value={jobDescription}
-                onChange={(e) => setJobDescription(e.target.value)}
+                onChange={(e) => { invalidateReview(); setJobDescription(e.target.value); }}
                 placeholder="Paste the job post here..."
                 className="w-full h-64 px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 placeholder-surface-400 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500 dark:focus:border-sentinel-400 dark:focus-visible:ring-sentinel-400 resize-none font-mono"
               />
@@ -323,10 +341,8 @@ export default function ResumeMatch({ onBack, onNavigate }: ResumeMatchProps) {
                 disabled={analyzing}
                 initialProfile={matchingProfile}
                 onProfileChange={(profile) => {
+                  invalidateReview();
                   setMatchingProfile(profile);
-                  setAnalysisResult(null);
-                  setAnalysisInputSource(null);
-                  setShowComparison(false);
                 }}
               />
             </Card>
@@ -368,7 +384,7 @@ export default function ResumeMatch({ onBack, onNavigate }: ResumeMatchProps) {
                     className="flex-1"
                     aria-expanded={showAdvancedResumeImport}
                     aria-controls="resume-app-import-panel"
-                    onClick={() => setShowAdvancedResumeImport((current) => !current)}
+                    onClick={() => { invalidateReview(); setShowAdvancedResumeImport((current) => !current); }}
                   >
                     Import from Resume App
                   </Button>
@@ -383,7 +399,7 @@ export default function ResumeMatch({ onBack, onNavigate }: ResumeMatchProps) {
                     <textarea
                       id="resume-json-input"
                       value={resumeJson}
-                      onChange={(e) => setResumeJson(e.target.value)}
+                      onChange={(e) => { invalidateReview(); setResumeJson(e.target.value); }}
                       placeholder="Paste copied resume details here"
                       aria-describedby="resume-json-hint"
                       className="w-full h-96 px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 placeholder-surface-400 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500 dark:focus:border-sentinel-400 dark:focus-visible:ring-sentinel-400 resize-none font-mono"
@@ -451,7 +467,7 @@ export default function ResumeMatch({ onBack, onNavigate }: ResumeMatchProps) {
           <div className="space-y-6">
             <ResumeMatchResultsPanel
               analyzing={analyzing}
-              analysisResult={analysisResult}
+              analysisResult={visibleAnalysis}
               canShowComparison={canShowComparison}
               showComparison={showComparison}
               jobDescription={jobDescription}

@@ -10,8 +10,8 @@ use crate::application::resume::{
 };
 use crate::application::v3_foundation::SavedMatchDebugger;
 
-#[test]
-fn explicit_matching_profile_reaches_the_application_owner() {
+#[tokio::test]
+async fn explicit_matching_profile_reaches_the_application_owner() {
     let mut resume = ResumeAnalysisInput::default();
     resume.resume.summary = Some("Led program evaluation.".to_string());
     let profile = ResumeMatchingProfile {
@@ -19,15 +19,21 @@ fn explicit_matching_profile_reaches_the_application_owner() {
         region: RegionalMatchingProfile::UnitedKingdom,
     };
 
-    let result = analyze_resume_for_job(
+    #[cfg(feature = "embedded-ml")]
+    let _serial = crate::ipc::ml::MODEL_TEST_LOCK.lock().await;
+    let result = super::resume_review_commands::analyze_resume_for_job(
         resume,
         "Required: programme evaluation".to_string(),
         Some(profile),
     )
+    .await
     .unwrap();
 
-    assert_eq!(result.matching_profile, Some(profile));
-    assert_eq!(result.keyword_matches[0].keyword, "program evaluation");
+    assert_eq!(result.analysis.matching_profile, Some(profile));
+    assert_eq!(
+        result.analysis.keyword_matches[0].keyword,
+        "program evaluation"
+    );
 }
 
 #[test]

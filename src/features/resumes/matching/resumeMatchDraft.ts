@@ -1,3 +1,4 @@
+/** Persists review inputs and validates saved active-analysis snapshots before display. */
 import {
   readStorageValue,
   removeStorageValue,
@@ -7,6 +8,7 @@ import {
   isResumeMatchingProfile,
   type ResumeMatchingProfile,
 } from "../shared/atsAnalysisContracts";
+import type { ResumeSummary } from "./resumeMatchModel";
 import type { AtsAnalysisResult } from "./resumeMatchModel";
 
 export interface ResumeMatchDraft {
@@ -53,4 +55,16 @@ export function readResumeMatchDraft(): ResumeMatchDraft | null {
 
 export function writeResumeMatchDraft(draft: ResumeMatchDraft): void {
   writeStorageValue("session", STORAGE_KEY, JSON.stringify(draft));
+}
+
+export function currentResumeAnalysis(
+  result: AtsAnalysisResult | null,
+  source: ResumeMatchDraft["analysisInputSource"],
+  current: ResumeSummary | null,
+): AtsAnalysisResult | null {
+  if (source === "copied") return result;
+  if (source !== "active") return null;
+  const snapshot = result?.resume_snapshot;
+  return current && snapshot?.resume_id === current.id && snapshot.revision === current.updated_at
+    ? result : null;
 }

@@ -2,14 +2,13 @@
 
 #![cfg(feature = "embedded-ml")]
 
-use crate::bootstrap::AppState;
 use crate::desktop;
 use crate::desktop::path_label_for_logging;
 use crate::desktop::{load_model_manifest, ModelManager, ModelStatus, SemanticMatcher};
 use crate::ipc::errors::user_friendly_error;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Arc, LazyLock, Mutex, MutexGuard, PoisonError};
-use tauri::{Emitter, Manager, State};
+use tauri::{Emitter, Manager};
 use tauri_plugin_dialog::{DialogExt, MessageDialogButtons, MessageDialogKind};
 use tokio::sync::{oneshot, watch};
 
@@ -48,6 +47,33 @@ pub(crate) fn reserve_model_lifecycle(
     ));
     Ok(ModelLifecycleReservation)
 }
+
+pub(crate) struct MatchingDirectory {
+    pub(crate) path: std::path::PathBuf,
+    #[cfg(test)]
+    _temporary: tempfile::TempDir,
+}
+
+pub(crate) fn matching_directory() -> Result<MatchingDirectory, String> {
+    #[cfg(test)]
+    {
+        let temporary = tempfile::tempdir()
+            .map_err(|error| user_friendly_error("Could not prepare local matching", error))?;
+        Ok(MatchingDirectory {
+            path: temporary.path().into(),
+            _temporary: temporary,
+        })
+    }
+    #[cfg(not(test))]
+    {
+        Ok(MatchingDirectory {
+            path: desktop::get_data_dir(),
+        })
+    }
+}
+
+#[cfg(test)]
+pub(crate) static MODEL_TEST_LOCK: tokio::sync::Mutex<()> = tokio::sync::Mutex::const_new(());
 
 #[derive(Clone, serde::Serialize)]
 struct ModelDownloadProgress {
@@ -182,42 +208,20 @@ pub(crate) async fn semantic_match_skills(
         tests::FORBID_MATCHER_ALLOCATION.try_with(|_| ()).is_err(),
         "input rejection must precede model access"
     );
-    let app_data_dir = desktop::get_data_dir();
-    let matcher = SemanticMatcher::new(app_data_dir)
-        .map_err(|e| user_friendly_error("Failed to create matcher", e))?;
-
-    let result = matcher
-        .match_skills(&user_skills, &job_requirements)
-        .map_err(|e| user_friendly_error("Failed to match skills", e))?;
-
-    serde_json::to_value(&result).map_err(|e| user_friendly_error("Failed to serialize result", e))
-}
-
-/// Enhanced resume matching with semantic understanding
-#[tauri::command]
-pub(crate) async fn match_resume_semantic(
-    resume_id: i64,
-    job_hash: String,
-    state: State<'_, AppState>,
-) -> Result<serde_json::Value, String> {
-    tracing::info!(
-        resume_id,
-        job_hash_chars = job_hash.chars().count(),
-        "Command: match_resume_semantic"
-    );
-
-    let app_data_dir = desktop::get_data_dir();
-
-    let result = jobsentinel_application::resume::match_resume_semantic(
-        state.database.as_ref(),
-        app_data_dir,
-        resume_id,
-        &job_hash,
-    )
+    let reservation = reserve_model_lifecycle(None)?;
+    tokio::task::spawn_blocking(move || {
+        let _reservation = reservation;
+        let directory = matching_directory()?;
+        let matcher = SemanticMatcher::new(directory.path)
+            .map_err(|error| user_friendly_error("Failed to create matcher", error))?;
+        let result = matcher
+            .match_skills(&user_skills, &job_requirements)
+            .map_err(|error| user_friendly_error("Failed to match skills", error))?;
+        serde_json::to_value(result)
+            .map_err(|error| user_friendly_error("Failed to serialize result", error))
+    })
     .await
-    .map_err(|e| user_friendly_error("Failed to match skills", e))?;
-
-    serde_json::to_value(&result).map_err(|e| user_friendly_error("Failed to serialize result", e))
+    .map_err(|error| user_friendly_error("Local matching could not finish", error))?
 }
 
 async fn confirm_model_download(app: &tauri::AppHandle) -> Result<bool, String> {
@@ -334,9 +338,15 @@ mod tests {
 
     #[tokio::test]
     async fn model_lifecycle_reservation_blocks_overlap_and_targets_download_cancel() {
+        let _serial = MODEL_TEST_LOCK.lock().await;
         let exclusive = reserve_model_lifecycle(None).unwrap();
         assert!(reserve_model_lifecycle(None).is_err());
         assert!(!cancel_ml_model_download().await.unwrap());
+        assert!(
+            semantic_match_skills(vec!["Rust".into()], vec!["Rust".into()])
+                .await
+                .is_err()
+        );
         drop(exclusive);
 
         let (cancel_tx, mut cancel_rx) = watch::channel(false);
@@ -346,5 +356,10 @@ mod tests {
         drop(download);
 
         assert!(reserve_model_lifecycle(None).is_ok());
+        let matched = semantic_match_skills(vec!["Rust".into()], vec!["Rust".into()])
+            .await
+            .unwrap();
+        assert_eq!(matched["runtime_profile"], "deterministic_exact");
+        assert_eq!(matched["matched_skills"].as_array().unwrap().len(), 1);
     }
 }

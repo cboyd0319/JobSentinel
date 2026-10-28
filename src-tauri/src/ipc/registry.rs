@@ -101,8 +101,9 @@ macro_rules! jobsentinel_command_handlers {
             jobsentinel::ipc::resume::export_resume_docx,
             jobsentinel::ipc::resume::export_resume_html,
             jobsentinel::ipc::resume::export_resume_text,
-            jobsentinel::ipc::resume::analyze_active_resume_for_job,
-            jobsentinel::ipc::resume::analyze_resume_for_job,
+            jobsentinel::ipc::resume::resume_review_commands::analyze_active_resume_for_job,
+            jobsentinel::ipc::resume::resume_review_commands::analyze_resume_for_job,
+            jobsentinel::ipc::resume::resume_review_commands::match_resume_semantic,
             jobsentinel::ipc::resume::analyze_resume_format,
             jobsentinel::ipc::resume::extract_job_keywords,
             jobsentinel::ipc::resume::get_ats_power_words,
@@ -270,8 +271,6 @@ macro_rules! jobsentinel_command_handlers {
             jobsentinel::ipc::ml::get_ml_status,
             #[cfg(feature = "embedded-ml")]
             jobsentinel::ipc::ml::semantic_match_skills,
-            #[cfg(feature = "embedded-ml")]
-            jobsentinel::ipc::ml::match_resume_semantic,
         ]
     };
 }

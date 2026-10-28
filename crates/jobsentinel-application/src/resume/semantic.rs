@@ -1,3 +1,5 @@
+//! Binds local semantic matching to current resume and job evidence.
+
 use anyhow::{Context, Result};
 use jobsentinel_domain::{
     v3_contracts::SchemaId,
@@ -15,7 +17,7 @@ use jobsentinel_storage::{
 use sha2::{Digest, Sha256};
 use std::path::PathBuf;
 
-const RESUME_VECTOR_CHUNKER: &str = "ordered_first_skill_v1";
+const RESUME_VECTOR_CHUNKER: &str = "ordered_first_resume_evidence_v2";
 const RESUME_VECTOR_NORMALIZER: &str = "exact_utf8_v1";
 
 #[derive(Debug, Clone, serde::Serialize)]
@@ -25,41 +27,7 @@ pub struct EvidenceBoundSemanticMatch {
     /// One citation per matched skill, in the same order.
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub match_evidence: Vec<ResumeEvidenceCitation>,
-}
-
-fn bind_match_evidence(
-    matched_snapshot: &ResumeEvidenceSnapshot,
-    current_snapshot: &ResumeEvidenceSnapshot,
-    user_skills: &[String],
-    semantic_match: SemanticMatchResult,
-) -> Result<EvidenceBoundSemanticMatch> {
-    anyhow::ensure!(
-        matched_snapshot == current_snapshot,
-        "resume changed during local matching"
-    );
-    let match_evidence = semantic_match
-        .matched_skills
-        .iter()
-        .map(|matched| {
-            let mut matching_indexes = user_skills
-                .iter()
-                .enumerate()
-                .filter_map(|(index, skill)| (skill == &matched.user_skill).then_some(index));
-            let index = matching_indexes
-                .next()
-                .context("semantic match evidence is unavailable")?;
-            anyhow::ensure!(
-                matching_indexes.next().is_none(),
-                "semantic match evidence is unavailable"
-            );
-            ResumeEvidenceCitation::for_field(matched_snapshot, &format!("skills.{index}"))
-                .context("semantic match evidence is unavailable")
-        })
-        .collect::<Result<Vec<_>>>()?;
-    Ok(EvidenceBoundSemanticMatch {
-        semantic_match,
-        match_evidence,
-    })
+    pub job_description_sha256: String,
 }
 
 fn resume_vector_freshness(model: &ModelProvenance, first_skill: &str) -> Result<VectorFreshness> {
@@ -120,15 +88,30 @@ where
     Ok(Some(vector))
 }
 
-async fn match_loaded_resume_skills(
+pub(super) fn validate_review_inputs(
+    user_skills: &[String],
+    job_skills: &[String],
+    contextual_requirements: &[String],
+) -> Result<()> {
+    validate_local_matching_inputs(user_skills, job_skills)?;
+    validate_local_matching_inputs(user_skills, contextual_requirements)?;
+    anyhow::ensure!(
+        !user_skills.is_empty() && !job_skills.is_empty() && !contextual_requirements.is_empty(),
+        "invalid local matching input: no eligible evidence or requirements"
+    );
+    Ok(())
+}
+
+pub(super) async fn match_loaded_resume_skills(
     database: &Database,
     app_data_dir: PathBuf,
     resume_id: i64,
     snapshot: &ResumeEvidenceSnapshot,
     user_skills: &[String],
     job_skills: &[String],
+    contextual_requirements: &[String],
 ) -> Result<SemanticMatchResult> {
-    validate_local_matching_inputs(user_skills, job_skills)?;
+    validate_review_inputs(user_skills, job_skills, contextual_requirements)?;
     let matcher = SemanticMatcher::new(app_data_dir)?;
     let model = default_resume_embedding_provenance()?;
     let first_vector = load_or_rebuild_first_resume_vector(
@@ -155,7 +138,7 @@ async fn match_loaded_resume_skills(
     if user_skills.len() > 1 {
         vectors.extend(matcher.embed_resume_chunks(&user_skills[1..])?);
     }
-    matcher.match_skills_with_resume_vectors(user_skills, job_skills, &vectors)
+    matcher.match_skills_with_resume_vectors(user_skills, contextual_requirements, &vectors)
 }
 
 pub async fn match_resume_semantic(
@@ -175,6 +158,7 @@ pub async fn match_resume_semantic(
         .into_iter()
         .map(|skill| skill.skill_name)
         .collect::<Vec<_>>();
+    let resume = resume_matcher.get_resume(resume_id).await?;
     let snapshot = resume_matcher
         .get_resume_evidence_snapshot(resume_id)
         .await?
@@ -182,21 +166,74 @@ pub async fn match_resume_semantic(
     if snapshot != before {
         anyhow::bail!("resume changed during local matching");
     }
-    let job_skills = resume_matcher.get_job_skill_names(job_hash).await?;
+    let job = database
+        .get_job_by_hash(job_hash)
+        .await?
+        .context("job not found")?;
+    let description = job
+        .description
+        .as_deref()
+        .context("job has no description")?;
+    let analysis = super::AtsAnalyzer::analyze_text_for_job_with_source_and_snapshot(
+        &user_skills.join("\n"),
+        &user_skills,
+        &format!("Required\n{description}"),
+        None,
+        &snapshot,
+    );
+    let job_skills = super::semantic_review::requirements(&analysis);
+    let chunks = super::semantic_review::saved_resume_chunks(
+        &user_skills,
+        resume.parsed_text.as_deref().unwrap_or_default(),
+    );
+    let texts = super::semantic_review::chunk_texts(&chunks);
     let semantic_match = match_loaded_resume_skills(
         database,
         app_data_dir,
         resume_id,
         &snapshot,
-        &user_skills,
+        &texts,
         &job_skills,
+        &super::AtsAnalyzer::extract_semantic_requirements(description),
     )
     .await?;
     let current = resume_matcher
         .get_resume_evidence_snapshot(resume_id)
         .await?
         .context("resume not found")?;
-    bind_match_evidence(&snapshot, &current, &user_skills, semantic_match)
+    let current_job = database
+        .get_job_by_hash(job_hash)
+        .await?
+        .context("job changed during local matching")?;
+    ensure_job_snapshot(&job, &current_job)?;
+    anyhow::ensure!(snapshot == current, "resume changed during local matching");
+    super::semantic_review::bind_assessment(
+        &snapshot,
+        &current,
+        &chunks,
+        description,
+        semantic_match,
+    )
+}
+
+pub(super) fn description_digest(description: &str) -> String {
+    hex::encode(Sha256::digest(description.as_bytes()))
+}
+
+fn ensure_job_snapshot(
+    expected: &jobsentinel_domain::Job,
+    current: &jobsentinel_domain::Job,
+) -> Result<()> {
+    anyhow::ensure!(
+        expected.hash == current.hash
+            && expected.description == current.description
+            && expected.updated_at == current.updated_at
+            && expected.title == current.title
+            && expected.company == current.company
+            && expected.url == current.url,
+        "job changed during local matching"
+    );
+    Ok(())
 }
 
 #[cfg(test)]

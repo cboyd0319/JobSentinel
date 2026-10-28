@@ -1,7 +1,4 @@
-//! Resume readability analyzer for candidate-side explainability
-//!
-//! This module analyzes resumes for job-word coverage, readable structure,
-//! and suggestions that improve truthful application clarity.
+//! Analyzes resume readability, truthful requirement evidence and semantic review context.
 #![allow(clippy::unwrap_used, clippy::expect_used)] // Regex patterns are compile-time constants
 
 use super::ats_types::*;
@@ -274,6 +271,24 @@ impl AtsAnalyzer {
         }
 
         keywords
+    }
+
+    /// Preserve complete requirement lines for semantic review, excluding hard constraints.
+    /// Oversized lines remain intact so the model boundary can refuse them without truncation.
+    pub fn extract_semantic_requirements(job_description: &str) -> Vec<String> {
+        job_description
+            .lines()
+            .map(str::trim)
+            .filter(|line| !line.is_empty())
+            .filter(|line| {
+                let keywords = Self::extract_job_keywords(&format!("Required\n{line}"));
+                !keywords.is_empty()
+                    && !keywords.iter().any(|(keyword, _)| {
+                        hard_constraints::hard_constraint_category(keyword).is_some()
+                    })
+            })
+            .map(str::to_string)
+            .collect()
     }
 
     /// Get power words for action verbs

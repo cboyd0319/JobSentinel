@@ -1,3 +1,5 @@
+/** Renders readability findings and separate advisory local evidence. */
+import { SemanticAssessmentPanel } from "../shared/SemanticAssessmentPanel";
 import { Badge } from "../../../ui/Badge";
 import { Button } from "../../../ui/Button";
 import { Card, CardHeader } from "../../../ui/Card";
@@ -28,6 +30,12 @@ import {
   HighlightKeywords,
   ScoreItem,
 } from "./resumeMatchHighlights";
+
+const semanticUnavailableMessages = {
+  busy: "Another local model action is running. Try the local evidence review again when it finishes.",
+  input_unavailable: "The inputs exceed local matching limits or need review. Check the resume and job text before trying again.",
+  model_unavailable: "The local semantic model could not run. Check local model setup before trying again.",
+};
 
 interface ResumeMatchResultsPanelProps {
   analyzing: boolean;
@@ -101,6 +109,12 @@ export function ResumeMatchResultsPanel({
 
   return (
     <>
+      {analysisResult.semantic_assessment
+        ? <SemanticAssessmentPanel assessment={analysisResult.semantic_assessment} />
+        : <div className="space-y-2 text-sm text-surface-600 dark:text-surface-300">
+            <p>Basic readability review only. Stronger local evidence matching was not used for this review.</p>
+            {analysisResult.semantic_unavailable_reason && <p>{semanticUnavailableMessages[analysisResult.semantic_unavailable_reason]}</p>}
+          </div>}
       <div className="flex gap-3">
         {canShowComparison && (
           <Button
