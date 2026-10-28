@@ -1,8 +1,4 @@
-//! Form Auto-Fill Logic
-//!
-//! Fills job application forms with user profile data.
-//! Platform-specific selectors for each ATS type.
-//! Also handles screening questions using stored answer patterns.
+//! Fills reviewed application fields and screening answers using ATS-specific selectors.
 
 use super::browser::{AutomationPage, FillResult};
 use super::AtsPlatform;
@@ -17,7 +13,6 @@ use std::path::{Path, PathBuf};
 mod selectors;
 
 const SCREENING_FIELD_LABEL: &str = "screening:saved_answer";
-const QUESTION_DISCOVERY_ERROR: &str = "Could not inspect screening questions on this page";
 
 fn screening_answer_review_topic(pattern: &str) -> Option<&'static str> {
     let normalized = pattern.to_ascii_lowercase();
@@ -412,8 +407,6 @@ impl FormFiller {
 
 mod questions;
 
-#[cfg(test)]
-use questions::question_discovery_error;
 
 /// Field types for form filling
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]

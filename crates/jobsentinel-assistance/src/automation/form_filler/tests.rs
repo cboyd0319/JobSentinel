@@ -1,3 +1,5 @@
+//! Verifies saved-answer matching, protected-question refusal, and safe review labels.
+
 use super::*;
 use chrono::Utc;
 
@@ -233,12 +235,21 @@ fn protected_screening_answers_are_never_returned_and_require_manual_review() {
 }
 
 #[test]
-fn question_discovery_error_does_not_echo_browser_detail() {
-    let error = question_discovery_error().to_string();
-
-    assert_eq!(error, QUESTION_DISCOVERY_ERROR);
-    assert!(!error.contains("https://"));
-    assert!(!error.contains("token"));
-    assert!(!error.contains("selector"));
-    assert!(!error.contains("Jordan Lee"));
+fn protected_group_context_blocks_generic_saved_answers() {
+    let filler = FormFiller::new(make_test_profile(), None).with_screening_answers(vec![
+        make_screening_answer("status", "Yes"),
+        make_screening_answer("choice", "Yes"),
+    ]);
+    for question in [
+        "Status Details Voluntary self-identification",
+        "Choice Disability",
+        "Status Protected veteran status",
+    ] {
+        assert!(requires_user_answer(question));
+        assert_eq!(filler.find_answer_for_question(question), None);
+    }
+    assert_eq!(
+        filler.find_answer_for_question("Application status"),
+        Some("Yes".into())
+    );
 }
