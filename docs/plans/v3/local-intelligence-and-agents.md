@@ -49,6 +49,35 @@ from runtime/quantization changes. Compare retrieval, false support, abstention,
 licenses, downloads and cross-platform deployment cost. New score scales need
 new calibration; do not copy Qwen thresholds or weaken existing acceptance labels.
 
+### Current Mac Reference Results
+
+A separate CPU reference evaluation completed the 13 frozen triples and 20 warm
+synthetic workflows per pipeline on this 64 GiB Mac. Each workflow embeds 13
+queries and 26 passages, then scores the labeled pairs admitted by the frozen
+retrieval gate. This is not the earlier single JobSentinel workflow or a native
+backend qualification.
+
+| Reference pipeline | Warm median | Observed peak RSS |
+| --- | --- | --- |
+| Qwen embedding + Qwen reranker | 4.017 s | 6.101 GiB |
+| Qwen embedding + Ettin17 | 2.259 s | 3.848 GiB |
+| Qwen embedding + Ettin32 | 2.149 s | 3.848 GiB |
+| EmbeddingGemma 2 + Qwen reranker | 2.881 s | 5.117 GiB |
+
+All rerankers order the 13 paired positives above their negatives. Qwen's raw
+positive/negative ranges separate on this sample, while both Ettin ranges
+overlap; their ranking result does not establish calibrated support. Gemma2
+raises known-positive Recall@1 from 10/13 to 12/13, but worsens the French
+positive's rank from second to third. Final accepted positives and false support
+remain unchanged with Qwen reranking. Unrelated corpus passages are unjudged.
+
+Retain the current governed Qwen pair. Gemma2 merits broader embedding evaluation,
+but neither alternative is an implemented native replacement. These short inputs,
+fixed pipeline order and uncontrolled filesystem cache do not prove production
+p95 or an enforced 8 GiB budget. No model, prompt or numeric threshold changed.
+Exact protocol, provenance, measurements and limitations are owned by the
+[M11 evidence](../../harness/evidence/v3-milestone-11-local-qualification-2026-10-28.json).
+
 ## Model Layer Direction
 
 The current governed pair is the base:

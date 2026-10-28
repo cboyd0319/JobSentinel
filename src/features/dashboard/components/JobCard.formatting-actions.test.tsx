@@ -56,6 +56,15 @@ describe("JobCard", () => {
       ).toBeInTheDocument();
     });
 
+    it("does not announce missing pay when native evidence exists without legacy amounts", () => {
+      renderWithToast(<JobCard job={{ ...mockJob, salary_min: null, salary_max: null,
+        listed_pay: { min: 5000, max: 7000, currency: "EUR", period: "monthly", qualifiers: [], raw_text: null },
+      }} />);
+      expect(screen.getByText(/5,000–7,000 EUR.*monthly/)).toBeInTheDocument();
+      expect(screen.getByRole("article")).not.toHaveAccessibleName(/pay not listed/i);
+      expect(screen.queryByText("Pay not listed")).not.toBeInTheDocument();
+    });
+
     it("shows regional pay-range guidance when a covered location has no listed pay", () => {
       const coloradoJobNoSalary = {
         ...mockJob,

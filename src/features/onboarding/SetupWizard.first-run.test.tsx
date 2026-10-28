@@ -30,6 +30,7 @@ async function reachReview(user: ReturnType<typeof userEvent.setup>) {
 describe("SetupWizard first-run choices", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockInvoke.mockReset();
     window.sessionStorage.clear();
   });
 
@@ -62,7 +63,8 @@ describe("SetupWizard first-run choices", () => {
 
   it("retains choices after a save failure and retries the same setup", async () => {
     const user = userEvent.setup();
-    mockInvoke.mockRejectedValueOnce(new Error("disk unavailable")).mockResolvedValueOnce(undefined);
+    const saveSetup = vi.fn().mockRejectedValueOnce(new Error("disk unavailable")).mockResolvedValueOnce(undefined);
+    mockInvoke.mockImplementation((command) => command === "complete_setup" ? saveSetup() : Promise.resolve([]));
     renderWizard();
     await reachReview(user);
     await user.click(screen.getByRole("button", { name: /start finding jobs/i }));
@@ -72,10 +74,14 @@ describe("SetupWizard first-run choices", () => {
     )).toBeInTheDocument();
     expect(mockOnComplete).not.toHaveBeenCalled();
     expect(screen.getByText("Office Assistant")).toBeInTheDocument();
+    const failedArgs = mockInvoke.mock.calls.find(([command]) => command === "complete_setup")?.[1];
+    expect(failedArgs).toMatchObject({ config: { title_allowlist: ["Office Assistant"] } });
 
     await user.click(screen.getByRole("button", { name: "Try again" }));
     await waitFor(() => {
-      expect(mockInvoke).toHaveBeenCalledTimes(2);
+      expect(mockInvoke.mock.calls.filter(([command]) => command === "complete_setup")).toEqual([
+        ["complete_setup", failedArgs], ["complete_setup", failedArgs],
+      ]);
       expect(mockOnComplete).toHaveBeenCalledOnce();
     });
   });
@@ -83,11 +89,12 @@ describe("SetupWizard first-run choices", () => {
   it("does not start a second setup save while retrying", async () => {
     const user = userEvent.setup();
     let finishSave: (() => void) | undefined;
-    mockInvoke
+    const saveSetup = vi.fn()
       .mockRejectedValueOnce(new Error("disk unavailable"))
       .mockImplementationOnce(() => new Promise<void>((resolve) => {
         finishSave = resolve;
       }));
+    mockInvoke.mockImplementation((command) => command === "complete_setup" ? saveSetup() : Promise.resolve([]));
     renderWizard();
     await reachReview(user);
     await user.click(screen.getByRole("button", { name: /start finding jobs/i }));
@@ -96,7 +103,7 @@ describe("SetupWizard first-run choices", () => {
     const savingButton = await screen.findByRole("button", { name: "Saving setup" });
     expect(savingButton).toBeDisabled();
     await user.click(savingButton);
-    expect(mockInvoke).toHaveBeenCalledTimes(2);
+    expect(saveSetup).toHaveBeenCalledTimes(2);
 
     finishSave?.();
     await waitFor(() => expect(mockOnComplete).toHaveBeenCalledOnce());

@@ -250,6 +250,7 @@ const commandGroups: readonly MockCommandGroup[] = [
       "prepare_saved_match_military_transition_review",
       "confirm_saved_match_military_transition_review",
       "match_resume_to_job",
+      "match_resume_semantic",
       "create_resume_draft",
       "get_resume_draft",
       "update_resume_contact",

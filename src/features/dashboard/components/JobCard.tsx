@@ -39,7 +39,6 @@ import type { Job } from "../types";
 import { JobCardGuidancePanels } from "./JobCardGuidancePanels";
 import { JobScoreModal } from "./JobScoreModal";
 import { formatDashboardWorkArrangement, getDashboardWorkArrangement } from "../workArrangement";
-
 interface JobCardProps {
   job: Job;
   onViewJob?: (url: string) => void;
@@ -142,6 +141,7 @@ export const JobCard = memo(function JobCard({
     ? job.country_scope === "match" ? "Country location match"
       : job.country_scope === "mismatch" ? "Outside search country" : "Country scope unclear"
     : null;
+  const payIsMissing = job.listed_pay == null && job.salary_min == null && job.salary_max == null;
   const salaryText = formatJobListedPay(job);
   const comparablePay = getJobUsdAnnualPayBounds(job);
   const usesLegacyUsdPay =
@@ -194,7 +194,7 @@ export const JobCard = memo(function JobCard({
       : safeScore >= GOOD_JOB_MATCH_THRESHOLD
         ? ", good match"
         : ""
-  }${salaryText || payFloorGuidance ? "" : ", pay not listed"}${
+  }${payIsMissing && !payFloorGuidance ? ", pay not listed" : ""}${
     scamRiskGuidance ? `, ${scamRiskGuidance.ariaLabel}` : ""
   }${
     postingRiskGuidance ? `, ${postingRiskGuidance.ariaLabel}` : ""

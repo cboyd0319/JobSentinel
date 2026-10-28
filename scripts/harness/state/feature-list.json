@@ -123,7 +123,7 @@
       "behavior": "Source actions and browser capture fail closed behind typed policy.", "user_visible_behavior": "Users can control and explain every source action.",
       "verification": ["npm run harness:check", "npm run lint:security"], "evidence": ["docs/harness/evidence/v3-milestone-4-gate-3-2026-07-19.json"]
     }, { "id": "v3-milestone-5-local-evidence-resume-matching", "priority": 19, "area": "v3 matching", "title": "Build local evidence and matching", "status": "passing",
-      "behavior": "Local evidence keeps resume and match claims bounded and reproducible.", "user_visible_behavior": "Users can see why a job matches and the evidence behind it.",
+      "behavior": "Local evidence keeps resume and match claims bounded and reproducible.", "user_visible_behavior": "Users see each match's supporting evidence.",
       "verification": ["npm run harness:check"], "evidence": ["docs/harness/evidence/v3-milestone-5-local-evidence-completion-2026-07-21.json"]
     }, { "id": "v3-milestone-6-opportunity-case-file-daily-workflow", "priority": 20, "area": "v3 workflow", "title": "Build opportunity case files", "status": "passing",
       "behavior": "Case files keep daily job-search evidence and actions local, reviewable, and useful offline.", "user_visible_behavior": "Users can manage each opportunity and next action offline.",
@@ -136,7 +136,7 @@
       "verification":["npm run verify:full","npm run test:e2e:all:budget","node scripts/dev/run-cargo.mjs test --workspace --all-features"],"evidence":["docs/harness/evidence/v3-milestone-8-employer-intelligence-2026-08-12.json"]
     }, {"id":"v3-milestone-9-regions-access-editions-first-run","priority":23,"area":"v3 delivery","title":"Regions, access, editions, and first-run doctor","status":"passing",
       "behavior":"Regional discovery and native pay preserve source evidence; static Region and inclusive first-run workflows remain local and model-optional.",
-      "user_visible_behavior":"Users select a search country, review native pay and regional guidance, and use inclusive first-run paths without required model downloads.",
+      "user_visible_behavior":"Users choose countries and native pay guidance, with inclusive model-optional setup.",
       "verification":["npm run harness:check"],
       "evidence":[
         "docs/harness/evidence/v3-milestone-9-focused-acceptance-2026-10-28.json",
@@ -148,10 +148,10 @@
       "user_visible_behavior":"Users review updates and recover offline.",
       "verification":["npm run harness:check","node scripts/dev/run-cargo.mjs test --locked -p jobsentinel --features embedded-ml --lib local_update"],
       "evidence":["docs/harness/evidence/v3-milestone-10-preflight-2026-10-28.json"]
-    }, {"id":"v3-milestone-11-integration-qa-release","priority":25,"area":"v3 release","title":"Qualify and release v3.0","status":"active",
-      "behavior":"Current artifacts meet frozen quality, recovery, accessibility and supply-chain gates.",
-      "user_visible_behavior":"Users can install and recover a qualified v3.0 release.",
-      "notes":"Close audit/model gaps, qualify supported platforms, then prepare release proof.",
-      "verification":["npm run verify:full","npm run test:e2e:all:budget","node scripts/dev/run-cargo.mjs test --workspace --all-features"],
+    }, {"id":"v3-source-compatibility-cleanup","priority":25,"area":"v3 development","title":"Complete source compatibility cleanup","status":"active",
+      "behavior":"Remove pre-v3-only readers and ordinary transition names while preserving immutable v3 contracts and local data.",
+      "user_visible_behavior":"The supported v3 baseline has clear compatibility and recovery boundaries.",
+      "notes":"D0 resumed. Follow the development queue; broad qualification remains deferred.",
+      "verification":["npm run harness:check","npm run typecheck","node scripts/dev/run-cargo.mjs test --locked -p jobsentinel-storage --lib migration_tests"],
       "evidence":[]
     } ] }

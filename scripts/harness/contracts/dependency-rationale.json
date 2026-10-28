@@ -1,6 +1,6 @@
 {
   "schema": "jobsentinel.dependency_rationale.v1",
-  "policy": "YAGNI gate for direct dependencies (see docs/harness/engineering-principles.md ladder step 4). Every direct dependency in package.json and the root Cargo.toml workspace policy must have a one-line reason a few lines of our own code could not replace it. Local workspace path dependencies are excluded. Adding an external direct dependency requires a matching entry; harness:check fails on any direct dependency without one and on any entry whose dependency was removed. Reopen a focused debt item when new evidence shows a direct dependency has a smaller safe replacement.",
+  "policy": "YAGNI gate for direct dependencies (see docs/harness/engineering-principles.md ladder step 4). Every direct dependency in package.json and the root Cargo.toml workspace policy must have a one-line reason a few lines of our own code could not replace it. Local workspace path dependencies are excluded. Adding an external direct dependency requires a matching entry; lint:deps:why (included in verify:full) fails on any direct dependency without one and on any entry whose dependency was removed. Reopen a focused debt item when new evidence shows a direct dependency has a smaller safe replacement.",
   "npm": {
     "@dnd-kit/core": "Accessible drag-and-drop primitives for the application Kanban board.",
     "@dnd-kit/sortable": "Sortable board/list preset built on @dnd-kit/core.",
@@ -52,6 +52,7 @@
     "tauri-build": "Tauri build-script codegen.",
     "tauri": "Desktop app runtime and IPC framework.",
     "tauri-plugin-shell": "Controlled opening of external URLs.",
+    "open": "Acknowledges native installer launch results across supported OSes; Rust stdlib has no portable file-association API.",
     "tauri-plugin-notification": "Native notifications from Rust.",
     "tauri-plugin-dialog": "Native dialogs from Rust.",
     "keyring": "OS keychain access for credentials.",

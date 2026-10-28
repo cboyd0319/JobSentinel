@@ -330,6 +330,16 @@ export function handleMockResumeCommand(
     case "cancel_resume_review":
       return withoutSave(state, false);
 
+    case "match_resume_semantic": {
+      const resumeId = getArg(args, "resumeId");
+      const jobHash = getStringArg(args, "jobHash");
+      if (typeof resumeId !== "number" || !Number.isSafeInteger(resumeId) || resumeId <= 0 ||
+          !jobHash || textEncoder.encode(jobHash).byteLength > 128 || /\p{Cc}/u.test(jobHash)) {
+        throw new Error("Choose a saved job and resume before inspecting its evidence.");
+      }
+      return withoutSave(state, null);
+    }
+
     case "get_ats_power_words":
       return withoutSave(state, [...ATS_POWER_WORDS]);
 

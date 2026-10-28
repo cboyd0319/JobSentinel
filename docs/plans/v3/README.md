@@ -1,19 +1,15 @@
+<!-- Indexes v3 strategy references and points to the canonical execution order. -->
+
 # JobSentinel V3 Planning
 
-JobSentinel v3.0 is the next major-release planning horizon. Everything in the
-v2.9 line should be treated as stabilization, minor feature polish, and bug
-fixes unless a v3 discovery exposes a release-critical issue.
+V3 covers the local-first job-search workspace and its accepted enhancement line.
+The [Master Execution Plan](master-exec-plan.md) owns scope, sequence, decisions,
+verification and handoff. Strategy references do not independently add scope.
 
-This directory is intentionally expansive. V3 can include a full refactor,
-paper-driven model changes, new source architecture, new browser companion
-workflows, a local agent runtime, and a different product shape. Rust remains
-the base of JobSentinel and the primary local trust boundary. The point of this
-package is to think beyond "make v2 better" and identify what would make
-JobSentinel genuinely impressive.
-
-The [V3 Master Execution Plan](master-exec-plan.md) is the sole owner for v3
-scope, sequence, progress, decisions, verification, and handoff. The documents
-below are references. They do not independently authorize implementation.
+The [remaining development queue](master-exec-plan.md#remaining-development-queue)
+implements the user's 2026-10-28 reprioritization. Complete accepted code and
+cleanup before broad qualification or delivery. Earlier suggested timing in
+reference documents does not override this queue. Implementation resumed at D0 on 2026-10-28.
 
 ## Baseline
 

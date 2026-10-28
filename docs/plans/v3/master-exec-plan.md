@@ -4,9 +4,12 @@
 
 Last updated: 2026-10-28.
 
-This is the sole execution plan for the v3 major line. The other files in this
-directory provide product, architecture, research, and evaluation detail. They
-do not independently authorize implementation or add scope.
+This is the sole execution plan for the v3 major line. Finish the remaining
+accepted development and code cleanup before broad qualification or release work.
+The [remaining development queue](#remaining-development-queue) owns execution order.
+
+Implementation resumed on 2026-10-28. Start with the selected D0 child. Other documents
+provide detail without independently adding scope.
 
 ## Problem
 
@@ -30,7 +33,7 @@ V3 needs one durable plan that:
 In scope:
 
 - The complete v3.0 foundation and first user-visible vertical release.
-- Ordered v3.x enhancement work after the v3.0 compatibility boundary ships.
+- All accepted v3.x development, ordered by dependencies before broad qualification; the approved release cuts remain separate.
 - Every `Now` and `Next` item in [Idea Index](idea-index.md), consolidated into bounded workstreams.
 - Unfinished commitments from maintained roadmaps, plans, feature docs,
   research docs, testing docs, security docs, release docs, and debt tracking.
@@ -141,7 +144,7 @@ Out of scope:
 | Job-source research and feature docs | Source registry, permission notes, pacing, stop conditions, freshness comparison, and source review remain open. | Milestone 4 owns the source graph, policy ledger, fixtures, and browser protocol. |
 | Employer-intelligence plan | Dataset mode, starter sources, Essentials size, manual observations, expiry, and minimum dossier remain open decisions. | Decision Gate 4 resolves them before Milestone 8 implementation. |
 | Security docs | Future private-data AI, encrypted-secret backup, and stricter local-auth choices are conditional, not approved behavior. | Milestones 3 and 7 may promote only reviewed paths with focused threat models and local fallbacks. |
-| Distribution-dependent platform work | Start-on-login, sandboxing, signing, notarization, and final native proof remain incomplete or externally constrained. | Design and fixture work stays late. Live platform and distribution proof is part of Milestone 11 only. |
+| Distribution-dependent platform work | Start-on-login, sandboxing, signing, notarization, and final native proof remain incomplete or externally constrained. | Accepted platform design, implementation and fixtures follow the development queue. Native qualification and distribution operations wait for R1/R2. |
 | Completed and archived plans | Completed plans are historical. Milestone 0 resolved the release-pipeline plan's remaining decision. | Do not reopen historical checklists. Milestone 11 owns only the recorded release-pipeline corrections above. |
 | Checklists and boundary language | Security, contribution, support, and skill checkboxes are reusable procedures; phrases such as “not yet submitted” describe state. | Not backlog. Keep them as verification or user guidance. |
 
@@ -173,8 +176,10 @@ requirement to satisfy, not necessarily a separate screen, table, or abstraction
 
 ### V3.x Accepted After V3.0
 
-Milestone 12 uses this default dependency order. Each ID or tightly coupled
-group remains a separately activated child feature.
+These trains retain the accepted release inventory, not the current coding order.
+Use the development queue below for coding order. Each ID or tightly
+coupled group remains a separately activated child feature. Earlier implementation
+of Next work does not add it to the approved v3.0 cut.
 
 | Order | V3.x train | Accepted `Next` IDs | Dependency rule |
 | --- | --- | --- | --- |
@@ -223,42 +228,279 @@ pack privileges, and opaque hiring-probability claims.
 
 ## Hardest-First Development Order
 
-The 2026-09-11 user decision prioritizes completing major development before
-refreshing release-level verification. Preserve every accepted idea, safety
-boundary, numeric threshold, and release requirement.
+The 2026-10-28 user direction requires completing accepted development before
+broad qualification and release work. Complete real engineering
+first. Broad testing, installed journeys, benchmarks and release operations follow.
+The 105 Now / 82 Next disposition, Gate 5 cut and safety boundaries remain unchanged.
 
-1. Respect dependencies, then choose the hardest eligible development problem:
-   the unresolved correctness, data-loss, security, or compatibility risk most
-   likely to invalidate the design or force rework. Use user burden as the tie-breaker.
-2. Implement with focused red/green tests. Use characterization tests for
-   unchanged behavior; do not manufacture failures or add duplicate matrices.
-3. Run an early integration check only when it answers a concrete architectural
-   or safety question. Name that question and stop when the evidence answers it.
-4. Reuse evidence while its source, environment, and inputs still apply. Do not
-   repeat full suites, package builds, model downloads, or native journeys merely
-   for a checkpoint, a new turn, or a small unrelated change.
-5. Finish M9/M10 development before M11's full integration and release campaign.
-   Apply the same development-then-release sequence within each M12 train;
-   do not postpone v3.0 release validation until all v3.x development finishes.
-6. Keep one active feature. Close its development acceptance with focused
-   evidence before activating the next; moving release proof never makes an
-   unverified requirement pass.
+1. Select the hardest dependency-ready coding slice. Prefer risks that would force
+   later data, security, compatibility or architecture rework. Use user burden to break ties.
+2. Reuse current owners. Build a complete useful slice, not a framework, empty
+   adapter, renamed agent or catalog entry without its consumer.
+3. Keep focused compile, migration, authorization, failure and regression checks
+   beside changed code. An early integration experiment must answer a named design
+   question and stop once answered.
+4. Do not run full frontend/workspace suites, all E2E, installed-platform campaigns,
+   broad audits, repeated model comparisons or installer builds between coding slices.
+   A necessary exception must name the blocking question and why a narrow check cannot answer it.
+5. Move milestone 13's source/compatibility/header repairs ahead of final QA.
+   Keep only factual archival and final disposition work after delivery.
+6. Preserve the v3.0 core checkpoint before adding Next behavior. Keep later code
+   on a clearly separated revision/commit range and apply shared fixes to the core
+   cut when needed. Do not create worktrees or silently package Next work as v3.0.
+7. Reuse valid existing evidence and model caches. Failed or unrun checks remain
+   gaps. Moving their execution never changes them to passing.
 
-Next development sequence:
+## Remaining Development Queue
 
-- M9 development acceptance closed on 2026-10-28; the feature ledger links its
-  requirement reconciliation and fresh focused checks. Release proof remains M11.
-- M10 development acceptance closed on 2026-10-28. Signed candidate review,
-  native writer draining, snapshot preparation and interrupted recovery now have
-  integrated real-crypto/encrypted-SQLite proof with a simulated positive OS
-  acknowledgement. Production trust remains unchanged; installed proof is M11.
-- M11 is active: close the recorded retrospective and model-comparison gaps,
-  qualify current artifacts on supported platforms, then prepare the release.
-  Production app/Region trust and actual positive installer/rollback journeys
-  belong to this release phase under the user-approved sequencing.
-- Gate 5 was approved on 2026-10-28: one upgradable Essentials package, optional
-  downloads, reviewed updates/compatible rollback, and milestones 0–10 as the v3.0
-  cut. The editions plan owns the decision; signing and release proof remain open.
+Milestone numbers remain scope/history identifiers. Execute D0 through D10 below before
+R1/R2. Do not resume the parked milestone 11 qualification campaign now.
+One bounded child is active at a time. The user resumed implementation at D0.
+
+These are completion groups, not permission to invent dependencies. Build a shared
+primitive in the first slice that needs it. Keep the larger ID partial until its
+whole outcome is delivered. Do not build an entire marketplace before useful sources.
+
+| Order | Coding outcome | Exit before moving on |
+| --- | --- | --- |
+| D0 | Confirmed core gaps and approved compatibility/source cleanup | Core behavior preserved. Immutable contracts identified. Pre-v3-only readers and ordinary transition names removed. |
+| D1 | Data ownership, shared-computer protection and concrete platform trust | Lock/storage/key/retention boundaries preserve private data and recovery. |
+| D2 | Source reach, reliability and resource budgets | Reviewed adapters/content produce explainable coverage, health and controlled scheduling. |
+| D3 | Browser/native capture, activation and document interchange | Entry points share bounded review, explicit authority and fallback. |
+| D4 | Resume/application evidence and quality machinery | Variants, answers, edits, stories and quality labels retain source evidence. |
+| D5 | Campaign planning and inclusive daily workflows | Lanes, changes, tasks, reviews and pacing compose useful reviewed plans. |
+| D6 | Interview, offer and protection continuity | Durable case-linked preparation, offer facts and safe responses work together. |
+| D7 | Bounded assistants and provider routing | Concrete workflows consume finished data without wider ambient authority. |
+| D8 | Pack catalogs, role/skill consumers and authoring tools | One registry composes useful payloads with existing signed lifecycle controls. |
+| D9 | Stable derived outputs and evaluation products | Needed projections, scorers, corpora and scorecards exist. Broad measurement waits. |
+| D10 | Release engineering and source/document closure | Pipeline code, headers, measured boundary fixes and docs are complete before QA. |
+
+### D0: First selected development slice
+
+Owner: existing Rust/application/storage, native IPC and frontend owners.
+Selected feature: `v3-source-compatibility-cleanup`.
+
+- Classify immutable schema IDs, protocol IDs and SQLx history separately from
+  ordinary module/type/command/live-schema names. Preserve the former.
+- Remove truly pre-v3-only readers, shims, fixtures and claims. Preserve everything
+  needed by the first supported v3.0.0 baseline. A field called legacy is not sufficient evidence to delete it.
+- Remove transition-only ordinary names through their actual callers, with no
+  replacement alias layer. Use compatible expansion/migration/removal where data ownership changes.
+- Close confirmed missing Now behavior and runtime defects before preserving the
+  core cut. Trace the minimum Gate 4 dossier and touched owners. Unresolved assurance
+  questions go to R1 instead of restarting an open-ended historical audit.
+- Preserve the current uncommitted M11 corrections. The ten Workbench failures
+  concern policy freshness: distinguish clock-sensitive fixture repair from real
+  policy review. Never change production dates or weaken freshness merely to make tests pass.
+
+Use targeted type/compile checks and the migration/unsupported-data cases affected
+by the actual change. Keep recovery copies and preserve immutable migrations. Rollback is a revert or compatible
+corrective migration, not rewriting published history.
+A complete source inventory, named callers and a bounded change brief precede edits.
+
+### Remaining ID inventory
+
+The following source-based inventory covers all 82 accepted Next IDs exactly once.
+Foundation code is reusable, not proof that the larger outcome is complete.
+Owners are existing modules, not a request for new crates or interfaces.
+
+#### D1: Data ownership and protection
+
+Owner: `jobsentinel-platform`, credentials, storage/recovery, application and Settings owners.
+
+| ID | Remaining development |
+| --- | --- |
+| A14 | Extend existing platform functions with the concrete capability/result/fallback contracts needed by actual integrations. |
+| R13 | Add whole-application privacy lock, protected access/session behavior, recent-data limits and explicit cleanup. |
+| E15 | Implement portable data/config/cache/log ownership, key/passphrase handling and recovery. Portable backup is not a portable app. |
+| P08 | Reuse Mac user presence. Finish Windows/native sensitive-action coverage and consistent fallback/cancel behavior. |
+| N15 | Implement Windows Hello/device-bound sensitive-action behavior over existing vault/keyring owners. |
+| N19 | Reuse Secret Service. Complete explicit portal and missing/locked-store behavior without a second credential engine. |
+| P14 | Connect reviewed export/delete/migrate/support/receipt workflows with truthful retained-data and external-data coverage. |
+| X07 | Expose useful deletion, migration and rollback reports plus discoverable receipt/history access. |
+
+#### D2: Source coverage and budgets
+
+Owner: Existing sources/network, scheduler, source-graph, health, employer and regional content owners.
+
+| ID | Remaining development |
+| --- | --- |
+| S04 | Complete reviewed ATS tenant identity/discovery/routing. Existing platform fingerprints and parser fixtures are partial foundations. |
+| S05 | Extend existing JSON-LD/RSS with governed microdata, Atom, sitemap and multi-posting review/provenance. |
+| S07 | Deliver useful role-family source content through an actual shared Source consumer. Do not grant network authority by installing content. |
+| S09 | Implement explainable stale/noisy/blocked/pay-coverage reliability intervals, missing-data states and next actions. |
+| S10 | Add user-owned employer watchlists, reviewed official links and permitted change monitoring. |
+| S28 | Implement selected reviewed official datasets, identity joins, freshness and uncertainty. Not every researched registry is mandatory. |
+| R15 | Add user-selected page/batch/concurrency/data budgets and feed preferences without weakening rate limits. |
+| R16 | Share those budgets with explicit power-aware pause/resume and unavailable-power-status fallback. |
+
+#### D3: Capture, activation and interchange
+
+Owner: Existing assistance/bookmarklet, native IPC/platform, selected-input/OCR, document and import/export owners.
+
+| ID | Remaining development |
+| --- | --- |
+| S21 | Implement the agreed Chrome/Edge/Firefox/Safari strategy and versioned companion surface. Retain bookmarklet fallback. |
+| P05 | Expose real companion connections, grants, last activity, expiry and individual revocation without durable pairing secrets. |
+| S24 | Add broader visible-card/page selection, editable incomplete capture and bounded reviewed batches under existing policy exclusions. |
+| S15 | Add opt-in visible fit/risk/pay/duplicate/seen overlays using scoped local queries, not database access. |
+| N01 | Implement incoming safe cold/warm activation for cases, reminders, imports and pairing. External search links are not deep links. |
+| N03 | Add typed notification actions with backend revalidation and stale-target fallback. Preserve generic private wording. |
+| N16 | Implement the Windows activation/toast side of the same contracts, not another dispatch framework. |
+| N02 | Register and safely route accepted file associations through existing untrusted-file staging/review. |
+| N06 | Read clipboard only on explicit action into the existing bounded scrubbed import draft. |
+| S18 | Turn selected screenshot/rendered/PDF OCR into editable provenance-bearing job suggestions before saving. |
+| N14 | Implement Mac Vision for the same selected-content OCR contract. No automatic screen capture. |
+| N18 | Implement Windows OCR with that contract and unavailable-feature fallback. |
+| N08 | Complete native-reviewed print/PDF for resumes, packets and reports. Existing resume browser print is partial. |
+| E16 | Implement bounded offline multi-pack delivery with independent signatures/review and partial-failure recovery. |
+| E10 | Add selected file-based bookmark/CSV/calendar/reminder/notes bridges with mapping, duplicates, provenance and explicit commit. |
+
+#### D4: Evidence and application quality
+
+Owner: Existing documents/parser/ATS, storage resume/answer history, evidence/packet application and resume UI owners.
+
+| ID | Remaining development |
+| --- | --- |
+| M04 | Build the cross-format readability workspace, parse previews/losses and labeled common-pattern checks. Reuse current parsers. |
+| M06 | Persist exact resume variant/revision used by an application and connect its later outcomes. |
+| M08 | Expose and reuse exact-question/answer-use provenance in reviewed bank and packet flows. Storage/history already exists. |
+| M07 | Add before/after bullet review, source evidence and accepted/rejected edit traceability without invented claims. |
+| M09 | Rehearse packet data in a local mock form with unresolved answers and attachments. No live final submission. |
+| M15 | Implement named safe/stretch/pay/remote preference modes with explained effects and unchanged hard blockers. |
+| O02 | Create a reusable evidence-linked story bank with situation/action/result, scope and risk notes. |
+| M17 | Build counterfactual pairing/comparison through actual ranking/explanation owners. Two school fixtures are not the capability. |
+| M23 | Mine reviewable versioned hard negatives from actual retrieval/reranking/feedback. Do not promote fine-tuning. |
+
+#### D5: Campaign and inclusive workflows
+
+Owner: Existing event/case projections, tracker/analytics, search/scoring, source and inclusive profile/UI owners.
+
+| ID | Remaining development |
+| --- | --- |
+| U15 | Complete cross-source new/reposted/relabeled/merged/stale lineage and preserve user corrections. |
+| U05 | Define explicit search lanes and reviewed stop/continue rules before lane-specific metrics or replanning. |
+| U08 | Aggregate attributed changes since a defined checkpoint across the supported campaign state. |
+| U07 | Show opportunity strength and volume together rather than only status totals. |
+| U09 | Build the career-task inbox with evidence, due date, confidence and state. No email ingestion. |
+| U03 | Combine lane/source yield, interviews, application quality, stale roles and pay misses into reviewed weekly adjustments. |
+| U04 | Offer optional low-pressure pacing changes from adequate local history, with uncertainty and no automatic strategy edits. |
+| U19 | Compile evidence/goals/constraints/outcomes into one reviewed campaign plan using U05/U03/M15. |
+| U06 | Compare bounded plan scenarios after U19/lane facts exist. Never invent hiring probabilities. |
+| U10 | Connect an explicit overwhelmed mode across daily choices, density and calm defaults. |
+| R03 | Apply cognitive-load decisions throughout UI development and finish the connected stress-friendly review flow. |
+| R08 | Connect user-selected career-change evidence and explicit stretch gaps without asserting equivalence. |
+| R09 | Add respectful return-to-work/caregiver workflow and gap/availability handling. Occupational caregiver taxonomy is not the mode. |
+| R11 | Connect sector sources, credentials, document requirements and daily workflows using existing role taxonomies. |
+
+#### D6: Interview, offer and protection continuity
+
+Owner: Existing dossier/intelligence, interviews, salary, case/application storage and review UI owners.
+
+| ID | Remaining development |
+| --- | --- |
+| U21 | Turn sourced employer uncertainty into recruiter/interview/offer questions. A verify/open link is only a foundation. |
+| O01 | Build evidence/company-specific recruiter, manager, panel, work-sample and behavioral preparation modes using O02. |
+| O05 | Persist case-linked written/verbal offer facts, compensation/costs/constraints/deadlines and uncertainty. Current UI state is temporary. |
+| O06 | Produce editable negotiation facts, target/fallback asks, questions, risk and decline options from O05. |
+| X02 | Compose existing protections into understandable hiring-firewall decisions and user-controlled next actions. |
+| O11 | Connect verification, evidence preservation, local avoid/verify decisions and dated reporting guidance to that protection flow. |
+| O12 | Reuse dossier facts in interview prep, question plans and offer-risk review with current limitations visible. |
+
+#### D7: Bounded assistants and routing
+
+Owner: Existing typed application workflows, assistance, AI gateway, privacy facts and companion owners.
+
+| ID | Remaining development |
+| --- | --- |
+| G15 | Route eligible deterministic/local/approved endpoint/external work with explicit availability and a narrow local-endpoint trust contract. |
+| G10 | Explain specific pre-action data/destinations/grants/revoke options by composing mandatory existing safeguards. |
+| G02 | Implement reviewed search planning using U03/U05/U19. Static guidance is reusable but not the full product workflow. |
+| G13 | Use the same planning owner for traceable proposed changes from tracker outcomes. |
+| G03 | Explain source yield/duplicates/pay/policy evidence using D2 and campaign attribution, not health status alone. |
+| G04 | Add reviewed case-specific risk explanations/actions over X02/O11 without creating another risk engine. |
+| G08 | Provide evidence-grounded interview coaching over O01/O02 with unsupported claims explicit. |
+| G09 | Analyze structured written/verbal offer facts and editable options over O05/O06. |
+| S23 | Connect browser, case, packet and helper context with loss-of-context recovery after their actual data/workflows exist. |
+| G07 | Add visible-page local suggestions through that same cockpit/capture authority. No background reads or final submit. |
+| M20 | Implement selected useful OS-local micro-assist tasks with governance/review/fallback. Resolve the N13/N17 scope overlap first. |
+
+#### D8: Pack consumers and catalog
+
+Owner: Existing domain pack payloads, application pack_runtime, source consumers and Settings pack UI.
+
+| ID | Remaining development |
+| --- | --- |
+| E05 | Build optional account-free digest-bound discovery/retrieval/version/revocation handling over existing verification and lifecycle. |
+| X18 | Use that same registry path for signed community discovery and publisher distribution. No parallel registry framework. |
+| E04 | Add a reviewed source catalog and useful policy-safe Source payload consumption. Signed files alone do not add adapters. |
+| E06 | Choose a compatible Role representation and implement its taxonomy/rubric/source consumer. The enum label is insufficient. |
+| E07 | Add skill catalog/download/update review over existing static skills and lifecycle. Reconcile the old version-target pin. |
+| E14 | Build local authoring/inspection/fixture feedback using synthetic isolation, without production-data or generic-script authority. |
+
+#### D9: Derived outputs and evaluation products
+
+Owner: Existing Rust schema/evaluation owners, regional/source facts, documentation and local benchmark assets.
+
+| ID | Remaining development |
+| --- | --- |
+| A19 | Derive only a measured duplicated stable schema projection and remove its duplicate owner. No generic generator framework. |
+| P12 | Map implemented safeguards/limitations to selected governance concepts accurately, without claiming certification. |
+| M26 | Build permitted datasets, labels, scorers, protocol and distributable benchmark assets. Defer broad execution/publication. |
+| C09 | Build source-class regional readiness scorecards and freshness/incompleteness reporting. Country labels alone are insufficient. |
+
+### D10: Engineering before final qualification
+
+- Finish missing signed-candidate/catalog metadata producers and release CLI code
+  using fixture identities. Reuse existing pack signing and verification owners;
+  production identity enrollment/signing still waits for R2.
+- Implement the remaining release-pipeline code: blocking authenticated draft-asset
+  verification, correct platform scoping and explicit unauthenticated public verification.
+- Complete necessary scenario/scorer/evidence and narrow budget instrumentation for
+  accepted behavior. A benchmark feature's implementation is development. Running
+  the whole benchmark campaign is late assurance.
+- Finish measured crate-boundary/workspace-inheritance and responsibility-header
+  repairs while touching their owners. Do not introduce an unrestricted refactor.
+- Update feature/privacy/compatibility/support docs to the actual implementations. Finish accurate public governance
+  mapping and stable generated outputs.
+
+### Dependency and decision rules
+
+- Implement the minimal Source consumer with the first useful S07 content slice. Do not make source coverage wait for
+  a marketplace. E04/E06/E07 later reuse actual
+  consumers, and one E05/X18 registry serves all catalogs. Source content never
+  grants permission to contact a provider.
+- U05 lane records precede U03 lane metrics. U03/U05/M15 precede U19 and U06.
+  O02 precedes richer interview preparation. Durable O05 facts precede O06/G09.
+- Apply R03 cognitive-load and accessibility requirements while building each UI.
+  Do not schedule a wholesale UI rewrite after development.
+- P08/N15 reuse working Mac user presence. N19 reuses Secret Service. N08 reuses
+  sanitized resume output. Extend these foundations instead of rebuilding them.
+- At the first dependent slice, record portable key/lock/retention behavior,
+  companion authority/routes/file types, OCR limits, Role representation and
+  supported file-bridge formats. Choose the smallest contract that serves real consumers.
+- Before M20, explicitly bound accepted tasks/backends against Later N13/N17.
+  A fallback-only stub cannot close M20, and broad OS AI integration is not silently promoted.
+- New agents use bounded compiled product workflows/static guidance within frozen
+  capabilities. No generic script runtime, MCP server, daemon, passkey system,
+  hidden source access or private external-agent data is approved by this ordering.
+
+### Late assurance and delivery
+
+| Stage | Work deliberately left until development is ready |
+| --- | --- |
+| R1: integrated qualification | Full suites/E2E, final source review, installed Mac journeys, accessibility, model/resource distributions and commercial comparisons for each intended cut. |
+| R2: release artifacts | Fresh provider/publisher facts, production trust/enrollment, Region artifacts, signing/notarization, checksums, SBOMs, attestations and real update/rollback verification. |
+| R3: delivery and closure | Gate 6, publication/public downloads, completed-plan archival, final dispositions and the next-major backlog. |
+
+Broad runs and package production do not resume merely because one coding group
+finishes. Use focused checks during development. Reuse applicable completed evidence.
+
+After any release-only metadata/signature change, rerun the affected artifact/trust
+checks rather than every unrelated suite. A logic change still requires its affected lane.
+
+Windows/Linux VM testing remains user-deferred. Current work uses the Mac. Never
+substitute this host's results for exact other-OS or enforced 8 GiB qualification.
 
 ## Orchestration
 
@@ -268,9 +510,9 @@ Next development sequence:
 - Delegate only bounded, independent work with disjoint file ownership when the
   user, platform, and active profile authorize it.
 - Every delegated result receives local diff review and verification.
-- Use a specification reviewer after each milestone plan and an adversarial
-  reviewer for migrations, security boundaries, browser protocols, agents,
-  packs, compatibility, and release claims.
+- Use bounded design/source review when a concrete migration, security, protocol
+  or compatibility question blocks the current slice. Avoid repeated broad audits
+  between coding checkpoints. Reserve complete acceptance review for R1.
 
 ## Decision Gates
 
@@ -286,6 +528,10 @@ Next development sequence:
 
 ## Milestones
 
+Numbers retain original scope/history; they are not the revised execution order.
+Milestone 12 coding and milestone 13 code cleanup precede milestone 11's broad
+campaign. Only final archival/disposition work stays at the end of milestone 13.
+
 | Milestone | Required work | Owners and exit |
 | --- | --- | --- |
 | 0. Planning authority and repository truth | [x] Verify this file remains active in the plan index, v3 planning, plans hub, current status, and feature state.<br>[x] Correct stale v2.9.5 release records.<br>[x] Reconcile DRY-002 and close stale DRY-003 with live evidence.<br>[x] Reconcile testing future-work claims against existing coverage.<br>[x] Re-audit the deferred release-pipeline decision.<br>[x] Add a deterministic idea-disposition check and a focused docs-marker audit for inventory drift.<br>[x] Record Gate 0 and activate Milestone 1.<br>Verify: `npm run harness:check`, `npm run lint:docs`, `npm run lint:deps:why`, `npm run lint:dup -- --list`, `npm run lint:file-size`, and `git diff --check`. | Planning and harness owners.<br>Exit: one active plan, one active feature, no contradictory current-state docs, and no unowned open debt. |
@@ -299,8 +545,8 @@ Next development sequence:
 | 8. Employer, pay, and outcome intelligence | [x] Resolve all employer-intelligence open decisions at Gate 4.<br>[x] Build the minimum employer dossier from official public sources, provenance, freshness, user-owned observations, and local outcomes.<br>[x] Integrate source verification, posting history, pay clarity, scam response, application channel, interview context, and offer evidence without verdicts or central private reviews.<br>[x] Revalidate volatile legal, policy, pay, and public-data claims before use. | Intelligence, sources, storage, salary, application, company research, and research docs.<br>Exit: guidance shows source, date, uncertainty, and safe next actions. |
 | 9. Regions, access, editions, and first-run doctor | [x] Implement validated Region manifests, inert taxonomy/CV/source guidance, and static-pack lifecycle support.<br>[x] Implement country-aware discovery and alerts, explicit work modes, and native pay without eligibility or currency-conversion claims.<br>[x] Implement model-free Essentials, optional governed stronger-local setup, and first-run doctor.<br>[x] Connect optional military-transition guidance across onboarding, resumes, matching, source guidance, protected application review, and case files; preserve disability-aware and early-career variants.<br>[x] Add focused regional and inclusive examples for role families, work modes, credentials, pay, and accessibility; coverage remains starter-only.<br>[x] Complete Gate 4 regional and footprint decisions.<br>[x] Reconcile focused source acceptance and record M9 development completion; Gate 5 was approved on 2026-10-28. | Existing domain, application, sources, storage, local-AI, platform, onboarding, Settings, and documentation owners.<br>Development exit: implemented behavior and focused evidence agree. Production Region signing/artifacts, fresh installed 8 GiB journeys, and complete native-platform proof are required in M11, not M9 exit gates. |
 | 10. Update, rollback, repair, and distribution design | [x] First implement trusted candidate preflight binding app, edition, pack, model, browser, region, export, and database compatibility metadata before mutation.<br>[x] Prove refusal of untrusted, checksum-mismatched, or incompatible candidates without changing current data or packs.<br>[x] Implement interrupted-update recovery, compatible rollback, offline repair, and component cleanup using existing recovery owners.<br>[x] Implement explicit update availability and reviewed update/rollback UX without silent updates or a new update server.<br>[x] Keep installed local workflows usable when checks, downloads, or online repair are unavailable.<br>[x] Cover missing components, interrupted updates, rollback restore, and offline recovery with focused boundary tests.<br>[x] Complete Gate 5 and freeze the v3.0 feature/component cut. | Application, platform, security, storage, release scripts, Settings, and update/recovery docs.<br>Development exit: update and repair are reversible, inspectable, offline-safe, and understandable. Current installed-package certification follows in M11. |
-| 11. V3.0 integration, QA, and release | [ ] After M9/M10 development and Gate 5, run the full applicable suites, end-to-end scenarios, and commercial benchmarks.<br>[ ] Obtain explicit Region-publisher enrollment/signing authority and produce verified production UK/EU/India starter artifacts.<br>[ ] Prove the current model-free installed Essentials core journey and persistence under an enforced 8 GiB, zero-swap profile with the unchanged numeric thresholds.<br>[ ] Complete Windows 11, exact macOS 26+, and Linux installed-platform, keyboard, screen-reader, responsive, and recovery proof.<br>[ ] Prove the connected veteran journey, fresh v3.0.0 install, failure recovery, compatible v3 rollback, export/import, pack/model removal, and newer-data refusal.<br>[ ] Resolve release-pipeline and shared-history decisions; keep retained exceptions explicit.<br>[ ] Update front-door, product, security, migration, release, and support docs.<br>[ ] Verify final assets, signatures, notarization, checksums, SBOMs, attestations, archives, labels, and public downloads; complete Gate 6 before publication. | All affected owners.<br>Exit: every v3.0 success criterion and the [Evaluation And Release Bar](evaluation-and-release-bar.md) done definition has revision-bound evidence. Historical package/model runs establish only their original scope, not current release readiness. |
-| 12. V3.x enhancement trains | [ ] Activate one `Next` ID or tightly coupled group at a time.<br>[ ] Preserve v3 compatibility; defer breaking changes to the next major line.<br>[ ] Apply the same focused red/green development and full release-proof sequence as v3.0.<br>[ ] Use the default train dependencies; solve the hardest eligible correctness, safety, or compatibility problem first, with measured user burden as the tie-breaker.<br>[ ] Reorder trains only through a recorded dependency and user-value decision.<br>[ ] Re-score after each minor release without silently promoting `Later` or `Moonshot` work. | Closest canonical owners.<br>Exit: every accepted `Next` ID is shipped, moved with evidence, or retired by user-approved decision. |
+| 11. V3.0 integration, QA, and release | [ ] After D0–D10 engineering is complete, run the full applicable suites, end-to-end scenarios, and commercial benchmarks for each intended release cut.<br>[ ] Obtain explicit Region-publisher enrollment/signing authority and produce verified production UK/EU/India starter artifacts.<br>[ ] Prove the current model-free installed Essentials core journey and persistence under an enforced 8 GiB, zero-swap profile with the unchanged numeric thresholds.<br>[ ] Complete Windows 11, exact macOS 26+, and Linux installed-platform, keyboard, screen-reader, responsive, and recovery proof.<br>[ ] Prove the connected veteran journey, fresh v3.0.0 install, failure recovery, compatible v3 rollback, export/import, pack/model removal, and newer-data refusal.<br>[ ] Resolve release-pipeline and shared-history decisions; keep retained exceptions explicit.<br>[ ] Reconcile final evidence, release metadata and public labels against development-owned product, security, migration and support docs.<br>[ ] Verify final assets, signatures, notarization, checksums, SBOMs, attestations, archives, labels, and public downloads; complete Gate 6 before publication. | All affected owners.<br>Exit: every v3.0 success criterion and the [Evaluation And Release Bar](evaluation-and-release-bar.md) done definition has revision-bound evidence. Historical package/model runs establish only their original scope, not current release readiness. |
+| 12. V3.x enhancement trains | [ ] Activate one `Next` ID or tightly coupled group at a time.<br>[ ] Preserve v3 compatibility; defer breaking changes to the next major line.<br>[ ] Complete accepted development in the D0–D10 queue with focused checks; broad release campaigns wait until engineering is complete.<br>[ ] Use the reprioritized dependencies above; solve the hardest eligible coding problem first, with user burden as tie-breaker.<br>[ ] Reorder trains only through a recorded dependency and user-value decision.<br>[ ] Re-score after each minor release without silently promoting `Later` or `Moonshot` work. | Closest canonical owners.<br>Exit: every accepted `Next` ID is shipped, moved with evidence, or retired by user-approved decision. |
 | 13. V3 line closure | [ ] Confirm every accepted ID and inventory item has a final disposition.<br>[ ] Remove transition-only `v3` prefixes from ordinary files, modules, types, commands, and live schema names; retain version labels only in immutable compatibility identifiers where the version is part of the contract.<br>[ ] Delete pre-v3 compatibility readers, migration shims, fixtures, and release claims; make v3.0.0 the first supported compatibility baseline.<br>[ ] Audit Rust workspace and module organization against canonical crate ownership, Cargo workspace dependency and lint inheritance, compile boundaries, and repository file-size policy; split only on cohesive ownership boundaries.<br>[ ] Give every maintained hand-authored comment-capable file a one- or two-line native responsibility header; run `npm run lint:file-description -- --all` with zero gaps.<br>[ ] Move completed child plans and evidence to canonical completed owners.<br>[ ] Record compatibility guarantees, unsupported paths, retained exceptions, and the v4 backlog.<br>[ ] Audit docs, architecture, security, dependencies, duplication, migration, GUI, packages, and public artifacts. | Planning, harness, release, and all affected owners.<br>Exit: no transition-only v3 naming, pre-v3 compatibility machinery, or file-description gap remains; Rust code has explicit cohesive owners without boundary leakage, no active v3 work remains outside this plan, current state is compact, and the next major line starts from an explicit backlog. |
 
 ## Verification
@@ -331,11 +577,12 @@ interaction. Do not automatically run every frontend test or the Rust workspace.
 
 Development-milestone closure reconciles acceptance against applicable focused
 evidence. It does not require a blanket full-suite or installed-package rerun.
-Shared contracts, broad refactors, or uncertain routing still require the
-repository's full lane when scoped proof cannot establish the boundary; this
-exception must name the concrete risk, not just the milestone number.
+During development, use focused type/compile and boundary checks for shared
+changes. If no narrow check can resolve a design-invalidating risk, name that
+exception before expanding verification; stop after obtaining the needed proof.
 
-After major development is complete, M11 and each later release cut require:
+After all accepted engineering is complete, R1 qualifies each intended release
+cut using the parked M11 requirements:
 
 ```bash
 npm run verify:full
@@ -478,6 +725,15 @@ claims are historical, not fresh verification. Current state is in Handoff.
   controls.
 
 ## Decisions
+
+- On 2026-10-28, the user paused implementation and requested reprioritization
+  of the entire remaining plan: finish real development before broad testing,
+  validation and release work. D0–D10 supersedes the previous M11-before-Next timing;
+  accepted scope, Gate 5 release cuts and focused safety checks remain unchanged.
+
+- On 2026-10-28, the user directed current local testing on the existing Mac and
+  deferred Windows/Linux VM testing until later. Do not provision VMs in this
+  phase or report those matrix rows as passed; Gate 6 must state the deferred coverage.
 
 - Treat v3 as a major line: v3.0 freezes durable contracts and ships the first
   coherent vertical product; v3.x delivers accepted dependent enhancements.
@@ -670,24 +926,18 @@ claims are historical, not fresh verification. Current state is in Handoff.
 
 ## Handoff
 
-- M10 development acceptance is complete; M11 is active. The canonical status
-  and feature ledger own current selection. Earlier M0–M9 labels remain under
-  retrospective review and do not establish release readiness.
-- M10 evidence records signed review, real encrypted SQLite writer drain,
-  snapshot/journal preparation, recovery, cleanup and reviewed Settings controls.
-  Positive OS acknowledgement is simulated; actual installed update/rollback
-  and supported-platform qualification remain M11.
-- Next: close recorded audit gaps, compare current model candidates against frozen
-  workloads, and run the applicable integration/release gates on current artifacts.
-- Qwen remains the baseline pending comparative evidence. The model shortlist and
-  comparison conditions belong to
-  [Local Intelligence](local-intelligence-and-agents.md#model-selection-revalidation-2026-10-28).
-- Production app/Region trust, signing, notarization and public artifacts belong
-  to M11. Resolve required external access and authority before affected actions;
-  the sequencing change itself does not authorize service restarts or secret reads.
-- Earlier platform gaps included OrbStack recovery, Windows 11 availability,
-  exact macOS 26, Linux release-matrix proof and native accessibility. Recheck
-  current capability; retain every unproven requirement as an explicit gap.
-- Keep draft PR 329 aligned with each pushed checkpoint and its verification limits.
-  Complete Gate 6 before publication. M12's accepted trains and M13 closure remain
-  required by the full execution goal.
+- The user resumed implementation on 2026-10-28. Start at the selected D0 child.
+- The selected next child is `v3-source-compatibility-cleanup` in D0. The parked
+  M11 campaign has partial evidence, not passing qualification.
+- Follow D0 through D10 and the complete 82-ID inventory above. Keep one bounded child
+  active. Finish real useful behavior and focused checks before selecting another.
+- Preserve the v3.0 core cut separately from Next development. No extra v3.0
+  editions, Later/Moonshot promotions or public version/release changes are implied.
+- Existing uncommitted M11 corrections remain untouched. Retain partial test/model
+  evidence. Do not repeat full suites, installers, signing or benchmark research now.
+- Full Mac qualification is R1. Production trust, artifacts and release operations
+  are R2/R3. Windows/Linux VM work remains deferred by the user.
+- The bounded model reference check supports retaining the current governed Qwen
+  configuration. No new model or threshold change is approved.
+- Update the feature ledger and current status only from actual evidence. Earlier
+  passing labels do not replace remaining source coverage or release proof.

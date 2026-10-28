@@ -1,57 +1,47 @@
-<!-- Owns the active work selection, verified checkpoints and immediate acceptance gaps. -->
+<!-- Owns current work selection, execution state and the immediate development handoff. -->
 
 # Current Status
 
 Last updated: 2026-10-28
 
-## Full-Plan Progress
+## Execution
 
-- Planning estimate: **about 50% complete**, with audit and release uncertainty.
-- The master plan accepts 187 idea IDs: 105 for v3.0 and 82 in M12's nine trains.
-  M0–10 record 105 implemented IDs (56.1%); this raw count excludes release and
-  closure effort, and historical labels do not certify audited behavior.
-- Target: all accepted IDs, M10 recovery/update integration, M11 qualification and
-  release, M12 enhancement trains, and M13 line closure. The old 10/14 milestone
-  percentage weighted unlike milestones equally and overstated overall completion.
-
-## Recorded Checkpoints
-
-- The feature ledger owns historical milestone evidence and passing transitions.
-- M0–M9 were recorded passing. The retrospective audit found missed behavior;
-  those labels do not establish current acceptance or release readiness.
-- Gate 5 is approved: one upgradable Essentials package, optional components,
-  reviewed updates/compatible rollback, and milestones 0–10 as the v3.0 cut.
-- The user approved a 256 MiB temporary backup-drop cap; larger backups use Settings Restore.
-
-## In Progress
-
-- Active feature: `v3-milestone-11-integration-qa-release`
+- Active feature: `v3-source-compatibility-cleanup`
 - Status: `active`
-- Audit findings, corrections and uncovered areas:
-  `docs/harness/evidence/v3-retrospective-audit-2026-10-28.json`.
-- Update prerequisites include signed candidate assessment, Rust-owned inventory,
-  snapshot revalidation, scheduler drain and verified same-device recovery snapshots.
-- M10 development acceptance passed: signed native coordinator proof uses real crypto,
-  encrypted SQLite, writer drain and recovery snapshots; positive OS acknowledgement is simulated.
-- Reviewed fixes cover database/WAL preservation, newer-data refusal, protected form
-  input, native file bounds, pack lifecycle, DNS pinning, Settings/support privacy,
-  model loading and inference budgets. Focused evidence is linked from the audit.
-- Snapshot-bound semantic matching is wired into maintained reviews at `c3882eb3`.
-  One optimized Qwen workflow passed in 5.70s with 6,668,730,368-byte peak RSS;
-  this is not representative latency or an enforced 8 GiB qualification.
-- Security refresh: affected branch dependencies patched; npm audit reports zero known
-  vulnerabilities. Evidence: `docs/harness/evidence/v3-security-refresh-2026-10-28.json`.
-- Next: close recorded audit/model gaps and qualify current installed artifacts under
-  M11; production trust and positive OS/native release journeys remain unproven.
+- Implementation goal: **active**, resumed by the user on 2026-10-28.
+  Work starts with the selected D0 child, not the parked qualification campaign.
+- Follow the [development queue](../plans/v3/master-exec-plan.md#remaining-development-queue):
+  finish accepted engineering and code cleanup before broad qualification or release.
+- Current work: D0 source/compatibility cleanup, preserving immutable contracts
+  and everything required by the first supported v3.0.0 baseline.
 
-## Remaining Qualification
+## Remaining Scope
 
-- Model choice is being revalidated; no replacement or threshold change is approved.
-- Cooperative cancellation, retained-cache repair/removal and abandoned-import ownership
-  pass focused checks; full-model cancellation latency and representative performance remain gaps.
-- M11 owns production app/Region signing, current enforced 8 GiB/native journeys,
-  Windows 11/exact macOS 26/Linux qualification and release proof.
-- Hosted general CI remains absent under `pre-alpha-private-no-ci`.
+- Milestones 0 through 10 record development checkpoints for 105 Now IDs. Historical labels do not
+  establish current acceptance or release readiness.
+- All 82 Next IDs have explicit remaining outcomes and dependency groups in the master plan.
+  Existing foundations are reused. Partial surfaces do not count as completed features.
+- Milestone 13 code cleanup moves before final QA. Release-pipeline implementation
+  and remaining documentation/header/boundary repairs are development, not final testing.
+- M11 broad qualification is parked until development is ready. Its earlier partial
+  evidence and failures remain recorded, not passing or silently reset.
+- Keep Gate 5's v3.0/Next release cuts separate while changing coding order.
+- Later/Moonshot scope and prohibited behavior remain unchanged.
 
-The master plan owns scope and development-first sequencing. Historical packages
-and model runs prove only their recorded scope, not current release readiness.
+## Preserved Work And Evidence
+
+- `e6b97d9b` records M10 development acceptance. Positive OS acknowledgement was simulated.
+- Preserved M11 corrections and the reprioritized plan are checkpointed before D0 source changes.
+- Audit coverage/gaps: `docs/harness/evidence/v3-retrospective-audit-2026-10-28.json`.
+- Partial M11 work: `docs/harness/evidence/v3-milestone-11-local-qualification-2026-10-28.json`.
+- Last full run stopped with 10 Workbench policy-freshness failures. Diagnose fixture
+  aging versus production policy when that owner is next changed or during final QA.
+- The bounded Mac reference comparison supports retaining governed Qwen. No model or
+  numeric threshold change is approved. Reuse results instead of repeating comparisons now.
+- Windows/Linux VM testing remains user-deferred. Current Mac27.2 evidence does not
+  establish exact26 or enforced8GiB zero-swap qualification.
+- Production app/Region enrollment, signing, notarization, installed journeys and
+  public artifact checks remain late work. Hosted general CI remains absent under
+  `pre-alpha-private-no-ci`. The release decision must state retained exceptions.
+
+The master plan owns the detailed order and remaining gates. Broad qualification remains deferred.

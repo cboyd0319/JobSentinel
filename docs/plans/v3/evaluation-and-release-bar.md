@@ -9,18 +9,22 @@ platforms.
 
 ## When To Run These Checks
 
-The master plan owns timing: finish major v3.0 development in M9/M10 before
-M11's full integration, installed-platform, 8 GiB, accessibility, and release
-campaign. Within each later v3.x train, finish its development before its
-release campaign. These requirements are deferred in timing, never waived.
+The master plan's [remaining development queue](master-exec-plan.md#remaining-development-queue)
+owns timing. The 2026-10-28 user direction finishes all accepted engineering,
+including Next features, source cleanup and release-pipeline code, before the broad
+qualification campaign. Milestone numbers retain scope/history, not execution order.
 
-During development, solve the hardest dependency-ready problem first with
-focused red/green tests. Run targeted integration, migration, security, or model
-evaluation when the changed boundary requires it; do not postpone those safety
-checks. Reuse applicable evidence and unchanged model caches. Do not repeatedly
-rebuild installers or rerun the full matrix for incremental checkpoints.
-Historical feasibility evidence is not current-release certification, and
-missing native or production-signing evidence still blocks release claims.
+During development, use focused compile, migration, authorization and regression
+checks needed by the changed boundary. Evaluation corpora/scorers and readiness
+scorecards are real feature development; running broad benchmarks is late assurance.
+Do not repeat full suites, installed journeys, model comparisons, signing or package
+builds merely because a coding slice finishes. Reuse valid unchanged evidence.
+
+After development freezes, qualify each intended release cut and state failed,
+unrun or deferred coverage explicitly. Keep the approved Now/Next product boundary;
+early Next development does not enlarge v3.0. Current local testing uses this Mac;
+Windows/Linux VM work remains user-deferred. All numeric limits and release safety
+requirements remain unchanged. Implementation has resumed at D0; broad qualification remains deferred.
 
 ## Release Bar Summary
 
@@ -280,6 +284,11 @@ V3 must be manually verified across:
 Use real novice-user tasks, not only component snapshots.
 
 ## Cross-Platform Verification
+
+Current execution scope, approved by the user on 2026-10-28: run local testing
+directly on the existing Mac; plan Windows/Linux VM testing later. Those matrix
+rows remain deferred, never passed by proxy. Record this limitation in Gate 6
+evidence before publication; frozen thresholds remain unchanged.
 
 Required platform checks:
 

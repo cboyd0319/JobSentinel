@@ -5,12 +5,37 @@ use super::types::JobRow;
 use chrono::Utc;
 use jobsentinel_domain::{canonicalize_job_url, Job, JobGeography};
 use jobsentinel_security::validate_external_https_url;
+use sqlx::{query::Query, sqlite::SqliteArguments, Sqlite};
 
 struct StoredPay {
     listed_pay: Option<String>,
     salary_min: Option<i64>,
     salary_max: Option<i64>,
     currency: Option<String>,
+}
+
+fn bind_job_fields<'q>(
+    query: Query<'q, Sqlite, SqliteArguments>,
+    job: &Job,
+    canonical_job_url: &str,
+    stored_pay: &StoredPay,
+    geography: &Option<String>,
+) -> Query<'q, Sqlite, SqliteArguments> {
+    query
+        .bind(&job.title)
+        .bind(&job.company)
+        .bind(canonical_job_url)
+        .bind(&job.location)
+        .bind(&job.description)
+        .bind(job.score)
+        .bind(&job.score_reasons)
+        .bind(&job.source)
+        .bind(job.remote.map(i64::from))
+        .bind(stored_pay.salary_min)
+        .bind(stored_pay.salary_max)
+        .bind(&stored_pay.currency)
+        .bind(&stored_pay.listed_pay)
+        .bind(geography)
 }
 
 fn canonicalize_job_for_storage(
@@ -198,7 +223,7 @@ impl Database {
             job_id = existing_id,
             "Job already exists, updating and incrementing times_seen"
         );
-        sqlx::query(
+        let query = sqlx::query(
             r#"
             UPDATE jobs SET
                 title = ?, company = ?, url = ?, location = ?, description = ?,
@@ -208,29 +233,16 @@ impl Database {
                 ghost_reasons = ?, repost_count = ?
             WHERE id = ?
             "#,
-        )
-        .bind(&job.title)
-        .bind(&job.company)
-        .bind(canonical_job_url)
-        .bind(&job.location)
-        .bind(&job.description)
-        .bind(job.score)
-        .bind(&job.score_reasons)
-        .bind(&job.source)
-        .bind(job.remote.map(i64::from))
-        .bind(stored_pay.salary_min)
-        .bind(stored_pay.salary_max)
-        .bind(&stored_pay.currency)
-        .bind(&stored_pay.listed_pay)
-        .bind(geography)
-        .bind(Utc::now())
-        .bind(Utc::now())
-        .bind(job.ghost_score)
-        .bind(&job.ghost_reasons)
-        .bind(job.repost_count)
-        .bind(existing_id)
-        .execute(self.pool())
-        .await?;
+        );
+        bind_job_fields(query, job, canonical_job_url, stored_pay, geography)
+            .bind(Utc::now())
+            .bind(Utc::now())
+            .bind(job.ghost_score)
+            .bind(&job.ghost_reasons)
+            .bind(job.repost_count)
+            .bind(existing_id)
+            .execute(self.pool())
+            .await?;
 
         tracing::debug!(job_id = existing_id, "Job update completed");
         Ok(existing_id)
@@ -243,7 +255,7 @@ impl Database {
         stored_pay: &StoredPay,
         geography: &Option<String>,
     ) -> Result<Option<i64>, sqlx::Error> {
-        let result = sqlx::query(
+        let query = sqlx::query(
             r#"
             INSERT INTO jobs (
                 hash, title, company, url, location, description,
@@ -256,33 +268,20 @@ impl Database {
             ON CONFLICT(hash) DO NOTHING
             "#,
         )
-        .bind(&job.hash)
-        .bind(&job.title)
-        .bind(&job.company)
-        .bind(canonical_job_url)
-        .bind(&job.location)
-        .bind(&job.description)
-        .bind(job.score)
-        .bind(&job.score_reasons)
-        .bind(&job.source)
-        .bind(job.remote.map(i64::from))
-        .bind(stored_pay.salary_min)
-        .bind(stored_pay.salary_max)
-        .bind(&stored_pay.currency)
-        .bind(&stored_pay.listed_pay)
-        .bind(geography)
-        .bind(job.created_at)
-        .bind(job.updated_at)
-        .bind(job.last_seen)
-        .bind(job.times_seen)
-        .bind(i64::from(job.immediate_alert_sent))
-        .bind(i64::from(job.included_in_digest))
-        .bind(job.ghost_score)
-        .bind(&job.ghost_reasons)
-        .bind(job.first_seen)
-        .bind(job.repost_count)
-        .execute(self.pool())
-        .await?;
+        .bind(&job.hash);
+        let result = bind_job_fields(query, job, canonical_job_url, stored_pay, geography)
+            .bind(job.created_at)
+            .bind(job.updated_at)
+            .bind(job.last_seen)
+            .bind(job.times_seen)
+            .bind(i64::from(job.immediate_alert_sent))
+            .bind(i64::from(job.included_in_digest))
+            .bind(job.ghost_score)
+            .bind(&job.ghost_reasons)
+            .bind(job.first_seen)
+            .bind(job.repost_count)
+            .execute(self.pool())
+            .await?;
 
         if result.rows_affected() == 0 {
             return Ok(None);
