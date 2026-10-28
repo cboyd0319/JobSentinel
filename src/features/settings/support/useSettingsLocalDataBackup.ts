@@ -114,14 +114,10 @@ export function useSettingsLocalDataBackup({
       }
 
       const { backup } = backupImport;
-      const [templateCount, searchCount] = await Promise.all([
-        invoke<number>("import_cover_letter_templates", {
-          templates: backup.coverLetterTemplates,
-        }),
-        invoke<number>("import_saved_searches", {
-          searches: backup.savedSearches,
-        }),
-      ]);
+      const [templateCount, searchCount] = await invoke<[number, number]>("import_settings_records", {
+        templates: backup.coverLetterTemplates,
+        searches: backup.savedSearches,
+      });
       setConfig(backup.settings);
       toastSuccess(
         "Local data restored",

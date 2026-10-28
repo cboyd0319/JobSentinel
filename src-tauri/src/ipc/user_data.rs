@@ -1,6 +1,4 @@
-//! User data persistence Tauri commands (E3: Backend Persistence)
-//!
-//! Commands for cover letter templates, interview prep, saved searches, and notification preferences.
+//! Exposes local user-data persistence and atomic Settings-record restore commands.
 
 use crate::application::user_data::{
     CoverLetterTemplate, FollowUpReminder, NotificationPreferences, PrepChecklistItem, SavedSearch,
@@ -388,4 +386,18 @@ pub(crate) async fn clear_search_history(state: State<'_, AppState>) -> Result<(
         .clear_search_history()
         .await
         .map_err(|e| user_friendly_error("Database operation failed", e))
+}
+
+#[tauri::command]
+pub(crate) async fn import_settings_records(
+    templates: Vec<CoverLetterTemplate>,
+    searches: Vec<SavedSearch>,
+    state: State<'_, AppState>,
+) -> Result<(usize, usize), String> {
+    state
+        .database
+        .user_data_manager()
+        .import_local_settings(templates, searches)
+        .await
+        .map_err(|error| user_friendly_error("Settings records could not be restored", error))
 }

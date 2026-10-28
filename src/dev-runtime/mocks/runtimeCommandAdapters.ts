@@ -294,3 +294,16 @@ export const applyMockSavedSearchCommand: MockCommandAdapter = (
   if (result.shouldSave) saveMockState();
   return result.value;
 };
+
+/** Applies both Settings collections before publishing the mock state once. */
+export const applyMockSettingsRecordsImport: MockCommandAdapter = (_command, args) => {
+  const templates = handleMockCoverLetterTemplateCommand("import_cover_letter_templates", args, {
+    coverLetterTemplates: mockRuntimeState.coverLetterTemplates,
+  });
+  const searches = handleMockSavedSearchCommand("import_saved_searches", args, {
+    savedSearches: mockRuntimeState.savedSearches, searchHistory: mockRuntimeState.searchHistory,
+  });
+  Object.assign(mockRuntimeState, templates.state, searches.state);
+  saveMockState();
+  return [templates.value, searches.value];
+};

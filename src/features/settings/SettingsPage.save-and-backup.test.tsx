@@ -367,8 +367,7 @@ describe("Settings — handleSave flow", () => {
       }
       if (cmd === "get_ghost_config") return makeGhostConfig();
       if (cmd === "detect_location") return null;
-      if (cmd === "import_cover_letter_templates") return 1;
-      if (cmd === "import_saved_searches") return 1;
+      if (cmd === "import_settings_records") return [1, 1];
       return null;
     });
     mockSelectSettingsBackupFile.mockResolvedValueOnce({
@@ -392,10 +391,8 @@ describe("Settings — handleSave flow", () => {
     await user.click(screen.getByRole("button", { name: "Restore Settings" }));
 
     await waitFor(() => {
-      expect(mockInvoke).toHaveBeenCalledWith("import_cover_letter_templates", {
+      expect(mockInvoke).toHaveBeenCalledWith("import_settings_records", {
         templates: [template],
-      });
-      expect(mockInvoke).toHaveBeenCalledWith("import_saved_searches", {
         searches: [savedSearch],
       });
       expect(mockToast.success).toHaveBeenCalledWith(
@@ -463,7 +460,7 @@ describe("Settings — handleSave flow", () => {
       return;
     }
     expect(mockInvoke).not.toHaveBeenCalledWith("import_cover_letter_templates", expect.anything());
-    expect(mockInvoke).not.toHaveBeenCalledWith("import_saved_searches", expect.anything());
+    expect(mockInvoke).not.toHaveBeenCalledWith("import_settings_records", expect.anything());
     expect(mockToast.success).not.toHaveBeenCalledWith("Local data restored", expect.any(String));
   });
 

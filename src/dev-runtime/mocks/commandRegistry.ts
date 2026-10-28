@@ -20,6 +20,7 @@ import {
   applyMockSavedSearchCommand,
   applyMockSearchLinksCommand,
   applyMockSettingsCommand,
+  applyMockSettingsRecordsImport,
   applyMockSourceHealthCommand,
   applyMockSupportCommand,
   applyMockUnavailableNativeFileDropCommand,
@@ -32,6 +33,7 @@ interface MockCommandGroup {
 }
 
 const commandGroups: readonly MockCommandGroup[] = [
+  { commands: ["import_settings_records"], adapter: applyMockSettingsRecordsImport },
   {
     commands: [
       "get_jobs",

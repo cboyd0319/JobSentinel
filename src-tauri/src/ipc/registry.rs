@@ -154,6 +154,7 @@ macro_rules! jobsentinel_command_handlers {
             jobsentinel::ipc::user_data::save_notification_preferences,
             jobsentinel::ipc::user_data::import_cover_letter_templates,
             jobsentinel::ipc::user_data::import_saved_searches,
+            jobsentinel::ipc::user_data::import_settings_records,
             jobsentinel::ipc::user_data::add_search_history,
             jobsentinel::ipc::user_data::get_search_history,
             jobsentinel::ipc::user_data::clear_search_history,

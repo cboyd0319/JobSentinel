@@ -1,3 +1,5 @@
+//! Verifies user-data types and atomic Settings-record restore behavior.
+
 use super::*;
 
 #[test]
@@ -97,4 +99,125 @@ fn test_advanced_filters_preserve_pre_refactor_company_preferences() {
         serialized["excludedCompanies"],
         serde_json::json!(["AvoidMe"])
     );
+}
+
+#[tokio::test]
+async fn settings_restore_rolls_back_both_collections_on_search_failure() {
+    let database = crate::test_support::migrated_database().await;
+    let manager = database.user_data_manager();
+    let template = CoverLetterTemplate {
+        id: "restore-template".into(),
+        name: "Template".into(),
+        content: "Local text".into(),
+        category: TemplateCategory::General,
+        created_at: "date".into(),
+        updated_at: "date".into(),
+    };
+    let search: SavedSearch = serde_json::from_value(serde_json::json!({
+        "id":"restore-search","name":"Search","sortBy":"score-desc","scoreFilter":"all","sourceFilter":"all","remoteFilter":"all","bookmarkFilter":"all","notesFilter":"all","createdAt":"date"
+    })).unwrap();
+    sqlx::query("CREATE TRIGGER reject_restore_search BEFORE INSERT ON saved_searches BEGIN SELECT RAISE(ABORT, 'fixture failure'); END")
+        .execute(database.pool()).await.unwrap();
+    assert!(manager
+        .import_local_settings(vec![template.clone()], vec![search.clone()])
+        .await
+        .is_err());
+    let count: i64 = sqlx::query_scalar(
+        "SELECT COUNT(*) FROM cover_letter_templates WHERE id='restore-template'",
+    )
+    .fetch_one(database.pool())
+    .await
+    .unwrap();
+    assert_eq!(count, 0);
+    sqlx::query("DROP TRIGGER reject_restore_search")
+        .execute(database.pool())
+        .await
+        .unwrap();
+    assert_eq!(
+        manager
+            .import_local_settings(vec![template.clone()], vec![search.clone()])
+            .await
+            .unwrap(),
+        (1, 1)
+    );
+    let mut duplicate = template;
+    duplicate.content = "must not overwrite".into();
+    assert_eq!(
+        manager
+            .import_local_settings(vec![duplicate], vec![search])
+            .await
+            .unwrap(),
+        (0, 0)
+    );
+    let preserved: String = sqlx::query_scalar(
+        "SELECT content FROM cover_letter_templates WHERE id='restore-template'",
+    )
+    .fetch_one(database.pool())
+    .await
+    .unwrap();
+    assert_eq!(preserved, "Local text");
+}
+
+#[tokio::test]
+async fn settings_restore_supports_every_template_category_and_rejects_invalid_category() {
+    let database = crate::Database::connect_memory().await.unwrap();
+    let migrations = sqlx::migrate!("./migrations");
+    migrations.run_to(30, database.pool()).await.unwrap();
+    sqlx::query("INSERT INTO cover_letter_templates(id,name,content,category) VALUES ('preserved','Original','Private saved wording','general')")
+        .execute(database.pool()).await.unwrap();
+    migrations.run(database.pool()).await.unwrap();
+    let preserved: String =
+        sqlx::query_scalar("SELECT content FROM cover_letter_templates WHERE id='preserved'")
+            .fetch_one(database.pool())
+            .await
+            .unwrap();
+    assert_eq!(preserved, "Private saved wording");
+    let manager = database.user_data_manager();
+    for category in [
+        TemplateCategory::General,
+        TemplateCategory::Tech,
+        TemplateCategory::Creative,
+        TemplateCategory::Finance,
+        TemplateCategory::Healthcare,
+        TemplateCategory::Sales,
+        TemplateCategory::Custom,
+        TemplateCategory::ThankYou,
+        TemplateCategory::FollowUp,
+        TemplateCategory::Withdrawal,
+    ] {
+        let id = format!("category-{category}");
+        let template = CoverLetterTemplate {
+            id: id.clone(),
+            name: id.clone(),
+            content: "saved text".into(),
+            category: category.clone(),
+            created_at: "2026-10-28T00:00:00Z".into(),
+            updated_at: "2026-10-28T00:00:00Z".into(),
+        };
+        assert_eq!(
+            manager
+                .import_local_settings(vec![template], vec![])
+                .await
+                .unwrap(),
+            (1, 0)
+        );
+        let stored: String =
+            sqlx::query_scalar("SELECT category FROM cover_letter_templates WHERE id=?")
+                .bind(&id)
+                .fetch_one(database.pool())
+                .await
+                .unwrap();
+        assert_eq!(stored, category.to_string());
+    }
+    let mut transaction = database.pool().begin().await.unwrap();
+    sqlx::query("INSERT INTO cover_letter_templates(id,name,content,category) VALUES ('rollback-valid','Test','Text','general')").execute(&mut *transaction).await.unwrap();
+    assert!(sqlx::query("INSERT INTO cover_letter_templates(id,name,content,category) VALUES ('rollback-invalid','Test','Text','unsupported')").execute(&mut *transaction).await.is_err());
+    transaction.rollback().await.unwrap();
+    let count: i64 = sqlx::query_scalar(
+        "SELECT COUNT(*) FROM cover_letter_templates WHERE id LIKE 'rollback-%'",
+    )
+    .fetch_one(database.pool())
+    .await
+    .unwrap();
+    assert_eq!(count, 0);
 }
