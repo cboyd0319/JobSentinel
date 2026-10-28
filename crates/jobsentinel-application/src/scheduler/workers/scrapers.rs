@@ -81,15 +81,19 @@ pub(super) enum ScraperRunOutcome {
     Cancelled,
 }
 
+// Keep the existing shutdown flag and wake signal explicit at the audited run boundary.
+#[allow(clippy::too_many_arguments)]
 pub(super) async fn run_scraper<S: JobScraper + ?Sized>(
     db: &Arc<Database>,
     scraper: &S,
     source_id: &'static str,
     source_label: &'static str,
     shutdown_requested: &AtomicBool,
+    shutdown_signal: &tokio::sync::broadcast::Sender<()>,
     all_jobs: &mut Vec<Job>,
     errors: &mut Vec<String>,
 ) -> ScraperRunOutcome {
+    let mut shutdown_rx = shutdown_signal.subscribe();
     if shutdown_requested.load(Ordering::Acquire) {
         return ScraperRunOutcome::Cancelled;
     }
@@ -102,7 +106,28 @@ pub(super) async fn run_scraper<S: JobScraper + ?Sized>(
     };
     let started_at = std::time::Instant::now();
 
-    match scraper.scrape().await {
+    let result = tokio::select! {
+        biased;
+        _ = shutdown_rx.recv() => None,
+        result = scraper.scrape() => Some(result),
+    };
+    let Some(result) = result else {
+        if crate::health::fail_run(
+            db,
+            run_id,
+            started_at.elapsed().as_millis() as i64,
+            "Source check cancelled",
+            Some("cancelled"),
+        )
+        .await
+        .is_err()
+        {
+            record_audit_failure(errors, source_label);
+            return ScraperRunOutcome::Failure;
+        }
+        return ScraperRunOutcome::Cancelled;
+    };
+    match result {
         Ok(jobs) => {
             let jobs_found = jobs.len();
             if crate::health::complete_run(
@@ -204,19 +229,36 @@ pub(crate) async fn run_scrapers(
     db: &Arc<Database>,
     credentials: &CredentialService,
     shutdown_requested: &AtomicBool,
+    shutdown_signal: &tokio::sync::broadcast::Sender<()>,
 ) -> (Vec<Job>, Vec<String>) {
     tracing::info!("Starting scraper execution across all enabled sources");
     let mut all_jobs = Vec::new();
     let mut errors = Vec::new();
 
-    public_ats_worker::run_greenhouse(config, db, shutdown_requested, &mut all_jobs, &mut errors)
-        .await;
-    public_ats_worker::run_lever(config, db, shutdown_requested, &mut all_jobs, &mut errors).await;
+    public_ats_worker::run_greenhouse(
+        config,
+        db,
+        shutdown_requested,
+        shutdown_signal,
+        &mut all_jobs,
+        &mut errors,
+    )
+    .await;
+    public_ats_worker::run_lever(
+        config,
+        db,
+        shutdown_requested,
+        shutdown_signal,
+        &mut all_jobs,
+        &mut errors,
+    )
+    .await;
 
     jobswithgpt_worker::run_jobswithgpt_scraper(
         config.as_ref(),
         db,
         shutdown_requested,
+        shutdown_signal,
         &mut all_jobs,
         &mut errors,
     )
@@ -232,6 +274,7 @@ pub(crate) async fn run_scrapers(
         config.as_ref(),
         db,
         shutdown_requested,
+        shutdown_signal,
         &mut all_jobs,
         &mut errors,
     )
@@ -241,6 +284,7 @@ pub(crate) async fn run_scrapers(
         config.as_ref(),
         db,
         shutdown_requested,
+        shutdown_signal,
         &mut all_jobs,
         &mut errors,
     )
@@ -254,6 +298,7 @@ pub(crate) async fn run_scrapers(
         config.as_ref(),
         db,
         shutdown_requested,
+        shutdown_signal,
         &mut all_jobs,
         &mut errors,
     )
@@ -268,6 +313,7 @@ pub(crate) async fn run_scrapers(
         db,
         credentials,
         shutdown_requested,
+        shutdown_signal,
         &mut all_jobs,
         &mut errors,
     )

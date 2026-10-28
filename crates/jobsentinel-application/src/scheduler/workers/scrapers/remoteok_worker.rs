@@ -20,6 +20,7 @@ pub(super) async fn run_remoteok(
     config: &Config,
     database: &Arc<Database>,
     shutdown_requested: &AtomicBool,
+    shutdown_signal: &tokio::sync::broadcast::Sender<()>,
     all_jobs: &mut Vec<Job>,
     errors: &mut Vec<String>,
 ) {
@@ -61,6 +62,7 @@ pub(super) async fn run_remoteok(
         "remoteok",
         "RemoteOK",
         shutdown_requested,
+        shutdown_signal,
         all_jobs,
         errors,
     )
@@ -89,6 +91,7 @@ mod tests {
             &config,
             &database,
             &AtomicBool::new(false),
+            &tokio::sync::broadcast::channel(1).0,
             &mut jobs,
             &mut errors,
         )

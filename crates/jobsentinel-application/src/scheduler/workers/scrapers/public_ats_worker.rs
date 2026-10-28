@@ -23,6 +23,7 @@ pub(super) async fn run_greenhouse(
     config: &Config,
     database: &Arc<Database>,
     shutdown_requested: &AtomicBool,
+    shutdown_signal: &tokio::sync::broadcast::Sender<()>,
     all_jobs: &mut Vec<Job>,
     errors: &mut Vec<String>,
 ) {
@@ -79,6 +80,7 @@ pub(super) async fn run_greenhouse(
         "greenhouse",
         "Greenhouse",
         shutdown_requested,
+        shutdown_signal,
         all_jobs,
         errors,
     )
@@ -89,6 +91,7 @@ pub(super) async fn run_lever(
     config: &Config,
     database: &Arc<Database>,
     shutdown_requested: &AtomicBool,
+    shutdown_signal: &tokio::sync::broadcast::Sender<()>,
     all_jobs: &mut Vec<Job>,
     errors: &mut Vec<String>,
 ) {
@@ -141,6 +144,7 @@ pub(super) async fn run_lever(
         "lever",
         "Lever",
         shutdown_requested,
+        shutdown_signal,
         all_jobs,
         errors,
     )
@@ -176,6 +180,7 @@ mod tests {
             &config,
             &database,
             &AtomicBool::new(false),
+            &tokio::sync::broadcast::channel(1).0,
             &mut jobs,
             &mut errors,
         )
@@ -184,6 +189,7 @@ mod tests {
             &config,
             &database,
             &AtomicBool::new(false),
+            &tokio::sync::broadcast::channel(1).0,
             &mut jobs,
             &mut errors,
         )

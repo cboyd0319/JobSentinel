@@ -1,3 +1,5 @@
+//! Runs governed We Work Remotely checks with shutdown and source-policy controls.
+
 use std::{
     num::NonZeroU16,
     sync::{atomic::AtomicBool, Arc},
@@ -18,6 +20,7 @@ pub(super) async fn run_weworkremotely(
     config: &Config,
     database: &Arc<Database>,
     shutdown_requested: &AtomicBool,
+    shutdown_signal: &tokio::sync::broadcast::Sender<()>,
     all_jobs: &mut Vec<Job>,
     errors: &mut Vec<String>,
 ) {
@@ -62,6 +65,7 @@ pub(super) async fn run_weworkremotely(
         "weworkremotely",
         "We Work Remotely",
         shutdown_requested,
+        shutdown_signal,
         all_jobs,
         errors,
     )
@@ -91,6 +95,7 @@ mod tests {
             &config,
             &database,
             &AtomicBool::new(false),
+            &tokio::sync::broadcast::channel(1).0,
             &mut jobs,
             &mut errors,
         )

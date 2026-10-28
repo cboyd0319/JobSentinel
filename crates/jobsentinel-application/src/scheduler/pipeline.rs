@@ -39,6 +39,7 @@ impl Scheduler {
             &self.database,
             &self.credentials,
             &self.shutdown_requested,
+            &self.shutdown_tx,
         )
         .await;
         let stage1_duration = stage1_start.elapsed();

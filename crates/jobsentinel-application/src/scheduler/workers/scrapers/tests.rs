@@ -17,6 +17,7 @@ async fn run_closing_scraper<S: JobScraper>(
         "stub",
         "Stub",
         &RUNNING,
+        &tokio::sync::broadcast::channel(1).0,
         &mut jobs,
         &mut errors,
     )
@@ -113,6 +114,7 @@ async fn scraper_runner_records_and_accumulates_success() {
         "stub",
         "Stub",
         &RUNNING,
+        &tokio::sync::broadcast::channel(1).0,
         &mut jobs,
         &mut errors,
     )
@@ -141,6 +143,7 @@ async fn scraper_runner_preserves_partial_results_after_a_later_failure() {
         "first",
         "First",
         &RUNNING,
+        &tokio::sync::broadcast::channel(1).0,
         &mut jobs,
         &mut errors,
     )
@@ -151,6 +154,7 @@ async fn scraper_runner_preserves_partial_results_after_a_later_failure() {
         "second",
         "Second",
         &RUNNING,
+        &tokio::sync::broadcast::channel(1).0,
         &mut jobs,
         &mut errors,
     )
@@ -176,6 +180,7 @@ async fn scraper_runner_preserves_timeout_outcome() {
         "stub",
         "Stub",
         &RUNNING,
+        &tokio::sync::broadcast::channel(1).0,
         &mut jobs,
         &mut errors,
     )
@@ -201,6 +206,7 @@ async fn scraper_runner_does_not_call_external_source_without_audit_row() {
         "stub",
         "Stub",
         &RUNNING,
+        &tokio::sync::broadcast::channel(1).0,
         &mut jobs,
         &mut errors,
     )
@@ -260,6 +266,7 @@ async fn scraper_runner_stops_before_the_next_external_source() {
         "stub",
         "Stub",
         &shutdown_requested,
+        &tokio::sync::broadcast::channel(1).0,
         &mut jobs,
         &mut errors,
     )
@@ -316,7 +323,14 @@ async fn restored_retired_source_flags_stop_before_transport() {
     config.simplyhired.enabled = true;
     config.glassdoor.enabled = true;
 
-    let (jobs, errors) = run_scrapers(&Arc::new(config), &database, &credentials, &RUNNING).await;
+    let (jobs, errors) = run_scrapers(
+        &Arc::new(config),
+        &database,
+        &credentials,
+        &RUNNING,
+        &tokio::sync::broadcast::channel(1).0,
+    )
+    .await;
 
     assert!(jobs.is_empty());
     assert_eq!(
@@ -334,4 +348,94 @@ async fn restored_retired_source_flags_stop_before_transport() {
             .unwrap()
             .is_empty());
     }
+}
+
+#[tokio::test]
+async fn shutdown_cancels_remaining_boards_and_finishes_only_its_audit() {
+    use tokio::io::{AsyncReadExt, AsyncWriteExt};
+    struct Boards(String);
+    #[async_trait::async_trait]
+    impl JobScraper for Boards {
+        async fn scrape(&self) -> Result<Vec<Job>, ScraperError> {
+            for board in ["first", "second"] {
+                jobsentinel_network::send_test_http_text_with_retry(
+                    jobsentinel_network::ExternalHttpRequest::get(format!("{}/{board}", self.0))
+                        .without_retries(),
+                )
+                .await
+                .map_err(|_| ScraperError::Network)?;
+            }
+            Ok(Vec::new())
+        }
+    }
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+    let url = format!("http://{}", listener.local_addr().unwrap());
+    let arrived = Arc::new(tokio::sync::Notify::new());
+    let release = Arc::new(tokio::sync::Notify::new());
+    let count = Arc::new(std::sync::atomic::AtomicUsize::new(0));
+    let (stop_tx, mut stop_rx) = tokio::sync::oneshot::channel::<()>();
+    let server_arrived = arrived.clone();
+    let server_release = release.clone();
+    let server_count = count.clone();
+    let server = tokio::spawn(async move {
+        loop {
+            let (mut socket, _) = tokio::select! {
+                result = listener.accept() => result.unwrap(),
+                _ = &mut stop_rx => break,
+            };
+            let mut request = [0; 1024];
+            socket.read(&mut request).await.unwrap();
+            if server_count.fetch_add(1, Ordering::AcqRel) == 0 {
+                server_arrived.notify_one();
+                server_release.notified().await;
+            }
+            let _ = socket
+                .write_all(b"HTTP/1.1 200 OK\r\nContent-Length: 2\r\nConnection: close\r\n\r\n[]")
+                .await;
+        }
+    });
+    let database = test_database().await;
+    let other = crate::health::start_run(&database, "other").await.unwrap();
+    let shutdown = Arc::new(AtomicBool::new(false));
+    let (signal, _) = tokio::sync::broadcast::channel::<()>(1);
+    let task_database = database.clone();
+    let task_shutdown = shutdown.clone();
+    let task_signal = signal.clone();
+    let task = tokio::spawn(async move {
+        run_scraper(
+            &task_database,
+            &Boards(url),
+            "boards",
+            "Boards",
+            &task_shutdown,
+            &task_signal,
+            &mut Vec::new(),
+            &mut Vec::new(),
+        )
+        .await
+    });
+    tokio::time::timeout(std::time::Duration::from_secs(2), arrived.notified())
+        .await
+        .unwrap();
+    shutdown.store(true, Ordering::Release);
+    let _ = signal.send(());
+    release.notify_one();
+    let outcome = tokio::time::timeout(std::time::Duration::from_secs(2), task)
+        .await
+        .unwrap()
+        .unwrap();
+    stop_tx.send(()).unwrap();
+    server.await.unwrap();
+    assert_eq!(outcome, ScraperRunOutcome::Cancelled);
+    assert_eq!(count.load(Ordering::Acquire), 1);
+    let runs = crate::health::get_scraper_runs(&database, "boards", 1)
+        .await
+        .unwrap();
+    assert_eq!(runs[0].error_code.as_deref(), Some("cancelled"));
+    assert!(runs[0].finished_at.is_some());
+    let other_runs = crate::health::get_scraper_runs(&database, "other", 1)
+        .await
+        .unwrap();
+    assert_eq!(other_runs[0].id, other);
+    assert!(other_runs[0].finished_at.is_none());
 }

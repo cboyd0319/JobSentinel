@@ -1,3 +1,5 @@
+//! Runs governed USAJOBS source checks with local credential and shutdown boundaries.
+
 use std::{
     num::NonZeroU16,
     sync::{
@@ -24,6 +26,7 @@ pub(super) async fn run_usajobs(
     db: &Arc<Database>,
     credentials: &CredentialService,
     shutdown_requested: &AtomicBool,
+    shutdown_signal: &tokio::sync::broadcast::Sender<()>,
     all_jobs: &mut Vec<Job>,
     errors: &mut Vec<String>,
 ) {
@@ -93,6 +96,7 @@ pub(super) async fn run_usajobs(
                     "usajobs",
                     "USAJobs",
                     shutdown_requested,
+                    shutdown_signal,
                     all_jobs,
                     errors,
                 )
@@ -133,6 +137,7 @@ mod tests {
             &database,
             &credentials,
             &shutdown_requested,
+            &tokio::sync::broadcast::channel(1).0,
             &mut jobs,
             &mut errors,
         )
@@ -229,6 +234,7 @@ mod tests {
             &database,
             &credentials,
             &AtomicBool::new(false),
+            &tokio::sync::broadcast::channel(1).0,
             &mut jobs,
             &mut errors,
         )
@@ -266,6 +272,7 @@ mod tests {
             &database,
             credentials,
             &AtomicBool::new(false),
+            &tokio::sync::broadcast::channel(1).0,
             &mut jobs,
             &mut errors,
         )

@@ -1,3 +1,5 @@
+//! Runs approved JobsWithGPT checks and finalizes each request audit.
+
 use super::{record_audit_failure, run_scraper, ScraperRunOutcome};
 use crate::{config::Config, health::SourceRequestOutcome};
 use chrono::Utc;
@@ -48,6 +50,7 @@ pub(super) async fn run_jobswithgpt_scraper(
     config: &Config,
     db: &Arc<Database>,
     shutdown_requested: &AtomicBool,
+    shutdown_signal: &tokio::sync::broadcast::Sender<()>,
     all_jobs: &mut Vec<Job>,
     errors: &mut Vec<String>,
 ) {
@@ -135,6 +138,7 @@ pub(super) async fn run_jobswithgpt_scraper(
         "jobswithgpt",
         "JobsWithGPT",
         shutdown_requested,
+        shutdown_signal,
         all_jobs,
         errors,
     )
@@ -210,6 +214,7 @@ mod tests {
             &config,
             &database,
             &AtomicBool::new(false),
+            &tokio::sync::broadcast::channel(1).0,
             &mut jobs,
             &mut errors,
         )
