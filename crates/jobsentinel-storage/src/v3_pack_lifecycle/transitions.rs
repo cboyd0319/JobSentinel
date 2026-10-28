@@ -1,5 +1,4 @@
 // Implements durable pack lifecycle transitions with generation checks.
-
 use super::*;
 
 impl Database {
@@ -118,8 +117,8 @@ impl Database {
              WHERE publisher_key_id = ? AND pack_id = ? AND generation = ?
                AND high_water_sequence = ?
                AND high_water_signed_release_sha256 = ?
-               AND availability = 'quarantined'
-               AND active_release_sequence IS NULL",
+               AND ((availability = 'quarantined' AND active_release_sequence IS NULL)
+                    OR (availability IN ('ready', 'disabled') AND active_release_sequence != ?))",
         )
         .bind(&now)
         .bind(&release.publisher_key_id)
@@ -127,6 +126,7 @@ impl Database {
         .bind(generation)
         .bind(sequence)
         .bind(&release.signed_release_sha256)
+        .bind(sequence)
         .execute(&mut *transaction)
         .await?;
         if stream_updated.rows_affected() != 1 {

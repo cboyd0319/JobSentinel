@@ -1,3 +1,4 @@
+//! Exercises pack artifact integrity and safe lifecycle failure handling.
 use super::*;
 
 #[tokio::test]
@@ -185,4 +186,80 @@ async fn symlinked_active_artifact_parent_is_an_integrity_failure() {
             .quarantine_reason,
         Some(PackQuarantineReason::IntegrityFailed)
     );
+}
+
+#[tokio::test]
+async fn corrupt_upgrade_preserves_active_and_disabled_streams() {
+    for disabled in [false, true] {
+        let database = Database::connect_memory().await.unwrap();
+        database.migrate().await.unwrap();
+        let root = tempfile::tempdir().unwrap();
+        let (publisher, _) = signed_source_pack(1);
+        let active = stage_and_activate(&database, root.path(), &publisher, 1).await;
+        if disabled {
+            disable_pack_artifact(&database, PUBLISHER_ID, PACK_ID, active.generation)
+                .await
+                .unwrap();
+        }
+        let existing = walk_files(root.path());
+        let (_, envelope) = signed_source_pack(2);
+        let staged = stage_pack_artifact(
+            &database,
+            root.path(),
+            &envelope,
+            std::slice::from_ref(&publisher),
+            NaiveDate::from_ymd_opt(2026, 7, 20).unwrap(),
+        )
+        .await
+        .unwrap();
+        let candidate = walk_files(root.path())
+            .into_iter()
+            .find(|path| !existing.contains(path))
+            .unwrap();
+        std::fs::write(candidate, b"altered").unwrap();
+        assert!(activate_pack_artifact(
+            &database,
+            root.path(),
+            PUBLISHER_ID,
+            PACK_ID,
+            2,
+            staged.generation,
+            std::slice::from_ref(&publisher),
+            NaiveDate::from_ymd_opt(2026, 7, 20).unwrap()
+        )
+        .await
+        .is_err());
+        let stream = database
+            .get_pack_stream(PUBLISHER_ID, PACK_ID)
+            .await
+            .unwrap();
+        assert_eq!(stream.active_release_sequence, Some(1));
+        assert_eq!(
+            stream.availability,
+            if disabled {
+                PackAvailability::Disabled
+            } else {
+                PackAvailability::Ready
+            }
+        );
+        let bad = database
+            .get_stored_pack_release(PUBLISHER_ID, PACK_ID, 2)
+            .await
+            .unwrap();
+        assert_eq!(bad.lifecycle_state, PackReleaseState::Quarantined);
+    }
+}
+
+#[tokio::test]
+async fn disabled_upgrade_review_stays_disabled() {
+    let database = Database::connect_memory().await.unwrap();
+    database.migrate().await.unwrap();
+    let root = tempfile::tempdir().unwrap();
+    let (publisher, _) = signed_source_pack(1);
+    let active = stage_and_activate(&database, root.path(), &publisher, 1).await;
+    disable_pack_artifact(&database, PUBLISHER_ID, PACK_ID, active.generation)
+        .await
+        .unwrap();
+    let upgraded = stage_and_activate(&database, root.path(), &publisher, 2).await;
+    assert_eq!(upgraded.state, PackReviewState::Disabled);
 }

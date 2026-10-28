@@ -31,6 +31,10 @@ mod platform {
             OFlags::WRONLY | OFlags::CREATE | OFlags::EXCL | OFlags::NOFOLLOW | OFlags::CLOEXEC,
             FILE_MODE,
         )?;
+        let cleanup = TemporaryArtifact {
+            directory: &directory,
+            name: &temporary_name,
+        };
         fchmod(&descriptor, FILE_MODE)?;
         let mut temporary = File::from(descriptor);
         temporary.write_all(bytes)?;
@@ -48,7 +52,7 @@ mod platform {
             Err(Errno::EXIST) => Err(io::Error::other("pack artifact already differs")),
             Err(error) => Err(error.into()),
         };
-        let _ = unlinkat(&directory, &temporary_name, AtFlags::empty());
+        drop(cleanup);
         linked?;
         if read_from(&directory, file_name)? != bytes {
             return Err(io::Error::other("pack artifact verification failed"));
@@ -73,7 +77,11 @@ mod platform {
         pack_dir: &str,
         file_name: &str,
     ) -> io::Result<()> {
-        let (_, _, directory) = open_tree(root, publisher_dir, pack_dir, false)?;
+        let (_, _, directory) = match open_tree(root, publisher_dir, pack_dir, false) {
+            Ok(tree) => tree,
+            Err(error) if error.kind() == io::ErrorKind::NotFound => return Ok(()),
+            Err(error) => return Err(error),
+        };
         match openat(
             &directory,
             file_name,
@@ -91,6 +99,16 @@ mod platform {
         unlinkat(&directory, file_name, AtFlags::empty())?;
         fsync(&directory)?;
         Ok(())
+    }
+
+    struct TemporaryArtifact<'a> {
+        directory: &'a OwnedFd,
+        name: &'a str,
+    }
+    impl Drop for TemporaryArtifact<'_> {
+        fn drop(&mut self) {
+            let _ = unlinkat(self.directory, self.name, AtFlags::empty());
+        }
     }
 
     fn open_tree(
@@ -203,7 +221,11 @@ mod platform {
         pack_dir: &str,
         file_name: &str,
     ) -> io::Result<()> {
-        let directory = lock_tree(root, publisher_dir, pack_dir, false)?;
+        let directory = match lock_tree(root, publisher_dir, pack_dir, false) {
+            Ok(directory) => directory,
+            Err(error) if error.kind() == io::ErrorKind::NotFound => return Ok(()),
+            Err(error) => return Err(error),
+        };
         directory.remove_file(file_name)
     }
 
@@ -258,4 +280,30 @@ pub(super) fn remove(
     file_name: &str,
 ) -> io::Result<()> {
     platform::remove(root, publisher_dir, pack_dir, file_name)
+}
+
+#[cfg(all(test, unix))]
+mod tests {
+    use super::*;
+    #[test]
+    fn failed_existing_artifact_read_leaves_no_temporary_payload() {
+        let root = tempfile::tempdir().unwrap();
+        persist(root.path(), "publisher", "pack", "release", b"first").unwrap();
+        let target = root.path().join("publisher/pack/release");
+        std::fs::remove_file(&target).unwrap();
+        std::os::unix::fs::symlink("missing", &target).unwrap();
+        assert!(persist(root.path(), "publisher", "pack", "release", b"second").is_err());
+        assert_eq!(
+            std::fs::read_dir(target.parent().unwrap()).unwrap().count(),
+            1
+        );
+    }
+    #[test]
+    fn removing_absent_tree_succeeds_but_symlinks_fail() {
+        let parent = tempfile::tempdir().unwrap();
+        let root = parent.path().join("absent");
+        remove(&root, "publisher", "pack", "release").unwrap();
+        std::os::unix::fs::symlink(parent.path(), &root).unwrap();
+        assert!(remove(&root, "publisher", "pack", "release").is_err());
+    }
 }

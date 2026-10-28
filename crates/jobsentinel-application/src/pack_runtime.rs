@@ -222,7 +222,8 @@ pub(crate) async fn activate_pack_artifact(
     let active = database
         .activate_self_tested_pack(&tested, publisher, expected_generation)
         .await?;
-    Ok(review(&release, active, PackReviewState::Ready))
+    let state = review_state(active.availability);
+    Ok(review(&release, active, state))
 }
 
 #[allow(clippy::too_many_arguments)]
