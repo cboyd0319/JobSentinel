@@ -1,5 +1,6 @@
 //! Creates and verifies same-device SQLite recovery snapshots for migrations and updates.
 
+use sha2::{Digest, Sha256};
 use sqlx::sqlite::SqlitePool;
 use std::path::{Path, PathBuf};
 use uuid::Uuid;
@@ -8,7 +9,7 @@ use super::Database;
 use jobsentinel_security::path_label_for_logging;
 
 impl Database {
-    /// Ensure one same-device recovery snapshot exists for a migration attempt.
+    /// Create a fresh database-scoped recovery snapshot for each migration attempt.
     ///
     /// This internal SQLCipher copy is not a portable user backup or export.
     pub(super) async fn ensure_migration_snapshot(
@@ -26,48 +27,19 @@ impl Database {
             return Ok(None);
         }
 
+        let filename = db_path
+            .file_name()
+            .ok_or_else(|| std::io::Error::other("Missing database filename"))?;
+        let backup_dir = backup_dir.join(hex::encode(Sha256::digest(filename.as_encoded_bytes())));
         jobsentinel_platform::ensure_private_dir(&backup_dir)?;
         let snapshot = backup_dir.join(format!(
-            "migration_snapshot_v{from_version}_to_v{to_version}.db"
-        ));
-        if snapshot.exists() {
-            let snapshot_path = snapshot.to_str().ok_or_else(|| {
-                std::io::Error::new(
-                    std::io::ErrorKind::InvalidInput,
-                    "Invalid migration snapshot path encoding",
-                )
-            })?;
-            Self::verify_pre_migration_backup(pool, snapshot_path).await?;
-            return Ok(Some(snapshot));
-        }
-
-        let temporary_snapshot = backup_dir.join(format!(
-            ".migration_snapshot_v{from_version}_to_v{to_version}_{}.tmp.db",
+            "migration_snapshot_v{from_version}_to_v{to_version}_{}.db",
             Uuid::new_v4()
         ));
-        if let Err(error) = Self::create_verified_snapshot(pool, &temporary_snapshot).await {
-            let _ = std::fs::remove_file(&temporary_snapshot);
+        if let Err(error) = Self::create_verified_snapshot(pool, &snapshot).await {
+            let _ = std::fs::remove_file(&snapshot);
             return Err(error);
         }
-        match std::fs::hard_link(&temporary_snapshot, &snapshot) {
-            Ok(()) => {}
-            Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => {
-                let _ = std::fs::remove_file(&temporary_snapshot);
-                let snapshot_path = snapshot.to_str().ok_or_else(|| {
-                    std::io::Error::new(
-                        std::io::ErrorKind::InvalidInput,
-                        "Invalid migration snapshot path encoding",
-                    )
-                })?;
-                Self::verify_pre_migration_backup(pool, snapshot_path).await?;
-                return Ok(Some(snapshot));
-            }
-            Err(error) => {
-                let _ = std::fs::remove_file(&temporary_snapshot);
-                return Err(error.into());
-            }
-        }
-        std::fs::remove_file(&temporary_snapshot)?;
         tracing::info!(
             backup_path = %path_label_for_logging(&snapshot),
             from_version,

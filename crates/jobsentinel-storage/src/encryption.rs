@@ -1,14 +1,19 @@
+//! Opens encrypted SQLite stores and atomically converts supported plaintext databases.
+
 use sqlx::{
     sqlite::{
         SqliteConnectOptions, SqliteJournalMode, SqlitePool, SqlitePoolOptions, SqliteSynchronous,
     },
-    ConnectOptions,
+    ConnectOptions, Connection,
 };
 use std::{
     path::{Path, PathBuf},
     time::Duration,
 };
 use zeroize::Zeroizing;
+
+#[cfg(test)]
+tokio::task_local! { static CRASH_BEFORE_PUBLICATION: (); }
 
 #[cfg(test)]
 const DATABASE_KEY_LEN: usize = 32;
@@ -136,12 +141,13 @@ pub(super) async fn probe_encrypted_user_version(
     sqlx::query("SELECT COUNT(*) FROM sqlite_master")
         .fetch_one(&mut connection)
         .await?;
+    crate::connection::Database::refuse_future_data(&mut connection).await?;
     sqlx::query_scalar("PRAGMA user_version")
         .fetch_one(&mut connection)
         .await
 }
 
-pub(super) async fn probe_plaintext_user_version(path: &Path) -> Result<i64, sqlx::Error> {
+pub(super) async fn probe_plaintext_user_version(path: &Path) -> Result<Option<i64>, sqlx::Error> {
     let options = SqliteConnectOptions::new().filename(path).read_only(true);
     let options = if sqlite_sidecar_path(path, "-wal").exists() {
         options
@@ -149,54 +155,73 @@ pub(super) async fn probe_plaintext_user_version(path: &Path) -> Result<i64, sql
         options.immutable(true)
     };
     let mut connection = options.connect().await?;
-    sqlx::query("SELECT COUNT(*) FROM sqlite_master")
+    if let Err(error) = sqlx::query("SELECT COUNT(*) FROM sqlite_master")
         .fetch_one(&mut connection)
-        .await?;
+        .await
+    {
+        return match &error {
+            sqlx::Error::Database(database) if database.code().as_deref() == Some("26") => Ok(None),
+            _ => Err(error),
+        };
+    }
+    crate::connection::Database::refuse_future_data(&mut connection).await?;
     sqlx::query_scalar("PRAGMA user_version")
         .fetch_one(&mut connection)
         .await
+        .map(Some)
 }
 
 pub(super) async fn encrypt_plaintext_database(
     db_path: &Path,
     key: &str,
-    backup_dir: &Path,
 ) -> Result<(), sqlx::Error> {
-    let temp_encrypted_path = db_path.with_extension("db.sqlcipher-new");
-    let backup_path = backup_dir.join(format!(
-        "plaintext_before_encryption_{}.db",
-        chrono::Utc::now().format("%Y%m%d_%H%M%S_%3f")
-    ));
-
-    if temp_encrypted_path.exists() {
-        std::fs::remove_file(&temp_encrypted_path).map_err(sqlx::Error::Io)?;
+    let parent = db_path
+        .parent()
+        .filter(|path| !path.as_os_str().is_empty())
+        .ok_or_else(database_encryption_error)?;
+    let temporary = tempfile::Builder::new()
+        .prefix(".jobsentinel-encryption-")
+        .tempfile_in(parent)?
+        .into_temp_path();
+    let pool = connect_encrypted_pool(&temporary, key, false).await?;
+    pool.close().await;
+    export_plaintext_database_to_encrypted(db_path, &temporary, key).await?;
+    let pool = connect_encrypted_pool(&temporary, key, false).await?;
+    let check: String = sqlx::query_scalar("PRAGMA quick_check")
+        .fetch_one(&pool)
+        .await?;
+    if check != "ok" {
+        return Err(database_encryption_error());
     }
-
-    jobsentinel_platform::ensure_private_dir(backup_dir).map_err(sqlx::Error::Io)?;
-    std::fs::copy(db_path, &backup_path).map_err(sqlx::Error::Io)?;
-    jobsentinel_platform::ensure_private_file(&backup_path).map_err(sqlx::Error::Io)?;
-
-    let temp_pool = connect_encrypted_pool(&temp_encrypted_path, key, true).await?;
-    temp_pool.close().await;
-
-    if let Err(error) =
-        export_plaintext_database_to_encrypted(db_path, &temp_encrypted_path, key).await
-    {
-        let _ = std::fs::remove_file(&temp_encrypted_path);
-        let _ = std::fs::remove_file(&backup_path);
-        return Err(error);
+    let (busy, _, _): (i64, i64, i64) = sqlx::query_as("PRAGMA wal_checkpoint(TRUNCATE)")
+        .fetch_one(&pool)
+        .await?;
+    pool.close().await;
+    if busy != 0 {
+        return Err(database_encryption_error());
     }
-
-    let verified_temp_pool = connect_encrypted_pool(&temp_encrypted_path, key, false).await?;
-    verified_temp_pool.close().await;
-
-    remove_sqlite_sidecars(db_path);
-    if let Err(error) = replace_database_file(db_path, &temp_encrypted_path, &backup_path) {
-        return Err(sqlx::Error::Io(error));
+    std::fs::OpenOptions::new()
+        .write(true)
+        .open(&temporary)?
+        .sync_all()?;
+    // Both databases are checkpointed and closed; a failed replacement leaves the original intact.
+    for path in [db_path, temporary.as_ref()] {
+        for suffix in ["-wal", "-shm"] {
+            if let Err(error) = std::fs::remove_file(sqlite_sidecar_path(path, suffix)) {
+                if error.kind() != std::io::ErrorKind::NotFound {
+                    return Err(error.into());
+                }
+            }
+        }
     }
-
-    let _ = std::fs::remove_file(&backup_path);
-    jobsentinel_platform::ensure_private_sqlite_files(db_path).map_err(sqlx::Error::Io)?;
+    #[cfg(test)]
+    if CRASH_BEFORE_PUBLICATION.try_with(|_| ()).is_ok() {
+        std::process::exit(91);
+    }
+    replace_database_file(db_path, &temporary)?;
+    #[cfg(unix)]
+    std::fs::File::open(parent)?.sync_all()?;
+    jobsentinel_platform::ensure_private_sqlite_files(db_path)?;
     Ok(())
 }
 
@@ -228,9 +253,15 @@ async fn export_plaintext_database_to_encrypted(
         .connect()
         .await?;
 
-    let _ = sqlx::query("PRAGMA wal_checkpoint(TRUNCATE)")
-        .execute(&mut conn)
-        .await;
+    let (busy, _, _): (i64, i64, i64) = sqlx::query_as("PRAGMA wal_checkpoint(TRUNCATE)")
+        .fetch_one(&mut conn)
+        .await?;
+    if busy != 0 {
+        return Err(database_encryption_error());
+    }
+    let user_version: i64 = sqlx::query_scalar("PRAGMA user_version")
+        .fetch_one(&mut conn)
+        .await?;
 
     let encrypted_path = encrypted_path
         .to_str()
@@ -243,10 +274,15 @@ async fn export_plaintext_database_to_encrypted(
     sqlx::query("SELECT sqlcipher_export('encrypted')")
         .execute(&mut conn)
         .await?;
+    sqlx::query(sqlx::AssertSqlSafe(format!(
+        "PRAGMA encrypted.user_version = {user_version}"
+    )))
+    .execute(&mut conn)
+    .await?;
     sqlx::query("DETACH DATABASE encrypted")
         .execute(&mut conn)
         .await?;
-
+    conn.close().await?;
     Ok(())
 }
 
@@ -262,17 +298,8 @@ pub(super) fn sqlite_sidecar_path(db_path: &Path, suffix: &str) -> PathBuf {
     db_path.with_file_name(sidecar_name)
 }
 
-fn replace_database_file(
-    db_path: &Path,
-    encrypted_path: &Path,
-    backup_path: &Path,
-) -> std::io::Result<()> {
-    std::fs::remove_file(db_path)?;
-    if let Err(error) = std::fs::rename(encrypted_path, db_path) {
-        let _ = std::fs::copy(backup_path, db_path);
-        return Err(error);
-    }
-    Ok(())
+fn replace_database_file(db_path: &Path, encrypted_path: &Path) -> std::io::Result<()> {
+    std::fs::rename(encrypted_path, db_path)
 }
 
 fn database_encryption_error() -> sqlx::Error {
@@ -299,202 +326,4 @@ fn package_smoke_logging_enabled() -> bool {
 }
 
 #[cfg(test)]
-mod tests {
-    use super::super::connection::Database;
-    use sqlx::sqlite::SqlitePool;
-
-    #[tokio::test]
-    async fn file_database_is_not_readable_without_encryption_key() {
-        let temp_dir = tempfile::tempdir().unwrap();
-        let db_path = temp_dir.path().join("jobs.db");
-
-        {
-            let database = Database::connect(&db_path).await.unwrap();
-            database.migrate().await.unwrap();
-            sqlx::query("CREATE TABLE encryption_probe(value TEXT NOT NULL)")
-                .execute(database.pool())
-                .await
-                .unwrap();
-            sqlx::query("INSERT INTO encryption_probe(value) VALUES ('private job note')")
-                .execute(database.pool())
-                .await
-                .unwrap();
-            database.checkpoint_wal().await.unwrap();
-        }
-
-        let url = format!("sqlite://{}?mode=ro", db_path.display());
-        let unkeyed_pool = SqlitePool::connect(&url).await.unwrap();
-        let unkeyed_read = sqlx::query_scalar::<_, String>("SELECT value FROM encryption_probe")
-            .fetch_one(&unkeyed_pool)
-            .await;
-
-        assert!(
-            unkeyed_read.is_err(),
-            "unkeyed SQLite connection should not read a JobSentinel database"
-        );
-    }
-
-    #[tokio::test]
-    async fn encrypted_database_handles_paths_with_spaces() {
-        let temp_dir = tempfile::tempdir().unwrap();
-        let db_path = temp_dir
-            .path()
-            .join("Library")
-            .join("Application Support")
-            .join("JobSentinel")
-            .join("jobs.db");
-
-        let database = Database::connect(&db_path).await.unwrap();
-        database.migrate().await.unwrap();
-        sqlx::query("CREATE TABLE path_probe(value TEXT NOT NULL)")
-            .execute(database.pool())
-            .await
-            .unwrap();
-        sqlx::query("INSERT INTO path_probe(value) VALUES ('macOS app data path')")
-            .execute(database.pool())
-            .await
-            .unwrap();
-
-        let value: String = sqlx::query_scalar("SELECT value FROM path_probe")
-            .fetch_one(database.pool())
-            .await
-            .unwrap();
-        assert_eq!(value, "macOS app data path");
-        database.checkpoint_wal().await.unwrap();
-        database.pool().close().await;
-    }
-
-    #[tokio::test]
-    async fn encrypted_database_handles_hex_keys_starting_with_digits() {
-        let temp_dir = tempfile::tempdir().unwrap();
-        let db_path = temp_dir.path().join("jobs.db");
-        let key = "58ffd25e23c63a6fcab6baffe23e9a667c4a1504ae07454573607f036017a9c4";
-
-        let pool = super::connect_encrypted_pool(&db_path, key, true)
-            .await
-            .unwrap();
-        sqlx::query("CREATE TABLE numeric_key_probe(value TEXT NOT NULL)")
-            .execute(&pool)
-            .await
-            .unwrap();
-        sqlx::query("INSERT INTO numeric_key_probe(value) VALUES ('opened')")
-            .execute(&pool)
-            .await
-            .unwrap();
-        pool.close().await;
-
-        let reopened_pool = super::connect_encrypted_pool(&db_path, key, false)
-            .await
-            .unwrap();
-        let value: String = sqlx::query_scalar("SELECT value FROM numeric_key_probe")
-            .fetch_one(&reopened_pool)
-            .await
-            .unwrap();
-        assert_eq!(value, "opened");
-        reopened_pool.close().await;
-    }
-
-    #[tokio::test]
-    async fn encrypted_connection_sets_privacy_pragmas_before_migration() {
-        let temp_dir = tempfile::tempdir().unwrap();
-        let db_path = temp_dir.path().join("jobs.db");
-        let key = "f13ce74a61cc859993f02767e3bb751546e4a588985f517fb8c3f8b9ad12c901";
-
-        let pool = super::connect_encrypted_pool(&db_path, key, true)
-            .await
-            .unwrap();
-
-        let secure_delete: i64 = sqlx::query_scalar("PRAGMA secure_delete")
-            .fetch_one(&pool)
-            .await
-            .unwrap();
-        let temp_store: i64 = sqlx::query_scalar("PRAGMA temp_store")
-            .fetch_one(&pool)
-            .await
-            .unwrap();
-
-        assert_eq!(secure_delete, 1);
-        assert_eq!(temp_store, 2);
-        pool.close().await;
-    }
-
-    #[tokio::test]
-    async fn plaintext_database_is_migrated_to_encrypted_storage() {
-        let temp_dir = tempfile::tempdir().unwrap();
-        let db_path = temp_dir.path().join("jobs.db");
-        let url = format!("sqlite://{}?mode=rwc", db_path.display());
-
-        {
-            let plaintext_pool = SqlitePool::connect(&url).await.unwrap();
-            sqlx::query("CREATE TABLE encryption_probe(value TEXT NOT NULL)")
-                .execute(&plaintext_pool)
-                .await
-                .unwrap();
-            sqlx::query("INSERT INTO encryption_probe(value) VALUES ('preserved local record')")
-                .execute(&plaintext_pool)
-                .await
-                .unwrap();
-            plaintext_pool.close().await;
-        }
-
-        {
-            let database = Database::connect(&db_path).await.unwrap();
-            let value: String = sqlx::query_scalar("SELECT value FROM encryption_probe")
-                .fetch_one(database.pool())
-                .await
-                .unwrap();
-            assert_eq!(value, "preserved local record");
-            database.checkpoint_wal().await.unwrap();
-        }
-
-        let unkeyed_pool = SqlitePool::connect(&url).await.unwrap();
-        let unkeyed_read = sqlx::query_scalar::<_, String>("SELECT value FROM encryption_probe")
-            .fetch_one(&unkeyed_pool)
-            .await;
-        assert!(
-            unkeyed_read.is_err(),
-            "plaintext migration should leave only encrypted storage behind"
-        );
-    }
-
-    #[tokio::test]
-    async fn plaintext_upgrade_deletes_temporary_plaintext_backup_after_success() {
-        let temp_dir = tempfile::tempdir().unwrap();
-        let db_path = temp_dir.path().join("jobs.db");
-        let backup_dir = temp_dir.path().join("backups");
-        let url = format!("sqlite://{}?mode=rwc", db_path.display());
-
-        {
-            let plaintext_pool = SqlitePool::connect(&url).await.unwrap();
-            sqlx::query("CREATE TABLE encryption_probe(value TEXT NOT NULL)")
-                .execute(&plaintext_pool)
-                .await
-                .unwrap();
-            sqlx::query("INSERT INTO encryption_probe(value) VALUES ('temporary backup probe')")
-                .execute(&plaintext_pool)
-                .await
-                .unwrap();
-            plaintext_pool.close().await;
-        }
-        let key = super::load_or_create_database_key().await.unwrap();
-        super::encrypt_plaintext_database(&db_path, &key, &backup_dir)
-            .await
-            .unwrap();
-
-        let leftovers: Vec<_> = std::fs::read_dir(&backup_dir)
-            .unwrap()
-            .filter_map(Result::ok)
-            .filter(|entry| {
-                entry
-                    .file_name()
-                    .to_string_lossy()
-                    .starts_with("plaintext_before_encryption_")
-            })
-            .collect();
-
-        assert!(
-            leftovers.is_empty(),
-            "successful plaintext upgrade must not leave plaintext backup files"
-        );
-    }
-}
+mod tests;

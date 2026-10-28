@@ -1,3 +1,5 @@
+//! Verifies migration recovery, snapshot ownership and forward-only data boundaries.
+
 use super::*;
 use sqlx::{
     migrate::{Migration, MigrationType, Migrator},
@@ -9,7 +11,14 @@ fn database_copies(path: &std::path::Path) -> Vec<std::path::PathBuf> {
         .into_iter()
         .flatten()
         .filter_map(Result::ok)
-        .map(|entry| entry.path())
+        .flat_map(|entry| {
+            let path = entry.path();
+            if path.is_dir() {
+                database_copies(&path)
+            } else {
+                vec![path]
+            }
+        })
         .filter(|path| path.extension().is_some_and(|extension| extension == "db"))
         .collect();
     copies.sort();
@@ -106,7 +115,7 @@ async fn current_database_does_not_create_a_migration_snapshot() {
 }
 
 #[tokio::test]
-async fn concurrent_snapshot_creation_publishes_one_verified_baseline() {
+async fn concurrent_snapshot_creation_keeps_each_attempt_isolated() {
     let temp_dir = tempfile::tempdir().unwrap();
     let db_path = temp_dir.path().join("jobs.db");
     let database = v29_database(&db_path).await;
@@ -116,8 +125,8 @@ async fn concurrent_snapshot_creation_publishes_one_verified_baseline() {
         Database::ensure_migration_snapshot(database.pool(), &db_path, 10, 11)
     );
 
-    assert_eq!(left.unwrap(), right.unwrap());
-    assert_eq!(database_copies(&temp_dir.path().join("backups")).len(), 1);
+    assert_ne!(left.unwrap(), right.unwrap());
+    assert_eq!(database_copies(&temp_dir.path().join("backups")).len(), 2);
 }
 
 #[tokio::test]
@@ -208,7 +217,7 @@ async fn evidence_packet_tables_are_present_for_fresh_and_v29_databases() {
 }
 
 #[tokio::test]
-async fn failed_migration_reuses_one_baseline_until_retry_succeeds() {
+async fn failed_migration_keeps_fresh_baselines_until_retry_succeeds() {
     let temp_dir = tempfile::tempdir().unwrap();
     let db_path = temp_dir.path().join("jobs.db");
     let database = v29_database(&db_path).await;
@@ -230,7 +239,7 @@ async fn failed_migration_reuses_one_baseline_until_retry_succeeds() {
     let snapshots = transition_snapshots(&backup_dir, current, next);
     assert_eq!(snapshots.len(), 1);
     assert!(database.migrate_with(&failing).await.is_err());
-    assert_eq!(transition_snapshots(&backup_dir, current, next), snapshots);
+    assert_eq!(transition_snapshots(&backup_dir, current, next).len(), 2);
     let applied: i64 = sqlx::query_scalar("SELECT MAX(version) FROM _sqlx_migrations")
         .fetch_one(database.pool())
         .await
@@ -243,7 +252,8 @@ async fn failed_migration_reuses_one_baseline_until_retry_succeeds() {
         "CREATE TABLE injected_repair (id INTEGER PRIMARY KEY);",
     ));
     database.migrate_with(&repaired).await.unwrap();
-    assert_eq!(database_copies(&backup_dir), snapshots);
+    assert_eq!(database_copies(&backup_dir).len(), 1);
+    assert!(!snapshots[0].exists());
 }
 
 #[tokio::test]
@@ -318,4 +328,39 @@ async fn failed_migration_does_not_advance_database_schema_generation() {
         .await
         .unwrap();
     assert_eq!(user_version, 2);
+}
+
+#[tokio::test]
+async fn sibling_databases_never_share_or_prune_each_others_snapshots() {
+    let root = tempfile::tempdir().unwrap();
+    let a_path = root.path().join("a.db");
+    let b_path = root.path().join("b.db");
+    let a = v29_database(&a_path).await;
+    let b = v29_database(&b_path).await;
+    let first = Database::ensure_migration_snapshot(a.pool(), &a_path, 10, 11)
+        .await
+        .unwrap()
+        .unwrap();
+    let second = Database::ensure_migration_snapshot(b.pool(), &b_path, 10, 11)
+        .await
+        .unwrap()
+        .unwrap();
+    assert_ne!(first, second);
+    Database::prune_superseded_migration_snapshots(second.parent().unwrap(), &second);
+    assert!(first.exists());
+}
+
+#[tokio::test]
+async fn concurrent_migrations_retain_one_verified_recovery_snapshot() {
+    let root = tempfile::tempdir().unwrap();
+    let path = root.path().join("jobs.db");
+    let database = v29_database(&path).await;
+    let (first, second) = tokio::join!(database.migrate(), database.migrate());
+    first.unwrap();
+    second.unwrap();
+    let snapshots = database_copies(&root.path().join("backups"));
+    assert_eq!(snapshots.len(), 1);
+    Database::verify_pre_migration_backup(database.pool(), snapshots[0].to_str().unwrap())
+        .await
+        .unwrap();
 }

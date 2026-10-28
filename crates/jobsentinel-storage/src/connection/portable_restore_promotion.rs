@@ -1,3 +1,4 @@
+//! Promotes staged restores and recovers interrupted database replacement.
 use super::{
     portable_backup::export_encrypted_to_encrypted,
     portable_restore::{
@@ -193,7 +194,9 @@ async fn ensure_restore_rollback(
     let prepared = async {
         export_encrypted_to_encrypted(database_path, key, &rollback_path, key).await?;
         verify_restore_database(&rollback_path, key, &request.restore_id, false).await?;
-        std::fs::File::open(&rollback_path)
+        std::fs::OpenOptions::new()
+            .write(true)
+            .open(&rollback_path)
             .and_then(|file| file.sync_all())
             .map_err(sqlx::Error::Io)?;
         Ok::<(), sqlx::Error>(())
@@ -392,7 +395,10 @@ async fn publish_rollback_copy(
     remove_database_bundle(&temporary)?;
     let published = OwnedDatabaseFile::create(temporary.clone())?;
     std::fs::copy(rollback, &temporary).map_err(sqlx::Error::Io)?;
-    std::fs::File::open(&temporary)
+    std::fs::OpenOptions::new()
+        .read(true)
+        .write(true)
+        .open(&temporary)
         .and_then(|file| file.sync_all())
         .map_err(sqlx::Error::Io)?;
     verify_restore_database(&temporary, key, restore_id, false).await?;

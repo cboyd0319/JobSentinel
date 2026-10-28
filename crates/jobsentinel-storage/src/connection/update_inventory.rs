@@ -4,6 +4,41 @@ use super::{Database, MIGRATOR};
 use sqlx::Row;
 
 impl Database {
+    pub(crate) async fn refuse_future_data(
+        connection: &mut sqlx::SqliteConnection,
+    ) -> Result<(), sqlx::Error> {
+        let maximum = MIGRATOR
+            .iter()
+            .map(|migration| migration.version)
+            .max()
+            .unwrap_or(0);
+        for table in ["_sqlx_migrations", "v3_compatibility_metadata"] {
+            let present: i64 = sqlx::query_scalar(
+                "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name=?",
+            )
+            .bind(table)
+            .fetch_one(&mut *connection)
+            .await?;
+            if present == 0 {
+                continue;
+            }
+            let future: i64 = if table == "_sqlx_migrations" {
+                sqlx::query_scalar("SELECT COUNT(*) FROM _sqlx_migrations WHERE version > ?")
+                    .bind(maximum)
+                    .fetch_one(&mut *connection)
+                    .await?
+            } else {
+                sqlx::query_scalar("SELECT COUNT(*) FROM v3_compatibility_metadata WHERE compatibility_line > 3 OR database_schema > ? OR migration_version > ?")
+                    .bind(super::DATABASE_SCHEMA_VERSION).bind(maximum).fetch_one(&mut *connection).await?
+            };
+            if future != 0 {
+                return Err(sqlx::Error::Protocol(
+                    "Unsupported newer database migration or compatibility metadata".into(),
+                ));
+            }
+        }
+        Ok(())
+    }
     #[must_use]
     pub fn update_archive_formats() -> (u64, u64) {
         (

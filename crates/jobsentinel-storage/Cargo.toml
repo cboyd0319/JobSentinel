@@ -1,4 +1,6 @@
+# Defines the SQLite storage crate and its embedded migration build.
 [package]
+build = "build.rs"
 name = "jobsentinel-storage"
 description = "SQLCipher storage, migrations, integrity, backup, and job repositories for JobSentinel"
 version.workspace = true

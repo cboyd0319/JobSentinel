@@ -92,7 +92,7 @@
       "severity": "high",
       "owner": "M2 migration snapshot",
       "finding": "Snapshot filename only versions; sibling or replaced databases can reuse wrong recovery data.",
-      "status": "fresh per-database snapshots and serialized migration/prune window corrected; independent review passed, focused tests running"
+      "status": "corrected fresh per-database snapshots and serialized migration/prune; independent review and21 migration checks passed"
     },
     {
       "id": "AUDIT-14",
@@ -158,5 +158,27 @@
       "Canonical idea dispositions mapped to actual implemented behavior across all milestones",
       "Complete M8 review interrupted by reviewer capacity error; resume broader company-research/E2E coverage"
     ]
-  }
+  },
+  "checks": [
+    {
+      "command": "cargo test -p jobsentinel-storage --lib encryption::tests",
+      "passed": 12,
+      "exit_status": 0
+    },
+    {
+      "command": "cargo test -p jobsentinel-storage --lib migration_tests",
+      "passed": 21,
+      "exit_status": 0
+    },
+    {
+      "command": "cargo test -p jobsentinel-storage --lib v3_foundation::tests",
+      "passed": 10,
+      "exit_status": 0
+    },
+    {
+      "command": "npm run lint:sqlx",
+      "exit_status": 0,
+      "scope": "isolated migrated schema and offline metadata; installed sqlx-cli0.9.0 to run required check"
+    }
+  ]
 }

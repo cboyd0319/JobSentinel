@@ -34,12 +34,12 @@ use super::encryption::{
 use recovery_operations::finish_recovery_operation_record;
 
 const DATABASE_SCHEMA_VERSION: i64 = 2;
-static MIGRATOR: sqlx::migrate::Migrator = sqlx::migrate!("./migrations");
+pub(super) static MIGRATOR: sqlx::migrate::Migrator = sqlx::migrate!("./migrations");
 
-/// Database handle
 #[derive(Debug)]
 pub struct Database {
     pool: SqlitePool,
+    migration_lock: tokio::sync::Mutex<()>,
     /// Path to the on-disk database file. `None` for in-memory databases.
     db_path: Option<PathBuf>,
     _owner_lock: Option<File>,
@@ -75,9 +75,12 @@ impl Database {
             })?;
         }
         let owner_lock = Self::acquire_owner_lock(path)?;
+        if !path.exists() && path.with_extension("db.sqlcipher-new").try_exists()? {
+            return Err(sqlx::Error::Protocol("Incomplete database encryption requires recovery; refusing to create an empty database".into()));
+        }
 
         let plaintext_version = if path.exists() {
-            probe_plaintext_user_version(path).await.ok()
+            probe_plaintext_user_version(path).await?
         } else {
             None
         };
@@ -87,12 +90,7 @@ impl Database {
 
         let key = load_or_create_database_key().await?;
         let pool = if plaintext_version.is_some() {
-            let backup_dir = path
-                .parent()
-                .filter(|parent| !parent.as_os_str().is_empty())
-                .map(|parent| parent.join("backups"))
-                .unwrap_or_else(Self::default_backup_dir);
-            encrypt_plaintext_database(path, &key, &backup_dir).await?;
+            encrypt_plaintext_database(path, &key).await?;
             connect_encrypted_pool(path, &key, false).await?
         } else if path.exists() {
             let version = probe_encrypted_user_version(path, &key).await?;
@@ -106,6 +104,7 @@ impl Database {
 
         Ok(Database {
             pool,
+            migration_lock: tokio::sync::Mutex::new(()),
             db_path: Some(path.to_path_buf()),
             _owner_lock: Some(owner_lock),
         })
@@ -231,14 +230,14 @@ impl Database {
 
     /// Run pending database migrations.
     ///
-    /// An existing database receives one verified, same-device SQLCipher
-    /// recovery snapshot per source-to-target transition. Retries reuse that
-    /// snapshot. This internal recovery copy is not a portable user export.
+    /// Each serialized attempt keeps a fresh same-device recovery snapshot.
+    /// This internal copy is not a portable user export.
     pub async fn migrate(&self) -> Result<(), sqlx::Error> {
         self.migrate_with(&MIGRATOR).await
     }
 
     async fn migrate_with(&self, migrator: &sqlx::migrate::Migrator) -> Result<(), sqlx::Error> {
+        let _migration = self.migration_lock.lock().await;
         let pending = self.pending_migration_range(migrator).await?;
         let snapshot =
             if let (Some(db_path), Some((from_version, to_version))) = (&self.db_path, pending) {
@@ -324,6 +323,7 @@ impl Database {
         Self::configure_memory_pragmas(&pool).await?;
         Ok(Database {
             pool,
+            migration_lock: tokio::sync::Mutex::new(()),
             db_path: None,
             _owner_lock: None,
         })

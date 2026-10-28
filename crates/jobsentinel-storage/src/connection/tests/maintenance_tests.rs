@@ -1,3 +1,5 @@
+//! Verifies local storage maintenance and recovery boundaries.
+
 use super::*;
 use sqlx::sqlite::{SqliteConnectOptions, SqliteJournalMode, SqlitePoolOptions};
 use std::{path::Path, str::FromStr, time::Duration};
@@ -23,6 +25,7 @@ async fn plaintext_database_without_auto_vacuum(path: &Path) -> Database {
     MIGRATOR.run(&pool).await.unwrap();
     Database {
         pool,
+        migration_lock: tokio::sync::Mutex::new(()),
         db_path: Some(path.to_path_buf()),
         _owner_lock: None,
     }

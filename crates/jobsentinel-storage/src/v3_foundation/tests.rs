@@ -1,3 +1,5 @@
+//! Verifies local foundation records, database constraints and compatibility metadata.
+
 use chrono::Utc;
 use jobsentinel_domain::{
     v3_contracts::SchemaId,
@@ -141,8 +143,14 @@ async fn database_rejects_unknown_and_oversized_event_metadata() {
     .execute(database.pool())
     .await;
     assert!(invalid_privacy.is_err());
+    assert!(sqlx::query("INSERT INTO v3_job_events (event_id,case_file_id,event_kind,origin,user_action,local_only,sensitive,metadata_json,created_at) VALUES (NULL,?,'case_created','system',0,1,1,'{\"kind\":\"empty\"}','2026-10-28')")
+        .bind(&case_file.case_file_id).execute(database.pool()).await.is_err());
 
     for (event_id, event_kind, metadata) in [
+        ("missing-status", "status_changed", r#"{"kind":"status_transition"}"#.to_string()),
+        ("missing-reference", "evidence_linked", r#"{"kind":"local_reference"}"#.to_string()),
+        ("missing-source", "source_checked", r#"{"kind":"source_outcome"}"#.to_string()),
+        ("missing-recovery", "recovery_recorded", r#"{"kind":"recovery_outcome"}"#.to_string()),
         (
             "event-unknown",
             "evidence_linked",
@@ -172,7 +180,7 @@ async fn database_rejects_unknown_and_oversized_event_metadata() {
         .bind(Utc::now().to_rfc3339())
         .execute(database.pool())
         .await;
-        assert!(result.is_err());
+        assert!(result.is_err(), "accepted invalid event {event_id}");
     }
 }
 
@@ -387,4 +395,25 @@ async fn fresh_database_exposes_typed_compatibility_metadata() {
         .await
         .unwrap();
     assert_eq!(metadata.migration_version, current);
+}
+
+#[tokio::test]
+async fn event_constraint_migration_preserves_valid_rows_and_rolls_back_invalid_rows() {
+    let migrations = sqlx::migrate!("./migrations");
+    for metadata in [r#"{"kind":"recovery_outcome","outcome":"restored"}"#, r#"{"kind":"recovery_outcome"}"#] {
+        let database = crate::Database::connect_memory().await.unwrap();
+        migrations.run_to(29, database.pool()).await.unwrap();
+        sqlx::query("INSERT INTO opportunity_case_files (case_file_id, created_at) VALUES ('case', '2026-10-28')")
+            .execute(database.pool()).await.unwrap();
+        sqlx::query("INSERT INTO v3_job_events (event_id,case_file_id,event_kind,origin,user_action,local_only,sensitive,metadata_json,created_at) VALUES ('event','case','recovery_recorded','system',0,1,1,?,'2026-10-28')")
+            .bind(metadata).execute(database.pool()).await.unwrap();
+        let result = migrations.run_to(30, database.pool()).await;
+        assert_eq!(result.is_ok(), metadata.contains("restored"));
+        let preserved: String = sqlx::query_scalar("SELECT metadata_json FROM v3_job_events WHERE event_id='event'")
+            .fetch_one(database.pool()).await.unwrap();
+        assert_eq!(preserved, metadata);
+        let latest: i64 = sqlx::query_scalar("SELECT MAX(version) FROM _sqlx_migrations")
+            .fetch_one(database.pool()).await.unwrap();
+        assert_eq!(latest, if result.is_ok() {30} else {29});
+    }
 }

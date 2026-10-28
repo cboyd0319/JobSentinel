@@ -192,6 +192,7 @@ mod tests {
             .await
             .expect("inventory");
         let (mut manifest, _) = fixture();
+        manifest.readers.migration.max = state.migration;
         manifest.edition.platform = state.edition.platform;
         manifest.edition.architecture = state.edition.architecture;
         let (bytes, signature, publishers) = signed(&manifest);

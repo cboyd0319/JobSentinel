@@ -44,7 +44,14 @@ async fn migration_13_backfills_existing_policy_once() {
             .fetch_one(database.pool())
             .await
             .unwrap();
-    assert_eq!(migration_version, 29);
+    assert_eq!(
+        migration_version,
+        MIGRATOR
+            .iter()
+            .map(|migration| migration.version)
+            .max()
+            .unwrap()
+    );
 }
 
 #[tokio::test]
@@ -144,7 +151,14 @@ async fn migration_18_retires_restricted_source_health_metadata() {
             .fetch_one(database.pool())
             .await
             .unwrap();
-    assert_eq!(migration_version, 29);
+    assert_eq!(
+        migration_version,
+        MIGRATOR
+            .iter()
+            .map(|migration| migration.version)
+            .max()
+            .unwrap()
+    );
 }
 
 #[tokio::test]
@@ -288,5 +302,12 @@ async fn migration_19_preserves_scheduled_reviews_and_allows_user_opened_reviews
             .fetch_one(database.pool())
             .await
             .unwrap();
-    assert_eq!(migration_version, 29);
+    assert_eq!(
+        migration_version,
+        MIGRATOR
+            .iter()
+            .map(|migration| migration.version)
+            .max()
+            .unwrap()
+    );
 }

@@ -1,3 +1,4 @@
+//! Stages and cancels verified portable database restoration.
 use super::{portable_backup::export_encrypted_to_encrypted, Database, PortableBackupInfo};
 use crate::encryption::{connect_encrypted_pool, load_or_create_database_key, sqlite_sidecar_path};
 use serde::{Deserialize, Serialize};
@@ -8,10 +9,8 @@ use std::{
     path::{Path, PathBuf},
 };
 use uuid::Uuid;
-
 const RESTORE_FORMAT_VERSION: i64 = 1;
 const MAX_RESTORE_MARKER_BYTES: u64 = 4096;
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub(super) enum RestorePhase {
@@ -110,7 +109,9 @@ impl Database {
         if staged != *info {
             return Err(restore_error("Staged portable restore verification failed"));
         }
-        std::fs::File::open(&stage)
+        std::fs::OpenOptions::new()
+            .write(true)
+            .open(&stage)
             .and_then(|file| file.sync_all())
             .map_err(sqlx::Error::Io)?;
         publish_restore_request(&marker, request)?;

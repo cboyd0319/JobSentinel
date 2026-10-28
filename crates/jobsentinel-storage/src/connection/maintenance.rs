@@ -1,3 +1,5 @@
+//! Owns local storage health, maintenance and backup-history projections.
+
 use super::*;
 use crate::integrity::IntegrityStatus;
 use uuid::Uuid;
@@ -48,6 +50,7 @@ impl Database {
     pub fn from_pool(pool: SqlitePool) -> Self {
         Database {
             pool,
+            migration_lock: tokio::sync::Mutex::new(()),
             db_path: None,
             _owner_lock: None,
         }
