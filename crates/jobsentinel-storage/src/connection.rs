@@ -18,7 +18,9 @@ pub use portable_backup::PortableBackupInfo;
 pub use portable_restore::PortableRestoreStatus;
 pub use reviewed_export::{ReviewedExportInfo, ReviewedExportPlan, ReviewedExportSelection};
 pub use update_backup::UpdateSnapshot;
-pub use update_journal::PreparedUpdate;
+pub use update_journal::{
+    PreparedUpdate, SignedUpdateRelease, StagedUpdatePackage, UpdatePreparationPhase,
+};
 
 use sqlx::{
     sqlite::{SqlitePool, SqlitePoolOptions},
@@ -202,7 +204,6 @@ impl Database {
             }
         }
 
-        // Verify WAL mode is actually enabled
         if let Ok(row) = sqlx::query("PRAGMA journal_mode").fetch_one(pool).await {
             if let Ok(mode) = row.try_get::<String, _>(0) {
                 if mode.eq_ignore_ascii_case("wal") {
@@ -213,7 +214,6 @@ impl Database {
             }
         }
 
-        // Verify foreign keys are enforced
         if let Ok(row) = sqlx::query("PRAGMA foreign_keys").fetch_one(pool).await {
             if let Ok(enabled) = row.try_get::<i64, _>(0) {
                 if enabled == 1 {

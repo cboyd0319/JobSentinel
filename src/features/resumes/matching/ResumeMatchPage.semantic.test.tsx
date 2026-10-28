@@ -17,14 +17,33 @@ const semantic: SemanticAssessment = {
 
 async function startReview() {
   const user = userEvent.setup();
-  render(<ResumeMatch onBack={vi.fn()} />);
+  const view = render(<ResumeMatch onBack={vi.fn()} />);
   await screen.findByText("Resume", { selector: "p" });
   fireEvent.change(screen.getByRole("textbox", { name: "Job Post" }), { target: { value: "Account management and CPA license required" } });
   await user.click(screen.getByRole("button", { name: "Review Match" }));
+  return view;
 }
 
 describe("local evidence in maintained resume review", () => {
   beforeEach(setupResumeMatchMocks);
+  it("cancels explicitly and keeps a replacement pending when the old request completes", async () => {
+    const completions: ((value: unknown) => void)[] = [];
+    mockInvoke.mockImplementation((command) => command === "get_active_resume" ? Promise.resolve(activeResume) :
+      command === "cancel_resume_review" ? Promise.resolve(false) : new Promise((resolve) => completions.push(resolve)));
+    const view = await startReview();
+    const firstId = mockInvoke.mock.calls.find(([command]) => command === "analyze_active_resume_for_job")?.[1]?.requestId;
+    expect(firstId).toEqual(expect.any(String));
+    await userEvent.click(screen.getByRole("button", { name: "Cancel match review" }));
+    expect(mockInvoke).toHaveBeenCalledWith("cancel_resume_review", { requestId: firstId });
+    await userEvent.click(screen.getByRole("button", { name: "Review Match" }));
+    const secondId = mockInvoke.mock.calls.filter(([command]) => command === "analyze_active_resume_for_job").at(-1)?.[1]?.requestId;
+    expect(secondId).not.toBe(firstId);
+    await act(async () => completions[0]?.(mockAnalysis));
+    expect(screen.getByRole("button", { name: "Cancel match review" })).toBeEnabled();
+    expect(screen.queryByText("Resume Fit")).not.toBeInTheDocument();
+    view.unmount();
+    expect(mockInvoke).toHaveBeenCalledWith("cancel_resume_review", { requestId: secondId });
+  });
   it.each([
     ["qwen3_reranked", "Stronger local matching (Qwen3)"],
     ["minilm", "Local matching (MiniLM fallback)"],
@@ -32,7 +51,7 @@ describe("local evidence in maintained resume review", () => {
   ] as const)("renders %s provenance and citations alongside unchanged scores", async (runtime, label) => {
     mockInvokeResponses({ get_active_resume: activeResume, analyze_active_resume_for_job: { ...mockAnalysis, semantic_assessment: { ...semantic, runtime_profile: runtime } } });
     await startReview();
-    expect(mockInvoke).toHaveBeenCalledWith("analyze_active_resume_for_job", { jobDescription: "Account management and CPA license required" });
+    expect(mockInvoke).toHaveBeenCalledWith("analyze_active_resume_for_job", { requestId: expect.any(String), jobDescription: "Account management and CPA license required" });
     expect(await screen.findByText(label)).toBeInTheDocument();
     expect(screen.getByText(/Work experience 1, bullet 1/)).toBeInTheDocument();
     expect(screen.getByText(/does not verify credentials or eligibility/)).toBeInTheDocument();
@@ -70,7 +89,7 @@ describe("local evidence in maintained resume review", () => {
     fireEvent.change(screen.getByRole("textbox", { name: "Copied resume details" }), { target: { value: JSON.stringify(validResume) } });
     fireEvent.change(screen.getByRole("textbox", { name: "Job Post" }), { target: { value: "Account management" } });
     await user.click(screen.getByRole("button", { name: "Review Match" }));
-    expect(mockInvoke).toHaveBeenCalledWith("analyze_resume_for_job", { resume: validResume, jobDescription: "Account management" });
+    expect(mockInvoke).toHaveBeenCalledWith("analyze_resume_for_job", { requestId: expect.any(String), resume: validResume, jobDescription: "Account management" });
     expect(await screen.findByText("Stronger local matching (Qwen3)")).toBeInTheDocument();
     fireEvent.change(screen.getByRole("textbox", { name: "Copied resume details" }), { target: { value: "{}" } });
     expect(screen.queryByRole("region", { name: "Local evidence assessment" })).not.toBeInTheDocument();
@@ -97,9 +116,10 @@ describe("local evidence in maintained resume review", () => {
     let finish!: (result: unknown) => void;
     mockInvoke.mockImplementation((command) => command === "get_active_resume"
       ? Promise.resolve(activeResume)
-      : new Promise((resolve) => { finish = resolve; }));
+      : command === "cancel_resume_review" ? Promise.resolve(false) : new Promise((resolve) => { finish = resolve; }));
     await startReview();
     fireEvent.change(screen.getByRole("textbox", { name: "Job Post" }), { target: { value: "Different job" } });
+    expect(mockInvoke).toHaveBeenCalledWith("cancel_resume_review", { requestId: expect.any(String) });
     await act(async () => finish({ ...mockAnalysis, semantic_assessment: semantic }));
     expect(screen.queryByText("Stronger local matching (Qwen3)")).not.toBeInTheDocument();
     expect(screen.getByText("No review yet")).toBeInTheDocument();

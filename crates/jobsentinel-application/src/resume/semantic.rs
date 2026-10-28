@@ -8,7 +8,8 @@ use jobsentinel_domain::{
 };
 use jobsentinel_local_ai::{
     default_resume_embedding_provenance, validate_local_matching_inputs,
-    validate_resume_embeddings, validate_v3_vector_contract, SemanticMatchResult, SemanticMatcher,
+    validate_resume_embeddings, validate_v3_vector_contract, InferenceCancellation,
+    SemanticMatchResult, SemanticMatcher,
 };
 use jobsentinel_storage::{
     v3_vectors::{resume_vector_subject, StoredVectorRead},
@@ -102,6 +103,7 @@ pub(super) fn validate_review_inputs(
     Ok(())
 }
 
+#[allow(clippy::too_many_arguments)]
 pub(super) async fn match_loaded_resume_skills(
     database: &Database,
     app_data_dir: PathBuf,
@@ -110,9 +112,10 @@ pub(super) async fn match_loaded_resume_skills(
     user_skills: &[String],
     job_skills: &[String],
     contextual_requirements: &[String],
+    cancellation: InferenceCancellation,
 ) -> Result<SemanticMatchResult> {
     validate_review_inputs(user_skills, job_skills, contextual_requirements)?;
-    let matcher = SemanticMatcher::new(app_data_dir)?;
+    let matcher = SemanticMatcher::new_with_cancellation(app_data_dir, cancellation.clone())?;
     let model = default_resume_embedding_provenance()?;
     let first_vector = load_or_rebuild_first_resume_vector(
         database,
@@ -147,6 +150,24 @@ pub async fn match_resume_semantic(
     resume_id: i64,
     job_hash: &str,
 ) -> Result<EvidenceBoundSemanticMatch> {
+    match_resume_semantic_with_cancellation(
+        database,
+        app_data_dir,
+        resume_id,
+        job_hash,
+        InferenceCancellation::default(),
+    )
+    .await
+}
+
+pub async fn match_resume_semantic_with_cancellation(
+    database: &Database,
+    app_data_dir: PathBuf,
+    resume_id: i64,
+    job_hash: &str,
+    cancellation: InferenceCancellation,
+) -> Result<EvidenceBoundSemanticMatch> {
+    cancellation.check()?;
     let resume_matcher = database.resume_matcher();
     let before = resume_matcher
         .get_resume_evidence_snapshot(resume_id)
@@ -195,8 +216,10 @@ pub async fn match_resume_semantic(
         &texts,
         &job_skills,
         &super::AtsAnalyzer::extract_semantic_requirements(description),
+        cancellation.clone(),
     )
     .await?;
+    cancellation.check()?;
     let current = resume_matcher
         .get_resume_evidence_snapshot(resume_id)
         .await?

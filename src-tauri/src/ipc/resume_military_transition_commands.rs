@@ -1,3 +1,5 @@
+//! Adapts reviewed military evidence and civilian wording confirmations to Tauri.
+
 use crate::application::v3_foundation::{
     confirm_pending_saved_match_military_transition_review,
     confirm_saved_match_military_evidence as confirm_military_evidence,
@@ -5,11 +7,11 @@ use crate::application::v3_foundation::{
     MilitaryTransitionWording, MilitaryWordingMapping, SavedMatchMilitaryEvidenceKind,
     SavedMatchMilitaryTransitionConfirmation,
 };
+use crate::bootstrap::operation::State;
 use crate::bootstrap::AppState;
 use crate::ipc::errors::user_friendly_error;
 use crate::ipc::resume::resume_match_debugger_commands::validate_saved_match_debugger_args;
 use serde::Deserialize;
-use tauri::State;
 use uuid::Uuid;
 
 const MAX_OCCUPATION_CODE_CHARS: usize = 32;

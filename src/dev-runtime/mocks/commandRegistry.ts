@@ -125,6 +125,11 @@ const commandGroups: readonly MockCommandGroup[] = [
   {
     commands: [
       "get_local_recovery_report",
+      "get_local_update_status",
+      "check_update_availability",
+      "select_local_update",
+      "apply_local_update",
+      "cancel_local_update",
       "run_local_storage_cleanup",
       "repair_local_permissions",
       "repair_invalid_startup_config",
@@ -260,6 +265,7 @@ const commandGroups: readonly MockCommandGroup[] = [
       "analyze_resume_format",
       "analyze_resume_for_job",
       "analyze_active_resume_for_job",
+      "cancel_resume_review",
       "get_ats_power_words",
       "improve_bullet_point",
       "export_resume_docx",

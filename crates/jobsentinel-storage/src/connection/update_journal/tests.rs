@@ -250,3 +250,189 @@ async fn startup_retains_owner_between_empty_journal_check_and_database_open() {
     assert!(database.update_schema_inventory().await.is_ok());
     database.pool.close().await;
 }
+
+#[tokio::test]
+async fn target_startup_requires_exact_authenticated_journal_under_owner() {
+    let root = tempfile::tempdir().unwrap();
+    let path = root.path().join("jobs.db");
+    let database = Database::connect(&path).await.unwrap();
+    database.migrate().await.unwrap();
+    let mut journal = database
+        .prepare_update_snapshot("3.0.0", "3.1.0", &"a".repeat(64))
+        .await
+        .unwrap();
+    drop(database);
+    // Simulate an application-verified rollback target; storage never grants trust itself.
+    journal.source_version = "3.1.0".into();
+    journal.target_version = "3.0.0".into();
+    write_journal(&path, &journal).unwrap();
+    assert!(Database::connect_with_staged_restore(&path).await.is_err());
+    let mut stale = journal.clone();
+    stale.package_sha256 = "b".repeat(64);
+    assert!(
+        Database::connect_with_update_authorization(&path, Some(&stale))
+            .await
+            .is_err()
+    );
+    let database = Database::connect_with_update_authorization(&path, Some(&journal))
+        .await
+        .unwrap();
+    assert_eq!(
+        read_journal(&path).unwrap().unwrap().phase,
+        UpdatePreparationPhase::Reconciled
+    );
+    database.close().await;
+    drop(database);
+    assert!(
+        Database::connect_with_update_authorization(&path, Some(&journal))
+            .await
+            .is_err(),
+        "a source/reconciliation race cannot reuse the pre-reconciliation grant"
+    );
+    assert!(
+        Database::connect_with_staged_restore(&path).await.is_err(),
+        "target startup still requires application authentication after reconciliation"
+    );
+    let current = read_journal(&path).unwrap().unwrap();
+    let database = Database::connect_with_update_authorization(&path, Some(&current))
+        .await
+        .unwrap();
+    database.close().await;
+}
+
+#[tokio::test]
+async fn source_never_cancels_an_interrupted_target_attempt() {
+    let root = tempfile::tempdir().unwrap();
+    let path = root.path().join("jobs.db");
+    let database = Database::connect(&path).await.unwrap();
+    database.migrate().await.unwrap();
+    let mut journal = database
+        .prepare_update_snapshot("3.0.0", "3.1.0", &"a".repeat(64))
+        .await
+        .unwrap();
+    drop(database);
+    journal.phase = UpdatePreparationPhase::TargetStarting;
+    write_journal(&path, &journal).unwrap();
+    assert!(Database::connect_with_staged_restore(&path).await.is_err());
+    assert_eq!(
+        read_journal(&path).unwrap().unwrap().phase,
+        UpdatePreparationPhase::TargetStarting
+    );
+}
+
+#[tokio::test]
+async fn interrupted_target_restores_before_opening_primary_and_never_retries_migration() {
+    let root = tempfile::tempdir().unwrap();
+    let path = root.path().join("jobs.db");
+    let database = Database::connect(&path).await.unwrap();
+    database.migrate().await.unwrap();
+    let mut journal = database
+        .prepare_update_snapshot("3.0.0", "3.1.0", &"a".repeat(64))
+        .await
+        .unwrap();
+    drop(database);
+    journal.source_version = "3.1.0".into();
+    journal.target_version = "3.0.0".into();
+    journal.phase = UpdatePreparationPhase::TargetStarting;
+    write_journal(&path, &journal).unwrap();
+    std::fs::write(&path, b"interrupted target bytes").unwrap();
+    assert!(
+        Database::connect_with_update_authorization(&path, Some(&journal))
+            .await
+            .is_err()
+    );
+    let recovered = read_journal(&path).unwrap().unwrap();
+    assert_eq!(recovered.phase, UpdatePreparationPhase::TargetFailed);
+    assert!(
+        Database::connect_with_update_authorization(&path, Some(&recovered))
+            .await
+            .is_err()
+    );
+    let source = Database::reconcile_prepared_update_for_version(&path, "3.1.0")
+        .await
+        .unwrap()
+        .unwrap();
+    assert!(source.update_schema_inventory().await.is_ok());
+    source.close().await;
+}
+
+#[tokio::test]
+async fn installer_cleanup_preserves_source_and_tampered_files_then_removes_exact_target_package() {
+    let root = tempfile::tempdir().unwrap();
+    let path = root.path().join("jobs.db");
+    let database = Database::connect(&path).await.unwrap();
+    database.migrate().await.unwrap();
+    let digest = hex::encode(Sha256::digest(b"package"));
+    let mut journal = database
+        .prepare_update_snapshot("3.0.0", "3.1.0", &digest)
+        .await
+        .unwrap();
+    let operation_id = uuid::Uuid::new_v4().to_string();
+    let directory = root.path().join(format!(".update-package-{operation_id}"));
+    std::fs::create_dir(&directory).unwrap();
+    let installer = directory.join("installer.pkg");
+    std::fs::write(&installer, b"package").unwrap();
+    journal.staged_package = Some(StagedUpdatePackage {
+        operation_id,
+        extension: "pkg".into(),
+    });
+    journal.phase = UpdatePreparationPhase::Reconciled;
+    journal.reconciled_version = Some("3.0.0".into());
+    write_journal(&path, &journal).unwrap();
+    database.cleanup_update_package().unwrap();
+    assert!(
+        installer.exists(),
+        "source restart must not delete an active installer's input"
+    );
+    journal.source_version = "3.1.0".into();
+    journal.target_version = "3.0.0".into();
+    write_journal(&path, &journal).unwrap();
+    std::fs::write(&installer, b"changed").unwrap();
+    assert!(database.cleanup_update_package().is_err());
+    assert!(installer.exists());
+    std::fs::write(&installer, b"package").unwrap();
+    database.cleanup_update_package().unwrap();
+    assert!(!directory.exists());
+    assert!(read_journal(&path)
+        .unwrap()
+        .unwrap()
+        .staged_package
+        .is_none());
+}
+
+#[tokio::test]
+async fn malformed_staging_coordinates_and_equal_versions_never_delete_files() {
+    let root = tempfile::tempdir().unwrap();
+    let path = root.path().join("jobs.db");
+    let database = Database::connect(&path).await.unwrap();
+    database.migrate().await.unwrap();
+    let original = database
+        .prepare_update_snapshot("3.0.0", "3.1.0", &"a".repeat(64))
+        .await
+        .unwrap();
+    let external = root.path().join("outside.txt");
+    std::fs::write(&external, b"preserved").unwrap();
+    for (id, extension, equal_versions) in [
+        ("../../outside".into(), "pkg".into(), false),
+        (
+            uuid::Uuid::new_v4().to_string(),
+            "../../outside.txt".into(),
+            false,
+        ),
+        (uuid::Uuid::new_v4().to_string(), "pkg".into(), true),
+    ] {
+        let mut malformed = original.clone();
+        malformed.staged_package = Some(StagedUpdatePackage {
+            operation_id: id,
+            extension,
+        });
+        malformed.phase = UpdatePreparationPhase::Reconciled;
+        malformed.target_version = "3.0.0".into();
+        malformed.source_version = if equal_versions { "3.0.0" } else { "3.1.0" }.into();
+        malformed.reconciled_version = Some("3.0.0".into());
+        write_journal(&path, &malformed).unwrap();
+        assert!(read_journal(&path).is_err());
+        assert!(database.cleanup_update_package().is_err());
+        assert_eq!(std::fs::read(&external).unwrap(), b"preserved");
+    }
+}

@@ -5,13 +5,13 @@ use crate::application::resume::{
     ResumeAnalysisInput, ResumeExporter, ResumeMatchFeedback, ResumeMatchFeedbackLabel,
     SkillUpdate, StructuredResume, Template, TemplateId, TemplateRenderer, UserSkill,
 };
+use crate::bootstrap::operation::State;
 use crate::bootstrap::AppState;
 use crate::ipc::errors::user_friendly_error;
 use crate::ipc::limits::validate_optional_command_limit_i64;
 use chrono::{DateTime, Utc};
 use serde::Serialize;
 use std::path::Path;
-use tauri::State;
 
 #[path = "resume_review_commands.rs"]
 pub(crate) mod resume_review_commands;
@@ -35,6 +35,23 @@ use resume_file_commands::{
     delete_resume_with_file_cleanup, has_json_extension, managed_resume_upload_cleanup_path,
     open_selected_resume, safe_resume_upload_file_name, supported_resume_extension,
 };
+
+#[tauri::command]
+pub(crate) async fn cancel_resume_review(request_id: String) -> Result<bool, String> {
+    if request_id.len() != 36
+        || !uuid::Uuid::parse_str(&request_id).is_ok_and(|id| id.to_string() == request_id)
+    {
+        return Err("Invalid review request ID.".into());
+    }
+    #[cfg(feature = "embedded-ml")]
+    {
+        crate::ipc::ml::cancel_resume_review(request_id).await
+    }
+    #[cfg(not(feature = "embedded-ml"))]
+    {
+        Ok(false)
+    }
+}
 
 const MAX_RESUME_TEXT_PREVIEW_CHARS: usize = 6_000;
 

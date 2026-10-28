@@ -1,3 +1,4 @@
+/** Coordinates Settings forms, recovery, and reviewed local maintenance. */
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { invoke } from "../../platform/tauri";
 import { Button } from "../../ui/Button";
@@ -43,13 +44,13 @@ import { useSettingsSearchPreferenceInputs } from "./search/useSettingsSearchPre
 import { useSettingsGhostConfig } from "./search/useSettingsGhostConfig";
 import { SettingsTabs } from "./shared/SettingsTabs";
 import { useSettingsSave } from "./useSettingsSave";
+import { LocalUpdatePanel } from "./support/LocalUpdatePanel";
 import { LocalRecoveryPanel } from "./support/LocalRecoveryPanel";
 import { PortableRecoveryPanel } from "./support/PortableRecoveryPanel";
 import {
   SettingsLoadFailure,
   SettingsLoadingState,
 } from "./SettingsPageStartup";
-
 export default function Settings({ initialTab = "basic", linkedinWorkbench, onClose }: SettingsProps) {
   const [config, setConfig] = useState<Config | null>(null);
   const [loading, setLoading] = useState(true);
@@ -110,7 +111,6 @@ export default function Settings({ initialTab = "basic", linkedinWorkbench, onCl
       toastSuccess,
     },
   );
-
   // Location detection state
   const [detectedLocation, setDetectedLocation] = useState<DetectedLocation | null>(
     () => readCachedDetectedLocation(),
@@ -122,7 +122,6 @@ export default function Settings({ initialTab = "basic", linkedinWorkbench, onCl
     setConfig,
     toastSuccess,
   });
-
   const jobBoardRecommendations = useJobBoardRecommendations(config, setConfig);
 
   const jobsWithGptPayload = useMemo(
@@ -459,6 +458,7 @@ export default function Settings({ initialTab = "basic", linkedinWorkbench, onCl
           onImportConfig={handleImportConfig}
         />
 
+        <LocalUpdatePanel />
         <LocalRecoveryPanel />
 
         <PortableRecoveryPanel />

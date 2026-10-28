@@ -217,6 +217,7 @@ fn local_matching_input_preflight_rejects_prompt_like_and_hidden_text() {
 fn public_matcher_methods_reject_before_runtime_dispatch() {
     let matcher = SemanticMatcher {
         runtime: SemanticMatcherRuntime::RejectOnly,
+        cancellation: Default::default(),
     };
     assert_eq!(
         matcher
@@ -274,7 +275,8 @@ fn model_free_runtime_rejects_precomputed_model_vectors() {
 #[test]
 #[ignore = "requires verified MiniLM files in JOBSENTINEL_MINILM_TEST_CACHE"]
 fn test_semantic_matching() {
-    let app_data_dir = std::env::var_os("JOBSENTINEL_MINILM_TEST_CACHE").expect("explicit governed model cache");
+    let app_data_dir =
+        std::env::var_os("JOBSENTINEL_MINILM_TEST_CACHE").expect("explicit governed model cache");
     let matcher = SemanticMatcher::new(app_data_dir.into()).unwrap();
     let user_skills = vec![
         "Python programming".to_string(),
@@ -302,6 +304,7 @@ fn test_semantic_matching() {
 fn input_budget_refuses_oversized_text_lists_and_aggregate_before_dispatch() {
     let matcher = SemanticMatcher {
         runtime: SemanticMatcherRuntime::RejectOnly,
+        cancellation: Default::default(),
     };
     assert!(matcher
         .match_skills(&vec!["x".into(); MAX_LOCAL_MATCH_ITEMS + 1], &[])
@@ -320,4 +323,18 @@ fn input_budget_refuses_oversized_text_lists_and_aggregate_before_dispatch() {
 #[test]
 fn locked_instruction_preserves_the_calibrated_prompt() {
     assert_eq!(shared::qwen3_requirement_instruction().unwrap(), "Retrieve resume skills or passages that provide concrete evidence for this job requirement.");
+}
+
+#[test]
+fn cancellation_stops_matching_before_runtime_dispatch() {
+    let cancellation = crate::InferenceCancellation::default();
+    let root = tempfile::tempdir().unwrap();
+    let matcher =
+        SemanticMatcher::new_with_cancellation(root.path().into(), cancellation.clone()).unwrap();
+    cancellation.cancel();
+    let error = matcher
+        .match_skills(&["Rust".into()], &["Rust".into()])
+        .unwrap_err();
+    assert!(error.downcast_ref::<crate::InferenceCancelled>().is_some());
+    assert!(SemanticMatcher::new_with_cancellation(root.path().into(), cancellation).is_err());
 }

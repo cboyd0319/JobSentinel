@@ -1,10 +1,12 @@
+//! Builds the reviewed opportunity case snapshot from local job and campaign evidence.
+
 use crate::application::v3_foundation::{
     open_opportunity_case as open_case_snapshot, OpportunityCaseSnapshot,
 };
+use crate::bootstrap::operation::State;
 use crate::bootstrap::AppState;
 use crate::desktop::GhostConfig;
 use crate::ipc::errors::user_friendly_error;
-use tauri::State;
 
 /// Open one existing saved job as a local opportunity case.
 #[tauri::command]

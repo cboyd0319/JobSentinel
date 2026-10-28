@@ -1,13 +1,11 @@
-//! Salary prediction and negotiation Tauri commands
-//!
-//! Commands for salary prediction, benchmarking, and offer comparison.
+//! Adapts salary estimates, benchmark context, negotiation guidance, and offer comparisons to Tauri.
 
 use crate::application::salary::{OfferComparison, SalaryPrediction, SeniorityLevel};
+use crate::bootstrap::operation::State;
 use crate::bootstrap::AppState;
 use crate::ipc::errors::user_friendly_error;
 use serde_json::Value;
 use std::collections::HashMap;
-use tauri::State;
 
 /// Predict salary for a job
 #[tauri::command]

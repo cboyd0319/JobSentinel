@@ -18,6 +18,20 @@ const match = {
 };
 
 describe("saved local evidence review", () => {
+  it("dismisses a pending review without claiming its native worker has stopped", async () => {
+    let complete!: (value: null) => void;
+    vi.mocked(invoke).mockImplementation((command) => command === "cancel_resume_review" ? Promise.resolve(true) :
+      new Promise((resolve) => { complete = resolve; }));
+    render(<SavedSemanticReview resumeId={42} jobHash="job" />);
+    await userEvent.click(screen.getByRole("button", { name: "Review local evidence" }));
+    const requestId = vi.mocked(invoke).mock.calls.at(-1)?.[1]?.requestId;
+    expect(requestId).toEqual(expect.any(String));
+    await userEvent.click(screen.getByRole("button", { name: "Cancel evidence review" }));
+    expect(invoke).toHaveBeenCalledWith("cancel_resume_review", { requestId });
+    expect(screen.getByRole("status")).toHaveTextContent("may take a moment to stop");
+    await act(async () => complete(null));
+    expect(screen.queryByText(/This build uses basic matching/)).not.toBeInTheDocument();
+  });
   it("dispatches the selected saved resume and job and labels model-free evidence", async () => {
     vi.mocked(invoke).mockResolvedValue({
       runtime_profile: "deterministic_exact", overall_score: 1,
@@ -27,7 +41,7 @@ describe("saved local evidence review", () => {
     });
     render(<ResumeRecentMatches matches={[match]} savingFeedback={false} onFeedback={vi.fn()} />);
     await userEvent.setup().click(screen.getByRole("button", { name: "Review local evidence" }));
-    expect(invoke).toHaveBeenCalledWith("match_resume_semantic", { resumeId: 42, jobHash: "saved-job" });
+    expect(invoke).toHaveBeenCalledWith("match_resume_semantic", { requestId: expect.any(String), resumeId: 42, jobHash: "saved-job" });
     expect(await screen.findByText("Built-in exact matching — no model used")).toBeInTheDocument();
     expect(screen.getByText("Resume evidence: Skills list, item 1")).toBeInTheDocument();
     expect(screen.getByText("82%")).toBeInTheDocument();
@@ -82,10 +96,11 @@ describe("saved review identity changes", () => {
 
   it("clears pending state and discards the prior identity's late response", async () => {
     let finish!: (value: null) => void;
-    vi.mocked(invoke).mockImplementation(() => new Promise((resolve) => { finish = resolve; }));
+    vi.mocked(invoke).mockImplementation((command) => command === "cancel_resume_review" ? Promise.resolve(false) : new Promise((resolve) => { finish = resolve; }));
     const view = render(<SavedSemanticReview resumeId={42} jobHash="old-job" />);
     await userEvent.setup().click(screen.getByRole("button", { name: "Review local evidence" }));
     view.rerender(<SavedSemanticReview resumeId={42} jobHash="new-job" />);
+    expect(invoke).toHaveBeenCalledWith("cancel_resume_review", { requestId: expect.any(String) });
     expect(screen.getByRole("button", { name: "Review local evidence" })).toBeEnabled();
     await act(async () => finish(null));
     expect(screen.queryByText(/This build uses basic matching/)).not.toBeInTheDocument();

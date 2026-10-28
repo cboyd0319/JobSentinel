@@ -19,6 +19,7 @@ pub(crate) mod limits;
 pub(crate) mod linkedin_auth;
 pub(crate) mod linkedin_workbench;
 mod local_file;
+pub(crate) mod local_update;
 pub(crate) mod market;
 pub(crate) mod native_file_drop;
 pub(crate) mod opportunity_case;

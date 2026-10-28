@@ -1,9 +1,23 @@
+/** Verifies browser recovery simulation and fail-closed native installer commands. */
 import { describe, expect, it } from "vitest";
 import type { MockRecoveryState } from "../../../mocks/runtimeState";
 import { handleMockRecoveryCommand } from "./recoveryCommands";
 
 describe("Recovery mock commands", () => {
   const newState = (): MockRecoveryState => ({ stagedRestoreStatus: "none" });
+
+  it("does not pretend browser previews can discover or install trusted updates", () => {
+    const state = newState();
+    expect(handleMockRecoveryCommand("get_local_update_status", undefined, 0, state).value).toEqual({
+      trustedPublisherConfigured: false, pendingReview: false, restartRequired: false,
+    });
+    expect(handleMockRecoveryCommand("check_update_availability", undefined, 0, state).value).toMatchObject({
+      status: "unavailable", availableVersion: null, releaseUrl: null,
+    });
+    for (const command of ["select_local_update", "apply_local_update", "cancel_local_update"]) {
+      expect(() => handleMockRecoveryCommand(command, undefined, 0, state)).toThrow("unavailable in browser previews");
+    }
+  });
 
   it("reports offline-ready local recovery with schema version 2", () => {
     const state = newState();

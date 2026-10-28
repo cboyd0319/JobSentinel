@@ -12,6 +12,7 @@ const MAX_SEQUENCE_LENGTH: usize = 256;
 
 /// Generates sentence embeddings for text
 pub struct EmbeddingGenerator {
+    pub(crate) cancellation: crate::InferenceCancellation,
     model: SentenceTransformer,
     tokenizer: Tokenizer,
     device: Device,
@@ -45,6 +46,7 @@ impl EmbeddingGenerator {
         let model = SentenceTransformer::load(vb, &config)?;
 
         Ok(Self {
+            cancellation: Default::default(),
             model,
             tokenizer,
             device,
@@ -62,6 +64,7 @@ impl EmbeddingGenerator {
 
     /// Generate embeddings for multiple texts in a batch
     pub fn embed_batch(&self, texts: &[&str]) -> Result<Vec<Vec<f32>>> {
+        self.cancellation.check()?;
         if texts.is_empty() {
             return Ok(Vec::new());
         }
@@ -76,8 +79,10 @@ impl EmbeddingGenerator {
         let (input_ids, attention_mask) = self.encodings_to_tensors(&encodings)?;
 
         // Run inference
+        self.cancellation.check()?;
         let embeddings_tensor = self.model.forward(&input_ids, &attention_mask)?;
 
+        self.cancellation.check()?;
         // Convert back to Vec<Vec<f32>>
         Ok(Self::tensor_to_vec2d(&embeddings_tensor)?
             .iter()

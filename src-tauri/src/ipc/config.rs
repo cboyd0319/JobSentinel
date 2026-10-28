@@ -4,6 +4,7 @@ use crate::application::config::{AutoRefreshConfig, Config, EmailConfig};
 use crate::application::credentials::{
     decode_smtp_password_for_binding, CredentialKey, CredentialService, SmtpCredentialBinding,
 };
+use crate::bootstrap::operation::State;
 use crate::bootstrap::{AppState, StartupRecoveryState};
 use crate::desktop::path_label_for_logging;
 use crate::desktop::Database;
@@ -11,7 +12,6 @@ use crate::ipc::errors::user_friendly_error;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::{fmt, path::Path};
-use tauri::State;
 use tokio::sync::RwLock;
 
 /// Email configuration for testing (matches frontend interface)

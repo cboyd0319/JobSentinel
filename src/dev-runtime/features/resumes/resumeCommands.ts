@@ -327,6 +327,9 @@ export function handleMockResumeCommand(
     case "analyze_active_resume_for_job":
       return analyzeActiveResumeForJob(args, state);
 
+    case "cancel_resume_review":
+      return withoutSave(state, false);
+
     case "get_ats_power_words":
       return withoutSave(state, [...ATS_POWER_WORDS]);
 

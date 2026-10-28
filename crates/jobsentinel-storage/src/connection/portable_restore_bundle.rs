@@ -20,11 +20,18 @@ pub(super) fn require_regular_file(path: &Path) -> Result<(), sqlx::Error> {
 }
 
 pub(super) fn preserve_opaque_bundle(source: &Path, destination: &Path) -> Result<(), sqlx::Error> {
-    copy_regular_bundle(source, destination)
+    copy_regular_bundle(source, destination, true)
+}
+
+pub(super) fn preserve_remaining_bundle(
+    source: &Path,
+    destination: &Path,
+) -> Result<(), sqlx::Error> {
+    copy_regular_bundle(source, destination, false)
 }
 
 pub(super) fn publish_opaque_bundle(source: &Path, destination: &Path) -> Result<(), sqlx::Error> {
-    copy_regular_bundle(source, destination)
+    copy_regular_bundle(source, destination, true)
 }
 
 fn remove_linked_files(paths: &[PathBuf]) {
@@ -33,13 +40,20 @@ fn remove_linked_files(paths: &[PathBuf]) {
     }
 }
 
-fn copy_regular_bundle(source: &Path, destination: &Path) -> Result<(), sqlx::Error> {
+fn copy_regular_bundle(
+    source: &Path,
+    destination: &Path,
+    require_primary: bool,
+) -> Result<(), sqlx::Error> {
     let pairs = opaque_bundle_pairs(source, destination);
     let mut copied = Vec::new();
     for (index, (source, destination)) in pairs.iter().enumerate() {
         let metadata = match std::fs::symlink_metadata(source) {
             Ok(metadata) => metadata,
-            Err(error) if index > 0 && error.kind() == std::io::ErrorKind::NotFound => {
+            Err(error)
+                if (index > 0 || !require_primary)
+                    && error.kind() == std::io::ErrorKind::NotFound =>
+            {
                 continue;
             }
             Err(error) => {

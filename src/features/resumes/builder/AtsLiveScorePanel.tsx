@@ -1,13 +1,7 @@
-/**
- * AtsLiveScorePanel - real-time resume readability feedback for Resume Builder
- *
- * Shows live readability feedback as users build their resume, with detailed
- * breakdowns for job-word fit, format, and details included.
- *
- * @version 2.5.5
- */
+/** Shows current-input resume readability feedback and cancels superseded local reviews. */
 
 import { memo, useState, useEffect, useMemo } from "react";
+import { useResumeReviewRequest } from "../shared/useResumeReviewRequest";
 import { invoke } from "../../../platform/tauri";
 import { Badge } from "../../../ui/Badge";
 import { Button } from "../../../ui/Button";
@@ -47,6 +41,8 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
   debounceMs = 1000,
   showFullAnalysis = true,
 }: AtsLiveScorePanelProps) {
+  const { begin, cancel, isCurrent, finish } = useResumeReviewRequest();
+  const [cancelled, setCancelled] = useState(false);
   const [analysis, setAnalysis] = useState<AtsAnalysisResult | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
@@ -69,17 +65,16 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
 
   // Analyze resume with debouncing
   useEffect(() => {
-    if (!resumeData) {
-      setAnalysis(null);
-      return;
-    }
-
-    // Check minimum data requirements
-    if (!resumeData.contact.name || !resumeData.contact.email) {
-      return;
-    }
+    cancel();
+    setAnalysis(null);
+    setAnalyzing(false);
+    setCancelled(false);
+    setError(null);
+    setShowDetailModal(false);
+    if (!resumeData?.contact.name || !resumeData.contact.email) return;
 
     const timeoutId = setTimeout(async () => {
+      const requestId = begin(Boolean(jobDescription));
       try {
         setAnalyzing(true);
         setError(null);
@@ -92,6 +87,7 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
           result = await invoke<AtsAnalysisResult>("analyze_resume_for_job", {
             resume: atsData,
             jobDescription,
+            requestId,
           });
         } else {
           // Format-only analysis
@@ -100,18 +96,20 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
           });
         }
 
-        setAnalysis(result);
+        if (isCurrent(requestId)) setAnalysis(result);
       } catch (err: unknown) {
+        if (!isCurrent(requestId)) return;
         logError("Resume readability analysis error:", err);
         const friendly = getUserFriendlyError(err);
         setError(friendly.action ?? friendly.message);
       } finally {
-        setAnalyzing(false);
+        if (isCurrent(requestId)) setAnalyzing(false);
+        finish(requestId);
       }
     }, debounceMs);
 
-    return () => clearTimeout(timeoutId);
-  }, [resumeData, jobDescription, debounceMs, evidenceRevision, retryTrigger]);
+    return () => { clearTimeout(timeoutId); cancel(); };
+  }, [resumeData, jobDescription, debounceMs, evidenceRevision, retryTrigger, begin, cancel, isCurrent, finish]);
 
   // Memoize tips
   const tips = useMemo(() => getStepTips(currentStep, analysis), [currentStep, analysis]);
@@ -142,6 +140,9 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
           )}
         </div>
       </div>
+
+      {analyzing && <Button variant="ghost" size="sm" onClick={() => { cancel(); setAnalyzing(false); setCancelled(true); }}>Cancel readability check</Button>}
+      {cancelled && <div className="px-4 py-2 text-sm" role="status">Review dismissed. Local processing may take a moment to stop. <Button variant="ghost" size="sm" onClick={() => setRetryTrigger((value) => value + 1)}>Review again</Button></div>}
 
       {/* Readability display */}
       <div className="p-4">

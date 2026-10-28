@@ -215,6 +215,30 @@ installer can be used offline; obtaining another installer is labeled as
 requiring connectivity before the user acts. JobSentinel does not run a shell,
 elevate, download, or install a package from this recovery surface.
 
+### Reviewed App Updates
+
+Settings checks GitHub release availability only when selected. This anonymous
+check sends no local records and grants no installation authority. Offline or
+failed checks leave installed local workflows available.
+
+A downloaded installer requires adjacent `.manifest.json` and `.sig` files.
+Native review stages at most 512 MiB, verifies a compiled trusted publisher and
+exact package bytes, and checks app, platform, edition, data and optional-component
+compatibility. Builds without enrolled release trust refuse installer review.
+Review shows version, size, device, component retention and recovery requirements.
+
+Explicit confirmation drains local work, rechecks the reviewed candidate, and
+creates a verified encrypted same-device recovery snapshot before opening the
+installer and closing the app. Installer handoff does not prove installation.
+A compatible older v3 package uses the same review; newer-data downgrades are
+refused. Optional packs and models are retained; their removal stays separate.
+
+Startup authenticates the target build before migration. Failed or interrupted
+target migration preserves failed data and restores the verified original
+snapshot before requiring recovery. These internal snapshots retain device-bound
+credentials and cannot replace a portable backup. Native installer and platform
+qualification remain release checks.
+
 ### Reviewed Plaintext Export
 
 Reviewed export provides a documented JSON Lines file for leaving JobSentinel

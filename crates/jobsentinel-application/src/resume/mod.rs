@@ -11,15 +11,22 @@ mod semantic;
 #[cfg(feature = "embedded-ml")]
 mod semantic_review;
 #[cfg(feature = "embedded-ml")]
-pub use semantic_review::{review_active_resume_for_job, review_structured_resume_for_job};
+pub use semantic_review::{
+    review_active_resume_for_job, review_active_resume_for_job_with_cancellation,
+    review_structured_resume_for_job, review_structured_resume_for_job_with_cancellation,
+};
 
 mod review_result;
 use review_result::analyze_captured_resume;
 pub use review_result::{ResumeJobReview, ResumeReviewSnapshot, SemanticUnavailableReason};
 
+#[cfg(feature = "embedded-ml")]
+pub use jobsentinel_local_ai::InferenceCancellation;
 pub use jobsentinel_storage::resume::*;
 #[cfg(feature = "embedded-ml")]
-pub use semantic::{match_resume_semantic, EvidenceBoundSemanticMatch};
+pub use semantic::{
+    match_resume_semantic, match_resume_semantic_with_cancellation, EvidenceBoundSemanticMatch,
+};
 
 pub const MAX_RESUME_FILE_BYTES: u64 = 10 * 1024 * 1024;
 const EPHEMERAL_RESUME_SOURCE_ID: &str = "resume:ephemeral:v1";

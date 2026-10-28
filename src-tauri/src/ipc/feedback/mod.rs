@@ -1,7 +1,4 @@
-//! Beta Feedback System
-//!
-//! Privacy-first feedback collection for beta testers.
-//! ALL output is sanitized to prevent PII leakage (this is a PUBLIC repo).
+//! Owns feedback command exports and local diagnostic-report modules.
 
 mod debug_log;
 mod report;
@@ -12,12 +9,13 @@ use debug_log::{clear_debug_log, format_debug_log, get_debug_log, TimestampedEve
 use sanitizer::{ConfigSummary, Sanitizer};
 use system_info::SystemInfo;
 
+use crate::bootstrap::operation::State;
 use crate::bootstrap::{AppState, StartupRecoveryState};
 use serde::Serialize;
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::sync::{LazyLock, Mutex};
-use tauri::{AppHandle, State};
+use tauri::AppHandle;
 use tauri_plugin_dialog::DialogExt;
 use tauri_plugin_shell::ShellExt;
 use uuid::Uuid;
@@ -254,6 +252,7 @@ pub(crate) fn get_feedback_filename() -> String {
 #[tauri::command]
 pub(crate) async fn save_feedback_file(
     app: tauri::AppHandle,
+    _operation: crate::bootstrap::operation::AdmissionState<'_>,
     content: String,
     suggested_filename: Option<String>,
 ) -> Result<Option<SavedFeedbackFile>, String> {

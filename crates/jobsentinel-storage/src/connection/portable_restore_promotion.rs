@@ -22,9 +22,17 @@ use std::path::Path;
 
 impl Database {
     pub async fn connect_with_staged_restore(path: &Path) -> Result<Self, sqlx::Error> {
+        Self::connect_with_update_authorization(path, None).await
+    }
+
+    /// An application-authenticated target grant is compared to the exact journal under ownership.
+    pub async fn connect_with_update_authorization(
+        path: &Path,
+        authorized: Option<&super::PreparedUpdate>,
+    ) -> Result<Self, sqlx::Error> {
         Self::ensure_database_parent(path)?;
         let owner = Self::acquire_owner_lock(path)?;
-        if let Some(database) = Self::reconcile_prepared_update(path, &owner).await? {
+        if let Some(database) = Self::reconcile_prepared_update(path, &owner, authorized).await? {
             return Ok(database);
         }
         #[cfg(test)]

@@ -1,3 +1,5 @@
+//! Matches bounded MiniLM batches and checks cancellation before candidate comparisons.
+
 use super::shared::{
     build_match_result, checked_cosine_similarity, dense_candidates, empty_match_result,
     require_embedding_count, SIMILARITY_THRESHOLD,
@@ -47,6 +49,7 @@ pub(super) fn match_skills(
         vec![Some(SemanticUnmatchedReason::BelowRetrievalThreshold); job_requirements.len()];
 
     for (job_idx, job_emb) in job_embeddings.iter().enumerate() {
+        generator.cancellation.check()?;
         let best_match = dense_candidates(job_emb, &user_embeddings, SIMILARITY_THRESHOLD, 1)?
             .into_iter()
             .next();

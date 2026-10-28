@@ -144,7 +144,7 @@
         "docs/harness/evidence/v3-milestone-9-current-macos-package-2026-09-11.json"
       ] }, {"id":"v3-milestone-10-update-rollback-repair","priority":24,"area":"v3 recovery","title":"Update, rollback, repair, and distribution","status":"active",
       "behavior":"Trusted updates fail closed.",
-      "notes":"Audit corrections precede remaining update integration.",
+      "notes":"Native integration acceptance and recorded audit gaps remain.",
       "user_visible_behavior":"Users review updates and recover offline.",
       "verification":["npm run harness:check"],
       "evidence":["docs/harness/evidence/v3-milestone-10-preflight-2026-10-28.json"]

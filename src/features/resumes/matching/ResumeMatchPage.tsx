@@ -1,6 +1,6 @@
 /** Supports ephemeral pasted-job ATS analysis and routing to saved resume matches. */
 
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { invoke } from "../../../platform/tauri";
 import { Button } from "../../../ui/Button";
 import { Card, CardHeader } from "../../../ui/Card";
@@ -23,6 +23,7 @@ import {
   type ResumeSummary,
 } from "./resumeMatchModel";
 import { writeStoredResumeJobContext } from "../shared/resumeJobContext";
+import { useResumeReviewRequest } from "../shared/useResumeReviewRequest";
 import type { ResumeMatchingProfile } from "../shared/atsAnalysisContracts";
 
 type Page = "dashboard" | "applications" | "resume" | "resume-builder" | "ats-optimizer" | "salary" | "market" | "automation";
@@ -60,14 +61,14 @@ export default function ResumeMatch({ onBack, onNavigate }: ResumeMatchProps) {
 
   const visibleAnalysis = currentResumeAnalysis(analysisResult, analysisInputSource, activeResume);
   const toast = useToast();
-  const reviewGeneration = useRef(0);
+  const { begin, cancel, isCurrent, finish } = useResumeReviewRequest();
   const invalidateReview = () => {
-    reviewGeneration.current += 1;
+    cancel();
+    setAnalyzing(false);
     setAnalysisResult(null);
     setAnalysisInputSource(null);
     setShowComparison(false);
   };
-  useEffect(() => () => { reviewGeneration.current += 1; }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -128,7 +129,6 @@ export default function ResumeMatch({ onBack, onNavigate }: ResumeMatchProps) {
     onNavigate("resume");
   };
 
-  // Load action words on mount
   const loadActionWords = useCallback(async () => {
     try {
       const words = await invoke<string[]>("get_ats_power_words");
@@ -138,7 +138,6 @@ export default function ResumeMatch({ onBack, onNavigate }: ResumeMatchProps) {
     }
   }, []);
 
-  // Analyze resume
   const handleAnalyze = async () => {
     if (!jobDescription.trim()) {
       toast.error("Add job post", "Paste the job post, then review again.");
@@ -155,7 +154,7 @@ export default function ResumeMatch({ onBack, onNavigate }: ResumeMatchProps) {
       return;
     }
 
-    const request = ++reviewGeneration.current;
+    const requestId = begin();
     try {
       setAnalyzing(true);
       const result = useCopiedResume
@@ -167,19 +166,21 @@ export default function ResumeMatch({ onBack, onNavigate }: ResumeMatchProps) {
             return invoke<AtsAnalysisResult>("analyze_resume_for_job", {
               resume,
               jobDescription,
+              requestId,
               ...(matchingProfile ? { matchingProfile } : {}),
             });
           })()
         : await invoke<AtsAnalysisResult>("analyze_active_resume_for_job", {
             jobDescription,
+            requestId,
             ...(matchingProfile ? { matchingProfile } : {}),
           });
 
-      if (!useCopiedResume && request === reviewGeneration.current) {
+      if (!useCopiedResume && isCurrent(requestId)) {
         const current = await getActiveResumeSummary();
-        if (request === reviewGeneration.current) setActiveResume(current);
+        if (isCurrent(requestId)) setActiveResume(current);
       }
-      if (request !== reviewGeneration.current) return;
+      if (!isCurrent(requestId)) return;
       setAnalysisResult(result);
       setAnalysisInputSource(useCopiedResume ? "copied" : "active");
       setShowComparison(false);
@@ -188,7 +189,7 @@ export default function ResumeMatch({ onBack, onNavigate }: ResumeMatchProps) {
         "Use the details below as a guide before you apply.",
       );
     } catch (err: unknown) {
-      if (request !== reviewGeneration.current) return;
+      if (!isCurrent(requestId)) return;
       if (err instanceof Error && err.message === "invalid-copied-resume-details") {
         toast.error(
           "Could not read copied resume details",
@@ -199,11 +200,11 @@ export default function ResumeMatch({ onBack, onNavigate }: ResumeMatchProps) {
         logError("Analysis error:", err);
       }
     } finally {
-      setAnalyzing(false);
+      if (isCurrent(requestId)) setAnalyzing(false);
+      finish(requestId);
     }
   };
 
-  // Analyze format only
   const handleAnalyzeFormat = async () => {
     if (!resumeJson.trim()) {
       toast.error(
@@ -222,27 +223,27 @@ export default function ResumeMatch({ onBack, onNavigate }: ResumeMatchProps) {
       return;
     }
 
-    const request = ++reviewGeneration.current;
+    const requestId = begin(false);
     try {
       setAnalyzing(true);
       const result = await invoke<AtsAnalysisResult>("analyze_resume_format", {
         resume,
       });
 
-      if (request !== reviewGeneration.current) return;
+      if (!isCurrent(requestId)) return;
       setAnalysisResult(result);
       setAnalysisInputSource("copied");
       toast.success("Format review complete", "Review the format details below.");
     } catch (err: unknown) {
-      if (request !== reviewGeneration.current) return;
+      if (!isCurrent(requestId)) return;
       toast.error("Review could not run", getResumeAnalysisErrorAction(err));
       logError("Format analysis error:", err);
     } finally {
-      setAnalyzing(false);
+      if (isCurrent(requestId)) setAnalyzing(false);
+      finish(requestId);
     }
   };
 
-  // Draft a reviewed alternative for a resume bullet.
   const handleImproveBullet = async () => {
     if (!bulletInput.trim()) {
       toast.error("Add a bullet point", "Paste or write one bullet, then draft again.");
@@ -266,7 +267,6 @@ export default function ResumeMatch({ onBack, onNavigate }: ResumeMatchProps) {
     }
   };
 
-  // Send the saved job post to Resume Builder.
   const handleReviewInResumeBuilder = () => {
     if (!onNavigate) {
       toast.error(
@@ -289,12 +289,10 @@ export default function ResumeMatch({ onBack, onNavigate }: ResumeMatchProps) {
     toast.success("Opening Resume Builder", "This job post is ready there.");
   };
 
-  const canShowComparison =
-    analysisInputSource === "copied" && Boolean(jobDescription.trim()) && Boolean(resumeJson.trim());
+  const canShowComparison = analysisInputSource === "copied" && Boolean(jobDescription.trim()) && Boolean(resumeJson.trim());
 
   return (
     <div className="min-h-screen bg-surface-50 dark:bg-surface-900">
-      {/* Header */}
       <header className="bg-white dark:bg-surface-800 border-b border-surface-200 dark:border-surface-700 shadow-soft">
         <div className="max-w-7xl mx-auto px-6 py-6">
           <div className="flex items-center gap-4">
@@ -322,7 +320,6 @@ export default function ResumeMatch({ onBack, onNavigate }: ResumeMatchProps) {
 
       <main className="max-w-7xl mx-auto px-6 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Left Panel - Input */}
           <div className="space-y-6">
             <Card>
               <CardHeader title="Job Post" />
@@ -346,6 +343,8 @@ export default function ResumeMatch({ onBack, onNavigate }: ResumeMatchProps) {
                 }}
               />
             </Card>
+
+            {analyzing && <Button variant="secondary" onClick={() => { invalidateReview(); toast.info("Review dismissed", "Local processing may take a moment to stop."); }}>Cancel match review</Button>}
 
             <Card>
               <CardHeader title="Resume" />

@@ -187,15 +187,17 @@
     "models": "426de888/873133ba: canonical MiniLM, verified consumed bytes, metadata repair, inference bounds, calibrated prompt owner and verified artifact reuse. Real MiniLM and tokenizer/batch tests passed.",
     "matching": "c3882eb3: maintained resume review and saved-match workflows now invoke cited local matching; shared captured context and validated draft identity/revision prevent stale evidence. Focused default/embedded Rust, frontend, clippy and independent review passed.",
     "shutdown": "Durable source-version update journal and normal quit drain verified by 12 update-storage,37 portable,2 native shutdown,1 startup failure and1 private-file tests plus production clippy; M10 evidence owns exact commands/limits.",
-    "dependency_security": "000f1494 patches affected runtime/development dependencies; fresh npm audit reports zero known vulnerabilities; v3-security-refresh-2026-10-28.json owns versions and checks."
+    "dependency_security": "000f1494 patches affected runtime/development dependencies; fresh npm audit reports zero known vulnerabilities; v3-security-refresh-2026-10-28.json owns versions and checks.",
+    "native_update": "M10 evidence now records native admission, reviewed local update/rollback UI, authenticated target reconciliation, failed-target restoration, exact staged-package cleanup and acknowledged OS launcher rejection regression; whole native signed-candidate happy path remains unproven.",
+    "cancellation": "Cooperative UUID-scoped cancellation is connected to three maintained review callers; early/dropped/invalid requests and shutdown signals retain actual worker ownership. Current kernel/load preemption and full-model cancellation latency remain unqualified.",
+    "model_repair": "Explicit malformed old-lock metadata quarantine preserves retained bytes and valid current caches; confirmed removal reclaims quarantine, no automatic repair or fabricated freshness. Synthetic inventory/repair and Settings checks pass."
   },
   "current_open_gaps": [
     "Retrospective audit is incomplete: remaining coverage inventory below remains required.",
     "Representative optimized model comparison remains; single Qwen baseline measured, debug timings are not production latency evidence.",
-    "Inference cancellation and representative native latency remain unqualified.",
-    "Malformed prior-lock model metadata can still block update inventory; explicit repair path required.",
+    "Full-model cancellation latency and representative native latency remain unqualified.",
     "Ambiguous resume-import cancellation can retain an unreferenced complete private copy.",
-    "M10 native writer exclusion, authenticated target startup, installer/rollback execution and UX remain unfinished; source-version journal and shutdown prerequisites pass focused checks.",
+    "M10 native signed-candidate integrated happy path and complete development acceptance remain open; current writer, journal, restoration and UI boundary checks pass.",
     "M11 platform/release proof and M12\u201313 remain unfinished."
   ],
   "decisions": {

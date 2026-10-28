@@ -209,19 +209,30 @@ impl ModelManager {
         self.is_default_embedding_downloaded() && self.is_default_reranker_downloaded()
     }
 
-    /// Remove one integrity-invalid default cache selected by its lock-owned ID.
+    /// Explicitly quarantines invalid prior metadata and removes only an integrity-invalid current cache.
     pub fn repair_invalid_default_cache(&self, model_id: &str) -> Result<()> {
         let manifest = load_model_manifest()?;
-        let spec = [manifest.default_embedding(), manifest.default_reranker()]
-            .into_iter()
-            .flatten()
+        let spec = manifest
+            .models
+            .iter()
             .find(|spec| spec.id == model_id)
             .ok_or_else(|| anyhow::anyhow!(MODEL_CACHE_NOT_REPAIRABLE))?;
-        self.remove_integrity_invalid_cache(spec)
+        self.repair_invalid_cache_for_spec(spec)
+    }
+
+    fn repair_invalid_cache_for_spec(&self, spec: &ModelSpec) -> Result<()> {
+        let quarantined = self.quarantine_invalid_retained_metadata(spec)?;
+        if self.cache_health_for(spec) == ModelCacheHealth::IntegrityMismatch {
+            self.remove_integrity_invalid_cache(spec)
+        } else if quarantined > 0 {
+            Ok(())
+        } else {
+            anyhow::bail!(MODEL_CACHE_NOT_REPAIRABLE)
+        }
     }
 
     /// Remove all locally cached data for the governed Qwen3 model identities,
-    /// including stale revisions and superseded lock layouts.
+    /// including stale revisions, superseded lock layouts, and explicitly retained quarantine.
     pub fn remove_default_semantic_model_caches(&self) -> Result<bool> {
         let manifest = load_model_manifest()?;
         let specs = [
@@ -237,6 +248,12 @@ impl ModelManager {
             .map(|spec| self.validated_cache_child(&spec.id))
             .collect::<Result<Vec<_>>>()?;
         roots.push(self.validated_xet_transfer_cache()?);
+        let quarantine = self.model_quarantine_dir()?;
+        match std::fs::symlink_metadata(&quarantine) {
+            Ok(_) => roots.push(Some(quarantine)),
+            Err(error) if error.kind() == ErrorKind::NotFound => {}
+            Err(error) => return Err(error.into()),
+        }
         let roots = roots.into_iter().flatten().collect::<Vec<_>>();
         for root in &roots {
             ensure_symlink_free(root)?;
@@ -395,7 +412,7 @@ pub(super) fn verified_retained_file(
     Ok(path)
 }
 
-fn ensure_symlink_free(path: &std::path::Path) -> Result<()> {
+pub(super) fn ensure_symlink_free(path: &std::path::Path) -> Result<()> {
     let metadata =
         std::fs::symlink_metadata(path).map_err(|_| anyhow::anyhow!(MODEL_CACHE_NOT_REPAIRABLE))?;
     if metadata.file_type().is_symlink() {

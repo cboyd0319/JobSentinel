@@ -5,9 +5,9 @@ use crate::application::v3_foundation::{
     prepare_saved_match_debugger, save_saved_match_evidence_packet_claim, SavedMatchDebugger,
     SavedMatchEvidencePacketClaim,
 };
+use crate::bootstrap::operation::State;
 use crate::bootstrap::AppState;
 use crate::ipc::errors::user_friendly_error;
-use tauri::State;
 
 const MAX_REVIEWED_CLAIM_BYTES: usize = 8_192;
 const MAX_PACKET_EVIDENCE_IDS: usize = 32;

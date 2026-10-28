@@ -1,6 +1,7 @@
 //! Imports bounded regular resume files and cleans app-owned copies on failure.
 
 use crate::application::resume::{ResumeMatcher, MAX_RESUME_FILE_BYTES};
+use crate::bootstrap::operation::State;
 use crate::bootstrap::AppState;
 use crate::desktop;
 use crate::desktop::path_label_for_logging;
@@ -8,7 +9,6 @@ use crate::ipc::errors::user_friendly_error;
 use crate::ipc::local_file::{copy_bounded, open_regular_source, read_bounded_text, LocalFileCopy};
 use crate::ipc::resume_file_names::safe_resume_file_stem;
 use std::path::{Path, PathBuf};
-use tauri::State;
 use tauri_plugin_dialog::DialogExt;
 use uuid::Uuid;
 
@@ -46,7 +46,9 @@ pub(crate) async fn import_selected_resume_from_path(
     state: State<'_, AppState>,
 ) -> Result<i64, String> {
     let source_path = source_path.to_path_buf();
+    let lease = state.lease();
     let managed_path = tauri::async_runtime::spawn_blocking(move || {
+        let _lease = lease;
         copy_selected_resume_to_managed_storage(&source_path)
     })
     .await
@@ -146,7 +148,9 @@ async fn import_json_resume_from_selected_path(
     }
 
     let path = path.to_path_buf();
+    let lease = state.lease();
     let json_string = tauri::async_runtime::spawn_blocking(move || {
+        let _lease = lease;
         read_bounded_text(&path, MAX_JSON_RESUME_IMPORT_BYTES)
     })
     .await

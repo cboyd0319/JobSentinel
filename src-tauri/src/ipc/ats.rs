@@ -1,13 +1,11 @@
-//! Application Tracking System (ATS) Tauri commands
-//!
-//! Commands for managing job applications, interviews, reminders, and ghosting detection.
+//! Adapts application, interview, reminder, and application-statistics operations to Tauri.
 
 use crate::application::ats::{
     ApplicationStats, ApplicationStatus, ApplicationsByStatus, InterviewWithJob, PendingReminder,
 };
+use crate::bootstrap::operation::State;
 use crate::bootstrap::AppState;
 use crate::ipc::errors::user_friendly_error;
-use tauri::State;
 
 /// Create a new application from a job
 #[tauri::command]

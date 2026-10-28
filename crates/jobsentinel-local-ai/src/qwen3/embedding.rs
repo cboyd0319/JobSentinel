@@ -17,6 +17,7 @@ use crate::runtime::{EmbeddingBackend, EmbeddingInput, RuntimeCompatibility};
 use crate::MlError;
 
 pub struct Qwen3EmbeddingBackend {
+    pub(crate) cancellation: crate::InferenceCancellation,
     model: Qwen3Model,
     tokenizer: Tokenizer,
     compatibility: RuntimeCompatibility,
@@ -68,6 +69,7 @@ impl Qwen3EmbeddingBackend {
         compatibility.validate_for_model(&spec)?;
 
         Ok(Self {
+            cancellation: Default::default(),
             model,
             tokenizer,
             compatibility,
@@ -77,6 +79,7 @@ impl Qwen3EmbeddingBackend {
     }
 
     fn embed_inputs(&self, inputs: &[EmbeddingInput]) -> Result<Vec<Vec<f32>>> {
+        self.cancellation.check()?;
         if inputs.is_empty() {
             return Ok(Vec::new());
         }
@@ -88,6 +91,7 @@ impl Qwen3EmbeddingBackend {
         let batches = texts
             .chunks(MAX_INFERENCE_BATCH)
             .map(|texts| {
+                self.cancellation.check()?;
                 tokenize_left_padded(&self.tokenizer, texts, self.max_tokens, self.model.device())
             })
             .collect::<Result<Vec<_>>>()?;
@@ -95,7 +99,7 @@ impl Qwen3EmbeddingBackend {
         for batch in batches {
             let hidden = self
                 .model
-                .forward(&batch.input_ids, &batch.attention_mask)
+                .forward(&batch.input_ids, &batch.attention_mask, &self.cancellation)
                 .context("Qwen3 embedding inference failed")?;
             let pooled = last_token_pool(&hidden, &batch.attention_mask)?;
             let normalized = l2_normalize(&pooled)?;
@@ -111,6 +115,7 @@ impl Qwen3EmbeddingBackend {
                     .collect::<Result<Vec<_>>>()?,
             );
         }
+        self.cancellation.check()?;
         Ok(vectors)
     }
 }

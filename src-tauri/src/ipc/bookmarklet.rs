@@ -1,6 +1,7 @@
 //! Exposes reviewed browser pairing, imports and serialized listener configuration.
 
 use crate::application::config::Config;
+use crate::bootstrap::operation::State;
 use crate::bootstrap::AppState;
 use crate::desktop::path_label_for_logging;
 use crate::desktop::{
@@ -15,7 +16,7 @@ use jobsentinel_application::{
     issue_browser_import_pairing, prepare_browser_import_target,
 };
 use serde::{Deserialize, Serialize};
-use tauri::{AppHandle, State};
+use tauri::AppHandle;
 use tauri_plugin_dialog::{DialogExt, MessageDialogButtons, MessageDialogKind};
 use tokio::sync::oneshot;
 use uuid::Uuid;

@@ -1,24 +1,16 @@
-//! Application Automation Tauri Commands
-//!
-//! Commands for Application Assist with user-controlled submit.
-//!
-//! **Features:**
-//! - Profile management (contact info, work authorization)
-//! - Screening answer configuration
-//! - Automation attempt tracking
-//! - ATS platform detection
+//! Adapts reviewed application profiles, screening answers, and user-controlled assistance to Tauri.
 
 #[cfg(test)]
 use crate::application::automation::AutomationStatus;
 use crate::application::automation::{
     ApplicationProfileInput, AtsDetector, AtsPlatform, AutomationStats, ProfileManager,
 };
+use crate::bootstrap::operation::State;
 use crate::bootstrap::AppState;
 use crate::desktop::sanitize_url_for_logging;
 use crate::ipc::errors::user_friendly_error;
 use crate::ipc::limits::validate_optional_command_limit_usize;
 use std::path::Path;
-use tauri::State;
 
 mod responses;
 
@@ -56,6 +48,7 @@ fn has_stored_path(path: Option<&str>) -> bool {
 #[tauri::command]
 pub(crate) async fn select_application_resume_file(
     app: tauri::AppHandle,
+    _operation: crate::bootstrap::operation::AdmissionState<'_>,
 ) -> Result<Option<ApplicationResumeFileSelection>, String> {
     select_application_resume_file_impl(app).await
 }

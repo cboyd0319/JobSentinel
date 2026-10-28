@@ -1,4 +1,4 @@
-//! Local semantic matching diagnostics.
+//! Reports local model health and confirms offline cache repair without downloading.
 
 #[cfg(feature = "embedded-ml")]
 use crate::desktop;
@@ -29,6 +29,7 @@ pub(crate) enum SemanticMatchingRuntimeStatus {
 #[derive(Debug, Clone, serde::Serialize)]
 pub(crate) struct SemanticMatchingDiagnostics {
     pub build_enabled: bool,
+    pub quarantined_cache_present: bool,
     pub runtime_status: SemanticMatchingRuntimeStatus,
     pub active_profile: String,
     pub privacy_mode: String,
@@ -54,6 +55,7 @@ pub(crate) struct SemanticMatchingModelDiagnostic {
     pub locked_size_bytes: Option<u64>,
     pub downloaded: bool,
     pub cache_present: bool,
+    pub repair_available: bool,
     #[cfg(feature = "embedded-ml")]
     pub health: ModelCacheHealth,
     pub required_for_qwen3_runtime: bool,
@@ -76,6 +78,7 @@ pub(crate) async fn get_semantic_matching_diagnostics(
 #[cfg(not(feature = "embedded-ml"))]
 #[tauri::command]
 pub(crate) async fn repair_semantic_matching_model_cache(
+    _operation: crate::bootstrap::operation::AdmissionState<'_>,
     _app: tauri::AppHandle,
     _model_id: String,
 ) -> Result<bool, String> {
@@ -85,27 +88,56 @@ pub(crate) async fn repair_semantic_matching_model_cache(
 #[cfg(feature = "embedded-ml")]
 #[tauri::command]
 pub(crate) async fn repair_semantic_matching_model_cache(
+    _operation: crate::bootstrap::operation::AdmissionState<'_>,
     app: tauri::AppHandle,
     model_id: String,
 ) -> Result<bool, String> {
-    let _reservation = crate::ipc::ml::reserve_model_lifecycle(None)?;
+    let reservation = std::sync::Arc::new(crate::ipc::ml::reserve_model_lifecycle(None)?);
     let manifest = load_model_manifest()
         .map_err(|_| "Local model repair could not be prepared.".to_string())?;
-    let model = [manifest.default_embedding(), manifest.default_reranker()]
-        .into_iter()
-        .flatten()
+    let model = manifest
+        .models
+        .iter()
         .find(|model| model.id == model_id)
-        .ok_or_else(|| "Local model repair is not available.".to_string())?;
+        .ok_or_else(|| "Local model repair is not available.".to_string())?
+        .clone();
+    let role = model_role(&manifest, &model);
     let manager = ModelManager::new(desktop::get_data_dir());
-    if manager.cache_health_for(model) != ModelCacheHealth::IntegrityMismatch {
+    let inspection_reservation = reservation.clone();
+    let inspection_lease = _operation.lease();
+    let (manager, retained, damaged) = tokio::task::spawn_blocking(move || {
+        let _ownership = (inspection_reservation, inspection_lease);
+        let retained = manager
+            .retained_metadata_repair_count(&model.id)
+            .map_err(|_| "Local model repair is not available.".to_string())?;
+        let damaged = manager.cache_health_for(&model) == ModelCacheHealth::IntegrityMismatch;
+        Ok::<_, String>((manager, retained, damaged))
+    })
+    .await
+    .map_err(|_| "Local model inspection could not finish.".to_string())??;
+    if retained == 0 && !damaged {
         return Err("Local model repair is not available.".to_string());
     }
-    if !confirm_model_cache_removal(&app, model_role(&manifest, model)).await? {
+    if !confirm_model_cache_removal(&app, role, retained, damaged).await? {
         return Ok(false);
     }
-    manager
-        .repair_invalid_default_cache(&model_id)
-        .map_err(|_| "Local model repair could not be completed.".to_string())?;
+    let lease = _operation.lease();
+    tokio::task::spawn_blocking(move || {
+        let _ownership = (reservation, lease);
+        if retained > 0 {
+            let directory = manager
+                .model_quarantine_dir()
+                .map_err(|_| "Local model quarantine is unavailable.".to_string())?;
+            desktop::ensure_private_dir(&directory).map_err(|_| {
+                "Local model quarantine could not be prepared privately.".to_string()
+            })?;
+        }
+        manager
+            .repair_invalid_default_cache(&model_id)
+            .map_err(|_| "Local model repair could not be completed.".to_string())
+    })
+    .await
+    .map_err(|_| "Local model repair could not finish.".to_string())??;
     Ok(true)
 }
 
@@ -113,6 +145,7 @@ pub(crate) async fn repair_semantic_matching_model_cache(
 fn semantic_matching_diagnostics() -> Result<SemanticMatchingDiagnostics, String> {
     Ok(SemanticMatchingDiagnostics {
         build_enabled: false,
+        quarantined_cache_present: false,
         runtime_status: SemanticMatchingRuntimeStatus::DisabledInThisBuild,
         active_profile: "Built-in local matching rules".to_string(),
         privacy_mode: "Local only. No resume or job text leaves this device.".to_string(),
@@ -165,6 +198,7 @@ fn semantic_matching_diagnostics_for(
 
     SemanticMatchingDiagnostics {
         build_enabled: true,
+        quarantined_cache_present: manager.has_quarantined_model_cache(),
         runtime_status,
         active_profile: active_profile.to_string(),
         privacy_mode: "Local only. Model downloads fetch model files only and never send resume or job-search data."
@@ -256,6 +290,10 @@ fn model_diagnostic(
         locked_size_bytes: locked_size_bytes(model),
         downloaded: health == ModelCacheHealth::Ready,
         cache_present: manager.cache_exists_for(model),
+        repair_available: health == ModelCacheHealth::IntegrityMismatch
+            || manager
+                .retained_metadata_repair_count(&model.id)
+                .is_ok_and(|count| count > 0),
         health,
         required_for_qwen3_runtime: model.id == manifest.defaults.embedding
             || model.id == manifest.defaults.reranker,
@@ -263,17 +301,19 @@ fn model_diagnostic(
 }
 
 #[cfg(feature = "embedded-ml")]
-async fn confirm_model_cache_removal(app: &tauri::AppHandle, role: &str) -> Result<bool, String> {
+async fn confirm_model_cache_removal(
+    app: &tauri::AppHandle,
+    role: &str,
+    retained: usize,
+    damaged: bool,
+) -> Result<bool, String> {
     let (decision, received) = oneshot::channel();
     app.dialog()
-        .message(format!(
-            "Remove the integrity-invalid files for {role}? No resume or job data is involved. \
-             JobSentinel will not download replacement files automatically."
-        ))
+        .message(model_repair_message(role, retained, damaged))
         .title("Review Local Model Repair")
         .kind(MessageDialogKind::Warning)
         .buttons(MessageDialogButtons::OkCancelCustom(
-            "Remove Damaged Files".to_string(),
+            "Repair Local Cache".to_string(),
             "Keep Files".to_string(),
         ))
         .show(move |approved| {
@@ -282,6 +322,16 @@ async fn confirm_model_cache_removal(app: &tauri::AppHandle, role: &str) -> Resu
     received
         .await
         .map_err(|_| "Local model repair confirmation could not be completed.".to_string())
+}
+
+#[cfg(feature = "embedded-ml")]
+fn model_repair_message(role: &str, retained: usize, damaged: bool) -> String {
+    let current = if damaged {
+        "Remove the damaged current cache for fresh setup. "
+    } else {
+        ""
+    };
+    format!("Repair {role}? Move {retained} earlier caches with invalid metadata out of use, preserving their files. {current}Valid current caches remain. Advanced matching may need setup afterward. No resume or job data is involved, and no download starts.")
 }
 
 #[cfg(feature = "embedded-ml")]

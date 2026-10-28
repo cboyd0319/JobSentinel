@@ -33,6 +33,11 @@ impl ShutdownState {
     }
 
     pub(super) async fn drain(&self, state: &AppState) {
+        if let Err(error) =
+            crate::ipc::automation::automation_browser_commands::stop_automation_browser().await
+        {
+            tracing::error!(%error, "Application review browser shutdown failed");
+        }
         if let Some(scheduler) = &state.scheduler {
             if let Err(error) = scheduler.shutdown_and_wait().await {
                 tracing::error!(%error, "Scheduler shutdown failed");
@@ -84,7 +89,27 @@ pub(super) fn handle_event(app: &tauri::AppHandle, event: tauri::RunEvent) {
             let app = app.clone();
             tauri::async_runtime::spawn(async move {
                 let shutdown = app.state::<ShutdownState>();
+                #[cfg(feature = "embedded-ml")]
+                crate::ipc::ml::cancel_active_model_work();
                 if let Some(state) = app.try_state::<AppState>() {
+                    for cancellation in state.outside_ai_cancellations.lock().await.values() {
+                        cancellation.send_replace(true);
+                    }
+                    let admission =
+                        app.try_state::<std::sync::Arc<super::operation::OperationAdmission>>();
+                    let update = app.try_state::<crate::ipc::local_update::LocalUpdateState>();
+                    let _update_operation = match (admission.as_ref(), update.as_ref()) {
+                        (Some(admission), Some(update)) => {
+                            match update.quiesce_for_shutdown(admission).await {
+                                Ok(operation) => Some(operation),
+                                Err(error) => {
+                                    tracing::error!(%error, "Native work could not be drained safely");
+                                    return;
+                                }
+                            }
+                        }
+                        _ => None,
+                    };
                     shutdown.drain(&state).await;
                 } else {
                     shutdown.finish();

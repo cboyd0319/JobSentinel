@@ -1,6 +1,7 @@
 //! Owns bounded native file-drop staging and routes reviewed imports to typed owners.
 
 use super::local_file::{copy_bounded, open_regular_source, read_bounded_text, LocalFileCopy};
+use crate::bootstrap::operation::State;
 use crate::bootstrap::{AppState, StartupRecoveryState};
 use crate::ipc::import::stage_smart_paste_text;
 use crate::ipc::recovery::{stage_portable_restore_from_path, PortableRestoreActionResult};
@@ -11,7 +12,7 @@ use serde::Serialize;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Arc, Mutex};
-use tauri::{AppHandle, Emitter, Manager, Runtime, State};
+use tauri::{AppHandle, Emitter, Manager, Runtime};
 use uuid::Uuid;
 use zeroize::Zeroizing;
 
@@ -238,6 +239,13 @@ impl NativeFileDropState {
 }
 
 pub(crate) fn capture_native_file_drop<R: Runtime>(app: &AppHandle<R>, paths: &[PathBuf]) {
+    let Some(admission) = app.try_state::<Arc<crate::bootstrap::operation::OperationAdmission>>()
+    else {
+        return;
+    };
+    let Ok(lease) = admission.admit() else {
+        return;
+    };
     let reservation = {
         let Some(state) = app.try_state::<NativeFileDropState>() else {
             return;
@@ -247,6 +255,7 @@ pub(crate) fn capture_native_file_drop<R: Runtime>(app: &AppHandle<R>, paths: &[
     let app = app.clone();
     let paths = paths.to_vec();
     tauri::async_runtime::spawn_blocking(move || {
+        let _lease = lease;
         let Some(state) = app.try_state::<NativeFileDropState>() else {
             return;
         };

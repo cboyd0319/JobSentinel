@@ -1,3 +1,4 @@
+/** Presents reviewed model download, cancellation, and active or quarantined cache removal. */
 import {
   formatSemanticMatchingBytes,
   type SemanticMatchingDiagnostics,
@@ -27,7 +28,7 @@ export function SemanticMatchingModelControls({
     (model) => model.required_for_qwen3_runtime,
   );
   const canDownload = diagnostics.runtime_status !== "ready";
-  const canRemove = requiredModels.some((model) => model.cache_present);
+  const canRemove = diagnostics.quarantined_cache_present || requiredModels.some((model) => model.cache_present);
   const totalBytes = requiredModels.reduce(
     (total, model) => total + (model.locked_size_bytes ?? 0),
     0,

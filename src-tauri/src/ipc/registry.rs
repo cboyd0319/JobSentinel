@@ -3,6 +3,11 @@
 macro_rules! jobsentinel_command_handlers {
     () => {
         ::tauri::generate_handler![
+            jobsentinel::ipc::local_update::check_update_availability,
+            jobsentinel::ipc::local_update::get_local_update_status,
+            jobsentinel::ipc::local_update::select_local_update,
+            jobsentinel::ipc::local_update::cancel_local_update,
+            jobsentinel::ipc::local_update::apply_local_update,
             jobsentinel::ipc::jobs::search_jobs,
             jobsentinel::ipc::jobs::get_search_country_options,
             jobsentinel::ipc::jobs::get_recent_jobs,
@@ -69,6 +74,7 @@ macro_rules! jobsentinel_command_handlers {
             jobsentinel::ipc::resume::set_active_resume,
             jobsentinel::ipc::resume::get_user_skills,
             jobsentinel::ipc::resume::match_resume_to_job,
+            jobsentinel::ipc::resume::cancel_resume_review,
             jobsentinel::ipc::resume::get_match_result,
             jobsentinel::ipc::resume::get_recent_matches,
             jobsentinel::ipc::resume::set_resume_match_feedback,

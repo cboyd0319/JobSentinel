@@ -8,10 +8,14 @@ use jobsentinel_domain::{
 };
 use serde::{Deserialize, Serialize};
 
+mod availability;
 mod inventory;
 mod review;
+mod startup;
+pub use availability::{check_update_availability, UpdateAvailability};
 pub use inventory::collect_installed_update_state;
 pub use review::{revalidate_update, review_update, ReviewedUpdate};
+pub use startup::authorize_update_startup;
 
 const SIGNING_CONTEXT: &[u8] = b"jobsentinel.update-candidate.v1\0";
 const MAX_METADATA_BYTES: usize = 64 * 1024;
@@ -117,8 +121,25 @@ pub fn preflight_update(
     publishers: &[ReleasePublisher],
     installed: &InstalledUpdateState,
 ) -> Result<VerifiedUpdateCandidate, UpdatePreflightError> {
-    use jobsentinel_security::verify_ed25519_signature;
     use sha2::{Digest, Sha256};
+    let manifest = authenticate_manifest(metadata, signature_hex, publishers)?;
+    if manifest.package_bytes != package.len() as u64
+        || hex::encode(Sha256::digest(package)) != manifest.package_sha256
+    {
+        return Err(UpdatePreflightError::Integrity);
+    }
+    if !compatible(&manifest, installed) {
+        return Err(UpdatePreflightError::Compatibility);
+    }
+    Ok(VerifiedUpdateCandidate(manifest))
+}
+
+fn authenticate_manifest(
+    metadata: &[u8],
+    signature_hex: &str,
+    publishers: &[ReleasePublisher],
+) -> Result<UpdateManifest, UpdatePreflightError> {
+    use jobsentinel_security::verify_ed25519_signature;
 
     if metadata.is_empty() || metadata.len() > MAX_METADATA_BYTES {
         return Err(UpdatePreflightError::Metadata);
@@ -136,15 +157,7 @@ pub fn preflight_update(
     verify_ed25519_signature(&publisher.public_key, &message, signature_hex)
         .map_err(|_| UpdatePreflightError::Trust)?;
     validate_metadata(&manifest)?;
-    if manifest.package_bytes != package.len() as u64
-        || hex::encode(Sha256::digest(package)) != manifest.package_sha256
-    {
-        return Err(UpdatePreflightError::Integrity);
-    }
-    if !compatible(&manifest, installed) {
-        return Err(UpdatePreflightError::Compatibility);
-    }
-    Ok(VerifiedUpdateCandidate(manifest))
+    Ok(manifest)
 }
 
 fn version_text(version: ReleaseVersion) -> String {

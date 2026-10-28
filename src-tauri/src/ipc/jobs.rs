@@ -1,5 +1,6 @@
 //! Exposes job retrieval, mutation, analytics, and derived work-arrangement IPC projections.
 
+use crate::bootstrap::operation::State;
 use crate::bootstrap::AppState;
 use crate::desktop::DuplicateGroup;
 use crate::ipc::errors::user_friendly_error;
@@ -11,7 +12,6 @@ use jobsentinel_application::{
 };
 use serde_json::Value;
 use std::sync::Arc;
-use tauri::State;
 
 fn serialize_job(
     job_id: i64,

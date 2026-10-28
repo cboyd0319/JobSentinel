@@ -4,9 +4,9 @@ use crate::application::linkedin_workbench::{
     record_event, remember_workbench_review, revoke_workbench_review, workbench_review_status,
     LinkedInWorkbenchEventInput, LinkedInWorkbenchEventResult, LinkedInWorkbenchReviewStatus,
 };
+use crate::bootstrap::operation::State;
 use crate::bootstrap::AppState;
 use crate::ipc::errors::user_friendly_error;
-use tauri::State;
 use tauri_plugin_dialog::{DialogExt, MessageDialogButtons, MessageDialogKind};
 use tokio::sync::oneshot;
 

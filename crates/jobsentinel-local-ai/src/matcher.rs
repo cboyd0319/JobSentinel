@@ -107,6 +107,7 @@ pub struct SkillMatch {
 /// Semantic matcher for skill comparison
 pub struct SemanticMatcher {
     runtime: SemanticMatcherRuntime,
+    cancellation: crate::InferenceCancellation,
 }
 
 enum SemanticMatcherRuntime {
@@ -120,11 +121,25 @@ enum SemanticMatcherRuntime {
 impl SemanticMatcher {
     /// Create new semantic matcher
     pub fn new(app_data_dir: PathBuf) -> Result<Self> {
+        Self::new_with_cancellation(app_data_dir, crate::InferenceCancellation::default())
+    }
+
+    pub fn new_with_cancellation(
+        app_data_dir: PathBuf,
+        cancellation: crate::InferenceCancellation,
+    ) -> Result<Self> {
+        cancellation.check()?;
         let manager = ModelManager::new(app_data_dir.clone());
         if manager.is_default_semantic_runtime_downloaded() {
-            let embedding = Qwen3EmbeddingBackend::new(app_data_dir.clone())?;
-            let reranker = Qwen3RerankerBackend::new(app_data_dir)?;
+            cancellation.check()?;
+            let mut embedding = Qwen3EmbeddingBackend::new(app_data_dir.clone())?;
+            cancellation.check()?;
+            embedding.cancellation = cancellation.clone();
+            let mut reranker = Qwen3RerankerBackend::new(app_data_dir)?;
+            cancellation.check()?;
+            reranker.cancellation = cancellation.clone();
             return Ok(Self {
+                cancellation,
                 runtime: SemanticMatcherRuntime::Qwen3(Box::new(Qwen3SemanticRuntime::new(
                     embedding, reranker,
                 ))),
@@ -132,12 +147,17 @@ impl SemanticMatcher {
         }
 
         if manager.is_model_downloaded() {
-            let generator = EmbeddingGenerator::new(app_data_dir)?;
+            cancellation.check()?;
+            let mut generator = EmbeddingGenerator::new(app_data_dir)?;
+            cancellation.check()?;
+            generator.cancellation = cancellation.clone();
             return Ok(Self {
+                cancellation,
                 runtime: SemanticMatcherRuntime::Legacy(Box::new(generator)),
             });
         }
         Ok(Self {
+            cancellation,
             runtime: SemanticMatcherRuntime::Deterministic,
         })
     }
@@ -165,6 +185,7 @@ impl SemanticMatcher {
     }
 
     pub fn embed_resume_chunks(&self, chunks: &[String]) -> Result<Vec<Vec<f32>>> {
+        self.cancellation.check()?;
         validate_local_matching_input(chunks.iter().map(String::as_str))?;
         match &self.runtime {
             SemanticMatcherRuntime::Qwen3(runtime) => runtime.embed_resume_chunks(chunks),
@@ -178,6 +199,7 @@ impl SemanticMatcher {
         job_requirements: &[String],
         resume_vectors: Option<&[Vec<f32>]>,
     ) -> Result<SemanticMatchResult> {
+        self.cancellation.check()?;
         validate_local_matching_inputs(user_skills, job_requirements)?;
         match &self.runtime {
             SemanticMatcherRuntime::Qwen3(runtime) => runtime.match_skills_with_resume_vectors(
@@ -211,6 +233,7 @@ impl SemanticMatcher {
         candidate_skills: &[String],
         top_k: usize,
     ) -> Result<Vec<(String, f32)>> {
+        self.cancellation.check()?;
         validate_local_matching_input(
             std::iter::once(query_skill).chain(candidate_skills.iter().map(String::as_str)),
         )?;

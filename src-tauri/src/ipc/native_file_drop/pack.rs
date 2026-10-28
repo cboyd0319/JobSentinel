@@ -1,12 +1,13 @@
 //! Stages one bounded dropped signed pack through the production trust boundary.
 
 use super::{has_pack_extension, open_regular_source, NativeFileDropState};
+use crate::bootstrap::operation::State;
 use crate::bootstrap::AppState;
 use jobsentinel_application::pack_runtime::{
     stage_production_pack_artifact, PackInstallReview, MAX_PACK_ARTIFACT_BYTES,
 };
 use std::{io::Read, path::Path};
-use tauri::{AppHandle, State};
+use tauri::AppHandle;
 use tauri_plugin_dialog::DialogExt;
 
 const DROPPED_PACK_ERROR: &str = "Drop a signed .jspack file within the pack size limit.";

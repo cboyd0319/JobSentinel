@@ -1,3 +1,5 @@
+//! Owns desktop tray menus, foreground activation, and admitted manual source searches.
+
 use tauri::{
     menu::{Menu, MenuItem},
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
@@ -35,7 +37,14 @@ pub(crate) fn initialize_tray(app: &App) -> tauri::Result<()> {
                 tracing::info!("Manual job search triggered from tray");
                 let app_handle = app.clone();
                 tauri::async_runtime::spawn(async move {
-                    let state = app_handle.state::<AppState>();
+                    let admission = app_handle
+                        .state::<std::sync::Arc<crate::bootstrap::operation::OperationAdmission>>();
+                    let Ok(state) = crate::bootstrap::operation::State::admit(
+                        app_handle.state::<AppState>(),
+                        &admission,
+                    ) else {
+                        return;
+                    };
                     match ipc::jobs::search_jobs(state).await {
                         Ok(_) => tracing::info!("Manual search completed successfully"),
                         Err(error) => tracing::error!("Manual search failed: {}", error),

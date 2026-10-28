@@ -1,5 +1,6 @@
 //! Thin Tauri adapter for reviewed job-page imports.
 
+use crate::bootstrap::operation::State;
 use crate::bootstrap::AppState;
 use crate::desktop::sanitize_url_for_logging;
 use jobsentinel_application::{
@@ -9,7 +10,6 @@ use jobsentinel_application::{
     preview_smart_paste_draft as stage_smart_paste, smart_paste_review_grant, ImportedJobSummary,
     JobImportPreview, SmartPasteEdits,
 };
-use tauri::State;
 use tauri_plugin_dialog::{DialogExt, MessageDialogButtons, MessageDialogKind};
 use tokio::sync::oneshot;
 

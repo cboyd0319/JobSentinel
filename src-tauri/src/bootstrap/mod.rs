@@ -1,5 +1,6 @@
 //! Boots the Tauri shell, managed application state, recovery mode, and scheduler.
 
+pub(crate) mod operation;
 mod shutdown;
 mod state;
 
@@ -87,6 +88,11 @@ pub(crate) fn run() {
                 invoke.resolver.reject("The application is shutting down.");
                 return true;
             }
+            if invoke.message.state_ref().try_get::<Arc<operation::OperationAdmission>>().is_some_and(|gate| gate.closed())
+                && !matches!(invoke.message.command(), "get_local_update_status" | "cancel_resume_review" | "cancel_ml_model_download") {
+                invoke.resolver.reject("Local update preparation is active. Restart JobSentinel to continue.");
+                return true;
+            }
             let recovery_active = invoke
                 .message
                 .state_ref()
@@ -148,6 +154,8 @@ pub(crate) fn run() {
                 "Pack runtime environment bound"
             );
             app.manage(app_state);
+            app.manage(Arc::new(operation::OperationAdmission::default()));
+            app.manage(ipc::local_update::LocalUpdateState::default());
             app.manage(ipc::native_file_drop::NativeFileDropState::default());
             app.manage(StartupRecoveryState::new(
                 platform_recovery_required,

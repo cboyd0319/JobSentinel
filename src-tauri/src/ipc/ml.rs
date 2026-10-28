@@ -2,50 +2,24 @@
 
 #![cfg(feature = "embedded-ml")]
 
+use crate::bootstrap::operation::{OperationAdmission, OperationLease, State};
 use crate::desktop;
 use crate::desktop::path_label_for_logging;
 use crate::desktop::{load_model_manifest, ModelManager, ModelStatus, SemanticMatcher};
 use crate::ipc::errors::user_friendly_error;
 use std::sync::atomic::{AtomicU64, Ordering};
-use std::sync::{Arc, LazyLock, Mutex, MutexGuard, PoisonError};
+use std::sync::Arc;
 use tauri::{Emitter, Manager};
 use tauri_plugin_dialog::{DialogExt, MessageDialogButtons, MessageDialogKind};
 use tokio::sync::{oneshot, watch};
 
-enum ActiveModelLifecycle {
-    Download(watch::Sender<bool>),
-    Exclusive,
-}
+mod lifecycle;
+pub(crate) use lifecycle::{
+    cancel_active_model_work, reserve_inference, reserve_model_lifecycle, InferenceRequest,
+};
 
-static MODEL_LIFECYCLE: LazyLock<Mutex<Option<ActiveModelLifecycle>>> =
-    LazyLock::new(|| Mutex::new(None));
-
-pub(crate) struct ModelLifecycleReservation;
-
-impl Drop for ModelLifecycleReservation {
-    fn drop(&mut self) {
-        *model_lifecycle_slot() = None;
-    }
-}
-
-fn model_lifecycle_slot() -> MutexGuard<'static, Option<ActiveModelLifecycle>> {
-    MODEL_LIFECYCLE
-        .lock()
-        .unwrap_or_else(PoisonError::into_inner)
-}
-
-pub(crate) fn reserve_model_lifecycle(
-    cancellation: Option<watch::Sender<bool>>,
-) -> Result<ModelLifecycleReservation, String> {
-    let mut active = model_lifecycle_slot();
-    if active.is_some() {
-        return Err("Another local model action is already running.".to_string());
-    }
-    *active = Some(cancellation.map_or(
-        ActiveModelLifecycle::Exclusive,
-        ActiveModelLifecycle::Download,
-    ));
-    Ok(ModelLifecycleReservation)
+pub(crate) async fn cancel_resume_review(request_id: String) -> Result<bool, String> {
+    lifecycle::cancel_review(request_id)
 }
 
 pub(crate) struct MatchingDirectory {
@@ -92,7 +66,10 @@ fn should_emit_progress(last_emitted: u64, completed_bytes: u64, total_bytes: u6
 
 /// Download the default local semantic models from HuggingFace Hub.
 #[tauri::command]
-pub(crate) async fn download_ml_model(app: tauri::AppHandle) -> Result<bool, String> {
+pub(crate) async fn download_ml_model(
+    app: tauri::AppHandle,
+    _operation: State<'_, Arc<OperationAdmission>>,
+) -> Result<bool, String> {
     tracing::info!("Command: download_ml_model");
     let (cancel_tx, mut cancel_rx) = watch::channel(false);
     let _reservation = reserve_model_lifecycle(Some(cancel_tx))?;
@@ -159,15 +136,14 @@ pub(crate) async fn download_ml_model(app: tauri::AppHandle) -> Result<bool, Str
 #[tauri::command]
 pub(crate) async fn cancel_ml_model_download() -> Result<bool, String> {
     tracing::info!("Command: cancel_ml_model_download");
-    Ok(matches!(
-        model_lifecycle_slot().as_ref(),
-        Some(ActiveModelLifecycle::Download(cancellation))
-            if cancellation.send(true).is_ok()
-    ))
+    Ok(lifecycle::cancel_download())
 }
 
 #[tauri::command]
-pub(crate) async fn remove_ml_models(app: tauri::AppHandle) -> Result<bool, String> {
+pub(crate) async fn remove_ml_models(
+    app: tauri::AppHandle,
+    _operation: State<'_, Arc<OperationAdmission>>,
+) -> Result<bool, String> {
     tracing::info!("Command: remove_ml_models");
     let _reservation = reserve_model_lifecycle(None)?;
     if !confirm_model_removal(&app).await? {
@@ -194,6 +170,15 @@ pub(crate) async fn get_ml_status() -> Result<ModelStatus, String> {
 pub(crate) async fn semantic_match_skills(
     user_skills: Vec<String>,
     job_requirements: Vec<String>,
+    operation: State<'_, Arc<OperationAdmission>>,
+) -> Result<serde_json::Value, String> {
+    semantic_match_skills_inner(user_skills, job_requirements, operation.lease()).await
+}
+
+async fn semantic_match_skills_inner(
+    user_skills: Vec<String>,
+    job_requirements: Vec<String>,
+    operation: Arc<OperationLease>,
 ) -> Result<serde_json::Value, String> {
     tracing::info!(
         "Command: semantic_match_skills ({} user skills, {} job requirements)",
@@ -210,6 +195,7 @@ pub(crate) async fn semantic_match_skills(
     );
     let reservation = reserve_model_lifecycle(None)?;
     tokio::task::spawn_blocking(move || {
+        let _operation = operation;
         let _reservation = reservation;
         let directory = matching_directory()?;
         let matcher = SemanticMatcher::new(directory.path)
@@ -264,7 +250,7 @@ async fn confirm_model_removal(app: &tauri::AppHandle) -> Result<bool, String> {
     confirm_model_action(
         app,
         "Remove Local Models",
-        "Remove JobSentinel's downloaded Qwen3 model files and any incomplete download data?\n\n\
+        "Remove JobSentinel's downloaded Qwen3 model files, retained quarantined model files, and incomplete download data?\n\n\
          Built-in local matching remains available. Stronger local matching can be downloaded again later.",
         "Remove model files",
         "Keep model files",
@@ -307,6 +293,18 @@ fn format_bytes(bytes: u64) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    async fn semantic_match_skills(
+        user_skills: Vec<String>,
+        job_requirements: Vec<String>,
+    ) -> Result<serde_json::Value, String> {
+        semantic_match_skills_inner(
+            user_skills,
+            job_requirements,
+            Arc::new(OperationAdmission::default()).admit()?,
+        )
+        .await
+    }
 
     tokio::task_local! { pub(super) static FORBID_MATCHER_ALLOCATION: (); }
 
@@ -361,5 +359,74 @@ mod tests {
             .unwrap();
         assert_eq!(matched["runtime_profile"], "deterministic_exact");
         assert_eq!(matched["matched_skills"].as_array().unwrap().len(), 1);
+    }
+
+    #[tokio::test]
+    async fn review_cancel_targets_request_and_retains_worker_reservation() {
+        let _serial = MODEL_TEST_LOCK.lock().await;
+        let early_id = uuid::Uuid::new_v4().to_string();
+        assert!(crate::ipc::resume::cancel_resume_review(early_id.clone())
+            .await
+            .unwrap());
+        let early_token = crate::application::resume::InferenceCancellation::default();
+        let early = reserve_inference(Some(early_id), early_token.clone()).unwrap();
+        assert!(early_token.check().is_err());
+        drop(early);
+        let cancellation = crate::application::resume::InferenceCancellation::default();
+        let request = InferenceRequest(cancellation.clone());
+        let reservation = reserve_inference(
+            Some("11111111-1111-4111-8111-111111111111".into()),
+            cancellation.clone(),
+        )
+        .unwrap();
+        assert!(
+            cancel_resume_review("22222222-2222-4222-8222-222222222222".into())
+                .await
+                .unwrap()
+        );
+        assert!(cancellation.check().is_ok());
+        assert!(
+            cancel_resume_review("11111111-1111-4111-8111-111111111111".into())
+                .await
+                .unwrap()
+        );
+        assert!(cancellation.check().is_err());
+        assert!(reserve_model_lifecycle(None).is_err());
+        drop(reservation);
+        assert!(reserve_model_lifecycle(None).is_ok());
+        drop(request);
+    }
+
+    #[tokio::test]
+    async fn dropped_review_signals_worker_without_releasing_its_lease() {
+        let _serial = MODEL_TEST_LOCK.lock().await;
+        let cancellation = crate::application::resume::InferenceCancellation::default();
+        let request = InferenceRequest(cancellation.clone());
+        let reservation = reserve_inference(None, cancellation.clone()).unwrap();
+        let admission =
+            std::sync::Arc::new(crate::bootstrap::operation::OperationAdmission::default());
+        let operation = admission.admit().unwrap();
+        let (started, ready) = tokio::sync::oneshot::channel();
+        let (release, released) = std::sync::mpsc::channel();
+        let worker = tokio::task::spawn_blocking(move || {
+            let _reservation = reservation;
+            let _operation = operation;
+            started.send(()).unwrap();
+            released.recv().unwrap();
+            cancellation.check()
+        });
+        ready.await.unwrap();
+        drop(request);
+        assert!(reserve_model_lifecycle(None).is_err());
+        let mut drain = std::pin::pin!(admission.close_and_wait());
+        assert!(
+            tokio::time::timeout(std::time::Duration::from_millis(10), &mut drain)
+                .await
+                .is_err()
+        );
+        release.send(()).unwrap();
+        assert!(worker.await.unwrap().is_err());
+        drain.await.unwrap();
+        assert!(reserve_model_lifecycle(None).is_ok());
     }
 }

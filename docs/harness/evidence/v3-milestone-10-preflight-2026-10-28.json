@@ -4,7 +4,7 @@
   "result": "partial",
   "revision": "0237aa1276c58c45096d2526bc9c3686bfdb9fa7",
   "platform": "macOS arm64",
-  "scope": "Reviewed candidate revalidation, installed compatibility inventory, scheduler drain and same-device snapshots; updater execution remains unfinished",
+  "scope": "Signed candidate review, native writer admission, durable update recovery and acknowledged installer handoff; development acceptance remains partial",
   "source_files_sha256": {
     "crates/jobsentinel-application/src/lib.rs": "c111cb64577a1925dd402ed11f0dc946d9a92d9007f563924e5d1c7ece9ccf3d",
     "crates/jobsentinel-application/src/pack_runtime/update_inventory.rs": "d3123efe1debd2e6b90340641daa1e8f5a796252353e5ac1c7a3a97a5e06eea8",
@@ -27,7 +27,7 @@
     "Read-only inventory validates applied database migration checksums, retained signed pack artifacts and their candidate-app version constraints, governed model caches, and compiled platform/protocol facts.",
     "Production signing deferred to M11 by explicit user correction. Only Environment variable names were inspected; no private signing values read or keys changed.",
     "Private reviewed state binds exact candidate metadata/signature, canonical profile root and full component identities; revalidation rejects drift.",
-    "Scheduler shutdown can await active scheduler-owned writes; all-writer exclusion remains unimplemented.",
+    "Native admission retains async/blocking writer leases; quit and update preparation drain actual work, including scheduler, browser and model operations.",
     "Verified same-device SQLite recovery snapshots preserve WAL state, validate receipt claims, and use cancellation-safe attached connections."
   ],
   "commands": [
@@ -107,10 +107,9 @@
   ],
   "review": "Independent adversarial review found incorrect current-reader ceiling; corrected and re-reviewed with no remaining finding in pure slice. Inventory adversarial review corrected transfer-cache classification and accepted known empty scaffolding left by the existing repair owner; unknown paths and partial leaf caches still fail. Follow-up review passed. Reviewed revalidation/scheduler and recovery snapshots independently. Fixed pooled ATTACH cancellation poisoning, writable durability handle, actual receipt/schema comparison, stale migration test and cancellation test lock deadlock.",
   "remaining": [
-    "Deep user-requested source/evidence audit of all prior milestones; passing labels are not assumed accurate.",
-    "M10: native all-writer exclusion, authenticated target startup reconciliation, concrete installer handoff, compatible rollback, reviewed Settings UX and offline repair integration.",
-    "M11: production signing, platform qualification and release. Premature signer tooling was removed per development-first/YAGNI direction.",
-    "M12 enhancement trains and M13 closure."
+    "Reconcile complete M10 development acceptance; add one isolated signed native-coordinator integration journey covering review, quiescence, snapshot and successful acknowledged handoff.",
+    "Close recorded retrospective coverage, model comparison and ambiguous resume-import cancellation cleanup; historical passing labels remain insufficient.",
+    "M11: production signing, installed-platform qualification and release; M12 enhancement trains and M13 closure remain required."
   ],
   "baseline_repairs": [
     "Moved Region review to ui and composed military resume review in app to restore feature ownership boundaries.",
@@ -182,5 +181,135 @@
       "Native all-command writer exclusion, actual installer handoff, compatible rollback and Settings review are not implemented by this storage API.",
       "Native GUI quit/restart and Windows durability execution remain untested; restart callers must await draining explicitly."
     ]
+  },
+  "native_integration_checkpoint": {
+    "baseline_revision": "329fedb9",
+    "platform": "macOS 27.2 arm64",
+    "result": "partial development evidence; not installed-package certification",
+    "source_files_sha256": {
+      "crates/jobsentinel-application/src/update_preflight.rs": "392709b393193052ca126a8e8b02e005e4793156d22ffbb9c1b1e36022ffa5a5",
+      "crates/jobsentinel-application/src/update_preflight/availability.rs": "f5fd75f69951b277cb250da561835dd21f9cfa719b8088218e7a4a8d614157d9",
+      "crates/jobsentinel-application/src/update_preflight/startup.rs": "9179c68d2efbbe2b1c265f2da4c4f8ba727692d6f05ff628c46bab5b5011c72a",
+      "crates/jobsentinel-storage/src/connection/update_journal.rs": "1db332296c58354aa01f3da41ac3e0e32dc2d6aa400ddb61fc0fb019373e117c",
+      "crates/jobsentinel-storage/src/connection/update_journal/cleanup.rs": "e5b21107dc6770ed69940595b54a387a44cb97f7b92f94ff4698dfaf9677f363",
+      "crates/jobsentinel-storage/src/connection/update_backup.rs": "cff6a2c05dcff09bfd18de39cf0b682738f721c3e3eb9a9f2748d97120af35e0",
+      "crates/jobsentinel-storage/src/connection/portable_restore_bundle.rs": "99a217d918ca558a54498e09e8f2e706a5c6af96bdfadf39febdb94e18b33b73",
+      "src-tauri/src/bootstrap/operation.rs": "a0ae7abfd31ebc6a90ae9d08a4d72807eb92cadeb2511f48edf8ed39a0a7bda5",
+      "src-tauri/src/bootstrap/shutdown.rs": "44c2fadf7caf039d55954c4687b9bdd2da364e113298440761bc63ac02be1a30",
+      "src-tauri/src/ipc/local_update.rs": "c9e18a08931b18a6961a3066b2844f5a1963f88cff60a9e1505deb5c9e2b5a21",
+      "src-tauri/src/ipc/local_update/staging.rs": "df5dba9b26310d807126a59d58352cdfb9192b4a2b5bdd1d3d638328580ed43e",
+      "src-tauri/src/ipc/local_update/installer.rs": "8aba7fd3352f27ffcd966bacbcf874531ed0784739334fa8f9a7b2bae5be7c76",
+      "src-tauri/src/ipc/ml/lifecycle.rs": "c0004bae00fadf9d24100f70939bddbf8167f955409c42b06e5c2aa91cb4c2bd",
+      "crates/jobsentinel-local-ai/src/cancellation.rs": "eafc27cf82402f728123018f1d6ad512fcdefb73420f4f99f118b824111df347",
+      "crates/jobsentinel-local-ai/src/model/update_inventory.rs": "e808c6dbed4cbb0c513e4b58e723b86ad4b8a399420ccd4bfcedab66adfbb580",
+      "src/features/settings/support/LocalUpdatePanel.tsx": "f536486e3b5421e1e9c7a20a3856f29daffc776f5040c7979bffb1d981420c20",
+      "src/features/resumes/shared/useResumeReviewRequest.ts": "5c98ab3b4651731d85a4b3e3bc48f6ba220dc335b7c4f6cfd8c6198371c58530",
+      "src/features/settings/matching/semanticMatchingDiagnostics.ts": "325d068a996182211581f12c0d7731dee9e89725bc249f909deb512d49c16ec1",
+      "src/features/settings/matching/SemanticMatchingModelControls.tsx": "87c1f282f484f56d9d71145d488f076e9437686c745c87fb1e5ed829ae2bbfc1"
+    },
+    "delivered": [
+      "Explicit anonymous GitHub release discovery is bounded and does not grant installer trust. Native chooser stages at most512MiB and requires exact adjacent signed metadata; production trust remains empty until M11.",
+      "Settings reviews version, device, compatibility, component retention and recovery before explicit install/compatible-v3 rollback. Browser preview refuses installation.",
+      "Native argument leases outlive actual async/blocking work. Permanent quit admission cannot reopen; installer worker holds update ownership until OS launcher acknowledgement.",
+      "Target startup authenticates exact signed build metadata, rechecks journal equality under the database owner, journals migration phases and refuses automatic retry after failure.",
+      "Snapshot restoration recovers corrupt or missing primary data, preserves failed primary/sidecars, and publishes a verified private replacement. Source restart cannot cancel an interrupted target attempt.",
+      "Retained installer cleanup validates bounded staging coordinates and exact bytes, runs only after target reconciliation, and preserves source/changed/busy files.",
+      "UUID-scoped cooperative cancellation is connected to all maintained resume-review callers. Early cancellation and bounded history fail closed; guards remain until actual worker completion.",
+      "Explicit old-lock metadata repair quarantines retained files outside active inventory without changing valid current models or fabricating freshness. Confirmed removal can reclaim quarantine."
+    ],
+    "commands": [
+      {
+        "command": "node scripts/dev/run-cargo.mjs test --locked -p jobsentinel-storage --lib connection::update_",
+        "exit_status": 0,
+        "passed": 21
+      },
+      {
+        "command": "node scripts/dev/run-cargo.mjs test --locked -p jobsentinel-storage --lib portable_",
+        "exit_status": 0,
+        "passed": 37
+      },
+      {
+        "command": "node scripts/dev/run-cargo.mjs test --locked -p jobsentinel --lib local_update",
+        "exit_status": 0,
+        "passed": 5
+      },
+      {
+        "command": "node scripts/dev/run-cargo.mjs test --locked -p jobsentinel --lib bootstrap::operation",
+        "exit_status": 0,
+        "passed": 2
+      },
+      {
+        "command": "node scripts/dev/run-cargo.mjs test --locked -p jobsentinel-application --lib update_preflight",
+        "exit_status": 0,
+        "passed": 15
+      },
+      {
+        "command": "node scripts/dev/run-cargo.mjs test --locked -p jobsentinel --features embedded-ml --lib ipc::ml::",
+        "exit_status": 0,
+        "passed": 8
+      },
+      {
+        "command": "node scripts/dev/run-cargo.mjs test --locked -p jobsentinel-local-ai --features embedded-ml --lib update_inventory",
+        "exit_status": 0,
+        "passed": 3
+      },
+      {
+        "command": "npm run test:run -- src/features/settings/support/LocalUpdatePanel.test.tsx src/features/resumes/builder/AtsLiveScorePanel.cancellation.test.tsx src/features/resumes/matching/ResumeMatchPage.semantic.test.tsx src/features/resumes/library/ResumeRecentMatches.semantic.test.tsx src/dev-runtime/features/settings/support/recoveryCommands.test.ts",
+        "exit_status": 0,
+        "passed": 38
+      },
+      {
+        "command": "npm run test:run -- src/features/settings/matching/SemanticMatchingDiagnosticsPanel.test.tsx src/features/settings/matching/semanticMatchingDiagnostics.test.ts",
+        "exit_status": 0,
+        "passed": 22
+      },
+      {
+        "command": "./init.sh",
+        "exit_status": 0,
+        "passed": 9
+      },
+      {
+        "command": "node --test scripts/tests/harness/check-v3-plan.test.mjs",
+        "exit_status": 0,
+        "passed": 3
+      },
+      {
+        "command": "node scripts/dev/run-cargo.mjs clippy --locked -p jobsentinel -p jobsentinel-application -p jobsentinel-local-ai -p jobsentinel-storage --lib --features embedded-ml -- -D warnings",
+        "exit_status": 0
+      },
+      {
+        "command": "npm run typecheck",
+        "exit_status": 0
+      },
+      {
+        "command": "npm run lint:docs",
+        "exit_status": 0
+      },
+      {
+        "command": "npm run lint:deps",
+        "exit_status": 0
+      },
+      {
+        "command": "npm run lint:tauri-invokes",
+        "exit_status": 0
+      },
+      {
+        "command": "npm run harness:check",
+        "exit_status": 0
+      },
+      {
+        "command": "git diff --check",
+        "exit_status": 0
+      }
+    ],
+    "review": "Bounded independent source review found persisted cleanup traversal, an unleased native picker and detached launcher success. Each received a correction and focused regression; cleanup/admission were independently re-read, acknowledged launcher correction was checked locally. No blanket independent approval is claimed.",
+    "limits": [
+      "Native chooser through authenticated test candidate and successful handoff was not exercised as one integrated journey; current boundary tests remain separate.",
+      "Production app/Region trust, real installed update/rollback and Windows11/exactmacOS26/Linux qualification remain M11.",
+      "Current weight loading/verification and current tensor layer or MiniLM batch are not preemptible. Full-model cancellation latency and representative model comparison remain unmeasured.",
+      "Repair uses synthetic governed layouts; unknown/unsafe layouts and failed artifact verification still fail closed.",
+      "Init passed with existing Node26.12.1/npm12.2.1 baseline warnings; repository pins24.18.0/12.0.1."
+    ],
+    "external_reference": "https://docs.github.com/en/rest/releases/releases#get-the-latest-release"
   }
 }

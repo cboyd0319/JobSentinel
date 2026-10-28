@@ -1,3 +1,4 @@
+/** Verifies resume selection, review dispatch, and user-visible match behavior. */
 /** Verifies ephemeral pasted-job analysis and explicit saved-match navigation. */
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
@@ -194,6 +195,7 @@ describe("ResumeMatch", () => {
 
     await waitFor(() => {
       expect(mockInvoke).toHaveBeenCalledWith("analyze_active_resume_for_job", {
+        requestId: expect.any(String),
         jobDescription: "Need onboarding, retention, and account management experience",
       });
     });
@@ -241,6 +243,7 @@ describe("ResumeMatch", () => {
 
     await waitFor(() => {
       expect(mockInvoke).toHaveBeenCalledWith("analyze_active_resume_for_job", {
+        requestId: expect.any(String),
         jobDescription: "Required: programme evaluation",
         matchingProfile: { profession: "operations", region: "uk" },
       });
@@ -339,6 +342,7 @@ describe("ResumeMatch", () => {
 
     await waitFor(() => {
       expect(mockInvoke).toHaveBeenCalledWith("analyze_active_resume_for_job", {
+        requestId: expect.any(String),
         jobDescription: "Need onboarding, retention, and account management experience",
       });
     });

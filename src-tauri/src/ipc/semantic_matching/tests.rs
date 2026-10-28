@@ -163,3 +163,56 @@ fn partial_cache_diagnostics_expose_no_path_or_file_contents() {
     assert!(!serialized.contains(&app_data_dir.path().display().to_string()));
     assert!(!serialized.contains("private partial model contents"));
 }
+
+#[cfg(feature = "embedded-ml")]
+#[test]
+fn metadata_repair_is_offered_for_earlier_default_and_legacy_caches() {
+    let root = tempfile::tempdir().unwrap();
+    let manifest = load_model_manifest().unwrap();
+    let manager = ModelManager::new(root.path().to_path_buf());
+    for id in [
+        &manifest.defaults.embedding,
+        &manifest.defaults.legacy_runtime_embedding,
+    ] {
+        let spec = manifest.models.iter().find(|spec| &spec.id == id).unwrap();
+        let prior = root
+            .path()
+            .join("ml_models")
+            .join(id)
+            .join(&spec.revision)
+            .join("a".repeat(64));
+        std::fs::create_dir_all(&prior).unwrap();
+        std::fs::write(prior.join(".jobsentinel-model.json"), b"{broken").unwrap();
+        let before = semantic_matching_diagnostics_for(&manifest, &manager);
+        let model = before.models.iter().find(|model| &model.id == id).unwrap();
+        assert!(model.repair_available);
+        assert!(!model.downloaded);
+        assert_eq!(model.health, ModelCacheHealth::Missing);
+        desktop::ensure_private_dir(&manager.model_quarantine_dir().unwrap()).unwrap();
+        manager.repair_invalid_default_cache(id).unwrap();
+        let after = semantic_matching_diagnostics_for(&manifest, &manager);
+        assert!(
+            !after
+                .models
+                .iter()
+                .find(|model| &model.id == id)
+                .unwrap()
+                .repair_available
+        );
+        assert_eq!(
+            after.runtime_status,
+            SemanticMatchingRuntimeStatus::NeedsModelDownload
+        );
+        assert!(after.quarantined_cache_present);
+    }
+    assert_eq!(
+        manager.update_identity_inventory().unwrap(),
+        (vec![], vec![])
+    );
+    let message = model_repair_message("Default embedding", 2, false);
+    assert!(message.contains("2 earlier caches"));
+    assert!(message.contains("preserving their files"));
+    assert!(!message.contains("Remove the damaged current cache"));
+    assert!(model_repair_message("Default embedding", 0, true)
+        .contains("Remove the damaged current cache"));
+}

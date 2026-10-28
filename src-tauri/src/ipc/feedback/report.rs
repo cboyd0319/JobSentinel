@@ -1,14 +1,11 @@
-//! Feedback Report Generator
-//!
-//! Generates fully anonymized feedback reports for beta testers.
-//! Reports follow the beta feedback workflow in docs/plans/completed/beta-feedback-system.md.
+//! Builds sanitized feedback reports and adapts reviewed local saves to native dialogs.
 
+use crate::bootstrap::operation::State;
 use chrono::{DateTime, Local, Utc};
 use jobsentinel_application::privacy_doctor::{
     inspect_privacy_doctor, BrowserImportPrivacyState, PrivacyDoctorReport,
 };
 use serde::Serialize;
-use tauri::State;
 
 use super::debug_log::{format_event_for_support, get_recent_events};
 use super::sanitizer::{ConfigSummary, Sanitizer};

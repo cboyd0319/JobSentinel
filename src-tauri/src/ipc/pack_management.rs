@@ -7,10 +7,10 @@ use crate::application::pack_runtime::{
     rollback_production_pack_artifact, uninstall_pack_artifacts, PackArtifactRemoval,
     PackInstallReview, PackManagementReview, PackStateChange, RegionPackContent, StaticSkillReview,
 };
+use crate::bootstrap::operation::State;
 use crate::bootstrap::AppState;
 use crate::desktop::Database;
 use crate::ipc::errors::user_friendly_error;
-use tauri::State;
 
 #[tauri::command]
 pub(crate) async fn list_pack_management(

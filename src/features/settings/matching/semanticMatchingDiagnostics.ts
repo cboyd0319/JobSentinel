@@ -1,3 +1,4 @@
+/** Validates local model diagnostics and dispatches explicitly reviewed lifecycle actions. */
 import { invoke } from "../../../platform/tauri";
 
 export type SemanticMatchingRuntimeStatus =
@@ -26,6 +27,7 @@ export interface SemanticMatchingModelDiagnostic {
   locked_size_bytes: number | null;
   downloaded: boolean;
   cache_present: boolean;
+  repair_available: boolean;
   health: ModelCacheHealth;
   required_for_qwen3_runtime: boolean;
 }
@@ -39,6 +41,7 @@ export interface SemanticMatchingSignal {
 
 export interface SemanticMatchingDiagnostics {
   build_enabled: boolean;
+  quarantined_cache_present?: boolean;
   runtime_status: SemanticMatchingRuntimeStatus;
   active_profile: string;
   privacy_mode: string;
@@ -121,6 +124,8 @@ export function normalizeSemanticMatchingDiagnostics(
 
   return {
     build_enabled: booleanField(record, "build_enabled"),
+    quarantined_cache_present: record.quarantined_cache_present === undefined
+      ? false : booleanField(record, "quarantined_cache_present"),
     runtime_status: status as SemanticMatchingRuntimeStatus,
     active_profile: stringField(record, "active_profile"),
     privacy_mode: stringField(record, "privacy_mode"),
@@ -157,6 +162,7 @@ function normalizeModelDiagnostic(value: unknown): SemanticMatchingModelDiagnost
     locked_size_bytes: nullableNumberField(record, "locked_size_bytes"),
     downloaded: booleanField(record, "downloaded"),
     cache_present: booleanField(record, "cache_present"),
+    repair_available: record.repair_available === undefined ? false : booleanField(record, "repair_available"),
     health: health as ModelCacheHealth,
     required_for_qwen3_runtime: booleanField(record, "required_for_qwen3_runtime"),
   };

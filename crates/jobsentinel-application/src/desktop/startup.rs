@@ -111,11 +111,18 @@ impl DesktopServices {
             db_path = %path_label_for_logging(&database_path),
             "Connecting to database"
         );
-        let database = Database::connect_with_staged_restore(&database_path)
-            .await
+        let authorization = crate::update_preflight::authorize_update_startup(&database_path)
             .map_err(|error| DesktopStartupError::Database(error.to_string()))?;
+        let database =
+            Database::connect_with_update_authorization(&database_path, authorization.as_ref())
+                .await
+                .map_err(|error| DesktopStartupError::Database(error.to_string()))?;
 
-        Self::initialize_ready(config_path, config, is_first_run, database).await
+        let services = Self::initialize_ready(config_path, config, is_first_run, database).await?;
+        if services.database.cleanup_update_package().is_err() {
+            tracing::warn!("Retained update installer cleanup will retry on a later startup");
+        }
+        Ok(services)
     }
 
     #[cfg(test)]

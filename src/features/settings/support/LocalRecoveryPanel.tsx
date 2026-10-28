@@ -1,3 +1,4 @@
+/** Presents local privacy, storage, permission repair, and package recovery actions. */
 import { useCallback, useEffect, useState } from "react";
 import { invoke } from "../../../platform/tauri";
 import { Button } from "../../../ui/Button";
@@ -365,9 +366,10 @@ export function LocalRecoveryPanel() {
               App package recovery
             </h4>
             <p className="mt-1 text-xs text-surface-500 dark:text-surface-400">
-              Guidance only. JobSentinel does not download or run an installer
-              for you.
+              Review a signed downloaded installer in App Updates and Rollback.
+              Installation always needs your confirmation.
             </p>
+            <a href="#local-update-options" className="mt-2 inline-block text-sm underline">Review app update and rollback options</a>
             <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-surface-700 dark:text-surface-200">
               {report.platform_health.package_repair.actions.map((action) => (
                 <li key={action.action}>

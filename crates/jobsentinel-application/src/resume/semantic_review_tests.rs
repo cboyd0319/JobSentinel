@@ -363,3 +363,21 @@ fn empty_or_hard_only_semantic_work_never_dispatches_a_model() {
         );
     }
 }
+
+#[test]
+fn cancelled_review_is_not_downgraded_to_model_unavailable() {
+    let input = ResumeAnalysisInput {
+        resume: StructuredResume {
+            summary: Some("Rust".into()),
+            ..Default::default()
+        },
+        ..Default::default()
+    };
+    let cancellation = InferenceCancellation::default();
+    let outcome = review_structured_with_matcher(input, "Required: Rust", None, |_, _, _| {
+        cancellation.cancel();
+        cancellation.check()?;
+        unreachable!()
+    });
+    assert!(outcome.unwrap_err().is::<InferenceCancelled>());
+}

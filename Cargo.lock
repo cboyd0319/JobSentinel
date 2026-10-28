@@ -3357,6 +3357,7 @@ dependencies = [
  "chrono",
  "jobsentinel-application",
  "libc",
+ "open",
  "regex",
  "serde",
  "serde_json",

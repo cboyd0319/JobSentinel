@@ -4,10 +4,10 @@ use crate::application::user_data::{
     CoverLetterTemplate, FollowUpReminder, NotificationPreferences, PrepChecklistItem, SavedSearch,
     TemplateCategory,
 };
+use crate::bootstrap::operation::State;
 use crate::bootstrap::AppState;
 use crate::ipc::errors::user_friendly_error;
 use crate::ipc::limits::validate_command_limit_i64;
-use tauri::State;
 
 // ============================================================================
 // Cover Letter Templates

@@ -1,3 +1,4 @@
+/** Presents local matching health and native-reviewed model setup, repair, and removal. */
 import { useCallback, useEffect, useRef, useState } from "react";
 import { listen } from "../../../platform/tauri/events";
 import { SettingsSymbol } from "../shared/SettingsIcons";
@@ -236,7 +237,7 @@ function DiagnosticsSummary({
   const status = STATUS_COPY[diagnostics.runtime_status];
   const highlightedModels = diagnostics.models.filter(
     (model) =>
-      model.required_for_qwen3_runtime || model.role.includes("Legacy"),
+      model.required_for_qwen3_runtime || model.role.includes("Legacy") || model.repair_available,
   );
 
   return (
@@ -343,18 +344,25 @@ function ModelList({
                 {model.required_files_present}/{model.required_files} files
                 present
               </div>
-              {model.health === "integrity_mismatch" &&
-              model.required_for_qwen3_runtime ? (
-                <button
-                  type="button"
-                  onClick={() => void onRepair(model.id)}
-                  disabled={modelLifecycleBusy || repairingModelId !== null}
-                  className="mt-2 rounded-md border border-danger/40 px-2 py-1 text-xs font-medium text-danger disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {repairingModelId === model.id
-                    ? "Reviewing repair..."
-                    : "Review local model repair"}
-                </button>
+              {model.repair_available ? (
+                <>
+                  <p className="mt-2 max-w-sm text-xs text-surface-600 dark:text-surface-300">
+                    {model.health === "integrity_mismatch"
+                      ? "Review repair for damaged current files or earlier model metadata. Valid current models are not deleted."
+                      : "Earlier model files will be retained in quarantine outside the active cache; valid current models are not deleted."}
+                    {" "}No download starts. Advanced matching may need setup afterward.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => void onRepair(model.id)}
+                    disabled={modelLifecycleBusy || repairingModelId !== null}
+                    className="mt-2 rounded-md border border-danger/40 px-2 py-1 text-xs font-medium text-danger disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {repairingModelId === model.id
+                      ? "Reviewing repair..."
+                      : "Review local model repair"}
+                  </button>
+                </>
               ) : null}
             </div>
           </div>

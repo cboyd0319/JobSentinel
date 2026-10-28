@@ -72,7 +72,7 @@ pub(super) fn parse_version(text: &str) -> Result<ReleaseVersion, UpdatePrefligh
     Ok(ReleaseVersion(version))
 }
 
-fn build_edition() -> Result<EditionManifest, UpdatePreflightError> {
+pub(super) fn build_edition() -> Result<EditionManifest, UpdatePreflightError> {
     let platform = match std::env::consts::OS {
         "macos" => Platform::Macos,
         "windows" => Platform::Windows,

@@ -1,7 +1,7 @@
 //! Thin Tauri adapter for reviewed external-AI requests.
 
+use crate::bootstrap::operation::State;
 use crate::{application, bootstrap::AppState};
-use tauri::State;
 use tauri_plugin_dialog::{DialogExt, MessageDialogButtons, MessageDialogKind};
 use tokio::sync::{oneshot, watch};
 

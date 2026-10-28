@@ -10,12 +10,12 @@ use crate::application::health::{
     HealthSummary, ScraperConfig, ScraperHealthMetrics, ScraperRun, SmokeTestResult,
     SourceRequestSummary,
 };
+use crate::bootstrap::operation::State;
 use crate::bootstrap::AppState;
 use crate::desktop::{path_label_for_logging, Database};
 use crate::ipc::errors::user_friendly_error;
 use crate::ipc::limits::validate_optional_command_limit_i32;
 use std::path::Path;
-use tauri::State;
 use tokio::sync::RwLock;
 
 fn health_command_error(context: &str, error: anyhow::Error) -> String {

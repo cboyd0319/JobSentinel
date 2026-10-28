@@ -1,14 +1,10 @@
-//! LinkedIn credential/session automation boundary.
-//!
-//! These commands remain registered only so older frontends and stored app
-//! state fail closed instead of reaching hidden endpoints or collecting session
-//! cookies. User-directed search links, manual entry, and the local Workbench
-//! remain separate paths. Browser Import is blocked for LinkedIn.
+//! Refuses retired LinkedIn credential and session automation commands without collecting cookies.
 
 use crate::application::credentials::{CredentialKey, CredentialService};
+use crate::bootstrap::operation::State;
 use crate::bootstrap::AppState;
 use crate::ipc::errors::user_friendly_error;
-use tauri::{AppHandle, Manager, State};
+use tauri::{AppHandle, Manager};
 
 pub(crate) const LINKEDIN_AUTH_DISABLED_MESSAGE: &str =
     "JobSentinel does not collect LinkedIn login details or session cookies. \

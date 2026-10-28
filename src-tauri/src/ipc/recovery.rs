@@ -1,5 +1,6 @@
 //! Adapts reviewed local recovery, backup, and restore actions to native dialogs.
 
+use crate::bootstrap::operation::State;
 use crate::{
     application::{
         desktop::{Database, PortableRestoreStatus, StartupConfigRepair},
@@ -14,7 +15,7 @@ use crate::{
     ipc::errors::user_friendly_error,
 };
 use serde::Serialize;
-use tauri::{AppHandle, State};
+use tauri::AppHandle;
 use tauri_plugin_dialog::{DialogExt, MessageDialogButtons, MessageDialogKind};
 use tokio::sync::oneshot;
 use zeroize::Zeroizing;
@@ -123,7 +124,10 @@ pub(crate) async fn run_local_storage_cleanup(
 }
 
 #[tauri::command]
-pub(crate) fn repair_local_permissions(area: PlatformStorageArea) -> PlatformPermissionRepair {
+pub(crate) fn repair_local_permissions(
+    area: PlatformStorageArea,
+    _operation: crate::bootstrap::operation::AdmissionState<'_>,
+) -> PlatformPermissionRepair {
     recovery::repair_local_permissions(area)
 }
 

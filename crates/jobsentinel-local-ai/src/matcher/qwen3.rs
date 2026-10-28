@@ -183,6 +183,7 @@ impl Qwen3SemanticRuntime {
         let mut unmatched_reasons = vec![None; job_requirements.len()];
 
         for (job_idx, job_emb) in job_embeddings.iter().enumerate() {
+            self.embedding.cancellation.check()?;
             let dense_candidates =
                 dense_candidates(job_emb, user_embeddings, self.threshold, QWEN3_RERANK_TOP_K)?;
 

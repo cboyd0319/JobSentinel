@@ -1,3 +1,4 @@
+/** Verifies model status and explicitly reviewed repair without treating old metadata as current corruption. */
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -30,6 +31,14 @@ const mockRepairModel = vi.mocked(repairSemanticMatchingModelCache);
 const mockDownloadModels = vi.mocked(downloadSemanticMatchingModels);
 const mockCancelDownload = vi.mocked(cancelSemanticMatchingModelDownload);
 const mockRemoveModels = vi.mocked(removeSemanticMatchingModels);
+
+it("offers explicit removal when only quarantined model files remain", async () => {
+  mockGetDiagnostics.mockResolvedValue({ ...missingDiagnostics(), quarantined_cache_present: true });
+  mockRemoveModels.mockResolvedValueOnce(true);
+  render(<SemanticMatchingDiagnosticsPanel />);
+  await userEvent.click(await screen.findByRole("button", { name: "Remove local models" }));
+  expect(mockRemoveModels).toHaveBeenCalledOnce();
+});
 
 function disabledDiagnostics() {
   return {
@@ -75,6 +84,7 @@ function readyDiagnostics() {
         locked_size_bytes: 641000000,
         downloaded: true,
         cache_present: true,
+        repair_available: false,
         health: "ready" as const,
         required_for_qwen3_runtime: true,
       },
@@ -92,6 +102,7 @@ function readyDiagnostics() {
         locked_size_bytes: 690000000,
         downloaded: true,
         cache_present: true,
+        repair_available: false,
         health: "ready" as const,
         required_for_qwen3_runtime: true,
       },
@@ -175,6 +186,7 @@ describe("SemanticMatchingDiagnosticsPanel", () => {
     damaged.runtime_status = "misconfigured";
     damaged.models[0].downloaded = false;
     damaged.models[0].health = "integrity_mismatch";
+    damaged.models[0].repair_available = true;
     mockGetDiagnostics.mockResolvedValue(damaged);
     mockRepairModel.mockResolvedValueOnce(true);
 
@@ -189,6 +201,22 @@ describe("SemanticMatchingDiagnosticsPanel", () => {
     await waitFor(() => {
       expect(mockGetDiagnostics).toHaveBeenCalledTimes(2);
     });
+  });
+
+  it.each(["ready", "missing", "legacy"])("offers old-metadata repair while current cache is %s", async (health) => {
+    const diagnostics = health === "missing" ? missingDiagnostics() : readyDiagnostics();
+    diagnostics.models[0].repair_available = true;
+    diagnostics.models[0].required_for_qwen3_runtime = health !== "legacy";
+    mockGetDiagnostics.mockResolvedValue(diagnostics);
+    mockRepairModel.mockResolvedValue(false);
+    render(<SemanticMatchingDiagnosticsPanel />);
+    const repair = await screen.findByRole("button", { name: "Review local model repair" });
+    expect(screen.queryByText("Integrity check failed")).not.toBeInTheDocument();
+    expect(screen.getByText(/Earlier model files will be retained in quarantine outside the active cache; valid current models are not deleted/)).toBeInTheDocument();
+    await userEvent.click(repair);
+    expect(mockRepairModel).toHaveBeenCalledWith("qwen3-embedding-0.6b");
+    expect(mockRemoveModels).not.toHaveBeenCalled();
+    expect(mockGetDiagnostics).toHaveBeenCalledTimes(1);
   });
 
   it("keeps built-in matching available while a governed download can be canceled", async () => {

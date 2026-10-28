@@ -1,3 +1,4 @@
+/** Simulates local recovery while refusing native installer operations in browser previews. */
 import {
   getArg,
   getStringArg,
@@ -87,6 +88,15 @@ export function handleMockRecoveryCommand(
   state: MockRecoveryState,
 ): MockRecoveryCommandResult {
   switch (command) {
+    case "get_local_update_status":
+      return handled({ trustedPublisherConfigured: false, pendingReview: false, restartRequired: false });
+    case "check_update_availability":
+      return handled({ status: "unavailable", currentVersion: __APP_VERSION__, availableVersion: null, releaseUrl: null });
+    case "select_local_update":
+    case "apply_local_update":
+    case "cancel_local_update":
+      throw new Error("Native signed installer review is unavailable in browser previews.");
+
     case "get_local_recovery_report":
       return handled(getMockLocalRecoveryReport(pendingUrlImportCount));
 

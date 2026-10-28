@@ -1,21 +1,8 @@
-//! Embedded Machine Learning Module
-//!
-//! Optional module for on-device ML inference using governed local models.
-//! Provides semantic skill matching via sentence embeddings.
-//!
-//! ## Features
-//! - Pinned model lock with revision and SHA-256 verification
-//! - Qwen3 embedding and reranker profiles for the production direction
-//! - Qwen3-first semantic matching, verified all-MiniLM fallback, and exact-only
-//!   deterministic matching when neither model is available
-//! - Explicit model download on user or developer action
-//! - Pure Rust inference with Metal acceleration (macOS)
-//!
-//! ## Usage
-//! Enable with `embedded-ml` feature flag in Cargo.toml
+//! Exposes governed on-device matching, model provenance, and cooperative inference cancellation.
 
 #![cfg(feature = "embedded-ml")]
 
+mod cancellation;
 mod contracts;
 mod embeddings;
 mod evaluation;
@@ -30,6 +17,7 @@ mod runtime;
 #[cfg(test)]
 mod tests;
 
+pub use cancellation::{InferenceCancellation, InferenceCancelled};
 pub use contracts::{
     EvidenceItem, EvidenceMatch, EvidenceMatcher, ExtractedResume, Gap, GapAnalyzer, JobExtractor,
     JobPostingRiskSignals, JobRequirement, MatchExplanation, RawJobPosting, RecommendationKind,

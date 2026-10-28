@@ -21,10 +21,14 @@ async fn explicit_matching_profile_reaches_the_application_owner() {
 
     #[cfg(feature = "embedded-ml")]
     let _serial = crate::ipc::ml::MODEL_TEST_LOCK.lock().await;
-    let result = super::resume_review_commands::analyze_resume_for_job(
+    let result = super::resume_review_commands::analyze_resume_for_job_inner(
         resume,
         "Required: programme evaluation".to_string(),
         Some(profile),
+        None,
+        std::sync::Arc::new(crate::bootstrap::operation::OperationAdmission::default())
+            .admit()
+            .unwrap(),
     )
     .await
     .unwrap();
@@ -305,4 +309,25 @@ fn selected_resume_validation_rejects_oversized_file_without_path_leak() {
     assert!(err.contains("too large"));
     assert!(!err.contains(temp_dir.path().to_string_lossy().as_ref()));
     assert!(!err.contains("Private Large Resume"));
+}
+
+#[tokio::test]
+async fn review_cancellation_rejects_invalid_request_id() {
+    for id in [
+        "invalid",
+        "AAAAAAAA-AAAA-4AAA-8AAA-AAAAAAAAAAAA",
+        "aaaaaaaaaaaa4aaa8aaaaaaaaaaaaaaa",
+    ] {
+        assert!(super::cancel_resume_review(id.into()).await.is_err());
+    }
+}
+
+#[cfg(not(feature = "embedded-ml"))]
+#[tokio::test]
+async fn model_free_review_cancellation_is_an_available_noop() {
+    assert!(
+        !super::cancel_resume_review(uuid::Uuid::new_v4().to_string())
+            .await
+            .unwrap()
+    );
 }

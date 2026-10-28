@@ -1,3 +1,4 @@
+/** Validates model diagnostics and native-reviewed lifecycle command responses. */
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { invoke } from "@tauri-apps/api/core";
 import {
@@ -14,6 +15,12 @@ vi.mock("@tauri-apps/api/core", () => ({
 }));
 
 const mockInvoke = vi.mocked(invoke);
+
+it("rejects malformed quarantined-cache state", () => {
+  expect(() => normalizeSemanticMatchingDiagnostics({
+    ...diagnosticPayload(), quarantined_cache_present: "yes",
+  })).toThrow("unreadable response");
+});
 
 function diagnosticPayload() {
   return {
@@ -37,6 +44,7 @@ function diagnosticPayload() {
         locked_size_bytes: 123456,
         downloaded: false,
         cache_present: true,
+        repair_available: true,
         health: "incomplete",
         required_for_qwen3_runtime: true,
       },
@@ -68,6 +76,7 @@ describe("semantic matching diagnostics service", () => {
     expect(diagnostics.runtime_status).toBe("needs_model_download");
     expect(diagnostics.models[0].id).toBe("qwen3-embedding-0.6b");
     expect(diagnostics.models[0].dimension).toBe(768);
+    expect(diagnostics.models[0].repair_available).toBe(true);
   });
 
   it("rejects an unknown status", () => {
@@ -77,6 +86,13 @@ describe("semantic matching diagnostics service", () => {
         runtime_status: "surprise",
       }),
     ).toThrow("unknown status");
+  });
+
+  it("does not infer repair eligibility from missing or malformed flags", () => {
+    const payload = diagnosticPayload();
+    const models = payload.models.map(({ repair_available: _repair, ...model }) => model);
+    expect(normalizeSemanticMatchingDiagnostics({ ...payload, models }).models[0].repair_available).toBe(false);
+    expect(() => normalizeSemanticMatchingDiagnostics({ ...payload, models: [{ ...models[0], repair_available: "true" }] })).toThrow("unreadable response");
   });
 
   it("rejects an unknown model cache health state", () => {

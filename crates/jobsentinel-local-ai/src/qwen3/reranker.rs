@@ -22,6 +22,7 @@ use crate::runtime::{
 use crate::MlError;
 
 pub struct Qwen3RerankerBackend {
+    pub(crate) cancellation: crate::InferenceCancellation,
     model: Qwen3Model,
     tokenizer: Tokenizer,
     compatibility: RuntimeCompatibility,
@@ -64,6 +65,7 @@ impl Qwen3RerankerBackend {
         compatibility.validate_for_model(&spec)?;
 
         Ok(Self {
+            cancellation: Default::default(),
             model,
             tokenizer,
             compatibility,
@@ -79,6 +81,7 @@ impl Qwen3RerankerBackend {
         query: &RerankQuery,
         candidates: &[RerankCandidate],
     ) -> Result<Vec<RerankScore>> {
+        self.cancellation.check()?;
         if candidates.is_empty() {
             return Ok(Vec::new());
         }
@@ -97,6 +100,7 @@ impl Qwen3RerankerBackend {
         let batches = texts
             .chunks(MAX_INFERENCE_BATCH)
             .map(|texts| {
+                self.cancellation.check()?;
                 tokenize_rerank_inputs(&self.tokenizer, texts, self.max_tokens, self.model.device())
             })
             .collect::<Result<Vec<_>>>()?;
@@ -104,7 +108,7 @@ impl Qwen3RerankerBackend {
         for (candidates, batch) in bounded_candidates.chunks(MAX_INFERENCE_BATCH).zip(batches) {
             let hidden = self
                 .model
-                .forward(&batch.input_ids, &batch.attention_mask)
+                .forward(&batch.input_ids, &batch.attention_mask, &self.cancellation)
                 .context("Qwen3 reranker inference failed")?;
             let pooled = last_token_pool(&hidden, &batch.attention_mask)?;
             let score_vector = self
@@ -133,6 +137,7 @@ impl Qwen3RerankerBackend {
             score.rank = index + 1;
         }
 
+        self.cancellation.check()?;
         Ok(scores)
     }
 }

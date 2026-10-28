@@ -26,9 +26,98 @@ fn failure() -> sqlx::Error {
 }
 
 impl Database {
+    /// Recovers an interrupted target without opening its potentially corrupt primary database.
+    /// The caller must hold the primary database owner reservation throughout this operation.
+    pub(super) async fn restore_update_snapshot_at(
+        path: &std::path::Path,
+        expected: &UpdateSnapshot,
+    ) -> Result<(), sqlx::Error> {
+        let id = Uuid::parse_str(&expected.operation_id).map_err(|_| failure())?;
+        let snapshot = path
+            .parent()
+            .ok_or_else(failure)?
+            .join(format!(".update-snapshot-{id}"))
+            .join("snapshot.db");
+        // Verify the snapshot directory/file before any credential-backed SQLite open.
+        let metadata = std::fs::symlink_metadata(snapshot.parent().ok_or_else(failure)?)?;
+        if !metadata.is_dir() || metadata.file_type().is_symlink() {
+            return Err(failure());
+        }
+        let input = open_snapshot_file(&snapshot)?;
+        let key = crate::encryption::load_or_create_database_key().await?;
+        let pool = crate::encryption::connect_encrypted_read_only_pool(&snapshot, &key).await?;
+        let verifier = Self {
+            pool,
+            migration_lock: tokio::sync::Mutex::new(()),
+            db_path: Some(path.to_path_buf()),
+            _owner_lock: None,
+        };
+        let result = async {
+            if !jobsentinel_platform::opened_file_matches_path(&input, &snapshot) {
+                return Err(failure());
+            }
+            verifier.restore_update_snapshot(expected).await
+        }
+        .await;
+        verifier.pool.close().await;
+        result
+    }
+
+    /// The caller retains the database owner and excludes all writers through restart.
+    pub(super) async fn restore_update_snapshot(
+        &self,
+        expected: &UpdateSnapshot,
+    ) -> Result<(), sqlx::Error> {
+        let id = Uuid::parse_str(&expected.operation_id).map_err(|_| failure())?;
+        if self.inspect_update_snapshot(id).await? != *expected {
+            return Err(failure());
+        }
+        let path = self.db_path.as_deref().ok_or_else(failure)?;
+        let directory = self.update_snapshot_directory(id)?;
+        let snapshot = directory.join("snapshot.db");
+        let mut input = open_snapshot_file(&snapshot)?;
+        let mut temporary = tempfile::NamedTempFile::new_in(path.parent().ok_or_else(failure)?)?;
+        jobsentinel_platform::ensure_private_file(temporary.path())?;
+        std::io::copy(&mut input, &mut temporary)?;
+        temporary.as_file().sync_all()?;
+        if digest(temporary.path())? != expected.sha256
+            || !jobsentinel_platform::opened_file_matches_path(&input, &snapshot)
+        {
+            return Err(failure());
+        }
+        self.pool.close().await;
+        // Preserve the complete failed target before replacing data or discarding sidecars.
+        super::portable_restore_bundle::preserve_remaining_bundle(
+            path,
+            &directory.join(format!("failed-{}.db", Uuid::new_v4())),
+        )?;
+        super::portable_restore::remove_sqlite_sidecars_checked(path)?;
+        #[cfg(windows)]
+        let file = jobsentinel_platform::persist_file_write_through(temporary, path)?;
+        #[cfg(not(windows))]
+        let file = temporary.persist(path).map_err(|error| error.error)?;
+        if !jobsentinel_platform::opened_file_matches_path(&file, path) {
+            return Err(failure());
+        }
+        file.sync_all()?;
+        #[cfg(unix)]
+        File::open(path.parent().ok_or_else(failure)?)?.sync_all()?;
+        Ok(())
+    }
+
     pub(super) fn update_database_identity(path: &std::path::Path) -> Result<String, sqlx::Error> {
+        match std::fs::symlink_metadata(path) {
+            Ok(metadata) if !metadata.is_file() => return Err(failure()),
+            Err(error) if error.kind() != std::io::ErrorKind::NotFound => return Err(error.into()),
+            _ => {}
+        }
+        let identity = path
+            .parent()
+            .ok_or_else(failure)?
+            .canonicalize()?
+            .join(path.file_name().ok_or_else(failure)?);
         Ok(hex::encode(Sha256::digest(
-            path.canonicalize()?.as_os_str().as_encoded_bytes(),
+            identity.as_os_str().as_encoded_bytes(),
         )))
     }
 

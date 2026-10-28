@@ -3,7 +3,9 @@
 use super::*;
 use anyhow::Context;
 use jobsentinel_domain::ResumeEvidenceCitation;
-use jobsentinel_local_ai::{SemanticMatchResult, SemanticMatcher};
+use jobsentinel_local_ai::{
+    InferenceCancellation, InferenceCancelled, SemanticMatchResult, SemanticMatcher,
+};
 use std::path::PathBuf;
 
 // The caller runs these workflows on a blocking thread while holding the model lifecycle reservation.
@@ -13,6 +15,24 @@ pub async fn review_active_resume_for_job(
     profile: Option<ResumeMatchingProfile>,
     app_data_dir: PathBuf,
 ) -> Result<ResumeJobReview, ActiveResumeAnalysisError> {
+    review_active_resume_for_job_with_cancellation(
+        database,
+        job_description,
+        profile,
+        app_data_dir,
+        InferenceCancellation::default(),
+    )
+    .await
+}
+
+pub async fn review_active_resume_for_job_with_cancellation(
+    database: &Database,
+    job_description: &str,
+    profile: Option<ResumeMatchingProfile>,
+    app_data_dir: PathBuf,
+    cancellation: InferenceCancellation,
+) -> Result<ResumeJobReview, ActiveResumeAnalysisError> {
+    cancellation.check()?;
     let context = load_active_resume_analysis_context(database).await?;
     let snapshot = ResumeEvidenceSnapshot {
         source_id: format!("resume:{}", context.resume_id),
@@ -37,8 +57,10 @@ pub async fn review_active_resume_for_job(
         &texts,
         &requirements,
         &contextual,
+        cancellation.clone(),
     )
     .await;
+    cancellation.check()?;
     ensure_active_resume_analysis_context(database, &context).await?;
     let Ok(result) = result else {
         return Ok(ResumeJobReview::from(analysis)
@@ -58,12 +80,29 @@ pub fn review_structured_resume_for_job(
     profile: Option<ResumeMatchingProfile>,
     app_data_dir: PathBuf,
 ) -> anyhow::Result<ResumeJobReview> {
+    review_structured_resume_for_job_with_cancellation(
+        input,
+        job_description,
+        profile,
+        app_data_dir,
+        InferenceCancellation::default(),
+    )
+}
+
+pub fn review_structured_resume_for_job_with_cancellation(
+    input: ResumeAnalysisInput,
+    job_description: &str,
+    profile: Option<ResumeMatchingProfile>,
+    app_data_dir: PathBuf,
+    cancellation: InferenceCancellation,
+) -> anyhow::Result<ResumeJobReview> {
+    cancellation.check()?;
     review_structured_with_matcher(
         input,
         job_description,
         profile,
         |texts, requirements, contextual| {
-            let matcher = SemanticMatcher::new(app_data_dir)?;
+            let matcher = SemanticMatcher::new_with_cancellation(app_data_dir, cancellation)?;
             matcher.match_skills(
                 texts,
                 if matcher.uses_persistent_resume_vectors() {
@@ -92,9 +131,13 @@ fn review_structured_with_matcher(
         return Ok(ResumeJobReview::from(analysis)
             .without_semantic(SemanticUnavailableReason::InputUnavailable));
     }
-    let Ok(result) = match_skills(&texts, &requirements, &contextual) else {
-        return Ok(ResumeJobReview::from(analysis)
-            .without_semantic(SemanticUnavailableReason::ModelUnavailable));
+    let result = match match_skills(&texts, &requirements, &contextual) {
+        Ok(result) => result,
+        Err(error) if error.is::<InferenceCancelled>() => return Err(error),
+        Err(_) => {
+            return Ok(ResumeJobReview::from(analysis)
+                .without_semantic(SemanticUnavailableReason::ModelUnavailable))
+        }
     };
     Ok(completed_review(
         analysis,

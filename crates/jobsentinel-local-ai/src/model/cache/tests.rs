@@ -379,3 +379,98 @@ async fn governed_old_lock_reuses_artifacts_and_remains_in_inventory() {
     let (formats, identities) = manager.update_identity_inventory().unwrap();
     assert!(formats.len() >= 2 && identities.len() == formats.len());
 }
+
+#[test]
+fn metadata_repair_preserves_verified_current_cache_and_retained_bytes() {
+    let root = tempfile::tempdir().unwrap();
+    let manager = ModelManager::new(root.path().to_path_buf());
+    let spec = synthetic_spec();
+    let current = manager.model_cache_dir(&spec);
+    let old = current.parent().unwrap().join("b".repeat(64));
+    for cache in [&current, &old] {
+        std::fs::create_dir_all(cache).unwrap();
+        std::fs::write(cache.join("config.json"), CONFIG).unwrap();
+        std::fs::write(cache.join("model.safetensors"), WEIGHTS).unwrap();
+    }
+    manager
+        .finalize_verified_cache(&load_model_manifest().unwrap(), &spec)
+        .unwrap();
+    let before = std::fs::read(current.join(".jobsentinel-model.json")).unwrap();
+    std::fs::write(old.join(".jobsentinel-model.json"), b"malformed").unwrap();
+    for file in spec.required_files() {
+        verified_retained_file(&old, file).unwrap();
+    }
+    std::fs::create_dir(manager.model_quarantine_dir().unwrap()).unwrap();
+    manager.repair_invalid_cache_for_spec(&spec).unwrap();
+    assert_eq!(manager.cache_health_for(&spec), ModelCacheHealth::Ready);
+    assert_eq!(
+        std::fs::read(current.join(".jobsentinel-model.json")).unwrap(),
+        before
+    );
+    assert_eq!(
+        std::fs::read(current.join("model.safetensors")).unwrap(),
+        WEIGHTS
+    );
+    assert!(!old.exists());
+    let quarantine = std::fs::read_dir(root.path().join("ml_models_quarantine"))
+        .unwrap()
+        .next()
+        .unwrap()
+        .unwrap()
+        .path()
+        .join("cache");
+    assert_eq!(
+        std::fs::read(quarantine.join("model.safetensors")).unwrap(),
+        WEIGHTS
+    );
+    assert_eq!(
+        std::fs::read(quarantine.join(".jobsentinel-model.json")).unwrap(),
+        b"malformed"
+    );
+    assert!(manager.has_quarantined_model_cache());
+    assert!(manager.remove_default_semantic_model_caches().unwrap());
+    assert!(!manager.has_quarantined_model_cache());
+    assert!(!root.path().join("ml_models_quarantine").exists());
+    assert_eq!(
+        std::fs::read(current.join("model.safetensors")).unwrap(),
+        WEIGHTS
+    );
+}
+
+#[test]
+fn metadata_repair_does_not_bypass_remaining_weight_verification() {
+    let root = tempfile::tempdir().unwrap();
+    let manager = ModelManager::new(root.path().to_path_buf());
+    let spec = synthetic_spec();
+    let old_lock = "c".repeat(64);
+    let old = manager
+        .model_cache_dir(&spec)
+        .parent()
+        .unwrap()
+        .join(&old_lock);
+    std::fs::create_dir_all(&old).unwrap();
+    manager
+        .write_cache_metadata(
+            &old,
+            &load_model_manifest().unwrap(),
+            &spec,
+            "unknown".into(),
+            "unknown".into(),
+        )
+        .unwrap();
+    let path = old.join(".jobsentinel-model.json");
+    let mut metadata: serde_json::Value =
+        serde_json::from_slice(&std::fs::read(&path).unwrap()).unwrap();
+    metadata["manifest_hash"] = old_lock.clone().into();
+    std::fs::write(&path, serde_json::to_vec(&metadata).unwrap()).unwrap();
+    assert!(manager
+        .verified_cache_metadata_at(&spec, &old, &old_lock)
+        .is_ok());
+    assert_eq!(
+        manager.quarantine_invalid_retained_metadata(&spec).unwrap(),
+        0
+    );
+    assert!(old.exists());
+    assert!(verified_retained_file(&old, spec.required_files().next().unwrap()).is_err());
+    assert!(!manager.is_model_downloaded_for(&spec));
+}

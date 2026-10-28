@@ -6,10 +6,27 @@ use std::path::{Path, PathBuf};
 
 /// Private compatibility review; excludes user records/configuration and grants no mutation authority.
 pub struct ReviewedUpdate {
+    manifest: UpdateManifest,
     metadata: Vec<u8>,
     signature: String,
     installed: InstalledUpdateState,
     data_dir: PathBuf,
+}
+
+impl ReleasePublisher {
+    /// Production enrollment belongs to release qualification; downloaded keys never grant trust.
+    pub const fn production_trust() -> &'static [Self] {
+        &[]
+    }
+}
+
+impl ReviewedUpdate {
+    pub fn manifest(&self) -> &UpdateManifest {
+        &self.manifest
+    }
+    pub fn installed(&self) -> &InstalledUpdateState {
+        &self.installed
+    }
 }
 
 /// The application must supply the database belonging to its resolved data directory.
@@ -36,8 +53,9 @@ fn assess_review(
     publishers: &[ReleasePublisher],
     installed: InstalledUpdateState,
 ) -> Result<ReviewedUpdate, UpdatePreflightError> {
-    preflight_update(metadata, signature, package, publishers, &installed)?;
+    let candidate = preflight_update(metadata, signature, package, publishers, &installed)?;
     Ok(ReviewedUpdate {
+        manifest: candidate.0,
         metadata: metadata.to_vec(),
         signature: signature.to_owned(),
         installed,
