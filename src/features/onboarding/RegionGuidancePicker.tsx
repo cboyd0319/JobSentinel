@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { invoke } from "../../platform/tauri";
-import { PackRegionReview } from "../../shared/PackRegionReview";
+import { PackRegionReview } from "../../ui/PackRegionReview";
 import {
   parsePackManagementReviews,
   type PackManagementReview,

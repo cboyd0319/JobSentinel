@@ -36,7 +36,14 @@ async fn portable_backup_is_encrypted_verified_and_excludes_secrets() {
 
     assert_eq!(created.format_version, 1);
     assert_eq!(created.database_schema, 2);
-    assert_eq!(created.migration_sequence, 26);
+    assert_eq!(
+        created.migration_sequence,
+        MIGRATOR
+            .iter()
+            .map(|migration| migration.version)
+            .max()
+            .unwrap()
+    );
     assert!(!created.backup_id.is_empty());
     assert_eq!(
         Database::inspect_portable_backup(&backup_path, BACKUP_PASSPHRASE)
@@ -186,62 +193,35 @@ async fn cancelling_backup_does_not_publish_and_is_reconciled_on_startup() {
     let temp_dir = tempfile::tempdir().unwrap();
     let database =
         std::sync::Arc::new(database_with_private_rows(&temp_dir.path().join("jobs.db")).await);
-    sqlx::query("INSERT INTO backup_probe(value) VALUES (hex(zeroblob(16777216)))")
-        .execute(database.pool())
-        .await
-        .unwrap();
     let backup_path = temp_dir.path().join("cancelled.db");
     let task_database = std::sync::Arc::clone(&database);
     let task_path = backup_path.clone();
-    let task = tokio::spawn(async move {
-        task_database
-            .create_portable_backup(&task_path, BACKUP_PASSPHRASE)
-            .await
-    });
-    tokio::time::timeout(std::time::Duration::from_secs(5), async {
-        loop {
-            let started: i64 = sqlx::query_scalar(
-                "SELECT COUNT(*) FROM v3_recovery_operations WHERE outcome = 'started'",
-            )
-            .fetch_one(database.pool())
-            .await
-            .unwrap();
-            if started == 1 {
-                break;
-            }
-            tokio::task::yield_now().await;
-        }
-    })
-    .await
-    .unwrap();
-    let mut lock = database.pool().acquire().await.unwrap();
-    sqlx::query("BEGIN IMMEDIATE")
-        .execute(&mut *lock)
+    let ready = std::sync::Arc::new(tokio::sync::Notify::new());
+    let resume = std::sync::Arc::new(tokio::sync::Notify::new());
+    let barrier = (std::sync::Arc::clone(&ready), resume);
+    let task = tokio::spawn(crate::connection::portable_backup::BACKUP_READY.scope(
+        barrier,
+        async move {
+            task_database
+                .create_portable_backup(&task_path, BACKUP_PASSPHRASE)
+                .await
+        },
+    ));
+    tokio::time::timeout(std::time::Duration::from_secs(10), ready.notified())
         .await
         .unwrap();
-    tokio::time::timeout(std::time::Duration::from_secs(10), async {
-        while !std::fs::read_dir(temp_dir.path())
-            .unwrap()
-            .flatten()
-            .any(|entry| {
-                entry
-                    .file_name()
-                    .to_string_lossy()
-                    .starts_with(".jobsentinel_portable_backup_")
-            })
-        {
-            tokio::task::yield_now().await;
-        }
-    })
-    .await
-    .unwrap();
-    tokio::time::sleep(std::time::Duration::from_millis(100)).await;
     assert!(!task.is_finished());
     assert!(!backup_path.exists());
+    assert!(std::fs::read_dir(temp_dir.path())
+        .unwrap()
+        .flatten()
+        .any(|entry| entry
+            .file_name()
+            .to_string_lossy()
+            .starts_with(".jobsentinel_portable_backup_")));
 
     task.abort();
     assert!(task.await.unwrap_err().is_cancelled());
-    sqlx::query("ROLLBACK").execute(&mut *lock).await.unwrap();
     assert!(!backup_path.exists());
     database.migrate().await.unwrap();
     let outcomes: (i64, i64) = sqlx::query_as(

@@ -1,6 +1,4 @@
-//! Job Scraping Scheduler
-//!
-//! Manages periodic job scraping based on user configuration.
+//! Runs scheduled source checks and coordinates their shutdown and recovery.
 
 use anyhow::Result;
 use std::sync::{
@@ -72,8 +70,23 @@ impl Scheduler {
         Ok(())
     }
 
+    /// Stop accepting cycles and await scheduler-owned writes already in progress.
+    /// Other application writers must be quiesced separately before update handoff.
+    pub async fn shutdown_and_wait(&self) -> Result<()> {
+        self.shutdown()?;
+        let _guard = self.scrape_lock.lock().await;
+        Ok(())
+    }
+
     /// Reconcile source checks interrupted before their terminal audit write.
     pub async fn recover_interrupted_runs(&self) -> Result<u64> {
+        if self.is_shutdown_requested() {
+            return Ok(0);
+        }
+        let _guard = self.scrape_lock.lock().await;
+        if self.is_shutdown_requested() {
+            return Ok(0);
+        }
         let scraper_runs = crate::health::interrupt_running_runs(&self.database)
             .await
             .map_err(|_| anyhow::anyhow!("Could not recover interrupted source checks"))?;

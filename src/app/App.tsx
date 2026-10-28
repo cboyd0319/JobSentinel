@@ -1,3 +1,5 @@
+/** Composes application routes, startup state, and shared desktop workflows. */
+
 import { useEffect, useState, useCallback, lazy, Suspense } from "react";
 import { invoke } from "../platform/tauri";
 import type { Page } from "./routes";
@@ -63,7 +65,7 @@ const ApplyButton = lazy(() =>
   })),
 );
 const OpportunityCaseAction = lazy(() =>
-  import("../features/opportunity-case/OpportunityCaseAction").then((module) => ({
+  import("./OpportunityCaseAction").then((module) => ({
     default: module.OpportunityCaseAction,
   })),
 );

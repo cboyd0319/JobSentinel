@@ -2,7 +2,7 @@
 import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { OpportunityCaseAction } from "./OpportunityCaseAction";
+import { OpportunityCaseAction } from "../../app/OpportunityCaseAction";
 vi.mock("@tauri-apps/api/core", () => ({ invoke: vi.fn() }));
 vi.mock("./PackPacketBuilder", () => ({
   PackPacketBuilder: ({ jobHash }: { jobHash: string }) => <div data-testid="packet-builder">Packet Builder for {jobHash}</div>,

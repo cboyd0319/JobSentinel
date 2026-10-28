@@ -13,8 +13,12 @@ use std::{
 };
 use uuid::Uuid;
 use zeroize::Zeroizing;
-const PORTABLE_BACKUP_FORMAT_VERSION: i64 = 1;
+pub(super) const PORTABLE_BACKUP_FORMAT_VERSION: i64 = 1;
 const PORTABLE_BACKUP_COMPATIBILITY_LINE: i64 = 3;
+#[cfg(test)]
+tokio::task_local! {
+    pub(super) static BACKUP_READY: (std::sync::Arc<tokio::sync::Notify>, std::sync::Arc<tokio::sync::Notify>);
+}
 const MIN_BACKUP_PASSPHRASE_CHARS: usize = 16;
 const MAX_BACKUP_PASSPHRASE_BYTES: usize = 1024;
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -72,6 +76,11 @@ impl Database {
             .await;
         match result {
             Ok(prepared) => {
+                #[cfg(test)]
+                if let Ok((ready, resume)) = BACKUP_READY.try_with(Clone::clone) {
+                    ready.notify_one();
+                    resume.notified().await;
+                }
                 if let Err(error) = self.finish_backup_operation(&info.backup_id, None).await {
                     self.fail_backup_operation(&info.backup_id, &error).await;
                     return Err(error);
@@ -361,7 +370,7 @@ async fn export_pool_to_encrypted(
     let destination = destination
         .to_str()
         .ok_or_else(|| protocol_error("Portable backup path encoding is invalid"))?;
-    let mut connection = source.acquire().await?;
+    let mut connection = Database::snapshot_connection(source).await?;
     let user_version: i64 = sqlx::query_scalar("PRAGMA user_version")
         .fetch_one(&mut *connection)
         .await?;

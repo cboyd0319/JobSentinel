@@ -23,6 +23,7 @@
     "@testing-library/jest-dom": "DOM matchers for component tests.",
     "@testing-library/react": "React component testing utilities.",
     "@testing-library/user-event": "Simulates user interaction in tests.",
+    "@types/node": "Node 24 declarations required by tsconfig.node.json for build tooling.",
     "@types/react": "React type definitions.",
     "@types/react-dom": "React DOM type definitions.",
     "@vitejs/plugin-react": "React fast-refresh and JSX support for Vite.",

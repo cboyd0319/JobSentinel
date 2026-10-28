@@ -10,11 +10,13 @@ mod reviewed_export;
 mod reviewed_export_inspect;
 mod reviewed_export_sanitize;
 mod reviewed_export_schema;
-
+mod update_backup;
+mod update_inventory;
 pub use maintenance::{PortableBackupHistory, StorageHealth, StorageMaintenanceReport};
 pub use portable_backup::PortableBackupInfo;
 pub use portable_restore::PortableRestoreStatus;
 pub use reviewed_export::{ReviewedExportInfo, ReviewedExportPlan, ReviewedExportSelection};
+pub use update_backup::UpdateSnapshot;
 
 use sqlx::{
     sqlite::{SqlitePool, SqlitePoolOptions},

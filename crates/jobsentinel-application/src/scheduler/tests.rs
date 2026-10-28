@@ -1,3 +1,5 @@
+//! Tests scheduler serialization, shutdown, and source-cycle behavior.
+
 use super::*;
 use crate::{
     config::{AutoRefreshConfig, Config},
@@ -248,3 +250,25 @@ mod lifecycle_and_error_tests;
 
 #[path = "tests/error_path_tests.rs"]
 mod error_path_tests;
+
+#[tokio::test]
+async fn shutdown_waits_for_active_work_and_refuses_later_writes() {
+    let database = Arc::new(Database::connect_memory().await.unwrap());
+    database.migrate().await.unwrap();
+    let scheduler = Arc::new(Scheduler::new(Arc::new(create_test_config()), database));
+    let active = scheduler.scrape_lock.lock().await;
+    let stopped = scheduler.clone();
+    let task = tokio::spawn(async move { stopped.shutdown_and_wait().await });
+    while !scheduler.is_shutdown_requested() {
+        tokio::task::yield_now().await;
+    }
+    assert!(!task.is_finished());
+    drop(active);
+    tokio::time::timeout(Duration::from_secs(2), task)
+        .await
+        .unwrap()
+        .unwrap()
+        .unwrap();
+    assert!(scheduler.run_scraping_cycle().await.is_err());
+    assert_eq!(scheduler.recover_interrupted_runs().await.unwrap(), 0);
+}

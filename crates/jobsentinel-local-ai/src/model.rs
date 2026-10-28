@@ -1,6 +1,4 @@
-//! Model Management
-//!
-//! Handles downloading, caching, and loading governed local model artifacts.
+//! Owns download, cache validation, and loading of governed local model artifacts.
 
 mod cache;
 mod device;
@@ -9,6 +7,7 @@ mod integrity;
 mod legacy;
 mod loading;
 pub(super) mod status;
+mod update_inventory;
 
 use super::manifest::{load_model_manifest, model_lock_hash, ModelFileSpec, ModelSpec};
 use super::MlError;

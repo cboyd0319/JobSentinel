@@ -30,6 +30,7 @@ pub mod resume;
 pub mod salary;
 pub mod scheduler;
 pub mod scoring;
+pub mod update_preflight;
 pub mod user_data;
 pub mod v3_foundation;
 mod v3_source_governance;

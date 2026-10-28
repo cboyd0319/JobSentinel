@@ -5,7 +5,7 @@ import { invoke } from "../../../platform/tauri";
 import { Button } from "../../../ui/Button";
 import { Modal } from "../../../ui/Modal";
 import { PackLifecycleControls } from "./PackLifecycleControls";
-import { PackRegionReview } from "../../../shared/PackRegionReview";
+import { PackRegionReview } from "../../../ui/PackRegionReview";
 import { PackStaticSkillReview } from "./PackStaticSkillReview";
 import {
   parsePackManagementReviews,

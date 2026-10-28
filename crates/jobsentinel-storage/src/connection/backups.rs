@@ -1,3 +1,5 @@
+//! Creates and verifies same-device SQLite recovery snapshots for migrations and updates.
+
 use sqlx::sqlite::SqlitePool;
 use std::path::{Path, PathBuf};
 use uuid::Uuid;
@@ -94,7 +96,7 @@ impl Database {
         Ok(Some(backup_path))
     }
 
-    async fn create_verified_snapshot(
+    pub(super) async fn create_verified_snapshot(
         pool: &SqlitePool,
         backup_path: &Path,
     ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
@@ -117,11 +119,20 @@ impl Database {
         Ok(())
     }
 
-    async fn verify_pre_migration_backup(
+    // ATTACH changes connection state; cancellation must never return it to the pool.
+    pub(super) async fn snapshot_connection(
+        pool: &SqlitePool,
+    ) -> Result<sqlx::pool::PoolConnection<sqlx::Sqlite>, sqlx::Error> {
+        let mut connection = pool.acquire().await?;
+        connection.close_on_drop();
+        Ok(connection)
+    }
+
+    pub(super) async fn verify_pre_migration_backup(
         pool: &SqlitePool,
         backup_path: &str,
     ) -> Result<(), sqlx::Error> {
-        let mut conn = pool.acquire().await?;
+        let mut conn = Self::snapshot_connection(pool).await?;
         sqlx::query("ATTACH DATABASE ? AS pre_migration_backup")
             .bind(backup_path)
             .execute(&mut *conn)

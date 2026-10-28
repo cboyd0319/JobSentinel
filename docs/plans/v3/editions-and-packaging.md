@@ -40,11 +40,32 @@ packs.
 Milestone 9 uses one upgradable Essentials application package. It includes the
 local inference runtime but no downloaded model or tokenizer payloads. Stronger
 local matching is a reviewed Settings download, not a second app installer.
-The other edition names remain schema and planning options pending Gate 5;
+The other edition names remain schema and planning options;
 they are not separately shipped products.
-Gate 5 still owns final names, the component matrix, update/rollback UX, and the
-release cut. It does not block reversible M10 compatibility/recovery
-prerequisites or authorize an unapproved product or signing decision.
+Gate 5 was approved on 2026-10-28 with the decisions below. Signing and
+publication still require their separate release authority.
+
+## Gate 5 Decision (Approved 2026-10-28)
+
+Ship one upgradable **JobSentinel Essentials** package per supported platform.
+Include the existing model-free core and inference runtime; keep models, Region
+packs and other optional packs separate, reviewed downloads. Keep Standard,
+Pro Local, Developer and Portable as planning options, not v3.0 editions.
+The v3.0 feature cut remains milestones 0–10; accepted Next work remains in
+milestone 12 rather than silently entering this release.
+
+Settings should show update availability without automatic installation. Before
+installing, show version, platform, component changes, download size and recovery
+requirements. Require explicit review, verified publisher trust and compatible
+local data. Offer rollback only to a verified compatible v3 candidate; refuse
+newer-data downgrade and preserve export/recovery access. Failed checks or
+unavailable downloads must leave installed local workflows usable. Never remove
+optional models or packs silently; cleanup remains a separate reviewed action.
+
+The user explicitly approved this decision on 2026-10-28. It does not authorize
+publisher enrollment, signing or publication, or establish platform qualification.
+The 2026-10-28 sequencing correction defers production signing identities and
+artifacts to M11 release preparation; M10 uses test identities for trust checks.
 
 ## Essentials Package
 

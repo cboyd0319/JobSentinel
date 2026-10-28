@@ -2,12 +2,12 @@
 
 import { useEffect, useRef, useState } from "react";
 import { invoke } from "../platform/tauri";
-import type { PackManagementReview } from "./packManagementProjection";
+import type { PackManagementReview } from "../shared/packManagementProjection";
 import {
   parseRegionStarterData,
   type RegionStarterData,
-} from "./regionStarterData";
-import { Button } from "../ui/Button";
+} from "../shared/regionStarterData";
+import { Button } from "./Button";
 
 type RegionManifest = {
   schema: "jobsentinel.v3.region-manifest.v1";

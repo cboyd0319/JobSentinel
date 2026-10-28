@@ -1,0 +1,126 @@
+{
+  "schema": "jobsentinel.feature_evidence.v1",
+  "feature_id": "v3-milestone-10-update-rollback-repair",
+  "result": "partial",
+  "revision": "0237aa1276c58c45096d2526bc9c3686bfdb9fa7",
+  "platform": "macOS arm64",
+  "scope": "Reviewed candidate revalidation, installed compatibility inventory, scheduler drain and same-device snapshots; updater execution remains unfinished",
+  "source_files_sha256": {
+    "crates/jobsentinel-application/src/lib.rs": "c111cb64577a1925dd402ed11f0dc946d9a92d9007f563924e5d1c7ece9ccf3d",
+    "crates/jobsentinel-application/src/pack_runtime/update_inventory.rs": "d3123efe1debd2e6b90340641daa1e8f5a796252353e5ac1c7a3a97a5e06eea8",
+    "crates/jobsentinel-application/src/scheduler/mod.rs": "83fea034022ebd2efef6b684adbf50eee4c42e2968279682cbb53bae45de0efd",
+    "crates/jobsentinel-application/src/update_preflight.rs": "c15e6eba87ab8757a459b2d13885afffa6e484d72d06fb38d103bce702d6ec21",
+    "crates/jobsentinel-application/src/update_preflight/inventory.rs": "cb74aad90f3599c00594a8255c553a4630ac10723e6bf5fac0ba44952df264bd",
+    "crates/jobsentinel-application/src/update_preflight/review.rs": "354d51496e16d721d9bccc88b70a2c3c8547b56d90c11e1f5b1f0ba62c422391",
+    "crates/jobsentinel-application/src/update_preflight/tests.rs": "016d6556b1aa022fad80baccca4d3f1c2a6678116cd3f5388899e2abb180a07a",
+    "crates/jobsentinel-local-ai/src/model/update_inventory.rs": "14c6cd57b0d93f344888f70b1667bb35c4778e0a01cee4a0eb3d40453fed646d",
+    "crates/jobsentinel-storage/src/connection/backups.rs": "4811dbe37df1d1715a872ae0b36498f6a71af5196d2ecfc27d254c2947c610bd",
+    "crates/jobsentinel-storage/src/connection/portable_backup.rs": "078964a588d2d96cad11bc12c8cdc1d0e38774da38ab8366ce53bb35add750d8",
+    "crates/jobsentinel-storage/src/connection/update_backup.rs": "206af38c2bd0123bf7914caf0e5172b33d370fa6436c4b673d09311527a4026c",
+    "crates/jobsentinel-storage/src/connection/update_inventory.rs": "880bec5209a120b9956f39434b5d76b29c5ac00af7aa6071b6cba6247f5ebeba"
+  },
+  "delivered": [
+    "Domain-separated Ed25519 signature binds exact package digest/length, version, edition/platform and component reader ranges.",
+    "Refuses unknown/revoked/ambiguous publisher, altered metadata/package, incompatible source and newer local data without mutation.",
+    "Candidate writers may use newer formats when authenticated reader ranges include current data.",
+    "Gate 5 explicitly approved by user on 2026-10-28; editions-and-packaging.md owns the product decision.",
+    "Read-only inventory validates applied database migration checksums, retained signed pack artifacts and their candidate-app version constraints, governed model caches, and compiled platform/protocol facts.",
+    "Production signing deferred to M11 by explicit user correction. Only Environment variable names were inspected; no private signing values read or keys changed.",
+    "Private reviewed state binds exact candidate metadata/signature, canonical profile root and full component identities; revalidation rejects drift.",
+    "Scheduler shutdown can await active scheduler-owned writes; all-writer exclusion remains unimplemented.",
+    "Verified same-device SQLite recovery snapshots preserve WAL state, validate receipt claims, and use cancellation-safe attached connections."
+  ],
+  "commands": [
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked -p jobsentinel-application --lib update_preflight",
+      "exit_status": 0,
+      "passed": 7
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs clippy --locked -p jobsentinel-application --lib -- -D warnings",
+      "exit_status": 0,
+      "owner": "implementing agent"
+    },
+    {
+      "command": "cargo fmt --all -- --check",
+      "exit_status": 0,
+      "owner": "implementing agent"
+    },
+    {
+      "command": "./init.sh",
+      "exit_status": 0,
+      "result": "Locked sync, harness and 9 startup tests; Node/npm baseline warnings retained."
+    },
+    {
+      "command": "npm run typecheck",
+      "exit_status": 0
+    },
+    {
+      "command": "npm run lint:architecture",
+      "exit_status": 0
+    },
+    {
+      "command": "npm run lint:deps:why",
+      "exit_status": 0
+    },
+    {
+      "command": "npm run harness:check",
+      "exit_status": 0
+    },
+    {
+      "command": "git diff --check",
+      "exit_status": 0
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked -p jobsentinel-application --features embedded-ml --lib update_preflight",
+      "exit_status": 0,
+      "passed": 9
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked -p jobsentinel-storage --lib update_inventory",
+      "exit_status": 0,
+      "passed": 1
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked -p jobsentinel-local-ai --features embedded-ml --lib update_inventory",
+      "exit_status": 0,
+      "passed": 1
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked -p jobsentinel-application --features embedded-ml --lib update_preflight",
+      "exit_status": 0,
+      "passed": 12,
+      "ignored": 0
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked -p jobsentinel-application --lib scheduler::tests",
+      "exit_status": 0,
+      "passed": 108,
+      "ignored": 1
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked -p jobsentinel-storage --lib backup",
+      "exit_status": 0,
+      "passed": 22,
+      "ignored": 0
+    }
+  ],
+  "review": "Independent adversarial review found incorrect current-reader ceiling; corrected and re-reviewed with no remaining finding in pure slice. Inventory adversarial review corrected transfer-cache classification and accepted known empty scaffolding left by the existing repair owner; unknown paths and partial leaf caches still fail. Follow-up review passed. Reviewed revalidation/scheduler and recovery snapshots independently. Fixed pooled ATTACH cancellation poisoning, writable durability handle, actual receipt/schema comparison, stale migration test and cancellation test lock deadlock.",
+  "remaining": [
+    "Deep user-requested source/evidence audit of all prior milestones; passing labels are not assumed accurate.",
+    "M10: all-writer exclusion, durable update journal/startup reconciliation, concrete installer handoff, reviewed Settings UX and offline repair integration.",
+    "M11: production signing, platform qualification and release. Premature signer tooling was removed per development-first/YAGNI direction.",
+    "M12 enhancement trains and M13 closure."
+  ],
+  "baseline_repairs": [
+    "Moved Region review to ui and composed military resume review in app to restore feature ownership boundaries.",
+    "Added exact @types/node 24.19.2 and its locked undici-types dependency; tsconfig.node.json previously required missing Node declarations.",
+    "Initial dependency refresh raced a live test cache and failed ENOTEMPTY; stopped concurrent frontend tools, reran init, added required App responsibility header, then init passed."
+  ],
+  "frontend_verification": {
+    "owner": "frontend implementing agent",
+    "focused_tests_passed": 67,
+    "inclusive_browser_journeys_passed": 5,
+    "targeted_eslint_exit_status": 0
+  }
+}

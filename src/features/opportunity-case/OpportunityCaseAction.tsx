@@ -1,13 +1,12 @@
 /** Presents one current local opportunity case and its bounded preparation actions. */
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type ComponentType } from "react";
 import { invoke } from "../../platform/tauri";
 import { formatCompactDateTime, formatEventDate } from "../../shared/dateFormatting";
 import { Button } from "../../ui/Button";
 import { Modal } from "../../ui/Modal";
 import { EmployerDossierSection } from "../../shared/EmployerDossierSection";
 import { decodeEmployerDossier, type EmployerDossier } from "../../shared/employerDossier";
-import { MilitaryTransitionReviewModal } from "../resumes/library/MilitaryTransitionReviewModal";
 import { PackPacketBuilder } from "./PackPacketBuilder";
 import {
   activeResumeId,
@@ -65,6 +64,11 @@ type CaseFile = {
 
 interface OpportunityCaseActionProps {
   jobHash: string;
+  MilitaryReview: ComponentType<{
+    isOpen: boolean;
+    match: MilitaryReviewMatch | null;
+    onClose: () => void;
+  }>;
 }
 
 const timelineLabels: Record<string, string> = {
@@ -179,7 +183,7 @@ function getPreparationRows(caseFile: CaseFile) {
   ];
 }
 
-export function OpportunityCaseAction({ jobHash }: OpportunityCaseActionProps) {
+export function OpportunityCaseAction({ jobHash, MilitaryReview }: OpportunityCaseActionProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [caseFile, setCaseFile] = useState<CaseFile | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -461,7 +465,7 @@ export function OpportunityCaseAction({ jobHash }: OpportunityCaseActionProps) {
           </div>
         )}
       </Modal>
-      <MilitaryTransitionReviewModal
+      <MilitaryReview
         isOpen={militaryMatch !== null}
         match={militaryMatch}
         onClose={() => {

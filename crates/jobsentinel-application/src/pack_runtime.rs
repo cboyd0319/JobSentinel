@@ -27,6 +27,8 @@ mod management;
 mod production;
 mod recovery;
 mod trust;
+mod update_inventory;
+pub(crate) use update_inventory::update_pack_inventory;
 
 use artifact::{load_tested_artifact, persist_artifact, remove_owned_artifact, ArtifactLoadError};
 #[cfg(test)]
