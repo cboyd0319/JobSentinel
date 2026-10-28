@@ -1,3 +1,4 @@
+# Defines application use-case dependencies and optional desktop capabilities.
 [package]
 name = "jobsentinel-application"
 description = "JobSentinel application use cases and orchestration"
@@ -11,6 +12,7 @@ categories.workspace = true
 
 [features]
 default = []
+test-support = ["jobsentinel-security/test-support", "jobsentinel-storage/test-support"]
 ocr = ["jobsentinel-documents/ocr"]
 embedded-ml = ["jobsentinel-documents/embedded-ml", "jobsentinel-local-ai/embedded-ml"]
 

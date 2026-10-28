@@ -90,6 +90,16 @@ impl ResumeMatcher {
         Ok(resume_id)
     }
 
+    /// Find a committed upload by its app-owned file identity.
+    pub async fn resume_id_for_file(&self, file_path: &str) -> Result<Option<i64>> {
+        Ok(sqlx::query_scalar(
+            "SELECT id FROM resumes WHERE file_path = ? ORDER BY id DESC LIMIT 1",
+        )
+        .bind(file_path)
+        .fetch_optional(&self.db)
+        .await?)
+    }
+
     /// Get resume by ID
     pub async fn get_resume(&self, resume_id: i64) -> Result<Resume> {
         let row = sqlx::query(

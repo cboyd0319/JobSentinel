@@ -42,6 +42,7 @@ zeroize.workspace = true
 libc.workspace = true
 
 [dev-dependencies]
+jobsentinel-application = { workspace = true, features = ["test-support"] }
 tempfile.workspace = true
 
 [lints]

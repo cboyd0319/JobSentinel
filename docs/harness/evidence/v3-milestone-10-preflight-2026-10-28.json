@@ -1,23 +1,23 @@
 {
   "schema": "jobsentinel.feature_evidence.v1",
   "feature_id": "v3-milestone-10-update-rollback-repair",
-  "result": "partial",
-  "revision": "0237aa1276c58c45096d2526bc9c3686bfdb9fa7",
+  "result": "passing",
+  "revision": "46829b074c0f48ef8cc8c94342c663fd53c00bcc",
   "platform": "macOS arm64",
-  "scope": "Signed candidate review, native writer admission, durable update recovery and acknowledged installer handoff; development acceptance remains partial",
+  "scope": "M10 development acceptance; real installed-package and platform certification remain M11",
   "source_files_sha256": {
     "crates/jobsentinel-application/src/lib.rs": "c111cb64577a1925dd402ed11f0dc946d9a92d9007f563924e5d1c7ece9ccf3d",
     "crates/jobsentinel-application/src/pack_runtime/update_inventory.rs": "d3123efe1debd2e6b90340641daa1e8f5a796252353e5ac1c7a3a97a5e06eea8",
     "crates/jobsentinel-application/src/scheduler/mod.rs": "83fea034022ebd2efef6b684adbf50eee4c42e2968279682cbb53bae45de0efd",
-    "crates/jobsentinel-application/src/update_preflight.rs": "c15e6eba87ab8757a459b2d13885afffa6e484d72d06fb38d103bce702d6ec21",
-    "crates/jobsentinel-application/src/update_preflight/inventory.rs": "cb74aad90f3599c00594a8255c553a4630ac10723e6bf5fac0ba44952df264bd",
-    "crates/jobsentinel-application/src/update_preflight/review.rs": "354d51496e16d721d9bccc88b70a2c3c8547b56d90c11e1f5b1f0ba62c422391",
-    "crates/jobsentinel-application/src/update_preflight/tests.rs": "016d6556b1aa022fad80baccca4d3f1c2a6678116cd3f5388899e2abb180a07a",
-    "crates/jobsentinel-local-ai/src/model/update_inventory.rs": "14c6cd57b0d93f344888f70b1667bb35c4778e0a01cee4a0eb3d40453fed646d",
-    "crates/jobsentinel-storage/src/connection/backups.rs": "4811dbe37df1d1715a872ae0b36498f6a71af5196d2ecfc27d254c2947c610bd",
-    "crates/jobsentinel-storage/src/connection/portable_backup.rs": "078964a588d2d96cad11bc12c8cdc1d0e38774da38ab8366ce53bb35add750d8",
-    "crates/jobsentinel-storage/src/connection/update_backup.rs": "206af38c2bd0123bf7914caf0e5172b33d370fa6436c4b673d09311527a4026c",
-    "crates/jobsentinel-storage/src/connection/update_inventory.rs": "880bec5209a120b9956f39434b5d76b29c5ac00af7aa6071b6cba6247f5ebeba"
+    "crates/jobsentinel-application/src/update_preflight.rs": "fe4467d9f2169c126559bd6c047833e4124f037da74bb2640b0a90332944c509",
+    "crates/jobsentinel-application/src/update_preflight/inventory.rs": "abc830fc3af213a929ec41ebbc54f7203ad059219bd0dfc9008230ea80dd67f0",
+    "crates/jobsentinel-application/src/update_preflight/review.rs": "b462ff947fb3a9af8d5705d0ab46f303aca989ab7ecce67892e6fd791c783dbd",
+    "crates/jobsentinel-application/src/update_preflight/tests.rs": "5367bb2d1517d45414f373ef7d22289b15988acaf1534b696bfeecf976dd35c7",
+    "crates/jobsentinel-local-ai/src/model/update_inventory.rs": "e808c6dbed4cbb0c513e4b58e723b86ad4b8a399420ccd4bfcedab66adfbb580",
+    "crates/jobsentinel-storage/src/connection/backups.rs": "495ecb2b08409079a319687c66300cc3af99b227810112c9f1e60a1b6ac0326b",
+    "crates/jobsentinel-storage/src/connection/portable_backup.rs": "e02256a601860f27d13132dd5b33e71355e74dcce6384ebe5066b25a7113a699",
+    "crates/jobsentinel-storage/src/connection/update_backup.rs": "cff6a2c05dcff09bfd18de39cf0b682738f721c3e3eb9a9f2748d97120af35e0",
+    "crates/jobsentinel-storage/src/connection/update_inventory.rs": "2da5bd03c89bf53c34223dc0eec2380d4959d626e402f545a1e3a89ca4cb637c"
   },
   "delivered": [
     "Domain-separated Ed25519 signature binds exact package digest/length, version, edition/platform and component reader ranges.",
@@ -65,7 +65,9 @@
     },
     {
       "command": "npm run harness:check",
-      "exit_status": 0
+      "exit_status": 0,
+      "relevant_result": "Canonical harness/state/architecture and startup budgets passed.",
+      "caveat": "Development evidence only; installed platform qualification remains M11."
     },
     {
       "command": "git diff --check",
@@ -103,13 +105,19 @@
       "exit_status": 0,
       "passed": 22,
       "ignored": 0
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked -p jobsentinel --features embedded-ml --lib local_update",
+      "exit_status": 0,
+      "relevant_result": "7 focused tests passed, including integrated real-crypto/encrypted-SQLite writer drain and snapshot/journal proof.",
+      "caveat": "Positive OS acknowledgement simulated; actual OS rejection fixture exercised. Installed certification remains M11."
     }
   ],
   "review": "Independent adversarial review found incorrect current-reader ceiling; corrected and re-reviewed with no remaining finding in pure slice. Inventory adversarial review corrected transfer-cache classification and accepted known empty scaffolding left by the existing repair owner; unknown paths and partial leaf caches still fail. Follow-up review passed. Reviewed revalidation/scheduler and recovery snapshots independently. Fixed pooled ATTACH cancellation poisoning, writable durability handle, actual receipt/schema comparison, stale migration test and cancellation test lock deadlock.",
   "remaining": [
-    "Reconcile complete M10 development acceptance; add one isolated signed native-coordinator integration journey covering review, quiescence, snapshot and successful acknowledged handoff.",
-    "Close recorded retrospective coverage, model comparison and ambiguous resume-import cancellation cleanup; historical passing labels remain insufficient.",
-    "M11: production signing, installed-platform qualification and release; M12 enhancement trains and M13 closure remain required."
+    "M11: complete outstanding retrospective coverage, representative model comparison/cancellation latency, actual native installed update/rollback and supported-platform qualification.",
+    "M11: production app/Region trust and artifacts, enforced8GiB current journeys, full accepted evaluations, release pipeline and Gate6 before publication.",
+    "M12 accepted enhancement trains and M13 line closure remain required."
   ],
   "baseline_repairs": [
     "Moved Region review to ui and composed military resume review in app to restore feature ownership boundaries.",
@@ -311,5 +319,68 @@
       "Init passed with existing Node26.12.1/npm12.2.1 baseline warnings; repository pins24.18.0/12.0.1."
     ],
     "external_reference": "https://docs.github.com/en/rest/releases/releases#get-the-latest-release"
-  }
+  },
+  "development_acceptance": {
+    "baseline_revision": "46829b07",
+    "platform": "macOS27.2 arm64",
+    "result": "passing development; simulated positive OS acknowledgement, no installed release claim",
+    "source_files_sha256": {
+      "src-tauri/src/ipc/local_update.rs": "22c98b33fcb72e561847653572d2c3eb2a7294da654ca78b950fdfebe9b1fb43",
+      "src-tauri/src/ipc/local_update/coordinator_tests.rs": "9e268287670b8dfdf703b22e914c26196b97904e70ae82dabcb10e17c8daec36",
+      "src-tauri/src/ipc/local_update/installer.rs": "2e2b67a543aa7fc58550cd802d8d16fbfb3d989ae82119ed7f341ff088dafd34",
+      "src-tauri/src/ipc/resume_file_commands.rs": "53a0523b6cfce069a8c334ad03498ff150c1d7dfced7b3a92131183d7c46668f",
+      "crates/jobsentinel-storage/src/connection/test_fixture.rs": "6c9dea8dbb0827fcb3ab7ffe30a68165e06a495b7aaa35e58dfe2a7129f86dd8",
+      "crates/jobsentinel-storage/src/resume/mod.rs": "3227d86aa70889261bac55c4b76cd0e4289a614b577ca8a7cdc290c02dc80895",
+      "crates/jobsentinel-application/src/update_preflight/test_support.rs": "0619d458cbb73ce93017e018280d152aa5e33c5a439e96e8739ba255f9ba4678",
+      "src/features/settings/support/LocalUpdatePanel.tsx": "3b032080e23624de83bc5bcbc83876205fea4695c4b39411b8d4447abc8677e5",
+      "src/features/settings/support/LocalUpdatePanel.test.tsx": "70b19457bc42b0e634e6785a279bf337ef885c08ce1046356e2919f6a1ead9df"
+    },
+    "requirements": {
+      "trusted compatibility binding": "Signed preflight and Rust-owned inventory bind app, edition, platform, data and component facts. Prior15preflight tests and current integrated signed review exercise the same owners.",
+      "refusal before mutation": "Integrated tamper test proves no closure/restart/scheduler stop, no snapshot/journal, readable unchanged data and unchanged sentinel inside actual pack artifact root; publisher/range refusal remains covered by preflight tests. The sentinel is not an installed signed pack.",
+      "recovery rollback repair cleanup": "Prior21update-storage/37portable tests cover durable phases, newer-data refusal, exact target grant, failed/missing/corrupt primary restoration and sidecar preservation. Confirmed model quarantine/removal and separate pack lifecycle cleanup remain offline and explicit.",
+      "reviewed availability and update UX": "Explicit discovery and signed local review show version/device/components/bytes/recovery before confirmation. New cancel-failure regression retains an enabled Cancel installer review retry and never installs.",
+      "offline local continuity": "Unavailable checks leave local work available; altered candidates do not seal storage, close admission permanently or stop scheduler. Post-seal errors require honest restart recovery.",
+      "boundary and integrated proof": "Real test Ed25519 signature, private staging, actual encrypted SQLite held writer, native admission, pool closure, decrypted recovery snapshot and durable journal run through production review_staged/apply_reviewed functions before a held simulated acknowledgement. Actual missing-package OS rejection test remains separate.",
+      "Gate5": "User approval2026-10-28; Essentials remains one upgradable package, optional components and separately reviewed cleanup."
+    },
+    "commands": [
+      {
+        "command": "node scripts/dev/run-cargo.mjs test --locked -p jobsentinel --features embedded-ml --lib local_update",
+        "exit_status": 0,
+        "passed": 7
+      },
+      {
+        "command": "node scripts/dev/run-cargo.mjs test --locked -p jobsentinel --lib resume_file_commands::import_tests",
+        "exit_status": 0,
+        "passed": 2
+      },
+      {
+        "command": "node scripts/dev/run-cargo.mjs clippy --locked -p jobsentinel -p jobsentinel-application -p jobsentinel-storage --lib --features embedded-ml -- -D warnings",
+        "exit_status": 0
+      },
+      {
+        "command": "npm run test:run -- src/features/settings/support/LocalUpdatePanel.test.tsx",
+        "exit_status": 0,
+        "passed": 11
+      },
+      {
+        "command": "npm run typecheck",
+        "exit_status": 0
+      },
+      {
+        "command": "npm run harness:check",
+        "exit_status": 0
+      },
+      {
+        "command": "git diff --check",
+        "exit_status": 0
+      }
+    ],
+    "test_authority": "Create-new-only fixed-key database fixtures and shared synthetic signer are feature-gated test support. Normal/build feature graph excludes test support. No real keychain, production signing identity or installer GUI used. Actual SQL stays in storage.",
+    "import_correction": "Fail-first abandoned-import test released ownership before commit. One blocking worker now retains admission, file copy, parsing and transaction through completion even when requester disappears; a definite failure removes only its unreferenced copy. Unknown storage outcomes preserve the private file and tell the user to refresh.",
+    "review": "Read-only requirement reconciliation covered every M10 row and Gate5UX. Concrete cancellation-copy gap fixed with regression. Source/command inspection confirmed simulated OS boundary is explicit, not installed certification."
+  },
+  "behavior": "Trusted updates fail closed.",
+  "verified_at": "2026-10-28T21:26:06.445712+00:00"
 }

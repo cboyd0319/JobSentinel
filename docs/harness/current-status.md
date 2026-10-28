@@ -8,8 +8,8 @@ Last updated: 2026-10-28
 
 - Planning estimate: **about 50% complete**, with audit and release uncertainty.
 - The master plan accepts 187 idea IDs: 105 for v3.0 and 82 in M12's nine trains.
-  M0–9 historically cover 104 IDs (55.6% of all accepted IDs); that count excludes
-  verification, release and closure effort and does not certify audited behavior.
+  M0–10 record 105 implemented IDs (56.1%); this raw count excludes release and
+  closure effort, and historical labels do not certify audited behavior.
 - Target: all accepted IDs, M10 recovery/update integration, M11 qualification and
   release, M12 enhancement trains, and M13 line closure. The old 10/14 milestone
   percentage weighted unlike milestones equally and overstated overall completion.
@@ -25,14 +25,14 @@ Last updated: 2026-10-28
 
 ## In Progress
 
-- Active feature: `v3-milestone-10-update-rollback-repair`
+- Active feature: `v3-milestone-11-integration-qa-release`
 - Status: `active`
 - Audit findings, corrections and uncovered areas:
   `docs/harness/evidence/v3-retrospective-audit-2026-10-28.json`.
 - Update prerequisites include signed candidate assessment, Rust-owned inventory,
   snapshot revalidation, scheduler drain and verified same-device recovery snapshots.
-- Native admission, signed review, authenticated startup, snapshot restoration and
-  acknowledged installer failure pass focused checks; integrated happy-path proof remains open.
+- M10 development acceptance passed: signed native coordinator proof uses real crypto,
+  encrypted SQLite, writer drain and recovery snapshots; positive OS acknowledgement is simulated.
 - Reviewed fixes cover database/WAL preservation, newer-data refusal, protected form
   input, native file bounds, pack lifecycle, DNS pinning, Settings/support privacy,
   model loading and inference budgets. Focused evidence is linked from the audit.
@@ -41,15 +41,14 @@ Last updated: 2026-10-28
   this is not representative latency or an enforced 8 GiB qualification.
 - Security refresh: affected branch dependencies patched; npm audit reports zero known
   vulnerabilities. Evidence: `docs/harness/evidence/v3-security-refresh-2026-10-28.json`.
-- Next: prove one isolated signed native-coordinator journey, reconcile M10 acceptance,
-  then run M11 qualification; recorded audit coverage and model comparison remain open.
+- Next: close recorded audit/model gaps and qualify current installed artifacts under
+  M11; production trust and positive OS/native release journeys remain unproven.
 
 ## Remaining Qualification
 
 - Model choice is being revalidated; no replacement or threshold change is approved.
-- Cooperative inference cancellation passes focused layer/batch and UI checks;
-  full-model cancellation latency, representative latency and ambiguous resume-import
-  cleanup remain gaps. Explicit retained-cache quarantine and removal pass focused checks.
+- Cooperative cancellation, retained-cache repair/removal and abandoned-import ownership
+  pass focused checks; full-model cancellation latency and representative performance remain gaps.
 - M11 owns production app/Region signing, current enforced 8 GiB/native journeys,
   Windows 11/exact macOS 26/Linux qualification and release proof.
 - Hosted general CI remains absent under `pre-alpha-private-no-ci`.

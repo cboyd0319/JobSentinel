@@ -139,14 +139,32 @@ pub(crate) async fn select_local_update(
     })
     .await
     .map_err(|_| failure())??;
+    review_staged(
+        package,
+        &state,
+        &update,
+        &data_dir,
+        ReleasePublisher::production_trust(),
+    )
+    .await
+    .map(Some)
+}
+
+async fn review_staged(
+    package: StagedPackage,
+    state: &AppState,
+    update: &LocalUpdateState,
+    data_dir: &std::path::Path,
+    publishers: &[ReleasePublisher],
+) -> Result<LocalUpdateReview, String> {
     let bytes = package.bytes()?;
     let review = review_update(
         &package.metadata,
         &package.signature,
         &bytes,
-        ReleasePublisher::production_trust(),
+        publishers,
         &state.database,
-        &data_dir,
+        data_dir,
     )
     .await
     .map_err(|_| failure())?;
@@ -186,7 +204,7 @@ pub(crate) async fn select_local_update(
         package,
         review,
     });
-    Ok(Some(response))
+    Ok(response)
 }
 
 #[tauri::command]
@@ -212,6 +230,29 @@ pub(crate) async fn apply_local_update(
     state: State<'_, AppState>,
     update: State<'_, LocalUpdateState>,
     admission: State<'_, Arc<OperationAdmission>>,
+) -> Result<LocalUpdateResult, String> {
+    let result = apply_reviewed(
+        review_id,
+        &state,
+        &update,
+        &admission,
+        &crate::desktop::get_data_dir(),
+        ReleasePublisher::production_trust(),
+        |path| open::that(path),
+    )
+    .await?;
+    app.exit(0);
+    Ok(result)
+}
+
+async fn apply_reviewed(
+    review_id: String,
+    state: &AppState,
+    update: &LocalUpdateState,
+    admission: &Arc<OperationAdmission>,
+    data_dir: &std::path::Path,
+    publishers: &[ReleasePublisher],
+    launch: impl FnOnce(&std::path::Path) -> std::io::Result<()> + Send + 'static,
 ) -> Result<LocalUpdateResult, String> {
     let operation = update
         .operation
@@ -249,9 +290,9 @@ pub(crate) async fn apply_local_update(
             &pending.package.metadata,
             &pending.package.signature,
             &bytes,
-            ReleasePublisher::production_trust(),
+            publishers,
             &state.database,
-            &crate::desktop::get_data_dir(),
+            data_dir,
         )
         .await
         .map_err(|_| failure())?;
@@ -291,7 +332,7 @@ pub(crate) async fn apply_local_update(
             .map_err(|_| {
                 "Update recovery preparation failed. Restart JobSentinel before continuing."
             })?;
-        installer::open_package(pending.package, operation).await?;
+        installer::open_package(pending.package, operation, launch).await?;
         Ok::<(), String>(())
     }
     .await;
@@ -299,7 +340,6 @@ pub(crate) async fn apply_local_update(
         admission.reopen();
     }
     preparation?;
-    app.exit(0);
     Ok(LocalUpdateResult {
         outcome: "installer_opened",
         restart_required: true,
@@ -336,3 +376,6 @@ mod tests {
         assert!(admission.closed());
     }
 }
+
+#[cfg(test)]
+mod coordinator_tests;

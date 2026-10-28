@@ -5,14 +5,14 @@
     {
       "id": "harness-standard-contract", "priority": 1, "area": "repository harness", "title": "Standard repository harness",
       "behavior": "A fresh session can initialize the repository, see one current objective, select the next task, route its diff, and verify completion without contradictory owners.",
-      "user_visible_behavior": "Repository work preserves JobSentinel behavior while becoming resumable and verifiable across supported platforms.",
+      "user_visible_behavior": "Contributors can resume and verify work across supported platforms.",
       "status": "passing", "verification": ["npm run harness:check", "npm run lint:file-size", "npm run test:scripts", "npm run test:smoke", "npm run verify:full"],
       "evidence": ["docs/harness/evidence/harness-standard-contract-2026-07-14.json", "docs/harness/evidence/harness-standard-contract-2026-07-14.md"]
     },
     {
       "id": "harness-canonical-remediation", "priority": 2, "area": "repository harness", "title": "Canonical harness remediation",
       "behavior": "The repository harness conforms to the installed harness-engineering package except for the exact user-authorized pre-alpha-private-no-ci requirement exception.",
-      "user_visible_behavior": "Repository work is resumable, growth-ready, and locally verifiable while hosted CI remains explicitly absent during private pre-alpha development.",
+      "user_visible_behavior": "Local verification remains explicit while hosted CI is deferred.",
       "status": "passing",
       "verification": ["npm run harness:check", "npm run test:scripts", "npm run verify:full"],
       "evidence": ["docs/harness/evidence/harness-canonical-remediation-completion-2026-07-16.json",
@@ -24,7 +24,7 @@
       "area": "repository architecture",
       "title": "Full repository ownership refactor",
       "behavior": "The Rust, Tauri, frontend, test, script, workflow, packaging, and documentation trees match the locked ownership blueprint without obsolete compatibility layers.",
-      "user_visible_behavior": "JobSentinel retains its privacy, security, accessibility, and platform behavior while internal ownership becomes explicit.",
+      "user_visible_behavior": "Privacy, accessibility and desktop behavior survive the ownership refactor.",
       "status": "passing",
       "verification": ["npm run verify:full", "npm run test:e2e:all", "node scripts/dev/run-cargo.mjs test --workspace --all-features"],
       "evidence": ["docs/harness/evidence/full-repository-refactor-final-audit-2026-07-16.json"]
@@ -35,7 +35,7 @@
       "area": "Rust workspace maintainability",
       "title": "Crate DRY remediation",
       "behavior": "Every confirmed actionable duplication and DRY violation under crates has one canonical owner, obsolete copies are removed, and maintained production and test sensors prevent recurrence.",
-      "user_visible_behavior": "JobSentinel preserves its behavior while shared policies, normalization, storage, sources, and document handling remain consistent across the Rust workspace.",
+      "user_visible_behavior": "Storage, sources, notifications and document behavior remain consistent.",
       "status": "passing",
       "verification": ["npm run verify:full", "cargo test --workspace --all-features", "npm run lint:dup -- --list"],
       "evidence": [
@@ -50,7 +50,7 @@
       "area": "frontend and desktop adapter maintainability",
       "title": "Frontend DRY remediation",
       "behavior": "Every confirmed actionable duplication under src and src-tauri/src has one canonical owner, obsolete copies are removed, and the maintained frontend production ratchet prevents recurrence.",
-      "user_visible_behavior": "JobSentinel preserves its interface and desktop behavior while shared resume, score, dashboard, market, feedback, error, and command-adapter behavior stays consistent.",
+      "user_visible_behavior": "Resume, score, dashboard, feedback and command behavior stay consistent.",
       "status": "passing", "verification": ["npm run verify:full", "npm run test:run", "npm run lint:dup -- --list"],
       "evidence": ["docs/harness/evidence/frontend-dry-completion-2026-07-17.json"]
     },
@@ -60,7 +60,7 @@
       "area": "repository maintainability",
       "title": "Repository residual cleanup",
       "behavior": "Frontend tests, scripts, plans, harness documents, generated artifacts, dependencies, and policy projections have one current owner with obsolete or duplicate material removed.",
-      "user_visible_behavior": "JobSentinel preserves product behavior while the repository becomes smaller, easier to navigate, and harder to regress.",
+      "user_visible_behavior": "Repository behavior is preserved with obsolete material removed.",
       "status": "passing", "verification": ["npm run verify:full", "npm run lint:dup -- --list", "npm run test:scripts", "npm run harness:check"],
       "evidence": ["docs/harness/evidence/repository-residual-cleanup-2026-07-17.json"]
     },
@@ -70,7 +70,7 @@
       "area": "repository assurance",
       "title": "Repository post-cleanup adversarial review",
       "behavior": "Maintained source, tests, scripts, manifests, and documentation are independently reviewed for missed correctness, ownership, dependency, duplication, and maintainability work before another major feature begins.",
-      "user_visible_behavior": "JobSentinel starts its next feature stream from a verified repository baseline with known maintenance risks made explicit.",
+      "user_visible_behavior": "The next feature starts with explicit known maintenance risks.",
       "status": "passing", "verification": ["./init.sh", "npm run harness:check", "npm run lint:architecture", "npm run lint:dup -- --list", "npm run lint:file-size", "npm run lint",
         "npm run typecheck", "npm run test:scripts", "cargo fmt --all -- --check", "cargo clippy --workspace -- -D warnings", "git diff --check"],
       "evidence": ["docs/harness/evidence/repository-post-cleanup-review-2026-07-17.json", "docs/harness/evidence/repository-post-cleanup-review-2026-07-17.md"]
@@ -78,31 +78,31 @@
     {
       "id": "repository-post-cleanup-corrections", "priority": 8, "area": "repository correctness and integrity", "title": "Repository post-cleanup corrections",
       "behavior": "Confirmed database, notification, documentation, manifest, mock-graph, dead-API, and review-sensor findings are corrected without reopening a broad cleanup stream.",
-      "user_visible_behavior": "Saved alert choices and local data protections behave as described before new major feature work begins.",
+      "user_visible_behavior": "Local data protections and saved notifications match their documented behavior.",
       "status": "passing", "verification": ["npm run verify:full", "npm run lint:bloat", "npm run lint:docs", "npm run lint:deps", "npm run lint:file-size", "git diff --check"],
       "evidence": ["docs/harness/evidence/repository-post-cleanup-corrections-2026-07-17.json"]
     },
     {
       "id": "v2.9.5-release-closure", "priority": 10, "area": "release correctness", "title": "Close the v2.9.5 source candidate",
       "behavior": "The reproducible database failure, saved-alert notification orchestration, dependency drift, and stale release records are corrected before the source candidate is called complete.",
-      "user_visible_behavior": "JobSentinel preserves local data integrity and sends eligible saved alerts while the release candidate accurately describes and verifies what it ships.",
+      "user_visible_behavior": "Local data and saved alerts match the verified release candidate.",
       "status": "passing",
       "verification": ["npm run verify:full", "npm run test:e2e:all:budget", "node scripts/dev/run-cargo.mjs test --workspace --all-features", "npm run release:check-deps", "npm run release:readiness -- --version 2.9.5"],
       "evidence": ["docs/harness/evidence/v2.9.5-release-closure-2026-07-17.json"]
     }, {
       "id": "v2.9.5-gui-qa-corrections", "priority": 11, "area": "release GUI correctness", "title": "Correct v2.9.5 GUI QA regressions",
       "behavior": "Release-blocking regressions in resume validation, narrow salary filters, first-run dark contrast, support-report testing, and desktop close-to-tray behavior are corrected and regression-protected.",
-      "user_visible_behavior": "Fresh resume, dashboard, first-run, support, and tray workflows behave correctly at release boundaries.", "status": "passing",
+      "user_visible_behavior": "Resume, dashboard, setup, support and tray workflows pass GUI QA.", "status": "passing",
       "verification": ["npm run verify:full", "npm run test:e2e:all:budget", "node scripts/dev/run-cargo.mjs test --workspace --all-features", "npm run release:readiness -- --version 2.9.5"],
       "evidence": ["docs/harness/evidence/v2.9.5-gui-qa-corrections-2026-07-17.json"]
     }, { "id": "v2.9.5-release-cut", "priority": 12, "area": "release publication", "title": "Cut the v2.9.5 release",
       "behavior": "The verified v2.9.5 source candidate is published through the authorized release workflow, and its public artifacts, metadata, and immutable references are validated before v3 work begins.",
-      "user_visible_behavior": "Users can obtain a verified v2.9.5 release whose public artifacts match the tested source candidate.", "status": "passing",
+      "user_visible_behavior": "Users can download verified v2.9.5 artifacts.", "status": "passing",
       "verification": ["npm run release:readiness -- --version 2.9.5", "npm run release:verify:public -- --tag v2.9.5 --expected-version 2.9.5 --require-windows-unsigned-label"],
       "evidence": ["docs/harness/evidence/v2.9.5-release-cut-2026-07-18.json"]
     }, { "id": "v3-workstream-selection", "priority": 13, "area": "product planning", "title": "Approve the comprehensive v3 execution plan",
       "behavior": "The v3 strategy package and every unfinished maintained-doc commitment are dispositioned in one ordered, user-approved master plan before implementation begins.",
-      "user_visible_behavior": "The next major investment has explicit privacy, usability, and verification boundaries.", "status": "passing", "verification": ["npm run harness:check", "npm run lint:docs"],
+      "user_visible_behavior": "V3 has approved product and verification boundaries.", "status": "passing", "verification": ["npm run harness:check", "npm run lint:docs"],
       "evidence": ["docs/harness/evidence/v3-gate-0-approval-2026-07-18.json"]
     }, { "id": "v3-milestone-0-repository-truth", "priority": 14, "area": "product planning", "title": "Reconcile v3 planning truth",
       "behavior": "Gate 0 records and deterministic plan checks keep release, debt, test, and pipeline claims accurate.", "user_visible_behavior": "V3 starts from one approved plan.", "status": "passing",
@@ -142,10 +142,16 @@
         "docs/harness/evidence/v3-milestone-9-focused-acceptance-2026-10-28.json",
         "docs/harness/evidence/v3-milestone-9-regional-qwen-matching-2026-09-11.json",
         "docs/harness/evidence/v3-milestone-9-current-macos-package-2026-09-11.json"
-      ] }, {"id":"v3-milestone-10-update-rollback-repair","priority":24,"area":"v3 recovery","title":"Update, rollback, repair, and distribution","status":"active",
+      ] }, {"id":"v3-milestone-10-update-rollback-repair","priority":24,"area":"v3 recovery","title":"Update, rollback, repair, and distribution","status":"passing",
       "behavior":"Trusted updates fail closed.",
-      "notes":"Native integration acceptance and recorded audit gaps remain.",
+      "notes":"Development acceptance only; installed qualification remains M11.",
       "user_visible_behavior":"Users review updates and recover offline.",
-      "verification":["npm run harness:check"],
+      "verification":["npm run harness:check","node scripts/dev/run-cargo.mjs test --locked -p jobsentinel --features embedded-ml --lib local_update"],
       "evidence":["docs/harness/evidence/v3-milestone-10-preflight-2026-10-28.json"]
+    }, {"id":"v3-milestone-11-integration-qa-release","priority":25,"area":"v3 release","title":"Qualify and release v3.0","status":"active",
+      "behavior":"Current artifacts meet frozen quality, recovery, accessibility and supply-chain gates.",
+      "user_visible_behavior":"Users can install and recover a qualified v3.0 release.",
+      "notes":"Close audit/model gaps, qualify supported platforms, then prepare release proof.",
+      "verification":["npm run verify:full","npm run test:e2e:all:budget","node scripts/dev/run-cargo.mjs test --workspace --all-features"],
+      "evidence":[]
     } ] }

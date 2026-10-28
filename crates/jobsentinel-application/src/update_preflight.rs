@@ -12,6 +12,8 @@ mod availability;
 mod inventory;
 mod review;
 mod startup;
+#[cfg(any(test, feature = "test-support"))]
+pub mod test_support;
 pub use availability::{check_update_availability, UpdateAvailability};
 pub use inventory::collect_installed_update_state;
 pub use review::{revalidate_update, review_update, ReviewedUpdate};

@@ -74,7 +74,7 @@ export function LocalUpdatePanel() {
     if (!review) return;
     await invoke("cancel_local_update", { reviewId: review.reviewId });
     if (mounted.current) { setReview(null); setMessage("Installer review cancelled. Nothing was installed."); }
-  }, "The review could not be cancelled. Check update options again before installing.");
+  }, 'The review could not be cancelled. Retry "Cancel installer review" before installing.');
   const apply = () => run(async () => {
     if (!review) return;
     try {

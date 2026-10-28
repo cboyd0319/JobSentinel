@@ -81,6 +81,24 @@ describe("LocalUpdatePanel", () => {
     expect(await screen.findByText(/Installer review cancelled/)).toBeInTheDocument();
     expect(invoke).not.toHaveBeenCalledWith("apply_local_update", expect.anything());
   });
+  it("retains a failed cancellation review and lets the user retry without installing", async () => {
+    render(<LocalUpdatePanel />);
+    await choose();
+    invoke.mockRejectedValueOnce(new Error("private cancellation detail"));
+    await userEvent.click(screen.getByRole("button", { name: "Cancel installer review" }));
+    expect(await screen.findByRole("alert")).toHaveTextContent('Retry "Cancel installer review"');
+    expect(screen.getByRole("heading", { name: "Review app update" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Cancel installer review" })).toBeEnabled();
+    expect(screen.queryByText(/private cancellation detail/)).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: "Cancel installer review" }));
+    expect(await screen.findByText(/Installer review cancelled/)).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Review app update" })).not.toBeInTheDocument();
+    expect(invoke.mock.calls.filter(([command]) => command === "cancel_local_update")).toEqual([
+      ["cancel_local_update", { reviewId: review.reviewId }],
+      ["cancel_local_update", { reviewId: review.reviewId }],
+    ]);
+    expect(invoke).not.toHaveBeenCalledWith("apply_local_update", expect.anything());
+  });
   it("fails closed without publisher trust while preserving recovery actions", async () => {
     invoke.mockResolvedValue({ ...status, trustedPublisherConfigured: false });
     render(<LocalUpdatePanel />);

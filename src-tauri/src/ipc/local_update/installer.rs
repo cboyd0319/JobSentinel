@@ -6,12 +6,13 @@ use tokio::sync::OwnedMutexGuard;
 pub(super) async fn open_package(
     mut package: StagedPackage,
     operation: OwnedMutexGuard<()>,
+    launch: impl FnOnce(&std::path::Path) -> std::io::Result<()> + Send + 'static,
 ) -> Result<(), String> {
     tokio::task::spawn_blocking(move || {
         let _operation = operation;
         // The launcher may still need its input after acknowledgement, including ambiguous failures.
         package.retain_for_installer();
-        open::that(&package.package.path)
+        launch(&package.package.path)
             .map_err(|_| "The installer launcher did not acknowledge opening the package. Restart JobSentinel; current data and the recovery snapshot were preserved.".to_string())
     }).await.map_err(|_| "Installer handoff was interrupted. Restart JobSentinel before continuing.".to_string())?
 }
@@ -44,7 +45,10 @@ mod tests {
         let package = super::super::staging::stage(&source, root.path()).unwrap();
         std::fs::remove_file(&package.package.path).unwrap();
         let lock = std::sync::Arc::new(tokio::sync::Mutex::new(()));
-        let result = open_package(package, lock.clone().lock_owned().await).await;
+        let result = open_package(package, lock.clone().lock_owned().await, |path| {
+            open::that(path)
+        })
+        .await;
         assert!(result.unwrap_err().contains("did not acknowledge"));
         assert!(
             lock.try_lock().is_ok(),

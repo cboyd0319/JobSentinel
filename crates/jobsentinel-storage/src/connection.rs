@@ -10,6 +10,8 @@ mod reviewed_export;
 mod reviewed_export_inspect;
 mod reviewed_export_sanitize;
 mod reviewed_export_schema;
+#[cfg(feature = "test-support")]
+mod test_fixture;
 mod update_backup;
 mod update_inventory;
 mod update_journal;
@@ -154,7 +156,6 @@ impl Database {
             .await?;
         tracing::debug!("Application ID set (JSDB)");
 
-        // Helps SQLite choose better query plans
         sqlx::query("PRAGMA optimize").execute(pool).await?;
         tracing::debug!("Query optimizer statistics updated");
 
@@ -427,7 +428,6 @@ impl Database {
             .execute(pool)
             .await?;
 
-        // PERFORMANCE: Synchronous = NORMAL (balanced; no fsync cost for in-memory anyway).
         sqlx::query("PRAGMA synchronous = NORMAL")
             .execute(pool)
             .await?;
