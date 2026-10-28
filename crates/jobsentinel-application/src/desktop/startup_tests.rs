@@ -68,6 +68,11 @@ async fn pack_artifact_root_failure_prevents_service_construction() {
     let temp_dir = tempfile::tempdir_in(std::env::current_dir().unwrap()).unwrap();
     let database = Database::connect_memory().await.unwrap();
     database.migrate().await.unwrap();
+    let storage_probe = database.credentials();
+    assert!(storage_probe
+        .secret_exists("synthetic-shutdown-probe")
+        .await
+        .is_ok());
     let pack_runtime = PackRuntimeEnvironment::for_data_dir(temp_dir.path());
     std::fs::write(pack_runtime.artifact_root(), b"not a directory").unwrap();
 
@@ -83,6 +88,10 @@ async fn pack_artifact_root_failure_prevents_service_construction() {
     .await;
 
     assert!(matches!(result, Err(DesktopStartupError::Database(_))));
+    assert!(storage_probe
+        .secret_exists("synthetic-shutdown-probe")
+        .await
+        .is_err());
 }
 
 #[tokio::test]

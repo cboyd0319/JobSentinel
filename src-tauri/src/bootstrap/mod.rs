@@ -1,5 +1,6 @@
 //! Boots the Tauri shell, managed application state, recovery mode, and scheduler.
 
+mod shutdown;
 mod state;
 
 use crate::desktop;
@@ -80,7 +81,12 @@ pub(crate) fn run() {
     configure_package_smoke_windows(&mut context.config_mut().app.windows, package_smoke);
 
     desktop::preserve_main_window_on_close(policy::builder())
+        .manage(shutdown::ShutdownState::default())
         .invoke_handler(move |invoke: tauri::ipc::Invoke<tauri::Wry>| {
+            if invoke.message.state_ref().get::<shutdown::ShutdownState>().started() {
+                invoke.resolver.reject("The application is shutting down.");
+                return true;
+            }
             let recovery_active = invoke
                 .message
                 .state_ref()
@@ -158,7 +164,7 @@ pub(crate) fn run() {
                 // Subscribe to shutdown signal before spawning task
                 let mut shutdown_rx = scheduler_arc.subscribe_shutdown();
 
-                tauri::async_runtime::spawn(async move {
+                let task = tauri::async_runtime::spawn(async move {
                     tracing::info!("Background scheduler task started");
 
                     if scheduler_clone.recover_interrupted_runs().await.is_err() {
@@ -272,6 +278,7 @@ pub(crate) fn run() {
 
                     tracing::info!("Background scheduler stopped");
                 });
+                app.state::<shutdown::ShutdownState>().set_scheduler_task(task);
 
                 tracing::info!("Background scheduler started successfully");
             } else if is_first_run {
@@ -280,14 +287,20 @@ pub(crate) fn run() {
                 tracing::info!("Local recovery mode active; background scheduler will not start");
             }
 
-            desktop::initialize_tray(app)?;
+            if let Err(error) = desktop::initialize_tray(app) {
+                tauri::async_runtime::block_on(
+                    app.state::<shutdown::ShutdownState>().drain(&app.state::<AppState>()),
+                );
+                return Err(error.into());
+            }
             desktop::show_main_window(app.handle());
 
             tracing::info!("JobSentinel initialized successfully");
 
             Ok(())
         })
-        .run(context)
+        .build(context)
+        .map(|app| app.run(shutdown::handle_event))
         .map_err(|e| {
             eprintln!("Fatal error running Tauri application: {}", e);
             std::process::exit(1);

@@ -9,6 +9,39 @@ use rustix::fs::{
 use std::io::{self, Write};
 use std::path::{Component, Path};
 
+/// Open an existing regular, single-link private file without following links or blocking on FIFOs.
+#[cfg(unix)]
+pub fn open_private_file(path: &Path) -> io::Result<Option<std::fs::File>> {
+    let parent = path
+        .parent()
+        .ok_or_else(|| io::Error::other("Missing file parent"))?;
+    let name = path
+        .file_name()
+        .ok_or_else(|| io::Error::other("Missing filename"))?;
+    let directory = open_private_root(&parent.canonicalize()?)?;
+    let descriptor = match openat(
+        directory.as_fd(),
+        name,
+        OFlags::RDONLY | OFlags::NONBLOCK | OFlags::NOFOLLOW | OFlags::CLOEXEC,
+        Mode::empty(),
+    ) {
+        Ok(file) => file,
+        Err(error) if error == rustix::io::Errno::NOENT => return Ok(None),
+        Err(error) => return Err(error.into()),
+    };
+    let metadata = fstat(&descriptor).map_err(io::Error::from)?;
+    if !FileType::from_raw_mode(metadata.st_mode).is_file() || metadata.st_nlink != 1 {
+        return Err(io::Error::other(
+            "Private file must be a regular single-link file",
+        ));
+    }
+    let file = std::fs::File::from(descriptor);
+    if !super::opened_file_matches_path(&file, path) {
+        return Err(io::Error::other("Private file changed while opening"));
+    }
+    Ok(Some(file))
+}
+
 /// Atomically replace a local file and apply owner-only permissions where supported.
 pub fn write_file_atomic_private(path: &Path, content: &str) -> io::Result<()> {
     let parent = path
@@ -409,5 +442,25 @@ mod tests {
         assert!(
             validate_opened_entry(candidate.as_fd(), &fstat(&candidate).unwrap(), false).is_ok()
         );
+    }
+    #[cfg(unix)]
+    #[test]
+    fn private_read_rejects_links_and_detects_replacement_without_chmod() {
+        use std::os::unix::fs::PermissionsExt;
+        let root = tempfile::tempdir().unwrap();
+        let path = root.path().join("record");
+        std::fs::write(&path, b"original").unwrap();
+        std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o640)).unwrap();
+        let file = open_private_file(&path).unwrap().unwrap();
+        assert_eq!(file.metadata().unwrap().permissions().mode() & 0o777, 0o640);
+        let alias = root.path().join("alias");
+        std::os::unix::fs::symlink(&path, &alias).unwrap();
+        assert!(open_private_file(&alias).is_err());
+        std::fs::remove_file(alias).unwrap();
+        std::fs::hard_link(&path, root.path().join("hard-link")).unwrap();
+        assert!(open_private_file(&path).is_err());
+        std::fs::remove_file(&path).unwrap();
+        std::fs::write(&path, b"replacement").unwrap();
+        assert!(!super::super::opened_file_matches_path(&file, &path));
     }
 }

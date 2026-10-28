@@ -1,5 +1,8 @@
 //! Stages and cancels verified portable database restoration.
-use super::{portable_backup::export_encrypted_to_encrypted, Database, PortableBackupInfo};
+use super::{
+    portable_backup::export_encrypted_to_encrypted, portable_restore_bundle::sync_parent, Database,
+    PortableBackupInfo,
+};
 use crate::encryption::{connect_encrypted_pool, load_or_create_database_key, sqlite_sidecar_path};
 use serde::{Deserialize, Serialize};
 use sqlx::SqlitePool;
@@ -97,23 +100,23 @@ impl Database {
         let stage_file = OwnedDatabaseFile::create(stage.clone())?;
         export_encrypted_to_encrypted(backup, passphrase, &stage, &key).await?;
         let pool = connect_encrypted_pool(&stage, &key, false).await?;
-        insert_restore_operation(
+        let recorded = insert_restore_operation(
             &pool,
             &request.restore_id,
             info.migration_sequence,
             info.migration_sequence,
         )
-        .await?;
+        .await;
+        if let Err(error) = recorded {
+            pool.close().await;
+            return Err(error);
+        }
         checkpoint_and_close(pool, &stage).await?;
         let staged = Self::inspect_portable_backup(&stage, &key).await?;
         if staged != *info {
             return Err(restore_error("Staged portable restore verification failed"));
         }
-        std::fs::OpenOptions::new()
-            .write(true)
-            .open(&stage)
-            .and_then(|file| file.sync_all())
-            .map_err(sqlx::Error::Io)?;
+        OpenOptions::new().write(true).open(&stage)?.sync_all()?;
         publish_restore_request(&marker, request)?;
         stage_file.keep();
         Ok(())
@@ -351,10 +354,11 @@ async fn insert_restore_operation(
 }
 
 async fn checkpoint_and_close(pool: SqlitePool, path: &Path) -> Result<(), sqlx::Error> {
-    sqlx::query("PRAGMA wal_checkpoint(TRUNCATE)")
+    let checkpointed = sqlx::query("PRAGMA wal_checkpoint(TRUNCATE)")
         .execute(&pool)
-        .await?;
+        .await;
     pool.close().await;
+    checkpointed?;
     remove_sqlite_sidecars_checked(path).map_err(sqlx::Error::Io)
 }
 
@@ -490,11 +494,4 @@ impl Drop for OwnedDatabaseFile {
 
 pub(super) fn restore_error(message: &'static str) -> sqlx::Error {
     sqlx::Error::Protocol(message.into())
-}
-
-fn sync_parent(path: &Path) {
-    #[cfg(unix)]
-    if let Some(parent) = path.parent() {
-        let _ = std::fs::File::open(parent).and_then(|directory| directory.sync_all());
-    }
 }

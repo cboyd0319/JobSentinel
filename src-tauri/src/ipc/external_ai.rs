@@ -41,6 +41,7 @@ pub(crate) async fn send_external_ai_request(
 ) -> Result<ExternalAiCommandResponse, String> {
     tracing::info!("Command: send_external_ai_request");
     validate_approval_id(&approval_id)?;
+    let _work = state.begin_storage_work().await?;
 
     let config = {
         let config = state.config.read().await;

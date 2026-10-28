@@ -13,7 +13,9 @@ use uuid::Uuid;
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct UpdateSnapshot {
+    pub schema: String,
     pub operation_id: String,
+    pub database_identity: String,
     pub database_schema: u64,
     pub migration_sequence: u64,
     pub sha256: String,
@@ -24,6 +26,12 @@ fn failure() -> sqlx::Error {
 }
 
 impl Database {
+    pub(super) fn update_database_identity(path: &std::path::Path) -> Result<String, sqlx::Error> {
+        Ok(hex::encode(Sha256::digest(
+            path.canonicalize()?.as_os_str().as_encoded_bytes(),
+        )))
+    }
+
     fn update_snapshot_directory(&self, id: Uuid) -> Result<PathBuf, sqlx::Error> {
         let parent = self
             .db_path
@@ -63,7 +71,11 @@ impl Database {
         snapshot_file.sync_all()?;
         drop(snapshot_file);
         let snapshot = UpdateSnapshot {
+            schema: "jobsentinel.update-snapshot.v1".into(),
             operation_id: operation_id.to_string(),
+            database_identity: Self::update_database_identity(
+                self.db_path.as_deref().ok_or_else(failure)?,
+            )?,
             database_schema,
             migration_sequence,
             sha256: digest(&snapshot_path)?,
@@ -106,7 +118,10 @@ impl Database {
         }
         let receipt: UpdateSnapshot = serde_json::from_slice(&bytes).map_err(|_| failure())?;
         let snapshot = directory.join("snapshot.db");
-        if receipt.operation_id != id.to_string()
+        if receipt.schema != "jobsentinel.update-snapshot.v1"
+            || receipt.database_identity
+                != Self::update_database_identity(self.db_path.as_deref().ok_or_else(failure)?)?
+            || receipt.operation_id != id.to_string()
             || receipt.database_schema == 0
             || receipt.migration_sequence == 0
             || receipt.sha256 != digest(&snapshot)?
@@ -182,15 +197,7 @@ impl Drop for PendingSnapshot {
 mod tests;
 
 fn open_snapshot_file(path: &std::path::Path) -> Result<File, sqlx::Error> {
-    #[cfg(windows)]
     let file = jobsentinel_platform::open_private_file(path)?.ok_or_else(failure)?;
-    #[cfg(not(windows))]
-    let file = {
-        if !std::fs::symlink_metadata(path)?.is_file() {
-            return Err(failure());
-        }
-        File::open(path)?
-    };
     if !jobsentinel_platform::opened_file_matches_path(&file, path) {
         return Err(failure());
     }

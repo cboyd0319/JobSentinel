@@ -127,7 +127,7 @@
       "severity": "high",
       "owner": "M5 model lifecycle",
       "finding": "Legacy inference rank mismatch, approximate BERT architecture, checksum/open race and interrupted metadata repair gaps.",
-      "status": "correction in progress; review assumption candle-transformers already installed was false, dependency fit under inspection"
+      "status": "corrected in 426de888/873133ba; canonical Candle BERT and verified artifact loading, bounded inference, metadata recovery and artifact reuse; focused real-model and tokenizer checks passed"
     }
   ],
   "coverage": {
@@ -142,9 +142,7 @@
       "M0-M4 policy/privacy/export/restore source and evidence review",
       "M5-M9 selected matching, military, pack, employer, region and pay owners"
     ],
-    "running": [
-      "M5 model lifecycle corrections"
-    ],
+    "running": [],
     "remaining": [
       "M7 execution/evaluation/task storage and native Windows file owner",
       "M0-M1 harness/contract/evaluation and release-evidence reconciliation",
@@ -187,7 +185,9 @@
     "settings": "62548f84: endpoint/approval scrubbing, atomic record restore, migration31 template categories;2storage/19frontend tests and SQLx metadata passed.",
     "support": "d88844fe: sanitizer/clipboard failure cannot enter success; backup errors no longer claim no file exists;33affected UI tests passed.",
     "models": "426de888/873133ba: canonical MiniLM, verified consumed bytes, metadata repair, inference bounds, calibrated prompt owner and verified artifact reuse. Real MiniLM and tokenizer/batch tests passed.",
-    "matching": "c3882eb3: maintained resume review and saved-match workflows now invoke cited local matching; shared captured context and validated draft identity/revision prevent stale evidence. Focused default/embedded Rust, frontend, clippy and independent review passed."
+    "matching": "c3882eb3: maintained resume review and saved-match workflows now invoke cited local matching; shared captured context and validated draft identity/revision prevent stale evidence. Focused default/embedded Rust, frontend, clippy and independent review passed.",
+    "shutdown": "Durable source-version update journal and normal quit drain verified by 12 update-storage,37 portable,2 native shutdown,1 startup failure and1 private-file tests plus production clippy; M10 evidence owns exact commands/limits.",
+    "dependency_security": "000f1494 patches affected runtime/development dependencies; fresh npm audit reports zero known vulnerabilities; v3-security-refresh-2026-10-28.json owns versions and checks."
   },
   "current_open_gaps": [
     "Retrospective audit is incomplete: remaining coverage inventory below remains required.",
@@ -195,7 +195,7 @@
     "Inference cancellation and representative native latency remain unqualified.",
     "Malformed prior-lock model metadata can still block update inventory; explicit repair path required.",
     "Ambiguous resume-import cancellation can retain an unreferenced complete private copy.",
-    "M10 update journal, writer exclusion, installer/rollback execution and UX remain unfinished.",
+    "M10 native writer exclusion, authenticated target startup, installer/rollback execution and UX remain unfinished; source-version journal and shutdown prerequisites pass focused checks.",
     "M11 platform/release proof and M12\u201313 remain unfinished."
   ],
   "decisions": {

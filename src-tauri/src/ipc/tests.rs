@@ -89,6 +89,7 @@ mod tests {
             pending_url_imports: Default::default(),
             pack_runtime: PackRuntimeEnvironment::for_data_dir(pack_runtime_data_dir.path()),
             pending_military_transition_reviews: Default::default(),
+            storage_stopping: Default::default(),
             outside_ai_cancellations: Default::default(),
         }
     }

@@ -39,10 +39,14 @@ pub use platform_health::{
     PlatformPermissionRepairOutcome, PlatformPermissionState, PlatformStorageArea,
     PLATFORM_HEALTH_SCHEMA_VERSION,
 };
+#[cfg(unix)]
+pub use private_files::open_private_file;
 pub use private_files::write_file_atomic_private;
 pub use secure_storage::{
     delete_device_secret, retrieve_device_secret, store_device_secret, SecureStorageError,
 };
+#[cfg(windows)]
+pub use windows_private_directory::persist_file_write_through;
 #[cfg(windows)]
 pub use windows_private_directory::{
     open_or_create_private_dir, open_private_dir, PrivateDirectory,

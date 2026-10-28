@@ -12,11 +12,13 @@ mod reviewed_export_sanitize;
 mod reviewed_export_schema;
 mod update_backup;
 mod update_inventory;
+mod update_journal;
 pub use maintenance::{PortableBackupHistory, StorageHealth, StorageMaintenanceReport};
 pub use portable_backup::PortableBackupInfo;
 pub use portable_restore::PortableRestoreStatus;
 pub use reviewed_export::{ReviewedExportInfo, ReviewedExportPlan, ReviewedExportSelection};
 pub use update_backup::UpdateSnapshot;
+pub use update_journal::PreparedUpdate;
 
 use sqlx::{
     sqlite::{SqlitePool, SqlitePoolOptions},
@@ -54,7 +56,12 @@ impl Database {
 
     /// Connect to SQLite database with optimized settings
     pub async fn connect(path: &Path) -> Result<Self, sqlx::Error> {
-        // Ensure parent directory exists
+        Self::ensure_database_parent(path)?;
+        let owner_lock = Self::acquire_owner_lock(path)?;
+        Self::connect_owned(path, &owner_lock).await
+    }
+
+    pub(super) fn ensure_database_parent(path: &Path) -> Result<(), sqlx::Error> {
         if let Some(parent) = path
             .parent()
             .filter(|parent| !parent.as_os_str().is_empty())
@@ -74,7 +81,11 @@ impl Database {
                 sqlx::Error::Io(e)
             })?;
         }
-        let owner_lock = Self::acquire_owner_lock(path)?;
+        Ok(())
+    }
+
+    pub(super) async fn connect_owned(path: &Path, owner: &File) -> Result<Self, sqlx::Error> {
+        let owner_lock = owner.try_clone()?;
         if !path.exists() && path.with_extension("db.sqlcipher-new").try_exists()? {
             return Err(sqlx::Error::Protocol("Incomplete database encryption requires recovery; refusing to create an empty database".into()));
         }
@@ -130,29 +141,21 @@ impl Database {
             .await?;
         Self::refuse_unsupported_database(stored_version)?;
 
-        // Set page size to 4096 bytes (optimal for most systems)
-        // MUST be set before any tables are created (only affects new databases)
-        // Common page sizes: 1024, 2048, 4096, 8192, 16384, 32768
         sqlx::query("PRAGMA page_size = 4096")
             .execute(pool)
             .await
             .ok(); // Ignore errors (can't change after DB created)
         tracing::debug!("Page size = 4096 bytes (if new DB)");
 
-        // Set application ID (unique identifier for JobSentinel)
-        // Helps identify database files in forensic analysis
-        // Using ASCII "JSDB" = 0x4A534442
         sqlx::query("PRAGMA application_id = 1246970946")
             .execute(pool)
             .await?;
         tracing::debug!("Application ID set (JSDB)");
 
-        // Run query optimizer analysis to update statistics
         // Helps SQLite choose better query plans
         sqlx::query("PRAGMA optimize").execute(pool).await?;
         tracing::debug!("Query optimizer statistics updated");
 
-        // Log SQLite compile options (useful for debugging)
         if let Ok(rows) = sqlx::query("PRAGMA compile_options").fetch_all(pool).await {
             let options: Vec<String> = rows
                 .iter()
@@ -160,7 +163,6 @@ impl Database {
                 .collect();
             tracing::debug!("SQLite compile options: {} features", options.len());
 
-            // Check for important features
             let has_fts5 = options.iter().any(|opt| opt.contains("FTS5"));
             let has_json = options.iter().any(|opt| opt.contains("JSON"));
             let has_rtree = options.iter().any(|opt| opt.contains("RTREE"));
@@ -176,14 +178,12 @@ impl Database {
             }
         }
 
-        // Log SQLite version
         if let Ok(row) = sqlx::query("SELECT sqlite_version()").fetch_one(pool).await {
             if let Ok(version) = row.try_get::<String, _>(0) {
                 tracing::info!("SQLite version: {}", version);
             }
         }
 
-        // Verify cache size is AT LEAST 64MB
         if let Ok(row) = sqlx::query("PRAGMA cache_size").fetch_one(pool).await {
             if let Ok(cache_size) = row.try_get::<i64, _>(0) {
                 let actual_mb = if cache_size < 0 {

@@ -85,6 +85,7 @@ pub(super) async fn connect_encrypted_pool(
                 "Failed to verify macOS package-smoke SQLCipher connection"
             );
         }
+        pool.close().await;
         return Err(error);
     }
     Ok(pool)
@@ -111,7 +112,10 @@ pub(super) async fn connect_encrypted_read_only_pool(
         .max_connections(1)
         .connect_with(options)
         .await?;
-    verify_sqlcipher_connection(&pool).await?;
+    if let Err(error) = verify_sqlcipher_connection(&pool).await {
+        pool.close().await;
+        return Err(error);
+    }
     Ok(pool)
 }
 

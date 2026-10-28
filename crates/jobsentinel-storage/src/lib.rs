@@ -51,9 +51,9 @@ pub use types::{DuplicateGroup, GhostStatistics, Statistics};
 
 // Re-export Database struct
 pub use connection::{
-    Database, PortableBackupHistory, PortableBackupInfo, PortableRestoreStatus, ReviewedExportInfo,
-    ReviewedExportPlan, ReviewedExportSelection, StorageHealth, StorageMaintenanceReport,
-    UpdateSnapshot,
+    Database, PortableBackupHistory, PortableBackupInfo, PortableRestoreStatus, PreparedUpdate,
+    ReviewedExportInfo, ReviewedExportPlan, ReviewedExportSelection, StorageHealth,
+    StorageMaintenanceReport, UpdateSnapshot,
 };
 pub use credentials::{
     CredentialKeyWrapRecord, CredentialRepository, CredentialSecretRecord, CredentialStorageError,

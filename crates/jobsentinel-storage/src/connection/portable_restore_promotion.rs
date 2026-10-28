@@ -22,12 +22,19 @@ use std::path::Path;
 
 impl Database {
     pub async fn connect_with_staged_restore(path: &Path) -> Result<Self, sqlx::Error> {
-        let promoted = Self::promote_staged_restore(path).await?;
-        let database = match Self::connect(path).await {
+        Self::ensure_database_parent(path)?;
+        let owner = Self::acquire_owner_lock(path)?;
+        if let Some(database) = Self::reconcile_prepared_update(path, &owner).await? {
+            return Ok(database);
+        }
+        #[cfg(test)]
+        super::update_journal::pause_after_journal_check().await;
+        let promoted = Self::promote_staged_restore_owned(path).await?;
+        let database = match Self::connect_owned(path, &owner).await {
             Ok(database) => database,
             Err(_) if promoted => {
-                Self::rollback_staged_restore(path).await?;
-                let database = Self::connect(path).await?;
+                Self::rollback_staged_restore_owned(path).await?;
+                let database = Self::connect_owned(path, &owner).await?;
                 database.migrate().await?;
                 return Ok(database);
             }
@@ -37,8 +44,8 @@ impl Database {
             database.pool.close().await;
             drop(database);
             if promoted {
-                Self::rollback_staged_restore(path).await?;
-                let database = Self::connect(path).await?;
+                Self::rollback_staged_restore_owned(path).await?;
+                let database = Self::connect_owned(path, &owner).await?;
                 database.migrate().await?;
                 return Ok(database);
             }
@@ -52,6 +59,10 @@ impl Database {
 
     pub async fn promote_staged_restore(database_path: &Path) -> Result<bool, sqlx::Error> {
         let _owner = Self::acquire_owner_lock(database_path)?;
+        Self::promote_staged_restore_owned(database_path).await
+    }
+
+    async fn promote_staged_restore_owned(database_path: &Path) -> Result<bool, sqlx::Error> {
         let Some(mut request) = read_restore_request(database_path)? else {
             return Ok(false);
         };
@@ -136,6 +147,10 @@ impl Database {
 
     pub async fn rollback_staged_restore(database_path: &Path) -> Result<bool, sqlx::Error> {
         let _owner = Self::acquire_owner_lock(database_path)?;
+        Self::rollback_staged_restore_owned(database_path).await
+    }
+
+    async fn rollback_staged_restore_owned(database_path: &Path) -> Result<bool, sqlx::Error> {
         let Some(request) = read_restore_request(database_path)? else {
             return Ok(false);
         };

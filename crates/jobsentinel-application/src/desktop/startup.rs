@@ -83,10 +83,10 @@ impl DesktopServices {
         let database = Database::connect_memory()
             .await
             .map_err(|error| DesktopStartupError::Database(error.to_string()))?;
-        database
-            .migrate()
-            .await
-            .map_err(|error| DesktopStartupError::Database(error.to_string()))?;
+        if let Err(error) = database.migrate().await {
+            database.close().await;
+            return Err(DesktopStartupError::Database(error.to_string()));
+        }
         let mut key = [0_u8; 32];
         key[..16].copy_from_slice(uuid::Uuid::new_v4().as_bytes());
         key[16..].copy_from_slice(uuid::Uuid::new_v4().as_bytes());
@@ -134,10 +134,10 @@ impl DesktopServices {
         is_first_run: bool,
         database: Database,
     ) -> Result<Self, DesktopStartupError> {
-        database
-            .migrate()
-            .await
-            .map_err(|error| DesktopStartupError::Database(error.to_string()))?;
+        if let Err(error) = database.migrate().await {
+            database.close().await;
+            return Err(DesktopStartupError::Database(error.to_string()));
+        }
         tracing::info!("Database initialized successfully");
         let pack_runtime = PackRuntimeEnvironment::for_data_dir(
             config_path.parent().unwrap_or_else(|| Path::new(".")),
@@ -182,47 +182,59 @@ impl DesktopServices {
         trusted_publishers: &[TrustedPublisherKey],
         today: NaiveDate,
     ) -> Result<Self, DesktopStartupError> {
-        let reconciled = database
-            .reconcile_outside_ai_operations()
+        let setup = async {
+            let reconciled = database
+                .reconcile_outside_ai_operations()
+                .await
+                .map_err(|error| DesktopStartupError::Database(error.to_string()))?;
+            if reconciled.ambiguous > 0 || reconciled.cancelled > 0 {
+                tracing::warn!(
+                    ambiguous = reconciled.ambiguous,
+                    cancelled = reconciled.cancelled,
+                    "Reconciled interrupted Outside AI operations"
+                );
+            }
+            crate::v3_source_governance::install_startup_source_governance(&database).await;
+            jobsentinel_platform::ensure_private_dir_tree(pack_runtime.artifact_root())
+                .map_err(|error| DesktopStartupError::Database(error.to_string()))?;
+            let reconciled_packs = reconcile_active_pack_artifacts(
+                &database,
+                pack_runtime.artifact_root(),
+                trusted_publishers,
+                today,
+            )
             .await
             .map_err(|error| DesktopStartupError::Database(error.to_string()))?;
-        if reconciled.ambiguous > 0 || reconciled.cancelled > 0 {
-            tracing::warn!(
-                ambiguous = reconciled.ambiguous,
-                cancelled = reconciled.cancelled,
-                "Reconciled interrupted Outside AI operations"
-            );
-        }
-        crate::v3_source_governance::install_startup_source_governance(&database).await;
-        jobsentinel_platform::ensure_private_dir_tree(pack_runtime.artifact_root())
+            if reconciled_packs.rolled_back > 0 || reconciled_packs.quarantined > 0 {
+                tracing::warn!(
+                    checked = reconciled_packs.checked,
+                    rolled_back = reconciled_packs.rolled_back,
+                    quarantined = reconciled_packs.quarantined,
+                    "Reconciled active signed pack artifacts"
+                );
+            }
+            let credentials = CredentialService::new(database.credentials());
+            if migrate_plaintext_credentials_to_secure_storage(&config_path, &credentials).await {
+                config = Config::load(&config_path)
+                    .map_err(|error| DesktopStartupError::Configuration(error.to_string()))?;
+            }
+            crate::restricted_source_consent::refresh_restricted_source_acknowledgements(
+                &database,
+                &mut config,
+            )
+            .await
             .map_err(|error| DesktopStartupError::Database(error.to_string()))?;
-        let reconciled_packs = reconcile_active_pack_artifacts(
-            &database,
-            pack_runtime.artifact_root(),
-            trusted_publishers,
-            today,
-        )
-        .await
-        .map_err(|error| DesktopStartupError::Database(error.to_string()))?;
-        if reconciled_packs.rolled_back > 0 || reconciled_packs.quarantined > 0 {
-            tracing::warn!(
-                checked = reconciled_packs.checked,
-                rolled_back = reconciled_packs.rolled_back,
-                quarantined = reconciled_packs.quarantined,
-                "Reconciled active signed pack artifacts"
-            );
+
+            Ok::<_, DesktopStartupError>(credentials)
         }
-        let credentials = CredentialService::new(database.credentials());
-        if migrate_plaintext_credentials_to_secure_storage(&config_path, &credentials).await {
-            config = Config::load(&config_path)
-                .map_err(|error| DesktopStartupError::Configuration(error.to_string()))?;
-        }
-        crate::restricted_source_consent::refresh_restricted_source_acknowledgements(
-            &database,
-            &mut config,
-        )
-        .await
-        .map_err(|error| DesktopStartupError::Database(error.to_string()))?;
+        .await;
+        let credentials = match setup {
+            Ok(credentials) => credentials,
+            Err(error) => {
+                database.close().await;
+                return Err(error);
+            }
+        };
 
         Ok(Self::assemble(
             config,

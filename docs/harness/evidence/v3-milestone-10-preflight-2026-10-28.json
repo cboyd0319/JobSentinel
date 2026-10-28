@@ -108,7 +108,7 @@
   "review": "Independent adversarial review found incorrect current-reader ceiling; corrected and re-reviewed with no remaining finding in pure slice. Inventory adversarial review corrected transfer-cache classification and accepted known empty scaffolding left by the existing repair owner; unknown paths and partial leaf caches still fail. Follow-up review passed. Reviewed revalidation/scheduler and recovery snapshots independently. Fixed pooled ATTACH cancellation poisoning, writable durability handle, actual receipt/schema comparison, stale migration test and cancellation test lock deadlock.",
   "remaining": [
     "Deep user-requested source/evidence audit of all prior milestones; passing labels are not assumed accurate.",
-    "M10: all-writer exclusion, durable update journal/startup reconciliation, concrete installer handoff, reviewed Settings UX and offline repair integration.",
+    "M10: native all-writer exclusion, authenticated target startup reconciliation, concrete installer handoff, compatible rollback, reviewed Settings UX and offline repair integration.",
     "M11: production signing, platform qualification and release. Premature signer tooling was removed per development-first/YAGNI direction.",
     "M12 enhancement trains and M13 closure."
   ],
@@ -122,5 +122,65 @@
     "focused_tests_passed": 67,
     "inclusive_browser_journeys_passed": 5,
     "targeted_eslint_exit_status": 0
+  },
+  "storage_shutdown_checkpoint": {
+    "baseline_revision": "000f1494",
+    "platform": "macOS 27.2 arm64",
+    "scope": "Durable source-version update preparation and orderly normal quit; native updater integration remains incomplete",
+    "source_files_sha256": {
+      "crates/jobsentinel-storage/src/connection/update_journal.rs": "be3fe88a4a87e4f06407f40d79697a970c8ac144d737ab5f19842a1ab20422f6",
+      "crates/jobsentinel-storage/src/connection/update_journal/tests.rs": "7d0cee5eaf38044296b41af24fec07564377794d7f275df11ae15596b658da99",
+      "crates/jobsentinel-storage/src/connection/update_backup.rs": "5c35c6157223feb50088cf96f17225d1675bbbe2463008b7acd35f0d9d115114",
+      "crates/jobsentinel-storage/src/connection/portable_restore_promotion.rs": "2857fa58879ff0035e5d38afbc7df811ed991065f0e9d378324c0399caec85b2",
+      "src-tauri/src/bootstrap/shutdown.rs": "3ec26c9b317f43e7776ec97de25b3478ee7c056e2334f71e4af905129eb67da1",
+      "crates/jobsentinel-application/src/desktop/startup.rs": "e2a141aef9f2fd070e805f2fbb118ac6afdb12fc6400326fea78fd8908c5140b"
+    },
+    "delivered": [
+      "Snapshot and bounded private durable journal are database-identity bound; preparation drains shared SQLx handles and retains the process owner reservation.",
+      "Startup holds one database owner reservation through journal validation, restore promotion and opening; untrusted or foreign target versions remain refused.",
+      "Normal desktop quit rejects new IPC, joins scheduler work, stops bookmarklet and Outside AI work, waits admitted storage operations, and awaits pool closure before process exit.",
+      "Startup and identified auxiliary backup/restore/encryption error paths await pool closure before returning; duplicate restore parent-sync helper removed.",
+      "Windows journal publication uses write-through replacement and writable durability handles; source inspection only on macOS."
+    ],
+    "commands": [
+      {
+        "command": "npm run harness:check",
+        "exit_status": 0
+      },
+      {
+        "command": "node scripts/dev/run-cargo.mjs test --locked -p jobsentinel-storage --lib connection::update_",
+        "exit_status": 0,
+        "passed": 12
+      },
+      {
+        "command": "node scripts/dev/run-cargo.mjs test --locked -p jobsentinel-storage --lib portable_",
+        "exit_status": 0,
+        "passed": 37
+      },
+      {
+        "command": "node scripts/dev/run-cargo.mjs test --locked -p jobsentinel-platform --lib private_read_rejects",
+        "exit_status": 0,
+        "passed": 1
+      },
+      {
+        "command": "node scripts/dev/run-cargo.mjs test --locked -p jobsentinel --lib bootstrap::shutdown",
+        "exit_status": 0,
+        "passed": 2
+      },
+      {
+        "command": "node scripts/dev/run-cargo.mjs test --locked -p jobsentinel-application --lib pack_artifact_root_failure_prevents_service_construction",
+        "exit_status": 0,
+        "passed": 1
+      },
+      {
+        "command": "node scripts/dev/run-cargo.mjs clippy --locked -p jobsentinel-storage -p jobsentinel-platform -p jobsentinel --lib -- -D warnings",
+        "exit_status": 0
+      }
+    ],
+    "limits": [
+      "Source restart cancels prepared update only after snapshot/current-data validation; target-version reconciliation requires authenticated installed-build binding.",
+      "Native all-command writer exclusion, actual installer handoff, compatible rollback and Settings review are not implemented by this storage API.",
+      "Native GUI quit/restart and Windows durability execution remain untested; restart callers must await draining explicitly."
+    ]
   }
 }

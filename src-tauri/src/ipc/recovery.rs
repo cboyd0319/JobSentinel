@@ -1,3 +1,5 @@
+//! Adapts reviewed local recovery, backup, and restore actions to native dialogs.
+
 use crate::{
     application::{
         desktop::{Database, PortableRestoreStatus, StartupConfigRepair},
@@ -160,6 +162,7 @@ pub(crate) async fn create_portable_backup(
     let destination = file
         .into_path()
         .map_err(|_| "The selected backup destination is unavailable.".to_string())?;
+    let _work = state.begin_storage_work().await?;
     state
         .database
         .create_portable_backup(&destination, &passphrase)
@@ -213,6 +216,7 @@ async fn stage_portable_restore_at_validated_path(
     backup: &std::path::Path,
     passphrase: &str,
 ) -> Result<PortableRestoreActionResult, String> {
+    let _work = state.begin_storage_work().await?;
     if recovery.database() {
         Database::stage_portable_restore_at(&Database::default_path(), backup, passphrase)
             .await

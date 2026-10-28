@@ -130,14 +130,15 @@ impl Database {
         let work_file = TemporaryDatabase::create(work_path)?;
         export_pool_to_encrypted(&self.pool, work_file.path(), &work_key).await?;
         let work_pool = connect_encrypted_pool(work_file.path(), &work_key, false).await?;
-        sqlx::query("DELETE FROM secret_vault")
-            .execute(&work_pool)
-            .await?;
-        sqlx::query("DELETE FROM credential_key_wrapping")
-            .execute(&work_pool)
-            .await?;
-        sqlx::query(
-            "CREATE TABLE portable_backup_manifest (
+        let prepared = async {
+            sqlx::query("DELETE FROM secret_vault")
+                .execute(&work_pool)
+                .await?;
+            sqlx::query("DELETE FROM credential_key_wrapping")
+                .execute(&work_pool)
+                .await?;
+            sqlx::query(
+                "CREATE TABLE portable_backup_manifest (
                     backup_id TEXT PRIMARY KEY NOT NULL,
                     created_at TEXT NOT NULL,
                     format_version INTEGER NOT NULL,
@@ -150,35 +151,38 @@ impl Database {
                     migration_sequence INTEGER NOT NULL,
                     contains_secrets INTEGER NOT NULL CHECK(contains_secrets = 0)
                 )",
-        )
-        .execute(&work_pool)
-        .await?;
-        sqlx::query(
-            "INSERT INTO portable_backup_manifest(
+            )
+            .execute(&work_pool)
+            .await?;
+            sqlx::query(
+                "INSERT INTO portable_backup_manifest(
                 backup_id, created_at, format_version, kind, protection,
                 user_review_required, compatibility_line, database_schema,
                 migration_sequence, contains_secrets
              ) VALUES (?, ?, ?, 'backup', 'encrypted', 1, ?, ?, ?, 0)",
-        )
-        .bind(&info.backup_id)
-        .bind(&info.created_at)
-        .bind(info.format_version)
-        .bind(PORTABLE_BACKUP_COMPATIBILITY_LINE)
-        .bind(info.database_schema)
-        .bind(info.migration_sequence)
-        .execute(&work_pool)
-        .await?;
-        sqlx::query(
-            "UPDATE v3_recovery_operations
+            )
+            .bind(&info.backup_id)
+            .bind(&info.created_at)
+            .bind(info.format_version)
+            .bind(PORTABLE_BACKUP_COMPATIBILITY_LINE)
+            .bind(info.database_schema)
+            .bind(info.migration_sequence)
+            .execute(&work_pool)
+            .await?;
+            sqlx::query(
+                "UPDATE v3_recovery_operations
                  SET outcome = 'succeeded', completed_at = datetime('now')
                  WHERE operation_id = ?",
-        )
-        .bind(&info.backup_id)
-        .execute(&work_pool)
-        .await?;
-        sqlx::query("VACUUM").execute(&work_pool).await?;
-        self.verify_secret_tables_empty(&work_pool).await?;
+            )
+            .bind(&info.backup_id)
+            .execute(&work_pool)
+            .await?;
+            sqlx::query("VACUUM").execute(&work_pool).await?;
+            self.verify_secret_tables_empty(&work_pool).await
+        }
+        .await;
         work_pool.close().await;
+        prepared?;
         let destination_parent = destination
             .parent()
             .filter(|parent| !parent.as_os_str().is_empty())

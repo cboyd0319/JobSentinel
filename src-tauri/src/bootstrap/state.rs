@@ -50,6 +50,7 @@ pub(crate) struct AppState {
     pub pending_url_imports: PendingUrlImports,
     pub pack_runtime: PackRuntimeEnvironment,
     pub pending_military_transition_reviews: PendingMilitaryTransitionReviews,
+    pub storage_stopping: RwLock<bool>,
     pub outside_ai_cancellations: Arc<Mutex<HashMap<String, watch::Sender<bool>>>>,
 }
 
@@ -65,7 +66,20 @@ impl From<DesktopServices> for AppState {
             pending_url_imports: services.pending_url_imports,
             pack_runtime: services.pack_runtime,
             pending_military_transition_reviews: Default::default(),
+            storage_stopping: Default::default(),
             outside_ai_cancellations: Default::default(),
         }
+    }
+}
+
+impl AppState {
+    pub(crate) async fn begin_storage_work(
+        &self,
+    ) -> Result<tokio::sync::RwLockReadGuard<'_, bool>, String> {
+        let stopping = self.storage_stopping.read().await;
+        if *stopping {
+            return Err("The application is shutting down.".into());
+        }
+        Ok(stopping)
     }
 }

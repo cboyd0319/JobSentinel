@@ -161,3 +161,42 @@ fn invalid_data(message: &'static str) -> io::Error {
 #[cfg(test)]
 #[path = "windows_private_files_tests.rs"]
 mod tests;
+
+/// Publish a same-directory temporary file with Windows write-through rename semantics.
+pub fn persist_file_write_through(
+    temporary: tempfile::NamedTempFile,
+    path: &Path,
+) -> io::Result<std::fs::File> {
+    use std::os::windows::ffi::OsStrExt;
+    use windows_sys::Win32::Storage::FileSystem::{
+        MoveFileExW, MOVEFILE_REPLACE_EXISTING, MOVEFILE_WRITE_THROUGH,
+    };
+    if temporary.path().parent() != path.parent() {
+        return Err(io::Error::other("Publication requires the same directory"));
+    }
+    let (file, temporary_path) = temporary.into_parts();
+    file.sync_all()?;
+    let wide = |path: &Path| -> io::Result<Vec<u16>> {
+        let mut value: Vec<_> = path.as_os_str().encode_wide().collect();
+        if value.contains(&0) {
+            return Err(io::Error::other("Invalid publication path"));
+        }
+        value.push(0);
+        Ok(value)
+    };
+    let source = wide(&temporary_path)?;
+    let destination = wide(path)?;
+    // SAFETY: both buffers are NUL-terminated and live through this synchronous call.
+    if unsafe {
+        MoveFileExW(
+            source.as_ptr(),
+            destination.as_ptr(),
+            MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH,
+        )
+    } == 0
+    {
+        return Err(io::Error::last_os_error());
+    }
+    temporary_path.keep().map_err(|error| error.error)?;
+    Ok(file)
+}

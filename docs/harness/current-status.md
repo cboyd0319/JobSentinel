@@ -21,6 +21,8 @@ Last updated: 2026-10-28
   `docs/harness/evidence/v3-retrospective-audit-2026-10-28.json`.
 - Update prerequisites include signed candidate assessment, Rust-owned inventory,
   snapshot revalidation, scheduler drain and verified same-device recovery snapshots.
+- Durable database-bound preparation journals, source-version startup reconciliation
+  and orderly normal quit pass focused checks; target startup and native execution remain open.
 - Reviewed fixes cover database/WAL preservation, newer-data refusal, protected form
   input, native file bounds, pack lifecycle, DNS pinning, Settings/support privacy,
   model loading and inference budgets. Focused evidence is linked from the audit.
@@ -31,8 +33,8 @@ Last updated: 2026-10-28
   vulnerabilities. Evidence: `docs/harness/evidence/v3-security-refresh-2026-10-28.json`.
 - Next: finish M10 native preparation and update execution; compare model candidates
   with focused benchmarks and close the recorded audit gaps without new broad audit passes.
-- Continue the uncompleted audit, then finish M10 writer exclusion, durable update
-  journal, startup reconciliation, installer handoff and reviewed Settings UX.
+- Finish M10 writer exclusion, authenticated target startup, installer handoff and
+  reviewed Settings UX; recorded audit coverage remains incomplete.
 
 ## Remaining Qualification
 
