@@ -1,3 +1,5 @@
+/** Verifies reviewed recovery actions and truthful outcomes after native failures. */
+
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -64,6 +66,20 @@ describe("PortableRecoveryPanel", () => {
     expect(
       screen.getByRole("status", { name: "Portable recovery status" }),
     ).toHaveTextContent("Encrypted backup saved locally.");
+  });
+
+  it("does not claim no file exists after an unconfirmed backup failure", async () => {
+    mockInvoke.mockImplementation(async (command: string) => {
+      if (command === "get_staged_restore_status") return "none";
+      throw new Error("post-publication verification failed");
+    });
+    const user = userEvent.setup();
+    render(<PortableRecoveryPanel />);
+    await user.type(screen.getByLabelText("Backup passphrase"), "sixteen-letters!!");
+    await user.type(screen.getByLabelText("Confirm backup passphrase"), "sixteen-letters!!");
+    await user.click(screen.getByRole("button", { name: "Create encrypted backup" }));
+    expect(screen.getByRole("status", { name: "Portable recovery status" })).toHaveTextContent("Check the selected destination");
+    expect(screen.queryByText(/Nothing was saved/)).not.toBeInTheDocument();
   });
 
   it("loads staged restore state independently and lets the user cancel before restart", async () => {

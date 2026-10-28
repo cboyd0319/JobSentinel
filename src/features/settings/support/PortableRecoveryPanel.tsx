@@ -1,3 +1,5 @@
+/** Presents reviewed local backup, restore, and export actions with explicit outcomes. */
+
 import { useEffect, useState } from "react";
 import { invoke } from "../../../platform/tauri";
 import { Button } from "../../../ui/Button";
@@ -51,7 +53,7 @@ export function PortableRecoveryPanel() {
           : "Encrypted backup was cancelled. Nothing was saved.",
       );
     } catch {
-      setStatus("Encrypted backup could not be created. Nothing was saved.");
+      setStatus("Could not confirm the encrypted backup. Check the selected destination before trying again.");
     } finally {
       setOperation(null);
     }
