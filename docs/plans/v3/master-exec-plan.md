@@ -675,24 +675,22 @@ claims are historical, not fresh verification. Current state is in Handoff.
 
 ## Handoff
 
-- Current state: Milestones 0 through 8 and Gates 0 through 4 are passing. Milestone 9 is the sole active feature.
-- Source checkpoint: `3874f12c` contains regional country/pay handling, Region
-  starter review, optional military guidance, model-optional setup, and focused
-  regressions. M9 evidence is linked from the feature ledger; the latest parser
-  correction passed 21 job-page tests, scoped clippy, formatting, and harness checks.
-- Coverage limit: three regional Qwen3 pairs prove only those selection and
-  abstention cases. The macOS 27 arm64 package smoke is not macOS 26 or current
-  8 GiB core-journey proof; the older Linux/model runs remain scoped history.
-- Next action: finish M9's focused development closeout using existing evidence,
-  then activate M10 and implement trusted candidate/rollback preflight first.
-  Start from `crates/jobsentinel-storage/src/connection.rs`,
-  `crates/jobsentinel-application/src/pack_runtime/recovery.rs`,
-  `src-tauri/src/ipc/recovery.rs`, and `docs/user/UPDATES.md`; do not invent a
-  second recovery owner or a silent updater.
-- Open product decision: Gate 5's final single-installer proposal, edition names,
-  component matrix, update/rollback UX, and v3.0 cut remain unapproved. Bring only
-  choices that materially affect implementation to the user; work on independent
-  authorized prerequisites meanwhile.
+- Model selection: the 2026-10-28 user request reopens comparative validation;
+  [Local Intelligence](local-intelligence-and-agents.md#model-selection-revalidation-2026-10-28)
+  owns the shortlist and release-build comparison. Qwen remains the baseline pending evidence.
+
+- Current state: M0–M9 are recorded passing, M10 is active, and Gate 5 was approved
+  on 2026-10-28. The requested deep audit is checking those labels against source
+  and evidence; they are not assumed correct.
+- Source checkpoint: `1e634d23` contains reviewed candidate preflight, installed
+  inventory, snapshot revalidation, scheduler drain and verified same-device
+  recovery snapshots. Update execution and user-facing integration remain unfinished.
+- Next action: finish the independent M0–M10 audit and correct confirmed gaps,
+  prioritizing privacy, data loss and compatibility. Then finish M10 journal,
+  writer exclusion, startup reconciliation, installer handoff and Settings UX.
+- Coverage limits: focused tests do not establish installed Windows/macOS/Linux
+  qualification, current 8 GiB journeys, broad regional calibration or release readiness.
+- Production signing stays in M11. Use test identities during M10 development.
 - Security triage: the checkpoint push reported default-branch dependency
   alerts, not verified v3 findings. Check applicability before claiming the v3
   candidate is secure; a confirmed applicable high-risk defect takes priority

@@ -138,13 +138,13 @@
       "behavior":"Regional discovery and native pay preserve source evidence; static Region and inclusive first-run workflows remain local and model-optional.",
       "user_visible_behavior":"Users select a search country, review native pay and regional guidance, and use inclusive first-run paths without required model downloads.",
       "verification":["npm run harness:check"],
-      "notes":"M9 passed; M11 owns release proof. Gate 5 approved 2026-10-28.",
       "evidence":[
         "docs/harness/evidence/v3-milestone-9-focused-acceptance-2026-10-28.json",
         "docs/harness/evidence/v3-milestone-9-regional-qwen-matching-2026-09-11.json",
         "docs/harness/evidence/v3-milestone-9-current-macos-package-2026-09-11.json"
       ] }, {"id":"v3-milestone-10-update-rollback-repair","priority":24,"area":"v3 recovery","title":"Update, rollback, repair, and distribution","status":"active",
       "behavior":"Trusted updates fail closed.",
+      "notes":"Audit corrections precede remaining update integration.",
       "user_visible_behavior":"Users review updates and recover offline.",
       "verification":["npm run harness:check"],
       "evidence":["docs/harness/evidence/v3-milestone-10-preflight-2026-10-28.json"]

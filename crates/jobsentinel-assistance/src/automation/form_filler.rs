@@ -407,7 +407,6 @@ impl FormFiller {
 
 mod questions;
 
-
 /// Field types for form filling
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 enum FieldType {

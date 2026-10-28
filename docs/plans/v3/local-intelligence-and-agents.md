@@ -1,3 +1,5 @@
+<!-- Defines local intelligence behavior, model selection, and reviewed agent boundaries. -->
+
 # Local Intelligence And Agents
 
 V3 should turn JobSentinel's local Qwen3 and taxonomy foundation into a broader
@@ -15,6 +17,37 @@ cloud model.
 - Every model suggestion can be reviewed, edited, ignored, or deleted.
 - Ranking behavior changes require eval coverage.
 - Agents propose and prepare. Users approve external actions and final submits.
+
+## Model Selection Revalidation (2026-10-28)
+
+The user requested a current comparison before treating the historical Qwen
+choice as best. Keep the pinned Qwen3 0.6B embedding/reranker pair as the
+calibrated baseline, not a proven present-day winner. No replacement is approved.
+
+Current primary-source candidates:
+
+- [EmbeddingGemma 2](https://huggingface.co/google/embeddinggemma-2),
+  [released October 6, 2026](https://blog.google/innovation-and-ai/technology/developers-tools/embeddinggemma-2/):
+  Apache-2.0, selectively loadable 270M text backbone. Verify actual text-only
+  artifact size and native runtime support; active parameter count is not download size.
+- [Ettin rerankers](https://huggingface.co/blog/ettin-reranker): Apache-2.0,
+  including 17M/32M CPU-oriented candidates and a 150M quality comparison.
+  Publisher benchmarks do not establish resume-evidence or regional accuracy.
+- [Current Qwen3 text baseline](https://huggingface.co/Qwen/Qwen3-Embedding-0.6B):
+  retain as the comparison anchor; newer multimodal Qwen models are not automatic
+  improvements for this text-first desktop workload.
+
+The 119.52s and 121.05s application runs used unoptimized Rust test builds.
+They prove functional dispatch/citations, not production latency or model superiority.
+One release-profile synthetic workflow passed in 5.70s with 6,668,730,368-byte
+peak RSS at `c3882eb3`; the existing cache was verified and no models were downloaded.
+This is not a representative latency distribution or enforced-memory qualification.
+Measure optimized release cold/warm latency, peak memory and stage costs;
+then compare shortlisted pipelines on identical frozen positive/hard-negative,
+regional and protected-claim cases. Keep data local and separate model changes
+from runtime/quantization changes. Compare retrieval, false support, abstention,
+licenses, downloads and cross-platform deployment cost. New score scales need
+new calibration; do not copy Qwen thresholds or weaken existing acceptance labels.
 
 ## Model Layer Direction
 

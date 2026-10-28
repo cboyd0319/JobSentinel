@@ -147,10 +147,26 @@ async fn database_rejects_unknown_and_oversized_event_metadata() {
         .bind(&case_file.case_file_id).execute(database.pool()).await.is_err());
 
     for (event_id, event_kind, metadata) in [
-        ("missing-status", "status_changed", r#"{"kind":"status_transition"}"#.to_string()),
-        ("missing-reference", "evidence_linked", r#"{"kind":"local_reference"}"#.to_string()),
-        ("missing-source", "source_checked", r#"{"kind":"source_outcome"}"#.to_string()),
-        ("missing-recovery", "recovery_recorded", r#"{"kind":"recovery_outcome"}"#.to_string()),
+        (
+            "missing-status",
+            "status_changed",
+            r#"{"kind":"status_transition"}"#.to_string(),
+        ),
+        (
+            "missing-reference",
+            "evidence_linked",
+            r#"{"kind":"local_reference"}"#.to_string(),
+        ),
+        (
+            "missing-source",
+            "source_checked",
+            r#"{"kind":"source_outcome"}"#.to_string(),
+        ),
+        (
+            "missing-recovery",
+            "recovery_recorded",
+            r#"{"kind":"recovery_outcome"}"#.to_string(),
+        ),
         (
             "event-unknown",
             "evidence_linked",
@@ -400,7 +416,10 @@ async fn fresh_database_exposes_typed_compatibility_metadata() {
 #[tokio::test]
 async fn event_constraint_migration_preserves_valid_rows_and_rolls_back_invalid_rows() {
     let migrations = sqlx::migrate!("./migrations");
-    for metadata in [r#"{"kind":"recovery_outcome","outcome":"restored"}"#, r#"{"kind":"recovery_outcome"}"#] {
+    for metadata in [
+        r#"{"kind":"recovery_outcome","outcome":"restored"}"#,
+        r#"{"kind":"recovery_outcome"}"#,
+    ] {
         let database = crate::Database::connect_memory().await.unwrap();
         migrations.run_to(29, database.pool()).await.unwrap();
         sqlx::query("INSERT INTO opportunity_case_files (case_file_id, created_at) VALUES ('case', '2026-10-28')")
@@ -409,11 +428,16 @@ async fn event_constraint_migration_preserves_valid_rows_and_rolls_back_invalid_
             .bind(metadata).execute(database.pool()).await.unwrap();
         let result = migrations.run_to(30, database.pool()).await;
         assert_eq!(result.is_ok(), metadata.contains("restored"));
-        let preserved: String = sqlx::query_scalar("SELECT metadata_json FROM v3_job_events WHERE event_id='event'")
-            .fetch_one(database.pool()).await.unwrap();
+        let preserved: String =
+            sqlx::query_scalar("SELECT metadata_json FROM v3_job_events WHERE event_id='event'")
+                .fetch_one(database.pool())
+                .await
+                .unwrap();
         assert_eq!(preserved, metadata);
         let latest: i64 = sqlx::query_scalar("SELECT MAX(version) FROM _sqlx_migrations")
-            .fetch_one(database.pool()).await.unwrap();
-        assert_eq!(latest, if result.is_ok() {30} else {29});
+            .fetch_one(database.pool())
+            .await
+            .unwrap();
+        assert_eq!(latest, if result.is_ok() { 30 } else { 29 });
     }
 }

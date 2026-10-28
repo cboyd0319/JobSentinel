@@ -180,5 +180,49 @@
       "exit_status": 0,
       "scope": "isolated migrated schema and offline metadata; installed sqlx-cli0.9.0 to run required check"
     }
-  ]
+  ],
+  "followup_corrections": {
+    "transport": "9e0288a9: exact-host DNS pins, direct pinned requests, scoped scraper cancellation;16network/32worker tests passed.",
+    "native_input": "b2a261e8: retained handles, streaming limits, FIFO denial, transactional resume creation;16native/5file/6skill tests passed. Backup staging cap256MiB explicitly approved by user.",
+    "settings": "62548f84: endpoint/approval scrubbing, atomic record restore, migration31 template categories;2storage/19frontend tests and SQLx metadata passed.",
+    "support": "d88844fe: sanitizer/clipboard failure cannot enter success; backup errors no longer claim no file exists;33affected UI tests passed.",
+    "models": "426de888/873133ba: canonical MiniLM, verified consumed bytes, metadata repair, inference bounds, calibrated prompt owner and verified artifact reuse. Real MiniLM and tokenizer/batch tests passed.",
+    "matching": "c3882eb3: maintained resume review and saved-match workflows now invoke cited local matching; shared captured context and validated draft identity/revision prevent stale evidence. Focused default/embedded Rust, frontend, clippy and independent review passed."
+  },
+  "current_open_gaps": [
+    "Retrospective audit is incomplete: remaining coverage inventory below remains required.",
+    "Representative optimized model comparison remains; single Qwen baseline measured, debug timings are not production latency evidence.",
+    "Inference cancellation and representative native latency remain unqualified.",
+    "Malformed prior-lock model metadata can still block update inventory; explicit repair path required.",
+    "Ambiguous resume-import cancellation can retain an unreferenced complete private copy.",
+    "M10 update journal, writer exclusion, installer/rollback execution and UX remain unfinished.",
+    "M11 platform/release proof and M12\u201313 remain unfinished."
+  ],
+  "decisions": {
+    "backup_drop_staging_limit_bytes": 268435456,
+    "approval": "User explicitly chose256MiB on2026-10-28; larger backups use Settings Restore.",
+    "model_selection": "Revalidate current alternatives; retain Qwen baseline until comparative evidence and calibration justify a change."
+  },
+  "model_release_baseline": {
+    "source_revision": "c3882eb3",
+    "test": "resume::semantic_review::tests::governed_qwen_review_preserves_ats_and_current_evidence",
+    "profile": "release, embedded-ml, existing verified cache, CPU",
+    "exit_status": 0,
+    "passed": 1,
+    "test_seconds": 5.7,
+    "process_wall_seconds": 6.03,
+    "peak_rss_bytes": 6668730368,
+    "scope": "Single synthetic current-resume workflow; verifies Qwen runtime, exact citations and unchanged ATS/hard constraints. Not representative p95, native GUI, enforced8GiB, or cross-model comparison.",
+    "prior_debug_seconds": 121.05
+  },
+  "dependency_updates": {
+    "commit": "a80917bf",
+    "tauri": "2.11.6",
+    "tauri_plugin_fs": "2.5.2",
+    "advisories": [
+      "https://github.com/tauri-apps/tauri/security/advisories/GHSA-w28w-mhc8-qvjv",
+      "https://github.com/tauri-apps/plugins-workspace/security/advisories/GHSA-9g54-6x48-9vpw"
+    ],
+    "scope": "Affected versions patched; current application exploit prerequisites not established. Default/embedded native checks and init passed."
+  }
 }
