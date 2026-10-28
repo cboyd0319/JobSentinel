@@ -1,3 +1,5 @@
+//! Verifies skill revisions and atomic resume replacement under persistence failures.
+
 use super::*;
 use jobsentinel_domain::{ResumeEvidenceCitation, ResumeEvidenceSnapshot};
 
@@ -166,4 +168,48 @@ async fn resume_evidence_snapshot_reads_current_revision_without_resume_contents
         .await
         .unwrap()
         .is_none());
+}
+
+#[tokio::test]
+async fn failed_upload_skill_write_preserves_previous_active_resume() {
+    let database = crate::Database::connect_memory().await.unwrap();
+    database.migrate().await.unwrap();
+    let matcher = database.resume_matcher();
+    let prior = sqlx::query("INSERT INTO resumes (name,file_path,parsed_text,is_active) VALUES ('Prior','prior.txt','Prior evidence',1)")
+        .execute(database.pool()).await.unwrap().last_insert_rowid();
+    sqlx::query("CREATE TRIGGER fail_uploaded_skills BEFORE INSERT ON user_skills WHEN EXISTS (SELECT 1 FROM user_skills WHERE resume_id = NEW.resume_id) BEGIN SELECT RAISE(FAIL, 'forced skill failure'); END")
+        .execute(database.pool()).await.unwrap();
+    let temp = tempfile::tempdir().unwrap();
+    let source = temp.path().join("new.txt");
+    std::fs::write(&source, "Python programming and SQL database experience.").unwrap();
+    assert!(matcher
+        .upload_resume("New", source.to_str().unwrap())
+        .await
+        .is_err());
+    let resumes: Vec<(i64, String, bool)> =
+        sqlx::query_as("SELECT id,file_path,is_active FROM resumes")
+            .fetch_all(database.pool())
+            .await
+            .unwrap();
+    assert_eq!(resumes, vec![(prior, "prior.txt".to_string(), true)]);
+    let skills: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM user_skills")
+        .fetch_one(database.pool())
+        .await
+        .unwrap();
+    assert_eq!(skills, 0);
+    assert!(source.exists());
+    sqlx::query("DROP TRIGGER fail_uploaded_skills")
+        .execute(database.pool())
+        .await
+        .unwrap();
+    let imported = matcher
+        .upload_resume("New", source.to_str().unwrap())
+        .await
+        .unwrap();
+    let active: Vec<i64> = sqlx::query_scalar("SELECT id FROM resumes WHERE is_active=1")
+        .fetch_all(database.pool())
+        .await
+        .unwrap();
+    assert_eq!(active, vec![imported]);
+    assert!(matcher.get_user_skills(imported).await.unwrap().len() >= 2);
 }

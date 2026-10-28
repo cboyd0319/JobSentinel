@@ -90,7 +90,9 @@ export function NativeFileDropReview() {
         setDraft(null);
         setPassphrase("");
         setAlert(
-          "Drop one regular file, or use the existing import buttons. Nothing was imported.",
+          event.payload?.error === "Backup drops are limited to 256 MiB. Use Settings > Restore for larger backups."
+            ? "Backup drops are limited to 256 MiB. Choose Restore in Settings for larger backups. Nothing was imported."
+            : "Drop one regular file, or use the existing import buttons. Nothing was imported.",
         );
         return;
       }
@@ -297,7 +299,7 @@ export function NativeFileDropReview() {
         isOpen={Boolean(drop)}
         onClose={() => void dismiss()}
         title="Review dropped file"
-        description="The dropped file stays local. Nothing is saved until you explicitly review it."
+        description="A temporary local copy is staged for review. Nothing is imported until you approve."
         size="lg"
         closeOnOverlayClick={!busy}
         showCloseButton={!busy}
@@ -306,7 +308,7 @@ export function NativeFileDropReview() {
         <div className="space-y-4">
           <p className="break-words text-sm text-surface-600 dark:text-surface-300">
             <span className="font-semibold">{drop?.name}</span> stays local.
-            Nothing is saved until you explicitly review it.
+            A temporary local copy is staged. Nothing is imported until you approve. Backup drops support up to 256 MiB; choose Restore in Settings for larger backups.
           </p>
           {view === "choices" && (
             <>

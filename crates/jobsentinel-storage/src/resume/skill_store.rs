@@ -1,9 +1,37 @@
+//! Persists extracted and reviewed skill mutations with their resume snapshot revision.
+
 use anyhow::Result;
 use sqlx::{Row, Sqlite, SqlitePool, Transaction};
 
 use super::{types, ResumeMatcher, UserSkill};
 use crate::v3_vectors::resume_vector_subject;
 use types::NullableFieldUpdate;
+
+pub(super) async fn persist_extracted_skills(
+    transaction: &mut Transaction<'_, Sqlite>,
+    resume_id: i64,
+    skills: &[jobsentinel_documents::ExtractedSkill],
+) -> Result<()> {
+    for skill in skills {
+        sqlx::query(
+                r#"
+                INSERT INTO user_skills (resume_id, skill_name, skill_category, confidence_score, source)
+                VALUES (?, ?, ?, ?, 'resume')
+                ON CONFLICT(resume_id, skill_name) DO UPDATE SET
+                    skill_category = excluded.skill_category,
+                    confidence_score = excluded.confidence_score
+                "#,
+            )
+            .bind(resume_id)
+            .bind(&skill.skill_name)
+            .bind(&skill.skill_category)
+            .bind(skill.confidence_score)
+            .execute(&mut **transaction)
+            .await?;
+    }
+    advance_resume_snapshot(transaction, resume_id).await?;
+    Ok(())
+}
 
 pub(super) async fn query_user_skills(db: &SqlitePool, resume_id: i64) -> Result<Vec<UserSkill>> {
     let rows = sqlx::query(

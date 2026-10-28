@@ -1,7 +1,4 @@
-//! Resume matching Tauri commands
-//!
-//! Commands for resume upload, skill extraction, job-resume matching,
-//! resume builder, and ATS analysis.
+//! Adapts reviewed resume import, editing, matching and evidence operations to Tauri.
 
 use crate::application::resume::{
     ActiveResumeAnalysisError, AtsAnalysisResult, AtsAnalyzer, MatchResult, MatchResultWithJob,
@@ -34,7 +31,7 @@ use crate::application::resume::MAX_RESUME_FILE_BYTES;
 #[cfg(test)]
 use resume_file_commands::{
     delete_resume_with_file_cleanup, has_json_extension, managed_resume_upload_cleanup_path,
-    safe_resume_upload_file_name, supported_resume_extension, validate_selected_resume,
+    open_selected_resume, safe_resume_upload_file_name, supported_resume_extension,
 };
 
 const MAX_RESUME_TEXT_PREVIEW_CHARS: usize = 6_000;

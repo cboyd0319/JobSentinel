@@ -267,3 +267,69 @@ fn native_drop_commands_are_registered_without_a_filesystem_capability() {
     assert!(!capability.contains("\"fs:"));
     assert!(!capability.contains("\"fs\""));
 }
+
+#[test]
+fn oversized_nonpack_drop_is_rejected_before_retaining_staging() {
+    let temp = tempfile::tempdir().unwrap();
+    let source = temp.path().join("large.pdf");
+    std::fs::File::create(&source)
+        .unwrap()
+        .set_len(10 * 1024 * 1024 + 1)
+        .unwrap();
+    let state = state_in(&temp);
+    assert!(state.stage_paths(&[source]).unwrap().error.is_some());
+    assert_eq!(
+        std::fs::read_dir(temp.path().join("native-file-drops"))
+            .unwrap()
+            .count(),
+        0
+    );
+}
+
+#[test]
+fn superseded_copy_stops_between_chunks_and_removes_partial_file() {
+    let temp = tempfile::tempdir().unwrap();
+    let source = temp.path().join("resume.pdf");
+    std::fs::write(&source, vec![1; 20000]).unwrap();
+    let state = state_in(&temp);
+    let reservation = state.reserve_drop();
+    let destination = temp.path().join("partial");
+    let checks = std::cell::Cell::new(0);
+    let result = super::copy_bounded(
+        &mut open_regular_source(&source).unwrap(),
+        destination.clone(),
+        30000,
+        || {
+            checks.set(checks.get() + 1);
+            if checks.get() == 2 {
+                state.reserve_drop();
+            }
+            state.is_current_reservation(reservation)
+        },
+    );
+    assert!(result.is_err());
+    assert!(!destination.exists());
+}
+
+#[test]
+fn oversized_backup_drop_directs_to_restore_without_staging() {
+    let temp = tempfile::tempdir().unwrap();
+    let source = temp.path().join("large.db");
+    std::fs::File::create(&source)
+        .unwrap()
+        .set_len(super::MAX_DROPPED_BACKUP_BYTES + 1)
+        .unwrap();
+    let state = state_in(&temp);
+    let payload = state.stage_paths(&[source]).unwrap();
+    assert_eq!(
+        payload.error.as_deref(),
+        Some("Backup drops are limited to 256 MiB. Use Settings > Restore for larger backups.")
+    );
+    assert!(payload.drop_id.is_none());
+    assert_eq!(
+        std::fs::read_dir(temp.path().join("native-file-drops"))
+            .unwrap()
+            .count(),
+        0
+    );
+}

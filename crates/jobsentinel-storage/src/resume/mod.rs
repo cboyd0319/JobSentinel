@@ -1,35 +1,4 @@
-//! AI Resume-Job Matcher
-//!
-//! Automatically parse resumes, extract skills, and match against job postings.
-//!
-//! ## Features
-//!
-//! - **Local Resume Parsing** - Extract text from PDF, DOCX, TXT, Markdown, and HTML resumes
-//! - **Skill Extraction** - Identify technical, workplace, and role-specific skills
-//! - **Semantic Matching** - Compare resume skills against job requirements
-//! - **Gap Analysis** - Identify missing skills and strengths
-//! - **Application-readable Templates** - 5 professional resume templates
-//! - **Resume Builder** - Interactive resume creation with CRUD operations
-//! - **Resume Readability Analyzer** - job-word extraction and format clarity checks
-//!
-//! ## Usage
-//!
-//! ```rust,ignore
-//! use jobsentinel_core::resume::ResumeMatcher;
-//!
-//! let matcher = ResumeMatcher::new(db_pool);
-//!
-//! // Upload and parse resume
-//! let resume_id = matcher.upload_resume("My Resume.docx", "/path/to/resume.docx").await?;
-//!
-//! // Extract skills automatically
-//! let skills = matcher.extract_skills(resume_id).await?;
-//!
-//! // Match against a job
-//! let match_result = matcher.match_resume_to_job(resume_id, "job_hash_123").await?;
-//! println!("Match score: {}%", match_result.overall_match_score * 100.0);
-//! println!("Missing skills: {:?}", match_result.missing_skills);
-//! ```
+//! Persists resume records, extracted skills and matching evidence through storage-owned operations.
 
 use crate::sqlite_time::parse_sqlite_datetime;
 use anyhow::Result;
@@ -96,7 +65,11 @@ impl ResumeMatcher {
         // Parse local resume file to extract readable text.
         let parsed_text = self.parser.parse_resume(Path::new(file_path))?;
 
-        // Insert into database
+        let extracted = self.skill_extractor.extract_skills(&parsed_text);
+        let mut transaction = self.db.begin().await?;
+        sqlx::query("UPDATE resumes SET is_active = 0 WHERE is_active = 1")
+            .execute(&mut *transaction)
+            .await?;
         let result = sqlx::query(
             r#"
             INSERT INTO resumes (name, file_path, parsed_text, is_active)
@@ -106,13 +79,13 @@ impl ResumeMatcher {
         .bind(name)
         .bind(file_path)
         .bind(&parsed_text)
-        .execute(&self.db)
+        .execute(&mut *transaction)
         .await?;
 
         let resume_id = result.last_insert_rowid();
 
-        // Extract skills automatically
-        self.extract_skills(resume_id).await?;
+        skill_store::persist_extracted_skills(&mut transaction, resume_id, &extracted).await?;
+        transaction.commit().await?;
 
         Ok(resume_id)
     }
@@ -217,25 +190,8 @@ impl ResumeMatcher {
         let extracted_skills = self.skill_extractor.extract_skills(&text);
         let mut transaction = self.db.begin().await?;
 
-        // Insert skills into database
-        for skill in &extracted_skills {
-            sqlx::query(
-                r#"
-                INSERT INTO user_skills (resume_id, skill_name, skill_category, confidence_score, source)
-                VALUES (?, ?, ?, ?, 'resume')
-                ON CONFLICT(resume_id, skill_name) DO UPDATE SET
-                    skill_category = excluded.skill_category,
-                    confidence_score = excluded.confidence_score
-                "#,
-            )
-            .bind(resume_id)
-            .bind(&skill.skill_name)
-            .bind(&skill.skill_category)
-            .bind(skill.confidence_score)
-            .execute(&mut *transaction)
+        skill_store::persist_extracted_skills(&mut transaction, resume_id, &extracted_skills)
             .await?;
-        }
-        skill_store::advance_resume_snapshot(&mut transaction, resume_id).await?;
         transaction.commit().await?;
 
         // Fetch inserted skills

@@ -1,8 +1,11 @@
+//! Imports bounded regular resume files and cleans app-owned copies on failure.
+
 use crate::application::resume::{ResumeMatcher, MAX_RESUME_FILE_BYTES};
 use crate::bootstrap::AppState;
 use crate::desktop;
 use crate::desktop::path_label_for_logging;
 use crate::ipc::errors::user_friendly_error;
+use crate::ipc::local_file::{copy_bounded, open_regular_source, read_bounded_text, LocalFileCopy};
 use crate::ipc::resume_file_names::safe_resume_file_stem;
 use std::path::{Path, PathBuf};
 use tauri::State;
@@ -42,7 +45,13 @@ pub(crate) async fn import_selected_resume_from_path(
     source_path: &Path,
     state: State<'_, AppState>,
 ) -> Result<i64, String> {
-    let managed_path = copy_selected_resume_to_managed_storage(source_path)?;
+    let source_path = source_path.to_path_buf();
+    let managed_path = tauri::async_runtime::spawn_blocking(move || {
+        copy_selected_resume_to_managed_storage(&source_path)
+    })
+    .await
+    .map_err(|_| "Could not copy the selected resume file.".to_string())??
+    .keep();
     match upload_resume_from_managed_path(name, managed_path.clone(), state).await {
         Ok(resume_id) => Ok(resume_id),
         Err(error) => {
@@ -136,27 +145,13 @@ async fn import_json_resume_from_selected_path(
         );
     }
 
-    let metadata = tokio::fs::metadata(path).await.map_err(|_| {
-        "JobSentinel could not read that resume file. Choose another structured resume file or check that the file is still available.".to_string()
-    })?;
-
-    if !metadata.is_file() {
-        return Err(
-            "Choose a structured resume file exported from JobSentinel or another resume tool."
-                .to_string(),
-        );
-    }
-
-    if metadata.len() > MAX_JSON_RESUME_IMPORT_BYTES {
-        return Err(
-            "That resume file is too large for import. Choose a smaller structured resume file."
-                .to_string(),
-        );
-    }
-
-    let json_string = tokio::fs::read_to_string(path).await.map_err(|_| {
-        "JobSentinel could not read that resume file. Choose another structured resume file or check that the file is still available.".to_string()
-    })?;
+    let path = path.to_path_buf();
+    let json_string = tauri::async_runtime::spawn_blocking(move || {
+        read_bounded_text(&path, MAX_JSON_RESUME_IMPORT_BYTES)
+    })
+    .await
+    .map_err(|_| "Could not read the selected resume export.".to_string())?
+    .map_err(|_| "Choose a regular UTF-8 resume export under 5 MB.".to_string())?;
 
     tracing::info!(
         name_chars = name.chars().count(),
@@ -203,17 +198,16 @@ pub(super) fn safe_resume_upload_file_name(path: &Path) -> String {
     format!("{}--{safe_stem}.{extension}", Uuid::new_v4())
 }
 
-pub(super) fn validate_selected_resume(path: &Path) -> Result<(), String> {
+pub(super) fn open_selected_resume(path: &Path) -> Result<std::fs::File, String> {
     if supported_resume_extension(path).is_none() {
         return Err("Choose a PDF, DOCX, TXT, Markdown, or HTML resume file.".to_string());
     }
 
-    let metadata = std::fs::symlink_metadata(path)
-        .map_err(|_| "JobSentinel could not read that resume file.".to_string())?;
-    if metadata.file_type().is_symlink() || !metadata.is_file() {
-        return Err("Choose a resume file, not a folder.".to_string());
-    }
-
+    let source = open_regular_source(path)
+        .map_err(|_| "Choose a regular resume file, not a folder or link.".to_string())?;
+    let metadata = source
+        .metadata()
+        .map_err(|_| "Could not inspect resume file.".to_string())?;
     if metadata.len() > MAX_RESUME_FILE_BYTES {
         return Err(
             "That resume file is too large for local review. Choose a file under 10 MB or export a smaller readable PDF, DOCX, TXT, Markdown, or HTML resume."
@@ -221,19 +215,21 @@ pub(super) fn validate_selected_resume(path: &Path) -> Result<(), String> {
         );
     }
 
-    Ok(())
+    Ok(source)
 }
 
-fn copy_selected_resume_to_managed_storage(path: &Path) -> Result<PathBuf, String> {
-    validate_selected_resume(path)?;
+fn copy_selected_resume_to_managed_storage(path: &Path) -> Result<LocalFileCopy, String> {
+    let mut source = open_selected_resume(path)?;
     let managed_dir = managed_resume_upload_dir();
     std::fs::create_dir_all(&managed_dir)
         .map_err(|_| "Could not prepare local resume storage.".to_string())?;
-    let destination = managed_dir.join(safe_resume_upload_file_name(path));
-    std::fs::copy(path, &destination)
-        .map_err(|_| "Could not copy the selected resume file.".to_string())?;
-
-    Ok(destination)
+    copy_bounded(
+        &mut source,
+        managed_dir.join(safe_resume_upload_file_name(path)),
+        MAX_RESUME_FILE_BYTES,
+        || true,
+    )
+    .map_err(|_| "Could not copy the selected resume file within the 10 MB limit.".to_string())
 }
 
 fn validate_managed_resume_upload_file_name(file_name: &str) -> bool {

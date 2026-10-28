@@ -1,5 +1,6 @@
 //! Owns bounded native file-drop staging and routes reviewed imports to typed owners.
 
+use super::local_file::{copy_bounded, open_regular_source, read_bounded_text, LocalFileCopy};
 use crate::bootstrap::{AppState, StartupRecoveryState};
 use crate::ipc::import::stage_smart_paste_text;
 use crate::ipc::recovery::{stage_portable_restore_from_path, PortableRestoreActionResult};
@@ -7,7 +8,6 @@ use crate::ipc::resume::resume_file_commands::import_selected_resume_from_path;
 use crate::ipc::resume_file_names::safe_resume_file_stem;
 use jobsentinel_application::{pack_runtime::MAX_PACK_ARTIFACT_BYTES, JobImportPreview};
 use serde::Serialize;
-use std::io::Read;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Arc, Mutex};
@@ -20,6 +20,7 @@ const DROPPED_FILE_UNAVAILABLE_ERROR: &str =
     "This dropped file is no longer available. Drop it again.";
 const DROPPED_JOB_TEXT_ERROR: &str = "Drop a UTF-8 job text file within the Smart Paste limit.";
 const MAX_DROPPED_JOB_TEXT_BYTES: u64 = 200_000;
+const MAX_DROPPED_BACKUP_BYTES: u64 = 256 * 1024 * 1024;
 const NATIVE_DROP_STAGING_DIR: &str = "native-file-drops";
 const STAGED_FILE_PREFIX: &str = "native-drop-";
 
@@ -31,20 +32,9 @@ pub(crate) struct NativeFileDropPayload {
     pub error: Option<String>,
 }
 
-#[derive(Debug)]
-struct AppOwnedStagedFile {
-    path: PathBuf,
-}
-
-impl Drop for AppOwnedStagedFile {
-    fn drop(&mut self) {
-        let _ = std::fs::remove_file(&self.path);
-    }
-}
-
 #[derive(Debug, Clone)]
 pub(crate) struct StagedNativeFileDrop {
-    file: Arc<AppOwnedStagedFile>,
+    file: Arc<LocalFileCopy>,
     name: String,
 }
 
@@ -57,6 +47,7 @@ impl StagedNativeFileDrop {
 pub(crate) struct NativeFileDropState {
     staging_dir: PathBuf,
     reservation: AtomicU64,
+    staging: Mutex<()>,
     candidate: Mutex<Option<(String, StagedNativeFileDrop)>>,
 }
 
@@ -72,6 +63,7 @@ impl NativeFileDropState {
         Self {
             staging_dir,
             reservation: AtomicU64::default(),
+            staging: Mutex::default(),
             candidate: Mutex::default(),
         }
     }
@@ -101,13 +93,24 @@ impl NativeFileDropState {
         let Some(path) = paths.first().filter(|_| paths.len() == 1) else {
             return Some(invalid_drop_payload());
         };
+        let _staging = self
+            .staging
+            .lock()
+            .unwrap_or_else(|error| error.into_inner());
         let drop_id = Uuid::new_v4().to_string();
         let name = sanitized_file_name(path);
-        let Ok(Some(file)) = self.copy_source_to_staging(path, &drop_id, reservation) else {
-            if !self.is_current_reservation(reservation) {
-                return None;
+        let file = match self.copy_source_to_staging(path, &drop_id, reservation) {
+            Ok(Some(file)) => file,
+            outcome => {
+                if !self.is_current_reservation(reservation) {
+                    return None;
+                }
+                let mut payload = invalid_drop_payload();
+                if let Err(message) = outcome {
+                    payload.error = Some(message);
+                }
+                return Some(payload);
             }
-            return Some(invalid_drop_payload());
         };
         let mut candidate = self
             .candidate
@@ -193,49 +196,44 @@ impl NativeFileDropState {
         source_path: &Path,
         drop_id: &str,
         reservation: u64,
-    ) -> Result<Option<AppOwnedStagedFile>, String> {
-        prepare_staging_dir(&self.staging_dir)?;
+    ) -> Result<Option<LocalFileCopy>, String> {
+        prepare_staging_dir(&self.staging_dir)
+            .map_err(|_| DROP_ONE_REGULAR_FILE_ERROR.to_string())?;
         if !self.is_current_reservation(reservation) {
             return Ok(None);
         }
-        let mut source = open_regular_source(source_path)?;
-        if has_pack_extension(source_path) {
-            match source.metadata() {
-                Ok(metadata) if metadata.len() <= MAX_PACK_ARTIFACT_BYTES as u64 => {}
-                _ => return Err(DROPPED_FILE_UNAVAILABLE_ERROR.to_string()),
-            }
-        }
-
-        if !self.is_current_reservation(reservation) {
-            return Ok(None);
-        }
+        let mut source = open_regular_source(source_path)
+            .map_err(|_| DROP_ONE_REGULAR_FILE_ERROR.to_string())?;
+        let limit = if has_pack_extension(source_path) {
+            MAX_PACK_ARTIFACT_BYTES as u64
+        } else if source_path
+            .extension()
+            .is_some_and(|extension| extension.eq_ignore_ascii_case("db"))
+        {
+            MAX_DROPPED_BACKUP_BYTES
+        } else {
+            jobsentinel_application::resume::MAX_RESUME_FILE_BYTES
+        };
         let destination = self
             .staging_dir
             .join(staged_file_name(drop_id, source_path));
-        let mut staged = std::fs::OpenOptions::new()
-            .write(true)
-            .create_new(true)
-            .open(&destination)
-            .map_err(|_| DROPPED_FILE_UNAVAILABLE_ERROR.to_string())?;
-        let copied = if has_pack_extension(source_path) {
-            std::io::copy(
-                &mut source.take(MAX_PACK_ARTIFACT_BYTES as u64 + 1),
-                &mut staged,
-            )
-        } else {
-            std::io::copy(&mut source, &mut staged)
-        };
-        if !matches!(
-            copied,
-            Ok(bytes)
-                if !has_pack_extension(source_path)
-                    || bytes <= MAX_PACK_ARTIFACT_BYTES as u64
-        ) {
-            drop(staged);
-            let _ = std::fs::remove_file(&destination);
-            return Err(DROPPED_FILE_UNAVAILABLE_ERROR.to_string());
-        }
-        Ok(Some(AppOwnedStagedFile { path: destination }))
+        copy_bounded(&mut source, destination, limit, || {
+            self.is_current_reservation(reservation)
+        })
+        .map(Some)
+        .map_err(|error| {
+            if error.kind() != std::io::ErrorKind::FileTooLarge {
+                return DROPPED_FILE_UNAVAILABLE_ERROR.to_string();
+            }
+            if limit == MAX_DROPPED_BACKUP_BYTES {
+                "Backup drops are limited to 256 MiB. Use Settings > Restore for larger backups."
+                    .to_string()
+            } else if has_pack_extension(source_path) {
+                "This pack exceeds the signed pack size limit.".to_string()
+            } else {
+                "Resume and text drops are limited to 10 MiB.".to_string()
+            }
+        })
     }
 }
 
@@ -335,47 +333,6 @@ fn ensure_regular_file(path: &Path) -> Result<(), String> {
     Ok(())
 }
 
-fn open_regular_source(path: &Path) -> Result<std::fs::File, String> {
-    let mut options = std::fs::OpenOptions::new();
-    options.read(true);
-    configure_no_follow(&mut options);
-    let file = options
-        .open(path)
-        .map_err(|_| DROPPED_FILE_UNAVAILABLE_ERROR.to_string())?;
-    let metadata = file
-        .metadata()
-        .map_err(|_| DROPPED_FILE_UNAVAILABLE_ERROR.to_string())?;
-    if !metadata.is_file() || is_windows_reparse_point(&metadata) {
-        return Err(DROPPED_FILE_UNAVAILABLE_ERROR.to_string());
-    }
-    Ok(file)
-}
-
-#[cfg(unix)]
-fn configure_no_follow(options: &mut std::fs::OpenOptions) {
-    use std::os::unix::fs::OpenOptionsExt;
-    options.custom_flags(libc::O_NOFOLLOW);
-}
-
-#[cfg(windows)]
-fn configure_no_follow(options: &mut std::fs::OpenOptions) {
-    use std::os::windows::fs::OpenOptionsExt;
-    const FILE_FLAG_OPEN_REPARSE_POINT: u32 = 0x0020_0000;
-    options.custom_flags(FILE_FLAG_OPEN_REPARSE_POINT);
-}
-
-#[cfg(unix)]
-fn is_windows_reparse_point(_: &std::fs::Metadata) -> bool {
-    false
-}
-
-#[cfg(windows)]
-fn is_windows_reparse_point(metadata: &std::fs::Metadata) -> bool {
-    use std::os::windows::fs::MetadataExt;
-    const FILE_ATTRIBUTE_REPARSE_POINT: u32 = 0x0000_0400;
-    metadata.file_attributes() & FILE_ATTRIBUTE_REPARSE_POINT != 0
-}
-
 fn prepare_staging_dir(staging_dir: &Path) -> Result<(), String> {
     match std::fs::symlink_metadata(staging_dir) {
         Ok(metadata) if metadata.file_type().is_symlink() || !metadata.is_dir() => {
@@ -468,16 +425,8 @@ fn safe_extension(path: &Path) -> Option<String> {
 }
 
 pub(crate) fn read_bounded_job_text(path: &Path) -> Result<String, String> {
-    ensure_regular_file(path)?;
-    let metadata = std::fs::metadata(path).map_err(|_| DROPPED_JOB_TEXT_ERROR.to_string())?;
-    if metadata.len() > MAX_DROPPED_JOB_TEXT_BYTES {
-        return Err(DROPPED_JOB_TEXT_ERROR.to_string());
-    }
-    let bytes = std::fs::read(path).map_err(|_| DROPPED_JOB_TEXT_ERROR.to_string())?;
-    if bytes.len() > MAX_DROPPED_JOB_TEXT_BYTES as usize {
-        return Err(DROPPED_JOB_TEXT_ERROR.to_string());
-    }
-    let text = String::from_utf8(bytes).map_err(|_| DROPPED_JOB_TEXT_ERROR.to_string())?;
+    let text = read_bounded_text(path, MAX_DROPPED_JOB_TEXT_BYTES)
+        .map_err(|_| DROPPED_JOB_TEXT_ERROR.to_string())?;
     if text.chars().count() > 50_000 {
         return Err(DROPPED_JOB_TEXT_ERROR.to_string());
     }

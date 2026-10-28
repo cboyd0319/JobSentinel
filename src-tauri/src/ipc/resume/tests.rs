@@ -1,3 +1,5 @@
+//! Verifies resume IPC projections, input boundaries and managed-file cleanup.
+
 use super::resume_match_debugger_commands::{
     is_saved_match_debugger_opaque_id, validate_saved_match_debugger_args,
     validate_saved_match_packet_args,
@@ -292,7 +294,7 @@ fn selected_resume_validation_rejects_oversized_file_without_path_leak() {
     let file = std::fs::File::create(&resume_path).unwrap();
     file.set_len(MAX_RESUME_FILE_BYTES + 1).unwrap();
 
-    let err = validate_selected_resume(&resume_path).unwrap_err();
+    let err = open_selected_resume(&resume_path).unwrap_err();
 
     assert!(err.contains("too large"));
     assert!(!err.contains(temp_dir.path().to_string_lossy().as_ref()));

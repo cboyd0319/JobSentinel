@@ -85,6 +85,15 @@ describe("NativeFileDropReview", () => {
     );
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     expect(mockInvoke).not.toHaveBeenCalled();
+    expect(screen.getByRole("alert")).not.toHaveTextContent("unsafe event");
+  });
+
+  it("shows the safe restore route for an oversized backup rejection", async () => {
+    render(<NativeFileDropReview />);
+    await emit({ dropId: null, name: null, error: "Backup drops are limited to 256 MiB. Use Settings > Restore for larger backups." });
+    expect(screen.getByRole("alert")).toHaveTextContent(/256 MiB.*Restore in Settings.*Nothing was imported/);
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(mockInvoke).not.toHaveBeenCalled();
   });
 
   it("shows only the sanitized name and explicit local review choices", async () => {

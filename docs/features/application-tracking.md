@@ -1,3 +1,5 @@
+<!-- Defines local application tracking, case workflows, and reviewed native file imports. -->
+
 # Application Tracking
 
 **Keep each opportunity, follow-up, note, interview, and offer in one local
@@ -114,11 +116,13 @@ completed interview history without an arbitrary age cutoff.
 
 The installed main window accepts one regular file drop at a time. Rust opens
 the source once without following a final symlink or Windows reparse point,
-copies its bytes into private app-owned staging, and sends the review surface
+copies bounded bytes into private app-owned staging, and sends the review surface
 only an opaque token and sanitized file name. Replacement, cancel, completion,
 and restart clean staged copies. JobSentinel does not subscribe to Tauri's
 built-in raw-path event, grants the renderer no filesystem capability, and
-never renders or logs the source path.
+never renders or logs the source path. Copies are serialized and stop when a newer
+drop supersedes them. Resume and text drops are limited to 10 MiB; encrypted `.db`
+backup drops are limited to 256 MiB, with larger backups using Settings > Restore.
 
 The user explicitly chooses the existing owner:
 
