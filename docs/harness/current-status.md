@@ -27,7 +27,10 @@ Last updated: 2026-10-28
 - Snapshot-bound semantic matching is wired into maintained reviews at `c3882eb3`.
   One optimized Qwen workflow passed in 5.70s with 6,668,730,368-byte peak RSS;
   this is not representative latency or an enforced 8 GiB qualification.
-- Next: compare current model candidates and continue the outstanding audit.
+- Security refresh: affected branch dependencies patched; npm audit reports zero known
+  vulnerabilities. Evidence: `docs/harness/evidence/v3-security-refresh-2026-10-28.json`.
+- Next: finish M10 native preparation and update execution; compare model candidates
+  with focused benchmarks and close the recorded audit gaps without new broad audit passes.
 - Continue the uncompleted audit, then finish M10 writer exclusion, durable update
   journal, startup reconciliation, installer handoff and reviewed Settings UX.
 
