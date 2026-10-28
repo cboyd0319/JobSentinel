@@ -1,11 +1,12 @@
-use super::integrity::verify_model_file_checksum;
+//! Deserializes tokenizers, weights and config from the exact checksum-verified bytes.
+
+use super::integrity::read_verified_model_file;
 use super::ModelManager;
 use crate::manifest::ModelSpec;
 use crate::MlError;
 use anyhow::{Context, Result};
 use candle_core::{DType, Device};
 use candle_nn::VarBuilder;
-use jobsentinel_security::path_label_for_logging;
 use serde::de::DeserializeOwned;
 use tokenizers::Tokenizer;
 
@@ -29,11 +30,10 @@ impl ModelManager {
             .into());
         }
 
-        verify_model_file_checksum(&tokenizer_path, &tokenizer_file.sha256)
+        let bytes = read_verified_model_file(&tokenizer_path, tokenizer_file)
             .context("cached tokenizer failed integrity check")?;
 
-        Tokenizer::from_file(&tokenizer_path)
-            .map_err(|e| MlError::TokenizationFailed(e.to_string()).into())
+        Tokenizer::from_bytes(&bytes).map_err(|e| MlError::TokenizationFailed(e.to_string()).into())
     }
 
     /// Load model weights from cache for the legacy runtime embedding model.
@@ -59,15 +59,7 @@ impl ModelManager {
             .into());
         }
 
-        verify_model_file_checksum(&model_path, &weights_file.sha256)
-            .context("cached model weights failed integrity check")?;
-
-        let model_data = std::fs::read(&model_path).with_context(|| {
-            format!(
-                "failed to read model weights from {}",
-                path_label_for_logging(&model_path)
-            )
-        })?;
+        let model_data = read_verified_model_file(&model_path, weights_file)?;
         VarBuilder::from_buffered_safetensors(model_data, DType::F32, device)
             .map_err(|e| MlError::ModelLoadFailed(e.to_string()).into())
     }
@@ -89,15 +81,7 @@ impl ModelManager {
             .into());
         }
 
-        verify_model_file_checksum(&path, &file.sha256)
-            .context("cached model JSON failed integrity check")?;
-
-        let bytes = std::fs::read(&path).with_context(|| {
-            format!(
-                "failed to read model JSON from {}",
-                path_label_for_logging(&path)
-            )
-        })?;
+        let bytes = read_verified_model_file(&path, file)?;
         serde_json::from_slice(&bytes).map_err(|error| {
             MlError::ModelLoadFailed(format!("failed to parse {file_name}: {error}")).into()
         })

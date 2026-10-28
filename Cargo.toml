@@ -37,6 +37,7 @@ async-trait = "=0.1.89"
 basic-toml = "=0.1.10"
 candle-core = "=0.11.0"
 candle-nn = "=0.11.0"
+candle-transformers = "=0.11.0"
 chacha20poly1305 = "=0.11.0"
 chrono = { version = "=0.4.45", features = ["serde"] }
 chromiumoxide = "=0.9.1"

@@ -1,3 +1,5 @@
+//! Verifies cache state, integrity, safe repair and governed cleanup.
+
 use super::*;
 use crate::ModelFileSpec;
 use sha2::{Digest, Sha256};
@@ -28,6 +30,13 @@ fn model_cache_health_distinguishes_missing_incomplete_invalid_and_ready() {
     );
 
     std::fs::write(model_dir.join("model.safetensors"), WEIGHTS).unwrap();
+    assert_eq!(
+        manager.cache_health_for(&spec),
+        ModelCacheHealth::Incomplete
+    );
+    manager
+        .finalize_verified_cache(&load_model_manifest().unwrap(), &spec)
+        .unwrap();
     assert_eq!(manager.cache_health_for(&spec), ModelCacheHealth::Ready);
 }
 

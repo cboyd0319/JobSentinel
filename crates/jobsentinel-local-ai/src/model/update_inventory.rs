@@ -1,8 +1,7 @@
 //! Inspects every retained governed model cache without downloading, repairing, or deleting it.
 
-use super::{load_model_manifest, ModelCacheMetadata, ModelManager};
+use super::{load_model_manifest, ModelManager};
 use anyhow::{ensure, Result};
-use std::io::Read;
 use std::path::{Path, PathBuf};
 
 impl ModelManager {
@@ -45,28 +44,7 @@ impl ModelManager {
                         .find(|spec| self.model_cache_dir(spec) == cache)
                         .ok_or_else(|| anyhow::anyhow!("Unknown retained model cache"))?;
                     self.verify_model_cache(spec)?;
-                    let metadata_path = cache.join(super::status::MODEL_CACHE_METADATA_FILE);
-                    let metadata = std::fs::symlink_metadata(&metadata_path)?;
-                    ensure!(
-                        metadata.is_file()
-                            && !metadata.file_type().is_symlink()
-                            && metadata.len() <= 65536,
-                        "Invalid model metadata"
-                    );
-                    let mut bytes = Vec::new();
-                    std::fs::File::open(metadata_path)?
-                        .take(65537)
-                        .read_to_end(&mut bytes)?;
-                    ensure!(bytes.len() <= 65536, "Model metadata exceeds its limit");
-                    let data: ModelCacheMetadata = serde_json::from_slice(&bytes)?;
-                    ensure!(
-                        data.manifest_version == manifest.manifest_version
-                            && data.manifest_hash == super::model_lock_hash()
-                            && data.model_id == spec.id
-                            && data.revision == spec.revision
-                            && data.backend == spec.backend,
-                        "Inconsistent model metadata"
-                    );
+                    let (data, bytes) = self.verified_cache_metadata(spec)?;
                     identities.push(serde_json::to_string(&(
                         &data.model_id,
                         &data.revision,

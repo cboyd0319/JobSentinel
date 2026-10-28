@@ -15,7 +15,6 @@ use anyhow::Result;
 use std::path::PathBuf;
 
 pub(crate) use legacy::SentenceTransformer;
-pub(crate) use status::ModelCacheMetadata;
 
 const RUNTIME_MODEL_LOCK_MISSING: &str = "runtime model lock entry missing";
 const DEFAULT_EMBEDDING_MODEL_LOCK_MISSING: &str = "default embedding model lock entry missing";

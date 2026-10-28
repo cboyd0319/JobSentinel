@@ -1,8 +1,9 @@
+//! Downloads governed model bytes and atomically finalizes recoverable cache metadata.
+
 use super::integrity::verify_model_file_checksum;
-use super::status::MODEL_CACHE_METADATA_FILE;
 use super::{
-    ModelCacheMetadata, ModelManager, DEFAULT_EMBEDDING_MODEL_LOCK_MISSING,
-    DEFAULT_RERANKER_MODEL_LOCK_MISSING, RUNTIME_MODEL_LOCK_MISSING,
+    ModelManager, DEFAULT_EMBEDDING_MODEL_LOCK_MISSING, DEFAULT_RERANKER_MODEL_LOCK_MISSING,
+    RUNTIME_MODEL_LOCK_MISSING,
 };
 use crate::manifest::{load_model_manifest, model_lock_hash, ModelManifest, ModelSpec};
 use crate::MlError;
@@ -70,6 +71,7 @@ impl ModelManager {
         let mut completed_bytes = 0;
         for spec in [embedding, reranker] {
             if self.is_model_downloaded_for(spec) {
+                self.finalize_verified_cache(&manifest, spec)?;
                 paths.push(self.model_cache_dir(spec));
             } else {
                 paths.push(
@@ -100,6 +102,10 @@ impl ModelManager {
         completed_before_model: u64,
         total_bytes: u64,
     ) -> Result<PathBuf> {
+        if self.cache_files_health_for(spec) == super::status::ModelCacheHealth::Ready {
+            self.finalize_verified_cache(manifest, spec)?;
+            return Ok(self.model_cache_dir(spec));
+        }
         tracing::info!(
             model_id = spec.id,
             revision = spec.revision,
@@ -358,36 +364,6 @@ impl ModelManager {
         }
         std::fs::rename(staged, target).context("Failed to activate verified model file")
     }
-
-    fn write_cache_metadata(
-        &self,
-        model_dir: &Path,
-        manifest: &ModelManifest,
-        spec: &ModelSpec,
-        downloaded_at: String,
-        verified_at: String,
-    ) -> Result<()> {
-        let metadata = ModelCacheMetadata {
-            manifest_version: manifest.manifest_version,
-            manifest_hash: model_lock_hash(),
-            model_id: spec.id.clone(),
-            kind: format!("{:?}", spec.kind),
-            repo: spec.repo.clone(),
-            revision: spec.revision.clone(),
-            source_url: spec.source_url.clone(),
-            backend: spec.backend.clone(),
-            license: spec.license.clone(),
-            downloaded_at,
-            verified_at,
-        };
-        let metadata_json = serde_json::to_vec_pretty(&metadata)
-            .context("failed to serialize model cache metadata")?;
-        let metadata_path = model_dir.join(MODEL_CACHE_METADATA_FILE);
-        ensure_regular_file_or_missing(&metadata_path)?;
-        std::fs::write(metadata_path, metadata_json)
-            .context("failed to write model cache metadata")?;
-        Ok(())
-    }
 }
 
 fn locked_bytes(spec: &ModelSpec) -> u64 {
@@ -485,7 +461,7 @@ fn ensure_directory(path: &Path) -> Result<()> {
     Ok(())
 }
 
-fn ensure_regular_file_or_missing(path: &Path) -> Result<()> {
+pub(super) fn ensure_regular_file_or_missing(path: &Path) -> Result<()> {
     match std::fs::symlink_metadata(path) {
         Ok(metadata) if metadata.file_type().is_file() => Ok(()),
         Err(error) if error.kind() == ErrorKind::NotFound => Ok(()),

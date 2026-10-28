@@ -1,3 +1,4 @@
+# Defines optional governed local inference and its CPU model dependencies.
 [package]
 name = "jobsentinel-local-ai"
 description = "Optional governed local inference for JobSentinel"
@@ -11,13 +12,14 @@ categories.workspace = true
 
 [features]
 default = []
-embedded-ml = ["basic-toml", "candle-core", "candle-nn", "futures-util", "hf-hub", "tokenizers"]
+embedded-ml = ["basic-toml", "candle-core", "candle-nn", "candle-transformers", "futures-util", "hf-hub", "tokenizers", "tempfile"]
 
 [dependencies]
 anyhow.workspace = true
 basic-toml = { workspace = true, optional = true }
 candle-core = { workspace = true, optional = true }
 candle-nn = { workspace = true, optional = true }
+candle-transformers = { workspace = true, optional = true }
 chrono.workspace = true
 futures-util = { workspace = true, optional = true }
 hex.workspace = true
@@ -29,6 +31,7 @@ serde_json.workspace = true
 sha2.workspace = true
 thiserror.workspace = true
 tokenizers = { workspace = true, optional = true }
+tempfile = { workspace = true, optional = true }
 tracing.workspace = true
 
 [dev-dependencies]

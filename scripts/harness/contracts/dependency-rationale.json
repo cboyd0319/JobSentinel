@@ -91,6 +91,7 @@
     "chromiumoxide": "Drives a user-controlled browser for manual import and automation.",
     "futures-util": "Async stream and combinator helpers.",
     "candle-core": "Local ML tensor runtime for optional on-device models.",
+    "candle-transformers": "Canonical BERT inference replaces the incomplete legacy MiniLM encoder.",
     "candle-nn": "Neural-network layers for candle.",
     "hf-hub": "Downloads local model files from the Hugging Face Hub.",
     "tokenizers": "Text tokenization for local ML.",

@@ -1,6 +1,4 @@
-//! Machine Learning Tauri Commands
-//!
-//! Commands for model download, status checking, and semantic matching.
+//! Exposes reviewed local model setup, diagnostics and semantic matching.
 
 #![cfg(feature = "embedded-ml")]
 
@@ -77,6 +75,9 @@ pub(crate) async fn download_ml_model(app: tauri::AppHandle) -> Result<bool, Str
     let manager = ModelManager::new(app_data_dir);
 
     if manager.is_default_semantic_runtime_downloaded() {
+        manager
+            .finalize_default_semantic_metadata()
+            .map_err(|_| "Local model metadata could not be repaired".to_string())?;
         tracing::info!("Default semantic models already downloaded");
         return Ok(true);
     }

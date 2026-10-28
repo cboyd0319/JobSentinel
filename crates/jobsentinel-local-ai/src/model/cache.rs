@@ -1,3 +1,5 @@
+//! Inspects, removes and reports governed local model cache files.
+
 use super::integrity::verify_model_file_checksum;
 use super::{
     fallback_runtime_model_spec,
@@ -34,8 +36,17 @@ impl ModelManager {
         self.cache_health_for(spec) == ModelCacheHealth::Ready
     }
 
-    /// Inspect required model files without returning paths or raw errors.
+    /// A ready cache includes both verified files and valid finalized metadata.
     pub fn cache_health_for(&self, spec: &ModelSpec) -> ModelCacheHealth {
+        let files = self.cache_files_health_for(spec);
+        if files == ModelCacheHealth::Ready && self.verified_cache_metadata(spec).is_err() {
+            ModelCacheHealth::Incomplete
+        } else {
+            files
+        }
+    }
+
+    pub(super) fn cache_files_health_for(&self, spec: &ModelSpec) -> ModelCacheHealth {
         match self.validated_cache_root(spec) {
             Err(_) => return ModelCacheHealth::IntegrityMismatch,
             Ok(None) => return ModelCacheHealth::Missing,
@@ -273,7 +284,7 @@ impl ModelManager {
     }
 
     pub(super) fn verify_model_cache(&self, spec: &ModelSpec) -> Result<()> {
-        match self.cache_health_for(spec) {
+        match self.cache_files_health_for(spec) {
             ModelCacheHealth::Ready => Ok(()),
             ModelCacheHealth::Missing | ModelCacheHealth::Incomplete => Err(
                 MlError::ModelNotDownloaded("required model cache is incomplete".to_string())

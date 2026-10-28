@@ -1,3 +1,5 @@
+//! Verifies bounded model transfer, safe cache paths and offline metadata finalization.
+
 use super::*;
 use futures_util::Stream;
 use std::future::Future;
@@ -221,4 +223,32 @@ fn download_preparation_rejects_symlinked_partial_files() {
     .unwrap();
 
     assert!(manager.prepare_staging_file(&spec, &spec.files[0]).is_err());
+}
+
+#[tokio::test]
+async fn verified_files_finalize_missing_metadata_without_network_setup() {
+    use sha2::{Digest, Sha256};
+    let root = tempfile::tempdir().unwrap();
+    let manager = ModelManager::new(root.path().to_path_buf());
+    let manifest = load_model_manifest().unwrap();
+    let mut spec = manifest.legacy_runtime_embedding().unwrap().clone();
+    let cache = manager.model_cache_dir(&spec);
+    for file in &mut spec.files {
+        file.sha256 = hex::encode(Sha256::digest(b"fixture"));
+        file.size_bytes = Some(7);
+        let path = cache.join(&file.path);
+        std::fs::create_dir_all(path.parent().unwrap()).unwrap();
+        std::fs::write(path, b"fixture").unwrap();
+    }
+    assert!(!manager.is_model_downloaded_for(&spec));
+    assert_eq!(
+        manager
+            .download_model_spec(&manifest, &spec, None, 0, locked_bytes(&spec))
+            .await
+            .unwrap(),
+        cache
+    );
+    assert!(manager.is_model_downloaded_for(&spec));
+    assert!(!cache.join(".download").exists());
+    assert!(!manager.cache_dir.join(".xet").exists());
 }
