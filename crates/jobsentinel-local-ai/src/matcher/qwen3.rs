@@ -1,7 +1,9 @@
+//! Applies calibrated Qwen retrieval and reranking to bounded local evidence.
+
 use super::shared::{
     build_match_result, checked_cosine_similarity, dense_candidates, empty_match_result,
-    qwen3_match_threshold, qwen3_reranker_acceptance_threshold, require_embedding_count,
-    validate_resume_embeddings, QWEN3_REQUIREMENT_INSTRUCTION, QWEN3_RERANK_TOP_K,
+    qwen3_match_threshold, qwen3_requirement_instruction, qwen3_reranker_acceptance_threshold,
+    require_embedding_count, validate_resume_embeddings, QWEN3_RERANK_TOP_K,
 };
 use super::{SemanticMatchResult, SemanticRuntimeProfile, SemanticUnmatchedReason, SkillMatch};
 use crate::runtime::{
@@ -161,11 +163,12 @@ impl Qwen3SemanticRuntime {
             &generated
         };
 
+        let instruction = qwen3_requirement_instruction()?;
         let job_inputs: Vec<EmbeddingInput> = job_requirements
             .iter()
             .map(|requirement| EmbeddingInput {
                 text: requirement.clone(),
-                instruction: Some(QWEN3_REQUIREMENT_INSTRUCTION.to_string()),
+                instruction: Some(instruction.clone()),
                 input_kind: EmbeddingInputKind::Requirement,
             })
             .collect();
@@ -237,7 +240,7 @@ impl Qwen3SemanticRuntime {
         let scores = self.reranker.rerank(
             &RerankQuery {
                 text: job_requirements[job_idx].clone(),
-                instruction: Some(QWEN3_REQUIREMENT_INSTRUCTION.to_string()),
+                instruction: Some(qwen3_requirement_instruction()?),
                 query_kind: RerankQueryKind::ResumeRequirement,
             },
             &candidates,
@@ -261,7 +264,7 @@ impl Qwen3SemanticRuntime {
 
         let query_embedding = self.embedding.embed_query(&EmbeddingInput {
             text: query_skill.to_string(),
-            instruction: Some(QWEN3_REQUIREMENT_INSTRUCTION.to_string()),
+            instruction: Some(qwen3_requirement_instruction()?),
             input_kind: EmbeddingInputKind::Requirement,
         })?;
         let candidate_inputs: Vec<EmbeddingInput> = candidate_skills

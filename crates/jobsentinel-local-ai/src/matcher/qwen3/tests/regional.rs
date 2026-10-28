@@ -69,7 +69,9 @@ fn pinned_qwen3_evaluates_regional_requirement_hard_negatives() {
             .embedding
             .embed_query(&EmbeddingInput {
                 text: fixture.query.clone(),
-                instruction: Some(QWEN3_REQUIREMENT_INSTRUCTION.to_string()),
+                instruction: Some(
+                    qwen3_requirement_instruction().expect("locked requirement instruction"),
+                ),
                 input_kind: EmbeddingInputKind::Requirement,
             })
             .expect("synthetic requirement should embed");
@@ -100,7 +102,9 @@ fn pinned_qwen3_evaluates_regional_requirement_hard_negatives() {
             .rerank(
                 &RerankQuery {
                     text: fixture.query.clone(),
-                    instruction: Some(QWEN3_REQUIREMENT_INSTRUCTION.to_string()),
+                    instruction: Some(
+                        qwen3_requirement_instruction().expect("locked requirement instruction"),
+                    ),
                     query_kind: RerankQueryKind::ResumeRequirement,
                 },
                 &candidates,

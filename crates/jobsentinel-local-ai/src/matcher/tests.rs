@@ -1,3 +1,5 @@
+//! Tests local matching safety, bounded workload admission and runtime selection.
+
 use super::*;
 use std::collections::HashSet;
 
@@ -270,10 +272,10 @@ fn model_free_runtime_rejects_precomputed_model_vectors() {
 
 // Requires local model files and remains outside the default automated lane.
 #[test]
-#[ignore]
+#[ignore = "requires verified MiniLM files in JOBSENTINEL_MINILM_TEST_CACHE"]
 fn test_semantic_matching() {
-    let app_data_dir = tempfile::tempdir().unwrap();
-    let matcher = SemanticMatcher::new(app_data_dir.path().to_path_buf()).unwrap();
+    let app_data_dir = std::env::var_os("JOBSENTINEL_MINILM_TEST_CACHE").expect("explicit governed model cache");
+    let matcher = SemanticMatcher::new(app_data_dir.into()).unwrap();
     let user_skills = vec![
         "Python programming".to_string(),
         "Machine Learning".to_string(),
@@ -290,7 +292,32 @@ fn test_semantic_matching() {
         .match_skills(&user_skills, &job_requirements)
         .unwrap();
 
+    assert_eq!(result.runtime_profile, SemanticRuntimeProfile::MiniLm);
     assert!(result.overall_score > 0.5);
     assert!(result.matched_skills.len() >= 2);
     assert!(result.unmatched_requirements.contains(&"Java".to_string()));
+}
+
+#[test]
+fn input_budget_refuses_oversized_text_lists_and_aggregate_before_dispatch() {
+    let matcher = SemanticMatcher {
+        runtime: SemanticMatcherRuntime::RejectOnly,
+    };
+    assert!(matcher
+        .match_skills(&vec!["x".into(); MAX_LOCAL_MATCH_ITEMS + 1], &[])
+        .is_err());
+    assert!(matcher
+        .match_skills(&["x".repeat(MAX_LOCAL_MATCH_TEXT_BYTES + 1)], &[])
+        .is_err());
+    assert!(matcher
+        .match_skills(&vec!["x".repeat(MAX_LOCAL_MATCH_TEXT_BYTES); 65], &[])
+        .is_err());
+    assert!(
+        validate_local_matching_input(["x".repeat(MAX_LOCAL_MATCH_TEXT_BYTES).as_str()]).is_ok()
+    );
+}
+
+#[test]
+fn locked_instruction_preserves_the_calibrated_prompt() {
+    assert_eq!(shared::qwen3_requirement_instruction().unwrap(), "Retrieve resume skills or passages that provide concrete evidence for this job requirement.");
 }

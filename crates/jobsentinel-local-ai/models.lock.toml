@@ -1,3 +1,4 @@
+# Pins model artifacts, instruction profiles and calibrated matching thresholds.
 manifest_version = 1
 
 [defaults]
@@ -6,7 +7,7 @@ reranker = "qwen3-reranker-0.6b"
 legacy_runtime_embedding = "all-minilm-l6-v2-baseline"
 
 [instruction_profiles.resume_requirement_v1]
-query = "Given a job requirement, retrieve resume passages that provide concrete evidence that the candidate satisfies the requirement."
+query = "Retrieve resume skills or passages that provide concrete evidence for this job requirement."
 document = "Resume passage or professional profile evidence."
 
 [instruction_profiles.job_search_v1]

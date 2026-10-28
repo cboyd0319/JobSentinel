@@ -52,7 +52,16 @@ impl ModelManager {
         &self,
         spec: &ModelSpec,
     ) -> Result<(ModelCacheMetadata, Vec<u8>)> {
-        let path = self.model_cache_dir(spec).join(MODEL_CACHE_METADATA_FILE);
+        self.verified_cache_metadata_at(spec, &self.model_cache_dir(spec), &model_lock_hash())
+    }
+
+    pub(super) fn verified_cache_metadata_at(
+        &self,
+        spec: &ModelSpec,
+        cache: &Path,
+        expected_lock: &str,
+    ) -> Result<(ModelCacheMetadata, Vec<u8>)> {
+        let path = cache.join(MODEL_CACHE_METADATA_FILE);
         ensure_regular_file_or_missing(&path)?;
         let mut bytes = Vec::new();
         std::fs::File::open(path)?
@@ -62,7 +71,7 @@ impl ModelManager {
         let metadata: ModelCacheMetadata = serde_json::from_slice(&bytes)?;
         anyhow::ensure!(
             metadata.manifest_version == load_model_manifest()?.manifest_version
-                && metadata.manifest_hash == model_lock_hash()
+                && metadata.manifest_hash == expected_lock
                 && metadata.kind == format!("{:?}", spec.kind)
                 && metadata.model_id == spec.id
                 && metadata.revision == spec.revision

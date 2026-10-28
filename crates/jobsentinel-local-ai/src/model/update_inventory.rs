@@ -1,6 +1,6 @@
 //! Inspects every retained governed model cache without downloading, repairing, or deleting it.
 
-use super::{load_model_manifest, ModelManager};
+use super::{cache::verified_retained_file, load_model_manifest, ModelManager};
 use anyhow::{ensure, Result};
 use std::path::{Path, PathBuf};
 
@@ -41,10 +41,23 @@ impl ModelManager {
                     let spec = manifest
                         .models
                         .iter()
-                        .find(|spec| self.model_cache_dir(spec) == cache)
+                        .find(|spec| self.cache_dir.join(&spec.id).join(&spec.revision) == revision)
                         .ok_or_else(|| anyhow::anyhow!("Unknown retained model cache"))?;
-                    self.verify_model_cache(spec)?;
-                    let (data, bytes) = self.verified_cache_metadata(spec)?;
+                    let lock = cache
+                        .file_name()
+                        .and_then(|name| name.to_str())
+                        .filter(|name| {
+                            name.len() == 64 && name.bytes().all(|byte| byte.is_ascii_hexdigit())
+                        })
+                        .ok_or_else(|| anyhow::anyhow!("Unknown retained model cache"))?;
+                    if cache == self.model_cache_dir(spec) {
+                        self.verify_model_cache(spec)?;
+                    } else {
+                        for file in spec.required_files() {
+                            verified_retained_file(&cache, file)?;
+                        }
+                    }
+                    let (data, bytes) = self.verified_cache_metadata_at(spec, &cache, lock)?;
                     identities.push(serde_json::to_string(&(
                         &data.model_id,
                         &data.revision,

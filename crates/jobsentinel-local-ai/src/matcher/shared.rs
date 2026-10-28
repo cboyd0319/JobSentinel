@@ -1,3 +1,5 @@
+//! Shares matching result validation, calibrated thresholds and locked instruction lookup.
+
 use super::{
     SemanticMatchResult, SemanticRuntimeProfile, SemanticUnmatchedReason, SkillMatch,
     UnmatchedRequirementDiagnostic,
@@ -10,8 +12,13 @@ use std::collections::HashSet;
 /// Similarity threshold for considering skills as matching.
 pub(super) const SIMILARITY_THRESHOLD: f32 = 0.7;
 pub(super) const QWEN3_RERANK_TOP_K: usize = 25;
-pub(super) const QWEN3_REQUIREMENT_INSTRUCTION: &str =
-    "Retrieve resume skills or passages that provide concrete evidence for this job requirement.";
+pub(super) fn qwen3_requirement_instruction() -> Result<String> {
+    load_model_manifest()?
+        .instruction_profiles
+        .remove("resume_requirement_v1")
+        .map(|profile| profile.query)
+        .ok_or_else(|| anyhow::anyhow!("required matching instruction profile is missing"))
+}
 
 pub(super) fn dense_candidates(
     query_embedding: &[f32],

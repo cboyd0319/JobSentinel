@@ -1,3 +1,5 @@
+//! Verifies frozen Qwen requirement calibration scores with explicit governed caches.
+
 use super::super::*;
 use crate::{EvalDatasetKind, EvalFixtureSet, HardNegativeExample, UnmatchedRequirementDiagnostic};
 use std::path::PathBuf;
@@ -66,7 +68,9 @@ fn pinned_qwen3_preserves_original_requirement_hard_negative_baseline() {
             .embedding
             .embed_query(&EmbeddingInput {
                 text: requirement.clone(),
-                instruction: Some(QWEN3_REQUIREMENT_INSTRUCTION.to_string()),
+                instruction: Some(
+                    qwen3_requirement_instruction().expect("locked requirement instruction"),
+                ),
                 input_kind: EmbeddingInputKind::Requirement,
             })
             .expect("frozen requirement should embed");
@@ -102,7 +106,9 @@ fn pinned_qwen3_preserves_original_requirement_hard_negative_baseline() {
             .rerank(
                 &RerankQuery {
                     text: requirement.clone(),
-                    instruction: Some(QWEN3_REQUIREMENT_INSTRUCTION.to_string()),
+                    instruction: Some(
+                        qwen3_requirement_instruction().expect("locked requirement instruction"),
+                    ),
                     query_kind: RerankQueryKind::ResumeRequirement,
                 },
                 &candidates,
@@ -281,7 +287,9 @@ fn assert_direct_requirement_calibration(
             .embedding
             .embed_query(&EmbeddingInput {
                 text: fixture.query.clone(),
-                instruction: Some(QWEN3_REQUIREMENT_INSTRUCTION.to_string()),
+                instruction: Some(
+                    qwen3_requirement_instruction().expect("locked requirement instruction"),
+                ),
                 input_kind: EmbeddingInputKind::Requirement,
             })
             .expect("frozen requirement should embed");
@@ -303,7 +311,9 @@ fn assert_direct_requirement_calibration(
             .rerank(
                 &RerankQuery {
                     text: fixture.query,
-                    instruction: Some(QWEN3_REQUIREMENT_INSTRUCTION.to_string()),
+                    instruction: Some(
+                        qwen3_requirement_instruction().expect("locked requirement instruction"),
+                    ),
                     query_kind: RerankQueryKind::ResumeRequirement,
                 },
                 &evidence

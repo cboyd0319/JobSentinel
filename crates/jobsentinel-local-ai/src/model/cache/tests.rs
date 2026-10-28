@@ -284,3 +284,98 @@ fn required_file(path: &str, contents: &[u8]) -> ModelFileSpec {
         required: true,
     }
 }
+
+#[test]
+fn prior_lock_artifacts_are_verified_reused_and_preserved() {
+    let root = tempfile::tempdir().unwrap();
+    let manager = ModelManager::new(root.path().to_path_buf());
+    let spec = synthetic_spec();
+    let current = manager.model_cache_dir(&spec);
+    let old = current.parent().unwrap().join("a".repeat(64));
+    std::fs::create_dir_all(&old).unwrap();
+    std::fs::write(old.join("config.json"), CONFIG).unwrap();
+    std::fs::write(old.join("model.safetensors"), WEIGHTS).unwrap();
+    std::fs::write(old.join(".jobsentinel-model.json"), b"retained metadata").unwrap();
+    assert!(manager.reuse_verified_artifacts(&spec).unwrap());
+    manager
+        .finalize_verified_cache(&load_model_manifest().unwrap(), &spec)
+        .unwrap();
+    assert_eq!(manager.cache_health_for(&spec), ModelCacheHealth::Ready);
+    assert_eq!(std::fs::read(old.join("config.json")).unwrap(), CONFIG);
+    assert_eq!(
+        std::fs::read(old.join(".jobsentinel-model.json")).unwrap(),
+        b"retained metadata"
+    );
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::MetadataExt;
+        assert_eq!(
+            std::fs::metadata(old.join("model.safetensors"))
+                .unwrap()
+                .ino(),
+            std::fs::metadata(current.join("model.safetensors"))
+                .unwrap()
+                .ino()
+        );
+    }
+}
+
+#[test]
+fn corrupted_prior_lock_artifacts_are_not_reused() {
+    let root = tempfile::tempdir().unwrap();
+    let manager = ModelManager::new(root.path().to_path_buf());
+    let spec = synthetic_spec();
+    let current = manager.model_cache_dir(&spec);
+    let old = current.parent().unwrap().join("a".repeat(64));
+    std::fs::create_dir_all(&old).unwrap();
+    std::fs::write(old.join("config.json"), CONFIG).unwrap();
+    std::fs::write(old.join("model.safetensors"), b"corrupt").unwrap();
+    assert!(!manager.reuse_verified_artifacts(&spec).unwrap());
+    assert!(!current.exists());
+}
+
+#[test]
+fn retained_metadata_must_match_its_own_lock_and_current_spec() {
+    let root = tempfile::tempdir().unwrap();
+    let manager = ModelManager::new(root.path().to_path_buf());
+    let spec = synthetic_spec();
+    let current = manager.model_cache_dir(&spec);
+    std::fs::create_dir_all(&current).unwrap();
+    manager
+        .write_cache_metadata(
+            &current,
+            &load_model_manifest().unwrap(),
+            &spec,
+            "unknown".into(),
+            "unknown".into(),
+        )
+        .unwrap();
+    assert!(manager
+        .verified_cache_metadata_at(&spec, &current, &"a".repeat(64))
+        .is_err());
+    let old_lock = model_lock_hash();
+    assert!(manager
+        .verified_cache_metadata_at(&spec, &current, &old_lock)
+        .is_ok());
+    std::fs::write(current.join(".jobsentinel-model.json"), b"{}").unwrap();
+    assert!(manager
+        .verified_cache_metadata_at(&spec, &current, &old_lock)
+        .is_err());
+}
+
+#[tokio::test]
+#[ignore = "requires an existing governed MiniLM cache in JOBSENTINEL_MINILM_TEST_CACHE; never downloads"]
+async fn governed_old_lock_reuses_artifacts_and_remains_in_inventory() {
+    let root = std::path::PathBuf::from(
+        std::env::var_os("JOBSENTINEL_MINILM_TEST_CACHE").expect("explicit existing model cache"),
+    );
+    let manager = ModelManager::new(root);
+    let spec = ModelManager::runtime_model_spec().unwrap();
+    assert!(manager.reuse_verified_artifacts(&spec).unwrap());
+    manager
+        .finalize_verified_cache(&load_model_manifest().unwrap(), &spec)
+        .unwrap();
+    assert!(manager.is_model_downloaded_for(&spec));
+    let (formats, identities) = manager.update_identity_inventory().unwrap();
+    assert!(formats.len() >= 2 && identities.len() == formats.len());
+}

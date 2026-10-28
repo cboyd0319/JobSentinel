@@ -102,7 +102,9 @@ impl ModelManager {
         completed_before_model: u64,
         total_bytes: u64,
     ) -> Result<PathBuf> {
-        if self.cache_files_health_for(spec) == super::status::ModelCacheHealth::Ready {
+        if self.cache_files_health_for(spec) == super::status::ModelCacheHealth::Ready
+            || self.reuse_verified_artifacts(spec)?
+        {
             self.finalize_verified_cache(manifest, spec)?;
             return Ok(self.model_cache_dir(spec));
         }
@@ -272,7 +274,7 @@ impl ModelManager {
         Ok(cache_root)
     }
 
-    fn prepare_model_file_path(
+    pub(super) fn prepare_model_file_path(
         &self,
         spec: &ModelSpec,
         file: &crate::manifest::ModelFileSpec,

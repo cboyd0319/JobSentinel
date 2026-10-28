@@ -175,6 +175,13 @@ pub(crate) async fn semantic_match_skills(
         job_requirements.len()
     );
 
+    desktop::validate_local_matching_inputs(&user_skills, &job_requirements)
+        .map_err(|error| user_friendly_error("Invalid local matching input", error))?;
+    #[cfg(test)]
+    assert!(
+        tests::FORBID_MATCHER_ALLOCATION.try_with(|_| ()).is_err(),
+        "input rejection must precede model access"
+    );
     let app_data_dir = desktop::get_data_dir();
     let matcher = SemanticMatcher::new(app_data_dir)
         .map_err(|e| user_friendly_error("Failed to create matcher", e))?;
@@ -296,6 +303,22 @@ fn format_bytes(bytes: u64) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    tokio::task_local! { pub(super) static FORBID_MATCHER_ALLOCATION: (); }
+
+    #[tokio::test]
+    async fn oversized_semantic_arguments_are_refused_before_model_access() {
+        for skills in [
+            vec!["x".repeat(16 * 1024 + 1)],
+            vec!["x".into(); 257],
+            vec!["x".repeat(16 * 1024); 65],
+        ] {
+            let result = FORBID_MATCHER_ALLOCATION
+                .scope((), semantic_match_skills(skills, vec![]))
+                .await;
+            assert!(result.is_err());
+        }
+    }
 
     #[test]
     fn progress_emission_throttles_between_bounded_steps() {

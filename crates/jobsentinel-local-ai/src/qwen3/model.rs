@@ -1,3 +1,5 @@
+//! Evaluates the governed Qwen transformer with causal masking and rotary attention.
+
 use candle_core::{DType, Device, IndexOp, Module, Tensor, D};
 use candle_nn::{linear_b, linear_no_bias, Embedding, Linear, VarBuilder};
 
@@ -326,4 +328,81 @@ fn repeat_kv(tensor: Tensor, groups: usize) -> candle_core::Result<Tensor> {
         .unsqueeze(2)?
         .expand((batch, heads, groups, seq_len, head_dim))?
         .reshape((batch, heads * groups, seq_len, head_dim))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn single_item_inference_preserves_nonzero_padded_batch_outputs() {
+        let config = Qwen3Config {
+            attention_bias: false,
+            head_dim: Some(2),
+            hidden_act: candle_nn::Activation::Silu,
+            hidden_size: 4,
+            intermediate_size: 8,
+            max_position_embeddings: 8,
+            num_attention_heads: 2,
+            num_hidden_layers: 1,
+            num_key_value_heads: 1,
+            rms_norm_eps: 1e-6,
+            rope_theta: 10000.0,
+            use_sliding_window: false,
+            vocab_size: 8,
+        };
+        let definitions = [
+            ("embed_tokens.weight", vec![8, 4]),
+            ("layers.0.self_attn.q_proj.weight", vec![4, 4]),
+            ("layers.0.self_attn.k_proj.weight", vec![2, 4]),
+            ("layers.0.self_attn.v_proj.weight", vec![2, 4]),
+            ("layers.0.self_attn.o_proj.weight", vec![4, 4]),
+            ("layers.0.self_attn.q_norm.weight", vec![2]),
+            ("layers.0.self_attn.k_norm.weight", vec![2]),
+            ("layers.0.input_layernorm.weight", vec![4]),
+            ("layers.0.post_attention_layernorm.weight", vec![4]),
+            ("layers.0.mlp.gate_proj.weight", vec![8, 4]),
+            ("layers.0.mlp.up_proj.weight", vec![8, 4]),
+            ("layers.0.mlp.down_proj.weight", vec![4, 8]),
+            ("norm.weight", vec![4]),
+        ];
+        let tensors = definitions
+            .into_iter()
+            .enumerate()
+            .map(|(seed, (name, shape))| {
+                let values = (0..shape.iter().product())
+                    .map(|index| ((index * 7 + seed * 3 + 1) % 23) as f32 / 19.0 - 0.5)
+                    .collect::<Vec<_>>();
+                (
+                    name.to_owned(),
+                    Tensor::from_vec(values, shape.as_slice(), &Device::Cpu).unwrap(),
+                )
+            })
+            .collect();
+        let model = Qwen3Model::load(
+            config,
+            VarBuilder::from_tensors(tensors, DType::F32, &Device::Cpu),
+        )
+        .unwrap();
+        let batch = model
+            .forward(
+                &Tensor::new(&[[0u32, 1, 2], [3, 4, 5]], &Device::Cpu).unwrap(),
+                &Tensor::new(&[[0f32, 1., 1.], [1., 1., 1.]], &Device::Cpu).unwrap(),
+            )
+            .unwrap();
+        let single = model
+            .forward(
+                &Tensor::new(&[[1u32, 2]], &Device::Cpu).unwrap(),
+                &Tensor::new(&[[1f32, 1.]], &Device::Cpu).unwrap(),
+            )
+            .unwrap();
+        let padded = batch.i((0, 1..3)).unwrap().to_vec2::<f32>().unwrap();
+        let single = single.i(0).unwrap().to_vec2::<f32>().unwrap();
+        assert!(single.iter().flatten().any(|value| value.abs() > 0.01));
+        for (left, right) in padded.iter().flatten().zip(single.iter().flatten()) {
+            assert!(
+                (left - right).abs() < 1e-5,
+                "batch padding changed output: {left} vs {right}"
+            );
+        }
+    }
 }

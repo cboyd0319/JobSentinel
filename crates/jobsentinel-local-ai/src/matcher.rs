@@ -1,6 +1,4 @@
-//! Semantic Skill Matching
-//!
-//! Uses sentence embeddings to match job requirements to user skills semantically.
+//! Validates bounded matching requests before dispatching deterministic or governed local inference.
 
 use super::embeddings::EmbeddingGenerator;
 use super::model::ModelManager;
@@ -17,6 +15,10 @@ mod qwen3;
 mod shared;
 
 use qwen3::Qwen3SemanticRuntime;
+
+pub(crate) const MAX_LOCAL_MATCH_ITEMS: usize = 256;
+pub(crate) const MAX_LOCAL_MATCH_TEXT_BYTES: usize = 16 * 1024;
+const MAX_LOCAL_MATCH_BYTES: usize = 1024 * 1024;
 
 const LOCAL_MATCH_INPUT_REVIEW_REQUIRED: &str = "local matching input requires review";
 
@@ -233,12 +235,23 @@ impl SemanticMatcher {
     }
 }
 
-fn validate_local_matching_input<'a>(values: impl IntoIterator<Item = &'a str>) -> Result<()> {
-    if values.into_iter().any(|value| {
-        contains_review_required_invisible_control(value)
+pub(crate) fn validate_local_matching_input<'a>(
+    values: impl IntoIterator<Item = &'a str>,
+) -> Result<()> {
+    let mut bytes = 0;
+    for (index, value) in values.into_iter().enumerate() {
+        bytes += value.len().min(MAX_LOCAL_MATCH_BYTES + 1);
+        if index >= MAX_LOCAL_MATCH_ITEMS
+            || value.len() > MAX_LOCAL_MATCH_TEXT_BYTES
+            || bytes > MAX_LOCAL_MATCH_BYTES
+        {
+            anyhow::bail!("local matching input exceeds the workload budget");
+        }
+        if contains_review_required_invisible_control(value)
             || contains_instruction_override_phrase(value)
-    }) {
-        anyhow::bail!(LOCAL_MATCH_INPUT_REVIEW_REQUIRED);
+        {
+            anyhow::bail!(LOCAL_MATCH_INPUT_REVIEW_REQUIRED);
+        }
     }
     Ok(())
 }

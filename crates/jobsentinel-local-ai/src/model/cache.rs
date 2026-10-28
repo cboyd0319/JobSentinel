@@ -1,4 +1,4 @@
-//! Inspects, removes and reports governed local model cache files.
+//! Inspects, reuses, removes and reports governed local model cache files.
 
 use super::integrity::verify_model_file_checksum;
 use super::{
@@ -23,6 +23,78 @@ const MODEL_CACHE_NOT_REPAIRABLE: &str = "local model cache cannot be repaired";
 const XET_TRANSFER_CACHE_DIR: &str = ".xet";
 
 impl ModelManager {
+    /// Reuses only byte-identical artifacts from an older lock for the same pinned revision.
+    pub(super) fn reuse_verified_artifacts(&self, spec: &ModelSpec) -> Result<bool> {
+        let Some(model_root) = self.validated_cache_child(&spec.id)? else {
+            return Ok(false);
+        };
+        let revision = model_root.join(&spec.revision);
+        match std::fs::symlink_metadata(&revision) {
+            Err(error) if error.kind() == ErrorKind::NotFound => return Ok(false),
+            Ok(metadata) if metadata.file_type().is_dir() => {}
+            _ => anyhow::bail!(MODEL_CACHE_NOT_REPAIRABLE),
+        }
+        for (index, entry) in std::fs::read_dir(&revision)?.enumerate() {
+            anyhow::ensure!(
+                index < 64,
+                "Model cache history exceeds its inspection limit"
+            );
+            let entry = entry?;
+            let name = entry.file_name();
+            let Some(name) = name.to_str() else {
+                continue;
+            };
+            if name == model_lock_hash()
+                || name.len() != 64
+                || !name.bytes().all(|c| c.is_ascii_hexdigit())
+                || !entry.file_type()?.is_dir()
+            {
+                continue;
+            }
+            let sources = spec
+                .required_files()
+                .map(|file| {
+                    let source = verified_retained_file(&entry.path(), file)?;
+                    Ok((file, source))
+                })
+                .collect::<Result<Vec<_>>>();
+            let Ok(sources) = sources else {
+                continue;
+            };
+            if sources.is_empty() {
+                continue;
+            }
+            for (file, source) in sources {
+                let target = self.prepare_model_file_path(spec, file)?;
+                if target.exists() && verify_model_file_checksum(&target, &file.sha256).is_ok() {
+                    continue;
+                }
+                if std::fs::hard_link(&source, &target).is_err() {
+                    use std::io::Read;
+                    let mut temporary = tempfile::NamedTempFile::new_in(
+                        target
+                            .parent()
+                            .ok_or_else(|| anyhow::anyhow!(MODEL_CACHE_NOT_REPAIRABLE))?,
+                    )?;
+                    let size = file
+                        .size_bytes
+                        .ok_or_else(|| anyhow::anyhow!("Model size is not governed"))?;
+                    let copied = std::io::copy(
+                        &mut std::fs::File::open(&source)?.take(size + 1),
+                        &mut temporary,
+                    )?;
+                    anyhow::ensure!(copied == size, "Retained model artifact changed");
+                    verify_model_file_checksum(temporary.path(), &file.sha256)?;
+                    temporary.persist(&target).map_err(|error| error.error)?;
+                }
+                verify_model_file_checksum(&target, &file.sha256)?;
+            }
+            self.verify_model_cache(spec)?;
+            return Ok(true);
+        }
+        Ok(false)
+    }
+
     /// Check if the legacy runtime embedding model is already downloaded.
     pub fn is_model_downloaded(&self) -> bool {
         let Ok(spec) = Self::runtime_model_spec() else {
@@ -295,6 +367,32 @@ impl ModelManager {
             }
         }
     }
+}
+
+pub(super) fn verified_retained_file(
+    root: &std::path::Path,
+    file: &ModelFileSpec,
+) -> Result<PathBuf> {
+    let mut path = root.to_path_buf();
+    let mut components = std::path::Path::new(&file.path).components().peekable();
+    while let Some(component) = components.next() {
+        let std::path::Component::Normal(component) = component else {
+            anyhow::bail!(MODEL_CACHE_NOT_REPAIRABLE);
+        };
+        path.push(component);
+        let metadata = std::fs::symlink_metadata(&path)?;
+        anyhow::ensure!(
+            if components.peek().is_some() {
+                metadata.file_type().is_dir()
+            } else {
+                metadata.file_type().is_file() && file.size_bytes == Some(metadata.len())
+            },
+            "Invalid retained model artifact"
+        );
+    }
+    anyhow::ensure!(path != root, "Invalid retained artifact path");
+    verify_model_file_checksum(&path, &file.sha256)?;
+    Ok(path)
 }
 
 fn ensure_symlink_free(path: &std::path::Path) -> Result<()> {
