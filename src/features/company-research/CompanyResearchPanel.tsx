@@ -39,7 +39,8 @@ export const CompanyResearchPanel = memo(function CompanyResearchPanel({
     setHasError(false);
     void invoke<OpportunityCaseProjection>("open_opportunity_case", { jobHash })
       .then((projection) => {
-        if (request !== requestEpoch.current || projection.job.job_hash !== jobHash) return;
+        if (request !== requestEpoch.current) return;
+        if (projection.job.job_hash !== jobHash) throw new Error("mismatched opportunity case");
         const decoded = decodeEmployerDossier(projection.employer_dossier);
         if (!decoded) throw new Error("invalid employer dossier");
         setDossier(decoded);

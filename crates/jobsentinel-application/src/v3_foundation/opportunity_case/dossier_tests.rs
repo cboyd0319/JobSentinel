@@ -133,7 +133,7 @@ async fn dossier_separates_current_public_ats_evidence_from_unverified_employer_
 }
 
 #[tokio::test]
-async fn dossier_retains_stale_observation_and_marks_missing_source_and_unusable_pay() {
+async fn dossier_preserves_uncertainty_with_mixed_evidence() {
     let database = Database::connect_memory().await.unwrap();
     database.migrate().await.unwrap();
     install_greenhouse(&database).await.unwrap();
@@ -144,6 +144,21 @@ async fn dossier_retains_stale_observation_and_marks_missing_source_and_unusable
     stale.salary_max = Some(100_000);
     stale.currency = Some("USD".to_string());
     database.insert_job_if_new(&stale).await.unwrap();
+    let prior = test_job("prior-outcome", "Different role", "Example");
+    database.insert_job_if_new(&prior).await.unwrap();
+    let tracker = database.application_tracker();
+    let application = tracker.create_application(&prior.hash).await.unwrap();
+    tracker
+        .update_status(
+            application,
+            jobsentinel_storage::application_tracking::ApplicationStatus::Rejected,
+        )
+        .await
+        .unwrap();
+    tracker
+        .add_notes(application, "PRIVATE unsupported employer verdict")
+        .await
+        .unwrap();
 
     let stale_snapshot = open_opportunity_case_at(
         &database,
@@ -169,6 +184,37 @@ async fn dossier_retains_stale_observation_and_marks_missing_source_and_unusable
         stale_snapshot.employer_dossier.role.status,
         EmployerRoleStatus::LastObserved
     );
+
+    assert_eq!(
+        stale_snapshot
+            .employer_dossier
+            .local_history
+            .terminal_outcome_count,
+        1
+    );
+    assert_eq!(
+        stale_snapshot.employer_dossier.employer.identity_status,
+        EmployerIdentityStatus::UnverifiedSavedName
+    );
+    for uncertainty in [
+        EmployerDossierUncertainty::SourceNotCurrent,
+        EmployerDossierUncertainty::PayUnusable,
+        EmployerDossierUncertainty::ExactNameHistoryOnly,
+    ] {
+        assert!(stale_snapshot
+            .employer_dossier
+            .uncertainty
+            .contains(&uncertainty));
+    }
+    let projection = serde_json::to_string(&stale_snapshot.employer_dossier).unwrap();
+    for forbidden in [
+        "PRIVATE",
+        "unsupported employer verdict",
+        "employer_score",
+        "hiring_probability",
+    ] {
+        assert!(!projection.contains(forbidden));
+    }
 
     let missing_database = Database::connect_memory().await.unwrap();
     missing_database.migrate().await.unwrap();

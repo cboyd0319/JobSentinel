@@ -4,6 +4,8 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { EmployerDossierSection } from "./EmployerDossierSection";
 import { decodeEmployerDossier } from "./employerDossier";
+import usajobs from "../../crates/jobsentinel-domain/src/fixtures/source_manifests/usajobs_v1.json";
+import userActions from "../../crates/jobsentinel-domain/src/fixtures/source_manifests/user_source_actions_v1.json";
 
 function dossier() {
   return {
@@ -26,6 +28,19 @@ function dossier() {
 }
 
 describe("decodeEmployerDossier", () => {
+  it.each([usajobs, userActions])("accepts optional review references for $source_id", (manifest) => {
+    const value = dossier();
+    value.source.source_id = manifest.source_id;
+    value.source.source_class = manifest.source_class;
+    value.source.terms_review_ref = manifest.terms_review.reference as unknown as string;
+    value.source.robots_review_ref = manifest.robots_review.reference as unknown as string;
+    value.employer.posting_domain = null as unknown as string;
+    value.role.posting_url = null as unknown as string;
+    value.application_channel = manifest.source_class === "user_import" ? "user_provided" : "official_public_source";
+    value.next_action = "verify_on_employer_careers_page";
+    expect(decodeEmployerDossier(value)).not.toBeNull();
+  });
+
   it("accepts the bounded production-shaped dossier", () => {
     expect(decodeEmployerDossier(dossier())).not.toBeNull();
   });

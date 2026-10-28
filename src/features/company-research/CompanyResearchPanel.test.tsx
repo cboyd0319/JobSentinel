@@ -32,7 +32,7 @@ function deferred<T>() {
 }
 
 describe("CompanyResearchPanel", () => {
-  beforeEach(() => vi.clearAllMocks());
+  beforeEach(() => vi.resetAllMocks());
 
   it("removes the obsolete static company cache", () => {
     window.localStorage.setItem("jobsentinel_company_cache", "private legacy data");
@@ -62,8 +62,10 @@ describe("CompanyResearchPanel", () => {
     fetchSpy.mockRestore();
   });
 
-  it("shows a recoverable error when the local dossier projection is unavailable", async () => {
-    mockInvoke.mockRejectedValueOnce(new Error("storage unavailable")).mockResolvedValueOnce(caseFile("job-carebridge"));
+  it.each(["unavailable", "mismatched"])("shows a recoverable error for a %s projection", async (reason) => {
+    if (reason === "unavailable") mockInvoke.mockRejectedValueOnce(new Error("storage unavailable"));
+    else mockInvoke.mockResolvedValueOnce(caseFile("wrong-job"));
+    mockInvoke.mockResolvedValueOnce(caseFile("job-carebridge"));
     render(<CompanyResearchPanel companyName="CareBridge Services" jobHash="job-carebridge" />);
 
     await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent("Could not load the local employer dossier."));

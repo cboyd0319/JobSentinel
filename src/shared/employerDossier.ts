@@ -290,14 +290,12 @@ export function decodeEmployerDossier(value: unknown): EmployerDossier | null {
     confidence,
     nullableFields.policyRef,
     policyRevision,
-    nullableFields.termsReviewRef,
-    nullableFields.robotsReviewRef,
     nullableFields.parserVersion,
     salaryCoverage,
     source.incomplete_coverage,
   ];
   const sourceShapeIsValid = sourceStatus === "missing"
-    ? [...sourceProvenance, nullableFields.documentationUrl, nullableFields.retrievedAt, nullableFields.jurisdiction]
+    ? [...sourceProvenance, nullableFields.termsReviewRef, nullableFields.robotsReviewRef, nullableFields.documentationUrl, nullableFields.retrievedAt, nullableFields.jurisdiction]
       .every((item) => item === null)
     : sourceProvenance.every((item) => item !== null);
   const expectedUncertainty: Uncertainty[] = [
