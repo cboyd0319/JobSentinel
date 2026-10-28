@@ -1,7 +1,9 @@
 //! Authenticates update metadata and checks local compatibility without mutating installed state.
 
 use jobsentinel_domain::{
-    v3_contracts::{ArchiveKind, ArchiveProtection, CompatibilityManifest, SchemaId},
+    v3_contracts::{
+        validate_archive_structure, ArchiveKind, ArchiveProtection, CompatibilityManifest, SchemaId,
+    },
     v3_manifests::EditionManifest,
 };
 use serde::{Deserialize, Serialize};
@@ -215,11 +217,7 @@ fn candidate_data_contract_valid(contract: &CompatibilityManifest) -> bool {
         ]
         .iter()
         .all(|(archive, kind, protection)| {
-            archive.kind == *kind
-                && archive.protection == *protection
-                && archive.format_version > 0
-                && !archive.contains_secrets
-                && archive.user_review_required
+            validate_archive_structure(archive, *kind, *protection).is_ok()
         })
 }
 

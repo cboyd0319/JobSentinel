@@ -1,15 +1,12 @@
-use std::collections::BTreeMap;
-
-use chrono::NaiveDate;
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
-
+//! Validates versioned compatibility, archive, and artifact contracts.
 use crate::v3_manifests::{
     AgentTask, EditionManifest, ModelProvenance, PackManifest, PrivacyReceipt, RegionManifest,
     VectorFreshness,
 };
-
+use chrono::NaiveDate;
+use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use std::collections::BTreeMap;
 const MAX_DATABASE_SCHEMA: u32 = 2;
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum SchemaId {
     #[serde(rename = "jobsentinel.v3.compatibility.v1")]
@@ -233,12 +230,15 @@ impl CompatibilityManifest {
         if self.database_schema > MAX_DATABASE_SCHEMA {
             return Err("database schema is newer than this application supports".to_string());
         }
-        validate_archive(
+        if self.backup.format_version != 1 || self.export.format_version != 1 {
+            return Err("archive envelope violates the v3 privacy boundary".to_string());
+        }
+        validate_archive_structure(
             &self.backup,
             ArchiveKind::Backup,
             ArchiveProtection::Encrypted,
         )?;
-        validate_archive(
+        validate_archive_structure(
             &self.export,
             ArchiveKind::Export,
             ArchiveProtection::ReviewedPlaintext,
@@ -277,13 +277,14 @@ pub(crate) fn parse_contract<T: DeserializeOwned>(
     serde_json::from_value(value).map_err(|error| format!("invalid v3 contract: {error}"))
 }
 
-fn validate_archive(
+/// Validates archive privacy independently of the current reader's format ceiling.
+pub fn validate_archive_structure(
     envelope: &ArchiveEnvelope,
     kind: ArchiveKind,
     protection: ArchiveProtection,
 ) -> Result<(), String> {
     if envelope.kind != kind
-        || envelope.format_version != 1
+        || envelope.format_version == 0
         || envelope.contains_secrets
         || envelope.protection != protection
         || !envelope.user_review_required
