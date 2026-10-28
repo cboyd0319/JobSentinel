@@ -1,3 +1,5 @@
+//! Reports local privacy safeguards and actionable configuration issues.
+
 use crate::{
     config::{Config, ExternalAiConfig},
     credentials::CredentialService,
@@ -305,18 +307,10 @@ fn external_ai_check(config: &ExternalAiConfig) -> PrivacyDoctorCheck {
             Some(PrivacyDoctorAction::ReviewExternalAi),
         );
     }
-    if config.allow_sensitive_payloads {
-        return privacy_check(
-            PrivacyDoctorCheckId::ExternalAi,
-            PrivacyDoctorState::NeedsAttention,
-            "External AI is allowed to receive sensitive payloads after explicit review.",
-            Some(PrivacyDoctorAction::ReviewExternalAi),
-        );
-    }
     privacy_check(
         PrivacyDoctorCheckId::ExternalAi,
         PrivacyDoctorState::LooksGood,
-        "External AI keeps preview and redaction safeguards enabled.",
+        "External AI accepts only reviewed public job details; private details stay local.",
         None,
     )
 }

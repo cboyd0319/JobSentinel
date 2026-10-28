@@ -1,3 +1,5 @@
+//! Verifies Privacy Doctor reports only enforced local safeguards.
+
 use super::*;
 use crate::{config::Config, credentials::CredentialService};
 use jobsentinel_domain::ExternalAiProvider;
@@ -134,8 +136,15 @@ fn external_ai_safety_regressions_pause_before_any_send() {
             PrivacyDoctorCheckId::ExternalAi
         )
         .state,
-        PrivacyDoctorState::NeedsAttention
+        PrivacyDoctorState::LooksGood
     );
+
+    assert!(check(
+        &build_privacy_doctor(signals.clone()),
+        PrivacyDoctorCheckId::ExternalAi
+    )
+    .message
+    .contains("private details stay local"));
 
     signals.external_ai.allow_sensitive_payloads = false;
     signals.external_ai.provider = ExternalAiProvider::Custom;

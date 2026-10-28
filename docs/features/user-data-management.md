@@ -28,6 +28,7 @@ the current account and keeps local database files owner-only.
 | Platform health | Local only, Aggregate | Inspection and app-owned Unix permission repair stay local; ambiguous links and Windows permission state require manual review. |
 | Location detection | Sensitive | Public-IP lookup happens only after explicit user action. |
 
+Outside AI summaries accept only reviewed public job details; private material stays local.
 External AI is not required for user-data management. If an outside-AI send is
 blocked because the details are not on JobSentinel's reviewed sharing list, the
 user-facing error should describe reviewed details, not payloads, fields, or

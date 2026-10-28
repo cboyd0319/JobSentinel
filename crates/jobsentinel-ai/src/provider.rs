@@ -161,15 +161,7 @@ async fn send_custom_chat_request(
     )
     .await?;
     let value = provider_json(response, "custom").await?;
-    extract_chat_response_text(&value)
-        .or_else(|| extract_openai_response_text(&value))
-        .or_else(|| {
-            value
-                .get("text")
-                .and_then(Value::as_str)
-                .map(trimmed_response_text)
-        })
-        .ok_or_else(provider_text_error)
+    extract_custom_response_text(&value).ok_or_else(provider_text_error)
 }
 
 fn chat_completion_body(model: &str, prompt: &str) -> Value {
@@ -248,13 +240,48 @@ fn trimmed_response_text(text: &str) -> String {
         .collect()
 }
 
+fn extract_custom_response_text(value: &Value) -> Option<String> {
+    extract_chat_response_text(value)
+        .or_else(|| extract_openai_response_text(value))
+        .or_else(|| {
+            value
+                .get("text")
+                .and_then(Value::as_str)
+                .map(trimmed_response_text)
+                .filter(|text| !text.is_empty())
+        })
+}
+
 fn extract_openai_response_text(value: &Value) -> Option<String> {
     value
         .get("output_text")
         .and_then(Value::as_str)
         .map(trimmed_response_text)
         .filter(|text| !text.is_empty())
-        .or_else(|| extract_content_array_text(value.get("output")))
+        .or_else(|| {
+            let text = value
+                .get("output")
+                .and_then(Value::as_array)
+                .into_iter()
+                .flatten()
+                .filter(|item| {
+                    item.get("type").and_then(Value::as_str) == Some("message")
+                        && item.get("role").and_then(Value::as_str) == Some("assistant")
+                })
+                .flat_map(|item| {
+                    item.get("content")
+                        .and_then(Value::as_array)
+                        .into_iter()
+                        .flatten()
+                })
+                .filter(|part| part.get("type").and_then(Value::as_str) == Some("output_text"))
+                .filter_map(|part| part.get("text").and_then(Value::as_str))
+                .flat_map(|text| text.chars().chain(std::iter::once('\n')))
+                .take(MAX_PROVIDER_RESPONSE_CHARS)
+                .collect::<String>();
+            let text = text.trim().to_string();
+            (!text.is_empty()).then_some(text)
+        })
 }
 
 fn extract_anthropic_response_text(value: &Value) -> Option<String> {
@@ -307,7 +334,13 @@ mod tests {
 
     #[test]
     fn extracts_provider_response_text() {
-        let openai = serde_json::json!({ "output_text": " Summary text " });
+        let openai = serde_json::json!({ "output": [
+            {"type":"reasoning", "text":"not a summary"},
+            {"type":"message", "role":"assistant", "content":[
+                {"type":"output_text", "text":" Summary text "},
+                {"type":"refusal", "refusal":"not text"}
+            ]}
+        ] });
         let anthropic =
             serde_json::json!({ "content": [{ "type": "text", "text": " Anthropic text " }] });
         let gemini = serde_json::json!({
@@ -330,6 +363,25 @@ mod tests {
         assert_eq!(
             extract_chat_response_text(&chat),
             Some("Chat text".to_string())
+        );
+    }
+
+    #[test]
+    fn rejects_empty_custom_text_and_non_message_response_items() {
+        for value in [
+            serde_json::json!({"text":" \n\t"}),
+            serde_json::json!({"output":[{"type":"reasoning","text":"hidden"}]}),
+        ] {
+            assert!(extract_custom_response_text(&value).is_none());
+        }
+        assert_eq!(
+            extract_custom_response_text(&serde_json::json!({"text":" summary "})),
+            Some("summary".into())
+        );
+        let value = serde_json::json!({"output":[{"type":"message","role":"assistant","content":[{"type":"output_text","text":"first"},{"type":"output_text","text":"second"}]}]});
+        assert_eq!(
+            extract_openai_response_text(&value),
+            Some("first\nsecond".into())
         );
     }
 

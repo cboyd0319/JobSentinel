@@ -1,3 +1,5 @@
+/** Configures reviewed public-job AI providers without exposing unsupported sensitive sends. */
+
 import type { Dispatch, SetStateAction } from "react";
 import { HelpIcon } from "../../../ui/HelpIcon";
 import {
@@ -311,19 +313,7 @@ export function SettingsExternalAiSection({
             />
             Redaction on
           </label>
-          <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={config.external_ai.allow_sensitive_payloads}
-              onChange={(event) =>
-                updateExternalAi({
-                  allow_sensitive_payloads: event.target.checked,
-                })
-              }
-              className="rounded border-surface-300 text-sentinel-600 focus:ring-sentinel-500"
-            />
-            Private details after review
-          </label>
+          <p>Only reviewed public job details can be sent. Private details stay local.</p>
         </div>
 
         <SettingsExternalAiRequestHistory />
