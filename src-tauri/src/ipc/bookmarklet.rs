@@ -1,8 +1,4 @@
-//! Bookmarklet server commands
-//!
-//! Tauri commands for managing a local HTTP server that receives job data
-//! from a browser bookmarklet. This allows users to import jobs from any
-//! website by clicking a bookmark while viewing a job posting.
+//! Exposes reviewed browser pairing, imports and serialized listener configuration.
 
 use crate::application::config::Config;
 use crate::bootstrap::AppState;
@@ -381,23 +377,14 @@ pub(crate) async fn set_bookmarklet_port(
     let port = validate_bookmarklet_port(port)?;
     tracing::debug!(port = port, "Setting bookmarklet port");
 
-    {
-        let server_guard = state.bookmarklet_server.read().await;
-        if server_guard.is_running() {
-            return Err(
-                "Cannot change port while server is running. Stop the server first.".to_string(),
-            );
-        }
-    }
-
-    persist_bookmarklet_port(&state, port).await?;
-
     let mut server_guard = state.bookmarklet_server.write().await;
     if server_guard.is_running() {
         return Err(
             "Cannot change port while server is running. Stop the server first.".to_string(),
         );
     }
+    persist_bookmarklet_port(&state, port).await?;
+
     let mut config = server_guard.config().clone();
     config.port = port;
     server_guard.set_config(config);

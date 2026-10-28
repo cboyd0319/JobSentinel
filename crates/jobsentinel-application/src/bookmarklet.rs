@@ -1,3 +1,5 @@
+//! Adapts governed browser import actions to local job and application storage.
+
 use std::sync::Arc;
 
 use async_trait::async_trait;
@@ -13,7 +15,6 @@ use jobsentinel_domain::{
     Job,
 };
 use jobsentinel_security::validate_external_https_url;
-use jobsentinel_storage::application_tracking::ApplicationStatus;
 use jobsentinel_storage::Database;
 
 struct StorageBookmarkletRepository {
@@ -122,20 +123,9 @@ impl BookmarkletRepository for StorageBookmarkletRepository {
     }
 
     async fn mark_job_applied(&self, hash: &str) -> Result<(), String> {
-        let tracker = self.database.application_tracker();
-        let application_id = match tracker
-            .find_application_id_by_job_hash(hash)
-            .await
-            .map_err(|error| error.to_string())?
-        {
-            Some(application_id) => application_id,
-            None => tracker
-                .create_application(hash)
-                .await
-                .map_err(|error| error.to_string())?,
-        };
-        tracker
-            .update_status(application_id, ApplicationStatus::Applied)
+        self.database
+            .application_tracker()
+            .record_job_applied(hash)
             .await
             .map_err(|error| error.to_string())
     }

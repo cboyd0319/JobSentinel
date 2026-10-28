@@ -448,3 +448,20 @@ mod lifecycle;
 mod pairing_state_tests;
 #[path = "tests/queued_import_tests.rs"]
 mod queued_import_tests;
+
+#[test]
+fn overflowing_content_length_is_refused_without_panicking() {
+    let request = format!(
+        "POST /api/bookmarklet/import HTTP/1.1\r\nContent-Length: {}\r\n\r\n",
+        usize::MAX
+    );
+    assert!(request_buffer_should_stop_reading(
+        request.as_bytes(),
+        25000
+    ));
+    assert!(!request_buffer_has_complete_body(request.as_bytes()));
+    assert!(request_buffer_has_declared_oversized_body(
+        request.as_bytes(),
+        25000
+    ));
+}

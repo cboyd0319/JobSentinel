@@ -1,3 +1,5 @@
+//! Stores bounded browser drafts while preserving distinct reviewed operations.
+
 use super::BookmarkletJobData;
 use chrono::{DateTime, Utc};
 use jobsentinel_domain::{
@@ -134,21 +136,20 @@ pub(super) fn queue_pending_bookmarklet_imports(
         Ok(pending) => pending,
         Err(poisoned) => poisoned.into_inner(),
     };
-    let mut existing_hashes: HashSet<String> = pending
-        .iter()
-        .map(|pending_import| pending_import.hash().to_string())
-        .collect();
     let mut added = 0usize;
     let mut skipped = 0usize;
 
     for pending_import in imports {
         let hash = pending_import.hash().to_string();
-        if existing_hashes.contains(&hash) || pending.len() >= MAX_PENDING_BOOKMARKLET_IMPORTS {
+        if pending
+            .iter()
+            .any(|entry| entry.hash == hash && entry.operation == pending_import.operation)
+            || pending.len() >= MAX_PENDING_BOOKMARKLET_IMPORTS
+        {
             skipped += 1;
             continue;
         }
 
-        existing_hashes.insert(hash);
         pending.push(pending_import);
         added += 1;
     }

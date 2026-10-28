@@ -1,3 +1,5 @@
+//! Authorizes, queues, and confirms browser imports without replaying completed entries.
+
 use std::sync::Arc;
 
 use chrono::Utc;
@@ -229,7 +231,7 @@ pub async fn confirm_pending_bookmarklet_imports(
     pending_imports: &PendingBookmarkletImports,
     ids: &[String],
 ) -> Result<BookmarkletImportConfirmResult, String> {
-    let selected = selected_pending_bookmarklet_imports(pending_imports, ids);
+    let mut selected = selected_pending_bookmarklet_imports(pending_imports, ids);
     if selected.is_empty() {
         return Ok(BookmarkletImportConfirmResult {
             imported: 0,
@@ -237,7 +239,21 @@ pub async fn confirm_pending_bookmarklet_imports(
         });
     }
 
-    let mut confirmed_ids = Vec::new();
+    // Preserve selected visible details before the same job's minimal applied draft.
+    for index in 0..selected.len() {
+        if granted_operation(&selected[index].grant()).ok() == Some(SourceOperation::AppliedLogging)
+        {
+            if let Some(offset) = selected[index + 1..].iter().position(|entry| {
+                entry.hash() == selected[index].hash()
+                    && granted_operation(&entry.grant()).ok()
+                        == Some(SourceOperation::VisiblePageCapture)
+            }) {
+                let capture = selected.remove(index + 1 + offset);
+                selected.insert(index, capture);
+            }
+        }
+    }
+
     let mut imported = 0usize;
     let mut skipped = 0usize;
 
@@ -249,19 +265,12 @@ pub async fn confirm_pending_bookmarklet_imports(
         )
         .await
         {
-            Ok(true) => {
-                imported += 1;
-                confirmed_ids.push(pending_import.id().to_string());
-            }
-            Ok(false) => {
-                skipped += 1;
-                confirmed_ids.push(pending_import.id().to_string());
-            }
+            Ok(true) => imported += 1,
+            Ok(false) => skipped += 1,
             Err(message) => return Err(message),
         }
+        remove_pending_bookmarklet_imports(pending_imports, &[pending_import.id().to_string()]);
     }
-
-    remove_pending_bookmarklet_imports(pending_imports, &confirmed_ids);
 
     Ok(BookmarkletImportConfirmResult { imported, skipped })
 }

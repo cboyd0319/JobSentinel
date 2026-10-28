@@ -1,3 +1,5 @@
+//! Bounds loopback HTTP framing and validates import origin metadata.
+
 use super::*;
 
 pub(super) fn http_response_data(status: &str, content_type: &str, response: &str) -> String {
@@ -100,7 +102,9 @@ pub(super) fn request_buffer_has_complete_body(buffer: &[u8]) -> bool {
         return false;
     };
 
-    buffer.len() >= body_start + content_length
+    body_start
+        .checked_add(content_length)
+        .is_some_and(|end| buffer.len() >= end)
 }
 
 pub(super) fn request_buffer_has_declared_oversized_body(buffer: &[u8], max_bytes: usize) -> bool {

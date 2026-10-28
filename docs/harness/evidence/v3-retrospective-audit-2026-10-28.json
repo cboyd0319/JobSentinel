@@ -1,0 +1,162 @@
+{
+  "scope": "User-requested deep audit of prior v3 work; incomplete, no milestone certification",
+  "baseline_revision": "1e634d23",
+  "method": "Independent read-only adversarial source/evidence reviews in bounded slices; focused falsification and correction checks, no full-suite substitute for source review.",
+  "findings": [
+    {
+      "id": "AUDIT-01",
+      "severity": "high",
+      "owner": "M3 restore",
+      "finding": "Three restore durability paths flushed read-only files, failing Windows writable-handle requirement.",
+      "status": "corrected; 27 portable_restore tests passed on macOS; Windows execution remains M11"
+    },
+    {
+      "id": "AUDIT-02",
+      "severity": "high",
+      "owner": "M6 protected answers",
+      "finding": "Generic child labels lose protected fieldset context; saved answers can fill protected status.",
+      "status": "corrected in bfceb03f;12 Rust and3 Chromium tests, exact-element synchronous revalidation"
+    },
+    {
+      "id": "AUDIT-03",
+      "severity": "high",
+      "owner": "M6 form targeting",
+      "finding": "Unescaped CSS IDs/names can select a different field; discovery repeats identical scan nine times.",
+      "status": "corrected in bfceb03f; escaped unique targets and inherited-disabled semantics tested"
+    },
+    {
+      "id": "AUDIT-04",
+      "severity": "medium",
+      "owner": "M10 plan",
+      "finding": "Current Handoff still named M9 active and Gate5 unapproved.",
+      "status": "corrected against canonical state"
+    },
+    {
+      "id": "AUDIT-05",
+      "severity": "low",
+      "owner": "M10 archive policy",
+      "finding": "Candidate archive privacy rules duplicated domain policy.",
+      "status": "corrected; shared structural validator,7 domain and12 preflight tests passed"
+    },
+    {
+      "id": "AUDIT-06",
+      "severity": "high",
+      "owner": "M4 loopback framing",
+      "finding": "Untrusted maximum Content-Length overflows before authorization; release panic aborts app.",
+      "status": "reproduced panic, corrected checked_add, all37 server tests passed"
+    },
+    {
+      "id": "AUDIT-07",
+      "severity": "medium",
+      "owner": "M4 pending import",
+      "finding": "Hash-only dedup discards distinct applied action; partial batch retry repeats events/reminders.",
+      "status": "corrected; selected rich capture precedes same-job applied draft, partial batches retire successes, transactional status/reminders;5 applied and43 tracker tests passed"
+    },
+    {
+      "id": "AUDIT-08",
+      "severity": "medium",
+      "owner": "M4 port configuration",
+      "finding": "Concurrent start can cause failed port edit after saved config mutation.",
+      "status": "corrected server guard scope;7 IPC tests passed, dedicated concurrent native fixture not run"
+    },
+    {
+      "id": "AUDIT-09",
+      "severity": "medium",
+      "owner": "M7 lifecycle",
+      "finding": "Corrupt upgrade cannot quarantine while old release active; disabled upgrade incorrectly reports ready.",
+      "status": "corrected in7bb291db;53 pack tests and independent review passed"
+    },
+    {
+      "id": "AUDIT-10",
+      "severity": "medium",
+      "owner": "M7 artifact cleanup",
+      "finding": "Early persist errors leak temporary artifacts; absent owned tree prevents cleanup completion.",
+      "status": "corrected in7bb291db; scoped cleanup and missing-tree regression passed"
+    },
+    {
+      "id": "AUDIT-11",
+      "severity": "high",
+      "owner": "M6 live form",
+      "finding": "DOM can change between discovery and generic click/type, bypassing protected-context decision.",
+      "status": "corrected inbfceb03f; retained exact element plus synchronous context recheck/write"
+    },
+    {
+      "id": "AUDIT-12",
+      "severity": "high",
+      "owner": "M2 event schema",
+      "finding": "SQL NULL semantics let missing required event metadata fields satisfy CHECK constraints.",
+      "status": "append-only migration30 corrects NULL checks and NULL event IDs;10 foundation tests pass including preserving valid rows and rolling back malformed history"
+    },
+    {
+      "id": "AUDIT-13",
+      "severity": "high",
+      "owner": "M2 migration snapshot",
+      "finding": "Snapshot filename only versions; sibling or replaced databases can reuse wrong recovery data.",
+      "status": "fresh per-database snapshots and serialized migration/prune window corrected; independent review passed, focused tests running"
+    },
+    {
+      "id": "AUDIT-14",
+      "severity": "high",
+      "owner": "M2 encryption replacement",
+      "finding": "Primary removal before rename exposes empty-recreate crash window; fallback backup predates WAL checkpoint.",
+      "status": "atomic replacement and WAL preservation corrected;12 encryption tests pass incl child crash/retry"
+    },
+    {
+      "id": "AUDIT-15",
+      "severity": "high",
+      "owner": "M2 newer-data refusal",
+      "finding": "Same-generation newer migration ledger can reach writable encryption before rejection.",
+      "status": "readonly ledger/metadata gate corrected; plaintext/encrypted future-ledger byte preservation passed"
+    },
+    {
+      "id": "AUDIT-16",
+      "severity": "medium",
+      "owner": "M8 dossier UI",
+      "finding": "Decoder rejects valid null terms/robots references from USAJOBS/user-import manifests.",
+      "status": "corrected;21 frontend tests with actual manifest reference fields passed, typecheck and architecture passed"
+    },
+    {
+      "id": "AUDIT-17",
+      "severity": "medium",
+      "owner": "M8 evaluation evidence",
+      "finding": "Claimed mixed-evidence evaluator validates fixture schema rather than production dossier behavior.",
+      "status": "production-output acceptance test still needed; prior evidence not certification"
+    },
+    {
+      "id": "AUDIT-18",
+      "severity": "high",
+      "owner": "M5 model lifecycle",
+      "finding": "Legacy inference rank mismatch, approximate BERT architecture, checksum/open race and interrupted metadata repair gaps.",
+      "status": "correction in progress; review assumption candle-transformers already installed was false, dependency fit under inspection"
+    }
+  ],
+  "coverage": {
+    "completed_bounded_slices": [
+      "M10 preflight/inventory/revalidation and scheduler drain",
+      "M10 same-device snapshot creation/inspection",
+      "M6 implicated question discovery/matching path",
+      "M4 loopback protocol, pairing, pending-import and IPC review",
+      "M7 signature/payload/capability and lifecycle artifact/storage/IPC review"
+    ],
+    "partial": [
+      "M0-M4 policy/privacy/export/restore source and evidence review",
+      "M5-M9 selected matching, military, pack, employer, region and pay owners"
+    ],
+    "running": [
+      "M5 model lifecycle corrections"
+    ],
+    "remaining": [
+      "M7 execution/evaluation/task storage and native Windows file owner",
+      "M0-M1 harness/contract/evaluation and release-evidence reconciliation",
+      "M2 migration schemas and failure/retry fixtures",
+      "M3 native recovery/consent IPC/UI and remaining privacy/external-AI paths",
+      "M4 source transports, pacing and policy integration",
+      "M5 model lifecycle/calibration and complete evidence/matching flows",
+      "M6 remaining case-file/native input/application UI and IPC",
+      "M8 employer intelligence and outcome/evidence integration",
+      "M9 regional manifests, inclusive/first-run paths and acceptance coverage",
+      "Canonical idea dispositions mapped to actual implemented behavior across all milestones",
+      "Complete M8 review interrupted by reviewer capacity error; resume broader company-research/E2E coverage"
+    ]
+  }
+}

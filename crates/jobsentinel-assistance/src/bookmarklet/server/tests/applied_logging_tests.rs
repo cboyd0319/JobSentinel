@@ -1,3 +1,5 @@
+//! Verifies reviewed applied logging and operation-specific pending drafts.
+
 use super::*;
 
 #[tokio::test]
@@ -114,4 +116,107 @@ async fn applied_logging_rejects_extra_page_state() {
         assert_eq!(parsed["error"], INVALID_BOOKMARKLET_PAYLOAD_MESSAGE);
         assert!(pending_bookmarklet_import_previews(&pending_imports).is_empty());
     }
+}
+
+#[tokio::test]
+async fn capture_and_applied_drafts_survive_both_queue_orders() {
+    for operations in [
+        [
+            SourceOperation::VisiblePageCapture,
+            SourceOperation::AppliedLogging,
+        ],
+        [
+            SourceOperation::AppliedLogging,
+            SourceOperation::VisiblePageCapture,
+        ],
+    ] {
+        for include_capture in [true, false] {
+            let database = bookmarklet_test_database().await;
+            let pending = bookmarklet_pending_imports();
+            for operation in operations {
+                let (pairing, code) =
+                    bookmarklet_pairing_for_operation("https://example.com", operation);
+                let mut job = serde_json::json!({"title":"Engineer","company":"Example","url":"https://example.com/jobs/1"});
+                if operation == SourceOperation::VisiblePageCapture {
+                    job["description"] = serde_json::json!("Reviewed visible job details");
+                }
+                let body = bookmarklet_import_body(&code, job);
+                handle_import_request(
+                    &bookmarklet_import_request(&body),
+                    &pairing,
+                    pending.clone(),
+                    database.clone(),
+                )
+                .await;
+            }
+            let previews = pending_bookmarklet_import_previews(&pending);
+            assert_eq!(previews.len(), 2);
+            let ids: Vec<_> = previews
+                .into_iter()
+                .filter(|item| include_capture || item.operation == SourceOperation::AppliedLogging)
+                .map(|item| item.id)
+                .collect();
+            confirm_pending_bookmarklet_imports(&database, &pending, &ids)
+                .await
+                .unwrap();
+            assert!(database.is_applied(&database.jobs()[0].hash));
+            assert_eq!(
+                database.jobs()[0].description.as_deref(),
+                if include_capture {
+                    Some("Reviewed visible job details")
+                } else {
+                    None
+                }
+            );
+            assert_eq!(
+                pending_bookmarklet_import_previews(&pending).len(),
+                usize::from(!include_capture)
+            );
+        }
+    }
+}
+
+#[tokio::test]
+async fn partial_confirmation_retires_success_before_retry() {
+    let database = bookmarklet_test_database().await;
+    let pending = bookmarklet_pending_imports();
+    for number in [1, 2] {
+        let (pairing, code) = bookmarklet_pairing_for_operation(
+            "https://example.com",
+            SourceOperation::AppliedLogging,
+        );
+        let body = bookmarklet_import_body(
+            &code,
+            serde_json::json!({"title":format!("Engineer {number}"),"company":"Example","url":format!("https://example.com/jobs/{number}")}),
+        );
+        handle_import_request(
+            &bookmarklet_import_request(&body),
+            &pairing,
+            pending.clone(),
+            database.clone(),
+        )
+        .await;
+    }
+    let ids: Vec<_> = pending_bookmarklet_import_previews(&pending)
+        .into_iter()
+        .map(|item| item.id)
+        .collect();
+    database
+        .fail_after_first
+        .store(true, std::sync::atomic::Ordering::Relaxed);
+    assert!(
+        confirm_pending_bookmarklet_imports(&database, &pending, &ids)
+            .await
+            .is_err()
+    );
+    assert_eq!(pending_bookmarklet_import_previews(&pending).len(), 1);
+    assert_eq!(database.applied_count(), 1);
+    database
+        .fail_after_first
+        .store(false, std::sync::atomic::Ordering::Relaxed);
+    confirm_pending_bookmarklet_imports(&database, &pending, &ids)
+        .await
+        .unwrap();
+    assert_eq!(database.applied_count(), 2);
+    assert!(pending_bookmarklet_import_previews(&pending).is_empty());
 }

@@ -1,3 +1,5 @@
+//! Provides controllable local job storage for browser import boundary tests.
+
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 
@@ -8,6 +10,7 @@ use super::super::BookmarkletRepository;
 
 pub(super) struct TestBookmarkletRepository {
     authorization_allowed: AtomicBool,
+    pub(super) fail_after_first: AtomicBool,
     applied_hashes: Mutex<Vec<String>>,
     jobs: Mutex<Vec<Job>>,
 }
@@ -16,6 +19,7 @@ impl Default for TestBookmarkletRepository {
     fn default() -> Self {
         Self {
             authorization_allowed: AtomicBool::new(true),
+            fail_after_first: AtomicBool::new(false),
             applied_hashes: Mutex::new(Vec::new()),
             jobs: Mutex::new(Vec::new()),
         }
@@ -34,6 +38,9 @@ impl BookmarkletRepository for TestBookmarkletRepository {
 
     async fn upsert_job(&self, job: &Job) -> Result<i64, String> {
         let mut jobs = self.jobs.lock().unwrap_or_else(|error| error.into_inner());
+        if self.fail_after_first.load(Ordering::Relaxed) && !jobs.is_empty() {
+            return Err("injected save failure".into());
+        }
         if let Some(existing) = jobs.iter().position(|stored| stored.hash == job.hash) {
             jobs[existing] = job.clone();
             return Ok(i64::try_from(existing + 1).unwrap_or(i64::MAX));
@@ -61,6 +68,10 @@ impl TestBookmarkletRepository {
             .lock()
             .unwrap_or_else(|error| error.into_inner())
             .clone()
+    }
+
+    pub(super) fn applied_count(&self) -> usize {
+        self.applied_hashes.lock().unwrap().len()
     }
 
     pub(super) fn is_applied(&self, hash: &str) -> bool {
