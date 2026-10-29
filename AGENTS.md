@@ -1,12 +1,10 @@
 <!-- Defines the canonical repository-wide operating contract for JobSentinel contributors and agents. -->
-
 # JobSentinel Agent Contract
 
-JobSentinel is a privacy-first desktop job-search application for technical and
-non-technical job seekers. The frontend is React 19, TypeScript, Vite, and
-Tailwind CSS. The desktop and Rust owner layers use Tauri 2, Rust 2021, Tokio,
-SQLite, and SQLx offline mode. Runtime versions are owned by `.nvmrc`,
-`rust-toolchain.toml`, `package.json`, and the lockfiles.
+JobSentinel is a privacy-first desktop app for technical and non-technical job seekers.
+The frontend uses React 19, TypeScript, Vite and Tailwind CSS. Desktop owners use
+Tauri 2, Rust 2021, Tokio, SQLite and SQLx offline mode. Runtime versions live in
+`.nvmrc`, `rust-toolchain.toml`, `package.json` and the lockfiles.
 
 ## Startup Workflow
 
@@ -27,6 +25,9 @@ with `npm run tauri:dev`.
 
 ## Non-Negotiable Boundaries
 
+- Every release from v3 onward must finish three separate, full phases in order:
+  Stability, Performance, Security. All must pass before publication; the
+  [Release Contract](docs/developer/RELEASING.md#mandatory-final-release-phases) owns their gates.
 - User data stays local unless the user explicitly configures an external
   channel. External AI is optional, disabled by default, and routed through the
   privacy-first AI gateway.
@@ -58,8 +59,7 @@ with `npm run tauri:dev`.
 - Product behavior: `docs/features/` and `docs/harness/product-sense.md`
 - Reliability: `docs/harness/reliability.md`
 - Security: `docs/security/README.md`
-- Workflow: `docs/harness/change-contract.md` and
-  `docs/harness/verification-matrix.md`
+- Workflow: `docs/harness/change-contract.md` and `docs/harness/verification-matrix.md`
 - Tests and commands: `docs/developer/TESTING.md`
 - Change contracts: `docs/harness/change-contract.md`
 - UI and copy: `docs/design/design-system.md`, `docs/design/design-spec.md`, and

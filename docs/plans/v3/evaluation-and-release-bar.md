@@ -7,6 +7,15 @@ ready only when the product works across real job-search workflows, source
 classes, resumes, local models, browser capture paths, privacy boundaries, and
 platforms.
 
+## Final release phases
+
+The standing [Release Contract](../../developer/RELEASING.md#mandatory-final-release-phases)
+requires three separate full phases before every release, starting with v3:
+**Stability → Performance → Security**. Each has its own plan, execution, defect
+resolution, candidate-bound evidence and pass decision. The master plan maps them
+to R1, R2 and R3. Required deferred or failed checks keep a phase incomplete;
+Gate 6/publication follows all three passes. Development checkpoints do not replace them.
+
 ## When To Run These Checks
 
 The master plan's [remaining development queue](master-exec-plan.md#remaining-development-queue)
@@ -24,7 +33,7 @@ After development freezes, qualify each intended release cut and state failed,
 unrun or deferred coverage explicitly. Keep the approved Now/Next product boundary;
 early Next development does not enlarge v3.0. Current local testing uses this Mac;
 Windows/Linux VM work remains user-deferred. All numeric limits and release safety
-requirements remain unchanged. Implementation has resumed at D0; broad qualification remains deferred.
+requirements remain unchanged. Implementation follows the active development queue; the final phases remain deferred.
 
 ## Release Bar Summary
 

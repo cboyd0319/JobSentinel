@@ -9,7 +9,7 @@ accepted development and code cleanup before broad qualification or release work
 The [remaining development queue](#remaining-development-queue) owns execution order.
 
 Implementation resumed on 2026-10-28. D0 development is accepted; execute the selected
-D1 shared-computer privacy child. Other documents do not independently add scope.
+D1 portable application child. Other documents do not independently add scope.
 
 ## Problem
 
@@ -144,7 +144,7 @@ Out of scope:
 | Job-source research and feature docs | Source registry, permission notes, pacing, stop conditions, freshness comparison, and source review remain open. | Milestone 4 owns the source graph, policy ledger, fixtures, and browser protocol. |
 | Employer-intelligence plan | Dataset mode, starter sources, Essentials size, manual observations, expiry, and minimum dossier remain open decisions. | Decision Gate 4 resolves them before Milestone 8 implementation. |
 | Security docs | Future private-data AI, encrypted-secret backup, and stricter local-auth choices are conditional, not approved behavior. | Milestones 3 and 7 may promote only reviewed paths with focused threat models and local fallbacks. |
-| Distribution-dependent platform work | Start-on-login, sandboxing, signing, notarization, and final native proof remain incomplete or externally constrained. | Accepted platform design, implementation and fixtures follow the development queue. Native qualification and distribution operations wait for R1/R2. |
+| Distribution-dependent platform work | Start-on-login, sandboxing, signing, notarization, and final native proof remain incomplete or externally constrained. | Accepted platform design, implementation and fixtures follow the development queue. Native qualification and distribution operations wait for R1–R3. |
 | Completed and archived plans | Completed plans are historical. Milestone 0 resolved the release-pipeline plan's remaining decision. | Do not reopen historical checklists. Milestone 11 owns only the recorded release-pipeline corrections above. |
 | Checklists and boundary language | Security, contribution, support, and skill checkboxes are reusable procedures; phrases such as “not yet submitted” describe state. | Not backlog. Keep them as verification or user guidance. |
 
@@ -254,7 +254,7 @@ The 105 Now / 82 Next disposition, Gate 5 cut and safety boundaries remain uncha
 ## Remaining Development Queue
 
 Milestone numbers remain scope/history identifiers. Execute D0 through D10 below before
-R1/R2. Do not resume the parked milestone 11 qualification campaign now.
+R1–R3. Do not resume the parked milestone 11 qualification campaign now.
 One bounded child is active at a time. The user resumed implementation at D0.
 
 These are completion groups, not permission to invent dependencies. Build a shared
@@ -280,7 +280,7 @@ whole outcome is delivered. Do not build an entire marketplace before useful sou
 Owner: existing Rust/application/storage, native IPC and frontend owners.
 Completed feature: `v3-source-compatibility-cleanup`.
 Core source cut: `4b96e8027b1e40db5714d75f4d38d6cf9a32fbf3`. Focused development evidence is recorded;
-broad qualification remains R1/R2. Next product changes begin after this revision.
+broad qualification remains R1–R3. Next product changes begin after this revision.
 
 - Classify immutable schema IDs, protocol IDs and SQLx history separately from
   ordinary module/type/command/live-schema names. Preserve the former.
@@ -310,27 +310,25 @@ Owners are existing modules, not a request for new crates or interfaces.
 
 Owner: `jobsentinel-platform`, credentials, storage/recovery, application and Settings owners.
 
-Selected child: `v3-shared-computer-privacy` (R13). Build the required A14/P08
-adapter behavior only where this workflow needs it; reuse current vault and
-native key-protection owners.
+Selected child: `v3-portable-app` (E15). R13 development is accepted at `70b813d7`;
+see [R13 evidence](../../harness/evidence/v3-shared-computer-privacy-2026-10-28.json).
 
-- Outcome: explicit lock protects private views and native command admission;
-  trusted unlock handles cancellation/failure, recent-data visibility is bounded,
-  and session cleanup is reviewed before changing owned session data.
-- Paths: existing platform/credential owners, native bootstrap state and
-  `src-tauri/src/ipc/registry.rs`, `src/app/App.tsx` and Settings owners.
-- Implementation checkpoint: native admission/fresh unlock, private-view teardown,
-  reviewed transient cleanup and scheduler pause/resume are implemented. Focused
-  regressions and bounded adversarial review pass; acceptance evidence is next.
-- Installed journeys and platform qualification remain R1.
-- Rollback: disable the opt-in mode and revert its isolated changes without
-  deleting saved records. Preserve the core cut and separate Next commit range.
+- Outcome: explicit portable startup owns data/config/cache/log/browser storage,
+  unlocks a moved profile before opening its database, and preserves recovery.
+- Reuse current platform paths, database key/bootstrap, credential wrapping and
+  portable recovery owners. A directory override alone does not meet E15.
+- Resolve profile selection before model caches and desktop initialization.
+  Preserve the installed profile, unsupported-data refusal and secret boundaries.
+- Verify focused path isolation, moved-profile unlock, refusal and recovery cases.
+  Installed journeys and platform qualification remain R1.
+- Rollback: exit portable mode and reopen the installed profile without moving or
+  deleting either profile. Preserve the core cut and separate Next commit range.
 
 
 | ID | Remaining development |
 | --- | --- |
 | A14 | Extend existing platform functions with the concrete capability/result/fallback contracts needed by actual integrations. |
-| R13 | Add whole-application privacy lock, protected access/session behavior, recent-data limits and explicit cleanup. |
+| R13 | Development accepted at `70b813d7`; installed qualification remains R1. |
 | E15 | Implement portable data/config/cache/log ownership, key/passphrase handling and recovery. Portable backup is not a portable app. |
 | P08 | Reuse Mac user presence. Finish Windows/native sensitive-action coverage and consistent fallback/cancel behavior. |
 | N15 | Implement Windows Hello/device-bound sensitive-action behavior over existing vault/keyring owners. |
@@ -472,9 +470,11 @@ Owner: Existing Rust schema/evaluation owners, regional/source facts, documentat
 
 - Finish missing signed-candidate/catalog metadata producers and release CLI code
   using fixture identities. Reuse existing pack signing and verification owners;
-  production identity enrollment/signing still waits for R2.
+  production identity enrollment/signing still waits for R3 Security.
 - Implement the remaining release-pipeline code: blocking authenticated draft-asset
   verification, correct platform scoping and explicit unauthenticated public verification.
+  Publication must require current passing evidence for Stability, Performance and Security,
+  in order, for the exact candidate; missing or stale phase evidence blocks release.
 - Complete necessary scenario/scorer/evidence and narrow budget instrumentation for
   accepted behavior. A benchmark feature's implementation is development. Running
   the whole benchmark campaign is late assurance.
@@ -504,19 +504,26 @@ Owner: Existing Rust schema/evaluation owners, regional/source facts, documentat
   capabilities. No generic script runtime, MCP server, daemon, passkey system,
   hidden source access or private external-agent data is approved by this ordering.
 
-### Late assurance and delivery
+### Final release phases: Stability, Performance, Security
 
-| Stage | Work deliberately left until development is ready |
+The standing [Release Contract](../../developer/RELEASING.md#mandatory-final-release-phases)
+applies to v3 and every subsequent release. After D0–D10 engineering and candidate
+preparation, run these three separate, full phases in order for each intended cut.
+
+| Phase | Full scope and exit |
 | --- | --- |
-| R1: integrated qualification | Full suites/E2E, final source review, installed Mac journeys, accessibility, model/resource distributions and commercial comparisons for each intended cut. |
-| R2: release artifacts | Fresh provider/publisher facts, production trust/enrollment, Region artifacts, signing/notarization, checksums, SBOMs, attestations and real update/rollback verification. |
-| R3: delivery and closure | Gate 6, publication/public downloads, completed-plan archival, final dispositions and the next-major backlog. |
+| R1: Stability | Full applicable suites/E2E, installed supported-platform journeys, accessibility, persistence, migration, backup/rollback, recovery and sustained-use reliability. Fix blockers and accept revision-bound stability evidence before R2. |
+| R2: Performance | Complete startup/workflow/model/resource distributions, representative hardware and enforced modest-hardware budgets, scalability and commercial comparisons. Resolve budget/regression failures and accept measured evidence before R3. |
+| R3: Security | Final adversarial/threat-boundary, privacy, credential, permission, dependency/advisory and supply-chain review; production trust/enrollment, Region artifacts, signing/notarization, checksums, SBOMs, attestations and artifact verification. Resolve blockers and accept security evidence before Gate 6. |
 
-Broad runs and package production do not resume merely because one coding group
-finishes. Use focused checks during development. Reuse applicable completed evidence.
+Each phase has its own plan, execution, fixes, evidence and pass decision. Failed,
+skipped or deferred required coverage is incomplete. Candidate changes invalidate
+affected evidence and require affected phase/downstream checks again. Keep focused
+checks during development; finishing one coding group does not start these phases.
 
-After any release-only metadata/signature change, rerun the affected artifact/trust
-checks rather than every unrelated suite. A logic change still requires its affected lane.
+Only after all three pass may Gate 6 authorize publication and public-download
+verification. Archive the completed plan and record final dispositions afterward;
+delivery and archival do not replace or merge these three phases.
 
 Windows/Linux VM testing remains user-deferred. Current work uses the Mac. Never
 substitute this host's results for exact other-OS or enforced 8 GiB qualification.
@@ -564,7 +571,7 @@ campaign. Only final archival/disposition work stays at the end of milestone 13.
 | 8. Employer, pay, and outcome intelligence | [x] Resolve all employer-intelligence open decisions at Gate 4.<br>[x] Build the minimum employer dossier from official public sources, provenance, freshness, user-owned observations, and local outcomes.<br>[x] Integrate source verification, posting history, pay clarity, scam response, application channel, interview context, and offer evidence without verdicts or central private reviews.<br>[x] Revalidate volatile legal, policy, pay, and public-data claims before use. | Intelligence, sources, storage, salary, application, company research, and research docs.<br>Exit: guidance shows source, date, uncertainty, and safe next actions. |
 | 9. Regions, access, editions, and first-run doctor | [x] Implement validated Region manifests, inert taxonomy/CV/source guidance, and static-pack lifecycle support.<br>[x] Implement country-aware discovery and alerts, explicit work modes, and native pay without eligibility or currency-conversion claims.<br>[x] Implement model-free Essentials, optional governed stronger-local setup, and first-run doctor.<br>[x] Connect optional military-transition guidance across onboarding, resumes, matching, source guidance, protected application review, and case files; preserve disability-aware and early-career variants.<br>[x] Add focused regional and inclusive examples for role families, work modes, credentials, pay, and accessibility; coverage remains starter-only.<br>[x] Complete Gate 4 regional and footprint decisions.<br>[x] Reconcile focused source acceptance and record M9 development completion; Gate 5 was approved on 2026-10-28. | Existing domain, application, sources, storage, local-AI, platform, onboarding, Settings, and documentation owners.<br>Development exit: implemented behavior and focused evidence agree. Production Region signing/artifacts, fresh installed 8 GiB journeys, and complete native-platform proof are required in M11, not M9 exit gates. |
 | 10. Update, rollback, repair, and distribution design | [x] First implement trusted candidate preflight binding app, edition, pack, model, browser, region, export, and database compatibility metadata before mutation.<br>[x] Prove refusal of untrusted, checksum-mismatched, or incompatible candidates without changing current data or packs.<br>[x] Implement interrupted-update recovery, compatible rollback, offline repair, and component cleanup using existing recovery owners.<br>[x] Implement explicit update availability and reviewed update/rollback UX without silent updates or a new update server.<br>[x] Keep installed local workflows usable when checks, downloads, or online repair are unavailable.<br>[x] Cover missing components, interrupted updates, rollback restore, and offline recovery with focused boundary tests.<br>[x] Complete Gate 5 and freeze the v3.0 feature/component cut. | Application, platform, security, storage, release scripts, Settings, and update/recovery docs.<br>Development exit: update and repair are reversible, inspectable, offline-safe, and understandable. Current installed-package certification follows in M11. |
-| 11. V3.0 integration, QA, and release | [ ] After D0–D10 engineering is complete, run the full applicable suites, end-to-end scenarios, and commercial benchmarks for each intended release cut.<br>[ ] Obtain explicit Region-publisher enrollment/signing authority and produce verified production UK/EU/India starter artifacts.<br>[ ] Prove the current model-free installed Essentials core journey and persistence under an enforced 8 GiB, zero-swap profile with the unchanged numeric thresholds.<br>[ ] Complete Windows 11, exact macOS 26+, and Linux installed-platform, keyboard, screen-reader, responsive, and recovery proof.<br>[ ] Prove the connected veteran journey, fresh v3.0.0 install, failure recovery, compatible v3 rollback, export/import, pack/model removal, and newer-data refusal.<br>[ ] Resolve release-pipeline and shared-history decisions; keep retained exceptions explicit.<br>[ ] Reconcile final evidence, release metadata and public labels against development-owned product, security, migration and support docs.<br>[ ] Verify final assets, signatures, notarization, checksums, SBOMs, attestations, archives, labels, and public downloads; complete Gate 6 before publication. | All affected owners.<br>Exit: every v3.0 success criterion and the [Evaluation And Release Bar](evaluation-and-release-bar.md) done definition has revision-bound evidence. Historical package/model runs establish only their original scope, not current release readiness. |
+| 11. V3.0 integration, QA, and release | [ ] After D0–D10 engineering, complete separate full R1 Stability, R2 Performance and R3 Security phases in order for each release cut, with independent evidence and pass decisions.<br>[ ] Obtain explicit Region-publisher enrollment/signing authority and produce verified production UK/EU/India starter artifacts.<br>[ ] Prove the current model-free installed Essentials core journey and persistence under an enforced 8 GiB, zero-swap profile with the unchanged numeric thresholds.<br>[ ] Complete Windows 11, exact macOS 26+, and Linux installed-platform, keyboard, screen-reader, responsive, and recovery proof.<br>[ ] Prove the connected veteran journey, fresh v3.0.0 install, failure recovery, compatible v3 rollback, export/import, pack/model removal, and newer-data refusal.<br>[ ] Resolve release-pipeline and shared-history decisions; keep retained exceptions explicit.<br>[ ] Reconcile final evidence, release metadata and public labels against development-owned product, security, migration and support docs.<br>[ ] Verify final assets, signatures, notarization, checksums, SBOMs, attestations, archives, labels, and public downloads; complete Gate 6 before publication. | All affected owners.<br>Exit: every v3.0 success criterion and the [Evaluation And Release Bar](evaluation-and-release-bar.md) done definition has revision-bound evidence. Historical package/model runs establish only their original scope, not current release readiness. |
 | 12. V3.x enhancement trains | [ ] Activate one `Next` ID or tightly coupled group at a time.<br>[ ] Preserve v3 compatibility; defer breaking changes to the next major line.<br>[ ] Complete accepted development in the D0–D10 queue with focused checks; broad release campaigns wait until engineering is complete.<br>[ ] Use the reprioritized dependencies above; solve the hardest eligible coding problem first, with user burden as tie-breaker.<br>[ ] Reorder trains only through a recorded dependency and user-value decision.<br>[ ] Re-score after each minor release without silently promoting `Later` or `Moonshot` work. | Closest canonical owners.<br>Exit: every accepted `Next` ID is shipped, moved with evidence, or retired by user-approved decision. |
 | 13. V3 line closure | [ ] Confirm every accepted ID and inventory item has a final disposition.<br>[x] Remove transition-only `v3` prefixes from ordinary files, modules, types, commands, and live schema names; retain version labels only in immutable compatibility identifiers where the version is part of the contract.<br>[x] Delete pre-v3 compatibility readers, migration shims, fixtures, and release claims; make v3.0.0 the first supported compatibility baseline.<br>[ ] Audit Rust workspace and module organization against canonical crate ownership, Cargo workspace dependency and lint inheritance, compile boundaries, and repository file-size policy; split only on cohesive ownership boundaries.<br>[ ] Give every maintained hand-authored comment-capable file a one- or two-line native responsibility header; run `npm run lint:file-description -- --all` with zero gaps.<br>[ ] Move completed child plans and evidence to canonical completed owners.<br>[ ] Record compatibility guarantees, unsupported paths, retained exceptions, and the v4 backlog.<br>[ ] Audit docs, architecture, security, dependencies, duplication, migration, GUI, packages, and public artifacts. | Planning, harness, release, and all affected owners.<br>Exit: no transition-only v3 naming, pre-v3 compatibility machinery, or file-description gap remains; Rust code has explicit cohesive owners without boundary leakage, no active v3 work remains outside this plan, current state is compact, and the next major line starts from an explicit backlog. |
 
@@ -600,8 +607,8 @@ During development, use focused type/compile and boundary checks for shared
 changes. If no narrow check can resolve a design-invalidating risk, name that
 exception before expanding verification; stop after obtaining the needed proof.
 
-After all accepted engineering is complete, R1 qualifies each intended release
-cut using the parked M11 requirements:
+After all accepted engineering is complete, R1 Stability begins qualification of
+each intended release cut using the parked M11 requirements:
 
 ```bash
 npm run verify:full
@@ -946,7 +953,7 @@ claims are historical, not fresh verification. Current state is in Handoff.
 ## Handoff
 
 - D0 development is accepted at `4b96e802`; preserve it as the v3.0 core source cut.
-- The active child is `v3-shared-computer-privacy` in D1 (R13). Start product work
+- The active child is `v3-portable-app` in D1 (E15). Continue product work
   there. The parked M11 campaign remains partial, not passing qualification.
 - Follow D0 through D10 and the complete 82-ID inventory above. Keep one bounded child
   active. Finish real useful behavior and focused checks before selecting another.
@@ -954,8 +961,8 @@ claims are historical, not fresh verification. Current state is in Handoff.
   editions, Later/Moonshot promotions or public version/release changes are implied.
 - M11 corrections are checkpointed in `ecf321dc`; retain partial test/model evidence.
   Do not repeat full suites, installers, signing or benchmark research now.
-- Full Mac qualification is R1. Production trust, artifacts and release operations
-  are R2/R3. Windows/Linux VM work remains deferred by the user.
+- Final phases are R1 Stability, R2 Performance, R3 Security, each complete before
+  release. Windows/Linux VM execution is deferred now, not accepted as a release pass.
 - The bounded model reference check supports retaining the current governed Qwen
   configuration. No new model or threshold change is approved.
 - Update the feature ledger and current status only from actual evidence. Earlier

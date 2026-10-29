@@ -6,23 +6,23 @@ Last updated: 2026-10-28
 
 ## Execution
 
-- Active feature: `v3-shared-computer-privacy`
+- Active feature: `v3-portable-app`
 - Status: `active`
 - Implementation goal: **active**, resumed by the user on 2026-10-28.
-  Continue with D1 shared-computer privacy; broad qualification remains parked.
+  Continue with D1 portable application ownership; broad qualification remains parked.
 - Follow the [development queue](../plans/v3/master-exec-plan.md#remaining-development-queue):
   finish accepted engineering and code cleanup before broad qualification or release.
-- Current work: D1/R13 implementation checkpoint: native admission, fresh unlock,
-  covered private views, reviewed session cleanup and reversible background pause.
-- Focused regressions and bounded adversarial review pass; record development
-  acceptance before selecting the next D1 child. Installed qualification remains R1.
+- Current work: D1/E15 portable startup, owned paths and pre-database passphrase
+  unlock. Reuse existing storage, key wrapping and recovery owners.
+- R13 development accepted at `70b813d7`; installed qualification remains R1.
+- Evidence: `docs/harness/evidence/v3-shared-computer-privacy-2026-10-28.json`.
 
 ## Remaining Scope
 
 - Milestones 0 through 10 record development checkpoints for 105 Now IDs. Historical labels do not
   establish current acceptance or release readiness.
-- All 82 Next IDs have explicit remaining outcomes and dependency groups in the master plan.
-  Existing foundations are reused. Partial surfaces do not count as completed features.
+- The 82 Next IDs have explicit outcomes and dependency groups in the master plan.
+  R13 has development acceptance; the other 81 remain. Release acceptance is separate.
 - Milestone 13 code cleanup moves before final QA. Release-pipeline implementation
   and remaining documentation/header/boundary repairs are development, not final testing.
 - M11 broad qualification is parked until development is ready. Its earlier partial
@@ -48,4 +48,5 @@ Last updated: 2026-10-28
   public artifact checks remain late work. Hosted general CI remains absent under
   `pre-alpha-private-no-ci`. The release decision must state retained exceptions.
 
-The master plan owns the detailed order and remaining gates. Broad qualification remains deferred.
+Standing release rule: final full phases are Stability → Performance → Security,
+in order, before any release. The Release Contract owns their gates; development continues first.

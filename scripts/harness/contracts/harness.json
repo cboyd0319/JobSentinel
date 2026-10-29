@@ -51,7 +51,7 @@
     "max_hops": 1,
     "max_state_reads": 2,
     "state_budgets": {
-      "max_feature_items": 25,
+      "max_feature_items": 26,
       "max_feature_record_bytes": 6000
     },
     "per_file_budgets": {
