@@ -165,7 +165,7 @@ impl Database {
                AND link.object_id NOT GLOB '*[^0-9a-f]*'
                AND EXISTS(
                    SELECT 1
-                   FROM v3_job_events AS event
+                   FROM job_events AS event
                    WHERE event.case_file_id = link.subject_id
                      AND event.event_kind = 'evidence_linked'
                      AND event.origin = 'user'

@@ -1,6 +1,6 @@
 //! Stages and cancels verified portable database restoration.
 use super::{
-    portable_backup::export_encrypted_to_encrypted, portable_restore_bundle::sync_parent, Database,
+    backups::export_encrypted_to_encrypted, portable_restore_bundle::sync_parent, Database,
     PortableBackupInfo,
 };
 use crate::encryption::{connect_encrypted_pool, load_or_create_database_key, sqlite_sidecar_path};
@@ -182,7 +182,7 @@ impl Database {
         error_kind: Option<&str>,
     ) -> Result<(), sqlx::Error> {
         let updated = sqlx::query(
-            "UPDATE v3_recovery_operations
+            "UPDATE recovery_operations
              SET outcome = ?, error_kind = ?, completed_at = datetime('now')
              WHERE operation_id = ? AND operation_kind = 'restore'
                AND outcome = 'started'",
@@ -207,7 +207,7 @@ impl Database {
             None => None,
         };
         sqlx::query(
-            "UPDATE v3_recovery_operations
+            "UPDATE recovery_operations
              SET outcome = 'cancelled', completed_at = datetime('now')
              WHERE outcome = 'started'
                AND (operation_kind != 'restore' OR ? IS NULL OR operation_id != ?)",
@@ -339,16 +339,19 @@ async fn insert_restore_operation(
     source_migration: i64,
     target_migration: i64,
 ) -> Result<(), sqlx::Error> {
-    sqlx::query(
-        "INSERT INTO v3_recovery_operations(
+    let mut connection = pool.acquire().await?;
+    let layout = Database::require_supported_v3(&mut connection).await?;
+    sqlx::query(sqlx::AssertSqlSafe(format!(
+        "INSERT INTO {}(
             operation_id, operation_kind, outcome,
             source_migration_sequence, target_migration_sequence
          ) VALUES (?, 'restore', 'started', ?, ?)",
-    )
+        layout.recovery_table(),
+    )))
     .bind(restore_id)
     .bind(source_migration)
     .bind(target_migration)
-    .execute(pool)
+    .execute(&mut *connection)
     .await?;
     Ok(())
 }

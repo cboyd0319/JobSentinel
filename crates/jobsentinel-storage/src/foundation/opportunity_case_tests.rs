@@ -97,7 +97,7 @@ async fn read_aggregates_safe_case_state_without_private_payloads() {
         ),
     ] {
         sqlx::query(
-            "INSERT INTO v3_evidence_packets
+            "INSERT INTO evidence_packets
                  (packet_id, case_file_id, resume_id, resume_revision,
                   job_revision, claim_id, reviewed_text, created_at)
              VALUES (?, ?, ?, ?, ?, ?, 'private-reviewed-claim-marker', ?)",
@@ -127,7 +127,7 @@ async fn read_aggregates_safe_case_state_without_private_payloads() {
         ),
     ] {
         sqlx::query(
-            "INSERT INTO v3_job_events
+            "INSERT INTO job_events
                  (event_id, case_file_id, event_kind, origin, user_action,
                   local_only, sensitive, metadata_json, created_at)
              VALUES (?, ?, ?, 'system', 0, 1, 1, ?, ?)",

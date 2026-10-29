@@ -1,3 +1,5 @@
+//! Persists notification preferences and rejects invalid saved filters without resetting them.
+
 use super::*;
 
 impl UserDataManager {
@@ -28,8 +30,10 @@ impl UserDataManager {
                     serde_json::from_str(&r.source_configs).unwrap_or_default();
 
                 // Parse advanced filters
-                let advanced_filters: AdvancedFilters =
-                    serde_json::from_str(&r.advanced_filters).unwrap_or_default();
+                let advanced_filters: AdvancedFilters = serde_json::from_str(&r.advanced_filters)
+                    .map_err(|_| {
+                    sqlx::Error::Protocol("Saved notification filters are invalid".into())
+                })?;
 
                 Ok(NotificationPreferences {
                     linkedin: disable_linkedin_notification_source(source_configs.linkedin),

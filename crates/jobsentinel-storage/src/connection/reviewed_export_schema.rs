@@ -14,6 +14,23 @@ pub(super) struct ExportTable {
     pub(super) filter: &'static str,
 }
 
+impl ExportTable {
+    // Export v1 labels are immutable; only these live storage names changed.
+    pub(super) fn storage_table(&self) -> &'static str {
+        match self.table {
+            "v3_evidence_packets" => "evidence_packets",
+            "v3_evidence_packet_evidence" => "evidence_packet_evidence",
+            "v3_evidence_packet_boundaries" => "evidence_packet_boundaries",
+            "v3_source_manifests" => "source_manifests",
+            "v3_job_events" => "job_events",
+            "v3_privacy_receipts" => "privacy_receipts",
+            "v3_recovery_operations" => "recovery_operations",
+            "v3_source_policies" => "source_policies",
+            table => table,
+        }
+    }
+}
+
 macro_rules! table {
     ($section:literal, $table:literal, $columns:literal) => {
         ExportTable {
@@ -375,13 +392,13 @@ pub(super) const EXCLUDED_TABLES: &[&str] = &[
     "secret_vault",
     "skill_demand_trends",
     "source_request_log",
-    "v3_compatibility_metadata",
-    "v3_outside_ai_operations",
-    "v3_pack_publishers",
-    "v3_pack_releases",
-    "v3_pack_streams",
-    "v3_source_consent_events",
-    "v3_source_policy_ledger",
+    "compatibility_metadata",
+    "outside_ai_operations",
+    "pack_publishers",
+    "pack_releases",
+    "pack_streams",
+    "source_consent_events",
+    "source_policy_ledger",
 ];
 
 pub(super) const EXCLUDED_DATA: &[&str] = &[
@@ -402,7 +419,7 @@ pub(super) fn count_query(table: &ExportTable) -> Result<String, sqlx::Error> {
     validate_table(table)?;
     Ok(format!(
         "SELECT COUNT(*) FROM main.\"{}\"{}",
-        table.table,
+        table.storage_table(),
         where_clause(table)
     ))
 }
@@ -417,7 +434,7 @@ pub(super) fn export_query(table: &ExportTable) -> Result<String, sqlx::Error> {
         .join(", ");
     Ok(format!(
         "SELECT json_object({projection}) FROM main.\"{}\"{} ORDER BY \"{}\"",
-        table.table,
+        table.storage_table(),
         where_clause(table),
         columns[0]
     ))

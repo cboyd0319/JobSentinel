@@ -97,7 +97,7 @@ async fn generic_typed_events_round_trip_without_private_payload_fields() {
             reference_id: "receipt-1".to_string()
         }
     );
-    let stored: String = sqlx::query_scalar("SELECT metadata_json FROM v3_job_events LIMIT 1")
+    let stored: String = sqlx::query_scalar("SELECT metadata_json FROM job_events LIMIT 1")
         .fetch_one(database.pool())
         .await
         .unwrap();
@@ -121,7 +121,7 @@ async fn database_rejects_unknown_and_oversized_event_metadata() {
         ("event-boundary", 2_048),
     ] {
         sqlx::query(
-            "INSERT INTO v3_job_events
+            "INSERT INTO job_events
              (event_id, case_file_id, event_kind, origin, user_action, local_only, sensitive, metadata_json, created_at)
              VALUES (?, ?, 'case_created', 'system', 0, 1, 1, ?, ?)",
         )
@@ -134,7 +134,7 @@ async fn database_rejects_unknown_and_oversized_event_metadata() {
         .unwrap();
     }
     let invalid_privacy = sqlx::query(
-        "INSERT INTO v3_job_events
+        "INSERT INTO job_events
          (event_id, case_file_id, event_kind, origin, user_action, local_only, sensitive, metadata_json, created_at)
          VALUES ('event-public', ?, 'case_created', 'system', 0, 0, 1, '{\"kind\":\"empty\"}', ?)",
     )
@@ -143,7 +143,7 @@ async fn database_rejects_unknown_and_oversized_event_metadata() {
     .execute(database.pool())
     .await;
     assert!(invalid_privacy.is_err());
-    assert!(sqlx::query("INSERT INTO v3_job_events (event_id,case_file_id,event_kind,origin,user_action,local_only,sensitive,metadata_json,created_at) VALUES (NULL,?,'case_created','system',0,1,1,'{\"kind\":\"empty\"}','2026-10-28')")
+    assert!(sqlx::query("INSERT INTO job_events (event_id,case_file_id,event_kind,origin,user_action,local_only,sensitive,metadata_json,created_at) VALUES (NULL,?,'case_created','system',0,1,1,'{\"kind\":\"empty\"}','2026-10-28')")
         .bind(&case_file.case_file_id).execute(database.pool()).await.is_err());
 
     for (event_id, event_kind, metadata) in [
@@ -185,7 +185,7 @@ async fn database_rejects_unknown_and_oversized_event_metadata() {
         ),
     ] {
         let result = sqlx::query(
-            "INSERT INTO v3_job_events
+            "INSERT INTO job_events
              (event_id, case_file_id, event_kind, origin, user_action, local_only, sensitive, metadata_json, created_at)
              VALUES (?, ?, ?, 'system', 0, 1, 1, ?, ?)",
         )
@@ -259,7 +259,7 @@ async fn receipts_round_trip_only_after_contract_validation() {
     assert!(database.store_privacy_receipt(&invalid).await.is_err());
 
     let mismatched = sqlx::query(
-        "INSERT INTO v3_privacy_receipts (
+        "INSERT INTO privacy_receipts (
             receipt_id, schema, receipt_json, stored_locally,
             data_left_device, created_at
          ) VALUES ('different-id', 'jobsentinel.v3.privacy-receipt.v1', ?, 1, 0, ?)",
@@ -301,7 +301,7 @@ async fn source_policy_upsert_is_revision_monotonic() {
     assert!(database.upsert_source_policy(&policy).await.is_err());
 
     let private_identifier = sqlx::query(
-        "INSERT INTO v3_source_policies (
+        "INSERT INTO source_policies (
             source_id, source_class, access, request_limit_per_hour,
             user_review_required, policy_ref, revision,
             restriction_reason_code, reviewed_at, created_at, updated_at

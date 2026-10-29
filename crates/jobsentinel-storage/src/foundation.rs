@@ -103,7 +103,7 @@ impl Database {
             .to_json()
             .map_err(|_| anyhow!("invalid case event metadata"))?;
         sqlx::query(
-            "INSERT INTO v3_job_events (
+            "INSERT INTO job_events (
                 event_id, case_file_id, event_kind, origin, user_action,
                 local_only, sensitive, metadata_json, created_at
              ) VALUES (?, ?, ?, ?, ?, 1, 1, ?, ?)",
@@ -133,7 +133,7 @@ impl Database {
         let rows = sqlx::query_as::<_, EventRow>(
             "SELECT event_id, case_file_id, event_kind, origin, user_action,
                     local_only, sensitive, metadata_json, created_at
-             FROM v3_job_events
+             FROM job_events
              WHERE case_file_id = ?
              ORDER BY created_at, event_id",
         )
@@ -201,7 +201,7 @@ impl Database {
             return Err(anyhow!("privacy receipt exceeds the local limit"));
         }
         sqlx::query(
-            "INSERT INTO v3_privacy_receipts (
+            "INSERT INTO privacy_receipts (
                 receipt_id, schema, receipt_json, stored_locally,
                 data_left_device, created_at
              ) VALUES (?, ?, ?, ?, ?, ?)",
@@ -219,7 +219,7 @@ impl Database {
 
     pub async fn get_privacy_receipt(&self, receipt_id: &str) -> Result<Option<PrivacyReceipt>> {
         let receipt_json: Option<String> =
-            sqlx::query_scalar("SELECT receipt_json FROM v3_privacy_receipts WHERE receipt_id = ?")
+            sqlx::query_scalar("SELECT receipt_json FROM privacy_receipts WHERE receipt_id = ?")
                 .bind(receipt_id)
                 .fetch_optional(self.pool())
                 .await?;
@@ -241,7 +241,7 @@ impl Database {
             .map_err(|_| anyhow!("invalid source policy"))?;
         let now = Utc::now().to_rfc3339();
         let result = sqlx::query(
-            "INSERT INTO v3_source_policies (
+            "INSERT INTO source_policies (
                 source_id, source_class, access, request_limit_per_hour,
                 user_review_required, policy_ref, revision,
                 restriction_reason_code, reviewed_at, created_at, updated_at
@@ -256,7 +256,7 @@ impl Database {
                 restriction_reason_code = excluded.restriction_reason_code,
                 reviewed_at = excluded.reviewed_at,
                 updated_at = excluded.updated_at
-             WHERE excluded.revision > v3_source_policies.revision",
+             WHERE excluded.revision > source_policies.revision",
         )
         .bind(&policy.source_id)
         .bind(enum_text(policy.source_class)?)
@@ -286,7 +286,7 @@ impl Database {
             "SELECT source_id, source_class, access, request_limit_per_hour,
                     user_review_required, policy_ref, revision,
                     restriction_reason_code, reviewed_at
-             FROM v3_source_policies
+             FROM source_policies
              WHERE source_id = ?",
         )
         .bind(source_id)
@@ -305,7 +305,7 @@ impl Database {
             "SELECT source_id, source_class, access, request_limit_per_hour,
                     user_review_required, policy_ref, revision,
                     restriction_reason_code, reviewed_at
-             FROM v3_source_policy_ledger
+             FROM source_policy_ledger
              WHERE source_id = ? AND revision = ?",
         )
         .bind(source_id)
@@ -318,7 +318,7 @@ impl Database {
     pub async fn read_compatibility_metadata(&self) -> Result<CompatibilityMetadata> {
         let row = sqlx::query(
             "SELECT schema, compatibility_line, database_schema, migration_version
-             FROM v3_compatibility_metadata
+             FROM compatibility_metadata
              WHERE singleton = 1",
         )
         .fetch_one(self.pool())

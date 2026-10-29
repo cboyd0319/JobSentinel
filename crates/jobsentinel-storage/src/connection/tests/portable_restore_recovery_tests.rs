@@ -1,3 +1,5 @@
+//! Proves promoted-restore crash recovery, rollback provenance and retained-artifact cleanup.
+
 use super::*;
 
 #[tokio::test]
@@ -28,7 +30,16 @@ async fn finishing_promoted_restore_cleans_raw_artifacts_and_allows_another_back
         .status()
         .unwrap();
     assert!(status.success());
-    assert!(sqlite_sidecar_path(&db_path, "-wal").exists());
+    assert!(
+        std::fs::metadata(sqlite_sidecar_path(&db_path, "-wal"))
+            .unwrap()
+            .len()
+            > 0
+    );
+    assert_eq!(
+        Database::staged_restore_status(&db_path).unwrap(),
+        super::super::PortableRestoreStatus::Promoted
+    );
     std::fs::remove_dir(&stage).unwrap();
     let restored = Database::connect_with_staged_restore(&db_path)
         .await
@@ -48,7 +59,7 @@ async fn finishing_promoted_restore_cleans_raw_artifacts_and_allows_another_back
     .unwrap();
     let outcome: (String, Option<String>) = sqlx::query_as(
         "SELECT outcome, completed_at
-         FROM v3_recovery_operations
+         FROM recovery_operations
          WHERE operation_id = ? AND operation_kind = 'restore'",
     )
     .bind(&restore_id)
@@ -217,7 +228,7 @@ async fn rollback_restores_original_and_records_failed_restore() {
         .unwrap();
     let outcome: (String, Option<String>) = sqlx::query_as(
         "SELECT outcome, completed_at
-         FROM v3_recovery_operations
+         FROM recovery_operations
          WHERE operation_id = ? AND operation_kind = 'restore'",
     )
     .bind(&restore_id)

@@ -1,3 +1,5 @@
+//! Verifies resume builder persistence and its canonical flat payload contract.
+
 use super::*;
 
 async fn setup_test_db() -> SqlitePool {
@@ -337,3 +339,6 @@ async fn test_delete_missing_resume_returns_error() {
 
     assert!(result.is_err());
 }
+
+#[path = "education_tests.rs"]
+mod education_tests;

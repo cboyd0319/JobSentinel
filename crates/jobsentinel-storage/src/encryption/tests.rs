@@ -167,8 +167,8 @@ async fn newer_same_generation_data_is_refused_without_changing_main_or_wal() {
                     .await
                     .unwrap();
             } else {
-                sqlx::query("CREATE TABLE v3_compatibility_metadata(compatibility_line INTEGER, database_schema INTEGER, migration_version INTEGER)").execute(&pool).await.unwrap();
-                sqlx::query("INSERT INTO v3_compatibility_metadata VALUES (3, 2, ?)")
+                sqlx::query("CREATE TABLE compatibility_metadata(compatibility_line INTEGER, database_schema INTEGER, migration_version INTEGER)").execute(&pool).await.unwrap();
+                sqlx::query("INSERT INTO compatibility_metadata VALUES (3, 2, ?)")
                     .bind(next)
                     .execute(&pool)
                     .await

@@ -1,7 +1,17 @@
-//! Shared URL validation for user-controlled external destinations.
+//! Validates external destinations and encodes local paths as file URLs.
 
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
 use url::{form_urlencoded::Serializer, Url};
+
+/// Encodes an absolute or relative local path without interpreting filename bytes as URL syntax.
+pub fn local_file_url(path: &std::path::Path) -> std::io::Result<Url> {
+    Url::from_file_path(std::path::absolute(path)?).map_err(|()| {
+        std::io::Error::new(
+            std::io::ErrorKind::InvalidInput,
+            "Local file path cannot be encoded",
+        )
+    })
+}
 
 const MAX_LOG_URL_LEN: usize = 80;
 const BLOCKED_HOST_SUFFIXES: &[&str] = &["local", "lan", "home", "internal", "corp"];

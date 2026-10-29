@@ -108,7 +108,7 @@ async fn database_rejects_malformed_manifest_rows_and_deletion() {
     let now = Utc::now().to_rfc3339();
 
     let malformed = sqlx::query(
-        "INSERT INTO v3_source_manifests (
+        "INSERT INTO source_manifests (
             source_id, policy_ref, policy_revision, manifest_json, created_at, updated_at
          ) VALUES (?, ?, 1, '{}', ?, ?)",
     )
@@ -125,7 +125,7 @@ async fn database_rejects_malformed_manifest_rows_and_deletion() {
         .await
         .unwrap();
     assert!(
-        sqlx::query("DELETE FROM v3_source_manifests WHERE source_id = ?")
+        sqlx::query("DELETE FROM source_manifests WHERE source_id = ?")
             .bind(&policy.source_id)
             .execute(database.pool())
             .await
@@ -143,7 +143,7 @@ async fn database_rejects_stale_and_same_revision_manifest_bypasses() {
     database.upsert_source_policy(&policy(2)).await.unwrap();
     let now = Utc::now().to_rfc3339();
     let stale = sqlx::query(
-        "INSERT INTO v3_source_manifests (
+        "INSERT INTO source_manifests (
             source_id, policy_ref, policy_revision, manifest_json, created_at, updated_at
          ) VALUES (?, ?, 1, ?, ?, ?)",
     )
@@ -163,7 +163,7 @@ async fn database_rejects_stale_and_same_revision_manifest_bypasses() {
     conflicting.display_name = "Replacement Attack".to_string();
     let conflicting_json = serde_json::to_string(&conflicting).unwrap();
     let replace = sqlx::query(
-        "INSERT OR REPLACE INTO v3_source_manifests (
+        "INSERT OR REPLACE INTO source_manifests (
             source_id, policy_ref, policy_revision, manifest_json, created_at, updated_at
          ) VALUES (?, ?, 2, ?, ?, ?)",
     )
@@ -177,7 +177,7 @@ async fn database_rejects_stale_and_same_revision_manifest_bypasses() {
     assert!(replace.is_err());
 
     let update = sqlx::query(
-        "UPDATE v3_source_manifests
+        "UPDATE source_manifests
          SET manifest_json = ?
          WHERE source_id = ?",
     )

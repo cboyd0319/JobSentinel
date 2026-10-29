@@ -94,7 +94,7 @@ async fn approval_must_remain_unexpired_at_completion() {
         crate::pack_tasks::PackTaskStatus::Started
     );
     assert_eq!(
-        sqlx::query_scalar::<_, i64>("SELECT COUNT(*) FROM v3_privacy_receipts")
+        sqlx::query_scalar::<_, i64>("SELECT COUNT(*) FROM privacy_receipts")
             .fetch_one(database.pool())
             .await
             .unwrap(),

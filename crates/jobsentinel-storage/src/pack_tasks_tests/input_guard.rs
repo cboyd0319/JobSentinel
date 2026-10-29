@@ -8,7 +8,7 @@ async fn draft_packet_completion_rolls_back_a_change_during_receipt_insertion() 
     let (context, guard) = started_draft_packet(&database).await;
     sqlx::query(
         "CREATE TRIGGER mutate_packet_source_before_receipt
-         BEFORE INSERT ON v3_privacy_receipts
+         BEFORE INSERT ON privacy_receipts
          BEGIN
              UPDATE jobs
              SET title = 'Changed during completion', updated_at = '2026-07-22T12:01:00+00:00'
@@ -34,8 +34,8 @@ async fn draft_packet_completion_rolls_back_a_change_during_receipt_insertion() 
         .unwrap()
         .unwrap();
     let audit_rows: i64 = sqlx::query_scalar(
-        "SELECT (SELECT COUNT(*) FROM v3_privacy_receipts)
-              + (SELECT COUNT(*) FROM v3_job_events)",
+        "SELECT (SELECT COUNT(*) FROM privacy_receipts)
+              + (SELECT COUNT(*) FROM job_events)",
     )
     .fetch_one(database.pool())
     .await
@@ -82,8 +82,8 @@ async fn current_guard_cannot_replace_the_guard_bound_to_the_approval() {
         .unwrap()
         .unwrap();
     let audit_rows: i64 = sqlx::query_scalar(
-        "SELECT (SELECT COUNT(*) FROM v3_privacy_receipts)
-              + (SELECT COUNT(*) FROM v3_job_events)",
+        "SELECT (SELECT COUNT(*) FROM privacy_receipts)
+              + (SELECT COUNT(*) FROM job_events)",
     )
     .fetch_one(database.pool())
     .await

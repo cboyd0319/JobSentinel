@@ -1,5 +1,6 @@
+//! Maps flat builder payloads to canonical document types without scalar coercion.
+
 use super::{DraftEducation, DraftExperience, DraftSkill, ResumeDraft};
-use crate::resume::builder::deserialization::{optional_string_from_value, string_vec_from_value};
 use chrono::{DateTime, Utc};
 use jobsentinel_documents::{
     ResumeCertification, ResumeEducation, ResumePersonalInfo, ResumeProject, ResumeSkillCategory,
@@ -26,6 +27,7 @@ struct ResumeDraftWire {
 }
 
 #[derive(Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 struct DraftEducationWire {
     #[serde(default)]
     id: i64,
@@ -35,15 +37,11 @@ struct DraftEducationWire {
     field_of_study: Option<String>,
     #[serde(default)]
     location: Option<String>,
-    #[serde(
-        default,
-        alias = "graduation_year",
-        deserialize_with = "optional_string_from_value"
-    )]
+    #[serde(default)]
     graduation_date: Option<String>,
-    #[serde(default, deserialize_with = "optional_string_from_value")]
+    #[serde(default)]
     gpa: Option<String>,
-    #[serde(default, deserialize_with = "string_vec_from_value")]
+    #[serde(default)]
     honors: Vec<String>,
 }
 

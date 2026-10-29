@@ -226,9 +226,9 @@ async fn evidence_packet_tables_are_present_for_memory_and_reopened_v3_databases
             "SELECT COUNT(*) FROM sqlite_master
              WHERE type = 'table'
                AND name IN (
-                   'v3_evidence_packets',
-                   'v3_evidence_packet_evidence',
-                   'v3_evidence_packet_boundaries'
+                   'evidence_packets',
+                   'evidence_packet_evidence',
+                   'evidence_packet_boundaries'
                )",
         )
         .fetch_one(database.pool())
@@ -319,7 +319,7 @@ async fn same_device_snapshot_restores_then_retries_migration() {
     ));
     restored.migrate_with(&repaired).await.unwrap();
     let compatibility_line: i64 =
-        sqlx::query_scalar("SELECT compatibility_line FROM v3_compatibility_metadata")
+        sqlx::query_scalar("SELECT compatibility_line FROM compatibility_metadata")
             .fetch_one(restored.pool())
             .await
             .unwrap();

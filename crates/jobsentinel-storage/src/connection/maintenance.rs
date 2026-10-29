@@ -101,7 +101,7 @@ impl Database {
     ) -> Result<PortableBackupHistory, sqlx::Error> {
         let outcome: Option<String> = sqlx::query_scalar(
             "SELECT outcome
-             FROM v3_recovery_operations
+             FROM recovery_operations
              WHERE operation_kind = 'backup'
              ORDER BY created_at DESC, rowid DESC
              LIMIT 1",
@@ -200,7 +200,7 @@ impl Database {
                 .fetch_one(&self.pool)
                 .await?;
         sqlx::query(
-            "INSERT INTO v3_recovery_operations(
+            "INSERT INTO recovery_operations(
                 operation_id, operation_kind, outcome,
                 source_migration_sequence, target_migration_sequence
              ) VALUES (?, 'cleanup', 'started', ?, ?)",
@@ -219,7 +219,7 @@ impl Database {
         error_kind: Option<&str>,
     ) -> Result<(), sqlx::Error> {
         let updated = sqlx::query(
-            "UPDATE v3_recovery_operations
+            "UPDATE recovery_operations
              SET outcome = CASE WHEN ? IS NULL THEN 'succeeded' ELSE 'failed' END,
                  error_kind = ?, completed_at = datetime('now')
              WHERE operation_id = ? AND operation_kind = 'cleanup'

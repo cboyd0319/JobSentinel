@@ -27,7 +27,7 @@ impl Database {
         let now = Utc::now().to_rfc3339();
         let mut transaction = self.pool().begin().await?;
         let stream_updated = sqlx::query(
-            "UPDATE v3_pack_streams
+            "UPDATE pack_streams
              SET active_release_sequence = NULL,
                  rollback_release_sequence = NULL,
                  availability = 'quarantined',
@@ -55,7 +55,7 @@ impl Database {
             .await?);
         }
         let releases_updated = sqlx::query(
-            "UPDATE v3_pack_releases
+            "UPDATE pack_releases
              SET lifecycle_state = 'quarantined',
                  quarantine_reason = CASE release_sequence
                      WHEN ? THEN ? WHEN ? THEN ?
@@ -157,7 +157,7 @@ impl Database {
         )
         .await?;
         let stream_updated = sqlx::query(
-            "UPDATE v3_pack_streams
+            "UPDATE pack_streams
              SET active_release_sequence = ?,
                  rollback_release_sequence = NULL,
                  generation = generation + 1, updated_at = ?
@@ -166,9 +166,9 @@ impl Database {
                AND active_release_sequence = ?
                AND rollback_release_sequence = ?
                AND EXISTS (
-                   SELECT 1 FROM v3_pack_releases AS retained
-                   WHERE retained.publisher_key_id = v3_pack_streams.publisher_key_id
-                     AND retained.pack_id = v3_pack_streams.pack_id
+                   SELECT 1 FROM pack_releases AS retained
+                   WHERE retained.publisher_key_id = pack_streams.publisher_key_id
+                     AND retained.pack_id = pack_streams.pack_id
                      AND retained.release_sequence = ?
                      AND retained.signed_release_sha256 = ?
                      AND retained.lifecycle_state = 'ready'
@@ -195,7 +195,7 @@ impl Database {
             .await?);
         }
         let release_updated = sqlx::query(
-            "UPDATE v3_pack_releases
+            "UPDATE pack_releases
              SET lifecycle_state = 'quarantined',
                  quarantine_reason = ?, updated_at = ?
              WHERE publisher_key_id = ? AND pack_id = ?
@@ -339,7 +339,7 @@ impl Database {
             .await?);
         }
         let release_updated = sqlx::query(
-            "UPDATE v3_pack_releases
+            "UPDATE pack_releases
              SET lifecycle_state = 'quarantined', quarantine_reason = ?, updated_at = ?
              WHERE publisher_key_id = ? AND pack_id = ?
                AND release_sequence = ? AND signed_release_sha256 = ?
@@ -377,7 +377,7 @@ impl QuarantinedArtifactRole {
     const fn stream_update(self) -> &'static str {
         match self {
             Self::Active => {
-                "UPDATE v3_pack_streams
+                "UPDATE pack_streams
                  SET active_release_sequence = NULL,
                      rollback_release_sequence = NULL,
                      availability = 'quarantined',
@@ -387,7 +387,7 @@ impl QuarantinedArtifactRole {
                    AND active_release_sequence = ?"
             }
             Self::Rollback => {
-                "UPDATE v3_pack_streams
+                "UPDATE pack_streams
                  SET rollback_release_sequence = NULL,
                      generation = generation + 1, updated_at = ?
                  WHERE publisher_key_id = ? AND pack_id = ? AND generation = ?

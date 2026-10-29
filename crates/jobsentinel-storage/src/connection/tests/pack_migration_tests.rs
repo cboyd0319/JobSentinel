@@ -2,7 +2,11 @@
 
 use super::*;
 
-async fn seed_pack_lifecycle(database: &Database, release_digest: &str, payload_digest: &str) {
+pub(super) async fn seed_pack_lifecycle(
+    database: &Database,
+    release_digest: &str,
+    payload_digest: &str,
+) {
     sqlx::query(
         "INSERT INTO v3_pack_publishers (
             publisher_key_id, public_key_sha256, trust_state,
@@ -359,10 +363,11 @@ async fn migration_27_preserves_pack_history_foreign_keys_tasks_and_guards() {
 #[tokio::test]
 async fn pack_lifecycle_triggers_reject_state_bypass_history_loss_and_retrust() {
     let database = Database::connect_memory().await.unwrap();
-    MIGRATOR.run(database.pool()).await.unwrap();
+    MIGRATOR.run_to(27, database.pool()).await.unwrap();
     let digest = "a".repeat(64);
     let payload_digest = "b".repeat(64);
     seed_pack_lifecycle(&database, &digest, &payload_digest).await;
+    MIGRATOR.run(database.pool()).await.unwrap();
     sqlx::query(
         r#"INSERT INTO pack_release_reviews (
             publisher_key_id, pack_id, release_sequence, publisher_name,
@@ -381,7 +386,7 @@ async fn pack_lifecycle_triggers_reject_state_bypass_history_loss_and_retrust() 
     .unwrap();
 
     assert!(sqlx::query(
-        "UPDATE v3_pack_releases SET lifecycle_state = 'ready',
+        "UPDATE pack_releases SET lifecycle_state = 'ready',
                 self_tested_at = 'now'
          WHERE publisher_key_id = 'publisher' AND pack_id = 'pack'"
     )
@@ -389,7 +394,7 @@ async fn pack_lifecycle_triggers_reject_state_bypass_history_loss_and_retrust() 
     .await
     .is_err());
     assert!(sqlx::query(
-        "UPDATE v3_pack_streams SET active_release_sequence = 1,
+        "UPDATE pack_streams SET active_release_sequence = 1,
                 availability = 'ready', generation = generation + 1
          WHERE publisher_key_id = 'publisher' AND pack_id = 'pack'"
     )
@@ -397,7 +402,7 @@ async fn pack_lifecycle_triggers_reject_state_bypass_history_loss_and_retrust() 
     .await
     .is_err());
     sqlx::query(
-        "UPDATE v3_pack_releases SET lifecycle_state = 'self_tested',
+        "UPDATE pack_releases SET lifecycle_state = 'self_tested',
                 self_tested_at = 'now'
          WHERE publisher_key_id = 'publisher' AND pack_id = 'pack'",
     )
@@ -405,14 +410,14 @@ async fn pack_lifecycle_triggers_reject_state_bypass_history_loss_and_retrust() 
     .await
     .unwrap();
     sqlx::query(
-        "UPDATE v3_pack_releases SET lifecycle_state = 'ready'
+        "UPDATE pack_releases SET lifecycle_state = 'ready'
          WHERE publisher_key_id = 'publisher' AND pack_id = 'pack'",
     )
     .execute(database.pool())
     .await
     .unwrap();
     sqlx::query(
-        "UPDATE v3_pack_streams SET active_release_sequence = 1,
+        "UPDATE pack_streams SET active_release_sequence = 1,
                 availability = 'ready', generation = generation + 1
          WHERE publisher_key_id = 'publisher' AND pack_id = 'pack'",
     )
@@ -421,19 +426,19 @@ async fn pack_lifecycle_triggers_reject_state_bypass_history_loss_and_retrust() 
     .unwrap();
 
     for attack in [
-        "UPDATE v3_pack_streams SET generation = generation + 2 WHERE publisher_key_id = 'publisher' AND pack_id = 'pack'",
-        "UPDATE v3_pack_streams SET high_water_sequence = 0, high_water_signed_release_sha256 = NULL, generation = generation + 1 WHERE publisher_key_id = 'publisher' AND pack_id = 'pack'",
-        "UPDATE v3_pack_releases SET signed_release_sha256 = 'cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc' WHERE publisher_key_id = 'publisher' AND pack_id = 'pack'",
-        "UPDATE v3_pack_publishers SET trust_state = 'revoked', revoked_at = 'now' WHERE publisher_key_id = 'publisher'",
-        "DELETE FROM v3_pack_streams WHERE publisher_key_id = 'publisher' AND pack_id = 'pack'",
-        "DELETE FROM v3_pack_releases WHERE publisher_key_id = 'publisher' AND pack_id = 'pack'",
-        "DELETE FROM v3_pack_publishers WHERE publisher_key_id = 'publisher'",
+        "UPDATE pack_streams SET generation = generation + 2 WHERE publisher_key_id = 'publisher' AND pack_id = 'pack'",
+        "UPDATE pack_streams SET high_water_sequence = 0, high_water_signed_release_sha256 = NULL, generation = generation + 1 WHERE publisher_key_id = 'publisher' AND pack_id = 'pack'",
+        "UPDATE pack_releases SET signed_release_sha256 = 'cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc' WHERE publisher_key_id = 'publisher' AND pack_id = 'pack'",
+        "UPDATE pack_publishers SET trust_state = 'revoked', revoked_at = 'now' WHERE publisher_key_id = 'publisher'",
+        "DELETE FROM pack_streams WHERE publisher_key_id = 'publisher' AND pack_id = 'pack'",
+        "DELETE FROM pack_releases WHERE publisher_key_id = 'publisher' AND pack_id = 'pack'",
+        "DELETE FROM pack_publishers WHERE publisher_key_id = 'publisher'",
     ] {
         assert!(sqlx::query(attack).execute(database.pool()).await.is_err());
     }
 
     sqlx::query(
-        "UPDATE v3_pack_streams SET active_release_sequence = NULL,
+        "UPDATE pack_streams SET active_release_sequence = NULL,
                 availability = 'quarantined', generation = generation + 1
          WHERE publisher_key_id = 'publisher' AND pack_id = 'pack'",
     )
@@ -441,7 +446,7 @@ async fn pack_lifecycle_triggers_reject_state_bypass_history_loss_and_retrust() 
     .await
     .unwrap();
     sqlx::query(
-        "UPDATE v3_pack_releases SET lifecycle_state = 'quarantined',
+        "UPDATE pack_releases SET lifecycle_state = 'quarantined',
                 quarantine_reason = 'trust_revoked'
          WHERE publisher_key_id = 'publisher' AND pack_id = 'pack'",
     )
@@ -449,14 +454,14 @@ async fn pack_lifecycle_triggers_reject_state_bypass_history_loss_and_retrust() 
     .await
     .unwrap();
     sqlx::query(
-        "UPDATE v3_pack_publishers SET trust_state = 'revoked',
+        "UPDATE pack_publishers SET trust_state = 'revoked',
                 revoked_at = 'now' WHERE publisher_key_id = 'publisher'",
     )
     .execute(database.pool())
     .await
     .unwrap();
     assert!(sqlx::query(
-        "UPDATE v3_pack_publishers SET trust_state = 'trusted', revoked_at = NULL
+        "UPDATE pack_publishers SET trust_state = 'trusted', revoked_at = NULL
          WHERE publisher_key_id = 'publisher'"
     )
     .execute(database.pool())

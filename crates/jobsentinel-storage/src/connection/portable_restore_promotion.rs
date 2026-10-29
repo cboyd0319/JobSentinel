@@ -1,6 +1,7 @@
 //! Promotes staged restores and recovers interrupted database replacement.
 use super::{
-    portable_backup::export_encrypted_to_encrypted,
+    backups::export_encrypted_to_encrypted,
+    bootstrap::StorageLayout,
     portable_restore::{
         read_restore_request, remove_sqlite_sidecars_checked, restore_error, restore_request_path,
         restore_stage_path, sibling_path, write_restore_request, OwnedDatabaseFile, RestorePhase,
@@ -14,7 +15,7 @@ use super::{
     Database, PortableBackupInfo,
 };
 use crate::encryption::{
-    connect_encrypted_pool, connect_encrypted_read_only_pool, load_or_create_database_key,
+    connect_encrypted_pool, connect_encrypted_read_only_primary_pool, load_or_create_database_key,
     sqlite_sidecar_path,
 };
 use sqlx::SqlitePool;
@@ -125,7 +126,7 @@ impl Database {
         }
         let mut transaction = self.pool.begin().await?;
         let outcome: String = sqlx::query_scalar(
-            "SELECT outcome FROM v3_recovery_operations
+            "SELECT outcome FROM recovery_operations
              WHERE operation_id = ? AND operation_kind = 'restore'",
         )
         .bind(&request.restore_id)
@@ -133,7 +134,7 @@ impl Database {
         .await?;
         if outcome == "started" {
             sqlx::query(
-                "UPDATE v3_recovery_operations
+                "UPDATE recovery_operations
                  SET outcome = 'succeeded', error_kind = NULL,
                      completed_at = datetime('now')
                  WHERE operation_id = ? AND outcome = 'started'",
@@ -194,7 +195,9 @@ async fn promote_ready_database(
             "Promoted portable restore verification failed",
         ));
     }
-    verify_restore_database(database_path, key, &request.restore_id, true).await
+    verify_restore_database(database_path, key, &request.restore_id, true)
+        .await
+        .map(|_| ())
 }
 
 async fn ensure_restore_rollback(
@@ -243,50 +246,38 @@ async fn verify_promoted(
     key: &str,
     request: &RestoreRequest,
 ) -> Result<bool, sqlx::Error> {
-    let pool = connect_encrypted_pool(database_path, key, false).await?;
-    let check: String = sqlx::query_scalar("PRAGMA quick_check")
-        .fetch_one(&pool)
-        .await?;
-    let outcome: String = sqlx::query_scalar(
-        "SELECT outcome FROM v3_recovery_operations
-         WHERE operation_id = ? AND operation_kind = 'restore'",
-    )
-    .bind(&request.restore_id)
-    .fetch_one(&pool)
-    .await?;
-    let manifest: i64 = sqlx::query_scalar(
-        "SELECT COUNT(*) FROM sqlite_master
-         WHERE type = 'table' AND name = 'portable_backup_manifest'",
-    )
-    .fetch_one(&pool)
-    .await?;
-    let matching_manifest = if manifest == 1 {
-        sqlx::query_scalar(
-            "SELECT COUNT(*) FROM portable_backup_manifest
-             WHERE backup_id = ?",
-        )
-        .bind(&request.backup_id)
-        .fetch_one(&pool)
-        .await?
-    } else {
-        0
-    };
-    checkpoint_and_close(pool).await?;
+    let pool = connect_encrypted_read_only_primary_pool(database_path, key).await?;
+    let result = async {
+        let layout = {
+            let mut connection = pool.acquire().await?;
+            Database::require_supported_v3(&mut connection).await?
+        };
+        let check: String = sqlx::query_scalar("PRAGMA quick_check").fetch_one(&pool).await?;
+        let outcome: String = sqlx::query_scalar(sqlx::AssertSqlSafe(format!(
+            "SELECT outcome FROM {} WHERE operation_id = ? AND operation_kind = 'restore'",
+            layout.recovery_table(),
+        ))).bind(&request.restore_id).fetch_one(&pool).await?;
+        let manifest: i64 = sqlx::query_scalar(
+            "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='portable_backup_manifest'",
+        ).fetch_one(&pool).await?;
+        let matching_manifest: i64 = if manifest == 1 {
+            sqlx::query_scalar("SELECT COUNT(*) FROM portable_backup_manifest WHERE backup_id = ?")
+                .bind(&request.backup_id).fetch_one(&pool).await?
+        } else { 0 };
+        if !check.trim().eq_ignore_ascii_case("ok") {
+            return Err(restore_error("Promoted portable restore verification failed"));
+        }
+        if outcome == "succeeded" && manifest == 0 { return Ok(true); }
+        if outcome != "started" || manifest != 1 || matching_manifest != 1 {
+            return Err(restore_error("Promoted portable restore verification failed"));
+        }
+        Ok(false)
+    }.await;
+    pool.close().await;
+    let finished = result?;
+    checkpoint_and_close(connect_encrypted_pool(database_path, key, false).await?).await?;
     remove_sqlite_sidecars_checked(database_path).map_err(sqlx::Error::Io)?;
-    if !check.trim().eq_ignore_ascii_case("ok") {
-        return Err(restore_error(
-            "Promoted portable restore verification failed",
-        ));
-    }
-    if outcome == "succeeded" && manifest == 0 {
-        return Ok(true);
-    }
-    if outcome != "started" || manifest != 1 || matching_manifest != 1 {
-        return Err(restore_error(
-            "Promoted portable restore verification failed",
-        ));
-    }
-    Ok(false)
+    Ok(finished)
 }
 
 async fn verify_restore_database(
@@ -294,36 +285,27 @@ async fn verify_restore_database(
     key: &str,
     restore_id: &str,
     expect_manifest: bool,
-) -> Result<(), sqlx::Error> {
-    let pool = connect_encrypted_read_only_pool(path, key).await?;
-    let check: String = sqlx::query_scalar("PRAGMA quick_check")
-        .fetch_one(&pool)
-        .await?;
-    let operation: i64 = sqlx::query_scalar(
-        "SELECT COUNT(*) FROM v3_recovery_operations
-         WHERE operation_id = ? AND operation_kind = 'restore'
-           AND outcome IN ('started', 'failed')",
-    )
-    .bind(restore_id)
-    .fetch_one(&pool)
-    .await?;
-    let manifest: i64 = sqlx::query_scalar(
-        "SELECT COUNT(*) FROM sqlite_master
-         WHERE type = 'table' AND name = 'portable_backup_manifest'",
-    )
-    .fetch_one(&pool)
-    .await?;
+) -> Result<StorageLayout, sqlx::Error> {
+    let pool = connect_encrypted_read_only_primary_pool(path, key).await?;
+    let result = async {
+        let layout = {
+            let mut connection = pool.acquire().await?;
+            Database::require_supported_v3(&mut connection).await?
+        };
+        let check: String = sqlx::query_scalar("PRAGMA quick_check").fetch_one(&pool).await?;
+        let operation: i64 = sqlx::query_scalar(sqlx::AssertSqlSafe(format!(
+            "SELECT COUNT(*) FROM {} WHERE operation_id = ? AND operation_kind = 'restore' AND outcome IN ('started', 'failed')",
+            layout.recovery_table(),
+        ))).bind(restore_id).fetch_one(&pool).await?;
+        let manifest: i64 = sqlx::query_scalar(
+            "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='portable_backup_manifest'",
+        ).fetch_one(&pool).await?;
+        if check.trim().eq_ignore_ascii_case("ok") && operation == 1 && (manifest == 1) == expect_manifest {
+            Ok(layout)
+        } else { Err(restore_error("Portable restore database verification failed")) }
+    }.await;
     pool.close().await;
-    if check.trim().eq_ignore_ascii_case("ok")
-        && operation == 1
-        && (manifest == 1) == expect_manifest
-    {
-        Ok(())
-    } else {
-        Err(restore_error(
-            "Portable restore database verification failed",
-        ))
-    }
+    result
 }
 
 async fn rollback_from_available_copy(
@@ -370,15 +352,16 @@ async fn rollback_from_verified_copy(
         remove_database_bundle(database_path)?;
         publish_rollback_copy(&rollback, database_path, key, &request.restore_id).await?;
     }
-    verify_restore_database(database_path, key, &request.restore_id, false).await?;
+    let layout = verify_restore_database(database_path, key, &request.restore_id, false).await?;
     let pool = connect_encrypted_pool(database_path, key, false).await?;
-    sqlx::query(
-        "UPDATE v3_recovery_operations
+    sqlx::query(sqlx::AssertSqlSafe(format!(
+        "UPDATE {}
          SET outcome = 'failed', error_kind = 'protocol',
              completed_at = datetime('now')
          WHERE operation_id = ? AND operation_kind = 'restore'
            AND outcome IN ('started', 'cancelled')",
-    )
+        layout.recovery_table(),
+    )))
     .bind(&request.restore_id)
     .execute(&pool)
     .await?;
@@ -443,7 +426,7 @@ fn cleanup_finished_restore(
 }
 
 async fn database_has_manifest(path: &Path, key: &str) -> Result<bool, sqlx::Error> {
-    let pool = connect_encrypted_read_only_pool(path, key).await?;
+    let pool = connect_encrypted_read_only_primary_pool(path, key).await?;
     let count: i64 = sqlx::query_scalar(
         "SELECT COUNT(*) FROM sqlite_master
          WHERE type = 'table' AND name = 'portable_backup_manifest'",

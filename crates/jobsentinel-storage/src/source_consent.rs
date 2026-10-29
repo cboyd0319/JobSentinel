@@ -84,7 +84,7 @@ impl Database {
             "SELECT sequence, source_id, source_class, access,
                     request_limit_per_hour, user_review_required, policy_ref,
                     revision, restriction_reason_code, reviewed_at, recorded_at
-             FROM v3_source_policy_ledger
+             FROM source_policy_ledger
              WHERE source_id = ?
              ORDER BY sequence DESC
              LIMIT ?",
@@ -131,7 +131,7 @@ impl Database {
         let data_categories_json =
             serde_json::to_string(&context.data_categories).map_err(|_| invalid_consent())?;
         let sequence = sqlx::query_scalar(
-            "INSERT INTO v3_source_consent_events (
+            "INSERT INTO source_consent_events (
                 event_id, previous_event_id, source_id, operation,
                 warning_version, behavior_revision, policy_ref, policy_revision,
                 source_class, data_categories_json, destination_sha256,
@@ -173,7 +173,7 @@ impl Database {
         validate_history_query(source_id, 1)?;
         let operation = enum_text(operation)?;
         let result = sqlx::query(
-            "INSERT INTO v3_source_consent_events (
+            "INSERT INTO source_consent_events (
                 event_id, previous_event_id, source_id, operation,
                 warning_version, behavior_revision, policy_ref, policy_revision,
                 source_class, data_categories_json, destination_sha256,
@@ -183,10 +183,10 @@ impl Database {
                     behavior_revision, policy_ref, policy_revision, source_class,
                     data_categories_json, destination_sha256, request_sha256,
                     'revoked', ?
-             FROM v3_source_consent_events
+             FROM source_consent_events
              WHERE sequence = (
                 SELECT sequence
-                FROM v3_source_consent_events
+                FROM source_consent_events
                 WHERE source_id = ? AND operation = ?
                 ORDER BY sequence DESC
                 LIMIT 1
@@ -243,7 +243,7 @@ impl Database {
                     warning_version, behavior_revision, policy_ref,
                     policy_revision, source_class, data_categories_json,
                     destination_sha256, request_sha256, decision, recorded_at
-             FROM v3_source_consent_events
+             FROM source_consent_events
              WHERE source_id = ?
              ORDER BY sequence DESC
              LIMIT ?",
@@ -267,7 +267,7 @@ impl Database {
                     warning_version, behavior_revision, policy_ref,
                     policy_revision, source_class, data_categories_json,
                     destination_sha256, request_sha256, decision, recorded_at
-             FROM v3_source_consent_events
+             FROM source_consent_events
              WHERE source_id = ? AND operation = ?
              ORDER BY sequence DESC
              LIMIT 1",
@@ -287,7 +287,7 @@ impl Database {
     ) -> Result<Option<String>> {
         sqlx::query_scalar(
             "SELECT event_id
-             FROM v3_source_consent_events
+             FROM source_consent_events
              WHERE source_id = ? AND operation = ?
              ORDER BY sequence DESC
              LIMIT 1",

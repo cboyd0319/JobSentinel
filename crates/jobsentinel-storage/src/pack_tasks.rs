@@ -180,7 +180,7 @@ impl Database {
 
         let case_file_id = create_case_file_in_transaction(&mut transaction, job_hash).await?;
         sqlx::query(
-            "INSERT INTO v3_privacy_receipts (
+            "INSERT INTO privacy_receipts (
                 receipt_id, schema, receipt_json, stored_locally,
                 data_left_device, created_at
              ) VALUES (?, ?, ?, 1, 0, ?)",
@@ -203,7 +203,7 @@ impl Database {
         };
         event.validate().map_err(|_| invalid())?;
         sqlx::query(
-            "INSERT INTO v3_job_events (
+            "INSERT INTO job_events (
                 event_id, case_file_id, event_kind, origin, user_action,
                 local_only, sensitive, metadata_json, created_at
              ) VALUES (?, ?, ?, ?, 1, 1, 1, ?, ?)",
@@ -313,12 +313,12 @@ async fn require_exact_ready_pack(
     let exists: bool = sqlx::query_scalar(
         "SELECT EXISTS(
             SELECT 1
-            FROM v3_pack_streams AS stream
-            JOIN v3_pack_releases AS release
+            FROM pack_streams AS stream
+            JOIN pack_releases AS release
               ON release.publisher_key_id = stream.publisher_key_id
              AND release.pack_id = stream.pack_id
              AND release.release_sequence = stream.active_release_sequence
-            JOIN v3_pack_publishers AS publisher
+            JOIN pack_publishers AS publisher
               ON publisher.publisher_key_id = stream.publisher_key_id
             JOIN pack_release_reviews AS review
               ON review.publisher_key_id = release.publisher_key_id

@@ -8,7 +8,7 @@ impl Database {
             "SELECT publisher_key_id, pack_id, high_water_sequence,
                     active_release_sequence, rollback_release_sequence,
                     availability, generation
-             FROM v3_pack_streams AS stream
+             FROM pack_streams AS stream
              WHERE availability IN ('ready', 'disabled')
                AND EXISTS (
                    SELECT 1 FROM pack_release_reviews AS review
@@ -34,7 +34,7 @@ impl Database {
             "SELECT publisher_key_id, pack_id, release_sequence,
                     signed_release_sha256, lifecycle_state, quarantine_reason,
                     artifact_cleanup_pending
-             FROM v3_pack_releases
+             FROM pack_releases
              WHERE publisher_key_id = ? AND pack_id = ?
              ORDER BY release_sequence",
         )
@@ -59,7 +59,7 @@ impl Database {
         .await?;
 
         let streams = sqlx::query(
-            "UPDATE v3_pack_streams
+            "UPDATE pack_streams
              SET active_release_sequence = NULL,
                  rollback_release_sequence = NULL,
                  availability = 'quarantined',
@@ -73,7 +73,7 @@ impl Database {
         .await?
         .rows_affected();
         sqlx::query(
-            "UPDATE v3_pack_releases
+            "UPDATE pack_releases
              SET lifecycle_state = 'quarantined',
                  quarantine_reason = 'trust_revoked',
                  updated_at = ?
@@ -84,7 +84,7 @@ impl Database {
         .execute(&mut *transaction)
         .await?;
         let publisher_updated = sqlx::query(
-            "UPDATE v3_pack_publishers
+            "UPDATE pack_publishers
              SET trust_state = 'revoked', revoked_at = ?, updated_at = ?
              WHERE publisher_key_id = ? AND trust_state = 'trusted'",
         )
@@ -110,7 +110,7 @@ impl Database {
         let now = Utc::now().to_rfc3339();
         let mut transaction = self.pool().begin().await?;
         let stream_updated = sqlx::query(
-            "UPDATE v3_pack_streams
+            "UPDATE pack_streams
              SET active_release_sequence = NULL,
                  rollback_release_sequence = NULL,
                  availability = 'removed',
@@ -135,7 +135,7 @@ impl Database {
             .await?);
         }
         sqlx::query(
-            "UPDATE v3_pack_releases
+            "UPDATE pack_releases
              SET lifecycle_state = 'removed', artifact_cleanup_pending = 1,
                  updated_at = ?
              WHERE publisher_key_id = ? AND pack_id = ?
@@ -154,7 +154,7 @@ impl Database {
     pub async fn complete_pack_release_cleanup(&self, release: &StoredPackRelease) -> Result<()> {
         let sequence = i64::try_from(release.release_sequence).map_err(|_| invalid())?;
         let updated = sqlx::query(
-            "UPDATE v3_pack_releases
+            "UPDATE pack_releases
              SET artifact_cleanup_pending = 0, updated_at = ?
              WHERE publisher_key_id = ? AND pack_id = ? AND release_sequence = ?
                AND signed_release_sha256 = ? AND lifecycle_state = 'removed'
@@ -170,7 +170,7 @@ impl Database {
         if updated.rows_affected() == 1
             || sqlx::query_scalar::<_, bool>(
                 "SELECT EXISTS(
-                    SELECT 1 FROM v3_pack_releases
+                    SELECT 1 FROM pack_releases
                     WHERE publisher_key_id = ? AND pack_id = ?
                       AND release_sequence = ? AND signed_release_sha256 = ?
                       AND lifecycle_state = 'removed'
@@ -194,12 +194,12 @@ impl Database {
         let now = Utc::now().to_rfc3339();
         let mut transaction = self.pool().begin().await?;
         let streams = sqlx::query(
-            "UPDATE v3_pack_streams
+            "UPDATE pack_streams
              SET generation = generation + 1, updated_at = ?
              WHERE EXISTS (
-                 SELECT 1 FROM v3_pack_releases AS interrupted
-                 WHERE interrupted.publisher_key_id = v3_pack_streams.publisher_key_id
-                   AND interrupted.pack_id = v3_pack_streams.pack_id
+                 SELECT 1 FROM pack_releases AS interrupted
+                 WHERE interrupted.publisher_key_id = pack_streams.publisher_key_id
+                   AND interrupted.pack_id = pack_streams.pack_id
                    AND interrupted.lifecycle_state IN ('staged', 'self_tested')
              )",
         )
@@ -208,7 +208,7 @@ impl Database {
         .await?
         .rows_affected();
         sqlx::query(
-            "UPDATE v3_pack_releases
+            "UPDATE pack_releases
              SET lifecycle_state = 'quarantined',
                  quarantine_reason = 'interrupted',
                  updated_at = ?

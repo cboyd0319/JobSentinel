@@ -96,26 +96,26 @@ pub fn load_model_manifest() -> Result<ModelManifest> {
     ModelManifest::from_lock_str(MODEL_LOCK_TOML)
 }
 
-pub fn validate_v3_vector_contract(
+pub fn validate_vector_contract(
     provenance: &jobsentinel_domain::manifests::ModelProvenance,
     freshness: &jobsentinel_domain::manifests::VectorFreshness,
 ) -> Result<()> {
     provenance
         .validate()
         .map_err(anyhow::Error::msg)
-        .context("invalid v3 model provenance")?;
+        .context("invalid model provenance")?;
     freshness
         .validate(provenance)
         .map_err(anyhow::Error::msg)
-        .context("invalid v3 vector freshness")?;
+        .context("invalid vector freshness")?;
 
     let manifest = load_model_manifest()?;
     let model = manifest
         .model(&provenance.model_id)
-        .context("v3 model is absent from the checked-in model lock")?;
+        .context("model is absent from the checked-in model lock")?;
     let tokenizer = model
         .file("tokenizer.json")
-        .context("v3 model lock is missing tokenizer.json")?;
+        .context("model lock is missing tokenizer.json")?;
     if model.kind != ModelKind::Embedding
         || model.revision != provenance.revision
         || model.backend != provenance.backend
@@ -128,7 +128,7 @@ pub fn validate_v3_vector_contract(
             .instruction_profiles
             .contains_key(&provenance.instruction_profile)
     {
-        anyhow::bail!("v3 vector contract does not match the checked-in model lock");
+        anyhow::bail!("vector contract does not match the checked-in model lock");
     }
     Ok(())
 }
@@ -381,7 +381,7 @@ mod tests {
     }
 
     #[test]
-    fn v3_vector_contract_must_match_the_canonical_model_lock() {
+    fn vector_contract_must_match_the_canonical_model_lock() {
         use jobsentinel_domain::manifests::{ModelProvenance, VectorFreshness};
 
         let manifest = load_model_manifest().unwrap();
@@ -413,29 +413,25 @@ mod tests {
             content_sha256: "a".repeat(64),
         };
 
-        validate_v3_vector_contract(&provenance, &freshness).unwrap();
+        validate_vector_contract(&provenance, &freshness).unwrap();
 
         let mut wrong = provenance.clone();
         wrong.backend = "qwen3_candle_v1".to_string();
         let mut matching_wrong_freshness = freshness.clone();
         matching_wrong_freshness.backend = wrong.backend.clone();
-        assert!(
-            validate_v3_vector_contract(&wrong, &matching_wrong_freshness)
-                .unwrap_err()
-                .to_string()
-                .contains("checked-in model lock")
-        );
+        assert!(validate_vector_contract(&wrong, &matching_wrong_freshness)
+            .unwrap_err()
+            .to_string()
+            .contains("checked-in model lock"));
 
         wrong = provenance.clone();
         wrong.instruction_profile = "invented_profile".to_string();
         matching_wrong_freshness = freshness.clone();
         matching_wrong_freshness.instruction_profile = wrong.instruction_profile.clone();
-        assert!(
-            validate_v3_vector_contract(&wrong, &matching_wrong_freshness)
-                .unwrap_err()
-                .to_string()
-                .contains("checked-in model lock")
-        );
+        assert!(validate_vector_contract(&wrong, &matching_wrong_freshness)
+            .unwrap_err()
+            .to_string()
+            .contains("checked-in model lock"));
     }
 
     #[test]

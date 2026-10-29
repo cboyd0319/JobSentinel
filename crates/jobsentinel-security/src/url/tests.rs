@@ -241,3 +241,16 @@ fn empty_resolution_is_rejected() {
 
 #[path = "tests/iana_ipv6_tests.rs"]
 mod iana_ipv6_tests;
+
+#[test]
+fn local_file_urls_preserve_relative_path_and_reserved_filename_bytes() {
+    let path = std::path::Path::new("local path %20 # file.db");
+    let url = super::local_file_url(path).unwrap();
+    assert_eq!(
+        url.to_file_path().unwrap(),
+        std::path::absolute(path).unwrap()
+    );
+    assert!(url.as_str().contains("%2520%20%23%20file.db"));
+    assert!(url.query().is_none());
+    assert!(url.fragment().is_none());
+}

@@ -288,7 +288,7 @@ pub(super) async fn insert_case_file_evidence_in_transaction(
         == 1;
     if inserted {
         sqlx::query(
-            "INSERT INTO v3_job_events (
+            "INSERT INTO job_events (
                 event_id, case_file_id, event_kind, origin, user_action,
                 local_only, sensitive, metadata_json, created_at
              ) VALUES (?, ?, ?, ?, ?, 1, 1, ?, ?)",

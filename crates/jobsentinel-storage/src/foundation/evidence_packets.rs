@@ -147,7 +147,7 @@ impl Database {
         }
 
         sqlx::query(
-            "INSERT INTO v3_evidence_packets (
+            "INSERT INTO evidence_packets (
                 packet_id, case_file_id, resume_id, resume_revision, job_revision,
                 claim_id, reviewed_text, local_only, sensitive, created_at
              ) VALUES (?, ?, ?, ?, ?, ?, ?, 1, 1, ?)",
@@ -164,7 +164,7 @@ impl Database {
         .await?;
         for (ordinal, evidence_id) in validated.evidence_ids.iter().enumerate() {
             sqlx::query(
-                "INSERT INTO v3_evidence_packet_evidence (packet_id, ordinal, evidence_id)
+                "INSERT INTO evidence_packet_evidence (packet_id, ordinal, evidence_id)
                  VALUES (?, ?, ?)",
             )
             .bind(&packet_id)
@@ -175,7 +175,7 @@ impl Database {
         }
         for (ordinal, boundary) in input.boundaries.iter().enumerate() {
             sqlx::query(
-                "INSERT INTO v3_evidence_packet_boundaries (packet_id, ordinal, boundary)
+                "INSERT INTO evidence_packet_boundaries (packet_id, ordinal, boundary)
                  VALUES (?, ?, ?)",
             )
             .bind(&packet_id)
@@ -213,7 +213,7 @@ impl Database {
         let rows = sqlx::query_as::<_, PacketRow>(
             "SELECT packet_id, case_file_id, resume_id, resume_revision, job_revision,
                     claim_id, reviewed_text, local_only, sensitive
-             FROM v3_evidence_packets
+             FROM evidence_packets
              WHERE case_file_id = ? AND resume_id = ?
              ORDER BY created_at, packet_id",
         )
@@ -247,7 +247,7 @@ async fn read_current_packet(
     }
     let evidence = sqlx::query_as::<_, OrdinalTextRow>(
         "SELECT ordinal, evidence_id AS value
-             FROM v3_evidence_packet_evidence
+             FROM evidence_packet_evidence
              WHERE packet_id = ?
              ORDER BY ordinal",
     )
@@ -256,7 +256,7 @@ async fn read_current_packet(
     .await?;
     let boundaries = sqlx::query_as::<_, OrdinalTextRow>(
         "SELECT ordinal, boundary AS value
-             FROM v3_evidence_packet_boundaries
+             FROM evidence_packet_boundaries
              WHERE packet_id = ?
              ORDER BY ordinal",
     )
@@ -386,7 +386,7 @@ async fn confirmed_case_evidence(
               AND link.provenance_ref IS NULL
               AND EXISTS(
                   SELECT 1
-                  FROM v3_job_events AS event
+                  FROM job_events AS event
                   WHERE event.case_file_id = link.subject_id
                     AND event.event_kind = 'evidence_linked'
                     AND event.origin = 'user'

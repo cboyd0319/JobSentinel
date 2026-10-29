@@ -28,7 +28,7 @@ async fn self_test_proof_persists_without_activating_the_pack() {
     assert_eq!(persisted.active_release_sequence, None);
     let (state, tested_at): (String, Option<String>) = sqlx::query_as(
         "SELECT lifecycle_state, self_tested_at
-         FROM v3_pack_releases
+         FROM pack_releases
          WHERE publisher_key_id = ? AND pack_id = ? AND release_sequence = 1",
     )
     .bind(PUBLISHER_ID)
@@ -63,7 +63,7 @@ async fn failed_self_test_is_quarantined_without_activating_the_pack() {
     assert_eq!(quarantined.active_release_sequence, None);
     let (state, reason, tested_at): (String, Option<String>, Option<String>) = sqlx::query_as(
         "SELECT lifecycle_state, quarantine_reason, self_tested_at
-         FROM v3_pack_releases
+         FROM pack_releases
          WHERE publisher_key_id = ? AND pack_id = ? AND release_sequence = 1",
     )
     .bind(PUBLISHER_ID)
@@ -106,7 +106,7 @@ async fn activation_requires_self_test_proof_and_is_explicit() {
     assert_eq!(active.active_release_sequence, Some(1));
     assert_eq!(active.rollback_release_sequence, None);
     let lifecycle: String = sqlx::query_scalar(
-        "SELECT lifecycle_state FROM v3_pack_releases
+        "SELECT lifecycle_state FROM pack_releases
          WHERE publisher_key_id = ? AND pack_id = ? AND release_sequence = 1",
     )
     .bind(PUBLISHER_ID)
@@ -152,7 +152,7 @@ async fn disable_preserves_the_ready_release_and_rejects_stale_generation() {
     assert_eq!(enabled.active_release_sequence, Some(1));
     assert_eq!(enabled.generation, disabled.generation + 1);
     let lifecycle: String = sqlx::query_scalar(
-        "SELECT lifecycle_state FROM v3_pack_releases
+        "SELECT lifecycle_state FROM pack_releases
          WHERE publisher_key_id = ? AND pack_id = ? AND release_sequence = 1",
     )
     .bind(PUBLISHER_ID)
@@ -179,7 +179,7 @@ async fn concurrent_disable_accepts_one_generation_compare_and_swap() {
     let error = left.err().or_else(|| right.err()).unwrap();
     assert_eq!(pack_lifecycle_error_kind(&error), Some("stale"));
     let state: (String, i64) = sqlx::query_as(
-        "SELECT availability, generation FROM v3_pack_streams
+        "SELECT availability, generation FROM pack_streams
          WHERE publisher_key_id = ? AND pack_id = ?",
     )
     .bind(PUBLISHER_ID)

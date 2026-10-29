@@ -184,7 +184,7 @@ async fn case_evidence_rolls_back_when_its_confirmation_event_fails() {
     let (_temp_dir, database, case_file_id) = case_evidence_database().await;
     sqlx::query(
         "CREATE TRIGGER block_evidence_event
-         BEFORE INSERT ON v3_job_events
+         BEFORE INSERT ON job_events
          WHEN NEW.event_kind = 'evidence_linked'
          BEGIN SELECT RAISE(ABORT, 'blocked'); END",
     )

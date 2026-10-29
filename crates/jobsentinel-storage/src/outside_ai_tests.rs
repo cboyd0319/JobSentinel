@@ -139,7 +139,7 @@ async fn outside_ai_context_and_lifecycle_fail_closed_in_sql() {
         .unwrap();
 
     assert!(sqlx::query(
-        "UPDATE v3_outside_ai_operations SET provider_id = 'different-provider'
+        "UPDATE outside_ai_operations SET provider_id = 'different-provider'
          WHERE operation_id = ?",
     )
     .bind(&reviewed.operation_id)
@@ -151,7 +151,7 @@ async fn outside_ai_context_and_lifecycle_fail_closed_in_sql() {
         .await
         .is_err());
     assert!(sqlx::query(
-        "UPDATE v3_outside_ai_operations
+        "UPDATE outside_ai_operations
          SET status = 'started', started_at = ?
          WHERE operation_id = ?",
     )
@@ -170,7 +170,7 @@ async fn outside_ai_context_and_lifecycle_fail_closed_in_sql() {
         .await
         .is_err());
     assert!(
-        sqlx::query("DELETE FROM v3_outside_ai_operations WHERE operation_id = ?",)
+        sqlx::query("DELETE FROM outside_ai_operations WHERE operation_id = ?",)
             .bind(&reviewed.operation_id)
             .execute(database.pool())
             .await
@@ -218,7 +218,7 @@ async fn external_receipts_require_the_exact_started_operation_and_single_use_ap
     let receipt = external_receipt(&reviewed.operation_id, &reviewed.approval_reference);
     database.store_privacy_receipt(&receipt).await.unwrap();
     assert!(sqlx::query(
-        "UPDATE v3_privacy_receipts
+        "UPDATE privacy_receipts
          SET receipt_json = json_set(
              receipt_json, '$.approval_reference', 'fabricated-approval'
          )
@@ -229,7 +229,7 @@ async fn external_receipts_require_the_exact_started_operation_and_single_use_ap
     .await
     .is_err());
     assert!(
-        sqlx::query("DELETE FROM v3_privacy_receipts WHERE receipt_id = ?")
+        sqlx::query("DELETE FROM privacy_receipts WHERE receipt_id = ?")
             .bind(&receipt.receipt_id)
             .execute(database.pool())
             .await
@@ -291,7 +291,7 @@ async fn reconciliation_marks_started_ambiguous_and_expired_pending_cancelled() 
     assert_eq!(reconciled.ambiguous, 1);
     assert_eq!(reconciled.cancelled, 1);
     let states: Vec<String> =
-        sqlx::query_scalar("SELECT status FROM v3_outside_ai_operations ORDER BY status")
+        sqlx::query_scalar("SELECT status FROM outside_ai_operations ORDER BY status")
             .fetch_all(database.pool())
             .await
             .unwrap();
@@ -374,7 +374,7 @@ async fn outside_ai_ledger_is_metadata_only_and_excluded_from_reviewed_export() 
         .unwrap();
 
     let columns: Vec<String> =
-        sqlx::query_scalar("SELECT name FROM pragma_table_info('v3_outside_ai_operations')")
+        sqlx::query_scalar("SELECT name FROM pragma_table_info('outside_ai_operations')")
             .fetch_all(database.pool())
             .await
             .unwrap();
@@ -424,7 +424,7 @@ async fn direct_receipt_json_insert(
     data_left_device: bool,
 ) -> Result<sqlx::sqlite::SqliteQueryResult, sqlx::Error> {
     sqlx::query(
-        "INSERT INTO v3_privacy_receipts (
+        "INSERT INTO privacy_receipts (
             receipt_id, schema, receipt_json, stored_locally,
             data_left_device, created_at
          ) VALUES (?, 'jobsentinel.v3.privacy-receipt.v1', ?, 1, ?, ?)",
@@ -439,7 +439,7 @@ async fn direct_receipt_json_insert(
 
 async fn insert_expired_pending(database: &Database) {
     sqlx::query(
-        "INSERT INTO v3_outside_ai_operations (
+        "INSERT INTO outside_ai_operations (
             operation_id, approval_reference, feature_id, provider_id,
             destination, request_sha256, labels_json, data_categories_json,
             gateway_policy_revision, status, created_at, expires_at

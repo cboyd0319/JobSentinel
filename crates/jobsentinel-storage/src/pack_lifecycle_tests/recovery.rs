@@ -47,7 +47,7 @@ async fn publisher_revocation_atomically_quarantines_every_pack_and_cannot_be_re
     let streams: Vec<(String, String, Option<i64>, Option<i64>, i64)> = sqlx::query_as(
         "SELECT pack_id, availability, active_release_sequence,
                 rollback_release_sequence, generation
-         FROM v3_pack_streams WHERE publisher_key_id = ? ORDER BY pack_id",
+         FROM pack_streams WHERE publisher_key_id = ? ORDER BY pack_id",
     )
     .bind(PUBLISHER_ID)
     .fetch_all(database.pool())
@@ -74,7 +74,7 @@ async fn publisher_revocation_atomically_quarantines_every_pack_and_cannot_be_re
     );
     let releases: Vec<(String, String, Option<String>)> = sqlx::query_as(
         "SELECT pack_id, lifecycle_state, quarantine_reason
-         FROM v3_pack_releases WHERE publisher_key_id = ? ORDER BY pack_id",
+         FROM pack_releases WHERE publisher_key_id = ? ORDER BY pack_id",
     )
     .bind(PUBLISHER_ID)
     .fetch_all(database.pool())
@@ -96,7 +96,7 @@ async fn publisher_revocation_atomically_quarantines_every_pack_and_cannot_be_re
         ]
     );
     let trust_state: String =
-        sqlx::query_scalar("SELECT trust_state FROM v3_pack_publishers WHERE publisher_key_id = ?")
+        sqlx::query_scalar("SELECT trust_state FROM pack_publishers WHERE publisher_key_id = ?")
             .bind(PUBLISHER_ID)
             .fetch_one(database.pool())
             .await
@@ -159,7 +159,7 @@ async fn uninstall_removes_every_release_but_retains_the_downgrade_tombstone() {
     assert_eq!(removed.rollback_release_sequence, None);
     assert_eq!(removed.generation, third_active.generation + 1);
     let states: Vec<(i64, String)> = sqlx::query_as(
-        "SELECT release_sequence, lifecycle_state FROM v3_pack_releases
+        "SELECT release_sequence, lifecycle_state FROM pack_releases
          WHERE publisher_key_id = ? AND pack_id = ? ORDER BY release_sequence",
     )
     .bind(PUBLISHER_ID)
@@ -311,7 +311,7 @@ async fn startup_reconciliation_quarantines_interrupted_candidates_once() {
 
     let releases: Vec<(String, i64, String, Option<String>)> = sqlx::query_as(
         "SELECT pack_id, release_sequence, lifecycle_state, quarantine_reason
-         FROM v3_pack_releases WHERE pack_id LIKE 'jobsentinel.test.interrupted-%'
+         FROM pack_releases WHERE pack_id LIKE 'jobsentinel.test.interrupted-%'
          ORDER BY pack_id, release_sequence",
     )
     .fetch_all(database.pool())
@@ -348,7 +348,7 @@ async fn startup_reconciliation_quarantines_interrupted_candidates_once() {
     );
     let streams: Vec<(String, String, Option<i64>, i64)> = sqlx::query_as(
         "SELECT pack_id, availability, active_release_sequence, generation
-         FROM v3_pack_streams WHERE pack_id LIKE 'jobsentinel.test.interrupted-%'
+         FROM pack_streams WHERE pack_id LIKE 'jobsentinel.test.interrupted-%'
          ORDER BY pack_id",
     )
     .fetch_all(database.pool())
@@ -385,7 +385,7 @@ async fn startup_reconciliation_quarantines_interrupted_candidates_once() {
         0
     );
     let unchanged_generations: Vec<i64> = sqlx::query_scalar(
-        "SELECT generation FROM v3_pack_streams
+        "SELECT generation FROM pack_streams
          WHERE pack_id LIKE 'jobsentinel.test.interrupted-%' ORDER BY pack_id",
     )
     .fetch_all(database.pool())
@@ -413,7 +413,7 @@ async fn database_startup_runs_pack_reconciliation_before_returning() {
     database.migrate().await.unwrap();
 
     let state: (String, Option<String>) = sqlx::query_as(
-        "SELECT lifecycle_state, quarantine_reason FROM v3_pack_releases
+        "SELECT lifecycle_state, quarantine_reason FROM pack_releases
          WHERE publisher_key_id = ? AND pack_id = ? AND release_sequence = 1",
     )
     .bind(PUBLISHER_ID)

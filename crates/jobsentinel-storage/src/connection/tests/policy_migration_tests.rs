@@ -26,7 +26,7 @@ async fn migration_13_backfills_existing_policy_once() {
 
     let history: Vec<(String, i64, String)> = sqlx::query_as(
         "SELECT source_id, revision, recorded_at
-         FROM v3_source_policy_ledger",
+         FROM source_policy_ledger",
     )
     .fetch_all(database.pool())
     .await
@@ -40,7 +40,7 @@ async fn migration_13_backfills_existing_policy_once() {
         )]
     );
     let migration_version: i64 =
-        sqlx::query_scalar("SELECT migration_version FROM v3_compatibility_metadata")
+        sqlx::query_scalar("SELECT migration_version FROM compatibility_metadata")
             .fetch_one(database.pool())
             .await
             .unwrap();
@@ -147,7 +147,7 @@ async fn migration_18_retires_restricted_source_health_metadata() {
     }
 
     let migration_version: i64 =
-        sqlx::query_scalar("SELECT migration_version FROM v3_compatibility_metadata")
+        sqlx::query_scalar("SELECT migration_version FROM compatibility_metadata")
             .fetch_one(database.pool())
             .await
             .unwrap();
@@ -242,7 +242,7 @@ async fn migration_19_preserves_scheduled_reviews_and_allows_user_opened_reviews
 
     let operation_check: String = sqlx::query_scalar(
         "SELECT sql FROM sqlite_schema
-         WHERE type = 'table' AND name = 'v3_source_consent_events'",
+         WHERE type = 'table' AND name = 'source_consent_events'",
     )
     .fetch_one(database.pool())
     .await
@@ -250,7 +250,7 @@ async fn migration_19_preserves_scheduled_reviews_and_allows_user_opened_reviews
     assert!(operation_check.contains("'restricted_workbench'"));
     let preserved: Vec<(String, Option<String>, String)> = sqlx::query_as(
         "SELECT event_id, previous_event_id, decision
-         FROM v3_source_consent_events
+         FROM source_consent_events
          WHERE source_id = 'migration-source'
          ORDER BY sequence",
     )
@@ -269,7 +269,7 @@ async fn migration_19_preserves_scheduled_reviews_and_allows_user_opened_reviews
         ]
     );
     sqlx::query(
-        "INSERT INTO v3_source_consent_events (
+        "INSERT INTO source_consent_events (
             event_id, previous_event_id, source_id, operation,
             warning_version, behavior_revision, policy_ref, policy_revision,
             source_class, data_categories_json, destination_sha256,
@@ -293,12 +293,12 @@ async fn migration_19_preserves_scheduled_reviews_and_allows_user_opened_reviews
             .await
             .unwrap();
     assert!(foreign_key_violations.is_empty());
-    assert!(sqlx::query("DELETE FROM v3_source_consent_events")
+    assert!(sqlx::query("DELETE FROM source_consent_events")
         .execute(database.pool())
         .await
         .is_err());
     let migration_version: i64 =
-        sqlx::query_scalar("SELECT migration_version FROM v3_compatibility_metadata")
+        sqlx::query_scalar("SELECT migration_version FROM compatibility_metadata")
             .fetch_one(database.pool())
             .await
             .unwrap();

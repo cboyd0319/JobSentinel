@@ -12,7 +12,11 @@ impl Database {
             .map(|migration| migration.version)
             .max()
             .unwrap_or(0);
-        for table in ["_sqlx_migrations", "v3_compatibility_metadata"] {
+        for table in [
+            "_sqlx_migrations",
+            "v3_compatibility_metadata",
+            "compatibility_metadata",
+        ] {
             let present: i64 = sqlx::query_scalar(
                 "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name=?",
             )
@@ -28,7 +32,7 @@ impl Database {
                     .fetch_one(&mut *connection)
                     .await?
             } else {
-                sqlx::query_scalar("SELECT COUNT(*) FROM v3_compatibility_metadata WHERE compatibility_line > 3 OR database_schema > ? OR migration_version > ?")
+                sqlx::query_scalar(sqlx::AssertSqlSafe(format!("SELECT COUNT(*) FROM {table} WHERE compatibility_line > 3 OR database_schema > ? OR migration_version > ?")))
                     .bind(super::DATABASE_SCHEMA_VERSION).bind(maximum).fetch_one(&mut *connection).await?
             };
             if future != 0 {

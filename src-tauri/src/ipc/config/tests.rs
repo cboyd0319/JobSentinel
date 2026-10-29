@@ -363,3 +363,39 @@ fn test_webhook_error_formatter_omits_webhook_details() {
     assert!(!msg.contains("https://"), "URL leaked: {msg}");
     assert!(msg.contains("Validation failed"));
 }
+
+#[tokio::test]
+async fn retired_company_keys_cannot_change_config_file_or_runtime() {
+    let directory = tempfile::tempdir().unwrap();
+    let path = directory.path().join("config.json");
+    let original = create_dashboard_test_config();
+    original.save(&path).unwrap();
+    let file_before = std::fs::read(&path).unwrap();
+    let runtime_before = serde_json::to_value(&original).unwrap();
+    let runtime = RwLock::new(original);
+    let database = Database::connect_memory().await.unwrap();
+    database.migrate().await.unwrap();
+    for (retired, current) in [
+        ("company_whitelist", "preferred_companies"),
+        ("company_blacklist", "blocked_companies"),
+    ] {
+        for mixed in [false, true] {
+            let mut payload = runtime_before.clone();
+            payload["salary_floor_usd"] = 95_000.into();
+            payload[retired] = serde_json::json!(["private company preference"]);
+            if !mixed {
+                payload.as_object_mut().unwrap().remove(current);
+            }
+            assert!(
+                save_config_to_runtime_and_path(payload, &runtime, &path, &database)
+                    .await
+                    .is_err()
+            );
+            assert_eq!(std::fs::read(&path).unwrap(), file_before);
+            assert_eq!(
+                serde_json::to_value(&*runtime.read().await).unwrap(),
+                runtime_before
+            );
+        }
+    }
+}

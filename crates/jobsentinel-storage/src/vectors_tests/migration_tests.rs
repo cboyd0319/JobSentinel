@@ -14,6 +14,14 @@ use std::path::{Path, PathBuf};
 
 type VectorRow = (Vec<u8>, i64, Vec<u8>, i64, String);
 
+fn current_sequence() -> i64 {
+    MIGRATOR
+        .iter()
+        .map(|migration| migration.version)
+        .max()
+        .unwrap()
+}
+
 async fn prior_vector(pool: &SqlitePool) -> VectorRow {
     sqlx::query_as(
         "SELECT CAST(freshness_json AS BLOB), dimension, vector_blob, revision, updated_at
@@ -85,7 +93,10 @@ fn migration_snapshot(root: &Path) -> PathBuf {
         .file_name()
         .unwrap()
         .to_string_lossy()
-        .starts_with("migration_snapshot_v31_to_v32_"));
+        .starts_with(&format!(
+            "migration_snapshot_v31_to_v{}_",
+            current_sequence()
+        )));
     snapshots[0].clone()
 }
 
@@ -104,7 +115,10 @@ async fn fresh_database_publishes_only_the_current_vector_table() {
     .await
     .unwrap();
     assert_eq!(tables, (1, 0));
-    assert_eq!(database.update_schema_inventory().await.unwrap(), (2, 32));
+    assert_eq!(
+        database.update_schema_inventory().await.unwrap(),
+        (2, u64::try_from(current_sequence()).unwrap())
+    );
     let provenance = model();
     let current = freshness(&provenance);
     database
@@ -122,7 +136,7 @@ async fn fresh_database_publishes_only_the_current_vector_table() {
 }
 
 #[tokio::test]
-async fn encrypted_31_vectors_preserve_bytes_revisions_and_recovery_through_32() {
+async fn encrypted_31_vectors_preserve_bytes_revisions_and_recovery() {
     let root = tempfile::tempdir().unwrap();
     let path = root.path().join("jobs.db");
     let (original, root_page) = supported_31_fixture(&path).await;
@@ -140,12 +154,12 @@ async fn encrypted_31_vectors_preserve_bytes_revisions_and_recovery_through_32()
     );
     assert_eq!(
         sqlx::query_scalar::<_, i64>(
-            "SELECT migration_version FROM v3_compatibility_metadata WHERE singleton = 1"
+            "SELECT migration_version FROM compatibility_metadata WHERE singleton = 1"
         )
         .fetch_one(database.pool())
         .await
         .unwrap(),
-        32
+        current_sequence()
     );
     assert_eq!(
         sqlx::query_scalar::<_, i64>(

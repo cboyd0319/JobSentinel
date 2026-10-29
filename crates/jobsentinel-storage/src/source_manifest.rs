@@ -51,7 +51,7 @@ impl Database {
         let mut transaction = self.pool().begin().await?;
         let previous = sqlx::query_scalar::<_, String>(
             "SELECT manifest_json
-             FROM v3_source_manifests
+             FROM source_manifests
              WHERE source_id = ?",
         )
         .bind(&manifest.source_id)
@@ -63,7 +63,7 @@ impl Database {
         })
         .transpose()?;
         let result = sqlx::query(
-            "INSERT INTO v3_source_manifests (
+            "INSERT INTO source_manifests (
                 source_id, policy_ref, policy_revision,
                 manifest_json, created_at, updated_at
              ) VALUES (?, ?, ?, ?, ?, ?)
@@ -72,7 +72,7 @@ impl Database {
                 policy_revision = excluded.policy_revision,
                 manifest_json = excluded.manifest_json,
                 updated_at = excluded.updated_at
-             WHERE excluded.policy_revision > v3_source_manifests.policy_revision",
+             WHERE excluded.policy_revision > source_manifests.policy_revision",
         )
         .bind(&manifest.source_id)
         .bind(&manifest.policy_ref)
@@ -127,7 +127,7 @@ impl Database {
     pub async fn get_source_manifest(&self, source_id: &str) -> Result<Option<SourceManifest>> {
         let Some(row) = sqlx::query_as::<_, SourceManifestRow>(
             "SELECT source_id, policy_ref, policy_revision, manifest_json
-             FROM v3_source_manifests
+             FROM source_manifests
              WHERE source_id = ?",
         )
         .bind(source_id)

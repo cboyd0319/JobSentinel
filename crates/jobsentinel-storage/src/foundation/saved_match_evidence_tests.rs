@@ -108,7 +108,7 @@ async fn saved_match_confirmation_is_atomic_current_and_idempotent() {
         .fetch_one(fixture.database.pool())
         .await
         .unwrap();
-    let events: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM v3_job_events")
+    let events: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM job_events")
         .fetch_one(fixture.database.pool())
         .await
         .unwrap();
@@ -196,7 +196,7 @@ async fn saved_match_confirmation_rolls_back_the_new_case_when_event_write_fails
     let fixture = saved_match_fixture().await;
     sqlx::query(
         "CREATE TRIGGER block_saved_match_event
-         BEFORE INSERT ON v3_job_events
+         BEFORE INSERT ON job_events
          WHEN NEW.event_kind = 'evidence_linked'
          BEGIN SELECT RAISE(ABORT, 'blocked'); END",
     )
@@ -318,7 +318,7 @@ async fn saved_match_confirmed_evidence_reload_returns_only_paired_local_ids() {
     .unwrap();
     let event_only_id = "b".repeat(64);
     sqlx::query(
-        "INSERT INTO v3_job_events (
+        "INSERT INTO job_events (
             event_id, case_file_id, event_kind, origin, user_action,
             local_only, sensitive, metadata_json, created_at
          ) VALUES (?, ?, 'evidence_linked', 'user', 1, 1, 1, ?, '2026-07-19T12:00:00Z')",

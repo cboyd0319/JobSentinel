@@ -22,11 +22,11 @@ async fn assert_started_without_audit(database: &crate::Database, run_id: &str) 
             .status,
         crate::pack_tasks::PackTaskStatus::Started
     );
-    let receipt_count: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM v3_privacy_receipts")
+    let receipt_count: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM privacy_receipts")
         .fetch_one(database.pool())
         .await
         .unwrap();
-    let event_count: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM v3_job_events")
+    let event_count: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM job_events")
         .fetch_one(database.pool())
         .await
         .unwrap();
@@ -90,7 +90,7 @@ async fn changed_or_disabled_pack_state_refuses_start() {
     database.create_pack_task(&context).await.unwrap();
 
     sqlx::query(
-        "UPDATE v3_pack_streams
+        "UPDATE pack_streams
          SET availability = 'disabled', generation = generation + 1, updated_at = ?
          WHERE publisher_key_id = 'publisher-1' AND pack_id = 'pack-1'",
     )
@@ -109,7 +109,7 @@ async fn revoked_or_removed_pack_refuses_start() {
     database.create_pack_task(&context).await.unwrap();
     quarantine_stream(database.pool()).await;
     sqlx::query(
-        "UPDATE v3_pack_publishers SET trust_state = 'revoked', revoked_at = ?, updated_at = ?
+        "UPDATE pack_publishers SET trust_state = 'revoked', revoked_at = ?, updated_at = ?
          WHERE publisher_key_id = 'publisher-1'",
     )
     .bind(Utc::now().to_rfc3339())
@@ -123,7 +123,7 @@ async fn revoked_or_removed_pack_refuses_start() {
     let context = ready_context(database.pool()).await;
     database.create_pack_task(&context).await.unwrap();
     sqlx::query(
-        "UPDATE v3_pack_streams
+        "UPDATE pack_streams
          SET active_release_sequence = NULL, rollback_release_sequence = NULL,
              availability = 'removed', generation = generation + 1, updated_at = ?
          WHERE publisher_key_id = 'publisher-1' AND pack_id = 'pack-1'",
@@ -133,7 +133,7 @@ async fn revoked_or_removed_pack_refuses_start() {
     .await
     .unwrap();
     sqlx::query(
-        "UPDATE v3_pack_releases
+        "UPDATE pack_releases
          SET lifecycle_state = 'removed', artifact_cleanup_pending = 1, updated_at = ?
          WHERE publisher_key_id = 'publisher-1' AND pack_id = 'pack-1'",
     )
@@ -151,7 +151,7 @@ async fn rollback_replacing_the_active_release_refuses_start() {
     database.create_pack_task(&context).await.unwrap();
     let now = Utc::now().to_rfc3339();
     sqlx::query(
-        "INSERT INTO v3_pack_releases (
+        "INSERT INTO pack_releases (
             publisher_key_id, pack_id, release_sequence, release_id,
             signed_release_sha256, payload_sha256, pack_version, pack_type,
             execution_class, lifecycle_state, quarantine_reason, self_tested_at,
@@ -168,7 +168,7 @@ async fn rollback_replacing_the_active_release_refuses_start() {
     .unwrap();
     insert_review(database.pool(), 2).await;
     sqlx::query(
-        "UPDATE v3_pack_releases SET lifecycle_state = 'self_tested', self_tested_at = ?, updated_at = ?
+        "UPDATE pack_releases SET lifecycle_state = 'self_tested', self_tested_at = ?, updated_at = ?
          WHERE publisher_key_id = 'publisher-1' AND pack_id = 'pack-1' AND release_sequence = 2",
     )
     .bind(&now)
@@ -177,7 +177,7 @@ async fn rollback_replacing_the_active_release_refuses_start() {
     .await
     .unwrap();
     sqlx::query(
-        "UPDATE v3_pack_releases SET lifecycle_state = 'ready', updated_at = ?
+        "UPDATE pack_releases SET lifecycle_state = 'ready', updated_at = ?
          WHERE publisher_key_id = 'publisher-1' AND pack_id = 'pack-1' AND release_sequence = 2",
     )
     .bind(&now)
@@ -185,7 +185,7 @@ async fn rollback_replacing_the_active_release_refuses_start() {
     .await
     .unwrap();
     sqlx::query(
-        "UPDATE v3_pack_streams
+        "UPDATE pack_streams
          SET active_release_sequence = 2, rollback_release_sequence = 1,
              generation = generation + 1, updated_at = ?
          WHERE publisher_key_id = 'publisher-1' AND pack_id = 'pack-1'",
@@ -225,12 +225,12 @@ async fn successful_evidence_review_records_one_receipt_and_user_action_atomical
         crate::pack_tasks::PackTaskStatus::Succeeded
     );
     assert_eq!(succeeded.receipt_id.as_deref(), Some("receipt-1"));
-    let receipt_count: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM v3_privacy_receipts")
+    let receipt_count: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM privacy_receipts")
         .fetch_one(database.pool())
         .await
         .unwrap();
     let events: Vec<(String, String, bool)> =
-        sqlx::query_as("SELECT event_kind, origin, user_action FROM v3_job_events")
+        sqlx::query_as("SELECT event_kind, origin, user_action FROM job_events")
             .fetch_all(database.pool())
             .await
             .unwrap();
@@ -299,7 +299,7 @@ async fn ready_context(pool: &SqlitePool) -> crate::pack_tasks::PackTaskContext 
     let now = Utc::now().to_rfc3339();
     let digest = "a".repeat(64);
     sqlx::query(
-        "INSERT INTO v3_pack_publishers (
+        "INSERT INTO pack_publishers (
             publisher_key_id, public_key_sha256, trust_state, revoked_at, created_at, updated_at
          ) VALUES ('publisher-1', ?, 'trusted', NULL, ?, ?)",
     )
@@ -310,7 +310,7 @@ async fn ready_context(pool: &SqlitePool) -> crate::pack_tasks::PackTaskContext 
     .await
     .unwrap();
     sqlx::query(
-        "INSERT INTO v3_pack_streams (
+        "INSERT INTO pack_streams (
             publisher_key_id, pack_id, high_water_sequence,
             high_water_signed_release_sha256, active_release_sequence,
             rollback_release_sequence, availability, generation, created_at, updated_at
@@ -322,7 +322,7 @@ async fn ready_context(pool: &SqlitePool) -> crate::pack_tasks::PackTaskContext 
     .await
     .unwrap();
     sqlx::query(
-        "INSERT INTO v3_pack_releases (
+        "INSERT INTO pack_releases (
             publisher_key_id, pack_id, release_sequence, release_id,
             signed_release_sha256, payload_sha256, pack_version, pack_type,
             execution_class, lifecycle_state, quarantine_reason, self_tested_at,
@@ -339,7 +339,7 @@ async fn ready_context(pool: &SqlitePool) -> crate::pack_tasks::PackTaskContext 
     .unwrap();
     insert_review(pool, 1).await;
     sqlx::query(
-        "UPDATE v3_pack_releases SET lifecycle_state = 'self_tested', self_tested_at = ?, updated_at = ?
+        "UPDATE pack_releases SET lifecycle_state = 'self_tested', self_tested_at = ?, updated_at = ?
          WHERE publisher_key_id = 'publisher-1' AND pack_id = 'pack-1'",
     )
     .bind(&now)
@@ -348,7 +348,7 @@ async fn ready_context(pool: &SqlitePool) -> crate::pack_tasks::PackTaskContext 
     .await
     .unwrap();
     sqlx::query(
-        "UPDATE v3_pack_releases SET lifecycle_state = 'ready', updated_at = ?
+        "UPDATE pack_releases SET lifecycle_state = 'ready', updated_at = ?
          WHERE publisher_key_id = 'publisher-1' AND pack_id = 'pack-1'",
     )
     .bind(&now)
@@ -356,7 +356,7 @@ async fn ready_context(pool: &SqlitePool) -> crate::pack_tasks::PackTaskContext 
     .await
     .unwrap();
     sqlx::query(
-        "UPDATE v3_pack_streams
+        "UPDATE pack_streams
          SET active_release_sequence = 1, availability = 'ready', generation = generation + 1, updated_at = ?
          WHERE publisher_key_id = 'publisher-1' AND pack_id = 'pack-1'",
     )
@@ -424,7 +424,7 @@ fn local_receipt(context: &crate::pack_tasks::PackTaskContext) -> PrivacyReceipt
 async fn quarantine_stream(pool: &SqlitePool) {
     let now = Utc::now().to_rfc3339();
     sqlx::query(
-        "UPDATE v3_pack_streams
+        "UPDATE pack_streams
          SET active_release_sequence = NULL, rollback_release_sequence = NULL,
              availability = 'quarantined', generation = generation + 1, updated_at = ?
          WHERE publisher_key_id = 'publisher-1' AND pack_id = 'pack-1'",
@@ -434,7 +434,7 @@ async fn quarantine_stream(pool: &SqlitePool) {
     .await
     .unwrap();
     sqlx::query(
-        "UPDATE v3_pack_releases
+        "UPDATE pack_releases
          SET lifecycle_state = 'quarantined', quarantine_reason = 'trust_revoked', updated_at = ?
          WHERE publisher_key_id = 'publisher-1' AND pack_id = 'pack-1'",
     )

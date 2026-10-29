@@ -79,13 +79,13 @@ impl Database {
                     stream.high_water_sequence, stream.active_release_sequence,
                     stream.rollback_release_sequence, stream.availability,
                     stream.generation, EXISTS(
-                        SELECT 1 FROM v3_pack_releases AS cleanup
+                        SELECT 1 FROM pack_releases AS cleanup
                         WHERE cleanup.publisher_key_id = stream.publisher_key_id
                           AND cleanup.pack_id = stream.pack_id
                           AND cleanup.artifact_cleanup_pending = 1
                     ) AS cleanup_pending
-             FROM v3_pack_streams AS stream
-             JOIN v3_pack_publishers AS publisher
+             FROM pack_streams AS stream
+             JOIN pack_publishers AS publisher
                ON publisher.publisher_key_id = stream.publisher_key_id
              ORDER BY stream.publisher_key_id, stream.pack_id",
         )
@@ -105,7 +105,7 @@ impl Database {
                     review.task_kinds_json, review.actions_json,
                     review.approval_gates_json, review.gateway_policy_id,
                     review.external_destinations_json
-             FROM v3_pack_releases AS release
+             FROM pack_releases AS release
              LEFT JOIN pack_release_reviews AS review
                ON review.publisher_key_id = release.publisher_key_id
               AND review.pack_id = release.pack_id

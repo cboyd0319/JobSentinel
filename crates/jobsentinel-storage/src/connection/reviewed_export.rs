@@ -248,7 +248,7 @@ impl Database {
 
     async fn start_export_operation(&self, plan: &ReviewedExportPlan) -> Result<(), sqlx::Error> {
         sqlx::query(
-            "INSERT INTO v3_recovery_operations(
+            "INSERT INTO recovery_operations(
                 operation_id, operation_kind, outcome,
                 source_migration_sequence, target_migration_sequence
              ) VALUES (?, 'export', 'started', ?, ?)",
@@ -338,7 +338,7 @@ async fn verify_export_schema(connection: &mut SqliteConnection) -> Result<i64, 
     .collect();
     let allowed: BTreeSet<&str> = EXPORT_TABLES
         .iter()
-        .map(|table| table.table)
+        .map(super::reviewed_export_schema::ExportTable::storage_table)
         .chain(EXCLUDED_TABLES.iter().copied())
         .collect();
     if actual.iter().any(|table| !allowed.contains(table.as_str())) {
@@ -347,7 +347,7 @@ async fn verify_export_schema(connection: &mut SqliteConnection) -> Result<i64, 
     }
     if let Some(table) = EXPORT_TABLES
         .iter()
-        .map(|table| table.table)
+        .map(super::reviewed_export_schema::ExportTable::storage_table)
         .find(|table| !actual.contains(*table))
     {
         tracing::warn!(table, "Reviewed export required table is missing");

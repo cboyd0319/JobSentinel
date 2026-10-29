@@ -1,6 +1,9 @@
 // Creates encrypted portable backups and records their durable recovery outcomes.
 
-use super::{finish_recovery_operation_record, Database, DATABASE_SCHEMA_VERSION, MIGRATOR};
+use super::{
+    backups::{export_encrypted_to_encrypted, export_pool_to_encrypted},
+    finish_recovery_operation_record, Database, DATABASE_SCHEMA_VERSION, MIGRATOR,
+};
 use crate::encryption::{
     connect_encrypted_pool, connect_encrypted_read_only_pool, remove_sqlite_sidecars,
     sqlite_sidecar_path,
@@ -170,7 +173,7 @@ impl Database {
             .execute(&work_pool)
             .await?;
             sqlx::query(
-                "UPDATE v3_recovery_operations
+                "UPDATE recovery_operations
                  SET outcome = 'succeeded', completed_at = datetime('now')
                  WHERE operation_id = ?",
             )
@@ -219,6 +222,10 @@ impl Database {
     async fn inspect_portable_backup_pool(
         pool: &SqlitePool,
     ) -> Result<PortableBackupInfo, sqlx::Error> {
+        let layout = {
+            let mut connection = pool.acquire().await?;
+            Self::require_supported_v3(&mut connection).await?
+        };
         let row: (String, String, i64, String, String, i64, i64, i64, i64, i64) = sqlx::query_as(
             "SELECT backup_id, created_at, format_version, kind, protection,
                     user_review_required, compatibility_line, database_schema,
@@ -267,10 +274,10 @@ impl Database {
             sqlx::query_scalar("SELECT COUNT(*) FROM _sqlx_migrations WHERE success = 0")
                 .fetch_one(pool)
                 .await?;
-        let compatibility: (i64, i64, i64) = sqlx::query_as(
-            "SELECT compatibility_line, database_schema, migration_version
-             FROM v3_compatibility_metadata WHERE singleton = 1",
-        )
+        let compatibility: (i64, i64, i64) = sqlx::query_as(sqlx::AssertSqlSafe(format!(
+            "SELECT compatibility_line, database_schema, migration_version FROM {} WHERE singleton = 1",
+            layout.metadata_table(),
+        )))
         .fetch_one(pool)
         .await?;
         if manifest_rows != 1
@@ -307,10 +314,10 @@ impl Database {
         )
         .fetch_one(pool)
         .await?;
-        let operation_outcome: String = sqlx::query_scalar(
-            "SELECT outcome FROM v3_recovery_operations
-             WHERE operation_id = ? AND operation_kind = 'backup'",
-        )
+        let operation_outcome: String = sqlx::query_scalar(sqlx::AssertSqlSafe(format!(
+            "SELECT outcome FROM {} WHERE operation_id = ? AND operation_kind = 'backup'",
+            layout.recovery_table(),
+        )))
         .bind(&info.backup_id)
         .fetch_one(pool)
         .await?;
@@ -335,7 +342,7 @@ impl Database {
     }
     async fn start_backup_operation(&self, info: &PortableBackupInfo) -> Result<(), sqlx::Error> {
         sqlx::query(
-            "INSERT INTO v3_recovery_operations(
+            "INSERT INTO recovery_operations(
                 operation_id, operation_kind, outcome,
                 source_migration_sequence, target_migration_sequence
              ) VALUES (?, 'backup', 'started', ?, ?)",
@@ -364,57 +371,6 @@ impl Database {
             .finish_backup_operation(operation_id, Some(crate::database_error_kind(error)))
             .await;
     }
-}
-
-async fn export_pool_to_encrypted(
-    source: &SqlitePool,
-    destination: &Path,
-    destination_key: &str,
-) -> Result<(), sqlx::Error> {
-    let destination = destination
-        .to_str()
-        .ok_or_else(|| protocol_error("Portable backup path encoding is invalid"))?;
-    let mut connection = Database::snapshot_connection(source).await?;
-    let user_version: i64 = sqlx::query_scalar("PRAGMA user_version")
-        .fetch_one(&mut *connection)
-        .await?;
-    sqlx::query("ATTACH DATABASE ? AS portable_work KEY ?")
-        .bind(destination)
-        .bind(destination_key)
-        .execute(&mut *connection)
-        .await?;
-    let export = sqlx::query("SELECT sqlcipher_export('portable_work')")
-        .execute(&mut *connection)
-        .await;
-    let set_version = if export.is_ok() {
-        sqlx::query(sqlx::AssertSqlSafe(format!(
-            "PRAGMA portable_work.user_version = {user_version}"
-        )))
-        .execute(&mut *connection)
-        .await
-        .map(|_| ())
-    } else {
-        Ok(())
-    };
-    let detach = sqlx::query("DETACH DATABASE portable_work")
-        .execute(&mut *connection)
-        .await;
-    export?;
-    set_version?;
-    detach?;
-    Ok(())
-}
-
-pub(super) async fn export_encrypted_to_encrypted(
-    source: &Path,
-    source_key: &str,
-    destination: &Path,
-    destination_key: &str,
-) -> Result<(), sqlx::Error> {
-    let source_pool = connect_encrypted_pool(source, source_key, false).await?;
-    let result = export_pool_to_encrypted(&source_pool, destination, destination_key).await;
-    source_pool.close().await;
-    result
 }
 
 fn validate_backup_passphrase(passphrase: &str) -> Result<(), sqlx::Error> {

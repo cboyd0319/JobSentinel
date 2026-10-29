@@ -109,7 +109,7 @@ impl Database {
         let operation_id = format!("outside-ai:{}", Uuid::new_v4());
         let approval_reference = format!("outside-ai-approval:{}", Uuid::new_v4());
         sqlx::query(
-            "INSERT INTO v3_outside_ai_operations (
+            "INSERT INTO outside_ai_operations (
                 operation_id, approval_reference, feature_id, provider_id,
                 destination, request_sha256, labels_json, data_categories_json,
                 gateway_policy_revision, status, created_at, expires_at
@@ -145,7 +145,7 @@ impl Database {
         let started_at = Utc::now().to_rfc3339();
         let mut transaction = self.pool().begin().await?;
         let updated = sqlx::query(
-            "UPDATE v3_outside_ai_operations
+            "UPDATE outside_ai_operations
              SET status = 'started', started_at = ?
              WHERE operation_id = ?
                AND approval_reference = ?
@@ -186,7 +186,7 @@ impl Database {
         validate_identifier("outside AI operation", operation_id)?;
         let completed_at = Utc::now().to_rfc3339();
         let updated = sqlx::query(
-            "UPDATE v3_outside_ai_operations
+            "UPDATE outside_ai_operations
              SET status = 'cancelled', completed_at = ?
              WHERE operation_id = ? AND status = 'pending'",
         )
@@ -200,7 +200,7 @@ impl Database {
     pub async fn cancel_outside_ai_operation(&self, operation_id: &str) -> Result<OutsideAiStatus> {
         validate_identifier("outside AI operation", operation_id)?;
         sqlx::query(
-            "UPDATE v3_outside_ai_operations
+            "UPDATE outside_ai_operations
              SET status = CASE status
                     WHEN 'pending' THEN 'cancelled'
                     ELSE 'ambiguous'
@@ -230,7 +230,7 @@ impl Database {
             OutsideAiCompletion::Ambiguous => "ambiguous",
         };
         let updated = sqlx::query(
-            "UPDATE v3_outside_ai_operations
+            "UPDATE outside_ai_operations
              SET status = ?, completed_at = ?
              WHERE operation_id = ?
                AND status = 'started'
@@ -255,7 +255,7 @@ impl Database {
                     destination, request_sha256, labels_json, data_categories_json,
                     gateway_policy_revision, status, receipt_recorded,
                     created_at, expires_at, started_at, completed_at
-             FROM v3_outside_ai_operations
+             FROM outside_ai_operations
              WHERE operation_id = ?",
         )
         .bind(operation_id)
@@ -275,7 +275,7 @@ impl Database {
                     destination, request_sha256, labels_json, data_categories_json,
                     gateway_policy_revision, status, receipt_recorded,
                     created_at, expires_at, started_at, completed_at
-             FROM v3_outside_ai_operations
+             FROM outside_ai_operations
              WHERE approval_reference = ?",
         )
         .bind(approval_reference)
@@ -296,7 +296,7 @@ impl Database {
         }
         sqlx::query_as::<_, OutsideAiActivityRow>(
             "SELECT provider_id, destination, status, created_at, completed_at
-             FROM v3_outside_ai_operations
+             FROM outside_ai_operations
              ORDER BY created_at DESC, operation_id DESC
              LIMIT ?",
         )
@@ -312,7 +312,7 @@ impl Database {
         let now = Utc::now().to_rfc3339();
         let mut transaction = self.pool().begin().await?;
         let ambiguous = sqlx::query(
-            "UPDATE v3_outside_ai_operations
+            "UPDATE outside_ai_operations
              SET status = 'ambiguous', completed_at = ?
              WHERE status = 'started'",
         )
@@ -321,7 +321,7 @@ impl Database {
         .await?
         .rows_affected();
         let cancelled = sqlx::query(
-            "UPDATE v3_outside_ai_operations
+            "UPDATE outside_ai_operations
              SET status = 'cancelled', completed_at = ?
              WHERE status = 'pending'
                AND julianday(expires_at) <= julianday(?)",
@@ -348,7 +348,7 @@ async fn fetch_operation(
                 destination, request_sha256, labels_json, data_categories_json,
                 gateway_policy_revision, status, receipt_recorded,
                 created_at, expires_at, started_at, completed_at
-         FROM v3_outside_ai_operations
+         FROM outside_ai_operations
          WHERE operation_id = ?",
     )
     .bind(operation_id)

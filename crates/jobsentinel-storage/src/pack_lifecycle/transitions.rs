@@ -94,7 +94,7 @@ impl Database {
         let now = Utc::now().to_rfc3339();
         let mut transaction = self.pool().begin().await?;
         let release_updated = sqlx::query(
-            "UPDATE v3_pack_releases
+            "UPDATE pack_releases
              SET lifecycle_state = 'quarantined', quarantine_reason = ?, updated_at = ?
              WHERE publisher_key_id = ? AND pack_id = ?
                AND release_sequence = ? AND signed_release_sha256 = ?
@@ -112,7 +112,7 @@ impl Database {
             return Err(invalid_state());
         }
         let stream_updated = sqlx::query(
-            "UPDATE v3_pack_streams
+            "UPDATE pack_streams
              SET generation = generation + 1, updated_at = ?
              WHERE publisher_key_id = ? AND pack_id = ? AND generation = ?
                AND high_water_sequence = ?
@@ -168,7 +168,7 @@ impl Database {
         let mut transaction = self.pool().begin().await?;
 
         let release_updated = sqlx::query(
-            "UPDATE v3_pack_releases
+            "UPDATE pack_releases
              SET lifecycle_state = ?, quarantine_reason = ?,
                  self_tested_at = ?, updated_at = ?
              WHERE publisher_key_id = ? AND pack_id = ?
@@ -190,7 +190,7 @@ impl Database {
         }
 
         let stream_updated = sqlx::query(
-            "UPDATE v3_pack_streams
+            "UPDATE pack_streams
              SET generation = generation + 1, updated_at = ?
              WHERE publisher_key_id = ? AND pack_id = ? AND generation = ?
                AND high_water_sequence = ?
@@ -256,7 +256,7 @@ impl Database {
         .await?;
 
         let release_updated = sqlx::query(
-            "UPDATE v3_pack_releases
+            "UPDATE pack_releases
              SET lifecycle_state = 'ready', updated_at = ?
              WHERE publisher_key_id = ? AND pack_id = ?
                AND release_sequence = ? AND signed_release_sha256 = ?
@@ -274,7 +274,7 @@ impl Database {
         }
 
         let stream_updated = sqlx::query(
-            "UPDATE v3_pack_streams
+            "UPDATE pack_streams
              SET rollback_release_sequence = active_release_sequence,
                  active_release_sequence = ?,
                  availability = CASE
@@ -325,7 +325,7 @@ impl Database {
         let now = Utc::now().to_rfc3339();
         let mut transaction = self.pool().begin().await?;
         let updated = sqlx::query(
-            "UPDATE v3_pack_streams
+            "UPDATE pack_streams
              SET availability = 'disabled', generation = generation + 1, updated_at = ?
              WHERE publisher_key_id = ? AND pack_id = ? AND generation = ?
                AND availability = 'ready' AND active_release_sequence IS NOT NULL",
@@ -425,21 +425,21 @@ impl TrustedTransitionKind {
     const fn query(self) -> &'static str {
         match self {
             Self::Enable => {
-                "UPDATE v3_pack_streams
+                "UPDATE pack_streams
                  SET availability = 'ready', generation = generation + 1, updated_at = ?
                  WHERE publisher_key_id = ? AND pack_id = ? AND generation = ?
                    AND availability = 'disabled' AND active_release_sequence = ?
                    AND EXISTS (
-                       SELECT 1 FROM v3_pack_releases AS active
-                       WHERE active.publisher_key_id = v3_pack_streams.publisher_key_id
-                         AND active.pack_id = v3_pack_streams.pack_id
-                         AND active.release_sequence = v3_pack_streams.active_release_sequence
+                       SELECT 1 FROM pack_releases AS active
+                       WHERE active.publisher_key_id = pack_streams.publisher_key_id
+                         AND active.pack_id = pack_streams.pack_id
+                         AND active.release_sequence = pack_streams.active_release_sequence
                          AND active.signed_release_sha256 = ?
                          AND active.lifecycle_state = 'ready'
                    )"
             }
             Self::Rollback => {
-                "UPDATE v3_pack_streams
+                "UPDATE pack_streams
                  SET active_release_sequence = rollback_release_sequence,
                      rollback_release_sequence = active_release_sequence,
                      generation = generation + 1, updated_at = ?
@@ -448,17 +448,17 @@ impl TrustedTransitionKind {
                    AND active_release_sequence IS NOT NULL
                    AND rollback_release_sequence = ?
                    AND EXISTS (
-                       SELECT 1 FROM v3_pack_releases AS active
-                       WHERE active.publisher_key_id = v3_pack_streams.publisher_key_id
-                         AND active.pack_id = v3_pack_streams.pack_id
-                         AND active.release_sequence = v3_pack_streams.active_release_sequence
+                       SELECT 1 FROM pack_releases AS active
+                       WHERE active.publisher_key_id = pack_streams.publisher_key_id
+                         AND active.pack_id = pack_streams.pack_id
+                         AND active.release_sequence = pack_streams.active_release_sequence
                          AND active.lifecycle_state = 'ready'
                    )
                    AND EXISTS (
-                       SELECT 1 FROM v3_pack_releases AS retained
-                       WHERE retained.publisher_key_id = v3_pack_streams.publisher_key_id
-                         AND retained.pack_id = v3_pack_streams.pack_id
-                         AND retained.release_sequence = v3_pack_streams.rollback_release_sequence
+                       SELECT 1 FROM pack_releases AS retained
+                       WHERE retained.publisher_key_id = pack_streams.publisher_key_id
+                         AND retained.pack_id = pack_streams.pack_id
+                         AND retained.release_sequence = pack_streams.rollback_release_sequence
                          AND retained.signed_release_sha256 = ?
                          AND retained.lifecycle_state = 'ready'
                    )"

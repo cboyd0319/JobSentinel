@@ -120,7 +120,7 @@ async fn storage_cleanup_preserves_user_rows_and_records_success() {
         .await
         .unwrap();
     let successful_cleanup: i64 = sqlx::query_scalar(
-        "SELECT COUNT(*) FROM v3_recovery_operations
+        "SELECT COUNT(*) FROM recovery_operations
          WHERE operation_kind = 'cleanup' AND outcome = 'succeeded'
            AND error_kind IS NULL AND completed_at IS NOT NULL",
     )
@@ -171,7 +171,7 @@ async fn busy_wal_checkpoint_fails_honestly_without_losing_rows() {
         .await
         .unwrap();
     let failed_cleanup: i64 = sqlx::query_scalar(
-        "SELECT COUNT(*) FROM v3_recovery_operations
+        "SELECT COUNT(*) FROM recovery_operations
          WHERE operation_kind = 'cleanup' AND outcome = 'failed'
            AND error_kind = 'protocol' AND completed_at IS NOT NULL",
     )
@@ -212,7 +212,7 @@ async fn relational_damage_requires_restore_before_cleanup_mutates_data() {
     let report = database.inspect_storage_maintenance().await.unwrap();
     let error = database.run_storage_cleanup().await.unwrap_err();
     let cleanup_operations: i64 = sqlx::query_scalar(
-        "SELECT COUNT(*) FROM v3_recovery_operations WHERE operation_kind = 'cleanup'",
+        "SELECT COUNT(*) FROM recovery_operations WHERE operation_kind = 'cleanup'",
     )
     .fetch_one(database.pool())
     .await
@@ -281,7 +281,7 @@ async fn portable_backup_history_reports_only_the_latest_structural_outcome() {
         PortableBackupHistory::NotRecorded
     );
     sqlx::query(
-        "INSERT INTO v3_recovery_operations(
+        "INSERT INTO recovery_operations(
             operation_id, operation_kind, outcome,
             source_migration_sequence, target_migration_sequence, created_at
          ) VALUES ('backup-z', 'backup', 'started', 12, 12, '2026-07-19 01:00:00')",
@@ -294,7 +294,7 @@ async fn portable_backup_history_reports_only_the_latest_structural_outcome() {
         PortableBackupHistory::Started
     );
     sqlx::query(
-        "UPDATE v3_recovery_operations
+        "UPDATE recovery_operations
          SET outcome = 'failed', error_kind = 'io', completed_at = datetime('now')
          WHERE operation_id = 'backup-z'",
     )
@@ -306,7 +306,7 @@ async fn portable_backup_history_reports_only_the_latest_structural_outcome() {
         PortableBackupHistory::Failed
     );
     sqlx::query(
-        "INSERT INTO v3_recovery_operations(
+        "INSERT INTO recovery_operations(
             operation_id, operation_kind, outcome,
             source_migration_sequence, target_migration_sequence, created_at, completed_at
          ) VALUES (
@@ -322,7 +322,7 @@ async fn portable_backup_history_reports_only_the_latest_structural_outcome() {
         PortableBackupHistory::Succeeded
     );
     sqlx::query(
-        "INSERT INTO v3_recovery_operations(
+        "INSERT INTO recovery_operations(
             operation_id, operation_kind, outcome,
             source_migration_sequence, target_migration_sequence,
             error_kind, created_at, completed_at
@@ -335,7 +335,7 @@ async fn portable_backup_history_reports_only_the_latest_structural_outcome() {
     .await
     .unwrap();
     sqlx::query(
-        "INSERT INTO v3_recovery_operations(
+        "INSERT INTO recovery_operations(
             operation_id, operation_kind, outcome,
             source_migration_sequence, target_migration_sequence,
             created_at, completed_at

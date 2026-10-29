@@ -121,7 +121,7 @@ async fn removed_release_cleanup_is_durable_and_release_scoped() {
         vec![false, true, false]
     );
     assert!(sqlx::query(
-        "UPDATE v3_pack_releases SET artifact_cleanup_pending = 1
+        "UPDATE pack_releases SET artifact_cleanup_pending = 1
          WHERE publisher_key_id = ? AND pack_id = ? AND release_sequence = 4",
     )
     .bind(PUBLISHER_ID)

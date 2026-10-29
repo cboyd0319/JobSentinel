@@ -3,210 +3,233 @@
   "feature_id": "v3-source-compatibility-cleanup",
   "behavior": "Remove pre-v3-only readers and ordinary transition names while preserving immutable v3 contracts and local data.",
   "result": "partial",
-  "verified_at": "2026-10-29T00:53:27.172691+00:00",
-  "revision": "cbc159d10bd0082f4d48f523a3453bab1f85b11e",
+  "verified_at": "2026-10-29T01:54:30.383652+00:00",
+  "revision": "7b22a148bbb628c029d40688e468e54b1c628458",
   "platform": "macOS27.2 arm64, pinned Rust1.97.1/Node24.18.0/npm12.0.1",
-  "scope": "D0 source/compatibility cleanup with append-only vector-table migration; broad qualification and release operations remain deferred.",
-  "source_files_sha256": {
-    "crates/jobsentinel-domain/src/contracts.rs": "a00a6437a042ef31f70a6bcadcd16e9bb63c958a0271e6904448f10443b188af",
-    "crates/jobsentinel-domain/src/lib.rs": "9f0ebe75dd7115ad75d62da71370c1ac810342327b3e72be9c406387cfecaaca",
-    "crates/jobsentinel-domain/src/evaluations.rs": "3b5c3680b8a690a1aab2e2481ea2d92ab154b3898bb7f182c14d0311c3d50727",
-    "crates/jobsentinel-application/src/source_governance.rs": "3667707400cb8a99973ba8247dcb466dab774de3f024b6c7f537a647f3ae1613",
-    "crates/jobsentinel-application/src/linkedin_workbench.rs": "270a52df4cbfe6f572911ee4d7f14c079f42276eb16e99b27f4f905b42870dd7",
-    "crates/jobsentinel-application/src/linkedin_workbench/tests.rs": "99c802ab66e9763b25e9f2b48a90e800f8170fa3f32a8dccd709101ffabef0da",
-    "crates/jobsentinel-storage/src/connection.rs": "fe19f6f2ff41a4da9ab870fc03e7274882637d9bb9511f4e7d81a9e215f113d0",
-    "crates/jobsentinel-storage/src/connection/bootstrap.rs": "e5f29c2281cd1d092c973b915adb2fb344b7637b2f4a18f120eee8c430e71903",
-    "crates/jobsentinel-storage/src/encryption.rs": "028ed4f56740552fe86c61b5a797137bf04b18bf7bc370fa3d8f083158b872fe",
-    "crates/jobsentinel-platform/src/windows_private_directory.rs": "89ca0fe245f87cda58d4c8d3fab1a9729c1067148e9ddb185b0ea941d28997e5",
-    "crates/jobsentinel-storage/src/vectors.rs": "68a9416c3bddf41347c7794eaaad805f4557ee9c174965a26ea0e2ed5a2b4041",
-    "crates/jobsentinel-storage/src/lib.rs": "e31ad8194acd24cab5f60ac33541d5a37e3bd995797cce2eb7ec5ae135db7a1f",
-    "crates/jobsentinel-storage/src/resume/matcher.rs": "b0575def86186165c42c7080a1686f19fc1214fe6a44db5e9d4c5842d0589b2e",
-    "crates/jobsentinel-storage/src/resume/matcher/gap_analysis.rs": "b6850dd3429474e76a3315ca4c87275965e46b2cea220a045a21911916a568fc",
-    "crates/jobsentinel-storage/src/resume/matcher_tests.rs": "58ada0e817884f8a4757acb34539f599f6bef0620386c1b1df3bc84c35cefba5",
-    "crates/jobsentinel-domain/src/external_ai.rs": "cbdcc67770cff00958d28a82ef369fe5fe2d83f1abfac4132d8861ddbe301b8a",
-    "crates/jobsentinel-storage/migrations/00000000000032_local_vectors.sql": "e26bb7a42894bed1c5f3be197bf2d15b0bd68eb2ecfe2fd91476ab9305c64687",
-    "crates/jobsentinel-storage/src/vectors_tests/migration_tests.rs": "8baf0dbd0480c7dd062ae9287ee30ef03a18a30f6ab92369f9b960d7435bd121",
-    "crates/jobsentinel-storage/src/connection/reviewed_export_schema.rs": "295830766c6e6958924c764e16c9d940e3c9d11b7b0b80a895931b4e3627b113",
-    "crates/jobsentinel-storage/src/resume/management.rs": "e5e439704bc6b91d4d4cc8e6533f9a9cc537619cdf77ddef1f1a2ca72332b468",
-    "crates/jobsentinel-storage/src/resume/skill_store.rs": "2084f01ab92841be6ffb4e5101765d75713860b4d9e8bfdab4afe9af38b9c226"
+  "scope": "D0 development acceptance only; broad qualification and release operations remain deferred.",
+  "earlier_checkpoints": {
+    "2349659d": "Pre-v3 classifier removal and ordinary application namespaces.",
+    "46a3a84f": "Atomic encrypted-v3 bootstrap, domain namespaces and deterministic Workbench checks.",
+    "cbc159d1": "Storage namespaces and dead gap-formatter removal.",
+    "7b22a148": "Vector table migration32 and canonical provider name."
   },
   "delivered": [
-    "Removed unused pre-v3 compatibility classification types/function/re-export and the unsupported upgrade claim tests. Supported validation uses the existing parser directly.",
-    "Renamed ordinary application v3_source_governance and v3_foundation modules, files/test paths and current application/native callers to source_governance/foundation without aliases.",
-    "Added responsibility headers to moved/changed owned files; source policy review date remains exactly2026-07-19T00:00:00Z.",
-    "Removed automatic plaintext-primary conversion. Existing encrypted stores require supported v3 metadata and successful migration-11 checksum before writer configuration; ambiguous, inconsistent, plaintext and future stores are refused without changing primary/WAL bytes.",
-    "Fresh encrypted stores migrate in a private same-volume stage, checkpoint, close and sync before no-clobber publication. Failed/interrupted initialization does not publish an ambiguous primary. Missing-primary recovery artifacts prevent empty recreation.",
-    "Windows publication uses no-clobber WRITE_THROUGH without cross-volume copying; prior overwrite callers retain their same-directory contract. Attribute normalization precedes rename; successful publication disables temporary cleanup without accessing the removed source path.",
-    "Read-only probes await connection closure and preserve original refusal errors. Pre-v3 migration fixtures were replaced with supported-v3 and synthetic-next-migration failure/retry cases.",
-    "Renamed 27 ordinary domain modules/test files and three child directories through 129 Rust files, including evaluation/runtime symbols. Comparison found 419 authorized identifier replacements and 6001 byte-identical literals, with no fixture or migration changes.",
-    "Workbench action authorization now accepts an explicit private date seam, while public entry points retain the real clock. Tests use a fixed reviewed date and prove expired policy refuses writes; production policy review date remains unchanged and currently requires real refresh.",
-    "Normalized ordinary storage module/test filenames and vector method names through 54 Rust files without aliases or IPC changes. Comparison preserved 1788 literals and changed only six source-module path literals; SQL and migration bytes remain unchanged.",
-    "Removed the unused test-only legacy gap formatter and forwarding method. Its six existing checks now call the production enhanced formatter synchronously without database setup.",
-    "Added migration32: ALTER TABLE renames v3_local_vectors to local_vectors, preserving rows and constraints, with metadata advanced to32. Current read/write/invalidation SQL and reviewed-export exclusion use only the new physical name; no alias/view remains.",
-    "Encrypted31 migration preserves exact freshness/blob bytes, dimension, revision, timestamp and table root page; its original-schema snapshot remains readable, restores and retries. Fresh32, ABA, guarded writes, both invalidation paths and vector exclusion are covered.",
-    "Removed the obsolete openai provider spelling after tracing current frontend writers to open_ai; canonical provider serialization remains open_ai and unknown spelling now fails deserialization."
+    "Removed unused pre-v3 classification, automatic plaintext-primary conversion and unsupported-upgrade fixtures/claims. Unsupported, unmarked, inconsistent and future primary data fail closed before writable setup.",
+    "Normalized ordinary application/domain/storage/local-model modules and symbols through their actual callers without aliases. Retained only real compatibility/version identifiers.",
+    "Fresh encrypted stores migrate privately, checkpoint, close and sync before no-clobber publication. Interrupted creation never publishes an ambiguous primary; recoverable artifacts prevent empty recreation.",
+    "Append-only migrations32\u201334 normalize16 physical tables, five indexes and45 triggers without rebuilding rows or retaining alias views. Existing migrations0\u201332 remain byte-identical; all50 recreated guard/index definitions preserve normalized tokens and SQL strings.",
+    "Pre-migration identity requires successful checksum-bound migration11 and, for the renamed layout,33. All16 physical table pairs follow their actual introduction/cutover versions; mixed/missing layouts refuse before writer mutation. Future-data diagnostics keep precedence.",
+    "Eight reviewed-export-v1 record labels remain immutable; only their physical query targets change. Vectors, credentials, trust records and protected exclusions remain governed.",
+    "Older supported-v3 backups inspect, stage, restore, promote and roll back across the physical rename. Promoted crash recovery reads retained WAL before writer setup. SQLCipher copies attach selected input read-only to an owned destination; original bytes and standalone sidecar absence are preserved.",
+    "File URIs preserve relative/reserved paths and encode Windows drive/UNC forms. The existing URL owner handles generic path encoding; SQLite attachment policy stays in storage. External URL validation is unchanged.",
+    "Retired company-key aliases and education/category scalar coercions are removed with explicit rejection, preserving files/runtime/filter/draft data. Canonical config, comments/help fields, duplicate-key errors, builder data and JSON Resume import remain supported.",
+    "Workbench tests use a fixed reviewed date; production still uses the real clock and unchanged policy evidence. Minimum Gate4 dossier wiring has no confirmed development gap; broader runtime assurance remains R1."
   ],
   "immutable_boundaries": [
-    "SchemaId serialized strings and retained parser/validation code match the prior source exactly.",
-    "No SQLx migration bytes, signed keys/signing domains, export record names, backend IDs or format versions changed.",
-    "Screening-pattern support, listed-pay/geography projections, secure-storage names and other current-v3 dependencies remain; legacy wording alone is not removal authority."
+    "Schema IDs, signing contexts, signature-covered pack keys, format versions, model/backend identities, export-v1 labels and applied migration bytes remain unchanged.",
+    "Relational education graduation_year and its export remain current data. Fresh-install screening patterns, listed-pay/geography projections and secure-storage names remain required.",
+    "No production signing enrollment, model/threshold change, package build, VM provisioning, credential read or publication occurred."
   ],
+  "proof_artifacts": [
+    "target/d0-physical-schema/guard-preservation.json",
+    "target/d0-physical-schema/final-migration-history.json",
+    "target/d0-retired-inputs/results.json"
+  ],
+  "source_files_sha256": {
+    "crates/jobsentinel-application/src/config/io.rs": "31f00f3725b265fdc5cd7bda32981dcef1ccdbf5ba8385e7744562309c5d283b",
+    "crates/jobsentinel-application/src/config/types.rs": "3a6f407fc4dccefb3364ea582292c7ec2024790205603748a4910d9ac36b85bf",
+    "crates/jobsentinel-application/src/resume/semantic.rs": "cbfcc4ede4c97c44a6e5aff4b386ae0542f5db09c47ef37ca2b04bde60427937",
+    "crates/jobsentinel-local-ai/src/lib.rs": "c36e3059dd109f644ce862396e8ab9764e49cea8e250c8c8e06198c18937f1f3",
+    "crates/jobsentinel-local-ai/src/manifest.rs": "35bd21c49f3a6c47744b8013572ecd876fe43244ece3cb67b55ce98921352f22",
+    "crates/jobsentinel-security/src/lib.rs": "e92c5b4ccde86134f11da430bfd4e7d03eee05ef0e1be11de8a5f70d9ae98142",
+    "crates/jobsentinel-security/src/url.rs": "4f1a1fd9675a76fc7f6e2257ab18aef6ede9f41ff68818110fb1c94fefbcef5a",
+    "crates/jobsentinel-storage/migrations/00000000000033_ordinary_storage_names.sql": "417c7b6522f95eb0b45e4462b734b802186dde452a443f3587501a611d795886",
+    "crates/jobsentinel-storage/migrations/00000000000034_ordinary_pack_guard_names.sql": "f13b79e362208053ab8b3f5091e7339481161bde2c4e510a56c71f95c52b811c",
+    "crates/jobsentinel-storage/src/connection/backups.rs": "5a901de14e67f4ceeb82ecfe394c07e109092f334af143dddd8cf063e08f8aa6",
+    "crates/jobsentinel-storage/src/connection/bootstrap.rs": "d9aed0483449558d54748dc4acbfa8f2d9e87efdd85167572b797c117dd9a0c9",
+    "crates/jobsentinel-storage/src/connection/maintenance.rs": "23e9a757d0965dda344844e4154ad982c307ea3a48bd083b165cd651d54c53c2",
+    "crates/jobsentinel-storage/src/connection/portable_backup.rs": "981c6213d3c7f351e350730120115fc93356397687fc6c3d8e3efc46513c026e",
+    "crates/jobsentinel-storage/src/connection/portable_restore.rs": "a3bf0a09931837cc56c1c0809ce68614bf6a1367706bc7b84f6ca4f5a8e42b8c",
+    "crates/jobsentinel-storage/src/connection/portable_restore_promotion.rs": "f274963e8e6738ffd9525c413d0969dfa1e41084737b273b30762841569199a1",
+    "crates/jobsentinel-storage/src/connection/recovery_operations.rs": "a9b029878e383139b786e88bd3498ce666bca1c523f67d35d3546bffee23ce4a",
+    "crates/jobsentinel-storage/src/connection/reviewed_export.rs": "55f6f46f1ca13e616a027334e01eaa7229ab84265d6582897088f830ea5cc4cd",
+    "crates/jobsentinel-storage/src/connection/reviewed_export_schema.rs": "92495a9e84dc7df39e5771a8591a79d6a49bc562bc280af20747ec530c77eb5e",
+    "crates/jobsentinel-storage/src/connection/update_inventory.rs": "9362879848f73f05593d50d66a11d50d64f8a64a2e2980b6fb9f894b0ff7ffca",
+    "crates/jobsentinel-storage/src/encryption.rs": "aa5c6b710ee2872ed1e5d27721d83562bc94532f21f7548d1e438a6ac67405e7",
+    "crates/jobsentinel-storage/src/foundation.rs": "9d79411ad32ebaa9a2f53e1a357870f06cfa12df2feb65a7e3f5edf73368af6d",
+    "crates/jobsentinel-storage/src/foundation/case_evidence.rs": "5c81ed674278beaf880b99088adf473d46c8ac27a978d450ff5e7b53777602cb",
+    "crates/jobsentinel-storage/src/foundation/evidence_packets.rs": "d9d8acc71c3569d3d223b669996285a264d441491c6656b69422daabdf2fa6e9",
+    "crates/jobsentinel-storage/src/foundation/opportunity_case.rs": "7f5f8fe33284f43c277cb6b617c4c72f109d8e1ae5f7951175ce58dc300966b3",
+    "crates/jobsentinel-storage/src/foundation/saved_match_evidence.rs": "978a3ba4f35b20f854d436a1da1bad235476d95a96b4ebb2c68c643ecca07603",
+    "crates/jobsentinel-storage/src/outside_ai.rs": "0776bac8da150bbbdc0fe43c3e07efb5f6a1188cf6cc8d562916a2ab2d32c63a",
+    "crates/jobsentinel-storage/src/pack_lifecycle.rs": "f3cc6040df98689ebf52c68847b3130b3af8712d11979910fd8f4c3fa2775830",
+    "crates/jobsentinel-storage/src/pack_lifecycle/artifacts.rs": "aa47e04dafbd45fd0ced513a14c47a906a100633f7b9ffa78f42974143592300",
+    "crates/jobsentinel-storage/src/pack_lifecycle/lifecycle.rs": "87615452f68981d3cd3cd4a91eb68adc968de0690b3da49a79fce879825c46eb",
+    "crates/jobsentinel-storage/src/pack_lifecycle/management.rs": "a4387df484a3af4a5bd862957406708a245d65db6bcaadb7cb266230d4515a72",
+    "crates/jobsentinel-storage/src/pack_lifecycle/transitions.rs": "490aee1c9b53e9ed6d6a34c86c41c0cd29b65bb495635be6a5f29b31049f1201",
+    "crates/jobsentinel-storage/src/pack_tasks.rs": "df52b7a8c7bb5062033a46dfdec1c0623adab7352af0b0286b39b6f43524aa06",
+    "crates/jobsentinel-storage/src/pack_tasks/input_guard.rs": "67ebe253744b019a44be297045aa9816e49d85f34027eebd17be9b1d3e66ce9b",
+    "crates/jobsentinel-storage/src/resume/builder.rs": "a2ced86f1abdc146e762c75b1b7ffef41841a4d335347aa572f7dc118577f7c8",
+    "crates/jobsentinel-storage/src/resume/builder/serialization.rs": "43a8fb2096e15ab23fc3a4d6de7ff776e529a0ec1b9b21143ff844697dd8baec",
+    "crates/jobsentinel-storage/src/source_consent.rs": "d10f0685be3f40b62070df9f69dda1e464a20b30f06addea500bbe54cc1d7c90",
+    "crates/jobsentinel-storage/src/source_manifest.rs": "9dffc857949b6e1cc9d1c17ccbdf46c9b4fe0c92737758e5f889bc3e10a94875",
+    "crates/jobsentinel-storage/src/user_data/models.rs": "78dfa181368e396ac55c4b3519e89df0cdf95ce24989c5db4fbba743e79b67cf",
+    "crates/jobsentinel-storage/src/user_data/notifications.rs": "43dbd8fc3469e0decdda7cc6b3b3767d5dc10c6e196b949f04f18bec658b4f1e",
+    "src-tauri/src/ipc/config.rs": "473a2ec36776c047980ccf67b3cdd36777f103950ee240e7f04734acb929d6bb",
+    "crates/jobsentinel-domain/src/contracts.rs": "a00a6437a042ef31f70a6bcadcd16e9bb63c958a0271e6904448f10443b188af",
+    "crates/jobsentinel-domain/src/lib.rs": "9f0ebe75dd7115ad75d62da71370c1ac810342327b3e72be9c406387cfecaaca"
+  },
   "commands": [
     {
-      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-domain --lib v3_contract",
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-storage --lib physical_schema_tests",
       "exit_status": 0,
-      "relevant_result": "16contract tests passed.",
-      "caveat": "Focused domain slice only."
+      "relevant_result": "5 tests passed.",
+      "caveat": "Focused Mac lane; target/d0-physical-schema/final-physical_schema_tests.log"
     },
     {
-      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-application --lib config::tests",
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-storage --lib bootstrap_tests",
       "exit_status": 0,
-      "relevant_result": "127configuration tests passed.",
-      "caveat": "Ran before ordinary module rename; final test-target compilation covers renamed graph."
+      "relevant_result": "9 tests passed.",
+      "caveat": "Focused Mac lane; target/d0-physical-schema/final-bootstrap_tests.log"
     },
     {
-      "command": "node scripts/dev/run-cargo.mjs clippy --locked --offline -p jobsentinel-domain -p jobsentinel-application --lib -- -D warnings",
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-storage --lib migration_tests",
       "exit_status": 0,
-      "relevant_result": "Affected production crates passed.",
-      "caveat": "No full workspace suite."
+      "relevant_result": "24 tests passed.",
+      "caveat": "Focused Mac lane; target/d0-physical-schema/final-migration_tests.log"
     },
     {
-      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-application --lib --no-run",
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-storage --lib reviewed_export_tests",
       "exit_status": 0,
-      "relevant_result": "Current renamed application test target compiled.",
-      "caveat": "Compilation only; tests not executed."
+      "relevant_result": "5 tests passed.",
+      "caveat": "Focused Mac lane; target/d0-physical-schema/final-reviewed_export_tests.log"
     },
     {
-      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel --lib --no-run",
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-storage --lib portable_",
       "exit_status": 0,
-      "relevant_result": "Current native test target compiled.",
-      "caveat": "Compilation only; no app launch."
+      "relevant_result": "40 tests passed.",
+      "caveat": "Focused Mac lane; target/d0-physical-schema/final-portable_.log"
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-storage --lib foundation",
+      "exit_status": 0,
+      "relevant_result": "31 tests passed.",
+      "caveat": "Focused Mac lane; target/d0-physical-schema/final-foundation.log"
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-storage --lib source_consent",
+      "exit_status": 0,
+      "relevant_result": "6 tests passed.",
+      "caveat": "Focused Mac lane; target/d0-physical-schema/final-source_consent.log"
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-storage --lib source_manifest",
+      "exit_status": 0,
+      "relevant_result": "5 tests passed.",
+      "caveat": "Focused Mac lane; target/d0-physical-schema/final-source_manifest.log"
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-storage --lib outside_ai",
+      "exit_status": 0,
+      "relevant_result": "9 tests passed.",
+      "caveat": "Focused Mac lane; target/d0-physical-schema/final-outside_ai.log"
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-storage --lib pack_",
+      "exit_status": 0,
+      "relevant_result": "41 tests passed.",
+      "caveat": "Focused Mac lane; target/d0-physical-schema/final-pack_.log"
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-storage --lib connection::backups::source_uri_tests",
+      "exit_status": 0,
+      "relevant_result": "1 tests passed.",
+      "caveat": "Focused Mac lane; target/d0-physical-schema/uri-final.log"
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-security --lib local_file_urls",
+      "exit_status": 0,
+      "relevant_result": "1 tests passed.",
+      "caveat": "Focused Mac lane; target/d0-physical-schema/security-url-final.log"
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-application --features embedded-ml --lib resume::semantic::tests::",
+      "exit_status": 0,
+      "relevant_result": "8 tests passed.",
+      "caveat": "Focused Mac lane; target/d0-physical-schema/semantic-final.log"
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-application --features embedded-ml --lib update_preflight",
+      "exit_status": 0,
+      "relevant_result": "15 tests passed.",
+      "caveat": "Focused Mac lane; target/d0-physical-schema/update-inventory-final.log"
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel --features embedded-ml --lib local_update",
+      "exit_status": 0,
+      "relevant_result": "7 tests passed.",
+      "caveat": "Focused Mac lane; target/d0-physical-schema/native-update-final.log"
     },
     {
       "command": "node scripts/dev/run-cargo.mjs clippy --locked --offline -p jobsentinel --lib --features embedded-ml -- -D warnings",
       "exit_status": 0,
-      "relevant_result": "Native production graph passed with embedded runtime.",
-      "caveat": "No inference or platform qualification."
+      "relevant_result": "Production lint/format check passed.",
+      "caveat": "Focused Mac lane; target/d0-physical-schema/native-clippy-final.log"
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs fmt --all -- --check",
+      "exit_status": 0,
+      "relevant_result": "Production lint/format check passed.",
+      "caveat": "Focused Mac lane; target/d0-physical-schema/format-final.log"
+    },
+    {
+      "command": "RUSTUP_AUTO_INSTALL=0 cargo test --locked --offline -p jobsentinel-application --lib config::tests::tests::persistence_tests::",
+      "exit_status": 0,
+      "relevant_result": "11 tests passed.",
+      "caveat": "Focused Mac lane; target/d0-retired-inputs/green-config.log"
+    },
+    {
+      "command": "RUSTUP_AUTO_INSTALL=0 cargo test --locked --offline -p jobsentinel-storage --lib notification_filters",
+      "exit_status": 0,
+      "relevant_result": "3 tests passed.",
+      "caveat": "Focused Mac lane; target/d0-retired-inputs/green-filters.log"
+    },
+    {
+      "command": "RUSTUP_AUTO_INSTALL=0 cargo test --locked --offline -p jobsentinel-storage --lib resume::builder::tests::",
+      "exit_status": 0,
+      "relevant_result": "16 tests passed.",
+      "caveat": "Focused Mac lane; target/d0-retired-inputs/green-builder-import.log"
+    },
+    {
+      "command": "RUSTUP_AUTO_INSTALL=0 cargo test --locked --offline -p jobsentinel --lib -- --exact ipc::config::tests::retired_company_keys_cannot_change_config_file_or_runtime ipc::config::tests::save_config_updates_runtime_config_after_disk_save ipc::config::tests::save_config_clears_legacy_review_for_a_retired_source ipc::config::tests::complete_setup_reuses_the_owned_database",
+      "exit_status": 0,
+      "relevant_result": "4 tests passed.",
+      "caveat": "Focused Mac lane; target/d0-retired-inputs/green-native-config.log"
+    },
+    {
+      "command": "npm run typecheck",
+      "exit_status": 0,
+      "relevant_result": "TypeScript project build passed.",
+      "caveat": "Static check; no frontend runtime journey."
     },
     {
       "command": "npm run harness:check",
       "exit_status": 0,
-      "relevant_result": "Source graph/state/responsibility/size contracts passed.",
-      "caveat": "Static development guard, not release proof."
-    },
-    {
-      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-domain --lib",
-      "exit_status": 0,
-      "relevant_result": "212 domain tests passed after namespace normalization.",
-      "caveat": "Focused affected crate only; log target/d0-domain-namespace/domain-tests.log."
-    },
-    {
-      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-application --lib linkedin_workbench",
-      "exit_status": 0,
-      "relevant_result": "11 Workbench tests passed; current application test graph compiled.",
-      "caveat": "Synthetic fixed policy date; actual policy refresh remains required."
-    },
-    {
-      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-storage --lib connection::tests::bootstrap_tests::",
-      "exit_status": 0,
-      "relevant_result": "9 bootstrap/crash/collision tests passed.",
-      "caveat": "Mac execution; Windows publication is source-reviewed only. Log target/d0-domain-namespace/bootstrap-tests.log."
-    },
-    {
-      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-storage --lib encryption::tests::",
-      "exit_status": 0,
-      "relevant_result": "7 encryption/refusal/WAL tests passed.",
-      "caveat": "Mac execution; log target/d0-domain-namespace/encryption-tests.log."
-    },
-    {
-      "command": "cargo clippy --locked --offline -p jobsentinel-storage -p jobsentinel-platform --lib -- -D warnings",
-      "exit_status": 0,
-      "relevant_result": "Affected storage/platform production graph passed.",
-      "caveat": "Mac target; three new Windows publication tests remain uncompiled/unexecuted."
-    },
-    {
-      "command": "node scripts/dev/run-cargo.mjs clippy --locked --offline -p jobsentinel --lib --features embedded-ml -- -D warnings",
-      "exit_status": 0,
-      "relevant_result": "Current native production graph passed after domain normalization.",
-      "caveat": "Compilation/lint only; log target/d0-domain-namespace/native-clippy.log."
-    },
-    {
-      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-storage --lib resume::matcher::tests::test_gap_analysis",
-      "exit_status": 0,
-      "relevant_result": "Current storage test graph compiled and 6 production gap-formatter cases passed.",
-      "caveat": "Focused cases only; log target/d0-storage-namespace/storage-tests.log."
-    },
-    {
-      "command": "node scripts/dev/run-cargo.mjs clippy --locked --offline -p jobsentinel --lib --features embedded-ml -- -D warnings",
-      "exit_status": 0,
-      "relevant_result": "Native production graph passed after storage normalization and dead formatter removal.",
-      "caveat": "Mac compile/lint only; log target/d0-storage-namespace/native-clippy.log."
-    },
-    {
-      "command": "RUSTUP_AUTO_INSTALL=0 cargo test --locked --offline -p jobsentinel-storage --lib vectors::tests::",
-      "exit_status": 0,
-      "relevant_result": "13 vector/migration tests passed.",
-      "caveat": "Includes red/green fresh-schema proof and encrypted31 preservation; log target/d0-vector-migration/green-vectors.log."
-    },
-    {
-      "command": "RUSTUP_AUTO_INSTALL=0 cargo test --locked --offline -p jobsentinel-storage --lib connection::tests::migration_tests::",
-      "exit_status": 0,
-      "relevant_result": "10 migration recovery tests passed.",
-      "caveat": "Focused recovery; log target/d0-vector-migration/migration-recovery.log."
-    },
-    {
-      "command": "RUSTUP_AUTO_INSTALL=0 cargo test --locked --offline -p jobsentinel-storage --lib connection::tests::reviewed_export_tests::",
-      "exit_status": 0,
-      "relevant_result": "5 reviewed-export tests passed.",
-      "caveat": "No native file-picker journey; log target/d0-vector-migration/reviewed-export.log."
-    },
-    {
-      "command": "RUSTUP_AUTO_INSTALL=0 cargo test --locked --offline -p jobsentinel-application --features embedded-ml --lib resume::semantic::tests::",
-      "exit_status": 0,
-      "relevant_result": "8 semantic-cache tests passed.",
-      "caveat": "Synthetic vectors/empty model directory; initial command without feature selected zero and does not qualify. Log target/d0-vector-migration/semantic-cache-embedded.log."
-    },
-    {
-      "command": "RUSTUP_AUTO_INSTALL=0 cargo test --locked --offline -p jobsentinel-storage --lib encryption::tests::newer_same_generation_data_is_refused_without_changing_main_or_wal -- --exact",
-      "exit_status": 0,
-      "relevant_result": "1 future-migration refusal test passed.",
-      "caveat": "Log target/d0-vector-migration/future-migration-refusal.log; exact invocation recorded in results.json."
-    },
-    {
-      "command": "RUSTUP_AUTO_INSTALL=0 cargo clippy --locked --offline -p jobsentinel-storage --lib -- -D warnings",
-      "exit_status": 0,
-      "relevant_result": "Storage production clippy passed.",
-      "caveat": "Mac target; log target/d0-vector-migration/storage-clippy.log."
-    },
-    {
-      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-domain --lib external_ai::tests",
-      "exit_status": 0,
-      "relevant_result": "3 external-AI configuration/provider tests passed.",
-      "caveat": "No external request or credential read."
+      "relevant_result": "State, architecture, hosted-policy, ownership and size checks passed.",
+      "caveat": "Static development guard; no release qualification."
     }
   ],
-  "remaining": [
-    "Rename the remaining15 physical tables, five indexes and45 triggers through append-only compatible migrations. Preserve eight reviewed-export-v1 labels and supported historical-v3 pre-migration backup/restore/probe paths."
-  ],
   "review": {
-    "result": "PASS after corrections",
-    "scope": "Independent read-only review of atomic bootstrap and final Windows publication/probe-close corrections.",
-    "caveat": "No native Windows execution or power-loss qualification."
+    "result": "PASS after correcting retained-WAL promotion and complete-layout refusal; separate retired-input and final copy/URI reviews also passed.",
+    "scope": "Independent read-only source review; runtime claims come from the executed checks above."
   },
-  "retained_supported_inputs": [
-    "Fresh v3 still depends on screening-pattern seed readers, listed-pay/geography projections and secure-storage names; legacy wording alone does not establish pre-v3-only behavior.",
-    "Education value normalization and company preference aliases are unversioned input handling, with no proven pre-v3-only boundary. Deleting company aliases under permissive deserialization would silently discard preferences; preserve them rather than infer removal authority."
+  "limits": [
+    "No full workspace/frontend/E2E/installed-app campaign; historical passing milestones are not new release certification.",
+    "Windows/Linux VM tests are user-deferred. URI shape checks are not native Windows execution. Current Mac27.2 is not exact26 or enforced8GiB qualification.",
+    "Actual OS update acknowledgement remains simulated in unit integration; signing/notarization/public artifacts remain R2/R3.",
+    "Production Workbench policy remains expired until genuinely reviewed; no production review date was advanced."
   ],
-  "gate4_minimum_dossier_trace": {
-    "result": "No confirmed development gap in the minimum dossier path.",
-    "owners": [
-      "docs/plans/v3/employer-intelligence.md:387",
-      "docs/features/employer-intelligence.md",
-      "src-tauri/src/ipc/opportunity_case.rs:13",
-      "crates/jobsentinel-application/src/foundation/opportunity_case/dossier.rs:170",
-      "src/features/applications/ApplicationsPage.tsx:245"
-    ],
-    "finding": "Local saved-posting/history, pay/dates/uncertainty/freshness and next action reach the shared dossier renderer. Dated application-note events exist; private note text is deliberately excluded from the dossier.",
-    "caveat": "Read-only source trace, not fresh provider accuracy, novice task completion, native link activation or installed offline proof; those remain R1."
-  }
+  "remaining": [
+    "Record the verified core source revision and advance canonical work selection to D1."
+  ]
 }

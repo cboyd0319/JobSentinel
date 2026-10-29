@@ -129,8 +129,8 @@ async fn save_config_to_runtime_and_path(
     config_path: &Path,
     database: &Database,
 ) -> Result<(), String> {
-    let mut parsed_config: Config = serde_json::from_value(config)
-        .map_err(|e| user_friendly_error("Invalid configuration", e))?;
+    let mut parsed_config =
+        Config::from_value(config).map_err(|e| user_friendly_error("Invalid configuration", e))?;
     let previous = runtime_config.read().await.clone();
     jobsentinel_application::restricted_source_consent::reconcile_restricted_source_consents(
         database,

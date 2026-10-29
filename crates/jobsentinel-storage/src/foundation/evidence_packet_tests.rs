@@ -201,9 +201,9 @@ async fn packet_claim_persists_only_reviewed_text_and_ordered_opaque_evidence() 
     );
     let persisted: (String, String, String, bool, bool, String) = sqlx::query_as(
         "SELECT resume_revision, job_revision, reviewed_text, local_only, sensitive,
-                (SELECT evidence_id FROM v3_evidence_packet_evidence
-                 WHERE packet_id = v3_evidence_packets.packet_id)
-         FROM v3_evidence_packets",
+                (SELECT evidence_id FROM evidence_packet_evidence
+                 WHERE packet_id = evidence_packets.packet_id)
+         FROM evidence_packets",
     )
     .fetch_one(fixture.database.pool())
     .await
@@ -216,7 +216,7 @@ async fn packet_claim_persists_only_reviewed_text_and_ordered_opaque_evidence() 
 }
 
 async fn packet_count(database: &crate::Database) -> i64 {
-    sqlx::query_scalar("SELECT COUNT(*) FROM v3_evidence_packets")
+    sqlx::query_scalar("SELECT COUNT(*) FROM evidence_packets")
         .fetch_one(database.pool())
         .await
         .unwrap()
@@ -306,7 +306,7 @@ async fn duplicate_packet_claim_id_has_no_partial_write() {
         .await
         .is_err());
     assert_eq!(packet_count(&fixture.database).await, 1);
-    let evidence: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM v3_evidence_packet_evidence")
+    let evidence: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM evidence_packet_evidence")
         .fetch_one(fixture.database.pool())
         .await
         .unwrap();
@@ -319,7 +319,7 @@ async fn packet_claim_rolls_back_on_child_write_failure_and_reads_stale_packets_
     let input = packet_input(&fixture);
     sqlx::query(
         "CREATE TRIGGER block_packet_evidence
-         BEFORE INSERT ON v3_evidence_packet_evidence
+         BEFORE INSERT ON evidence_packet_evidence
          BEGIN SELECT RAISE(ABORT, 'blocked'); END",
     )
     .execute(fixture.database.pool())
@@ -330,7 +330,7 @@ async fn packet_claim_rolls_back_on_child_write_failure_and_reads_stale_packets_
         .persist_evidence_bound_packet_claim(&input)
         .await
         .is_err());
-    let packets: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM v3_evidence_packets")
+    let packets: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM evidence_packets")
         .fetch_one(fixture.database.pool())
         .await
         .unwrap();

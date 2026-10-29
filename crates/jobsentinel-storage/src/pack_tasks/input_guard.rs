@@ -94,7 +94,7 @@ async fn read_guard(
            AND length(CAST(link.object_id AS BLOB)) = 64
            AND link.object_id NOT GLOB '*[^0-9a-f]*'
            AND EXISTS(
-               SELECT 1 FROM v3_job_events AS event
+               SELECT 1 FROM job_events AS event
                WHERE event.case_file_id = link.subject_id
                  AND event.event_kind = 'evidence_linked'
                  AND event.origin = 'user'
@@ -116,7 +116,7 @@ async fn read_guard(
             'reviewed_text', packet.reviewed_text, 'local_only', packet.local_only,
             'sensitive', packet.sensitive, 'created_at', packet.created_at
          )
-         FROM v3_evidence_packets AS packet
+         FROM evidence_packets AS packet
          JOIN opportunity_case_files AS c ON c.case_file_id = packet.case_file_id
          WHERE c.job_hash = ? AND packet.resume_id = ?
          ORDER BY packet.created_at, packet.packet_id",
@@ -130,8 +130,8 @@ async fn read_guard(
             'packet_id', evidence.packet_id, 'ordinal', evidence.ordinal,
             'evidence_id', evidence.evidence_id
          )
-         FROM v3_evidence_packet_evidence AS evidence
-         JOIN v3_evidence_packets AS packet ON packet.packet_id = evidence.packet_id
+         FROM evidence_packet_evidence AS evidence
+         JOIN evidence_packets AS packet ON packet.packet_id = evidence.packet_id
          JOIN opportunity_case_files AS c ON c.case_file_id = packet.case_file_id
          WHERE c.job_hash = ? AND packet.resume_id = ?
          ORDER BY packet.created_at, packet.packet_id, evidence.ordinal",
@@ -145,8 +145,8 @@ async fn read_guard(
             'packet_id', boundary.packet_id, 'ordinal', boundary.ordinal,
             'boundary', boundary.boundary
          )
-         FROM v3_evidence_packet_boundaries AS boundary
-         JOIN v3_evidence_packets AS packet ON packet.packet_id = boundary.packet_id
+         FROM evidence_packet_boundaries AS boundary
+         JOIN evidence_packets AS packet ON packet.packet_id = boundary.packet_id
          JOIN opportunity_case_files AS c ON c.case_file_id = packet.case_file_id
          WHERE c.job_hash = ? AND packet.resume_id = ?
          ORDER BY packet.created_at, packet.packet_id, boundary.ordinal",

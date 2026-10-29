@@ -1,4 +1,4 @@
-//! Creates and verifies same-device SQLite recovery snapshots for migrations and updates.
+//! Creates verified same-device snapshots and encrypted database copies without rewriting inputs.
 
 use sha2::{Digest, Sha256};
 use sqlx::sqlite::SqlitePool;
@@ -6,6 +6,7 @@ use std::path::{Path, PathBuf};
 use uuid::Uuid;
 
 use super::Database;
+use crate::encryption::{connect_encrypted_pool, sqlite_sidecar_path};
 use jobsentinel_security::path_label_for_logging;
 
 impl Database {
@@ -157,6 +158,147 @@ impl Database {
                     );
                 }
             }
+        }
+    }
+}
+
+pub(super) async fn export_pool_to_encrypted(
+    source: &SqlitePool,
+    destination: &Path,
+    destination_key: &str,
+) -> Result<(), sqlx::Error> {
+    let destination = destination
+        .to_str()
+        .ok_or_else(|| sqlx::Error::Protocol("Portable backup path encoding is invalid".into()))?;
+    let mut connection = Database::snapshot_connection(source).await?;
+    let user_version: i64 = sqlx::query_scalar("PRAGMA user_version")
+        .fetch_one(&mut *connection)
+        .await?;
+    sqlx::query("ATTACH DATABASE ? AS portable_work KEY ?")
+        .bind(destination)
+        .bind(destination_key)
+        .execute(&mut *connection)
+        .await?;
+    let export = sqlx::query("SELECT sqlcipher_export('portable_work')")
+        .execute(&mut *connection)
+        .await;
+    let set_version = if export.is_ok() {
+        sqlx::query(sqlx::AssertSqlSafe(format!(
+            "PRAGMA portable_work.user_version = {user_version}"
+        )))
+        .execute(&mut *connection)
+        .await
+        .map(|_| ())
+    } else {
+        Ok(())
+    };
+    let detach = sqlx::query("DETACH DATABASE portable_work")
+        .execute(&mut *connection)
+        .await;
+    export?;
+    set_version?;
+    detach?;
+    Ok(())
+}
+
+pub(super) async fn export_encrypted_to_encrypted(
+    source: &Path,
+    source_key: &str,
+    destination: &Path,
+    destination_key: &str,
+) -> Result<(), sqlx::Error> {
+    let source_uri = sqlite_source_uri(
+        jobsentinel_security::local_file_url(source).map_err(sqlx::Error::Io)?,
+        !sqlite_sidecar_path(source, "-wal").exists(),
+    )?;
+    let pool = connect_encrypted_pool(destination, destination_key, false).await?;
+    let result = async {
+        let mut connection = Database::snapshot_connection(&pool).await?;
+        sqlx::query("ATTACH DATABASE ? AS portable_source KEY ?")
+            .bind(source_uri)
+            .bind(source_key)
+            .execute(&mut *connection)
+            .await?;
+        let version = sqlx::query_scalar::<_, i64>("PRAGMA portable_source.user_version")
+            .fetch_one(&mut *connection)
+            .await;
+        let export = sqlx::query("SELECT sqlcipher_export('main', 'portable_source')")
+            .execute(&mut *connection)
+            .await;
+        let detach = sqlx::query("DETACH DATABASE portable_source")
+            .execute(&mut *connection)
+            .await;
+        let version = version?;
+        export?;
+        detach?;
+        sqlx::query(sqlx::AssertSqlSafe(format!(
+            "PRAGMA user_version = {version}"
+        )))
+        .execute(&mut *connection)
+        .await?;
+        Ok(())
+    }
+    .await;
+    pool.close().await;
+    result
+}
+
+fn sqlite_source_uri(
+    mut uri: jobsentinel_security::Url,
+    immutable: bool,
+) -> Result<String, sqlx::Error> {
+    let invalid = || sqlx::Error::Protocol("Database source file URL is invalid".into());
+    if uri.scheme() != "file" {
+        return Err(invalid());
+    }
+    uri.query_pairs_mut().append_pair("mode", "ro");
+    if immutable {
+        uri.query_pairs_mut().append_pair("immutable", "1");
+    }
+    // SQLite needs an empty UNC authority; URL path setters normalize away its extra slash.
+    if uri.host_str().is_some() {
+        return uri
+            .as_str()
+            .strip_prefix("file://")
+            .map(|encoded| format!("file:////{encoded}"))
+            .ok_or_else(invalid);
+    }
+    Ok(uri.into())
+}
+
+#[cfg(test)]
+mod source_uri_tests {
+    use super::sqlite_source_uri;
+    use jobsentinel_security::Url;
+
+    #[test]
+    fn encoded_file_urls_preserve_reserved_bytes_and_native_path_shapes() {
+        for (input, expected) in [
+            (
+                "file:///tmp/a%20%3F%23%25.db",
+                "file:///tmp/a%20%3F%23%25.db",
+            ),
+            (
+                "file:///C:/Application%20Data/a%3F%23%25.db",
+                "file:///C:/Application%20Data/a%3F%23%25.db",
+            ),
+            (
+                "file://server/share/a%3F%23%25.db",
+                "file:////server/share/a%3F%23%25.db",
+            ),
+            (
+                "file://server/share/a%2520.db",
+                "file:////server/share/a%2520.db",
+            ),
+        ] {
+            assert_eq!(
+                sqlite_source_uri(Url::parse(input).unwrap(), true).unwrap(),
+                format!("{expected}?mode=ro&immutable=1")
+            );
+            assert_eq!(
+                sqlite_source_uri(Url::parse(input).unwrap(), false).unwrap(),
+                format!("{expected}?mode=ro")
+            );
         }
     }
 }

@@ -8,7 +8,7 @@ async fn fresh_connection_publishes_only_a_supported_v3_database() {
     let path = root.path().join("jobs.db");
     let database = Database::connect(&path).await.unwrap();
     let metadata: (i64, i64) = sqlx::query_as(
-        "SELECT compatibility_line, migration_version FROM v3_compatibility_metadata WHERE singleton = 1",
+        "SELECT compatibility_line, migration_version FROM compatibility_metadata WHERE singleton = 1",
     ).fetch_one(database.pool()).await.unwrap();
     assert_eq!(
         metadata,
@@ -96,7 +96,7 @@ async fn first_supported_v3_store_reopens_and_migrates_with_a_recovery_snapshot(
 #[tokio::test]
 async fn inconsistent_v3_identity_is_refused_without_changing_main_or_wal() {
     for corruption in [
-        "DELETE FROM v3_compatibility_metadata",
+        "DELETE FROM compatibility_metadata",
         "DELETE FROM _sqlx_migrations WHERE version = 11",
         "UPDATE _sqlx_migrations SET success = 0 WHERE version = 11",
         "UPDATE _sqlx_migrations SET checksum = X'00' WHERE version = 11",
@@ -219,12 +219,10 @@ async fn interrupted_bootstrap_never_publishes_an_ambiguous_primary_and_retries(
         let database = Database::connect(&path).await.unwrap();
         database.migrate().await.unwrap();
         assert_eq!(
-            sqlx::query_scalar::<_, i64>(
-                "SELECT compatibility_line FROM v3_compatibility_metadata"
-            )
-            .fetch_one(database.pool())
-            .await
-            .unwrap(),
+            sqlx::query_scalar::<_, i64>("SELECT compatibility_line FROM compatibility_metadata")
+                .fetch_one(database.pool())
+                .await
+                .unwrap(),
             3
         );
     }

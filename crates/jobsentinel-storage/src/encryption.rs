@@ -105,9 +105,34 @@ pub(super) async fn connect_encrypted_read_only_pool(
         .read_only(true)
         .pragma("key", sqlcipher_key_pragma_value(key))
         .immutable(true);
+    connect_verified_read_pool(options).await
+}
+
+pub(super) async fn connect_encrypted_read_only_primary_pool(
+    path: &Path,
+    key: &str,
+) -> Result<SqlitePool, sqlx::Error> {
+    connect_verified_read_pool(primary_read_options(path, key)).await
+}
+
+fn primary_read_options(path: &Path, key: &str) -> SqliteConnectOptions {
+    let options = SqliteConnectOptions::new()
+        .filename(path)
+        .read_only(true)
+        .pragma("key", sqlcipher_key_pragma_value(key));
+    if sqlite_sidecar_path(path, "-wal").exists() {
+        options
+    } else {
+        options.immutable(true)
+    }
+}
+
+async fn connect_verified_read_pool(
+    options: SqliteConnectOptions,
+) -> Result<SqlitePool, sqlx::Error> {
     let pool = SqlitePoolOptions::new()
         .max_connections(1)
-        .connect_with(options)
+        .connect_with(options.pragma("trusted_schema", "OFF"))
         .await?;
     if let Err(error) = verify_sqlcipher_connection(&pool).await {
         pool.close().await;
@@ -120,15 +145,7 @@ pub(super) async fn probe_encrypted_user_version(
     path: &Path,
     key: &str,
 ) -> Result<i64, sqlx::Error> {
-    let options = SqliteConnectOptions::new()
-        .filename(path)
-        .read_only(true)
-        .pragma("key", sqlcipher_key_pragma_value(key));
-    let options = if sqlite_sidecar_path(path, "-wal").exists() {
-        options
-    } else {
-        options.immutable(true)
-    };
+    let options = primary_read_options(path, key);
     let mut connection = options.connect().await?;
     let result = async {
         let cipher_version: Option<String> = sqlx::query_scalar("PRAGMA cipher_version")

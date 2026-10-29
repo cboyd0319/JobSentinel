@@ -8,7 +8,7 @@ use jobsentinel_domain::{
 };
 use jobsentinel_local_ai::{
     default_resume_embedding_provenance, validate_local_matching_inputs,
-    validate_resume_embeddings, validate_v3_vector_contract, InferenceCancellation,
+    validate_resume_embeddings, validate_vector_contract, InferenceCancellation,
     SemanticMatchResult, SemanticMatcher,
 };
 use jobsentinel_storage::{
@@ -46,7 +46,7 @@ fn resume_vector_freshness(model: &ModelProvenance, first_skill: &str) -> Result
         model_manifest_sha256: model.manifest_sha256.clone(),
         content_sha256: hex::encode(Sha256::digest(first_skill.as_bytes())),
     };
-    validate_v3_vector_contract(model, &freshness)?;
+    validate_vector_contract(model, &freshness)?;
     Ok(freshness)
 }
 

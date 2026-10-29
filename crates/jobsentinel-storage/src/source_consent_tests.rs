@@ -103,27 +103,27 @@ async fn policy_history_is_bounded_ordered_and_database_immutable() {
     );
 
     assert!(
-        sqlx::query("UPDATE v3_source_policy_ledger SET policy_ref = 'changed'")
+        sqlx::query("UPDATE source_policy_ledger SET policy_ref = 'changed'")
             .execute(database.pool())
             .await
             .is_err()
     );
-    assert!(sqlx::query("DELETE FROM v3_source_policy_ledger")
+    assert!(sqlx::query("DELETE FROM source_policy_ledger")
         .execute(database.pool())
         .await
         .is_err());
     assert!(
-        sqlx::query("UPDATE v3_source_policies SET source_id = 'dice-renamed', revision = 3")
+        sqlx::query("UPDATE source_policies SET source_id = 'dice-renamed', revision = 3")
             .execute(database.pool())
             .await
             .is_err()
     );
-    assert!(sqlx::query("DELETE FROM v3_source_policies")
+    assert!(sqlx::query("DELETE FROM source_policies")
         .execute(database.pool())
         .await
         .is_err());
     assert!(sqlx::query(
-        "INSERT INTO v3_source_policy_ledger (
+        "INSERT INTO source_policy_ledger (
             source_id, source_class, access, request_limit_per_hour,
             user_review_required, policy_ref, revision, restriction_reason_code,
             reviewed_at, recorded_at
@@ -138,7 +138,7 @@ async fn policy_history_is_bounded_ordered_and_database_immutable() {
     .await
     .is_err());
     assert!(sqlx::query(
-        "INSERT OR REPLACE INTO v3_source_policy_ledger (
+        "INSERT OR REPLACE INTO source_policy_ledger (
             source_id, source_class, access, request_limit_per_hour,
             user_review_required, policy_ref, revision, restriction_reason_code,
             reviewed_at, recorded_at
@@ -146,7 +146,7 @@ async fn policy_history_is_bounded_ordered_and_database_immutable() {
          SELECT source_id, source_class, access, request_limit_per_hour,
                 user_review_required, policy_ref, revision, restriction_reason_code,
                 reviewed_at, recorded_at
-         FROM v3_source_policy_ledger
+         FROM source_policy_ledger
          WHERE source_id = 'dice' AND revision = 2"
     )
     .execute(database.pool())
@@ -238,7 +238,7 @@ async fn exact_source_consent_resets_on_policy_drift_and_regrants_after_revoke()
         .await
         .is_err());
     let policy_race = sqlx::query(
-        "INSERT INTO v3_source_consent_events (
+        "INSERT INTO source_consent_events (
             event_id, previous_event_id, source_id, operation,
             warning_version, behavior_revision, policy_ref, policy_revision,
             source_class, data_categories_json, destination_sha256,
@@ -357,7 +357,7 @@ async fn consent_ledger_rejects_private_and_unreviewed_payload_material() {
         ("event-resume", "dice", r#"["resume_evidence"]"#),
     ] {
         let inserted = sqlx::query(
-            "INSERT INTO v3_source_consent_events (
+            "INSERT INTO source_consent_events (
                 event_id, previous_event_id, source_id, operation,
                 warning_version, behavior_revision, policy_ref, policy_revision,
                 source_class, data_categories_json, destination_sha256,
@@ -381,7 +381,7 @@ async fn consent_ledger_rejects_private_and_unreviewed_payload_material() {
         .await
         .unwrap();
     assert!(sqlx::query(
-        "INSERT INTO v3_source_consent_events (
+        "INSERT INTO source_consent_events (
             event_id, previous_event_id, source_id, operation,
             warning_version, behavior_revision, policy_ref, policy_revision,
             source_class, data_categories_json, destination_sha256,
@@ -406,12 +406,12 @@ async fn consent_ledger_rejects_private_and_unreviewed_payload_material() {
         .await
         .unwrap();
     assert!(
-        sqlx::query("UPDATE v3_source_consent_events SET decision = 'revoked'")
+        sqlx::query("UPDATE source_consent_events SET decision = 'revoked'")
             .execute(database.pool())
             .await
             .is_err()
     );
-    assert!(sqlx::query("DELETE FROM v3_source_consent_events")
+    assert!(sqlx::query("DELETE FROM source_consent_events")
         .execute(database.pool())
         .await
         .is_err());
@@ -420,7 +420,7 @@ async fn consent_ledger_rejects_private_and_unreviewed_payload_material() {
         grant.event_id
     );
     assert!(sqlx::query(
-        "INSERT OR REPLACE INTO v3_source_consent_events (
+        "INSERT OR REPLACE INTO source_consent_events (
             event_id, previous_event_id, source_id, operation,
             warning_version, behavior_revision, policy_ref, policy_revision,
             source_class, data_categories_json, destination_sha256,
@@ -430,7 +430,7 @@ async fn consent_ledger_rejects_private_and_unreviewed_payload_material() {
                 warning_version, behavior_revision, policy_ref, policy_revision,
                 source_class, data_categories_json, destination_sha256,
                 request_sha256, decision, recorded_at
-         FROM v3_source_consent_events
+         FROM source_consent_events
          WHERE event_id = ?"
     )
     .bind(&grant.event_id)
@@ -449,7 +449,7 @@ async fn corrupt_stored_consent_has_a_storage_error_kind() {
         .grant_source_consent(&context(1), None)
         .await
         .unwrap();
-    sqlx::query("DROP TRIGGER v3_source_consent_no_update")
+    sqlx::query("DROP TRIGGER source_consent_no_update")
         .execute(database.pool())
         .await
         .unwrap();
@@ -457,7 +457,7 @@ async fn corrupt_stored_consent_has_a_storage_error_kind() {
         .execute(database.pool())
         .await
         .unwrap();
-    sqlx::query("UPDATE v3_source_consent_events SET request_sha256 = 'invalid'")
+    sqlx::query("UPDATE source_consent_events SET request_sha256 = 'invalid'")
         .execute(database.pool())
         .await
         .unwrap();

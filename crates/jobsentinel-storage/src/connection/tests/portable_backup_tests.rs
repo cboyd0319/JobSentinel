@@ -114,7 +114,7 @@ async fn portable_backup_is_encrypted_verified_and_excludes_secrets() {
 
     let provenance: (String, String) = sqlx::query_as(
         "SELECT operation_kind, outcome
-         FROM v3_recovery_operations
+         FROM recovery_operations
          WHERE operation_id = ?",
     )
     .bind(created.backup_id)
@@ -228,7 +228,7 @@ async fn cancelling_backup_does_not_publish_and_is_reconciled_on_startup() {
         "SELECT
             SUM(CASE WHEN outcome = 'started' THEN 1 ELSE 0 END),
             SUM(CASE WHEN outcome = 'cancelled' THEN 1 ELSE 0 END)
-         FROM v3_recovery_operations",
+         FROM recovery_operations",
     )
     .fetch_one(database.pool())
     .await

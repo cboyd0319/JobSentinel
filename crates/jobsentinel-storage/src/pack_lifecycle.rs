@@ -78,7 +78,7 @@ impl Database {
         let mut transaction = self.pool().begin().await?;
 
         sqlx::query(
-            "INSERT INTO v3_pack_publishers (
+            "INSERT INTO pack_publishers (
                 publisher_key_id, public_key_sha256, trust_state,
                 revoked_at, created_at, updated_at
              ) VALUES (?, ?, 'trusted', NULL, ?, ?)
@@ -92,7 +92,7 @@ impl Database {
         .await?;
         let (stored_key_sha256, trust_state): (String, String) = sqlx::query_as(
             "SELECT public_key_sha256, trust_state
-             FROM v3_pack_publishers
+             FROM pack_publishers
              WHERE publisher_key_id = ?",
         )
         .bind(&publisher.publisher_key_id)
@@ -107,7 +107,7 @@ impl Database {
 
         if let Some(stored_digest) = sqlx::query_scalar::<_, String>(
             "SELECT signed_release_sha256
-             FROM v3_pack_releases
+             FROM pack_releases
              WHERE publisher_key_id = ?
                AND pack_id = ?
                AND release_sequence = ?",
@@ -129,7 +129,7 @@ impl Database {
 
         let high_water = sqlx::query_scalar::<_, i64>(
             "SELECT high_water_sequence
-             FROM v3_pack_streams
+             FROM pack_streams
              WHERE publisher_key_id = ? AND pack_id = ?",
         )
         .bind(release.publisher_key_id())
@@ -141,7 +141,7 @@ impl Database {
         }
 
         sqlx::query(
-            "INSERT INTO v3_pack_streams (
+            "INSERT INTO pack_streams (
                 publisher_key_id, pack_id, high_water_sequence,
                 high_water_signed_release_sha256, active_release_sequence,
                 rollback_release_sequence, availability, generation,
@@ -157,7 +157,7 @@ impl Database {
         .await?;
 
         sqlx::query(
-            "INSERT INTO v3_pack_releases (
+            "INSERT INTO pack_releases (
                 publisher_key_id, pack_id, release_sequence, release_id,
                 signed_release_sha256, payload_sha256, pack_version,
                 pack_type, execution_class, lifecycle_state,
@@ -207,7 +207,7 @@ impl Database {
             "SELECT publisher_key_id, pack_id, release_sequence,
                     signed_release_sha256, lifecycle_state, quarantine_reason,
                     artifact_cleanup_pending
-             FROM v3_pack_releases
+             FROM pack_releases
              WHERE publisher_key_id = ? AND pack_id = ? AND release_sequence = ?",
         )
         .bind(publisher_key_id)
@@ -241,7 +241,7 @@ async fn fetch_stream_by_id(
         "SELECT publisher_key_id, pack_id, high_water_sequence,
                 active_release_sequence, rollback_release_sequence,
                 availability, generation
-         FROM v3_pack_streams
+         FROM pack_streams
          WHERE publisher_key_id = ? AND pack_id = ?",
     )
     .bind(publisher_key_id)
@@ -258,7 +258,7 @@ async fn stream_guard_error(
     expected_generation: i64,
 ) -> Result<anyhow::Error> {
     let generation = sqlx::query_scalar::<_, i64>(
-        "SELECT generation FROM v3_pack_streams
+        "SELECT generation FROM pack_streams
          WHERE publisher_key_id = ? AND pack_id = ?",
     )
     .bind(publisher_key_id)
@@ -282,7 +282,7 @@ async fn require_current_candidate(
 ) -> Result<()> {
     let current = sqlx::query_as::<_, (i64, i64, Option<String>)>(
         "SELECT generation, high_water_sequence, high_water_signed_release_sha256
-         FROM v3_pack_streams
+         FROM pack_streams
          WHERE publisher_key_id = ? AND pack_id = ?",
     )
     .bind(publisher_key_id)
@@ -308,7 +308,7 @@ async fn require_trusted_publisher(
 ) -> Result<()> {
     let publisher = sqlx::query_as::<_, (String, String)>(
         "SELECT public_key_sha256, trust_state
-         FROM v3_pack_publishers WHERE publisher_key_id = ?",
+         FROM pack_publishers WHERE publisher_key_id = ?",
     )
     .bind(publisher_key_id)
     .fetch_optional(&mut **transaction)

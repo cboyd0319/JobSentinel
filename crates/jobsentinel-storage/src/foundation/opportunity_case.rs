@@ -277,7 +277,7 @@ async fn packet_counts(
     let rows = sqlx::query_as::<_, PacketRow>(
         "SELECT packet.resume_revision, packet.job_revision,
                 resume.updated_at AS current_resume_revision
-         FROM v3_evidence_packets AS packet
+         FROM evidence_packets AS packet
          LEFT JOIN resumes AS resume ON resume.id = packet.resume_id
          WHERE packet.case_file_id = ?",
     )
@@ -312,7 +312,7 @@ async fn case_timeline(
     case_file_id: &str,
 ) -> Result<Vec<OpportunityCaseTimelineRecord>> {
     let rows = sqlx::query_as::<_, CaseEventRow>(
-        "SELECT event_kind, metadata_json, created_at FROM v3_job_events
+        "SELECT event_kind, metadata_json, created_at FROM job_events
          WHERE case_file_id = ? AND event_kind <> 'case_created'
          ORDER BY created_at, event_id",
     )

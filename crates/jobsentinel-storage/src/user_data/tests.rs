@@ -64,41 +64,95 @@ fn test_advanced_filters_default() {
     assert!(!filters.remote_only);
 }
 
+fn canonical_filters() -> serde_json::Value {
+    serde_json::json!({
+        "includeKeywords": ["care"], "excludeKeywords": ["sales"],
+        "minSalary": 70000, "remoteOnly": true,
+        "includedCompanies": ["CareBridge"], "excludedCompanies": ["AvoidMe"]
+    })
+}
+
+fn invalid_filters() -> Vec<serde_json::Value> {
+    let mut invalid = Vec::new();
+    for (retired, current) in [
+        ("companyWhitelist", "includedCompanies"),
+        ("companyBlacklist", "excludedCompanies"),
+    ] {
+        for mixed in [false, true] {
+            let mut value = canonical_filters();
+            if !mixed {
+                value.as_object_mut().unwrap().remove(current);
+            }
+            value[retired] = serde_json::json!(["private-filter-marker"]);
+            invalid.push(value);
+        }
+    }
+    for malformed in [
+        serde_json::json!("CareBridge"),
+        serde_json::json!([true]),
+        serde_json::Value::Null,
+    ] {
+        let mut value = canonical_filters();
+        value["includedCompanies"] = malformed;
+        invalid.push(value);
+    }
+    let mut unknown = canonical_filters();
+    unknown["retiredFilter"] = true.into();
+    invalid.push(unknown);
+    invalid
+}
+
 #[test]
-fn test_advanced_filters_preserve_pre_refactor_company_preferences() {
-    let mut stored = serde_json::json!({
-        "includeKeywords": [],
-        "excludeKeywords": [],
-        "minSalary": null,
-        "remoteOnly": false,
-    });
-    let object = stored
-        .as_object_mut()
-        .expect("stored filters should be an object");
-    object.insert(
-        ["company", "White", "list"].concat(),
-        serde_json::json!(["CareBridge"]),
-    );
-    object.insert(
-        ["company", "Black", "list"].concat(),
-        serde_json::json!(["AvoidMe"]),
-    );
+fn notification_filters_accept_only_current_typed_keys() {
+    let canonical = canonical_filters();
+    let filters: AdvancedFilters = serde_json::from_value(canonical.clone()).unwrap();
+    assert_eq!(serde_json::to_value(filters).unwrap(), canonical);
+    for invalid in invalid_filters() {
+        assert!(serde_json::from_value::<AdvancedFilters>(invalid).is_err());
+    }
+}
 
-    let filters: AdvancedFilters =
-        serde_json::from_value(stored).expect("stored filters should deserialize");
-
-    assert_eq!(filters.included_companies, vec!["CareBridge"]);
-    assert_eq!(filters.excluded_companies, vec!["AvoidMe"]);
-
-    let serialized = serde_json::to_value(filters).expect("filters should serialize");
+#[tokio::test]
+async fn notification_filters_round_trip_through_preferences() {
+    let database = crate::test_support::migrated_database().await;
+    let manager = database.user_data_manager();
+    let prefs = NotificationPreferences {
+        advanced_filters: serde_json::from_value(canonical_filters()).unwrap(),
+        ..NotificationPreferences::default()
+    };
+    manager.save_notification_preferences(&prefs).await.unwrap();
+    let loaded = manager.get_notification_preferences().await.unwrap();
     assert_eq!(
-        serialized["includedCompanies"],
-        serde_json::json!(["CareBridge"])
+        serde_json::to_value(loaded.advanced_filters).unwrap(),
+        canonical_filters()
     );
-    assert_eq!(
-        serialized["excludedCompanies"],
-        serde_json::json!(["AvoidMe"])
-    );
+}
+
+#[tokio::test]
+async fn invalid_saved_notification_filters_fail_without_resetting_preferences() {
+    let database = crate::test_support::migrated_database().await;
+    let manager = database.user_data_manager();
+    manager
+        .save_notification_preferences(&NotificationPreferences::default())
+        .await
+        .unwrap();
+    for invalid in invalid_filters() {
+        let raw = serde_json::to_string(&invalid).unwrap();
+        sqlx::query("UPDATE notification_preferences SET advanced_filters = ?, updated_at = 'unchanged-filter-marker' WHERE id = 1")
+            .bind(&raw).execute(database.pool()).await.unwrap();
+        let before: (String, String, String) = sqlx::query_as("SELECT advanced_filters, source_configs, updated_at FROM notification_preferences WHERE id = 1")
+            .fetch_one(database.pool()).await.unwrap();
+        let error = manager
+            .get_notification_preferences()
+            .await
+            .unwrap_err()
+            .to_string();
+        assert!(error.contains("Saved notification filters are invalid"));
+        assert!(!error.contains("private-filter-marker"));
+        let after: (String, String, String) = sqlx::query_as("SELECT advanced_filters, source_configs, updated_at FROM notification_preferences WHERE id = 1")
+            .fetch_one(database.pool()).await.unwrap();
+        assert_eq!(after, before);
+    }
 }
 
 #[tokio::test]

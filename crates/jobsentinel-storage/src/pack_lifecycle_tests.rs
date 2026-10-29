@@ -232,7 +232,7 @@ async fn region_release_uses_the_same_signed_static_local_lifecycle() {
 
     assert_eq!(active.availability, PackAvailability::Ready);
     let pack_type: String = sqlx::query_scalar(
-        "SELECT pack_type FROM v3_pack_releases
+        "SELECT pack_type FROM pack_releases
          WHERE publisher_key_id = ? AND pack_id = ? AND release_sequence = 1",
     )
     .bind(REGION_PUBLISHER_ID)

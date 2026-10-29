@@ -222,7 +222,7 @@ async fn reviewed_export_is_complete_and_excludes_secrets_paths_and_protected_re
     let mut outcome = String::new();
     for _ in 0..100 {
         outcome = sqlx::query_scalar(
-            "SELECT outcome FROM v3_recovery_operations
+            "SELECT outcome FROM recovery_operations
              WHERE operation_id = ? AND operation_kind = 'export'",
         )
         .bind(&info.export_id)
@@ -319,8 +319,8 @@ async fn reviewed_export_is_complete_and_excludes_secrets_paths_and_protected_re
         "/private/draft-file-path-marker.pdf",
         "draft-meeting-link-marker",
         "export-protected-answer-marker",
-        "v3_source_consent_events",
-        "v3_source_policy_ledger",
+        "source_consent_events",
+        "source_policy_ledger",
     ] {
         assert!(!raw.contains(forbidden), "export leaked {forbidden}");
     }
@@ -349,7 +349,7 @@ async fn reviewed_export_never_overwrites_and_cleans_private_work_files() {
     );
     assert!(error.as_database_error().is_none());
     let export_operations: i64 = sqlx::query_scalar(
-        "SELECT COUNT(*) FROM v3_recovery_operations WHERE operation_kind = 'export'",
+        "SELECT COUNT(*) FROM recovery_operations WHERE operation_kind = 'export'",
     )
     .fetch_one(database.pool())
     .await
@@ -394,7 +394,7 @@ async fn reviewed_export_marks_changed_data_failed_without_publishing() {
     assert!(error.to_string().contains("review it again"));
     assert!(!export_path.exists());
     let outcome: String = sqlx::query_scalar(
-        "SELECT outcome FROM v3_recovery_operations WHERE operation_kind = 'export'",
+        "SELECT outcome FROM recovery_operations WHERE operation_kind = 'export'",
     )
     .fetch_one(database.pool())
     .await
@@ -432,7 +432,7 @@ async fn reviewed_export_rejects_malformed_nested_draft_data() {
     assert!(error.to_string().contains("nested data is invalid"));
     assert!(!export_path.exists());
     let outcome: String = sqlx::query_scalar(
-        "SELECT outcome FROM v3_recovery_operations WHERE operation_kind = 'export'",
+        "SELECT outcome FROM recovery_operations WHERE operation_kind = 'export'",
     )
     .fetch_one(database.pool())
     .await

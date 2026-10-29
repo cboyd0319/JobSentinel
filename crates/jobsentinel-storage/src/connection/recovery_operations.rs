@@ -8,7 +8,7 @@ pub(super) async fn finish_recovery_operation_record(
     error_kind: Option<&str>,
 ) -> Result<bool, sqlx::Error> {
     let updated = sqlx::query(
-        "UPDATE v3_recovery_operations
+        "UPDATE recovery_operations
          SET outcome = CASE WHEN ? IS NULL THEN 'succeeded' ELSE 'failed' END,
              error_kind = ?,
              completed_at = datetime('now')

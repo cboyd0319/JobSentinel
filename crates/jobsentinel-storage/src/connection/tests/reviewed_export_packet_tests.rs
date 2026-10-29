@@ -1,3 +1,5 @@
+//! Proves reviewed packet exports preserve v1 labels and bounded evidence fields.
+
 use super::{reviewed_export_tests::*, *};
 use serde_json::json;
 
@@ -21,7 +23,7 @@ async fn reviewed_export_includes_durable_evidence_packets_without_citation_path
     .await
     .unwrap();
     sqlx::query(
-        "INSERT INTO v3_evidence_packets(
+        "INSERT INTO evidence_packets(
             packet_id, case_file_id, resume_id, resume_revision, job_revision,
             claim_id, reviewed_text, local_only, sensitive, created_at
          ) VALUES (?, ?, 7, '2026-07-20T12:00:00Z', '2026-07-21T12:00:00Z',
@@ -34,7 +36,7 @@ async fn reviewed_export_includes_durable_evidence_packets_without_citation_path
     .await
     .unwrap();
     sqlx::query(
-        "INSERT INTO v3_evidence_packet_evidence(packet_id, ordinal, evidence_id)
+        "INSERT INTO evidence_packet_evidence(packet_id, ordinal, evidence_id)
          VALUES (?, 0, ?)",
     )
     .bind(packet_id)
@@ -43,7 +45,7 @@ async fn reviewed_export_includes_durable_evidence_packets_without_citation_path
     .await
     .unwrap();
     sqlx::query(
-        "INSERT INTO v3_evidence_packet_boundaries(packet_id, ordinal, boundary)
+        "INSERT INTO evidence_packet_boundaries(packet_id, ordinal, boundary)
          VALUES (?, 0, 'clearance_currentness_unverified')",
     )
     .bind(packet_id)

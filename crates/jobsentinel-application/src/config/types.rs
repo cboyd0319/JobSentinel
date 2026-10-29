@@ -153,12 +153,12 @@ pub struct Config {
 
     /// Preferred companies for scoring bonuses (case-insensitive fuzzy matching).
     /// Companies in this list receive scoring bonus
-    #[serde(default, alias = "company_\u{77}hitelist")]
+    #[serde(default)]
     pub preferred_companies: Vec<String>,
 
     /// Blocked companies for scoring penalties (case-insensitive fuzzy matching).
     /// Jobs from companies in this list receive very low scores
-    #[serde(default, alias = "company_\u{62}lacklist")]
+    #[serde(default)]
     pub blocked_companies: Vec<String>,
 }
 
