@@ -250,3 +250,102 @@ async fn app_unlock_does_not_treat_a_fixed_key_as_user_presence() {
         assert!(error.contains("passphrase"));
     }
 }
+
+#[tokio::test]
+async fn portable_vault_roundtrips_without_host_keys_and_rechecks_passphrases() {
+    let database = Database::connect_memory().await.unwrap();
+    database.migrate().await.unwrap();
+    let repository = database.credentials();
+    let passphrase = "portable correct battery staple";
+    let service = CredentialService::new_portable(repository.clone(), passphrase)
+        .await
+        .unwrap();
+    service
+        .store(CredentialKey::SmtpPassword, "portable-test-value")
+        .await
+        .unwrap();
+    let wrapped = repository.load_key_wrap().await.unwrap();
+    assert!(
+        CredentialService::new_portable(repository.clone(), "wrong portable passphrase")
+            .await
+            .is_err()
+    );
+    assert_eq!(repository.load_key_wrap().await.unwrap(), wrapped);
+    assert!(service
+        .verify_app_unlock(Some("wrong portable passphrase"))
+        .await
+        .is_err());
+    service.verify_app_unlock(Some(passphrase)).await.unwrap();
+    assert!(service.enable_passphrase_lock(passphrase).await.is_err());
+    assert!(service.disable_passphrase_lock(passphrase).await.is_err());
+    assert_eq!(repository.load_key_wrap().await.unwrap(), wrapped);
+    drop(service);
+    let reopened = CredentialService::new_portable(repository.clone(), passphrase)
+        .await
+        .unwrap();
+    let status = reopened.unlock_status().await.unwrap();
+    assert_eq!(status.mode, CredentialUnlockMode::Passphrase);
+    assert!(status.configured && status.unlocked);
+    assert_eq!(
+        reopened
+            .retrieve(CredentialKey::SmtpPassword)
+            .await
+            .unwrap(),
+        Some("portable-test-value".into())
+    );
+    reopened.delete(CredentialKey::SmtpPassword).await.unwrap();
+    assert!(!repository
+        .secret_exists(CredentialKey::SmtpPassword.as_str())
+        .await
+        .unwrap());
+}
+
+#[tokio::test]
+async fn portable_vault_refuses_lost_wrapping_with_any_saved_secret() {
+    let database = Database::connect_memory().await.unwrap();
+    database.migrate().await.unwrap();
+    let repository = database.credentials();
+    let record = jobsentinel_storage::CredentialSecretRecord {
+        algorithm: "xchacha20poly1305".into(),
+        key_version: 1,
+        nonce: vec![1; 24],
+        ciphertext: vec![2; 32],
+    };
+    repository
+        .store_secret("unknown-portable-key", record.clone())
+        .await
+        .unwrap();
+    assert!(
+        CredentialService::new_portable(repository.clone(), "portable correct battery staple")
+            .await
+            .is_err()
+    );
+    assert!(repository.load_key_wrap().await.unwrap().is_none());
+    assert_eq!(
+        repository
+            .load_secret("unknown-portable-key")
+            .await
+            .unwrap(),
+        Some(record)
+    );
+}
+
+#[tokio::test]
+async fn portable_vault_never_falls_back_to_system_when_wrapping_is_removed() {
+    let database = Database::connect_memory().await.unwrap();
+    database.migrate().await.unwrap();
+    let service =
+        CredentialService::new_portable(database.credentials(), "portable correct battery staple")
+            .await
+            .unwrap();
+    passphrase::delete_config(&service.repository)
+        .await
+        .unwrap();
+    assert!(service.prepare_app_lock().await.is_err());
+    assert!(service.verify_app_unlock(None).await.is_err());
+    assert!(service.unlock_status().await.is_err());
+    assert!(service
+        .disable_passphrase_lock("portable correct battery staple")
+        .await
+        .is_err());
+}

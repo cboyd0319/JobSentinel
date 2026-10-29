@@ -373,13 +373,13 @@ impl Database {
     }
 }
 
-fn validate_backup_passphrase(passphrase: &str) -> Result<(), sqlx::Error> {
+pub(super) fn validate_backup_passphrase(passphrase: &str) -> Result<(), sqlx::Error> {
     if passphrase.chars().count() < MIN_BACKUP_PASSPHRASE_CHARS
         || passphrase.len() > MAX_BACKUP_PASSPHRASE_BYTES
         || passphrase.chars().all(char::is_whitespace)
     {
         return Err(protocol_error(
-            "Portable backup passphrase must contain at least 16 characters and at most 1024 bytes",
+            "Portable passphrase must contain at least 16 characters and at most 1024 bytes",
         ));
     }
     Ok(())

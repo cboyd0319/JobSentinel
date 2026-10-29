@@ -66,6 +66,37 @@ applications, settings and connection details remain, as do exports, clipboard
 contents and external copies. Cleanup is not secure erasure. Failures remain
 visible; shared-computer sessions stay locked until authenticated again.
 
+## Portable profiles
+
+Launch the application executable with `--portable <absolute-directory>` to use
+a separate portable profile. Select an empty private directory, or a previously
+created portable profile. On macOS/Linux the root must have owner-only permissions
+(mode 0700); unsupported filesystems, links outside the profile and simultaneous
+use are refused. Close JobSentinel before moving the whole directory.
+
+The profile owns its data, settings, model/pack files and caches. Browser-only
+state is temporary; saved application records remain in the profile. Native logs
+use the invoking process's output. The installed profile and OS credential store
+are not used by portable startup or portable saved credentials.
+
+A new profile requires a confirmed passphrase of at least 16 characters excluding
+leading/trailing whitespace, within 1024 UTF-8 bytes. The passphrase is retained
+only in memory for the session and protects the primary database and saved
+credential key. It cannot be reset by a hosted account or changed through the
+separate saved-details lock control. Keep a recoverable encrypted backup.
+
+Unlock authenticates existing data or validated recovery candidates before
+canonical startup performs writes. SQLite may update transient shared-memory read
+marks; authentication preserves durable database/WAL and recovery-artifact bytes.
+Unexplained or unauthenticated damaged profiles remain untouched. If no candidate
+can authenticate, create a separate portable profile and use reviewed backup
+restore there, preserving the damaged original.
+
+Managed resume copies use profile-relative references and remain usable after a
+move. Historical external/absolute references require reselection rather than
+being redirected by filename. Cleanup preserves saved records; after closing the
+app, users control retention of the whole selected directory and its external backups.
+
 ## Everyday Workflows
 
 ### Cover Letter Templates

@@ -247,3 +247,204 @@ async fn missing_primary_with_orphaned_sqlite_sidecars_is_not_recreated() {
         );
     }
 }
+
+#[tokio::test]
+async fn portable_primary_reopens_after_moving_without_device_keys() {
+    let root = tempfile::tempdir().unwrap();
+    let profile = root.path().join("original");
+    let path = profile.join("jobs.db");
+    let passphrase = "portable primary passphrase";
+    let database = Database::connect_portable(&path, passphrase).await.unwrap();
+    sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('portable', 'Role', 'Example', 'https://example.test/job', 'test')")
+        .execute(database.pool()).await.unwrap();
+    assert!(Database::connect_portable(&path, passphrase).await.is_err());
+    database.close().await;
+    drop(database);
+    let moved = root.path().join("moved");
+    std::fs::rename(profile, &moved).unwrap();
+    let path = moved.join("jobs.db");
+    let before = std::fs::read(&path).unwrap();
+    assert!(
+        Database::connect_portable(&path, "incorrect portable passphrase")
+            .await
+            .is_err()
+    );
+    assert_eq!(std::fs::read(&path).unwrap(), before);
+    for suffix in ["-wal", "-shm", "-journal"] {
+        assert!(!crate::encryption::sqlite_sidecar_path(&path, suffix).exists());
+    }
+    let reopened = Database::connect_portable(&path, passphrase).await.unwrap();
+    assert_eq!(
+        sqlx::query_scalar::<_, String>("SELECT title FROM jobs WHERE hash = 'portable'")
+            .fetch_one(reopened.pool())
+            .await
+            .unwrap(),
+        "Role"
+    );
+    reopened.migrate().await.unwrap();
+    reopened.close().await;
+}
+
+#[tokio::test]
+async fn portable_primary_refuses_bad_passphrases_before_creating_files() {
+    let root = tempfile::tempdir().unwrap();
+    for passphrase in [
+        "short",
+        "                ",
+        " 123456789012345 ",
+        &"x".repeat(1025),
+    ] {
+        let path = root.path().join("absent").join("jobs.db");
+        assert!(Database::verify_portable_passphrase(&path, passphrase)
+            .await
+            .is_err());
+        assert!(Database::connect_portable(&path, passphrase).await.is_err());
+        assert!(!path.parent().unwrap().exists());
+    }
+}
+
+#[tokio::test]
+async fn portable_authentication_only_calls_an_empty_profile_new() {
+    let root = tempfile::tempdir().unwrap();
+    let path = root.path().join("absent").join("jobs.db");
+    assert!(Database::portable_primary_is_new(&path).unwrap());
+    Database::verify_portable_passphrase(&path, "confirmed portable passphrase")
+        .await
+        .unwrap();
+    assert!(!path.parent().unwrap().exists());
+    // Existing portable backup keys retain their historical boundary-space policy.
+    assert!(super::super::portable_backup::validate_backup_passphrase(" 123456789012345 ").is_ok());
+    std::fs::create_dir(path.parent().unwrap()).unwrap();
+    let evidence = path.parent().unwrap().join("unexplained.db-wal");
+    std::fs::write(&evidence, b"preserved").unwrap();
+    assert!(!Database::portable_primary_is_new(&path).unwrap());
+    assert!(
+        Database::verify_portable_passphrase(&path, "confirmed portable passphrase")
+            .await
+            .is_err()
+    );
+    assert!(!path.exists());
+    assert_eq!(std::fs::read(evidence).unwrap(), b"preserved");
+    assert_eq!(
+        std::fs::read_dir(path.parent().unwrap()).unwrap().count(),
+        1
+    );
+}
+
+#[tokio::test]
+async fn portable_authentication_preserves_durable_wal_bytes_and_sidecar_presence() {
+    let root = tempfile::tempdir().unwrap();
+    let path = root.path().join("jobs.db");
+    let key = "portable authentication passphrase";
+    let database = Database::connect_portable(&path, key).await.unwrap();
+    sqlx::query("PRAGMA wal_autocheckpoint = 0")
+        .execute(database.pool())
+        .await
+        .unwrap();
+    sqlx::query("INSERT INTO jobs(hash,title,company,url,source) VALUES('auth','Role','Example','https://example.test/auth','test')").execute(database.pool()).await.unwrap();
+    let before = super::portable_restore_tests::database_bytes(&path);
+    assert!(
+        Database::verify_portable_passphrase(&path, "incorrect portable passphrase")
+            .await
+            .is_err()
+    );
+    for (index, (after, before)) in super::portable_restore_tests::database_bytes(&path)
+        .iter()
+        .zip(&before)
+        .enumerate()
+    {
+        if index == 2 {
+            assert_eq!(
+                after.is_some(),
+                before.is_some(),
+                "SHM sidecar presence changed"
+            );
+        } else {
+            assert!(
+                after == before,
+                "Durable SQLite component {index} changed during authentication"
+            );
+        }
+    }
+    Database::verify_portable_passphrase(&path, key)
+        .await
+        .unwrap();
+    for (index, (after, before)) in super::portable_restore_tests::database_bytes(&path)
+        .iter()
+        .zip(&before)
+        .enumerate()
+    {
+        if index == 2 {
+            assert_eq!(
+                after.is_some(),
+                before.is_some(),
+                "SHM sidecar presence changed"
+            );
+        } else {
+            assert!(
+                after == before,
+                "Durable SQLite component {index} changed during authentication"
+            );
+        }
+    }
+    database.close().await;
+    let before = super::portable_restore_tests::database_bytes(&path);
+    Database::verify_portable_passphrase(&path, key)
+        .await
+        .unwrap();
+    for (index, (after, before)) in super::portable_restore_tests::database_bytes(&path)
+        .iter()
+        .zip(&before)
+        .enumerate()
+    {
+        if index == 2 {
+            assert_eq!(
+                after.is_some(),
+                before.is_some(),
+                "SHM sidecar presence changed"
+            );
+        } else {
+            assert!(
+                after == before,
+                "Durable SQLite component {index} changed during authentication"
+            );
+        }
+    }
+}
+
+#[tokio::test]
+async fn portable_primary_refuses_future_and_unmarked_stores_without_mutation() {
+    for future in [false, true] {
+        let root = tempfile::tempdir().unwrap();
+        let path = root.path().join("jobs.db");
+        let passphrase = "portable primary passphrase";
+        let pool = connect_encrypted_pool(&path, passphrase, true)
+            .await
+            .unwrap();
+        sqlx::query("CREATE TABLE private_record (value TEXT)")
+            .execute(&pool)
+            .await
+            .unwrap();
+        if future {
+            sqlx::query("PRAGMA user_version = 999")
+                .execute(&pool)
+                .await
+                .unwrap();
+        }
+        pool.close().await;
+        let before = std::fs::read(&path).unwrap();
+        let error = Database::connect_portable(&path, passphrase)
+            .await
+            .unwrap_err();
+        assert!(
+            error
+                .to_string()
+                .contains(if future { "newer" } else { "recovery" }),
+            "{error}"
+        );
+        assert_eq!(std::fs::read(&path).unwrap(), before);
+        for suffix in ["-wal", "-shm", "-journal"] {
+            assert!(!crate::encryption::sqlite_sidecar_path(&path, suffix).exists());
+        }
+    }
+}

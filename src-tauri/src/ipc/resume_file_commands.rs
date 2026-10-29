@@ -68,9 +68,10 @@ async fn import_resume_owned(
         // The requesting future can disappear; this worker owns both the file and commit.
         let _lease = lease;
         let copy = copy_selected_resume_to_managed_storage(&source_path, &managed_dir)?;
-        let file_path = copy.path.to_string_lossy().into_owned();
+        let file_path = desktop::managed_resume_reference(&copy.path, &managed_dir, desktop::portable_root().is_some())
+            .map_err(|_| "Could not retain the managed resume reference.".to_string())?;
         let matcher = database.resume_matcher();
-        match runtime.block_on(matcher.upload_resume(&name, &file_path)) {
+        match runtime.block_on(matcher.upload_resume_with_reference(&name, &copy.path, &file_path)) {
             Ok(id) => { copy.keep(); Ok(id) }
             Err(error) => match runtime.block_on(matcher.resume_id_for_file(&file_path)) {
                 Ok(Some(id)) => { copy.keep(); Ok(id) }
@@ -258,7 +259,12 @@ pub(super) fn managed_resume_upload_cleanup_path(
     managed_dir: &Path,
 ) -> Option<PathBuf> {
     let stored_path = stored_path.map(str::trim).filter(|path| !path.is_empty())?;
-    let stored_path = PathBuf::from(stored_path);
+    let stored_path = desktop::resolve_managed_resume_reference(
+        stored_path,
+        managed_dir,
+        desktop::portable_root().is_some(),
+    )
+    .ok()?;
     let file_name = stored_path.file_name()?.to_str()?;
     if !validate_managed_resume_upload_file_name(file_name) {
         return None;
@@ -327,6 +333,28 @@ pub(super) async fn delete_resume_with_file_cleanup(
 #[cfg(test)]
 mod import_tests {
     use super::*;
+
+    #[test]
+    fn portable_resume_cleanup_uses_current_owner_after_move() {
+        let root = tempfile::tempdir().unwrap();
+        let original = root.path().join("original");
+        let managed = original.join("resume-uploads");
+        std::fs::create_dir_all(&managed).unwrap();
+        let path = managed.join("7d9d16a1-2e5d-4b32-9eb2-bfbffb4ee871--resume.txt");
+        std::fs::write(&path, b"resume").unwrap();
+        let reference = desktop::managed_resume_reference(&path, &managed, true).unwrap();
+        let moved = root.path().join("moved");
+        std::fs::rename(original, &moved).unwrap();
+        let managed = moved.join("resume-uploads");
+        delete_managed_resume_upload_file(
+            Some(&reference.replace("resume-uploads", "application-resumes")),
+            &managed,
+        )
+        .unwrap();
+        assert_eq!(std::fs::read_dir(&managed).unwrap().count(), 1);
+        delete_managed_resume_upload_file(Some(&reference), &managed).unwrap();
+        assert_eq!(std::fs::read_dir(&managed).unwrap().count(), 0);
+    }
     use crate::bootstrap::operation::OperationAdmission;
     use std::time::Duration;
 

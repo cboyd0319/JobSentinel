@@ -10,7 +10,9 @@ reporting used across the application.
 
 mod credential_vault_key;
 mod database_key;
+mod managed_resume;
 mod platform_health;
+mod portable;
 mod private_files;
 mod secure_storage;
 #[cfg(any(windows, test))]
@@ -32,12 +34,16 @@ pub use credential_vault_key::{
     CredentialVaultKeyStoragePolicy, SECURE_STORAGE_UNAVAILABLE_MESSAGE,
 };
 pub use database_key::{load_or_create_database_key, DatabaseKeyError};
+pub use managed_resume::{managed_resume_reference, resolve_managed_resume_reference};
 pub use platform_health::{
     inspect_platform_health, repair_platform_permissions, PackageRepairAction,
     PackageRepairActionId, PackageRepairGuidance, PackageRepairMode, PlatformHealthReport,
     PlatformPermissionAction, PlatformPermissionCheck, PlatformPermissionRepair,
     PlatformPermissionRepairOutcome, PlatformPermissionState, PlatformStorageArea,
     PLATFORM_HEALTH_SCHEMA_VERSION,
+};
+pub use portable::{
+    portable_root, portable_root_from_args, select_portable_root, set_portable_database_key,
 };
 #[cfg(unix)]
 pub use private_files::open_private_file;
@@ -72,6 +78,9 @@ use std::path::{Path, PathBuf};
 /// - macOS: ~/Library/Application Support/JobSentinel
 /// - Linux: ~/.local/share/jobsentinel
 pub fn get_data_dir() -> PathBuf {
+    if let Some(root) = portable_root() {
+        return root.join("data");
+    }
     #[cfg(target_os = "windows")]
     {
         windows::get_data_dir()
@@ -94,6 +103,9 @@ pub fn get_data_dir() -> PathBuf {
 /// - macOS: ~/.config/jobsentinel
 /// - Linux: ~/.config/jobsentinel
 pub fn get_config_dir() -> PathBuf {
+    if let Some(root) = portable_root() {
+        return root.join("config");
+    }
     #[cfg(target_os = "windows")]
     {
         windows::get_config_dir()
@@ -116,6 +128,9 @@ pub fn get_config_dir() -> PathBuf {
 /// - macOS: ~/Library/Caches/JobSentinel
 /// - Linux: ~/.cache/jobsentinel
 pub fn get_cache_dir() -> PathBuf {
+    if let Some(root) = portable_root() {
+        return root.join("cache");
+    }
     #[cfg(target_os = "windows")]
     {
         windows::get_cache_dir()
@@ -136,6 +151,9 @@ pub fn get_cache_dir() -> PathBuf {
 ///
 /// This should be called once during application startup.
 pub fn initialize() -> Result<(), Box<dyn std::error::Error>> {
+    if portable_root().is_some() {
+        return Ok(());
+    }
     #[cfg(target_os = "windows")]
     {
         windows::initialize()?;

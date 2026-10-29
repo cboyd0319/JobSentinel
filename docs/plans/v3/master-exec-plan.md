@@ -315,6 +315,10 @@ see [R13 evidence](../../harness/evidence/v3-shared-computer-privacy-2026-10-28.
 
 - Outcome: explicit portable startup owns data/config/cache/log/browser storage,
   unlocks a moved profile before opening its database, and preserves recovery.
+- Implementation checkpoint: private `--portable` root selection, memory-only key
+  handoff, pre-database unlock, journal-aware recovery, portable credentials and
+  relative managed-resume references are implemented. Browser state is ephemeral;
+  native logs use process output. Focused checks cover durable-data preservation.
 - Reuse current platform paths, database key/bootstrap, credential wrapping and
   portable recovery owners. A directory override alone does not meet E15.
 - Resolve profile selection before model caches and desktop initialization.
@@ -485,6 +489,9 @@ Owner: Existing Rust schema/evaluation owners, regional/source facts, documentat
 
 ### Dependency and decision rules
 
+- Ship required plan outcomes promptly. Track non-blocking polish and minor defects
+  for v3.0.1+ rather than expanding the current slice. Data-loss, security and
+  release-gate blockers still require correction; every release retains the three full phases.
 - Implement the minimal Source consumer with the first useful S07 content slice. Do not make source coverage wait for
   a marketplace. E04/E06/E07 later reuse actual
   consumers, and one E05/X18 registry serves all catalogs. Source content never

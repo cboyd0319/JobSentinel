@@ -1,6 +1,9 @@
 // Opens and validates portable restore bundles without following unsafe filesystem links.
 
-use super::portable_restore::{restore_error, sibling_path};
+use super::{
+    portable_restore::{restore_error, restore_stage_path, sibling_path, RestoreRequest},
+    Database,
+};
 use crate::encryption::sqlite_sidecar_path;
 use jobsentinel_platform::opened_file_matches_path;
 use std::{
@@ -17,6 +20,47 @@ pub(super) fn require_regular_file(path: &Path) -> Result<(), sqlx::Error> {
             "Portable restore rollback must be a regular file",
         ))
     }
+}
+
+pub(super) async fn verify_restore_passphrase(
+    database_path: &Path,
+    key: &str,
+    request: &RestoreRequest,
+) -> Result<(), sqlx::Error> {
+    use super::portable_restore_promotion::verify_restore_database;
+    for candidate in [
+        existing_rollback_path(database_path, &request.restore_id).ok(),
+        Some(previous_path(database_path, &request.restore_id)),
+    ]
+    .into_iter()
+    .flatten()
+    {
+        if !candidate.try_exists()?
+            || ["-wal", "-shm", "-journal"]
+                .into_iter()
+                .any(|suffix| sqlite_sidecar_path(&candidate, suffix).exists())
+        {
+            continue;
+        }
+        if require_regular_file(&candidate).is_ok()
+            && verify_restore_database(&candidate, key, &request.restore_id, false)
+                .await
+                .is_ok()
+        {
+            return Ok(());
+        }
+    }
+    let stage = restore_stage_path(database_path);
+    require_regular_file(&stage)?;
+    let info = Database::inspect_portable_backup(&stage, key).await?;
+    if info.backup_id != request.backup_id {
+        return Err(restore_error(
+            "Staged portable restore does not match its request",
+        ));
+    }
+    verify_restore_database(&stage, key, &request.restore_id, true)
+        .await
+        .map(|_| ())
 }
 
 pub(super) fn preserve_opaque_bundle(source: &Path, destination: &Path) -> Result<(), sqlx::Error> {
@@ -186,7 +230,22 @@ pub(super) fn rollback_path(
     database_path: &Path,
     restore_id: &str,
 ) -> Result<PathBuf, sqlx::Error> {
-    recovery_backup_path(database_path, &format!("restore_rollback_{restore_id}.db"))
+    recovery_backup_path(
+        database_path,
+        &format!("restore_rollback_{restore_id}.db"),
+        true,
+    )
+}
+
+pub(super) fn existing_rollback_path(
+    database_path: &Path,
+    restore_id: &str,
+) -> Result<PathBuf, sqlx::Error> {
+    recovery_backup_path(
+        database_path,
+        &format!("restore_rollback_{restore_id}.db"),
+        false,
+    )
 }
 
 pub(super) fn quarantine_path(
@@ -196,10 +255,15 @@ pub(super) fn quarantine_path(
     recovery_backup_path(
         database_path,
         &format!("restore_quarantine_{restore_id}.db"),
+        true,
     )
 }
 
-fn recovery_backup_path(database_path: &Path, name: &str) -> Result<PathBuf, sqlx::Error> {
+fn recovery_backup_path(
+    database_path: &Path,
+    name: &str,
+    prepare: bool,
+) -> Result<PathBuf, sqlx::Error> {
     let parent = database_path
         .parent()
         .filter(|parent| !parent.as_os_str().is_empty())
@@ -207,7 +271,7 @@ fn recovery_backup_path(database_path: &Path, name: &str) -> Result<PathBuf, sql
     let backup_dir = parent.join("backups");
     let metadata = match std::fs::symlink_metadata(&backup_dir) {
         Ok(metadata) => metadata,
-        Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound && prepare => {
             match std::fs::create_dir(&backup_dir) {
                 Ok(()) => {}
                 Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => {}
@@ -222,7 +286,9 @@ fn recovery_backup_path(database_path: &Path, name: &str) -> Result<PathBuf, sql
             "Portable restore backup directory is invalid",
         ));
     }
-    jobsentinel_platform::ensure_private_dir(&backup_dir).map_err(sqlx::Error::Io)?;
+    if prepare {
+        jobsentinel_platform::ensure_private_dir(&backup_dir).map_err(sqlx::Error::Io)?;
+    }
     if !std::fs::symlink_metadata(&backup_dir)
         .map_err(sqlx::Error::Io)?
         .file_type()

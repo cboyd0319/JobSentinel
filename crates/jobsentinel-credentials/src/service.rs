@@ -1,5 +1,6 @@
 //! Provides vault-backed credentials with metadata-only status and explicit native cleanup.
 
+use chacha20poly1305::aead::Generate;
 use jobsentinel_storage::CredentialRepository;
 use std::{fmt, sync::Arc};
 use tokio::sync::OnceCell;
@@ -43,6 +44,7 @@ pub struct CredentialService {
     repository: CredentialRepository,
     master_key: OnceCell<Arc<Zeroizing<[u8; MASTER_KEY_LEN]>>>,
     fixed_master_key: Option<Zeroizing<[u8; MASTER_KEY_LEN]>>,
+    portable: bool,
 }
 
 impl fmt::Debug for CredentialService {
@@ -62,7 +64,43 @@ impl CredentialService {
             repository,
             master_key: OnceCell::new(),
             fixed_master_key: None,
+            portable: false,
         }
+    }
+
+    /// Open portable saved details using only their existing passphrase envelope.
+    /// An empty new vault receives a random wrapped key; missing protection never replaces saved data.
+    pub async fn new_portable(
+        repository: CredentialRepository,
+        passphrase: &str,
+    ) -> Result<Self, String> {
+        let key = if passphrase::is_configured(&repository)
+            .await
+            .map_err(sanitize_passphrase_error)?
+        {
+            passphrase::unwrap_key(&repository, passphrase)
+                .await
+                .map_err(sanitize_passphrase_error)?
+        } else {
+            if repository
+                .has_secrets()
+                .await
+                .map_err(|_| secure_storage_error())?
+            {
+                return Err(
+                    "Portable saved details are missing their passphrase protection.".into(),
+                );
+            }
+            let key = Zeroizing::new(<[u8; MASTER_KEY_LEN]>::generate());
+            passphrase::wrap_key(&repository, passphrase, copy_key_bytes(&key))
+                .await
+                .map_err(sanitize_passphrase_error)?;
+            key
+        };
+        let mut service = Self::new(repository);
+        service.portable = true;
+        service.cache_master_key(key)?;
+        Ok(service)
     }
 
     /// Create a deterministic vault-backed provider for non-interactive tests.
@@ -75,6 +113,7 @@ impl CredentialService {
             repository,
             master_key: OnceCell::new(),
             fixed_master_key: Some(Zeroizing::new(master_key)),
+            portable: false,
         }
     }
 
@@ -112,8 +151,8 @@ impl CredentialService {
             .delete_secret(key.as_str())
             .await
             .map_err(|_| secure_storage_error())?;
-        // Fixed-key providers are isolated, non-interactive test vaults, as in key wrapping.
-        if self.fixed_master_key.is_none() {
+        // Portable profiles and fixed-key fixtures never own host credential entries.
+        if !self.portable && self.fixed_master_key.is_none() {
             tokio::task::spawn_blocking(move || delete_os_credential(key))
                 .await
                 .map_err(|_| secure_storage_error())??;
@@ -167,6 +206,8 @@ impl CredentialService {
                 configured: true,
                 unlocked: self.master_key.get().is_some(),
             })
+        } else if self.portable {
+            Err("Portable credential passphrase protection is unavailable.".into())
         } else {
             Ok(CredentialUnlockState {
                 mode: CredentialUnlockMode::System,
@@ -205,6 +246,9 @@ impl CredentialService {
     }
 
     fn require_app_user_presence(&self) -> Result<(), String> {
+        if self.portable {
+            return Err("Portable credentials require their passphrase.".into());
+        }
         if self.fixed_master_key.is_some()
             || !jobsentinel_platform::credential_vault_key_storage_policy().user_presence_required
         {
@@ -215,6 +259,9 @@ impl CredentialService {
 
     /// Enable passphrase wrapping for the credential-vault master key.
     pub async fn enable_passphrase_lock(&self, passphrase: &str) -> Result<(), String> {
+        if self.portable {
+            return Err("Portable credential protection cannot be changed independently of its profile passphrase.".into());
+        }
         let repository = &self.repository;
 
         let key = self.master_key(true).await?;
@@ -255,6 +302,9 @@ impl CredentialService {
 
     /// Disable passphrase wrapping and return the vault key to the OS keyring.
     pub async fn disable_passphrase_lock(&self, passphrase: &str) -> Result<(), String> {
+        if self.portable {
+            return Err("Portable credential protection cannot be changed independently of its profile passphrase.".into());
+        }
         let repository = &self.repository;
 
         let key = passphrase::unwrap_key(repository, passphrase)
@@ -282,6 +332,9 @@ impl CredentialService {
     ) -> Result<Arc<Zeroizing<[u8; MASTER_KEY_LEN]>>, String> {
         self.master_key
             .get_or_try_init(|| async move {
+                if self.portable {
+                    return Err("Unlock the portable profile before using saved details.".into());
+                }
                 if passphrase::is_configured(&self.repository)
                     .await
                     .map_err(sanitize_passphrase_error)?

@@ -3,7 +3,7 @@
 use tauri::{
     menu::{Menu, MenuItem},
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
-    App, AppHandle, Manager,
+    AppHandle, Manager,
 };
 
 use crate::bootstrap::{AppState, StartupRecoveryState};
@@ -13,7 +13,7 @@ fn tray_search_allowed(recovery: &StartupRecoveryState) -> bool {
     !recovery.required()
 }
 
-pub(crate) fn initialize_tray(app: &App) -> tauri::Result<()> {
+pub(crate) fn initialize_tray(app: &AppHandle) -> tauri::Result<()> {
     let search_item = MenuItem::with_id(
         app,
         "search",

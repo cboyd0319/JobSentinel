@@ -107,7 +107,7 @@ impl Database {
     ) -> Result<(), sqlx::Error> {
         let mut conn = Self::snapshot_connection(pool).await?;
         sqlx::query("ATTACH DATABASE ? AS pre_migration_backup")
-            .bind(backup_path)
+            .bind(read_only_snapshot_uri(Path::new(backup_path))?)
             .execute(&mut *conn)
             .await?;
 
@@ -241,6 +241,21 @@ pub(super) async fn export_encrypted_to_encrypted(
     .await;
     pool.close().await;
     result
+}
+
+pub(super) fn read_only_snapshot_uri(path: &Path) -> Result<String, sqlx::Error> {
+    for suffix in ["-wal", "-shm", "-journal"] {
+        if sqlite_sidecar_path(path, suffix).try_exists()? {
+            return Err(sqlx::Error::Protocol(
+                "Recovery snapshot has unexpected SQLite sidecars".into(),
+            ));
+        }
+    }
+    sqlite_source_uri(
+        jobsentinel_security::local_file_url(path)
+            .map_err(|_| sqlx::Error::Protocol("Database source file URL is invalid".into()))?,
+        true,
+    )
 }
 
 fn sqlite_source_uri(

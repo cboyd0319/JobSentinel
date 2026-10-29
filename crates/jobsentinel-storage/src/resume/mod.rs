@@ -62,8 +62,18 @@ impl ResumeMatcher {
 
     /// Upload and parse a new resume
     pub async fn upload_resume(&self, name: &str, file_path: &str) -> Result<i64> {
-        // Parse local resume file to extract readable text.
-        let parsed_text = self.parser.parse_resume(Path::new(file_path))?;
+        self.upload_resume_with_reference(name, Path::new(file_path), file_path)
+            .await
+    }
+
+    /// Parse the physical file while persisting its separately validated managed identity.
+    pub async fn upload_resume_with_reference(
+        &self,
+        name: &str,
+        source: &Path,
+        file_path: &str,
+    ) -> Result<i64> {
+        let parsed_text = self.parser.parse_resume(source)?;
 
         let extracted = self.skill_extractor.extract_skills(&parsed_text);
         let mut transaction = self.db.begin().await?;

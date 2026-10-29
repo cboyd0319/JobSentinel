@@ -3,6 +3,91 @@
 use super::*;
 
 #[tokio::test]
+async fn portable_authentication_uses_restore_candidates_without_mutation() {
+    for missing in [true, false] {
+        let root = tempfile::tempdir().unwrap();
+        let backup = portable_backup(root.path()).await;
+        let path = root.path().join("primary/jobs.db");
+        let database = database_with_probe(&path, "preserved private history", false).await;
+        database
+            .stage_portable_restore(&backup, BACKUP_PASSPHRASE)
+            .await
+            .unwrap();
+        database.pool().close().await;
+        drop(database);
+        if missing {
+            std::fs::remove_file(&path).unwrap();
+        } else {
+            std::fs::write(&path, b"damaged existing primary").unwrap();
+        }
+        let snapshot = || {
+            files_under(root.path())
+                .into_iter()
+                .map(|path| {
+                    let bytes = std::fs::read(&path).unwrap();
+                    (path, bytes)
+                })
+                .collect::<std::collections::BTreeMap<_, _>>()
+        };
+        let before = snapshot();
+        assert!(!Database::portable_primary_is_new(&path).unwrap());
+        assert!(!path.parent().unwrap().join("backups").exists());
+        assert!(
+            Database::verify_portable_passphrase(&path, "incorrect portable passphrase")
+                .await
+                .is_err()
+        );
+        assert!(
+            snapshot() == before,
+            "Wrong-key verification changed restore files"
+        );
+        let key = load_or_create_database_key().await.unwrap();
+        Database::verify_portable_passphrase(&path, &key)
+            .await
+            .unwrap();
+        assert!(snapshot() == before, "Verification changed restore files");
+        assert!(!path.parent().unwrap().join("backups").exists());
+    }
+}
+
+#[tokio::test]
+async fn portable_authentication_uses_promoting_rollback_without_repairing_it() {
+    let root = tempfile::tempdir().unwrap();
+    let backup = portable_backup(root.path()).await;
+    let path = root.path().join("primary/jobs.db");
+    let database = database_with_probe(&path, "original history", false).await;
+    database
+        .stage_portable_restore(&backup, BACKUP_PASSPHRASE)
+        .await
+        .unwrap();
+    database.pool().close().await;
+    drop(database);
+    Database::promote_staged_restore(&path).await.unwrap();
+    rewrite_request(&path, "phase", "promoting");
+    std::fs::remove_file(&path).unwrap();
+    std::fs::remove_file(sibling(&path, ".restore-stage")).unwrap();
+    let snapshot = || {
+        files_under(root.path())
+            .into_iter()
+            .map(|path| {
+                let bytes = std::fs::read(&path).unwrap();
+                (path, bytes)
+            })
+            .collect::<std::collections::BTreeMap<_, _>>()
+    };
+    let before = snapshot();
+    let key = load_or_create_database_key().await.unwrap();
+    Database::verify_portable_passphrase(&path, &key)
+        .await
+        .unwrap();
+    assert!(
+        snapshot() == before,
+        "Verification repaired or changed recovery files"
+    );
+    assert!(!path.exists());
+}
+
+#[tokio::test]
 async fn finishing_promoted_restore_cleans_raw_artifacts_and_allows_another_backup() {
     let temp_dir = tempfile::tempdir().unwrap();
     let backup = portable_backup(temp_dir.path()).await;

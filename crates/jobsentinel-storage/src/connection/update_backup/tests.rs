@@ -3,6 +3,81 @@
 use super::*;
 
 #[tokio::test]
+async fn portable_authentication_uses_update_snapshot_without_authorizing_writers() {
+    for missing in [true, false] {
+        let root = tempfile::tempdir().unwrap();
+        let path = root.path().join("jobs.db");
+        let database = Database::connect(&path).await.unwrap();
+        let journal = database
+            .prepare_update_snapshot(env!("CARGO_PKG_VERSION"), "3.1.0", &"a".repeat(64))
+            .await
+            .unwrap();
+        drop(database);
+        if missing {
+            std::fs::remove_file(&path).unwrap();
+        } else {
+            std::fs::write(&path, b"corrupt target bytes").unwrap();
+        }
+        let directory = root.path().join(format!(
+            ".update-snapshot-{}",
+            journal.snapshot.operation_id
+        ));
+        let marker = std::fs::read_dir(root.path())
+            .unwrap()
+            .map(|entry| entry.unwrap().path())
+            .find(|path| {
+                path.file_name()
+                    .unwrap()
+                    .as_encoded_bytes()
+                    .starts_with(b".jobsentinel-update-")
+            })
+            .unwrap();
+        let paths = [
+            path.clone(),
+            marker,
+            directory.join("snapshot.db"),
+            directory.join("receipt.json"),
+        ];
+        let snapshot = || {
+            paths
+                .iter()
+                .map(|path| std::fs::read(path).ok())
+                .collect::<Vec<_>>()
+        };
+        let before = snapshot();
+        assert!(!Database::portable_primary_is_new(&path).unwrap());
+        assert!(
+            Database::verify_portable_passphrase(&path, "incorrect portable passphrase")
+                .await
+                .is_err()
+        );
+        assert!(
+            snapshot() == before,
+            "Wrong-key verification changed update files"
+        );
+        let key = crate::encryption::load_or_create_database_key()
+            .await
+            .unwrap();
+        Database::verify_portable_passphrase(&path, &key)
+            .await
+            .unwrap();
+        assert!(snapshot() == before, "Verification changed update files");
+        assert!(Database::connect_with_staged_restore(&path).await.is_err());
+        assert!(
+            snapshot() == before,
+            "Unauthenticated update startup changed files"
+        );
+        for suffix in ["-wal", "-shm", "-journal"] {
+            assert!(!crate::encryption::sqlite_sidecar_path(
+                &directory.join("snapshot.db"),
+                suffix
+            )
+            .exists());
+        }
+    }
+}
+
+#[tokio::test]
 async fn interrupted_update_recovers_missing_primary_and_preserves_sidecars() {
     let root = tempfile::tempdir().unwrap();
     let path = root.path().join("jobs.db");

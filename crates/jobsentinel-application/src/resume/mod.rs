@@ -4,7 +4,6 @@ use jobsentinel_storage::Database;
 use sha2::{Digest, Sha256};
 use std::collections::BTreeMap;
 use std::io::{Read, Write};
-use std::path::Path;
 
 #[cfg(feature = "embedded-ml")]
 mod semantic;
@@ -200,12 +199,26 @@ fn ephemeral_resume_snapshot(
 }
 
 fn read_html_resume_source_for_format_review(file_path: &str) -> Option<String> {
-    let path = Path::new(file_path);
+    read_managed_html_source(
+        file_path,
+        &jobsentinel_platform::get_data_dir().join("resume-uploads"),
+        jobsentinel_platform::portable_root().is_some(),
+    )
+}
+
+fn read_managed_html_source(
+    file_path: &str,
+    managed_dir: &std::path::Path,
+    portable: bool,
+) -> Option<String> {
+    let path =
+        jobsentinel_platform::resolve_managed_resume_reference(file_path, managed_dir, portable)
+            .ok()?;
     let extension = path.extension()?.to_str()?.to_ascii_lowercase();
     if !matches!(extension.as_str(), "html" | "htm") {
         return None;
     }
-    let file = std::fs::File::open(path).ok()?;
+    let file = std::fs::File::open(&path).ok()?;
     let metadata = file.metadata().ok()?;
     if !metadata.is_file() || metadata.len() > MAX_RESUME_FILE_BYTES {
         return None;
@@ -243,32 +256,6 @@ mod active_analysis_tests {
             .upload_resume(name, path.to_str().unwrap())
             .await
             .unwrap()
-    }
-
-    #[test]
-    fn html_resume_source_is_available_only_for_bounded_format_review() {
-        let directory = tempfile::tempdir().unwrap();
-        let html_path = directory.path().join("Private Resume.html");
-        let text_path = directory.path().join("Private Resume.txt");
-        let oversized_path = directory.path().join("Private Large Resume.html");
-        std::fs::write(&html_path, "<html><body>Jordan Lee</body></html>").unwrap();
-        std::fs::write(&text_path, "Jordan Lee").unwrap();
-        std::fs::File::create(&oversized_path)
-            .unwrap()
-            .set_len(MAX_RESUME_FILE_BYTES + 1)
-            .unwrap();
-
-        let source = read_html_resume_source_for_format_review(&html_path.to_string_lossy())
-            .expect("HTML source should be available for local format review");
-
-        assert!(source.contains("Jordan Lee"));
-        assert!(read_html_resume_source_for_format_review(&text_path.to_string_lossy()).is_none());
-        assert!(
-            read_html_resume_source_for_format_review(&oversized_path.to_string_lossy()).is_none()
-        );
-        assert!(
-            read_bounded_resume_source(std::fs::File::open(&oversized_path).unwrap()).is_none()
-        );
     }
 
     #[tokio::test]

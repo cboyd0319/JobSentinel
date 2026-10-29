@@ -2,6 +2,7 @@
 
 import {
   applyMockAppPrivacyCommand,
+  applyMockPortableProfileCommand,
   applyMockApplicationAssistCommand,
   applyMockApplicationsCommand,
   applyMockCoverLetterTemplateCommand,
@@ -34,6 +35,10 @@ interface MockCommandGroup {
 }
 
 const commandGroups: readonly MockCommandGroup[] = [
+  {
+    commands: ["get_portable_profile_status", "unlock_portable_profile"],
+    adapter: applyMockPortableProfileCommand,
+  },
   {
     commands: ["get_app_privacy_status", "set_shared_computer_mode", "lock_app", "unlock_app", "clear_private_session"],
     adapter: applyMockAppPrivacyCommand,

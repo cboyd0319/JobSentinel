@@ -1,9 +1,13 @@
 //! Publishes fresh encrypted stores atomically and validates supported-v3 primary identity.
 
 use super::{Database, MIGRATOR};
-use crate::encryption::connect_encrypted_pool;
+use crate::encryption::{
+    connect_encrypted_pool, load_or_create_database_key, probe_encrypted_user_version,
+    probe_plaintext_user_version,
+};
 use sqlx::{migrate::Migrator, SqliteConnection};
-use std::path::Path;
+use std::{fs::File, path::Path};
+use zeroize::Zeroizing;
 
 // Historical names are read only at supported-v3 pre-migration boundaries.
 #[derive(Clone, Copy)]
@@ -31,6 +35,135 @@ impl StorageLayout {
 tokio::task_local! { pub(super) static BOOTSTRAP_CRASH_POINT: u8; }
 
 impl Database {
+    /// Classify only an absent primary with no data/recovery evidence as a new profile.
+    pub fn portable_primary_is_new(path: &Path) -> Result<bool, sqlx::Error> {
+        match std::fs::symlink_metadata(path) {
+            Ok(_) => return Ok(false),
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
+            Err(error) => return Err(error.into()),
+        }
+        let parent = path
+            .parent()
+            .filter(|parent| !parent.as_os_str().is_empty())
+            .unwrap_or_else(|| Path::new("."));
+        let entries = match std::fs::read_dir(parent) {
+            Ok(entries) => entries,
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(true),
+            Err(error) => return Err(error.into()),
+        };
+        let owner = Self::sibling_path(path, ".owner.lock");
+        for entry in entries {
+            let entry = entry?;
+            if entry.path() != owner || !entry.file_type()?.is_file() {
+                return Ok(false);
+            }
+        }
+        Ok(true)
+    }
+
+    /// Authenticate without opening writers or authorizing any restore/update transition.
+    pub async fn verify_portable_passphrase(
+        path: &Path,
+        passphrase: &str,
+    ) -> Result<(), sqlx::Error> {
+        validate_portable_primary_passphrase(passphrase)?;
+        if Self::portable_primary_is_new(path)? {
+            return Ok(());
+        }
+        if std::fs::symlink_metadata(path).is_ok_and(|metadata| metadata.file_type().is_file()) {
+            let verified = async {
+                Self::refuse_plaintext_primary(path).await?;
+                probe_encrypted_user_version(path, passphrase)
+                    .await
+                    .map(|_| ())
+            }
+            .await;
+            if verified.is_ok() {
+                return verified;
+            }
+        }
+        let update = super::update_journal::read_journal(path)?;
+        let restore = super::portable_restore::read_restore_request(path)?;
+        if update.is_some() && restore.is_some() {
+            return Err(sqlx::Error::Protocol(
+                "Conflicting local recovery artifacts require review".into(),
+            ));
+        }
+        if let Some(journal) = update {
+            return Self::verify_update_snapshot_passphrase(path, &journal.snapshot, passphrase)
+                .await;
+        }
+        if let Some(request) = restore {
+            return super::portable_restore_bundle::verify_restore_passphrase(
+                path, passphrase, &request,
+            )
+            .await;
+        }
+        Err(sqlx::Error::Protocol(
+            "Portable profile could not be authenticated; existing data requires recovery".into(),
+        ))
+    }
+
+    /// Open a portable primary using its passphrase, without accessing device key storage.
+    /// Passphrase errors and unsupported data are refused before any database writer opens.
+    #[cfg(test)]
+    pub(super) async fn connect_portable(
+        path: &Path,
+        passphrase: &str,
+    ) -> Result<Self, sqlx::Error> {
+        validate_portable_primary_passphrase(passphrase)?;
+        Self::ensure_database_parent(path)?;
+        let owner = Self::acquire_owner_lock(path)?;
+        Self::connect_owned_with_passphrase(path, &owner, Some(passphrase)).await
+    }
+
+    pub(super) async fn connect_owned(path: &Path, owner: &File) -> Result<Self, sqlx::Error> {
+        Self::connect_owned_with_passphrase(path, owner, None).await
+    }
+
+    async fn connect_owned_with_passphrase(
+        path: &Path,
+        owner: &File,
+        passphrase: Option<&str>,
+    ) -> Result<Self, sqlx::Error> {
+        let owner_lock = owner.try_clone()?;
+        Self::refuse_missing_primary(path)?;
+
+        if path.exists() {
+            Self::refuse_plaintext_primary(path).await?;
+        }
+
+        let key = match passphrase {
+            Some(passphrase) => Zeroizing::new(passphrase.to_owned()),
+            None => load_or_create_database_key().await?,
+        };
+        if path.exists() {
+            probe_encrypted_user_version(path, &key).await?;
+        } else {
+            Self::bootstrap_database(path, &key, &MIGRATOR).await?;
+        }
+        let pool = connect_encrypted_pool(path, &key, false).await?;
+
+        jobsentinel_platform::ensure_private_sqlite_files(path).map_err(sqlx::Error::Io)?;
+
+        Ok(Database {
+            pool,
+            migration_lock: tokio::sync::Mutex::new(()),
+            db_path: Some(path.to_path_buf()),
+            _owner_lock: Some(owner_lock),
+        })
+    }
+
+    async fn refuse_plaintext_primary(path: &Path) -> Result<(), sqlx::Error> {
+        if let Some(version) = probe_plaintext_user_version(path).await? {
+            Self::refuse_unsupported_database(version)?;
+            return Err(sqlx::Error::Protocol(
+                "Plaintext local database is unsupported; requires recovery".into(),
+            ));
+        }
+        Ok(())
+    }
+
     pub(super) fn refuse_missing_primary(path: &Path) -> Result<(), sqlx::Error> {
         if !path.exists() {
             for artifact in std::iter::once(path.with_extension("db.sqlcipher-new")).chain(
@@ -258,4 +391,11 @@ impl Database {
         std::fs::File::open(parent)?.sync_all()?;
         Ok(())
     }
+}
+
+fn validate_portable_primary_passphrase(passphrase: &str) -> Result<(), sqlx::Error> {
+    if passphrase.len() > 1024 || passphrase.trim().chars().count() < 16 {
+        return Err(sqlx::Error::Protocol("Portable profile passphrase requires at least 16 trimmed characters and at most 1024 bytes".into()));
+    }
+    Ok(())
 }

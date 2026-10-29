@@ -92,7 +92,7 @@ fn valid_version(value: &str) -> bool {
             .all(|p| p.parse::<u32>().is_ok_and(|n| n.to_string() == *p))
 }
 
-fn read_journal(database: &Path) -> Result<Option<PreparedUpdate>, sqlx::Error> {
+pub(super) fn read_journal(database: &Path) -> Result<Option<PreparedUpdate>, sqlx::Error> {
     let path = journal_path(database)?;
     let metadata = match std::fs::symlink_metadata(&path) {
         Ok(metadata) => metadata,

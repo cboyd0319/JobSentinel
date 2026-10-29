@@ -18,7 +18,11 @@ pub use jobsentinel_local_ai::{
 pub use jobsentinel_network::{validate_external_https_url_for_fetch, HttpBodyReadError};
 #[cfg(target_os = "macos")]
 pub use jobsentinel_platform::package_smoke_root;
-pub use jobsentinel_platform::{ensure_private_dir, ensure_private_file, get_data_dir, initialize};
+pub use jobsentinel_platform::{
+    ensure_private_dir, ensure_private_file, get_data_dir, initialize, managed_resume_reference,
+    portable_root, portable_root_from_args, resolve_managed_resume_reference, select_portable_root,
+    set_portable_database_key,
+};
 pub use jobsentinel_security::{
     path_label_for_logging, sanitize_url_for_logging, validate_external_https_url,
 };

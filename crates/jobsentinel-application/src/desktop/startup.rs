@@ -211,7 +211,18 @@ impl DesktopServices {
                     "Reconciled active signed pack artifacts"
                 );
             }
-            let credentials = CredentialService::new(database.credentials());
+            let credentials = if jobsentinel_platform::portable_root().is_some() {
+                let passphrase = jobsentinel_platform::load_or_create_database_key()
+                    .await
+                    .map_err(|_| {
+                        DesktopStartupError::Database("Portable profile is locked".into())
+                    })?;
+                CredentialService::new_portable(database.credentials(), &passphrase)
+                    .await
+                    .map_err(DesktopStartupError::Database)?
+            } else {
+                CredentialService::new(database.credentials())
+            };
             crate::restricted_source_consent::refresh_restricted_source_acknowledgements(
                 &database,
                 &mut config,

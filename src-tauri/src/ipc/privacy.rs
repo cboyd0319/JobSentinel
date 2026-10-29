@@ -20,7 +20,7 @@ pub(crate) struct AppPrivacyStatus {
 pub(crate) fn locked_command_allowed(command: &str) -> bool {
     matches!(
         command,
-        "get_app_privacy_status" | "lock_app" | "unlock_app"
+        "get_app_privacy_status" | "lock_app" | "unlock_app" | "get_portable_profile_status"
     )
 }
 

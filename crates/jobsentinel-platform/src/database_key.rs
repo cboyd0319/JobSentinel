@@ -1,4 +1,4 @@
-//! Loads the local SQLCipher key from secure storage or the isolated macOS smoke environment.
+//! Selects the verified portable key, device SQLCipher key or isolated macOS smoke key.
 
 use chacha20poly1305::aead::Generate;
 use keyring::{Entry, Error as KeyringError};
@@ -18,13 +18,13 @@ pub struct DatabaseKeyError;
 
 impl std::fmt::Display for DatabaseKeyError {
     fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        formatter.write_str("device secure storage did not provide a valid database key")
+        formatter.write_str("the selected profile did not provide a valid database key")
     }
 }
 
 impl std::error::Error for DatabaseKeyError {}
 
-/// Load the existing SQLCipher key or create it in device secure storage.
+/// Use the verified portable passphrase, or load/create the installed profile's device key.
 pub async fn load_or_create_database_key() -> Result<Zeroizing<String>, DatabaseKeyError> {
     tokio::task::spawn_blocking(load_or_create_database_key_blocking)
         .await
@@ -32,6 +32,9 @@ pub async fn load_or_create_database_key() -> Result<Zeroizing<String>, Database
 }
 
 fn load_or_create_database_key_blocking() -> Result<Zeroizing<String>, DatabaseKeyError> {
+    if crate::portable_root().is_some() {
+        return crate::portable::database_key().ok_or(DatabaseKeyError);
+    }
     #[cfg(target_os = "macos")]
     if let Some(key) = smoke_database_key_hex()? {
         tracing::info!("Using validated isolated macOS package-smoke database key");

@@ -280,7 +280,7 @@ async fn verify_promoted(
     Ok(finished)
 }
 
-async fn verify_restore_database(
+pub(super) async fn verify_restore_database(
     path: &Path,
     key: &str,
     restore_id: &str,

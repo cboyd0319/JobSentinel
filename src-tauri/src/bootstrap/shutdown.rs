@@ -88,6 +88,8 @@ pub(super) fn handle_event(app: &tauri::AppHandle, event: tauri::RunEvent) {
         if shutdown.begin() {
             let app = app.clone();
             tauri::async_runtime::spawn(async move {
+                let startup = app.state::<crate::ipc::portable::PortableStartup>();
+                let _initialization = startup.wait_for_initialization().await;
                 let shutdown = app.state::<ShutdownState>();
                 #[cfg(feature = "embedded-ml")]
                 crate::ipc::ml::cancel_active_model_work();

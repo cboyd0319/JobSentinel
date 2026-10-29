@@ -20,6 +20,16 @@ pub(crate) fn preserve_main_window_on_close<R: Runtime>(builder: Builder<R>) -> 
             }
         }
         if let WindowEvent::CloseRequested { api, .. } = event {
+            if portable_root().is_some()
+                && window
+                    .app_handle()
+                    .try_state::<crate::bootstrap::AppState>()
+                    .is_none()
+            {
+                api.prevent_close();
+                window.app_handle().exit(0);
+                return;
+            }
             handle_close_request(window.label(), || api.prevent_close(), || window.hide());
         }
     })

@@ -40,6 +40,11 @@ export const applyMockAppPrivacyCommand: MockCommandAdapter = (command) => {
   throw new Error("Device verification is unavailable in browser development. Use the desktop app to protect a shared-computer session.");
 };
 
+export const applyMockPortableProfileCommand: MockCommandAdapter = (command) => {
+  if (command === "get_portable_profile_status") return { portable: false, unlocked: true, new_profile: false };
+  throw new Error("Portable profiles require the desktop app.");
+};
+
 export const applyMockDashboardCommand: MockCommandAdapter = (
   command,
   args,

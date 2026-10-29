@@ -3,6 +3,8 @@
 macro_rules! jobsentinel_command_handlers {
     () => {
         ::tauri::generate_handler![
+            jobsentinel::ipc::portable::get_portable_profile_status,
+            jobsentinel::ipc::portable::unlock_portable_profile,
             jobsentinel::ipc::privacy::get_app_privacy_status,
             jobsentinel::ipc::privacy::set_shared_computer_mode,
             jobsentinel::ipc::privacy::lock_app,

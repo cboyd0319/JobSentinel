@@ -34,10 +34,8 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use super::encryption::{
-    connect_encrypted_pool, load_or_create_database_key, probe_encrypted_user_version,
-    probe_plaintext_user_version,
-};
+#[cfg(test)]
+use super::encryption::{connect_encrypted_pool, load_or_create_database_key};
 use recovery_operations::finish_recovery_operation_record;
 
 const DATABASE_SCHEMA_VERSION: i64 = 2;
@@ -87,40 +85,6 @@ impl Database {
             })?;
         }
         Ok(())
-    }
-
-    pub(super) async fn connect_owned(path: &Path, owner: &File) -> Result<Self, sqlx::Error> {
-        let owner_lock = owner.try_clone()?;
-        Self::refuse_missing_primary(path)?;
-
-        let plaintext_version = if path.exists() {
-            probe_plaintext_user_version(path).await?
-        } else {
-            None
-        };
-        if let Some(version) = plaintext_version {
-            Self::refuse_unsupported_database(version)?;
-            return Err(sqlx::Error::Protocol(
-                "Plaintext local database is unsupported; requires recovery".into(),
-            ));
-        }
-
-        let key = load_or_create_database_key().await?;
-        if path.exists() {
-            probe_encrypted_user_version(path, &key).await?;
-        } else {
-            Self::bootstrap_database(path, &key, &MIGRATOR).await?;
-        }
-        let pool = connect_encrypted_pool(path, &key, false).await?;
-
-        jobsentinel_platform::ensure_private_sqlite_files(path).map_err(sqlx::Error::Io)?;
-
-        Ok(Database {
-            pool,
-            migration_lock: tokio::sync::Mutex::new(()),
-            db_path: Some(path.to_path_buf()),
-            _owner_lock: Some(owner_lock),
-        })
     }
 
     fn refuse_unsupported_database(stored_version: i64) -> Result<(), sqlx::Error> {

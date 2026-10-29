@@ -26,24 +26,47 @@ fn failure() -> sqlx::Error {
 }
 
 impl Database {
+    /// Authenticate a journal-bound snapshot without changing the primary or recovery state.
+    pub(super) async fn verify_update_snapshot_passphrase(
+        path: &std::path::Path,
+        expected: &UpdateSnapshot,
+        key: &str,
+    ) -> Result<(), sqlx::Error> {
+        let (snapshot, input) = open_snapshot_candidate(path, expected)?;
+        let pool = crate::encryption::connect_encrypted_read_only_pool(&snapshot, key).await?;
+        let verifier = Self {
+            pool,
+            migration_lock: tokio::sync::Mutex::new(()),
+            db_path: Some(path.to_path_buf()),
+            _owner_lock: None,
+        };
+        let outcome = async {
+            let mut connection = verifier.pool.acquire().await?;
+            Self::require_supported_v3(&mut connection).await?;
+            drop(connection);
+            if verifier
+                .inspect_update_snapshot(
+                    Uuid::parse_str(&expected.operation_id).map_err(|_| failure())?,
+                )
+                .await?
+                != *expected
+                || !jobsentinel_platform::opened_file_matches_path(&input, &snapshot)
+            {
+                return Err(failure());
+            }
+            Ok(())
+        }
+        .await;
+        verifier.pool.close().await;
+        outcome
+    }
     /// Recovers an interrupted target without opening its potentially corrupt primary database.
     /// The caller must hold the primary database owner reservation throughout this operation.
     pub(super) async fn restore_update_snapshot_at(
         path: &std::path::Path,
         expected: &UpdateSnapshot,
     ) -> Result<(), sqlx::Error> {
-        let id = Uuid::parse_str(&expected.operation_id).map_err(|_| failure())?;
-        let snapshot = path
-            .parent()
-            .ok_or_else(failure)?
-            .join(format!(".update-snapshot-{id}"))
-            .join("snapshot.db");
-        // Verify the snapshot directory/file before any credential-backed SQLite open.
-        let metadata = std::fs::symlink_metadata(snapshot.parent().ok_or_else(failure)?)?;
-        if !metadata.is_dir() || metadata.file_type().is_symlink() {
-            return Err(failure());
-        }
-        let input = open_snapshot_file(&snapshot)?;
+        let (snapshot, input) = open_snapshot_candidate(path, expected)?;
         let key = crate::encryption::load_or_create_database_key().await?;
         let pool = crate::encryption::connect_encrypted_read_only_pool(&snapshot, &key).await?;
         let verifier = Self {
@@ -221,7 +244,7 @@ impl Database {
             .await?;
         let mut connection = Self::snapshot_connection(&self.pool).await?;
         sqlx::query("ATTACH DATABASE ? AS update_snapshot_check")
-            .bind(snapshot.to_str().ok_or_else(failure)?)
+            .bind(super::backups::read_only_snapshot_uri(&snapshot)?)
             .execute(&mut *connection)
             .await?;
         let checked = async {
@@ -251,6 +274,24 @@ impl Database {
         }
         Ok(receipt)
     }
+}
+
+fn open_snapshot_candidate(
+    path: &std::path::Path,
+    expected: &UpdateSnapshot,
+) -> Result<(PathBuf, File), sqlx::Error> {
+    let id = Uuid::parse_str(&expected.operation_id).map_err(|_| failure())?;
+    let snapshot = path
+        .parent()
+        .ok_or_else(failure)?
+        .join(format!(".update-snapshot-{id}"))
+        .join("snapshot.db");
+    let metadata = std::fs::symlink_metadata(snapshot.parent().ok_or_else(failure)?)?;
+    if !metadata.is_dir() || metadata.file_type().is_symlink() {
+        return Err(failure());
+    }
+    let input = open_snapshot_file(&snapshot)?;
+    Ok((snapshot, input))
 }
 
 fn digest(path: &std::path::Path) -> Result<String, sqlx::Error> {
