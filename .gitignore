@@ -86,3 +86,4 @@ tests/e2e/fixtures/*.txt
 !/.serena/
 /.serena/*
 !/.serena/project.yml
+!/.serena/AGENTS.md

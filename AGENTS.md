@@ -25,26 +25,14 @@ with `npm run tauri:dev`.
 
 ## Serena and delegated work
 
-- `.serena/project.yml` owns language servers. Keep local overrides, caches and memories untracked.
-  SQL uses text search; reconnect the owned client after changing server configuration.
-- Use Serena first for symbols, callers/references and symbol edits. Scope queries
-  to known paths; read bodies only when needed. Use `rg` for literals, excluded
-  tests, unsupported operations and incomplete LSP results. Do not repeatedly rescan files.
-- Verify the absolute active root and obtain your own session with
-  `initial_instructions` before semantic work. Sessions do not isolate server state.
-- Give every repository subagent a separate worktree and branch, bounded ownership
-  and a reviewed integration step. Preserve all existing changes; never reset another agent.
-- Each worktree's agent uses its own client-launched Serena stdio server:
-  `serena start-mcp-server --context codex --project <absolute-worktree-root> --transport stdio`.
-  Use `--project-from-cwd` only after verifying the client's working directory.
-  Never switch a shared server. If separate connections are unavailable, use native tools.
-- Run the standard init in new worktrees before dependent edits. Provision Serena
-  prerequisites with `serena download-ls-dependencies rust typescript bash powershell toml yaml json`;
-  PowerShell needs `pwsh` on PATH. Use the pinned toolchain's `rust-analyzer` in local overrides.
-- Index once with `serena project index <absolute-root>`; verify known symbols and
-  references for relevant languages. Unsupported references use bounded text search.
-  Rust background check-on-save is disabled; repository checks own verification.
-- Review and integrate agent commits, then run focused checks on the combined result.
+- Use Serena first for symbols, references and symbol edits; use `rg` for literals,
+  unsupported operations and LSP coverage gaps. Scope queries and avoid repeated file scans.
+- Follow [.serena/AGENTS.md](.serena/AGENTS.md) for setup, verified capabilities and client restart rules.
+- Give every repository subagent its own worktree and branch with bounded ownership.
+  Run init before dependent edits; review/integrate commits and verify the combined result.
+- Every worktree agent needs its own Serena stdio server targeting its absolute root.
+  Verify the root and obtain its session through `initial_instructions`; sessions do
+  not isolate server state. Never switch a shared server; use native tools if isolation is unavailable.
 
 ## Non-Negotiable Boundaries
 

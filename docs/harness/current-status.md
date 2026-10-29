@@ -13,7 +13,7 @@ Last updated: 2026-10-28
 - Follow the [development queue](../plans/v3/master-exec-plan.md#remaining-development-queue):
   finish accepted engineering and code cleanup before broad qualification or release.
 - Current work: E15 (`13e64abd`) portable startup/recovery and relocation implementation checkpoint.
-  Focused checks pass; record acceptance next. Installed proof remains in the final phases.
+  Focused checks pass; record acceptance next. Installed proof remains deferred.
 - R13 development accepted at `70b813d7`; installed qualification remains R1.
 - Evidence: `docs/harness/evidence/v3-shared-computer-privacy-2026-10-28.json`.
 
@@ -32,9 +32,11 @@ Last updated: 2026-10-28
 
 ## Preserved Work And Evidence
 
-- Serena: seven language backends and Rust/TS references verified in separate
-  main/worktree stdio servers; 2,135 files indexed. Reconnect the existing MCP client
-  after restarting to load the updated `.serena/project.yml`; local overrides stay private.
+- Serena 2.1.0: seven backends, Rust/TS bodies/callers, test sources and diagnostics verified.
+  Separate main/worktree stdio servers are verified; reconnect the MCP client after restart.
+  Root AGENTS links `.serena/AGENTS.md`; local overrides remain private.
+- Documentation audit: 215 tracked Markdown files reviewed; current claims corrected,
+  historical evidence retained. Docs checks and 36 focused documentation sensors pass.
 - D0 is development-passing at `4b96e802`, the preserved v3.0 core source cut.
 - D0 scope/results: `docs/harness/evidence/v3-source-compatibility-cleanup-2026-10-28.json`.
 - Audit coverage/gaps: `docs/harness/evidence/v3-retrospective-audit-2026-10-28.json`.

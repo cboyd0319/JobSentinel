@@ -6,6 +6,7 @@ use jobsentinel_domain::Job;
 
 pub(crate) fn test_config() -> Config {
     Config {
+        shared_computer_mode: false,
         title_allowlist: vec![
             "Care Coordinator".to_string(),
             "Customer Support Lead".to_string(),

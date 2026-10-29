@@ -7,6 +7,8 @@ Coverage records executed code; neither metric alone proves correct behavior.
 Use mutation analysis for an unresolved test-quality question, not as an automatic
 full-workspace development gate.
 
+No hosted continuous integration runs under the active `pre-alpha-private-no-ci` policy.
+
 ## Setup and scope
 
 `cargo-mutants` is optional and is not installed by repository initialization.
