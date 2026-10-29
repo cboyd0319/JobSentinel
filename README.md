@@ -148,11 +148,15 @@ privacy-preserving defaults.
 | Local-first data | Searches, saved jobs, notes, resumes, salary floors, applications, and support reports stay local by default. |
 | No telemetry | JobSentinel does not collect analytics or behavioral telemetry. |
 | External AI | Optional, disabled by default, preview-gated, and routed through the privacy-first AI gateway. |
-| Secrets | Alert credentials and source access codes use the local encrypted vault and OS credential store where available. |
+| Secrets | Connection details use an encrypted local vault; its key uses device protection or a passphrase. Portable profiles avoid host credential entries. |
 | Applications | JobSentinel helps prepare and track applications, but the user reviews and submits outside JobSentinel. |
 | Restricted sources | User-gated, warning-backed, local, and review-first. JobSentinel does not store restricted-site cookies, tokens, browser storage, or auth headers. |
 
+The published v2.9.5 evidence snapshot reports:
 **Current macOS full-public-readiness: 94%; no-account path completion: 100%.**
+These historical scores do not establish v3 release readiness. Every release from
+v3 onward requires separate full Stability, Performance and Security phases in
+that order; see the [Release Contract](docs/developer/RELEASING.md#mandatory-final-release-phases).
 A zero-friction Mac release still requires Apple Developer Program materials,
 Developer ID signing, notarization, stapling, and Gatekeeper acceptance.
 

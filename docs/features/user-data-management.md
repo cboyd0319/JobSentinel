@@ -335,19 +335,19 @@ reported failure rather than a reason to force another process or reader out.
 Each attempted cleanup after the health check records only structural local
 provenance and a sanitized error category.
 
-## Older Local Data
+## Supported local data
 
-Users who had older browser-saved templates or searches may see a migration
-prompt. The migration moves supported local data into the current local store.
-If no prompt appears, make a safe support report first, then close and reopen
-JobSentinel and check Settings.
+The supported storage baseline is v3. Pre-v3 data and obsolete browser-storage
+formats are not automatically imported. Use an explicitly supported import or
+reviewed compatible backup restore; preserve unsupported source files for recovery.
 
 ## Backups And Deletion
 
 - Delete templates and saved searches carefully; deleted items may not be
   recoverable inside the app yet.
-- Use Settings backup before moving devices or making larger search changes.
-  The backup covers settings, saved searches, and cover letter templates.
+- Settings backup covers settings, saved searches and cover letter templates.
+  Use the separate encrypted portable backup for broader local-record recovery;
+  it excludes saved credentials and does not turn an installed app into a portable profile.
 - Use safe support reports before changing more data if something looks wrong.
 - Use encrypted portable backup for full local recovery. It is separate from
   Settings restore because it can replace jobs, applications, resumes, notes,
@@ -359,7 +359,7 @@ JobSentinel and check Settings.
 
 | Problem | Plain next step |
 | --- | --- |
-| Older templates did not appear | Make a safe support report first, then close and reopen JobSentinel and check Settings for a migration prompt. |
+| Older templates did not appear | Preserve the original file and check whether its format has a supported import; use a safe support report if uncertain. |
 | A saved search is missing | Open Saved Searches, then check recent search history. |
 | Alerts feel too noisy | Raise alert selectivity or narrow the saved search. |
 | Alerts miss expected jobs | Lower alert selectivity or check whether the source is enabled. |

@@ -14,8 +14,9 @@ sessions, bypass platform controls, hide background access, violate URL or rate
 limits, or create unsafe external side effects.
 
 Restricted job boards are supported only through explicit user-controlled
-paths: search links, manual entry, pasted individual job links, Browser Import,
-or scheduled checks that show a source-specific warning first. Before risky
+paths: search links, manual entry, and policy-permitted individual-link or Browser
+Import actions. A scheduled source also needs current provider authorization;
+a warning or local acknowledgement cannot enable prohibited access. Before risky
 source use, JobSentinel must explain in plain language that some sites have
 rules about automated tools and that misusing tools can affect the user's
 account or create legal/privacy risk. The user can continue only after

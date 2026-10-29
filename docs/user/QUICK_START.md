@@ -1,3 +1,5 @@
+<!-- Guides installation, first-use search setup and privacy-aware recovery entry points. -->
+
 # Getting Started with JobSentinel
 
 **A private job-search assistant that keeps your data on your computer.**
@@ -67,8 +69,7 @@ shasum -a 256 -c JobSentinel_*.dmg.sha256
 4. Scroll down and click **"Open Anyway"** next to the JobSentinel message.
 5. Click **Open** in the confirmation dialog.
 
-This can happen because JobSentinel is a new open-source app. You only need to
-approve it once.
+A later package or changed system policy may require a new verification step.
 
 </details>
 
@@ -450,12 +451,11 @@ extra support or your own inspection.
 - macOS: saved in your Application Support folder; JobSentinel keeps this
   folder private to your Mac account
 
-**Saved passwords and notification details:** stored in your operating system's
-secure vault.
-
-- Windows: Credential Manager
-- macOS: Keychain
-- Linux: Secret Service
+**Saved passwords and notification details:** encrypted in JobSentinel's local
+vault. Installed profiles protect its key with the device password store or a
+configured passphrase; portable profiles use their profile passphrase without
+host credential entries. Search settings can live in a separate private settings
+file. See [Saved secrets](../features/saved-secrets.md).
 
 </details>
 

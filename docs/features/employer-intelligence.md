@@ -1,8 +1,8 @@
-<!-- Defines the shipped employer dossier, its evidence boundaries, and its safe research guidance. -->
+<!-- Defines the implemented employer dossier, its evidence boundaries, and its safe research guidance. -->
 
 # Employer Intelligence
 
-JobSentinel provides a local employer dossier for each saved opportunity. It
+The unreleased v3 source provides a local employer dossier for each saved opportunity. It
 helps users decide what to verify before spending more time on a role. It is an
 evidence view, not an employer rating, fraud decision, legal conclusion, or
 hiring prediction.
@@ -81,7 +81,7 @@ keyboard accessible, and the layout must not overflow at narrow widths.
 
 ## Current Source Boundary
 
-The shipped live-first minimum reuses already saved Greenhouse and Lever public
+The implemented live-first minimum reuses already saved Greenhouse and Lever public
 ATS observations and their reviewed manifests. It does not perform background
 employer discovery, scrape review or salary sites, use account-backed sessions,
 or query public registries. SEC, DOL, USCIS, WARN, Companies House, EU, India,

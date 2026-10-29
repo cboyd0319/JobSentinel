@@ -73,11 +73,16 @@ npm run lint:skills
 Package the whole directory as a release artifact with:
 
 ```bash
-npm run release:skills -- --version 2.9.0 --out-dir release-assets/public
+npm run release:skills -- --out-dir release-assets/public
 ```
 
 The command validates `skills/`, creates
-`JobSentinel-2.9.0-agent-skills.tar.gz` and
-`JobSentinel-2.9.0-agent-skills.zip`, and writes matching `.sha256` sidecars
+`JobSentinel-X.Y.Z-agent-skills.tar.gz` and
+`JobSentinel-X.Y.Z-agent-skills.zip`, and writes matching `.sha256` sidecars
 for download verification. Use the ZIP on Windows when a built-in extractor is
 preferred.
+
+`X.Y.Z` is the source version in `package.json`, or an explicitly selected
+`--version`. The skill metadata's pinned `2.9.0` target is the validator's
+compatibility baseline, not the archive's release version. Publication follows
+the [Release Contract](../docs/developer/RELEASING.md).

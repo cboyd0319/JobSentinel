@@ -27,8 +27,15 @@ default.
 | Telegram setup code | Telegram alerts |
 | USAJobs access code | USAJobs checks |
 
-Search preferences, alert choices, saved jobs, applications, private notes, and
-salary floors also stay in JobSentinel's encrypted local app data.
+Saved jobs, applications and private notes stay in the encrypted local database.
+Search preferences, alert choices and salary-floor settings also stay local but
+can live in the separate settings file; they are not all encrypted database fields.
+
+Portable profiles protect both the database and saved credential key with the
+portable profile passphrase, without using host credential entries. Shared-computer
+mode must be turned off before changing an installed profile's vault-lock policy.
+Portable profiles cannot disable or independently change their saved-details
+passphrase. See [local-data controls](user-data-management.md).
 
 ## What you may see
 

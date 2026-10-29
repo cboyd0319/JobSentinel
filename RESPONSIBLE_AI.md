@@ -1,3 +1,5 @@
+<!-- Defines candidate-side AI boundaries, factual evidence rules and explicit user review. -->
+
 # Responsible AI
 
 JobSentinel uses AI-adjacent and automation-adjacent features only to help job
@@ -59,10 +61,11 @@ AI may help with:
 
 Every external AI request needs opt-in, only the needed details, a clear review
 screen before anything leaves the device, user approval, an exact single-use
-backend approval, and a durable metadata-only privacy receipt. Sensitive details
-need explicit selection by the user. Public-data-only requests must not include
-private notes, application history, resumes, salary floors, or unrelated local
-data.
+backend approval, and a durable metadata-only privacy receipt. The implemented
+external action summarizes unchanged, user-selected fields of a
+saved public posting. It rejects private notes, application history, resumes,
+salary floors and unrelated local data. Private-data AI workflows require a
+separate reviewed implementation before they can be enabled.
 
 ## Hiring-system transparency
 

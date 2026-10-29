@@ -140,7 +140,7 @@ employer screening systems.
 The current local matcher:
 
 - extracts readable text from PDF, DOCX, TXT, Markdown, and HTML resumes;
-- keeps selected resume uploads local and rejects files over 10 MB before
+- keeps selected resume uploads local and rejects files over 10 MiB before
   copying them into managed local storage;
 - routes an explicitly confirmed dropped resume through the same validation,
   managed storage, and Resume-page review path without exposing its source path;
@@ -539,7 +539,9 @@ match, bound to the exact skill in the same revision-guarded local order. It
 returns no partial result when any skill is missing or ambiguous, and returns
 no result when the resume changes or is deleted during matching. Citations
 contain no resume content, filesystem path, source identifier, or raw revision.
-This command boundary is not yet the visible Resume Match page.
+The visible Resume Match results now consume an application-owned semantic
+assessment when available. Missing, unavailable or cancelled model work is
+reported separately from basic readability review; no model result is invented.
 
 Settings calls the Model Doctor surface **Local Match Check**. It reports the
 active local profile, privacy mode, fallback, model revision, backend, license,

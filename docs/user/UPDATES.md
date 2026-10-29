@@ -1,92 +1,93 @@
-# Updating Or Going Back
+<!-- Explains reviewed app updates, v3 compatibility limits and separate data recovery. -->
 
-JobSentinel does not update itself silently. Updating is manual so you choose
-when to replace the app and can check the download first.
+# Updating or going back
 
-## Before Updating
+JobSentinel does not update itself silently. The current public release is
+[v2.9.5](https://github.com/cboyd0319/JobSentinel/releases/tag/v2.9.5).
+The reviewed update controls described below belong to the unreleased v3 source.
+Production signing enrollment and installed release qualification remain pending.
 
-1. Open **Settings** in JobSentinel.
-2. Use **Backup Settings** and save the backup somewhere you can find again.
-3. Open the
-   [JobSentinel latest download page](https://github.com/cboyd0319/JobSentinel/releases/latest).
-4. Download the installer or package for your computer.
-5. Download the matching `.sha256` file from the same release.
-6. Close JobSentinel.
-7. Check the download before opening it.
-8. Install the new version.
-9. Open JobSentinel and confirm your searches, applications, and settings still
-   look right.
+## Before updating
 
-Use only GitHub Releases from this repository. Do not install JobSentinel from
-random mirrors, chat links, or re-uploaded files.
+1. Preserve a compatible backup before replacing the app.
+2. Download only from the
+   [JobSentinel release page](https://github.com/cboyd0319/JobSentinel/releases).
+3. Select the intended version and platform package, plus its matching checksum.
+4. Verify the package before opening it and review the release's compatibility notes.
+5. Close JobSentinel before manual replacement, then reopen and check your data.
 
-## Check The Download
+A Settings backup covers settings, saved searches and cover letter templates,
+not all local records. V3 also provides an encrypted portable backup that leaves
+saved credentials out. Keep its passphrase separately. See
+[local backups and recovery](../features/user-data-management.md).
 
-The filename and checksum should match the same release.
+V3.0.0 is the first supported v3 storage baseline. Do not open pre-v3 data as a
+v3 profile or point an older app at newer data. Unsupported data must remain
+preserved for an explicit supported recovery route.
 
-- Windows no-account installers should include `_unsigned` in the filename until
-  Windows code signing is available.
-- Mac no-account packages should include `_no-account_` and `_universal` in the
-  filename until Developer ID signing and notarization are available.
-- Linux packages should include the same version number as the release.
-- Every installer or package should have a matching `.sha256` file.
+## Reviewed v3 updates
 
-If a checksum is missing, the filename looks wrong, or the version numbers do
-not match, stop and do not install that file.
+In Settings, use the local update panel to choose a trusted signed package with
+its release manifest and signature beside it. The app verifies package identity,
+platform, digest, publisher authority and data compatibility before showing a
+review. If trusted publisher setup is unavailable, installer selection remains
+unavailable. A checksum alone does not satisfy this trust gate.
 
-### macOS Or Linux
+Review the version and compatibility details, then choose whether to cancel or
+confirm. Confirmation prepares a verified recovery snapshot and stops active
+work before the installer handoff.
 
-Put the downloaded package and its `.sha256` file in the same folder, then run:
+**Installer opened** means only that the
+operating system accepted the launch. It does not prove installation succeeded.
+Follow the installer, reopen JobSentinel and check the resulting version/data.
+
+An explicit online availability check may contact GitHub. It does not authorize
+installation or upload local job-search data. Local backup and recovery controls
+remain available when the network is unavailable.
+
+## Verify a download
+
+Use the package and checksum from the same repository release. Expected labels
+for the published no-account assets include `_unsigned` on Windows and
+`_no-account_` plus `_universal` on macOS. Do not assume these labels prove safety.
+If an expected checksum is missing or does not match, stop.
+
+On macOS or Linux, put the files in one folder and run:
 
 ```bash
 shasum -a 256 -c JobSentinel_*.sha256
 ```
 
-The command should report `OK`.
+The selected package should report `OK`.
 
-### Windows
-
-Open PowerShell in the folder containing the installer and run:
+On Windows, run:
 
 ```powershell
 Get-FileHash .\JobSentinel_X.Y.Z_x64-setup_unsigned.exe -Algorithm SHA256
 ```
 
-Compare the `Hash` value to the text inside the matching `.sha256` file. They
-must be the same.
+Replace `X.Y.Z` with the downloaded version and compare the returned hash with
+its matching `.sha256` file. Use the actual package filename if it differs.
 
-## If The App Warns On First Open
+Unsigned or unnotarized packages may trigger operating-system warnings. Follow
+the release's documented first-open instructions only after verifying its source,
+expected filename and checksum. Never bypass an unexpected warning or use a
+package from a mirror, chat attachment or re-upload.
 
-Windows SmartScreen or macOS Gatekeeper may warn when a no-account installer is
-unsigned or not notarized yet. Continue only when all of these are true:
+## Compatible rollback and data recovery
 
-- You downloaded the file from this repository's GitHub Releases page.
-- The filename matches the platform and release you expected.
-- The `.sha256` checksum matches.
+A v3 rollback is a separately reviewed, compatible v3 app package. The update
+panel labels its direction and requires confirmation. It changes the app version.
+It does not restore an older copy of saved data.
 
-If any of those are not true, delete the download and wait for a replacement
-release.
+Newer-schema incompatibility
+must stop the rollback rather than forcing an older app to read the data.
 
-## Going Back To An Older Version
+For data recovery, use the separate encrypted backup restore workflow. Review the
+backup and passphrase, stage it, and either cancel before restarting or allow
+startup verification and promotion. Do not delete the current data folder to
+force a restore or replace a damaged database manually.
 
-1. Close JobSentinel.
-2. Keep your latest Settings backup.
-3. Open the
-   [JobSentinel releases page](https://github.com/cboyd0319/JobSentinel/releases).
-4. Download the older installer or package and its matching `.sha256` file.
-5. Verify the checksum.
-6. Install the older version.
-7. Open JobSentinel and check your data.
-8. If something looks wrong, open **Settings** and use **Restore Settings** with
-   the backup you saved before updating.
-
-Do not delete JobSentinel's local data folder while going back unless a support
-doc or maintainer tells you to. Deleting that folder can remove saved jobs,
-applications, notes, settings, and local records.
-
-## What JobSentinel Will Not Do
-
-- It will not install updates in the background.
-- It will not replace the app without your action.
-- It will not use a separate update server.
-- It will not send your local job-search data anywhere during an update.
+If startup or installation fails, preserve current files and use local recovery
+or a safe support report. Keep the original profile and backup until recovery
+has been verified. A backup of settings alone cannot recover every record.

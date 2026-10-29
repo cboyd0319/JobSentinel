@@ -1,3 +1,5 @@
+<!-- Defines current local-data, credential, external-channel and user-review privacy boundaries. -->
+
 # JobSentinel Privacy
 
 JobSentinel is local-first. Default assumption: job-search data is sensitive and
@@ -34,12 +36,15 @@ By default, these stay on the user's computer:
 
 JobSentinel stores app data on the user's computer. On macOS and Linux,
 app-owned data and settings directories are kept private to the current account,
-and local database files are kept owner-only. Saved secrets are stored in the
-operating system credential store where supported:
+and local database files are kept owner-only. Saved connection details live in
+an encrypted vault inside the local database. Installed profiles protect its key
+with macOS Keychain, Windows Credential Manager, Linux Secret Service, or the
+configured vault passphrase. Portable profiles use their profile passphrase and
+do not use host credential entries. Settings files remain separate from the
+encrypted database; private directory permissions protect those files.
 
-- Windows Credential Manager.
-- macOS Keychain.
-- Linux Secret Service, such as GNOME Keyring or KWallet.
+See [saved secrets](docs/features/saved-secrets.md) and
+[portable/shared-computer controls](docs/features/user-data-management.md).
 
 ## What may leave the device
 
@@ -60,6 +65,8 @@ Possible network activity:
   private notes, application history, or full source links in that contact
   history.
 - User-requested location detection through FreeIPAPI.
+- User-approved Application Assist field preparation exposes the selected details
+  to the application website. Its scripts may transmit them before final submission.
 - External alerts through Slack, Discord, Teams, Telegram, or email channels the
   user turns on.
   Alert details may include public job details and fit level, but local fit
@@ -67,8 +74,8 @@ Possible network activity:
   JobSentinel.
 - Feedback or issue-report sharing through GitHub or Google Drive only when the
   user chooses to open those support links.
-- Source-specific sign-in or session validation when the user enables a source
-  that requires their own session.
+- User-opened websites in the user's browser. JobSentinel does not capture or
+  validate restricted-site sign-in sessions.
 - Optional external AI requests only after the user enables a provider, reviews
   the exact details, and approves sending them.
 
@@ -97,8 +104,9 @@ That gateway must enforce:
 - Local request logging of feature, provider, timestamp, and high-level data
   categories sent.
 - No full database uploads.
-- No private notes or unrelated application history unless explicitly selected.
-- No resume text or salary floor sharing unless explicitly selected.
+- Current provider transport accepts only unchanged selected fields from a saved
+  public job posting. Private notes, application history, resumes and salary
+  floors are refused even if a caller requests sending them.
 - Local-only fallback or a clear external-AI-required label for features that
   cannot run locally.
 
@@ -110,8 +118,8 @@ sensitive query parameters before preview, hashing, storage, or returning a
 result; the import command returns only the saved job id.
 
 Provider access details and saved secrets must not be hardcoded. If a user adds
-a provider access key, it should live in the operating system credential store
-where supported.
+a provider access key, it belongs in the encrypted local vault under the same
+key-protection rules as other saved connection details.
 Logs must record only safe request details, never full prompts, resumes, notes,
 salary floors, secrets, or full responses.
 

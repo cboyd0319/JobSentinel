@@ -121,8 +121,9 @@ only an opaque token and sanitized file name. Replacement, cancel, completion,
 and restart clean staged copies. JobSentinel does not subscribe to Tauri's
 built-in raw-path event, grants the renderer no filesystem capability, and
 never renders or logs the source path. Copies are serialized and stop when a newer
-drop supersedes them. Resume and text drops are limited to 10 MiB; encrypted `.db`
-backup drops are limited to 256 MiB, with larger backups using Settings > Restore.
+drop supersedes them. Resume/text staging is limited to 10 MiB, and job-posting
+text review is further limited to 200,000 UTF-8 bytes. Encrypted `.db` backup drops
+are limited to 256 MiB, with larger backups using the explicit Settings restore chooser.
 
 The user explicitly chooses the existing owner:
 

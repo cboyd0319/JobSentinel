@@ -2,7 +2,7 @@
 
 # Features And Capabilities
 
-Last reviewed: 2026-07-22.
+Last reviewed: 2026-10-28.
 
 This page is the single maintained map of what JobSentinel can do in the
 current source line. Development metadata targets the unreleased `3.0.0` line.
@@ -54,6 +54,10 @@ account, telemetry, cloud sync, or external AI provider.
 | Restricted job sources | User-gated, local, review-first paths only |
 | Final application submission | Always user-controlled outside JobSentinel |
 
+R13 shared-computer privacy has development acceptance. E15 portable profiles
+have an implementation checkpoint; installed-platform qualification is still
+pending. These Next changes do not expand the approved v3.0 release cut.
+
 Use [current status](../harness/current-status.md) for current release gates and
 [the README](../../README.md) for public download status.
 
@@ -64,7 +68,7 @@ Use [current status](../harness/current-status.md) for current release gates and
 | Setup and saved searches | Start from plain job goals, locations, pay floors, work modes, and reviewed source choices | Local only, sensitive | [Quick Start](../user/QUICK_START.md), [local data](user-data-management.md) |
 | Job discovery and source checks | Check approved public job sources, official feeds, and employer career pages within source limits | Local storage; source requests only after user configuration or opt-in | [Job Sources](job-sources.md), [Job Source Status](job-source-status.md) |
 | Company careers discovery | Classify employer career pages and route them to native source support, Browser Import, pasted links, or manual entry | Local classification, then user-approved source action | [Job Sources](job-sources.md) |
-| Restricted-source Workbench | Help users work from user-opened restricted sites with acknowledgement, visible-page import, local ledger actions, and no stored auth material | Local only after user action; no cookies, tokens, browser storage, or hidden page state | [Job Sources](job-sources.md), [Browser Import Button](browser-import.md) |
+| Restricted-source Workbench | Help users work from user-opened restricted sites with acknowledgement, user-entered posting details, local ledger actions, and no page capture or stored auth material | Local only after user action; no cookies, tokens, browser storage, or hidden page state | [Job Sources](job-sources.md), [Browser Import Button](browser-import.md) |
 | Browser Import | Send visible jobs from a user-opened browser page into a local review queue | Local one-use import detail; reviewed records stay local | [Browser Import Button](browser-import.md) |
 | Dashboard and job cards | Show fit, source, pay, freshness, posting-risk, reminders, and next actions | Local job records and public posting details | [Fit Review](smart-scoring.md), [Ghost Detection](ghost-detection.md), [Pay Protection](pay-protection.md) |
 | Fit review | Sort and explain jobs using titles, work words, salary, location, company preferences, freshness, and optionally reviewed resume skills | Local only | [Fit Review](smart-scoring.md), [Remote And Work-Mode Matching](remote-preference-scoring.md), [Synonym Matching](synonym-matching.md) |
@@ -78,6 +82,8 @@ Use [current status](../harness/current-status.md) for current release gates and
 | Application Assist | Prepare profile details in a visible browser, review hard screening questions, and keep final submission manual | Local only; selected resume file stays local and manual to attach | [Application Assist](application-assist.md) |
 | Application tracking | Track opportunities, statuses, notes, contacts, follow-ups, interviews, offers, and no-response review | Local only, sensitive | [Application Tracking](application-tracking.md) |
 | Notifications | Send optional desktop, email, Slack, Discord, Teams, or Telegram alerts after user configuration | Desktop local; external channels receive only alert details the user enabled | [Notifications](notifications.md), [Saved Secrets](saved-secrets.md) |
+| Shared-computer privacy | Lock private views and native access; review transient-session cleanup; unlock with fresh verification | Local only, sensitive; saved records remain | [Local Job-Search Data](user-data-management.md#shared-computer-privacy) |
+| Portable profiles | Select a private profile root, unlock before database use, move managed resume references and recover compatible data | Local only, sensitive; profile passphrase and ephemeral browser state | [Portable profiles](user-data-management.md#portable-profiles) |
 | Safe support and backups | Create sanitized support reports, local settings backups, and recovery guidance | Local by default; user reviews before sharing | [Local Job-Search Data](user-data-management.md), [Privacy](../../PRIVACY.md) |
 | Saved secrets | Store alert passwords, connection links, and source access codes in a local encrypted vault | Local vault protected by the operating system password store or passphrase mode | [Saved Secrets](saved-secrets.md), [Keyring](../security/KEYRING.md) |
 | External AI gateway | Let users configure OpenAI, Anthropic, Google Gemini, GitHub Copilot, or custom HTTPS providers for approved optional actions | Disabled by default; preview, edit, cancel, approval, redaction, and metadata-only logs | [Privacy-first AI Gateway](../security/privacy-first-ai-gateway.md), [Responsible AI](../../RESPONSIBLE_AI.md) |

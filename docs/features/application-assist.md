@@ -1,3 +1,5 @@
+<!-- Describes reviewed application-field preparation, manual attachments and outside-site data exposure. -->
+
 # Application Assist
 
 Application Assist helps you review job application forms without turning the
@@ -81,7 +83,8 @@ Before using Application Assist, fill in your information:
 If you select a resume file, JobSentinel copies it into local app storage and
 shows only the file name in the app, not the folder path. Application Assist
 does not attach the resume automatically; attach it yourself on the application
-site after reviewing the page.
+site after reviewing the page. Portable profiles retain managed copies by a
+profile-relative reference so they remain available after a closed profile is moved.
 
 ---
 
@@ -360,7 +363,9 @@ Complete the human check yourself. JobSentinel leaves that step to you.
 - It does not submit the final application.
 - It does not complete human checks.
 - It does not apply to jobs without you.
-- It does not submit profile details or send them to JobSentinel servers.
+- It does not send profile details to a JobSentinel server. Approved field fills
+  expose selected details to the application site, whose scripts may transmit
+  them before the user clicks Submit.
 - It prepares selected fields only after preview and user approval.
 - It does not work around site security controls.
 

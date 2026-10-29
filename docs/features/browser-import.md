@@ -139,7 +139,8 @@ the review looks useful, then fill in any blank details in JobSentinel.
   records, durable storage, or safe support reports.
 - The pairing is bound to the confirmed public HTTPS origin, works for one
   request, and expires after about ten minutes. Starting, stopping, or replacing
-  Browser Import revokes the active pairing.
+  Browser Import revokes the active pairing. Shared-computer locking also stops
+  the receiver; after unlocking, restart Browser Import and copy a fresh button.
 - The local receiver requires the browser `Origin` header, the paired origin,
   and every submitted job URL to agree.
 - The button sends only to the JobSentinel app running on your computer.
