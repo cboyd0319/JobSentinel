@@ -25,6 +25,7 @@ with `npm run tauri:dev`.
 
 ## Non-Negotiable Boundaries
 
+- Every `AGENTS.md`, including downstream files, is capped at 150 lines and 32 KiB. No exceptions.
 - Every release from v3 onward must finish three separate, full phases in order:
   Stability, Performance, Security. All must pass before publication; the
   [Release Contract](docs/developer/RELEASING.md#mandatory-final-release-phases) owns their gates.
@@ -65,9 +66,8 @@ with `npm run tauri:dev`.
 - UI and copy: `docs/design/design-system.md`, `docs/design/design-spec.md`, and
   `docs/style-guide/README.md`
 
-Closest feature documentation under `docs/features/` owns user-visible behavior.
-Detailed plans under `docs/plans/` may expand the active feature but cannot
-replace canonical state.
+Feature docs under `docs/features/` own user-visible behavior. Plans under `docs/plans/`
+may expand the active feature but cannot replace canonical state.
 
 ## Verification
 
