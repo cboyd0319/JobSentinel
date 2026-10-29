@@ -13,7 +13,7 @@ use jobsentinel_domain::{
     signed_packs::{TrustedPublisherKey, VerifiedPackRelease},
 };
 use jobsentinel_storage::{
-    v3_pack_lifecycle::{
+    pack_lifecycle::{
         PackAvailability, PackReleaseState, PackStageOutcome, PackStream, StoredPackRelease,
     },
     Database,

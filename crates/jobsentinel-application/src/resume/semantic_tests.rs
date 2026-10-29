@@ -5,7 +5,7 @@ use jobsentinel_domain::{Job, ResumeEvidenceCitation, ResumeEvidenceSnapshot};
 use jobsentinel_local_ai::{
     default_resume_embedding_provenance, SemanticRuntimeProfile, SkillMatch,
 };
-use jobsentinel_storage::{v3_vectors::StoredVectorRead, Database};
+use jobsentinel_storage::{vectors::StoredVectorRead, Database};
 use std::cell::Cell;
 
 fn bind_match_evidence(
@@ -100,7 +100,7 @@ async fn first_resume_vector_cache_handles_miss_hit_invalid_and_stale_content() 
     .await
     .unwrap();
     database
-        .store_v3_vector(
+        .store_vector(
             &resume_vector_subject(resume_id).unwrap(),
             &resume_vector_freshness(&model, "Rust").unwrap(),
             &model,
@@ -151,9 +151,9 @@ async fn unavailable_model_purges_cache_without_rebuilding() {
     let (resume_id, snapshot) = create_resume_snapshot(&database).await;
     let model = default_resume_embedding_provenance().unwrap();
     let freshness = resume_vector_freshness(&model, "Rust").unwrap();
-    let subject = jobsentinel_storage::v3_vectors::resume_vector_subject(resume_id).unwrap();
+    let subject = jobsentinel_storage::vectors::resume_vector_subject(resume_id).unwrap();
     database
-        .store_v3_vector(
+        .store_vector(
             &subject,
             &freshness,
             &model,
@@ -177,7 +177,7 @@ async fn unavailable_model_purges_cache_without_rebuilding() {
     assert!(loaded.is_none());
     assert_eq!(
         database
-            .read_v3_vector(&subject, &freshness, Some(&model))
+            .read_vector(&subject, &freshness, Some(&model))
             .await
             .unwrap(),
         StoredVectorRead::Missing
@@ -213,9 +213,9 @@ async fn semantic_resume_match_preserves_model_free_fallback_and_purges_cache() 
 
     let model = default_resume_embedding_provenance().unwrap();
     let freshness = resume_vector_freshness(&model, "Rust").unwrap();
-    let subject = jobsentinel_storage::v3_vectors::resume_vector_subject(resume_id).unwrap();
+    let subject = jobsentinel_storage::vectors::resume_vector_subject(resume_id).unwrap();
     database
-        .store_v3_vector(
+        .store_vector(
             &subject,
             &freshness,
             &model,
@@ -265,7 +265,7 @@ async fn semantic_resume_match_preserves_model_free_fallback_and_purges_cache() 
     );
     assert_eq!(
         database
-            .read_v3_vector(&subject, &freshness, Some(&model))
+            .read_vector(&subject, &freshness, Some(&model))
             .await
             .unwrap(),
         StoredVectorRead::Missing
@@ -382,7 +382,7 @@ async fn poisoned_job_input_is_rejected_before_cache_mutation() {
     let subject = resume_vector_subject(resume_id).unwrap();
     let vector = unit_vector(model.dimension, 0);
     database
-        .store_v3_vector(&subject, &freshness, &model, &vector)
+        .store_vector(&subject, &freshness, &model, &vector)
         .await
         .unwrap();
 
@@ -403,7 +403,7 @@ async fn poisoned_job_input_is_rejected_before_cache_mutation() {
     assert_eq!(error.to_string(), "local matching input requires review");
     assert_eq!(
         database
-            .read_v3_vector(&subject, &freshness, Some(&model))
+            .read_vector(&subject, &freshness, Some(&model))
             .await
             .unwrap(),
         StoredVectorRead::Ready(vector)

@@ -34,13 +34,13 @@ mod job_geography_migration_tests;
 mod listed_pay_migration_tests;
 mod maintenance_tests;
 mod migration_tests;
+mod pack_migration_tests;
+mod policy_migration_tests;
 mod portable_backup_tests;
 mod portable_restore_marker_tests;
 mod portable_restore_tests;
 mod reviewed_export_packet_tests;
 mod reviewed_export_tests;
-mod v3_pack_migration_tests;
-mod v3_policy_migration_tests;
 
 #[cfg(test)]
 mod memory_tests {

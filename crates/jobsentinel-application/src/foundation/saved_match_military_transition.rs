@@ -13,7 +13,7 @@ use jobsentinel_domain::{
     manifests::PrivacyLabel,
     ResumeEvidenceCitation,
 };
-use jobsentinel_storage::{v3_foundation::SavedMatchEvidenceConfirmation, Database};
+use jobsentinel_storage::{foundation::SavedMatchEvidenceConfirmation, Database};
 use serde::{Deserialize, Serialize};
 use std::sync::{Arc, RwLock};
 use uuid::Uuid;

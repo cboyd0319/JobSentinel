@@ -4,7 +4,7 @@ use anyhow::Result;
 use sqlx::{Row, Sqlite, SqlitePool, Transaction};
 
 use super::{types, ResumeMatcher, UserSkill};
-use crate::v3_vectors::resume_vector_subject;
+use crate::vectors::resume_vector_subject;
 use types::NullableFieldUpdate;
 
 pub(super) async fn persist_extracted_skills(

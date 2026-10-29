@@ -1,4 +1,4 @@
-// Owns durable v3 foundation persistence and storage-safe read models.
+// Owns durable foundation persistence and storage-safe read models.
 
 use anyhow::{anyhow, Result};
 use chrono::Utc;
@@ -412,19 +412,19 @@ pub use opportunity_case::{
 };
 
 #[cfg(test)]
-#[path = "v3_foundation/case_evidence_tests.rs"]
+#[path = "foundation/case_evidence_tests.rs"]
 mod case_evidence_tests;
 
 #[cfg(test)]
-#[path = "v3_foundation/evidence_packet_tests.rs"]
+#[path = "foundation/evidence_packet_tests.rs"]
 mod evidence_packet_tests;
 
 #[cfg(test)]
-#[path = "v3_foundation/saved_match_evidence_tests.rs"]
+#[path = "foundation/saved_match_evidence_tests.rs"]
 mod saved_match_evidence_tests;
 
 #[cfg(test)]
-#[path = "v3_foundation/opportunity_case_tests.rs"]
+#[path = "foundation/opportunity_case_tests.rs"]
 mod opportunity_case_tests;
 
 #[cfg(test)]

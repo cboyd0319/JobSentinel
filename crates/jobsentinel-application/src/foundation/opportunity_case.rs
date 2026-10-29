@@ -4,7 +4,7 @@ use super::FoundationError;
 use crate::ats::ApplicationStatus;
 use chrono::{DateTime, Utc};
 use jobsentinel_storage::{
-    v3_foundation::{OpportunityCaseRead, OpportunityCaseTimelineRecord},
+    foundation::{OpportunityCaseRead, OpportunityCaseTimelineRecord},
     Database,
 };
 use serde::Serialize;

@@ -9,7 +9,7 @@ use jobsentinel_domain::{
 use sqlx::{Sqlite, Transaction};
 use uuid::Uuid;
 
-use crate::{v3_foundation::enum_text, Database};
+use crate::{foundation::enum_text, Database};
 
 mod input_guard;
 mod types;

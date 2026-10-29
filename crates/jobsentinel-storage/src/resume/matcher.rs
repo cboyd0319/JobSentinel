@@ -1,6 +1,4 @@
-//! Resume-Job Matching Algorithm
-//!
-//! Compares resume skills against job requirements and generates match scores.
+//! Matches resume evidence against job requirements and stores explained scores.
 #![allow(clippy::unwrap_used, clippy::expect_used)] // Regex patterns are compile-time constants
 
 use super::skills::SkillExtractor;
@@ -429,17 +427,6 @@ impl JobMatcher {
             gap_analysis: Some(gap_analysis),
             created_at: Utc::now(),
         })
-    }
-
-    /// Generate human-readable gap analysis (legacy - kept for backward compatibility)
-    #[cfg(test)]
-    fn generate_gap_analysis(
-        &self,
-        matching_skills: &[String],
-        missing_skills: &[String],
-        overall_score: f64,
-    ) -> String {
-        gap_analysis::generate_gap_analysis(matching_skills, missing_skills, overall_score)
     }
 }
 

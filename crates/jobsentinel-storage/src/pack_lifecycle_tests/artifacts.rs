@@ -1,7 +1,7 @@
 // Verifies pack artifact quarantine, cleanup, and secure retention transitions.
 
 use super::*;
-use crate::v3_pack_lifecycle::{PackQuarantineReason, PackReleaseState};
+use crate::pack_lifecycle::{PackQuarantineReason, PackReleaseState};
 
 #[tokio::test]
 async fn invalid_active_artifact_is_unlinked_and_quarantined_atomically() {

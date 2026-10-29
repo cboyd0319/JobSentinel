@@ -3,7 +3,7 @@
 use super::*;
 use crate::pack_runtime_tests::{signed_source_pack, stage_and_activate, PACK_ID, PUBLISHER_ID};
 use chrono::NaiveDate;
-use jobsentinel_storage::v3_pack_lifecycle::PackAvailability;
+use jobsentinel_storage::pack_lifecycle::PackAvailability;
 
 #[tokio::test]
 async fn initializes_first_run_desktop_services() {

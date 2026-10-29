@@ -28,7 +28,7 @@ pub fn resume_vector_subject(resume_id: i64) -> Result<String, sqlx::Error> {
 }
 
 impl Database {
-    pub async fn store_v3_vector(
+    pub async fn store_vector(
         &self,
         subject_id: &str,
         freshness: &VectorFreshness,
@@ -58,7 +58,7 @@ impl Database {
         Ok(())
     }
 
-    pub async fn store_v3_resume_vector_if_current(
+    pub async fn store_resume_vector_if_current(
         &self,
         resume_id: i64,
         snapshot: &ResumeEvidenceSnapshot,
@@ -106,7 +106,7 @@ impl Database {
         Ok(())
     }
 
-    pub async fn read_v3_vector(
+    pub async fn read_vector(
         &self,
         subject_id: &str,
         current: &VectorFreshness,
@@ -270,5 +270,5 @@ fn protocol_error(message: &'static str) -> sqlx::Error {
 }
 
 #[cfg(test)]
-#[path = "v3_vectors_tests.rs"]
+#[path = "vectors_tests.rs"]
 mod tests;

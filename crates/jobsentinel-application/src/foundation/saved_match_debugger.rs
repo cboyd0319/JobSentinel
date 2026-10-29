@@ -2,7 +2,7 @@
 use super::{map_error, FoundationError, RequirementWhyNot};
 use jobsentinel_documents::{AtsAnalyzer, KeywordImportance, RequirementMatchState};
 use jobsentinel_domain::{ResumeEvidenceCitation, ResumeEvidenceSnapshot};
-use jobsentinel_storage::{v3_foundation::SavedMatchEvidenceConfirmation, Database};
+use jobsentinel_storage::{foundation::SavedMatchEvidenceConfirmation, Database};
 use serde::Serialize;
 use sha2::{Digest, Sha256};
 use std::collections::HashSet;

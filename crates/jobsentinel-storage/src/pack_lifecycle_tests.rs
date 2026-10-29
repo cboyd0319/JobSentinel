@@ -12,9 +12,9 @@ use serde_json::json;
 use sha2::{Digest, Sha256};
 
 use crate::{
+    pack_lifecycle::{PackAvailability, PackStageOutcome, PackStream},
     pack_lifecycle_error_kind,
     test_support::migrated_database,
-    v3_pack_lifecycle::{PackAvailability, PackStageOutcome, PackStream},
 };
 
 const PUBLISHER_ID: &str = "jobsentinel-test-source-v1";

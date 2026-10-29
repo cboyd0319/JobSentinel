@@ -8,18 +8,18 @@ mod sqlite_time;
 
 pub mod application_tracking;
 pub mod automation;
+pub mod foundation;
 pub mod health;
 pub mod market_intelligence;
 pub mod outside_ai;
+pub mod pack_lifecycle;
 pub mod pack_tasks;
 pub mod resume;
 pub mod salary;
+pub mod source_consent;
+pub mod source_manifest;
 pub mod user_data;
-pub mod v3_foundation;
-pub mod v3_pack_lifecycle;
-pub mod v3_source_consent;
-pub mod v3_source_manifest;
-pub mod v3_vectors;
+pub mod vectors;
 
 // Internal modules
 mod analytics;
@@ -36,15 +36,15 @@ mod types;
 #[cfg(test)]
 mod outside_ai_tests;
 #[cfg(test)]
+mod pack_lifecycle_tests;
+#[cfg(test)]
 mod pack_tasks_tests;
+#[cfg(test)]
+mod source_manifest_tests;
 #[cfg(test)]
 pub(crate) mod test_support;
 #[cfg(test)]
 mod tests;
-#[cfg(test)]
-mod v3_pack_lifecycle_tests;
-#[cfg(test)]
-mod v3_source_manifest_tests;
 
 // Re-export public types
 pub use types::{DuplicateGroup, GhostStatistics, Statistics};
@@ -59,7 +59,7 @@ pub use connection::{
 pub use credentials::{
     CredentialKeyWrapRecord, CredentialRepository, CredentialSecretRecord, CredentialStorageError,
 };
-pub use v3_pack_lifecycle::pack_lifecycle_error_kind;
+pub use pack_lifecycle::pack_lifecycle_error_kind;
 
 /// Decodes persisted listed pay without falling back to legacy salary fields.
 pub(crate) fn decode_listed_pay_json(

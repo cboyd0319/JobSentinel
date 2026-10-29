@@ -1,34 +1,6 @@
+//! Formats evidence-backed match explanations and truthful next steps.
+
 use super::{EducationRequirement, ExperienceRequirement};
-
-#[cfg(test)]
-pub(super) fn generate_gap_analysis(
-    matching_skills: &[String],
-    missing_skills: &[String],
-    overall_score: f64,
-) -> String {
-    let match_percentage = (overall_score * 100.0).round() as i32;
-
-    let mut analysis = format!("Match: {}%\n\n", match_percentage);
-
-    if !matching_skills.is_empty() {
-        analysis.push_str(&format!("Matching Skills ({}):\n", matching_skills.len()));
-        for skill in matching_skills {
-            analysis.push_str(&format!("  - {}\n", skill));
-        }
-        analysis.push('\n');
-    }
-
-    if !missing_skills.is_empty() {
-        analysis.push_str(&format!("Missing Skills ({}):\n", missing_skills.len()));
-        for skill in missing_skills {
-            analysis.push_str(&format!("  - {}\n", skill));
-        }
-        analysis.push('\n');
-    }
-
-    append_next_step(&mut analysis, overall_score);
-    analysis
-}
 
 #[allow(clippy::too_many_arguments)]
 pub(super) fn generate_enhanced_gap_analysis(

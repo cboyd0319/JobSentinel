@@ -12,8 +12,8 @@ use jobsentinel_domain::{
     signed_packs::TrustedPublisherKey,
 };
 use jobsentinel_storage::{
+    pack_lifecycle::PackAvailability,
     pack_tasks::{PackTaskContext, PackTaskStatus},
-    v3_pack_lifecycle::PackAvailability,
     Database,
 };
 use serde::Serialize;

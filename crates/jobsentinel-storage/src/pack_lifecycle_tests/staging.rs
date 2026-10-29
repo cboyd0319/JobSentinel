@@ -1,3 +1,5 @@
+//! Proves verified pack staging is idempotent and rejects rollback or key equivocation.
+
 use super::*;
 
 #[tokio::test]

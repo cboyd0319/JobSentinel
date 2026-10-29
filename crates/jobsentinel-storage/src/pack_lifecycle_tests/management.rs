@@ -1,7 +1,7 @@
 //! Proves durable pack-management review facts and artifact-cleanup truth.
 
 use super::*;
-use crate::v3_pack_lifecycle::PackReleaseState;
+use crate::pack_lifecycle::PackReleaseState;
 
 #[tokio::test]
 async fn stage_persists_immutable_verified_review() {

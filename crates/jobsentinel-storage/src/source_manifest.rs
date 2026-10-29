@@ -9,7 +9,7 @@ use jobsentinel_domain::{
 use sqlx::FromRow;
 
 use crate::{
-    v3_foundation::{enum_text, parse_enum},
+    foundation::{enum_text, parse_enum},
     Database,
 };
 

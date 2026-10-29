@@ -1,3 +1,5 @@
+//! Proves saved-match evidence confirmation is current, atomic and idempotent.
+
 use super::*;
 use jobsentinel_domain::{ResumeEvidenceCitation, ResumeEvidenceSnapshot};
 

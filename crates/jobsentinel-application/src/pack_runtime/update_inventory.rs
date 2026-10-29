@@ -2,7 +2,7 @@
 
 use super::{load_tested_artifact, production_trusted_publishers, PackRuntimeEnvironment};
 use jobsentinel_domain::signed_packs::VerifiedPackRelease;
-use jobsentinel_storage::{v3_pack_lifecycle::PackReleaseState, Database};
+use jobsentinel_storage::{pack_lifecycle::PackReleaseState, Database};
 
 pub(crate) async fn update_pack_inventory(
     database: &Database,

@@ -1,3 +1,5 @@
+//! Stores reviewed packet claims and their ordered evidence within one transaction.
+
 use super::*;
 use chrono::{DateTime, Utc};
 use jobsentinel_domain::{ResumeEvidenceCitation, ResumeEvidenceSnapshot};

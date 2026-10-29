@@ -1,6 +1,8 @@
+//! Maintains resume records, their revisions and dependent match/vector invalidation.
+
 use super::*;
 use crate::sqlite_time::parse_sqlite_datetime;
-use crate::v3_vectors::resume_vector_subject;
+use crate::vectors::resume_vector_subject;
 
 fn match_feedback(row: &sqlx::sqlite::SqliteRow) -> Result<Option<ResumeMatchFeedback>> {
     let label = row.try_get::<Option<String>, _>("feedback_label")?;

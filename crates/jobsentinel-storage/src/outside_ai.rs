@@ -7,7 +7,7 @@ use serde::Serialize;
 use sqlx::FromRow;
 use uuid::Uuid;
 
-use crate::{sqlite_time::parse_sqlite_datetime, v3_foundation::enum_text, Database};
+use crate::{foundation::enum_text, sqlite_time::parse_sqlite_datetime, Database};
 
 const JOB_DESCRIPTION_SUMMARY: &str = "job-description-summary";
 

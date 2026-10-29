@@ -12,8 +12,8 @@ use sqlx::FromRow;
 use uuid::Uuid;
 
 use crate::{
+    foundation::{enum_text, parse_enum, source_policy_from_row, SourcePolicyRow},
     sqlite_time::parse_sqlite_datetime,
-    v3_foundation::{enum_text, parse_enum, source_policy_from_row, SourcePolicyRow},
     Database,
 };
 
@@ -381,5 +381,5 @@ fn map_consent_write_error(error: sqlx::Error) -> anyhow::Error {
 }
 
 #[cfg(test)]
-#[path = "v3_source_consent_tests.rs"]
+#[path = "source_consent_tests.rs"]
 mod tests;

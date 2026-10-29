@@ -10,11 +10,11 @@ use jobsentinel_domain::{
     signed_packs::TrustedPublisherKey,
 };
 use jobsentinel_security::sign_ed25519_for_test;
+use jobsentinel_storage::{pack_lifecycle::PackAvailability, Database};
 use jobsentinel_storage::{
+    pack_lifecycle::{PackQuarantineReason, PackReleaseState},
     pack_tasks::PackTaskStatus,
-    v3_pack_lifecycle::{PackQuarantineReason, PackReleaseState},
 };
-use jobsentinel_storage::{v3_pack_lifecycle::PackAvailability, Database};
 use serde_json::json;
 use sha2::{Digest, Sha256};
 

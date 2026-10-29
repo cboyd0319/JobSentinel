@@ -163,14 +163,14 @@ pub async fn authorize_source_action(
 }
 
 pub(crate) fn map_error(error: anyhow::Error) -> FoundationError {
-    if let Some(kind) = jobsentinel_storage::v3_source_consent::error_kind(&error) {
+    if let Some(kind) = jobsentinel_storage::source_consent::error_kind(&error) {
         return match kind {
             "invalid" => FoundationError::InvalidInput,
             "conflict" => FoundationError::Conflict,
             kind => FoundationError::Storage(kind),
         };
     }
-    match jobsentinel_storage::v3_foundation::error_kind(&error) {
+    match jobsentinel_storage::foundation::error_kind(&error) {
         "invalid" => FoundationError::InvalidInput,
         kind => FoundationError::Storage(kind),
     }

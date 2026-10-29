@@ -12,7 +12,7 @@ use jobsentinel_local_ai::{
     SemanticMatchResult, SemanticMatcher,
 };
 use jobsentinel_storage::{
-    v3_vectors::{resume_vector_subject, StoredVectorRead},
+    vectors::{resume_vector_subject, StoredVectorRead},
     Database,
 };
 use sha2::{Digest, Sha256};
@@ -65,13 +65,13 @@ where
     let subject = resume_vector_subject(resume_id)?;
     let freshness = resume_vector_freshness(model, first_skill.unwrap_or_default())?;
     if !model_available || first_skill.is_none() {
-        database.read_v3_vector(&subject, &freshness, None).await?;
+        database.read_vector(&subject, &freshness, None).await?;
         return Ok(None);
     }
     let first_skill = first_skill.context("resume vector requires a first skill")?;
 
     if let StoredVectorRead::Ready(vector) = database
-        .read_v3_vector(&subject, &freshness, Some(model))
+        .read_vector(&subject, &freshness, Some(model))
         .await?
     {
         if validate_resume_embeddings(1, model.dimension as usize, std::slice::from_ref(&vector))
@@ -84,7 +84,7 @@ where
     let vector = rebuild(first_skill)?;
     validate_resume_embeddings(1, model.dimension as usize, std::slice::from_ref(&vector))?;
     database
-        .store_v3_resume_vector_if_current(resume_id, snapshot, &freshness, model, &vector)
+        .store_resume_vector_if_current(resume_id, snapshot, &freshness, model, &vector)
         .await?;
     Ok(Some(vector))
 }

@@ -8,7 +8,7 @@ use jobsentinel_domain::{
 };
 use jobsentinel_security::validate_credential_free_external_https_url;
 use jobsentinel_storage::{
-    v3_foundation::{EmployerHistoryRead, OpportunityCaseRead},
+    foundation::{EmployerHistoryRead, OpportunityCaseRead},
     Database,
 };
 use serde::Serialize;

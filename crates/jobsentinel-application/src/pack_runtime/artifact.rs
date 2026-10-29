@@ -7,7 +7,7 @@ use jobsentinel_domain::{
     pack_payloads::{parse_and_self_test_pack_payload, SelfTestedPackRelease},
     signed_packs::{TrustedPublisherKey, VerifiedPackRelease},
 };
-use jobsentinel_storage::v3_pack_lifecycle::StoredPackRelease;
+use jobsentinel_storage::pack_lifecycle::StoredPackRelease;
 use sha2::{Digest, Sha256};
 
 use super::verify_pack;

@@ -6,7 +6,7 @@ use jobsentinel_domain::manifests::{AgentTaskKind, DataCategory, PrivacyLabel};
 use serde::Serialize;
 use sqlx::FromRow;
 
-use crate::v3_foundation::enum_text;
+use crate::foundation::enum_text;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum PackTaskStatus {

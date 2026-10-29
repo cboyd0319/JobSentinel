@@ -6,7 +6,7 @@ use jobsentinel_domain::{
     manifests::{ModelProvenance, VectorFreshness},
 };
 
-use crate::{test_support::migrated_database, v3_vectors::StoredVectorRead};
+use crate::{test_support::migrated_database, vectors::StoredVectorRead};
 
 const CONTENT_HASH: &str = "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd";
 const MANIFEST_HASH: &str = "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc";
@@ -51,13 +51,13 @@ async fn exact_current_vector_round_trips_locally() {
     let freshness = freshness(&model);
 
     database
-        .store_v3_vector("resume:one", &freshness, &model, &[0.25, -0.5, 1.0])
+        .store_vector("resume:one", &freshness, &model, &[0.25, -0.5, 1.0])
         .await
         .unwrap();
 
     assert_eq!(
         database
-            .read_v3_vector("resume:one", &freshness, Some(&model))
+            .read_vector("resume:one", &freshness, Some(&model))
             .await
             .unwrap(),
         StoredVectorRead::Ready(vec![0.25, -0.5, 1.0])
@@ -104,19 +104,19 @@ async fn stale_or_missing_model_vectors_are_removed_without_exposure() {
     for (index, (current, current_model)) in cases.iter().enumerate() {
         let subject = format!("resume:stale:{index}");
         database
-            .store_v3_vector(&subject, &original, &original_model, &[0.25, -0.5, 1.0])
+            .store_vector(&subject, &original, &original_model, &[0.25, -0.5, 1.0])
             .await
             .unwrap();
         assert_eq!(
             database
-                .read_v3_vector(&subject, current, Some(current_model))
+                .read_vector(&subject, current, Some(current_model))
                 .await
                 .unwrap(),
             StoredVectorRead::RebuildNeeded
         );
         assert_eq!(
             database
-                .read_v3_vector(&subject, current, Some(current_model))
+                .read_vector(&subject, current, Some(current_model))
                 .await
                 .unwrap(),
             StoredVectorRead::Missing
@@ -124,7 +124,7 @@ async fn stale_or_missing_model_vectors_are_removed_without_exposure() {
     }
 
     database
-        .store_v3_vector(
+        .store_vector(
             "resume:missing-model",
             &original,
             &original_model,
@@ -134,14 +134,14 @@ async fn stale_or_missing_model_vectors_are_removed_without_exposure() {
         .unwrap();
     assert_eq!(
         database
-            .read_v3_vector("resume:missing-model", &original, None)
+            .read_vector("resume:missing-model", &original, None)
             .await
             .unwrap(),
         StoredVectorRead::RebuildNeeded
     );
     assert_eq!(
         database
-            .read_v3_vector("resume:missing-model", &original, None)
+            .read_vector("resume:missing-model", &original, None)
             .await
             .unwrap(),
         StoredVectorRead::Missing
@@ -188,7 +188,7 @@ async fn malformed_dimension_and_non_finite_rows_are_removed() {
 
         assert_eq!(
             database
-                .read_v3_vector(subject, &current, Some(&model))
+                .read_vector(subject, &current, Some(&model))
                 .await
                 .unwrap(),
             StoredVectorRead::RebuildNeeded
@@ -219,7 +219,7 @@ async fn malformed_dimension_and_non_finite_rows_are_removed() {
     .unwrap();
     assert_eq!(
         database
-            .read_v3_vector("resume:invalid-utf8", &current, Some(&model))
+            .read_vector("resume:invalid-utf8", &current, Some(&model))
             .await
             .unwrap(),
         StoredVectorRead::RebuildNeeded
@@ -241,7 +241,7 @@ async fn vector_writes_are_bounded_and_finite() {
 
     for values in [vec![], vec![f32::INFINITY; 3]] {
         assert!(database
-            .store_v3_vector("resume:invalid", &current, &model, &values)
+            .store_vector("resume:invalid", &current, &model, &values)
             .await
             .is_err());
     }
@@ -249,7 +249,7 @@ async fn vector_writes_are_bounded_and_finite() {
     model.dimension = 4_097;
     current = freshness(&model);
     assert!(database
-        .store_v3_vector("resume:too-large", &current, &model, &vec![0.0; 4_097],)
+        .store_vector("resume:too-large", &current, &model, &vec![0.0; 4_097],)
         .await
         .is_err());
 
@@ -292,7 +292,7 @@ async fn stale_cleanup_preserves_an_aba_replacement() {
     let original_model = model();
     let original = freshness(&original_model);
     database
-        .store_v3_vector("resume:aba", &original, &original_model, &[0.25, -0.5, 1.0])
+        .store_vector("resume:aba", &original, &original_model, &[0.25, -0.5, 1.0])
         .await
         .unwrap();
     let selected: (Vec<u8>, i64, Vec<u8>, i64) = sqlx::query_as(
@@ -311,7 +311,7 @@ async fn stale_cleanup_preserves_an_aba_replacement() {
     replacement.content_sha256 =
         "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee".to_string();
     database
-        .store_v3_vector(
+        .store_vector(
             "resume:aba",
             &replacement,
             &original_model,
@@ -325,7 +325,7 @@ async fn stale_cleanup_preserves_an_aba_replacement() {
         .unwrap();
     assert_eq!(
         database
-            .read_v3_vector("resume:aba", &replacement, Some(&original_model))
+            .read_vector("resume:aba", &replacement, Some(&original_model))
             .await
             .unwrap(),
         StoredVectorRead::Ready(vec![1.0, 0.5, -0.25])
@@ -414,7 +414,7 @@ async fn late_vector_write_cannot_recreate_a_deleted_resume_owner() {
     let model = model();
 
     database
-        .store_v3_resume_vector_if_current(
+        .store_resume_vector_if_current(
             resume_id,
             &snapshot,
             &freshness(&model),
@@ -455,7 +455,7 @@ async fn late_vector_write_cannot_cross_a_resume_revision_change() {
     let model = model();
 
     database
-        .store_v3_resume_vector_if_current(
+        .store_resume_vector_if_current(
             resume_id,
             &snapshot,
             &freshness(&model),

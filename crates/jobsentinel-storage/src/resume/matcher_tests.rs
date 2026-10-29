@@ -1,3 +1,5 @@
+//! Verifies resume matching, stored scores and evidence-backed gap explanations.
+
 use super::*;
 
 #[path = "matcher_tests/edge_case_tests.rs"]
@@ -92,17 +94,26 @@ async fn test_calculate_match() {
     assert!(!match_result.matching_skills.is_empty());
 }
 
-#[tokio::test]
-async fn test_gap_analysis() {
-    let matcher = JobMatcher::new(SqlitePool::connect("sqlite::memory:").await.unwrap());
-
+#[test]
+fn test_gap_analysis() {
     let matching = vec![
         "Case Management".to_string(),
         "Care Coordination".to_string(),
     ];
     let missing = vec!["Budgeting".to_string(), "Reporting".to_string()];
 
-    let analysis = matcher.generate_gap_analysis(&matching, &missing, 0.5);
+    let analysis = gap_analysis::generate_enhanced_gap_analysis(
+        &matching,
+        &missing,
+        0.5,
+        0.0,
+        &[],
+        0.0,
+        None,
+        0.5,
+        None,
+        &[],
+    );
 
     assert!(analysis.contains("50%"));
     assert!(analysis.contains("Case Management"));
@@ -223,10 +234,8 @@ async fn test_calculate_match_no_user_skills() {
     }
 }
 
-#[tokio::test]
-async fn test_gap_analysis_strong_match() {
-    let matcher = JobMatcher::new(SqlitePool::connect("sqlite::memory:").await.unwrap());
-
+#[test]
+fn test_gap_analysis_strong_match() {
     let matching = vec![
         "Case Management".to_string(),
         "Care Coordination".to_string(),
@@ -234,48 +243,75 @@ async fn test_gap_analysis_strong_match() {
     ];
     let missing = vec!["Reporting".to_string()];
 
-    let analysis = matcher.generate_gap_analysis(&matching, &missing, 0.85);
+    let analysis = gap_analysis::generate_enhanced_gap_analysis(
+        &matching,
+        &missing,
+        0.85,
+        0.0,
+        &[],
+        0.0,
+        None,
+        0.85,
+        None,
+        &[],
+    );
 
     assert!(analysis.contains("85%"));
     assert!(analysis.contains("review the missing items"));
     assert!(analysis.contains("decide whether to apply"));
 }
 
-#[tokio::test]
-async fn test_gap_analysis_good_match() {
-    let matcher = JobMatcher::new(SqlitePool::connect("sqlite::memory:").await.unwrap());
-
+#[test]
+fn test_gap_analysis_good_match() {
     let matching = vec![
         "Case Management".to_string(),
         "Care Coordination".to_string(),
     ];
     let missing = vec!["Reporting".to_string()];
 
-    let analysis = matcher.generate_gap_analysis(&matching, &missing, 0.67);
+    let analysis = gap_analysis::generate_enhanced_gap_analysis(
+        &matching,
+        &missing,
+        0.67,
+        0.0,
+        &[],
+        0.0,
+        None,
+        0.67,
+        None,
+        &[],
+    );
 
     assert!(analysis.contains("67%"));
     assert!(analysis.contains("Review transferable skills"));
     assert!(analysis.contains("support truthfully"));
 }
 
-#[tokio::test]
-async fn test_gap_analysis_moderate_match() {
-    let matcher = JobMatcher::new(SqlitePool::connect("sqlite::memory:").await.unwrap());
-
+#[test]
+fn test_gap_analysis_moderate_match() {
     let matching = vec!["Case Management".to_string()];
     let missing = vec!["Care Coordination".to_string(), "Reporting".to_string()];
 
-    let analysis = matcher.generate_gap_analysis(&matching, &missing, 0.5);
+    let analysis = gap_analysis::generate_enhanced_gap_analysis(
+        &matching,
+        &missing,
+        0.5,
+        0.0,
+        &[],
+        0.0,
+        None,
+        0.5,
+        None,
+        &[],
+    );
 
     assert!(analysis.contains("50%"));
     assert!(analysis.contains("missing items are required"));
     assert!(analysis.contains("add it truthfully"));
 }
 
-#[tokio::test]
-async fn test_gap_analysis_low_match() {
-    let matcher = JobMatcher::new(SqlitePool::connect("sqlite::memory:").await.unwrap());
-
+#[test]
+fn test_gap_analysis_low_match() {
     let matching = vec![];
     let missing = vec![
         "Case Management".to_string(),
@@ -283,17 +319,37 @@ async fn test_gap_analysis_low_match() {
         "Reporting".to_string(),
     ];
 
-    let analysis = matcher.generate_gap_analysis(&matching, &missing, 0.2);
+    let analysis = gap_analysis::generate_enhanced_gap_analysis(
+        &matching,
+        &missing,
+        0.2,
+        0.0,
+        &[],
+        0.0,
+        None,
+        0.2,
+        None,
+        &[],
+    );
 
     assert!(analysis.contains("20%"));
     assert!(analysis.contains("goals and constraints"));
 }
 
-#[tokio::test]
-async fn test_gap_analysis_empty_skills() {
-    let matcher = JobMatcher::new(SqlitePool::connect("sqlite::memory:").await.unwrap());
-
-    let analysis = matcher.generate_gap_analysis(&[], &[], 1.0);
+#[test]
+fn test_gap_analysis_empty_skills() {
+    let analysis = gap_analysis::generate_enhanced_gap_analysis(
+        &[],
+        &[],
+        1.0,
+        0.0,
+        &[],
+        0.0,
+        None,
+        1.0,
+        None,
+        &[],
+    );
 
     assert!(analysis.contains("100%"));
     assert!(analysis.contains("decide whether to apply"));

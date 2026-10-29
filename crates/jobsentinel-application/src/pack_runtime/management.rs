@@ -7,7 +7,7 @@ use jobsentinel_domain::manifests::{
     PrivacyLabel,
 };
 use jobsentinel_storage::{
-    v3_pack_lifecycle::{
+    pack_lifecycle::{
         PackAvailability, PackManagementRelease, PackManagementStream, PackQuarantineReason,
         PackReleaseState,
     },

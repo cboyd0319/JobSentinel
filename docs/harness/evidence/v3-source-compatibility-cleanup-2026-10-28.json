@@ -3,8 +3,8 @@
   "feature_id": "v3-source-compatibility-cleanup",
   "behavior": "Remove pre-v3-only readers and ordinary transition names while preserving immutable v3 contracts and local data.",
   "result": "partial",
-  "verified_at": "2026-10-29T00:38:53.037161+00:00",
-  "revision": "2349659d435fd02d0869d180bfb3213503cf5072",
+  "verified_at": "2026-10-29T00:43:30.933394+00:00",
+  "revision": "46a3a84faa282d73d2f6d3e25a31f6edfc999e42",
   "platform": "macOS27.2 arm64, pinned Rust1.97.1/Node24.18.0/npm12.0.1",
   "scope": "D0 application/domain namespace, atomic encrypted-v3 bootstrap and deterministic Workbench policy checks; no broad qualification or release operations.",
   "source_files_sha256": {
@@ -17,7 +17,12 @@
     "crates/jobsentinel-storage/src/connection.rs": "fe19f6f2ff41a4da9ab870fc03e7274882637d9bb9511f4e7d81a9e215f113d0",
     "crates/jobsentinel-storage/src/connection/bootstrap.rs": "e5f29c2281cd1d092c973b915adb2fb344b7637b2f4a18f120eee8c430e71903",
     "crates/jobsentinel-storage/src/encryption.rs": "028ed4f56740552fe86c61b5a797137bf04b18bf7bc370fa3d8f083158b872fe",
-    "crates/jobsentinel-platform/src/windows_private_directory.rs": "89ca0fe245f87cda58d4c8d3fab1a9729c1067148e9ddb185b0ea941d28997e5"
+    "crates/jobsentinel-platform/src/windows_private_directory.rs": "89ca0fe245f87cda58d4c8d3fab1a9729c1067148e9ddb185b0ea941d28997e5",
+    "crates/jobsentinel-storage/src/vectors.rs": "e477c52d038d690f3f336b3fc3bc212c7170608c3676fca2a4e312b3ce0edd7a",
+    "crates/jobsentinel-storage/src/lib.rs": "e31ad8194acd24cab5f60ac33541d5a37e3bd995797cce2eb7ec5ae135db7a1f",
+    "crates/jobsentinel-storage/src/resume/matcher.rs": "b0575def86186165c42c7080a1686f19fc1214fe6a44db5e9d4c5842d0589b2e",
+    "crates/jobsentinel-storage/src/resume/matcher/gap_analysis.rs": "b6850dd3429474e76a3315ca4c87275965e46b2cea220a045a21911916a568fc",
+    "crates/jobsentinel-storage/src/resume/matcher_tests.rs": "58ada0e817884f8a4757acb34539f599f6bef0620386c1b1df3bc84c35cefba5"
   },
   "delivered": [
     "Removed unused pre-v3 compatibility classification types/function/re-export and the unsupported upgrade claim tests. Supported validation uses the existing parser directly.",
@@ -28,7 +33,9 @@
     "Windows publication uses no-clobber WRITE_THROUGH without cross-volume copying; prior overwrite callers retain their same-directory contract. Attribute normalization precedes rename; successful publication disables temporary cleanup without accessing the removed source path.",
     "Read-only probes await connection closure and preserve original refusal errors. Pre-v3 migration fixtures were replaced with supported-v3 and synthetic-next-migration failure/retry cases.",
     "Renamed 27 ordinary domain modules/test files and three child directories through 129 Rust files, including evaluation/runtime symbols. Comparison found 419 authorized identifier replacements and 6001 byte-identical literals, with no fixture or migration changes.",
-    "Workbench action authorization now accepts an explicit private date seam, while public entry points retain the real clock. Tests use a fixed reviewed date and prove expired policy refuses writes; production policy review date remains unchanged and currently requires real refresh."
+    "Workbench action authorization now accepts an explicit private date seam, while public entry points retain the real clock. Tests use a fixed reviewed date and prove expired policy refuses writes; production policy review date remains unchanged and currently requires real refresh.",
+    "Normalized ordinary storage module/test filenames and vector method names through 54 Rust files without aliases or IPC changes. Comparison preserved 1788 literals and changed only six source-module path literals; SQL and migration bytes remain unchanged.",
+    "Removed the unused test-only legacy gap formatter and forwarding method. Its six existing checks now call the production enhanced formatter synchronously without database setup."
   ],
   "immutable_boundaries": [
     "SchemaId serialized strings and retained parser/validation code match the prior source exactly.",
@@ -113,12 +120,23 @@
       "exit_status": 0,
       "relevant_result": "Current native production graph passed after domain normalization.",
       "caveat": "Compilation/lint only; log target/d0-domain-namespace/native-clippy.log."
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-storage --lib resume::matcher::tests::test_gap_analysis",
+      "exit_status": 0,
+      "relevant_result": "Current storage test graph compiled and 6 production gap-formatter cases passed.",
+      "caveat": "Focused cases only; log target/d0-storage-namespace/storage-tests.log."
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs clippy --locked --offline -p jobsentinel --lib --features embedded-ml -- -D warnings",
+      "exit_status": 0,
+      "relevant_result": "Native production graph passed after storage normalization and dead formatter removal.",
+      "caveat": "Mac compile/lint only; log target/d0-storage-namespace/native-clippy.log."
     }
   ],
   "remaining": [
-    "Normalize storage ordinary module/type/helper names through actual consumers without aliases.",
     "Rename live schema only with compatible migrations and preserved export/signature contracts; vectors are the first isolated pilot.",
-    "Review bounded provider/filter/education aliases and test forwarding shim; preserve any needed by supported v3 inputs.",
+    "Review bounded provider/filter/education aliases; preserve any needed by supported v3 inputs.",
     "Trace minimum Gate 4 dossier and close confirmed Now behavior gaps. Real Workbench policy refresh remains required; fixture correction does not renew source evidence."
   ],
   "review": {

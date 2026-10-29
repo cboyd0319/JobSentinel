@@ -10,7 +10,7 @@ use serde::Serialize;
 use sqlx::{FromRow, Sqlite, Transaction};
 
 use super::*;
-use crate::v3_foundation::parse_enum;
+use crate::foundation::parse_enum;
 
 #[derive(FromRow)]
 struct ManagementStreamRow {

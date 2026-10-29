@@ -7,7 +7,7 @@ use crate::foundation::saved_match_debugger::{
 };
 use jobsentinel_domain::ResumeEvidenceCitation;
 use jobsentinel_storage::{
-    v3_foundation::{
+    foundation::{
         EvidenceBoundPacketClaimRecord, EvidenceBoundPacketClaimsRead, EvidencePacketBoundary,
         NewEvidenceBoundPacketClaim,
     },
