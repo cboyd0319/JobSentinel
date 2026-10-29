@@ -1,3 +1,5 @@
+//! Coordinates local recovery checks and reviewed support metadata.
+
 use crate::{
     config::Config,
     credentials::CredentialService,
@@ -193,7 +195,7 @@ mod tests {
         database.migrate().await.unwrap();
         let config = Config::first_run();
         let credentials =
-            CredentialService::with_fixed_master_key(database.credentials(), [3_u8; 32], false);
+            CredentialService::with_fixed_master_key(database.credentials(), [3_u8; 32]);
         let pending_url_imports = PendingUrlImports::default();
 
         let report = inspect_local_recovery_with_platform(

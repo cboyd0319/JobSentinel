@@ -208,3 +208,38 @@ fn duplicate_canonical_config_keys_are_rejected_without_mutating_file() {
     assert!(error.to_string().contains("duplicate field"));
     assert_eq!(fs::read_to_string(&path).unwrap(), original);
 }
+
+#[test]
+fn plaintext_credential_fields_are_rejected_without_rewriting_config() {
+    let directory = TempDir::new().unwrap();
+    let path = directory.path().join("config.json");
+    let current = serde_json::to_value(create_valid_config()).unwrap();
+    for pointer in [
+        "/alerts/email/smtp_password",
+        "/alerts/telegram/bot_token",
+        "/alerts/slack/webhook_url",
+        "/alerts/discord/webhook_url",
+        "/alerts/teams/webhook_url",
+        "/linkedin/session_cookie",
+        "/usajobs/api_key",
+    ] {
+        for value in [
+            serde_json::Value::Null,
+            serde_json::json!(""),
+            serde_json::json!("private-test-value"),
+        ] {
+            let mut payload = current.clone();
+            let mut target = &mut payload;
+            for segment in pointer.trim_start_matches('/').split('/') {
+                target = &mut target[segment];
+            }
+            *target = value;
+            let bytes = serde_json::to_vec(&payload).unwrap();
+            fs::write(&path, &bytes).unwrap();
+            let error = Config::load(&path).unwrap_err().to_string();
+            assert!(error.contains("Plaintext credential config fields are unsupported"));
+            assert!(!error.contains("private-test-value"));
+            assert_eq!(fs::read(&path).unwrap(), bytes);
+        }
+    }
+}

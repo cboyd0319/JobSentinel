@@ -3,8 +3,8 @@
   "feature_id": "v3-source-compatibility-cleanup",
   "behavior": "Remove pre-v3-only readers and ordinary transition names while preserving immutable v3 contracts and local data.",
   "result": "partial",
-  "verified_at": "2026-10-29T01:54:30.383652+00:00",
-  "revision": "7b22a148bbb628c029d40688e468e54b1c628458",
+  "verified_at": "2026-10-29T02:58:56.447294+00:00",
+  "revision": "b521cc00a0e2deb71d4d1a3082d94fc53822f1f1",
   "platform": "macOS27.2 arm64, pinned Rust1.97.1/Node24.18.0/npm12.0.1",
   "scope": "D0 development acceptance only; broad qualification and release operations remain deferred.",
   "earlier_checkpoints": {
@@ -23,7 +23,11 @@
     "Older supported-v3 backups inspect, stage, restore, promote and roll back across the physical rename. Promoted crash recovery reads retained WAL before writer setup. SQLCipher copies attach selected input read-only to an owned destination; original bytes and standalone sidecar absence are preserved.",
     "File URIs preserve relative/reserved paths and encode Windows drive/UNC forms. The existing URL owner handles generic path encoding; SQLite attachment policy stays in storage. External URL validation is unchanged.",
     "Retired company-key aliases and education/category scalar coercions are removed with explicit rejection, preserving files/runtime/filter/draft data. Canonical config, comments/help fields, duplicate-key errors, builder data and JSON Resume import remain supported.",
-    "Workbench tests use a fixed reviewed date; production still uses the real clock and unchanged policy evidence. Minimum Gate4 dossier wiring has no confirmed development gap; broader runtime assurance remains R1."
+    "Workbench tests use a fixed reviewed date; production still uses the real clock and unchanged policy evidence. Minimum Gate4 dossier wiring has no confirmed development gap; broader runtime assurance remains R1.",
+    "Removed startup plaintext-config secret extraction, clearing and migration-flag APIs. Both config constructors reject presence of all seven retired secret paths, including empty/null/mixed inputs, before decoding; file/runtime/vault bytes remain unchanged on refusal.",
+    "Removed the per-secret OS compatibility reader/writer, lazy import and keyring-only service factory. Every runtime provider has a concrete vault repository; scheduler, notification and smoke owners use injected/current vault services. Missing rows return None; locked or unavailable storage returns sanitized errors.",
+    "Explicit credential deletion, including both retired LinkedIn entries, remains available. Current database/vault-key OS protection, passphrase wrapping, user presence and stable identifiers remain unchanged. Isolated fixed-key tests never touch OS entries.",
+    "Removed the newly unused credentials tempfile dev-dependency and only its lockfile edge; locked init completed with zero environment warnings and9 startup smoke tests. Updated current credential docs and security drift sensors without adding dependencies."
   ],
   "immutable_boundaries": [
     "Schema IDs, signing contexts, signature-covered pack keys, format versions, model/backend identities, export-v1 labels and applied migration bytes remain unchanged.",
@@ -36,7 +40,7 @@
     "target/d0-retired-inputs/results.json"
   ],
   "source_files_sha256": {
-    "crates/jobsentinel-application/src/config/io.rs": "31f00f3725b265fdc5cd7bda32981dcef1ccdbf5ba8385e7744562309c5d283b",
+    "crates/jobsentinel-application/src/config/io.rs": "fdd133917df37c724148821e19da1ff02c583387304592ba64d2dc628ffc4f03",
     "crates/jobsentinel-application/src/config/types.rs": "3a6f407fc4dccefb3364ea582292c7ec2024790205603748a4910d9ac36b85bf",
     "crates/jobsentinel-application/src/resume/semantic.rs": "cbfcc4ede4c97c44a6e5aff4b386ae0542f5db09c47ef37ca2b04bde60427937",
     "crates/jobsentinel-local-ai/src/lib.rs": "c36e3059dd109f644ce862396e8ab9764e49cea8e250c8c8e06198c18937f1f3",
@@ -77,7 +81,23 @@
     "crates/jobsentinel-storage/src/user_data/notifications.rs": "43dbd8fc3469e0decdda7cc6b3b3767d5dc10c6e196b949f04f18bec658b4f1e",
     "src-tauri/src/ipc/config.rs": "473a2ec36776c047980ccf67b3cdd36777f103950ee240e7f04734acb929d6bb",
     "crates/jobsentinel-domain/src/contracts.rs": "a00a6437a042ef31f70a6bcadcd16e9bb63c958a0271e6904448f10443b188af",
-    "crates/jobsentinel-domain/src/lib.rs": "9f0ebe75dd7115ad75d62da71370c1ac810342327b3e72be9c406387cfecaaca"
+    "crates/jobsentinel-domain/src/lib.rs": "9f0ebe75dd7115ad75d62da71370c1ac810342327b3e72be9c406387cfecaaca",
+    "src-tauri/src/bootstrap/shutdown.rs": "e90495c4c4b7dbaada0b3b52c4f5cc9fccb33dc3cd2b446a382b1fe697518064",
+    "crates/jobsentinel-application/src/desktop/startup.rs": "d347a6c68f06fbde53b726df36ded550d112bac4b894a7313b02228cacbe30c0",
+    "crates/jobsentinel-credentials/src/lib.rs": "a1af7c5cacda5f22f77cd0a7ee8c960ee0396a7803faacf17ca195adf26c5b2b",
+    "crates/jobsentinel-platform/src/secure_storage.rs": "ce4c5fa15fd8921d7f8b78932876755cacb2ebb333c3fa6508f9d4fa6055ae91",
+    "crates/jobsentinel-application/src/desktop/mod.rs": "f3110e891a3ddc6ee23d658aa2cdaadb852efbd84b7cab571e665c239992b4f2",
+    "crates/jobsentinel-credentials/src/key.rs": "2d76d52d2af9419e1c3387094076f832dd83c779d9d07a9d8b0e9c1d2485ab70",
+    "crates/jobsentinel-application/src/scheduler/workers/persistence.rs": "95ccef324e7820722380613402c0fac61a5c2190c3826974f1796ee4c288e886",
+    "crates/jobsentinel-application/src/health/smoke_checks/mod.rs": "c2f3b63478e3cd6387f63c8cc96120dcc5e2f5ceceb15b6f850e3ecbf590e803",
+    "crates/jobsentinel-application/src/scheduler/mod.rs": "eca9a54c8fe91c60d984bfcba82de09aec0d6c0b8f2332a8501aff1b07222f02",
+    "crates/jobsentinel-application/src/scheduler/workers/scrapers/federal.rs": "fe6a5abdf900fa6f56909d9fa4c729983676d8f73adb1e460397093083419c34",
+    "crates/jobsentinel-application/src/recovery.rs": "99a6cefa424ca86ce511bf0bcb1123d7622e041f6be4d4da3998262044433f3c",
+    "crates/jobsentinel-application/src/notify/mod.rs": "d3edf91fc58a6b6ec28ec1e5cc26fd614daded0bfbe6110caed5286774ea61fc",
+    "Cargo.lock": "8fbac3b0ff7d1cd2af01f9528191792a226a6dc8f009ed434bbd9be4ded32a0e",
+    "crates/jobsentinel-credentials/Cargo.toml": "6a20302ea43b126f15580a2991503c44782594c2d7e0ac67e34c6c30265b9b0e",
+    "crates/jobsentinel-credentials/src/service.rs": "453fe3a1248b7672de6231290a1b6552cde6f85de81e2e5637c59535a1b47c16",
+    "crates/jobsentinel-platform/src/lib.rs": "254cb6d1edb49130e9bdd94d98eb648871937972a63540ad29df8ccef76b8cd1"
   },
   "commands": [
     {
@@ -217,10 +237,70 @@
       "exit_status": 0,
       "relevant_result": "State, architecture, hosted-policy, ownership and size checks passed.",
       "caveat": "Static development guard; no release qualification."
+    },
+    {
+      "command": "./init.sh",
+      "exit_status": 0,
+      "relevant_result": "Locked init passed; zero warnings and9 smoke tests.",
+      "caveat": "Focused current-owner lane; target/d0-credential-compatibility/init.log"
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-credentials --lib",
+      "exit_status": 0,
+      "relevant_result": "34 tests passed.",
+      "caveat": "Focused current-owner lane; target/d0-credential-compatibility/credentials.log"
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-application --lib -- config::tests::tests::persistence_tests::plaintext_credential_fields desktop::startup::tests",
+      "exit_status": 0,
+      "relevant_result": "6 tests passed.",
+      "caveat": "Focused current-owner lane; target/d0-credential-compatibility/config-startup.log"
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel --features embedded-ml --lib -- ipc::credentials::tests ipc::linkedin_auth::credential_integration_tests ipc::config::tests::plaintext_credential_fields",
+      "exit_status": 0,
+      "relevant_result": "15 tests passed.",
+      "caveat": "Focused current-owner lane; target/d0-credential-compatibility/native-credentials.log"
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs clippy --locked --offline -p jobsentinel --lib --features embedded-ml -- -D warnings",
+      "exit_status": 0,
+      "relevant_result": "Current-owner static check passed.",
+      "caveat": "Focused current-owner lane; target/d0-credential-compatibility/native-clippy.log"
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs fmt --all -- --check",
+      "exit_status": 0,
+      "relevant_result": "Current-owner static check passed.",
+      "caveat": "Focused current-owner lane; target/d0-credential-compatibility/format.log"
+    },
+    {
+      "command": "node --test scripts/tests/harness/check-security-docs.test.mjs",
+      "exit_status": 0,
+      "relevant_result": "15 tests passed.",
+      "caveat": "Focused current-owner lane; target/d0-credential-compatibility/security-contract.log"
+    },
+    {
+      "command": "node --test scripts/tests/harness/check-privacy-logging-runtime.test.mjs",
+      "exit_status": 0,
+      "relevant_result": "11 tests passed.",
+      "caveat": "Focused current-owner lane; target/d0-credential-compatibility/privacy-policy.log"
+    },
+    {
+      "command": "npm run lint:bloat",
+      "exit_status": 0,
+      "relevant_result": "Current-owner static check passed.",
+      "caveat": "Focused current-owner lane; target/d0-credential-compatibility/policy.log"
+    },
+    {
+      "command": "node_modules/.bin/eslint scripts/harness/checks/privacy-logging/credentials-feedback-notifications.mjs scripts/tests/harness/check-privacy-logging-runtime.test.mjs",
+      "exit_status": 0,
+      "relevant_result": "Current-owner static check passed.",
+      "caveat": "Focused current-owner lane; target/d0-credential-compatibility/script-lint.log"
     }
   ],
   "review": {
-    "result": "PASS after correcting retained-WAL promotion and complete-layout refusal; separate retired-input and final copy/URI reviews also passed.",
+    "result": "PASS for production source; schema, retired inputs, copy/URI and credential compatibility received independent scoped review. Identified documentation defects were corrected.",
     "scope": "Independent read-only source review; runtime claims come from the executed checks above."
   },
   "limits": [
@@ -230,6 +310,6 @@
     "Production Workbench policy remains expired until genuinely reviewed; no production review date was advanced."
   ],
   "remaining": [
-    "Record the verified core source revision and advance canonical work selection to D1."
+    "Commit the verified credential cleanup, record its final core revision and advance canonical work selection to D1."
   ]
 }

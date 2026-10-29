@@ -122,8 +122,7 @@ mod tests {
     async fn shutdown_skips_usajobs_before_credential_access() {
         let database = Arc::new(Database::connect_memory().await.unwrap());
         database.migrate().await.unwrap();
-        let credentials =
-            CredentialService::with_fixed_master_key(database.credentials(), [7; 32], false);
+        let credentials = CredentialService::with_fixed_master_key(database.credentials(), [7; 32]);
         database.close().await;
         let mut config = minimal_test_config();
         config.usajobs.enabled = true;
@@ -220,8 +219,7 @@ mod tests {
     async fn missing_governance_stops_before_credential_repository_access() {
         let database = Arc::new(Database::connect_memory().await.unwrap());
         database.migrate().await.unwrap();
-        let credentials =
-            CredentialService::with_fixed_master_key(database.credentials(), [7; 32], false);
+        let credentials = CredentialService::with_fixed_master_key(database.credentials(), [7; 32]);
         database.close().await;
         let mut config = minimal_test_config();
         config.usajobs.enabled = true;
@@ -252,8 +250,7 @@ mod tests {
     async fn unavailable_credentials() -> CredentialService {
         let database = Database::connect_memory().await.unwrap();
         database.migrate().await.unwrap();
-        let credentials =
-            CredentialService::with_fixed_master_key(database.credentials(), [7; 32], false);
+        let credentials = CredentialService::with_fixed_master_key(database.credentials(), [7; 32]);
         database.close().await;
         credentials
     }

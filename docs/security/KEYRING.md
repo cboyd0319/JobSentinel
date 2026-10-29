@@ -1,10 +1,12 @@
-# Local Secret Vault And Keychain Integration
+<!-- Owns credential-vault protection, native key access and secret-free configuration. -->
+
+# Local secret vault and Keychain integration
 
 JobSentinel stores sensitive credentials locally and never in plaintext app
 config. This applies to notification secrets, access codes, private connection
 links, API keys, and passwords.
 
-The storage model as of 2026-06-17 is:
+The current storage model is:
 
 - Encrypt the SQLite database at rest with bundled SQLCipher.
 - Store secrets in a local SQLite secret-vault table as per-row AEAD envelopes.
@@ -16,15 +18,17 @@ The storage model as of 2026-06-17 is:
   satisfy user-presence prompts when the device and policy allow it.
 - Avoid passive secure-storage probes that trigger repeated unlock prompts.
 
-Runtime credential commands, scheduler jobs, notifications, and smoke tests now
-use `CredentialService`. Active secrets are stored in the `secret_vault` table
-as AEAD envelopes; the OS credential store protects one vault key item and is
-used for legacy fallback only when a secret is explicitly retrieved. Status
-checks read SQLite vault metadata only and do not unlock the OS credential
-store. Passphrase settings can wrap, unlock, and disable wrapping for the
-credential vault key.
+Runtime credential commands, scheduler jobs, notifications and source checks use
+`CredentialService`. Secrets stay in encrypted `secret_vault` rows, while the OS
+credential store protects the database and vault keys.
 
-## Supported Credential Stores
+Missing vault rows return no credential. Locked or unavailable key protection
+returns an error.
+
+Status checks read SQLite vault metadata without unlocking the OS store.
+Passphrase settings wrap, unlock or disable wrapping for the vault key.
+
+## Supported credential stores
 
 | Platform | Current runtime path | Remaining target |
 | -------- | -------------------- | ---------------- |
@@ -38,7 +42,7 @@ unlocked vault key in memory for the current app session. Passphrase mode
 optimizes for user custody and portability, but it adds recovery risk and must
 be explained before use.
 
-## Secret Vault Contract
+## Secret vault contract
 
 The secret vault is the runtime storage boundary for saved credentials.
 
@@ -128,12 +132,11 @@ macOS implementation:
   can orphan the key. Reserve stricter policies for a future explicit hardening
   option.
 
-## Stored Credentials
+## Stored credentials
 
 The service name for OS-protected items is `JobSentinel`. Each credential key
 is namespaced with the `jobsentinel_` prefix. In the runtime vault these names
-are `secret_vault` row keys. During legacy fallback they are also OS credential
-item names.
+are `secret_vault` row keys. Retired per-secret OS items are not read or imported.
 
 | Storage key | `CredentialKey` variant | Used by |
 | ----------- | ----------------------- | ------- |
@@ -161,12 +164,11 @@ React settings and setup UI
 src-tauri/src/ipc/credentials.rs
     |
     v
-crates/jobsentinel-credentials/src/mod.rs
+crates/jobsentinel-credentials/src/lib.rs
     |
     v
 CredentialService
   encrypted SQLite secret vault rows
-  legacy OS credential fallback only on explicit secret read
     |
     v
 OS-protected vault key
@@ -194,14 +196,10 @@ an authenticated session or writes source cookies, tokens, browser storage, or
 account state into the vault.
 
 The desktop registers no second secure-storage plugin. React credential flows
-use Tauri commands backed by `CredentialService`. `CredentialStore` remains
-only for opt-in live operating-system keyring integration tests.
+use Tauri commands backed by `CredentialService`; runtime callers inject the same
+vault-backed provider into scheduler, notification and source-check owners.
 
-Vault migration keeps public command names stable. Renderer code should still
-call command APIs and must not depend on whether the backend resolves a secret
-from the encrypted local vault or the legacy OS item.
-
-## Code Modules
+## Code modules
 
 ### `crates/jobsentinel-credentials/src/vault.rs`
 
@@ -221,7 +219,7 @@ The vault uses `XChaCha20Poly1305`, per-row random 24-byte nonces, and
 associated data shaped as `jobsentinel.secret-vault.v1:<credential-key>`.
 Disabled LinkedIn credential keys are rejected before storage.
 
-### `crates/jobsentinel-credentials/src/mod.rs`
+### `crates/jobsentinel-credentials/src/lib.rs`
 
 ```rust
 pub enum CredentialKey {
@@ -240,7 +238,7 @@ pub enum CredentialKey {
 pub struct CredentialService;
 
 impl CredentialService {
-    pub fn new(pool: SqlitePool) -> Self;
+    pub fn new(repository: CredentialRepository) -> Self;
     pub async fn store(&self, key: CredentialKey, value: &str) -> Result<(), String>;
     pub async fn retrieve(&self, key: CredentialKey) -> Result<Option<String>, String>;
     pub async fn delete(&self, key: CredentialKey) -> Result<(), String>;
@@ -254,26 +252,8 @@ impl CredentialService {
 ```
 
 `CredentialService` is the runtime provider. `exists` and `list_status` read
-vault row metadata only. `retrieve` migrates a legacy OS keyring item into the
-vault only when a secret is explicitly needed. Passphrase status also reads
-SQLite metadata only.
-
-### Legacy `CredentialStore`
-
-```rust
-pub struct CredentialStore;
-
-impl CredentialStore {
-    pub fn store(key: CredentialKey, value: &str) -> Result<(), String>;
-    pub fn retrieve(key: CredentialKey) -> Result<Option<String>, String>;
-    pub fn delete(key: CredentialKey) -> Result<(), String>;
-    pub fn exists(key: CredentialKey) -> Result<bool, String>;
-    pub fn list_status() -> Vec<CredentialPresence>;
-}
-```
-
-`CredentialStore` is retained for legacy fallback and opt-in live keyring
-integration tests. New runtime code should not call it directly.
+vault row metadata only. `retrieve` reads only the encrypted vault and propagates
+unlock failures. Passphrase status also reads SQLite metadata only.
 
 ### `src-tauri/src/ipc/credentials.rs`
 
@@ -312,24 +292,18 @@ be checked and must not be shown as either saved or missing.
 Passphrase command inputs are never logged and command errors must not echo the
 passphrase.
 
-## Migration From Plaintext Config
+## Unsupported plaintext config
 
-Startup migration runs when the config file exists and the secure-storage migration
-flag has not been set.
+V3.0.0 is the first supported compatibility baseline. Config loading and native
+saves reject retired credential fields before typed decoding, even when values
+are empty or null or appear beside current fields. Rejection preserves the file,
+runtime settings and vault without echoing secret values.
 
-1. Extract plaintext credentials from `config.json`.
-2. Store each extracted credential through `CredentialService`.
-3. Atomically clear plaintext credential fields from config only after every
-   credential was stored successfully.
-4. Atomically set the migration flag only after either no plaintext credentials
-   were found or the successful store-and-clear path completed.
-5. Leave the migration flag unset after partial storage failures or config clear
-   failures so the next startup retries.
+Startup does not import, clear or rewrite old plaintext credentials, read old
+per-secret OS items, or write a migration flag. Enter credentials through Settings,
+which sends them through the separate `store_credential` command.
 
-This avoids the unsafe state where plaintext secrets remain in config while the
-app thinks migration is complete.
-
-## Settings Status
+## Settings status
 
 Settings must not check saved secrets passively when the Settings window opens.
 On macOS, even existence checks can require Keychain access and can produce
@@ -372,7 +346,7 @@ Settings displays credential status without returning credential values:
 An unavailable or denied check should become user-visible only after an
 attempted action fails because secure storage could not be unlocked.
 
-## Security Considerations
+## Security considerations
 
 - Runtime credentials are encrypted as per-row AEAD envelopes in the
   `secret_vault` table.
@@ -383,7 +357,7 @@ attempted action fails because secure storage could not be unlocked.
 - Do not store secret values as plaintext SQLite, app config, localStorage,
   logs, screenshots, support reports, or unencrypted backups.
 - JobSentinel stores credentials under service name `JobSentinel`.
-- Plaintext config fields are ignored after migration and should stay empty.
+- Plaintext credential fields are rejected before config is loaded or saved.
 - Local app logs must not include credential values, webhook tokens, cookies, or
   API keys.
 - Renderer commands do not return stored credential values. Test actions for
@@ -404,52 +378,16 @@ preferences at rest. The per-row AEAD vault adds compartmentalized protection
 for secrets if a future bug or tool reads database rows after the database has
 already been unlocked.
 
-## Config File Fields
+## Config file fields
 
-Credential fields in `config.json` are compatibility inputs for migration and
-should remain empty during normal use:
-
-```json
-{
-  "alerts": {
-    "email": {
-      "enabled": true,
-      "smtp_server": "smtp.gmail.com",
-      "smtp_port": 587,
-      "smtp_username": "user@example.com",
-      "smtp_password": ""
-    },
-    "slack": {
-      "enabled": true,
-      "webhook_url": ""
-    },
-    "discord": {
-      "enabled": true,
-      "webhook_url": ""
-    },
-    "telegram": {
-      "enabled": true,
-      "bot_token": ""
-    },
-    "teams": {
-      "enabled": true,
-      "webhook_url": ""
-    }
-  },
-  "linkedin": {
-    "enabled": false
-  },
-  "usajobs": {
-    "enabled": true,
-    "api_key": "",
-    "email": "user@example.com"
-  }
-}
-```
+Keep only non-secret preferences in `config.json`: enabled channels, SMTP host,
+port and username, search settings, and alert thresholds. Configure passwords,
+tokens and private webhook URLs through Settings; omit those fields entirely
+from JSON, including blank placeholders.
 
 ## Troubleshooting
 
-### Credentials Not Working
+### Credentials not working
 
 1. Check credential status in Settings.
 2. Re-enter credentials that are missing or need rotation.
@@ -464,7 +402,7 @@ gnome-keyring-daemon --start --components=secrets
 kwalletd5
 ```
 
-### macOS Keychain Permissions
+### macOS Keychain permissions
 
 If macOS prompts for keychain access during a secret action, allow JobSentinel
 access if you want that alert or source to work. Passive screens should not
@@ -472,21 +410,19 @@ trigger repeated Keychain prompts. If prompts repeat during app startup,
 dashboard load, or Settings browsing, treat it as a bug.
 
 If access was denied, open Keychain Access, search for `JobSentinel`, and
-adjust access control for the relevant item. After the vault migration, search
-for `jobsentinel_vault_key`.
+adjust access control for the relevant item, such as `jobsentinel_vault_key`.
 
 ### Windows Credential Manager
 
 Open Windows Credential Manager, select Windows Credentials, and search for
 entries owned by `JobSentinel`.
 
-## Adding New Credentials
+## Adding new credentials
 
-1. Add a `CredentialKey` variant in `crates/jobsentinel-credentials/src/mod.rs`.
+1. Add a `CredentialKey` variant in `crates/jobsentinel-credentials/src/key.rs`.
 2. Add its `jobsentinel_*` storage key in `CredentialKey::as_str`.
 3. Add parsing aliases in `FromStr`.
-4. Update migration extraction and config clearing when the credential can
-   appear in config.
+4. Keep credential values out of config and use the backend credential commands.
 5. Add or update UI fields and tests.
 6. Update this document and `docs/features/saved-secrets.md`.
 
@@ -497,40 +433,17 @@ cargo test -p jobsentinel-credentials
 env -u JOBSENTINEL_LIVE_KEYRING_TESTS cargo test -p jobsentinel --lib commands::credentials
 ```
 
-Default credential tests are non-interactive. Live OS keyring roundtrips use
-test-owned key names but can prompt on macOS Keychain and equivalent stores, so
-they are opt-in:
-
-```bash
-JOBSENTINEL_LIVE_KEYRING_TESTS=1 cargo test -p jobsentinel --lib credential_integration_tests
-```
-
-Credential tests must not write real user secrets.
+Default credential tests use isolated vaults and must not access real user
+secrets. Native key-store and user-presence proof belongs to the explicit
+platform qualification lane.
 
 ## Dependencies
 
-Current compatibility path:
+The [workspace manifest](../../Cargo.toml) owns exact credential and cryptography
+dependency versions. The [platform manifest](../../crates/jobsentinel-platform/Cargo.toml)
+owns native key-protection features. Keep both manifests and their lockfile aligned.
 
-```toml
-argon2 = { version = "=0.5.3", default-features = false, features = ["alloc", "zeroize"] }
-chacha20poly1305 = "=0.10.1"
-zeroize = "=1.9.0"
-keyring = "=4.1.1"
-libsqlite3-sys = { version = "=0.37.0", default-features = false, features = ["bundled-sqlcipher-vendored-openssl"] }
-```
-
-Current native macOS vault-key path:
-
-```toml
-objc2-local-authentication = { version = "=0.3.2", default-features = false, features = ["std", "LAContext"] }
-security-framework = "=3.7.0"
-```
-
-Credential-storage dependencies must remain exact-pinned to the latest stable
-compatible crate version. Do not add unpinned target dependency examples to docs
-or manifests.
-
-## Related Documentation
+## Related documentation
 
 - [Credentials Security](../features/saved-secrets.md)
 - [Notifications Setup](../features/notifications.md)

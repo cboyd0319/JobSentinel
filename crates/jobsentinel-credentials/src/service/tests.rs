@@ -1,10 +1,12 @@
+//! Verifies isolated vault access, lock failures and non-interactive credential metadata.
+
 use super::*;
 use jobsentinel_storage::Database;
 
 async fn test_service() -> CredentialService {
     let database = Database::connect_memory().await.unwrap();
     database.migrate().await.unwrap();
-    CredentialService::with_fixed_master_key(database.credentials(), [9_u8; 32], false)
+    CredentialService::with_fixed_master_key(database.credentials(), [9_u8; 32])
 }
 
 #[tokio::test]
@@ -24,7 +26,7 @@ async fn service_roundtrips_vault_credentials() {
 }
 
 #[tokio::test]
-async fn service_status_uses_vault_rows_without_legacy_fallback() {
+async fn service_status_uses_only_vault_rows() {
     let service = test_service().await;
 
     service
@@ -57,7 +59,7 @@ async fn status_checks_do_not_unlock_or_cache_master_key() {
         let database = Database::connect_memory().await.unwrap();
         database.migrate().await.unwrap();
         let credentials =
-            CredentialService::with_fixed_master_key(database.credentials(), [9_u8; 32], false);
+            CredentialService::with_fixed_master_key(database.credentials(), [9_u8; 32]);
         (database, credentials)
     };
 
@@ -66,8 +68,7 @@ async fn status_checks_do_not_unlock_or_cache_master_key() {
         .await
         .unwrap();
 
-    let restarted =
-        CredentialService::with_fixed_master_key(database.credentials(), [9_u8; 32], false);
+    let restarted = CredentialService::with_fixed_master_key(database.credentials(), [9_u8; 32]);
     assert!(restarted.master_key.get().is_none());
 
     let lock_status = restarted.unlock_status().await.unwrap();
@@ -143,4 +144,50 @@ fn production_vault_key_backend_uses_expected_platform_policy() {
         assert!(!policy.device_local);
         assert!(!policy.biometry_current_set);
     }
+}
+
+#[tokio::test]
+async fn locked_credentials_never_fall_back_to_an_os_item() {
+    let database = Database::connect_memory().await.unwrap();
+    database.migrate().await.unwrap();
+    let service = CredentialService::with_fixed_master_key(database.credentials(), [9; 32]);
+    service
+        .store(CredentialKey::SmtpPassword, "private-test-value")
+        .await
+        .unwrap();
+    service
+        .enable_passphrase_lock("correct battery staple")
+        .await
+        .unwrap();
+    let restarted = CredentialService::with_fixed_master_key(database.credentials(), [9; 32]);
+    let error = restarted
+        .retrieve(CredentialKey::SmtpPassword)
+        .await
+        .unwrap_err();
+    assert_eq!(error, secure_storage_error());
+    assert!(!error.contains("private-test-value"));
+    assert_eq!(
+        restarted
+            .retrieve(CredentialKey::TeamsWebhook)
+            .await
+            .unwrap(),
+        None
+    );
+    assert!(restarted.master_key.get().is_none());
+}
+
+#[tokio::test]
+async fn unavailable_repository_fails_before_native_key_access() {
+    let database = Database::connect_memory().await.unwrap();
+    database.migrate().await.unwrap();
+    let service = CredentialService::new(database.credentials());
+    database.close().await;
+    assert_eq!(
+        service
+            .retrieve(CredentialKey::SmtpPassword)
+            .await
+            .unwrap_err(),
+        secure_storage_error()
+    );
+    assert!(service.master_key.get().is_none());
 }

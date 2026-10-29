@@ -315,8 +315,7 @@ fn retired_restricted_source_message_does_not_offer_local_override() {
 #[tokio::test]
 async fn restored_retired_source_flags_stop_before_transport() {
     let database = test_database().await;
-    let credentials =
-        CredentialService::with_fixed_master_key(database.credentials(), [7_u8; 32], false);
+    let credentials = CredentialService::with_fixed_master_key(database.credentials(), [7_u8; 32]);
     let mut config = Config::first_run();
     config.builtin.enabled = true;
     config.dice.enabled = true;

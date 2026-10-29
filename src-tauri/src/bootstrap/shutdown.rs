@@ -155,7 +155,6 @@ mod tests {
             credentials: Arc::new(CredentialService::with_fixed_master_key(
                 database.credentials(),
                 [23; 32],
-                false,
             )),
             database: database.clone(),
             scheduler: Some(scheduler.clone()),

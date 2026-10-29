@@ -44,7 +44,6 @@ impl Fixture {
         let credentials = Arc::new(CredentialService::with_fixed_master_key(
             database.credentials(),
             [23; 32],
-            false,
         ));
         let scheduler = Arc::new(Scheduler::new_shared_with_credentials(
             config.clone(),

@@ -40,7 +40,6 @@ async fn reconciles_active_pack_artifacts_before_constructing_services() {
     std::fs::remove_dir_all(artifact).unwrap();
 
     let services = DesktopServices::initialize_ready_with_pack_runtime(
-        temp_dir.path().join("config.json"),
         Config::first_run(),
         true,
         database,
@@ -77,7 +76,6 @@ async fn pack_artifact_root_failure_prevents_service_construction() {
     std::fs::write(pack_runtime.artifact_root(), b"not a directory").unwrap();
 
     let result = DesktopServices::initialize_ready_with_pack_runtime(
-        temp_dir.path().join("config.json"),
         Config::first_run(),
         true,
         database,

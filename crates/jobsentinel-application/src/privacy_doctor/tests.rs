@@ -35,8 +35,7 @@ async fn default_doctor_is_local_read_only_and_keychain_free() {
     config.jobswithgpt_endpoint = "https://provider.example/private".to_string();
     config.external_ai.model = "private-model-name".to_string();
     config.external_ai.custom_endpoint = "https://provider.example/private".to_string();
-    let credentials =
-        CredentialService::with_fixed_master_key(database.credentials(), [7_u8; 32], false);
+    let credentials = CredentialService::with_fixed_master_key(database.credentials(), [7_u8; 32]);
 
     let report = inspect_privacy_doctor(
         &database,
@@ -331,8 +330,7 @@ fn serialized_doctor_contains_no_private_inputs_or_owner_internals() {
 #[tokio::test]
 async fn unavailable_local_metadata_returns_fixed_attention_without_raw_errors() {
     let database = Database::connect_memory().await.unwrap();
-    let credentials =
-        CredentialService::with_fixed_master_key(database.credentials(), [7_u8; 32], false);
+    let credentials = CredentialService::with_fixed_master_key(database.credentials(), [7_u8; 32]);
 
     let report = inspect_privacy_doctor(
         &database,

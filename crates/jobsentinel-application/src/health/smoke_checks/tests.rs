@@ -1,3 +1,5 @@
+//! Verifies source-check policy admission and injected credential outcomes.
+
 use super::*;
 use crate::test_support::minimal_test_config;
 
@@ -101,7 +103,7 @@ async fn public_ats_smoke_stops_before_network_without_current_governance() {
     let credential_database = Database::connect_memory().await.unwrap();
     credential_database.migrate().await.unwrap();
     let credentials =
-        CredentialService::with_fixed_master_key(credential_database.credentials(), [7; 32], false);
+        CredentialService::with_fixed_master_key(credential_database.credentials(), [7; 32]);
     let config = minimal_test_config();
 
     for (source, reason) in [
@@ -149,7 +151,7 @@ async fn missing_usajobs_governance_stops_before_smoke_credential_access() {
     let credential_database = Database::connect_memory().await.unwrap();
     credential_database.migrate().await.unwrap();
     let credentials =
-        CredentialService::with_fixed_master_key(credential_database.credentials(), [7; 32], false);
+        CredentialService::with_fixed_master_key(credential_database.credentials(), [7; 32]);
     credential_database.close().await;
     let mut config = minimal_test_config();
     config.usajobs.enabled = true;
@@ -175,7 +177,7 @@ async fn disabled_or_email_less_usajobs_smoke_skips_before_governance_and_creden
     let credential_database = Database::connect_memory().await.unwrap();
     credential_database.migrate().await.unwrap();
     let credentials =
-        CredentialService::with_fixed_master_key(credential_database.credentials(), [7; 32], false);
+        CredentialService::with_fixed_master_key(credential_database.credentials(), [7; 32]);
     credential_database.close().await;
     let mut disabled = minimal_test_config();
     disabled.usajobs.email = "test@example.com".to_string();

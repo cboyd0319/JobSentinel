@@ -1,3 +1,4 @@
+// Verifies runtime privacy rules using isolated source fixtures.
 import assert from "node:assert/strict";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -188,6 +189,21 @@ test("privacy logging rejects missing credential storage guardrails", () => {
       ),
       false,
     );
+  });
+});
+
+test("privacy logging checks credential storage in its current service owner", () => {
+  withFixture((root) => {
+    const path = "crates/jobsentinel-credentials/src/lib.rs";
+    writeFixtureFile(root, path, "const LINKEDIN_CREDENTIAL_STORAGE_DISABLED: &str = \"disabled\";");
+    writeFixtureFile(root, "crates/jobsentinel-credentials/src/validation.rs",
+      "fn reject_disabled_credential_storage(key: CredentialKey) { match key { CredentialKey::LinkedInCookie | CredentialKey::LinkedInCookieExpiry => () } }");
+    writeFixtureFile(root, "crates/jobsentinel-credentials/src/service.rs",
+      "fn store(key, value) { reject_disabled_credential_storage(key)?; validate_credential_value(key, value)?; }");
+    assert.equal(hasMissingLinkedInCredentialStorageDisable(root, path), false);
+    writeFixtureFile(root, "crates/jobsentinel-credentials/src/service.rs",
+      "fn store(key, value) { validate_credential_value(key, value)?; }");
+    assert.equal(hasMissingLinkedInCredentialStorageDisable(root, path), true);
   });
 });
 

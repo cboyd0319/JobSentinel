@@ -28,11 +28,10 @@ impl Scheduler {
         config: Arc<RwLock<crate::config::Config>>,
         database: Arc<jobsentinel_storage::Database>,
     ) -> Self {
-        Self::new_shared_with_credentials(
-            config,
-            database,
-            Arc::new(crate::credentials::CredentialService::compatibility_keyring()),
-        )
+        let credentials = Arc::new(crate::credentials::CredentialService::new(
+            database.credentials(),
+        ));
+        Self::new_shared_with_credentials(config, database, credentials)
     }
 
     pub fn new_shared_with_credentials(

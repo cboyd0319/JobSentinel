@@ -278,7 +278,6 @@ mod tests {
         let credentials = Arc::new(CredentialService::with_fixed_master_key(
             database.credentials(),
             [11; 32],
-            false,
         ));
         (config, database, credentials)
     }
@@ -306,7 +305,6 @@ mod tests {
         let credentials = Arc::new(CredentialService::with_fixed_master_key(
             database.credentials(),
             [7; 32],
-            false,
         ));
         let job = test_job("notification-failure", "Care Coordinator", "Community Care");
         let score = test_high_score();

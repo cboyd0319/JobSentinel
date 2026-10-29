@@ -1,17 +1,18 @@
+//! Verifies credential commands against isolated vaults and sanitized errors.
+
 use super::*;
 use crate::desktop::Database;
 
 async fn test_credentials() -> CredentialService {
     let database = Database::connect_memory().await.unwrap();
     database.migrate().await.unwrap();
-    CredentialService::with_fixed_master_key(database.credentials(), [17_u8; 32], false)
+    CredentialService::with_fixed_master_key(database.credentials(), [17_u8; 32])
 }
 
 async fn test_credentials_with_pool() -> (Database, CredentialService) {
     let database = Database::connect_memory().await.unwrap();
     database.migrate().await.unwrap();
-    let credentials =
-        CredentialService::with_fixed_master_key(database.credentials(), [17_u8; 32], false);
+    let credentials = CredentialService::with_fixed_master_key(database.credentials(), [17_u8; 32]);
     (database, credentials)
 }
 
@@ -110,8 +111,7 @@ async fn passphrase_mode_locks_restarted_service_until_unlock() {
         .await
         .unwrap();
 
-    let restarted =
-        CredentialService::with_fixed_master_key(database.credentials(), [17_u8; 32], false);
+    let restarted = CredentialService::with_fixed_master_key(database.credentials(), [17_u8; 32]);
     let locked_status = get_credential_unlock_status_with_service(&restarted)
         .await
         .unwrap();
@@ -153,8 +153,7 @@ async fn wrong_passphrase_error_does_not_echo_input() {
         .await
         .unwrap();
 
-    let restarted =
-        CredentialService::with_fixed_master_key(database.credentials(), [17_u8; 32], false);
+    let restarted = CredentialService::with_fixed_master_key(database.credentials(), [17_u8; 32]);
     let err = unlock_credential_vault_with_service("wrong secret value".to_string(), &restarted)
         .await
         .unwrap_err();
@@ -174,8 +173,7 @@ async fn passphrase_mode_can_return_to_system_locking() {
         .await
         .unwrap();
 
-    let restarted =
-        CredentialService::with_fixed_master_key(database.credentials(), [17_u8; 32], false);
+    let restarted = CredentialService::with_fixed_master_key(database.credentials(), [17_u8; 32]);
     let status = get_credential_unlock_status_with_service(&restarted)
         .await
         .unwrap();

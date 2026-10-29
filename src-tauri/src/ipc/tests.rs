@@ -80,7 +80,6 @@ mod tests {
             credentials: Arc::new(CredentialService::with_fixed_master_key(
                 database.credentials(),
                 [23_u8; 32],
-                false,
             )),
             database: Arc::new(database),
             scheduler: None,

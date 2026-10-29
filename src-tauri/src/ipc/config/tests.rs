@@ -59,7 +59,7 @@ fn create_dashboard_test_config() -> Config {
 async fn test_credentials() -> CredentialService {
     let database = Database::connect_memory().await.unwrap();
     database.migrate().await.unwrap();
-    CredentialService::with_fixed_master_key(database.credentials(), [21_u8; 32], false)
+    CredentialService::with_fixed_master_key(database.credentials(), [21_u8; 32])
 }
 
 fn test_email_config_for(server: &str, username: &str) -> TestEmailConfig {
@@ -395,6 +395,71 @@ async fn retired_company_keys_cannot_change_config_file_or_runtime() {
             assert_eq!(
                 serde_json::to_value(&*runtime.read().await).unwrap(),
                 runtime_before
+            );
+        }
+    }
+}
+
+#[tokio::test]
+async fn plaintext_credential_fields_cannot_change_config_runtime_or_vault() {
+    let directory = tempfile::tempdir().unwrap();
+    let path = directory.path().join("config.json");
+    let original = create_dashboard_test_config();
+    original.save(&path).unwrap();
+    let file_before = std::fs::read(&path).unwrap();
+    let value_before = serde_json::to_value(&original).unwrap();
+    let runtime = RwLock::new(original);
+    let database = Database::connect_memory().await.unwrap();
+    database.migrate().await.unwrap();
+    let key = CredentialKey::SmtpPassword;
+    let credentials = CredentialService::with_fixed_master_key(database.credentials(), [21; 32]);
+    credentials
+        .store(key, "retained-test-credential")
+        .await
+        .unwrap();
+    let vault_before = database
+        .credentials()
+        .load_secret(key.as_str())
+        .await
+        .unwrap();
+    for pointer in [
+        "/alerts/email/smtp_password",
+        "/alerts/telegram/bot_token",
+        "/alerts/slack/webhook_url",
+        "/alerts/discord/webhook_url",
+        "/alerts/teams/webhook_url",
+        "/linkedin/session_cookie",
+        "/usajobs/api_key",
+    ] {
+        for value in [
+            serde_json::Value::Null,
+            serde_json::json!(""),
+            serde_json::json!("private-test-value"),
+        ] {
+            let mut payload = value_before.clone();
+            payload["salary_floor_usd"] = 95_000.into();
+            let mut target = &mut payload;
+            for segment in pointer.trim_start_matches('/').split('/') {
+                target = &mut target[segment];
+            }
+            *target = value;
+            let error = save_config_to_runtime_and_path(payload, &runtime, &path, &database)
+                .await
+                .unwrap_err();
+            assert!(error.starts_with("Saved settings need attention:"));
+            assert!(!error.contains("private-test-value"));
+            assert_eq!(std::fs::read(&path).unwrap(), file_before);
+            assert_eq!(
+                serde_json::to_value(&*runtime.read().await).unwrap(),
+                value_before
+            );
+            assert_eq!(
+                database
+                    .credentials()
+                    .load_secret(key.as_str())
+                    .await
+                    .unwrap(),
+                vault_before
             );
         }
     }

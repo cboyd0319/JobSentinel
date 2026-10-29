@@ -199,7 +199,7 @@ pub async fn run_smoke_test(
     config: &Config,
     scraper_name: &str,
 ) -> Result<SmokeTestResult> {
-    let credentials = CredentialService::compatibility_keyring();
+    let credentials = CredentialService::new(db.credentials());
     run_smoke_test_with_credentials(db, config, scraper_name, &credentials).await
 }
 
@@ -381,7 +381,7 @@ pub async fn run_smoke_test_with_credentials(
 
 /// Run smoke tests for all enabled scrapers
 pub async fn run_all_smoke_tests(db: &Database, config: &Config) -> Result<Vec<SmokeTestResult>> {
-    let credentials = CredentialService::compatibility_keyring();
+    let credentials = CredentialService::new(db.credentials());
     run_all_smoke_tests_with_credentials(db, config, &credentials).await
 }
 

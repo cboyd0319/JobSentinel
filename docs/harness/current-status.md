@@ -12,8 +12,8 @@ Last updated: 2026-10-28
   Work starts with the selected D0 child, not the parked qualification campaign.
 - Follow the [development queue](../plans/v3/master-exec-plan.md#remaining-development-queue):
   finish accepted engineering and code cleanup before broad qualification or release.
-- Current work: D0 physical-schema cleanup and explicit retired-input rejection.
-  Ordinary Rust names, atomic encrypted-store bootstrap and vector migration are implemented.
+- Current work: D0 final plaintext-credential migration disposition. Physical-schema
+  cleanup and strict retired-input handling are committed in `b521cc00`.
 
 ## Remaining Scope
 

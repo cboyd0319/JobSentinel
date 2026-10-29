@@ -12,10 +12,7 @@ use tokio::sync::RwLock;
 
 use super::{path_label_for_logging, BookmarkletConfig, BookmarkletServer, Database};
 use crate::{
-    credentials::{
-        clear_config_credentials, extract_plaintext_credentials, is_migrated, set_migrated,
-        CredentialService,
-    },
+    credentials::CredentialService,
     pack_runtime::{
         production_trusted_publishers, reconcile_active_pack_artifacts, PackRuntimeEnvironment,
     },
@@ -90,8 +87,7 @@ impl DesktopServices {
         let mut key = [0_u8; 32];
         key[..16].copy_from_slice(uuid::Uuid::new_v4().as_bytes());
         key[16..].copy_from_slice(uuid::Uuid::new_v4().as_bytes());
-        let credentials =
-            CredentialService::with_fixed_master_key(database.credentials(), key, false);
+        let credentials = CredentialService::with_fixed_master_key(database.credentials(), key);
 
         Ok(Self::assemble(
             Config::first_run(),
@@ -118,7 +114,7 @@ impl DesktopServices {
                 .await
                 .map_err(|error| DesktopStartupError::Database(error.to_string()))?;
 
-        let services = Self::initialize_ready(config_path, config, is_first_run, database).await?;
+        let services = Self::initialize_ready(config, is_first_run, database).await?;
         if services.database.cleanup_update_package().is_err() {
             tracing::warn!("Retained update installer cleanup will retry on a later startup");
         }
@@ -150,7 +146,6 @@ impl DesktopServices {
             config_path.parent().unwrap_or_else(|| Path::new(".")),
         );
         Self::initialize_ready_with_pack_runtime(
-            config_path,
             config,
             is_first_run,
             database,
@@ -162,13 +157,11 @@ impl DesktopServices {
     }
 
     async fn initialize_ready(
-        config_path: PathBuf,
         config: Config,
         is_first_run: bool,
         database: Database,
     ) -> Result<Self, DesktopStartupError> {
         Self::initialize_ready_with_pack_runtime(
-            config_path,
             config,
             is_first_run,
             database,
@@ -179,9 +172,7 @@ impl DesktopServices {
         .await
     }
 
-    #[allow(clippy::too_many_arguments)]
     async fn initialize_ready_with_pack_runtime(
-        config_path: PathBuf,
         mut config: Config,
         is_first_run: bool,
         database: Database,
@@ -221,10 +212,6 @@ impl DesktopServices {
                 );
             }
             let credentials = CredentialService::new(database.credentials());
-            if migrate_plaintext_credentials_to_secure_storage(&config_path, &credentials).await {
-                config = Config::load(&config_path)
-                    .map_err(|error| DesktopStartupError::Configuration(error.to_string()))?;
-            }
             crate::restricted_source_consent::refresh_restricted_source_acknowledgements(
                 &database,
                 &mut config,
@@ -301,82 +288,6 @@ fn load_startup_config(config_path: &Path) -> Result<(Config, bool), DesktopStar
         "Loaded configuration"
     );
     Ok((config, false))
-}
-
-async fn migrate_plaintext_credentials_to_secure_storage(
-    config_path: &Path,
-    credentials: &CredentialService,
-) -> bool {
-    if !config_path.exists() || is_migrated() {
-        return false;
-    }
-
-    tracing::info!("Checking for plaintext credentials to migrate to secure storage");
-
-    let credentials_to_migrate = match extract_plaintext_credentials(config_path) {
-        Ok(credentials_to_migrate) => credentials_to_migrate,
-        Err(error) => {
-            tracing::error!(
-                "Failed to extract plaintext credentials for migration: {}",
-                error
-            );
-            return false;
-        }
-    };
-
-    let mark_migration_complete = if credentials_to_migrate.is_empty() {
-        tracing::info!("No active plaintext credentials found");
-        if let Err(error) = clear_config_credentials(config_path) {
-            tracing::error!("Failed to clear legacy credential fields: {}", error);
-            tracing::warn!("Secure-storage migration will retry on next startup");
-            false
-        } else {
-            true
-        }
-    } else {
-        tracing::info!(
-            "Found {} plaintext credentials to migrate",
-            credentials_to_migrate.len()
-        );
-
-        let mut migration_success = true;
-        for (key, value) in &credentials_to_migrate {
-            if let Err(error) = credentials.store(*key, value).await {
-                tracing::error!(
-                    "Failed to migrate credential {:?} to secure storage: {}",
-                    key,
-                    error
-                );
-                migration_success = false;
-            } else {
-                tracing::info!("Migrated {:?} to secure storage", key);
-            }
-        }
-
-        if migration_success {
-            if let Err(error) = clear_config_credentials(config_path) {
-                tracing::error!(
-                    "Failed to clear plaintext credentials from config: {}",
-                    error
-                );
-                tracing::warn!("Secure-storage migration will retry on next startup");
-                false
-            } else {
-                true
-            }
-        } else {
-            tracing::warn!("Secure-storage migration incomplete; will retry on next startup");
-            false
-        }
-    };
-
-    if mark_migration_complete {
-        if let Err(error) = set_migrated() {
-            tracing::warn!("Failed to set migration flag: {}", error);
-        }
-    }
-
-    mark_migration_complete
 }
 
 #[cfg(test)]

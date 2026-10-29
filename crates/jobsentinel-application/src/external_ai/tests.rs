@@ -93,8 +93,7 @@ async fn prepare_creates_backend_owned_exact_public_review() {
 #[tokio::test]
 async fn unknown_approval_is_rejected_before_credential_access() {
     let database = database().await;
-    let credentials =
-        CredentialService::with_fixed_master_key(database.credentials(), [31_u8; 32], false);
+    let credentials = CredentialService::with_fixed_master_key(database.credentials(), [31_u8; 32]);
     let (_cancel, receiver) = watch::channel(false);
 
     let error = send_external_ai_request(
@@ -118,8 +117,7 @@ async fn payload_drift_cannot_consume_a_review() {
     let prepared = prepare_external_ai_request(&request(), &config(), &database)
         .await
         .unwrap();
-    let credentials =
-        CredentialService::with_fixed_master_key(database.credentials(), [31_u8; 32], false);
+    let credentials = CredentialService::with_fixed_master_key(database.credentials(), [31_u8; 32]);
     let changed = ExternalAiCommandRequest {
         payload: serde_json::json!({
             "title": "Different role",

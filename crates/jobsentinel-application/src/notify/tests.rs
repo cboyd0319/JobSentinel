@@ -1,3 +1,5 @@
+//! Verifies notification behavior through an isolated, explicitly injected credential vault.
+
 use super::*;
 use crate::{
     config::{AlertConfig, DiscordConfig, EmailConfig, SlackConfig, TeamsConfig, TelegramConfig},
@@ -9,6 +11,12 @@ use crate::{
 };
 use jobsentinel_notifications::test_support::notification_fixture;
 use jobsentinel_storage::Database;
+
+async fn test_credentials() -> CredentialService {
+    let database = Database::connect_memory().await.unwrap();
+    database.migrate().await.unwrap();
+    CredentialService::with_fixed_master_key(database.credentials(), [22_u8; 32])
+}
 
 /// Build a disabled config.
 fn create_disabled_config() -> Arc<Config> {
@@ -69,10 +77,11 @@ fn test_notification_serialization() {
     assert_eq!(deserialized.score.total, notification.score.total);
 }
 
-#[test]
-fn test_notification_service_creation() {
+#[tokio::test]
+async fn test_notification_service_creation() {
     let config = create_disabled_config();
-    let _service = NotificationService::new(config.clone());
+    let _service =
+        NotificationService::with_credentials(config.clone(), Arc::new(test_credentials().await));
 
     // Verify service holds the config
     assert_eq!(Arc::strong_count(&config), 2); // One in service, one in test
@@ -263,7 +272,7 @@ fn test_notification_timestamps_logical() {
 #[tokio::test]
 async fn test_send_immediate_alert_all_channels_disabled() {
     let config = create_disabled_config();
-    let service = NotificationService::new(config);
+    let service = NotificationService::with_credentials(config, Arc::new(test_credentials().await));
     let notification = notification_fixture();
 
     // Should succeed when no channels are enabled (nothing to do)

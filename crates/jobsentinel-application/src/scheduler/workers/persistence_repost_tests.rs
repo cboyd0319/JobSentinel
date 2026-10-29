@@ -9,7 +9,6 @@ async fn setup() -> (Arc<Config>, Arc<Database>, Arc<CredentialService>) {
     let credentials = Arc::new(CredentialService::with_fixed_master_key(
         database.credentials(),
         [13; 32],
-        false,
     ));
     (Arc::new(minimal_test_config()), database, credentials)
 }
