@@ -174,7 +174,7 @@ async fn malformed_dimension_and_non_finite_rows_are_removed() {
         ),
     ] {
         sqlx::query(
-            "INSERT INTO v3_local_vectors
+            "INSERT INTO local_vectors
              (subject_id, freshness_json, dimension, vector_blob, revision, updated_at)
              VALUES (?, ?, ?, ?, 1, '2026-07-20T00:00:00Z')",
         )
@@ -194,7 +194,7 @@ async fn malformed_dimension_and_non_finite_rows_are_removed() {
             StoredVectorRead::RebuildNeeded
         );
         let remaining: i64 =
-            sqlx::query_scalar("SELECT COUNT(*) FROM v3_local_vectors WHERE subject_id = ?")
+            sqlx::query_scalar("SELECT COUNT(*) FROM local_vectors WHERE subject_id = ?")
                 .bind(subject)
                 .fetch_one(database.pool())
                 .await
@@ -203,7 +203,7 @@ async fn malformed_dimension_and_non_finite_rows_are_removed() {
     }
 
     sqlx::query(
-        "INSERT INTO v3_local_vectors
+        "INSERT INTO local_vectors
          (subject_id, freshness_json, dimension, vector_blob, revision, updated_at)
          VALUES (
              'resume:invalid-utf8',
@@ -225,7 +225,7 @@ async fn malformed_dimension_and_non_finite_rows_are_removed() {
         StoredVectorRead::RebuildNeeded
     );
     let remaining: i64 =
-        sqlx::query_scalar("SELECT COUNT(*) FROM v3_local_vectors WHERE subject_id = ?")
+        sqlx::query_scalar("SELECT COUNT(*) FROM local_vectors WHERE subject_id = ?")
             .bind("resume:invalid-utf8")
             .fetch_one(database.pool())
             .await
@@ -253,7 +253,7 @@ async fn vector_writes_are_bounded_and_finite() {
         .await
         .is_err());
 
-    let stored: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM v3_local_vectors")
+    let stored: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM local_vectors")
         .fetch_one(database.pool())
         .await
         .unwrap();
@@ -271,7 +271,7 @@ async fn storage_constraints_reject_non_integer_shape_and_revision() {
         ("resume:fractional-revision", 3.0, 12, 1.5),
     ] {
         assert!(sqlx::query(
-            "INSERT INTO v3_local_vectors
+            "INSERT INTO local_vectors
              (subject_id, freshness_json, dimension, vector_blob, revision, updated_at)
              VALUES (?, ?, ?, ?, ?, '2026-07-20T00:00:00Z')",
         )
@@ -297,13 +297,13 @@ async fn stale_cleanup_preserves_an_aba_replacement() {
         .unwrap();
     let selected: (Vec<u8>, i64, Vec<u8>, i64) = sqlx::query_as(
         "SELECT CAST(freshness_json AS BLOB), dimension, vector_blob, revision
-         FROM v3_local_vectors WHERE subject_id = 'resume:aba'",
+         FROM local_vectors WHERE subject_id = 'resume:aba'",
     )
     .fetch_one(database.pool())
     .await
     .unwrap();
 
-    sqlx::query("DELETE FROM v3_local_vectors WHERE subject_id = 'resume:aba'")
+    sqlx::query("DELETE FROM local_vectors WHERE subject_id = 'resume:aba'")
         .execute(database.pool())
         .await
         .unwrap();
@@ -334,7 +334,7 @@ async fn stale_cleanup_preserves_an_aba_replacement() {
 
 async fn seed_resume_vector(database: &crate::Database, resume_id: i64) {
     sqlx::query(
-        "INSERT INTO v3_local_vectors
+        "INSERT INTO local_vectors
          (subject_id, freshness_json, dimension, vector_blob, revision, updated_at)
          VALUES (?, '{}', 1, X'00000000', 1, '2026-07-20T00:00:00Z')",
     )
@@ -345,7 +345,7 @@ async fn seed_resume_vector(database: &crate::Database, resume_id: i64) {
 }
 
 async fn resume_vector_count(database: &crate::Database, resume_id: i64) -> i64 {
-    sqlx::query_scalar("SELECT COUNT(*) FROM v3_local_vectors WHERE subject_id = ?")
+    sqlx::query_scalar("SELECT COUNT(*) FROM local_vectors WHERE subject_id = ?")
         .bind(format!("resume:{resume_id}"))
         .fetch_one(database.pool())
         .await
@@ -467,3 +467,6 @@ async fn late_vector_write_cannot_cross_a_resume_revision_change() {
 
     assert_eq!(resume_vector_count(&database, resume_id).await, 0);
 }
+
+#[path = "vectors_tests/migration_tests.rs"]
+mod migration_tests;

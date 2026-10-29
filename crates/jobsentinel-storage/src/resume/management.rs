@@ -183,7 +183,7 @@ impl ResumeMatcher {
             .execute(&mut *transaction)
             .await?;
 
-        sqlx::query("DELETE FROM v3_local_vectors WHERE subject_id = ?")
+        sqlx::query("DELETE FROM local_vectors WHERE subject_id = ?")
             .bind(resume_vector_subject(resume_id)?)
             .execute(&mut *transaction)
             .await?;

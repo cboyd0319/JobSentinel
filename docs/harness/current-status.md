@@ -13,7 +13,7 @@ Last updated: 2026-10-28
 - Follow the [development queue](../plans/v3/master-exec-plan.md#remaining-development-queue):
   finish accepted engineering and code cleanup before broad qualification or release.
 - Current work: D0 source/compatibility cleanup. Ordinary Rust names, atomic encrypted-store
-  bootstrap and obsolete gap-formatter removal are implemented; live-schema cleanup remains.
+  bootstrap and vector-table migration are implemented; remaining physical names are next.
 
 ## Remaining Scope
 

@@ -3,10 +3,10 @@
   "feature_id": "v3-source-compatibility-cleanup",
   "behavior": "Remove pre-v3-only readers and ordinary transition names while preserving immutable v3 contracts and local data.",
   "result": "partial",
-  "verified_at": "2026-10-29T00:43:30.933394+00:00",
-  "revision": "46a3a84faa282d73d2f6d3e25a31f6edfc999e42",
+  "verified_at": "2026-10-29T00:53:27.172691+00:00",
+  "revision": "cbc159d10bd0082f4d48f523a3453bab1f85b11e",
   "platform": "macOS27.2 arm64, pinned Rust1.97.1/Node24.18.0/npm12.0.1",
-  "scope": "D0 application/domain namespace, atomic encrypted-v3 bootstrap and deterministic Workbench policy checks; no broad qualification or release operations.",
+  "scope": "D0 source/compatibility cleanup with append-only vector-table migration; broad qualification and release operations remain deferred.",
   "source_files_sha256": {
     "crates/jobsentinel-domain/src/contracts.rs": "a00a6437a042ef31f70a6bcadcd16e9bb63c958a0271e6904448f10443b188af",
     "crates/jobsentinel-domain/src/lib.rs": "9f0ebe75dd7115ad75d62da71370c1ac810342327b3e72be9c406387cfecaaca",
@@ -18,11 +18,17 @@
     "crates/jobsentinel-storage/src/connection/bootstrap.rs": "e5f29c2281cd1d092c973b915adb2fb344b7637b2f4a18f120eee8c430e71903",
     "crates/jobsentinel-storage/src/encryption.rs": "028ed4f56740552fe86c61b5a797137bf04b18bf7bc370fa3d8f083158b872fe",
     "crates/jobsentinel-platform/src/windows_private_directory.rs": "89ca0fe245f87cda58d4c8d3fab1a9729c1067148e9ddb185b0ea941d28997e5",
-    "crates/jobsentinel-storage/src/vectors.rs": "e477c52d038d690f3f336b3fc3bc212c7170608c3676fca2a4e312b3ce0edd7a",
+    "crates/jobsentinel-storage/src/vectors.rs": "68a9416c3bddf41347c7794eaaad805f4557ee9c174965a26ea0e2ed5a2b4041",
     "crates/jobsentinel-storage/src/lib.rs": "e31ad8194acd24cab5f60ac33541d5a37e3bd995797cce2eb7ec5ae135db7a1f",
     "crates/jobsentinel-storage/src/resume/matcher.rs": "b0575def86186165c42c7080a1686f19fc1214fe6a44db5e9d4c5842d0589b2e",
     "crates/jobsentinel-storage/src/resume/matcher/gap_analysis.rs": "b6850dd3429474e76a3315ca4c87275965e46b2cea220a045a21911916a568fc",
-    "crates/jobsentinel-storage/src/resume/matcher_tests.rs": "58ada0e817884f8a4757acb34539f599f6bef0620386c1b1df3bc84c35cefba5"
+    "crates/jobsentinel-storage/src/resume/matcher_tests.rs": "58ada0e817884f8a4757acb34539f599f6bef0620386c1b1df3bc84c35cefba5",
+    "crates/jobsentinel-domain/src/external_ai.rs": "cbdcc67770cff00958d28a82ef369fe5fe2d83f1abfac4132d8861ddbe301b8a",
+    "crates/jobsentinel-storage/migrations/00000000000032_local_vectors.sql": "e26bb7a42894bed1c5f3be197bf2d15b0bd68eb2ecfe2fd91476ab9305c64687",
+    "crates/jobsentinel-storage/src/vectors_tests/migration_tests.rs": "8baf0dbd0480c7dd062ae9287ee30ef03a18a30f6ab92369f9b960d7435bd121",
+    "crates/jobsentinel-storage/src/connection/reviewed_export_schema.rs": "295830766c6e6958924c764e16c9d940e3c9d11b7b0b80a895931b4e3627b113",
+    "crates/jobsentinel-storage/src/resume/management.rs": "e5e439704bc6b91d4d4cc8e6533f9a9cc537619cdf77ddef1f1a2ca72332b468",
+    "crates/jobsentinel-storage/src/resume/skill_store.rs": "2084f01ab92841be6ffb4e5101765d75713860b4d9e8bfdab4afe9af38b9c226"
   },
   "delivered": [
     "Removed unused pre-v3 compatibility classification types/function/re-export and the unsupported upgrade claim tests. Supported validation uses the existing parser directly.",
@@ -35,7 +41,10 @@
     "Renamed 27 ordinary domain modules/test files and three child directories through 129 Rust files, including evaluation/runtime symbols. Comparison found 419 authorized identifier replacements and 6001 byte-identical literals, with no fixture or migration changes.",
     "Workbench action authorization now accepts an explicit private date seam, while public entry points retain the real clock. Tests use a fixed reviewed date and prove expired policy refuses writes; production policy review date remains unchanged and currently requires real refresh.",
     "Normalized ordinary storage module/test filenames and vector method names through 54 Rust files without aliases or IPC changes. Comparison preserved 1788 literals and changed only six source-module path literals; SQL and migration bytes remain unchanged.",
-    "Removed the unused test-only legacy gap formatter and forwarding method. Its six existing checks now call the production enhanced formatter synchronously without database setup."
+    "Removed the unused test-only legacy gap formatter and forwarding method. Its six existing checks now call the production enhanced formatter synchronously without database setup.",
+    "Added migration32: ALTER TABLE renames v3_local_vectors to local_vectors, preserving rows and constraints, with metadata advanced to32. Current read/write/invalidation SQL and reviewed-export exclusion use only the new physical name; no alias/view remains.",
+    "Encrypted31 migration preserves exact freshness/blob bytes, dimension, revision, timestamp and table root page; its original-schema snapshot remains readable, restores and retries. Fresh32, ABA, guarded writes, both invalidation paths and vector exclusion are covered.",
+    "Removed the obsolete openai provider spelling after tracing current frontend writers to open_ai; canonical provider serialization remains open_ai and unknown spelling now fails deserialization."
   ],
   "immutable_boundaries": [
     "SchemaId serialized strings and retained parser/validation code match the prior source exactly.",
@@ -132,16 +141,72 @@
       "exit_status": 0,
       "relevant_result": "Native production graph passed after storage normalization and dead formatter removal.",
       "caveat": "Mac compile/lint only; log target/d0-storage-namespace/native-clippy.log."
+    },
+    {
+      "command": "RUSTUP_AUTO_INSTALL=0 cargo test --locked --offline -p jobsentinel-storage --lib vectors::tests::",
+      "exit_status": 0,
+      "relevant_result": "13 vector/migration tests passed.",
+      "caveat": "Includes red/green fresh-schema proof and encrypted31 preservation; log target/d0-vector-migration/green-vectors.log."
+    },
+    {
+      "command": "RUSTUP_AUTO_INSTALL=0 cargo test --locked --offline -p jobsentinel-storage --lib connection::tests::migration_tests::",
+      "exit_status": 0,
+      "relevant_result": "10 migration recovery tests passed.",
+      "caveat": "Focused recovery; log target/d0-vector-migration/migration-recovery.log."
+    },
+    {
+      "command": "RUSTUP_AUTO_INSTALL=0 cargo test --locked --offline -p jobsentinel-storage --lib connection::tests::reviewed_export_tests::",
+      "exit_status": 0,
+      "relevant_result": "5 reviewed-export tests passed.",
+      "caveat": "No native file-picker journey; log target/d0-vector-migration/reviewed-export.log."
+    },
+    {
+      "command": "RUSTUP_AUTO_INSTALL=0 cargo test --locked --offline -p jobsentinel-application --features embedded-ml --lib resume::semantic::tests::",
+      "exit_status": 0,
+      "relevant_result": "8 semantic-cache tests passed.",
+      "caveat": "Synthetic vectors/empty model directory; initial command without feature selected zero and does not qualify. Log target/d0-vector-migration/semantic-cache-embedded.log."
+    },
+    {
+      "command": "RUSTUP_AUTO_INSTALL=0 cargo test --locked --offline -p jobsentinel-storage --lib encryption::tests::newer_same_generation_data_is_refused_without_changing_main_or_wal -- --exact",
+      "exit_status": 0,
+      "relevant_result": "1 future-migration refusal test passed.",
+      "caveat": "Log target/d0-vector-migration/future-migration-refusal.log; exact invocation recorded in results.json."
+    },
+    {
+      "command": "RUSTUP_AUTO_INSTALL=0 cargo clippy --locked --offline -p jobsentinel-storage --lib -- -D warnings",
+      "exit_status": 0,
+      "relevant_result": "Storage production clippy passed.",
+      "caveat": "Mac target; log target/d0-vector-migration/storage-clippy.log."
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-domain --lib external_ai::tests",
+      "exit_status": 0,
+      "relevant_result": "3 external-AI configuration/provider tests passed.",
+      "caveat": "No external request or credential read."
     }
   ],
   "remaining": [
-    "Rename live schema only with compatible migrations and preserved export/signature contracts; vectors are the first isolated pilot.",
-    "Review bounded provider/filter/education aliases; preserve any needed by supported v3 inputs.",
-    "Trace minimum Gate 4 dossier and close confirmed Now behavior gaps. Real Workbench policy refresh remains required; fixture correction does not renew source evidence."
+    "Rename the remaining15 physical tables, five indexes and45 triggers through append-only compatible migrations. Preserve eight reviewed-export-v1 labels and supported historical-v3 pre-migration backup/restore/probe paths."
   ],
   "review": {
     "result": "PASS after corrections",
     "scope": "Independent read-only review of atomic bootstrap and final Windows publication/probe-close corrections.",
     "caveat": "No native Windows execution or power-loss qualification."
+  },
+  "retained_supported_inputs": [
+    "Fresh v3 still depends on screening-pattern seed readers, listed-pay/geography projections and secure-storage names; legacy wording alone does not establish pre-v3-only behavior.",
+    "Education value normalization and company preference aliases are unversioned input handling, with no proven pre-v3-only boundary. Deleting company aliases under permissive deserialization would silently discard preferences; preserve them rather than infer removal authority."
+  ],
+  "gate4_minimum_dossier_trace": {
+    "result": "No confirmed development gap in the minimum dossier path.",
+    "owners": [
+      "docs/plans/v3/employer-intelligence.md:387",
+      "docs/features/employer-intelligence.md",
+      "src-tauri/src/ipc/opportunity_case.rs:13",
+      "crates/jobsentinel-application/src/foundation/opportunity_case/dossier.rs:170",
+      "src/features/applications/ApplicationsPage.tsx:245"
+    ],
+    "finding": "Local saved-posting/history, pay/dates/uncertainty/freshness and next action reach the shared dossier renderer. Dated application-note events exist; private note text is deliberately excluded from the dossier.",
+    "caveat": "Read-only source trace, not fresh provider accuracy, novice task completion, native link activation or installed offline proof; those remain R1."
   }
 }

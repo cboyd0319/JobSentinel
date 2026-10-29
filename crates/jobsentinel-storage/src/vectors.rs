@@ -39,14 +39,14 @@ impl Database {
             prepare_vector(subject_id, freshness, model, values)?;
 
         sqlx::query(
-            "INSERT INTO v3_local_vectors
+            "INSERT INTO local_vectors
              (subject_id, freshness_json, dimension, vector_blob, revision, updated_at)
              VALUES (?, ?, ?, ?, 1, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
              ON CONFLICT(subject_id) DO UPDATE SET
                  freshness_json = excluded.freshness_json,
                  dimension = excluded.dimension,
                  vector_blob = excluded.vector_blob,
-                 revision = v3_local_vectors.revision + 1,
+                 revision = local_vectors.revision + 1,
                  updated_at = excluded.updated_at",
         )
         .bind(subject_id)
@@ -79,7 +79,7 @@ impl Database {
             prepare_vector(&subject_id, freshness, model, values)?;
 
         sqlx::query(
-            "INSERT INTO v3_local_vectors
+            "INSERT INTO local_vectors
              (subject_id, freshness_json, dimension, vector_blob, revision, updated_at)
              SELECT ?, ?, ?, ?, 1, strftime('%Y-%m-%dT%H:%M:%fZ', 'now')
              WHERE EXISTS (
@@ -92,7 +92,7 @@ impl Database {
                  freshness_json = excluded.freshness_json,
                  dimension = excluded.dimension,
                  vector_blob = excluded.vector_blob,
-                 revision = v3_local_vectors.revision + 1,
+                 revision = local_vectors.revision + 1,
                  updated_at = excluded.updated_at",
         )
         .bind(subject_id)
@@ -125,7 +125,7 @@ impl Database {
 
         let row: Option<StoredVectorRow> = sqlx::query_as(
             "SELECT CAST(freshness_json AS BLOB), dimension, vector_blob, revision
-             FROM v3_local_vectors
+             FROM local_vectors
              WHERE subject_id = ?",
         )
         .bind(subject_id)
@@ -233,7 +233,7 @@ async fn delete_if_unchanged(
     row: &StoredVectorRow,
 ) -> Result<(), sqlx::Error> {
     sqlx::query(
-        "DELETE FROM v3_local_vectors
+        "DELETE FROM local_vectors
          WHERE subject_id = ?
            AND CAST(freshness_json AS BLOB) = ?
            AND dimension = ?
@@ -254,7 +254,7 @@ async fn purge_vector(
     database: &Database,
     subject_id: &str,
 ) -> Result<StoredVectorRead, sqlx::Error> {
-    let result = sqlx::query("DELETE FROM v3_local_vectors WHERE subject_id = ?")
+    let result = sqlx::query("DELETE FROM local_vectors WHERE subject_id = ?")
         .bind(subject_id)
         .execute(database.pool())
         .await?;

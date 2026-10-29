@@ -1,7 +1,4 @@
-//! Optional external-AI configuration.
-//!
-//! Credentials for these providers are stored through `CredentialService`, not
-//! serialized in app configuration.
+//! Defines optional external-AI configuration without serializing provider credentials.
 
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -14,7 +11,6 @@ fn default_external_ai_model() -> String {
 #[serde(rename_all = "snake_case")]
 pub enum ExternalAiProvider {
     None,
-    #[serde(alias = "openai")]
     OpenAi,
     Anthropic,
     GoogleGemini,
@@ -140,10 +136,10 @@ mod tests {
     }
 
     #[test]
-    fn provider_accepts_legacy_openai_spelling() {
-        let provider: ExternalAiProvider =
-            serde_json::from_str("\"openai\"").expect("legacy spelling should deserialize");
-
+    fn provider_requires_the_current_wire_name() {
+        assert!(serde_json::from_str::<ExternalAiProvider>("\"openai\"").is_err());
+        let provider: ExternalAiProvider = serde_json::from_str("\"open_ai\"").unwrap();
         assert_eq!(provider, ExternalAiProvider::OpenAi);
+        assert_eq!(serde_json::to_string(&provider).unwrap(), "\"open_ai\"");
     }
 }
