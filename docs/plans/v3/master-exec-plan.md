@@ -8,8 +8,8 @@ This is the sole execution plan for the v3 major line. Finish the remaining
 accepted development and code cleanup before broad qualification or release work.
 The [remaining development queue](#remaining-development-queue) owns execution order.
 
-Implementation resumed on 2026-10-28. Start with the selected D0 child. Other documents
-provide detail without independently adding scope.
+Implementation resumed on 2026-10-28. D0 development is accepted; execute the selected
+D1 shared-computer privacy child. Other documents do not independently add scope.
 
 ## Problem
 
@@ -275,10 +275,12 @@ whole outcome is delivered. Do not build an entire marketplace before useful sou
 | D9 | Stable derived outputs and evaluation products | Needed projections, scorers, corpora and scorecards exist. Broad measurement waits. |
 | D10 | Release engineering and source/document closure | Pipeline code, headers, measured boundary fixes and docs are complete before QA. |
 
-### D0: First selected development slice
+### D0: Completed compatibility baseline
 
 Owner: existing Rust/application/storage, native IPC and frontend owners.
-Selected feature: `v3-source-compatibility-cleanup`.
+Completed feature: `v3-source-compatibility-cleanup`.
+Core source cut: `4b96e8027b1e40db5714d75f4d38d6cf9a32fbf3`. Focused development evidence is recorded;
+broad qualification remains R1/R2. Next product changes begin after this revision.
 
 - Classify immutable schema IDs, protocol IDs and SQLx history separately from
   ordinary module/type/command/live-schema names. Preserve the former.
@@ -307,6 +309,21 @@ Owners are existing modules, not a request for new crates or interfaces.
 #### D1: Data ownership and protection
 
 Owner: `jobsentinel-platform`, credentials, storage/recovery, application and Settings owners.
+
+Selected child: `v3-shared-computer-privacy` (R13). Build the required A14/P08
+adapter behavior only where this workflow needs it; reuse current vault and
+native key-protection owners.
+
+- Outcome: explicit lock protects private views and native command admission;
+  trusted unlock handles cancellation/failure, recent-data visibility is bounded,
+  and session cleanup is reviewed before changing owned session data.
+- Paths: existing platform/credential owners, native bootstrap state and
+  `src-tauri/src/ipc/registry.rs`, `src/app/App.tsx` and Settings owners.
+- Verify focused lock/unlock/admission/cleanup cases and affected UI/type contracts.
+  Installed journeys and platform qualification remain R1.
+- Rollback: disable the opt-in mode and revert its isolated changes without
+  deleting saved records. Preserve the core cut and separate Next commit range.
+
 
 | ID | Remaining development |
 | --- | --- |
@@ -547,7 +564,7 @@ campaign. Only final archival/disposition work stays at the end of milestone 13.
 | 10. Update, rollback, repair, and distribution design | [x] First implement trusted candidate preflight binding app, edition, pack, model, browser, region, export, and database compatibility metadata before mutation.<br>[x] Prove refusal of untrusted, checksum-mismatched, or incompatible candidates without changing current data or packs.<br>[x] Implement interrupted-update recovery, compatible rollback, offline repair, and component cleanup using existing recovery owners.<br>[x] Implement explicit update availability and reviewed update/rollback UX without silent updates or a new update server.<br>[x] Keep installed local workflows usable when checks, downloads, or online repair are unavailable.<br>[x] Cover missing components, interrupted updates, rollback restore, and offline recovery with focused boundary tests.<br>[x] Complete Gate 5 and freeze the v3.0 feature/component cut. | Application, platform, security, storage, release scripts, Settings, and update/recovery docs.<br>Development exit: update and repair are reversible, inspectable, offline-safe, and understandable. Current installed-package certification follows in M11. |
 | 11. V3.0 integration, QA, and release | [ ] After D0–D10 engineering is complete, run the full applicable suites, end-to-end scenarios, and commercial benchmarks for each intended release cut.<br>[ ] Obtain explicit Region-publisher enrollment/signing authority and produce verified production UK/EU/India starter artifacts.<br>[ ] Prove the current model-free installed Essentials core journey and persistence under an enforced 8 GiB, zero-swap profile with the unchanged numeric thresholds.<br>[ ] Complete Windows 11, exact macOS 26+, and Linux installed-platform, keyboard, screen-reader, responsive, and recovery proof.<br>[ ] Prove the connected veteran journey, fresh v3.0.0 install, failure recovery, compatible v3 rollback, export/import, pack/model removal, and newer-data refusal.<br>[ ] Resolve release-pipeline and shared-history decisions; keep retained exceptions explicit.<br>[ ] Reconcile final evidence, release metadata and public labels against development-owned product, security, migration and support docs.<br>[ ] Verify final assets, signatures, notarization, checksums, SBOMs, attestations, archives, labels, and public downloads; complete Gate 6 before publication. | All affected owners.<br>Exit: every v3.0 success criterion and the [Evaluation And Release Bar](evaluation-and-release-bar.md) done definition has revision-bound evidence. Historical package/model runs establish only their original scope, not current release readiness. |
 | 12. V3.x enhancement trains | [ ] Activate one `Next` ID or tightly coupled group at a time.<br>[ ] Preserve v3 compatibility; defer breaking changes to the next major line.<br>[ ] Complete accepted development in the D0–D10 queue with focused checks; broad release campaigns wait until engineering is complete.<br>[ ] Use the reprioritized dependencies above; solve the hardest eligible coding problem first, with user burden as tie-breaker.<br>[ ] Reorder trains only through a recorded dependency and user-value decision.<br>[ ] Re-score after each minor release without silently promoting `Later` or `Moonshot` work. | Closest canonical owners.<br>Exit: every accepted `Next` ID is shipped, moved with evidence, or retired by user-approved decision. |
-| 13. V3 line closure | [ ] Confirm every accepted ID and inventory item has a final disposition.<br>[ ] Remove transition-only `v3` prefixes from ordinary files, modules, types, commands, and live schema names; retain version labels only in immutable compatibility identifiers where the version is part of the contract.<br>[ ] Delete pre-v3 compatibility readers, migration shims, fixtures, and release claims; make v3.0.0 the first supported compatibility baseline.<br>[ ] Audit Rust workspace and module organization against canonical crate ownership, Cargo workspace dependency and lint inheritance, compile boundaries, and repository file-size policy; split only on cohesive ownership boundaries.<br>[ ] Give every maintained hand-authored comment-capable file a one- or two-line native responsibility header; run `npm run lint:file-description -- --all` with zero gaps.<br>[ ] Move completed child plans and evidence to canonical completed owners.<br>[ ] Record compatibility guarantees, unsupported paths, retained exceptions, and the v4 backlog.<br>[ ] Audit docs, architecture, security, dependencies, duplication, migration, GUI, packages, and public artifacts. | Planning, harness, release, and all affected owners.<br>Exit: no transition-only v3 naming, pre-v3 compatibility machinery, or file-description gap remains; Rust code has explicit cohesive owners without boundary leakage, no active v3 work remains outside this plan, current state is compact, and the next major line starts from an explicit backlog. |
+| 13. V3 line closure | [ ] Confirm every accepted ID and inventory item has a final disposition.<br>[x] Remove transition-only `v3` prefixes from ordinary files, modules, types, commands, and live schema names; retain version labels only in immutable compatibility identifiers where the version is part of the contract.<br>[x] Delete pre-v3 compatibility readers, migration shims, fixtures, and release claims; make v3.0.0 the first supported compatibility baseline.<br>[ ] Audit Rust workspace and module organization against canonical crate ownership, Cargo workspace dependency and lint inheritance, compile boundaries, and repository file-size policy; split only on cohesive ownership boundaries.<br>[ ] Give every maintained hand-authored comment-capable file a one- or two-line native responsibility header; run `npm run lint:file-description -- --all` with zero gaps.<br>[ ] Move completed child plans and evidence to canonical completed owners.<br>[ ] Record compatibility guarantees, unsupported paths, retained exceptions, and the v4 backlog.<br>[ ] Audit docs, architecture, security, dependencies, duplication, migration, GUI, packages, and public artifacts. | Planning, harness, release, and all affected owners.<br>Exit: no transition-only v3 naming, pre-v3 compatibility machinery, or file-description gap remains; Rust code has explicit cohesive owners without boundary leakage, no active v3 work remains outside this plan, current state is compact, and the next major line starts from an explicit backlog. |
 
 ## Verification
 
@@ -926,9 +943,9 @@ claims are historical, not fresh verification. Current state is in Handoff.
 
 ## Handoff
 
-- The user resumed implementation on 2026-10-28. Start at the selected D0 child.
-- The selected next child is `v3-source-compatibility-cleanup` in D0. The parked
-  M11 campaign has partial evidence, not passing qualification.
+- D0 development is accepted at `4b96e802`; preserve it as the v3.0 core source cut.
+- The active child is `v3-shared-computer-privacy` in D1 (R13). Start product work
+  there. The parked M11 campaign remains partial, not passing qualification.
 - Follow D0 through D10 and the complete 82-ID inventory above. Keep one bounded child
   active. Finish real useful behavior and focused checks before selecting another.
 - Preserve the v3.0 core cut separately from Next development. No extra v3.0

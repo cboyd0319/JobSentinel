@@ -6,14 +6,14 @@ Last updated: 2026-10-28
 
 ## Execution
 
-- Active feature: `v3-source-compatibility-cleanup`
+- Active feature: `v3-shared-computer-privacy`
 - Status: `active`
 - Implementation goal: **active**, resumed by the user on 2026-10-28.
-  Work starts with the selected D0 child, not the parked qualification campaign.
+  Continue with D1 shared-computer privacy; broad qualification remains parked.
 - Follow the [development queue](../plans/v3/master-exec-plan.md#remaining-development-queue):
   finish accepted engineering and code cleanup before broad qualification or release.
-- Current work: D0 final plaintext-credential migration disposition. Physical-schema
-  cleanup and strict retired-input handling are committed in `b521cc00`.
+- Current work: D1/R13 shared-computer privacy: protected access, recent-data
+  visibility and reviewed session cleanup, reusing current native/vault owners.
 
 ## Remaining Scope
 
@@ -32,6 +32,7 @@ Last updated: 2026-10-28
 
 - `e6b97d9b` records M10 development acceptance. Positive OS acknowledgement was simulated.
 - `ecf321dc` checkpoints the development-first plan and preserved M11 corrections.
+- D0 is development-passing at `4b96e802`, the preserved v3.0 core source cut.
 - D0 scope/results: `docs/harness/evidence/v3-source-compatibility-cleanup-2026-10-28.json`.
 - Audit coverage/gaps: `docs/harness/evidence/v3-retrospective-audit-2026-10-28.json`.
 - Partial M11 work: `docs/harness/evidence/v3-milestone-11-local-qualification-2026-10-28.json`.
