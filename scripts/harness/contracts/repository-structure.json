@@ -102,6 +102,7 @@
       ".storybook"
     ],
     "allowed_configuration_roots": [
+      ".serena",
       ".cargo",
       ".github",
       ".storybook",
@@ -180,6 +181,7 @@
       ".github",
       ".husky",
       ".sqlx",
+      ".serena",
       ".storybook",
       ".vale",
       "crates",

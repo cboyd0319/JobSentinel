@@ -1,3 +1,4 @@
+# Excludes generated, local and secret artifacts while retaining shared project configuration.
 # Rust
 /target
 **/*.rs.bk
@@ -80,3 +81,8 @@ tests/e2e/fixtures/*.txt
 /*_CHECKLIST.md
 /*_IMPLEMENTATION.md
 /*_PLAN.md
+
+# Version the shared Serena contract; keep local overrides, caches and memories private.
+!/.serena/
+/.serena/*
+!/.serena/project.yml

@@ -23,6 +23,29 @@ harness validation, and the baseline application smoke test. It does not install
 global tools, enable hooks, start services, or read secrets. Start the desktop app
 with `npm run tauri:dev`.
 
+## Serena and delegated work
+
+- `.serena/project.yml` owns language servers. Keep local overrides, caches and memories untracked.
+  SQL uses text search; reconnect the owned client after changing server configuration.
+- Use Serena first for symbols, callers/references and symbol edits. Scope queries
+  to known paths; read bodies only when needed. Use `rg` for literals, excluded
+  tests, unsupported operations and incomplete LSP results. Do not repeatedly rescan files.
+- Verify the absolute active root and obtain your own session with
+  `initial_instructions` before semantic work. Sessions do not isolate server state.
+- Give every repository subagent a separate worktree and branch, bounded ownership
+  and a reviewed integration step. Preserve all existing changes; never reset another agent.
+- Each worktree's agent uses its own client-launched Serena stdio server:
+  `serena start-mcp-server --context codex --project <absolute-worktree-root> --transport stdio`.
+  Use `--project-from-cwd` only after verifying the client's working directory.
+  Never switch a shared server. If separate connections are unavailable, use native tools.
+- Run the standard init in new worktrees before dependent edits. Provision Serena
+  prerequisites with `serena download-ls-dependencies rust typescript bash powershell toml yaml json`;
+  PowerShell needs `pwsh` on PATH. Use the pinned toolchain's `rust-analyzer` in local overrides.
+- Index once with `serena project index <absolute-root>`; verify known symbols and
+  references for relevant languages. Unsupported references use bounded text search.
+  Rust background check-on-save is disabled; repository checks own verification.
+- Review and integrate agent commits, then run focused checks on the combined result.
+
 ## Non-Negotiable Boundaries
 
 - Every `AGENTS.md`, including downstream files, is capped at 150 lines and 32 KiB. No exceptions.
@@ -62,7 +85,6 @@ with `npm run tauri:dev`.
 - Security: `docs/security/README.md`
 - Workflow: `docs/harness/change-contract.md` and `docs/harness/verification-matrix.md`
 - Tests and commands: `docs/developer/TESTING.md`
-- Change contracts: `docs/harness/change-contract.md`
 - UI and copy: `docs/design/design-system.md`, `docs/design/design-spec.md`, and
   `docs/style-guide/README.md`
 

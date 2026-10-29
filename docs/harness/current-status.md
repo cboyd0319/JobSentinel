@@ -8,12 +8,12 @@ Last updated: 2026-10-28
 
 - Active feature: `v3-portable-app`
 - Status: `active`
-- Implementation goal: **active**, resumed by the user on 2026-10-28.
-  Continue with D1 portable application ownership; broad qualification remains parked.
+- Implementation goal: **paused** at the user's request after Serena setup.
+  Resume with E15 development acceptance; broad qualification remains parked.
 - Follow the [development queue](../plans/v3/master-exec-plan.md#remaining-development-queue):
   finish accepted engineering and code cleanup before broad qualification or release.
-- Current work: D1/E15 portable startup, owned paths and pre-database passphrase
-  unlock. Reuse existing storage, key wrapping and recovery owners.
+- Current work: E15 (`13e64abd`) portable startup/recovery and relocation implementation checkpoint.
+  Focused checks pass; record acceptance next. Installed proof remains in the final phases.
 - R13 development accepted at `70b813d7`; installed qualification remains R1.
 - Evidence: `docs/harness/evidence/v3-shared-computer-privacy-2026-10-28.json`.
 
@@ -32,8 +32,9 @@ Last updated: 2026-10-28
 
 ## Preserved Work And Evidence
 
-- `e6b97d9b` records M10 development acceptance. Positive OS acknowledgement was simulated.
-- `ecf321dc` checkpoints the development-first plan and preserved M11 corrections.
+- Serena: seven language backends and Rust/TS references verified in separate
+  main/worktree stdio servers; 2,135 files indexed. Reconnect the existing MCP client
+  after restarting to load the updated `.serena/project.yml`; local overrides stay private.
 - D0 is development-passing at `4b96e802`, the preserved v3.0 core source cut.
 - D0 scope/results: `docs/harness/evidence/v3-source-compatibility-cleanup-2026-10-28.json`.
 - Audit coverage/gaps: `docs/harness/evidence/v3-retrospective-audit-2026-10-28.json`.
