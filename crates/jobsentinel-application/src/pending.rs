@@ -24,6 +24,11 @@ struct PendingUrlImport {
 }
 
 impl PendingUrlImports {
+    /// Discard pending session reviews without changing saved records.
+    pub fn clear(&self) {
+        self.write_entries().clear();
+    }
+
     pub(super) fn queue(&self, job: Job, grant: SourceGrantState, now: DateTime<Utc>) -> String {
         let mut entries = self.write_entries();
         retain_current(&mut entries, now);
@@ -94,6 +99,16 @@ mod tests {
         job.hash = hash.to_string();
         job.remote = Some(false);
         job
+    }
+
+    #[test]
+    fn session_cleanup_invalidates_pending_review_tokens() {
+        let pending = PendingUrlImports::default();
+        let now = Utc::now();
+        let id = pending.queue(job("session"), SourceGrantState::Missing, now);
+        pending.clear();
+        assert!(pending.find(&id, now).is_none());
+        assert_eq!(pending.current_count(now), 0);
     }
 
     #[test]

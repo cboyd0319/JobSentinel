@@ -1,3 +1,5 @@
+//! Handles native window close, focus privacy, file drops and tray integration.
+
 mod tray;
 
 pub(crate) use crate::application::desktop::*;
@@ -7,6 +9,12 @@ pub(crate) use tray::{initialize_tray, show_main_window};
 pub(crate) fn preserve_main_window_on_close<R: Runtime>(builder: Builder<R>) -> Builder<R> {
     builder.on_window_event(|window, event| {
         if window.label() == "main" {
+            if matches!(
+                event,
+                WindowEvent::Focused(false) | WindowEvent::CloseRequested { .. }
+            ) {
+                crate::ipc::privacy::lock_on_focus_loss(window.app_handle());
+            }
             if let WindowEvent::DragDrop(tauri::DragDropEvent::Drop { paths, .. }) = event {
                 crate::ipc::native_file_drop::capture_native_file_drop(window.app_handle(), paths);
             }

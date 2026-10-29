@@ -25,6 +25,7 @@ pub(crate) mod native_file_drop;
 pub(crate) mod opportunity_case;
 pub(crate) mod pack_execution;
 pub(crate) mod pack_management;
+pub(crate) mod privacy;
 pub(crate) mod recovery;
 pub(crate) mod resume;
 mod resume_file_names;

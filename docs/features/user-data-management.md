@@ -46,6 +46,26 @@ classification internals.
 External notifications such as Slack, Discord, Teams, email, or other channels
 are optional. They are used only after the user configures them.
 
+## Shared-computer privacy
+
+Settings offers an opt-in mode that starts locked and locks when the main window
+loses focus or closes. Unlock requires a fresh saved-details passphrase check or
+supported device verification. macOS uses protected Keychain user presence;
+Windows and Linux require the configured passphrase. Turn off shared-computer
+mode before changing that passphrase policy.
+
+Locking blocks private native commands, removes private views, toast and undo
+state, rejects late renderer responses, and pauses background source work and
+notifications. Unlock resumes scheduling. This protects the app session; it does
+not erase saved records or protect against another process running as your OS user.
+
+**Review session cleanup** explains its changes before confirmation. It clears
+temporary job text, resume-match drafts, detected location, command caches and
+pending import reviews. Unsaved edits are discarded. Saved jobs, resumes,
+applications, settings and connection details remain, as do exports, clipboard
+contents and external copies. Cleanup is not secure erasure. Failures remain
+visible; shared-computer sessions stay locked until authenticated again.
+
 ## Everyday Workflows
 
 ### Cover Letter Templates

@@ -12,38 +12,93 @@ use tokio::sync::Notify;
 
 #[derive(Default)]
 pub(crate) struct OperationAdmission {
-    state: Mutex<(bool, usize, bool)>,
+    state: Mutex<Admission>,
     idle: Notify,
+}
+
+#[derive(Default)]
+struct Admission {
+    closed: bool,
+    active: usize,
+    shutdown: bool,
+    privacy_locked: bool,
+    privacy_generation: u64,
 }
 
 pub(crate) struct OperationLease(Arc<OperationAdmission>);
 impl Drop for OperationLease {
     fn drop(&mut self) {
         let mut state = self.0.state.lock().unwrap_or_else(|p| p.into_inner());
-        state.1 -= 1;
-        if state.1 == 0 {
+        state.active -= 1;
+        if state.active == 0 {
             self.0.idle.notify_waiters();
         }
     }
 }
 
 impl OperationAdmission {
+    pub(crate) fn with_privacy_lock(locked: bool) -> Self {
+        Self {
+            state: Mutex::new(Admission {
+                privacy_locked: locked,
+                ..Admission::default()
+            }),
+            idle: Notify::new(),
+        }
+    }
+
+    pub(crate) fn privacy_locked(&self) -> bool {
+        self.state.lock().map_or(true, |state| state.privacy_locked)
+    }
+
+    pub(crate) fn lock_privacy(&self) -> Result<(), String> {
+        let mut state = self
+            .state
+            .lock()
+            .map_err(|_| "Native operation admission is unavailable.")?;
+        state.privacy_locked = true;
+        state.privacy_generation = state.privacy_generation.wrapping_add(1);
+        Ok(())
+    }
+
+    pub(crate) fn privacy_generation(&self) -> Result<u64, String> {
+        self.state
+            .lock()
+            .map(|state| state.privacy_generation)
+            .map_err(|_| "Native operation admission is unavailable.".into())
+    }
+
+    pub(crate) fn unlock_privacy(&self, generation: u64) -> Result<(), String> {
+        let mut state = self
+            .state
+            .lock()
+            .map_err(|_| "Native operation admission is unavailable.")?;
+        if state.privacy_generation != generation || state.closed {
+            return Err("The session changed. Unlock JobSentinel again.".into());
+        }
+        state.privacy_locked = false;
+        Ok(())
+    }
+
     pub(crate) fn admit(self: &Arc<Self>) -> Result<Arc<OperationLease>, String> {
         let mut state = self
             .state
             .lock()
             .map_err(|_| "Native operation admission is unavailable.")?;
-        if state.0 {
+        if state.privacy_locked {
+            return Err("JobSentinel is locked. Unlock it to continue.".into());
+        }
+        if state.closed {
             return Err(
                 "Local update preparation is active. Restart JobSentinel to continue.".into(),
             );
         }
-        state.1 += 1;
+        state.active += 1;
         Ok(Arc::new(OperationLease(self.clone())))
     }
 
     pub(crate) fn closed(&self) -> bool {
-        self.state.lock().map_or(true, |state| state.0)
+        self.state.lock().map_or(true, |state| state.closed)
     }
 
     pub(crate) async fn close_and_wait(&self) -> Result<(), String> {
@@ -52,8 +107,12 @@ impl OperationAdmission {
                 .state
                 .lock()
                 .map_err(|_| "Native operation admission is unavailable.")?;
-            state.0 = true;
+            state.closed = true;
         }
+        self.wait_for_idle().await
+    }
+
+    pub(crate) async fn wait_for_idle(&self) -> Result<(), String> {
         loop {
             let idle = self.idle.notified();
             tokio::pin!(idle);
@@ -62,7 +121,7 @@ impl OperationAdmission {
                 .state
                 .lock()
                 .map_err(|_| "Native operation admission is unavailable.")?
-                .1
+                .active
                 == 0
             {
                 return Ok(());
@@ -76,15 +135,15 @@ impl OperationAdmission {
             .state
             .lock()
             .map_err(|_| "Native operation admission is unavailable.")?;
-        state.0 = true;
-        state.2 = true;
+        state.closed = true;
+        state.shutdown = true;
         Ok(())
     }
 
     pub(crate) fn reopen(&self) {
         if let Ok(mut state) = self.state.lock() {
-            if !state.2 {
-                state.0 = false;
+            if !state.shutdown {
+                state.closed = false;
             }
         }
     }
@@ -144,6 +203,30 @@ impl<'r, 'de: 'r, T: Send + Sync + 'static, R: Runtime> CommandArg<'de, R> for S
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn privacy_lock_blocks_admission_and_update_reopen_cannot_unlock_it() {
+        let admission = Arc::new(OperationAdmission::with_privacy_lock(true));
+        assert!(admission.admit().is_err());
+        admission.reopen();
+        assert!(admission.privacy_locked());
+        let generation = admission.privacy_generation().unwrap();
+        admission.unlock_privacy(generation).unwrap();
+        assert!(admission.admit().is_ok());
+        admission.lock_privacy().unwrap();
+        assert!(admission.unlock_privacy(generation).is_err());
+        assert!(admission.privacy_locked());
+        assert!(admission.admit().is_err());
+    }
+
+    #[test]
+    fn privacy_authentication_cannot_reopen_an_update_or_shutdown() {
+        let admission = OperationAdmission::with_privacy_lock(true);
+        let generation = admission.privacy_generation().unwrap();
+        admission.begin_shutdown().unwrap();
+        assert!(admission.unlock_privacy(generation).is_err());
+        assert!(admission.privacy_locked());
+    }
+
     #[tokio::test]
     async fn admission_waits_for_last_worker_lease_and_rejects_new_work() {
         let admission = Arc::new(OperationAdmission::default());

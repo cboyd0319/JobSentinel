@@ -211,6 +211,11 @@ struct PendingMilitaryTransitionReview {
 }
 
 impl PendingMilitaryTransitionReviews {
+    /// Discard pending session reviews without changing saved records.
+    pub fn clear(&self) {
+        self.write_entries().clear();
+    }
+
     pub(super) fn queue(
         &self,
         review: SavedMatchMilitaryTransitionReview,

@@ -1,5 +1,6 @@
-//! Adapts credential validation, storage, retrieval, and deletion through the credential service.
+//! Adapts credential operations and preserves app-unlock methods during shared-computer use.
 
+use crate::application::config::Config;
 use crate::application::credentials::{
     encode_smtp_password, CredentialKey, CredentialService, SmtpCredentialBinding,
 };
@@ -11,6 +12,8 @@ use zeroize::Zeroizing;
 const UNKNOWN_CREDENTIAL_KEY: &str = "Unknown credential key";
 const LINKEDIN_CREDENTIALS_DISABLED: &str =
     "JobSentinel does not collect LinkedIn login details or session cookies";
+const SHARED_COMPUTER_LOCK_CHANGE: &str =
+    "Turn off shared-computer mode before changing the saved-details lock.";
 
 /// Credential status for frontend display
 #[derive(Debug, Serialize, Deserialize)]
@@ -148,10 +151,15 @@ async fn get_credential_unlock_status_with_service(
 async fn enable_credential_passphrase_with_service(
     passphrase: String,
     credentials: &CredentialService,
+    config: &tokio::sync::RwLock<Config>,
 ) -> Result<(), String> {
     tracing::info!("Command: enable_credential_passphrase");
 
     let passphrase = Zeroizing::new(passphrase);
+    let config = config.read().await;
+    if config.shared_computer_mode {
+        return Err(SHARED_COMPUTER_LOCK_CHANGE.into());
+    }
     credentials
         .enable_passphrase_lock(passphrase.as_str())
         .await
@@ -172,10 +180,15 @@ async fn unlock_credential_vault_with_service(
 async fn disable_credential_passphrase_with_service(
     passphrase: String,
     credentials: &CredentialService,
+    config: &tokio::sync::RwLock<Config>,
 ) -> Result<(), String> {
     tracing::info!("Command: disable_credential_passphrase");
 
     let passphrase = Zeroizing::new(passphrase);
+    let config = config.read().await;
+    if config.shared_computer_mode {
+        return Err(SHARED_COMPUTER_LOCK_CHANGE.into());
+    }
     credentials
         .disable_passphrase_lock(passphrase.as_str())
         .await
@@ -248,7 +261,8 @@ pub(crate) async fn enable_credential_passphrase(
     passphrase: String,
     state: State<'_, AppState>,
 ) -> Result<(), String> {
-    enable_credential_passphrase_with_service(passphrase, state.credentials.as_ref()).await
+    enable_credential_passphrase_with_service(passphrase, state.credentials.as_ref(), &state.config)
+        .await
 }
 
 /// Unlock a passphrase-protected credential vault for this app session.
@@ -266,7 +280,12 @@ pub(crate) async fn disable_credential_passphrase(
     passphrase: String,
     state: State<'_, AppState>,
 ) -> Result<(), String> {
-    disable_credential_passphrase_with_service(passphrase, state.credentials.as_ref()).await
+    disable_credential_passphrase_with_service(
+        passphrase,
+        state.credentials.as_ref(),
+        &state.config,
+    )
+    .await
 }
 
 #[cfg(test)]

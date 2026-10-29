@@ -131,7 +131,9 @@ async fn save_config_to_runtime_and_path(
 ) -> Result<(), String> {
     let mut parsed_config =
         Config::from_value(config).map_err(|e| user_friendly_error("Invalid configuration", e))?;
-    let previous = runtime_config.read().await.clone();
+    let mut current = runtime_config.write().await;
+    let previous = current.clone();
+    parsed_config.shared_computer_mode = previous.shared_computer_mode;
     jobsentinel_application::restricted_source_consent::reconcile_restricted_source_consents(
         database,
         &previous,
@@ -150,10 +152,7 @@ async fn save_config_to_runtime_and_path(
         message
     })?;
 
-    {
-        let mut runtime_config = runtime_config.write().await;
-        *runtime_config = parsed_config;
-    }
+    *current = parsed_config;
 
     Ok(())
 }
@@ -226,10 +225,8 @@ async fn set_resume_matching_enabled_in_runtime_and_path(
     runtime_config: &RwLock<Config>,
     config_path: &Path,
 ) -> Result<ResumeMatchingPreference, String> {
-    let mut next_config = {
-        let config = runtime_config.read().await;
-        config.clone()
-    };
+    let mut config = runtime_config.write().await;
+    let mut next_config = config.clone();
     next_config.use_resume_matching = enabled;
 
     next_config.save(config_path).map_err(|e| {
@@ -242,10 +239,7 @@ async fn set_resume_matching_enabled_in_runtime_and_path(
         message
     })?;
 
-    {
-        let mut runtime_config = runtime_config.write().await;
-        *runtime_config = next_config;
-    }
+    *config = next_config;
 
     Ok(ResumeMatchingPreference { enabled })
 }

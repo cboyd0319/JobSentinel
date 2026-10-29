@@ -18,6 +18,7 @@ mod tests {
     /// Helper to create a test AppState with in-memory database
     pub(crate) async fn create_test_app_state() -> AppState {
         let config = Config {
+            shared_computer_mode: false,
             title_allowlist: vec!["Care Coordinator".to_string()],
             title_blocklist: vec![],
             keywords_boost: vec!["case management".to_string()],
@@ -245,6 +246,7 @@ mod tests {
     #[tokio::test]
     async fn test_config_serialization_valid() {
         let config = Config {
+            shared_computer_mode: false,
             title_allowlist: vec!["Test".to_string()],
             title_blocklist: vec![],
             keywords_boost: vec![],
@@ -356,6 +358,7 @@ mod tests {
     #[tokio::test]
     async fn test_complete_setup_config_serialization() {
         let config = Config {
+            shared_computer_mode: false,
             title_allowlist: vec!["Care Coordinator".to_string()],
             title_blocklist: vec![],
             keywords_boost: vec![],

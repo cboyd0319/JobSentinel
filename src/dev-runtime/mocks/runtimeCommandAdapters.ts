@@ -1,5 +1,6 @@
 /** Adapts desktop command names to deterministic browser-development responses. */
 
+import { emit } from "@tauri-apps/api/event";
 import { handleMockApplicationAssistCommand } from "../features/application-assist/commands";
 import { handleMockApplicationsCommand } from "../features/applications/commands";
 import { handleMockCoverLetterTemplateCommand } from "../features/applications/coverLetterTemplateCommands";
@@ -30,6 +31,14 @@ export type MockCommandAdapter = (
   command: string,
   args: Record<string, unknown> | undefined,
 ) => unknown;
+
+export const applyMockAppPrivacyCommand: MockCommandAdapter = (command) => {
+  if (command === "get_app_privacy_status" || command === "clear_private_session") {
+    if (command === "clear_private_session") void emit("private-session-cleared");
+    return { enabled: false, locked: false, unlock_method: "unavailable" };
+  }
+  throw new Error("Device verification is unavailable in browser development. Use the desktop app to protect a shared-computer session.");
+};
 
 export const applyMockDashboardCommand: MockCommandAdapter = (
   command,

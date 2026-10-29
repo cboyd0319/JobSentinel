@@ -12,8 +12,10 @@ Last updated: 2026-10-28
   Continue with D1 shared-computer privacy; broad qualification remains parked.
 - Follow the [development queue](../plans/v3/master-exec-plan.md#remaining-development-queue):
   finish accepted engineering and code cleanup before broad qualification or release.
-- Current work: D1/R13 shared-computer privacy: protected access, recent-data
-  visibility and reviewed session cleanup, reusing current native/vault owners.
+- Current work: D1/R13 implementation checkpoint: native admission, fresh unlock,
+  covered private views, reviewed session cleanup and reversible background pause.
+- Focused regressions and bounded adversarial review pass; record development
+  acceptance before selecting the next D1 child. Installed qualification remains R1.
 
 ## Remaining Scope
 

@@ -1,4 +1,4 @@
-//! Runs scheduled source checks and coordinates their shutdown and recovery.
+//! Runs scheduled source checks with reversible privacy pause, shutdown and recovery.
 
 use anyhow::Result;
 use std::sync::{
@@ -40,12 +40,15 @@ impl Scheduler {
         credentials: Arc<crate::credentials::CredentialService>,
     ) -> Self {
         let (shutdown_tx, _) = tokio::sync::broadcast::channel(1);
+        let (cycle_cancel_tx, _) = tokio::sync::broadcast::channel(1);
         Self {
             config,
             database,
             credentials,
             shutdown_tx,
-            shutdown_requested: AtomicBool::new(false),
+            shutdown_requested: std::sync::Mutex::new(false),
+            cycle_cancelled: AtomicBool::new(false),
+            cycle_cancel_tx,
             scrape_lock: Arc::new(tokio::sync::Mutex::new(())),
         }
     }
@@ -64,9 +67,40 @@ impl Scheduler {
     /// Shutdown the scheduler gracefully
     pub fn shutdown(&self) -> Result<()> {
         tracing::info!("Shutting down scheduler");
-        self.shutdown_requested.store(true, Ordering::Release);
+        let mut shutdown = self
+            .shutdown_requested
+            .lock()
+            .unwrap_or_else(|p| p.into_inner());
+        *shutdown = true;
+        self.cycle_cancelled.store(true, Ordering::Release);
+        self.cycle_cancel_tx.send(()).ok();
         self.shutdown_tx.send(()).ok();
         Ok(())
+    }
+
+    /// Cancel source checks and drain active work without stopping the scheduler loop.
+    pub async fn pause_for_privacy(&self) -> Result<()> {
+        {
+            let _shutdown = self
+                .shutdown_requested
+                .lock()
+                .unwrap_or_else(|p| p.into_inner());
+            self.cycle_cancelled.store(true, Ordering::Release);
+            self.cycle_cancel_tx.send(()).ok();
+        }
+        let _guard = self.scrape_lock.lock().await;
+        Ok(())
+    }
+
+    /// Resume only after the privacy drain completes; shutdown remains irreversible.
+    pub fn resume_after_privacy(&self) {
+        let Ok(shutdown) = self.shutdown_requested.lock() else {
+            return;
+        };
+        if !*shutdown {
+            self.cycle_cancelled.store(false, Ordering::Release);
+            self.cycle_cancel_tx.send(()).ok();
+        }
     }
 
     /// Stop accepting cycles and await scheduler-owned writes already in progress.
@@ -79,11 +113,11 @@ impl Scheduler {
 
     /// Reconcile source checks interrupted before their terminal audit write.
     pub async fn recover_interrupted_runs(&self) -> Result<u64> {
-        if self.is_shutdown_requested() {
+        if self.cycle_cancelled.load(Ordering::Acquire) {
             return Ok(0);
         }
         let _guard = self.scrape_lock.lock().await;
-        if self.is_shutdown_requested() {
+        if self.cycle_cancelled.load(Ordering::Acquire) {
             return Ok(0);
         }
         let scraper_runs = crate::health::interrupt_running_runs(&self.database)
@@ -105,20 +139,27 @@ impl Scheduler {
     /// The scheduler can be stopped gracefully by calling `shutdown()` on the Scheduler instance.
     pub async fn start(&self) -> Result<()> {
         let mut shutdown_rx = self.subscribe_shutdown();
-        let interrupted_runs = self.recover_interrupted_runs().await?;
-        if interrupted_runs > 0 {
-            tracing::warn!(
-                interrupted_runs,
-                "Recovered interrupted source checks before scheduler start"
-            );
-        }
-        if self.is_shutdown_requested() {
-            return Ok(());
-        }
-
+        let mut recovered = false;
         loop {
+            let mut cycle_changed = self.cycle_cancel_tx.subscribe();
             if self.is_shutdown_requested() {
                 break;
+            }
+            if self.cycle_cancelled.load(Ordering::Acquire) {
+                tokio::select! {
+                    _ = cycle_changed.recv() => continue,
+                    _ = shutdown_rx.recv() => break,
+                }
+            }
+            if !recovered {
+                let interrupted_runs = self.recover_interrupted_runs().await?;
+                if interrupted_runs > 0 {
+                    tracing::warn!(
+                        interrupted_runs,
+                        "Recovered interrupted source checks before scheduler start"
+                    );
+                }
+                recovered = !self.cycle_cancelled.load(Ordering::Acquire);
             }
 
             let schedule = {
@@ -133,6 +174,7 @@ impl Scheduler {
                     _ = time::sleep(Duration::from_mins(1)) => {
                         continue;
                     }
+                    _ = cycle_changed.recv() => continue,
                     _ = shutdown_rx.recv() => {
                         tracing::info!("Scheduler received shutdown signal, stopping gracefully");
                         break;
@@ -178,6 +220,7 @@ impl Scheduler {
                 _ = time::sleep(interval) => {
                     // Continue to next iteration
                 }
+                _ = cycle_changed.recv() => {},
                 _ = shutdown_rx.recv() => {
                     tracing::info!("Scheduler received shutdown signal, stopping gracefully");
                     break;

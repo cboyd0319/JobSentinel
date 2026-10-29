@@ -34,13 +34,25 @@ pub struct Scheduler {
     pub(crate) database: Arc<jobsentinel_storage::Database>,
     pub(crate) credentials: Arc<CredentialService>,
     pub(crate) shutdown_tx: broadcast::Sender<()>,
-    pub(crate) shutdown_requested: AtomicBool,
+    pub(crate) shutdown_requested: std::sync::Mutex<bool>,
+    pub(crate) cycle_cancelled: AtomicBool,
+    pub(crate) cycle_cancel_tx: broadcast::Sender<()>,
     pub(crate) scrape_lock: Arc<Mutex<()>>,
 }
 
 impl Scheduler {
     pub fn is_shutdown_requested(&self) -> bool {
-        self.shutdown_requested.load(Ordering::Acquire)
+        self.shutdown_requested.lock().map_or(true, |state| *state)
+    }
+
+    /// Whether privacy pause or shutdown blocks source cycles.
+    pub fn cycles_paused(&self) -> bool {
+        self.cycle_cancelled.load(Ordering::Acquire)
+    }
+
+    /// Subscribe before checking pause state so a resume wake cannot be lost.
+    pub fn subscribe_cycle_changes(&self) -> broadcast::Receiver<()> {
+        self.cycle_cancel_tx.subscribe()
     }
 }
 

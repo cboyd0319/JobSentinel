@@ -176,6 +176,43 @@ impl CredentialService {
         }
     }
 
+    /// Prepare a persistent passphrase or user-presence key before enabling app lock.
+    pub async fn prepare_app_lock(&self) -> Result<(), String> {
+        if !passphrase::is_configured(&self.repository)
+            .await
+            .map_err(sanitize_passphrase_error)?
+        {
+            self.require_app_user_presence()?;
+            self.master_key(true).await?;
+        }
+        Ok(())
+    }
+
+    /// Authenticate app unlock afresh; a cached vault key is never proof of identity.
+    pub async fn verify_app_unlock(&self, passphrase: Option<&str>) -> Result<(), String> {
+        let key = if passphrase::is_configured(&self.repository)
+            .await
+            .map_err(sanitize_passphrase_error)?
+        {
+            passphrase::unwrap_key(&self.repository, passphrase.unwrap_or_default())
+                .await
+                .map_err(sanitize_passphrase_error)?
+        } else {
+            self.require_app_user_presence()?;
+            Zeroizing::new(vault_key_store::load_vault_key(false).await?)
+        };
+        self.cache_master_key(key)
+    }
+
+    fn require_app_user_presence(&self) -> Result<(), String> {
+        if self.fixed_master_key.is_some()
+            || !jobsentinel_platform::credential_vault_key_storage_policy().user_presence_required
+        {
+            return Err("Configure a saved-details passphrase before enabling shared-computer mode on this device.".into());
+        }
+        Ok(())
+    }
+
     /// Enable passphrase wrapping for the credential-vault master key.
     pub async fn enable_passphrase_lock(&self, passphrase: &str) -> Result<(), String> {
         let repository = &self.repository;

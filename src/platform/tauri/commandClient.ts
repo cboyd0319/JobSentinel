@@ -1,6 +1,6 @@
 /** Product-neutral Tauri renderer command client. */
 
-import { invoke } from "@tauri-apps/api/core";
+import { invoke as nativeInvoke } from "@tauri-apps/api/core";
 
 interface CacheEntry<T> {
   data: T;
@@ -21,6 +21,15 @@ const responseCache = new Map<string, CacheEntry<unknown>>();
 
 // Per-command invalidation generations keep pre-invalidation work from affecting fresh reads.
 const commandGenerations = new Map<string, number>();
+let nextGeneration = 0;
+let sessionGeneration = 0;
+
+export async function invoke<T>(...args: Parameters<typeof nativeInvoke>): Promise<T> {
+  const generation = sessionGeneration;
+  const result = await nativeInvoke<T>(...args);
+  if (generation !== sessionGeneration) throw new Error("The private session changed. Try again.");
+  return result;
+}
 
 // Default cache TTL: 30 seconds
 const DEFAULT_CACHE_TTL = 30_000;
@@ -141,7 +150,7 @@ export async function cachedInvoke<T>(
  * Invalidate all cached responses for a command (regardless of args)
  */
 export function invalidateCacheByCommand(cmd: string): void {
-  commandGenerations.set(cmd, getCommandGeneration(cmd) + 1);
+  commandGenerations.set(cmd, ++nextGeneration);
   for (const key of responseCache.keys()) {
     if (key === cmd || key.startsWith(`${cmd}:`)) {
       responseCache.delete(key);
@@ -149,8 +158,15 @@ export function invalidateCacheByCommand(cmd: string): void {
   }
 }
 
+export function clearCommandCache(): void {
+  sessionGeneration = ++nextGeneration;
+  commandGenerations.clear();
+  responseCache.clear();
+  inFlightRequests.clear();
+}
+
 function getCommandGeneration(cmd: string): number {
-  return commandGenerations.get(cmd) ?? 0;
+  return commandGenerations.get(cmd) ?? sessionGeneration;
 }
 
 function clearInFlightRequest(

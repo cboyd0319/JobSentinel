@@ -191,3 +191,62 @@ async fn unavailable_repository_fails_before_native_key_access() {
     );
     assert!(service.master_key.get().is_none());
 }
+
+#[tokio::test]
+async fn app_unlock_rechecks_passphrase_with_a_warm_vault_key() {
+    let service = test_service().await;
+    service
+        .store(CredentialKey::SmtpPassword, "private-test-value")
+        .await
+        .unwrap();
+    service
+        .enable_passphrase_lock("correct battery staple")
+        .await
+        .unwrap();
+    assert!(service.master_key.get().is_some());
+    service.prepare_app_lock().await.unwrap();
+
+    for passphrase in [None, Some(""), Some("wrong secret phrase")] {
+        let error = service.verify_app_unlock(passphrase).await.unwrap_err();
+        assert!(!error.contains("private-test-value"));
+        assert!(!error.contains("wrong secret phrase"));
+    }
+    service
+        .verify_app_unlock(Some("correct battery staple"))
+        .await
+        .unwrap();
+    assert_eq!(
+        service.retrieve(CredentialKey::SmtpPassword).await.unwrap(),
+        Some("private-test-value".into())
+    );
+    let restarted = CredentialService::with_fixed_master_key(service.repository.clone(), [9; 32]);
+    restarted.prepare_app_lock().await.unwrap();
+    assert!(restarted.master_key.get().is_none());
+    restarted
+        .verify_app_unlock(Some("correct battery staple"))
+        .await
+        .unwrap();
+    assert_eq!(
+        restarted
+            .retrieve(CredentialKey::SmtpPassword)
+            .await
+            .unwrap(),
+        Some("private-test-value".into())
+    );
+}
+
+#[tokio::test]
+async fn app_unlock_does_not_treat_a_fixed_key_as_user_presence() {
+    let service = test_service().await;
+    service.master_key(true).await.unwrap();
+    for error in [
+        service.prepare_app_lock().await.unwrap_err(),
+        service.verify_app_unlock(None).await.unwrap_err(),
+        service
+            .verify_app_unlock(Some("unconfigured passphrase"))
+            .await
+            .unwrap_err(),
+    ] {
+        assert!(error.contains("passphrase"));
+    }
+}

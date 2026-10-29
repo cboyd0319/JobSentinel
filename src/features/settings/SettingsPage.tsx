@@ -32,6 +32,7 @@ import { SettingsNotificationsSection } from "./notifications/SettingsNotificati
 import { SettingsExternalAiSection } from "./external-ai/SettingsExternalAiSection";
 import { SettingsSearchPreferencesSection } from "./search/SettingsSearchPreferencesSection";
 import { SettingsCredentialLockSection } from "./credentials/SettingsCredentialLockSection";
+import { SettingsPrivacySection } from "./SettingsPrivacySection";
 import {
   SettingsBackupSection,
   SettingsHelpStatusSection,
@@ -111,7 +112,6 @@ export default function Settings({ initialTab = "basic", linkedinWorkbench, onCl
       toastSuccess,
     },
   );
-  // Location detection state
   const [detectedLocation, setDetectedLocation] = useState<DetectedLocation | null>(
     () => readCachedDetectedLocation(),
   );
@@ -396,6 +396,7 @@ export default function Settings({ initialTab = "basic", linkedinWorkbench, onCl
               setCredentials={setCredentials}
             />
 
+            <SettingsPrivacySection />
             <SettingsCredentialLockSection />
 
             <SettingsJobSourcesSection

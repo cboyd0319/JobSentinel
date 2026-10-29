@@ -319,8 +319,10 @@ native key-protection owners.
   and session cleanup is reviewed before changing owned session data.
 - Paths: existing platform/credential owners, native bootstrap state and
   `src-tauri/src/ipc/registry.rs`, `src/app/App.tsx` and Settings owners.
-- Verify focused lock/unlock/admission/cleanup cases and affected UI/type contracts.
-  Installed journeys and platform qualification remain R1.
+- Implementation checkpoint: native admission/fresh unlock, private-view teardown,
+  reviewed transient cleanup and scheduler pause/resume are implemented. Focused
+  regressions and bounded adversarial review pass; acceptance evidence is next.
+- Installed journeys and platform qualification remain R1.
 - Rollback: disable the opt-in mode and revert its isolated changes without
   deleting saved records. Preserve the core cut and separate Next commit range.
 

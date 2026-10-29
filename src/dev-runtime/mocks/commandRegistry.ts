@@ -1,6 +1,7 @@
 /** Registers browser-development handlers for the desktop command surface. */
 
 import {
+  applyMockAppPrivacyCommand,
   applyMockApplicationAssistCommand,
   applyMockApplicationsCommand,
   applyMockCoverLetterTemplateCommand,
@@ -33,6 +34,10 @@ interface MockCommandGroup {
 }
 
 const commandGroups: readonly MockCommandGroup[] = [
+  {
+    commands: ["get_app_privacy_status", "set_shared_computer_mode", "lock_app", "unlock_app", "clear_private_session"],
+    adapter: applyMockAppPrivacyCommand,
+  },
   { commands: ["import_settings_records"], adapter: applyMockSettingsRecordsImport },
   {
     commands: [

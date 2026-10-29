@@ -240,6 +240,7 @@ mod tests {
 
     fn create_health_toggle_test_config() -> Config {
         Config {
+            shared_computer_mode: false,
             title_allowlist: vec!["Program Coordinator".to_string()],
             title_blocklist: vec![],
             keywords_boost: vec![],

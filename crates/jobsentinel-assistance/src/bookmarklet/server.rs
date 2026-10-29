@@ -1,6 +1,4 @@
-//! HTTP server implementation for bookmarklet
-//!
-//! Runs a simple HTTP server on localhost to receive job data from browser bookmarklets.
+//! Owns local Browser Import pairing, pending drafts and supervised HTTP connections.
 
 use super::pending::{
     new_pending_bookmarklet_imports, pending_bookmarklet_import_previews,
@@ -138,6 +136,14 @@ impl BookmarkletServer {
         pending_bookmarklet_import_previews(&self.pending_imports)
     }
 
+    /// Clear transient drafts after stopping the server's connection tasks.
+    pub fn clear_pending_imports(&self) {
+        self.pending_imports
+            .write()
+            .unwrap_or_else(|error| error.into_inner())
+            .clear();
+    }
+
     /// Check if server is running
     pub fn is_running(&self) -> bool {
         self.server_handle.is_some()
@@ -227,6 +233,7 @@ async fn run_server(
 
     let connection_limit = Arc::new(Semaphore::new(MAX_BOOKMARKLET_CONNECTIONS));
 
+    let mut connections = tokio::task::JoinSet::new();
     // Accept connections until shutdown
     loop {
         tokio::select! {
@@ -242,7 +249,7 @@ async fn run_server(
                         let repository = repository.clone();
                         let pairing = active_pairing.clone();
                         let pending = pending_imports.clone();
-                        tokio::spawn(async move {
+                        connections.spawn(async move {
                             let _connection_permit = connection_permit;
                             if let Err(_e) =
                                 handle_connection(stream, pairing, pending, repository).await
@@ -259,6 +266,7 @@ async fn run_server(
                     }
                 }
             }
+            _ = connections.join_next(), if !connections.is_empty() => {}
             _ = &mut shutdown_rx => {
                 tracing::info!("Shutdown signal received");
                 break;
@@ -266,6 +274,7 @@ async fn run_server(
         }
     }
 
+    connections.shutdown().await;
     Ok(())
 }
 

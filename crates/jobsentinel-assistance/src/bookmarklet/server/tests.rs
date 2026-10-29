@@ -465,3 +465,32 @@ fn overflowing_content_length_is_refused_without_panicking() {
         25000
     ));
 }
+
+#[tokio::test]
+async fn stopping_server_drains_incomplete_connections() {
+    use tokio::io::AsyncReadExt;
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+    let address = listener.local_addr().unwrap();
+    let repository = Arc::new(TestBookmarkletRepository::default());
+    let (stop, stopping) = tokio::sync::oneshot::channel();
+    let server = tokio::spawn(run_server(
+        listener,
+        new_active_pairing(),
+        new_pending_bookmarklet_imports(),
+        repository.clone(),
+        stopping,
+    ));
+    let mut client = tokio::net::TcpStream::connect(address).await.unwrap();
+    tokio::time::timeout(std::time::Duration::from_secs(2), async {
+        while Arc::strong_count(&repository) < 3 {
+            tokio::task::yield_now().await;
+        }
+    })
+    .await
+    .unwrap();
+    stop.send(()).unwrap();
+    server.await.unwrap().unwrap();
+    assert_eq!(Arc::strong_count(&repository), 1);
+    let mut byte = [0];
+    assert_eq!(client.read(&mut byte).await.unwrap(), 0);
+}

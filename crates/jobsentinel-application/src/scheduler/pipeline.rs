@@ -1,7 +1,7 @@
 //! Main scraping pipeline orchestration
 
 use anyhow::Result;
-use std::sync::Arc;
+use std::sync::{atomic::Ordering, Arc};
 
 use super::types::{Scheduler, ScrapingResult};
 use super::workers::{persist_and_notify, run_scrapers, score_jobs};
@@ -20,7 +20,7 @@ impl Scheduler {
 
         let _scrape_guard = self.scrape_lock.lock().await;
         anyhow::ensure!(
-            !self.is_shutdown_requested(),
+            !self.cycle_cancelled.load(Ordering::Acquire),
             "Scraping cycle stopped before external work"
         );
         let cycle_start = Instant::now();
@@ -38,8 +38,8 @@ impl Scheduler {
             &config,
             &self.database,
             &self.credentials,
-            &self.shutdown_requested,
-            &self.shutdown_tx,
+            &self.cycle_cancelled,
+            &self.cycle_cancel_tx,
         )
         .await;
         let stage1_duration = stage1_start.elapsed();
@@ -49,7 +49,7 @@ impl Scheduler {
             "Stage 1 complete: Scrapers finished"
         );
         anyhow::ensure!(
-            !self.is_shutdown_requested(),
+            !self.cycle_cancelled.load(Ordering::Acquire),
             "Scraping cycle stopped after source audit completion"
         );
 
@@ -64,15 +64,22 @@ impl Scheduler {
             "Stage 2 complete: Scoring and ghost detection finished"
         );
         anyhow::ensure!(
-            !self.is_shutdown_requested(),
+            !self.cycle_cancelled.load(Ordering::Acquire),
             "Scraping cycle stopped before persistence and notifications"
         );
 
         // 3. Store in database and send notifications
         let stage3_start = Instant::now();
         tracing::info!("Pipeline stage 3/3: Persisting jobs and sending notifications");
-        let stats =
-            persist_and_notify(&scored_jobs, &config, &self.database, &self.credentials).await;
+        let stats = persist_and_notify(
+            &scored_jobs,
+            &config,
+            &self.database,
+            &self.credentials,
+            &self.cycle_cancelled,
+            &self.cycle_cancel_tx,
+        )
+        .await;
         let stage3_duration = stage3_start.elapsed();
         tracing::info!(
             elapsed_ms = stage3_duration.as_millis(),

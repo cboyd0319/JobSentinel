@@ -16,6 +16,10 @@ use sources::{
 /// User configuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {
+    /// Lock private views at startup and when leaving the app on a shared computer.
+    #[serde(default)]
+    pub shared_computer_mode: bool,
+
     /// Job titles to match (e.g., "Security Engineer")
     pub title_allowlist: Vec<String>,
 
@@ -200,6 +204,7 @@ impl Config {
     #[must_use]
     pub fn first_run() -> Self {
         Self {
+            shared_computer_mode: false,
             title_allowlist: vec![],
             title_blocklist: vec![],
             keywords_boost: vec![],

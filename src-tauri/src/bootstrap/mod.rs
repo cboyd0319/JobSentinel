@@ -27,6 +27,7 @@ fn startup_recovery_command_allowed(command: &str) -> bool {
     matches!(
         command,
         "is_first_run"
+            | "get_app_privacy_status"
             | "get_startup_recovery_status"
             | "repair_invalid_startup_config"
             | "repair_local_permissions"
@@ -86,6 +87,11 @@ pub(crate) fn run() {
         .invoke_handler(move |invoke: tauri::ipc::Invoke<tauri::Wry>| {
             if invoke.message.state_ref().get::<shutdown::ShutdownState>().started() {
                 invoke.resolver.reject("The application is shutting down.");
+                return true;
+            }
+            if invoke.message.state_ref().try_get::<Arc<operation::OperationAdmission>>().is_some_and(|gate| gate.privacy_locked())
+                && !ipc::privacy::locked_command_allowed(invoke.message.command()) {
+                invoke.resolver.reject("JobSentinel is locked. Unlock it to continue.");
                 return true;
             }
             if invoke.message.state_ref().try_get::<Arc<operation::OperationAdmission>>().is_some_and(|gate| gate.closed())
@@ -153,8 +159,18 @@ pub(crate) fn run() {
                 ),
                 "Pack runtime environment bound"
             );
+            let privacy_locked = tauri::async_runtime::block_on(async {
+                let locked = app_state.config.read().await.shared_computer_mode && !recovery_required;
+                if locked {
+                    if let Some(scheduler) = &app_state.scheduler {
+                        scheduler.pause_for_privacy().await?;
+                    }
+                }
+                Ok::<_, anyhow::Error>(locked)
+            })?;
             app.manage(app_state);
-            app.manage(Arc::new(operation::OperationAdmission::default()));
+            app.manage(Arc::new(operation::OperationAdmission::with_privacy_lock(privacy_locked)));
+            app.manage(ipc::privacy::PrivacyOperation::default());
             app.manage(ipc::local_update::LocalUpdateState::default());
             app.manage(ipc::native_file_drop::NativeFileDropState::default());
             app.manage(StartupRecoveryState::new(
@@ -175,19 +191,35 @@ pub(crate) fn run() {
                 let task = tauri::async_runtime::spawn(async move {
                     tracing::info!("Background scheduler task started");
 
-                    if scheduler_clone.recover_interrupted_runs().await.is_err() {
-                        tracing::error!(
-                            "Background scheduler could not recover interrupted source checks"
-                        );
-                        return;
-                    }
-
+                    let mut recovered = false;
                     loop {
+                        let mut cycle_changed = scheduler_clone.subscribe_cycle_changes();
                         if !background_cycle_allowed(&scheduler_clone) {
                             let mut status = status_clone.write().await;
                             status.is_running = false;
                             status.next_run = None;
                             break;
+                        }
+
+                        if scheduler_clone.cycles_paused() {
+                            let mut status = status_clone.write().await;
+                            status.is_running = false;
+                            status.next_run = None;
+                            drop(status);
+                            tokio::select! {
+                                _ = cycle_changed.recv() => continue,
+                                _ = shutdown_rx.recv() => break,
+                            }
+                        }
+                        if !recovered {
+                            if scheduler_clone.recover_interrupted_runs().await.is_err() {
+                                tracing::error!("Background scheduler could not recover interrupted source checks");
+                                return;
+                            }
+                            recovered = !scheduler_clone.cycles_paused();
+                            if !recovered {
+                                continue;
+                            }
                         }
 
                         let auto_refresh_enabled = {
@@ -208,6 +240,7 @@ pub(crate) fn run() {
                                     let () = sleep_done;
                                     continue;
                                 }
+                                _ = cycle_changed.recv() => continue,
                                 _ = shutdown_rx.recv() => {
                                     tracing::info!("Background scheduler received shutdown signal, stopping gracefully");
                                     let mut status = status_clone.write().await;
@@ -246,7 +279,7 @@ pub(crate) fn run() {
 
                         let (auto_refresh_enabled, interval_hours) = {
                             let config = config_arc.read().await;
-                            (config.auto_refresh.enabled, config.scraping_interval_hours)
+                            (config.auto_refresh.enabled && !scheduler_clone.cycles_paused(), config.scraping_interval_hours)
                         };
 
                         // Calculate next run time first to ensure consistency
@@ -273,6 +306,7 @@ pub(crate) fn run() {
                                 let () = sleep_done;
                                 // Continue to next iteration
                             }
+                            _ = cycle_changed.recv() => {},
                             _ = shutdown_rx.recv() => {
                                 tracing::info!("Background scheduler received shutdown signal, stopping gracefully");
                                 // Update status to show not running

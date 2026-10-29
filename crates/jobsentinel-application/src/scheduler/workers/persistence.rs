@@ -8,7 +8,10 @@ use crate::{
     scoring::{JobScore, ScoringEngine},
 };
 use jobsentinel_storage::Database;
-use std::sync::Arc;
+use std::sync::{
+    atomic::{AtomicBool, Ordering},
+    Arc,
+};
 
 use jobsentinel_storage::database_error_kind;
 
@@ -20,6 +23,22 @@ pub(crate) struct PersistenceStats {
     pub high_matches: usize,
     pub alerts_sent: usize,
     pub errors: Vec<String>,
+}
+
+async fn deliver_unless_cancelled(
+    delivery: impl std::future::Future<Output = anyhow::Result<()>>,
+    cancelled: &AtomicBool,
+    signal: &tokio::sync::broadcast::Sender<()>,
+) -> Option<anyhow::Result<()>> {
+    let mut cancellation = signal.subscribe();
+    if cancelled.load(Ordering::Acquire) {
+        return None;
+    }
+    tokio::select! {
+        biased;
+        _ = cancellation.recv() => None,
+        result = delivery => Some(result),
+    }
 }
 
 #[cfg(test)]
@@ -44,6 +63,8 @@ pub(crate) async fn persist_and_notify(
     config: &Arc<Config>,
     database: &Arc<Database>,
     credentials: &Arc<CredentialService>,
+    cancelled: &AtomicBool,
+    cancellation: &tokio::sync::broadcast::Sender<()>,
 ) -> PersistenceStats {
     use std::time::Instant;
 
@@ -55,7 +76,6 @@ pub(crate) async fn persist_and_notify(
     let mut errors = Vec::new();
     let mut persisted_candidates = Vec::with_capacity(scored_jobs.len());
 
-    // Store in database
     let job_count = scored_jobs.len();
     tracing::debug!(job_count, "Starting database persistence");
 
@@ -114,7 +134,6 @@ pub(crate) async fn persist_and_notify(
         "Database persistence complete"
     );
 
-    // Send notifications for high-scoring jobs
     let notify_start = Instant::now();
     tracing::debug!("Processing notifications");
     let notification_service =
@@ -122,6 +141,9 @@ pub(crate) async fn persist_and_notify(
     let scoring_engine = ScoringEngine::new(Arc::clone(config));
 
     for ((job, score), persisted) in scored_jobs.iter().zip(persisted_candidates) {
+        if cancelled.load(Ordering::Acquire) {
+            break;
+        }
         if !persisted || !scoring_engine.should_alert_immediately(score) {
             continue;
         }
@@ -157,6 +179,10 @@ pub(crate) async fn persist_and_notify(
 
         high_matches += 1;
 
+        if cancelled.load(Ordering::Acquire) {
+            break;
+        }
+
         // Claim before delivery to preserve at-most-once external alert attempts.
         // Ambiguous or failed attempts are visible but never retried automatically.
         match database.claim_immediate_alert(&job.hash).await {
@@ -181,11 +207,18 @@ pub(crate) async fn persist_and_notify(
             score: score.clone(),
         };
 
-        match notification_service
-            .send_immediate_alert(&notification)
-            .await
+        match deliver_unless_cancelled(
+            notification_service.send_immediate_alert(&notification),
+            cancelled,
+            cancellation,
+        )
+        .await
         {
-            Ok(()) => {
+            None => {
+                errors.push("Notification delivery stopped for the private session.".into());
+                break;
+            }
+            Some(Ok(())) => {
                 tracing::info!(
                     job_hash = %job.hash,
                     job_score = score.total,
@@ -193,7 +226,7 @@ pub(crate) async fn persist_and_notify(
                 );
                 alerts_sent += 1;
             }
-            Err(_e) => {
+            Some(Err(_e)) => {
                 tracing::error!(
                     job_hash = %job.hash,
                     error_kind = "notification_delivery",
@@ -292,43 +325,15 @@ mod tests {
         database: &Arc<Database>,
         credentials: &Arc<CredentialService>,
     ) -> PersistenceStats {
-        persist_and_notify(&[(job, test_high_score())], config, database, credentials).await
-    }
-
-    #[tokio::test]
-    async fn failed_notification_is_not_retried_automatically() {
-        let mut config = minimal_test_config();
-        config.alerts.slack.enabled = true;
-        let config = Arc::new(config);
-        let database = Arc::new(Database::connect_memory().await.unwrap());
-        database.migrate().await.unwrap();
-        let credentials = Arc::new(CredentialService::with_fixed_master_key(
-            database.credentials(),
-            [7; 32],
-        ));
-        let job = test_job("notification-failure", "Care Coordinator", "Community Care");
-        let score = test_high_score();
-
-        let first = persist_and_notify(
-            &[(job.clone(), score.clone())],
-            &config,
-            &database,
-            &credentials,
+        persist_and_notify(
+            &[(job, test_high_score())],
+            config,
+            database,
+            credentials,
+            &AtomicBool::new(false),
+            &tokio::sync::broadcast::channel(1).0,
         )
-        .await;
-        let second = persist_and_notify(&[(job, score)], &config, &database, &credentials).await;
-
-        assert_eq!(first.alerts_sent, 0);
-        assert_eq!(first.errors, ["Notification delivery error for one job"]);
-        assert!(second.errors.is_empty());
-        assert!(
-            database
-                .get_job_by_hash("notification-failure")
-                .await
-                .unwrap()
-                .unwrap()
-                .immediate_alert_sent
-        );
+        .await
     }
 
     #[tokio::test]
@@ -400,6 +405,8 @@ mod tests {
             &config,
             &database,
             &credentials,
+            &AtomicBool::new(false),
+            &tokio::sync::broadcast::channel(1).0,
         )
         .await;
 

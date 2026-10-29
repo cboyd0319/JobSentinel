@@ -12,6 +12,7 @@ use crate::desktop::Database;
 
 fn create_dashboard_test_config() -> Config {
     Config {
+        shared_computer_mode: false,
         title_allowlist: vec![],
         title_blocklist: vec![],
         keywords_boost: vec![],
@@ -162,6 +163,7 @@ fn test_dashboard_preferences_are_minimal() {
 #[tokio::test]
 async fn save_config_updates_runtime_config_after_disk_save() {
     let runtime_config = RwLock::new(create_dashboard_test_config());
+    runtime_config.write().await.shared_computer_mode = true;
     let temp_dir = tempfile::tempdir().unwrap();
     let config_path = temp_dir.path().join("config.json");
     let database = Database::connect_memory().await.unwrap();
@@ -178,12 +180,14 @@ async fn save_config_updates_runtime_config_after_disk_save() {
         .unwrap();
 
     let runtime = runtime_config.read().await;
+    assert!(runtime.shared_computer_mode);
     assert_eq!(runtime.salary_floor_usd, 95_000);
     assert!(runtime.use_resume_matching);
     assert_eq!(runtime.keywords_boost, vec!["case management"]);
     drop(runtime);
 
     let saved = Config::load(&config_path).unwrap();
+    assert!(saved.shared_computer_mode);
     assert_eq!(saved.salary_floor_usd, 95_000);
     assert!(saved.use_resume_matching);
     assert_eq!(saved.keywords_boost, vec!["case management"]);

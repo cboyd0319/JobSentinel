@@ -3,6 +3,11 @@
 macro_rules! jobsentinel_command_handlers {
     () => {
         ::tauri::generate_handler![
+            jobsentinel::ipc::privacy::get_app_privacy_status,
+            jobsentinel::ipc::privacy::set_shared_computer_mode,
+            jobsentinel::ipc::privacy::lock_app,
+            jobsentinel::ipc::privacy::unlock_app,
+            jobsentinel::ipc::privacy::clear_private_session,
             jobsentinel::ipc::local_update::check_update_availability,
             jobsentinel::ipc::local_update::get_local_update_status,
             jobsentinel::ipc::local_update::select_local_update,

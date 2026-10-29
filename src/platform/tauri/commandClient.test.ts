@@ -1,7 +1,7 @@
 /** Verifies product-neutral Tauri command caching and safe invocation behavior. */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { cachedInvoke, invalidateCacheByCommand } from "./commandClient";
+import { cachedInvoke, clearCommandCache, invalidateCacheByCommand } from "./commandClient";
 import { invoke } from "@tauri-apps/api/core";
 
 // Mock Tauri invoke
@@ -30,6 +30,18 @@ describe("Tauri command client", () => {
   });
 
   describe("cachedInvoke", () => {
+    it("forgets cached and in-flight private results when the session clears", async () => {
+      const pending = createDeferred<string>();
+      mockInvoke.mockReturnValueOnce(pending.promise);
+      const old = cachedInvoke("private_session_value");
+      clearCommandCache();
+      mockInvoke.mockResolvedValueOnce("fresh");
+      await expect(cachedInvoke("private_session_value")).resolves.toBe("fresh");
+      pending.resolve("private old data");
+      await expect(old).rejects.toThrow("session changed");
+      await expect(cachedInvoke("private_session_value")).resolves.toBe("fresh");
+      expect(mockInvoke).toHaveBeenCalledTimes(2);
+    });
     it("caches response for subsequent calls", async () => {
       mockInvoke.mockResolvedValueOnce({ data: "cached" });
 
@@ -75,7 +87,6 @@ describe("Tauri command client", () => {
       expect(mockInvoke).toHaveBeenCalledTimes(2);
       expect(result1).toEqual({ version: 1 });
       expect(result2).toEqual({ version: 2 });
-
     });
 
     it("uses different cache entries for different args", async () => {
