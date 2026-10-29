@@ -1,3 +1,5 @@
+<!-- Documents oCR and Command Execution Security. -->
+
 # OCR and Command Execution Security
 
 > JobSentinel Security Documentation
@@ -113,7 +115,8 @@ if path.exists() && path.is_file() {
 
 ### 1. Path Canonicalization
 
-**Purpose**: Resolve symlinks and prevent `../` traversal attacks.
+**Purpose**: Resolve the candidate path before regular-file, extension and ownership checks.
+Canonicalization alone does not enforce a directory boundary or eliminate replacement races.
 
 ```rust
 /// Parse PDF file and extract text content
@@ -147,7 +150,7 @@ pub fn parse_pdf(&self, file_path: &Path) -> Result<String> {
 
 **What this prevents**:
 
-- Path traversal: `../../etc/passwd` fails validation
+- Invalid file types and non-files are rejected; managed-file callers separately enforce containment
 - Symlink attacks: resolves to the real file path
 - Non-existent files: caught before use
 - Directories: only regular files allowed
@@ -195,7 +198,7 @@ let temp_dir = tempfile::Builder::new()
 
 **What this prevents**:
 
-- Race conditions: `tempfile` creates the directory atomically
+- Directory-name collisions: `tempfile` creates the directory atomically
 - File overwrites: each run uses a unique directory
 - Temp file leaks: `TempDir` removes its directory when dropped
 - Privilege escalation: no predictable output path is reused
@@ -350,7 +353,7 @@ fn validate_ocr_tool_path(tool: OcrTool, path: PathBuf) -> Result<PathBuf> {
 
 - Current-directory or `PATH` hijacking
 - Relative executable overrides
-- Arbitrary executable overrides from temporary or user-writable directories
+- Overrides outside the configured known install locations
 - Directory or device paths being executed
 - Raw tool paths leaking through normal OCR availability checks
 - Missing tools fail closed before OCR attempts

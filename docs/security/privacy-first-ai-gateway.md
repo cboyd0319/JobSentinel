@@ -1,3 +1,5 @@
+<!-- Documents privacy-First AI Gateway. -->
+
 # Privacy-First AI Gateway
 
 JobSentinel is local-first. External AI is optional, disabled by default, and
@@ -66,7 +68,8 @@ Required lifecycle:
 - No raw full database dumps.
 - No private notes or unrelated application history by default.
 - No resume text or salary floor by default.
-- Sensitive fields require explicit user selection and sensitive-payload opt-in.
+- Sensitive-payload opt-in is reserved for future reviewed features; current
+  provider-backed UI accepts only approved public job fields.
 - Payload preview is required before external calls where UI workflow exists.
 - Redaction, edit, and cancel paths are required where UI exists.
 - Approval is exact, short-lived, single-use, and owned by the Rust and SQLite
@@ -97,7 +100,7 @@ and is validated by `npm run harness:check`.
 | Sensitive | May involve resume, salary, private notes, or application history. |
 | Public-data only | Uses job posting content or public metadata only. |
 
-Examples:
+Policy examples (provider availability is defined in the current-status section below):
 
 | Feature | Labels |
 | ------- | ------ |
@@ -125,8 +128,8 @@ external_ai.allow_sensitive_payloads = false
 external_ai.redaction.enabled = true
 ```
 
-Provider credentials must not be hardcoded. User-provided API keys should be
-stored in the operating system credential store where supported.
+Provider credentials must not be hardcoded. User-provided API keys use the encrypted credential vault and its configured
+key protection; see [KEYRING.md](KEYRING.md).
 
 ## Code Contract
 

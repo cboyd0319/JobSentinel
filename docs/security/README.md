@@ -1,3 +1,5 @@
+<!-- Documents security Documentation. -->
+
 # Security Documentation
 
 > Comprehensive security documentation for JobSentinel
@@ -223,6 +225,9 @@ We follow Semantic Versioning:
 
 ### Security Patches
 
+Every release requires separate full Stability, Performance and Security phases
+under [the Release Contract](../developer/RELEASING.md#mandatory-final-release-phases).
+
 Security fixes should be released as:
 
 1. **Patch version**, unless the fix requires a breaking change
@@ -258,13 +263,9 @@ checksum, and verify that checksum before using **Open Anyway**.
 
 ### 3. Validate Configuration
 
-```bash
-# Validate config file
-jobsentinel config validate
-
-# Check credential status
-# Open Settings and view credential status indicators
-```
+Use Settings to save validated preferences and explicitly test configured
+connections. The desktop executable has no `config validate` subcommand.
+Portable startup uses the explicit `--portable` profile selector.
 
 ### 4. Monitor Activity
 

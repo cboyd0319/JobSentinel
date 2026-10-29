@@ -1,7 +1,9 @@
+<!-- Documents tests. -->
+
 # Tests
 
 JobSentinel keeps browser-level tests under `tests/`. Frontend unit tests live
-beside source files in `src/`, and Rust tests live under `src-tauri/`.
+beside source files in `src/`, and Rust tests live beside owners in `crates/` and `src-tauri/`.
 
 ## Structure
 
@@ -36,7 +38,7 @@ npm run test:run
 List the current test count with:
 
 ```bash
-npm run test:run -- --list
+npx --no-install vitest list
 ```
 
 ### Playwright E2E Tests
@@ -82,8 +84,7 @@ npm run docs:screenshots -- --headed
 ### Rust Tests
 
 ```bash
-cd src-tauri
-cargo test
+node scripts/dev/run-cargo.mjs test --locked -p jobsentinel --lib
 ```
 
 ## Verification Baseline

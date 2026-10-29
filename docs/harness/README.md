@@ -1,3 +1,5 @@
+<!-- Documents JobSentinel Harness. -->
+
 # JobSentinel Harness
 
 The harness is the repository-owned system that makes work discoverable,
@@ -61,13 +63,12 @@ states are `not_started`, `active`, `blocked`, and `passing`.
 
 - Fast: `npm run harness:check`, `npm run lint:file-size`, and the closest static
   or focused test.
-- Targeted: run `npm run harness:plan -- --since <valid-ref>` and execute every
-  selected command.
+- Targeted: use `npm run harness:plan -- --since <valid-ref>` to identify affected
+  owners, then choose the focused commands in the verification matrix.
 - Full: `npm run verify:full` for shared contracts, broad refactors, uncertain
   routing, and completion claims.
-- Release: the full lane plus `npm run test:e2e:all`, `npm run lint:sqlx`, release
-  readiness, packaging, signing, and publication checks when separately
-  authorized.
+- Release: separately complete full Stability, Performance and Security phases
+  in that order, following [the Release Contract](../developer/RELEASING.md#mandatory-final-release-phases).
 
 The planner includes committed changes from a valid base, staged changes,
 unstaged changes, deletions, and untracked nonignored files. Invalid bases fail.
@@ -90,8 +91,8 @@ contributor access, or reliance on protected shared history.
 
 The tracked Husky pre-commit hook runs secret scanning and staged-file checks only
 when a developer explicitly installs Husky. The standard initializer uses
-`npm ci --ignore-scripts`, so it does not install the hook. Recovery bypass:
-`HUSKY=0 git commit ...` or `git commit --no-verify`. Because no CI backstop
+`npm ci --ignore-scripts`, so it does not install the hook. A hook bypass requires
+explicit authorization. Because no CI backstop
 exists, a bypass leaves an explicit verification gap that must be closed with
 the applicable local commands before the change is relied on.
 
@@ -102,7 +103,8 @@ trigger paths, expected signal, false-positive response, platform coverage, and
 retirement condition in `harness-map.md`. Use an existing parser or tool before
 custom code. Delete retired entrypoints and stale references in the same change.
 
-Budgets use a measured known-good baseline. Every exception names the exact path,
+Every `AGENTS.md` has a non-exempt ceiling of 150 lines and 32 KiB. Other
+budgets use a measured known-good baseline. Every permitted exception names the exact path,
 owner, reason, current baseline, and removal trigger. Raising a budget requires a
 new measured reason.
 

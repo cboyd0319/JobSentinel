@@ -21,7 +21,7 @@ until verified models are available. Direct Cargo builds without `embedded-ml`
 remain available for development and show only the fallback.
 
 ```typescript
-import { invoke } from "@tauri-apps/api/core";
+import { invoke } from "../../platform/tauri"; // Use the path relative to the caller.
 
 const diagnostics = await invoke("get_semantic_matching_diagnostics");
 ```
@@ -30,7 +30,7 @@ With `embedded-ml` enabled, `get_ml_status` reports whether model files are
 already cached locally.
 
 ```typescript
-import { invoke } from "@tauri-apps/api/core";
+import { invoke } from "../../platform/tauri"; // Use the path relative to the caller.
 
 const status = await invoke<{
   is_downloaded: boolean;
@@ -78,7 +78,7 @@ cargo test -p jobsentinel --features embedded-ml
 Ignored integration tests may require downloaded model files:
 
 ```bash
-cargo test -p jobsentinel --features embedded-ml -- --ignored
+cargo test -p jobsentinel-local-ai --features embedded-ml qwen3_backend_embeds_with_pinned_downloaded_model -- --ignored
 ```
 
 ## User-facing requirements

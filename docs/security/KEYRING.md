@@ -19,8 +19,9 @@ The current storage model is:
 - Avoid passive secure-storage probes that trigger repeated unlock prompts.
 
 Runtime credential commands, scheduler jobs, notifications and source checks use
-`CredentialService`. Secrets stay in encrypted `secret_vault` rows, while the OS
-credential store protects the database and vault keys.
+`CredentialService`. Secrets stay in encrypted `secret_vault` rows. Installed
+profiles use the OS key store or optional vault-key passphrase wrapping; portable
+profiles use the profile passphrase without host-keyring access.
 
 Missing vault rows return no credential. Locked or unavailable key protection
 returns an error.
@@ -52,16 +53,13 @@ SQLite database encryption at connection layer
   v
 secret_vault table
   key TEXT PRIMARY KEY
-  nonce / iv
-  ciphertext
-  aad context
+  algorithm / key_version
+  nonce / ciphertext
   created_at / updated_at
-  rotation metadata
   |
   v
 AEAD envelope per row
-  XChaCha20-Poly1305 preferred
-  AES-GCM acceptable where platform policy requires it
+  XChaCha20-Poly1305 with key-bound associated data
 ```
 
 Vault requirements:
@@ -75,8 +73,9 @@ Vault requirements:
   database.
 - AEAD associated data must bind ciphertext to the secret key name and app
   context so rows cannot be silently swapped.
-- The plaintext vault key must be kept only in process memory after unlock and
-  cleared on app quit or explicit lock. Do not persist the plaintext key.
+- The plaintext vault key stays in process memory after unlock and is not persisted.
+  Shared-computer lock blocks native admission and requires fresh authentication;
+  it does not claim to evict every previously cached key from process memory.
 - Key rotation must be possible without changing public `CredentialKey` names.
 - Backups must not export plaintext secret values unless a future encrypted
   backup flow explicitly asks the user and re-encrypts the payload.
@@ -111,7 +110,7 @@ Advanced passphrase mode:
    the UI.
 2. Derive a wrapping key with Argon2id. New envelopes use 64 MiB memory,
    3 iterations, and parallelism 1; loaded envelopes must meet at least the
-   OWASP minimum of 19 MiB memory, 2 iterations, and parallelism 1.
+   checked-in minimum of 19 MiB memory, 2 iterations, and parallelism 1.
 3. Wrap the vault key with XChaCha20-Poly1305 and fixed associated data.
 4. Store only salt, KDF parameters, nonce, algorithm metadata, and wrapped
    vault-key ciphertext in `credential_key_wrapping`.
@@ -201,96 +200,33 @@ vault-backed provider into scheduler, notification and source-check owners.
 
 ## Code modules
 
-### `crates/jobsentinel-credentials/src/vault.rs`
+- `crates/jobsentinel-credentials/src/vault.rs` owns per-row encryption with
+  random 24-byte nonces and associated data
+  `jobsentinel.secret-vault.v1:<credential-key>`.
+- `key.rs` owns the public key names and aliases; disabled LinkedIn keys cannot
+  be newly stored.
+- `service.rs` owns installed and portable credential providers, metadata-only
+  status, secret access, passphrase policy and fresh app-unlock authentication.
+- `src-tauri/src/ipc/credentials.rs` owns native validation and minimized replies.
 
-```rust
-pub struct SecretVault;
+`get_credential_status` returns `{ key, exists, available }`; unavailable is not
+saved or missing. `get_credential_unlock_status` returns
+`{ mode, configured, unlocked }` without querying the OS store. Commands never
+return saved credential values or echo passphrases.
 
-impl SecretVault {
-    pub fn generate_master_key() -> [u8; 32];
-    pub async fn store(&self, key: CredentialKey, value: &str) -> Result<(), SecretVaultError>;
-    pub async fn retrieve(&self, key: CredentialKey) -> Result<Option<String>, SecretVaultError>;
-    pub async fn delete(&self, key: CredentialKey) -> Result<(), SecretVaultError>;
-    pub async fn exists(&self, key: CredentialKey) -> Result<bool, SecretVaultError>;
-}
-```
+## Shared-computer and portable profiles
 
-The vault uses `XChaCha20Poly1305`, per-row random 24-byte nonces, and
-associated data shaped as `jobsentinel.secret-vault.v1:<credential-key>`.
-Disabled LinkedIn credential keys are rejected before storage.
+Shared-computer unlock freshly verifies the passphrase or native user presence;
+a cached vault key cannot authorize it. Changing the passphrase policy while
+shared-computer mode is active is refused to preserve its unlock method.
 
-### `crates/jobsentinel-credentials/src/lib.rs`
-
-```rust
-pub enum CredentialKey {
-    SmtpPassword,
-    TelegramBotToken,
-    SlackWebhook,
-    DiscordWebhook,
-    TeamsWebhook,
-    UsaJobsApiKey,
-}
-```
-
-### `crates/jobsentinel-credentials/src/service.rs`
-
-```rust
-pub struct CredentialService;
-
-impl CredentialService {
-    pub fn new(repository: CredentialRepository) -> Self;
-    pub async fn store(&self, key: CredentialKey, value: &str) -> Result<(), String>;
-    pub async fn retrieve(&self, key: CredentialKey) -> Result<Option<String>, String>;
-    pub async fn delete(&self, key: CredentialKey) -> Result<(), String>;
-    pub async fn exists(&self, key: CredentialKey) -> Result<bool, String>;
-    pub async fn list_status(&self) -> Vec<CredentialPresence>;
-    pub async fn unlock_status(&self) -> Result<CredentialUnlockState, String>;
-    pub async fn enable_passphrase_lock(&self, passphrase: &str) -> Result<(), String>;
-    pub async fn unlock_passphrase_vault(&self, passphrase: &str) -> Result<(), String>;
-    pub async fn disable_passphrase_lock(&self, passphrase: &str) -> Result<(), String>;
-}
-```
-
-`CredentialService` is the runtime provider. `exists` and `list_status` read
-vault row metadata only. `retrieve` reads only the encrypted vault and propagates
-unlock failures. Passphrase status also reads SQLite metadata only.
-
-### `src-tauri/src/ipc/credentials.rs`
-
-```rust
-#[tauri::command]
-pub async fn store_credential(key: String, value: String) -> Result<(), String>;
-
-#[tauri::command]
-pub async fn delete_credential(key: String) -> Result<(), String>;
-
-#[tauri::command]
-pub async fn has_credential(key: String) -> Result<bool, String>;
-
-#[tauri::command]
-pub async fn get_credential_status() -> Result<Vec<CredentialStatus>, String>;
-
-#[tauri::command]
-pub async fn get_credential_unlock_status() -> Result<CredentialUnlockStatus, String>;
-
-#[tauri::command]
-pub async fn enable_credential_passphrase(passphrase: String) -> Result<(), String>;
-
-#[tauri::command]
-pub async fn unlock_credential_vault(passphrase: String) -> Result<(), String>;
-
-#[tauri::command]
-pub async fn disable_credential_passphrase(passphrase: String) -> Result<(), String>;
-```
-
-`get_credential_status` returns non-secret entries shaped as
-`{ key, exists, available }`. `available: false` means secure storage could not
-be checked and must not be shown as either saved or missing.
-
-`get_credential_unlock_status` returns non-secret lock state shaped as
-`{ mode, configured, unlocked }`. It must not touch the OS credential store.
-Passphrase command inputs are never logged and command errors must not echo the
-passphrase.
+Portable startup authenticates the profile before private services are installed.
+Its passphrase protects the SQLCipher database and wraps the vault key using the
+existing envelope. It stays only in session memory. Portable credential operations
+never fall back to OS credential storage, and the vault passphrase cannot be
+changed independently of the profile passphrase. See
+[portable profiles](../features/user-data-management.md#portable-profiles) for
+selection, retention, relocation and recovery behavior.
 
 ## Unsupported plaintext config
 
@@ -352,8 +288,9 @@ attempted action fails because secure storage could not be unlocked.
   `secret_vault` table.
 - Runtime credentials are encrypted twice at rest: by the SQLCipher database
   and by per-row AEAD envelopes.
-- Passphrase mode wraps only the credential-vault master key. It does not
-  replace SQLCipher database-key protection.
+- Installed-profile passphrase mode wraps only the credential-vault master key.
+  Portable mode instead uses the profile passphrase for SQLCipher and credential
+  wrapping; no installed-profile key is read, written or deleted.
 - Do not store secret values as plaintext SQLite, app config, localStorage,
   logs, screenshots, support reports, or unencrypted backups.
 - JobSentinel stores credentials under service name `JobSentinel`.
@@ -430,7 +367,7 @@ entries owned by `JobSentinel`.
 
 ```bash
 cargo test -p jobsentinel-credentials
-env -u JOBSENTINEL_LIVE_KEYRING_TESTS cargo test -p jobsentinel --lib commands::credentials
+cargo test -p jobsentinel --lib ipc::credentials
 ```
 
 Default credential tests use isolated vaults and must not access real user

@@ -87,11 +87,11 @@ helpers, local LLM servers, and external AI are not approved matching
 providers. The model lock therefore declares no alternative compatible backend
 for either Qwen3 model.
 
-Focused hybrid ranking evidence: `core::ml::hybrid` tests prove the ranking
+Focused hybrid ranking evidence: `jobsentinel_local_ai::hybrid` tests prove the ranking
 core prefers direct evidence over keyword-only near misses, caps otherwise
 strong matches when hard blockers exist, and records dense, BM25, exact skill,
 required-coverage, and reranker provenance without raw resume text.
-`core::resume::matcher::hybrid_score` wires the hybrid scorer into resume/job
+`jobsentinel_application::resume::hybrid_score` wires the hybrid scorer into resume/job
 match scores for `embedded-ml` builds while preserving the legacy weighted
 formula when local ML is disabled.
 
@@ -127,7 +127,7 @@ disabled by default, and routed through
 
 | Path | Purpose |
 | ---- | ------- |
-| `crates/jobsentinel-local-ai/src/mod.rs` | Feature-gated module entry and error types |
+| `crates/jobsentinel-local-ai/src/lib.rs` | Feature-gated module entry and error types |
 | `crates/jobsentinel-local-ai/src/contracts.rs` | Typed contracts for role families, generated-advice separation, skill graph relationships, evidence explanations, adversarial posting signals, and modular matching stages |
 | `crates/jobsentinel-local-ai/src/manifest.rs` | Checked-in model lock parsing and validation |
 | `crates/jobsentinel-local-ai/src/model.rs` | Thin model management entrypoint |
@@ -140,7 +140,7 @@ disabled by default, and routed through
 | `crates/jobsentinel-local-ai/src/eval_fixtures/seed_v1.json` | Seed labels, hard negatives, and preference pairs for regression tests |
 | `crates/jobsentinel-local-ai/src/embeddings.rs` | Embedding generation and vector similarity |
 | `crates/jobsentinel-local-ai/src/matcher.rs` | Semantic skill matching logic |
-| `crates/jobsentinel-storage/src/resume/matcher/hybrid_score.rs` | Resume/job scoring bridge for hybrid matching and legacy fallback |
+| `crates/jobsentinel-application/src/resume/hybrid_score.rs` | Resume/job scoring bridge for hybrid matching and legacy fallback |
 | `crates/jobsentinel-local-ai/src/tests.rs` | Feature-gated tests |
 | `src-tauri/src/ipc/ml.rs` | Feature-gated Tauri commands |
 | `crates/jobsentinel-local-ai/models.lock.toml` | Model supply-chain lockfile |
@@ -228,7 +228,8 @@ default test lane.
 This is a seed baseline, not broad calibration evidence. It covers three
 synthetic requirement-level pairs on one macOS arm64 host. Larger reviewed
 datasets, other query kinds, modest-hardware budgets, and Windows 11, macOS 26,
-and Linux release-matrix runs remain required before Gate 4 can close. The
+and Linux release-matrix runs remain required for final release qualification.
+The accepted Gate 4 design decision does not supply that runtime evidence. The
 current `0.30` retrieval and `3.0` reranker acceptance values apply only to the
 resume-requirement query kind. Weak, medium, and strong score bands, job-search
 thresholds, and the MiniLM threshold are not approved user-facing
@@ -344,7 +345,7 @@ truth.
 | Model cache is partial, unreadable, unsafe, wrong-size, or checksum-invalid | Report a misconfiguration without paths or file contents, name the active verified fallback, and require a pinned re-download before advanced matching. |
 | Runtime dimension differs from vector index | Refuse to use the stale index and rebuild vectors after user-visible setup. |
 | Instruction profile changes | Mark existing vectors stale and rebuild before using semantic scores. |
-| Reranker is unavailable | Use dense retrieval, exact skill matching, BM25, and mark output as not reranked. |
+| Governed Qwen3 pair is unavailable | Use verified MiniLM when available, otherwise deterministic exact matching; report the actual fallback. |
 | Metal acceleration is unavailable | Fall back to CPU inference. |
 | Matching output looks wrong | Let the user edit skills and visible assumptions before using the result. |
 

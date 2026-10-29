@@ -1,3 +1,5 @@
+<!-- Documents multi-Agent Orchestration Contract. -->
+
 # Multi-Agent Orchestration Contract
 
 Use this contract when work becomes broad enough that parallel senior
@@ -82,9 +84,11 @@ must not revert work they did not create.
 - Use reviewer agents after a coherent slice lands, not as a substitute for
   tests.
 - Close completed agents promptly.
-- Use an isolated worktree or private writable root whenever write sets can
-  collide or a tool can generate shared output. Integrate one reviewed slice at
-  a time, then run coordinator-owned graph verification.
+- Give every repository sub-agent its own Git worktree and branch. Integrate
+  one reviewed slice at a time, then verify the combined changes.
+- Each Serena client targeting a different worktree runs its own stdio server.
+  Verify the absolute root and its own session before semantic work; never switch
+  a shared server. Follow the root `AGENTS.md` for setup and fallback rules.
 
 If scopes collide, stop delegation for that slice and integrate locally.
 

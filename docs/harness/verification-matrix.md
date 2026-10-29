@@ -39,7 +39,7 @@ Add the closest parser, compiler, linter, or focused test for the owner.
 | Surface | Required evidence |
 | ------- | ----------------- |
 | URL, file path, command, or HTML input | Unit tests for malicious input |
-| Credential handling | Keyring behavior check and no plaintext path |
+| Credential handling | Vault/key-protection behavior, portable host-store isolation and no plaintext-secret path |
 | External network destination | Privacy docs update and explicit user configuration |
 | Browser automation | Human-in-the-loop submit behavior preserved |
 | Browser extension manifest | least-privilege manifest review and no broad host permissions |
@@ -75,9 +75,11 @@ npm run release:readiness -- --version <version>
 Then run platform packaging, signature, notarization, SBOM, checksum, artifact,
 and public verification for the selected platforms. Workflow configuration alone
 is not execution evidence.
-For v3.0, the master plan places this campaign after M9/M10 development and
-Gate 5, in M11. Current 8 GiB, installed-platform, production-signing, and
-full-workflow evidence remains mandatory there. Earlier integration checks
+The master plan runs final qualification after the accepted development queue.
+Every release then completes separate full Stability, Performance and Security
+phases in order under the [Release Contract](../developer/RELEASING.md#mandatory-final-release-phases).
+Current 8 GiB, installed-platform, production-signing and full-workflow evidence
+remains required for the applicable release scope. Earlier integration checks
 are limited to a concrete architecture, security, data-loss, or changed-boundary
 question; they do not replace final release qualification.
 
