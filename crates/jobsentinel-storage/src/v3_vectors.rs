@@ -1,6 +1,8 @@
+//! Stores bounded local vectors and removes stale rows only if their revision still matches.
+
 use chrono::{DateTime, Utc};
 use jobsentinel_domain::{
-    v3_manifests::{ModelProvenance, VectorFreshness},
+    manifests::{ModelProvenance, VectorFreshness},
     ResumeEvidenceSnapshot,
 };
 

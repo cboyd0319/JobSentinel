@@ -7,7 +7,7 @@ use std::{
 
 use chrono::Utc;
 use jobsentinel_domain::{
-    v3_source_authorization::SourceActionDecision, v3_source_manifest::SourceOperation, Job,
+    source_authorization::SourceActionDecision, source_manifest::SourceOperation, Job,
 };
 use jobsentinel_sources::{
     parse_greenhouse_company_url, parse_lever_company_url, GreenhouseCompany, GreenhouseScraper,
@@ -156,8 +156,8 @@ mod tests {
     use std::sync::{atomic::AtomicBool, Arc};
 
     use jobsentinel_domain::{
-        v3_source_authorization::{SourceActionDecision, SourceGrantState},
-        v3_source_manifest::{
+        source_authorization::{SourceActionDecision, SourceGrantState},
+        source_manifest::{
             parse_source_manifest, SourceOperation, GREENHOUSE_API_ENDPOINT_PREFIX,
             GREENHOUSE_SOURCE_MANIFEST_V1, LEVER_API_ENDPOINT_PREFIX, LEVER_SOURCE_MANIFEST_V1,
         },

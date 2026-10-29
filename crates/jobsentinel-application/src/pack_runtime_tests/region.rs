@@ -34,7 +34,7 @@ async fn signed_starter_fixtures_survive_region_activation_and_review() {
         let artifact_root = tempfile::tempdir().unwrap();
         let starter_data: serde_json::Value = serde_json::from_str(starter_json).unwrap();
         let manifest =
-            jobsentinel_domain::v3_contracts::parse_region_manifest(manifest_json, today).unwrap();
+            jobsentinel_domain::contracts::parse_region_manifest(manifest_json, today).unwrap();
         serde_json::from_value::<jobsentinel_domain::RegionStarterData>(starter_data.clone())
             .unwrap()
             .validate(&manifest, today)

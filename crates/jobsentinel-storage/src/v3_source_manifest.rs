@@ -1,8 +1,10 @@
+//! Persists current policy-bound source manifests and their source-graph projections.
+
 use anyhow::{anyhow, Result};
 use chrono::Utc;
 use jobsentinel_domain::{
-    v3_foundation::{GraphProvenance, SourceGraphLink, SourceRelation},
-    v3_source_manifest::{parse_source_manifest, SourceManifest},
+    foundation::{GraphProvenance, SourceGraphLink, SourceRelation},
+    source_manifest::{parse_source_manifest, SourceManifest},
 };
 use sqlx::FromRow;
 

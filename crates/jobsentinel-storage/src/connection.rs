@@ -1,6 +1,7 @@
 //! Owns encrypted SQLite connections, configuration, migrations, and startup recovery.
 
 mod backups;
+mod bootstrap;
 mod portable_backup;
 mod portable_restore;
 mod portable_restore_bundle;
@@ -34,8 +35,8 @@ use std::{
 };
 
 use super::encryption::{
-    connect_encrypted_pool, encrypt_plaintext_database, load_or_create_database_key,
-    probe_encrypted_user_version, probe_plaintext_user_version,
+    connect_encrypted_pool, load_or_create_database_key, probe_encrypted_user_version,
+    probe_plaintext_user_version,
 };
 use recovery_operations::finish_recovery_operation_record;
 
@@ -46,7 +47,7 @@ pub(super) static MIGRATOR: sqlx::migrate::Migrator = sqlx::migrate!("./migratio
 pub struct Database {
     pool: SqlitePool,
     migration_lock: tokio::sync::Mutex<()>,
-    /// Path to the on-disk database file. `None` for in-memory databases.
+    /// Published primary path; `None` for memory and unpublished staged stores.
     db_path: Option<PathBuf>,
     _owner_lock: Option<File>,
 }
@@ -90,9 +91,7 @@ impl Database {
 
     pub(super) async fn connect_owned(path: &Path, owner: &File) -> Result<Self, sqlx::Error> {
         let owner_lock = owner.try_clone()?;
-        if !path.exists() && path.with_extension("db.sqlcipher-new").try_exists()? {
-            return Err(sqlx::Error::Protocol("Incomplete database encryption requires recovery; refusing to create an empty database".into()));
-        }
+        Self::refuse_missing_primary(path)?;
 
         let plaintext_version = if path.exists() {
             probe_plaintext_user_version(path).await?
@@ -101,19 +100,18 @@ impl Database {
         };
         if let Some(version) = plaintext_version {
             Self::refuse_unsupported_database(version)?;
+            return Err(sqlx::Error::Protocol(
+                "Plaintext local database is unsupported; requires recovery".into(),
+            ));
         }
 
         let key = load_or_create_database_key().await?;
-        let pool = if plaintext_version.is_some() {
-            encrypt_plaintext_database(path, &key).await?;
-            connect_encrypted_pool(path, &key, false).await?
-        } else if path.exists() {
-            let version = probe_encrypted_user_version(path, &key).await?;
-            Self::refuse_unsupported_database(version)?;
-            connect_encrypted_pool(path, &key, false).await?
+        if path.exists() {
+            probe_encrypted_user_version(path, &key).await?;
         } else {
-            connect_encrypted_pool(path, &key, true).await?
-        };
+            Self::bootstrap_database(path, &key, &MIGRATOR).await?;
+        }
+        let pool = connect_encrypted_pool(path, &key, false).await?;
 
         jobsentinel_platform::ensure_private_sqlite_files(path).map_err(sqlx::Error::Io)?;
 

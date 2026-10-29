@@ -3,23 +3,32 @@
   "feature_id": "v3-source-compatibility-cleanup",
   "behavior": "Remove pre-v3-only readers and ordinary transition names while preserving immutable v3 contracts and local data.",
   "result": "partial",
-  "verified_at": "2026-10-29T00:06:57.757937+00:00",
-  "revision": "ecf321dcc497227a6aac1859a38e73d86bdd0190",
+  "verified_at": "2026-10-29T00:38:53.037161+00:00",
+  "revision": "2349659d435fd02d0869d180bfb3213503cf5072",
   "platform": "macOS27.2 arm64, pinned Rust1.97.1/Node24.18.0/npm12.0.1",
-  "scope": "First D0 source-only closure slice; no broad qualification, signing, model runs or VMs.",
+  "scope": "D0 application/domain namespace, atomic encrypted-v3 bootstrap and deterministic Workbench policy checks; no broad qualification or release operations.",
   "source_files_sha256": {
-    "crates/jobsentinel-domain/src/v3_contracts.rs": "4807dc66d296dfebf4e205d50a03992e861969e5f4070e39f92a96e1a918aa5b",
-    "crates/jobsentinel-domain/src/lib.rs": "089a66a0fec98470be1fd8c9fd0bb5603e9ab9f3ebb3ee9940d7a851b2f4dc46",
-    "crates/jobsentinel-application/src/config/tests.rs": "c6dd19c3799119a95df1cca3711c3264ab0ad31b8b991798aa4b7bea5f980abe",
-    "crates/jobsentinel-application/src/lib.rs": "e8b5ad4d478ac1249dce37190dea7007f08b65b361678d751f854a9e5962a701",
-    "crates/jobsentinel-application/src/source_governance.rs": "8ae8495edb46980b8b6e2a7be98317df17ec61a73dd36b3abf97aa28dea583d8",
-    "crates/jobsentinel-application/src/foundation.rs": "3f8429ed9a0f9f0735c96beb54ac9fb875b6d8f1b6521e7d5282d41fffdf318e",
-    "src-tauri/src/bootstrap/state.rs": "88a977a4a330cc09f5df60f86695a33048318bc62e51389b289f37a43a245c4f"
+    "crates/jobsentinel-domain/src/contracts.rs": "a00a6437a042ef31f70a6bcadcd16e9bb63c958a0271e6904448f10443b188af",
+    "crates/jobsentinel-domain/src/lib.rs": "9f0ebe75dd7115ad75d62da71370c1ac810342327b3e72be9c406387cfecaaca",
+    "crates/jobsentinel-domain/src/evaluations.rs": "3b5c3680b8a690a1aab2e2481ea2d92ab154b3898bb7f182c14d0311c3d50727",
+    "crates/jobsentinel-application/src/source_governance.rs": "3667707400cb8a99973ba8247dcb466dab774de3f024b6c7f537a647f3ae1613",
+    "crates/jobsentinel-application/src/linkedin_workbench.rs": "270a52df4cbfe6f572911ee4d7f14c079f42276eb16e99b27f4f905b42870dd7",
+    "crates/jobsentinel-application/src/linkedin_workbench/tests.rs": "99c802ab66e9763b25e9f2b48a90e800f8170fa3f32a8dccd709101ffabef0da",
+    "crates/jobsentinel-storage/src/connection.rs": "fe19f6f2ff41a4da9ab870fc03e7274882637d9bb9511f4e7d81a9e215f113d0",
+    "crates/jobsentinel-storage/src/connection/bootstrap.rs": "e5f29c2281cd1d092c973b915adb2fb344b7637b2f4a18f120eee8c430e71903",
+    "crates/jobsentinel-storage/src/encryption.rs": "028ed4f56740552fe86c61b5a797137bf04b18bf7bc370fa3d8f083158b872fe",
+    "crates/jobsentinel-platform/src/windows_private_directory.rs": "89ca0fe245f87cda58d4c8d3fab1a9729c1067148e9ddb185b0ea941d28997e5"
   },
   "delivered": [
     "Removed unused pre-v3 compatibility classification types/function/re-export and the unsupported upgrade claim tests. Supported validation uses the existing parser directly.",
     "Renamed ordinary application v3_source_governance and v3_foundation modules, files/test paths and current application/native callers to source_governance/foundation without aliases.",
-    "Added responsibility headers to moved/changed owned files; source policy review date remains exactly2026-07-19T00:00:00Z."
+    "Added responsibility headers to moved/changed owned files; source policy review date remains exactly2026-07-19T00:00:00Z.",
+    "Removed automatic plaintext-primary conversion. Existing encrypted stores require supported v3 metadata and successful migration-11 checksum before writer configuration; ambiguous, inconsistent, plaintext and future stores are refused without changing primary/WAL bytes.",
+    "Fresh encrypted stores migrate in a private same-volume stage, checkpoint, close and sync before no-clobber publication. Failed/interrupted initialization does not publish an ambiguous primary. Missing-primary recovery artifacts prevent empty recreation.",
+    "Windows publication uses no-clobber WRITE_THROUGH without cross-volume copying; prior overwrite callers retain their same-directory contract. Attribute normalization precedes rename; successful publication disables temporary cleanup without accessing the removed source path.",
+    "Read-only probes await connection closure and preserve original refusal errors. Pre-v3 migration fixtures were replaced with supported-v3 and synthetic-next-migration failure/retry cases.",
+    "Renamed 27 ordinary domain modules/test files and three child directories through 129 Rust files, including evaluation/runtime symbols. Comparison found 419 authorized identifier replacements and 6001 byte-identical literals, with no fixture or migration changes.",
+    "Workbench action authorization now accepts an explicit private date seam, while public entry points retain the real clock. Tests use a fixed reviewed date and prove expired policy refuses writes; production policy review date remains unchanged and currently requires real refresh."
   ],
   "immutable_boundaries": [
     "SchemaId serialized strings and retained parser/validation code match the prior source exactly.",
@@ -68,13 +77,53 @@
       "exit_status": 0,
       "relevant_result": "Source graph/state/responsibility/size contracts passed.",
       "caveat": "Static development guard, not release proof."
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-domain --lib",
+      "exit_status": 0,
+      "relevant_result": "212 domain tests passed after namespace normalization.",
+      "caveat": "Focused affected crate only; log target/d0-domain-namespace/domain-tests.log."
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-application --lib linkedin_workbench",
+      "exit_status": 0,
+      "relevant_result": "11 Workbench tests passed; current application test graph compiled.",
+      "caveat": "Synthetic fixed policy date; actual policy refresh remains required."
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-storage --lib connection::tests::bootstrap_tests::",
+      "exit_status": 0,
+      "relevant_result": "9 bootstrap/crash/collision tests passed.",
+      "caveat": "Mac execution; Windows publication is source-reviewed only. Log target/d0-domain-namespace/bootstrap-tests.log."
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-storage --lib encryption::tests::",
+      "exit_status": 0,
+      "relevant_result": "7 encryption/refusal/WAL tests passed.",
+      "caveat": "Mac execution; log target/d0-domain-namespace/encryption-tests.log."
+    },
+    {
+      "command": "cargo clippy --locked --offline -p jobsentinel-storage -p jobsentinel-platform --lib -- -D warnings",
+      "exit_status": 0,
+      "relevant_result": "Affected storage/platform production graph passed.",
+      "caveat": "Mac target; three new Windows publication tests remain uncompiled/unexecuted."
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs clippy --locked --offline -p jobsentinel --lib --features embedded-ml -- -D warnings",
+      "exit_status": 0,
+      "relevant_result": "Current native production graph passed after domain normalization.",
+      "caveat": "Compilation/lint only; log target/d0-domain-namespace/native-clippy.log."
     }
   ],
   "remaining": [
-    "Remove confirmed plaintext upgrade machinery with byte-preserving refusal coverage; establish exact supported encrypted-v3 detection from actual baseline writers.",
-    "Replace pre-v3 migration fixtures while retaining failure/retry/snapshot/concurrency protections.",
-    "Normalize domain/storage ordinary module/type/helper names through their consumers.",
+    "Normalize storage ordinary module/type/helper names through actual consumers without aliases.",
     "Rename live schema only with compatible migrations and preserved export/signature contracts; vectors are the first isolated pilot.",
-    "Review bounded removal candidates (provider/filter/education aliases and test forwarding shim); preserve any still required by supported v3 inputs."
-  ]
+    "Review bounded provider/filter/education aliases and test forwarding shim; preserve any needed by supported v3 inputs.",
+    "Trace minimum Gate 4 dossier and close confirmed Now behavior gaps. Real Workbench policy refresh remains required; fixture correction does not renew source evidence."
+  ],
+  "review": {
+    "result": "PASS after corrections",
+    "scope": "Independent read-only review of atomic bootstrap and final Windows publication/probe-close corrections.",
+    "caveat": "No native Windows execution or power-loss qualification."
+  }
 }

@@ -7,8 +7,8 @@ use jobsentinel_ai::{
     CHOOSE_EXTERNAL_AI_PROVIDER_MESSAGE,
 };
 use jobsentinel_domain::{
-    v3_contracts::SchemaId,
-    v3_manifests::{DataCategory, PrivacyLabel, PrivacyReceipt, EXTERNAL_AI_GATEWAY_POLICY},
+    contracts::SchemaId,
+    manifests::{DataCategory, PrivacyLabel, PrivacyReceipt, EXTERNAL_AI_GATEWAY_POLICY},
 };
 use jobsentinel_storage::{
     outside_ai::{OutsideAiCompletion, OutsideAiContext, OutsideAiOperation, OutsideAiStatus},

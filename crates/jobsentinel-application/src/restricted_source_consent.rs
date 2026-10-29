@@ -1,13 +1,13 @@
 //! Binds restricted-source consent to exact current policy, destination and data categories.
 use chrono::{DateTime, Utc};
 use jobsentinel_domain::{
-    v3_foundation::{SourceAccess, SourcePolicy},
-    v3_manifests::{DataCategory, SourceClass},
-    v3_source_consent::{
+    foundation::{SourceAccess, SourcePolicy},
+    manifests::{DataCategory, SourceClass},
+    source_consent::{
         SourceConsentContext, SourceConsentOperation, SourceConsentReviewReason,
         SourceConsentStatus,
     },
-    v3_source_manifest::{
+    source_manifest::{
         parse_source_manifest, BUILTIN_SOURCE_MANIFEST_V2, DICE_SOURCE_MANIFEST_V2,
         GLASSDOOR_SOURCE_MANIFEST_V2, SIMPLYHIRED_SOURCE_MANIFEST_V2,
     },
@@ -274,8 +274,8 @@ fn retire_source_config(config: &mut Config, source_id: &str) {
 #[cfg(test)]
 mod tests {
     use jobsentinel_domain::{
-        v3_foundation::SourceAccess,
-        v3_source_consent::{SourceConsentReviewReason, SourceConsentStatus},
+        foundation::SourceAccess,
+        source_consent::{SourceConsentReviewReason, SourceConsentStatus},
     };
     use jobsentinel_storage::Database;
 

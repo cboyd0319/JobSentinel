@@ -1,6 +1,8 @@
+//! Proves exact public-data review, approval and terminal external-AI operation handling.
+
 use super::*;
 use crate::desktop::Database;
-use jobsentinel_domain::v3_manifests::{DataCategory, PrivacyLabel};
+use jobsentinel_domain::manifests::{DataCategory, PrivacyLabel};
 use jobsentinel_storage::outside_ai::{OutsideAiContext, OutsideAiStatus};
 use std::collections::BTreeMap;
 use std::future::pending;
@@ -181,7 +183,7 @@ async fn receipt_is_durable_before_provider_future_and_success_is_terminal() {
             PrivacyLabel::PublicDataOnly,
         ],
         data_categories: vec![DataCategory::PublicJobPosting],
-        gateway_policy_revision: jobsentinel_domain::v3_manifests::EXTERNAL_AI_GATEWAY_POLICY
+        gateway_policy_revision: jobsentinel_domain::manifests::EXTERNAL_AI_GATEWAY_POLICY
             .to_string(),
     };
     let reviewed = database

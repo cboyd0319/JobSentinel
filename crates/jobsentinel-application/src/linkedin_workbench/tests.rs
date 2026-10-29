@@ -1,6 +1,17 @@
 //! Verifies explicit local Workbench actions preserve policy, consent and private-data boundaries.
 use super::*;
 
+fn reviewed_date() -> NaiveDate {
+    NaiveDate::from_ymd_opt(2026, 7, 19).unwrap()
+}
+
+async fn record_reviewed_event(
+    database: &Database,
+    input: LinkedInWorkbenchEventInput,
+) -> Result<LinkedInWorkbenchEventResult> {
+    record_event_on(database, input, reviewed_date()).await
+}
+
 async fn unreviewed_db() -> Database {
     let db = Database::connect_memory().await.unwrap();
     db.migrate().await.unwrap();
@@ -12,7 +23,9 @@ async fn unreviewed_db() -> Database {
 
 async fn memory_db() -> Database {
     let db = unreviewed_db().await;
-    remember_workbench_review(&db).await.unwrap();
+    remember_workbench_review_on(&db, reviewed_date())
+        .await
+        .unwrap();
     db
 }
 
@@ -20,7 +33,7 @@ async fn memory_db() -> Database {
 async fn direct_record_without_backend_review_makes_no_durable_changes() {
     let db = unreviewed_db().await;
 
-    assert!(record_event(
+    assert!(record_reviewed_event(
         &db,
         LinkedInWorkbenchEventInput {
             event_type: LinkedInWorkbenchEventType::Applied,
@@ -47,8 +60,13 @@ async fn direct_record_without_backend_review_makes_no_durable_changes() {
 async fn revoked_or_drifted_workbench_review_fails_closed() {
     let db = memory_db().await;
     assert!(revoke_workbench_review(&db).await.unwrap());
-    assert!(!workbench_review_is_current(&db).await.unwrap());
-    assert!(record_event(
+    assert_ne!(
+        workbench_review_status_on(&db, reviewed_date())
+            .await
+            .unwrap(),
+        LinkedInWorkbenchReviewStatus::Reviewed
+    );
+    assert!(record_reviewed_event(
         &db,
         LinkedInWorkbenchEventInput {
             event_type: LinkedInWorkbenchEventType::Saved,
@@ -61,12 +79,19 @@ async fn revoked_or_drifted_workbench_review_fails_closed() {
     .await
     .is_err());
 
-    remember_workbench_review(&db).await.unwrap();
+    remember_workbench_review_on(&db, reviewed_date())
+        .await
+        .unwrap();
     let mut drifted = crate::source_governance::linkedin_workbench_policy().unwrap();
     drifted.revision += 1;
     db.upsert_source_policy(&drifted).await.unwrap();
-    assert!(!workbench_review_is_current(&db).await.unwrap());
-    assert!(record_event(
+    assert_ne!(
+        workbench_review_status_on(&db, reviewed_date())
+            .await
+            .unwrap(),
+        LinkedInWorkbenchReviewStatus::Reviewed
+    );
+    assert!(record_reviewed_event(
         &db,
         LinkedInWorkbenchEventInput {
             event_type: LinkedInWorkbenchEventType::Saved,
@@ -102,6 +127,23 @@ async fn review_status_distinguishes_consent_from_stale_policy_evidence() {
         LinkedInWorkbenchReviewStatus::PolicyRefreshRequired
     );
 
+    let stale_day = NaiveDate::from_ymd_opt(2026, 8, 19).unwrap();
+    let error = record_event_on(
+        &reviewed,
+        LinkedInWorkbenchEventInput {
+            event_type: LinkedInWorkbenchEventType::Saved,
+            title: None,
+            company: None,
+            url: None,
+            notes: None,
+        },
+        stale_day,
+    )
+    .await
+    .unwrap_err();
+    assert!(error.to_string().contains("policy evidence needs refresh"));
+    assert!(reviewed.get_recent_jobs(10).await.unwrap().is_empty());
+
     let unreviewed = unreviewed_db().await;
     assert!(remember_workbench_review_on(
         &unreviewed,
@@ -120,7 +162,7 @@ async fn review_status_distinguishes_consent_from_stale_policy_evidence() {
 async fn applied_event_creates_draft_application_without_hidden_browser_state() {
     let db = memory_db().await;
 
-    let result = record_event(
+    let result = record_reviewed_event(
         &db,
         LinkedInWorkbenchEventInput {
             event_type: LinkedInWorkbenchEventType::Applied,
@@ -161,7 +203,7 @@ async fn applied_event_creates_draft_application_without_hidden_browser_state() 
 async fn saved_event_uses_user_confirmed_url_and_does_not_create_application() {
     let db = memory_db().await;
 
-    let result = record_event(
+    let result = record_reviewed_event(
         &db,
         LinkedInWorkbenchEventInput {
             event_type: LinkedInWorkbenchEventType::Saved,
@@ -190,7 +232,7 @@ async fn saved_event_uses_user_confirmed_url_and_does_not_create_application() {
 async fn not_interested_event_hides_local_draft() {
     let db = memory_db().await;
 
-    let result = record_event(
+    let result = record_reviewed_event(
         &db,
         LinkedInWorkbenchEventInput {
             event_type: LinkedInWorkbenchEventType::NotInterested,
@@ -213,7 +255,7 @@ async fn expanded_activity_events_use_local_application_ledger() {
     let db = memory_db().await;
     let tracker = db.application_tracker();
 
-    let interview = record_event(
+    let interview = record_reviewed_event(
         &db,
         LinkedInWorkbenchEventInput {
             event_type: LinkedInWorkbenchEventType::Interview,
@@ -233,7 +275,7 @@ async fn expanded_activity_events_use_local_application_ledger() {
     assert_eq!(interview_app.status, ApplicationStatus::PhoneInterview);
     assert!(interview.saved_as_bookmark);
 
-    let follow_up = record_event(
+    let follow_up = record_reviewed_event(
         &db,
         LinkedInWorkbenchEventInput {
             event_type: LinkedInWorkbenchEventType::FollowUp,
@@ -252,7 +294,7 @@ async fn expanded_activity_events_use_local_application_ledger() {
     assert_eq!(follow_up.status, "follow_up");
     assert!(follow_up_app.last_contact.is_some());
 
-    let reminder = record_event(
+    let reminder = record_reviewed_event(
         &db,
         LinkedInWorkbenchEventInput {
             event_type: LinkedInWorkbenchEventType::Reminder,
@@ -276,7 +318,7 @@ async fn expanded_activity_events_use_local_application_ledger() {
     assert!(reminder.saved_as_bookmark);
     assert_eq!(due_reminder_count, 0);
 
-    let rejected = record_event(
+    let rejected = record_reviewed_event(
         &db,
         LinkedInWorkbenchEventInput {
             event_type: LinkedInWorkbenchEventType::Rejected,
@@ -300,7 +342,7 @@ async fn expanded_activity_events_use_local_application_ledger() {
 async fn notes_remove_sensitive_url_fields_before_storage() {
     let db = memory_db().await;
 
-    let result = record_event(
+    let result = record_reviewed_event(
         &db,
         LinkedInWorkbenchEventInput {
             event_type: LinkedInWorkbenchEventType::Applied,
@@ -345,7 +387,7 @@ async fn secret_bearing_notes_fail_before_any_durable_write() {
         r#"{"cookie":"li_at=AQED-opaque-value"}"#,
     ] {
         let db = memory_db().await;
-        let result = record_event(
+        let result = record_reviewed_event(
             &db,
             LinkedInWorkbenchEventInput {
                 event_type: LinkedInWorkbenchEventType::Note,
@@ -379,7 +421,7 @@ async fn secret_bearing_title_or_company_fails_before_any_durable_write() {
         ),
     ] {
         let db = memory_db().await;
-        let result = record_event(
+        let result = record_reviewed_event(
             &db,
             LinkedInWorkbenchEventInput {
                 event_type: LinkedInWorkbenchEventType::Saved,
@@ -401,7 +443,7 @@ async fn legitimate_clearance_and_interview_notes_are_preserved() {
     let db = memory_db().await;
     let notes = "Secret clearance: required. Work authorization: U.S. citizen. Interview session: Tuesday. Bearer of good news. Bearer authentication. Authorization: Basic knowledge.";
 
-    let result = record_event(
+    let result = record_reviewed_event(
         &db,
         LinkedInWorkbenchEventInput {
             event_type: LinkedInWorkbenchEventType::Note,

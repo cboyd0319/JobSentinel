@@ -1,8 +1,10 @@
+//! Persists append-only source-policy history and exact revocable consent.
+
 use std::{error::Error, fmt};
 
 use anyhow::{anyhow, Result};
 use chrono::Utc;
-use jobsentinel_domain::v3_source_consent::{
+use jobsentinel_domain::source_consent::{
     SourceConsentContext, SourceConsentDecision, SourceConsentEvent, SourceConsentOperation,
     SourceConsentReviewReason, SourceConsentStatus, SourcePolicyLedgerEntry,
 };

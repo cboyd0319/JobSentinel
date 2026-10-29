@@ -3,11 +3,11 @@
 use anyhow::{anyhow, Result};
 use chrono::Utc;
 use jobsentinel_domain::{
-    v3_foundation::{
+    foundation::{
         CareerGraphLink, CareerRelation, CaseFile, CaseFileEvent, CaseFileEventInput,
         CaseFileEventKind, CompatibilityMetadata, SourceGraphLink, SourcePolicy, SourceRelation,
     },
-    v3_manifests::PrivacyReceipt,
+    manifests::PrivacyReceipt,
 };
 use serde::{de::DeserializeOwned, Serialize};
 use sqlx::{FromRow, Row};
@@ -357,8 +357,8 @@ fn event_from_row(row: EventRow) -> Result<CaseFileEvent> {
         origin: parse_enum(&row.origin)?,
         user_action: row.user_action,
         privacy_labels: [
-            jobsentinel_domain::v3_manifests::PrivacyLabel::LocalOnly,
-            jobsentinel_domain::v3_manifests::PrivacyLabel::Sensitive,
+            jobsentinel_domain::manifests::PrivacyLabel::LocalOnly,
+            jobsentinel_domain::manifests::PrivacyLabel::Sensitive,
         ],
         metadata: serde_json::from_str(&row.metadata_json)
             .map_err(|_| anyhow!("invalid stored event metadata"))?,

@@ -1,6 +1,6 @@
 //! Proves the immutable production pack-publisher trust registry and authority ceilings.
 
-use jobsentinel_domain::v3_manifests::{
+use jobsentinel_domain::manifests::{
     AgentTaskKind, ApprovalGate, DataCategory, PackAction, PackExecutionClass, PackType,
     PrivacyLabel,
 };
@@ -160,7 +160,7 @@ async fn production_staging_rejects_a_valid_nonproduction_publisher() {
 }
 
 fn assert_agent_ceiling(
-    publisher: &jobsentinel_domain::v3_signed_packs::TrustedPublisherKey,
+    publisher: &jobsentinel_domain::signed_packs::TrustedPublisherKey,
     data_categories: &[DataCategory],
     task_kind: AgentTaskKind,
     actions: &[PackAction],

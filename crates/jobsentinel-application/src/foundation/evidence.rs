@@ -2,7 +2,7 @@
 use super::{map_error, FoundationError};
 use jobsentinel_documents::{AtsAnalyzer, KeywordImportance, RequirementMatchState};
 use jobsentinel_domain::{
-    v3_foundation::{
+    foundation::{
         CareerGraphLink, CareerRelation, CaseFileEventInput, CaseFileEventKind, EventMetadata,
         EventOrigin, GraphProvenance,
     },

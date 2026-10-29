@@ -1,3 +1,5 @@
+//! Proves scraper request pacing, shared buckets and source-specific burst limits.
+
 use super::*;
 
 #[tokio::test]
@@ -35,7 +37,7 @@ async fn test_shared_rate_limiter_reuses_buckets_across_handles() {
 #[test]
 fn usajobs_policy_uses_a_single_request_burst() {
     let mut bucket = TokenBucket::new_with_burst(
-        u32::from(jobsentinel_domain::v3_source_manifest::USAJOBS_REQUEST_LIMIT_PER_HOUR),
+        u32::from(jobsentinel_domain::source_manifest::USAJOBS_REQUEST_LIMIT_PER_HOUR),
         1,
     );
 

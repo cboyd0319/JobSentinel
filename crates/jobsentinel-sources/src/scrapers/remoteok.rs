@@ -5,7 +5,7 @@ use super::rate_limiter::RateLimiter;
 use super::{JobScraper, ScraperResult, JOBSENTINEL_USER_AGENT};
 use async_trait::async_trait;
 use chrono::Utc;
-use jobsentinel_domain::{v3_source_manifest::REMOTEOK_REQUEST_LIMIT_PER_HOUR, Job};
+use jobsentinel_domain::{source_manifest::REMOTEOK_REQUEST_LIMIT_PER_HOUR, Job};
 use jobsentinel_network::{send_external_http_text_with_retry, ExternalHttpRequest};
 use std::num::NonZeroU16;
 

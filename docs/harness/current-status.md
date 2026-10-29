@@ -12,8 +12,8 @@ Last updated: 2026-10-28
   Work starts with the selected D0 child, not the parked qualification campaign.
 - Follow the [development queue](../plans/v3/master-exec-plan.md#remaining-development-queue):
   finish accepted engineering and code cleanup before broad qualification or release.
-- Current work: D0 source/compatibility cleanup. The first slice removes the unused
-  pre-v3 classifier and ordinary application prefixes while preserving durable contracts.
+- Current work: D0 source/compatibility cleanup. Application/domain names and atomic
+  encrypted-store bootstrap are implemented; storage names/live-schema cleanup remains.
 
 ## Remaining Scope
 
@@ -35,8 +35,8 @@ Last updated: 2026-10-28
 - D0 scope/results: `docs/harness/evidence/v3-source-compatibility-cleanup-2026-10-28.json`.
 - Audit coverage/gaps: `docs/harness/evidence/v3-retrospective-audit-2026-10-28.json`.
 - Partial M11 work: `docs/harness/evidence/v3-milestone-11-local-qualification-2026-10-28.json`.
-- Last full run stopped with 10 Workbench policy-freshness failures. Diagnose fixture
-  aging versus production policy when that owner is next changed or during final QA.
+- Workbench fixture aging is corrected: 11 focused tests pass with an explicit date.
+  Production policy remains expired and fail-closed until genuinely reviewed.
 - The bounded Mac reference comparison supports retaining governed Qwen. No model or
   numeric threshold change is approved. Reuse results instead of repeating comparisons now.
 - Windows/Linux VM testing remains user-deferred. Current Mac27.2 evidence does not

@@ -2,8 +2,8 @@
 
 use chrono::NaiveDate;
 use jobsentinel_domain::{
-    v3_source_authorization::{SourceActionDecision, SourceGrantState},
-    v3_source_manifest::{
+    source_authorization::{SourceActionDecision, SourceGrantState},
+    source_manifest::{
         parse_source_manifest, SourceOperation, SourceStopCondition,
         GREENHOUSE_REQUEST_LIMIT_PER_HOUR, JOBSWITHGPT_SOURCE_MANIFEST_V1,
         LEVER_REQUEST_LIMIT_PER_HOUR,

@@ -1,15 +1,10 @@
-//! USAJobs.gov Job Scraper
-//!
-//! Scrapes federal government jobs from the official USAJobs API.
-//! Requires a user-provided API key from https://developer.usajobs.gov/
-//!
-//! Uses the official public API designed for programmatic access.
+//! Fetches federal job postings through the USAJobs API using a user-provided API key.
 
 use super::error::ScraperError;
 use super::rate_limiter::RateLimiter;
 use super::{JobScraper, ScraperResult};
 use jobsentinel_domain::{
-    normalization::infer_remote_status, v3_source_manifest::USAJOBS_REQUEST_LIMIT_PER_HOUR, Job,
+    normalization::infer_remote_status, source_manifest::USAJOBS_REQUEST_LIMIT_PER_HOUR, Job,
 };
 
 use async_trait::async_trait;

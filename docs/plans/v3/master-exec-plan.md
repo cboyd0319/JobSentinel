@@ -289,9 +289,9 @@ Selected feature: `v3-source-compatibility-cleanup`.
 - Close confirmed missing Now behavior and runtime defects before preserving the
   core cut. Trace the minimum Gate 4 dossier and touched owners. Unresolved assurance
   questions go to R1 instead of restarting an open-ended historical audit.
-- Preserve the current uncommitted M11 corrections. The ten Workbench failures
-  concern policy freshness: distinguish clock-sensitive fixture repair from real
-  policy review. Never change production dates or weaken freshness merely to make tests pass.
+- Preserve M11 corrections checkpointed in `ecf321dc`. Workbench fixture aging is
+  repaired with an explicit date; production still refuses expired evidence. Never
+  change production dates or weaken freshness merely to make tests pass.
 
 Use targeted type/compile checks and the migration/unsupported-data cases affected
 by the actual change. Keep recovery copies and preserve immutable migrations. Rollback is a revert or compatible
@@ -933,8 +933,8 @@ claims are historical, not fresh verification. Current state is in Handoff.
   active. Finish real useful behavior and focused checks before selecting another.
 - Preserve the v3.0 core cut separately from Next development. No extra v3.0
   editions, Later/Moonshot promotions or public version/release changes are implied.
-- Existing uncommitted M11 corrections remain untouched. Retain partial test/model
-  evidence. Do not repeat full suites, installers, signing or benchmark research now.
+- M11 corrections are checkpointed in `ecf321dc`; retain partial test/model evidence.
+  Do not repeat full suites, installers, signing or benchmark research now.
 - Full Mac qualification is R1. Production trust, artifacts and release operations
   are R2/R3. Windows/Linux VM work remains deferred by the user.
 - The bounded model reference check supports retaining the current governed Qwen

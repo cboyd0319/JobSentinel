@@ -7,7 +7,7 @@ mod slack;
 mod teams;
 mod telegram;
 
-use jobsentinel_domain::{v3_contracts::PayPeriod, Job, ListedPay};
+use jobsentinel_domain::{contracts::PayPeriod, Job, ListedPay};
 use jobsentinel_intelligence::JobScore;
 use jobsentinel_network::ExternalTextResponse;
 use jobsentinel_security::canonicalize_user_supplied_job_url;
@@ -89,7 +89,7 @@ pub(crate) fn notification_provider_failure_summary(response: &ExternalTextRespo
 mod tests {
     use super::*;
     use crate::test_support::notification_fixture;
-    use jobsentinel_domain::{v3_contracts::PayPeriod, ListedPay, PayQualifier};
+    use jobsentinel_domain::{contracts::PayPeriod, ListedPay, PayQualifier};
 
     #[test]
     fn legacy_notifications_do_not_invent_a_pay_period() {

@@ -4,8 +4,8 @@ use std::{collections::BTreeSet, fmt};
 
 use chrono::{DateTime, TimeDelta, Utc};
 use jobsentinel_domain::{
-    v3_source_authorization::SourceGrantState,
-    v3_source_manifest::{SourceOperation, SourcePermission},
+    source_authorization::SourceGrantState,
+    source_manifest::{SourceOperation, SourcePermission},
 };
 use jobsentinel_security::{
     redacted_secret_for_debug, validate_credential_free_external_https_url,
@@ -283,8 +283,8 @@ fn normalized_origin(value: &str) -> Result<String, CompanionPairingError> {
 mod tests {
     use chrono::{TimeDelta, TimeZone, Utc};
     use jobsentinel_domain::{
-        v3_source_authorization::SourceGrantState,
-        v3_source_manifest::{SourceOperation, SourcePermission},
+        source_authorization::SourceGrantState,
+        source_manifest::{SourceOperation, SourcePermission},
     };
 
     use super::*;

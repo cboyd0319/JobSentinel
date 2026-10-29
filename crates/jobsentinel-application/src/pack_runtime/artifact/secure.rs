@@ -6,7 +6,7 @@ use std::{io, path::Path};
 mod platform {
     use std::{fs::File, io, io::Read, io::Write, path::Path};
 
-    use jobsentinel_domain::v3_signed_packs::MAX_SIGNED_PACK_BYTES;
+    use jobsentinel_domain::signed_packs::MAX_SIGNED_PACK_BYTES;
     use rustix::{
         fd::OwnedFd,
         fs::{fchmod, fsync, linkat, mkdirat, open, openat, unlinkat, AtFlags, Mode, OFlags},
@@ -184,7 +184,7 @@ mod platform {
 mod platform {
     use std::{io, path::Path};
 
-    use jobsentinel_domain::v3_signed_packs::MAX_SIGNED_PACK_BYTES;
+    use jobsentinel_domain::signed_packs::MAX_SIGNED_PACK_BYTES;
 
     pub(super) fn persist(
         root: &Path,

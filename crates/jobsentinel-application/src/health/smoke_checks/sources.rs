@@ -5,7 +5,7 @@ use crate::{
     Config,
 };
 use anyhow::Result;
-use jobsentinel_domain::v3_source_manifest::{
+use jobsentinel_domain::source_manifest::{
     GREENHOUSE_API_ENDPOINT_PREFIX, HN_HIRING_ITEM_ENDPOINT_PREFIX, HN_HIRING_SEARCH_ENDPOINT,
     LEVER_API_ENDPOINT_PREFIX,
 };

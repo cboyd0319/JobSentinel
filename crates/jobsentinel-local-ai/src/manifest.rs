@@ -97,8 +97,8 @@ pub fn load_model_manifest() -> Result<ModelManifest> {
 }
 
 pub fn validate_v3_vector_contract(
-    provenance: &jobsentinel_domain::v3_manifests::ModelProvenance,
-    freshness: &jobsentinel_domain::v3_manifests::VectorFreshness,
+    provenance: &jobsentinel_domain::manifests::ModelProvenance,
+    freshness: &jobsentinel_domain::manifests::VectorFreshness,
 ) -> Result<()> {
     provenance
         .validate()
@@ -382,12 +382,12 @@ mod tests {
 
     #[test]
     fn v3_vector_contract_must_match_the_canonical_model_lock() {
-        use jobsentinel_domain::v3_manifests::{ModelProvenance, VectorFreshness};
+        use jobsentinel_domain::manifests::{ModelProvenance, VectorFreshness};
 
         let manifest = load_model_manifest().unwrap();
         let model = manifest.default_embedding().unwrap();
         let provenance = ModelProvenance {
-            schema: jobsentinel_domain::v3_contracts::SchemaId::ModelProvenanceV1,
+            schema: jobsentinel_domain::contracts::SchemaId::ModelProvenanceV1,
             model_id: model.id.clone(),
             revision: model.revision.clone(),
             backend: model.backend.clone(),
@@ -399,7 +399,7 @@ mod tests {
             normalization: model.normalization.clone(),
         };
         let freshness = VectorFreshness {
-            schema: jobsentinel_domain::v3_contracts::SchemaId::VectorFreshnessV1,
+            schema: jobsentinel_domain::contracts::SchemaId::VectorFreshnessV1,
             model_id: provenance.model_id.clone(),
             model_revision: provenance.revision.clone(),
             backend: provenance.backend.clone(),

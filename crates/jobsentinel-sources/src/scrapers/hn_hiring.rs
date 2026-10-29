@@ -1,8 +1,4 @@
-//! Hacker News Who's Hiring Scraper
-//!
-//! Scrapes jobs from the monthly "Who is hiring?" threads on Hacker News.
-//! These threads are posted on the first of each month and contain
-//! high-quality tech job postings from the HN community.
+//! Fetches monthly Hacker News Who's Hiring threads and normalizes job postings.
 
 use super::error::ScraperError;
 use super::rate_limiter::RateLimiter;
@@ -12,7 +8,7 @@ use super::{
 };
 use jobsentinel_domain::{
     normalization::infer_remote_status,
-    v3_source_manifest::{
+    source_manifest::{
         HN_HIRING_ITEM_ENDPOINT_PREFIX, HN_HIRING_REQUEST_LIMIT_PER_HOUR, HN_HIRING_SEARCH_ENDPOINT,
     },
     Job,

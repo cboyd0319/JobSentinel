@@ -7,7 +7,7 @@ use std::{
 
 use chrono::Utc;
 use jobsentinel_domain::{
-    v3_source_authorization::SourceActionDecision, v3_source_manifest::SourceOperation, Job,
+    source_authorization::SourceActionDecision, source_manifest::SourceOperation, Job,
 };
 use jobsentinel_sources::HnHiringScraper;
 use jobsentinel_storage::Database;
@@ -74,8 +74,8 @@ mod tests {
     use std::sync::{atomic::AtomicBool, Arc};
 
     use jobsentinel_domain::{
-        v3_source_authorization::SourceActionDecision,
-        v3_source_manifest::{
+        source_authorization::SourceActionDecision,
+        source_manifest::{
             parse_source_manifest, SourceOperation, HN_HIRING_ITEM_ENDPOINT_PREFIX,
             HN_HIRING_SEARCH_ENDPOINT, HN_HIRING_SOURCE_MANIFEST_V1,
         },

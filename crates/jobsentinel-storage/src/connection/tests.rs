@@ -29,6 +29,7 @@ async fn insert_private_credential_rows(database: &Database, key: &str) {
     .unwrap();
 }
 
+mod bootstrap_tests;
 mod job_geography_migration_tests;
 mod listed_pay_migration_tests;
 mod maintenance_tests;
@@ -113,7 +114,18 @@ mod memory_tests {
         assert_eq!(after[1], before[1], "refusal modified the WAL");
 
         let key = load_or_create_database_key().await.unwrap();
-        let preserved_version = probe_encrypted_user_version(&db_path, &key).await.unwrap();
+        let mut reader = SqliteConnectOptions::new()
+            .filename(&db_path)
+            .read_only(true)
+            .immutable(true)
+            .pragma("key", format!("'{}'", key.as_str()))
+            .connect()
+            .await
+            .unwrap();
+        let preserved_version: i64 = sqlx::query_scalar("PRAGMA user_version")
+            .fetch_one(&mut reader)
+            .await
+            .unwrap();
         assert_eq!(preserved_version, 3);
     }
 
@@ -332,7 +344,9 @@ mod permission_tests {
         fs::set_permissions(&data_dir, fs::Permissions::from_mode(0o755)).unwrap();
 
         let db_path = data_dir.join("jobs.db");
-        fs::write(&db_path, []).unwrap();
+        let initialized = Database::connect(&db_path).await.unwrap();
+        initialized.pool().close().await;
+        drop(initialized);
         fs::set_permissions(&db_path, fs::Permissions::from_mode(0o644)).unwrap();
 
         let database = Database::connect(&db_path).await.unwrap();

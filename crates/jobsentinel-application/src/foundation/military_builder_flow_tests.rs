@@ -6,7 +6,7 @@ use crate::test_support::test_job;
 use jobsentinel_documents::{
     ResumeExperience, ResumeExporter, ResumePersonalInfo, ResumeSkill, TemplateId,
 };
-use jobsentinel_domain::{v3_evaluation_inputs::MilitaryBranch, ResumeEvidenceCitation};
+use jobsentinel_domain::{evaluation_inputs::MilitaryBranch, ResumeEvidenceCitation};
 use jobsentinel_storage::{
     resume::{DraftExperience, DraftSkill},
     Database,

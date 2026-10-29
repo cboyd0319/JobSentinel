@@ -1,10 +1,10 @@
 //! Installs reviewed source policies and enforces operation-specific local grants.
 use chrono::{DateTime, NaiveDate, Utc};
 use jobsentinel_domain::{
-    v3_foundation::{SourceAccess, SourcePolicy},
-    v3_manifests::SourceClass,
-    v3_source_authorization::{SourceActionDecision, SourceGrantState},
-    v3_source_manifest::{
+    foundation::{SourceAccess, SourcePolicy},
+    manifests::SourceClass,
+    source_authorization::{SourceActionDecision, SourceGrantState},
+    source_manifest::{
         parse_source_manifest, SourceOperation, GREENHOUSE_REQUEST_LIMIT_PER_HOUR,
         GREENHOUSE_SOURCE_MANIFEST_V1, HN_HIRING_REQUEST_LIMIT_PER_HOUR,
         HN_HIRING_SOURCE_MANIFEST_V1, JOBSWITHGPT_SOURCE_MANIFEST_V1, LEVER_REQUEST_LIMIT_PER_HOUR,

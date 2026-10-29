@@ -46,13 +46,13 @@ fn record_audit_failure(errors: &mut Vec<String>, source_label: &'static str) {
 
 #[cfg(test)]
 fn assert_scheduled_simulation_allowed(
-    manifest: &jobsentinel_domain::v3_source_manifest::SourceManifest,
-    policy: &jobsentinel_domain::v3_foundation::SourcePolicy,
+    manifest: &jobsentinel_domain::source_manifest::SourceManifest,
+    policy: &jobsentinel_domain::foundation::SourcePolicy,
     fixtures: &[(&str, &[u8])],
 ) {
     use jobsentinel_domain::{
-        v3_source_authorization::{SourceActionDecision, SourceGrantState},
-        v3_source_manifest::SourceOperation,
+        source_authorization::{SourceActionDecision, SourceGrantState},
+        source_manifest::SourceOperation,
     };
 
     assert_eq!(

@@ -1,6 +1,6 @@
 //! Parses bounded Schema.org and explicitly formatted native salary evidence.
 
-use jobsentinel_domain::{v3_contracts::PayPeriod, ListedPay, PayQualifier};
+use jobsentinel_domain::{contracts::PayPeriod, ListedPay, PayQualifier};
 use regex::Regex;
 use serde_json::{Map, Value};
 

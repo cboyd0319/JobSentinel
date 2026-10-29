@@ -4,7 +4,7 @@ use super::{record_audit_failure, run_scraper, ScraperRunOutcome};
 use crate::{config::Config, health::SourceRequestOutcome};
 use chrono::Utc;
 use jobsentinel_domain::{
-    v3_source_authorization::SourceActionDecision, v3_source_manifest::SourceOperation, Job,
+    source_authorization::SourceActionDecision, source_manifest::SourceOperation, Job,
 };
 use jobsentinel_sources::{JobQuery, JobsWithGptScraper};
 use jobsentinel_storage::Database;

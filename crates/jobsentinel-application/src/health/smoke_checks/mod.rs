@@ -4,7 +4,7 @@ use crate::{credentials::CredentialService, Config};
 use anyhow::Result;
 use chrono::Utc;
 use jobsentinel_domain::{
-    v3_source_authorization::SourceActionDecision, v3_source_manifest::SourceOperation,
+    source_authorization::SourceActionDecision, source_manifest::SourceOperation,
 };
 use jobsentinel_sources::{limits, RateLimiter};
 use jobsentinel_storage::Database;

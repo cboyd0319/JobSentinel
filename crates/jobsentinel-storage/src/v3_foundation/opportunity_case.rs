@@ -361,7 +361,7 @@ async fn application_timeline(
 }
 
 fn sanitized_case_event_kind(event_kind: &str, metadata_json: &str) -> Result<String> {
-    let metadata: jobsentinel_domain::v3_foundation::EventMetadata =
+    let metadata: jobsentinel_domain::foundation::EventMetadata =
         serde_json::from_str(metadata_json).map_err(|_| anyhow!("invalid case event"))?;
     match (event_kind, metadata) {
         ("status_changed", _) => Ok("status_changed".to_string()),
@@ -370,19 +370,17 @@ fn sanitized_case_event_kind(event_kind: &str, metadata_json: &str) -> Result<St
         ("source_policy_changed", _) => Ok("source_policy_changed".to_string()),
         (
             "source_checked",
-            jobsentinel_domain::v3_foundation::EventMetadata::SourceOutcome { outcome, .. },
+            jobsentinel_domain::foundation::EventMetadata::SourceOutcome { outcome, .. },
         ) => Ok(match outcome {
-            jobsentinel_domain::v3_foundation::SourceOutcome::Success => "source_checked_succeeded",
-            jobsentinel_domain::v3_foundation::SourceOutcome::Failure => "source_checked_failed",
-            jobsentinel_domain::v3_foundation::SourceOutcome::Timeout => "source_checked_timed_out",
-            jobsentinel_domain::v3_foundation::SourceOutcome::Cancelled => {
-                "source_checked_cancelled"
-            }
+            jobsentinel_domain::foundation::SourceOutcome::Success => "source_checked_succeeded",
+            jobsentinel_domain::foundation::SourceOutcome::Failure => "source_checked_failed",
+            jobsentinel_domain::foundation::SourceOutcome::Timeout => "source_checked_timed_out",
+            jobsentinel_domain::foundation::SourceOutcome::Cancelled => "source_checked_cancelled",
         }
         .to_string()),
         (
             "recovery_recorded",
-            jobsentinel_domain::v3_foundation::EventMetadata::RecoveryOutcome { outcome },
+            jobsentinel_domain::foundation::EventMetadata::RecoveryOutcome { outcome },
         ) => Ok(format!("recovery_{}", enum_text(outcome)?)),
         _ => Err(anyhow!("invalid case event")),
     }

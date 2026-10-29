@@ -3,7 +3,7 @@
 use super::BookmarkletJobData;
 use chrono::{DateTime, Utc};
 use jobsentinel_domain::{
-    v3_source_authorization::SourceGrantState, v3_source_manifest::SourceOperation,
+    source_authorization::SourceGrantState, source_manifest::SourceOperation,
 };
 use serde::Serialize;
 use std::collections::HashSet;
@@ -243,9 +243,8 @@ mod tests {
         SourceGrantState::Granted {
             source_id: "user-source-actions".to_string(),
             policy_ref: "jobsentinel.source-policy.user-source-actions".to_string(),
-            permission:
-                jobsentinel_domain::v3_source_manifest::SourcePermission::PairedBrowserGrant,
-            operation: jobsentinel_domain::v3_source_manifest::SourceOperation::VisiblePageCapture,
+            permission: jobsentinel_domain::source_manifest::SourcePermission::PairedBrowserGrant,
+            operation: jobsentinel_domain::source_manifest::SourceOperation::VisiblePageCapture,
             policy_revision: 1,
         }
     }

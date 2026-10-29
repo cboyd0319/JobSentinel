@@ -1,14 +1,14 @@
 // Owns application-layer foundation workflows and renderer-safe projections.
 use chrono::NaiveDate;
 use jobsentinel_domain::{
-    v3_foundation::{
+    foundation::{
         CareerGraphLink, CaseFile, CaseFileEvent, CaseFileEventInput, CaseFileEventKind,
         CompatibilityMetadata, SourceGraphLink, SourcePolicy,
     },
-    v3_manifests::PrivacyReceipt,
-    v3_source_authorization::{SourceActionDecision, SourceGrantState},
-    v3_source_consent::{SourceConsentContext, SourceConsentStatus},
-    v3_source_manifest::SourceOperation,
+    manifests::PrivacyReceipt,
+    source_authorization::{SourceActionDecision, SourceGrantState},
+    source_consent::{SourceConsentContext, SourceConsentStatus},
+    source_manifest::SourceOperation,
 };
 use jobsentinel_storage::Database;
 use thiserror::Error;
@@ -117,7 +117,7 @@ pub(crate) async fn revoke_source_consent(
     database
         .revoke_source_consent(
             source_id,
-            jobsentinel_domain::v3_source_consent::SourceConsentOperation::ScheduledCheck,
+            jobsentinel_domain::source_consent::SourceConsentOperation::ScheduledCheck,
         )
         .await
         .map_err(map_error)
@@ -181,15 +181,15 @@ mod tests {
     use super::*;
     use crate::source_governance::{install_usajobs, usajobs_policy};
     use jobsentinel_domain::{
-        v3_foundation::{CaseFileEventInput, CaseFileEventKind, EventMetadata, EventOrigin},
-        v3_foundation::{SourceAccess, SourcePolicy},
-        v3_manifests::{DataCategory, SourceClass},
-        v3_source_authorization::{SourceActionDecision, SourceGrantState},
-        v3_source_consent::{
+        foundation::{CaseFileEventInput, CaseFileEventKind, EventMetadata, EventOrigin},
+        foundation::{SourceAccess, SourcePolicy},
+        manifests::{DataCategory, SourceClass},
+        source_authorization::{SourceActionDecision, SourceGrantState},
+        source_consent::{
             SourceConsentContext, SourceConsentOperation, SourceConsentReviewReason,
             SourceConsentStatus,
         },
-        v3_source_manifest::{parse_source_manifest, SourceOperation, SourceStopCondition},
+        source_manifest::{parse_source_manifest, SourceOperation, SourceStopCondition},
         PrivacyLabel,
     };
     use jobsentinel_storage::Database;
@@ -480,7 +480,7 @@ pub use saved_match_military_transition::{
     SavedMatchMilitaryEvidenceKind, SavedMatchMilitaryTransitionConfirmation,
 };
 mod military;
-pub use jobsentinel_domain::v3_evaluation_inputs::MilitaryBranch;
+pub use jobsentinel_domain::evaluation_inputs::MilitaryBranch;
 pub use military::{
     confirm_military_transition_review, prepare_military_transition_review,
     MilitaryOccupationReviewDraft, MilitaryOccupationSuggestion, MilitaryReviewResource,

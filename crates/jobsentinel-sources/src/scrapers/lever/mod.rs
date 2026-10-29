@@ -1,7 +1,4 @@
-//! Lever ATS Scraper
-//!
-//! Scrapes jobs from Lever-powered career pages.
-//! Lever is used by companies like Netflix, Shopify, IDEO, etc.
+//! Fetches and normalizes public job postings from Lever career pages.
 
 use super::error::ScraperError;
 use super::rate_limiter::RateLimiter;
@@ -17,7 +14,7 @@ use chrono::Utc;
 use jobsentinel_domain::normalization::infer_remote_status;
 use jobsentinel_domain::{
     canonicalize_job_url,
-    v3_source_manifest::{LEVER_API_ENDPOINT_PREFIX, LEVER_REQUEST_LIMIT_PER_HOUR},
+    source_manifest::{LEVER_API_ENDPOINT_PREFIX, LEVER_REQUEST_LIMIT_PER_HOUR},
     Job,
 };
 use jobsentinel_network::{send_external_http_text_with_retry, ExternalHttpRequest};

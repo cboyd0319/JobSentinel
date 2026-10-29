@@ -1,7 +1,7 @@
 //! Proves native listed-pay evidence persists without unsafe legacy salary fallback.
 
 use super::*;
-use jobsentinel_domain::{v3_contracts::PayPeriod, ListedPay, PayQualifier};
+use jobsentinel_domain::{contracts::PayPeriod, ListedPay, PayQualifier};
 
 #[tokio::test]
 async fn native_listed_pay_round_trips_and_clears_incompatible_legacy_fields() {

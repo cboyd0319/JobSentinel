@@ -2,12 +2,12 @@
 
 use chrono::NaiveDate;
 use jobsentinel_domain::{
-    v3_contracts::SchemaId,
-    v3_manifests::{
+    contracts::SchemaId,
+    manifests::{
         AgentTaskKind, ApprovalGate, DataCategory, PackAction, PackExecutionClass, PackManifest,
         PackType, PrivacyLabel,
     },
-    v3_signed_packs::TrustedPublisherKey,
+    signed_packs::TrustedPublisherKey,
 };
 use jobsentinel_security::sign_ed25519_for_test;
 use jobsentinel_storage::{

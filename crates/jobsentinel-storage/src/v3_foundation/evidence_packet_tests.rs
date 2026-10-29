@@ -1,10 +1,12 @@
+//! Proves reviewed packet claims retain ordered evidence and reject partial writes.
+
 use super::*;
 use jobsentinel_domain::{
-    v3_foundation::{
+    foundation::{
         CareerGraphLink, CareerRelation, CaseFileEventInput, CaseFileEventKind, EventMetadata,
         EventOrigin, GraphProvenance,
     },
-    v3_manifests::PrivacyLabel,
+    manifests::PrivacyLabel,
     ResumeEvidenceCitation, ResumeEvidenceSnapshot,
 };
 

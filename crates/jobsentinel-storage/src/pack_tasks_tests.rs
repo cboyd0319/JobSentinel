@@ -2,8 +2,8 @@
 
 use chrono::{Duration, Utc};
 use jobsentinel_domain::{
-    v3_contracts::SchemaId,
-    v3_manifests::{AgentTaskKind, DataCategory, PrivacyLabel, PrivacyReceipt},
+    contracts::SchemaId,
+    manifests::{AgentTaskKind, DataCategory, PrivacyLabel, PrivacyReceipt},
 };
 use sqlx::SqlitePool;
 

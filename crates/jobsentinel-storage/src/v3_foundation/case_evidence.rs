@@ -1,9 +1,9 @@
+//! Atomically stores reviewed case evidence with its matching confirmation event.
+
 use super::*;
 use chrono::Utc;
 use jobsentinel_domain::{
-    v3_foundation::{
-        CareerRelation, CaseFileEventKind, EventMetadata, EventOrigin, GraphProvenance,
-    },
+    foundation::{CareerRelation, CaseFileEventKind, EventMetadata, EventOrigin, GraphProvenance},
     ResumeEvidenceSnapshot,
 };
 

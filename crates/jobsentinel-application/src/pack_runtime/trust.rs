@@ -3,11 +3,11 @@
 use std::sync::OnceLock;
 
 use jobsentinel_domain::{
-    v3_manifests::{
+    manifests::{
         AgentTaskKind, ApprovalGate, DataCategory, PackAction, PackExecutionClass, PackType,
         PrivacyLabel,
     },
-    v3_signed_packs::TrustedPublisherKey,
+    signed_packs::TrustedPublisherKey,
 };
 
 pub(crate) fn production_trusted_publishers() -> &'static [TrustedPublisherKey] {

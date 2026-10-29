@@ -5,9 +5,9 @@ use std::{error::Error, fmt};
 use anyhow::{anyhow, Result};
 use chrono::Utc;
 use jobsentinel_domain::{
-    v3_manifests::{PackExecutionClass, PackType},
-    v3_pack_payloads::SelfTestedPackRelease,
-    v3_signed_packs::{TrustedPublisherKey, VerifiedPackRelease},
+    manifests::{PackExecutionClass, PackType},
+    pack_payloads::SelfTestedPackRelease,
+    signed_packs::{TrustedPublisherKey, VerifiedPackRelease},
 };
 use sha2::{Digest, Sha256};
 use sqlx::{Sqlite, Transaction};

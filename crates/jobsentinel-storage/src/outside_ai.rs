@@ -1,6 +1,8 @@
+//! Persists exact reviewed external-AI operations, single-use approval and local activity.
+
 use anyhow::{anyhow, Result};
 use chrono::{DateTime, Utc};
-use jobsentinel_domain::v3_manifests::{DataCategory, PrivacyLabel, EXTERNAL_AI_GATEWAY_POLICY};
+use jobsentinel_domain::manifests::{DataCategory, PrivacyLabel, EXTERNAL_AI_GATEWAY_POLICY};
 use serde::Serialize;
 use sqlx::FromRow;
 use uuid::Uuid;

@@ -1,6 +1,8 @@
+//! Derives default resume-embedding provenance from the governed model manifest.
+
 use crate::manifest::{load_model_manifest, model_lock_hash};
 use anyhow::{Context, Result};
-use jobsentinel_domain::{v3_contracts::SchemaId, v3_manifests::ModelProvenance};
+use jobsentinel_domain::{contracts::SchemaId, manifests::ModelProvenance};
 
 pub fn default_resume_embedding_provenance() -> Result<ModelProvenance> {
     let manifest = load_model_manifest()?;

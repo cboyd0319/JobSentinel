@@ -3,7 +3,7 @@
 use super::*;
 use crate::bookmarklet::{companion_request_for_test, CompanionPairing, CompanionPairingCode};
 use chrono::TimeDelta;
-use jobsentinel_domain::v3_source_manifest::SourceOperation;
+use jobsentinel_domain::source_manifest::SourceOperation;
 use std::sync::Arc;
 use tokio::io::AsyncWriteExt;
 

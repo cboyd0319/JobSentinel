@@ -1,7 +1,9 @@
+//! Proves external-AI review, receipt, operation and reconciliation storage boundaries.
+
 use chrono::{Duration, Utc};
 use jobsentinel_domain::{
-    v3_contracts::SchemaId,
-    v3_manifests::{DataCategory, PrivacyLabel, PrivacyReceipt, EXTERNAL_AI_GATEWAY_POLICY},
+    contracts::SchemaId,
+    manifests::{DataCategory, PrivacyLabel, PrivacyReceipt, EXTERNAL_AI_GATEWAY_POLICY},
 };
 
 use crate::{

@@ -1,7 +1,9 @@
+//! Owns the active browser-companion pairing and consumes or revokes its current grant.
+
 use std::sync::{Arc, RwLock};
 
 use chrono::{DateTime, Utc};
-use jobsentinel_domain::v3_source_authorization::SourceGrantState;
+use jobsentinel_domain::source_authorization::SourceGrantState;
 
 use crate::bookmarklet::{CompanionPairing, CompanionPairingError, CompanionRequest};
 

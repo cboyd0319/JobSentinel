@@ -2,7 +2,7 @@
 
 use anyhow::Result;
 use chrono::{DateTime, Utc};
-use jobsentinel_domain::v3_manifests::{
+use jobsentinel_domain::manifests::{
     AgentTaskKind, ApprovalGate, DataCategory, PackAction, PackExecutionClass, PackType,
     PrivacyLabel,
 };

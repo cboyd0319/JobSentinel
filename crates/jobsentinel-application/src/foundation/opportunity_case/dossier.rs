@@ -2,9 +2,9 @@
 
 use chrono::{DateTime, NaiveDate, Utc};
 use jobsentinel_domain::{
-    v3_manifests::SourceClass,
-    v3_source_authorization::{SourceFreshnessReport, SourceFreshnessStatus},
-    v3_source_manifest::{SalaryCoverage, SourceField, SourceStopCondition},
+    manifests::SourceClass,
+    source_authorization::{SourceFreshnessReport, SourceFreshnessStatus},
+    source_manifest::{SalaryCoverage, SourceField, SourceStopCondition},
 };
 use jobsentinel_security::validate_credential_free_external_https_url;
 use jobsentinel_storage::{

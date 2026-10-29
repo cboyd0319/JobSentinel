@@ -9,9 +9,9 @@ use jobsentinel_assistance::{
 };
 use jobsentinel_domain::{
     canonicalize_job_url,
-    v3_source_authorization::visible_page_capture_is_blocked,
-    v3_source_authorization::{SourceActionDecision, SourceGrantState},
-    v3_source_manifest::SourceOperation,
+    source_authorization::visible_page_capture_is_blocked,
+    source_authorization::{SourceActionDecision, SourceGrantState},
+    source_manifest::SourceOperation,
     Job,
 };
 use jobsentinel_security::validate_external_https_url;
@@ -219,8 +219,7 @@ mod tests {
         let grant = SourceGrantState::Granted {
             source_id: "user-source-actions".to_string(),
             policy_ref: "jobsentinel.source-policy.user-source-actions".to_string(),
-            permission:
-                jobsentinel_domain::v3_source_manifest::SourcePermission::PairedBrowserGrant,
+            permission: jobsentinel_domain::source_manifest::SourcePermission::PairedBrowserGrant,
             operation: SourceOperation::VisiblePageCapture,
             policy_revision: 1,
         };
@@ -233,8 +232,7 @@ mod tests {
         let applied_grant = SourceGrantState::Granted {
             source_id: "user-source-actions".to_string(),
             policy_ref: "jobsentinel.source-policy.user-source-actions".to_string(),
-            permission:
-                jobsentinel_domain::v3_source_manifest::SourcePermission::PairedBrowserGrant,
+            permission: jobsentinel_domain::source_manifest::SourcePermission::PairedBrowserGrant,
             operation: SourceOperation::AppliedLogging,
             policy_revision: 1,
         };

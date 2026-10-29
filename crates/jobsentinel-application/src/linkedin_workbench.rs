@@ -6,13 +6,13 @@ use anyhow::{bail, Result};
 use chrono::{Duration, NaiveDate, Utc};
 use jobsentinel_domain::{
     canonicalize_job_url,
-    v3_manifests::DataCategory,
-    v3_source_authorization::{SourceActionDecision, SourceGrantState},
-    v3_source_consent::{
+    manifests::DataCategory,
+    source_authorization::{SourceActionDecision, SourceGrantState},
+    source_consent::{
         SourceConsentContext, SourceConsentOperation, SourceConsentReviewReason,
         SourceConsentStatus,
     },
-    v3_source_manifest::{
+    source_manifest::{
         parse_source_manifest, SourceOperation, SourcePermission,
         LINKEDIN_WORKBENCH_SOURCE_MANIFEST_V1,
     },
@@ -100,7 +100,15 @@ pub async fn record_event(
     database: &Database,
     input: LinkedInWorkbenchEventInput,
 ) -> Result<LinkedInWorkbenchEventResult> {
-    authorize_workbench(database).await?;
+    record_event_on(database, input, Utc::now().date_naive()).await
+}
+
+async fn record_event_on(
+    database: &Database,
+    input: LinkedInWorkbenchEventInput,
+    today: NaiveDate,
+) -> Result<LinkedInWorkbenchEventResult> {
+    authorize_workbench_on(database, today).await?;
     let event_type = input.event_type.clone();
     let title = trim_to_limit(input.title.as_deref(), MAX_TITLE_CHARS)
         .unwrap_or_else(|| DEFAULT_TITLE.to_string());
@@ -265,7 +273,11 @@ pub async fn revoke_workbench_review(database: &Database) -> Result<bool> {
 }
 
 pub async fn authorize_workbench(database: &Database) -> Result<()> {
-    match workbench_review_status(database).await? {
+    authorize_workbench_on(database, Utc::now().date_naive()).await
+}
+
+async fn authorize_workbench_on(database: &Database, today: NaiveDate) -> Result<()> {
+    match workbench_review_status_on(database, today).await? {
         LinkedInWorkbenchReviewStatus::Reviewed => Ok(()),
         LinkedInWorkbenchReviewStatus::ReviewRequired => {
             bail!("LinkedIn Workbench review is required")

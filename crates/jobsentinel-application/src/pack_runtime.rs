@@ -5,12 +5,12 @@ use std::path::{Path, PathBuf};
 use anyhow::{anyhow, Result};
 use chrono::NaiveDate;
 use jobsentinel_domain::{
-    v3_manifests::{
+    manifests::{
         AgentTaskKind, ApprovalGate, DataCategory, PackAction, PackExecutionClass, PackType,
         PrivacyLabel,
     },
-    v3_pack_payloads::{parse_and_self_test_pack_payload, SelfTestedPackRelease},
-    v3_signed_packs::{TrustedPublisherKey, VerifiedPackRelease},
+    pack_payloads::{parse_and_self_test_pack_payload, SelfTestedPackRelease},
+    signed_packs::{TrustedPublisherKey, VerifiedPackRelease},
 };
 use jobsentinel_storage::{
     v3_pack_lifecycle::{
@@ -50,8 +50,8 @@ pub(crate) use execution::{
     execute_draft_packet_task, execute_evidence_review_task, open_active_region_pack,
     open_active_static_skill, prepare_draft_packet_task, prepare_evidence_review_task,
 };
-pub use jobsentinel_domain::v3_manifests::RegionManifest;
-pub use jobsentinel_domain::v3_region_starter::RegionPackContent;
+pub use jobsentinel_domain::manifests::RegionManifest;
+pub use jobsentinel_domain::region_starter::RegionPackContent;
 pub use management::{
     list_pack_management_reviews, PackManagementReleaseReview, PackManagementReview, PackPurpose,
     PackReleaseReviewState, PackReviewQuarantineReason,
@@ -70,8 +70,7 @@ pub(crate) use recovery::reconcile_active_pack_artifacts;
 pub use recovery::PackArtifactReconciliation;
 pub(crate) use trust::production_trusted_publishers;
 
-pub const MAX_PACK_ARTIFACT_BYTES: usize =
-    jobsentinel_domain::v3_signed_packs::MAX_SIGNED_PACK_BYTES;
+pub const MAX_PACK_ARTIFACT_BYTES: usize = jobsentinel_domain::signed_packs::MAX_SIGNED_PACK_BYTES;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct PackRuntimeEnvironment {
@@ -494,6 +493,6 @@ fn verify_pack(
     envelope: &[u8],
     trusted_publishers: &[TrustedPublisherKey],
 ) -> Result<VerifiedPackRelease> {
-    jobsentinel_domain::v3_signed_packs::parse_signed_pack_release(envelope, trusted_publishers)
+    jobsentinel_domain::signed_packs::parse_signed_pack_release(envelope, trusted_publishers)
         .map_err(|_| anyhow!("pack verification failed"))
 }

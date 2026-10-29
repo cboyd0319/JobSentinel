@@ -7,7 +7,7 @@ use std::{
 
 use chrono::Utc;
 use jobsentinel_domain::{
-    v3_source_authorization::SourceActionDecision, v3_source_manifest::SourceOperation, Job,
+    source_authorization::SourceActionDecision, source_manifest::SourceOperation, Job,
 };
 use jobsentinel_sources::WeWorkRemotelyScraper;
 use jobsentinel_storage::Database;
@@ -75,8 +75,8 @@ pub(super) async fn run_weworkremotely(
 #[cfg(test)]
 mod tests {
     use jobsentinel_domain::{
-        v3_source_authorization::SourceGrantState,
-        v3_source_manifest::{parse_source_manifest, WEWORKREMOTELY_SOURCE_MANIFEST_V1},
+        source_authorization::SourceGrantState,
+        source_manifest::{parse_source_manifest, WEWORKREMOTELY_SOURCE_MANIFEST_V1},
     };
 
     use super::*;

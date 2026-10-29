@@ -1,9 +1,11 @@
+//! Tracks bounded pending URL imports and expires stale review entries.
+
 use std::sync::{Arc, RwLock};
 
 use chrono::{DateTime, Duration, Utc};
 use uuid::Uuid;
 
-use jobsentinel_domain::{v3_source_authorization::SourceGrantState, Job};
+use jobsentinel_domain::{source_authorization::SourceGrantState, Job};
 
 const MAX_PENDING_URL_IMPORTS: usize = 20;
 const PENDING_URL_IMPORT_LIFETIME: Duration = Duration::minutes(30);

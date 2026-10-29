@@ -3,8 +3,8 @@
 use anyhow::Result;
 use chrono::Utc;
 use jobsentinel_domain::{
-    v3_foundation::{CaseFileEventInput, CaseFileEventKind, EventMetadata, EventOrigin},
-    v3_manifests::{AgentTaskKind, PrivacyLabel, PrivacyReceipt},
+    foundation::{CaseFileEventInput, CaseFileEventKind, EventMetadata, EventOrigin},
+    manifests::{AgentTaskKind, PrivacyLabel, PrivacyReceipt},
 };
 use sqlx::{Sqlite, Transaction};
 use uuid::Uuid;

@@ -2,12 +2,12 @@
 
 use chrono::Utc;
 use jobsentinel_domain::{
-    v3_contracts::SchemaId,
-    v3_foundation::{
+    contracts::SchemaId,
+    foundation::{
         CareerGraphLink, CareerRelation, CaseFileEventInput, CaseFileEventKind, EventMetadata,
         EventOrigin, GraphProvenance, SourceAccess, SourceGraphLink, SourcePolicy, SourceRelation,
     },
-    v3_manifests::{DataCategory, PrivacyLabel, PrivacyReceipt, SourceClass},
+    manifests::{DataCategory, PrivacyLabel, PrivacyReceipt, SourceClass},
 };
 
 use crate::test_support::{insert_test_job, migrated_database};

@@ -1,7 +1,7 @@
 //! Exercises authenticated update assessment and refusal without mutable installed state.
 
 use super::*;
-use jobsentinel_domain::v3_contracts::{Architecture, Platform};
+use jobsentinel_domain::contracts::{Architecture, Platform};
 use jobsentinel_security::sign_ed25519_for_test;
 
 pub(super) use super::test_support::{fixture, signed};
@@ -90,7 +90,7 @@ fn refuses_every_incompatible_local_component_and_platform() {
             8 => local.edition.platform = Platform::Windows,
             9 => local.edition.architecture = Architecture::X86_64,
             10 => local.version = ReleaseVersion([2, 9, 5]),
-            _ => local.edition.edition = jobsentinel_domain::v3_manifests::Edition::Developer,
+            _ => local.edition.edition = jobsentinel_domain::manifests::Edition::Developer,
         }
         let before = local.clone();
         assert_eq!(

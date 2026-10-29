@@ -1,7 +1,7 @@
 //! Re-verifies every retained pack artifact before assessing an application update.
 
 use super::{load_tested_artifact, production_trusted_publishers, PackRuntimeEnvironment};
-use jobsentinel_domain::v3_signed_packs::VerifiedPackRelease;
+use jobsentinel_domain::signed_packs::VerifiedPackRelease;
 use jobsentinel_storage::{v3_pack_lifecycle::PackReleaseState, Database};
 
 pub(crate) async fn update_pack_inventory(

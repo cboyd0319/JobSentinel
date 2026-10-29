@@ -2,7 +2,7 @@
 
 use serde::{Deserialize, Serialize};
 
-use crate::{normalization::contains_unsafe_source_control, v3_contracts};
+use crate::{contracts, normalization::contains_unsafe_source_control};
 
 const MAX_EXACT_INTEGER: f64 = 9_007_199_254_740_991.0;
 const MAX_RAW_TEXT_BYTES: usize = 1024;
@@ -24,7 +24,7 @@ pub struct ListedPay {
     pub min: Option<f64>,
     pub max: Option<f64>,
     pub currency: Option<String>,
-    pub period: v3_contracts::PayPeriod,
+    pub period: contracts::PayPeriod,
     pub qualifiers: Vec<PayQualifier>,
     pub raw_text: Option<String>,
 }
@@ -82,7 +82,7 @@ impl ListedPay {
     pub fn usd_annual_bounds(&self) -> Option<(Option<f64>, Option<f64>)> {
         (self.validate().is_ok()
             && self.currency.as_deref() == Some("USD")
-            && self.period == v3_contracts::PayPeriod::Annual
+            && self.period == contracts::PayPeriod::Annual
             && self.qualifiers.is_empty()
             && (self.min.is_some() || self.max.is_some()))
         .then_some((self.min, self.max))
@@ -148,14 +148,14 @@ impl ListedPay {
             })
             .collect::<Vec<_>>();
         let period = match self.period {
-            v3_contracts::PayPeriod::Hourly => "hourly",
-            v3_contracts::PayPeriod::Daily => "daily",
-            v3_contracts::PayPeriod::Weekly => "weekly",
-            v3_contracts::PayPeriod::Monthly => "monthly",
-            v3_contracts::PayPeriod::Annual => "annual",
-            v3_contracts::PayPeriod::Contract => "contract",
-            v3_contracts::PayPeriod::Stipend => "stipend",
-            v3_contracts::PayPeriod::NotDisclosed => "period not disclosed",
+            contracts::PayPeriod::Hourly => "hourly",
+            contracts::PayPeriod::Daily => "daily",
+            contracts::PayPeriod::Weekly => "weekly",
+            contracts::PayPeriod::Monthly => "monthly",
+            contracts::PayPeriod::Annual => "annual",
+            contracts::PayPeriod::Contract => "contract",
+            contracts::PayPeriod::Stipend => "stipend",
+            contracts::PayPeriod::NotDisclosed => "period not disclosed",
         };
 
         if qualifiers.is_empty() {
@@ -188,7 +188,7 @@ fn display_amount(amount: f64) -> String {
 #[cfg(test)]
 mod tests {
     use super::{ListedPay, PayQualifier};
-    use crate::v3_contracts::PayPeriod;
+    use crate::contracts::PayPeriod;
 
     #[test]
     fn validates_and_compares_only_unqualified_usd_annual_evidence() {

@@ -4,7 +4,7 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 
 use async_trait::async_trait;
-use jobsentinel_domain::{v3_source_authorization::SourceGrantState, Job};
+use jobsentinel_domain::{source_authorization::SourceGrantState, Job};
 
 use super::super::BookmarkletRepository;
 

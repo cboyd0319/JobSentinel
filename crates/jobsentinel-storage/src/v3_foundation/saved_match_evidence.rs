@@ -4,11 +4,11 @@ use super::case_evidence::insert_case_file_evidence_in_transaction;
 use super::*;
 use chrono::{DateTime, Utc};
 use jobsentinel_domain::{
-    v3_foundation::{
+    foundation::{
         CareerRelation, CaseFileEventInput, CaseFileEventKind, EventMetadata, EventOrigin,
         GraphProvenance,
     },
-    v3_manifests::PrivacyLabel,
+    manifests::PrivacyLabel,
     ResumeEvidenceCitation, ResumeEvidenceSnapshot,
 };
 use std::collections::HashSet;

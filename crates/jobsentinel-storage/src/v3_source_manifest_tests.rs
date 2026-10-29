@@ -1,9 +1,11 @@
+//! Proves source-manifest revision, policy and lineage storage constraints.
+
 use chrono::{NaiveDate, TimeZone, Utc};
 use jobsentinel_domain::{
-    v3_foundation::{GraphProvenance, SourceAccess, SourceGraphLink, SourcePolicy, SourceRelation},
-    v3_manifests::SourceClass,
-    v3_source_authorization::{SourceActionDecision, SourceGrantState},
-    v3_source_manifest::{parse_source_manifest, SourceManifest, SourceOperation},
+    foundation::{GraphProvenance, SourceAccess, SourceGraphLink, SourcePolicy, SourceRelation},
+    manifests::SourceClass,
+    source_authorization::{SourceActionDecision, SourceGrantState},
+    source_manifest::{parse_source_manifest, SourceManifest, SourceOperation},
 };
 
 use crate::test_support::migrated_database;
@@ -82,7 +84,7 @@ async fn source_manifest_replacement_requires_a_new_current_policy_revision() {
             )
             .unwrap(),
         SourceActionDecision::Blocked(
-            jobsentinel_domain::v3_source_manifest::SourceStopCondition::PolicyChanged
+            jobsentinel_domain::source_manifest::SourceStopCondition::PolicyChanged
         )
     );
     assert!(database.store_source_manifest(&first).await.is_err());

@@ -24,7 +24,7 @@ fn raw_only(parsed: ParsedJobPage) {
     assert_eq!((pay.min, pay.max), (None, None));
     assert_eq!(
         pay.period,
-        jobsentinel_domain::v3_contracts::PayPeriod::NotDisclosed
+        jobsentinel_domain::contracts::PayPeriod::NotDisclosed
     );
     assert_eq!((parsed.salary_min, parsed.salary_max), (None, None));
 }
@@ -82,7 +82,7 @@ fn structured_monthly_eur_stays_native() {
     );
     assert_eq!(
         pay.period,
-        jobsentinel_domain::v3_contracts::PayPeriod::Monthly
+        jobsentinel_domain::contracts::PayPeriod::Monthly
     );
     assert_eq!((parsed.salary_min, parsed.salary_max), (None, None));
 }
@@ -115,7 +115,7 @@ fn missing_currency_or_unit_is_unknown() {
     assert_eq!(pay.currency, None);
     assert_eq!(
         pay.period,
-        jobsentinel_domain::v3_contracts::PayPeriod::NotDisclosed
+        jobsentinel_domain::contracts::PayPeriod::NotDisclosed
     );
     assert_eq!((parsed.salary_min, parsed.salary_max), (None, None));
 }
@@ -134,7 +134,7 @@ fn regional_text_preserves_native_periods_and_qualifiers() {
         ),
         (
             Some("GBP"),
-            jobsentinel_domain::v3_contracts::PayPeriod::Daily,
+            jobsentinel_domain::contracts::PayPeriod::Daily,
             &[jobsentinel_domain::PayQualifier::ProRata][..]
         )
     );
@@ -150,7 +150,7 @@ fn regional_text_preserves_native_periods_and_qualifiers() {
     );
     assert_eq!(
         stipend.listed_pay.as_ref().unwrap().period,
-        jobsentinel_domain::v3_contracts::PayPeriod::Stipend
+        jobsentinel_domain::contracts::PayPeriod::Stipend
     );
 }
 
@@ -161,7 +161,7 @@ fn explicit_non_eur_and_bare_dollar_remain_non_comparable() {
     let dollar = parse_job(json!("$120,000 per year"), None);
     assert_eq!(
         eur.listed_pay.as_ref().unwrap().period,
-        jobsentinel_domain::v3_contracts::PayPeriod::Monthly
+        jobsentinel_domain::contracts::PayPeriod::Monthly
     );
     assert_eq!(
         chf.listed_pay.as_ref().unwrap().currency.as_deref(),

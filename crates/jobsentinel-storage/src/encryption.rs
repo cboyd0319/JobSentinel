@@ -1,4 +1,4 @@
-//! Opens encrypted SQLite stores and atomically converts supported plaintext databases.
+//! Opens SQLCipher stores and probes existing databases without writer-side configuration.
 
 use sqlx::{
     sqlite::{
@@ -11,9 +11,6 @@ use std::{
     time::Duration,
 };
 use zeroize::Zeroizing;
-
-#[cfg(test)]
-tokio::task_local! { static CRASH_BEFORE_PUBLICATION: (); }
 
 #[cfg(test)]
 const DATABASE_KEY_LEN: usize = 32;
@@ -133,22 +130,27 @@ pub(super) async fn probe_encrypted_user_version(
         options.immutable(true)
     };
     let mut connection = options.connect().await?;
-    let cipher_version: Option<String> = sqlx::query_scalar("PRAGMA cipher_version")
-        .fetch_optional(&mut connection)
-        .await?;
-    if cipher_version
-        .as_deref()
-        .is_none_or(|version| version.trim().is_empty())
-    {
-        return Err(database_encryption_error());
+    let result = async {
+        let cipher_version: Option<String> = sqlx::query_scalar("PRAGMA cipher_version")
+            .fetch_optional(&mut connection)
+            .await?;
+        if cipher_version
+            .as_deref()
+            .is_none_or(|version| version.trim().is_empty())
+        {
+            return Err(database_encryption_error());
+        }
+        sqlx::query("SELECT COUNT(*) FROM sqlite_master")
+            .fetch_one(&mut connection)
+            .await?;
+        crate::connection::Database::require_supported_v3(&mut connection).await?;
+        sqlx::query_scalar("PRAGMA user_version")
+            .fetch_one(&mut connection)
+            .await
     }
-    sqlx::query("SELECT COUNT(*) FROM sqlite_master")
-        .fetch_one(&mut connection)
-        .await?;
-    crate::connection::Database::refuse_future_data(&mut connection).await?;
-    sqlx::query_scalar("PRAGMA user_version")
-        .fetch_one(&mut connection)
-        .await
+    .await;
+    let close_result = connection.close().await;
+    result.and_then(|version| close_result.map(|()| version))
 }
 
 pub(super) async fn probe_plaintext_user_version(path: &Path) -> Result<Option<i64>, sqlx::Error> {
@@ -159,74 +161,27 @@ pub(super) async fn probe_plaintext_user_version(path: &Path) -> Result<Option<i
         options.immutable(true)
     };
     let mut connection = options.connect().await?;
-    if let Err(error) = sqlx::query("SELECT COUNT(*) FROM sqlite_master")
-        .fetch_one(&mut connection)
-        .await
-    {
-        return match &error {
-            sqlx::Error::Database(database) if database.code().as_deref() == Some("26") => Ok(None),
-            _ => Err(error),
-        };
-    }
-    crate::connection::Database::refuse_future_data(&mut connection).await?;
-    sqlx::query_scalar("PRAGMA user_version")
-        .fetch_one(&mut connection)
-        .await
-        .map(Some)
-}
-
-pub(super) async fn encrypt_plaintext_database(
-    db_path: &Path,
-    key: &str,
-) -> Result<(), sqlx::Error> {
-    let parent = db_path
-        .parent()
-        .filter(|path| !path.as_os_str().is_empty())
-        .ok_or_else(database_encryption_error)?;
-    let temporary = tempfile::Builder::new()
-        .prefix(".jobsentinel-encryption-")
-        .tempfile_in(parent)?
-        .into_temp_path();
-    let pool = connect_encrypted_pool(&temporary, key, false).await?;
-    pool.close().await;
-    export_plaintext_database_to_encrypted(db_path, &temporary, key).await?;
-    let pool = connect_encrypted_pool(&temporary, key, false).await?;
-    let check: String = sqlx::query_scalar("PRAGMA quick_check")
-        .fetch_one(&pool)
-        .await?;
-    if check != "ok" {
-        return Err(database_encryption_error());
-    }
-    let (busy, _, _): (i64, i64, i64) = sqlx::query_as("PRAGMA wal_checkpoint(TRUNCATE)")
-        .fetch_one(&pool)
-        .await?;
-    pool.close().await;
-    if busy != 0 {
-        return Err(database_encryption_error());
-    }
-    std::fs::OpenOptions::new()
-        .write(true)
-        .open(&temporary)?
-        .sync_all()?;
-    // Both databases are checkpointed and closed; a failed replacement leaves the original intact.
-    for path in [db_path, temporary.as_ref()] {
-        for suffix in ["-wal", "-shm"] {
-            if let Err(error) = std::fs::remove_file(sqlite_sidecar_path(path, suffix)) {
-                if error.kind() != std::io::ErrorKind::NotFound {
-                    return Err(error.into());
+    let result = async {
+        if let Err(error) = sqlx::query("SELECT COUNT(*) FROM sqlite_master")
+            .fetch_one(&mut connection)
+            .await
+        {
+            return match &error {
+                sqlx::Error::Database(database) if database.code().as_deref() == Some("26") => {
+                    Ok(None)
                 }
-            }
+                _ => Err(error),
+            };
         }
+        crate::connection::Database::refuse_future_data(&mut connection).await?;
+        sqlx::query_scalar("PRAGMA user_version")
+            .fetch_one(&mut connection)
+            .await
+            .map(Some)
     }
-    #[cfg(test)]
-    if CRASH_BEFORE_PUBLICATION.try_with(|_| ()).is_ok() {
-        std::process::exit(91);
-    }
-    replace_database_file(db_path, &temporary)?;
-    #[cfg(unix)]
-    std::fs::File::open(parent)?.sync_all()?;
-    jobsentinel_platform::ensure_private_sqlite_files(db_path)?;
-    Ok(())
+    .await;
+    let close_result = connection.close().await;
+    result.and_then(|version| close_result.map(|()| version))
 }
 
 async fn verify_sqlcipher_connection(pool: &SqlitePool) -> Result<(), sqlx::Error> {
@@ -246,50 +201,6 @@ async fn verify_sqlcipher_connection(pool: &SqlitePool) -> Result<(), sqlx::Erro
     Ok(())
 }
 
-async fn export_plaintext_database_to_encrypted(
-    plaintext_path: &Path,
-    encrypted_path: &Path,
-    key: &str,
-) -> Result<(), sqlx::Error> {
-    let mut conn = SqliteConnectOptions::new()
-        .filename(plaintext_path)
-        .create_if_missing(false)
-        .connect()
-        .await?;
-
-    let (busy, _, _): (i64, i64, i64) = sqlx::query_as("PRAGMA wal_checkpoint(TRUNCATE)")
-        .fetch_one(&mut conn)
-        .await?;
-    if busy != 0 {
-        return Err(database_encryption_error());
-    }
-    let user_version: i64 = sqlx::query_scalar("PRAGMA user_version")
-        .fetch_one(&mut conn)
-        .await?;
-
-    let encrypted_path = encrypted_path
-        .to_str()
-        .ok_or_else(database_encryption_error)?;
-    sqlx::query("ATTACH DATABASE ? AS encrypted KEY ?")
-        .bind(encrypted_path)
-        .bind(key)
-        .execute(&mut conn)
-        .await?;
-    sqlx::query("SELECT sqlcipher_export('encrypted')")
-        .execute(&mut conn)
-        .await?;
-    sqlx::query(sqlx::AssertSqlSafe(format!(
-        "PRAGMA encrypted.user_version = {user_version}"
-    )))
-    .execute(&mut conn)
-    .await?;
-    sqlx::query("DETACH DATABASE encrypted")
-        .execute(&mut conn)
-        .await?;
-    conn.close().await?;
-    Ok(())
-}
-
 pub(super) fn remove_sqlite_sidecars(db_path: &Path) {
     for suffix in ["-wal", "-shm"] {
         let _ = std::fs::remove_file(sqlite_sidecar_path(db_path, suffix));
@@ -300,10 +211,6 @@ pub(super) fn sqlite_sidecar_path(db_path: &Path, suffix: &str) -> PathBuf {
     let mut sidecar_name = db_path.file_name().unwrap_or_default().to_os_string();
     sidecar_name.push(suffix);
     db_path.with_file_name(sidecar_name)
-}
-
-fn replace_database_file(db_path: &Path, encrypted_path: &Path) -> std::io::Result<()> {
-    std::fs::rename(encrypted_path, db_path)
 }
 
 fn database_encryption_error() -> sqlx::Error {

@@ -1,10 +1,10 @@
 //! Authenticates update metadata and checks local compatibility without mutating installed state.
 
 use jobsentinel_domain::{
-    v3_contracts::{
+    contracts::{
         validate_archive_structure, ArchiveKind, ArchiveProtection, CompatibilityManifest, SchemaId,
     },
-    v3_manifests::EditionManifest,
+    manifests::EditionManifest,
 };
 use serde::{Deserialize, Serialize};
 

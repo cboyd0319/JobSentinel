@@ -4,8 +4,8 @@ use std::path::Path;
 
 use chrono::NaiveDate;
 use jobsentinel_domain::{
-    v3_pack_payloads::{parse_and_self_test_pack_payload, SelfTestedPackRelease},
-    v3_signed_packs::{TrustedPublisherKey, VerifiedPackRelease},
+    pack_payloads::{parse_and_self_test_pack_payload, SelfTestedPackRelease},
+    signed_packs::{TrustedPublisherKey, VerifiedPackRelease},
 };
 use jobsentinel_storage::v3_pack_lifecycle::StoredPackRelease;
 use sha2::{Digest, Sha256};

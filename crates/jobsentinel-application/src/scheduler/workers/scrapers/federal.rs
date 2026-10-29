@@ -14,7 +14,7 @@ use crate::{
 };
 use chrono::Utc;
 use jobsentinel_domain::{
-    v3_source_authorization::SourceActionDecision, v3_source_manifest::SourceOperation, Job,
+    source_authorization::SourceActionDecision, source_manifest::SourceOperation, Job,
 };
 use jobsentinel_sources::UsaJobsScraper;
 use jobsentinel_storage::Database;
@@ -116,7 +116,7 @@ pub(super) async fn run_usajobs(
 mod tests {
     use super::*;
     use crate::test_support::minimal_test_config;
-    use jobsentinel_domain::v3_source_authorization::SourceGrantState;
+    use jobsentinel_domain::source_authorization::SourceGrantState;
 
     #[tokio::test]
     async fn shutdown_skips_usajobs_before_credential_access() {
@@ -172,8 +172,8 @@ mod tests {
     #[test]
     fn usajobs_source_simulator_binds_reviewed_parser_and_policy_fixtures() {
         let policy = crate::source_governance::usajobs_policy().unwrap();
-        let manifest = jobsentinel_domain::v3_source_manifest::parse_source_manifest(
-            jobsentinel_domain::v3_source_manifest::USAJOBS_SOURCE_MANIFEST_V1,
+        let manifest = jobsentinel_domain::source_manifest::parse_source_manifest(
+            jobsentinel_domain::source_manifest::USAJOBS_SOURCE_MANIFEST_V1,
             &policy,
         )
         .unwrap();
@@ -288,8 +288,8 @@ mod tests {
         let mut policy = crate::source_governance::usajobs_policy().unwrap();
         policy.request_limit_per_hour = 24;
         database.upsert_source_policy(&policy).await.unwrap();
-        let manifest = jobsentinel_domain::v3_source_manifest::parse_source_manifest(
-            jobsentinel_domain::v3_source_manifest::USAJOBS_SOURCE_MANIFEST_V1,
+        let manifest = jobsentinel_domain::source_manifest::parse_source_manifest(
+            jobsentinel_domain::source_manifest::USAJOBS_SOURCE_MANIFEST_V1,
             &policy,
         )
         .unwrap();
@@ -309,8 +309,8 @@ mod tests {
         database.migrate().await.unwrap();
         let policy = crate::source_governance::usajobs_policy().unwrap();
         database.upsert_source_policy(&policy).await.unwrap();
-        let mut manifest = jobsentinel_domain::v3_source_manifest::parse_source_manifest(
-            jobsentinel_domain::v3_source_manifest::USAJOBS_SOURCE_MANIFEST_V1,
+        let mut manifest = jobsentinel_domain::source_manifest::parse_source_manifest(
+            jobsentinel_domain::source_manifest::USAJOBS_SOURCE_MANIFEST_V1,
             &policy,
         )
         .unwrap();

@@ -2,8 +2,8 @@
 use chrono::Utc;
 use jobsentinel_domain::{
     canonicalize_job_url,
-    v3_source_authorization::SourceGrantState,
-    v3_source_manifest::{SourceOperation, SourcePermission},
+    source_authorization::SourceGrantState,
+    source_manifest::{SourceOperation, SourcePermission},
     Job,
 };
 use jobsentinel_storage::Database;

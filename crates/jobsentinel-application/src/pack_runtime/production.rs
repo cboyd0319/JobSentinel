@@ -18,7 +18,7 @@ use super::{
     EvidenceReviewerResumeRequirementEvaluation, PackInstallReview, PackRuntimeEnvironment,
     PackStateChange, PackTaskReview, StaticSkillHandoffEvaluation, StaticSkillReview,
 };
-use jobsentinel_domain::v3_region_starter::RegionPackContent;
+use jobsentinel_domain::region_starter::RegionPackContent;
 
 pub async fn evaluate_production_active_ats_resume_requirement_pack(
     database: &Database,

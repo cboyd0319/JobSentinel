@@ -12,7 +12,7 @@ use crate::{is_safe_company_board_id, parse_greenhouse_company_url};
 use async_trait::async_trait;
 use chrono::Utc;
 use jobsentinel_domain::{
-    v3_source_manifest::{GREENHOUSE_API_ENDPOINT_PREFIX, GREENHOUSE_REQUEST_LIMIT_PER_HOUR},
+    source_manifest::{GREENHOUSE_API_ENDPOINT_PREFIX, GREENHOUSE_REQUEST_LIMIT_PER_HOUR},
     Job,
 };
 use jobsentinel_network::{send_external_http_text_with_retry, ExternalHttpRequest};

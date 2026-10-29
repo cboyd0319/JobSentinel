@@ -2,7 +2,7 @@
 
 use super::*;
 use crate::test_support::notification_fixture;
-use jobsentinel_domain::{v3_contracts::PayPeriod, ListedPay};
+use jobsentinel_domain::{contracts::PayPeriod, ListedPay};
 
 #[test]
 fn telegram_uses_review_message_for_raw_only_native_pay() {

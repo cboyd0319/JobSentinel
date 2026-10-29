@@ -6,8 +6,8 @@ use anyhow::{anyhow, Result};
 use chrono::{NaiveDate, TimeZone, Utc};
 use jobsentinel_documents::{AtsAnalyzer, RequirementMatchState};
 use jobsentinel_domain::{
-    v3_evaluations::EvaluationAssertion, v3_pack_payloads::SelfTestedPackPayload,
-    v3_signed_packs::TrustedPublisherKey, Job,
+    evaluations::EvaluationAssertion, pack_payloads::SelfTestedPackPayload,
+    signed_packs::TrustedPublisherKey, Job,
 };
 use jobsentinel_storage::Database;
 use serde::Serialize;
@@ -141,7 +141,7 @@ pub(crate) async fn evaluate_active_static_skill_handoff_pack(
             "pack does not contain a validated static skill handoff"
         ));
     };
-    if handoff.task_kind != jobsentinel_domain::v3_manifests::AgentTaskKind::EvidenceReview {
+    if handoff.task_kind != jobsentinel_domain::manifests::AgentTaskKind::EvidenceReview {
         return Err(anyhow!(
             "static skill does not target the Evidence Reviewer"
         ));

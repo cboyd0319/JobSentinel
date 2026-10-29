@@ -46,10 +46,12 @@ pub use secure_storage::{
     delete_device_secret, retrieve_device_secret, store_device_secret, SecureStorageError,
 };
 #[cfg(windows)]
-pub use windows_private_directory::persist_file_write_through;
-#[cfg(windows)]
 pub use windows_private_directory::{
     open_or_create_private_dir, open_private_dir, PrivateDirectory,
+};
+#[cfg(windows)]
+pub use windows_private_directory::{
+    persist_file_noclobber_write_through, persist_file_write_through,
 };
 
 /// Service namespace for JobSentinel device secure-storage entries.

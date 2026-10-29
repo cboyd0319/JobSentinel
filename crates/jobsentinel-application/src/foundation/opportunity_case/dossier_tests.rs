@@ -11,12 +11,12 @@ use crate::{
     source_governance::{install_greenhouse, install_lever},
     test_support::test_job,
 };
-use jobsentinel_domain::{v3_manifests::SourceClass, v3_source_manifest::SalaryCoverage};
+use jobsentinel_domain::{manifests::SourceClass, source_manifest::SalaryCoverage};
 use jobsentinel_storage::Database;
 
 #[tokio::test]
 async fn dossier_preserves_native_pay_period_and_qualifiers_without_annual_projection() {
-    use jobsentinel_domain::{v3_contracts::PayPeriod, ListedPay, PayQualifier};
+    use jobsentinel_domain::{contracts::PayPeriod, ListedPay, PayQualifier};
     let database = Database::connect_memory().await.unwrap();
     database.migrate().await.unwrap();
     let mut job = test_job(

@@ -2,8 +2,8 @@
 
 use anyhow::{Context, Result};
 use jobsentinel_domain::{
-    v3_contracts::SchemaId,
-    v3_manifests::{ModelProvenance, VectorFreshness},
+    contracts::SchemaId,
+    manifests::{ModelProvenance, VectorFreshness},
     ResumeEvidenceCitation, ResumeEvidenceSnapshot,
 };
 use jobsentinel_local_ai::{

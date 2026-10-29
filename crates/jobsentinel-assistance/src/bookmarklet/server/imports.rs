@@ -16,8 +16,8 @@ use crate::bookmarklet::{
 };
 use jobsentinel_domain::{
     calculate_job_hash, canonicalize_job_url,
-    v3_source_authorization::{visible_page_capture_is_blocked, SourceGrantState},
-    v3_source_manifest::SourceOperation,
+    source_authorization::{visible_page_capture_is_blocked, SourceGrantState},
+    source_manifest::SourceOperation,
     Job,
 };
 
@@ -182,7 +182,7 @@ async fn queue_bookmarklet_jobs_for_review(
     pending_imports: &PendingBookmarkletImports,
     job_data_values: Vec<BookmarkletJobData>,
     batch_mode: bool,
-    grant: jobsentinel_domain::v3_source_authorization::SourceGrantState,
+    grant: jobsentinel_domain::source_authorization::SourceGrantState,
 ) -> Result<BookmarkletImportQueueResult, String> {
     let operation = granted_operation(&grant)?;
     require_browser_action_authorization(repository, &grant).await?;
@@ -285,7 +285,7 @@ pub fn discard_pending_bookmarklet_imports(
 async fn store_bookmarklet_job(
     repository: &dyn BookmarkletRepository,
     job_data: BookmarkletJobData,
-    grant: &jobsentinel_domain::v3_source_authorization::SourceGrantState,
+    grant: &jobsentinel_domain::source_authorization::SourceGrantState,
 ) -> Result<bool, String> {
     require_browser_action_authorization(repository, grant).await?;
     let operation = granted_operation(grant)?;

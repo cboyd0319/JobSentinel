@@ -4,10 +4,10 @@ use super::*;
 use crate::test_support::test_job;
 use chrono::NaiveDate;
 use jobsentinel_domain::{
-    v3_evaluation_inputs::MilitaryBranch,
-    v3_foundation::{CaseFileEventInput, CaseFileEventKind, EventMetadata, EventOrigin},
-    v3_manifests::PrivacyLabel,
-    v3_veteran_public_service::{VeteranResourceAccess, VeteranResourceUse},
+    evaluation_inputs::MilitaryBranch,
+    foundation::{CaseFileEventInput, CaseFileEventKind, EventMetadata, EventOrigin},
+    manifests::PrivacyLabel,
+    veteran_public_service::{VeteranResourceAccess, VeteranResourceUse},
     ResumeEvidenceCitation, ResumeEvidenceSnapshot,
 };
 use jobsentinel_storage::Database;

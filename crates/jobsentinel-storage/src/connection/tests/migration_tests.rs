@@ -36,27 +36,25 @@ fn transition_snapshots(path: &std::path::Path, from: i64, to: i64) -> Vec<std::
         .collect()
 }
 
-async fn v29_database(path: &std::path::Path) -> Database {
-    let database = Database::connect(path).await.unwrap();
-    MIGRATOR.run_to(10, database.pool()).await.unwrap();
-    sqlx::query("PRAGMA user_version = 2")
-        .execute(database.pool())
-        .await
-        .unwrap();
-    database
+fn current_version() -> i64 {
+    MIGRATOR
+        .iter()
+        .map(|migration| migration.version)
+        .max()
+        .unwrap()
 }
 
-async fn seed_v29_data(database: &Database) {
+async fn seed_supported_data(database: &Database) {
     sqlx::query(
         "INSERT INTO jobs (hash, title, company, url, source)
-         VALUES ('job-v29', 'Security Analyst', 'Example', 'https://example.test/job', 'test')",
+         VALUES ('job-v3', 'Security Analyst', 'Example', 'https://example.test/job', 'test')",
     )
     .execute(database.pool())
     .await
     .unwrap();
     sqlx::query(
         "INSERT INTO applications (job_hash, status, notes)
-         VALUES ('job-v29', 'applied', 'local application note')",
+         VALUES ('job-v3', 'applied', 'local application note')",
     )
     .execute(database.pool())
     .await
@@ -118,11 +116,21 @@ async fn current_database_does_not_create_a_migration_snapshot() {
 async fn concurrent_snapshot_creation_keeps_each_attempt_isolated() {
     let temp_dir = tempfile::tempdir().unwrap();
     let db_path = temp_dir.path().join("jobs.db");
-    let database = v29_database(&db_path).await;
+    let database = Database::connect(&db_path).await.unwrap();
 
     let (left, right) = tokio::join!(
-        Database::ensure_migration_snapshot(database.pool(), &db_path, 10, 11),
-        Database::ensure_migration_snapshot(database.pool(), &db_path, 10, 11)
+        Database::ensure_migration_snapshot(
+            database.pool(),
+            &db_path,
+            current_version(),
+            current_version() + 1
+        ),
+        Database::ensure_migration_snapshot(
+            database.pool(),
+            &db_path,
+            current_version(),
+            current_version() + 1
+        )
     );
 
     assert_ne!(left.unwrap(), right.unwrap());
@@ -133,10 +141,15 @@ async fn concurrent_snapshot_creation_keeps_each_attempt_isolated() {
 async fn required_snapshot_failure_prevents_pending_ddl() {
     let temp_dir = tempfile::tempdir().unwrap();
     let db_path = temp_dir.path().join("jobs.db");
-    let database = v29_database(&db_path).await;
+    let database = Database::connect(&db_path).await.unwrap();
     std::fs::write(temp_dir.path().join("backups"), b"not a directory").unwrap();
 
-    let error = database.migrate().await.unwrap_err();
+    let pending = migrator_with(test_migration(
+        current_version() + 1,
+        "pending DDL",
+        "CREATE TABLE pending_ddl (id INTEGER);",
+    ));
+    let error = database.migrate_with(&pending).await.unwrap_err();
 
     assert!(error
         .to_string()
@@ -145,25 +158,30 @@ async fn required_snapshot_failure_prevents_pending_ddl() {
         .fetch_one(database.pool())
         .await
         .unwrap();
-    assert_eq!(applied, 10);
-    let v3_tables: i64 = sqlx::query_scalar(
+    assert_eq!(applied, current_version());
+    let pending_tables: i64 = sqlx::query_scalar(
         "SELECT COUNT(*) FROM sqlite_master
-         WHERE type = 'table' AND name = 'opportunity_case_files'",
+         WHERE type = 'table' AND name = 'pending_ddl'",
     )
     .fetch_one(database.pool())
     .await
     .unwrap();
-    assert_eq!(v3_tables, 0);
+    assert_eq!(pending_tables, 0);
 }
 
 #[tokio::test]
-async fn real_v29_boundary_migrates_additively_and_preserves_local_data() {
+async fn supported_v3_migration_preserves_local_data() {
     let temp_dir = tempfile::tempdir().unwrap();
     let db_path = temp_dir.path().join("jobs.db");
-    let database = v29_database(&db_path).await;
-    seed_v29_data(&database).await;
+    let database = Database::connect(&db_path).await.unwrap();
+    seed_supported_data(&database).await;
 
-    database.migrate().await.unwrap();
+    let next = migrator_with(test_migration(
+        current_version() + 1,
+        "supported transition",
+        "CREATE TABLE transition_probe (id INTEGER);",
+    ));
+    database.migrate_with(&next).await.unwrap();
 
     let preserved: (String, String, String, String, Vec<u8>) = sqlx::query_as(
         "SELECT j.title, a.notes, r.parsed_text, s.outcome, v.ciphertext
@@ -172,7 +190,7 @@ async fn real_v29_boundary_migrates_additively_and_preserves_local_data() {
          CROSS JOIN resumes r
          CROSS JOIN source_request_log s
          CROSS JOIN secret_vault v
-         WHERE j.hash = 'job-v29' AND v.key = 'source-token'",
+         WHERE j.hash = 'job-v3' AND v.key = 'source-token'",
     )
     .fetch_one(database.pool())
     .await
@@ -191,15 +209,19 @@ async fn real_v29_boundary_migrates_additively_and_preserves_local_data() {
 }
 
 #[tokio::test]
-async fn evidence_packet_tables_are_present_for_fresh_and_v29_databases() {
+async fn evidence_packet_tables_are_present_for_memory_and_reopened_v3_databases() {
     let fresh = Database::connect_memory().await.unwrap();
     fresh.migrate().await.unwrap();
 
     let temp_dir = tempfile::tempdir().unwrap();
-    let migrated = v29_database(&temp_dir.path().join("jobs.db")).await;
-    migrated.migrate().await.unwrap();
+    let path = temp_dir.path().join("jobs.db");
+    let database = Database::connect(&path).await.unwrap();
+    database.pool().close().await;
+    drop(database);
+    let reopened = Database::connect(&path).await.unwrap();
+    reopened.migrate().await.unwrap();
 
-    for database in [&fresh, &migrated] {
+    for database in [&fresh, &reopened] {
         let tables: i64 = sqlx::query_scalar(
             "SELECT COUNT(*) FROM sqlite_master
              WHERE type = 'table'
@@ -220,7 +242,7 @@ async fn evidence_packet_tables_are_present_for_fresh_and_v29_databases() {
 async fn failed_migration_keeps_fresh_baselines_until_retry_succeeds() {
     let temp_dir = tempfile::tempdir().unwrap();
     let db_path = temp_dir.path().join("jobs.db");
-    let database = v29_database(&db_path).await;
+    let database = Database::connect(&db_path).await.unwrap();
     database.migrate().await.unwrap();
     let current = MIGRATOR
         .iter()
@@ -261,19 +283,14 @@ async fn same_device_snapshot_restores_then_retries_migration() {
     let temp_dir = tempfile::tempdir().unwrap();
     let data_dir = temp_dir.path().join("restore space-π");
     let db_path = data_dir.join("jobs data.db");
-    let database = v29_database(&db_path).await;
-    seed_v29_data(&database).await;
-    let migrations = MIGRATOR
-        .iter()
-        .filter(|migration| migration.version <= 10)
-        .cloned()
-        .chain(std::iter::once(test_migration(
-            11,
-            "injected failure",
-            "CREATE TABLE injected_failure (id INTEGER); SELECT missing_function();",
-        )))
-        .collect();
-    let failing = Migrator::with_migrations(migrations);
+    let database = Database::connect(&db_path).await.unwrap();
+    seed_supported_data(&database).await;
+    let next = current_version() + 1;
+    let failing = migrator_with(test_migration(
+        next,
+        "injected failure",
+        "CREATE TABLE injected_failure (id INTEGER); SELECT missing_function();",
+    ));
 
     assert!(database.migrate_with(&failing).await.is_err());
     let snapshot = database_copies(&data_dir.join("backups"))
@@ -290,12 +307,17 @@ async fn same_device_snapshot_restores_then_retries_migration() {
 
     let restored = Database::connect(&db_path).await.unwrap();
     let note: String =
-        sqlx::query_scalar("SELECT notes FROM applications WHERE job_hash = 'job-v29'")
+        sqlx::query_scalar("SELECT notes FROM applications WHERE job_hash = 'job-v3'")
             .fetch_one(restored.pool())
             .await
             .unwrap();
     assert_eq!(note, "local application note");
-    restored.migrate().await.unwrap();
+    let repaired = migrator_with(test_migration(
+        next,
+        "injected repair",
+        "CREATE TABLE injected_repair (id INTEGER PRIMARY KEY);",
+    ));
+    restored.migrate_with(&repaired).await.unwrap();
     let compatibility_line: i64 =
         sqlx::query_scalar("SELECT compatibility_line FROM v3_compatibility_metadata")
             .fetch_one(restored.pool())
@@ -307,22 +329,15 @@ async fn same_device_snapshot_restores_then_retries_migration() {
 #[tokio::test]
 async fn failed_migration_does_not_advance_database_schema_generation() {
     let temp_dir = tempfile::tempdir().unwrap();
-    let database = v29_database(&temp_dir.path().join("jobs.db")).await;
-    let migrations = MIGRATOR
-        .iter()
-        .filter(|migration| migration.version <= 10)
-        .cloned()
-        .chain(std::iter::once(test_migration(
-            11,
-            "injected failure",
-            "SELECT missing_function();",
-        )))
-        .collect();
-
-    assert!(database
-        .migrate_with(&Migrator::with_migrations(migrations))
+    let database = Database::connect(&temp_dir.path().join("jobs.db"))
         .await
-        .is_err());
+        .unwrap();
+    let failing = migrator_with(test_migration(
+        current_version() + 1,
+        "injected failure",
+        "SELECT missing_function();",
+    ));
+    assert!(database.migrate_with(&failing).await.is_err());
     let user_version: i64 = sqlx::query_scalar("PRAGMA user_version")
         .fetch_one(database.pool())
         .await
@@ -335,16 +350,26 @@ async fn sibling_databases_never_share_or_prune_each_others_snapshots() {
     let root = tempfile::tempdir().unwrap();
     let a_path = root.path().join("a.db");
     let b_path = root.path().join("b.db");
-    let a = v29_database(&a_path).await;
-    let b = v29_database(&b_path).await;
-    let first = Database::ensure_migration_snapshot(a.pool(), &a_path, 10, 11)
-        .await
-        .unwrap()
-        .unwrap();
-    let second = Database::ensure_migration_snapshot(b.pool(), &b_path, 10, 11)
-        .await
-        .unwrap()
-        .unwrap();
+    let a = Database::connect(&a_path).await.unwrap();
+    let b = Database::connect(&b_path).await.unwrap();
+    let first = Database::ensure_migration_snapshot(
+        a.pool(),
+        &a_path,
+        current_version(),
+        current_version() + 1,
+    )
+    .await
+    .unwrap()
+    .unwrap();
+    let second = Database::ensure_migration_snapshot(
+        b.pool(),
+        &b_path,
+        current_version(),
+        current_version() + 1,
+    )
+    .await
+    .unwrap()
+    .unwrap();
     assert_ne!(first, second);
     Database::prune_superseded_migration_snapshots(second.parent().unwrap(), &second);
     assert!(first.exists());
@@ -354,8 +379,13 @@ async fn sibling_databases_never_share_or_prune_each_others_snapshots() {
 async fn concurrent_migrations_retain_one_verified_recovery_snapshot() {
     let root = tempfile::tempdir().unwrap();
     let path = root.path().join("jobs.db");
-    let database = v29_database(&path).await;
-    let (first, second) = tokio::join!(database.migrate(), database.migrate());
+    let database = Database::connect(&path).await.unwrap();
+    let next = migrator_with(test_migration(
+        current_version() + 1,
+        "concurrent transition",
+        "CREATE TABLE concurrent_probe (id INTEGER);",
+    ));
+    let (first, second) = tokio::join!(database.migrate_with(&next), database.migrate_with(&next));
     first.unwrap();
     second.unwrap();
     let snapshots = database_copies(&root.path().join("backups"));

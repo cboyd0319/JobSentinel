@@ -6,7 +6,7 @@ use std::{
 };
 
 use chrono::{DateTime, NaiveDate, Utc};
-use jobsentinel_domain::v3_signed_packs::TrustedPublisherKey;
+use jobsentinel_domain::signed_packs::TrustedPublisherKey;
 use thiserror::Error;
 use tokio::sync::RwLock;
 

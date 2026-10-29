@@ -5,13 +5,11 @@ use std::{path::Path, time::Duration};
 use anyhow::{anyhow, Result};
 use chrono::{Duration as ChronoDuration, NaiveDate, Utc};
 use jobsentinel_domain::{
-    v3_contracts::SchemaId,
-    v3_manifests::{
-        AgentTask, AgentTaskKind, DataCategory, PackAction, PrivacyLabel, PrivacyReceipt,
-    },
-    v3_pack_payloads::{ReviewedTaskPlanStep, SelfTestedPackPayload},
-    v3_region_starter::RegionPackContent,
-    v3_signed_packs::TrustedPublisherKey,
+    contracts::SchemaId,
+    manifests::{AgentTask, AgentTaskKind, DataCategory, PackAction, PrivacyLabel, PrivacyReceipt},
+    pack_payloads::{ReviewedTaskPlanStep, SelfTestedPackPayload},
+    region_starter::RegionPackContent,
+    signed_packs::TrustedPublisherKey,
 };
 use jobsentinel_storage::{
     pack_tasks::{PackTaskContext, PackTaskStatus},

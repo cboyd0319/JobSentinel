@@ -2,12 +2,12 @@
 use super::{map_error, FoundationError};
 use chrono::NaiveDate;
 use jobsentinel_domain::{
-    v3_evaluation_inputs::MilitaryBranch,
-    v3_foundation::{
+    evaluation_inputs::MilitaryBranch,
+    foundation::{
         CareerGraphLink, CareerRelation, CaseFileEventInput, CaseFileEventKind, EventMetadata,
         EventOrigin, GraphProvenance,
     },
-    v3_veteran_public_service::{
+    veteran_public_service::{
         reviewed_veteran_public_service_resource, VeteranResourceAccess, VeteranResourceUse,
     },
     ResumeEvidenceCitation, ResumeEvidenceSnapshot,

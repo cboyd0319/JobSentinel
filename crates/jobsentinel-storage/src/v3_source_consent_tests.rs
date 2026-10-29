@@ -1,8 +1,10 @@
+//! Proves source-policy history, exact consent and concurrent revocation boundaries.
+
 use chrono::Utc;
 use jobsentinel_domain::{
-    v3_foundation::{SourceAccess, SourcePolicy},
-    v3_manifests::{DataCategory, SourceClass},
-    v3_source_consent::{
+    foundation::{SourceAccess, SourcePolicy},
+    manifests::{DataCategory, SourceClass},
+    source_consent::{
         SourceConsentContext, SourceConsentOperation, SourceConsentReviewReason,
         SourceConsentStatus,
     },

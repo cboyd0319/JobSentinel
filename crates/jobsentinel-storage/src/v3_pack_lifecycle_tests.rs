@@ -2,10 +2,10 @@
 
 use chrono::NaiveDate;
 use jobsentinel_domain::{
-    v3_contracts::SchemaId,
-    v3_manifests::{PackExecutionClass, PackManifest, PackType, PrivacyLabel},
-    v3_pack_payloads::{parse_and_self_test_pack_payload, SelfTestedPackRelease},
-    v3_signed_packs::{parse_signed_pack_release, TrustedPublisherKey, VerifiedPackRelease},
+    contracts::SchemaId,
+    manifests::{PackExecutionClass, PackManifest, PackType, PrivacyLabel},
+    pack_payloads::{parse_and_self_test_pack_payload, SelfTestedPackRelease},
+    signed_packs::{parse_signed_pack_release, TrustedPublisherKey, VerifiedPackRelease},
 };
 use jobsentinel_security::sign_ed25519_for_test;
 use serde_json::json;

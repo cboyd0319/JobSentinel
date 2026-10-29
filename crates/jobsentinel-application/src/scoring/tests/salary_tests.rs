@@ -24,7 +24,7 @@ fn regional_and_unknown_currency_pay_is_neutral_not_a_dollar_bonus_or_missing_pe
 
 #[test]
 fn native_pay_controls_comparison_even_when_legacy_fields_disagree() {
-    use jobsentinel_domain::{v3_contracts::PayPeriod, ListedPay, PayQualifier};
+    use jobsentinel_domain::{contracts::PayPeriod, ListedPay, PayQualifier};
     let engine = ScoringEngine::new(Arc::new(create_test_config()));
     let mut job = create_test_job();
     job.listed_pay = Some(ListedPay {

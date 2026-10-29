@@ -27,7 +27,7 @@ pub fn authorize_update_startup(
 
 fn verify_target(
     journal: &PreparedUpdate,
-    running: &jobsentinel_domain::v3_manifests::EditionManifest,
+    running: &jobsentinel_domain::manifests::EditionManifest,
     publishers: &[ReleasePublisher],
 ) -> Result<(), UpdatePreflightError> {
     let release = journal

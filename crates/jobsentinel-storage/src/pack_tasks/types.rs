@@ -2,7 +2,7 @@
 
 use anyhow::{anyhow, Result};
 use chrono::{DateTime, Utc};
-use jobsentinel_domain::v3_manifests::{AgentTaskKind, DataCategory, PrivacyLabel};
+use jobsentinel_domain::manifests::{AgentTaskKind, DataCategory, PrivacyLabel};
 use serde::Serialize;
 use sqlx::FromRow;
 

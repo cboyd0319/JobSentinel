@@ -167,15 +167,31 @@ pub fn persist_file_write_through(
     temporary: tempfile::NamedTempFile,
     path: &Path,
 ) -> io::Result<std::fs::File> {
-    use std::os::windows::ffi::OsStrExt;
-    use windows_sys::Win32::Storage::FileSystem::{
-        MoveFileExW, MOVEFILE_REPLACE_EXISTING, MOVEFILE_WRITE_THROUGH,
-    };
     if temporary.path().parent() != path.parent() {
         return Err(io::Error::other("Publication requires the same directory"));
     }
-    let (file, temporary_path) = temporary.into_parts();
-    file.sync_all()?;
+    persist_file(temporary, path, true)
+}
+
+/// Publish without replacement on the same Windows volume; cross-volume moves fail.
+pub fn persist_file_noclobber_write_through(
+    temporary: tempfile::NamedTempFile,
+    path: &Path,
+) -> io::Result<std::fs::File> {
+    persist_file(temporary, path, false)
+}
+
+fn persist_file(
+    temporary: tempfile::NamedTempFile,
+    path: &Path,
+    replace_existing: bool,
+) -> io::Result<std::fs::File> {
+    use std::os::windows::ffi::OsStrExt;
+    use windows_sys::Win32::Storage::FileSystem::{
+        MoveFileExW, SetFileAttributesW, FILE_ATTRIBUTE_NORMAL, MOVEFILE_REPLACE_EXISTING,
+        MOVEFILE_WRITE_THROUGH,
+    };
+    let (file, mut temporary_path) = temporary.into_parts();
     let wide = |path: &Path| -> io::Result<Vec<u16>> {
         let mut value: Vec<_> = path.as_os_str().encode_wide().collect();
         if value.contains(&0) {
@@ -186,17 +202,22 @@ pub fn persist_file_write_through(
     };
     let source = wide(&temporary_path)?;
     let destination = wide(path)?;
-    // SAFETY: both buffers are NUL-terminated and live through this synchronous call.
-    if unsafe {
-        MoveFileExW(
-            source.as_ptr(),
-            destination.as_ptr(),
-            MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH,
-        )
-    } == 0
-    {
+    // SAFETY: source is NUL-terminated and live through this synchronous call.
+    if unsafe { SetFileAttributesW(source.as_ptr(), FILE_ATTRIBUTE_NORMAL) } == 0 {
         return Err(io::Error::last_os_error());
     }
-    temporary_path.keep().map_err(|error| error.error)?;
+    file.sync_all()?;
+    // COPY_ALLOWED is omitted so publication cannot become a cross-volume copy/delete.
+    let flags = MOVEFILE_WRITE_THROUGH
+        | if replace_existing {
+            MOVEFILE_REPLACE_EXISTING
+        } else {
+            0
+        };
+    // SAFETY: both buffers are NUL-terminated and live through this synchronous call.
+    if unsafe { MoveFileExW(source.as_ptr(), destination.as_ptr(), flags) } == 0 {
+        return Err(io::Error::last_os_error());
+    }
+    temporary_path.disable_cleanup(true);
     Ok(file)
 }

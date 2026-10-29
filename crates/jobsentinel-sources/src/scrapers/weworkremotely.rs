@@ -1,7 +1,4 @@
-//! WeWorkRemotely Job Scraper
-//!
-//! Scrapes remote jobs from WeWorkRemotely's RSS feed.
-//! WeWorkRemotely is a popular remote-only job board.
+//! Fetches and normalizes remote job postings from WeWorkRemotely's RSS feed.
 
 use super::error::ScraperError;
 use super::rate_limiter::RateLimiter;
@@ -12,7 +9,7 @@ use super::{
     decode_common_html_entities, strip_html_markup, JobScraper, ScraperResult,
     JOBSENTINEL_USER_AGENT,
 };
-use jobsentinel_domain::{v3_source_manifest::WEWORKREMOTELY_REQUEST_LIMIT_PER_HOUR, Job};
+use jobsentinel_domain::{source_manifest::WEWORKREMOTELY_REQUEST_LIMIT_PER_HOUR, Job};
 use jobsentinel_network::{send_external_http_text_with_retry, ExternalHttpRequest};
 use std::num::NonZeroU16;
 

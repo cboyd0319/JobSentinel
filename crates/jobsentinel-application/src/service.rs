@@ -4,11 +4,11 @@ use chrono::Utc;
 
 use jobsentinel_domain::{
     canonicalize_job_url,
-    v3_source_authorization::{
+    source_authorization::{
         automated_url_fetch_is_blocked, visible_page_capture_is_blocked, SourceActionDecision,
         SourceGrantState,
     },
-    v3_source_manifest::SourceOperation,
+    source_manifest::SourceOperation,
     Job,
 };
 use jobsentinel_sources::{parse_single_job_page, JobPageParseError, ParsedJobPage};
@@ -35,7 +35,7 @@ pub fn employer_discovery_review_grant() -> SourceGrantState {
     SourceGrantState::Granted {
         source_id: "user-source-actions".to_string(),
         policy_ref: "jobsentinel.source-policy.user-source-actions".to_string(),
-        permission: jobsentinel_domain::v3_source_manifest::SourcePermission::UserReview,
+        permission: jobsentinel_domain::source_manifest::SourcePermission::UserReview,
         operation: SourceOperation::EmployerDiscovery,
         policy_revision: 1,
     }
@@ -310,10 +310,7 @@ mod tests {
         assert_eq!(pay.min, Some(25.0));
         assert_eq!(pay.max, Some(30.0));
         assert_eq!(pay.currency.as_deref(), Some("USD"));
-        assert_eq!(
-            pay.period,
-            jobsentinel_domain::v3_contracts::PayPeriod::Hourly
-        );
+        assert_eq!(pay.period, jobsentinel_domain::contracts::PayPeriod::Hourly);
         assert_eq!(job.times_seen, 1);
     }
 
@@ -351,7 +348,7 @@ mod tests {
         assert_eq!(pay.currency.as_deref(), Some("EUR"));
         assert_eq!(
             pay.period,
-            jobsentinel_domain::v3_contracts::PayPeriod::Monthly
+            jobsentinel_domain::contracts::PayPeriod::Monthly
         );
     }
 

@@ -7,7 +7,7 @@ use std::{
 
 use chrono::Utc;
 use jobsentinel_domain::{
-    v3_source_authorization::SourceActionDecision, v3_source_manifest::SourceOperation, Job,
+    source_authorization::SourceActionDecision, source_manifest::SourceOperation, Job,
 };
 use jobsentinel_sources::RemoteOkScraper;
 use jobsentinel_storage::Database;
@@ -72,9 +72,7 @@ pub(super) async fn run_remoteok(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use jobsentinel_domain::v3_source_manifest::{
-        parse_source_manifest, REMOTEOK_SOURCE_MANIFEST_V1,
-    };
+    use jobsentinel_domain::source_manifest::{parse_source_manifest, REMOTEOK_SOURCE_MANIFEST_V1};
 
     use crate::test_support::minimal_test_config;
 

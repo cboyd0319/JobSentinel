@@ -1,7 +1,9 @@
+//! Proves vector shape, freshness and revision-safe stale-row cleanup.
+
 use super::delete_if_unchanged;
 use jobsentinel_domain::{
-    v3_contracts::SchemaId,
-    v3_manifests::{ModelProvenance, VectorFreshness},
+    contracts::SchemaId,
+    manifests::{ModelProvenance, VectorFreshness},
 };
 
 use crate::{test_support::migrated_database, v3_vectors::StoredVectorRead};

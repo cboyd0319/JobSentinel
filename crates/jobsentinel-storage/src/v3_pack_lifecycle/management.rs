@@ -3,8 +3,8 @@
 use std::collections::HashMap;
 
 use jobsentinel_domain::{
-    v3_manifests::{PackExecutionClass, PackType},
-    v3_signed_packs::VerifiedPackRelease,
+    manifests::{PackExecutionClass, PackType},
+    signed_packs::VerifiedPackRelease,
 };
 use serde::Serialize;
 use sqlx::{FromRow, Sqlite, Transaction};

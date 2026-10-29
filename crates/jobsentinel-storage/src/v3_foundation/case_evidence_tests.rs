@@ -1,9 +1,11 @@
+//! Proves case-evidence confirmation, idempotence and transaction rollback.
+
 use jobsentinel_domain::{
-    v3_foundation::{
+    foundation::{
         CareerGraphLink, CareerRelation, CaseFileEventInput, CaseFileEventKind, EventMetadata,
         EventOrigin, GraphProvenance,
     },
-    v3_manifests::PrivacyLabel,
+    manifests::PrivacyLabel,
 };
 
 async fn case_evidence_database() -> (tempfile::TempDir, crate::Database, String) {

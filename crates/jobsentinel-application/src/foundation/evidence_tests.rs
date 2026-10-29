@@ -2,10 +2,10 @@
 use super::*;
 use crate::test_support::test_job;
 use jobsentinel_domain::{
-    v3_foundation::{
+    foundation::{
         CaseFileEventInput, CaseFileEventKind, EventMetadata, EventOrigin, GraphProvenance,
     },
-    v3_manifests::PrivacyLabel,
+    manifests::PrivacyLabel,
     ResumeEvidenceCitation, ResumeEvidenceSnapshot,
 };
 use jobsentinel_storage::Database;

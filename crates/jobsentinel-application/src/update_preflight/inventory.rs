@@ -2,8 +2,8 @@
 
 use super::{InstalledUpdateState, ReleaseVersion, UpdatePreflightError};
 use jobsentinel_domain::{
-    v3_contracts::{Architecture, Platform, SchemaId},
-    v3_manifests::{Edition, EditionComponent, EditionManifest, ModelProfile, PackType},
+    contracts::{Architecture, Platform, SchemaId},
+    manifests::{Edition, EditionComponent, EditionManifest, ModelProfile, PackType},
 };
 use jobsentinel_storage::Database;
 use std::path::Path;

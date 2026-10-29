@@ -5,7 +5,7 @@ use crate::bookmarklet::{
     companion_request_for_test, CompanionPairing, CompanionPairingCode, CompanionPairingError,
 };
 use chrono::DateTime;
-use jobsentinel_domain::v3_source_manifest::SourceOperation;
+use jobsentinel_domain::source_manifest::SourceOperation;
 use std::sync::Barrier;
 
 fn pairing(origin: &str) -> (CompanionPairing, CompanionPairingCode, DateTime<Utc>) {

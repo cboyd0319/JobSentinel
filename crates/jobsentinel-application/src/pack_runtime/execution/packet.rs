@@ -4,7 +4,7 @@ use std::{path::Path, time::Duration};
 
 use anyhow::{anyhow, Result};
 use chrono::{Duration as ChronoDuration, NaiveDate, Utc};
-use jobsentinel_domain::{v3_manifests::AgentTaskKind, v3_signed_packs::TrustedPublisherKey};
+use jobsentinel_domain::{manifests::AgentTaskKind, signed_packs::TrustedPublisherKey};
 use jobsentinel_storage::{
     pack_tasks::{DraftPacketInputGuard, PackTaskStatus},
     Database,

@@ -7,7 +7,7 @@ mod pending;
 mod server;
 
 use async_trait::async_trait;
-use jobsentinel_domain::{v3_source_authorization::SourceGrantState, Job};
+use jobsentinel_domain::{source_authorization::SourceGrantState, Job};
 
 pub use pairing::{
     CompanionPairing, CompanionPairingCode, CompanionPairingError, CompanionRequest,

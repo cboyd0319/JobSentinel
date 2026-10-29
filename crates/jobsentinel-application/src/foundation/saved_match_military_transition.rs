@@ -8,9 +8,9 @@ use super::{
 };
 use chrono::{DateTime, Duration, Utc};
 use jobsentinel_domain::{
-    v3_evaluation_inputs::MilitaryBranch,
-    v3_foundation::{CaseFileEventInput, CaseFileEventKind, EventMetadata, EventOrigin},
-    v3_manifests::PrivacyLabel,
+    evaluation_inputs::MilitaryBranch,
+    foundation::{CaseFileEventInput, CaseFileEventKind, EventMetadata, EventOrigin},
+    manifests::PrivacyLabel,
     ResumeEvidenceCitation,
 };
 use jobsentinel_storage::{v3_foundation::SavedMatchEvidenceConfirmation, Database};

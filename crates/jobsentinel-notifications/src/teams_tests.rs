@@ -2,7 +2,7 @@
 
 use super::*;
 use crate::test_support::notification_fixture;
-use jobsentinel_domain::{v3_contracts::PayPeriod, ListedPay};
+use jobsentinel_domain::{contracts::PayPeriod, ListedPay};
 
 #[path = "teams_tests/payload_edge_tests.rs"]
 mod payload_edge_tests;

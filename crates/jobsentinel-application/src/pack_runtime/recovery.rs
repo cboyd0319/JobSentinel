@@ -4,7 +4,7 @@ use std::path::Path;
 
 use anyhow::{anyhow, Result};
 use chrono::NaiveDate;
-use jobsentinel_domain::v3_signed_packs::TrustedPublisherKey;
+use jobsentinel_domain::signed_packs::TrustedPublisherKey;
 use jobsentinel_storage::{v3_pack_lifecycle::PackQuarantineReason, Database};
 use serde::Serialize;
 
