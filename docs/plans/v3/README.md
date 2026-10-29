@@ -9,11 +9,13 @@ verification and handoff. Strategy references do not independently add scope.
 The [remaining development queue](master-exec-plan.md#remaining-development-queue)
 implements the user's 2026-10-28 reprioritization. Complete accepted code and
 cleanup before broad qualification or delivery. Earlier suggested timing in
-reference documents does not override this queue. Implementation resumed at D0 on 2026-10-28.
+reference documents does not override this queue. The [current status](../../harness/current-status.md)
+owns the selected child; D0 and R13 have development acceptance, while E15 has an
+implementation checkpoint awaiting acceptance.
 
-## Baseline
+## Current source foundations
 
-V2.9 provides the foundation:
+The unreleased v3 source builds on the published v2.9.5 foundation with:
 
 - Local-first desktop storage with no hosted account or telemetry requirement.
 - Public and official-source job checks, employer-careers discovery, Browser
@@ -27,7 +29,7 @@ V2.9 provides the foundation:
   offer workflows.
 
 See [Features And Capabilities](../../features/capabilities.md) for the
-maintained v2.9 map.
+maintained capability map and its development/release boundaries.
 
 ## V3 Target
 
@@ -104,6 +106,10 @@ burdens for the user, not hidden behavior.
 | [Compatibility And Migration](compatibility-and-migration.md) | V3 as the first supported long-term compatibility and rollback boundary. |
 | [Research Agenda](research-agenda.md) | Papers, prototypes, and evaluations that should inform v3 decisions. |
 | [Evaluation And Release Bar](evaluation-and-release-bar.md) | How v3 ideas should be tested before they are considered release-ready. |
+
+Every release must complete separate full **Stability → Performance → Security** phases
+in order. The [Release Contract](../../developer/RELEASING.md#mandatory-final-release-phases)
+owns their gates; focused development checks do not replace them.
 
 ## Planning Rules
 

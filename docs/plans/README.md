@@ -1,3 +1,5 @@
+<!-- Indexes active, completed and historical plans without duplicating execution state. -->
+
 # Plans
 
 This folder contains durable plans for release, feature, refactor, security, and
@@ -21,7 +23,7 @@ See [Exec Plans](../exec-plans.md) for required format.
 
 | Workstream | Document |
 | ---------- | -------- |
-| V3 master planning | [V3 master execution plan](v3/master-exec-plan.md) |
+| V3 implementation | [V3 master execution plan](v3/master-exec-plan.md) |
 
 ## Major-Release Planning
 
@@ -29,6 +31,9 @@ See [Exec Plans](../exec-plans.md) for required format.
 | ------- | -------- |
 | V3 major line | [V3 master execution plan](v3/master-exec-plan.md) |
 | V3 strategy and research | [V3 planning package](v3/README.md) |
+
+Current feature selection and acceptance are owned by
+[current status](../harness/current-status.md) and the feature ledger, not table order here.
 
 ## Plan Requirements
 

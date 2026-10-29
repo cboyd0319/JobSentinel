@@ -1,3 +1,5 @@
+<!-- Records dated debt closures and routes remaining accepted work to the active plan. -->
+
 # Technical Debt Tracker
 
 Use this file for durable debt that affects agent reliability, architecture,
@@ -5,9 +7,14 @@ security, or developer workflow.
 
 ## Open Items
 
-No open items.
+No separate open items are tracked here. Unfinished accepted development and
+release-proof gaps remain in the [v3 master plan](v3/master-exec-plan.md) and
+[current status](../harness/current-status.md).
 
 ## Closed Items
+
+The rows below describe evidence at their closure dates, not a current branch or
+release certification. Recheck affected boundaries when their source or environment changes.
 
 | ID | Area | Evidence | Outcome | Closed |
 | -- | ---- | -------- | ------- | ------ |

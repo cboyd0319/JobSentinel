@@ -1,3 +1,5 @@
+<!-- Preserves dated job-source research; current source manifests govern permitted actions. -->
+
 # Job-Site Data Sources Research
 
 This brief condenses research and source-governance guidance for job monitoring.
@@ -12,6 +14,10 @@ This brief condenses research and source-governance guidance for job monitoring.
   reselling job data, but it still needs careful source review.
 - Provenance matters. Users need to know where a job came from and how current
   it may be.
+
+Provider-policy observations below retain their stated review dates. They do not
+renew source permissions: runtime manifests, current review evidence and expiry
+checks govern whether an action is available.
 
 ## Reviewed source decisions
 
@@ -39,10 +45,10 @@ User-opened search links, visible Browser Import, and manual entry remain local,
 user-controlled paths. Dice's official MCP is a separate review-required
 candidate, not a substitute for the retired HTML adapter.
 
-Current LinkedIn evidence was reviewed on 2026-07-19 from the
+LinkedIn evidence was reviewed on 2026-07-19 from the
 [LinkedIn User Agreement](https://www.linkedin.com/legal/user-agreement) and
 [LinkedIn automated-activity guidance](https://www.linkedin.com/help/linkedin/answer/a1340567).
-The agreement effective November 3, 2025 and the current guidance prohibit
+The agreement effective November 3, 2025 and the guidance reviewed then prohibit
 unauthorized scraping, copying, browser plugins, and automated activity.
 JobSentinel therefore blocks LinkedIn Browser Import, scheduled access, and
 hidden page access. User-opened navigation and the local Workbench remain
