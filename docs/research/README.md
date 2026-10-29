@@ -1,7 +1,14 @@
+<!-- Indexes dated research notes, evaluation boundaries and source-authority limits. -->
+
 # Research And Evaluation
 
 JobSentinel research supports one goal: help job seekers find real, relevant,
 fairly compensated work while protecting sensitive job-search data.
+
+Notes retain their stated review dates and research context. External citations are
+not live provider authorization or proof of current release readiness. Current
+behavior and execution order belong to feature docs and the
+[v3 master plan](../plans/v3/master-exec-plan.md).
 
 ## Principles
 

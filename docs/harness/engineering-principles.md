@@ -1,3 +1,5 @@
+<!-- Documents engineering Principles. -->
+
 # Engineering Principles
 
 All current and future JobSentinel development is DRY and lean. This file is the
@@ -30,7 +32,7 @@ the requirement:
 
 ## How This Is Enforced
 
-- `AGENTS.md` carries the ladder so every session starts with it.
+- `AGENTS.md` routes contributors to the current workflow and canonical owners.
 - The [change contract](change-contract.md) requires each non-trivial change to
   name the ladder step it stops at and the duplication it removes.
 - `npm run harness:check` locks this principle text into the instruction files

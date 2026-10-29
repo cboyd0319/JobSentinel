@@ -1,0 +1,204 @@
+{
+  "scope": "Branch-specific security dependency refresh, not whole-application security certification",
+  "base_revision": "0cd5e90feea47ebe682a71ff1289e50056011e5c",
+  "platform": "macOS27.2 arm64; Rust1.97.1; Node26.12.1/npm12.2.1 with recorded baseline warnings",
+  "npm": [
+    {
+      "name": "dompurify",
+      "before": [
+        "3.4.12"
+      ],
+      "after": [
+        "3.4.17"
+      ]
+    },
+    {
+      "name": "storybook",
+      "before": [
+        "10.5.2"
+      ],
+      "after": [
+        "10.6.2"
+      ]
+    },
+    {
+      "name": "@storybook/addon-vitest",
+      "before": [
+        "10.5.2"
+      ],
+      "after": [
+        "10.6.2"
+      ]
+    },
+    {
+      "name": "vitest",
+      "before": [
+        "4.1.10"
+      ],
+      "after": [
+        "4.1.12"
+      ]
+    },
+    {
+      "name": "@vitest/mocker",
+      "before": [
+        "4.1.10"
+      ],
+      "after": [
+        "4.1.12"
+      ]
+    },
+    {
+      "name": "vite",
+      "before": [
+        "8.1.5"
+      ],
+      "after": [
+        "8.1.6"
+      ]
+    },
+    {
+      "name": "undici",
+      "before": [
+        "7.28.0"
+      ],
+      "after": [
+        "7.30.1"
+      ]
+    },
+    {
+      "name": "smol-toml",
+      "before": [
+        "1.7.0"
+      ],
+      "after": [
+        "1.9.0"
+      ]
+    },
+    {
+      "name": "katex",
+      "before": [
+        "0.16.47"
+      ],
+      "after": [
+        "0.18.2"
+      ]
+    },
+    {
+      "name": "brace-expansion",
+      "before": [
+        "5.0.7"
+      ],
+      "after": [
+        "5.0.12"
+      ]
+    },
+    {
+      "name": "markdown-it",
+      "before": [
+        "14.3.0"
+      ],
+      "after": [
+        "14.3.3"
+      ]
+    },
+    {
+      "name": "source-map-js",
+      "before": [
+        "1.2.1"
+      ],
+      "after": [
+        "1.2.2"
+      ]
+    },
+    {
+      "name": "js-yaml",
+      "before": [
+        "5.2.1"
+      ],
+      "after": [
+        "5.4.1"
+      ]
+    },
+    {
+      "name": "baseline-browser-mapping",
+      "before": [
+        "2.10.43"
+      ],
+      "after": [
+        "2.11.34"
+      ]
+    },
+    {
+      "name": "browserslist",
+      "before": [
+        "4.28.6"
+      ],
+      "after": [
+        "4.29.5"
+      ]
+    },
+    {
+      "name": "postcss",
+      "before": [
+        "8.5.19"
+      ],
+      "after": [
+        "8.5.23"
+      ]
+    },
+    {
+      "name": "nanoid",
+      "before": [
+        "3.3.16"
+      ],
+      "after": [
+        "3.3.20"
+      ]
+    },
+    {
+      "name": "zod",
+      "before": [
+        "4.4.3"
+      ],
+      "after": [
+        "4.6.7"
+      ]
+    }
+  ],
+  "rust": {
+    "rustls": "0.23.45",
+    "required_transitives": [
+      "aws-lc-rs1.19.0",
+      "aws-lc-sys0.47.0",
+      "rustls-webpki0.103.16"
+    ],
+    "advisory": "https://github.com/rustls/rustls/security/advisories/GHSA-2mjx-qc3c-rqvc"
+  },
+  "checks": {
+    "npm_audit_exit": 0,
+    "npm_audit": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 0,
+      "critical": 0,
+      "total": 0
+    },
+    "network_tests_passed": 16,
+    "frontend_targeted_tests_passed": 12,
+    "typecheck": 0,
+    "vite_build": 0,
+    "storybook_build": 0,
+    "markdown_math_yaml_toml_checks": 0,
+    "dependency_checks": 0,
+    "init_exit": 0,
+    "startup_tests_passed": 9
+  },
+  "limits": [
+    "DOMPurify critical preconditions not present in inspected string sanitizer; affected version still patched.",
+    "Other npm targets are development tooling. No exploit reproduction claimed.",
+    "Default-branch GitHub alerts remain open until that branch receives fixes.",
+    "Native Windows/Linux and full release qualification not run."
+  ]
+}

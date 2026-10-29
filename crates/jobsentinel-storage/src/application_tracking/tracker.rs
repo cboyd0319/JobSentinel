@@ -74,15 +74,46 @@ impl ApplicationTracker {
         })
     }
 
-    /// Update application status
+    /// Applies a browser action once, including its event and reminder, under one write transaction.
+    pub async fn record_job_applied(&self, job_hash: &str) -> Result<()> {
+        let mut transaction = self.db.begin_with("BEGIN IMMEDIATE").await?;
+        sqlx::query("INSERT INTO applications (job_hash, status) VALUES (?, 'to_apply') ON CONFLICT(job_hash) DO NOTHING")
+            .bind(job_hash).execute(&mut *transaction).await?;
+        let id: i64 = sqlx::query_scalar("SELECT id FROM applications WHERE job_hash = ?")
+            .bind(job_hash)
+            .fetch_one(&mut *transaction)
+            .await?;
+        Self::update_status_on(&mut transaction, id, ApplicationStatus::Applied).await?;
+        transaction.commit().await?;
+        Ok(())
+    }
+
+    /// Atomically records a genuine status transition and its reminder.
     pub async fn update_status(
         &self,
         application_id: i64,
         new_status: ApplicationStatus,
     ) -> Result<()> {
+        let mut transaction = self.db.begin_with("BEGIN IMMEDIATE").await?;
+        Self::update_status_on(&mut transaction, application_id, new_status).await?;
+        transaction.commit().await?;
+        Ok(())
+    }
+
+    async fn update_status_on(
+        connection: &mut sqlx::SqliteConnection,
+        application_id: i64,
+        new_status: ApplicationStatus,
+    ) -> Result<()> {
         // Get current status for event log
-        let current_app = self.get_application(application_id).await?;
-        let current_status = current_app.status;
+        let status: String = sqlx::query_scalar("SELECT status FROM applications WHERE id = ?")
+            .bind(application_id)
+            .fetch_one(&mut *connection)
+            .await?;
+        let current_status: ApplicationStatus = status.parse()?;
+        if current_status == new_status {
+            return Ok(());
+        }
 
         // Update status and timestamp
         let now = Utc::now().to_rfc3339();
@@ -94,7 +125,7 @@ impl ApplicationTracker {
             now,
             application_id
         )
-        .execute(&self.db)
+        .execute(&mut *connection)
         .await?;
 
         // If transitioning to "applied", set applied_at timestamp
@@ -105,12 +136,13 @@ impl ApplicationTracker {
                 now,
                 application_id
             )
-            .execute(&self.db)
+            .execute(&mut *connection)
             .await?;
         }
 
         // Log status change event
-        self.log_event(
+        Self::log_event_on(
+            connection,
             application_id,
             "status_change",
             serde_json::json!({
@@ -121,7 +153,7 @@ impl ApplicationTracker {
         .await?;
 
         // Auto-set reminders based on new status
-        self.auto_set_reminders(application_id, new_status).await?;
+        Self::auto_set_reminders(connection, application_id, new_status).await?;
 
         Ok(())
     }
@@ -129,6 +161,16 @@ impl ApplicationTracker {
     /// Log an event in the application timeline
     pub(super) async fn log_event(
         &self,
+        application_id: i64,
+        event_type: &str,
+        event_data: JsonValue,
+    ) -> Result<()> {
+        let mut connection = self.db.acquire().await?;
+        Self::log_event_on(&mut connection, application_id, event_type, event_data).await
+    }
+
+    pub(super) async fn log_event_on(
+        connection: &mut sqlx::SqliteConnection,
         application_id: i64,
         event_type: &str,
         event_data: JsonValue,
@@ -141,7 +183,7 @@ impl ApplicationTracker {
             event_type,
             event_data_str
         )
-        .execute(&self.db)
+        .execute(&mut *connection)
         .await?;
 
         Ok(())
@@ -149,7 +191,7 @@ impl ApplicationTracker {
 
     /// Auto-set reminders based on status transitions
     pub(super) async fn auto_set_reminders(
-        &self,
+        connection: &mut sqlx::SqliteConnection,
         application_id: i64,
         status: ApplicationStatus,
     ) -> Result<()> {
@@ -159,7 +201,8 @@ impl ApplicationTracker {
             ApplicationStatus::Applied => {
                 // Set reminder to follow up in 1 week if no response
                 let followup_time = Utc::now() + Duration::days(7);
-                self.set_reminder(
+                Self::set_reminder_on(
+                    connection,
                     application_id,
                     "follow_up",
                     followup_time,
@@ -172,7 +215,8 @@ impl ApplicationTracker {
             | ApplicationStatus::OnsiteInterview => {
                 // Set reminder to send thank-you email after interview
                 let thank_you_time = Utc::now() + Duration::hours(24);
-                self.set_reminder(
+                Self::set_reminder_on(
+                    connection,
                     application_id,
                     "follow_up",
                     thank_you_time,

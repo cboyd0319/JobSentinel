@@ -1,19 +1,21 @@
+<!-- Indexes v3 strategy references and points to the canonical execution order. -->
+
 # JobSentinel V3 Planning
 
-JobSentinel v3.0 is the next major-release planning horizon. Everything in the
-v2.9 line should be treated as stabilization, minor feature polish, and bug
-fixes unless a v3 discovery exposes a release-critical issue.
+V3 covers the local-first job-search workspace and its accepted enhancement line.
+The [Master Execution Plan](master-exec-plan.md) owns scope, sequence, decisions,
+verification and handoff. Strategy references do not independently add scope.
 
-This directory is intentionally expansive. V3 can include a full refactor,
-paper-driven model changes, new source architecture, new browser companion
-workflows, a local agent runtime, and a different product shape. Rust remains
-the base of JobSentinel and the primary local trust boundary. The point of this
-package is to think beyond "make v2 better" and identify what would make
-JobSentinel genuinely impressive.
+The [remaining development queue](master-exec-plan.md#remaining-development-queue)
+implements the user's 2026-10-28 reprioritization. Complete accepted code and
+cleanup before broad qualification or delivery. Earlier suggested timing in
+reference documents does not override this queue. The [current status](../../harness/current-status.md)
+owns the selected child; D0 and R13 have development acceptance, while E15 has an
+implementation checkpoint awaiting acceptance.
 
-## Baseline
+## Current source foundations
 
-V2.9 provides the foundation:
+The unreleased v3 source builds on the published v2.9.5 foundation with:
 
 - Local-first desktop storage with no hosted account or telemetry requirement.
 - Public and official-source job checks, employer-careers discovery, Browser
@@ -27,7 +29,7 @@ V2.9 provides the foundation:
   offer workflows.
 
 See [Features And Capabilities](../../features/capabilities.md) for the
-maintained v2.9 map.
+maintained capability map and its development/release boundaries.
 
 ## V3 Target
 
@@ -47,11 +49,12 @@ That means:
   local, and useful without large model downloads.
 - V3 is the easiest release to install, set up, recover, and use.
 
-V3 is also the first long-term compatibility boundary. Releases before v3 may
-provide best-effort forward migration, but they do not carry a durable backward
-compatibility promise. Starting with v3, JobSentinel should lock the long-term
-architecture, define stable data and config contracts, and support documented
-rollback paths within the v3 compatibility line.
+V3.0.0 is the first supported compatibility baseline. JobSentinel makes no
+forward-migration, rollback, or contract-compatibility promise for databases,
+settings, APIs, packs, or artifacts created before v3.0.0. Starting with v3,
+JobSentinel should lock the long-term architecture, define stable data and
+config contracts, and support documented rollback paths within the v3
+compatibility line.
 
 ## Non-Negotiables
 
@@ -81,6 +84,7 @@ burdens for the user, not hidden behavior.
 
 | Doc | Purpose |
 | --- | --- |
+| [V3 Master Execution Plan](master-exec-plan.md) | Sole active execution owner for the v3.0 and v3.x scope, backlog disposition, milestones, gates, verification, and release closure. |
 | [North Star](north-star.md) | Product vision, strategic bets, and anti-goals. |
 | [Idea Catalog](idea-catalog.md) | Broad v3 feature and moonshot inventory. |
 | [Idea Index](idea-index.md) | Ranked benefit and effort index for v3 ideas and implementation sequencing. |
@@ -102,6 +106,10 @@ burdens for the user, not hidden behavior.
 | [Compatibility And Migration](compatibility-and-migration.md) | V3 as the first supported long-term compatibility and rollback boundary. |
 | [Research Agenda](research-agenda.md) | Papers, prototypes, and evaluations that should inform v3 decisions. |
 | [Evaluation And Release Bar](evaluation-and-release-bar.md) | How v3 ideas should be tested before they are considered release-ready. |
+
+Every release must complete separate full **Stability → Performance → Security** phases
+in order. The [Release Contract](../../developer/RELEASING.md#mandatory-final-release-phases)
+owns their gates; focused development checks do not replace them.
 
 ## Planning Rules
 

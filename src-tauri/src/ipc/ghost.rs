@@ -1,14 +1,12 @@
-//! Ghost job detection Tauri commands (v1.4)
-//!
-//! Commands for identifying and filtering ghost/fake job postings.
+//! Adapts posting-risk inspection and user-reviewed detection settings to Tauri.
 
+use crate::bootstrap::operation::State;
 use crate::bootstrap::AppState;
 use crate::desktop::path_label_for_logging;
 use crate::desktop::GhostConfig;
 use crate::ipc::errors::user_friendly_error;
 use crate::ipc::limits::{validate_command_limit_i64, validate_optional_command_limit_i64};
 use serde_json::Value;
-use tauri::State;
 
 fn validate_ghost_threshold(threshold: Option<f64>) -> Result<f64, String> {
     let threshold = threshold.unwrap_or(0.5);

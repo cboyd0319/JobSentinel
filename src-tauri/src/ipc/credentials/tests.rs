@@ -1,17 +1,18 @@
+//! Verifies credential commands against isolated vaults and sanitized errors.
+
 use super::*;
 use crate::desktop::Database;
 
 async fn test_credentials() -> CredentialService {
     let database = Database::connect_memory().await.unwrap();
     database.migrate().await.unwrap();
-    CredentialService::with_fixed_master_key(database.credentials(), [17_u8; 32], false)
+    CredentialService::with_fixed_master_key(database.credentials(), [17_u8; 32])
 }
 
 async fn test_credentials_with_pool() -> (Database, CredentialService) {
     let database = Database::connect_memory().await.unwrap();
     database.migrate().await.unwrap();
-    let credentials =
-        CredentialService::with_fixed_master_key(database.credentials(), [17_u8; 32], false);
+    let credentials = CredentialService::with_fixed_master_key(database.credentials(), [17_u8; 32]);
     (database, credentials)
 }
 
@@ -106,12 +107,15 @@ async fn passphrase_mode_locks_restarted_service_until_unlock() {
     )
     .await
     .unwrap();
-    enable_credential_passphrase_with_service("correct battery staple".to_string(), &credentials)
-        .await
-        .unwrap();
+    enable_credential_passphrase_with_service(
+        "correct battery staple".to_string(),
+        &credentials,
+        &tokio::sync::RwLock::new(Config::first_run()),
+    )
+    .await
+    .unwrap();
 
-    let restarted =
-        CredentialService::with_fixed_master_key(database.credentials(), [17_u8; 32], false);
+    let restarted = CredentialService::with_fixed_master_key(database.credentials(), [17_u8; 32]);
     let locked_status = get_credential_unlock_status_with_service(&restarted)
         .await
         .unwrap();
@@ -149,12 +153,15 @@ async fn passphrase_mode_locks_restarted_service_until_unlock() {
 #[tokio::test]
 async fn wrong_passphrase_error_does_not_echo_input() {
     let (database, credentials) = test_credentials_with_pool().await;
-    enable_credential_passphrase_with_service("correct battery staple".to_string(), &credentials)
-        .await
-        .unwrap();
+    enable_credential_passphrase_with_service(
+        "correct battery staple".to_string(),
+        &credentials,
+        &tokio::sync::RwLock::new(Config::first_run()),
+    )
+    .await
+    .unwrap();
 
-    let restarted =
-        CredentialService::with_fixed_master_key(database.credentials(), [17_u8; 32], false);
+    let restarted = CredentialService::with_fixed_master_key(database.credentials(), [17_u8; 32]);
     let err = unlock_credential_vault_with_service("wrong secret value".to_string(), &restarted)
         .await
         .unwrap_err();
@@ -166,22 +173,76 @@ async fn wrong_passphrase_error_does_not_echo_input() {
 #[tokio::test]
 async fn passphrase_mode_can_return_to_system_locking() {
     let (database, credentials) = test_credentials_with_pool().await;
-    enable_credential_passphrase_with_service("correct battery staple".to_string(), &credentials)
-        .await
-        .unwrap();
+    enable_credential_passphrase_with_service(
+        "correct battery staple".to_string(),
+        &credentials,
+        &tokio::sync::RwLock::new(Config::first_run()),
+    )
+    .await
+    .unwrap();
 
-    disable_credential_passphrase_with_service("correct battery staple".to_string(), &credentials)
-        .await
-        .unwrap();
+    disable_credential_passphrase_with_service(
+        "correct battery staple".to_string(),
+        &credentials,
+        &tokio::sync::RwLock::new(Config::first_run()),
+    )
+    .await
+    .unwrap();
 
-    let restarted =
-        CredentialService::with_fixed_master_key(database.credentials(), [17_u8; 32], false);
+    let restarted = CredentialService::with_fixed_master_key(database.credentials(), [17_u8; 32]);
     let status = get_credential_unlock_status_with_service(&restarted)
         .await
         .unwrap();
     assert_eq!(status.mode, "system");
     assert!(!status.configured);
     assert!(status.unlocked);
+}
+
+#[tokio::test]
+async fn shared_computer_mode_preserves_its_unlock_method_until_disabled() {
+    let credentials = test_credentials().await;
+    let config = tokio::sync::RwLock::new(Config::first_run());
+    enable_credential_passphrase_with_service(
+        "correct battery staple".into(),
+        &credentials,
+        &config,
+    )
+    .await
+    .unwrap();
+    config.write().await.shared_computer_mode = true;
+    assert_eq!(
+        disable_credential_passphrase_with_service(
+            "correct battery staple".into(),
+            &credentials,
+            &config,
+        )
+        .await
+        .unwrap_err(),
+        SHARED_COMPUTER_LOCK_CHANGE
+    );
+    assert_eq!(
+        enable_credential_passphrase_with_service(
+            "different passphrase".into(),
+            &credentials,
+            &config,
+        )
+        .await
+        .unwrap_err(),
+        SHARED_COMPUTER_LOCK_CHANGE
+    );
+    credentials
+        .verify_app_unlock(Some("correct battery staple"))
+        .await
+        .unwrap();
+    config.write().await.shared_computer_mode = false;
+    disable_credential_passphrase_with_service(
+        "correct battery staple".into(),
+        &credentials,
+        &config,
+    )
+    .await
+    .unwrap();
+    assert!(!credentials.unlock_status().await.unwrap().configured);
 }
 
 #[tokio::test]

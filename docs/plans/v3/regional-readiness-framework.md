@@ -1,3 +1,5 @@
+<!-- Defines bounded regional starter coverage, static-pack delivery, and readiness evidence. -->
+
 # Regional Readiness Framework
 
 V3 should try to become useful outside the United States without pretending it
@@ -150,6 +152,54 @@ V3 should expose:
 - "This region pack is starter coverage" labels when coverage is incomplete.
 - feedback button for missing sources, formats, or terms.
 
+## Gate 4 Delivery Decisions
+
+- Deliver optional user-selected region data as signed static `Region` packs.
+  Static packs receive no executable action, credential, external AI, or
+  network authority.
+- Keep every live source behind its separate reviewed source manifest and exact
+  operation grant. Installing a region pack cannot authorize a request.
+- Keep region packs out of Essentials defaults and make them independently
+  installable, disableable, removable, and upgradeable in Milestone 9.
+- Treat `reviewed_on` as visible provenance for static taxonomy and CV guidance,
+  not as source authorization or a universal expiry. Reuse each runtime source
+  manifest's evidence-backed `max_age_days`; stale source policy stops network
+  actions without deleting dated static guidance.
+- Keep GOV.UK Find a job and UK SOC 2020, EURES, ESCO and Europass, and India's
+  National Career Service, NCO 2015 and NSQF/NOS as research seeds until their
+  regional fixtures and source-specific reviews pass.
+
+These decisions do not label a region pack ready. Current manifests remain
+English-only starter research metadata with incomplete-coverage labels.
+
+The runtime accepts signed static `Region` payloads containing a validated
+region manifest. Activation, disable, upgrade, rollback, and removal use the
+existing pack lifecycle. Opening a region review re-verifies the active
+artifact and generation, then displays dated research as inert text without
+granting source access. The production registry has no region publisher yet;
+publisher enrollment and signed production starter artifacts remain required
+in M11 before delivery. M9 implements explicit country/work-mode handling and
+native currency/pay-period preservation; it does not infer eligibility or
+convert currencies.
+
+Optional `jobsentinel.v3.region-starter-data.v1` content adds searchable
+occupation codes, source labels, canonical vocabulary, CV planning profiles,
+and public-source notes without changing the frozen region manifest. Its
+independent review date and manifest-bound taxonomy/profile IDs travel inside
+the signed payload. Missing starter data preserves legacy review; malformed
+supplied data fails closed. None of this content changes matching scores,
+invents credentials, fills a CV, or grants source access.
+
+The English-only examples preserve source identifiers and distinguish tentative
+JobSentinel vocabulary alignments from official classifications. The ESCO row
+retains its exact concept URI; its publisher reference documents the catalogue
+API, not the individual record. The India NCO code and label are corroborated by
+the [MSDE/NCAER secondary table](https://www.msde.gov.in/static/uploads/2025/07/6a62ad4129b524c392ed1450393804f4.pdf),
+Annexure 10.1, p. 279, row 30; the canonical NCO volume was not inspected.
+The related NQR qualification reference is cached and identifies a different
+NCO code, not an equivalence. Neither these examples nor successful pack
+self-tests establish full regional readiness.
+
 ## Regional Evaluation
 
 Each region pack needs tests for:
@@ -165,8 +215,12 @@ Each region pack needs tests for:
 - missing-data behavior
 - plain-language warning copy
 
-V3 should not claim a region is ready unless the starter pack passes fixtures
-and manual review.
+Use focused fixtures while developing the affected behavior. M9's three Qwen3
+regional pairs establish only their tested selection and abstention outcomes,
+not broad multilingual calibration. Production signing, installed lifecycle,
+complete regional manual review, and final readiness evidence belong to M11
+after major development. V3 must not claim a region is ready before those
+requirements pass; no permission or requirement is waived by moving the gate.
 
 ## V4 Handoff
 

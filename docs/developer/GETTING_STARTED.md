@@ -1,11 +1,17 @@
+<!-- Documents getting Started with JobSentinel. -->
+
 # Getting Started with JobSentinel
 
 ## Project Status
 
+This guide describes the development tree, not release acceptance. The
+[current state](../harness/current-status.md) and feature ledger own verified
+checkpoints and remaining work; the source version may differ from the published release.
+
 | Component                                                                                                                            | Status                                       |
 | ------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------- |
-| Core modules (config, db, scoring, scrapers, scheduler, notify, ghost, ats, resume, salary, market, automation, credentials, health) | Working                                      |
-| Frontend (React 19 + TypeScript)                                                                                                     | Working                                      |
+| Core modules (config, db, scoring, scrapers, scheduler, notify, ghost, ats, resume, salary, market, automation, credentials, health) | Implemented; acceptance tracked in the feature ledger |
+| Frontend (React 19 + TypeScript)                                                                                                     | Implemented; acceptance tracked in the feature ledger |
 | Verification                                                                                                                         | `npm run harness:check`, frontend tests, Rust tests, and E2E tests |
 
 ---
@@ -114,7 +120,7 @@ JobSentinel/
 - src-tauri/: thin Tauri desktop shell
   - src/main.rs: minimal app entry
   - src/lib.rs: private shell composition and public run function
-  - src/commands/: private Tauri RPC command handlers
+  - src/ipc/: private Tauri RPC command handlers
   - Cargo.toml: app-only dependencies
 - Cargo.toml: explicit workspace members, metadata, dependencies, and lints
 - Cargo.lock, .cargo/, .sqlx/, clippy.toml, deny.toml: root Cargo policy
@@ -215,7 +221,9 @@ When running `npm run tauri:dev`, press `Ctrl+Shift+I` (Windows) to open Chrome 
 
 ### Database
 
-The SQLite database is **created automatically** on first launch — no setup needed.
+Installed-mode startup creates a supported encrypted database when no existing
+or interrupted primary data needs recovery. Portable mode requires an explicit
+profile and passphrase; see [portable profiles](../features/user-data-management.md#portable-profiles).
 
 **Database location by platform:**
 

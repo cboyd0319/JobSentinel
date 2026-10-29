@@ -1,6 +1,4 @@
-//! Email Notifications via SMTP
-//!
-//! Sends rich HTML-formatted job alerts via email using SMTP.
+//! Formats and sends bounded HTML job alerts through SMTP email.
 
 use super::{
     notification_job_href, Notification, LOCAL_JOB_LINK_MESSAGE, LOCAL_MATCH_DETAILS_MESSAGE,
@@ -93,7 +91,7 @@ fn format_html_email(
     let company = escape_html(&job.company);
     let location = escape_html(job.location.as_deref().unwrap_or("N/A"));
     let source = escape_html(&job.source);
-    let salary_display = super::format_salary_range(job.salary_min, job.salary_max);
+    let salary_display = super::format_salary_range(job);
     let salary_display = escape_html(&salary_display);
 
     let reason_items = format!("<li>{}</li>", escape_html(LOCAL_MATCH_DETAILS_MESSAGE));
@@ -221,7 +219,7 @@ fn format_text_email(
     job: &jobsentinel_domain::Job,
     score: &jobsentinel_intelligence::JobScore,
 ) -> String {
-    let salary_display = super::format_salary_range(job.salary_min, job.salary_max);
+    let salary_display = super::format_salary_range(job);
     let local_match_details = format!("  - {}", LOCAL_MATCH_DETAILS_MESSAGE);
     let job_link =
         validated_job_href(&job.url).unwrap_or_else(|| LOCAL_JOB_LINK_MESSAGE.to_string());

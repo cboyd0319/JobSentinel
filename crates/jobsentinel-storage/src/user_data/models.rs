@@ -1,3 +1,5 @@
+//! Defines saved user records and typed notification preferences.
+
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 
@@ -224,15 +226,13 @@ pub struct SourceNotificationConfig {
 
 /// Advanced notification filters
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct AdvancedFilters {
     pub include_keywords: Vec<String>,
     pub exclude_keywords: Vec<String>,
     pub min_salary: Option<i64>,
     pub remote_only: bool,
-    #[serde(alias = "company\u{57}hitelist")]
     pub included_companies: Vec<String>,
-    #[serde(alias = "company\u{42}lacklist")]
     pub excluded_companies: Vec<String>,
 }
 

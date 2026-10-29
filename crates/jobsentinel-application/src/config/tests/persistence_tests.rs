@@ -1,3 +1,5 @@
+//! Verifies config persistence, canonical company keys and read-only rejection of retired inputs.
+
 use super::*;
 use crate::config::defaults::default_bookmarklet_port;
 
@@ -65,36 +67,47 @@ fn test_load_legacy_config_defaults_bookmarklet_port() {
 }
 
 #[test]
-fn test_load_preserves_pre_refactor_company_preferences() {
-    let temp_dir = TempDir::new().expect("Failed to create temp dir");
-    let config_path = temp_dir.path().join("config.json");
-    let mut original = create_valid_config();
-    original.preferred_companies = vec!["Google".to_string()];
-    original.blocked_companies = vec!["Revature".to_string()];
-    let mut stored_config =
-        serde_json::to_value(original).expect("Failed to serialize test config");
-    let object = stored_config
-        .as_object_mut()
-        .expect("test config should be an object");
-    let preferred = object
-        .remove("preferred_companies")
-        .expect("preferred companies should exist");
-    let blocked = object
-        .remove("blocked_companies")
-        .expect("blocked companies should exist");
-    object.insert(["company_", "white", "list"].concat(), preferred);
-    object.insert(["company_", "black", "list"].concat(), blocked);
+fn retired_company_keys_are_rejected_without_changing_saved_config() {
+    let directory = TempDir::new().unwrap();
+    let path = directory.path().join("config.json");
+    for (retired, current) in [
+        ("company_whitelist", "preferred_companies"),
+        ("company_blacklist", "blocked_companies"),
+    ] {
+        for mixed in [false, true] {
+            let mut value = serde_json::to_value(create_valid_config()).unwrap();
+            if !mixed {
+                value.as_object_mut().unwrap().remove(current);
+            }
+            value[retired] = serde_json::json!(["private company preference"]);
+            let original = serde_json::to_vec_pretty(&value).unwrap();
+            fs::write(&path, &original).unwrap();
+            assert!(
+                Config::load(&path).is_err(),
+                "accepted {retired}, mixed={mixed}"
+            );
+            assert_eq!(fs::read(&path).unwrap(), original);
+        }
+    }
+}
 
-    fs::write(
-        &config_path,
-        serde_json::to_string_pretty(&stored_config).expect("Failed to serialize stored config"),
-    )
-    .expect("Failed to write stored config");
-
-    let loaded_config = Config::load(&config_path).expect("Failed to load stored config");
-
-    assert_eq!(loaded_config.preferred_companies, vec!["Google"]);
-    assert_eq!(loaded_config.blocked_companies, vec!["Revature"]);
+#[test]
+fn canonical_company_preferences_and_documentation_keys_round_trip() {
+    let directory = TempDir::new().unwrap();
+    let path = directory.path().join("config.json");
+    let mut value = serde_json::to_value(create_valid_config()).unwrap();
+    value["preferred_companies"] = serde_json::json!(["CareBridge"]);
+    value["blocked_companies"] = serde_json::json!(["AvoidMe"]);
+    value["_comment"] = "Current configuration".into();
+    value["_company_preferences_help"] = "Company names are local preferences".into();
+    fs::write(&path, serde_json::to_vec(&value).unwrap()).unwrap();
+    let loaded = Config::load(&path).unwrap();
+    assert_eq!(loaded.preferred_companies, ["CareBridge"]);
+    assert_eq!(loaded.blocked_companies, ["AvoidMe"]);
+    loaded.save(&path).unwrap();
+    let reloaded = Config::load(&path).unwrap();
+    assert_eq!(reloaded.preferred_companies, loaded.preferred_companies);
+    assert_eq!(reloaded.blocked_companies, loaded.blocked_companies);
 }
 
 #[test]
@@ -181,4 +194,52 @@ fn test_save_preserves_formatting() {
         "Config should be pretty-printed with newlines"
     );
     assert!(content.contains("  "), "Config should be indented");
+}
+
+#[test]
+fn duplicate_canonical_config_keys_are_rejected_without_mutating_file() {
+    let directory = TempDir::new().unwrap();
+    let path = directory.path().join("config.json");
+    let mut original = serde_json::to_string(&create_valid_config()).unwrap();
+    assert_eq!(original.pop(), Some('}'));
+    original.push_str(",\"preferred_companies\":[\"duplicate\"]}");
+    fs::write(&path, &original).unwrap();
+    let error = Config::load(&path).unwrap_err();
+    assert!(error.to_string().contains("duplicate field"));
+    assert_eq!(fs::read_to_string(&path).unwrap(), original);
+}
+
+#[test]
+fn plaintext_credential_fields_are_rejected_without_rewriting_config() {
+    let directory = TempDir::new().unwrap();
+    let path = directory.path().join("config.json");
+    let current = serde_json::to_value(create_valid_config()).unwrap();
+    for pointer in [
+        "/alerts/email/smtp_password",
+        "/alerts/telegram/bot_token",
+        "/alerts/slack/webhook_url",
+        "/alerts/discord/webhook_url",
+        "/alerts/teams/webhook_url",
+        "/linkedin/session_cookie",
+        "/usajobs/api_key",
+    ] {
+        for value in [
+            serde_json::Value::Null,
+            serde_json::json!(""),
+            serde_json::json!("private-test-value"),
+        ] {
+            let mut payload = current.clone();
+            let mut target = &mut payload;
+            for segment in pointer.trim_start_matches('/').split('/') {
+                target = &mut target[segment];
+            }
+            *target = value;
+            let bytes = serde_json::to_vec(&payload).unwrap();
+            fs::write(&path, &bytes).unwrap();
+            let error = Config::load(&path).unwrap_err().to_string();
+            assert!(error.contains("Plaintext credential config fields are unsupported"));
+            assert!(!error.contains("private-test-value"));
+            assert_eq!(fs::read(&path).unwrap(), bytes);
+        }
+    }
 }

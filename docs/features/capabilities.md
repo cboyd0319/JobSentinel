@@ -1,11 +1,12 @@
+<!-- Maps JobSentinel's current user-facing capabilities, implementation boundaries, and release status. -->
+
 # Features And Capabilities
 
-Last reviewed: 2026-07-13.
+Last reviewed: 2026-10-28.
 
 This page is the single maintained map of what JobSentinel can do in the
-current source line. The `v2.9.5` source candidate retains the published
-product boundary while reorganizing the repository and strengthening local
-database integrity, ownership, and verification.
+current source line. Development metadata targets the unreleased `3.0.0` line.
+The published `v2.9.5` release remains the latest public product boundary.
 Detailed behavior stays in the linked feature, security, architecture,
 research, and harness docs.
 
@@ -32,7 +33,7 @@ account, telemetry, cloud sync, or external AI provider.
 | Mechanic | Current behavior |
 | --- | --- |
 | Source taxonomy and routing | Public feeds, employer career pages, ATS families, regional boards, public boards, restricted sources, search links, Browser Import, and manual paths are treated as distinct source classes. |
-| Restricted-source Workbench | Sign-in-backed sources stay user-started and visible, with acknowledgement, local ledger actions, visible-job import, and no stored session material. |
+| Restricted-source Workbench | Sign-in-backed sources stay user-started and visible, with native review, local ledger actions, user-entered details, and no page capture or stored session material. |
 | Evidence-bounded resume matching | Resume help connects requirements to concrete local resume evidence, readability signals, hard gaps, and truthful draft suggestions. |
 | Local model governance | `crates/jobsentinel-local-ai/models.lock.toml` controls model identity, revision, hashes, size, license, backend compatibility, instructions, thresholds, and stale-vector rules. |
 | Hybrid ranking | Dense retrieval, BM25, exact skill taxonomy hits, required coverage, seniority, blocker caps, reranker scores, and provenance are scored separately. |
@@ -44,14 +45,18 @@ account, telemetry, cloud sync, or external AI provider.
 
 | Item | Current state |
 | ---- | ------------- |
-| Source status | `v2.9.5` is the current source candidate and is not published yet |
-| Public release | `v2.9.1` remains the latest verified GitHub release with Windows, macOS, Linux, and Agent Skills assets |
+| Source status | `3.0.0` is the current development source version and is unreleased |
+| Public release | `v2.9.5` is the latest verified GitHub release with Windows, macOS, Linux, and Agent Skills assets |
 | Primary platforms | Windows 11+, macOS, and Linux |
 | Default data model | Local SQLite and local settings |
 | Telemetry | None |
 | External AI | Optional, disabled by default, routed through the privacy-first AI gateway |
 | Restricted job sources | User-gated, local, review-first paths only |
 | Final application submission | Always user-controlled outside JobSentinel |
+
+R13 shared-computer privacy has development acceptance. E15 portable profiles
+have an implementation checkpoint; installed-platform qualification is still
+pending. These Next changes do not expand the approved v3.0 release cut.
 
 Use [current status](../harness/current-status.md) for current release gates and
 [the README](../../README.md) for public download status.
@@ -63,7 +68,7 @@ Use [current status](../harness/current-status.md) for current release gates and
 | Setup and saved searches | Start from plain job goals, locations, pay floors, work modes, and reviewed source choices | Local only, sensitive | [Quick Start](../user/QUICK_START.md), [local data](user-data-management.md) |
 | Job discovery and source checks | Check approved public job sources, official feeds, and employer career pages within source limits | Local storage; source requests only after user configuration or opt-in | [Job Sources](job-sources.md), [Job Source Status](job-source-status.md) |
 | Company careers discovery | Classify employer career pages and route them to native source support, Browser Import, pasted links, or manual entry | Local classification, then user-approved source action | [Job Sources](job-sources.md) |
-| Restricted-source Workbench | Help users work from user-opened restricted sites with acknowledgement, visible-page import, local ledger actions, and no stored auth material | Local only after user action; no cookies, tokens, browser storage, or hidden page state | [Job Sources](job-sources.md), [Browser Import Button](browser-import.md) |
+| Restricted-source Workbench | Help users work from user-opened restricted sites with acknowledgement, user-entered posting details, local ledger actions, and no page capture or stored auth material | Local only after user action; no cookies, tokens, browser storage, or hidden page state | [Job Sources](job-sources.md), [Browser Import Button](browser-import.md) |
 | Browser Import | Send visible jobs from a user-opened browser page into a local review queue | Local one-use import detail; reviewed records stay local | [Browser Import Button](browser-import.md) |
 | Dashboard and job cards | Show fit, source, pay, freshness, posting-risk, reminders, and next actions | Local job records and public posting details | [Fit Review](smart-scoring.md), [Ghost Detection](ghost-detection.md), [Pay Protection](pay-protection.md) |
 | Fit review | Sort and explain jobs using titles, work words, salary, location, company preferences, freshness, and optionally reviewed resume skills | Local only | [Fit Review](smart-scoring.md), [Remote And Work-Mode Matching](remote-preference-scoring.md), [Synonym Matching](synonym-matching.md) |
@@ -77,6 +82,8 @@ Use [current status](../harness/current-status.md) for current release gates and
 | Application Assist | Prepare profile details in a visible browser, review hard screening questions, and keep final submission manual | Local only; selected resume file stays local and manual to attach | [Application Assist](application-assist.md) |
 | Application tracking | Track opportunities, statuses, notes, contacts, follow-ups, interviews, offers, and no-response review | Local only, sensitive | [Application Tracking](application-tracking.md) |
 | Notifications | Send optional desktop, email, Slack, Discord, Teams, or Telegram alerts after user configuration | Desktop local; external channels receive only alert details the user enabled | [Notifications](notifications.md), [Saved Secrets](saved-secrets.md) |
+| Shared-computer privacy | Lock private views and native access; review transient-session cleanup; unlock with fresh verification | Local only, sensitive; saved records remain | [Local Job-Search Data](user-data-management.md#shared-computer-privacy) |
+| Portable profiles | Select a private profile root, unlock before database use, move managed resume references and recover compatible data | Local only, sensitive; profile passphrase and ephemeral browser state | [Portable profiles](user-data-management.md#portable-profiles) |
 | Safe support and backups | Create sanitized support reports, local settings backups, and recovery guidance | Local by default; user reviews before sharing | [Local Job-Search Data](user-data-management.md), [Privacy](../../PRIVACY.md) |
 | Saved secrets | Store alert passwords, connection links, and source access codes in a local encrypted vault | Local vault protected by the operating system password store or passphrase mode | [Saved Secrets](saved-secrets.md), [Keyring](../security/KEYRING.md) |
 | External AI gateway | Let users configure OpenAI, Anthropic, Google Gemini, GitHub Copilot, or custom HTTPS providers for approved optional actions | Disabled by default; preview, edit, cancel, approval, redaction, and metadata-only logs | [Privacy-first AI Gateway](../security/privacy-first-ai-gateway.md), [Responsible AI](../../RESPONSIBLE_AI.md) |
@@ -106,12 +113,13 @@ acknowledgement or sign-in-session boundaries.
 | Source class | Examples | Current behavior |
 | ------------ | -------- | ---------------- |
 | Official hiring APIs and feeds | Greenhouse, Lever, RemoteOK, USAJobs, public employer feeds | Normal opt-in source checks with rate limits, safe errors, and local storage |
-| Public job boards and aggregators | WeWorkRemotely, BuiltIn, Dice, SimplyHired, Glassdoor | User-approved checks with source-specific warnings where terms or access risk is unclear |
+| Reviewed public job feed | WeWorkRemotely | Governed opt-in checks with a reviewed endpoint, pacing, fixtures, and safe errors |
+| Retired restricted scheduled adapters | Built In, Dice HTML, SimplyHired, Glassdoor | Disabled after provider policy review; stale config cannot restore transport |
 | Employer career pages | Fivetran, SpaceX, Google, Microsoft, Amazon, GitHub, OpenAI, Anthropic, and other company pages | Classify the platform first, then use native support, Browser Import, pasted link import, or manual entry |
 | Reviewed ATS families | Greenhouse, Lever, Ashby, Workable, SmartRecruiters, Workday, iCIMS/Jibe, Breezy, JazzHR, Bullhorn, Eightfold, Jobvite, Teamtailor, Recruitee, Taleo, SAP SuccessFactors, Oracle Recruiting, Phenom, Radancy/TalentBrew | Taxonomy-backed discovery, with native scheduled support only after source-specific review and fixtures |
 | Native source-adapter contracts from API research | Workday Candidate Experience listing JSON, Phenom widget refineSearch JSON, Radancy/TalentBrew static HTML | Parser and canonical-record contracts exist; live scheduling still needs tenant-specific policy, robots, rate-limit, endpoint-stability, and parser checks |
 | Restricted authenticated sources | LinkedIn and similar sign-in-backed sources | User starts the session, sees the warning before sign-in, uses the site directly, and imports or logs only user-selected visible information |
-| Search-link destinations | LinkedIn, USAJobs, Google Jobs Search, regional boards, company search pages | Open in the user's browser, then use Browser Import, pasted links, or manual entry if the user chooses |
+| Search-link destinations | LinkedIn, USAJobs, Google Jobs Search, regional boards, company search pages | Open in the user's browser, then use a policy-permitted import, pasted details, or manual entry; LinkedIn page capture is blocked |
 
 Restricted-source support is intentionally explicit. JobSentinel should make
 the secure local path easy, but it must not store login details, session
@@ -181,11 +189,14 @@ keys stay in the local secure vault. Users can configure more than one provider
 and set preference order and model names.
 
 The shipped provider-backed UI action remains public job-posting summary from a
-job card. It uses reviewed public posting fields only, after preview, edit,
-cancel, approval, redaction, and backend validation. Metadata-only request
-history is stored locally.
+job card. It uses unchanged stored public posting fields only, after preview,
+optional field removal, cancel, redaction, backend validation, and trusted
+native confirmation. The exact request needs an expiring, single-use backend
+approval, a durable metadata-only lifecycle, and a bound privacy receipt before
+provider transport. Settings shows a bounded projection of that durable
+lifecycle without payloads, responses, credentials, or raw errors.
 
-No private-data external AI feature ships in the current maintenance line. Any
+No private-data external AI feature ships in the v3 execution line. Any
 future resume, salary-floor, private-note, or application-history send needs
 feature-specific payload minimization, privacy labels, backend validation,
 preview, edit, cancel, approval, redaction, and tests before it can be enabled.
@@ -199,7 +210,7 @@ preview, edit, cancel, approval, redaction, and tests before it can be enabled.
 | Hide keywords, add invisible text, or prompt-inject resumes | These tactics are deceptive and unsafe. |
 | Guarantee employer response or hiring outcome | JobSentinel provides candidate-side decision support, not employer predictions. |
 | Treat pay guidance as legal advice | Pay cues help users ask better questions and review written ranges. |
-| Run hidden restricted-source monitoring | Restricted sources require explicit user action and acknowledgement. |
+| Run hidden restricted-source monitoring | Restricted sources remain user-directed, and provider automation prohibitions cannot be overridden locally. |
 | Store restricted-site cookies, tokens, browser storage, or auth headers | Credential and session capture is outside the product boundary. |
 | Solve human checks or bypass platform controls | Source boundaries and user privacy remain non-negotiable. |
 | Upload the local job database by default | Core workflows are local-first. |

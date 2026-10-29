@@ -1,7 +1,7 @@
-import {
-  hasConfiguredJobsWithGpt,
-  hasEnabledMockScraperSource,
-} from "./sources/scraperHealth";
+/** Projects browser-development settings commands and validates saved mock preferences. */
+
+import { hasEnabledMockScraperSource } from "./sources/scraperHealth";
+import { hasValidMockSearchCountryPreference } from "../../mocks/data";
 import {
   getArg,
   getDefaultGhostConfig,
@@ -15,7 +15,6 @@ import type {
   MockConfig,
   MockCredentialKey,
   MockCredentialUnlockState,
-  MockDashboardPreferences,
   MockGhostConfig,
   MockPendingBookmarkletImport,
 } from "../../mocks/handlers/types";
@@ -62,7 +61,12 @@ export function handleMockSettingsCommand(
       return withoutSave(state, state.config);
 
     case "get_dashboard_preferences":
-      return withoutSave(state, getMockDashboardPreferences(state.config));
+      return withoutSave(state, {
+        autoRefresh: { ...state.config.auto_refresh },
+        salaryFloorUsd: state.config.salary_floor_usd,
+        anyJobSourceEnabled: anyMockJobSourceEnabled(state.config),
+        searchCountry: state.config.location_preferences.search_country ?? null,
+      });
 
     case "get_resume_matching_preference":
       return withoutSave(state, {
@@ -84,15 +88,7 @@ export function handleMockSettingsCommand(
       };
 
     case "save_config":
-      return {
-        handled: true,
-        shouldSave: true,
-        state: {
-          ...state,
-          config: { ...state.config, ...(getArg(args, "config") as object) },
-        },
-        value: undefined,
-      };
+      return saveConfig(args, state);
 
     case "get_credential_status":
       return withoutSave(
@@ -191,7 +187,7 @@ export function handleMockSettingsCommand(
     case "validate_slack_webhook":
     case "test_email_notification":
     case "copy_bookmarklet_code":
-      return withoutSave(state, undefined);
+      return withoutSave(state, true);
 
     case "get_bookmarklet_config":
       return withoutSave(state, state.bookmarkletConfig);
@@ -226,13 +222,6 @@ export function handleMockSettingsCommand(
         state.bookmarkletConfig.enabled,
       );
 
-    case "send_external_ai_request":
-      return withoutSave(state, {
-        text: "Mock outside AI summary: review the original posting before using this summary.",
-        provider: "open_ai",
-        model: "mock-local-development",
-      });
-
     case "get_semantic_matching_diagnostics":
       return withoutSave(state, {
         build_enabled: true,
@@ -257,6 +246,8 @@ export function handleMockSettingsCommand(
             required_files_present: 0,
             locked_size_bytes: 641000000,
             downloaded: false,
+            cache_present: false,
+            health: "missing",
             required_for_qwen3_runtime: true,
           },
           {
@@ -272,6 +263,8 @@ export function handleMockSettingsCommand(
             required_files_present: 0,
             locked_size_bytes: 690000000,
             downloaded: false,
+            cache_present: false,
+            health: "missing",
             required_for_qwen3_runtime: true,
           },
         ],
@@ -299,6 +292,12 @@ export function handleMockSettingsCommand(
         user_action:
           "Download the pinned local models before using Qwen3 semantic matching.",
       });
+
+    case "download_ml_model":
+    case "cancel_ml_model_download":
+    case "remove_ml_models":
+    case "repair_semantic_matching_model_cache":
+      return withoutSave(state, true);
 
     default:
       return {
@@ -467,13 +466,24 @@ function updateBookmarkletPort(
   };
 }
 
-function getMockDashboardPreferences(
-  config: MockConfig,
-): MockDashboardPreferences {
+function saveConfig(
+  args: Record<string, unknown> | undefined,
+  state: MockSettingsCommandState,
+): MockSettingsCommandResult {
+  const config = getArg(args, "config");
+  if (!config || typeof config !== "object" || Array.isArray(config)) {
+    throw new Error("Configuration must be an object.");
+  }
+  const configRecord = config as Record<string, unknown>;
+  if (!hasValidMockSearchCountryPreference(configRecord.location_preferences)) {
+    throw new Error("location_preferences.search_country must be a recognized uppercase country code.");
+  }
+
   return {
-    autoRefresh: { ...config.auto_refresh },
-    salaryFloorUsd: config.salary_floor_usd,
-    anyJobSourceEnabled: anyMockJobSourceEnabled(config),
+    handled: true,
+    shouldSave: true,
+    state: { ...state, config: { ...state.config, ...configRecord } },
+    value: undefined,
   };
 }
 
@@ -482,7 +492,6 @@ function anyMockJobSourceEnabled(config: MockConfig): boolean {
   return (
     hasEnabledMockScraperSource(configRecord) ||
     hasConfiguredUrlList(configRecord, "greenhouse_urls") ||
-    hasConfiguredUrlList(configRecord, "lever_urls") ||
-    hasConfiguredJobsWithGpt(configRecord)
+    hasConfiguredUrlList(configRecord, "lever_urls")
   );
 }

@@ -1,3 +1,5 @@
+<!-- Describes local pay evidence, comparison limits, and reviewed negotiation guidance. -->
+
 # Pay Protection
 
 Pay Protection helps job seekers compare role pay against salary floors, range
@@ -10,7 +12,7 @@ fixed by asking harder.
 
 - Compare a role against public salary records and local benchmark data.
 - Let users enter a salary floor as a walk-away number.
-- Show "Pay not listed" on job cards when structured salary fields are empty,
+- Show "Pay not listed" on job cards when no listed-pay evidence is available,
   and, when a salary floor exists, ask the user to compare the role before
   tailoring.
 - Show a regional pay-range review cue when a saved job has no complete pay
@@ -54,6 +56,28 @@ fixed by asking harder.
   risk.
 
 ## How to Use It
+
+### Native listed pay
+
+Imported pay preserves supported currency, amount, period, and CTC, pro rata,
+or stipend qualifiers without foreign-exchange conversion or automatic
+annualization. Missing currency and period stay unknown; ambiguous text remains
+source evidence, not a guessed numeric range. This is bounded starter parsing,
+not complete regional coverage.
+
+Job cards, comparisons, case files, and CSV exports retain native evidence.
+Configured external notifications use validated amounts and labels only, never
+raw pay text. Malformed native evidence cannot fall back to conflicting legacy
+salary fields.
+
+USD yearly filters and floor comparisons accept only unqualified annual USD
+native pay. Other listed pay needs manual comparison and receives a neutral
+salary-score contribution, not a missing-pay penalty. Older explicit-USD records
+retain their historical comparison behavior; their original period was not
+recorded. Unknown-currency records are not treated as USD. Existing records are
+not reclassified automatically.
+
+### Review pay and offers
 
 1. Open **Pay Protection**.
 2. Enter a job title, location, role stage, and optional salary floor.

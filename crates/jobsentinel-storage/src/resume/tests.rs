@@ -3,7 +3,7 @@
 use super::builder::ResumeBuilder;
 use super::skills::SkillExtractor;
 use super::types::{NewSkill, NullableFieldUpdate, SkillUpdate};
-use super::ResumeMatcher;
+use super::{ResumeMatchFeedbackLabel, ResumeMatcher};
 use sqlx::{Row, SqlitePool};
 
 async fn create_test_resume(pool: &SqlitePool, name: &str, text: &str) -> i64 {
@@ -369,3 +369,44 @@ mod database_coverage_tests;
 
 #[path = "tests/skill_matching_tests.rs"]
 mod skill_matching_tests;
+
+#[tokio::test]
+async fn portable_resume_upload_parses_physical_source_and_keeps_relative_identity() {
+    let database = crate::Database::connect_memory().await.unwrap();
+    database.migrate().await.unwrap();
+    let matcher = database.resume_matcher();
+    let root = tempfile::tempdir().unwrap();
+    let path = root
+        .path()
+        .join("7d9d16a1-2e5d-4b32-9eb2-bfbffb4ee871--resume.txt");
+    std::fs::write(
+        &path,
+        "Operations coordinator with Python and customer service experience",
+    )
+    .unwrap();
+    let reference = format!(
+        "resume-uploads/{}",
+        path.file_name().unwrap().to_str().unwrap()
+    );
+    let id = matcher
+        .upload_resume_with_reference("Portable", &path, &reference)
+        .await
+        .unwrap();
+    let resume = matcher.get_resume(id).await.unwrap();
+    assert_eq!(resume.file_path, reference);
+    assert!(resume
+        .parsed_text
+        .unwrap()
+        .contains("Operations coordinator"));
+    assert_eq!(
+        matcher.resume_id_for_file(&reference).await.unwrap(),
+        Some(id)
+    );
+    assert_eq!(
+        matcher
+            .resume_id_for_file(path.to_str().unwrap())
+            .await
+            .unwrap(),
+        None
+    );
+}

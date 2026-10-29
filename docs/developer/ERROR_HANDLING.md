@@ -1,3 +1,5 @@
+<!-- Documents error Handling Guide. -->
+
 # Error Handling Guide
 
 **Comprehensive error handling strategy for JobSentinel**
@@ -24,11 +26,15 @@ JobSentinel treats errors as first-class citizens:
 1. **Errors are typed**: We use Rust's type system to distinguish error categories
 2. **Errors carry context**: Every error explains what went wrong and where
 3. **Errors are recoverable**: Graceful degradation over crashes
-4. **Errors are logged**: All errors are traced for debugging
+4. **Errors are observable**: Record useful sanitized outcomes without secret payloads
 
 ---
 
 ## Error Types
+
+Examples illustrate error-flow patterns. Use the current owning crate's types and
+existing transport/recovery paths; do not add a new client or abstraction merely
+to reproduce a documentation example.
 
 ### 1. Domain-Specific Errors with Controlled Display
 
@@ -38,7 +44,7 @@ and safe display output for logs or stored health rows.
 **ScraperError Example:**
 
 ```rust
-use crate::core::url_security::sanitize_url_for_logging;
+use jobsentinel_security::sanitize_url_for_logging;
 use std::fmt;
 
 #[derive(Debug)]
@@ -167,11 +173,11 @@ impl ScraperError {
 **Other Domain-Specific Errors:**
 
 - `AutomationError` - Browser automation errors
-- `ConfigError` - Configuration validation errors
+- `ValidationError` / `ValidationErrors` - Configuration validation errors
 
-### 2. `thiserror` - Library Errors (Legacy Pattern)
+### 2. `thiserror` - Library Errors
 
-**Use for**: Simple library errors (being phased out in favor of domain-specific errors)
+**Use for**: Typed library errors; derive boilerplate where it preserves the required display and source behavior.
 
 ```rust
 use thiserror::Error;
@@ -227,7 +233,7 @@ pub async fn scrape_company(url: &str) -> Result<Vec<Job>> {
 
 ### 4. `Box<dyn std::error::Error>` - FFI/Dynamic Errors
 
-**Use for**: Public API boundaries (Tauri commands, config loading)
+**Use for**: Existing dynamic error boundaries such as config loading. Tauri commands return sanitized serializable errors.
 
 ```rust
 impl Config {
@@ -254,7 +260,8 @@ impl Config {
 |-----------|-----|---------|
 | Library with specific errors | Domain-specific error enum | `ScraperError`, `AutomationError` |
 | Application logic | `anyhow` | Scheduler, command handlers |
-| Public API boundaries | `Box<dyn Error>` | Config loading, Tauri commands |
+| Dynamic local boundaries | `Box<dyn Error>` | Config loading |
+| Tauri IPC boundaries | Sanitized serializable error | Native command adapters |
 | Cannot fail | Return value directly | Pure computation |
 
 ### Decision Tree
@@ -412,21 +419,9 @@ pub async fn search_jobs(state: State<'_, AppState>) -> Result<Value, String> {
 
 ### 1. Retry with Exponential Backoff
 
-```rust
-use backoff::{ExponentialBackoff, retry};
-
-let result = retry(ExponentialBackoff::default(), || async {
-    scrape_company(company)
-        .await
-        .map_err(|e| {
-            if is_rate_limit_error(&e) {
-                backoff::Error::transient(e) // Retry
-            } else {
-                backoff::Error::permanent(e) // Don't retry
-            }
-        })
-}).await?;
-```
+Use the bounded retry policy in `jobsentinel-network`; do not create independent
+HTTP clients or add a retry dependency. Retry only approved idempotent operations.
+Reviewed outside-AI requests are sent once and preserve ambiguous outcomes.
 
 ### 2. Circuit Breaker
 

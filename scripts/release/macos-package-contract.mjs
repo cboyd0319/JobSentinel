@@ -1,10 +1,17 @@
+// Defines macOS package arguments, metadata, checksum, and isolated smoke-test contracts.
+
 import { spawnSync } from "node:child_process";
 import { createHash, randomBytes } from "node:crypto";
 import { existsSync, lstatSync, readdirSync, readFileSync } from "node:fs";
-import { basename, join } from "node:path";
+import { basename, dirname, join } from "node:path";
 import { parseSha256Checksum } from "./checksum.mjs";
 
 export { parseSha256Checksum } from "./checksum.mjs";
+export {
+  modelPayloadFiles,
+  runtimeProfileArtifactViolations,
+  runtimeProfileCommandViolations,
+} from "../platform/macos-runtime-profile.mjs";
 
 const defaultSmokeSeconds = 12;
 const smokeDatabaseKeyHexEnv = "JOBSENTINEL_MACOS_PACKAGE_SMOKE_DATABASE_KEY_HEX";
@@ -251,6 +258,8 @@ export function buildMacosOpenArgs({
     "-n",
     "--env",
     "ApplePersistenceIgnoreState=YES",
+    "--env",
+    `TMPDIR=${dirname(smokeRoot)}`,
     "--env",
     `${smokeRootEnv}=${smokeRoot}`,
     "--env",

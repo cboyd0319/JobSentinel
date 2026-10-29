@@ -1,622 +1,88 @@
-# Integration Testing Guide
+<!-- Routes Rust cross-owner testing to current fixtures, boundaries and focused commands. -->
 
-**Comprehensive guide to integration testing in JobSentinel's Rust backend**
+# Integration testing guide
 
----
+Integration tests prove interactions between owners. They may use real in-memory
+SQLite and synthetic providers; classify evidence by the dependencies actually
+exercised, not by the test's filename. Use [Testing](TESTING.md) for verification
+routing and [Database integration testing](DATABASE_INTEGRATION_TESTING.md) for
+storage fixtures.
 
-## Table of Contents
+## Test organization
 
-- [Overview](#overview)
-- [Test Organization](#test-organization)
-- [Running Integration Tests](#running-integration-tests)
-- [Database Testing](DATABASE_INTEGRATION_TESTING.md)
-- [Testing Scrapers](#testing-scrapers)
-- [Testing Commands](#testing-commands)
-- [Test Helpers and Fixtures](#test-helpers-and-fixtures)
-- [Common Patterns](#common-patterns)
-- [Troubleshooting](#troubleshooting)
+| Owner | Current tests |
+| --- | --- |
+| Storage | `crates/jobsentinel-storage/tests/database_integration_test.rs` and owner-local connection/recovery tests |
+| Application | `crates/jobsentinel-application/tests/` covers API contracts, scheduling, scoring, persistence, scraping pipelines and Application Assist |
+| Sources | `crates/jobsentinel-sources/src/scrapers/tests/` contains parser and explicitly ignored live-source tests |
+| Native adapters | `src-tauri/src/ipc/` keeps command tests beside their implementation |
+| Browser journeys | `tests/e2e/playwright/`; see [E2E testing](E2E_TESTING.md) |
 
----
+Application and storage are separate crates; there is no `jobsentinel_core`
+crate. SQL belongs to storage. Reuse the owner-local fixture helpers and the
+application integration `tests/support/mod.rs` rather than copying large `Job`
+or `Config` initializers into documentation or new tests.
 
-## Overview
+## Running integration tests
 
-Integration tests verify interactions between modules and ensure complete workflows function
-correctly. Unlike unit tests that isolate individual functions, integration tests exercise
-real dependencies.
-
-### Integration vs Unit Tests
-
-| Aspect       | Unit Tests               | Integration Tests                  |
-| ------------ | ------------------------ | ---------------------------------- |
-| Scope        | Single function/module   | Multiple modules working together  |
-| Location     | `tests.rs` within module | `<crate>/tests/` or owner-local tests |
-| Database     | In-memory (mocked)       | Real SQLite schema with migrations |
-| Dependencies | Mocked                   | Real implementations               |
-| Speed        | Fast (<10ms)             | Slower (100ms+)                    |
-| Coverage     | 70%+ lines               | End-to-end workflows               |
-
-### What Integration Tests Cover
-
-- **Database persistence** - Data survives migrations and schema changes
-- **Schema constraints** - Foreign keys, unique constraints, triggers
-- **Concurrent operations** - Multiple connections writing simultaneously
-- **API contracts** - Tauri commands match expected signatures
-- **Full pipelines** - Scraper to scorer to database to notifications
-- **Scheduler lifecycle** - Startup, shutdown, error handling
-
----
-
-## Test Organization
-
-### Directory Structure
-
-```text
-crates/jobsentinel-application/tests/
-- api_contract_test.rs: public core application contracts
-- automation_integration_test.rs: Application Assist
-- cow_zero_copy_tests.rs: Cow zero-copy behavior
-- database_integration_test.rs: database layer
-- scheduler_integration_test.rs: scheduling workflow
-- scraping_pipeline_integration.rs: full pipeline
-
-crates/jobsentinel-sources/src/scrapers/tests/
-- integration.rs: scraper owner contract tests
-- live.rs: ignored live scraper smoke tests
-```
-
-### Test File Naming
-
-- `*_integration_test.rs` - Integration test file
-- `*_contract_test.rs` - API contract verification
-- `*_pipeline*` - End-to-end workflows
-
-### File Organization
-
-Each integration test file follows this structure:
-
-```rust
-//! Module documentation - explain what's being tested
-
-use jobsentinel_core::{Config, Database};
-
-// ============================================================================
-// Setup Functions
-// ============================================================================
-
-/// Create test environment (database, config, etc.)
-async fn setup_test_env() -> (Arc<Database>, Arc<Config>, TempDir) {
-    // Setup logic
-}
-
-// ============================================================================
-// Test Fixtures - Sample Data
-// ============================================================================
-
-const SAMPLE_JSON: &str = r#"{ ... }"#;
-
-// ============================================================================
-// Category Name - Grouped tests
-// ============================================================================
-
-#[tokio::test]
-async fn test_specific_behavior() {
-    // Arrange, Act, Assert
-}
-```
-
----
-
-## Running Integration Tests
-
-### Run All Integration Tests
+From the repository root, select the affected target:
 
 ```bash
-cargo test --workspace --tests
+node scripts/dev/run-cargo.mjs test --locked -p jobsentinel-storage --test database_integration_test
+node scripts/dev/run-cargo.mjs test --locked -p jobsentinel-application --test scheduler_integration_test
+node scripts/dev/run-cargo.mjs test --locked -p jobsentinel-application --test scraping_pipeline_integration
+node scripts/dev/run-cargo.mjs test --locked -p jobsentinel --lib credential_integration_tests
 ```
 
-### Run Specific Integration Test File
+Use `-- --list` to confirm collected names before narrowing with a test filter.
+An empty selection is not proof. `credential_integration_tests` now uses an
+isolated vault and fixed key; it does not test native Keychain or Secret Service.
+
+Live-source tests contact external providers and remain separate, explicit work:
 
 ```bash
-# Test database integration
-cargo test -p jobsentinel-storage --test database_integration_test
-
-# Test scheduler
-cargo test -p jobsentinel-application --test scheduler_integration_test
-
-# Test scrapers
-cargo test -p jobsentinel-sources scrapers::integration_tests
-
-# Run ignored live scraper checks manually
-cargo test -p jobsentinel-sources scrapers::live_tests -- --ignored --nocapture
+node scripts/dev/run-cargo.mjs test --locked -p jobsentinel-sources scrapers::live_tests -- --ignored --nocapture
 ```
 
-Credential-store roundtrips can prompt on macOS Keychain and equivalent OS
-stores, so they are disabled unless explicitly requested. The default
-credential integration test still verifies non-interactive policy behavior.
+Do not run all ignored tests indiscriminately: other ignored tests may download
+models, require native interaction or depend on external state.
 
-```bash
-cargo test -p jobsentinel --lib credential_integration_tests
-JOBSENTINEL_LIVE_KEYRING_TESTS=1 cargo test -p jobsentinel --lib credential_integration_tests -- --nocapture
-```
+## Database testing
 
-### Run Specific Test
+Use production migrations in ordinary repository tests. File-backed tests must
+use synthetic keys and private temporary paths, retain the owner lock, and await
+connection closure before restart. Test raw SQL only inside the storage owner.
 
-```bash
-cargo test -p jobsentinel-storage --test database_integration_test test_migrations_run_successfully -- --exact
-```
+## Testing scrapers
 
-### Run with Output and Single Thread
+Parser tests use supplied fixture bytes without network access. Controlled-server
+tests prove request, cancellation and response boundaries. Live provider tests
+establish only the observed provider/date/platform. Preserve rate limits, public
+URL validation and source consent in every mode.
 
-```bash
-# Single-threaded execution (useful for debugging)
-cargo test -p jobsentinel-storage --test database_integration_test -- --test-threads=1 --nocapture
-```
+## Testing commands
 
-### List Available Integration Tests
+Exercise the command's validation, authorization, storage effect and sanitized
+failure result. A renderer mock cannot prove native dialogs, OS authentication,
+file permissions or SQLCipher. Shared-computer and portable startup commands
+require native admission and cancellation cases in addition to UI coverage.
 
-```bash
-cargo test --workspace --tests -- --list
-```
+## Test helpers and fixtures
 
----
+Reuse existing helpers before adding one. Keep fixture differences and assertions
+inside the scenario; expose cross-crate fixtures only through explicit
+`test-support` features. Never use real credentials or personal profiles.
 
-## Database Testing
+## Common patterns
 
-In-memory and file-based SQLite setup, migration checks, constraint tests, and
-concurrent operations live in
-[Database Integration Testing](DATABASE_INTEGRATION_TESTING.md).
-
----
-
-## Testing Scrapers
-
-### Mock HTTP Responses with Wiremock
-
-Scrapers are tested using `wiremock` for HTTP mocking without hitting real servers:
-
-```rust
-use wiremock::{Mock, MockServer, ResponseTemplate};
-use wiremock::matchers::method;
-
-const SAMPLE_JSON: &str = r#"{
-    "jobs": [
-        {
-            "id": "123",
-            "title": "Customer Support Lead",
-            "location": "Remote"
-        }
-    ]
-}"#;
-
-#[tokio::test]
-async fn test_scraper_calls_correct_endpoint() {
-    // Start mock HTTP server
-    let mock_server = MockServer::start().await;
-
-    // Mock the response
-    Mock::given(method("GET"))
-        .respond_with(ResponseTemplate::new(200).set_body_string(SAMPLE_JSON))
-        .mount(&mock_server)
-        .await;
-
-    // Test scraper with mock URL
-    let scraper = GreenhouseScraper::new(mock_server.uri());
-    let jobs = scraper.scrape().await.unwrap();
-
-    assert_eq!(jobs.len(), 1);
-    assert_eq!(jobs[0].title, "Customer Support Lead");
-}
-```
-
-### HTML Fixture Data
-
-Keep small HTML responses inline next to the parser test that uses them:
-
-```rust
-// Verify scraper can parse real HTML structure
-const GREENHOUSE_HTML: &str = r#"
-<html>
-    <body>
-        <div class="job-item">
-            <h2>Customer Support Lead</h2>
-            <span class="location">Remote</span>
-        </div>
-    </body>
-</html>
-"#;
-
-#[test]
-fn test_scraper_parses_html_structure() {
-    let jobs = parse_greenhouse_html(GREENHOUSE_HTML);
-    assert_eq!(jobs.len(), 1);
-    assert_eq!(jobs[0].location, Some("Remote".to_string()));
-}
-```
-
-### Rate Limiting in Tests
-
-Verify rate limiting doesn't interfere with tests:
-
-```rust
-#[tokio::test]
-async fn test_scraper_respects_rate_limits() {
-    let config = create_test_config();
-
-    // Scraper should wait before making requests
-    let now = std::time::Instant::now();
-
-    let scraper = GreenhouseScraper::with_config(config);
-    let _result = scraper.scrape().await;
-
-    // Should take at least minimum rate limit time
-    assert!(now.elapsed().as_millis() >= config.min_request_delay_ms);
-}
-```
-
----
-
-## Testing Commands
-
-### API Contract Tests
-
-Verify Tauri command signatures:
-
-```rust
-#[tokio::test]
-async fn test_command_accepts_correct_types() {
-    let (db, config, _) = setup_test_env().await;
-
-    // Command should accept Arc<Database> and Arc<Config>
-    let job = create_test_job("hash", "Title", "Company");
-
-    let result = db.upsert_job(&job).await;
-
-    assert!(result.is_ok());
-    assert!(result.unwrap() > 0);
-}
-
-#[tokio::test]
-async fn test_command_returns_expected_type() {
-    let (db, _config, _) = setup_test_env().await;
-
-    // Command should return Result<i64, String>
-    let job = create_test_job("hash", "Title", "Company");
-    let result = db.upsert_job(&job).await;
-
-    match result {
-        Ok(id) => assert!(id > 0),
-        Err(e) => panic!("Expected Ok, got error: {}", e),
-    }
-}
-```
-
-### End-to-End Command Flows
-
-Test complete command workflow:
-
-```rust
-#[tokio::test]
-async fn test_search_command_returns_scored_jobs() {
-    let (db, config, _) = setup_test_env().await;
-
-    // Insert jobs
-    let job1 = create_test_job("hash1", "Safety Coordinator", "CareBridge");
-    let job2 = create_test_job("hash2", "Office Administrator", "NeighborhoodWorks");
-
-    db.upsert_job(&job1).await.unwrap();
-    db.upsert_job(&job2).await.unwrap();
-
-    // Search command should find and score
-    let results = db.search_jobs("Safety").await.unwrap();
-
-    assert_eq!(results.len(), 1);
-    assert_eq!(results[0].title, "Safety Coordinator");
-}
-```
-
----
-
-## Test Helpers and Fixtures
-
-### Creating Test Jobs
-
-Standard helper for creating jobs with all fields:
-
-```rust
-/// Create a job with realistic test data
-fn create_test_job(hash: &str, title: &str, company: &str) -> Job {
-    Job {
-        id: 0,
-        hash: hash.to_string(),
-        title: title.to_string(),
-        company: company.to_string(),
-        url: format!("https://example.com/job/{}", hash),
-        location: Some("Remote".to_string()),
-        description: Some("Test job description".to_string()),
-        score: Some(0.85),
-        score_reasons: None,
-        source: "test".to_string(),
-        remote: Some(true),
-        salary_min: Some(120000),
-        salary_max: Some(180000),
-        currency: Some("USD".to_string()),
-        created_at: chrono::Utc::now(),
-        updated_at: chrono::Utc::now(),
-        last_seen: chrono::Utc::now(),
-        times_seen: 1,
-        immediate_alert_sent: false,
-        hidden: false,
-        included_in_digest: false,
-        bookmarked: false,
-        notes: None,
-        ghost_score: None,
-        ghost_reasons: None,
-        first_seen: None,
-        repost_count: 0,
-    }
-}
-```
-
-### Creating Test Config
-
-Standard config for integration tests:
-
-```rust
-/// Create minimal test config for integration tests
-fn create_test_config() -> Config {
-    Config {
-        title_allowlist: vec!["Safety Coordinator".to_string()],
-        title_blocklist: vec!["Manager".to_string()],
-        keywords_boost: vec!["scheduling".to_string()],
-        keywords_exclude: vec!["night shift".to_string()],
-        location_preferences: LocationPreferences {
-            allow_remote: true,
-            allow_hybrid: false,
-            allow_onsite: false,
-            cities: vec![],
-            states: vec![],
-            country: "US".to_string(),
-        },
-        salary_floor_usd: 100000,
-        auto_refresh: Default::default(),
-        immediate_alert_threshold: 0.85,
-        scraping_interval_hours: 2,
-        alerts: Default::default(),
-        // ... other fields with defaults
-    }
-}
-```
-
-### Shared Setup Functions
-
-Reuse environment setup across tests:
-
-```rust
-/// Complete test environment with database and config
-async fn setup_test_env() -> (Arc<Database>, Arc<Config>, TempDir) {
-    let temp_dir = TempDir::new().unwrap();
-
-    let db = Database::connect_memory().await.unwrap();
-    db.migrate().await.unwrap();
-    let database = Arc::new(db);
-
-    let config = Arc::new(create_test_config());
-
-    (database, config, temp_dir)
-}
-```
-
----
-
-## Common Patterns
-
-### Pattern 1: Database Workflow Tests
-
-Test complete database operations:
-
-```rust
-#[tokio::test]
-async fn test_upsert_and_retrieve_job() {
-    let (db, _) = setup_test_db().await;
-
-    // Arrange
-    let job = create_test_job("hash123", "Care Coordinator", "CareBridge");
-
-    // Act
-    let id = db.upsert_job(&job).await.unwrap();
-    let retrieved = db.get_job(id).await.unwrap();
-
-    // Assert
-    assert_eq!(retrieved.title, "Care Coordinator");
-    assert_eq!(retrieved.company, "CareBridge");
-}
-```
-
-### Pattern 2: Error Handling
-
-Test both success and failure paths:
-
-```rust
-#[tokio::test]
-async fn test_invalid_job_data_returns_error() {
-    let (db, _) = setup_test_db().await;
-
-    let mut job = create_test_job("hash", "Title", "Company");
-    job.title = String::new(); // Invalid: empty title
-
-    let result = db.upsert_job(&job).await;
-    assert!(result.is_err());
-}
-```
-
-### Pattern 3: Concurrent Access
-
-Verify thread safety:
-
-```rust
-#[tokio::test]
-async fn test_concurrent_database_reads() {
-    let (db, _) = setup_test_db().await;
-    let db = Arc::new(db);
-
-    // Insert a job
-    let job = create_test_job("hash", "Title", "Company");
-    db.upsert_job(&job).await.unwrap();
-
-    // Multiple concurrent reads
-    let mut tasks = vec![];
-    for _ in 0..10 {
-        let db = Arc::clone(&db);
-        tasks.push(tokio::spawn(async move {
-            db.search_jobs("Title").await
-        }));
-    }
-
-    for task in tasks {
-        assert!(task.await.unwrap().is_ok());
-    }
-}
-```
-
-### Pattern 4: Async Lifecycle
-
-Test async resource cleanup:
-
-```rust
-#[tokio::test]
-async fn test_scheduler_starts_and_stops() {
-    let (db, config, _) = setup_test_env().await;
-
-    let scheduler = Scheduler::new(Arc::clone(&config), Arc::clone(&db));
-
-    // Start
-    scheduler.start().await.unwrap();
-
-    // Verify running
-    assert!(scheduler.is_running());
-
-    // Stop
-    scheduler.stop().await.unwrap();
-
-    // Verify stopped
-    assert!(!scheduler.is_running());
-}
-```
-
----
+Prove success, refusal and interrupted work at the affected boundary. For concurrent
+operations, retain the actual transaction or task until the test controls its
+release; avoid sleeps as synchronization. Assert persisted state after the outcome,
+including rollback and retry behavior, not only that a function returned `Ok`.
 
 ## Troubleshooting
 
-### Test Panics with "Database Already Exists"
-
-**Problem**: Multiple tests using file-based databases conflict.
-
-**Solution**: Use in-memory databases or unique temp directories:
-
-```rust
-// Good: in-memory
-let db = Database::connect_memory().await?;
-
-// Good: unique temp dir
-let temp_dir = TempDir::new()?;
-let db_path = temp_dir.path().join("unique.db");
-```
-
-### Tests Hang or Timeout
-
-**Problem**: Deadlock or missing `.await` in async code.
-
-**Solution**: Run single-threaded and check async/await:
-
-```bash
-# Single thread for easier debugging
-cargo test -p jobsentinel-storage --test database_integration_test -- --test-threads=1 --nocapture
-```
-
-Check for missing `.await`:
-
-```rust
-// Wrong: returns Future, doesn't execute
-let result = db.upsert_job(&job); // Missing .await
-
-// Right: executes async function
-let result = db.upsert_job(&job).await;
-```
-
-### Assertion Failures on Timestamps
-
-**Problem**: Time-sensitive tests fail due to clock differences.
-
-**Solution**: Use fixed timestamps or time ranges:
-
-```rust
-// Good: use fixed time
-let job = Job {
-    created_at: chrono::DateTime::parse_from_rfc3339("2026-01-17T00:00:00Z")?,
-    ..
-};
-
-// Good: check range instead of exact match
-assert!(job.created_at < chrono::Utc::now());
-```
-
-### Scraper Tests Fail with "Connection Refused"
-
-**Problem**: Wiremock server not started or wrong URL.
-
-**Solution**: Ensure MockServer is created and URI passed:
-
-```rust
-let mock_server = MockServer::start().await; // Must await
-let url = mock_server.uri(); // Use this URL in scraper
-```
-
-### Integration Tests Pass On One Host But Fail On Another
-
-**Problem**: Timing assumptions, resource limits, or platform differences.
-
-**Solution**: Make tests deterministic:
-
-```rust
-// Bad: depends on system clock
-tokio::time::sleep(Duration::from_millis(100)).await;
-
-// Good: poll until condition
-for _ in 0..50 {
-    if condition_met { break; }
-    tokio::time::sleep(Duration::from_millis(10)).await;
-}
-```
-
----
-
-## Best Practices
-
-### Do
-
-- Use in-memory databases for speed
-- Test both success and error paths
-- Isolate tests with temporary directories
-- Use descriptive test names
-- Clean up resources (Arc, TempDir auto-cleanup)
-- Run tests single-threaded when debugging
-- Document test fixtures with module comments
-
-### Do Not
-
-- Don't share state between tests
-- Don't use hardcoded file paths
-- Don't mix unit and integration tests
-- Don't skip error case testing
-- Don't commit flaky tests (fix or remove)
-- Don't assume test order (they run in parallel)
-
----
-
-## Resources
-
-- [Integration Tests - Rust Book](https://doc.rust-lang.org/book/ch11-03-test-organization.html#integration-tests)
-- [tokio Testing](https://tokio.rs/tokio/topics/testing)
-- [wiremock Documentation](https://docs.rs/wiremock/)
-- [SQLx Testing](https://github.com/launchbadge/sqlx#testing)
-- [tempfile Crate](https://docs.rs/tempfile/)
+Check the earliest compiler/runtime failure and confirm the test actually ran.
+Use the pinned toolchain, offline SQLx metadata and owning manifests. Record missing
+platform or external dependencies as gaps. Full suites and installed journeys belong
+to the release phases unless a concrete development risk requires broader checks.

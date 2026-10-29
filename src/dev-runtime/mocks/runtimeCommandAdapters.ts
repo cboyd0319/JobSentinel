@@ -1,3 +1,6 @@
+/** Adapts desktop command names to deterministic browser-development responses. */
+
+import { emit } from "@tauri-apps/api/event";
 import { handleMockApplicationAssistCommand } from "../features/application-assist/commands";
 import { handleMockApplicationsCommand } from "../features/applications/commands";
 import { handleMockCoverLetterTemplateCommand } from "../features/applications/coverLetterTemplateCommands";
@@ -7,6 +10,7 @@ import { handleMockJobImportCommand } from "../features/dashboard/jobImportComma
 import { handleMockSavedSearchCommand } from "../features/dashboard/savedSearchCommands";
 import { handleMockLinkedInWorkbenchCommand } from "../features/linkedin-workbench/commands";
 import { handleMockMarketCommand } from "../features/market/commands";
+import { handleMockOpportunityCaseCommand } from "../features/opportunity-case/commands";
 import { handleMockOnboardingCommand } from "../features/onboarding/commands";
 import {
   getMockActiveResume,
@@ -15,9 +19,12 @@ import {
 import { handleMockSalaryCommand } from "../features/salary/commands";
 import { handleMockSearchLinksCommand } from "../features/search-links/commands";
 import { handleMockSettingsCommand } from "../features/settings/commands";
+import { handleMockExternalAiCommand } from "../features/settings/externalAiCommands";
 import { handleMockNotificationCommand } from "../features/settings/notificationCommands";
+import { handleMockPackCommand } from "../features/settings/packCommands";
 import { handleMockSourceHealthCommand } from "../features/settings/sources/commands";
 import { handleMockSupportCommand } from "../features/settings/support/commands";
+import { handleMockRecoveryCommand } from "../features/settings/support/recoveryCommands";
 import { mockRuntimeState, saveMockState } from "./runtimeState";
 
 export type MockCommandAdapter = (
@@ -25,12 +32,26 @@ export type MockCommandAdapter = (
   args: Record<string, unknown> | undefined,
 ) => unknown;
 
+export const applyMockAppPrivacyCommand: MockCommandAdapter = (command) => {
+  if (command === "get_app_privacy_status" || command === "clear_private_session") {
+    if (command === "clear_private_session") void emit("private-session-cleared");
+    return { enabled: false, locked: false, unlock_method: "unavailable" };
+  }
+  throw new Error("Device verification is unavailable in browser development. Use the desktop app to protect a shared-computer session.");
+};
+
+export const applyMockPortableProfileCommand: MockCommandAdapter = (command) => {
+  if (command === "get_portable_profile_status") return { portable: false, unlocked: true, new_profile: false };
+  throw new Error("Portable profiles require the desktop app.");
+};
+
 export const applyMockDashboardCommand: MockCommandAdapter = (
   command,
   args,
 ) => {
   const result = handleMockDashboardCommand(command, args, {
     jobs: mockRuntimeState.jobs,
+    config: mockRuntimeState.config,
   });
   if (!result.handled) return undefined;
   mockRuntimeState.jobs = result.state.jobs;
@@ -66,6 +87,14 @@ export const applyMockSettingsCommand: MockCommandAdapter = (command, args) => {
   return result.value;
 };
 
+export const applyMockPackCommand: MockCommandAdapter = (command, args) => {
+  return handleMockPackCommand(command, args);
+};
+
+export const applyMockUnavailableNativeFileDropCommand: MockCommandAdapter = () => {
+  throw new Error("Native file drop is unavailable in browser development.");
+};
+
 export const applyMockSupportCommand: MockCommandAdapter = (command, args) => {
   const result = handleMockSupportCommand(
     command,
@@ -74,6 +103,26 @@ export const applyMockSupportCommand: MockCommandAdapter = (command, args) => {
     Boolean(getMockActiveResume(mockRuntimeState.resumes)),
   );
   return result.handled ? result.value : undefined;
+};
+
+export const applyMockExternalAiCommand: MockCommandAdapter = (
+  command,
+  args,
+) => {
+  const result = handleMockExternalAiCommand(command, args, mockRuntimeState);
+  return result.handled ? result.value : undefined;
+};
+
+export const applyMockRecoveryCommand: MockCommandAdapter = (command, args) => {
+  const result = handleMockRecoveryCommand(
+    command,
+    args,
+    mockRuntimeState.pendingUrlImports.length,
+    mockRuntimeState,
+  );
+  if (!result.handled) return undefined;
+  if (result.shouldSave) saveMockState();
+  return result.value;
 };
 
 export const applyMockSearchLinksCommand: MockCommandAdapter = (
@@ -99,15 +148,19 @@ export const applyMockJobImportCommand: MockCommandAdapter = (
 };
 
 export const applyMockLinkedInCommand: MockCommandAdapter = (
-  _command,
+  command,
   args,
 ) => {
-  const result = handleMockLinkedInWorkbenchCommand(args, {
+  const result = handleMockLinkedInWorkbenchCommand(command, args, {
     jobs: mockRuntimeState.jobs,
     applications: mockRuntimeState.applications,
     pendingReminders: mockRuntimeState.pendingReminders,
+    reviewed: mockRuntimeState.linkedinWorkbenchReviewed,
   });
-  Object.assign(mockRuntimeState, result.state);
+  mockRuntimeState.jobs = result.state.jobs;
+  mockRuntimeState.applications = result.state.applications;
+  mockRuntimeState.pendingReminders = result.state.pendingReminders;
+  mockRuntimeState.linkedinWorkbenchReviewed = result.state.reviewed;
   saveMockState();
   return result.value;
 };
@@ -128,6 +181,17 @@ export const applyMockApplicationsCommand: MockCommandAdapter = (
   return result.value;
 };
 
+export const applyMockOpportunityCaseCommand: MockCommandAdapter = (
+  command,
+  args,
+) => {
+  const result = handleMockOpportunityCaseCommand(command, args, {
+    jobs: mockRuntimeState.jobs,
+    applications: mockRuntimeState.applications,
+  });
+  return result.handled ? result.value : undefined;
+};
+
 export const applyMockResumeCommand: MockCommandAdapter = (command, args) => {
   const result = handleMockResumeCommand(command, args, {
     jobs: mockRuntimeState.jobs,
@@ -135,6 +199,9 @@ export const applyMockResumeCommand: MockCommandAdapter = (command, args) => {
     userSkills: mockRuntimeState.userSkills,
     resumeDrafts: mockRuntimeState.resumeDrafts,
     recentMatches: mockRuntimeState.recentMatches,
+    savedMatchEvidence: mockRuntimeState.savedMatchEvidence,
+    pendingMilitaryTransitionReviews:
+      mockRuntimeState.pendingMilitaryTransitionReviews,
   });
   if (!result.handled) return undefined;
   Object.assign(mockRuntimeState, result.state);
@@ -240,4 +307,17 @@ export const applyMockSavedSearchCommand: MockCommandAdapter = (
   Object.assign(mockRuntimeState, result.state);
   if (result.shouldSave) saveMockState();
   return result.value;
+};
+
+/** Applies both Settings collections before publishing the mock state once. */
+export const applyMockSettingsRecordsImport: MockCommandAdapter = (_command, args) => {
+  const templates = handleMockCoverLetterTemplateCommand("import_cover_letter_templates", args, {
+    coverLetterTemplates: mockRuntimeState.coverLetterTemplates,
+  });
+  const searches = handleMockSavedSearchCommand("import_saved_searches", args, {
+    savedSearches: mockRuntimeState.savedSearches, searchHistory: mockRuntimeState.searchHistory,
+  });
+  Object.assign(mockRuntimeState, templates.state, searches.state);
+  saveMockState();
+  return [templates.value, searches.value];
 };

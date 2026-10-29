@@ -1,33 +1,57 @@
-//! Resume matching Tauri commands
-//!
-//! Commands for resume upload, skill extraction, job-resume matching,
-//! resume builder, and ATS analysis.
+//! Adapts reviewed resume import, editing, matching and evidence operations to Tauri.
 
 use crate::application::resume::{
     AtsAnalysisResult, AtsAnalyzer, MatchResult, MatchResultWithJob, NewSkill, Resume,
-    ResumeAnalysisInput, ResumeExporter, SkillUpdate, StructuredResume, Template, TemplateId,
-    TemplateRenderer, UserSkill,
+    ResumeAnalysisInput, ResumeExporter, ResumeMatchFeedback, ResumeMatchFeedbackLabel,
+    SkillUpdate, StructuredResume, Template, TemplateId, TemplateRenderer, UserSkill,
 };
+use crate::bootstrap::operation::State;
 use crate::bootstrap::AppState;
 use crate::ipc::errors::user_friendly_error;
 use crate::ipc::limits::validate_optional_command_limit_i64;
 use chrono::{DateTime, Utc};
 use serde::Serialize;
 use std::path::Path;
-use tauri::State;
+
+#[path = "resume_review_commands.rs"]
+pub(crate) mod resume_review_commands;
 
 #[path = "resume_builder_commands.rs"]
 pub(crate) mod resume_builder_commands;
 
 #[path = "resume_file_commands.rs"]
 pub(crate) mod resume_file_commands;
-use resume_file_commands::read_html_resume_source_for_format_review;
+#[path = "resume_match_debugger_commands.rs"]
+pub(crate) mod resume_match_debugger_commands;
+#[path = "resume_military_transition_commands.rs"]
+pub(crate) mod resume_military_transition_commands;
+#[cfg(test)]
+#[path = "resume_military_transition_tests.rs"]
+mod resume_military_transition_tests;
+#[cfg(test)]
+use crate::application::resume::MAX_RESUME_FILE_BYTES;
 #[cfg(test)]
 use resume_file_commands::{
     delete_resume_with_file_cleanup, has_json_extension, managed_resume_upload_cleanup_path,
-    safe_resume_upload_file_name, supported_resume_extension, validate_selected_resume,
-    MAX_SELECTED_RESUME_UPLOAD_BYTES,
+    open_selected_resume, safe_resume_upload_file_name, supported_resume_extension,
 };
+
+#[tauri::command]
+pub(crate) async fn cancel_resume_review(request_id: String) -> Result<bool, String> {
+    if request_id.len() != 36
+        || !uuid::Uuid::parse_str(&request_id).is_ok_and(|id| id.to_string() == request_id)
+    {
+        return Err("Invalid review request ID.".into());
+    }
+    #[cfg(feature = "embedded-ml")]
+    {
+        crate::ipc::ml::cancel_resume_review(request_id).await
+    }
+    #[cfg(not(feature = "embedded-ml"))]
+    {
+        Ok(false)
+    }
+}
 
 const MAX_RESUME_TEXT_PREVIEW_CHARS: usize = 6_000;
 
@@ -236,6 +260,27 @@ pub(crate) async fn get_recent_matches(
         .map_err(|e| user_friendly_error("Failed to get recent matches", e))
 }
 
+/// Set or clear an explicit local label on one saved resume match.
+#[tauri::command]
+pub(crate) async fn set_resume_match_feedback(
+    match_id: i64,
+    label: Option<ResumeMatchFeedbackLabel>,
+    state: State<'_, AppState>,
+) -> Result<Option<ResumeMatchFeedback>, String> {
+    tracing::info!(
+        match_id,
+        has_label = label.is_some(),
+        "Command: set resume match feedback"
+    );
+
+    state
+        .database
+        .resume_matcher()
+        .set_match_feedback(match_id, label)
+        .await
+        .map_err(|e| user_friendly_error("Failed to save resume match feedback", e))
+}
+
 // ============================================================================
 // Skill Management Commands (Phase 1: Skill Validation UI)
 // ============================================================================
@@ -364,61 +409,6 @@ pub(crate) fn export_resume_text(resume: StructuredResume) -> String {
 // ============================================================================
 // Resume Analysis Commands
 // ============================================================================
-
-/// Analyze resume against a job description for application readability
-#[tauri::command]
-pub(crate) fn analyze_resume_for_job(
-    resume: ResumeAnalysisInput,
-    job_description: String,
-) -> AtsAnalysisResult {
-    tracing::info!("Command: analyze_resume_for_job");
-    AtsAnalyzer::analyze_for_job(&resume, &job_description)
-}
-
-/// Analyze the active saved resume against a job description without returning raw resume text.
-#[tauri::command]
-pub(crate) async fn analyze_active_resume_for_job(
-    job_description: String,
-    state: State<'_, AppState>,
-) -> Result<AtsAnalysisResult, String> {
-    tracing::info!("Command: analyze_active_resume_for_job");
-
-    if job_description.trim().is_empty() {
-        return Err("Paste the job post, then review again.".to_string());
-    }
-
-    let matcher = state.database.resume_matcher();
-    let resume = matcher
-        .get_active_resume()
-        .await
-        .map_err(|e| user_friendly_error("Failed to get active resume", e))?
-        .ok_or_else(|| "Choose or add a resume before reviewing job fit.".to_string())?;
-
-    let readable_text = resume.parsed_text.as_deref().unwrap_or("").trim();
-    if readable_text.is_empty() {
-        return Err(
-            "JobSentinel could not find readable text in the active resume. Add a PDF, DOCX, TXT, Markdown, or HTML resume with readable text, or use Import from Resume App."
-                .to_string(),
-        );
-    }
-
-    let skill_names = matcher
-        .get_user_skills(resume.id)
-        .await
-        .map_err(|e| user_friendly_error("Failed to get resume skills", e))?
-        .into_iter()
-        .map(|skill| skill.skill_name)
-        .collect::<Vec<_>>();
-
-    let source_text = read_html_resume_source_for_format_review(&resume.file_path);
-
-    Ok(AtsAnalyzer::analyze_text_for_job_with_source(
-        readable_text,
-        &skill_names,
-        &job_description,
-        source_text.as_deref(),
-    ))
-}
 
 /// Analyze resume format without job context
 #[tauri::command]

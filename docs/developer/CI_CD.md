@@ -1,3 +1,5 @@
+<!-- Documents local Verification And Hosted Releases. -->
+
 # Local Verification And Hosted Releases
 
 JobSentinel has no hosted continuous integration during private pre-alpha
@@ -64,7 +66,7 @@ before relying on them.
 ## Portability Evidence
 
 Run the shared local semantic core natively on every supported platform. The
-current macOS host is macOS 27.0, which satisfies the macOS 26+ target. Native
+current recorded development host is macOS 27.2; this does not prove exact macOS26 behavior. Native
 Windows 11 remains unverified until `pwsh -File ./init.ps1` and
 `npm run test:scripts` pass on a Windows 11 host. PowerShell on macOS is
 cross-shell evidence only.

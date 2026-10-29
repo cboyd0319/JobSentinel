@@ -1,3 +1,5 @@
+//! Scores every admitted Qwen candidate with bounded tokenization and single-item inference.
+
 use std::cmp::Ordering;
 use std::path::PathBuf;
 
@@ -11,13 +13,16 @@ use crate::qwen3::config::{Qwen3Config, Qwen3LogitScoreConfig};
 use crate::qwen3::model::Qwen3Model;
 use crate::qwen3::pooling::last_token_pool;
 use crate::qwen3::tokenization::{format_rerank_inputs, tokenize_rerank_inputs};
-use crate::qwen3::{DEFAULT_RERANKER_MAX_PAIRS, QWEN3_RERANKER_CANDLE_BACKEND};
+use crate::qwen3::{
+    DEFAULT_RERANKER_MAX_PAIRS, MAX_INFERENCE_BATCH, QWEN3_RERANKER_CANDLE_BACKEND,
+};
 use crate::runtime::{
     RerankCandidate, RerankQuery, RerankScore, RerankerBackend, RuntimeCompatibility,
 };
 use crate::MlError;
 
 pub struct Qwen3RerankerBackend {
+    pub(crate) cancellation: crate::InferenceCancellation,
     model: Qwen3Model,
     tokenizer: Tokenizer,
     compatibility: RuntimeCompatibility,
@@ -60,6 +65,7 @@ impl Qwen3RerankerBackend {
         compatibility.validate_for_model(&spec)?;
 
         Ok(Self {
+            cancellation: Default::default(),
             model,
             tokenizer,
             compatibility,
@@ -75,45 +81,50 @@ impl Qwen3RerankerBackend {
         query: &RerankQuery,
         candidates: &[RerankCandidate],
     ) -> Result<Vec<RerankScore>> {
+        self.cancellation.check()?;
         if candidates.is_empty() {
             return Ok(Vec::new());
         }
 
-        let bounded_candidates: Vec<&RerankCandidate> =
-            candidates.iter().take(self.max_pairs).collect();
-        let texts = format_rerank_inputs(query, &bounded_candidates);
-        let batch = tokenize_rerank_inputs(
-            &self.tokenizer,
-            &texts,
-            self.max_tokens,
-            self.model.device(),
+        anyhow::ensure!(
+            candidates.len() <= self.max_pairs,
+            "Qwen3 reranker candidate budget exceeded"
+        );
+        crate::matcher::validate_local_matching_input(
+            std::iter::once(query.text.as_str())
+                .chain(query.instruction.as_deref())
+                .chain(candidates.iter().map(|candidate| candidate.text.as_str())),
         )?;
-        let hidden = self
-            .model
-            .forward(&batch.input_ids, &batch.attention_mask)
-            .context("Qwen3 reranker inference failed")?;
-        let pooled = last_token_pool(&hidden, &batch.attention_mask)?;
-        let score_vector = self
-            .model
-            .token_embedding(self.true_token_id)?
-            .sub(&self.model.token_embedding(self.false_token_id)?)?
-            .reshape((self.model.hidden_size(), 1))?;
-        let raw_scores = pooled
-            .matmul(&score_vector)?
-            .to_dtype(DType::F32)
-            .context("failed to convert Qwen3 reranker scores to f32")?
-            .to_vec2::<f32>()
-            .context("failed to read Qwen3 reranker scores")?;
-
-        let mut scores: Vec<RerankScore> = bounded_candidates
-            .into_iter()
-            .zip(raw_scores)
-            .map(|(candidate, row)| RerankScore {
-                candidate_id: candidate.id.clone(),
-                score: row.first().copied().unwrap_or_default(),
-                rank: 0,
+        let bounded_candidates: Vec<&RerankCandidate> = candidates.iter().collect();
+        let texts = format_rerank_inputs(query, &bounded_candidates);
+        let batches = texts
+            .chunks(MAX_INFERENCE_BATCH)
+            .map(|texts| {
+                self.cancellation.check()?;
+                tokenize_rerank_inputs(&self.tokenizer, texts, self.max_tokens, self.model.device())
             })
-            .collect();
+            .collect::<Result<Vec<_>>>()?;
+        let mut scores = Vec::with_capacity(candidates.len());
+        for (candidates, batch) in bounded_candidates.chunks(MAX_INFERENCE_BATCH).zip(batches) {
+            let hidden = self
+                .model
+                .forward(&batch.input_ids, &batch.attention_mask, &self.cancellation)
+                .context("Qwen3 reranker inference failed")?;
+            let pooled = last_token_pool(&hidden, &batch.attention_mask)?;
+            let score_vector = self
+                .model
+                .token_embedding(self.true_token_id)?
+                .sub(&self.model.token_embedding(self.false_token_id)?)?
+                .reshape((self.model.hidden_size(), 1))?;
+            let raw_scores = pooled
+                .matmul(&score_vector)?
+                .to_dtype(DType::F32)
+                .context("failed to convert Qwen3 reranker scores to f32")?
+                .to_vec2::<f32>()
+                .context("failed to read Qwen3 reranker scores")?;
+
+            scores.extend(build_rerank_scores(candidates, &raw_scores)?);
+        }
 
         scores.sort_by(|left, right| {
             right
@@ -126,8 +137,32 @@ impl Qwen3RerankerBackend {
             score.rank = index + 1;
         }
 
+        self.cancellation.check()?;
         Ok(scores)
     }
+}
+
+fn build_rerank_scores(
+    candidates: &[&RerankCandidate],
+    raw_scores: &[Vec<f32>],
+) -> Result<Vec<RerankScore>> {
+    if candidates.len() != raw_scores.len() {
+        anyhow::bail!("invalid Qwen3 reranker output");
+    }
+    candidates
+        .iter()
+        .zip(raw_scores)
+        .map(|(candidate, row)| {
+            if row.len() != 1 || !row[0].is_finite() {
+                anyhow::bail!("invalid Qwen3 reranker output");
+            }
+            Ok(RerankScore {
+                candidate_id: candidate.id.clone(),
+                score: row[0],
+                rank: 0,
+            })
+        })
+        .collect()
 }
 
 impl RerankerBackend for Qwen3RerankerBackend {
@@ -145,5 +180,39 @@ impl RerankerBackend for Qwen3RerankerBackend {
         candidates: &[RerankCandidate],
     ) -> Result<Vec<RerankScore>> {
         self.score_candidates(query, candidates)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn reranker_rows_require_exact_cardinality_one_finite_scalar_each() {
+        let candidates = [
+            RerankCandidate {
+                id: "a".to_string(),
+                text: "first".to_string(),
+                metadata: serde_json::Value::Null,
+            },
+            RerankCandidate {
+                id: "b".to_string(),
+                text: "second".to_string(),
+                metadata: serde_json::Value::Null,
+            },
+        ];
+        let candidates = candidates.iter().collect::<Vec<_>>();
+
+        assert!(build_rerank_scores(&candidates, &[vec![0.1]]).is_err());
+        assert!(build_rerank_scores(&candidates, &[vec![0.1], vec![0.2], vec![0.3]]).is_err());
+        assert!(build_rerank_scores(&candidates, &[vec![], vec![0.2]]).is_err());
+        assert!(build_rerank_scores(&candidates, &[vec![0.1, 0.2], vec![0.3]]).is_err());
+        assert!(build_rerank_scores(&candidates, &[vec![f32::NAN], vec![0.2]]).is_err());
+        assert_eq!(
+            build_rerank_scores(&candidates, &[vec![0.1], vec![0.2]])
+                .unwrap()
+                .len(),
+            2
+        );
     }
 }

@@ -1,5 +1,5 @@
 {
-  "_comment": "JobSentinel v2.9 Configuration",
+  "_comment": "JobSentinel Configuration",
   "_instructions": "Customize the values below, then save the file as config.json in your config directory.",
   "_security_note": "IMPORTANT: Passwords, access codes, and connection links are stored in JobSentinel's encrypted local vault, NOT in this file. Configure credentials in Settings UI.",
 
@@ -58,7 +58,7 @@
   "scraping_interval_hours": 2,
 
   "alerts": {
-    "_note": "Webhook URLs and passwords are stored in OS keyring, not here. Configure via Settings UI.",
+    "_note": "Configure notification credentials in Settings; encrypted vault secrets stay out of config.",
     "slack": {
       "enabled": false
     },

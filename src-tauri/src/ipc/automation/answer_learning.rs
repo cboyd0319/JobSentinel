@@ -1,13 +1,11 @@
-// ============================================================================
-// Screening Answer Learning Commands
-// ============================================================================
+//! Adapts reviewed screening-answer learning, suggestions, and statistics to Tauri.
 
 use crate::application::automation::{AnswerSource, AnswerStatistics, AnswerSuggestion};
+use crate::bootstrap::operation::State;
 use crate::bootstrap::AppState;
 use crate::ipc::errors::user_friendly_error;
 use crate::ipc::limits::validate_optional_command_limit_usize;
 use serde::{Deserialize, Serialize};
-use tauri::State;
 
 /// Get suggested answers for a screening question
 ///

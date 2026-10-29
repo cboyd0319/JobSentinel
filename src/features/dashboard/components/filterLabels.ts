@@ -1,3 +1,5 @@
+/** Formats persisted dashboard filter identifiers as accessible user-facing labels. */
+
 import type { ScoreFilter, SortOption } from "../types";
 
 export const sortOptions: Array<{ value: SortOption; label: string }> = [
@@ -19,7 +21,9 @@ export const scoreFilterOptions: Array<{ value: ScoreFilter; label: string }> =
 const remoteFilterLabels: Record<string, string> = {
   all: "All Locations",
   remote: "Remote Only",
+  hybrid: "Hybrid Only",
   onsite: "On-site Only",
+  unspecified: "Not disclosed / unspecified",
 };
 
 const bookmarkFilterLabels: Record<string, string> = {

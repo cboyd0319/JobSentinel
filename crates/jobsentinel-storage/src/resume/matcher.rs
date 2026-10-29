@@ -1,6 +1,4 @@
-//! Resume-Job Matching Algorithm
-//!
-//! Compares resume skills against job requirements and generates match scores.
+//! Matches resume evidence against job requirements and stores explained scores.
 #![allow(clippy::unwrap_used, clippy::expect_used)] // Regex patterns are compile-time constants
 
 use super::skills::SkillExtractor;
@@ -391,7 +389,7 @@ impl JobMatcher {
         let education_match_score =
             self.calculate_education_match(user_education, education_req.as_ref());
 
-        let overall_match_score = jobsentinel_documents::calculate_resume_match_score(
+        let match_score = jobsentinel_documents::calculate_resume_match_score(
             &matching_skills,
             &missing_skills,
             skills_match_score,
@@ -400,6 +398,7 @@ impl JobMatcher {
             education_match_score,
             education_req.as_ref(),
         );
+        let overall_match_score = match_score.score;
 
         // Generate enhanced gap analysis
         let gap_analysis = gap_analysis::generate_enhanced_gap_analysis(
@@ -411,6 +410,8 @@ impl JobMatcher {
             education_match_score,
             education_req.as_ref(),
             overall_match_score,
+            match_score.blocker.as_deref(),
+            &match_score.sources,
         );
 
         Ok(MatchResult {
@@ -426,17 +427,6 @@ impl JobMatcher {
             gap_analysis: Some(gap_analysis),
             created_at: Utc::now(),
         })
-    }
-
-    /// Generate human-readable gap analysis (legacy - kept for backward compatibility)
-    #[cfg(test)]
-    fn generate_gap_analysis(
-        &self,
-        matching_skills: &[String],
-        missing_skills: &[String],
-        overall_score: f64,
-    ) -> String {
-        gap_analysis::generate_gap_analysis(matching_skills, missing_skills, overall_score)
     }
 }
 

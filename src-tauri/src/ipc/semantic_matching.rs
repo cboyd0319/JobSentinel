@@ -1,19 +1,27 @@
-//! Local semantic matching diagnostics.
+//! Reports local model health and confirms offline cache repair without downloading.
 
 #[cfg(feature = "embedded-ml")]
 use crate::desktop;
 #[cfg(feature = "embedded-ml")]
-use crate::desktop::{load_model_manifest, model_lock_hash, ModelKind, ModelManager, ModelSpec};
+use crate::desktop::{
+    load_model_manifest, model_lock_hash, ModelCacheHealth, ModelKind, ModelManager, ModelSpec,
+};
 #[cfg(feature = "embedded-ml")]
 use crate::ipc::errors::user_friendly_error;
+#[cfg(feature = "embedded-ml")]
+use tauri_plugin_dialog::{DialogExt, MessageDialogButtons, MessageDialogKind};
+#[cfg(feature = "embedded-ml")]
+use tokio::sync::oneshot;
 
-#[derive(Debug, Clone, serde::Serialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize)]
 #[serde(rename_all = "snake_case")]
 pub(crate) enum SemanticMatchingRuntimeStatus {
     #[cfg(feature = "embedded-ml")]
     Ready,
     #[cfg(feature = "embedded-ml")]
     NeedsModelDownload,
+    #[cfg(feature = "embedded-ml")]
+    Misconfigured,
     #[cfg(not(feature = "embedded-ml"))]
     DisabledInThisBuild,
 }
@@ -21,6 +29,7 @@ pub(crate) enum SemanticMatchingRuntimeStatus {
 #[derive(Debug, Clone, serde::Serialize)]
 pub(crate) struct SemanticMatchingDiagnostics {
     pub build_enabled: bool,
+    pub quarantined_cache_present: bool,
     pub runtime_status: SemanticMatchingRuntimeStatus,
     pub active_profile: String,
     pub privacy_mode: String,
@@ -45,6 +54,10 @@ pub(crate) struct SemanticMatchingModelDiagnostic {
     pub required_files_present: usize,
     pub locked_size_bytes: Option<u64>,
     pub downloaded: bool,
+    pub cache_present: bool,
+    pub repair_available: bool,
+    #[cfg(feature = "embedded-ml")]
+    pub health: ModelCacheHealth,
     pub required_for_qwen3_runtime: bool,
 }
 
@@ -63,9 +76,76 @@ pub(crate) async fn get_semantic_matching_diagnostics(
 }
 
 #[cfg(not(feature = "embedded-ml"))]
+#[tauri::command]
+pub(crate) async fn repair_semantic_matching_model_cache(
+    _operation: crate::bootstrap::operation::AdmissionState<'_>,
+    _app: tauri::AppHandle,
+    _model_id: String,
+) -> Result<bool, String> {
+    Err("Local model repair is unavailable in this build.".to_string())
+}
+
+#[cfg(feature = "embedded-ml")]
+#[tauri::command]
+pub(crate) async fn repair_semantic_matching_model_cache(
+    _operation: crate::bootstrap::operation::AdmissionState<'_>,
+    app: tauri::AppHandle,
+    model_id: String,
+) -> Result<bool, String> {
+    let reservation = std::sync::Arc::new(crate::ipc::ml::reserve_model_lifecycle(None)?);
+    let manifest = load_model_manifest()
+        .map_err(|_| "Local model repair could not be prepared.".to_string())?;
+    let model = manifest
+        .models
+        .iter()
+        .find(|model| model.id == model_id)
+        .ok_or_else(|| "Local model repair is not available.".to_string())?
+        .clone();
+    let role = model_role(&manifest, &model);
+    let manager = ModelManager::new(desktop::get_data_dir());
+    let inspection_reservation = reservation.clone();
+    let inspection_lease = _operation.lease();
+    let (manager, retained, damaged) = tokio::task::spawn_blocking(move || {
+        let _ownership = (inspection_reservation, inspection_lease);
+        let retained = manager
+            .retained_metadata_repair_count(&model.id)
+            .map_err(|_| "Local model repair is not available.".to_string())?;
+        let damaged = manager.cache_health_for(&model) == ModelCacheHealth::IntegrityMismatch;
+        Ok::<_, String>((manager, retained, damaged))
+    })
+    .await
+    .map_err(|_| "Local model inspection could not finish.".to_string())??;
+    if retained == 0 && !damaged {
+        return Err("Local model repair is not available.".to_string());
+    }
+    if !confirm_model_cache_removal(&app, role, retained, damaged).await? {
+        return Ok(false);
+    }
+    let lease = _operation.lease();
+    tokio::task::spawn_blocking(move || {
+        let _ownership = (reservation, lease);
+        if retained > 0 {
+            let directory = manager
+                .model_quarantine_dir()
+                .map_err(|_| "Local model quarantine is unavailable.".to_string())?;
+            desktop::ensure_private_dir(&directory).map_err(|_| {
+                "Local model quarantine could not be prepared privately.".to_string()
+            })?;
+        }
+        manager
+            .repair_invalid_default_cache(&model_id)
+            .map_err(|_| "Local model repair could not be completed.".to_string())
+    })
+    .await
+    .map_err(|_| "Local model repair could not finish.".to_string())??;
+    Ok(true)
+}
+
+#[cfg(not(feature = "embedded-ml"))]
 fn semantic_matching_diagnostics() -> Result<SemanticMatchingDiagnostics, String> {
     Ok(SemanticMatchingDiagnostics {
         build_enabled: false,
+        quarantined_cache_present: false,
         runtime_status: SemanticMatchingRuntimeStatus::DisabledInThisBuild,
         active_profile: "Built-in local matching rules".to_string(),
         privacy_mode: "Local only. No resume or job text leaves this device.".to_string(),
@@ -85,39 +165,106 @@ fn semantic_matching_diagnostics() -> Result<SemanticMatchingDiagnostics, String
     let manifest = load_model_manifest()
         .map_err(|error| user_friendly_error("Failed to read local model lock", error))?;
     let manager = ModelManager::new(desktop::get_data_dir());
+    Ok(semantic_matching_diagnostics_for(&manifest, &manager))
+}
 
-    let mut models = Vec::new();
-    for model in &manifest.models {
-        models.push(model_diagnostic(&manager, &manifest, model));
-    }
-
-    let qwen3_models_ready = manifest
-        .default_embedding()
-        .is_some_and(|model| manager.is_model_downloaded_for(model))
-        && manifest
-            .default_reranker()
-            .is_some_and(|model| manager.is_model_downloaded_for(model));
-    let runtime_status = if qwen3_models_ready {
-        SemanticMatchingRuntimeStatus::Ready
-    } else {
-        SemanticMatchingRuntimeStatus::NeedsModelDownload
+#[cfg(feature = "embedded-ml")]
+fn semantic_matching_diagnostics_for(
+    manifest: &crate::desktop::ModelManifest,
+    manager: &ModelManager,
+) -> SemanticMatchingDiagnostics {
+    let model_health = manifest
+        .models
+        .iter()
+        .map(|model| (model, manager.cache_health_for(model)))
+        .collect::<Vec<_>>();
+    let models = model_health
+        .iter()
+        .map(|(model, health)| model_diagnostic(manager, manifest, model, *health))
+        .collect();
+    let health_for = |id: &str| {
+        model_health
+            .iter()
+            .find(|(model, _)| model.id == id)
+            .map_or(ModelCacheHealth::IntegrityMismatch, |(_, health)| *health)
     };
+    let legacy_health = health_for(&manifest.defaults.legacy_runtime_embedding);
+    let runtime_status = semantic_runtime_status(
+        health_for(&manifest.defaults.embedding),
+        health_for(&manifest.defaults.reranker),
+        legacy_health,
+    );
+    let (active_profile, user_action) = semantic_runtime_copy(runtime_status, legacy_health);
 
-    Ok(SemanticMatchingDiagnostics {
+    SemanticMatchingDiagnostics {
         build_enabled: true,
+        quarantined_cache_present: manager.has_quarantined_model_cache(),
         runtime_status,
-        active_profile: "Qwen3 embedding plus Qwen3 reranker, with built-in local fallback"
-            .to_string(),
+        active_profile: active_profile.to_string(),
         privacy_mode: "Local only. Model downloads fetch model files only and never send resume or job-search data."
             .to_string(),
         manifest_hash: Some(model_lock_hash()),
         models,
         scoring_signals: base_scoring_signals(),
         eval_contract: base_eval_contract(),
-        user_action: (!qwen3_models_ready).then_some(
-            "Download the pinned local models before using Qwen3 semantic matching.".to_string(),
+        user_action: user_action.map(str::to_string),
+    }
+}
+
+#[cfg(feature = "embedded-ml")]
+fn semantic_runtime_status(
+    embedding: ModelCacheHealth,
+    reranker: ModelCacheHealth,
+    legacy: ModelCacheHealth,
+) -> SemanticMatchingRuntimeStatus {
+    match (embedding, reranker, legacy) {
+        (ModelCacheHealth::Ready, ModelCacheHealth::Ready, _) => {
+            SemanticMatchingRuntimeStatus::Ready
+        }
+        (_, _, ModelCacheHealth::Incomplete | ModelCacheHealth::IntegrityMismatch) => {
+            SemanticMatchingRuntimeStatus::Misconfigured
+        }
+        (ModelCacheHealth::Missing, ModelCacheHealth::Missing, _) => {
+            SemanticMatchingRuntimeStatus::NeedsModelDownload
+        }
+        _ => SemanticMatchingRuntimeStatus::Misconfigured,
+    }
+}
+
+#[cfg(feature = "embedded-ml")]
+fn semantic_runtime_copy(
+    status: SemanticMatchingRuntimeStatus,
+    legacy: ModelCacheHealth,
+) -> (&'static str, Option<&'static str>) {
+    match (status, legacy == ModelCacheHealth::Ready) {
+        (SemanticMatchingRuntimeStatus::Ready, _) => {
+            ("Qwen3 embedding plus Qwen3 reranker", None)
+        }
+        (SemanticMatchingRuntimeStatus::NeedsModelDownload, true) => (
+            "Verified MiniLM local matching; Qwen3 models are not installed",
+            Some(
+                "Download the pinned Qwen3 models to enable advanced matching. Verified MiniLM matching remains active.",
+            ),
         ),
-    })
+        (SemanticMatchingRuntimeStatus::NeedsModelDownload, false) => (
+            "Exact-only deterministic matching; Qwen3 models are not installed",
+            Some(
+                "Download the pinned Qwen3 models to enable advanced matching. Exact-only local matching remains active.",
+            ),
+        ),
+        (SemanticMatchingRuntimeStatus::Misconfigured, true) => (
+            "Verified MiniLM local matching; Qwen3 model cache needs attention",
+            Some(
+                "Local model files are incomplete or failed integrity checks. Download the pinned models again before using Qwen3 matching. Verified MiniLM matching remains active.",
+            ),
+        ),
+        (SemanticMatchingRuntimeStatus::Misconfigured, false) => (
+            "Exact-only deterministic matching; local model cache needs attention",
+            Some(
+                "Local model files are incomplete or failed integrity checks. Download the pinned models again before using advanced matching. Exact-only local matching remains active.",
+            ),
+        ),
+    }
 }
 
 #[cfg(feature = "embedded-ml")]
@@ -125,10 +272,9 @@ fn model_diagnostic(
     manager: &ModelManager,
     manifest: &crate::desktop::ModelManifest,
     model: &ModelSpec,
+    health: ModelCacheHealth,
 ) -> SemanticMatchingModelDiagnostic {
     let required_files = model.required_files().count();
-    let required_files_present = manager.required_files_present(model);
-    let downloaded = manager.is_model_downloaded_for(model);
 
     SemanticMatchingModelDiagnostic {
         id: model.id.clone(),
@@ -140,12 +286,52 @@ fn model_diagnostic(
         dimension: model.dimension,
         max_tokens: model.max_tokens,
         required_files,
-        required_files_present,
+        required_files_present: manager.required_files_present(model),
         locked_size_bytes: locked_size_bytes(model),
-        downloaded,
+        downloaded: health == ModelCacheHealth::Ready,
+        cache_present: manager.cache_exists_for(model),
+        repair_available: health == ModelCacheHealth::IntegrityMismatch
+            || manager
+                .retained_metadata_repair_count(&model.id)
+                .is_ok_and(|count| count > 0),
+        health,
         required_for_qwen3_runtime: model.id == manifest.defaults.embedding
             || model.id == manifest.defaults.reranker,
     }
+}
+
+#[cfg(feature = "embedded-ml")]
+async fn confirm_model_cache_removal(
+    app: &tauri::AppHandle,
+    role: &str,
+    retained: usize,
+    damaged: bool,
+) -> Result<bool, String> {
+    let (decision, received) = oneshot::channel();
+    app.dialog()
+        .message(model_repair_message(role, retained, damaged))
+        .title("Review Local Model Repair")
+        .kind(MessageDialogKind::Warning)
+        .buttons(MessageDialogButtons::OkCancelCustom(
+            "Repair Local Cache".to_string(),
+            "Keep Files".to_string(),
+        ))
+        .show(move |approved| {
+            let _ = decision.send(approved);
+        });
+    received
+        .await
+        .map_err(|_| "Local model repair confirmation could not be completed.".to_string())
+}
+
+#[cfg(feature = "embedded-ml")]
+fn model_repair_message(role: &str, retained: usize, damaged: bool) -> String {
+    let current = if damaged {
+        "Remove the damaged current cache for fresh setup. "
+    } else {
+        ""
+    };
+    format!("Repair {role}? Move {retained} earlier caches with invalid metadata out of use, preserving their files. {current}Valid current caches remain. Advanced matching may need setup afterward. No resume or job data is involved, and no download starts.")
 }
 
 #[cfg(feature = "embedded-ml")]
@@ -228,45 +414,4 @@ fn base_eval_contract() -> Vec<String> {
 }
 
 #[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[cfg(not(feature = "embedded-ml"))]
-    #[test]
-    fn diagnostics_explain_disabled_build_without_private_data() {
-        let diagnostics = semantic_matching_diagnostics().expect("diagnostics should build");
-
-        assert!(!diagnostics.build_enabled);
-        assert!(matches!(
-            diagnostics.runtime_status,
-            SemanticMatchingRuntimeStatus::DisabledInThisBuild
-        ));
-        assert!(diagnostics.models.is_empty());
-        assert!(diagnostics.privacy_mode.contains("No resume or job text"));
-    }
-
-    #[cfg(feature = "embedded-ml")]
-    #[test]
-    fn diagnostics_report_qwen3_model_lock_entries() {
-        let diagnostics = semantic_matching_diagnostics().expect("diagnostics should build");
-
-        assert!(diagnostics.build_enabled);
-        assert_eq!(diagnostics.manifest_hash.as_deref().map(str::len), Some(64));
-        assert!(diagnostics
-            .models
-            .iter()
-            .any(|model| model.id == "qwen3-embedding-0.6b"
-                && model.role == "Default embedding"
-                && model.required_for_qwen3_runtime));
-        assert!(diagnostics
-            .models
-            .iter()
-            .any(|model| model.id == "qwen3-reranker-0.6b"
-                && model.role == "Default reranker"
-                && model.required_for_qwen3_runtime));
-        assert!(diagnostics
-            .scoring_signals
-            .iter()
-            .any(|signal| signal.id == "qwen3_reranker"));
-    }
-}
+mod tests;

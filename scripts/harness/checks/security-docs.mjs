@@ -1,3 +1,4 @@
+// Detects stale security guidance and credential-config boundary drift.
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -21,9 +22,23 @@ const keyringSecurityDocsPaths = new Set([
   "docs/features/saved-secrets.md",
 ]);
 
-const keyringMigrationPaths = new Set([
+const retiredCredentialMigrationPath = "crates/jobsentinel-credentials/src/migration.rs";
+const credentialConfigPaths = new Set([
   "crates/jobsentinel-application/src/desktop/startup.rs",
+  "crates/jobsentinel-credentials/src/lib.rs",
+  "crates/jobsentinel-application/src/config/io.rs",
+  "src-tauri/src/ipc/config.rs",
+  retiredCredentialMigrationPath,
 ]);
+const retiredCredentialPointers = [
+  "/alerts/email/smtp_password",
+  "/alerts/telegram/bot_token",
+  "/alerts/slack/webhook_url",
+  "/alerts/discord/webhook_url",
+  "/alerts/teams/webhook_url",
+  "/linkedin/session_cookie",
+  "/usajobs/api_key",
+];
 const credentialArchitecturePaths = new Set(["crates/jobsentinel-credentials/src/lib.rs"]);
 const userDataFeatureDocsPaths = new Set(["docs/features/user-data-management.md"]);
 
@@ -108,7 +123,9 @@ export function hasStaleKeyringSecurityDocs(root, path) {
     /EmailSmtpPassword|LinkedinCookies|TelegramToken/.test(text) ||
     /tauri-plugin-secure-storage` JS API|Does NOT delete plaintext values/.test(text) ||
     /HashMap<String, bool>|Vec<\(CredentialKey, bool\)>|list_status\(\) -> Result/.test(text) ||
-    /v2\.0\.0 introduces|[✅❌⚠️✓→←]|\*\*(?:Last Updated|Version|Security Level)\*\*:/.test(text);
+    /v2\.0\.0 introduces|[✅❌⚠️✓→←]|\*\*(?:Last Updated|Version|Security Level)\*\*:/.test(text) ||
+    /Migration From Plaintext Config|Startup migration runs|keyring_migrated_v1/.test(text) ||
+    /tries to move those details into the|JobSentinel retries later/.test(text);
 
   if (hasStaleKeyringMarkers) {
     return true;
@@ -117,34 +134,58 @@ export function hasStaleKeyringSecurityDocs(root, path) {
   if (path === "docs/features/saved-secrets.md") {
     return (
       !text.includes("USAJobs access code") ||
-      !text.includes("Legacy LinkedIn saved details") ||
       !text.includes("[Local Secret Vault And Keychain Integration](../security/KEYRING.md)")
     );
   }
 
   return (
     !text.includes("jobsentinel_usajobs_api_key") ||
-    !text.includes("Legacy LinkedIn credential") ||
     !text.includes("store_credential")
   );
 }
 
-export function hasUnsafeKeyringMigration(root, path) {
-  if (!keyringMigrationPaths.has(path)) {
+function rustFunction(text, name) {
+  return text.match(
+    new RegExp(`^([ \\t]*)(?:pub(?:\\([^)]*\\))?\\s+)?(?:async\\s+)?fn\\s+${name}\\b[\\s\\S]*?^\\1\\}`, "m"),
+  )?.[0] ?? "";
+}
+
+function hasGuardedConfigDecode(body, decoder) {
+  const guard = body.search(/reject_retired_config_fields\([^;]+\)\?;/);
+  const decode = body.search(
+    new RegExp(`let\\s+(?:mut\\s+)?config\\s*:\\s*(?:Config|Self)\\s*=\\s*serde_json::${decoder}\\(`),
+  );
+  return guard >= 0 && decode > guard;
+}
+
+export function hasUnsafeCredentialConfigCompatibility(root, path) {
+  if (!credentialConfigPaths.has(path)) {
     return false;
   }
+  if (existsSync(join(root, retiredCredentialMigrationPath))) return true;
+  if (path === retiredCredentialMigrationPath) return false;
 
-  const text = readFileSync(join(root, path), "utf8");
-  const hasRetrySafeMarker =
-    text.includes("Keyring migration incomplete; will retry on next startup") ||
-    text.includes("Secure-storage migration incomplete; will retry on next startup");
-
-  return (
-    /even if partial/.test(text) ||
-    /✓ Migrated/.test(text) ||
-    !text.includes("mark_migration_complete") ||
-    !hasRetrySafeMarker
-  );
+  const text = readFileSync(join(root, path), "utf8").replace(/^[ \t]*\/\/[^\n]*$/gm, "");
+  if (/\b(?:migrate_plaintext_credentials_to_secure_storage|extract_plaintext_credentials|clear_config_credentials|is_migrated|set_migrated)\b|\bmod\s+migration\s*;|\buse\s+(?:self::)?migration::/.test(text)) {
+    return true;
+  }
+  if (path === "crates/jobsentinel-application/src/config/io.rs") {
+    const guard = rustFunction(text, "reject_retired_config_fields");
+    const presence = guard.search(/\bvalue\.pointer\(\w+\)\.is_some\(\)/);
+    return (
+      !hasGuardedConfigDecode(rustFunction(text, "from_json"), "from_str") ||
+      !hasGuardedConfigDecode(rustFunction(text, "from_value"), "from_value") ||
+      !retiredCredentialPointers.every((pointer) => guard.includes(`"${pointer}"`)) ||
+      presence < 0 || !/\breturn\s+Err\s*\(/.test(guard.slice(presence))
+    );
+  }
+  if (path === "src-tauri/src/ipc/config.rs") {
+    const body = rustFunction(text, "save_config_to_runtime_and_path");
+    const decode = body.search(/Config::from_value\(config\)[^;]+\?;/);
+    const change = body.search(/runtime_config\.read\(|reconcile_restricted_source_consents\(|\.save\(config_path\)/);
+    return decode < 0 || change < decode || /serde_json::from_value/.test(body);
+  }
+  return false;
 }
 
 export function hasStaleCredentialArchitectureComments(root, path) {

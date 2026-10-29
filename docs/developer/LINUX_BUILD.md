@@ -1,3 +1,5 @@
+<!-- Documents linux Build Guide. -->
+
 # Linux Build Guide
 
 This guide explains how to build JobSentinel for Linux distributions.
@@ -6,7 +8,7 @@ This guide explains how to build JobSentinel for Linux distributions.
 
 JobSentinel supports two Linux package formats:
 
-- **AppImage** - Universal Linux binary (recommended)
+- **AppImage** - Bundled application for the supported Linux runtime baseline
 - **Debian (.deb)** - Ubuntu/Debian package manager format
 
 ## Prerequisites
@@ -99,16 +101,11 @@ Releases include:
 
 ## Distribution Compatibility
 
-### AppImage (Universal)
+### AppImage
 
-**Supported Distributions:**
-
-- Ubuntu 24.04+
-- Debian 12+
-- Fedora 40+
-- Arch Linux (current)
-- Pop!_OS 24.04+
-- Linux Mint 22+
+The maintained packaging baseline is Ubuntu 24.04. Other distributions need
+compatible runtime libraries and their own installed verification; AppImage does
+not make a glibc-linked binary compatible with every distribution.
 
 **Runtime Requirements:**
 
@@ -119,12 +116,9 @@ Releases include:
 
 ### Debian Package (.deb)
 
-**Supported Distributions:**
-
-- Ubuntu 24.04+
-- Debian 12+
-- Pop!_OS 24.04+
-- Linux Mint 22+
+Ubuntu 24.04 is the maintained build baseline. Check the package's declared
+runtime dependencies and native installation evidence before claiming support
+for another Debian-derived distribution.
 
 **Dependency Declaration:**
 
@@ -216,24 +210,17 @@ docker run -it --rm \
     ./init.sh && node scripts/platform/build-linux-appimage.mjs --target x86_64-unknown-linux-gnu"
 ```
 
-## Signing and Auto-Updates
+## Signing and updates
 
-### Tauri Signing (Future)
-
-For auto-update support, releases must be signed with Tauri's signing keys.
-
-**Setup:**
-
-1. Generate signing keys: `tauri signer generate`
-2. Store public key in repository
-3. Add private key to GitHub Secrets
-4. Update workflow to sign releases
-
-See [Tauri Signing Documentation](https://tauri.app/distribute/sign/linux/) for details.
+Current reviewed updates use the app-release trust and recovery owners described
+in [the Release Contract](RELEASING.md). Do not create a second signing identity
+or add private keys to repository files as part of ordinary development. Signing,
+artifact verification and publication require the authorized release workflow and
+all three final phases.
 
 ## Notes
 
-- **Ubuntu 24.04 baseline** ensures glibc 2.39 compatibility across distributions
+- **Ubuntu 24.04 baseline** sets the glibc 2.39 build baseline; other distributions require validation
 - AppImage is **recommended** for maximum compatibility
 - `.deb` is provided for users who prefer package managers
 - **No RPM packages yet** - contributions welcome for Fedora/RHEL support

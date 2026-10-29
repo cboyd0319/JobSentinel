@@ -1,3 +1,5 @@
+//! Selects the verified portable key, device SQLCipher key or isolated macOS smoke key.
+
 use chacha20poly1305::aead::Generate;
 use keyring::{Entry, Error as KeyringError};
 use zeroize::Zeroizing;
@@ -16,13 +18,13 @@ pub struct DatabaseKeyError;
 
 impl std::fmt::Display for DatabaseKeyError {
     fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        formatter.write_str("device secure storage did not provide a valid database key")
+        formatter.write_str("the selected profile did not provide a valid database key")
     }
 }
 
 impl std::error::Error for DatabaseKeyError {}
 
-/// Load the existing SQLCipher key or create it in device secure storage.
+/// Use the verified portable passphrase, or load/create the installed profile's device key.
 pub async fn load_or_create_database_key() -> Result<Zeroizing<String>, DatabaseKeyError> {
     tokio::task::spawn_blocking(load_or_create_database_key_blocking)
         .await
@@ -30,11 +32,12 @@ pub async fn load_or_create_database_key() -> Result<Zeroizing<String>, Database
 }
 
 fn load_or_create_database_key_blocking() -> Result<Zeroizing<String>, DatabaseKeyError> {
+    if crate::portable_root().is_some() {
+        return crate::portable::database_key().ok_or(DatabaseKeyError);
+    }
     #[cfg(target_os = "macos")]
-    if let Some(encoded_key) = smoke_database_key_hex() {
-        tracing::info!("Using isolated macOS package-smoke database key");
-        let key = validate_database_key_hex(encoded_key)?;
-        tracing::info!("Validated macOS package-smoke database key");
+    if let Some(key) = smoke_database_key_hex()? {
+        tracing::info!("Using validated isolated macOS package-smoke database key");
         return Ok(key);
     }
 
@@ -55,10 +58,26 @@ fn load_or_create_database_key_blocking() -> Result<Zeroizing<String>, DatabaseK
 }
 
 #[cfg(target_os = "macos")]
-fn smoke_database_key_hex() -> Option<String> {
-    crate::package_smoke_root()?;
-    let encoded_key = std::env::var(SMOKE_DATABASE_KEY_HEX_ENV).ok()?;
-    is_valid_database_key_hex(&encoded_key).then_some(encoded_key)
+fn smoke_database_key_hex() -> Result<Option<Zeroizing<String>>, DatabaseKeyError> {
+    let smoke_root_present = crate::package_smoke_root().is_some();
+    let encoded_key = smoke_root_present
+        .then(|| std::env::var(SMOKE_DATABASE_KEY_HEX_ENV).ok())
+        .flatten();
+    select_smoke_database_key(smoke_root_present, encoded_key)
+}
+
+#[cfg(target_os = "macos")]
+fn select_smoke_database_key(
+    smoke_root_present: bool,
+    encoded_key: Option<String>,
+) -> Result<Option<Zeroizing<String>>, DatabaseKeyError> {
+    if !smoke_root_present {
+        return Ok(None);
+    }
+    encoded_key
+        .ok_or(DatabaseKeyError)
+        .and_then(validate_database_key_hex)
+        .map(Some)
 }
 
 fn validate_database_key_hex(encoded_key: String) -> Result<Zeroizing<String>, DatabaseKeyError> {
@@ -89,5 +108,31 @@ mod tests {
         let key = format!("  {}\n", "ab".repeat(DATABASE_KEY_LEN));
         let validated = validate_database_key_hex(key).unwrap();
         assert_eq!(validated.len(), DATABASE_KEY_HEX_LEN);
+    }
+
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn smoke_key_selection_requires_a_valid_ephemeral_key_when_smoke_is_active() {
+        for encoded_key in [
+            None,
+            Some("zz".repeat(DATABASE_KEY_LEN)),
+            Some(" \n\t ".to_string()),
+        ] {
+            assert!(select_smoke_database_key(true, encoded_key).is_err());
+        }
+    }
+
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn smoke_key_selection_trims_valid_ephemeral_key_and_normal_mode_falls_through() {
+        let key = format!("  {}\n", "ab".repeat(DATABASE_KEY_LEN));
+        let selected = select_smoke_database_key(true, Some(key)).unwrap().unwrap();
+        assert_eq!(selected.as_str(), "ab".repeat(DATABASE_KEY_LEN));
+        assert!(select_smoke_database_key(false, None).unwrap().is_none());
+        assert!(
+            select_smoke_database_key(false, Some("malformed".to_string()))
+                .unwrap()
+                .is_none()
+        );
     }
 }

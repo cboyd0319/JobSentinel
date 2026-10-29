@@ -1,14 +1,26 @@
+//! Owns desktop tray menus, foreground activation, and admitted manual source searches.
+
 use tauri::{
     menu::{Menu, MenuItem},
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
-    App, AppHandle, Manager,
+    AppHandle, Manager,
 };
 
-use crate::bootstrap::AppState;
+use crate::bootstrap::{AppState, StartupRecoveryState};
 use crate::ipc;
 
-pub(crate) fn initialize_tray(app: &App) -> tauri::Result<()> {
-    let search_item = MenuItem::with_id(app, "search", "Search Now", true, None::<&str>)?;
+fn tray_search_allowed(recovery: &StartupRecoveryState) -> bool {
+    !recovery.required()
+}
+
+pub(crate) fn initialize_tray(app: &AppHandle) -> tauri::Result<()> {
+    let search_item = MenuItem::with_id(
+        app,
+        "search",
+        "Search Now",
+        tray_search_allowed(&app.state::<StartupRecoveryState>()),
+        None::<&str>,
+    )?;
     let dashboard_item = MenuItem::with_id(app, "dashboard", "Open Dashboard", true, None::<&str>)?;
     let quit_item = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
     let menu = Menu::with_items(app, &[&search_item, &dashboard_item, &quit_item])?;
@@ -17,10 +29,22 @@ pub(crate) fn initialize_tray(app: &App) -> tauri::Result<()> {
         .menu(&menu)
         .on_menu_event(|app, event| match event.id.as_ref() {
             "search" => {
+                if !tray_search_allowed(&app.state::<StartupRecoveryState>()) {
+                    tracing::info!("Manual tray search unavailable during startup recovery");
+                    show_main_window(app);
+                    return;
+                }
                 tracing::info!("Manual job search triggered from tray");
                 let app_handle = app.clone();
                 tauri::async_runtime::spawn(async move {
-                    let state = app_handle.state::<AppState>();
+                    let admission = app_handle
+                        .state::<std::sync::Arc<crate::bootstrap::operation::OperationAdmission>>();
+                    let Ok(state) = crate::bootstrap::operation::State::admit(
+                        app_handle.state::<AppState>(),
+                        &admission,
+                    ) else {
+                        return;
+                    };
                     match ipc::jobs::search_jobs(state).await {
                         Ok(_) => tracing::info!("Manual search completed successfully"),
                         Err(error) => tracing::error!("Manual search failed: {}", error),
@@ -64,5 +88,21 @@ pub(crate) fn show_main_window(app: &AppHandle) {
         if let Err(error) = window.unminimize() {
             tracing::warn!("Failed to unminimize window: {}", error);
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{application::desktop::DesktopStartupFailureKind, bootstrap::StartupRecoveryState};
+
+    #[test]
+    fn tray_search_is_disabled_during_any_startup_recovery() {
+        assert!(tray_search_allowed(&StartupRecoveryState::new(false, None)));
+        assert!(!tray_search_allowed(&StartupRecoveryState::new(true, None)));
+        assert!(!tray_search_allowed(&StartupRecoveryState::new(
+            false,
+            Some(DesktopStartupFailureKind::Database),
+        )));
     }
 }

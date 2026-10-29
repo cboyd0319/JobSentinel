@@ -1,3 +1,5 @@
+/** Verifies Job Card formatting and user action routing. */
+
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -52,6 +54,15 @@ describe("JobCard", () => {
           name: /pay not listed/i,
         }),
       ).toBeInTheDocument();
+    });
+
+    it("does not announce missing pay when native evidence exists without legacy amounts", () => {
+      renderWithToast(<JobCard job={{ ...mockJob, salary_min: null, salary_max: null,
+        listed_pay: { min: 5000, max: 7000, currency: "EUR", period: "monthly", qualifiers: [], raw_text: null },
+      }} />);
+      expect(screen.getByText(/5,000–7,000 EUR.*monthly/)).toBeInTheDocument();
+      expect(screen.getByRole("article")).not.toHaveAccessibleName(/pay not listed/i);
+      expect(screen.queryByText("Pay not listed")).not.toBeInTheDocument();
     });
 
     it("shows regional pay-range guidance when a covered location has no listed pay", () => {
@@ -391,7 +402,7 @@ describe("JobCard", () => {
     it("renders research button when onResearchCompany is provided", () => {
       const onResearchCompany = vi.fn();
       renderWithToast(
-        <JobCard job={mockJob} onResearchCompany={onResearchCompany} />,
+        <JobCard job={{ ...mockJob, hash: "job-carebridge" }} onResearchCompany={onResearchCompany} />,
       );
       expect(screen.getByTestId("btn-research")).toBeInTheDocument();
     });
@@ -405,13 +416,19 @@ describe("JobCard", () => {
       const user = userEvent.setup();
       const onResearchCompany = vi.fn();
       renderWithToast(
-        <JobCard job={mockJob} onResearchCompany={onResearchCompany} />,
+        <JobCard
+          job={{ ...mockJob, hash: "job-carebridge" }}
+          onResearchCompany={onResearchCompany}
+        />,
       );
 
       const researchBtn = screen.getByTestId("btn-research");
       await user.click(researchBtn);
 
-      expect(onResearchCompany).toHaveBeenCalledWith("CareBridge Services");
+      expect(onResearchCompany).toHaveBeenCalledWith(
+        "CareBridge Services",
+        "job-carebridge",
+      );
     });
   });
 

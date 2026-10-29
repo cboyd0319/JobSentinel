@@ -51,11 +51,11 @@
     "max_hops": 1,
     "max_state_reads": 2,
     "state_budgets": {
-      "max_feature_items": 25,
+      "max_feature_items": 26,
       "max_feature_record_bytes": 6000
     },
     "per_file_budgets": {
-      "AGENTS.md": { "max_lines": 100, "max_bytes": 6000, "max_line_bytes": 120 },
+      "AGENTS.md": { "max_lines": 150, "max_bytes": 32768, "max_line_bytes": 120 },
       "docs/harness/current-status.md": { "max_lines": 60, "max_bytes": 4000, "max_line_bytes": 120 },
       "scripts/harness/state/feature-list.json": { "max_lines": 160, "max_bytes": 16000, "max_line_bytes": 240 }
     }

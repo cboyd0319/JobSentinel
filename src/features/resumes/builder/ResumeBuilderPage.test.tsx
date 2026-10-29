@@ -1,9 +1,12 @@
+/** Tests builder recovery and optional military/early-career work-history entry. */
+
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { invoke } from "@tauri-apps/api/core";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ToastProvider } from "../../../app/providers/ToastProvider";
 import ResumeBuilderPage from "./ResumeBuilderPage";
+import ExperienceStep from "./steps/ExperienceStep";
 
 const mockInvoke = vi.mocked(invoke);
 
@@ -18,6 +21,19 @@ function renderBuilder(onBack = vi.fn()) {
 describe("ResumeBuilder", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  it("offers military guidance while keeping work-history entry optional", async () => {
+    const user = userEvent.setup();
+    const onAdd = vi.fn();
+    render(<ExperienceStep experiences={[]} onAddClick={onAdd} onDeleteClick={vi.fn()} />);
+    expect(screen.getByText(/this step is optional/i)).toBeInTheDocument();
+    const guidance = screen.getByText("Military-to-civilian guidance (optional)");
+    await user.click(guidance);
+    expect(guidance.closest("details")).toHaveAttribute("open");
+    await user.click(screen.getByRole("button", { name: /add experience/i }));
+    expect(onAdd).toHaveBeenCalledOnce();
+    expect(mockInvoke).not.toHaveBeenCalled();
   });
 
   it("shows recovery instead of an unusable form when startup fails", async () => {

@@ -1,4 +1,7 @@
+//! Defines parsed job-page values and private Schema.org decoding shapes.
+
 use chrono::{DateTime, Utc};
+use jobsentinel_domain::{JobGeography, ListedPay};
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
@@ -19,9 +22,11 @@ pub struct ParsedJobPage {
     pub title: String,
     pub company: String,
     pub location: Option<String>,
+    pub geography: Option<JobGeography>,
     pub description: Option<String>,
     pub description_preview: Option<String>,
     pub salary: Option<String>,
+    pub listed_pay: Option<ListedPay>,
     pub salary_min: Option<i64>,
     pub salary_max: Option<i64>,
     pub currency: Option<String>,
@@ -40,7 +45,9 @@ pub(super) struct SchemaOrgJobPosting {
     pub description: Option<String>,
     pub hiring_organization: Option<HiringOrganization>,
     pub job_location: Option<serde_json::Value>,
+    pub applicant_location_requirements: Option<serde_json::Value>,
     pub base_salary: Option<serde_json::Value>,
+    pub salary_currency: Option<serde_json::Value>,
     pub date_posted: Option<String>,
     pub valid_through: Option<String>,
     pub employment_type: Option<serde_json::Value>,

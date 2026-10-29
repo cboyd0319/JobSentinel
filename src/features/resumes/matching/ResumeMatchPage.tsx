@@ -1,3 +1,5 @@
+/** Supports ephemeral pasted-job ATS analysis and routing to saved resume matches. */
+
 import { useState, useCallback, useEffect } from "react";
 import { invoke } from "../../../platform/tauri";
 import { Button } from "../../../ui/Button";
@@ -7,6 +9,11 @@ import { useToast } from "../../../shared/toast/useToast";
 import { logError } from "../../../shared/errorReporting/logger";
 import { ResumeMatchTools } from "./ResumeMatchTools";
 import { ResumeMatchResultsPanel } from "./ResumeMatchResultsPanel";
+import { ResumeMatchingProfileFields } from "./ResumeMatchingProfileFields";
+import {
+  currentResumeAnalysis, readResumeMatchDraft,
+  writeResumeMatchDraft,
+} from "./resumeMatchDraft";
 import {
   getResumeAnalysisErrorAction,
   getSelectedResumeReadableStatus,
@@ -16,11 +23,8 @@ import {
   type ResumeSummary,
 } from "./resumeMatchModel";
 import { writeStoredResumeJobContext } from "../shared/resumeJobContext";
-import {
-  readStorageValue,
-  removeStorageValue,
-  writeStorageValue,
-} from "../../../shared/browserStorage";
+import { useResumeReviewRequest } from "../shared/useResumeReviewRequest";
+import type { ResumeMatchingProfile } from "../shared/atsAnalysisContracts";
 
 type Page = "dashboard" | "applications" | "resume" | "resume-builder" | "ats-optimizer" | "salary" | "market" | "automation";
 
@@ -28,45 +32,6 @@ interface ResumeMatchProps {
   onBack: () => void;
   onNavigate?: (page: Page) => void;
 }
-interface ResumeMatchDraft {
-  jobDescription: string;
-  resumeJson: string;
-  analysisResult: AtsAnalysisResult | null;
-  analysisInputSource: "active" | "copied" | null;
-  showAdvancedResumeImport: boolean;
-  showComparison: boolean;
-}
-
-const RESUME_MATCH_DRAFT_STORAGE_KEY = "jobsentinel-resume-match-draft-v1";
-
-function readResumeMatchDraft(): ResumeMatchDraft | null {
-  const raw = readStorageValue("session", RESUME_MATCH_DRAFT_STORAGE_KEY);
-  if (!raw) return null;
-
-  try {
-    const parsed = JSON.parse(raw) as Partial<ResumeMatchDraft>;
-    if (typeof parsed.jobDescription !== "string") return null;
-    if (typeof parsed.resumeJson !== "string") return null;
-
-    removeStorageValue("session", RESUME_MATCH_DRAFT_STORAGE_KEY);
-
-    return {
-      jobDescription: parsed.jobDescription,
-      resumeJson: parsed.resumeJson,
-      analysisResult: parsed.analysisResult ?? null,
-      analysisInputSource:
-        parsed.analysisInputSource === "active" || parsed.analysisInputSource === "copied"
-          ? parsed.analysisInputSource
-          : null,
-      showAdvancedResumeImport: Boolean(parsed.showAdvancedResumeImport),
-      showComparison: Boolean(parsed.showComparison),
-    };
-  } catch {
-    removeStorageValue("session", RESUME_MATCH_DRAFT_STORAGE_KEY);
-    return null;
-  }
-}
-
 async function getActiveResumeSummary(): Promise<ResumeSummary | null> {
   const selected = await invoke<unknown>("get_active_resume");
   return isResumeSummary(selected) ? selected : null;
@@ -90,8 +55,20 @@ export default function ResumeMatch({ onBack, onNavigate }: ResumeMatchProps) {
   const [analysisInputSource, setAnalysisInputSource] = useState<"active" | "copied" | null>(
     initialDraft?.analysisInputSource ?? null,
   );
+  const [matchingProfile, setMatchingProfile] = useState<ResumeMatchingProfile | null>(
+    initialDraft?.matchingProfile ?? null,
+  );
 
+  const visibleAnalysis = currentResumeAnalysis(analysisResult, analysisInputSource, activeResume);
   const toast = useToast();
+  const { begin, cancel, isCurrent, finish } = useResumeReviewRequest();
+  const invalidateReview = () => {
+    cancel();
+    setAnalyzing(false);
+    setAnalysisResult(null);
+    setAnalysisInputSource(null);
+    setShowComparison(false);
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -120,10 +97,8 @@ export default function ResumeMatch({ onBack, onNavigate }: ResumeMatchProps) {
     try {
       const selected = await getActiveResumeSummary();
       if (selected) {
+        invalidateReview();
         setActiveResume(selected);
-        setAnalysisResult(null);
-        setAnalysisInputSource(null);
-        setShowComparison(false);
         toast.success("Resume selected", `${selected.name} is ready for job match review.`);
         return;
       }
@@ -132,18 +107,7 @@ export default function ResumeMatch({ onBack, onNavigate }: ResumeMatchProps) {
     }
 
     if (onNavigate) {
-      writeStorageValue(
-        "session",
-        RESUME_MATCH_DRAFT_STORAGE_KEY,
-        JSON.stringify({
-          jobDescription,
-          resumeJson,
-          analysisResult,
-          analysisInputSource,
-          showAdvancedResumeImport,
-          showComparison,
-        } satisfies ResumeMatchDraft),
-      );
+      persistDraft();
       onNavigate("resume");
       return;
     }
@@ -151,7 +115,20 @@ export default function ResumeMatch({ onBack, onNavigate }: ResumeMatchProps) {
     toast.info("Open Resume Match", "Use the Resumes page to choose or add a resume.");
   };
 
-  // Load action words on mount
+  const persistDraft = () => writeResumeMatchDraft({
+    jobDescription, resumeJson, analysisResult: visibleAnalysis, analysisInputSource,
+    matchingProfile, showAdvancedResumeImport, showComparison,
+  });
+
+  const openSavedMatches = () => {
+    if (!onNavigate) {
+      toast.info("Open Resume Library", "Use the Resumes page to review saved matches.");
+      return;
+    }
+    persistDraft();
+    onNavigate("resume");
+  };
+
   const loadActionWords = useCallback(async () => {
     try {
       const words = await invoke<string[]>("get_ats_power_words");
@@ -161,7 +138,6 @@ export default function ResumeMatch({ onBack, onNavigate }: ResumeMatchProps) {
     }
   }, []);
 
-  // Analyze resume
   const handleAnalyze = async () => {
     if (!jobDescription.trim()) {
       toast.error("Add job post", "Paste the job post, then review again.");
@@ -178,6 +154,7 @@ export default function ResumeMatch({ onBack, onNavigate }: ResumeMatchProps) {
       return;
     }
 
+    const requestId = begin();
     try {
       setAnalyzing(true);
       const result = useCopiedResume
@@ -189,12 +166,21 @@ export default function ResumeMatch({ onBack, onNavigate }: ResumeMatchProps) {
             return invoke<AtsAnalysisResult>("analyze_resume_for_job", {
               resume,
               jobDescription,
+              requestId,
+              ...(matchingProfile ? { matchingProfile } : {}),
             });
           })()
         : await invoke<AtsAnalysisResult>("analyze_active_resume_for_job", {
             jobDescription,
+            requestId,
+            ...(matchingProfile ? { matchingProfile } : {}),
           });
 
+      if (!useCopiedResume && isCurrent(requestId)) {
+        const current = await getActiveResumeSummary();
+        if (isCurrent(requestId)) setActiveResume(current);
+      }
+      if (!isCurrent(requestId)) return;
       setAnalysisResult(result);
       setAnalysisInputSource(useCopiedResume ? "copied" : "active");
       setShowComparison(false);
@@ -203,6 +189,7 @@ export default function ResumeMatch({ onBack, onNavigate }: ResumeMatchProps) {
         "Use the details below as a guide before you apply.",
       );
     } catch (err: unknown) {
+      if (!isCurrent(requestId)) return;
       if (err instanceof Error && err.message === "invalid-copied-resume-details") {
         toast.error(
           "Could not read copied resume details",
@@ -213,11 +200,11 @@ export default function ResumeMatch({ onBack, onNavigate }: ResumeMatchProps) {
         logError("Analysis error:", err);
       }
     } finally {
-      setAnalyzing(false);
+      if (isCurrent(requestId)) setAnalyzing(false);
+      finish(requestId);
     }
   };
 
-  // Analyze format only
   const handleAnalyzeFormat = async () => {
     if (!resumeJson.trim()) {
       toast.error(
@@ -236,23 +223,27 @@ export default function ResumeMatch({ onBack, onNavigate }: ResumeMatchProps) {
       return;
     }
 
+    const requestId = begin(false);
     try {
       setAnalyzing(true);
       const result = await invoke<AtsAnalysisResult>("analyze_resume_format", {
         resume,
       });
 
+      if (!isCurrent(requestId)) return;
       setAnalysisResult(result);
+      setAnalysisInputSource("copied");
       toast.success("Format review complete", "Review the format details below.");
     } catch (err: unknown) {
+      if (!isCurrent(requestId)) return;
       toast.error("Review could not run", getResumeAnalysisErrorAction(err));
       logError("Format analysis error:", err);
     } finally {
-      setAnalyzing(false);
+      if (isCurrent(requestId)) setAnalyzing(false);
+      finish(requestId);
     }
   };
 
-  // Draft a reviewed alternative for a resume bullet.
   const handleImproveBullet = async () => {
     if (!bulletInput.trim()) {
       toast.error("Add a bullet point", "Paste or write one bullet, then draft again.");
@@ -276,7 +267,6 @@ export default function ResumeMatch({ onBack, onNavigate }: ResumeMatchProps) {
     }
   };
 
-  // Send the saved job post to Resume Builder.
   const handleReviewInResumeBuilder = () => {
     if (!onNavigate) {
       toast.error(
@@ -299,12 +289,10 @@ export default function ResumeMatch({ onBack, onNavigate }: ResumeMatchProps) {
     toast.success("Opening Resume Builder", "This job post is ready there.");
   };
 
-  const canShowComparison =
-    analysisInputSource === "copied" && Boolean(jobDescription.trim()) && Boolean(resumeJson.trim());
+  const canShowComparison = analysisInputSource === "copied" && Boolean(jobDescription.trim()) && Boolean(resumeJson.trim());
 
   return (
     <div className="min-h-screen bg-surface-50 dark:bg-surface-900">
-      {/* Header */}
       <header className="bg-white dark:bg-surface-800 border-b border-surface-200 dark:border-surface-700 shadow-soft">
         <div className="max-w-7xl mx-auto px-6 py-6">
           <div className="flex items-center gap-4">
@@ -332,7 +320,6 @@ export default function ResumeMatch({ onBack, onNavigate }: ResumeMatchProps) {
 
       <main className="max-w-7xl mx-auto px-6 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Left Panel - Input */}
           <div className="space-y-6">
             <Card>
               <CardHeader title="Job Post" />
@@ -340,11 +327,24 @@ export default function ResumeMatch({ onBack, onNavigate }: ResumeMatchProps) {
               <textarea
                 id="job-description-input"
                 value={jobDescription}
-                onChange={(e) => setJobDescription(e.target.value)}
+                onChange={(e) => { invalidateReview(); setJobDescription(e.target.value); }}
                 placeholder="Paste the job post here..."
                 className="w-full h-64 px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 placeholder-surface-400 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500 dark:focus:border-sentinel-400 dark:focus-visible:ring-sentinel-400 resize-none font-mono"
               />
             </Card>
+
+            <Card>
+              <ResumeMatchingProfileFields
+                disabled={analyzing}
+                initialProfile={matchingProfile}
+                onProfileChange={(profile) => {
+                  invalidateReview();
+                  setMatchingProfile(profile);
+                }}
+              />
+            </Card>
+
+            {analyzing && <Button variant="secondary" onClick={() => { invalidateReview(); toast.info("Review dismissed", "Local processing may take a moment to stop."); }}>Cancel match review</Button>}
 
             <Card>
               <CardHeader title="Resume" />
@@ -383,7 +383,7 @@ export default function ResumeMatch({ onBack, onNavigate }: ResumeMatchProps) {
                     className="flex-1"
                     aria-expanded={showAdvancedResumeImport}
                     aria-controls="resume-app-import-panel"
-                    onClick={() => setShowAdvancedResumeImport((current) => !current)}
+                    onClick={() => { invalidateReview(); setShowAdvancedResumeImport((current) => !current); }}
                   >
                     Import from Resume App
                   </Button>
@@ -398,7 +398,7 @@ export default function ResumeMatch({ onBack, onNavigate }: ResumeMatchProps) {
                     <textarea
                       id="resume-json-input"
                       value={resumeJson}
-                      onChange={(e) => setResumeJson(e.target.value)}
+                      onChange={(e) => { invalidateReview(); setResumeJson(e.target.value); }}
                       placeholder="Paste copied resume details here"
                       aria-describedby="resume-json-hint"
                       className="w-full h-96 px-3 py-2 text-sm rounded-lg border border-surface-200 dark:border-surface-600 bg-white dark:bg-surface-700 text-surface-900 dark:text-surface-100 placeholder-surface-400 focus:border-sentinel-500 focus-visible:ring-1 focus-visible:ring-sentinel-500 dark:focus:border-sentinel-400 dark:focus-visible:ring-sentinel-400 resize-none font-mono"
@@ -433,6 +433,12 @@ export default function ResumeMatch({ onBack, onNavigate }: ResumeMatchProps) {
               </div>
             )}
 
+            <Card>
+              <CardHeader title="Saved match reviews" />
+              <p className="text-sm text-surface-600 dark:text-surface-300">Pasted-job ATS analysis is not a saved job match. Military wording review requires an active saved resume and that resume’s exact saved job match.</p>
+              <Button type="button" variant="secondary" className="mt-3" onClick={openSavedMatches}>Open saved matches</Button>
+            </Card>
+
             <div className="flex gap-3">
               <Button
                 onClick={() => {
@@ -460,7 +466,7 @@ export default function ResumeMatch({ onBack, onNavigate }: ResumeMatchProps) {
           <div className="space-y-6">
             <ResumeMatchResultsPanel
               analyzing={analyzing}
-              analysisResult={analysisResult}
+              analysisResult={visibleAnalysis}
               canShowComparison={canShowComparison}
               showComparison={showComparison}
               jobDescription={jobDescription}

@@ -1,3 +1,5 @@
+<!-- Defines URL validation and DNS-pinned outbound request security boundaries. -->
+
 # URL Validation Security
 
 JobSentinel treats every user-controlled or remotely supplied URL as untrusted.
@@ -64,9 +66,12 @@ resolve that name to a blocked address.
 
 1. Apply the pure URL policy.
 2. Resolve the host.
-3. Validate every resolved address.
-4. Revalidate redirects through the same outbound request boundary.
-5. Send the request only after those checks pass.
+3. Validate every resolved address and pin it under the exact request hostname.
+4. Reject automatic redirects; any separately followed destination must pass the same checks.
+5. Connect directly to the validated addresses; ambient proxies cannot bypass the pin.
+
+Pinned requests do not inherit system or environment proxies. Proxy-only networks
+may report a connection failure; JobSentinel does not change system proxy settings.
 
 Code that performs an HTTP fetch must use the network owner rather than calling
 the pure parser and then constructing an independent client request.

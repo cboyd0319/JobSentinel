@@ -1,3 +1,5 @@
+<!-- Documents local search data, first-run controls, recovery, privacy inspection, and user-managed exports. -->
+
 # Local Job-Search Data
 
 **Keep job-search history, saved searches, templates, reminders, and safe
@@ -20,8 +22,13 @@ the current account and keeps local database files owner-only.
 | Notification preferences | Local only, Sensitive | Preferences stay local; external channels are used only if the user turns them on. |
 | Safe support reports | Local only, Sensitive | Reports are sanitized before copy or save. |
 | Local-data backups | Local only, Sensitive | Backup files stay on the user's device and leave saved connection details out. |
+| Reviewed plaintext exports | Local only, Sensitive | Exports require a separate review, leave managed credentials and paths out, and never overwrite an existing file. |
+| Storage health and cleanup | Local only, Aggregate | Inspection reports only health and byte totals; cleanup preserves application records and works offline. |
+| Offline recovery and repair | Local only, Sensitive | Recovery starts without primary storage or credentials, exposes only bounded local state, and labels connectivity before an action. |
+| Platform health | Local only, Aggregate | Inspection and app-owned Unix permission repair stay local; ambiguous links and Windows permission state require manual review. |
 | Location detection | Sensitive | Public-IP lookup happens only after explicit user action. |
 
+Outside AI summaries accept only reviewed public job details; private material stays local.
 External AI is not required for user-data management. If an outside-AI send is
 blocked because the details are not on JobSentinel's reviewed sharing list, the
 user-facing error should describe reviewed details, not payloads, fields, or
@@ -38,6 +45,57 @@ classification internals.
 
 External notifications such as Slack, Discord, Teams, email, or other channels
 are optional. They are used only after the user configures them.
+
+## Shared-computer privacy
+
+Settings offers an opt-in mode that starts locked and locks when the main window
+loses focus or closes. Unlock requires a fresh saved-details passphrase check or
+supported device verification. macOS uses protected Keychain user presence;
+Windows and Linux require the configured passphrase. Turn off shared-computer
+mode before changing that passphrase policy.
+
+Locking blocks private native commands, removes private views, toast and undo
+state, rejects late renderer responses, and pauses background source work and
+notifications. Unlock resumes scheduling. This protects the app session; it does
+not erase saved records or protect against another process running as your OS user.
+
+**Review session cleanup** explains its changes before confirmation. It clears
+temporary job text, resume-match drafts, detected location, command caches and
+pending import reviews. Unsaved edits are discarded. Saved jobs, resumes,
+applications, settings and connection details remain, as do exports, clipboard
+contents and external copies. Cleanup is not secure erasure. Failures remain
+visible; shared-computer sessions stay locked until authenticated again.
+
+## Portable profiles
+
+Launch the application executable with `--portable <absolute-directory>` to use
+a separate portable profile. Select an empty private directory, or a previously
+created portable profile. On macOS/Linux the root must have owner-only permissions
+(mode 0700); unsupported filesystems, links outside the profile and simultaneous
+use are refused. Close JobSentinel before moving the whole directory.
+
+The profile owns its data, settings, model/pack files and caches. Browser-only
+state is temporary; saved application records remain in the profile. Native logs
+use the invoking process's output. The installed profile and OS credential store
+are not used by portable startup or portable saved credentials.
+
+A new profile requires a confirmed passphrase of at least 16 characters excluding
+leading/trailing whitespace, within 1024 UTF-8 bytes. The passphrase is retained
+only in memory for the session and protects the primary database and saved
+credential key. It cannot be reset by a hosted account or changed through the
+separate saved-details lock control. Keep a recoverable encrypted backup.
+
+Unlock authenticates existing data or validated recovery candidates before
+canonical startup performs writes. SQLite may update transient shared-memory read
+marks; authentication preserves durable database/WAL and recovery-artifact bytes.
+Unexplained or unauthenticated damaged profiles remain untouched. If no candidate
+can authenticate, create a separate portable profile and use reviewed backup
+restore there, preserving the damaged original.
+
+Managed resume copies use profile-relative references and remain usable after a
+move. Historical external/absolute references require reselection rather than
+being redirected by filename. Cleanup preserves saved records; after closing the
+app, users control retention of the whole selected directory and its external backups.
 
 ## Everyday Workflows
 
@@ -59,6 +117,11 @@ Interview prep keeps logistics, company notes, role-specific questions,
 follow-up reminders, and thank-you status near the application. Checklists are
 for preparation, not performance scoring.
 
+After an interview, an explicit local debrief save keeps signal strength,
+questions asked, concerns, promised next steps, and an optional follow-up
+deadline with that interview. Saving a debrief does not change application
+status, calculate a hiring probability, notify anyone, or send data.
+
 ### Saved Searches
 
 Saved searches store repeatable searches such as:
@@ -74,12 +137,15 @@ First-run starting paths include office and administration, retail and
 hospitality, trades and field service, healthcare, education, customer support,
 sales, finance, operations, creative, legal, data, security, and software work.
 When a starting path is selected, setup previews sample job titles and search
-words as editable suggestions before the search is saved.
+words as editable suggestions before the search setup is saved. Setup persists
+those ranking, source, and alert settings; it does not create a dashboard Saved
+Search filter snapshot. Users create those snapshots explicitly from Dashboard.
 Software, security, and data paths can suggest tech-heavy job sources, but
 first-run setup keeps them off until the user checks those sources in review.
-Non-technical searches can suggest SimplyHired as a broad public source. It
-also stays off until the user checks it, and setup fills only the reviewed
-search words into the source config after that opt-in.
+Non-technical searches do not suggest the retired SimplyHired scheduled
+adapter. Users can add reviewed active sources later or use user-opened search
+links, Browser Import, and manual entry. Pasted-URL import for the four retired
+domains stops before transport.
 
 ### Notification Preferences
 
@@ -94,6 +160,18 @@ on-site, and pay stays unset unless the user enters a floor. First-run pay can
 be entered as yearly or hourly; hourly pay is converted to an annual floor for
 local pay comparisons while the review keeps the hourly meaning visible.
 
+Users can skip setup for the current session without saving settings or starting
+source work. The wizard states that setup returns next time. A failed save keeps
+every reviewed choice visible and offers a bounded retry before entering the app.
+
+First run also offers **Check this device**, an optional local inspection of
+storage, vault status, permissions, Browser Import, source permissions, and
+model readiness. It runs only when selected, never unlocks, repairs, pairs,
+downloads, or contacts sources, and keeps raw diagnostic details out of setup.
+Source permissions describe local review status, not source connectivity.
+Missing models are optional; unreadable checks offer retry without blocking
+setup. Settings provides the existing review and repair controls.
+
 ### Safe Support Reports
 
 When something breaks, users can choose **Copy Safe Support Report** or **Save
@@ -102,10 +180,23 @@ page error recovery. Reports are local by default and should avoid full private
 details.
 
 Safe support reports can include high-level app state, feature names, timestamps,
-sanitized error categories, and redacted settings summaries. They should not
-include full notes, resumes, full search text, salary floors, secrets, private
-paths, cookies, connection links, tokens, raw field names such as `url`, or
-full application history.
+sanitized error categories, redacted settings summaries, and fixed Privacy
+Doctor identifiers, states, and next actions. The report excludes renderer
+error messages and arbitrary error context. Final sanitization removes complete
+absolute paths and all trailing filename text from their lines, including
+Windows drive, UNC, mounted, temporary, and home paths. Reports should not
+include full notes, resumes, full
+search text, salary floors, secrets, private paths, cookies, connection links,
+tokens, raw field names such as `url`, provider or model names, or full
+application history.
+
+Privacy Doctor is passive and offline. It inspects local storage, structural
+portable-backup history, credential-vault metadata, configured external-AI
+safeguards, Browser Import code state, governed source state, and the
+no-telemetry product contract. It does not read secrets or test Keychain.
+A recorded backup creation does not prove the file still exists, and system
+credential storage is reported as unchecked until the user performs an action
+that needs it.
 
 App Problem History hides crash details from the visible list. If JobSentinel
 help asks for more detail, users can copy or save a safe support report and
@@ -122,40 +213,153 @@ After restoring a backup, users review settings and choose **Save Changes**.
 Saved connection details must be added again if the restored settings use an
 external alert channel or source that needs them.
 
-Portable backup files include a recovery guide so the app and the user see the
-same plain-language coverage:
+Backup and recovery review shows the same plain-language coverage to the app and
+the user:
 
-- Portable backup: settings, saved searches, and cover letter templates.
-- Not included: saved connection details, passwords, tokens, cookies, browser
-  sessions, local database records, or safe support reports.
-- Full local recovery can replace local jobs, applications, resumes, notes,
-  reminders, and history.
+- Settings backup: settings, saved searches, and cover letter templates.
+- Encrypted portable backup: local jobs, applications, resumes, notes,
+  reminders, and history for full recovery on another device.
+- Neither backup includes saved connection details, passwords, tokens, cookies,
+  browser sessions, or safe support reports.
+- Full local recovery verifies compatibility and stages the replacement before
+  startup promotes it. The previous compatible database remains available for
+  rollback until recovery finishes.
+- A dropped encrypted `.db` backup up to 256 MiB is copied into private app-owned
+  staging, then requires its passphrase and an explicit stage action. Larger
+  backups use Settings > Restore without pre-review drop staging. Neither path
+  restores data during the current session.
+- Recovery can inspect, stage, cancel, and clean incomplete restore work without
+  network access. Corrupt primary data is preserved independently before a
+  staged replacement is published.
 - Copy or save a safe support report before full local recovery.
 
-## Older Local Data
+### Offline Recovery And Repair
 
-Users who had older browser-saved templates or searches may see a migration
-prompt. The migration moves supported local data into the current local store.
-If no prompt appears, make a safe support report first, then close and reopen
-JobSentinel and check Settings.
+If primary startup fails, JobSentinel opens a local recovery surface instead of
+starting the normal app. This fallback uses temporary in-memory services and
+does not initialize the primary database, production credential service,
+scheduler, normal command surface, or tray search.
+
+The recovery surface can work without connectivity to:
+
+- preserve malformed configuration as a new private file before resetting it;
+- inspect bounded storage, Privacy Doctor, platform-health, and queued local
+  work state;
+- create an encrypted portable backup from readable primary storage;
+- stage, inspect, cancel, or clean an encrypted restore;
+- preserve and clear a malformed restore marker;
+- create a reviewed plaintext export or safe support report; and
+- inspect or repair app-owned Unix file permissions.
+
+Queued local work reports only a count and fixed capacity. It never exposes
+queued URLs or other content, and stale entries expire locally.
+
+Restore and repair operations fail closed on symlinks, hard links, non-regular
+files, identity changes, unreadable state, and a live database owner. Invalid
+configuration, corrupt-primary quarantine, and rollback publication use
+independent copies so later writes through another path cannot change the
+preserved recovery artifact.
+
+On Windows, permission state is reported as unchecked and repair guidance is
+manual. Package repair is guidance only: an already downloaded, verified
+installer can be used offline; obtaining another installer is labeled as
+requiring connectivity before the user acts. JobSentinel does not run a shell,
+elevate, download, or install a package from this recovery surface.
+
+### Reviewed App Updates
+
+Settings checks GitHub release availability only when selected. This anonymous
+check sends no local records and grants no installation authority. Offline or
+failed checks leave installed local workflows available.
+
+A downloaded installer requires adjacent `.manifest.json` and `.sig` files.
+Native review stages at most 512 MiB, verifies a compiled trusted publisher and
+exact package bytes, and checks app, platform, edition, data and optional-component
+compatibility. Builds without enrolled release trust refuse installer review.
+Review shows version, size, device, component retention and recovery requirements.
+
+Explicit confirmation drains local work, rechecks the reviewed candidate, and
+creates a verified encrypted same-device recovery snapshot before opening the
+installer and closing the app. Installer handoff does not prove installation.
+A compatible older v3 package uses the same review; newer-data downgrades are
+refused. Optional packs and models are retained; their removal stays separate.
+
+Startup authenticates the target build before migration. Failed or interrupted
+target migration preserves failed data and restores the verified original
+snapshot before requiring recovery. These internal snapshots retain device-bound
+credentials and cannot replace a portable backup. Native installer and platform
+qualification remain release checks.
+
+### Reviewed Plaintext Export
+
+Reviewed export provides a documented JSON Lines file for leaving JobSentinel
+without copying its private database format. Review happens before any file is
+written and names each selected category and record count. The export is
+created entirely offline, uses a fixed field allowlist, ends with a completion
+record, and refuses database tables this version does not understand. The
+completion record detects incomplete writes; it is not a signature or
+tamper-proof seal.
+
+JobSentinel-managed credentials, encryption keys, authentication state,
+dedicated app-managed file paths and connection-link fields, diagnostic caches,
+and reproducible public datasets are never included. Legacy job, profile,
+interview-location, and structured resume-draft links are cleaned before
+writing. Protected application answers, clearance fields, military service,
+veteran status, and disability information inside structured drafts are
+excluded by default and require a separate explicit selection. Review shows
+application-answer and structured resume-draft record counts separately.
+
+User-authored resumes, descriptions, notes, cover letters, and similar text are
+copied as written. They can contain accidentally pasted passwords, tokens,
+private links, protected facts, or other sensitive details that JobSentinel
+cannot identify reliably without damaging the user's records. Review the
+plaintext artifact before sharing it. The destination must remain private.
+JobSentinel does not overwrite an existing destination.
+
+### Storage Health And Cleanup
+
+Storage inspection works without network access and reports only whether the
+local database is healthy, the aggregate number of already-free bytes, the
+write-ahead log size when a database file exists, and whether SQLite supports
+incremental page reclamation. It does not expose record contents, table counts,
+credentials, or private file paths.
+
+Cleanup first checks database and relationship integrity. If either check
+fails, cleanup makes no change and directs recovery to a compatible backup.
+For a healthy database, cleanup checkpoints SQLite's write-ahead log and asks
+SQLite to reclaim at most 100 already-free pages when incremental vacuum is
+enabled. It does not delete application records, rebuild indexes or search
+data, contact a service, inspect credentials, or remove backups, exports,
+restore data, model files, or other artifacts. A busy write-ahead log is a
+reported failure rather than a reason to force another process or reader out.
+Each attempted cleanup after the health check records only structural local
+provenance and a sanitized error category.
+
+## Supported local data
+
+The supported storage baseline is v3. Pre-v3 data and obsolete browser-storage
+formats are not automatically imported. Use an explicitly supported import or
+reviewed compatible backup restore; preserve unsupported source files for recovery.
 
 ## Backups And Deletion
 
 - Delete templates and saved searches carefully; deleted items may not be
   recoverable inside the app yet.
-- Use Settings backup before moving devices or making larger search changes.
-  The backup covers settings, saved searches, and cover letter templates.
+- Settings backup covers settings, saved searches and cover letter templates.
+  Use the separate encrypted portable backup for broader local-record recovery;
+  it excludes saved credentials and does not turn an installed app into a portable profile.
 - Use safe support reports before changing more data if something looks wrong.
-- JobSentinel has internal SQLite integrity backups and a WAL-safe restore
-  helper for support/recovery paths. Full local recovery is separate from
+- Use encrypted portable backup for full local recovery. It is separate from
   Settings restore because it can replace jobs, applications, resumes, notes,
   reminders, and history.
+- Use reviewed plaintext export when a readable, application-independent copy
+  is needed. Treat the resulting JSON Lines file as sensitive.
 
 ## When Something Does Not Work
 
 | Problem | Plain next step |
 | --- | --- |
-| Older templates did not appear | Make a safe support report first, then close and reopen JobSentinel and check Settings for a migration prompt. |
+| Older templates did not appear | Preserve the original file and check whether its format has a supported import; use a safe support report if uncertain. |
 | A saved search is missing | Open Saved Searches, then check recent search history. |
 | Alerts feel too noisy | Raise alert selectivity or narrow the saved search. |
 | Alerts miss expected jobs | Lower alert selectivity or check whether the source is enabled. |

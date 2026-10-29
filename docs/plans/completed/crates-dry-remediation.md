@@ -1,8 +1,11 @@
+<!-- Preserves the completed July 2026 crate-duplication remediation and its dated evidence. -->
+
 # Crates DRY Remediation
 
 Last updated: 2026-07-16.
 
-Status: Active. `crates-dry-remediation` is the sole active feature.
+Status: Completed on 2026-07-16. The audit, sequence and discoveries below are
+historical; [current status](../../harness/current-status.md) owns active work.
 
 ## Problem
 
@@ -425,7 +428,7 @@ gap and blocks `passing`.
 - The maintained duplication sensor currently excludes the entire crate tree,
   so its passing result does not contradict the audit findings.
 - The root-ownership remediation passed against commit `880fca80`; this plan is
-  now the sole active feature.
+  was then the sole active feature.
 - The architecture contract already allows documents to depend on security, but
   the documents manifest does not currently declare that direct dependency.
 - Exact clone counts alone do not capture the highest-risk debt. Normalization

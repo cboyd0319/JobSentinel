@@ -1,5 +1,6 @@
+//! Maps flat builder payloads to canonical document types without scalar coercion.
+
 use super::{DraftEducation, DraftExperience, DraftSkill, ResumeDraft};
-use crate::resume::builder::deserialization::{optional_string_from_value, string_vec_from_value};
 use chrono::{DateTime, Utc};
 use jobsentinel_documents::{
     ResumeCertification, ResumeEducation, ResumePersonalInfo, ResumeProject, ResumeSkillCategory,
@@ -17,11 +18,16 @@ struct ResumeDraftWire {
     skills: Vec<DraftSkill>,
     certifications: Vec<ResumeCertification>,
     projects: Vec<ResumeProject>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    clearance: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    military_info: Option<String>,
     created_at: DateTime<Utc>,
     updated_at: DateTime<Utc>,
 }
 
 #[derive(Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 struct DraftEducationWire {
     #[serde(default)]
     id: i64,
@@ -31,15 +37,11 @@ struct DraftEducationWire {
     field_of_study: Option<String>,
     #[serde(default)]
     location: Option<String>,
-    #[serde(
-        default,
-        alias = "graduation_year",
-        deserialize_with = "optional_string_from_value"
-    )]
+    #[serde(default)]
     graduation_date: Option<String>,
-    #[serde(default, deserialize_with = "optional_string_from_value")]
+    #[serde(default)]
     gpa: Option<String>,
-    #[serde(default, deserialize_with = "string_vec_from_value")]
+    #[serde(default)]
     honors: Vec<String>,
 }
 
@@ -117,8 +119,8 @@ impl ResumeDraft {
                 skills: group_skills(wire.skills),
                 certifications: wire.certifications,
                 projects: wire.projects,
-                clearance: None,
-                military_info: None,
+                clearance: wire.clearance,
+                military_info: wire.military_info,
             },
             experience_ids,
             education_ids,
@@ -158,6 +160,8 @@ impl ResumeDraft {
             skills: flatten_skills(&self.resume.skills),
             certifications: self.resume.certifications.clone(),
             projects: self.resume.projects.clone(),
+            clearance: self.resume.clearance.clone(),
+            military_info: self.resume.military_info.clone(),
             created_at: self.created_at,
             updated_at: self.updated_at,
         }

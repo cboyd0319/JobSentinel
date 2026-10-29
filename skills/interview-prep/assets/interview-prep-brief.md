@@ -1,3 +1,5 @@
+<!-- Captures interview evidence, questions and debrief signals without hiring predictions. -->
+
 # Interview Prep Brief
 
 ## Role Snapshot
@@ -58,6 +60,6 @@ Next action:
 
 ## Post-Interview Debrief
 
-| Questions asked | Answers that worked | Weak answers | Promised follow-up | Expected timeline | Probability | Concerns |
+| Questions asked | Answers that worked | Weak answers | Promised follow-up | Expected timeline | Signal strength | Concerns |
 | --------------- | ------------------- | ------------ | ------------------ | ----------------- | ----------- | -------- |
 |  |  |  |  |  |  |  |

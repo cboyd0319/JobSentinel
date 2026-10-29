@@ -1,0 +1,70 @@
+{
+  "schema": "jobsentinel.feature_evidence.v1",
+  "feature_id": "v3-milestone-9-regions-access-editions-first-run",
+  "slice": "current-model-free-macos-package-and-attachment-diagnostics",
+  "result": "partial",
+  "verified_at": "2026-09-11T15:44:55Z",
+  "base_revision": "db8ec834b0e113e617702702b7501392e1d2a38d",
+  "revision_scope": "Built the uncommitted Milestone 9 working tree, including current geography, country preferences, and native alert changes. This is artifact-bound launch evidence, not an exact committed-revision release claim.",
+  "platform": {
+    "os": "macOS 27.0",
+    "architecture": "arm64",
+    "host_memory_bytes": 68719476736,
+    "controlled_memory_limit": false
+  },
+  "artifact": {
+    "path": "target/aarch64-apple-darwin/release/bundle/dmg/JobSentinel_3.0.0_aarch64_no-account_macos.dmg",
+    "bytes": 17547079,
+    "sha256": "0482b87a8d44bccd2c5e4480332e93f49f3f25457830a29d0456948de989d768",
+    "app_path": "target/aarch64-apple-darwin/release/bundle/macos/JobSentinel.app",
+    "signature": "adhoc",
+    "team_identifier": null,
+    "gatekeeper": "optional assessment rejected",
+    "notarized": false,
+    "bundled_model_weights_or_tokenizers": 0
+  },
+  "commands": [
+    {
+      "command": "env -u APPLE_SIGNING_IDENTITY -u MACOS_SIGNING_IDENTITY -u JOBSENTINEL_LIVE_KEYRING_TESTS JOBSENTINEL_MACOS_SIGNING_IDENTITY=- JOBSENTINEL_MACOS_NO_ACCOUNT=true JOBSENTINEL_MACOS_NOTARIZE_DMG=false npm run tauri:build:macos -- --target aarch64-apple-darwin",
+      "exit_status": 0,
+      "relevant_result": "Normal frontend build and ARM64 package build passed; runtime profile, signature integrity, DMG CRC, model-payload absence, and checksum sidecar were verified."
+    },
+    {
+      "command": "env -u JOBSENTINEL_LIVE_KEYRING_TESTS node scripts/release/verify-macos-package.mjs --dmg target/aarch64-apple-darwin/release/bundle/dmg/JobSentinel_3.0.0_aarch64_no-account_macos.dmg --install-smoke --require-checksum --expected-version 3.0.0 --expected-bundle-id com.jobsentinel.main --expected-product-name JobSentinel --expected-icon-file icon.icns --expected-minimum-system-version 13.0 --expected-architectures arm64",
+      "exit_status": 0,
+      "relevant_result": "Copied installation launched for 12 seconds with a visible window, owner-only local data, and empty stderr; temporary installation, profile, and mount were cleaned up.",
+      "caveat": "The plist minimum version is metadata, not proof of supported behavior on macOS 13 or 26. Gatekeeper rejection remains a public-release gap."
+    }
+  ],
+  "copied_install_measurement": {
+    "visible_window_upper_bound_ms": 834,
+    "observed_max_aggregate_rss_kib": 263072,
+    "maximum_process_count": 6,
+    "rss_samples": 56,
+    "maximum_sample_gap_ms": 1895,
+    "smoke_seconds": 12,
+    "stderr_bytes": 0,
+    "private_data_permissions": "passed",
+    "caveat": "Observed idle-launch RSS is not a complete journey peak, an interactive-ready measurement, or controlled 8 GiB evidence."
+  },
+  "attachment_diagnostics": [
+    {
+      "target": "Disposable copy of the prior app build with unique bundle identity and ad-hoc re-signing",
+      "observed_window": "1200x801, on screen",
+      "computer_use_result": "cgWindowNotFound, -10005",
+      "private_profile": "validated; empty stderr",
+      "cleanup": "process stopped; disposable app and profile removed"
+    },
+    {
+      "target": "Minimal disposable AppKit window with a label and button, no JobSentinel code or data",
+      "observed_window": "440x352, on screen",
+      "computer_use_result": "cgWindowNotFound, -10005",
+      "cleanup": "process stopped; source and app removed"
+    }
+  ],
+  "remaining_gaps": [
+    "Native interactive journey and accessibility are unverified; the attachment diagnostics do not establish the underlying cause.",
+    "Current controlled 8 GiB journey and exact macOS 26/Windows 11 behavior are unverified.",
+    "Production signing, notarization, signed regional delivery, and Gate 5 decisions remain open."
+  ]
+}

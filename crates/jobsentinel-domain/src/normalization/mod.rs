@@ -1,5 +1,7 @@
 //! Owner-neutral normalization used by job identity and source adapters.
 
+use jobsentinel_security::contains_review_required_invisible_control;
+
 mod location;
 mod title;
 mod url;
@@ -9,6 +11,23 @@ pub use location::normalize_location;
 pub use title::{normalize_title, titles_match};
 pub use url::{canonicalize_job_url, normalize_url};
 pub use work_arrangement::{infer_remote_status, resolve_remote_status, RemoteStatus};
+
+/// Returns whether source text contains a control that requires rejection before persistence.
+pub(crate) fn contains_unsafe_source_control(value: &str) -> bool {
+    value.chars().any(is_hidden_dangerous_control)
+        || contains_review_required_invisible_control(value)
+}
+
+const fn is_hidden_dangerous_control(character: char) -> bool {
+    character.is_control()
+        || matches!(
+            character,
+            '\u{200C}'..='\u{200F}'
+                | '\u{202A}'..='\u{202E}'
+                | '\u{2066}'..='\u{206F}'
+                | '\u{FFF9}'..='\u{FFFB}'
+        )
+}
 
 #[cfg(test)]
 mod policy_contract_tests {

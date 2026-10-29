@@ -1,3 +1,5 @@
+<!-- Describes truthful resume authoring, optional history, export, and local match-review workflows. -->
+
 # Resume Builder & Resume Match
 
 **Create readable, job-aligned resumes without giving up control.**
@@ -36,15 +38,26 @@ Write 2-3 sentences about who you are professionally. Think of it as your elevat
 
 ### Step 3: Work Experience
 
-Add your jobs, starting with the most recent. For each position:
+Add work history you choose to include, starting with the most recent, or leave
+this step empty. Early-career users can continue with education, skills, and a
+truthful summary without inventing employment. For each position:
 
 - Job title
 - Company name
 - Start and end dates
 - 3-5 bullet points highlighting achievements (not just duties)
 
-Useful pattern: start each bullet with an action verb and include numbers when
-possible.
+Use actual duties and achievements; include numbers only when supported by your
+records. Military service can use the same position, employer, date, and bullet
+fields. Optional military-to-civilian guidance is available here and in setup;
+it does not collect protected status or require medical or disability details.
+
+For the reviewed military workflow, export DOCX, add the file to Resume Library,
+and compare it with a saved job. Choose **Review military wording** from the
+saved match or its opportunity case. Confirm exact current evidence and review
+every proposed phrase. Suggestions stay local and are not applied, persisted,
+or submitted automatically. Clearance currentness and civilian equivalence
+remain unverified; protected application answers remain manual-only.
 
 ### Step 4: Education
 
@@ -75,7 +88,7 @@ Choose from 5 readable templates:
 | **Modern**         | Clean and minimal presentation        |
 | **Skills-First**   | Roles where skills matter most        |
 | **Executive**      | Senior positions - leadership focus   |
-| **Military**       | Veterans - civilian-friendly language |
+| **Military**       | User-reviewed military experience     |
 
 All templates are designed for application readability:
 

@@ -1,3 +1,5 @@
+//! Embeds bounded Qwen inputs in single-item batches using verified governed weights.
+
 use std::path::PathBuf;
 
 use anyhow::{Context, Result};
@@ -10,11 +12,12 @@ use crate::qwen3::config::Qwen3Config;
 use crate::qwen3::model::Qwen3Model;
 use crate::qwen3::pooling::{l2_normalize, last_token_pool, project_and_normalize};
 use crate::qwen3::tokenization::{format_embedding_input, tokenize_left_padded};
-use crate::qwen3::QWEN3_CANDLE_BACKEND;
+use crate::qwen3::{MAX_INFERENCE_BATCH, QWEN3_CANDLE_BACKEND};
 use crate::runtime::{EmbeddingBackend, EmbeddingInput, RuntimeCompatibility};
 use crate::MlError;
 
 pub struct Qwen3EmbeddingBackend {
+    pub(crate) cancellation: crate::InferenceCancellation,
     model: Qwen3Model,
     tokenizer: Tokenizer,
     compatibility: RuntimeCompatibility,
@@ -66,6 +69,7 @@ impl Qwen3EmbeddingBackend {
         compatibility.validate_for_model(&spec)?;
 
         Ok(Self {
+            cancellation: Default::default(),
             model,
             tokenizer,
             compatibility,
@@ -75,32 +79,44 @@ impl Qwen3EmbeddingBackend {
     }
 
     fn embed_inputs(&self, inputs: &[EmbeddingInput]) -> Result<Vec<Vec<f32>>> {
+        self.cancellation.check()?;
         if inputs.is_empty() {
             return Ok(Vec::new());
         }
 
+        crate::matcher::validate_local_matching_input(inputs.iter().flat_map(|input| {
+            std::iter::once(input.text.as_str()).chain(input.instruction.as_deref())
+        }))?;
         let texts: Vec<String> = inputs.iter().map(format_embedding_input).collect();
-        let batch = tokenize_left_padded(
-            &self.tokenizer,
-            &texts,
-            self.max_tokens,
-            self.model.device(),
-        )?;
-        let hidden = self
-            .model
-            .forward(&batch.input_ids, &batch.attention_mask)
-            .context("Qwen3 embedding inference failed")?;
-        let pooled = last_token_pool(&hidden, &batch.attention_mask)?;
-        let normalized = l2_normalize(&pooled)?;
-        let rows = normalized
-            .to_dtype(DType::F32)
-            .context("failed to convert Qwen3 embeddings to f32")?
-            .to_vec2::<f32>()
-            .context("failed to read Qwen3 embeddings")?;
+        let batches = texts
+            .chunks(MAX_INFERENCE_BATCH)
+            .map(|texts| {
+                self.cancellation.check()?;
+                tokenize_left_padded(&self.tokenizer, texts, self.max_tokens, self.model.device())
+            })
+            .collect::<Result<Vec<_>>>()?;
+        let mut vectors = Vec::with_capacity(inputs.len());
+        for batch in batches {
+            let hidden = self
+                .model
+                .forward(&batch.input_ids, &batch.attention_mask, &self.cancellation)
+                .context("Qwen3 embedding inference failed")?;
+            let pooled = last_token_pool(&hidden, &batch.attention_mask)?;
+            let normalized = l2_normalize(&pooled)?;
+            let rows = normalized
+                .to_dtype(DType::F32)
+                .context("failed to convert Qwen3 embeddings to f32")?
+                .to_vec2::<f32>()
+                .context("failed to read Qwen3 embeddings")?;
 
-        rows.into_iter()
-            .map(|row| project_and_normalize(row, self.dimension))
-            .collect()
+            vectors.extend(
+                rows.into_iter()
+                    .map(|row| project_and_normalize(row, self.dimension))
+                    .collect::<Result<Vec<_>>>()?,
+            );
+        }
+        self.cancellation.check()?;
+        Ok(vectors)
     }
 }
 

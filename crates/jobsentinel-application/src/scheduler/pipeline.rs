@@ -1,7 +1,7 @@
 //! Main scraping pipeline orchestration
 
 use anyhow::Result;
-use std::sync::Arc;
+use std::sync::{atomic::Ordering, Arc};
 
 use super::types::{Scheduler, ScrapingResult};
 use super::workers::{persist_and_notify, run_scrapers, score_jobs};
@@ -19,6 +19,10 @@ impl Scheduler {
         use std::time::Instant;
 
         let _scrape_guard = self.scrape_lock.lock().await;
+        anyhow::ensure!(
+            !self.cycle_cancelled.load(Ordering::Acquire),
+            "Scraping cycle stopped before external work"
+        );
         let cycle_start = Instant::now();
         tracing::info!("Starting full scraping cycle");
 
@@ -30,12 +34,23 @@ impl Scheduler {
         // 1. Run all scrapers
         let stage1_start = Instant::now();
         tracing::info!("Pipeline stage 1/3: Running scrapers");
-        let (all_jobs, mut errors) = run_scrapers(&config, &self.database, &self.credentials).await;
+        let (all_jobs, mut errors) = run_scrapers(
+            &config,
+            &self.database,
+            &self.credentials,
+            &self.cycle_cancelled,
+            &self.cycle_cancel_tx,
+        )
+        .await;
         let stage1_duration = stage1_start.elapsed();
         tracing::info!(
             job_count = all_jobs.len(),
             elapsed_ms = stage1_duration.as_millis(),
             "Stage 1 complete: Scrapers finished"
+        );
+        anyhow::ensure!(
+            !self.cycle_cancelled.load(Ordering::Acquire),
+            "Scraping cycle stopped after source audit completion"
         );
 
         // 2. Score all jobs and run ghost detection
@@ -48,12 +63,23 @@ impl Scheduler {
             elapsed_ms = stage2_duration.as_millis(),
             "Stage 2 complete: Scoring and ghost detection finished"
         );
+        anyhow::ensure!(
+            !self.cycle_cancelled.load(Ordering::Acquire),
+            "Scraping cycle stopped before persistence and notifications"
+        );
 
         // 3. Store in database and send notifications
         let stage3_start = Instant::now();
         tracing::info!("Pipeline stage 3/3: Persisting jobs and sending notifications");
-        let stats =
-            persist_and_notify(&scored_jobs, &config, &self.database, &self.credentials).await;
+        let stats = persist_and_notify(
+            &scored_jobs,
+            &config,
+            &self.database,
+            &self.credentials,
+            &self.cycle_cancelled,
+            &self.cycle_cancel_tx,
+        )
+        .await;
         let stage3_duration = stage3_start.elapsed();
         tracing::info!(
             elapsed_ms = stage3_duration.as_millis(),

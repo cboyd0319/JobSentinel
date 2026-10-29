@@ -1,3 +1,5 @@
+<!-- Documents JobSentinel E2E Tests. -->
+
 # JobSentinel E2E Tests
 
 Comprehensive Playwright E2E tests for critical user flows in JobSentinel.
@@ -41,7 +43,7 @@ Reusable page objects following the Page Object Model pattern:
 4. **settings-save-load.spec.ts**
    - Settings persistence across sessions
    - General, notifications, privacy settings
-   - Auto-save and reset functionality
+   - Explicit save, reload and validation behavior
    - Validation and error handling
 
 5. **keyboard-navigation.spec.ts**
@@ -200,7 +202,8 @@ assertion narrow, and prefer a command-line project filter while debugging.
 
 ### Error Handling
 
-All tests include error boundaries and handle missing elements:
+Assert error outcomes and required elements directly; a missing required element
+must fail the test. The following snippet is illustrative:
 
 ```typescript
 const hasElement = await element.isVisible().catch(() => false);
@@ -249,7 +252,7 @@ failure according to `playwright.config.ts`.
 1. **Test Isolation** - Each test is independent
 2. **Page Objects** - Reusable components
 3. **Explicit Platform Gaps** - Skip only intentional unavailable capabilities
-4. **Error Handling** - All edge cases covered
+4. **Error Handling** - Add the affected success, refusal and failure cases
 5. **Accessibility** - Keyboard and screen reader support
 6. **Performance** - Fast execution with parallel tests
 
@@ -283,7 +286,7 @@ When adding new tests:
 
 ## Coverage
 
-Current test coverage:
+Current suite subjects (not a claim of exhaustive or native coverage):
 
 - Job search and filtering
 - Resume upload and matching
@@ -300,7 +303,7 @@ Current test coverage:
 
 ## Known Issues
 
-- Drag-and-drop can be flaky on some systems (tests include retries)
+- Drag-and-drop uses the production keyboard sensor and exact target assertions.
 - Native file-picker coverage belongs in a Tauri-level smoke test, not browser-only Playwright.
 
 ## Resources

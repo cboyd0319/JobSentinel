@@ -1,3 +1,5 @@
+//! Owns selected managed application resumes, relocatable identities and reviewed cleanup.
+
 use crate::application::automation::ApplicationProfileInput;
 use crate::desktop;
 use crate::ipc::resume_file_names::safe_resume_file_stem;
@@ -97,7 +99,12 @@ fn managed_application_resume_cleanup_path(
     managed_dir: &Path,
 ) -> Option<PathBuf> {
     let stored_path = stored_path.map(str::trim).filter(|path| !path.is_empty())?;
-    let stored_path = PathBuf::from(stored_path);
+    let stored_path = desktop::resolve_managed_resume_reference(
+        stored_path,
+        managed_dir,
+        desktop::portable_root().is_some(),
+    )
+    .ok()?;
     let file_name = stored_path.file_name()?.to_str()?;
     validate_application_resume_token(file_name).ok()?;
 
@@ -135,7 +142,7 @@ pub(super) fn delete_managed_application_resume_file(
 
 fn validate_selected_application_resume(source_path: &Path) -> Result<&'static str, String> {
     let extension = allowed_application_resume_extension(source_path)?;
-    let metadata = std::fs::metadata(source_path)
+    let metadata = std::fs::symlink_metadata(source_path)
         .map_err(|_| "Could not read the selected resume file.".to_string())?;
     if !metadata.is_file() {
         return Err("Choose a resume file, not a folder.".to_string());
@@ -180,7 +187,19 @@ pub(super) fn prepare_application_profile_resume_input(
         if !managed_path.is_file() {
             return Err(resume_reselect_error());
         }
-        input.resume_file_path = Some(managed_path.to_string_lossy().to_string());
+        let reference = desktop::managed_resume_reference(
+            &managed_path,
+            managed_dir,
+            desktop::portable_root().is_some(),
+        )
+        .map_err(|_| resume_reselect_error())?;
+        desktop::resolve_managed_resume_reference(
+            &reference,
+            managed_dir,
+            desktop::portable_root().is_some(),
+        )
+        .map_err(|_| resume_reselect_error())?;
+        input.resume_file_path = Some(reference);
     }
     input.resume_file_token = None;
 
@@ -195,7 +214,12 @@ pub(super) fn trusted_application_resume_path(
         return Ok(None);
     };
 
-    let stored_path = PathBuf::from(stored_path);
+    let stored_path = desktop::resolve_managed_resume_reference(
+        stored_path,
+        managed_dir,
+        desktop::portable_root().is_some(),
+    )
+    .map_err(|_| resume_reselect_error())?;
     let file_name = stored_path
         .file_name()
         .and_then(|value| value.to_str())
@@ -226,11 +250,19 @@ fn copy_selected_resume_to_managed_storage(
     let display_name = safe_resume_file_name(source_path, extension);
     let token = format!("{}--{}", Uuid::new_v4(), display_name);
     let managed_dir = application_resume_dir();
-    std::fs::create_dir_all(&managed_dir)
+    desktop::ensure_private_dir(&managed_dir)
         .map_err(|_| "Could not prepare local resume storage.".to_string())?;
     let destination = resolve_application_resume_path(&managed_dir, &token)?;
-    std::fs::copy(source_path, &destination)
-        .map_err(|_| "Could not copy the selected resume file.".to_string())?;
+    let mut source = crate::ipc::local_file::open_regular_source(source_path)
+        .map_err(|_| "Choose a regular resume file, not a link.".to_string())?;
+    crate::ipc::local_file::copy_bounded(
+        &mut source,
+        destination,
+        MAX_APPLICATION_RESUME_FILE_BYTES,
+        || true,
+    )
+    .map_err(|_| "Could not copy the selected resume file within the size limit.".to_string())?
+    .keep();
 
     Ok(ApplicationResumeFileSelection {
         token,
@@ -269,6 +301,33 @@ pub(super) async fn select_application_resume_file(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn portable_application_resume_resolves_and_cleans_after_move() {
+        let root = tempfile::tempdir().unwrap();
+        let original = root.path().join("original");
+        let managed = original.join("application-resumes");
+        std::fs::create_dir_all(&managed).unwrap();
+        let name = "7d9d16a1-2e5d-4b32-9eb2-bfbffb4ee871--resume.pdf";
+        let path = managed.join(name);
+        std::fs::write(&path, b"resume").unwrap();
+        let reference = desktop::managed_resume_reference(&path, &managed, true).unwrap();
+        let moved = root.path().join("moved");
+        std::fs::rename(original, &moved).unwrap();
+        let managed = moved.join("application-resumes");
+        let resolved = trusted_application_resume_path(Some(&reference), &managed)
+            .unwrap()
+            .unwrap();
+        assert_eq!(std::fs::read(&resolved).unwrap(), b"resume");
+        assert!(trusted_application_resume_path(Some(path.to_str().unwrap()), &managed).is_err());
+        assert!(trusted_application_resume_path(
+            Some(&reference.replace("application-resumes", "resume-uploads")),
+            &managed
+        )
+        .is_err());
+        delete_managed_application_resume_file(Some(&reference), &managed).unwrap();
+        assert!(!resolved.exists());
+    }
 
     #[test]
     fn application_resume_selection_accepts_supported_file_under_limit() {

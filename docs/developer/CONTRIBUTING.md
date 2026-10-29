@@ -1,3 +1,5 @@
+<!-- Documents contributing to JobSentinel. -->
+
 # Contributing to JobSentinel
 
 Thank you for your interest in contributing to JobSentinel! This guide will help you get started.
@@ -35,6 +37,7 @@ Use the current maintainable file-size policy in
 [Harness Engineering](../harness/README.md). The enforceable caps live in
 `scripts/harness/contracts/repository-structure.json`, and `npm run lint:bloat` fails when a
 tracked file exceeds its scope cap or an exception grows past its frozen limit.
+Every root or downstream `AGENTS.md` is limited to 150 lines and 32 KiB without exceptions.
 
 **Test organization:** Move test modules to separate `tests.rs` files when
 tests start to obscure main logic or a file approaches the tracked
@@ -44,7 +47,7 @@ See `docs/plans/tech-debt-tracker.md` for current refactor and debt items.
 
 ### Check Current Status
 
-Check `package.json` for the current release package version. See
+Check `package.json` for the source version; the latest published release can differ. See
 `ROADMAP.md` for public product priorities, `docs/ROADMAP.md` for developer
 planning, and `docs/plans/tech-debt-tracker.md` for current technical debt.
 
@@ -95,8 +98,8 @@ seekers, that is a good outcome.
 
 **Required:**
 
-- Rust 1.97.1+ ([Install](https://rustup.rs/))
-- Node.js 24.18.0+ ([Install](https://nodejs.org/))
+- Rust pinned by `rust-toolchain.toml` ([Install](https://rustup.rs/))
+- Node.js pinned by `.nvmrc` and npm pinned by `package.json` ([Install](https://nodejs.org/))
 - Git
 
 **Platform-Specific:**
@@ -424,7 +427,7 @@ git push origin feature/your-feature-name
 Before submitting:
 
 - [ ] Code compiles without errors (`cargo check`)
-- [ ] All tests pass (`cargo test`)
+- [ ] Applicable focused checks pass, with broad release evidence kept separate
 - [ ] Code formatted (`cargo fmt`, `npm run lint:fix`)
 - [ ] No linter warnings (`cargo clippy`, `npm run lint`)
 - [ ] **Documentation updated** (MANDATORY - see table above)

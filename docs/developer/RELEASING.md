@@ -1,9 +1,60 @@
+<!-- Defines the maintained release, signing, publication, and rollback contract. -->
+
 # Release Contract
 
 Release execution is separate from normal development and requires explicit user
 authority. GitHub-hosted release, publication, and public-verification workflows
 are manual. Their existence does not authorize dispatch, signing, upload,
 attestation, or publication.
+
+## Mandatory final release phases
+
+Standing rule, effective with v3 and every subsequent release: after feature
+engineering and candidate preparation, the final three phases before **any**
+release are **Stability → Performance → Security**, in that order. Each is a full,
+separately planned and evidenced phase with its own entry criteria, work, defect
+resolution and pass decision. This applies to major, minor, patch and prereleases.
+A quick check, combined checklist or development checkpoint cannot replace a phase.
+
+### 1. Stability
+
+Entry: engineering is complete and the candidate, advertised platforms and
+acceptance matrix are frozen. Run full applicable suites, installed user journeys,
+accessibility, persistence, migration, backup, rollback, interrupted-operation and
+failure-recovery scenarios, and sustained-use reliability checks. Resolve blocking
+defects and accept reproducible candidate-bound evidence before Performance starts.
+
+### 2. Performance
+
+Entry: Stability has passed. Measure startup, interaction and workflow latency,
+throughput, CPU, memory, disk, network and model workloads across representative
+supported hardware. Run the declared distributions and budgets, including modest
+hardware and commercial comparisons. Resolve regressions, recheck stability affected
+by optimization changes, and accept measured evidence before Security starts.
+
+### 3. Security
+
+Entry: Stability and Performance pass for the candidate. Complete the final
+threat-boundary and adversarial review, current dependency/advisory and secret
+checks, abuse/failure cases, privacy and permission verification, and supply-chain
+validation. Verify required signatures, notarization, checksums, SBOMs, attestations
+and packaged artifacts. Resolve release-blocking findings and accept security
+evidence before publication approval.
+
+The release owner records each phase's scope, commands, results, remaining risks,
+source revision and tested artifacts. Required skipped, failed or deferred work
+leaves its phase incomplete. Existing development-stage deferrals do not waive
+these release gates. Any exception requires explicit user approval and remains
+visible in the release decision; never infer approval from an earlier deferral.
+
+All three phases must pass for the intended release candidate. Subsequent changes
+invalidate affected evidence: repeat the affected phase work and downstream checks
+before publication. Signature-only changes require applicable artifact/trust checks,
+not automatic reruns of unrelated unchanged behavior. Gate 6/publication follows
+these phases; publication itself is a delivery action, not a replacement phase.
+
+Focused development checks continue while engineering is underway. These full
+phases run at the end, beginning with the v3 release.
 
 ## Preconditions
 
@@ -15,11 +66,57 @@ Before tagging, building release assets, uploading, or publishing:
    Tauri, lockfiles, changelog, and `docs/releases/vX.Y.Z.md`.
 3. Obtain explicit authority for every external mutation: tag push, release
    creation, asset deletion, upload, publication, signing, or notarization.
-4. Use only local or explicitly authorized hosted or native runners. Workflow
+4. Before publication, complete the three [final release phases](#mandatory-final-release-phases).
+5. Use only local or explicitly authorized hosted or native runners. Workflow
    configuration is not evidence; retain the actual run and artifact evidence.
+
+## Signed Pack Releases
+
+Pack signing is local-only. Production private keys stay concealed in the
+dedicated 1Password Developer Environment and must never be copied into the
+repository, a command argument, a key file, or a dotenv file. The compiled
+public identities and exact authority ceilings in
+`crates/jobsentinel-application/src/pack_runtime/trust.rs` are authoritative.
+
+| Pack identity | Publisher key ID | Concealed 1Password variable |
+| --- | --- | --- |
+| Source | `jobsentinel-source-publisher-v1` | `JOBSENTINEL_SOURCE_PRIVATE_KEY_PKCS8_B64` |
+| Skill | `jobsentinel-skill-publisher-v1` | `JOBSENTINEL_SKILL_PRIVATE_KEY_PKCS8_B64` |
+| Evaluation | `jobsentinel-evaluation-publisher-v1` | `JOBSENTINEL_EVALUATION_PRIVATE_KEY_PKCS8_B64` |
+| Evidence Reviewer | `jobsentinel-evidence-reviewer-publisher-v1` | `JOBSENTINEL_EVIDENCE_REVIEWER_PRIVATE_KEY_PKCS8_B64` |
+| Packet Builder | `jobsentinel-packet-builder-publisher-v1` | `JOBSENTINEL_PACKET_BUILDER_PRIVATE_KEY_PKCS8_B64` |
+
+Set `JOBSENTINEL_1PASSWORD_ENVIRONMENT_ID` only in the operator's local shell.
+Then sign an exact release JSON file with the matching ID, concealed-variable
+name, and raw public-key hex from the compiled registry:
+
+```bash
+op run --environment "$JOBSENTINEL_1PASSWORD_ENVIRONMENT_ID" -- \
+  npm run release:sign-pack -- \
+  --release release.json \
+  --publisher-key-id jobsentinel-source-publisher-v1 \
+  --expected-public-key-hex <approved-raw-public-key-hex> \
+  --key-env JOBSENTINEL_SOURCE_PRIVATE_KEY_PKCS8_B64 \
+  --out source-release.jspack
+```
+
+PowerShell uses the same child-process route with
+`--environment $env:JOBSENTINEL_1PASSWORD_ENVIRONMENT_ID`. The signer preserves
+the exact UTF-8 release bytes, checks that the concealed private key derives the
+approved public key, self-verifies the Ed25519 signature, and exclusively
+creates a private-mode output file. It never overwrites an existing envelope.
+
+Rotation always creates a new publisher key ID and receives a separate ceiling
+review before registry inclusion. Omitting a publisher from the compiled
+registry means revoked: startup reconciliation quarantines its active and
+rollback artifacts as `trust_revoked`. Do not delete an old public identity
+until the intended revocation or rotation boundary is approved. A signer run
+does not install, activate, publish, upload, or otherwise trust the result.
 
 ## Local Release Gate
 
+Assign these commands to the full phase plans above and retain their outcomes.
+Performance also requires the release's declared benchmarks and resource budgets.
 Run from the repository root:
 
 ```bash
