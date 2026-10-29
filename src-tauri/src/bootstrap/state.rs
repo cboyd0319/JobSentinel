@@ -9,7 +9,7 @@ use crate::desktop::{
     BookmarkletServer, Database, DesktopServices, DesktopStartupFailureKind, SchedulerStatus,
 };
 use jobsentinel_application::{
-    pack_runtime::PackRuntimeEnvironment, v3_foundation::PendingMilitaryTransitionReviews,
+    foundation::PendingMilitaryTransitionReviews, pack_runtime::PackRuntimeEnvironment,
     PendingUrlImports,
 };
 

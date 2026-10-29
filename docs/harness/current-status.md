@@ -12,8 +12,8 @@ Last updated: 2026-10-28
   Work starts with the selected D0 child, not the parked qualification campaign.
 - Follow the [development queue](../plans/v3/master-exec-plan.md#remaining-development-queue):
   finish accepted engineering and code cleanup before broad qualification or release.
-- Current work: D0 source/compatibility cleanup, preserving immutable contracts
-  and everything required by the first supported v3.0.0 baseline.
+- Current work: D0 source/compatibility cleanup. The first slice removes the unused
+  pre-v3 classifier and ordinary application prefixes while preserving durable contracts.
 
 ## Remaining Scope
 
@@ -31,7 +31,8 @@ Last updated: 2026-10-28
 ## Preserved Work And Evidence
 
 - `e6b97d9b` records M10 development acceptance. Positive OS acknowledgement was simulated.
-- Preserved M11 corrections and the reprioritized plan are checkpointed before D0 source changes.
+- `ecf321dc` checkpoints the development-first plan and preserved M11 corrections.
+- D0 scope/results: `docs/harness/evidence/v3-source-compatibility-cleanup-2026-10-28.json`.
 - Audit coverage/gaps: `docs/harness/evidence/v3-retrospective-audit-2026-10-28.json`.
 - Partial M11 work: `docs/harness/evidence/v3-milestone-11-local-qualification-2026-10-28.json`.
 - Last full run stopped with 10 Workbench policy-freshness failures. Diagnose fixture

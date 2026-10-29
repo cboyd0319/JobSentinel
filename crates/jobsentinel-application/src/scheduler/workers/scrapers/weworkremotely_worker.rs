@@ -27,7 +27,7 @@ pub(super) async fn run_weworkremotely(
     if !config.weworkremotely.enabled {
         return;
     }
-    let request_limit_per_hour = match crate::v3_source_governance::authorize_weworkremotely(
+    let request_limit_per_hour = match crate::source_governance::authorize_weworkremotely(
         database,
         SourceOperation::ScheduledCheck,
         Utc::now().date_naive(),
@@ -112,12 +112,12 @@ mod tests {
     async fn installed_governance_authorizes_the_weworkremotely_policy_rate() {
         let database = Database::connect_memory().await.unwrap();
         database.migrate().await.unwrap();
-        crate::v3_source_governance::install_weworkremotely(&database)
+        crate::source_governance::install_weworkremotely(&database)
             .await
             .unwrap();
 
         assert_eq!(
-            crate::v3_source_governance::authorize_weworkremotely(
+            crate::source_governance::authorize_weworkremotely(
                 &database,
                 SourceOperation::ScheduledCheck,
                 chrono::NaiveDate::from_ymd_opt(2026, 7, 19).unwrap(),
@@ -133,7 +133,7 @@ mod tests {
 
     #[test]
     fn weworkremotely_source_simulator_binds_reviewed_parser_and_policy_fixtures() {
-        let policy = crate::v3_source_governance::weworkremotely_policy().unwrap();
+        let policy = crate::source_governance::weworkremotely_policy().unwrap();
         let manifest = parse_source_manifest(WEWORKREMOTELY_SOURCE_MANIFEST_V1, &policy).unwrap();
         let fixtures = [
             (

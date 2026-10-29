@@ -1,3 +1,4 @@
+//! Builds source-bound requirement evidence, blocker diagnostics and reviewed claim operations.
 use super::{map_error, FoundationError};
 use jobsentinel_documents::{AtsAnalyzer, KeywordImportance, RequirementMatchState};
 use jobsentinel_domain::{

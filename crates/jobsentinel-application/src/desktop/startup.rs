@@ -201,7 +201,7 @@ impl DesktopServices {
                     "Reconciled interrupted Outside AI operations"
                 );
             }
-            crate::v3_source_governance::install_startup_source_governance(&database).await;
+            crate::source_governance::install_startup_source_governance(&database).await;
             jobsentinel_platform::ensure_private_dir_tree(pack_runtime.artifact_root())
                 .map_err(|error| DesktopStartupError::Database(error.to_string()))?;
             let reconciled_packs = reconcile_active_pack_artifacts(

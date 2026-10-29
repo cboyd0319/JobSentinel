@@ -1,3 +1,4 @@
+//! Binds military-transition review and confirmation to current saved-match context.
 use super::saved_match_debugger::{
     load_saved_match_context, map_saved_match_confirmation_error, SavedMatchContext,
 };

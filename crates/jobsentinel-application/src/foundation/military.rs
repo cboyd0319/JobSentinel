@@ -1,3 +1,4 @@
+//! Prepares and confirms reviewed military-to-civilian evidence without inventing equivalence.
 use super::{map_error, FoundationError};
 use chrono::NaiveDate;
 use jobsentinel_domain::{

@@ -1,4 +1,4 @@
-// Owns application-layer v3 foundation workflows and renderer-safe projections.
+// Owns application-layer foundation workflows and renderer-safe projections.
 use chrono::NaiveDate;
 use jobsentinel_domain::{
     v3_foundation::{
@@ -179,7 +179,7 @@ pub(crate) fn map_error(error: anyhow::Error) -> FoundationError {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::v3_source_governance::{install_usajobs, usajobs_policy};
+    use crate::source_governance::{install_usajobs, usajobs_policy};
     use jobsentinel_domain::{
         v3_foundation::{CaseFileEventInput, CaseFileEventKind, EventMetadata, EventOrigin},
         v3_foundation::{SourceAccess, SourcePolicy},
@@ -496,5 +496,5 @@ pub use opportunity_case::{
     OpportunityCaseTimelineItem, OpportunityCaseTimelineKind,
 };
 #[cfg(test)]
-#[path = "v3_foundation/tests.rs"]
-mod v3_foundation_tests;
+#[path = "foundation/tests.rs"]
+mod foundation_tests;

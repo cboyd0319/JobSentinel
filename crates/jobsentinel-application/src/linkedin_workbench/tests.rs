@@ -1,9 +1,10 @@
+//! Verifies explicit local Workbench actions preserve policy, consent and private-data boundaries.
 use super::*;
 
 async fn unreviewed_db() -> Database {
     let db = Database::connect_memory().await.unwrap();
     db.migrate().await.unwrap();
-    crate::v3_source_governance::install_linkedin_workbench(&db)
+    crate::source_governance::install_linkedin_workbench(&db)
         .await
         .unwrap();
     db
@@ -61,7 +62,7 @@ async fn revoked_or_drifted_workbench_review_fails_closed() {
     .is_err());
 
     remember_workbench_review(&db).await.unwrap();
-    let mut drifted = crate::v3_source_governance::linkedin_workbench_policy().unwrap();
+    let mut drifted = crate::source_governance::linkedin_workbench_policy().unwrap();
     drifted.revision += 1;
     db.upsert_source_policy(&drifted).await.unwrap();
     assert!(!workbench_review_is_current(&db).await.unwrap());
@@ -325,9 +326,12 @@ async fn notes_remove_sensitive_url_fields_before_storage() {
 
 #[tokio::test]
 async fn secret_bearing_notes_fail_before_any_durable_write() {
+    // Repeated public A:B groups form a valid Basic token, not a stored credential.
+    let basic_header = format!("Authorization: Basic {}", "QTpC".repeat(4));
+    let curl_header = format!("curl -H '{basic_header}' https://example.com");
     for notes in [
         r#"{"access_token": "json-secret-value"}"#,
-        "Authorization: Basic dXNlcjpwYXNz",
+        basic_header.as_str(),
         "li_at = AQED-opaque-value",
         "Cookie: JSESSIONID=ajax:123456; bcookie=v=2",
         "Bearer eyJhbGciOi.fake.payload",
@@ -335,7 +339,7 @@ async fn secret_bearing_notes_fail_before_any_durable_write() {
         "oauth_token=oauth-secret-value",
         r#"{"id_token":"eyJhbGciOi.fake.payload"}"#,
         "client_secret=client-secret-value",
-        "curl -H 'Authorization: Basic dXNlcjpwYXNz' https://example.com",
+        curl_header.as_str(),
         r#"{"authorization":"Bearer eyJhbGciOi.fake.payload"}"#,
         "curl -H 'Cookie: li_at=AQED-opaque-value' https://example.com",
         r#"{"cookie":"li_at=AQED-opaque-value"}"#,

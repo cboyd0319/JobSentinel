@@ -74,7 +74,7 @@ pub(super) async fn run_jobswithgpt_scraper(
     }
 
     if !matches!(
-        crate::v3_source_governance::authorize_jobswithgpt(
+        crate::source_governance::authorize_jobswithgpt(
             db,
             SourceOperation::ScheduledCheck,
             Utc::now().date_naive(),

@@ -22,7 +22,7 @@ use serde::Serialize;
 use sha2::{Digest, Sha256};
 use uuid::Uuid;
 
-use crate::v3_foundation::{prepare_saved_match_debugger, SavedMatchDebugger};
+use crate::foundation::{prepare_saved_match_debugger, SavedMatchDebugger};
 
 use super::load_active_tested_artifact;
 

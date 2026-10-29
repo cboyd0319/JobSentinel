@@ -1,3 +1,4 @@
+//! Verifies requirement diagnostics retain source snapshots, blockers and bounded evidence.
 use super::evidence_tests::{confirm_field, saved_snapshot_with_text};
 use super::*;
 use crate::test_support::test_job;

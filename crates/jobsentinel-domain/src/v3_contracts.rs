@@ -51,12 +51,6 @@ impl SchemaId {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum CompatibilityInputKind {
-    PreV3Config,
-    V3Manifest,
-}
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum ArchiveKind {
@@ -136,31 +130,6 @@ pub struct ArtifactManifest {
     pub artifact_id: String,
     pub artifact_version: String,
     pub payload_sha256: String,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum CompatibilityDecision {
-    PreV3MigrationRequired,
-    CompatibleV3(CompatibilityManifest),
-}
-
-pub fn read_v3_compatibility(
-    kind: CompatibilityInputKind,
-    input: &str,
-) -> Result<CompatibilityDecision, String> {
-    match kind {
-        CompatibilityInputKind::PreV3Config => {
-            let value: serde_json::Value = serde_json::from_str(input)
-                .map_err(|error| format!("malformed pre-v3 config: {error}"))?;
-            if !value.is_object() {
-                return Err("pre-v3 config must be a JSON object".to_string());
-            }
-            Ok(CompatibilityDecision::PreV3MigrationRequired)
-        }
-        CompatibilityInputKind::V3Manifest => {
-            parse_compatibility_manifest(input).map(CompatibilityDecision::CompatibleV3)
-        }
-    }
 }
 
 pub fn parse_compatibility_manifest(input: &str) -> Result<CompatibilityManifest, String> {
@@ -372,28 +341,10 @@ mod tests {
     }
 
     #[test]
-    fn explicit_pre_v3_config_requires_safe_forward_migration() {
-        assert_eq!(
-            read_v3_compatibility(CompatibilityInputKind::PreV3Config, r#"{"any":"object"}"#)
-                .unwrap(),
-            CompatibilityDecision::PreV3MigrationRequired
-        );
-        assert!(
-            read_v3_compatibility(CompatibilityInputKind::PreV3Config, "[]").is_err(),
-            "legacy classification must still require a JSON object"
-        );
-    }
-
-    #[test]
     fn independent_contracts_parse_without_an_omnibus_runtime_lifecycle() {
         let fixtures = fixtures();
 
-        let decision = read_v3_compatibility(
-            CompatibilityInputKind::V3Manifest,
-            &fixtures.compatibility.to_string(),
-        )
-        .unwrap();
-        assert!(matches!(decision, CompatibilityDecision::CompatibleV3(_)));
+        parse_compatibility_manifest(&fixtures.compatibility.to_string()).unwrap();
         assert_eq!(
             parse_pack_manifest(&fixtures.pack_manifest.to_string())
                 .unwrap()
@@ -415,15 +366,14 @@ mod tests {
     #[test]
     fn malformed_unsupported_and_non_semver_versions_fail_closed() {
         assert!(
-            read_v3_compatibility(CompatibilityInputKind::V3Manifest, "{").is_err(),
+            parse_compatibility_manifest("{").is_err(),
             "malformed input must fail"
         );
-        assert!(read_v3_compatibility(
-            CompatibilityInputKind::V3Manifest,
-            r#"{"schema":"jobsentinel.v3.compatibility.v2"}"#
-        )
-        .unwrap_err()
-        .contains("unsupported newer"));
+        assert!(
+            parse_compatibility_manifest(r#"{"schema":"jobsentinel.v3.compatibility.v2"}"#)
+                .unwrap_err()
+                .contains("unsupported newer")
+        );
 
         for invalid in ["3.", "3.0", "3.not.0", "03.0.0", "3.0.0.1"] {
             let mut value = fixtures().artifact_manifest;

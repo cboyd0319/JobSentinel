@@ -1,3 +1,4 @@
+//! Verifies reviewed resume evidence remains tied to exact current source fields.
 use super::*;
 use crate::test_support::test_job;
 use jobsentinel_domain::{

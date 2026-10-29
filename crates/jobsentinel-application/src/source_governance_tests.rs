@@ -11,7 +11,7 @@ use jobsentinel_domain::{
 };
 use jobsentinel_storage::Database;
 
-use crate::v3_source_governance::{
+use crate::source_governance::{
     authorize_greenhouse, authorize_jobswithgpt, authorize_lever, install_greenhouse,
     install_jobswithgpt, install_lever, jobswithgpt_policy,
 };

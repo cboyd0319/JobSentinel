@@ -1,3 +1,4 @@
+//! Verifies user-reviewed source actions preserve policy, origin and consent boundaries.
 use chrono::NaiveDate;
 use jobsentinel_domain::{
     v3_source_authorization::{SourceActionDecision, SourceGrantState},
@@ -6,8 +7,8 @@ use jobsentinel_domain::{
 use jobsentinel_storage::Database;
 
 use crate::{
-    v3_foundation::{set_source_policy, FoundationError},
-    v3_source_governance::{
+    foundation::{set_source_policy, FoundationError},
+    source_governance::{
         authorize_user_source_action, install_startup_source_governance,
         install_user_source_actions, usajobs_policy, user_source_actions_policy,
     },

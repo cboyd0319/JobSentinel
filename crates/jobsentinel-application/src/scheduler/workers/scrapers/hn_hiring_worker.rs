@@ -27,7 +27,7 @@ pub(super) async fn run_hn_hiring(
     if !config.hn_hiring.enabled {
         return;
     }
-    let request_limit_per_hour = match crate::v3_source_governance::authorize_hn_hiring(
+    let request_limit_per_hour = match crate::source_governance::authorize_hn_hiring(
         database,
         SourceOperation::ScheduledCheck,
         Utc::now().date_naive(),
@@ -114,12 +114,12 @@ mod tests {
     async fn installed_governance_authorizes_the_hn_hiring_policy_rate() {
         let database = Database::connect_memory().await.unwrap();
         database.migrate().await.unwrap();
-        crate::v3_source_governance::install_hn_hiring(&database)
+        crate::source_governance::install_hn_hiring(&database)
             .await
             .unwrap();
 
         assert_eq!(
-            crate::v3_source_governance::authorize_hn_hiring(
+            crate::source_governance::authorize_hn_hiring(
                 &database,
                 SourceOperation::ScheduledCheck,
                 chrono::NaiveDate::from_ymd_opt(2026, 7, 19).unwrap(),
@@ -135,7 +135,7 @@ mod tests {
 
     #[test]
     fn hn_hiring_source_simulator_binds_reviewed_parser_and_policy_fixtures() {
-        let policy = crate::v3_source_governance::hn_hiring_policy().unwrap();
+        let policy = crate::source_governance::hn_hiring_policy().unwrap();
         let manifest = parse_source_manifest(HN_HIRING_SOURCE_MANIFEST_V1, &policy).unwrap();
         assert_eq!(
             manifest.endpoint_patterns,

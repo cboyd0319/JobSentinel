@@ -1,3 +1,4 @@
+//! Verifies military evidence and wording remain user-confirmed and source-bound.
 use super::*;
 use crate::test_support::test_job;
 use chrono::NaiveDate;

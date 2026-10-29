@@ -1,3 +1,4 @@
+//! Installs reviewed source policies and enforces operation-specific local grants.
 use chrono::{DateTime, NaiveDate, Utc};
 use jobsentinel_domain::{
     v3_foundation::{SourceAccess, SourcePolicy},
@@ -16,7 +17,7 @@ use jobsentinel_domain::{
 };
 use jobsentinel_storage::Database;
 
-use crate::v3_foundation::{map_error, set_source_policy, FoundationError};
+use crate::foundation::{map_error, set_source_policy, FoundationError};
 
 const POLICY_REVIEWED_AT: &str = "2026-07-19T00:00:00Z";
 

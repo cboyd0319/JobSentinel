@@ -1,6 +1,6 @@
 //! Adapts reviewed military evidence and civilian wording confirmations to Tauri.
 
-use crate::application::v3_foundation::{
+use crate::application::foundation::{
     confirm_pending_saved_match_military_transition_review,
     confirm_saved_match_military_evidence as confirm_military_evidence,
     prepare_pending_saved_match_military_transition_review, MilitaryBranch,

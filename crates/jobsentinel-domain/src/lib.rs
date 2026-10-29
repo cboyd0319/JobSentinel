@@ -63,7 +63,6 @@ pub use job_hash::calculate_job_hash;
 pub use listed_pay::{ListedPay, PayQualifier};
 pub use normalization::canonicalize_job_url;
 pub use scoring_config::ScoringConfig;
-pub use v3_contracts::{read_v3_compatibility, CompatibilityDecision, CompatibilityInputKind};
 pub use v3_evaluations::{
     parse_v3_evaluation_set, EvaluationAssertion, EvaluationCategory, EvaluationEvidenceTarget,
     EvaluationVerificationTarget, MilitaryServiceBasis, ProtectedVeteranAnswerBasis,

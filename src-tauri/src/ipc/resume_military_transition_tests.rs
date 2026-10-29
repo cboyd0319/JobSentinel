@@ -4,7 +4,7 @@ use super::resume_military_transition_commands::{
     is_exact_military_transition_review_token, validate_military_transition_prepare_args,
     MilitaryTransitionWordingInput, MilitaryWordingMappingInput,
 };
-use crate::application::v3_foundation::{
+use crate::application::foundation::{
     confirm_pending_saved_match_military_transition_review, confirm_saved_match_military_evidence,
     prepare_pending_saved_match_military_transition_review, MilitaryBranch,
     MilitaryTransitionWording, MilitaryWordingMapping, PendingMilitaryTransitionReviews,

@@ -84,7 +84,7 @@ impl BookmarkletRepository for StorageBookmarkletRepository {
             return Ok(false);
         };
         Ok(matches!(
-            crate::v3_source_governance::authorize_user_source_action(
+            crate::source_governance::authorize_user_source_action(
                 &self.database,
                 *operation,
                 chrono::Utc::now().date_naive(),
@@ -212,7 +212,7 @@ mod tests {
     async fn storage_adapter_rechecks_the_installed_visible_capture_contract() {
         let database = Arc::new(Database::connect_memory().await.unwrap());
         database.migrate().await.unwrap();
-        crate::v3_source_governance::install_user_source_actions(&database)
+        crate::source_governance::install_user_source_actions(&database)
             .await
             .unwrap();
         let repository = StorageBookmarkletRepository { database };

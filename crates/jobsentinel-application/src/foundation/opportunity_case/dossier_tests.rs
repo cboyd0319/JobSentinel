@@ -8,8 +8,8 @@ use super::dossier::{
 };
 use super::open_opportunity_case_at;
 use crate::{
+    source_governance::{install_greenhouse, install_lever},
     test_support::test_job,
-    v3_source_governance::{install_greenhouse, install_lever},
 };
 use jobsentinel_domain::{v3_manifests::SourceClass, v3_source_manifest::SalaryCoverage};
 use jobsentinel_storage::Database;

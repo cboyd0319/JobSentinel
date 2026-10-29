@@ -148,10 +148,10 @@
       "user_visible_behavior":"Users review updates and recover offline.",
       "verification":["npm run harness:check","node scripts/dev/run-cargo.mjs test --locked -p jobsentinel --features embedded-ml --lib local_update"],
       "evidence":["docs/harness/evidence/v3-milestone-10-preflight-2026-10-28.json"]
-    }, {"id":"v3-source-compatibility-cleanup","priority":25,"area":"v3 development","title":"Complete source compatibility cleanup","status":"active",
+    }, {"id":"v3-source-compatibility-cleanup","priority":25,"area":"v3 development","title":"Source compatibility cleanup","status":"active",
       "behavior":"Remove pre-v3-only readers and ordinary transition names while preserving immutable v3 contracts and local data.",
-      "user_visible_behavior":"The supported v3 baseline has clear compatibility and recovery boundaries.",
-      "notes":"D0 resumed. Follow the development queue; broad qualification remains deferred.",
+      "user_visible_behavior":"Supported v3 data stays recoverable.",
+      "notes":"D0 development; broad qualification remains deferred.",
       "verification":["npm run harness:check","npm run typecheck","node scripts/dev/run-cargo.mjs test --locked -p jobsentinel-storage --lib migration_tests"],
-      "evidence":[]
+      "evidence":["docs/harness/evidence/v3-source-compatibility-cleanup-2026-10-28.json"]
     } ] }

@@ -1,5 +1,6 @@
+//! Projects current saved-match evidence and blockers into opportunity case files.
 use super::*;
-use crate::v3_foundation::{prepare_saved_match_debugger, RequirementWhyNot};
+use crate::foundation::{prepare_saved_match_debugger, RequirementWhyNot};
 use jobsentinel_documents::{KeywordImportance, RequirementMatchState};
 
 use super::super::saved_match_debugger::SavedMatchDebuggerEvidenceKind;

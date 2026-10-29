@@ -27,7 +27,7 @@ pub(super) async fn run_remoteok(
     if !config.remoteok.enabled {
         return;
     }
-    let request_limit_per_hour = match crate::v3_source_governance::authorize_remoteok(
+    let request_limit_per_hour = match crate::source_governance::authorize_remoteok(
         database,
         SourceOperation::ScheduledCheck,
         Utc::now().date_naive(),
@@ -108,12 +108,12 @@ mod tests {
     async fn installed_governance_authorizes_the_remoteok_policy_rate() {
         let database = Database::connect_memory().await.unwrap();
         database.migrate().await.unwrap();
-        crate::v3_source_governance::install_remoteok(&database)
+        crate::source_governance::install_remoteok(&database)
             .await
             .unwrap();
 
         assert_eq!(
-            crate::v3_source_governance::authorize_remoteok(
+            crate::source_governance::authorize_remoteok(
                 &database,
                 SourceOperation::ScheduledCheck,
                 chrono::NaiveDate::from_ymd_opt(2026, 7, 19).unwrap(),
@@ -129,7 +129,7 @@ mod tests {
 
     #[test]
     fn remoteok_source_simulator_binds_reviewed_parser_and_policy_fixtures() {
-        let policy = crate::v3_source_governance::remoteok_policy().unwrap();
+        let policy = crate::source_governance::remoteok_policy().unwrap();
         let manifest = parse_source_manifest(REMOTEOK_SOURCE_MANIFEST_V1, &policy).unwrap();
         let fixtures = [
             (

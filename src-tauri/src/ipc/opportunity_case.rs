@@ -1,6 +1,6 @@
 //! Builds the reviewed opportunity case snapshot from local job and campaign evidence.
 
-use crate::application::v3_foundation::{
+use crate::application::foundation::{
     open_opportunity_case as open_case_snapshot, OpportunityCaseSnapshot,
 };
 use crate::bootstrap::operation::State;

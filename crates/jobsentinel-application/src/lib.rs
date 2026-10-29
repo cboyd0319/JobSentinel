@@ -17,6 +17,7 @@ pub mod automation;
 pub mod config;
 pub mod credentials;
 pub mod desktop;
+pub mod foundation;
 pub mod health;
 pub mod linkedin_workbench;
 pub mod market_intelligence;
@@ -30,14 +31,13 @@ pub mod resume;
 pub mod salary;
 pub mod scheduler;
 pub mod scoring;
+mod source_governance;
+#[cfg(test)]
+mod source_governance_tests;
+#[cfg(test)]
+mod source_governance_user_actions_tests;
 pub mod update_preflight;
 pub mod user_data;
-pub mod v3_foundation;
-mod v3_source_governance;
-#[cfg(test)]
-mod v3_source_governance_tests;
-#[cfg(test)]
-mod v3_source_governance_user_actions_tests;
 
 pub use bookmarklet::{
     bookmarklet_repository, confirm_bookmarklet_imports, issue_browser_applied_pairing,

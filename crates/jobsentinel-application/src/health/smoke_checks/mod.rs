@@ -254,7 +254,7 @@ pub async fn run_smoke_test_with_credentials(
 
     let governed_decision = match scraper_name {
         "greenhouse" => Some(
-            crate::v3_source_governance::authorize_greenhouse(
+            crate::source_governance::authorize_greenhouse(
                 db,
                 SourceOperation::ConnectivityCheck,
                 Utc::now().date_naive(),
@@ -262,7 +262,7 @@ pub async fn run_smoke_test_with_credentials(
             .await,
         ),
         "lever" => Some(
-            crate::v3_source_governance::authorize_lever(
+            crate::source_governance::authorize_lever(
                 db,
                 SourceOperation::ConnectivityCheck,
                 Utc::now().date_naive(),
@@ -270,7 +270,7 @@ pub async fn run_smoke_test_with_credentials(
             .await,
         ),
         "usajobs" => Some(
-            crate::v3_source_governance::authorize_usajobs(
+            crate::source_governance::authorize_usajobs(
                 db,
                 SourceOperation::ConnectivityCheck,
                 Utc::now().date_naive(),
@@ -278,7 +278,7 @@ pub async fn run_smoke_test_with_credentials(
             .await,
         ),
         "remoteok" => Some(
-            crate::v3_source_governance::authorize_remoteok(
+            crate::source_governance::authorize_remoteok(
                 db,
                 SourceOperation::ConnectivityCheck,
                 Utc::now().date_naive(),
@@ -286,7 +286,7 @@ pub async fn run_smoke_test_with_credentials(
             .await,
         ),
         "weworkremotely" => Some(
-            crate::v3_source_governance::authorize_weworkremotely(
+            crate::source_governance::authorize_weworkremotely(
                 db,
                 SourceOperation::ConnectivityCheck,
                 Utc::now().date_naive(),
@@ -294,7 +294,7 @@ pub async fn run_smoke_test_with_credentials(
             .await,
         ),
         "hn_hiring" => Some(
-            crate::v3_source_governance::authorize_hn_hiring(
+            crate::source_governance::authorize_hn_hiring(
                 db,
                 SourceOperation::ConnectivityCheck,
                 Utc::now().date_naive(),

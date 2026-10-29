@@ -17,8 +17,8 @@ use jobsentinel_storage::Database;
 use super::{
     fetcher::fetch_job_page,
     pending::PendingUrlImports,
+    source_governance::authorize_user_source_action,
     types::{ImportError, ImportResult, ImportedJobSummary, JobImportPreview},
-    v3_source_governance::authorize_user_source_action,
 };
 
 pub fn prepare_job_import_target(url: &str) -> ImportResult<String> {
@@ -216,7 +216,7 @@ mod tests {
     use std::sync::LazyLock;
 
     use super::*;
-    use crate::v3_source_governance::{install_user_source_actions, user_source_actions_policy};
+    use crate::source_governance::{install_user_source_actions, user_source_actions_policy};
 
     static JOB_HTML: LazyLock<String> = LazyLock::new(|| {
         format!(

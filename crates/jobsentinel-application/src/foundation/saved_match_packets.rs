@@ -1,7 +1,8 @@
+//! Prepares reviewed packet claims bound to current saved resume and job evidence.
 use super::{
     map_error, prepare_evidence_bound_packet_claim, FoundationError, PacketEvidenceBoundary,
 };
-use crate::v3_foundation::saved_match_debugger::{
+use crate::foundation::saved_match_debugger::{
     current_citation, is_opaque_id, load_saved_match_context,
 };
 use jobsentinel_domain::ResumeEvidenceCitation;

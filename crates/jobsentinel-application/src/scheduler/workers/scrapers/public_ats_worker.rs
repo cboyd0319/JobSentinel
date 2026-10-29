@@ -30,7 +30,7 @@ pub(super) async fn run_greenhouse(
     if config.greenhouse_urls.is_empty() {
         return;
     }
-    let request_limit_per_hour = match crate::v3_source_governance::authorize_greenhouse(
+    let request_limit_per_hour = match crate::source_governance::authorize_greenhouse(
         database,
         SourceOperation::ScheduledCheck,
         Utc::now().date_naive(),
@@ -98,7 +98,7 @@ pub(super) async fn run_lever(
     if config.lever_urls.is_empty() {
         return;
     }
-    let request_limit_per_hour = match crate::v3_source_governance::authorize_lever(
+    let request_limit_per_hour = match crate::source_governance::authorize_lever(
         database,
         SourceOperation::ScheduledCheck,
         Utc::now().date_naive(),
@@ -210,7 +210,7 @@ mod tests {
         for (raw_manifest, policy, endpoint, fixtures) in [
             (
                 GREENHOUSE_SOURCE_MANIFEST_V1,
-                crate::v3_source_governance::greenhouse_policy().unwrap(),
+                crate::source_governance::greenhouse_policy().unwrap(),
                 GREENHOUSE_API_ENDPOINT_PREFIX,
                 [
                     (
@@ -231,7 +231,7 @@ mod tests {
             ),
             (
                 LEVER_SOURCE_MANIFEST_V1,
-                crate::v3_source_governance::lever_policy().unwrap(),
+                crate::source_governance::lever_policy().unwrap(),
                 LEVER_API_ENDPOINT_PREFIX,
                 [
                     (

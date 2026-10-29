@@ -5,10 +5,10 @@ use super::resume_match_debugger_commands::{
     validate_saved_match_packet_args,
 };
 use super::*;
+use crate::application::foundation::SavedMatchDebugger;
 use crate::application::resume::{
     ProfessionMatchingProfile, RegionalMatchingProfile, ResumeMatchingProfile,
 };
-use crate::application::v3_foundation::SavedMatchDebugger;
 
 #[tokio::test]
 async fn explicit_matching_profile_reaches_the_application_owner() {

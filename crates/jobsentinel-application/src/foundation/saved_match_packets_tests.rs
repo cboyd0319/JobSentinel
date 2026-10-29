@@ -1,3 +1,4 @@
+//! Verifies saved-match packet claims reject stale or unconfirmed source evidence.
 use super::saved_match_debugger_tests::saved_match_context;
 use super::*;
 use jobsentinel_storage::resume::NewSkill;

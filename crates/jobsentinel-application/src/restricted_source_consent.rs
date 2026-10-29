@@ -1,3 +1,4 @@
+//! Binds restricted-source consent to exact current policy, destination and data categories.
 use chrono::{DateTime, Utc};
 use jobsentinel_domain::{
     v3_foundation::{SourceAccess, SourcePolicy},
@@ -15,7 +16,7 @@ use jobsentinel_storage::Database;
 use sha2::{Digest, Sha256};
 
 use crate::{
-    v3_foundation::{
+    foundation::{
         review_source_consent, revoke_source_consent, set_source_policy, FoundationError,
     },
     Config,

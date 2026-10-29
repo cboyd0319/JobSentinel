@@ -1,3 +1,4 @@
+//! Previews and confirms bounded pasted job drafts through reviewed source policy.
 use chrono::Utc;
 use jobsentinel_domain::{
     canonicalize_job_url,
@@ -263,7 +264,7 @@ fn database_error(error: impl ToString) -> ImportError {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::v3_source_governance::{install_user_source_actions, user_source_actions_policy};
+    use crate::source_governance::{install_user_source_actions, user_source_actions_policy};
 
     async fn database() -> Database {
         let database = Database::connect_memory().await.unwrap();

@@ -332,7 +332,7 @@ where
         delete_or_revoke_action: "Disable Outside AI in Settings to stop future requests."
             .to_string(),
     };
-    if crate::v3_foundation::record_privacy_receipt(database, &receipt)
+    if crate::foundation::record_privacy_receipt(database, &receipt)
         .await
         .is_err()
     {

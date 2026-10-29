@@ -1,3 +1,4 @@
+//! Verifies case-file evidence walls retain current sources and reviewed confirmations.
 use super::*;
 use crate::{ats::ApplicationStatus, test_support::test_job};
 use jobsentinel_storage::Database;

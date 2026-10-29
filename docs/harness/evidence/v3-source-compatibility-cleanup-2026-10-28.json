@@ -1,0 +1,80 @@
+{
+  "schema": "jobsentinel.feature_evidence.v1",
+  "feature_id": "v3-source-compatibility-cleanup",
+  "behavior": "Remove pre-v3-only readers and ordinary transition names while preserving immutable v3 contracts and local data.",
+  "result": "partial",
+  "verified_at": "2026-10-29T00:06:57.757937+00:00",
+  "revision": "ecf321dcc497227a6aac1859a38e73d86bdd0190",
+  "platform": "macOS27.2 arm64, pinned Rust1.97.1/Node24.18.0/npm12.0.1",
+  "scope": "First D0 source-only closure slice; no broad qualification, signing, model runs or VMs.",
+  "source_files_sha256": {
+    "crates/jobsentinel-domain/src/v3_contracts.rs": "4807dc66d296dfebf4e205d50a03992e861969e5f4070e39f92a96e1a918aa5b",
+    "crates/jobsentinel-domain/src/lib.rs": "089a66a0fec98470be1fd8c9fd0bb5603e9ab9f3ebb3ee9940d7a851b2f4dc46",
+    "crates/jobsentinel-application/src/config/tests.rs": "c6dd19c3799119a95df1cca3711c3264ab0ad31b8b991798aa4b7bea5f980abe",
+    "crates/jobsentinel-application/src/lib.rs": "e8b5ad4d478ac1249dce37190dea7007f08b65b361678d751f854a9e5962a701",
+    "crates/jobsentinel-application/src/source_governance.rs": "8ae8495edb46980b8b6e2a7be98317df17ec61a73dd36b3abf97aa28dea583d8",
+    "crates/jobsentinel-application/src/foundation.rs": "3f8429ed9a0f9f0735c96beb54ac9fb875b6d8f1b6521e7d5282d41fffdf318e",
+    "src-tauri/src/bootstrap/state.rs": "88a977a4a330cc09f5df60f86695a33048318bc62e51389b289f37a43a245c4f"
+  },
+  "delivered": [
+    "Removed unused pre-v3 compatibility classification types/function/re-export and the unsupported upgrade claim tests. Supported validation uses the existing parser directly.",
+    "Renamed ordinary application v3_source_governance and v3_foundation modules, files/test paths and current application/native callers to source_governance/foundation without aliases.",
+    "Added responsibility headers to moved/changed owned files; source policy review date remains exactly2026-07-19T00:00:00Z."
+  ],
+  "immutable_boundaries": [
+    "SchemaId serialized strings and retained parser/validation code match the prior source exactly.",
+    "No SQLx migration bytes, signed keys/signing domains, export record names, backend IDs or format versions changed.",
+    "Screening-pattern support, listed-pay/geography projections, secure-storage names and other current-v3 dependencies remain; legacy wording alone is not removal authority."
+  ],
+  "commands": [
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-domain --lib v3_contract",
+      "exit_status": 0,
+      "relevant_result": "16contract tests passed.",
+      "caveat": "Focused domain slice only."
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-application --lib config::tests",
+      "exit_status": 0,
+      "relevant_result": "127configuration tests passed.",
+      "caveat": "Ran before ordinary module rename; final test-target compilation covers renamed graph."
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs clippy --locked --offline -p jobsentinel-domain -p jobsentinel-application --lib -- -D warnings",
+      "exit_status": 0,
+      "relevant_result": "Affected production crates passed.",
+      "caveat": "No full workspace suite."
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-application --lib --no-run",
+      "exit_status": 0,
+      "relevant_result": "Current renamed application test target compiled.",
+      "caveat": "Compilation only; tests not executed."
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel --lib --no-run",
+      "exit_status": 0,
+      "relevant_result": "Current native test target compiled.",
+      "caveat": "Compilation only; no app launch."
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs clippy --locked --offline -p jobsentinel --lib --features embedded-ml -- -D warnings",
+      "exit_status": 0,
+      "relevant_result": "Native production graph passed with embedded runtime.",
+      "caveat": "No inference or platform qualification."
+    },
+    {
+      "command": "npm run harness:check",
+      "exit_status": 0,
+      "relevant_result": "Source graph/state/responsibility/size contracts passed.",
+      "caveat": "Static development guard, not release proof."
+    }
+  ],
+  "remaining": [
+    "Remove confirmed plaintext upgrade machinery with byte-preserving refusal coverage; establish exact supported encrypted-v3 detection from actual baseline writers.",
+    "Replace pre-v3 migration fixtures while retaining failure/retry/snapshot/concurrency protections.",
+    "Normalize domain/storage ordinary module/type/helper names through their consumers.",
+    "Rename live schema only with compatible migrations and preserved export/signature contracts; vectors are the first isolated pilot.",
+    "Review bounded removal candidates (provider/filter/education aliases and test forwarding shim); preserve any still required by supported v3 inputs."
+  ]
+}

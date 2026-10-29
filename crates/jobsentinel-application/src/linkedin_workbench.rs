@@ -1,8 +1,5 @@
-//! User-controlled LinkedIn Workbench ledger.
-//!
-//! This module records only explicit JobSentinel-side user actions. It does not
-//! inspect LinkedIn pages, browser storage, cookies, network traffic, or session
-//! state.
+//! Records explicit local LinkedIn Workbench actions under reviewed source policy.
+//! Never reads LinkedIn pages, browser storage, cookies, traffic, or sessions.
 
 use crate::ats::{ApplicationStatus, ApplicationTracker};
 use anyhow::{bail, Result};
@@ -231,7 +228,7 @@ pub async fn workbench_review_status(database: &Database) -> Result<LinkedInWork
 }
 
 pub async fn remember_workbench_review(database: &Database) -> Result<bool> {
-    crate::v3_source_governance::install_linkedin_workbench(database).await?;
+    crate::source_governance::install_linkedin_workbench(database).await?;
     remember_workbench_review_on(database, Utc::now().date_naive()).await
 }
 
@@ -283,7 +280,7 @@ async fn workbench_review_status_on(
     database: &Database,
     today: NaiveDate,
 ) -> Result<LinkedInWorkbenchReviewStatus> {
-    let policy = crate::v3_source_governance::linkedin_workbench_policy()?;
+    let policy = crate::source_governance::linkedin_workbench_policy()?;
     let manifest = parse_source_manifest(LINKEDIN_WORKBENCH_SOURCE_MANIFEST_V1, &policy)
         .map_err(anyhow::Error::msg)?;
     if database.get_source_policy(&policy.source_id).await? != Some(policy.clone())
@@ -324,7 +321,7 @@ async fn workbench_review_status_on(
 }
 
 fn consent_context() -> Result<SourceConsentContext> {
-    let policy = crate::v3_source_governance::linkedin_workbench_policy()?;
+    let policy = crate::source_governance::linkedin_workbench_policy()?;
     Ok(SourceConsentContext {
         source_id: policy.source_id,
         operation: SourceConsentOperation::RestrictedWorkbench,

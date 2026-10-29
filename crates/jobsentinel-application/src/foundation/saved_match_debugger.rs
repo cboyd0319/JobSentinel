@@ -1,3 +1,4 @@
+//! Prepares source-bound saved-match diagnostics and evidence confirmation boundaries.
 use super::{map_error, FoundationError, RequirementWhyNot};
 use jobsentinel_documents::{AtsAnalyzer, KeywordImportance, RequirementMatchState};
 use jobsentinel_domain::{ResumeEvidenceCitation, ResumeEvidenceSnapshot};

@@ -13,7 +13,7 @@ use jobsentinel_storage::{
 };
 use serde::Serialize;
 
-use crate::v3_foundation::FoundationError;
+use crate::foundation::FoundationError;
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct EmployerDossier {
