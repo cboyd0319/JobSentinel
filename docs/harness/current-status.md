@@ -2,27 +2,25 @@
 
 # Current Status
 
-Last updated: 2026-10-28
+Last updated: 2026-10-31
 
 ## Execution
 
-- Active feature: `v3-portable-app`
+- Active feature: `v3-native-sensitive-actions`
 - Status: `active`
-- Implementation goal: **paused** at the user's request after Serena setup.
-  Resume with E15 development acceptance; broad qualification remains parked.
+- Implementation goal: **active**. Continue D1 P08/N15; broad qualification remains parked.
 - Follow the [development queue](../plans/v3/master-exec-plan.md#remaining-development-queue):
   finish accepted engineering and code cleanup before broad qualification or release.
-- Current work: E15 (`13e64abd`) portable startup/recovery and relocation implementation checkpoint.
-  Focused checks pass; record acceptance next. Installed proof remains deferred.
+- E15 development accepted at `0620d130`; installed qualification remains R1.
 - R13 development accepted at `70b813d7`; installed qualification remains R1.
-- Evidence: `docs/harness/evidence/v3-shared-computer-privacy-2026-10-28.json`.
+- Evidence: `docs/harness/evidence/v3-portable-app-2026-10-31.json`.
 
 ## Remaining Scope
 
 - Milestones 0 through 10 record development checkpoints for 105 Now IDs. Historical labels do not
   establish current acceptance or release readiness.
 - The 82 Next IDs have explicit outcomes and dependency groups in the master plan.
-  R13 has development acceptance; the other 81 remain. Release acceptance is separate.
+  R13 and E15 have development acceptance; the other 80 remain. Release acceptance is separate.
 - Milestone 13 code cleanup moves before final QA. Release-pipeline implementation
   and remaining documentation/header/boundary repairs are development, not final testing.
 - M11 broad qualification is parked until development is ready. Its earlier partial

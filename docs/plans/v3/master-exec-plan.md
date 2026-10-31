@@ -2,14 +2,14 @@
 
 # JobSentinel V3 Master Execution Plan
 
-Last updated: 2026-10-28.
+Last updated: 2026-10-31.
 
 This is the sole execution plan for the v3 major line. Finish the remaining
 accepted development and code cleanup before broad qualification or release work.
 The [remaining development queue](#remaining-development-queue) owns execution order.
 
-Implementation resumed on 2026-10-28. D0 development is accepted; execute the selected
-D1 portable application child. Other documents do not independently add scope.
+Implementation is active. D0, R13 and E15 development are accepted; execute the selected
+D1 native sensitive actions child. Other documents do not independently add scope.
 
 ## Problem
 
@@ -310,30 +310,35 @@ Owners are existing modules, not a request for new crates or interfaces.
 
 Owner: `jobsentinel-platform`, credentials, storage/recovery, application and Settings owners.
 
-Selected child: `v3-portable-app` (E15). R13 development is accepted at `70b813d7`;
-see [R13 evidence](../../harness/evidence/v3-shared-computer-privacy-2026-10-28.json).
+Selected child: `v3-native-sensitive-actions` (P08/N15). R13 development is accepted at
+`70b813d7`; see [R13 evidence](../../harness/evidence/v3-shared-computer-privacy-2026-10-28.json).
+E15 development is accepted at `0620d130` with focused and isolated native locked-startup
+proof; [E15 evidence](../../harness/evidence/v3-portable-app-2026-10-31.json) owns results and limits.
+Of 82 accepted Next IDs, 80 remain. Release acceptance remains separate.
 
-- Outcome: explicit portable startup owns data/config/cache/log/browser storage,
-  unlocks a moved profile before opening its database, and preserves recovery.
-- Implementation checkpoint: private `--portable` root selection, memory-only key
-  handoff, pre-database unlock, journal-aware recovery, portable credentials and
-  relative managed-resume references are implemented. Browser state is ephemeral;
-  native logs use process output. Focused checks cover durable-data preservation.
-- Reuse current platform paths, database key/bootstrap, credential wrapping and
-  portable recovery owners. A directory override alone does not meet E15.
-- Resolve profile selection before model caches and desktop initialization.
-  Preserve the installed profile, unsupported-data refusal and secret boundaries.
-- Verify focused path isolation, moved-profile unlock, refusal and recovery cases.
-  Installed journeys and platform qualification remain R1.
-- Rollback: exit portable mode and reopen the installed profile without moving or
-  deleting either profile. Preserve the core cut and separate Next commit range.
-
+- Acceptance: explicit sensitive actions reuse Mac user presence and add Windows
+  Hello/device-bound protection. Cancellation preserves the lock. Unavailable native
+  protection offers an explicit passphrase fallback without silently granting access.
+- Owners: `crates/jobsentinel-platform/src/credential_vault_key.rs`, existing
+  `jobsentinel-credentials` vault/service/passphrase owners, `src-tauri/src/ipc/credentials.rs`
+  and `src/features/settings/credentials/`. Reuse encrypted storage and recovery.
+- Extend A14 capability/result/fallback contracts only where these actions consume
+  them. N19 portal and Linux store integration remains a separate pending child.
+- Preserve passive secret-free status, portable host-store isolation, shared-computer
+  locking, backend authorization and unavailable/locked-store data preservation.
+- Verify focused authorization, cancellation, unavailable and passphrase fallback cases
+  with credential-service tests, affected platform/IPC tests and Settings regressions.
+  Use `node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-credentials --lib service::tests`,
+  affected clippy/type checks and `npm run lint:security`. Windows/Linux VM proof remains deferred to R1.
+- Rollback: revert the child code without deleting profiles, keys or vault rows.
+  Retain compatible key wrapping and an explicit supported unlock path before changing protection.
+  Preserve the v3.0 core cut and separate Next commit range.
 
 | ID | Remaining development |
 | --- | --- |
 | A14 | Extend existing platform functions with the concrete capability/result/fallback contracts needed by actual integrations. |
 | R13 | Development accepted at `70b813d7`; installed qualification remains R1. |
-| E15 | Implement portable data/config/cache/log ownership, key/passphrase handling and recovery. Portable backup is not a portable app. |
+| E15 | Development accepted at `0620d130`; installed qualification remains R1. |
 | P08 | Reuse Mac user presence. Finish Windows/native sensitive-action coverage and consistent fallback/cancel behavior. |
 | N15 | Implement Windows Hello/device-bound sensitive-action behavior over existing vault/keyring owners. |
 | N19 | Reuse Secret Service. Complete explicit portal and missing/locked-store behavior without a second credential engine. |
@@ -960,8 +965,9 @@ claims are historical, not fresh verification. Current state is in Handoff.
 ## Handoff
 
 - D0 development is accepted at `4b96e802`; preserve it as the v3.0 core source cut.
-- The active child is `v3-portable-app` in D1 (E15). Continue product work
-  there. The parked M11 campaign remains partial, not passing qualification.
+- E15 development acceptance is recorded in the linked D1 evidence. The active child
+  is `v3-native-sensitive-actions` (P08/N15). N19 remains separate and pending.
+  The parked M11 campaign remains partial, not passing qualification.
 - Follow D0 through D10 and the complete 82-ID inventory above. Keep one bounded child
   active. Finish real useful behavior and focused checks before selecting another.
 - Preserve the v3.0 core cut separately from Next development. No extra v3.0

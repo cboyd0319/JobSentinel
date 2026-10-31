@@ -22,9 +22,8 @@ in LinkedIn Workbench. Browser Import rejects LinkedIn pages.
   public release.
 - V3 update/recovery, encrypted bootstrap, strict supported-data boundaries and
   vault-only credentials have development checkpoints; installed release proof remains pending.
-- Accepted Next work is developed separately from the v3.0 core cut. Shared-computer
-  locking and reviewed session cleanup have development acceptance; portable profiles
-  have an implementation checkpoint awaiting acceptance.
+- Shared-computer locking, reviewed session cleanup and portable profiles have development
+  acceptance as Next work, separate from the v3.0 core cut. Installed release qualification remains pending.
 - Every release now requires separate full Stability, Performance and Security
   phases, in order. The [Release Contract](docs/developer/RELEASING.md#mandatory-final-release-phases)
   owns those gates.

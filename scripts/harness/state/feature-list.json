@@ -1,4 +1,4 @@
-{"schema":"jobsentinel.feature_list.v1","project":"JobSentinel","last_updated":"2026-10-28","active_status":"active","rules":{"single_active_feature":true,"passing_requires_evidence":true,"passing_is_irreversible":true},
+{"schema":"jobsentinel.feature_list.v1","project":"JobSentinel","last_updated":"2026-10-31","active_status":"active","rules":{"single_active_feature":true,"passing_requires_evidence":true,"passing_is_irreversible":true},
 "features":[{"id":"harness-standard-contract","priority":1,"area":"repository harness","title":"Standard repository harness","status":"passing",
 "behavior":"A fresh session can initialize the repository, see one current objective, select the next task, route its diff, and verify completion without contradictory owners.",
 "user_visible_behavior":"Contributors can resume and verify work across supported platforms.","verification":["npm run harness:check","npm run lint:file-size","npm run test:scripts","npm run test:smoke","npm run verify:full"],
@@ -73,6 +73,13 @@
 "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-storage --lib migration_tests"],"evidence":["docs/harness/evidence/v3-source-compatibility-cleanup-2026-10-28.json"]},{"id":"v3-shared-computer-privacy","priority":26,
 "area":"v3 privacy","title":"Shared-computer privacy","status":"passing","behavior":"Shared-computer mode protects private views and native access, limits recent-data exposure, and supports reviewed session cleanup.",
 "user_visible_behavior":"Users can lock the app and control session cleanup.","notes":"D1/R13 development accepted at 70b813d7; installed qualification remains R1.","verification":["npm run harness:check","npm run typecheck"],
-"evidence":["docs/harness/evidence/v3-shared-computer-privacy-2026-10-28.json"]},{"id":"v3-portable-app","priority":27,"area":"v3 privacy","title":"Portable application","status":"active",
+"evidence":["docs/harness/evidence/v3-shared-computer-privacy-2026-10-28.json"]},{"id":"v3-portable-app","priority":27,"area":"v3 privacy","title":"Portable application","status":"passing",
 "behavior":"Portable startup owns data, config, caches, logs and passphrase-protected keys without using the installed profile.","user_visible_behavior":"Users can unlock and recover a portable local profile.",
-"verification":["npm run harness:check"],"evidence":[]}]}
+"notes":"D1/E15 development accepted at 0620d130; installed qualification remains R1.",
+"verification":["npm run harness:check","node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-platform --lib portable",
+"node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-storage --lib portable"],
+"evidence":["docs/harness/evidence/v3-portable-app-2026-10-31.json"]},{"id":"v3-native-sensitive-actions","priority":28,"area":"v3 privacy","title":"Native sensitive actions","status":"active",
+"behavior":"Sensitive actions reuse Mac presence and add Windows Hello/device-bound protection with explicit cancellation and passphrase fallback.",
+"user_visible_behavior":"Users can authorize, cancel or choose a passphrase fallback when native protection is unavailable.",
+"notes":"D1/P08/N15; consumed A14 contracts only. N19 remains separate.",
+"verification":["npm run harness:check","npm run lint:security"],"evidence":[]}]}
