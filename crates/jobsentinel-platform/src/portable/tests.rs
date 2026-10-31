@@ -34,8 +34,8 @@ fn portable_profile_prepares_only_owned_children_and_excludes_other_instances() 
     let (_directory, path) = root();
     let profile = PortableProfile::open(&path).unwrap();
     assert_eq!(
-        fs::read(path.join(MARKER)).unwrap(),
-        MARKER_CONTENT.as_bytes()
+        fs::read_to_string(path.join(MARKER)).unwrap(),
+        format!("{MARKER_PREFIX}{}\n", profile.id)
     );
     assert!(CHILDREN.iter().all(|child| path.join(child).is_dir()));
     assert!(PortableProfile::open(&path.join("data")).is_err());
@@ -62,7 +62,7 @@ fn portable_profile_refuses_missing_relative_unknown_and_future_roots() {
     assert_eq!(fs::read(path.join("unrelated")).unwrap(), b"unchanged");
     assert!(!path.join(LOCK).exists());
     fs::remove_file(path.join("unrelated")).unwrap();
-    for marker in ["jobsentinel.portable.v2\n", "malformed", ""] {
+    for marker in ["jobsentinel.portable.v3\n", "malformed", ""] {
         fs::write(path.join(MARKER), marker).unwrap();
         crate::ensure_private_file(&path.join(MARKER)).unwrap();
         assert!(PortableProfile::open(&path).is_err());
@@ -95,6 +95,72 @@ fn portable_profile_refuses_malformed_identity_without_replacing_it() {
         assert!(PortableProfile::open(&path).is_err());
         assert_eq!(fs::read_to_string(path.join(LOCK)).unwrap(), id);
         assert!(!path.join(MARKER).exists());
+    }
+}
+
+#[test]
+fn portable_identity_survives_lost_or_truncated_process_lock() {
+    let (_directory, path) = root();
+    let id = PortableProfile::open(&path).unwrap().id.clone();
+    let marker = fs::read(path.join(MARKER)).unwrap();
+    for missing in [true, false] {
+        if missing {
+            fs::remove_file(path.join(LOCK)).unwrap();
+        } else {
+            fs::write(path.join(LOCK), b"").unwrap();
+        }
+        assert_eq!(PortableProfile::open(&path).unwrap().id, id);
+        assert_eq!(fs::read(path.join(MARKER)).unwrap(), marker);
+    }
+    fs::remove_file(path.join(MARKER)).unwrap();
+    assert!(PortableProfile::open(&path).is_err());
+    assert!(!path.join(MARKER).exists());
+}
+
+#[test]
+fn portable_marker_adopts_legacy_identity_under_exclusive_lock() {
+    let (_directory, path) = root();
+    let id = "a".repeat(64);
+    crate::write_file_atomic_private(&path.join(MARKER), MARKER_CONTENT).unwrap();
+    crate::write_file_atomic_private(&path.join(LOCK), &id).unwrap();
+    let lock = open_profile_lock(&path.join(LOCK)).unwrap();
+    assert!(PortableProfile::open(&path).is_err());
+    assert_eq!(
+        fs::read_to_string(path.join(MARKER)).unwrap(),
+        MARKER_CONTENT
+    );
+    drop(lock);
+    assert_eq!(PortableProfile::open(&path).unwrap().id, id);
+    assert_eq!(
+        fs::read_to_string(path.join(MARKER)).unwrap(),
+        format!("{MARKER_PREFIX}{id}\n")
+    );
+    assert_eq!(fs::read_to_string(path.join(LOCK)).unwrap(), id);
+}
+
+#[cfg(unix)]
+#[test]
+fn portable_marker_adoption_never_truncates_contained_lock_links() {
+    let (_directory, path) = root();
+    let id = "a".repeat(64);
+    crate::write_file_atomic_private(&path.join(MARKER), MARKER_CONTENT).unwrap();
+    crate::ensure_private_dir(&path.join("data")).unwrap();
+    let retained = path.join("data/retained");
+    crate::write_file_atomic_private(&retained, &id).unwrap();
+    fs::hard_link(&retained, path.join(LOCK)).unwrap();
+    assert_eq!(PortableProfile::open(&path).unwrap().id, id);
+    assert_eq!(fs::read_to_string(retained).unwrap(), id);
+}
+
+#[test]
+fn portable_marker_refuses_incomplete_identity_before_creating_lock() {
+    let (_directory, path) = root();
+    for id in ["", "partial", &"a".repeat(65), &"Z".repeat(64)] {
+        let marker = format!("{MARKER_PREFIX}{id}\n");
+        crate::write_file_atomic_private(&path.join(MARKER), &marker).unwrap();
+        assert!(PortableProfile::open(&path).is_err());
+        assert_eq!(fs::read_to_string(path.join(MARKER)).unwrap(), marker);
+        assert!(!path.join(LOCK).exists());
     }
 }
 

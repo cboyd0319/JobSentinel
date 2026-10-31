@@ -34,6 +34,12 @@ async fn portable_update_recovery_survives_relocation_and_rejects_other_profiles
                         hex::encode(Sha256::digest(b"jobs.db"))
                     ));
                     std::fs::write(marker, serde_json::to_vec(&journal).unwrap()).unwrap();
+                    jobsentinel_platform::write_file_atomic_private(
+                        &root.join(".jobsentinel-portable"),
+                        "jobsentinel.portable.v1\n",
+                    )
+                    .unwrap();
+                    std::fs::write(root.join(".portable.lock"), b"").unwrap();
                 }
             }
             "recover" | "legacy-healthy" | "legacy-corrupt" | "legacy-missing" => {

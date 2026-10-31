@@ -3,7 +3,7 @@
 use std::{
     ffi::{OsStr, OsString},
     fs::{self, File},
-    io::{self, Read, Seek, Write},
+    io::{self, Read, Write},
     path::{Component, Path, PathBuf},
     sync::{Mutex, OnceLock},
 };
@@ -11,6 +11,7 @@ use zeroize::Zeroizing;
 
 const MARKER: &str = ".jobsentinel-portable";
 const MARKER_CONTENT: &str = "jobsentinel.portable.v1\n";
+const MARKER_PREFIX: &str = "jobsentinel.portable.v2\n";
 const LOCK: &str = ".portable.lock";
 const CHILDREN: [&str; 3] = ["data", "config", "cache"];
 static PROFILE: OnceLock<PortableProfile> = OnceLock::new();
@@ -144,30 +145,17 @@ impl PortableProfile {
         #[cfg(windows)]
         let directory = crate::open_private_dir(&root)?;
         inspect_private(&root)?;
-        let marked = match crate::open_private_file(&root.join(MARKER))? {
-            Some(file) => {
-                let mut contents = Vec::new();
-                file.take(MARKER_CONTENT.len() as u64 + 1)
-                    .read_to_end(&mut contents)?;
-                if contents != MARKER_CONTENT.as_bytes() {
-                    return Err(invalid(
-                        "Portable profile version is unsupported or its marker is invalid.",
-                    ));
-                }
-                true
-            }
-            None => false,
-        };
-        if !marked && CHILDREN.iter().any(|child| root.join(child).exists()) {
-            return Err(invalid(
-                "Existing portable data has no valid profile marker.",
-            ));
-        }
+        read_profile_id(&root)?;
         let mut lock = open_profile_lock(&root.join(LOCK))?;
-        let id = profile_id(&mut lock)?;
-        if !marked {
-            crate::write_file_atomic_private(&root.join(MARKER), MARKER_CONTENT)?;
-        }
+        // Re-read under ownership: another process may have adopted a legacy marker.
+        let id = match read_profile_id(&root)? {
+            Some(id) => id,
+            None => {
+                let id = legacy_profile_id(&mut lock)?;
+                write_profile_marker(&root, &id)?;
+                id
+            }
+        };
         for child in CHILDREN {
             if !root.join(child).try_exists()? {
                 crate::ensure_private_dir_tree(&root.join(child))?;
@@ -185,25 +173,64 @@ impl PortableProfile {
     }
 }
 
-fn profile_id(lock: &mut File) -> io::Result<String> {
+fn read_profile_id(root: &Path) -> io::Result<Option<String>> {
+    let Some(file) = crate::open_private_file(&root.join(MARKER))? else {
+        if CHILDREN.iter().any(|child| root.join(child).exists()) {
+            return Err(invalid(
+                "Existing portable data has no valid profile marker.",
+            ));
+        }
+        return Ok(None);
+    };
+    let mut contents = String::new();
+    file.take((MARKER_PREFIX.len() + 66) as u64)
+        .read_to_string(&mut contents)?;
+    if contents == MARKER_CONTENT {
+        return Ok(None);
+    }
+    contents
+        .strip_prefix(MARKER_PREFIX)
+        .and_then(|value| value.strip_suffix('\n'))
+        .filter(|id| valid_profile_id(id))
+        .map(|id| Some(id.to_owned()))
+        .ok_or_else(|| invalid("Portable profile version is unsupported or its marker is invalid."))
+}
+
+fn valid_profile_id(id: &str) -> bool {
+    id.len() == 64
+        && id
+            .bytes()
+            .all(|byte| byte.is_ascii_digit() || (b'a'..=b'f').contains(&byte))
+}
+
+fn legacy_profile_id(lock: &mut File) -> io::Result<String> {
     use chacha20poly1305::aead::Generate;
     let mut id = String::new();
     Read::by_ref(lock).take(65).read_to_string(&mut id)?;
     if id.is_empty() {
         id = hex::encode(<[u8; 32]>::generate());
-        lock.rewind()?;
-        lock.write_all(id.as_bytes())?;
-        lock.sync_all()?;
-    } else if id.len() != 64
-        || !id
-            .bytes()
-            .all(|byte| byte.is_ascii_digit() || (b'a'..=b'f').contains(&byte))
-    {
+    } else if !valid_profile_id(&id) {
         return Err(invalid(
             "Portable profile identity is invalid; preserve it for recovery.",
         ));
     }
     Ok(id)
+}
+
+fn write_profile_marker(root: &Path, id: &str) -> io::Result<()> {
+    let mut temporary = tempfile::NamedTempFile::new_in(root)?;
+    crate::ensure_private_file(temporary.path())?;
+    writeln!(temporary, "{MARKER_PREFIX}{id}")?;
+    temporary.as_file().sync_all()?;
+    #[cfg(windows)]
+    crate::persist_file_write_through(temporary, &root.join(MARKER))?;
+    #[cfg(not(windows))]
+    temporary
+        .persist(root.join(MARKER))
+        .map_err(|error| error.error)?;
+    #[cfg(unix)]
+    File::open(root)?.sync_all()?;
+    Ok(())
 }
 
 fn invalid(message: &'static str) -> io::Error {
