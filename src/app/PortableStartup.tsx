@@ -62,6 +62,7 @@ export function PortableStartup({ children }: { children: ReactNode }) {
     try {
       await invoke("unlock_portable_profile", args);
       if (request !== revision.current) return;
+      setStatus(null);
       const next = parseStatus(await invoke<unknown>("get_portable_profile_status"));
       if (request !== revision.current) return;
       setStatus(next);

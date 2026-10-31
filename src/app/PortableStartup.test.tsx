@@ -87,6 +87,26 @@ describe("portable startup", () => {
     expect(await screen.findByLabelText("Portable profile passphrase")).toBeVisible();
   });
 
+  it.each(["failed", "malformed"])("retries a %s status read after unlock without unlocking twice", async (failure) => {
+    const user = userEvent.setup();
+    mockInvoke.mockResolvedValueOnce(existing);
+    render(<PortableStartup><p>Private application</p></PortableStartup>);
+    await user.type(await screen.findByLabelText("Portable profile passphrase"), "portable-profile-passphrase");
+    mockInvoke.mockResolvedValueOnce(undefined);
+    if (failure === "failed") mockInvoke.mockRejectedValueOnce(new Error("unavailable"));
+    else mockInvoke.mockResolvedValueOnce({ ...existing, unlocked: "true" });
+    await user.click(screen.getByRole("button", { name: "Unlock portable profile" }));
+    expect(screen.queryByText("Private application")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Portable profile passphrase")).not.toBeInTheDocument();
+    mockInvoke.mockResolvedValueOnce({ ...existing, unlocked: true });
+    await user.click(screen.getByRole("button", { name: "Try again" }));
+    expect(await screen.findByText("Private application")).toBeVisible();
+    expect(mockInvoke.mock.calls.map(([command]) => command)).toEqual([
+      "get_portable_profile_status", "unlock_portable_profile",
+      "get_portable_profile_status", "get_portable_profile_status",
+    ]);
+  });
+
   it("does not let a late response from a removed gate open a new gate", async () => {
     let finish: (value: unknown) => void = () => {};
     mockInvoke.mockImplementationOnce(() => new Promise((resolve) => { finish = resolve; }));
@@ -97,6 +117,28 @@ describe("portable startup", () => {
     await screen.findByLabelText("Portable profile passphrase");
     await act(async () => finish({ ...existing, unlocked: true }));
     expect(screen.queryByText("Private application")).not.toBeInTheDocument();
+  });
+
+  it("clears and disables secret entry during unlock and ignores completion after removal", async () => {
+    const user = userEvent.setup();
+    let finish: (value: unknown) => void = () => {};
+    mockInvoke.mockResolvedValueOnce(existing);
+    const view = render(<PortableStartup key="old"><p>Private application</p></PortableStartup>);
+    const password = await screen.findByLabelText("Portable profile passphrase");
+    await user.type(password, "portable-profile-passphrase");
+    mockInvoke.mockImplementationOnce(() => new Promise((resolve) => { finish = resolve; }));
+    await user.click(screen.getByRole("button", { name: "Unlock portable profile" }));
+    expect(password).toHaveValue("");
+    expect(password).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Cancel" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Opening profile..." })).toBeDisabled();
+    mockInvoke.mockResolvedValueOnce(existing);
+    view.rerender(<PortableStartup key="new"><p>Private application</p></PortableStartup>);
+    await screen.findByLabelText("Portable profile passphrase");
+    await act(async () => finish(undefined));
+    expect(mockInvoke).toHaveBeenCalledTimes(3);
+    expect(screen.queryByText("Private application")).not.toBeInTheDocument();
+    expect(screen.getByLabelText("Portable profile passphrase")).toBeEnabled();
   });
 
   it("counts Unicode characters and UTF-8 bytes separately", async () => {
