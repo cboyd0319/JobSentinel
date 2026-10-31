@@ -3,7 +3,7 @@
 use std::{
     ffi::{OsStr, OsString},
     fs::{self, File},
-    io::{self, Read},
+    io::{self, Read, Seek, Write},
     path::{Component, Path, PathBuf},
     sync::{Mutex, OnceLock},
 };
@@ -18,6 +18,7 @@ static SELECTION: Mutex<()> = Mutex::new(());
 
 struct PortableProfile {
     root: PathBuf,
+    id: String,
     _lock: File,
     key: OnceLock<Zeroizing<String>>,
     #[cfg(windows)]
@@ -62,11 +63,20 @@ pub fn select_portable_root(root: &Path) -> io::Result<()> {
     }
     PROFILE
         .set(PortableProfile::open(root)?)
-        .map_err(|_| invalid("A portable profile has already been selected."))
+        .map_err(|_| invalid("A portable profile has already been selected."))?;
+    // Native browser/cache writers must create private children before any threads start.
+    #[cfg(unix)]
+    rustix::process::umask(rustix::fs::Mode::RWXG | rustix::fs::Mode::RWXO);
+    Ok(())
 }
 
 pub fn portable_root() -> Option<&'static Path> {
     PROFILE.get().map(|profile| profile.root.as_path())
+}
+
+/// Stable public identity retained when the complete portable directory moves.
+pub fn portable_profile_id() -> Option<&'static str> {
+    PROFILE.get().map(|profile| profile.id.as_str())
 }
 
 /// Supply after read-only authentication, or explicit confirmation of a genuinely empty profile.
@@ -153,7 +163,8 @@ impl PortableProfile {
                 "Existing portable data has no valid profile marker.",
             ));
         }
-        let lock = open_profile_lock(&root.join(LOCK))?;
+        let mut lock = open_profile_lock(&root.join(LOCK))?;
+        let id = profile_id(&mut lock)?;
         if !marked {
             crate::write_file_atomic_private(&root.join(MARKER), MARKER_CONTENT)?;
         }
@@ -165,12 +176,34 @@ impl PortableProfile {
         inspect_private(&root)?;
         Ok(Self {
             root,
+            id,
             _lock: lock,
             key: OnceLock::new(),
             #[cfg(windows)]
             _directory: directory,
         })
     }
+}
+
+fn profile_id(lock: &mut File) -> io::Result<String> {
+    use chacha20poly1305::aead::Generate;
+    let mut id = String::new();
+    Read::by_ref(lock).take(65).read_to_string(&mut id)?;
+    if id.is_empty() {
+        id = hex::encode(<[u8; 32]>::generate());
+        lock.rewind()?;
+        lock.write_all(id.as_bytes())?;
+        lock.sync_all()?;
+    } else if id.len() != 64
+        || !id
+            .bytes()
+            .all(|byte| byte.is_ascii_digit() || (b'a'..=b'f').contains(&byte))
+    {
+        return Err(invalid(
+            "Portable profile identity is invalid; preserve it for recovery.",
+        ));
+    }
+    Ok(id)
 }
 
 fn invalid(message: &'static str) -> io::Error {

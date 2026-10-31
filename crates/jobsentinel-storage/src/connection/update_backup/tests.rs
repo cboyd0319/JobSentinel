@@ -3,6 +3,95 @@
 use super::*;
 
 #[tokio::test]
+async fn portable_update_recovery_survives_relocation_and_rejects_other_profiles() {
+    const ROOT: &str = "JOBSENTINEL_TEST_UPDATE_PROFILE";
+    const PHASE: &str = "JOBSENTINEL_TEST_UPDATE_PHASE";
+    if let Some(root) = std::env::var_os(ROOT) {
+        let root = PathBuf::from(root);
+        jobsentinel_platform::select_portable_root(&root).unwrap();
+        let path = root.join("data/jobs.db");
+        match std::env::var(PHASE).unwrap().as_str() {
+            "create" => {
+                let database = Database::connect(&path).await.unwrap();
+                sqlx::query("INSERT INTO jobs(hash,title,company,url,source) VALUES('moved','Retained role','Example','https://example.test/job','test')")
+                    .execute(database.pool()).await.unwrap();
+                database
+                    .prepare_update_snapshot(env!("CARGO_PKG_VERSION"), "3.1.0", &"a".repeat(64))
+                    .await
+                    .unwrap();
+            }
+            "recover" => {
+                let journal = super::super::update_journal::read_journal(&path)
+                    .unwrap()
+                    .unwrap();
+                std::fs::write(&path, b"interrupted target").unwrap();
+                let before = std::fs::read(&path).unwrap();
+                assert!(Database::verify_portable_passphrase(
+                    &path,
+                    "incorrect portable passphrase"
+                )
+                .await
+                .is_err());
+                let key = crate::encryption::load_or_create_database_key()
+                    .await
+                    .unwrap();
+                Database::verify_portable_passphrase(&path, &key)
+                    .await
+                    .unwrap();
+                assert_eq!(std::fs::read(&path).unwrap(), before);
+                let owner = Database::acquire_owner_lock(&path).unwrap();
+                Database::restore_update_snapshot_at(&path, &journal.snapshot)
+                    .await
+                    .unwrap();
+                drop(owner);
+                let database = Database::connect(&path).await.unwrap();
+                database.verify_integrity().await.unwrap();
+                assert_eq!(
+                    sqlx::query_scalar::<_, String>("SELECT title FROM jobs WHERE hash='moved'")
+                        .fetch_one(database.pool())
+                        .await
+                        .unwrap(),
+                    "Retained role"
+                );
+                database.close().await;
+            }
+            "reject" => assert!(super::super::update_journal::read_journal(&path).is_err()),
+            _ => panic!("unknown test phase"),
+        }
+        return;
+    }
+    let directory = tempfile::tempdir().unwrap();
+    let root = directory.path().canonicalize().unwrap();
+    let original = root.join("original");
+    let other = root.join("other");
+    let run = |path: &std::path::Path, phase| {
+        assert!(std::process::Command::new(std::env::current_exe().unwrap())
+            .args(["--exact", "connection::update_backup::tests::portable_update_recovery_survives_relocation_and_rejects_other_profiles"])
+            .env(ROOT, path).env(PHASE, phase).status().unwrap().success());
+    };
+    for path in [&original, &other] {
+        jobsentinel_platform::ensure_private_dir_tree(path).unwrap();
+        run(path, "create");
+    }
+    let moved = root.join("moved");
+    std::fs::rename(original, &moved).unwrap();
+    run(&moved, "recover");
+    let journal = std::fs::read_dir(moved.join("data"))
+        .unwrap()
+        .map(|entry| entry.unwrap().path())
+        .find(|path| {
+            path.file_name()
+                .unwrap()
+                .as_encoded_bytes()
+                .starts_with(b".jobsentinel-update-")
+        })
+        .unwrap();
+    let destination = other.join("data").join(journal.file_name().unwrap());
+    std::fs::copy(journal, destination).unwrap();
+    run(&other, "reject");
+}
+
+#[tokio::test]
 async fn portable_authentication_uses_update_snapshot_without_authorizing_writers() {
     for missing in [true, false] {
         let root = tempfile::tempdir().unwrap();

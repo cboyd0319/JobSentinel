@@ -43,7 +43,8 @@ pub use platform_health::{
     PLATFORM_HEALTH_SCHEMA_VERSION,
 };
 pub use portable::{
-    portable_root, portable_root_from_args, select_portable_root, set_portable_database_key,
+    portable_profile_id, portable_root, portable_root_from_args, select_portable_root,
+    set_portable_database_key,
 };
 #[cfg(unix)]
 pub use private_files::open_private_file;

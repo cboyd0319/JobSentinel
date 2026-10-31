@@ -139,6 +139,17 @@ impl Database {
             .ok_or_else(failure)?
             .canonicalize()?
             .join(path.file_name().ok_or_else(failure)?);
+        if let Some(root) = jobsentinel_platform::portable_root() {
+            let relative = identity.strip_prefix(root).map_err(|_| failure())?;
+            let mut hash = Sha256::new();
+            hash.update(b"jobsentinel.portable-database.v1\0");
+            hash.update(jobsentinel_platform::portable_profile_id().ok_or_else(failure)?);
+            for component in relative.components() {
+                hash.update(b"/");
+                hash.update(component.as_os_str().to_str().ok_or_else(failure)?);
+            }
+            return Ok(hex::encode(hash.finalize()));
+        }
         Ok(hex::encode(Sha256::digest(
             identity.as_os_str().as_encoded_bytes(),
         )))

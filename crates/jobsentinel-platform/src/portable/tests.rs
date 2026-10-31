@@ -76,11 +76,26 @@ fn portable_profile_recovers_interrupted_selection_and_moves_without_installed_s
     let (_directory, path) = root();
     fs::write(path.join(LOCK), b"").unwrap();
     crate::ensure_private_file(&path.join(LOCK)).unwrap();
-    drop(PortableProfile::open(&path).unwrap());
+    let id = PortableProfile::open(&path).unwrap().id.clone();
     let (_destination, destination) = root();
     let moved = destination.join("moved");
     fs::rename(&path, &moved).unwrap();
-    assert_eq!(PortableProfile::open(&moved).unwrap().root, moved);
+    let profile = PortableProfile::open(&moved).unwrap();
+    assert_eq!(profile.root, moved);
+    assert_eq!(profile.id, id);
+    let (_other, other) = root();
+    assert_ne!(PortableProfile::open(&other).unwrap().id, id);
+}
+
+#[test]
+fn portable_profile_refuses_malformed_identity_without_replacing_it() {
+    let (_directory, path) = root();
+    for id in ["partial", &"a".repeat(65), &"Z".repeat(64)] {
+        crate::write_file_atomic_private(&path.join(LOCK), id).unwrap();
+        assert!(PortableProfile::open(&path).is_err());
+        assert_eq!(fs::read_to_string(path.join(LOCK)).unwrap(), id);
+        assert!(!path.join(MARKER).exists());
+    }
 }
 
 #[cfg(unix)]
@@ -147,17 +162,24 @@ async fn selected_root_isolates_paths_and_memory_key() {
                 "portable::tests::selected_root_isolates_paths_and_memory_key",
                 "--nocapture",
             ])
-            .env(TEST_ROOT, path)
+            .env(TEST_ROOT, &path)
             .status()
             .unwrap();
         assert!(status.success());
+        drop(PortableProfile::open(&path).unwrap());
         return;
     };
     let root = PathBuf::from(selected);
+    #[cfg(unix)]
+    rustix::process::umask(rustix::fs::Mode::from_raw_mode(0o022));
     assert!(
         set_portable_database_key(Zeroizing::new("synthetic portable passphrase".into())).is_err()
     );
     select_portable_root(&root).unwrap();
+    let browser = root.join("cache/webview");
+    fs::create_dir(&browser).unwrap();
+    fs::write(browser.join("browser-state"), b"synthetic state").unwrap();
+    inspect_private(&root).unwrap();
     assert!(select_portable_root(&root).is_err());
     assert_eq!(crate::get_data_dir(), root.join("data"));
     assert_eq!(crate::get_config_dir(), root.join("config"));
