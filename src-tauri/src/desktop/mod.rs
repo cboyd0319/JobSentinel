@@ -9,6 +9,16 @@ pub(crate) use tray::{initialize_tray, show_main_window};
 pub(crate) fn preserve_main_window_on_close<R: Runtime>(builder: Builder<R>) -> Builder<R> {
     builder.on_window_event(|window, event| {
         if window.label() == "main" {
+            if matches!(event, WindowEvent::CloseRequested { .. }) {
+                if let Some(gate) = window
+                    .app_handle()
+                    .try_state::<std::sync::Arc<crate::bootstrap::operation::OperationAdmission>>()
+                {
+                    if gate.invalidate_authentication().is_err() {
+                        tracing::warn!("Could not invalidate pending app authentication");
+                    }
+                }
+            }
             if matches!(
                 event,
                 WindowEvent::Focused(false) | WindowEvent::CloseRequested { .. }

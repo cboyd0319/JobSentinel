@@ -182,6 +182,18 @@ pub(crate) fn lock_on_focus_loss<R: tauri::Runtime>(app: &tauri::AppHandle<R>) {
     });
 }
 
+async fn begin_unlock<'a>(
+    gate: &OperationAdmission,
+    operation: &'a PrivacyOperation,
+) -> Result<(tokio::sync::MutexGuard<'a, ()>, u64), String> {
+    let generation = gate.authentication_generation()?;
+    let guard = operation.0.lock().await;
+    if gate.authentication_generation()? != generation || gate.closed() {
+        return Err("The session changed. Unlock JobSentinel again.".into());
+    }
+    Ok((guard, generation))
+}
+
 #[tauri::command]
 pub(crate) async fn unlock_app(
     passphrase: Option<String>,
@@ -190,9 +202,8 @@ pub(crate) async fn unlock_app(
     gate: tauri::State<'_, Arc<OperationAdmission>>,
     operation: tauri::State<'_, PrivacyOperation>,
 ) -> Result<AppPrivacyStatus, String> {
-    let _operation = operation.0.lock().await;
-    let generation = gate.privacy_generation()?;
     let passphrase = passphrase.map(Zeroizing::new);
+    let (_operation, generation) = begin_unlock(&gate, &operation).await?;
     state
         .credentials
         .verify_app_unlock(
@@ -200,7 +211,7 @@ pub(crate) async fn unlock_app(
             authentication_window(&app)?,
         )
         .await?;
-    gate.unlock_privacy(generation)?;
+    gate.unlock_after_authentication(generation)?;
     if let Some(scheduler) = &state.scheduler {
         scheduler.resume_after_privacy();
     }
@@ -258,6 +269,30 @@ pub(crate) async fn clear_private_session(
 
 #[cfg(test)]
 mod tests {
+    #[tokio::test]
+    async fn close_rejects_queued_unlock_before_verification() {
+        use std::{cell::Cell, future::Future, task::Poll};
+        let gate = super::OperationAdmission::with_privacy_lock(true);
+        let operation = super::PrivacyOperation::default();
+        let occupied = operation.0.lock().await;
+        let verified = Cell::new(false);
+        let mut pending = std::pin::pin!(async {
+            let (_operation, generation) = super::begin_unlock(&gate, &operation).await?;
+            verified.set(true);
+            gate.unlock_after_authentication(generation)
+        });
+        std::future::poll_fn(|context| {
+            assert!(pending.as_mut().poll(context).is_pending());
+            Poll::Ready(())
+        })
+        .await;
+        gate.invalidate_authentication().unwrap();
+        drop(occupied);
+        assert!(pending.await.is_err());
+        assert!(!verified.get());
+        assert!(gate.privacy_locked());
+    }
+
     #[test]
     fn locked_session_only_admits_status_and_lock_controls() {
         for command in ["get_app_privacy_status", "lock_app", "unlock_app"] {

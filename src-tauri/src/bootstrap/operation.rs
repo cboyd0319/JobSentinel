@@ -1,4 +1,4 @@
-//! Retains native command admission through async completion and blocks new work during updates.
+//! Controls native work admission, privacy locks and stale authentication results.
 
 use std::{
     ops::Deref,
@@ -23,6 +23,7 @@ struct Admission {
     shutdown: bool,
     privacy_locked: bool,
     privacy_generation: u64,
+    authentication_generation: u64,
 }
 
 pub(crate) struct OperationLease(Arc<OperationAdmission>);
@@ -58,6 +59,36 @@ impl OperationAdmission {
             .map_err(|_| "Native operation admission is unavailable.")?;
         state.privacy_locked = true;
         state.privacy_generation = state.privacy_generation.wrapping_add(1);
+        state.authentication_generation = state.authentication_generation.wrapping_add(1);
+        Ok(())
+    }
+
+    /// Cancel pending unlock proofs without invalidating unprotected session cleanup.
+    pub(crate) fn invalidate_authentication(&self) -> Result<(), String> {
+        let mut state = self
+            .state
+            .lock()
+            .map_err(|_| "Native operation admission is unavailable.")?;
+        state.authentication_generation = state.authentication_generation.wrapping_add(1);
+        Ok(())
+    }
+
+    pub(crate) fn authentication_generation(&self) -> Result<u64, String> {
+        self.state
+            .lock()
+            .map(|state| state.authentication_generation)
+            .map_err(|_| "Native operation admission is unavailable.".into())
+    }
+
+    pub(crate) fn unlock_after_authentication(&self, generation: u64) -> Result<(), String> {
+        let mut state = self
+            .state
+            .lock()
+            .map_err(|_| "Native operation admission is unavailable.")?;
+        if state.authentication_generation != generation || state.closed {
+            return Err("The session changed. Unlock JobSentinel again.".into());
+        }
+        state.privacy_locked = false;
         Ok(())
     }
 
@@ -221,10 +252,34 @@ mod tests {
     #[test]
     fn privacy_authentication_cannot_reopen_an_update_or_shutdown() {
         let admission = OperationAdmission::with_privacy_lock(true);
-        let generation = admission.privacy_generation().unwrap();
+        let generation = admission.authentication_generation().unwrap();
         admission.begin_shutdown().unwrap();
-        assert!(admission.unlock_privacy(generation).is_err());
+        assert!(admission.unlock_after_authentication(generation).is_err());
         assert!(admission.privacy_locked());
+    }
+
+    #[test]
+    fn close_rejects_active_authentication_without_opening_admission() {
+        let admission = Arc::new(OperationAdmission::with_privacy_lock(true));
+        let generation = admission.authentication_generation().unwrap();
+        admission.invalidate_authentication().unwrap();
+        assert!(admission.unlock_after_authentication(generation).is_err());
+        assert!(admission.privacy_locked());
+        assert!(admission.admit().is_err());
+        let generation = admission.authentication_generation().unwrap();
+        admission.lock_privacy().unwrap();
+        assert!(admission.unlock_after_authentication(generation).is_err());
+    }
+
+    #[test]
+    fn close_preserves_unprotected_cleanup_completion() {
+        let admission = Arc::new(OperationAdmission::default());
+        admission.lock_privacy().unwrap();
+        let generation = admission.privacy_generation().unwrap();
+        admission.invalidate_authentication().unwrap();
+        assert!(admission.privacy_locked());
+        admission.unlock_privacy(generation).unwrap();
+        assert!(admission.admit().is_ok());
     }
 
     #[tokio::test]
