@@ -1,3 +1,4 @@
+// Builds isolated repository fixtures for security sensor checks.
 import { mkdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -56,7 +57,7 @@ export function writeBaseRepo(root, csp) {
       "URL, file path, command, or HTML input",
       "Unit tests for malicious input",
       "Credential handling",
-      "Keyring behavior check and no plaintext path",
+      "Vault/key-protection behavior, portable host-store isolation and no plaintext-secret path",
       "External network destination",
       "Privacy docs update and explicit user configuration",
       "Browser automation",

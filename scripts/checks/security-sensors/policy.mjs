@@ -1,3 +1,4 @@
+// Defines required security evidence, workflow safeguards and reviewed instruction paths.
 export const requiredSecurityDocs = [
   "docs/security/README.md",
   "docs/security/KEYRING.md",
@@ -20,7 +21,7 @@ export const forbiddenRendererConnectHosts = [
 
 export const requiredMatrixEntries = [
   ["input validation", "URL, file path, command, or HTML input", "Unit tests for malicious input"],
-  ["credential handling", "Credential handling", "Keyring behavior check and no plaintext path"],
+  ["credential handling", "Credential handling", "Vault/key-protection behavior", "portable host-store isolation", "no plaintext-secret path"],
   ["external network destination", "External network destination", "Privacy docs update and explicit user configuration"],
   ["browser automation", "Browser automation", "Human-in-the-loop submit behavior preserved"],
   ["browser extension manifest", "Browser extension manifest", "least-privilege manifest review", "no broad host permissions"],
@@ -135,7 +136,7 @@ export const ignoredAgentInstructionPathParts = new Set([
   ".git", ".husky", "dist", "node_modules", "playwright-report", "target", "test-results",
 ]);
 export const allowedAgentInstructionFiles = new Set([
-  ".github/copilot-instructions.md", "AGENTS.md", "CLAUDE.md", "docs/CLAUDE.md",
+  ".github/copilot-instructions.md", ".serena/AGENTS.md", "AGENTS.md", "CLAUDE.md", "docs/CLAUDE.md",
 ]);
 export const agentInstructionFilePatterns = [
   /(?:^|\/)AGENTS\.md$/i, /(?:^|\/)CLAUDE\.md$/i, /(?:^|\/)CODEX\.md$/i,
