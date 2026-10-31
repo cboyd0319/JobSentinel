@@ -92,6 +92,7 @@ describe("app privacy", () => {
     mockInvoke.mockRejectedValueOnce(new Error("cancelled"));
     await user.click(screen.getByRole("button", { name: "Unlock JobSentinel" }));
     expect(screen.queryByText("Private notes")).not.toBeInTheDocument();
+    expect(screen.getByRole("alert")).toHaveTextContent("Could not unlock. Check your passphrase, then try again.");
     expect(input).toHaveValue("");
     mockInvoke.mockResolvedValueOnce(unlocked);
     await user.type(input, "correct horse battery");
@@ -99,16 +100,60 @@ describe("app privacy", () => {
     expect(await screen.findByText("Private notes")).toBeVisible();
   });
 
-  it("honors native locks and rejects a stale unlock completion", async () => {
+  it("starts device verification only after an explicit unlock action", async () => {
     const user = userEvent.setup();
-    mockInvoke.mockResolvedValue(locked);
+    mockInvoke.mockResolvedValue({ ...locked, unlock_method: "system" });
     render(<AppPrivacy><p>Private notes</p></AppPrivacy>);
-    await user.type(await screen.findByLabelText("App unlock passphrase"), "correct horse battery");
+    await screen.findByRole("heading", { name: "JobSentinel is locked" });
+    expect(screen.getByText("Your computer will ask you to verify it's you.")).toBeVisible();
+    expect(screen.queryByLabelText("App unlock passphrase")).not.toBeInTheDocument();
+    expect(mockInvoke.mock.calls.map(([command]) => command)).toEqual(["get_app_privacy_status"]);
     let finish: (value: unknown) => void = () => {};
     mockInvoke.mockImplementationOnce(() => new Promise((resolve) => { finish = resolve; }));
     await user.click(screen.getByRole("button", { name: "Unlock JobSentinel" }));
-    publish("app-privacy-changed", locked);
-    await act(async () => finish(unlocked));
+    expect(mockInvoke).toHaveBeenLastCalledWith("unlock_app", {});
+    expect(screen.queryByText("Private notes")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Unlocking..." })).toBeDisabled();
+    await act(async () => finish({ ...unlocked, unlock_method: "system" }));
+    expect(await screen.findByText("Private notes")).toBeVisible();
+  });
+
+  it("keeps cancelled device verification locked without suggesting an unconfigured passphrase", async () => {
+    const user = userEvent.setup();
+    mockInvoke.mockResolvedValue({ ...locked, unlock_method: "system" });
+    render(<AppPrivacy><p>Private notes</p></AppPrivacy>);
+    const unlock = await screen.findByRole("button", { name: "Unlock JobSentinel" });
+    mockInvoke.mockRejectedValueOnce(new Error("cancelled: private native error"));
+    await user.click(unlock);
+    expect(screen.getByRole("alert")).toHaveTextContent("Device verification did not finish. JobSentinel is still locked.");
+    expect(screen.queryByText(/passphrase|private native error/i)).not.toBeInTheDocument();
+    expect(screen.queryByText("Private notes")).not.toBeInTheDocument();
+    expect(unlock).toBeEnabled();
+  });
+
+  it("keeps unavailable verification locked without offering an unconfigured fallback", async () => {
+    mockInvoke.mockResolvedValue({ ...locked, unlock_method: "unavailable" });
+    render(<AppPrivacy><p>Private notes</p></AppPrivacy>);
+    expect(await screen.findByText("No supported unlock method is available. JobSentinel will stay locked.")).toBeVisible();
+    expect(screen.getByRole("button", { name: "Unlock JobSentinel" })).toBeDisabled();
+    expect(screen.queryByText(/passphrase/i)).not.toBeInTheDocument();
+    expect(screen.queryByText("Private notes")).not.toBeInTheDocument();
+    expect(mockInvoke.mock.calls.map(([command]) => command)).toEqual(["get_app_privacy_status"]);
+  });
+
+  it.each(["passphrase", "system"])("rejects a stale %s unlock completion after a native lock", async (unlock_method) => {
+    const user = userEvent.setup();
+    mockInvoke.mockResolvedValue({ ...locked, unlock_method });
+    render(<AppPrivacy><p>Private notes</p></AppPrivacy>);
+    await screen.findByRole("heading", { name: "JobSentinel is locked" });
+    if (unlock_method === "passphrase") {
+      await user.type(screen.getByLabelText("App unlock passphrase"), "correct horse battery");
+    }
+    let finish: (value: unknown) => void = () => {};
+    mockInvoke.mockImplementationOnce(() => new Promise((resolve) => { finish = resolve; }));
+    await user.click(screen.getByRole("button", { name: "Unlock JobSentinel" }));
+    publish("app-privacy-changed", { ...locked, unlock_method });
+    await act(async () => finish({ ...unlocked, unlock_method }));
     expect(screen.queryByText("Private notes")).not.toBeInTheDocument();
   });
 

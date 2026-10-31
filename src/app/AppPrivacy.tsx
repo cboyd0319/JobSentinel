@@ -118,7 +118,9 @@ export function AppPrivacy({ children }: { children: ReactNode }) {
         ? { passphrase: supplied } : {});
       if (request === revision.current) applyStatus(next);
     } catch {
-      if (request === revision.current) setProblem("Could not unlock. Check your passphrase or system prompt, then try again.");
+      if (request === revision.current) setProblem(status?.unlock_method === "passphrase"
+        ? "Could not unlock. Check your passphrase, then try again."
+        : "Device verification did not finish. JobSentinel is still locked. Try again when you're ready.");
     } finally {
       setBusy(false);
     }
@@ -134,13 +136,14 @@ export function AppPrivacy({ children }: { children: ReactNode }) {
         {!status ? <Button onClick={() => setRetry((value) => value + 1)}>Try again</Button> : (
           <form className="space-y-4" onSubmit={(event) => { event.preventDefault(); void unlock(); }}>
             <p>Unlock to view your private job-search data.</p>
+            {status.unlock_method === "system" && <p>Your computer will ask you to verify it's you.</p>}
             {status.unlock_method === "passphrase" && <label className="block">
               App unlock passphrase
               <input type="password" autoComplete="current-password" value={passphrase}
                 onChange={(event) => setPassphrase(event.target.value)} disabled={busy}
                 className="mt-1 block w-full rounded border p-2 dark:bg-surface-800" />
             </label>}
-            {status.unlock_method === "unavailable" && <p>Restore access to your configured passphrase or this device's protected password store.</p>}
+            {status.unlock_method === "unavailable" && <p>No supported unlock method is available. JobSentinel will stay locked.</p>}
             <Button type="submit" loading={busy} loadingText="Unlocking..."
               disabled={status.unlock_method === "unavailable" || (status.unlock_method === "passphrase" && !passphrase)}>
               Unlock JobSentinel
