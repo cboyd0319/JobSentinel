@@ -44,14 +44,8 @@ impl Database {
             let mut connection = verifier.pool.acquire().await?;
             Self::require_supported_v3(&mut connection).await?;
             drop(connection);
-            if verifier
-                .inspect_update_snapshot(
-                    Uuid::parse_str(&expected.operation_id).map_err(|_| failure())?,
-                )
-                .await?
-                != *expected
-                || !jobsentinel_platform::opened_file_matches_path(&input, &snapshot)
-            {
+            verifier.verify_expected_update_snapshot(expected).await?;
+            if !jobsentinel_platform::opened_file_matches_path(&input, &snapshot) {
                 return Err(failure());
             }
             Ok(())
@@ -92,9 +86,7 @@ impl Database {
         expected: &UpdateSnapshot,
     ) -> Result<(), sqlx::Error> {
         let id = Uuid::parse_str(&expected.operation_id).map_err(|_| failure())?;
-        if self.inspect_update_snapshot(id).await? != *expected {
-            return Err(failure());
-        }
+        self.verify_expected_update_snapshot(expected).await?;
         let path = self.db_path.as_deref().ok_or_else(failure)?;
         let directory = self.update_snapshot_directory(id)?;
         let snapshot = directory.join("snapshot.db");
@@ -169,7 +161,7 @@ impl Database {
         Ok((path_bound, None))
     }
 
-    fn update_snapshot_directory(&self, id: Uuid) -> Result<PathBuf, sqlx::Error> {
+    pub(super) fn update_snapshot_directory(&self, id: Uuid) -> Result<PathBuf, sqlx::Error> {
         let parent = self
             .db_path
             .as_deref()
@@ -177,6 +169,30 @@ impl Database {
             .filter(|path| !path.as_os_str().is_empty())
             .ok_or_else(failure)?;
         Ok(parent.join(format!(".update-snapshot-{id}")))
+    }
+
+    /// Both identities must name this database; every other snapshot field remains exact.
+    pub(super) async fn verify_expected_update_snapshot(
+        &self,
+        expected: &UpdateSnapshot,
+    ) -> Result<UpdateSnapshot, sqlx::Error> {
+        let actual = self
+            .inspect_update_snapshot(
+                Uuid::parse_str(&expected.operation_id).map_err(|_| failure())?,
+            )
+            .await?;
+        let mut normalized = actual.clone();
+        normalized
+            .database_identity
+            .clone_from(&expected.database_identity);
+        if !Self::matches_update_database_identity(
+            self.db_path.as_deref().ok_or_else(failure)?,
+            &expected.database_identity,
+        )? || normalized != *expected
+        {
+            return Err(failure());
+        }
+        Ok(actual)
     }
 
     /// Caller must quiesce writers before treating this consistent SQLite snapshot as its update boundary.
@@ -350,6 +366,8 @@ impl Drop for PendingSnapshot {
     }
 }
 
+#[cfg(test)]
+mod portable_tests;
 #[cfg(test)]
 mod tests;
 

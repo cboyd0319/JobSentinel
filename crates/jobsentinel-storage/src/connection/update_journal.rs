@@ -12,6 +12,7 @@ use std::{
 #[cfg(test)]
 tokio::task_local! {
     pub(super) static STARTUP_ADMISSION: (std::sync::Arc<tokio::sync::Notify>, std::sync::Arc<tokio::sync::Notify>);
+    pub(super) static IDENTITY_CRASH_POINT: u8;
 }
 
 #[cfg(test)]
@@ -153,27 +154,82 @@ fn write_journal(database: &Path, journal: &PreparedUpdate) -> Result<(), sqlx::
     if bytes.len() > 144 * 1024 {
         return Err(failure());
     }
-    if let Ok(metadata) = std::fs::symlink_metadata(&path) {
+    write_update_metadata(&path, bytes.as_bytes())
+}
+
+fn write_update_metadata(path: &Path, bytes: &[u8]) -> Result<(), sqlx::Error> {
+    if let Ok(metadata) = std::fs::symlink_metadata(path) {
         if !metadata.is_file() {
             return Err(failure());
         }
     }
     let mut temporary = tempfile::NamedTempFile::new_in(path.parent().ok_or_else(failure)?)?;
     jobsentinel_platform::ensure_private_file(temporary.path())?;
-    temporary.write_all(bytes.as_bytes())?;
+    temporary.write_all(bytes)?;
     temporary.as_file().sync_all()?;
     #[cfg(windows)]
-    let file = jobsentinel_platform::persist_file_write_through(temporary, &path)?;
+    let file = jobsentinel_platform::persist_file_write_through(temporary, path)?;
     #[cfg(not(windows))]
     let file = temporary
-        .persist(&path)
+        .persist(path)
         .map_err(|error| sqlx::Error::Io(error.error))?;
-    if !jobsentinel_platform::opened_file_matches_path(&file, &path) {
+    if !jobsentinel_platform::opened_file_matches_path(&file, path) {
         return Err(failure());
     }
     file.sync_all()?;
     #[cfg(unix)]
     std::fs::File::open(path.parent().ok_or_else(failure)?)?.sync_all()?;
+    Ok(())
+}
+
+fn rebind_portable_identity(
+    database: &Database,
+    journal: &mut PreparedUpdate,
+    mut verified: UpdateSnapshot,
+) -> Result<(), sqlx::Error> {
+    if jobsentinel_platform::portable_root().is_none() {
+        return Ok(());
+    }
+    let path = database.db_path.as_deref().ok_or_else(failure)?;
+    let identity = Database::update_database_identity(path)?;
+    if verified.database_identity == identity && journal.snapshot.database_identity == identity {
+        return Ok(());
+    }
+    verified.database_identity = identity;
+    let directory = database.update_snapshot_directory(
+        uuid::Uuid::parse_str(&verified.operation_id).map_err(|_| failure())?,
+    )?;
+    write_update_metadata(
+        &directory.join("receipt.json"),
+        &serde_json::to_vec(&verified).map_err(|_| failure())?,
+    )?;
+    #[cfg(test)]
+    if IDENTITY_CRASH_POINT
+        .try_with(|point| *point == 1)
+        .unwrap_or(false)
+    {
+        std::process::exit(111);
+    }
+    journal.snapshot = verified;
+    write_journal(path, journal)?;
+    #[cfg(test)]
+    if IDENTITY_CRASH_POINT
+        .try_with(|point| *point == 2)
+        .unwrap_or(false)
+    {
+        std::process::exit(112);
+    }
+    Ok(())
+}
+
+async fn authenticate_portable_snapshot(
+    path: &Path,
+    snapshot: &UpdateSnapshot,
+) -> Result<(), sqlx::Error> {
+    if jobsentinel_platform::portable_root().is_some() {
+        let key = crate::encryption::load_or_create_database_key().await?;
+        Database::verify_update_snapshot_passphrase(path, snapshot, &key).await?;
+    }
     Ok(())
 }
 
@@ -341,6 +397,22 @@ impl Database {
             } else if version != journal.source_version {
                 return Err(failure());
             }
+            if jobsentinel_platform::portable_root().is_some()
+                && journal.snapshot.database_identity != Self::update_database_identity(path)?
+            {
+                authenticate_portable_snapshot(path, &journal.snapshot).await?;
+                let database = Self::connect_owned(path, owner).await?;
+                let result = async {
+                    database.verify_integrity().await?;
+                    let verified = database
+                        .verify_expected_update_snapshot(&journal.snapshot)
+                        .await?;
+                    rebind_portable_identity(&database, &mut journal, verified)
+                }
+                .await;
+                database.pool.close().await;
+                result?;
+            }
             return Ok(None);
         }
         if (version != journal.source_version
@@ -360,14 +432,14 @@ impl Database {
             write_journal(path, &journal)?;
             return Err(failure());
         }
+        authenticate_portable_snapshot(path, &journal.snapshot).await?;
         let database = Self::connect_owned(path, owner).await?;
         let reconciled = async {
             database.verify_integrity().await?;
-            let id =
-                uuid::Uuid::parse_str(&journal.snapshot.operation_id).map_err(|_| failure())?;
-            if database.inspect_update_snapshot(id).await? != journal.snapshot {
-                return Err(failure());
-            }
+            let verified = database
+                .verify_expected_update_snapshot(&journal.snapshot)
+                .await?;
+            rebind_portable_identity(&database, &mut journal, verified)?;
             if target {
                 journal.phase = UpdatePreparationPhase::TargetStarting;
                 write_journal(path, &journal)?;
