@@ -1,8 +1,5 @@
-//! OS-backed storage for the credential-vault master key.
-//!
-//! Normal credential status checks must never call this module. These functions
-//! can trigger OS authentication prompts and should only run for explicit secret
-//! use, passphrase lock changes, or vault-key creation.
+//! OS-backed credential-vault master keys, accessed only for explicit secret use or lock changes.
+//! Passive status checks must never load these keys or trigger authentication.
 
 #![cfg_attr(target_os = "macos", allow(unsafe_code))]
 
@@ -20,8 +17,10 @@ fn secure_storage_error() -> String {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum CredentialVaultKeyBackend {
-    #[cfg(not(target_os = "macos"))]
+    #[cfg(not(any(target_os = "macos", windows)))]
     GenericKeyring,
+    #[cfg(windows)]
+    WindowsLocalCredentialManager,
     #[cfg(target_os = "macos")]
     MacosUserPresenceKeychain,
 }
@@ -34,6 +33,10 @@ pub struct CredentialVaultKeyStoragePolicy {
     pub biometry_current_set: bool,
 }
 
+/// Protection enforced on newly stored and successfully loaded keys.
+///
+/// Windows migrates legacy persistence on explicit load; previously roamed copies
+/// are not revoked. Credential Manager itself does not require Hello consent.
 pub const fn credential_vault_key_storage_policy() -> CredentialVaultKeyStoragePolicy {
     #[cfg(target_os = "macos")]
     {
@@ -45,7 +48,18 @@ pub const fn credential_vault_key_storage_policy() -> CredentialVaultKeyStorageP
         }
     }
 
-    #[cfg(not(target_os = "macos"))]
+    #[cfg(windows)]
+    {
+        CredentialVaultKeyStoragePolicy {
+            backend: CredentialVaultKeyBackend::WindowsLocalCredentialManager,
+            // Hello consent is enforced by the action owner, not Credential Manager.
+            user_presence_required: false,
+            device_local: true,
+            biometry_current_set: false,
+        }
+    }
+
+    #[cfg(not(any(target_os = "macos", windows)))]
     {
         CredentialVaultKeyStoragePolicy {
             backend: CredentialVaultKeyBackend::GenericKeyring,
@@ -112,6 +126,20 @@ pub fn decode_credential_vault_key(encoded_key: &str) -> Result<[u8; MASTER_KEY_
     Ok(key)
 }
 
+// Native writes stay injectable so migration failures can be checked without a host store.
+#[cfg(any(windows, test))]
+fn localize_vault_key(
+    encoded_key: &str,
+    already_local: bool,
+    persist: impl FnOnce() -> Result<(), String>,
+) -> Result<(), String> {
+    let _key = Zeroizing::new(decode_credential_vault_key(encoded_key)?);
+    if !already_local {
+        persist()?;
+    }
+    Ok(())
+}
+
 #[cfg(not(target_os = "macos"))]
 mod platform {
     use keyring::{Entry, Error as KeyringError};
@@ -121,8 +149,26 @@ mod platform {
     use super::{secure_storage_error, VAULT_KEY_NAME};
     use crate::SECURE_STORAGE_SERVICE as SERVICE_NAME;
 
+    fn vault_key_entry() -> Result<Entry, String> {
+        #[cfg(windows)]
+        {
+            use keyring_core::api::CredentialStoreApi;
+            use std::collections::HashMap;
+
+            let store =
+                windows_native_keyring_store::Store::new().map_err(|_| secure_storage_error())?;
+            let modifiers = HashMap::from([("persistence", "Local")]);
+            let inner = store
+                .build(SERVICE_NAME, VAULT_KEY_NAME, Some(&modifiers))
+                .map_err(|_| secure_storage_error())?;
+            Ok(Entry { inner })
+        }
+        #[cfg(not(windows))]
+        Entry::new(SERVICE_NAME, VAULT_KEY_NAME).map_err(|_| secure_storage_error())
+    }
+
     pub(super) fn store_vault_key(key: &Zeroizing<[u8; MASTER_KEY_LEN]>) -> Result<(), String> {
-        let entry = Entry::new(SERVICE_NAME, VAULT_KEY_NAME).map_err(|_| secure_storage_error())?;
+        let entry = vault_key_entry()?;
         let encoded_key = Zeroizing::new(hex::encode(key.as_ref()));
         entry
             .set_password(encoded_key.as_str())
@@ -130,7 +176,7 @@ mod platform {
     }
 
     pub(super) fn delete_vault_key() -> Result<(), String> {
-        let entry = Entry::new(SERVICE_NAME, VAULT_KEY_NAME).map_err(|_| secure_storage_error())?;
+        let entry = vault_key_entry()?;
         match entry.delete_credential() {
             Ok(()) | Err(KeyringError::NoEntry) => Ok(()),
             Err(_) => Err(secure_storage_error()),
@@ -138,9 +184,30 @@ mod platform {
     }
 
     pub(super) fn load_vault_key() -> Result<Option<Zeroizing<String>>, String> {
-        let entry = Entry::new(SERVICE_NAME, VAULT_KEY_NAME).map_err(|_| secure_storage_error())?;
+        let entry = vault_key_entry()?;
         match entry.get_password() {
-            Ok(encoded_key) => Ok(Some(Zeroizing::new(encoded_key))),
+            Ok(encoded_key) => {
+                let encoded_key = Zeroizing::new(encoded_key);
+                #[cfg(windows)]
+                {
+                    // Validate before replacing legacy roaming-capable persistence.
+                    // Updating the same entry never deletes the recoverable old key.
+                    let attributes = entry
+                        .inner
+                        .get_attributes()
+                        .map_err(|_| secure_storage_error())?;
+                    super::localize_vault_key(
+                        &encoded_key,
+                        attributes.get("persistence").map(String::as_str) == Some("Local"),
+                        || {
+                            entry
+                                .set_password(&encoded_key)
+                                .map_err(|_| secure_storage_error())
+                        },
+                    )?;
+                }
+                Ok(Some(encoded_key))
+            }
             Err(KeyringError::NoEntry) => Ok(None),
             Err(_) => Err(secure_storage_error()),
         }
@@ -262,5 +329,42 @@ mod platform {
 
     fn sanitize_security_error(_error: SecurityError) -> String {
         secure_storage_error()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::cell::Cell;
+
+    #[test]
+    fn local_migration_preserves_invalid_keys_without_writing() {
+        let written = Cell::new(false);
+        let result = localize_vault_key("invalid", false, || {
+            written.set(true);
+            Ok(())
+        });
+        assert!(result.is_err());
+        assert!(!written.get());
+    }
+
+    #[test]
+    fn local_migration_propagates_write_failure_and_skips_local_keys() {
+        let encoded = "ab".repeat(MASTER_KEY_LEN);
+        assert_eq!(
+            localize_vault_key(&encoded, false, || Err("failed".into())),
+            Err("failed".into())
+        );
+        assert!(localize_vault_key(&encoded, true, || panic!(
+            "local keys must not be rewritten"
+        ))
+        .is_ok());
+        let written = Cell::new(false);
+        assert!(localize_vault_key(&encoded, false, || {
+            written.set(true);
+            Ok(())
+        })
+        .is_ok());
+        assert!(written.get());
     }
 }

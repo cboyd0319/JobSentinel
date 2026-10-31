@@ -27,6 +27,10 @@ zeroize.workspace = true
 rustix = { workspace = true, features = ["process"] }
 
 [target.'cfg(windows)'.dependencies]
+keyring-core.workspace = true
+windows.workspace = true
+windows-future.workspace = true
+windows-native-keyring-store.workspace = true
 windows-sys.workspace = true
 
 [target.'cfg(target_os = "macos")'.dependencies]

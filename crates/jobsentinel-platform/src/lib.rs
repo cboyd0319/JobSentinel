@@ -11,6 +11,7 @@ reporting used across the application.
 mod credential_vault_key;
 mod database_key;
 mod managed_resume;
+mod native_user_presence;
 mod platform_health;
 mod portable;
 mod private_files;
@@ -35,6 +36,7 @@ pub use credential_vault_key::{
 };
 pub use database_key::{load_or_create_database_key, DatabaseKeyError};
 pub use managed_resume::{managed_resume_reference, resolve_managed_resume_reference};
+pub use native_user_presence::{verify_windows_user_presence, NativeUserPresenceError};
 pub use platform_health::{
     inspect_platform_health, repair_platform_permissions, PackageRepairAction,
     PackageRepairActionId, PackageRepairGuidance, PackageRepairMode, PlatformHealthReport,
