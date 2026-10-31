@@ -1,3 +1,5 @@
+<!-- Describes reviewed application-field preparation, manual attachments and outside-site data exposure. -->
+
 # Application Assist
 
 Application Assist helps you review job application forms without turning the
@@ -81,7 +83,8 @@ Before using Application Assist, fill in your information:
 If you select a resume file, JobSentinel copies it into local app storage and
 shows only the file name in the app, not the folder path. Application Assist
 does not attach the resume automatically; attach it yourself on the application
-site after reviewing the page.
+site after reviewing the page. Portable profiles retain managed copies by a
+profile-relative reference so they remain available after a closed profile is moved.
 
 ---
 
@@ -149,6 +152,15 @@ application question and use only what is true and backed by your resume or
 records.
 Suggested saved answers show the same review note before the **Use** button
 when the current question matches one of these hard screening topics.
+
+Voluntary or sensitive personal questions stay manual-only. This includes
+protected veteran status, disability, race or ethnicity, gender, sexual
+orientation, pronouns, religion, marital or family status, date of birth,
+national origin, genetic information, and voluntary self-identification. An
+answer explicitly saved in
+the local answer bank remains available there for the user's own review, but
+Application Assist does not put it in application previews, offer it as a
+suggestion, learn from its use, or prepare it in a live form.
 
 ### Hard Question Review
 
@@ -226,6 +238,9 @@ When Application Assist prepares saved screening answers in the live browser, it
 returns only bounded review topics such as work authorization, education,
 transportation, or schedule. The success message uses those topics to remind the
 user what to check without showing the saved answer or exact question text.
+If the live form contains a voluntary or sensitive personal question,
+Application Assist leaves it untouched and reports only the generic review
+topic. The user reviews the employer's exact wording and answers directly.
 
 The preview also shows an **Answer Review Checklist** backed by
 `src/shared/applicationFormReviewTaxonomy.ts`. It reminds the user to compare
@@ -348,7 +363,9 @@ Complete the human check yourself. JobSentinel leaves that step to you.
 - It does not submit the final application.
 - It does not complete human checks.
 - It does not apply to jobs without you.
-- It does not submit profile details or send them to JobSentinel servers.
+- It does not send profile details to a JobSentinel server. Approved field fills
+  expose selected details to the application site, whose scripts may transmit
+  them before the user clicks Submit.
 - It prepares selected fields only after preview and user approval.
 - It does not work around site security controls.
 

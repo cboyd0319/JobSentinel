@@ -1,18 +1,22 @@
+<!-- Describes product direction; the master plan and current status own execution and acceptance. -->
+
 # JobSentinel Roadmap
 
 JobSentinel is an open-source, local-first job-search assistant for finding real,
 relevant, fairly compensated work while keeping sensitive job-search data under
 user control.
 
-This roadmap tracks the six design pillars that guide product work.
+This roadmap tracks six product pillars, not feature acceptance or execution order.
+Use the [v3 master plan](docs/plans/v3/master-exec-plan.md) and
+[current status](docs/harness/current-status.md) for work selection and verified progress.
 
-## Top current priority: resume assistance and application readability
+## Resume assistance and application readability
 
-Resume assistance is the highest-priority functional workstream. JobSentinel
+Resume assistance is a core product direction. JobSentinel
 should help users create, import, review, and improve truthful resumes for
 technical and non-technical roles while preserving privacy and user control.
 
-Planned:
+Design targets:
 
 - Resume parse preview that shows readable text, extracted sections, unknown
   fields, and extraction confidence before results influence fit estimates.
@@ -26,7 +30,7 @@ Planned:
   columns, graphics, image-only pages, hidden text, unusual headings, and
   awkward machine-optimized bullets.
 
-In progress:
+Related foundations:
 
 - Local Resume Builder, JSON Resume import, Resume Match, resume/job fit
   review, bullet improvement, and DOCX export.
@@ -47,7 +51,7 @@ Evaluation ideas:
 
 ## 1. Ghost-job and stale-posting detection
 
-Planned:
+Design targets:
 
 - Company-site and hiring-platform verification before deep tailoring.
 - Repost and duplicate tracking across sources.
@@ -55,7 +59,7 @@ Planned:
 - Source-quality labels for employer pages, hiring-platform pages, recruiters, staffing
   firms, aggregators, and uncertain sources.
 
-In progress:
+Related foundations:
 
 - Stale and low-trust posting guidance in dashboard copy.
 - Ghost-risk scoring, visible reasons, and user feedback states.
@@ -69,7 +73,7 @@ Evaluation ideas:
 
 ## 2. Pay equity and salary-floor protection
 
-Planned:
+Design targets:
 
 - Salary-floor filters with below-floor warnings.
 - Pay transparency scoring for listed ranges, range width, missing criteria, and
@@ -79,7 +83,7 @@ Planned:
 - Negotiation notes grounded in role scope, written ranges, market evidence, and
   user-confirmed facts.
 
-In progress:
+Related foundations:
 
 - Salary and pay-equity requirements in active plans.
 - Salary benchmark UI work toward pay-floor and below-floor guidance.
@@ -94,7 +98,7 @@ Evaluation ideas:
 
 ## 3. Long-term unemployment support
 
-Planned:
+Design targets:
 
 - Weekly progress summaries that show action, response, and quiet-period context.
 - Fresh-role queues for newly seen jobs.
@@ -102,7 +106,7 @@ Planned:
 - Resume-gap framing support without shame.
 - Reactivation suggestions for stalled searches.
 
-In progress:
+Related foundations:
 
 - Active product rules for protective tone and broad job-seeker support.
 - Setup intake that asks what work to avoid and lets users review answers before
@@ -118,7 +122,7 @@ Evaluation ideas:
 
 ## 4. Bias-aware application strategy
 
-Planned:
+Design targets:
 
 - Application channel tracking: cold apply, company site, referral, recruiter,
   hiring manager, staffing agency, career fair, internal transfer, or other.
@@ -127,7 +131,7 @@ Planned:
 - Company and source response-history summaries kept local to the user.
 - Local hiring-manager and recruiter context summaries without contact upload.
 
-In progress:
+Related foundations:
 
 - Bias-aware route selection in active product plans.
 - Existing application tracking, notes, reminders, and source details.
@@ -142,7 +146,7 @@ Evaluation ideas:
 
 ## 5. Protective, non-cheerleader UX
 
-Planned:
+Design targets:
 
 - Plain risk statements such as "verify before tailoring", "below your floor",
   "low response history", and "conflicts with your constraints".
@@ -150,7 +154,7 @@ Planned:
 - Copy review checklist for scores, warnings, salary guidance, and AI-assisted
   notes.
 
-In progress:
+Related foundations:
 
 - Broad copy cleanup away from hollow motivation and engineer-only defaults.
 - One-click safe support report flow for issue reports.
@@ -165,18 +169,18 @@ Evaluation ideas:
 
 ## 6. Privacy-first local control
 
-Planned:
+Design targets:
 
 - Clear per-feature data-flow labels.
 - Local export, delete, and recovery workflows for sensitive job-search data.
 - Reviewable permissions for every external channel.
 - Continued source-specific security review before new integrations.
 
-In progress:
+Related foundations:
 
 - Local SQLite storage for search data, saved jobs, applications, notes, and
   settings.
-- OS credential-store usage for secrets.
+- Encrypted local credential storage with protected device keys or portable-profile passphrases.
 - No telemetry by default.
 - Safe support reports and privacy-preserving feedback paths.
 

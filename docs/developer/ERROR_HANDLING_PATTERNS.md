@@ -1,3 +1,5 @@
+<!-- Documents error Handling Patterns. -->
+
 # Error Handling Patterns
 
 Use these implementation patterns after choosing the error type and boundary described in [Error Handling Guide](ERROR_HANDLING.md).
@@ -27,6 +29,10 @@ fn validate(&self) -> Result<(), Box<dyn std::error::Error>> {
 - Return descriptive errors
 
 ### Pattern 2: Network Errors with Retry and Structured Errors
+
+The example below illustrates result mapping, not permission to construct a new
+HTTP client. Production source calls use `jobsentinel-network` for public-address
+pinning, body bounds, redirects and approved retry policy. Outside-AI sends do not retry.
 
 ```rust
 async fn scrape_company(&self, company: &Company) -> Result<Vec<Job>, ScraperError> {

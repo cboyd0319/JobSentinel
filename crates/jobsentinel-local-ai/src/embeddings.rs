@@ -1,6 +1,4 @@
-//! Embedding Generation
-//!
-//! Converts text into dense vector embeddings for semantic similarity.
+//! Generates governed MiniLM sentence embeddings with masked pooling.
 
 use super::model::{ModelManager, SentenceTransformer};
 use super::MlError;
@@ -10,10 +8,11 @@ use std::path::PathBuf;
 use tokenizers::{Encoding, Tokenizer};
 
 /// Maximum sequence length for the model
-const MAX_SEQUENCE_LENGTH: usize = 128;
+const MAX_SEQUENCE_LENGTH: usize = 256;
 
 /// Generates sentence embeddings for text
 pub struct EmbeddingGenerator {
+    pub(crate) cancellation: crate::InferenceCancellation,
     model: SentenceTransformer,
     tokenizer: Tokenizer,
     device: Device,
@@ -34,11 +33,20 @@ impl EmbeddingGenerator {
         }
 
         let device = ModelManager::get_device()?;
-        let tokenizer = manager.load_tokenizer()?;
+        let mut tokenizer = manager.load_tokenizer()?;
+        tokenizer
+            .with_truncation(Some(tokenizers::TruncationParams {
+                max_length: MAX_SEQUENCE_LENGTH,
+                ..Default::default()
+            }))
+            .map_err(|error| MlError::TokenizationFailed(error.to_string()))?;
         let vb = manager.load_model(&device)?;
-        let model = SentenceTransformer::load(vb)?;
+        let spec = ModelManager::runtime_model_spec()?;
+        let config = manager.load_model_json_for_spec(&spec, "config.json")?;
+        let model = SentenceTransformer::load(vb, &config)?;
 
         Ok(Self {
+            cancellation: Default::default(),
             model,
             tokenizer,
             device,
@@ -56,6 +64,7 @@ impl EmbeddingGenerator {
 
     /// Generate embeddings for multiple texts in a batch
     pub fn embed_batch(&self, texts: &[&str]) -> Result<Vec<Vec<f32>>> {
+        self.cancellation.check()?;
         if texts.is_empty() {
             return Ok(Vec::new());
         }
@@ -70,10 +79,15 @@ impl EmbeddingGenerator {
         let (input_ids, attention_mask) = self.encodings_to_tensors(&encodings)?;
 
         // Run inference
+        self.cancellation.check()?;
         let embeddings_tensor = self.model.forward(&input_ids, &attention_mask)?;
 
+        self.cancellation.check()?;
         // Convert back to Vec<Vec<f32>>
-        self.tensor_to_vec2d(&embeddings_tensor)
+        Ok(Self::tensor_to_vec2d(&embeddings_tensor)?
+            .iter()
+            .map(|row| Self::normalize_embedding(row))
+            .collect())
     }
 
     /// Tokenize and convert to tensors
@@ -120,25 +134,11 @@ impl EmbeddingGenerator {
     }
 
     /// Convert tensor to Vec<Vec<f32>>
-    fn tensor_to_vec2d(&self, tensor: &Tensor) -> Result<Vec<Vec<f32>>> {
-        let (batch_size, embedding_dim) = tensor
-            .dims2()
-            .map_err(|e| MlError::InferenceFailed(e.to_string()))?;
-
-        let flat_data = tensor
-            .to_dtype(DType::F32)
-            .map_err(|e| MlError::InferenceFailed(e.to_string()))?
-            .to_vec1::<f32>()
-            .map_err(|e| MlError::InferenceFailed(e.to_string()))?;
-
-        let mut result = Vec::with_capacity(batch_size);
-        for i in 0..batch_size {
-            let start = i * embedding_dim;
-            let end = start + embedding_dim;
-            result.push(flat_data[start..end].to_vec());
-        }
-
-        Ok(result)
+    fn tensor_to_vec2d(tensor: &Tensor) -> Result<Vec<Vec<f32>>> {
+        tensor
+            .to_dtype(DType::F32)?
+            .to_vec2::<f32>()
+            .map_err(Into::into)
     }
 
     /// Normalize embedding to unit length (for cosine similarity)
@@ -171,6 +171,15 @@ impl EmbeddingGenerator {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn rank_two_embeddings_preserve_rows() {
+        let tensor = Tensor::new(&[[1_f32, 2.], [3., 4.]], &Device::Cpu).unwrap();
+        assert_eq!(
+            EmbeddingGenerator::tensor_to_vec2d(&tensor).unwrap(),
+            vec![vec![1., 2.], vec![3., 4.]]
+        );
+    }
 
     #[test]
     fn test_normalize_embedding() {

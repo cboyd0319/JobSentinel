@@ -1,3 +1,5 @@
+// Dashboard manual-search orchestration with stale UI-delivery suppression.
+
 import { useEffect, useRef, useState, type Dispatch, type SetStateAction } from "react";
 import { useToast } from "../../../shared/toast/useToast";
 import { invalidateCacheByCommand, safeInvoke } from "../../../platform/tauri";
@@ -15,6 +17,7 @@ import type {
 
 interface DashboardManualSearchOptions {
   jobs: Job[];
+  showSettings?: boolean;
   setAnyJobSourceEnabled: Dispatch<SetStateAction<boolean | null>>;
   setError: Dispatch<SetStateAction<string | null>>;
   setJobs: Dispatch<SetStateAction<Job[]>>;
@@ -24,6 +27,7 @@ interface DashboardManualSearchOptions {
 
 export function useDashboardManualSearch({
   jobs,
+  showSettings = false,
   setAnyJobSourceEnabled,
   setError,
   setJobs,
@@ -35,15 +39,28 @@ export function useDashboardManualSearch({
   const [cooldownSeconds, setCooldownSeconds] = useState(0);
   const cooldownIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const cooldownTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const activeSearchRequestRef = useRef<number | null>(null);
+  const deliveryGenerationRef = useRef(0);
+  const mountedRef = useRef(true);
   const toast = useToast();
 
-  useEffect(() => () => {
-    if (cooldownIntervalRef.current) clearInterval(cooldownIntervalRef.current);
-    if (cooldownTimeoutRef.current) clearTimeout(cooldownTimeoutRef.current);
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+      deliveryGenerationRef.current += 1;
+      if (cooldownIntervalRef.current) clearInterval(cooldownIntervalRef.current);
+      if (cooldownTimeoutRef.current) clearTimeout(cooldownTimeoutRef.current);
+    };
   }, []);
 
+  useEffect(() => {
+    deliveryGenerationRef.current += 1;
+  }, [showSettings]);
+
   const handleSearchNow = async () => {
-    if (searchCooldown) {
+    if (showSettings) return;
+    if (searchCooldown || activeSearchRequestRef.current !== null) {
       toast.info(
         "Please wait",
         `Search available in ${cooldownSeconds} seconds`,
@@ -51,11 +68,20 @@ export function useDashboardManualSearch({
       return;
     }
 
+    const requestId = deliveryGenerationRef.current + 1;
+    const deliveryGeneration = requestId;
+    deliveryGenerationRef.current = deliveryGeneration;
+    activeSearchRequestRef.current = requestId;
+    const canDeliver = () => (
+      mountedRef.current && deliveryGenerationRef.current === deliveryGeneration
+    );
+
     try {
       try {
         const preferences = await safeInvoke<DashboardPreferences>(
           "get_dashboard_preferences",
         );
+        if (!canDeliver()) return;
         if (!preferences.anyJobSourceEnabled) {
           setAnyJobSourceEnabled(false);
           toast.warning(
@@ -66,6 +92,7 @@ export function useDashboardManualSearch({
         }
         setAnyJobSourceEnabled(true);
       } catch {
+        if (!canDeliver()) return;
         // Preferences check failed; proceed with search anyway.
       }
 
@@ -94,6 +121,7 @@ export function useDashboardManualSearch({
       await safeInvoke("search_jobs", undefined, {
         logContext: "Manual job search",
       });
+      if (!canDeliver()) return;
 
       invalidateCacheByCommand("get_recent_jobs");
       invalidateCacheByCommand("get_statistics");
@@ -104,6 +132,7 @@ export function useDashboardManualSearch({
         safeInvoke<Statistics>("get_statistics"),
         safeInvoke<ScrapingStatus>("get_scraping_status"),
       ]);
+      if (!canDeliver()) return;
       const notificationCandidates = selectNotificationCandidates(jobs, jobsData);
       setJobs(jobsData);
       setStatistics(statsData);
@@ -127,13 +156,27 @@ export function useDashboardManualSearch({
         cooldownTimeoutRef.current = null;
       }, 30_000);
     } catch (error: unknown) {
+      if (!canDeliver()) return;
       const safeError = getDashboardSearchErrorCopy(error);
       setError(safeError.message);
       toast.error(safeError.title, safeError.message);
       setSearchCooldown(false);
       setCooldownSeconds(0);
     } finally {
-      setSearching(false);
+      if (activeSearchRequestRef.current === requestId) {
+        activeSearchRequestRef.current = null;
+        if (mountedRef.current) {
+          setSearching(false);
+          if (!canDeliver()) {
+            if (cooldownIntervalRef.current) clearInterval(cooldownIntervalRef.current);
+            if (cooldownTimeoutRef.current) clearTimeout(cooldownTimeoutRef.current);
+            cooldownIntervalRef.current = null;
+            cooldownTimeoutRef.current = null;
+            setSearchCooldown(false);
+            setCooldownSeconds(0);
+          }
+        }
+      }
     }
   };
 

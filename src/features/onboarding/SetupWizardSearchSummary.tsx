@@ -1,3 +1,5 @@
+/** Renders the first-run search review without changing saved setup choices. */
+
 import type { SetupSearchSummary } from "./setupWizardPreferences";
 
 interface SetupWizardSearchSummaryProps {
@@ -53,6 +55,10 @@ export function SetupWizardSearchSummary({
             <dd className="text-surface-800">{summary.location}</dd>
           </div>
           <div className="grid gap-1 sm:grid-cols-[7rem_1fr]">
+            <dt className="font-medium text-surface-600">Search country</dt>
+            <dd className="text-surface-800">{summary.searchCountry}</dd>
+          </div>
+          <div className="grid gap-1 sm:grid-cols-[7rem_1fr]">
             <dt className="font-medium text-surface-600">Freshness</dt>
             <dd className="text-surface-800">{summary.freshness}</dd>
           </div>
@@ -81,7 +87,7 @@ export function SetupWizardSearchSummary({
       <div className="p-4 bg-surface-50 rounded-lg mb-6">
         <p className="text-sm text-surface-600">
           <span className="font-medium text-surface-700">Your privacy matters:</span> JobSentinel
-          saves your search on this computer. After you start, it can contact only checked
+          saves these search settings on this computer. After you start, it can contact only checked
           job sources in this review and any alert services you later turn on. It does not send
           resumes, private notes, saved answers, or application history to job sources.
         </p>

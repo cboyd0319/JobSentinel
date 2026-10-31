@@ -1,3 +1,5 @@
+<!-- Documents pull-request review and verification requirements. -->
+
 ## Description
 
 <!-- Brief description of the changes -->
@@ -21,7 +23,8 @@
 - [ ] Request review, redaction, cancellation, approval, and local request logging stay intact.
 - [ ] No full database upload, private notes, application history, resume, or salary floor is sent by default.
 - [ ] No new telemetry or tracking added.
-- [ ] Sensitive data is stored using OS keyring when credentials are required, not plaintext.
+- [ ] Saved credentials use the encrypted vault and its configured key protection;
+  portable profiles never use host credential storage.
 
 ## Responsible Use And User Ease
 
@@ -35,7 +38,7 @@
 ## Testing
 
 - [ ] Harness check passes (`npm run harness:check`)
-- [ ] Existing tests pass (`npm run test:run` and `cargo test`)
+- [ ] Applicable focused checks pass; broad qualification follows the release contract.
 - [ ] New tests added for changed functionality (if applicable)
 - [ ] Manual testing completed
 
@@ -45,7 +48,7 @@
 - [ ] Follows the DRY ladder in `docs/harness/engineering-principles.md`: no new
   dependency, abstraction, or duplication that a smaller change would avoid
 - [ ] Required sensors from `docs/harness/verification-matrix.md` ran
-- [ ] Public GitHub wiki impact was reviewed against docs/harness/manifest.json.
+- [ ] Public GitHub wiki impact was reviewed against scripts/harness/contracts/harness.json.
 - [ ] Agent-facing docs stayed short and linked to source-of-truth docs
 - [ ] Known gaps were recorded in `docs/plans/tech-debt-tracker.md` or the PR
 

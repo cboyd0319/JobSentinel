@@ -1,3 +1,5 @@
+<!-- Summarizes JobSentinel's development direction and routes implementation work to canonical plans. -->
+
 # JobSentinel Developer Roadmap
 
 This file is the developer-facing companion to the public
@@ -5,7 +7,7 @@ This file is the developer-facing companion to the public
 pillars. Keep this file focused on implementation state, active plans,
 verification, and contribution routing.
 
-Use `package.json` for the current release package version.
+Use `package.json` for the development package version; published releases are recorded in the changelog.
 
 Do not use this file as a changelog. Current release detail belongs in
 [CHANGELOG.md](../CHANGELOG.md). Historical release snapshots belong in the
@@ -23,28 +25,27 @@ The public roadmap organizes work around six design pillars:
 6. Privacy-first local control.
 
 Active implementation planning is indexed in [docs/plans](plans/README.md).
-Major-release exploration for the next generation of JobSentinel lives in
+The accepted v3 execution queue and its strategy references live in
 [v3 planning](plans/v3/README.md).
-The `v2.9.1` release is published. Current source metadata is the `v2.9.5`
-candidate after the completed full repository refactor, cleanup, and local
-source-readiness proof. Release execution still requires explicit authorization.
+The published `v2.9.5` release retains its `2.9.5` source metadata. Development
+source metadata is now the unreleased `3.0.0` line.
 Every non-trivial change should update the relevant feature doc, active plan,
 or tech-debt item before it is committed.
 
 ## Current implementation snapshot
 
-Use fresh command output when exact counts matter. This snapshot records the
-current maintained surface at the time of the latest docs sweep.
+The owning source and feature docs define each maintained surface. Development
+checkpoints are separate from installed-platform and release acceptance.
 
 | Area | Current state |
 | ---- | ------------- |
 | Desktop app | Tauri 2, React 19, TypeScript, Rust 2021 |
-| Storage | Local SQLite with SQLx offline mode |
-| Source monitoring | 12 scheduled source adapters plus user-opened search links |
-| Source status | 15 source-status checks with plain help output |
-| Backend surface | 205 registered Tauri commands |
+| Storage | Local SQLCipher-encrypted SQLite with SQLx offline mode |
+| Source monitoring | Governed scheduled adapters and user-opened search links; [source policy](features/job-sources.md) owns coverage |
+| Source status | Bounded source-status checks with plain help output |
+| Backend surface | Private commands registered in `src-tauri/src/ipc/registry.rs` |
 | Privacy posture | Local-first, no telemetry, external channels user-configured |
-| External AI posture | Optional, disabled by default, routed through `src/shared/externalAi/` |
+| External AI posture | Optional and disabled by default; native/application gateway enforces reviewed requests |
 | Safe support reports | Reports can be copied or saved locally, reviewed, and shared only when the user chooses help |
 
 ## Working product surfaces
@@ -156,7 +157,9 @@ cargo clippy --workspace -- -D warnings
 cargo test --workspace
 ```
 
-Full release verification also includes the broader Playwright matrix,
+Every release requires separate full **Stability → Performance → Security** phases
+in order; [Releasing](developer/RELEASING.md#mandatory-final-release-phases) owns their gates.
+Full release verification includes the broader Playwright matrix,
 package-build checks, and current dependency/security scans.
 
 ## Update rules

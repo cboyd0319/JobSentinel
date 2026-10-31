@@ -1,0 +1,202 @@
+{
+  "schema": "jobsentinel.feature_evidence.v1",
+  "feature_id": "v3-portable-app",
+  "result": "passing",
+  "behavior": "Portable startup owns data, config, caches, logs and passphrase-protected keys without using the installed profile.",
+  "revision": "0620d1306843aad9bd8803ca61f799a0b6117d59",
+  "verified_at": "2026-10-31T17:18:30.007147+00:00",
+  "platform": "macOS 27.2 arm64; Rust 1.97.1, Node 26.13.0, npm 11.20.0",
+  "scope": "D1/E15 development acceptance only. Next changes remain separate from v3.0 core source cut 4b96e802. Installed qualification remains R1.",
+  "requirements": {
+    "profile_isolation": "Explicit pre-desktop selection, exclusive private root, portable data/config/cache/model/pack paths, process-output logs and incognito WebViews with an absolute profile-owned browser directory.",
+    "key_and_credentials": "Memory-only portable key and passphrase-wrapped credential vault. Production-path subprocess test preserves saved settings, search history and credentials after relocation without host key storage.",
+    "refusal": "Wrong-key attempts preserve durable profile bytes; malformed markers, external links, foreign recovery identities, missing-primary existing settings and dangling settings links fail closed.",
+    "recovery": "Stable identity has one durable versioned marker owner. Interrupted marker publication, lost locks, contained hardlinks, corrupt/missing primary data, and interrupted receipt/journal migration are covered.",
+    "relocation": "Authenticated canonical startup rebinds older update receipts and journals without rewriting snapshot data. Successful startup followed by relocation and corrupt-primary recovery passes.",
+    "resume_references": "Managed application and HTML-review resume references survive relocation; unrelated external paths are not redirected by basename.",
+    "unlock_ui": "Failed or malformed post-unlock status reads retry status rather than unlock again; pending secret entry is cleared and late responses cannot open a replacement gate."
+  },
+  "commands": [
+    {
+      "command": "./init.sh",
+      "exit_status": 0,
+      "relevant_result": "9 startup tests; locked dependencies synchronized.",
+      "caveat": "Baseline eec2d5b5; Node/npm version warnings retained."
+    },
+    {
+      "command": "npm run test:run -- src/app/PortableStartup.test.tsx src/app/App.startup.test.tsx",
+      "exit_status": 0,
+      "relevant_result": "20 passed.",
+      "caveat": "Renderer mocks, not native credential-store proof."
+    },
+    {
+      "command": "node --test scripts/tests/checks/check-security-sensors*.test.mjs",
+      "exit_status": 0,
+      "relevant_result": "44 passed.",
+      "caveat": "Exact Serena allowlist and credential-evidence policy regressions."
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-platform --lib portable",
+      "exit_status": 0,
+      "relevant_result": "13 passed.",
+      "caveat": "Isolated subprocesses include marker-publication crash, private files, locks, hardlinks and malformed identity."
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-storage --lib portable",
+      "exit_status": 0,
+      "relevant_result": "50 passed.",
+      "caveat": "Synthetic storage test key; final integrated source."
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-storage --lib connection::update_",
+      "exit_status": 0,
+      "relevant_result": "23 passed.",
+      "caveat": "Overlaps the portable lane; migration regression includes 37 child phases and four intentional publication crashes."
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-application --lib -- desktop::startup::tests::portable_desktop_services_reopen_after_profile_move resume::review_result::tests::portable_html_review_uses_moved_managed_reference",
+      "exit_status": 0,
+      "relevant_result": "2 passed.",
+      "caveat": "Real storage dependency and portable key path; three isolated creation/refusal/reopen processes, no storage unit-test key override."
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel --features embedded-ml --lib -- bootstrap::tests ipc::portable::tests ipc::automation::profile_resume::tests::portable_application_resume_resolves_and_cleans_after_move",
+      "exit_status": 0,
+      "relevant_result": "11 passed.",
+      "caveat": "Native command/configuration tests, not installed Windows/Linux execution."
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs clippy --locked --offline -p jobsentinel --features embedded-ml -- -D warnings",
+      "exit_status": 0,
+      "relevant_result": "Passed.",
+      "caveat": "Production dependency graph; optional all-targets test lint failure is recorded below."
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs clippy --locked --offline -p jobsentinel-platform -p jobsentinel-storage -- -D warnings",
+      "exit_status": 0,
+      "relevant_result": "Passed.",
+      "caveat": "Final marker and update migration source."
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs build --locked --offline -p jobsentinel --bin jobsentinel",
+      "exit_status": 0,
+      "relevant_result": "Passed.",
+      "caveat": "Default-feature debug executable used for the native gate smoke; no release packaging."
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs fmt --all -- --check",
+      "exit_status": 0,
+      "relevant_result": "Passed.",
+      "caveat": "Final code source."
+    },
+    {
+      "command": "npm run lint:security",
+      "exit_status": 0,
+      "relevant_result": "Passed.",
+      "caveat": "Includes secret scan; source sensors do not prove native key-store behavior."
+    },
+    {
+      "command": "npm run lint:architecture",
+      "exit_status": 0,
+      "relevant_result": "Passed.",
+      "caveat": "Owned boundaries only."
+    },
+    {
+      "command": "npm run lint:deps",
+      "exit_status": 0,
+      "relevant_result": "Passed.",
+      "caveat": "Existing Rustix process feature enabled; no new dependency or lockfile change."
+    },
+    {
+      "command": "npm run typecheck",
+      "exit_status": 0,
+      "relevant_result": "Passed.",
+      "caveat": "Final frontend source; compiler/runtime versions recorded above."
+    },
+    {
+      "command": "npm run lint",
+      "exit_status": 0,
+      "relevant_result": "Passed.",
+      "caveat": "Final frontend source; compiler/runtime versions recorded above."
+    },
+    {
+      "command": "npm run harness:check",
+      "exit_status": 0,
+      "relevant_result": "Harness contract, state, architecture, hosted-workflow policy and file-size coverage passed.",
+      "caveat": "Final handoff and budget state validated; development only."
+    },
+    {
+      "command": "npm run lint:docs",
+      "exit_status": 0,
+      "relevant_result": "Harness, Markdown, links and prose passed.",
+      "caveat": "Final state transition; installed release gates remain separate."
+    },
+    {
+      "command": "npm run lint:file-size",
+      "exit_status": 0,
+      "relevant_result": "Hard limits passed; startup remains below its unchanged 26000-byte total cap.",
+      "caveat": "Final state transition; installed release gates remain separate."
+    },
+    {
+      "command": "node --test scripts/tests/harness/check-harness-policy.test.mjs scripts/tests/harness/check-v3-plan.test.mjs scripts/tests/harness/harness-session.test.mjs",
+      "exit_status": 0,
+      "relevant_result": "16 passed.",
+      "caveat": "Final state transition; installed release gates remain separate."
+    },
+    {
+      "command": "node --test scripts/tests/harness/check-language-style.test.mjs",
+      "exit_status": 0,
+      "relevant_result": "6 passed.",
+      "caveat": "Narrow policy exceptions; unrelated paths, prose and suffixed keys remain rejected."
+    },
+    {
+      "command": "npm run lint:language",
+      "exit_status": 0,
+      "relevant_result": "Passed; exact retired wire-key refusal literals retained in four reviewed source/test paths.",
+      "caveat": "Narrow policy exceptions; unrelated paths, prose and suffixed keys remain rejected."
+    }
+  ],
+  "native_smoke": {
+    "source_revision": "0620d1306843aad9bd8803ca61f799a0b6117d59",
+    "artifact": "Temporary unsigned app wrapper around the final default-feature debug executable, with Vite and a disposable portable profile.",
+    "observed": [
+      "Create portable profile screen and disabled empty-passphrase submit rendered in the native WebView.",
+      "Version 2 profile marker and private 0700 browser directory existed; primary database did not exist before unlock.",
+      "Installed data/config/cache/WebKit roots and host database-key item remained absent."
+    ],
+    "limits": "No native passphrase creation/unlock or installed-package acceptance. Encrypted unlock/relocation is covered by the production-path subprocess test.",
+    "test_tool_correction": "An earlier UI observation relaunched the test app without portable arguments after close. Its generated directories were removed after preserving them; the user approved deletion of the newly generated database-key item, and exact metadata lookup confirmed absence. Final smoke used an isolated fail-closed fallback environment. Temporary apps/profiles and test servers were stopped and removed."
+  },
+  "review": {
+    "kind": "Independent adversarial source review, two passes plus correction rechecks",
+    "result": "PASS through source 27b9bfea, integrated as 0620d130; bootstrap/UI/IPC source matched reviewed inputs.",
+    "focus": "Identity ownership, crash recovery, authorization, passphrase refusal, browser storage, marker durability, hardlinks and simplification."
+  },
+  "limits": [
+    "Older development profiles must complete successful current-build startup at their original location before moving; already-moved path-bound journals require returning to that location.",
+    "Windows/Linux native execution, exact macOS 26, enforced 8 GiB/zero-swap budgets, full installed journeys, signing/artifacts and R1/R2/R3 remain pending.",
+    "Local Node/npm differ from declared 24.18.0/12.0.1 pins; init reported warnings, not failures.",
+    "An optional all-targets Clippy experiment failed with 178 platform test lint errors, chiefly fixture unwrap usage; it is not passing evidence and is outside the canonical production Clippy lane."
+  ],
+  "source_sha256": {
+    "crates/jobsentinel-application/src/desktop/startup_tests.rs": "691ccb615bffa3a3b7c48e8520fa1b3408e3ab873427da62c1dd917aaeffba37",
+    "crates/jobsentinel-platform/Cargo.toml": "a24961bfc3e3c82213d5dd679b330d12f9ce558261661f1907fc5c4bf3db71a8",
+    "crates/jobsentinel-platform/src/lib.rs": "cf28a1686a40f2ace1558a7deedca62adc46a7fa4c04d549fde727491ee9ceb3",
+    "crates/jobsentinel-platform/src/portable.rs": "d475be38b5607ad0e7fb53f8b6adda1e057d59fb08d093d566d114b316f278fa",
+    "crates/jobsentinel-platform/src/portable/tests.rs": "9a469f80428de1666193994e1cc8fe2f96d960d0e1c8aa3b1fb3fe76c0230402",
+    "crates/jobsentinel-storage/src/connection/update_backup.rs": "a7620f41fbf20ad8dcf8774f5a3df4368d0d958cd5aa81283b5bfa275e88f706",
+    "crates/jobsentinel-storage/src/connection/update_backup/portable_tests.rs": "3690a1a135df1774eb13a5011bec3df8cb26aa174d0b7716be26f7db613aca51",
+    "crates/jobsentinel-storage/src/connection/update_journal.rs": "a913d0ed6301d2288447bca948ed4790202b85b60dfec45a6cb5a09a5f716cd8",
+    "scripts/checks/security-sensors/policy.mjs": "283e02eaab80dea1d9415abb0b931e0ddfe24470de5dd80a2800b8a3a6f38a09",
+    "scripts/tests/checks/check-security-sensors.fixtures.mjs": "d0d4877c4c3d960884efa6f8bf80e6c36f41ceb8e35250981b6c67317b938595",
+    "scripts/tests/checks/check-security-sensors.workflow-and-boundaries.test.mjs": "d00e320dc506381b8df900f0f50c037966652d196862da176a50798d36e26656",
+    "src-tauri/src/bootstrap/mod.rs": "47308f2c6b8596413ccab254a9b8bbad6f528cfefa621f2e7302ee692a18fcce",
+    "src-tauri/src/bootstrap/tests.rs": "f1d8f7109e7b077e45dfa5446c22e3449749093d6991ac52b4458fa142d2e0ee",
+    "src-tauri/src/ipc/portable.rs": "669324b14a49700a5e146ec06329e185f7b8f7ba4f6f2b1954be0c95ac99aef7",
+    "src/app/PortableStartup.test.tsx": "364907a0fcc53de0e935cc18a28ad73ce9c2c4e476d7e5f9016394c33f137578",
+    "src/app/PortableStartup.tsx": "649f460f9490296728a34529d5d70f84b2bd448213f2fec887da7a845829b10e"
+  },
+  "efficiency": "Stable reconciled journals skip identity migration. Existing marker, recovery and atomic metadata owners are reused; only bounded development lanes ran.",
+  "verification_revision": "fbcbba54af51ec20cc576101add010a25988fd45",
+  "maintenance": "Exact Serena instruction allowlist and current credential-evidence sensors repaired. Ledger capacity is 27 records and 17000 bytes within the unchanged 26000-byte startup total; historical passing records retained."
+}

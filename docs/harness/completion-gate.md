@@ -1,3 +1,5 @@
+<!-- Documents completion Gate. -->
+
 # Completion Gate
 
 Use this checklist before a feature transitions to `passing` or a broad session
@@ -36,4 +38,5 @@ claims completion.
       gap, or explicitly incomplete.
 
 If any required item is unchecked, the feature is not `passing`. Repair the
-state, roll back to a consistent checkpoint, or leave it explicitly blocked.
+state or keep the feature active with its exact remaining work. Use `blocked`
+only for a genuine external dependency, with its next trigger recorded.

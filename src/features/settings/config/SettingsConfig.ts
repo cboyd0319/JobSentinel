@@ -1,3 +1,5 @@
+/** Defines the renderer-safe persisted Settings configuration shape. */
+
 import type { ReactNode } from "react";
 import type { RestrictedSourceAcknowledgements } from "../../../shared/restrictedSourceTaxonomy";
 import {
@@ -18,6 +20,7 @@ export interface GhostConfig {
 
 export interface SettingsProps {
   onClose: () => void;
+  initialTab?: "basic" | "advanced";
   linkedinWorkbench?: ReactNode;
 }
 
@@ -61,6 +64,7 @@ export interface Config {
     allow_hybrid: boolean;
     allow_onsite: boolean;
     cities: string[];
+    search_country?: string | null;
   };
   salary_floor_usd: number;
   salary_target_usd?: number;
@@ -127,8 +131,7 @@ export interface Config {
   };
   builtin: {
     enabled: boolean;
-    cities: string[];
-    category?: string;
+    remote_only: boolean;
     limit: number;
   };
   hn_hiring: {
@@ -278,25 +281,6 @@ export function isCurrentJobsWithGptPayloadApproved(
     config.jobswithgpt_approval.enabled &&
     sameJobsWithGptPayload(config.jobswithgpt_approval.payload, payload)
   );
-}
-
-export function buildSettingsSourceQuery(
-  config: Pick<Config, "title_allowlist" | "keywords_boost">,
-): string {
-  return [...config.title_allowlist, ...config.keywords_boost]
-    .map((term) => term.trim())
-    .filter((term) => term.length > 0)
-    .slice(0, 4)
-    .join(" ")
-    .slice(0, 200);
-}
-
-export function getSettingsSourceLocation(
-  config: Pick<Config, "location_preferences">,
-): string | undefined {
-  return config.location_preferences.cities
-    .map((city) => city.trim())
-    .find((city) => city.length > 0);
 }
 
 export const isValidEmail = (email: string): boolean => {

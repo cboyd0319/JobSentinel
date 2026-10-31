@@ -1,3 +1,5 @@
+# Declares the platform crate package metadata and its OS-specific dependencies.
+
 [package]
 name = "jobsentinel-platform"
 description = "Operating-system paths and local file-permission policy for JobSentinel"
@@ -15,16 +17,31 @@ dirs.workspace = true
 hex.workspace = true
 jobsentinel-security.workspace = true
 keyring.workspace = true
+serde.workspace = true
 tempfile.workspace = true
 tokio.workspace = true
 tracing.workspace = true
 zeroize.workspace = true
+
+[target.'cfg(unix)'.dependencies]
+rustix = { workspace = true, features = ["process"] }
+
+[target.'cfg(windows)'.dependencies]
+keyring-core.workspace = true
+windows.workspace = true
+windows-future.workspace = true
+windows-native-keyring-store.workspace = true
+windows-sys.workspace = true
 
 [target.'cfg(target_os = "macos")'.dependencies]
 objc2.workspace = true
 objc2-foundation.workspace = true
 objc2-local-authentication.workspace = true
 security-framework.workspace = true
+
+[dev-dependencies]
+keyring-core.workspace = true
+serde_json.workspace = true
 
 [lints]
 workspace = true

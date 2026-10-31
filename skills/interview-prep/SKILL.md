@@ -6,6 +6,8 @@ metadata:
   jobsentinel_version_target: "2.9.0"
 ---
 
+<!-- Guides factual interview preparation and local debriefs without outcome predictions. -->
+
 # Interview Prep
 
 Use this skill to prepare for interviews with evidence the candidate can
@@ -50,7 +52,7 @@ or roles if provided, and the user's must-haves.
    Flag unpaid excessive labor and do not use confidential employer assets.
 11. Create a follow-up note only after the user confirms what happened.
 12. Capture a debrief after each interview: questions asked, answers that
-    worked, weak answers, promised follow-ups, expected timeline, probability,
+    worked, weak answers, promised follow-ups, expected timeline, observed signal strength,
     and concerns.
 13. End with decision criteria: what would make the role worth pursuing or not.
 

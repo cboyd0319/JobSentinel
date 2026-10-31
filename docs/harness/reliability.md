@@ -1,3 +1,5 @@
+<!-- Documents reliability And Observability. -->
+
 # Reliability And Observability
 
 This file defines how JobSentinel proves it is healthy, restartable, and
@@ -22,7 +24,7 @@ If a signal would expose user data, it must be redacted or omitted, not shipped.
 | ---- | ------- |
 | Environment readiness | `npm run doctor` (and `npm run doctor:e2e` for Playwright) |
 | Verification | `npm run harness:check` plus matrix sensors for the change |
-| Start app for local development | `npm run tauri dev` |
+| Start app for local development | `npm run tauri:dev` |
 | Restart snapshot for agents | `npm run harness:session` |
 
 ## Required Runtime Signals
@@ -56,8 +58,10 @@ candidate for end-to-end or manual validation before release.
 | Enable external AI through the gateway | Preview, redaction, approval, and cancel all work before anything leaves the device | Payload sent without preview or approval |
 | Copy a safe support report | A sanitized report copies with no secrets or local paths | Report includes credentials, raw paths, or user data |
 
-Full manual coverage and current evidence live in
-`full-manual-validation-v2.9.1.md`.
+Historical v2.9.1 manual evidence is retained in
+[the archived report](archive/full-manual-validation-v2.9.1.md). Current acceptance
+is owned by the feature ledger and its revision-bound evidence; that report does
+not prove current v3 behavior.
 
 ## Restart Expectations
 

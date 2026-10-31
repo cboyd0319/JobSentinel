@@ -1,3 +1,5 @@
+<!-- Documents testing Guide. -->
+
 # Testing Guide
 
 Complete guide to testing in JobSentinel.
@@ -62,7 +64,7 @@ cargo test -p jobsentinel-notifications slack
 ### Run a Specific Test
 
 ```bash
-cargo test -p jobsentinel-storage test_negative_salary_floor_fails
+cargo test -p jobsentinel-application test_negative_salary_floor_fails
 ```
 
 ### Run Tests with Output
@@ -94,7 +96,7 @@ crates/jobsentinel-*/
 - src/: owner implementation and adjacent tests
 - tests/: owner-specific integration test crates where needed
 src-tauri/
-- src/commands/: private Tauri RPC handlers and command tests
+- src/ipc/: private Tauri RPC handlers and command tests
 ```
 
 **Note**: Large Rust modules keep most tests in separate `tests.rs` files or
@@ -118,20 +120,24 @@ Test counts change as features move. Use fresh command output as source of truth
 | `jobsentinel-application/config` | Validation and defaults |
 | `jobsentinel-storage` | CRUD, queries, analytics, integrity checks |
 | `jobsentinel-notifications` | Slack, Discord, Teams, Telegram, email |
-| `commands` | Tauri RPC handler behavior |
-| `core/scoring` | Scoring config and score calculations |
-| `core/scheduler` | Lifecycle, workers, shutdown |
-| `core/scrapers/*` | Parser behavior, rate limiting, error handling |
-| `core/ats` | Application tracking |
-| `core/resume` | Parser, matcher, builder, export |
-| `core/salary` | Benchmarks, prediction, offer comparison |
-| `core/market_intelligence` | Trends, alerts, analytics |
+| `src-tauri/src/ipc` | Tauri RPC handler behavior |
+| `jobsentinel-intelligence` | Scoring config and score calculations |
+| `jobsentinel-application/scheduler` | Lifecycle, workers, shutdown |
+| `jobsentinel-sources/scrapers` | Parser behavior, rate limiting, error handling |
+| `jobsentinel-application` / `jobsentinel-storage/ats` | Application tracking |
+| Resume owners in application, documents and storage | Parser, matcher, builder, export |
+| Salary owners in application and storage | Benchmarks, prediction, offer comparison |
+| Market owners in application and storage | Trends, alerts, analytics |
 | `src/**/*.test.*` | App composition, feature owners, shared services, UI primitives, and development mocks |
 | `tests/e2e/playwright/*` | Browser-level user flows |
 
 ---
 
 ## Testing Patterns
+
+These fragments illustrate test structure; use current owner-local fixtures for
+complete types and setup. Executable storage examples live in
+[Database integration testing](DATABASE_INTEGRATION_TESTING.md).
 
 ### Pattern 1: In-Memory Database Tests
 
@@ -338,13 +344,8 @@ fn test_invalid_webhook_url_fails() {
 
 ### Current Coverage Summary
 
-As of the latest test suite addition:
-
-- **Config validation**: 100% of validation rules tested
-- **Database operations**: All CRUD operations + edge cases
-- **Slack notifications**: Webhook validation + message formatting
-- **Tauri commands**: All RPC endpoints tested
-- **Scraper hashing**: Comprehensive hash computation tests
+Use revision-bound test and coverage output; test presence alone does not prove
+complete coverage. No current percentage is certified by this document.
 
 ### Checking Coverage (Manual)
 
@@ -364,12 +365,12 @@ Open `coverage/index.html` to view detailed coverage.
 
 | Category            | Target | Status         |
 | ------------------- | ------ | -------------- |
-| Core business logic | 90%+   | Achieved       |
-| Database layer      | 85%+   | Achieved       |
-| Configuration       | 100%   | Achieved       |
-| Tauri commands      | 80%+   | Achieved       |
+| Core business logic | 90%+   | Not currently measured |
+| Database layer      | 85%+   | Not currently measured |
+| Configuration       | 100%   | Not currently measured |
+| Tauri commands      | 80%+   | Not currently measured |
 | Scrapers            | 70%+   | In progress    |
-| Platform-specific   | 60%+   | Achieved       |
+| Platform-specific   | 60%+   | Not currently measured |
 
 ---
 
@@ -384,13 +385,11 @@ Run `npm run harness:plan -- --since <valid-ref>` for a targeted lane or
 tests remain opt-in and use targeted commands such as
 `cargo test -p jobsentinel-sources scrapers::live_tests -- --ignored --nocapture`.
 
-Credential-store roundtrips are opt-in because macOS Keychain and equivalent
-stores can prompt for user approval. Default credential tests stay
-non-interactive. Run live keyring checks only when you are ready for OS prompts:
-
-```bash
-JOBSENTINEL_LIVE_KEYRING_TESTS=1 cargo test -p jobsentinel --lib credential_integration_tests -- --nocapture
-```
+Current `credential_integration_tests` use an isolated in-memory vault and fixed
+test key; they do not exercise the OS credential store. Native key-store and
+user-presence verification is an explicit attended platform activity, with its
+own scope and evidence. An environment variable does not turn these fixtures
+into live native verification.
 
 For the no-CI exception and separately authorized release automation, see
 [CI_CD.md](./CI_CD.md).
@@ -541,20 +540,6 @@ test.describe("Feature", () => {
 ```
 
 See [tests/README.md](../../tests/README.md) for full documentation.
-
----
-
-## Future Improvements
-
-### Planned Additions
-
-- [x] E2E tests for all pages
-- [ ] Integration tests for full scraping pipeline
-- [ ] Property-based testing with `proptest`
-- [ ] Mutation testing with `cargo-mutants`
-- [ ] Benchmark tests with `criterion`
-- [ ] Mock HTTP servers for scraper tests
-- [ ] Snapshot testing for JSON outputs
 
 ---
 

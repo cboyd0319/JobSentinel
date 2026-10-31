@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// Builds and verifies the single model-free, upgradable Essentials macOS package.
 
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
@@ -33,6 +34,7 @@ import {
   assertDeveloperIdSignature,
   extractTeamIdFromSigningIdentity,
 } from "./macos-signature.mjs";
+import { verifyMacosRuntimeProfile } from "./macos-runtime-profile.mjs";
 
 export {
   prependPathDir,
@@ -69,9 +71,11 @@ export function getArgValue(args, name) {
 
 export function buildTauriArgs(args) {
   const tauriArgs = ["build", ...args];
+  const separatorIndex = tauriArgs.indexOf("--");
+  const tauriArgsEnd = separatorIndex === -1 ? tauriArgs.length : separatorIndex;
 
-  if (!hasArg(tauriArgs, "--bundles")) {
-    tauriArgs.push("--bundles", "app");
+  if (!hasArg(tauriArgs.slice(0, tauriArgsEnd), "--bundles")) {
+    tauriArgs.splice(tauriArgsEnd, 0, "--bundles", "app");
   }
 
   return tauriArgs;
@@ -207,6 +211,15 @@ export function staleDmgArtifactNames(dmgName) {
   if (unlabeledName) {
     names.add(unlabeledName);
     names.add(`${unlabeledName}.sha256`);
+  }
+
+  const canonical = unlabeledName ?? dmgName;
+  const retired = canonical.replace(/_(aarch64|x64|universal)\.dmg$/, "_stronger-local_$1.dmg");
+  if (retired !== canonical) {
+    for (const name of [retired, noAccountDmgArtifactName(retired)]) {
+      names.add(name);
+      names.add(`${name}.sha256`);
+    }
   }
 
   return names;
@@ -387,6 +400,7 @@ export function main({ root = defaultRoot, args = process.argv.slice(2) } = {}) 
     throw new Error(`Tauri app bundle missing: ${paths.appPath}`);
   }
 
+  verifyMacosRuntimeProfile(paths.appPath, join(paths.appPath, "Contents", "MacOS", "jobsentinel"));
   ensureSignedApp(paths.appPath);
   createDmg({
     appPath: paths.appPath,

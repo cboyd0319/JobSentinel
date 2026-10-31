@@ -1,3 +1,5 @@
+<!-- Documents sQLite Configuration. -->
+
 # SQLite Configuration
 
 > **Source:** `crates/jobsentinel-storage/src/connection.rs`,
@@ -12,12 +14,13 @@ WAL and file-backed features do not apply.
 
 ## On-Disk Startup Settings
 
-`Database::connect` creates the parent directory, loads or creates the
-OS-protected `jobsentinel_database_key`, opens the database with SQLCipher and
-`mode=rwc`, and calls `Database::configure_pragmas`. If a legacy plaintext
-database is detected, startup exports it into a new encrypted database, verifies
-the encrypted copy, replaces the original file, and deletes the temporary
-plaintext backup after success.
+The connection owner reserves the primary, refuses unsupported plaintext and
+schema identities, and authenticates existing encrypted data before opening a
+writer. Fresh stores migrate in a private staged file and are published only
+after successful completion. V3 does not import pre-v3 plaintext databases.
+Installed profiles use the OS-protected database key. Portable profiles first
+verify the passphrase through a read-only probe and pass a memory-only key to the
+same journal-aware startup owner. See [portable profiles](../features/user-data-management.md#portable-profiles).
 
 | Setting | Value | Purpose |
 | --- | --- | --- |
@@ -72,15 +75,16 @@ configuration.
 
 `Database::migrate` owns the full data-safety sequence:
 
-1. For an existing migrated database, create an encrypted SQLite snapshot with
-   `VACUUM INTO` in the adjacent `backups` directory.
+1. Before pending migrations on an existing file-backed database, create a fresh
+   encrypted `VACUUM INTO` snapshot in its database-scoped `backups` directory.
 2. Apply private directory and file permissions.
 3. Run `PRAGMA quick_check` against the snapshot before accepting it.
-4. Keep the five newest pre-migration snapshots.
+4. Retain recovery snapshots while migration or verification is incomplete.
 5. Apply SQLx migrations only after the required snapshot succeeds.
 6. Run `PRAGMA quick_check` and `PRAGMA foreign_key_check` on the migrated
    database. Run `PRAGMA integrity_check` when the last full check is at least
-   seven days old.
+   seven days old. Prune superseded migration snapshots only after successful
+   migration and integrity verification.
 
 A required snapshot failure stops migration. A failed integrity or foreign-key
 check stops initialization. Runtime errors and logs use generic messages or

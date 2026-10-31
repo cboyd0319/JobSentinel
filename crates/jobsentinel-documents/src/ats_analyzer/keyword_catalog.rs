@@ -1,3 +1,5 @@
+//! Extracts canonical ATS terms and tests context-preserving semantic requirements.
+
 use std::collections::HashSet;
 
 pub(super) fn extract_keywords_from_text(text: &str) -> Vec<String> {
@@ -50,4 +52,29 @@ pub(super) fn industry_keywords() -> Vec<String> {
     keywords.extend(super::requirement_rules::supplemental_keyword_catalog_terms());
     keywords.extend(super::requirement_rules::credential_keyword_catalog_terms());
     keywords
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::AtsAnalyzer;
+
+    #[test]
+    fn semantic_requirements_preserve_context_and_hard_boundaries() {
+        let lines = "Required\nBuild and maintain Rust services for customers.\nCoordinate patient intake and electronic health records.\nRust and an active nursing license are required.\nExperience with rustic furniture.";
+        assert_eq!(
+            AtsAnalyzer::extract_semantic_requirements(lines),
+            vec![
+                "Build and maintain Rust services for customers.",
+                "Coordinate patient intake and electronic health records.",
+            ]
+        );
+        let oversized = format!(
+            "Build Rust services {}",
+            "with careful operations ".repeat(1000)
+        );
+        assert_eq!(
+            AtsAnalyzer::extract_semantic_requirements(&oversized),
+            vec![oversized.trim().to_string()]
+        );
+    }
 }

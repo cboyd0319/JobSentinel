@@ -1,3 +1,5 @@
+<!-- Documents adding New Deep Link Sites. -->
+
 # Adding New Deep Link Sites
 
 Quick guide for adding support for new sites to Job Site Search Links.
@@ -97,12 +99,10 @@ Choose the most appropriate category:
 - `SiteCategory::Cleared` - Security clearance required
 - `SiteCategory::Professional` - Professional networking sites
 
-### Finding the Logo URL
+### Site appearance
 
-1. Visit the site
-2. Right-click and choose "View Page Source"
-3. Do not add remote favicon or logo URLs. The UI uses local initials so the
-   search-link panel does not contact job boards until the user opens a link.
+Leave remote favicon/logo URLs unset. The UI uses local initials so opening the
+search-link panel does not contact job boards.
 
 ## Step 3: Add URL Generator
 
@@ -370,7 +370,7 @@ fn generate_techjobs_url(criteria: &SearchCriteria) -> Result<String> {
 Before submitting:
 
 - [ ] Site info added to `sites.rs`
-- [ ] Logo URL tested and working
+- [ ] No remote favicon/logo fetch added
 - [ ] Category selected appropriately
 - [ ] URL generator function implemented
 - [ ] Function added to router match statement

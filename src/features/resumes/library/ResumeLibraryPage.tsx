@@ -1,3 +1,4 @@
+/** Presents the active resume, editable skills and snapshot-bound saved match reviews. */
 import { Button } from "../../../ui/Button";
 import { Card } from "../../../ui/Card";
 import { Badge } from "../../../ui/Badge";
@@ -40,6 +41,7 @@ export default function ResumeLibraryPage({ onBack }: ResumeLibraryPageProps) {
       handleSetActiveResume,
       handleSetResumeMatching,
       handleUploadResume,
+      handleMatchFeedback,
     },
     skillActions: {
       confirmDeleteSkill,
@@ -66,6 +68,7 @@ export default function ResumeLibraryPage({ onBack }: ResumeLibraryPageProps) {
       resume,
       resumeMatchingEnabled,
       resumeMatchingLoading,
+      savingFeedback,
       showResumeLibrary,
       uploading,
     },
@@ -295,7 +298,12 @@ export default function ResumeLibraryPage({ onBack }: ResumeLibraryPageProps) {
               onConfirmDeleteSkill={confirmDeleteSkill}
             />
 
-            <ResumeRecentMatches matches={recentMatches} />
+            <ResumeRecentMatches
+              matches={recentMatches}
+              resumeRevision={resume.updated_at}
+              savingFeedback={savingFeedback}
+              onFeedback={handleMatchFeedback}
+            />
           </div>
         )}
       </main>

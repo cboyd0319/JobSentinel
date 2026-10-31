@@ -1,0 +1,46 @@
+{
+  "schema": "jobsentinel.v3.region-starter-data.v1",
+  "region_id": "eu",
+  "reviewed_on": "2026-09-11",
+  "taxonomy_mappings": [
+    {
+      "taxonomy_id": "esco_research",
+      "source_code": "http://data.europa.eu/esco/occupation/f2b15a0e-e65a-438a-affb-29b9d50b77d1",
+      "source_label": "software developer",
+      "canonical_term": "software development",
+      "mapping_type": "close",
+      "confidence_note": "Label-based JobSentinel prototype from the publisher API, not a qualification equivalence or completeness claim. The code is the exact ESCO concept URI (ISCO group 2512); the publisher reference documents the catalogue/API, not the individual record.",
+      "provenance_url": "https://esco.ec.europa.eu/en/use-esco/use-esco-services-api/esco-web-service-api"
+    }
+  ],
+  "cv_profiles": [
+    {
+      "profile_id": "europass_cv_research",
+      "label": "Europass-informed CV starter",
+      "sections": [
+        "Profile",
+        "Employment and projects",
+        "Education and training",
+        "Languages",
+        "Skills"
+      ],
+      "guidance": [
+        "Choose facts and examples relevant to the vacancy instead of including your entire history.",
+        "List recent experience before older experience and write in clear language.",
+        "Keep qualifications, experience, and language claims grounded in your own evidence.",
+        "This English-only planning aid does not create a Europass file, translate your CV, or determine national requirements."
+      ],
+      "provenance_urls": [
+        "https://europass.europa.eu/en/create-europass-cv"
+      ]
+    }
+  ],
+  "source_notes": [
+    {
+      "source_id": "eures_research",
+      "label": "EURES",
+      "url": "https://eures.europa.eu/index_en",
+      "access_note": "Public European job-mobility research starting point. Check the individual posting's country and language requirements. This pack does not connect a live source or grant automated access."
+    }
+  ]
+}

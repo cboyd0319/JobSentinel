@@ -1,3 +1,5 @@
+/** Verifies notification eligibility against user-configured advanced filters. */
+
 import { describe, it, expect } from "vitest";
 import {
   DEFAULT_PREFERENCES as REAL_DEFAULT_PREFERENCES,
@@ -173,6 +175,7 @@ describe("shouldNotifyForJob", () => {
         title: "Care Coordinator",
         company: "CareBridge Services",
         salary_max: 80000,
+        currency: "USD",
       };
       expect(shouldNotifyForJob("indeed", 0.8, prefs, lowPayJob)).toBe(false);
 
@@ -181,6 +184,7 @@ describe("shouldNotifyForJob", () => {
         title: "Care Coordinator",
         company: "CareBridge Services",
         salary_max: 120000,
+        currency: "USD",
       };
       expect(shouldNotifyForJob("indeed", 0.8, prefs, goodPayJob)).toBe(true);
     });
@@ -199,6 +203,7 @@ describe("shouldNotifyForJob", () => {
         company: "CareBridge Services",
         salary_min: 80000,
         salary_max: 120000,
+        currency: "USD",
       };
       expect(shouldNotifyForJob("indeed", 0.8, prefs, job)).toBe(true);
     });
@@ -218,6 +223,30 @@ describe("shouldNotifyForJob", () => {
       };
       // Jobs with 0 or no salary info pass the filter
       expect(shouldNotifyForJob("indeed", 0.8, prefs, jobNoSalary)).toBe(true);
+    });
+
+    it("does not compare non-USD native pay against a USD notification floor", () => {
+      const prefs: NotificationPreferences = {
+        ...DEFAULT_PREFS,
+        advancedFilters: {
+          ...DEFAULT_PREFS.advancedFilters,
+          minSalary: 100,
+        },
+      };
+      const job: JobForNotification = {
+        title: "Care Coordinator",
+        company: "CareBridge Services",
+        listed_pay: {
+          min: 5_000,
+          max: 7_000,
+          currency: "EUR",
+          period: "monthly",
+          qualifiers: [],
+          raw_text: null,
+        },
+      };
+
+      expect(shouldNotifyForJob("indeed", 0.8, prefs, job)).toBe(true);
     });
   });
 

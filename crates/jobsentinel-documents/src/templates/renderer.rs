@@ -1,3 +1,5 @@
+//! Lists resume layouts and renders user-authored content without translating claims.
+
 use super::{styles, Template, TemplateId};
 use crate::structured_resume::StructuredResume;
 use jobsentinel_security::encode_html_text as escape_html;
@@ -41,7 +43,7 @@ impl TemplateRenderer {
                 id: TemplateId::Military,
                 name: "Military Transition",
                 description:
-                    "Translates military experience for civilian employers. Includes clearance.",
+                    "Formats user-reviewed service experience for civilian applications.",
                 preview_image: "/templates/military-preview.png",
             },
         ]

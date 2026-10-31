@@ -1,3 +1,5 @@
+/** Defines browser-development command state and fixture types. */
+
 import type {
   mockApplications,
   mockConfig,
@@ -5,6 +7,7 @@ import type {
   mockPendingReminders,
 } from "../data";
 import type { NotificationPreferences } from "../../../shared/notificationPreferences";
+import type { JobPayInput } from "../../../shared/listedPay";
 import type {
   MockApplicationProfile,
   MockScreeningAnswer,
@@ -22,8 +25,31 @@ import type { MockMarketAlert } from "../../../features/market/mockHandlers";
 import type { MockBuilderSkill, MockResumeDraft } from "../../features/resumes/resumeBuilder";
 import type { MockScraperEnabledOverrides } from "../../features/settings/sources/scraperHealth";
 
-export type MockJob = typeof mockJobs[number];
-export type MockConfig = typeof mockConfig;
+export interface MockJobCountry {
+  raw_country: string;
+  alpha2: string;
+}
+
+export interface MockJobLocation {
+  raw_location: string;
+  country: MockJobCountry | null;
+}
+
+export interface MockJobGeography {
+  worksite_locations: MockJobLocation[];
+  remote_applicant_locations: MockJobLocation[];
+}
+
+export type MockJob = Omit<(typeof mockJobs)[number], "currency"> &
+  Pick<JobPayInput, "currency" | "listed_pay"> & {
+    geography?: MockJobGeography | null;
+  };
+export type MockConfig = Omit<typeof mockConfig, "location_preferences"> & {
+  location_preferences: Omit<
+    (typeof mockConfig)["location_preferences"],
+    "search_country"
+  > & { search_country?: string | null };
+};
 export type MockApplicationStatus = keyof typeof mockApplications;
 
 export interface MockApplication {
@@ -182,12 +208,18 @@ export interface MockMatchResult {
   matching_skills: string[];
   missing_skills: string[];
   gap_analysis: string | null;
+  feedback: {
+    match_id: number;
+    label: "useful" | "not_relevant";
+    recorded_at: string;
+  } | null;
   created_at: string;
 }
 
 export interface MockInterview {
   id: number;
   application_id: number;
+  job_hash: string;
   interview_type: string;
   scheduled_at: string;
   duration_minutes: number;
@@ -197,6 +229,7 @@ export interface MockInterview {
   notes: string | null;
   completed: boolean;
   outcome: string | null;
+  post_interview_notes: string | null;
   job_title: string;
   company: string;
 }
@@ -205,11 +238,13 @@ export interface MockDashboardPreferences {
   autoRefresh: MockConfig["auto_refresh"];
   salaryFloorUsd: number;
   anyJobSourceEnabled: boolean;
+  searchCountry: string | null;
 }
 
 export interface MockFillResultWithAttempt {
   filledFields: string[];
   unfilledFields: string[];
+  manualReviewTopics?: string[];
   captchaDetected: boolean;
   readyForReview: boolean;
   errorMessage: string | null;
@@ -237,12 +272,30 @@ export interface MockState {
   userSkills: MockUserSkill[];
   resumeDrafts: MockResumeDraft[];
   recentMatches: MockMatchResult[];
+  savedMatchEvidence: Record<string, MockSavedMatchEvidenceState>;
   marketAlerts: MockMarketAlert[];
   applicationProfile: MockApplicationProfile | null;
   screeningAnswers: MockScreeningAnswer[];
   scraperEnabledOverrides: MockScraperEnabledOverrides;
   interviewPrepChecklists: MockInterviewPrepState;
   interviewFollowups: MockInterviewFollowUpState;
+  linkedinWorkbenchReviewed: boolean;
+}
+
+export interface MockSavedMatchEvidenceState {
+  confirmedEvidenceIds: string[];
+  confirmedMilitaryEvidenceKinds: Array<
+    "military_service" | "current_clearance"
+  >;
+  packetClaims: Array<{
+    claim_id: string;
+    reviewed_text: string;
+    evidence_ids: string[];
+    boundaries: [
+      "clearance_currentness_unverified",
+      "military_civilian_equivalence_unverified",
+    ];
+  }>;
 }
 
 export type {

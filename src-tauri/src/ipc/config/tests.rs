@@ -1,3 +1,5 @@
+//! Tests configuration IPC projections and runtime persistence behavior.
+
 use super::*;
 use crate::application::{
     config::{AlertConfig, LocationPreferences},
@@ -10,6 +12,7 @@ use crate::desktop::Database;
 
 fn create_dashboard_test_config() -> Config {
     Config {
+        shared_computer_mode: false,
         title_allowlist: vec![],
         title_blocklist: vec![],
         keywords_boost: vec![],
@@ -21,6 +24,7 @@ fn create_dashboard_test_config() -> Config {
             cities: vec![],
             states: vec![],
             country: "US".to_string(),
+            search_country: None,
         },
         salary_floor_usd: 70_000,
         salary_target_usd: None,
@@ -56,7 +60,7 @@ fn create_dashboard_test_config() -> Config {
 async fn test_credentials() -> CredentialService {
     let database = Database::connect_memory().await.unwrap();
     database.migrate().await.unwrap();
-    CredentialService::with_fixed_master_key(database.credentials(), [21_u8; 32], false)
+    CredentialService::with_fixed_master_key(database.credentials(), [21_u8; 32])
 }
 
 fn test_email_config_for(server: &str, username: &str) -> TestEmailConfig {
@@ -145,6 +149,7 @@ fn test_dashboard_preferences_are_minimal() {
     config.auto_refresh.enabled = true;
     config.auto_refresh.interval_minutes = 45;
     config.remoteok.enabled = true;
+    config.location_preferences.search_country = Some("GB".to_string());
 
     let preferences = DashboardPreferences::from_config(&config);
 
@@ -152,13 +157,17 @@ fn test_dashboard_preferences_are_minimal() {
     assert!(preferences.auto_refresh.enabled);
     assert_eq!(preferences.auto_refresh.interval_minutes, 45);
     assert!(preferences.any_job_source_enabled);
+    assert_eq!(preferences.search_country.as_deref(), Some("GB"));
 }
 
 #[tokio::test]
 async fn save_config_updates_runtime_config_after_disk_save() {
     let runtime_config = RwLock::new(create_dashboard_test_config());
+    runtime_config.write().await.shared_computer_mode = true;
     let temp_dir = tempfile::tempdir().unwrap();
     let config_path = temp_dir.path().join("config.json");
+    let database = Database::connect_memory().await.unwrap();
+    database.migrate().await.unwrap();
 
     let mut new_config = create_dashboard_test_config();
     new_config.salary_floor_usd = 95_000;
@@ -166,28 +175,65 @@ async fn save_config_updates_runtime_config_after_disk_save() {
     new_config.keywords_boost = vec!["case management".to_string()];
     let payload = serde_json::to_value(&new_config).unwrap();
 
-    save_config_to_runtime_and_path(payload, &runtime_config, &config_path)
+    save_config_to_runtime_and_path(payload, &runtime_config, &config_path, &database)
         .await
         .unwrap();
 
     let runtime = runtime_config.read().await;
+    assert!(runtime.shared_computer_mode);
     assert_eq!(runtime.salary_floor_usd, 95_000);
     assert!(runtime.use_resume_matching);
     assert_eq!(runtime.keywords_boost, vec!["case management"]);
     drop(runtime);
 
     let saved = Config::load(&config_path).unwrap();
+    assert!(saved.shared_computer_mode);
     assert_eq!(saved.salary_floor_usd, 95_000);
     assert!(saved.use_resume_matching);
     assert_eq!(saved.keywords_boost, vec!["case management"]);
 }
 
 #[tokio::test]
-async fn complete_setup_updates_runtime_config_without_system_credentials() {
+async fn save_config_clears_legacy_review_for_a_retired_source() {
+    let previous = create_dashboard_test_config();
+    let runtime_config = RwLock::new(previous.clone());
+    let database = Database::connect_memory().await.unwrap();
+    database.migrate().await.unwrap();
+    let temp_dir = tempfile::tempdir().unwrap();
+    let config_path = temp_dir.path().join("config.json");
+
+    let mut reviewed = previous;
+    reviewed.dice.enabled = true;
+    reviewed.dice.query = "security analyst".to_string();
+    reviewed.dice.limit = 25;
+    reviewed.restricted_source_acknowledgements.dice = true;
+    save_config_to_runtime_and_path(
+        serde_json::to_value(&reviewed).unwrap(),
+        &runtime_config,
+        &config_path,
+        &database,
+    )
+    .await
+    .unwrap();
+    let runtime = runtime_config.read().await;
+    assert!(!runtime.dice.enabled);
+    assert!(!runtime.restricted_source_acknowledgements.dice);
+    drop(runtime);
+    assert!(
+        !Config::load(&config_path)
+            .unwrap()
+            .restricted_source_acknowledgements
+            .dice
+    );
+}
+
+#[tokio::test]
+async fn complete_setup_reuses_the_owned_database() {
     let runtime_config = RwLock::new(create_dashboard_test_config());
     let temp_dir = tempfile::tempdir().unwrap();
     let config_path = temp_dir.path().join("config.json");
-    let db_path = temp_dir.path().join("jobs.db");
+    let database = Database::connect_memory().await.unwrap();
+    database.migrate().await.unwrap();
 
     let mut setup_config = create_dashboard_test_config();
     setup_config.salary_floor_usd = 82_000;
@@ -196,7 +242,7 @@ async fn complete_setup_updates_runtime_config_without_system_credentials() {
     setup_config.remoteok.limit = 50;
     let payload = serde_json::to_value(&setup_config).unwrap();
 
-    complete_setup_to_runtime_and_paths(payload, &runtime_config, &config_path, &db_path)
+    complete_setup_to_runtime_and_paths(payload, &runtime_config, &config_path, &database)
         .await
         .unwrap();
 
@@ -211,6 +257,7 @@ async fn complete_setup_updates_runtime_config_without_system_credentials() {
     assert_eq!(saved.salary_floor_usd, 82_000);
     assert_eq!(saved.title_allowlist, vec!["Program Coordinator"]);
     assert!(saved.remoteok.enabled);
+    assert!(!is_first_run_for_path(&config_path).unwrap());
 }
 
 #[test]
@@ -222,6 +269,10 @@ fn first_run_check_is_true_only_when_config_is_missing() {
 
     std::fs::write(&config_path, "{}").unwrap();
     assert!(!is_first_run_for_path(&config_path).unwrap());
+    assert_eq!(
+        first_run_or_recovery(&config_path, true),
+        Err("JobSentinel started in local recovery mode.".to_string())
+    );
 }
 
 #[tokio::test]
@@ -244,6 +295,10 @@ async fn set_resume_matching_enabled_updates_runtime_config_after_disk_save() {
 fn test_dashboard_source_check_handles_arrays_and_endpoint_sources() {
     let disabled = create_dashboard_test_config();
     assert!(!any_job_source_enabled(&disabled));
+
+    let mut retired_yc = create_dashboard_test_config();
+    retired_yc.yc_startup.enabled = true;
+    assert!(!any_job_source_enabled(&retired_yc));
 
     let mut greenhouse = create_dashboard_test_config();
     greenhouse.greenhouse_urls = vec!["https://boards.greenhouse.io/example".to_string()];
@@ -311,4 +366,105 @@ fn test_webhook_error_formatter_omits_webhook_details() {
     assert!(!msg.contains("/services/"), "path leaked: {msg}");
     assert!(!msg.contains("https://"), "URL leaked: {msg}");
     assert!(msg.contains("Validation failed"));
+}
+
+#[tokio::test]
+async fn retired_company_keys_cannot_change_config_file_or_runtime() {
+    let directory = tempfile::tempdir().unwrap();
+    let path = directory.path().join("config.json");
+    let original = create_dashboard_test_config();
+    original.save(&path).unwrap();
+    let file_before = std::fs::read(&path).unwrap();
+    let runtime_before = serde_json::to_value(&original).unwrap();
+    let runtime = RwLock::new(original);
+    let database = Database::connect_memory().await.unwrap();
+    database.migrate().await.unwrap();
+    for (retired, current) in [
+        ("company_whitelist", "preferred_companies"),
+        ("company_blacklist", "blocked_companies"),
+    ] {
+        for mixed in [false, true] {
+            let mut payload = runtime_before.clone();
+            payload["salary_floor_usd"] = 95_000.into();
+            payload[retired] = serde_json::json!(["private company preference"]);
+            if !mixed {
+                payload.as_object_mut().unwrap().remove(current);
+            }
+            assert!(
+                save_config_to_runtime_and_path(payload, &runtime, &path, &database)
+                    .await
+                    .is_err()
+            );
+            assert_eq!(std::fs::read(&path).unwrap(), file_before);
+            assert_eq!(
+                serde_json::to_value(&*runtime.read().await).unwrap(),
+                runtime_before
+            );
+        }
+    }
+}
+
+#[tokio::test]
+async fn plaintext_credential_fields_cannot_change_config_runtime_or_vault() {
+    let directory = tempfile::tempdir().unwrap();
+    let path = directory.path().join("config.json");
+    let original = create_dashboard_test_config();
+    original.save(&path).unwrap();
+    let file_before = std::fs::read(&path).unwrap();
+    let value_before = serde_json::to_value(&original).unwrap();
+    let runtime = RwLock::new(original);
+    let database = Database::connect_memory().await.unwrap();
+    database.migrate().await.unwrap();
+    let key = CredentialKey::SmtpPassword;
+    let credentials = CredentialService::with_fixed_master_key(database.credentials(), [21; 32]);
+    credentials
+        .store(key, "retained-test-credential")
+        .await
+        .unwrap();
+    let vault_before = database
+        .credentials()
+        .load_secret(key.as_str())
+        .await
+        .unwrap();
+    for pointer in [
+        "/alerts/email/smtp_password",
+        "/alerts/telegram/bot_token",
+        "/alerts/slack/webhook_url",
+        "/alerts/discord/webhook_url",
+        "/alerts/teams/webhook_url",
+        "/linkedin/session_cookie",
+        "/usajobs/api_key",
+    ] {
+        for value in [
+            serde_json::Value::Null,
+            serde_json::json!(""),
+            serde_json::json!("private-test-value"),
+        ] {
+            let mut payload = value_before.clone();
+            payload["salary_floor_usd"] = 95_000.into();
+            let mut target = &mut payload;
+            for segment in pointer.trim_start_matches('/').split('/') {
+                target = &mut target[segment];
+            }
+            *target = value;
+            let error = save_config_to_runtime_and_path(payload, &runtime, &path, &database)
+                .await
+                .unwrap_err();
+            assert!(error.starts_with("Saved settings need attention:"));
+            assert!(!error.contains("private-test-value"));
+            assert_eq!(std::fs::read(&path).unwrap(), file_before);
+            assert_eq!(
+                serde_json::to_value(&*runtime.read().await).unwrap(),
+                value_before
+            );
+            assert_eq!(
+                database
+                    .credentials()
+                    .load_secret(key.as_str())
+                    .await
+                    .unwrap(),
+                vault_before
+            );
+        }
+    }
 }

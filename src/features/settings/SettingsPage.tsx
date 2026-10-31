@@ -1,3 +1,4 @@
+/** Coordinates Settings forms, recovery, and reviewed local maintenance. */
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { invoke } from "../../platform/tauri";
 import { Button } from "../../ui/Button";
@@ -31,6 +32,7 @@ import { SettingsNotificationsSection } from "./notifications/SettingsNotificati
 import { SettingsExternalAiSection } from "./external-ai/SettingsExternalAiSection";
 import { SettingsSearchPreferencesSection } from "./search/SettingsSearchPreferencesSection";
 import { SettingsCredentialLockSection } from "./credentials/SettingsCredentialLockSection";
+import { SettingsPrivacySection } from "./SettingsPrivacySection";
 import {
   SettingsBackupSection,
   SettingsHelpStatusSection,
@@ -43,19 +45,21 @@ import { useSettingsSearchPreferenceInputs } from "./search/useSettingsSearchPre
 import { useSettingsGhostConfig } from "./search/useSettingsGhostConfig";
 import { SettingsTabs } from "./shared/SettingsTabs";
 import { useSettingsSave } from "./useSettingsSave";
+import { LocalUpdatePanel } from "./support/LocalUpdatePanel";
+import { LocalRecoveryPanel } from "./support/LocalRecoveryPanel";
+import { PortableRecoveryPanel } from "./support/PortableRecoveryPanel";
 import {
   SettingsLoadFailure,
   SettingsLoadingState,
 } from "./SettingsPageStartup";
-
-export default function Settings({ linkedinWorkbench, onClose }: SettingsProps) {
+export default function Settings({ initialTab = "basic", linkedinWorkbench, onClose }: SettingsProps) {
   const [config, setConfig] = useState<Config | null>(null);
   const [loading, setLoading] = useState(true);
   const [showHealthDashboard, setShowHealthDashboard] = useState(false);
   const [jobsWithGptLastRequest, setJobsWithGptLastRequest] =
     useState<SourceRequestSummary | null>(null);
   const [showJobsWithGptEndpoint, setShowJobsWithGptEndpoint] = useState(false);
-  const [activeTab, setActiveTab] = useState<"basic" | "advanced">("basic");
+  const [activeTab, setActiveTab] = useState<"basic" | "advanced">(initialTab);
   const toast = useToast();
   const {
     error: toastError,
@@ -108,8 +112,6 @@ export default function Settings({ linkedinWorkbench, onClose }: SettingsProps) 
       toastSuccess,
     },
   );
-
-  // Location detection state
   const [detectedLocation, setDetectedLocation] = useState<DetectedLocation | null>(
     () => readCachedDetectedLocation(),
   );
@@ -120,7 +122,6 @@ export default function Settings({ linkedinWorkbench, onClose }: SettingsProps) 
     setConfig,
     toastSuccess,
   });
-
   const jobBoardRecommendations = useJobBoardRecommendations(config, setConfig);
 
   const jobsWithGptPayload = useMemo(
@@ -395,6 +396,7 @@ export default function Settings({ linkedinWorkbench, onClose }: SettingsProps) 
               setCredentials={setCredentials}
             />
 
+            <SettingsPrivacySection />
             <SettingsCredentialLockSection />
 
             <SettingsJobSourcesSection
@@ -456,6 +458,11 @@ export default function Settings({ linkedinWorkbench, onClose }: SettingsProps) 
           onExportConfig={handleExportConfig}
           onImportConfig={handleImportConfig}
         />
+
+        <LocalUpdatePanel />
+        <LocalRecoveryPanel />
+
+        <PortableRecoveryPanel />
 
         <SettingsSupportSection
           copyingDebugReport={copyingDebugReport}

@@ -1,13 +1,4 @@
-//! User Data Manager
-//!
-//! Handles persistence of user preferences and data that was previously stored in localStorage.
-//! This includes cover letter templates, interview prep checklists, saved searches,
-//! and notification preferences.
-//!
-//! ## Migration from localStorage
-//!
-//! On first access, the frontend can call the migration endpoint to transfer existing
-//! localStorage data to SQLite.
+//! Persists local user templates, saved searches, preferences and atomic backup restores.
 
 use chrono::Utc;
 mod models;
@@ -355,15 +346,26 @@ impl UserDataManager {
         &self,
         templates: Vec<CoverLetterTemplate>,
     ) -> Result<usize, sqlx::Error> {
-        debug!("Importing {} cover letter templates", templates.len());
+        self.import_local_settings(templates, Vec::new())
+            .await
+            .map(|counts| counts.0)
+    }
+
+    /// Restores both collections without overwriting records or publishing partial results.
+    pub async fn import_local_settings(
+        &self,
+        templates: Vec<CoverLetterTemplate>,
+        searches: Vec<SavedSearch>,
+    ) -> Result<(usize, usize), sqlx::Error> {
+        let mut transaction = self.pool.begin().await?;
 
         let mut imported = 0;
         for template in templates {
             let category_str = template.category.to_string();
             let result = sqlx::query(
                 r#"
-                INSERT OR IGNORE INTO cover_letter_templates (id, name, content, category, created_at, updated_at)
-                VALUES (?, ?, ?, ?, ?, ?)
+                INSERT INTO cover_letter_templates (id, name, content, category, created_at, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT(id) DO NOTHING
                 "#,
             )
             .bind(&template.id)
@@ -372,7 +374,7 @@ impl UserDataManager {
             .bind(&category_str)
             .bind(&template.created_at)
             .bind(&template.updated_at)
-            .execute(&self.pool)
+            .execute(&mut *transaction)
             .await?;
 
             if result.rows_affected() > 0 {
@@ -380,26 +382,17 @@ impl UserDataManager {
             }
         }
 
-        Ok(imported)
-    }
-
-    /// Import saved searches from localStorage format
-    #[instrument(skip(self, searches))]
-    pub async fn import_saved_searches(
-        &self,
-        searches: Vec<SavedSearch>,
-    ) -> Result<usize, sqlx::Error> {
-        debug!("Importing {} saved searches", searches.len());
+        let template_count = imported;
 
         let mut imported = 0;
         for search in searches {
             let result = sqlx::query(
                 r#"
-                INSERT OR IGNORE INTO saved_searches (
+                INSERT INTO saved_searches (
                     id, name, sort_by, score_filter, source_filter, remote_filter,
                     bookmark_filter, notes_filter, posted_date_filter, salary_min_filter,
                     salary_max_filter, ghost_filter, text_search, created_at, last_used_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(id) DO NOTHING
                 "#,
             )
             .bind(&search.id)
@@ -417,7 +410,7 @@ impl UserDataManager {
             .bind(&search.text_search)
             .bind(&search.created_at)
             .bind(&search.last_used_at)
-            .execute(&self.pool)
+            .execute(&mut *transaction)
             .await?;
 
             if result.rows_affected() > 0 {
@@ -425,7 +418,18 @@ impl UserDataManager {
             }
         }
 
-        Ok(imported)
+        transaction.commit().await?;
+        Ok((template_count, imported))
+    }
+
+    /// Imports saved searches using the same atomic restore owner.
+    pub async fn import_saved_searches(
+        &self,
+        searches: Vec<SavedSearch>,
+    ) -> Result<usize, sqlx::Error> {
+        self.import_local_settings(Vec::new(), searches)
+            .await
+            .map(|counts| counts.1)
     }
 }
 

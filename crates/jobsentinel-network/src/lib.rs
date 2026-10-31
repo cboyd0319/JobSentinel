@@ -102,7 +102,9 @@ pub async fn post_external_https_json<T: serde::Serialize + Sync + ?Sized>(
     let target = resolve_external_https_url_for_fetch(url)
         .await
         .map_err(ExternalFetchError::InvalidTarget)?;
+    // Ambient proxies cannot override the validated destination address.
     let mut builder = reqwest::Client::builder()
+        .no_proxy()
         .timeout(timeout)
         .redirect(reqwest::redirect::Policy::none());
     if let Some((host, addrs)) = target.dns_override() {
@@ -123,7 +125,9 @@ async fn fetch_resolved_external_text(
     timeout: Duration,
     user_agent: Option<&str>,
 ) -> Result<ExternalTextResponse, ExternalFetchError> {
+    // Ambient proxies cannot override the validated destination address.
     let mut builder = reqwest::Client::builder()
+        .no_proxy()
         .timeout(timeout)
         .redirect(reqwest::redirect::Policy::none());
     if let Some(user_agent) = user_agent {
@@ -185,9 +189,8 @@ impl ResolvedExternalUrl {
 
     #[must_use]
     pub fn dns_override(&self) -> Option<(&str, &[SocketAddr])> {
-        self.dns_host
-            .as_deref()
-            .map(|host| (host, self.socket_addrs.as_slice()))
+        self.dns_host.as_ref()?;
+        Some((self.url.host_str()?, self.socket_addrs.as_slice()))
     }
 
     #[cfg(any(test, feature = "test-support"))]
@@ -298,6 +301,100 @@ mod tests {
         assert_eq!(host, "example.com");
         assert_eq!(addrs, &[addr]);
         assert_eq!(target.url().as_str(), "https://example.com/jobs");
+    }
+
+    #[tokio::test]
+    async fn trailing_dot_target_uses_pinned_addresses_without_fallback_dns() {
+        struct RejectDns;
+        impl reqwest::dns::Resolve for RejectDns {
+            fn resolve(&self, _: reqwest::dns::Name) -> reqwest::dns::Resolving {
+                Box::pin(async { Err(std::io::Error::other("fallback DNS forbidden").into()) })
+            }
+        }
+        let server = MockServer::start().await;
+        Mock::given(method("GET"))
+            .and(path("/pinned"))
+            .respond_with(ResponseTemplate::new(200))
+            .expect(1)
+            .mount(&server)
+            .await;
+        let target = ResolvedExternalUrl::from_parts_for_test(
+            Url::parse(&format!(
+                "http://pinned.invalid.:{}/pinned",
+                server.address().port()
+            ))
+            .unwrap(),
+            Some("pinned.invalid".into()),
+            vec![*server.address()],
+        );
+        let (host, addresses) = target.dns_override().unwrap();
+        let client = reqwest::Client::builder()
+            .no_proxy()
+            .dns_resolver(std::sync::Arc::new(RejectDns))
+            .resolve_to_addrs(host, addresses)
+            .build()
+            .unwrap();
+        assert_eq!(
+            client.get(target.as_str()).send().await.unwrap().status(),
+            200
+        );
+        server.verify().await;
+    }
+
+    #[tokio::test]
+    async fn implicit_proxy_child() {
+        let Ok(address) = std::env::var("JOBSENTINEL_TEST_PINNED_ADDR") else {
+            return;
+        };
+        let address: SocketAddr = address.parse().unwrap();
+        let target = ResolvedExternalUrl::from_parts_for_test(
+            Url::parse(&format!("http://pinned.invalid.:{}/pin", address.port())).unwrap(),
+            Some("pinned.invalid".into()),
+            vec![address],
+        );
+        let response = fetch_resolved_external_text(&target, Duration::from_secs(2), None)
+            .await
+            .unwrap();
+        assert_eq!(response.body, "pinned");
+    }
+
+    #[tokio::test]
+    async fn implicit_proxy_cannot_bypass_validated_addresses() {
+        let target = MockServer::start().await;
+        let proxy = MockServer::start().await;
+        Mock::given(method("GET"))
+            .respond_with(ResponseTemplate::new(200).set_body_string("pinned"))
+            .mount(&target)
+            .await;
+        Mock::given(method("GET"))
+            .respond_with(ResponseTemplate::new(200).set_body_string("proxy"))
+            .mount(&proxy)
+            .await;
+        let mut command = tokio::process::Command::new(std::env::current_exe().unwrap());
+        command
+            .args(["--exact", "tests::implicit_proxy_child", "--nocapture"])
+            .env("JOBSENTINEL_TEST_PINNED_ADDR", target.address().to_string())
+            .env("NO_PROXY", "")
+            .env("no_proxy", "");
+        for name in [
+            "HTTP_PROXY",
+            "HTTPS_PROXY",
+            "ALL_PROXY",
+            "http_proxy",
+            "https_proxy",
+            "all_proxy",
+        ] {
+            command.env(name, proxy.uri());
+        }
+        let output = command.output().await.unwrap();
+        assert!(
+            output.status.success(),
+            "{}{}",
+            String::from_utf8_lossy(&output.stdout),
+            String::from_utf8_lossy(&output.stderr)
+        );
+        assert_eq!(target.received_requests().await.unwrap().len(), 1);
+        assert!(proxy.received_requests().await.unwrap().is_empty());
     }
 
     #[tokio::test]

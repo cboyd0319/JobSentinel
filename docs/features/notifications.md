@@ -1,3 +1,5 @@
+<!-- Explains optional notification setup, current credential protection and alert privacy. -->
+
 # Notifications
 
 **Get notified when a role that fits your search needs review.**
@@ -149,8 +151,9 @@ spot.
 6. In JobSentinel, open Settings, choose Sources & Alerts, then paste the link in
    Microsoft Teams Notifications
 
-Existing Microsoft 365 connector links still work if Teams already created one
-for the channel. For new setup, prefer the Workflows link shown by Teams.
+Use the currently supported Workflows setup shown by Teams. Older connector
+links may be unavailable; test the configured channel rather than assuming an
+existing link still works.
 
 **What you'll get:** Cards with job details and action buttons.
 
@@ -182,6 +185,10 @@ two details from Telegram before JobSentinel can send alerts there.
 
 ## When Do Notifications Send?
 
+Shared-computer locking pauses source work and cancels remaining notification
+deliveries. An external service may already have accepted an alert before locking;
+JobSentinel cannot recall that delivery.
+
 Each job site starts with a moderate alert filter. Raise it if alerts feel
 noisy. Lower it if too few arrive.
 
@@ -195,15 +202,13 @@ quiet.
 
 ## Security Note
 
-Notification links, app passwords, and alert codes use your operating system's
-password store:
+Notification links, app passwords and alert codes live in the encrypted local
+vault. The vault key uses the device password store or a configured passphrase;
+portable profiles use their portable passphrase without host credential entries.
+V3 rejects retired plaintext credential fields and does not automatically import
+old per-secret OS entries. Re-enter details through Settings.
 
-- **macOS:** Keychain
-- **Windows:** Credential Manager
-- **Linux:** Secret Service
-
-Older saved details are moved into that password store and cleared when
-possible.
+[Saved secrets](saved-secrets.md) owns the complete storage and recovery rules.
 
 If Settings says **Saved details need confirmation**, JobSentinel has not opened
 the password store from that passive view. Re-enter the connection link, app

@@ -1,3 +1,5 @@
+/** Verifies setup location choices remain accessible, optional, and local. */
+
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -195,6 +197,54 @@ describe("SetupWizard location accessibility", () => {
                 allow_onsite: true,
                 cities: [],
               }),
+            }),
+          }),
+        );
+      });
+    });
+
+    it("keeps regional guidance optional and does not list packs while continuing setup", async () => {
+      const user = userEvent.setup();
+      renderWithProviders(<SetupWizard onComplete={mockOnComplete} />);
+
+      await user.click(screen.getByRole("button", { name: /build my search/i }));
+      await user.type(screen.getByPlaceholderText("Add a job title..."), "Office Manager{enter}");
+      await user.click(screen.getByRole("button", { name: /^continue$/i }));
+
+      expect(screen.getByText("Regional guidance (optional)")).toBeInTheDocument();
+      expect(mockInvoke.mock.calls.some(([command]) => command === "list_pack_management")).toBe(false);
+      await user.click(screen.getByRole("button", { name: /^continue$/i }));
+      expect(screen.getByText("Notifications")).toBeInTheDocument();
+      expect(mockInvoke.mock.calls.some(([command]) => command === "list_pack_management")).toBe(false);
+    });
+
+    it("keeps country filtering optional and saves an explicitly selected country", async () => {
+      const user = userEvent.setup();
+      mockInvoke.mockImplementation(async (command: string) => {
+        if (command === "get_search_country_options") {
+          return [["GB", "United Kingdom"]];
+        }
+        return undefined;
+      });
+      renderWithProviders(<SetupWizard onComplete={mockOnComplete} />);
+
+      await user.click(screen.getByRole("button", { name: /build my search/i }));
+      await user.type(screen.getByPlaceholderText("Add a job title..."), "Office Manager{enter}");
+      await user.click(screen.getByRole("button", { name: /^continue$/i }));
+      await user.selectOptions(
+        await screen.findByRole("combobox", { name: "Search country (optional)" }),
+        "GB",
+      );
+      await user.click(screen.getByRole("button", { name: /^continue$/i }));
+      expect(screen.getByText("United Kingdom")).toBeInTheDocument();
+      await user.click(screen.getByRole("button", { name: /start finding jobs/i }));
+
+      await waitFor(() => {
+        expect(mockInvoke).toHaveBeenCalledWith(
+          "complete_setup",
+          expect.objectContaining({
+            config: expect.objectContaining({
+              location_preferences: expect.objectContaining({ search_country: "GB" }),
             }),
           }),
         );

@@ -1,3 +1,5 @@
+<!-- Defines supported structured resume import/export and local preview privacy boundaries. -->
+
 # Import and Export Resume App Data
 
 JobSentinel can import a resume app export saved in a supported format and turn
@@ -70,7 +72,8 @@ resume text in user-facing error copy.
   paths, or imported contact details.
 - Command logs may record non-identifying counts such as resume-name length,
   export character length, and sanitized path labels.
-- App screens must not expose local file paths or full parsed resume text.
+- App screens must not expose local file paths. Readable resume text appears only
+  in the explicit local preview or user-controlled editor, not incidental status or errors.
 - Safe support reports must redact resume content unless the user explicitly
   includes it.
 

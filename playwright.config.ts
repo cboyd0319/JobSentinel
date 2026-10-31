@@ -1,3 +1,5 @@
+/** Configures isolated Vite readiness and browser projects for JobSentinel E2E. */
+
 import { defineConfig, devices } from "@playwright/test";
 
 const updateDocsScreenshots = process.env.UPDATE_DOC_SCREENSHOTS === "1";
@@ -40,7 +42,7 @@ export default defineConfig({
 
   webServer: {
     command: `npm run dev:mock -- --host 127.0.0.1 --port ${port}`,
-    url: baseURL,
+    url: `${baseURL}/src/index.css`,
     reuseExistingServer: process.env.PLAYWRIGHT_REUSE_EXISTING_SERVER === "1",
     timeout: 30000,
   },

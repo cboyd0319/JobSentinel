@@ -1,0 +1,222 @@
+{
+  "schema": "jobsentinel.feature_evidence.v1",
+  "feature_id": "v3-native-sensitive-actions",
+  "behavior": "Sensitive actions reuse Mac presence and add Windows Hello/device-bound protection with explicit cancellation and passphrase fallback.",
+  "result": "partial",
+  "revision": "1ccb5490e2517a34c5f979e3c645a4bd12447ec5",
+  "verified_at": "2026-10-31T18:26:00.773155+00:00",
+  "platform": "macOS 27.2 arm64; Rust 1.97.1; Node 26.13.0; npm 11.20.0; Windows x86_64 MSVC source probe only",
+  "scope": "Paused P08/N15 implementation checkpoint at user request. Feature remains active; no development acceptance or installed-platform claim.",
+  "implemented": [
+    "HWND-bound Windows Hello consent, sanitized typed failures and owned COM lifetime. Renderer input cannot choose the window.",
+    "In Windows system mode, shared-computer preparation/unlock verifies fresh consent before key access; Mac protected-Keychain and configured-passphrase paths remain intact.",
+    "Windows database and vault keys share Local entry construction and validated in-place migration. Service/user specifiers and key values remain unchanged; previously roamed copies are not revoked.",
+    "Unconfigured passphrases are rejected before native access. UI keeps private views covered on canceled, failed or stale native completion.",
+    "Main-window close synchronously invalidates queued and active app-unlock proofs. A separate authentication epoch preserves unprotected cleanup completion; stale authorization cannot reopen native admission.",
+    "Focus loss cancels queued and passphrase authentication. Scoped native-prompt handoff remains covered, requires foreground visibility and expires two seconds after verification; hidden/minimized observations invalidate proof."
+  ],
+  "commands": [
+    {
+      "command": "./init.sh",
+      "exit_status": 0,
+      "relevant_result": "9 smoke tests and harness passed after dependency refresh.",
+      "caveat": "Local Node/npm differ from release pins; unchanged warnings.",
+      "source_revision": "5c4fa8ef0dec458fb85cf7fdbc4410e42d65afcf"
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-platform --lib -- native_user_presence credential_vault_key::tests",
+      "exit_status": 0,
+      "relevant_result": "5 passed.",
+      "caveat": "Pure result/error and persistence checks; no native credential access.",
+      "source_revision": "5c4fa8ef0dec458fb85cf7fdbc4410e42d65afcf"
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-credentials --lib service::tests",
+      "exit_status": 0,
+      "relevant_result": "14 passed.",
+      "caveat": "Synthetic vaults; includes fresh verification and portable host-store isolation.",
+      "source_revision": "5c4fa8ef0dec458fb85cf7fdbc4410e42d65afcf"
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel --features embedded-ml --lib -- ipc::privacy::tests ipc::credentials::tests bootstrap::operation::tests",
+      "exit_status": 0,
+      "relevant_result": "17 passed.",
+      "caveat": "Mac compile/test; Windows HWND branch not executed.",
+      "source_revision": "5c4fa8ef0dec458fb85cf7fdbc4410e42d65afcf"
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs clippy --locked --offline -p jobsentinel --features embedded-ml -- -D warnings",
+      "exit_status": 0,
+      "relevant_result": "Passed.",
+      "caveat": "Production graph on macOS.",
+      "source_revision": "5c4fa8ef0dec458fb85cf7fdbc4410e42d65afcf"
+    },
+    {
+      "command": "npm run test:run -- src/app/AppPrivacy.test.tsx src/app/App.startup.test.tsx",
+      "exit_status": 0,
+      "relevant_result": "24 passed.",
+      "caveat": "Mocked native responses; explicit consent, cancellation and stale-response denial.",
+      "source_revision": "5c4fa8ef0dec458fb85cf7fdbc4410e42d65afcf"
+    },
+    {
+      "command": "npm run typecheck",
+      "exit_status": 0,
+      "relevant_result": "Passed.",
+      "caveat": "Frontend only.",
+      "source_revision": "5c4fa8ef0dec458fb85cf7fdbc4410e42d65afcf"
+    },
+    {
+      "command": "npm run lint",
+      "exit_status": 0,
+      "relevant_result": "Passed.",
+      "caveat": "Frontend only.",
+      "source_revision": "5c4fa8ef0dec458fb85cf7fdbc4410e42d65afcf"
+    },
+    {
+      "command": "npm run lint:security",
+      "exit_status": 0,
+      "relevant_result": "Passed, including secret scan.",
+      "caveat": "Source sensors do not prove installed Windows behavior.",
+      "source_revision": "5c4fa8ef0dec458fb85cf7fdbc4410e42d65afcf"
+    },
+    {
+      "command": "npm run lint:deps",
+      "exit_status": 0,
+      "relevant_result": "Passed.",
+      "caveat": "Four direct edges reuse already-locked Windows packages; no new lock packages.",
+      "source_revision": "5c4fa8ef0dec458fb85cf7fdbc4410e42d65afcf"
+    },
+    {
+      "command": "npm run lint:deps:why",
+      "exit_status": 0,
+      "relevant_result": "Passed.",
+      "caveat": "Every direct dependency has a concrete owner.",
+      "source_revision": "5c4fa8ef0dec458fb85cf7fdbc4410e42d65afcf"
+    },
+    {
+      "command": "npm run lint:architecture",
+      "exit_status": 0,
+      "relevant_result": "Passed.",
+      "caveat": "Existing crate and frontend boundaries retained.",
+      "source_revision": "5c4fa8ef0dec458fb85cf7fdbc4410e42d65afcf"
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs fmt --all -- --check",
+      "exit_status": 0,
+      "relevant_result": "Passed.",
+      "caveat": "Final code formatting.",
+      "source_revision": "5c4fa8ef0dec458fb85cf7fdbc4410e42d65afcf"
+    },
+    {
+      "command": "npm run lint:docs",
+      "exit_status": 0,
+      "relevant_result": "Passed.",
+      "caveat": "Markdown, links and prose; implementation limits stated.",
+      "source_revision": "5c4fa8ef0dec458fb85cf7fdbc4410e42d65afcf"
+    },
+    {
+      "command": "npm run lint:language",
+      "exit_status": 0,
+      "relevant_result": "Passed.",
+      "caveat": "Repository terminology policy.",
+      "source_revision": "5c4fa8ef0dec458fb85cf7fdbc4410e42d65afcf"
+    },
+    {
+      "command": "CARGO_TARGET_DIR=target/native-presence-check/build node scripts/dev/run-cargo.mjs clippy --locked --offline --manifest-path target/native-presence-check/Cargo.toml --all-targets --target x86_64-pc-windows-msvc -- -D warnings",
+      "exit_status": 0,
+      "relevant_result": "Exact Windows platform source and tests compiled; Clippy passed.",
+      "caveat": "Temporary probe used production modules through path imports and copied workspace lints, with fixture service name and portable_root returning None. Excludes service/IPC integration and runtime; probe removed.",
+      "source_revision": "5c4fa8ef0dec458fb85cf7fdbc4410e42d65afcf"
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs check --locked --offline -p jobsentinel-platform --all-targets --target x86_64-pc-windows-msvc",
+      "exit_status": 101,
+      "relevant_result": "ring native build failed: include/ring-core/check.h:27:11: fatal error: assert.h file not found.",
+      "caveat": "Required Windows SDK headers were unavailable to this build; full Windows platform/application compilation not proven.",
+      "source_revision": "5c4fa8ef0dec458fb85cf7fdbc4410e42d65afcf"
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel --features embedded-ml --lib -- bootstrap::operation::tests ipc::privacy::tests desktop::tests",
+      "exit_status": 0,
+      "relevant_result": "9 passed; active close, queued close before verification, cleanup preservation and existing admission/desktop close cases.",
+      "caveat": "Two new close tests failed before invalidation was implemented. No installed Windows dialog was exercised.",
+      "source_revision": "5c4fa8ef0dec458fb85cf7fdbc4410e42d65afcf"
+    },
+    {
+      "command": "npm run harness:check",
+      "exit_status": 0,
+      "relevant_result": "Passed; feature remains active with partial evidence.",
+      "caveat": "Checkpoint validation only; unresolved Windows and P08/N15 work remains explicit.",
+      "source_revision": "5c4fa8ef0dec458fb85cf7fdbc4410e42d65afcf"
+    },
+    {
+      "command": "npm run lint:file-size",
+      "exit_status": 0,
+      "relevant_result": "Passed; startup state is 25837 bytes under its unchanged 26000-byte cap.",
+      "caveat": "Checkpoint validation only; unresolved Windows and P08/N15 work remains explicit.",
+      "source_revision": "5c4fa8ef0dec458fb85cf7fdbc4410e42d65afcf"
+    },
+    {
+      "command": "node --test scripts/tests/harness/check-harness-policy.test.mjs scripts/tests/harness/check-v3-plan.test.mjs scripts/tests/harness/harness-session.test.mjs",
+      "exit_status": 0,
+      "relevant_result": "16 passed.",
+      "caveat": "Checkpoint validation only; unresolved Windows and P08/N15 work remains explicit.",
+      "source_revision": "5c4fa8ef0dec458fb85cf7fdbc4410e42d65afcf"
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-platform --lib -- windows_local_key database_key",
+      "exit_status": 0,
+      "relevant_result": "11 passed, including isolated macOS smoke subprocesses.",
+      "caveat": "Synthetic key-store fixtures; native Windows constructor/readback unexecuted.",
+      "source_revision": "1ccb5490e2517a34c5f979e3c645a4bd12447ec5"
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel --features embedded-ml --lib -- bootstrap::operation::tests ipc::privacy::tests desktop::",
+      "exit_status": 0,
+      "relevant_result": "15 passed.",
+      "caveat": "Deterministic focus/queued/native-scope and admission tests; no actual OS prompt.",
+      "source_revision": "1ccb5490e2517a34c5f979e3c645a4bd12447ec5"
+    },
+    {
+      "command": "npm run test:run -- src/app/AppPrivacy.test.tsx",
+      "exit_status": 0,
+      "relevant_result": "18 passed.",
+      "caveat": "Mocked native replies; passphrase blur and stale-event regressions.",
+      "source_revision": "1ccb5490e2517a34c5f979e3c645a4bd12447ec5"
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs clippy --locked --offline -p jobsentinel --features embedded-ml -- -D warnings",
+      "exit_status": 0,
+      "relevant_result": "Passed.",
+      "caveat": "Final combined production graph on macOS.",
+      "source_revision": "1ccb5490e2517a34c5f979e3c645a4bd12447ec5"
+    },
+    {
+      "command": "./init.sh --offline",
+      "exit_status": 0,
+      "relevant_result": "9 smoke tests and harness passed.",
+      "caveat": "After existing keyring-core dev-dependency refresh; lock unchanged.",
+      "source_revision": "1ccb5490e2517a34c5f979e3c645a4bd12447ec5"
+    }
+  ],
+  "review": {
+    "result": "VERIFY",
+    "findings": "Bounded independent review corrected a Windows test reference to a private dependency type. Public specifier assertions replace it. No remaining supported checkpoint blocker; Windows build/readback and real native prompt/minimize ordering remain VERIFY. Combined coordinator checks passed.",
+    "independent": true
+  },
+  "pending": [
+    "Complete remaining P08/N15 sensitive-action consumers and configured fallback behavior before feature acceptance.",
+    "Provide SDK headers/toolchain and compile the actual Windows application and tests, including the new shared key owner. The older isolated probe does not cover current integration.",
+    "Verify real macOS/Windows consent and focus/minimize/restore ordering. A minimize/restore entirely while an OS prompt owns focus may not deliver a distinct observable event.",
+    "On isolated Windows synthetic profiles, verify Enterprise-to-Local target/key preservation through readback and restart, plus denied/malformed/write-failure recovery.",
+    "Full R1 Stability, R2 Performance and R3 Security remain parked until engineering completes."
+  ],
+  "other_checks": "Expanded host all-targets Clippy failed on 221 existing test lint warnings. Canonical production Clippy passed; test-target lint is not represented as passing.",
+  "sources": [
+    "https://learn.microsoft.com/en-us/uwp/api/windows.security.credentials.ui.userconsentverifier",
+    "https://learn.microsoft.com/en-us/windows/win32/api/userconsentverifierinterop/nf-userconsentverifierinterop-iuserconsentverifierinterop-requestverificationforwindowasync",
+    "https://learn.microsoft.com/en-us/windows/win32/api/wincred/ns-wincred-credentialw"
+  ],
+  "efficiency": "Existing keyring/WinRT packages and vault owners reused; no second credential engine, passive store probe, or new lock package.",
+  "stopping_point": "Goal paused by user; no SDK installation or live JobSentinel key-store access performed during wrap-up. cargo-xwin 0.23.1 and existing LLVM were identified as a possible SDK cross-build route, not installed or run."
+}

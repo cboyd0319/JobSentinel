@@ -1,3 +1,5 @@
+<!-- Introduces JobSentinel, its release status, downloads, capabilities, and user entry points. -->
+
 # JobSentinel
 
 **JobSentinel is an open-source, local-first job-search assistant for finding
@@ -9,7 +11,7 @@ application, and protect your pay goals from one private desktop workspace.
 Core workflows work locally. JobSentinel is free, will always stay free, and
 will always remain MIT licensed.
 
-[![Source version](https://img.shields.io/badge/source-2.9.5-2563eb)](https://github.com/cboyd0319/JobSentinel/releases/tag/v2.9.5)
+[![Source version](https://img.shields.io/badge/source-3.0.0-2563eb)](package.json)
 [![Release](https://img.shields.io/github/v/release/cboyd0319/JobSentinel?label=release&color=2563eb)](https://github.com/cboyd0319/JobSentinel/releases/latest)
 [![MIT License](https://img.shields.io/badge/license-MIT-111827)](LICENSE)
 [![Rule 0](https://img.shields.io/badge/rule%200-privacy%20%26%20security-991b1b)](PRIVACY.md)
@@ -146,11 +148,15 @@ privacy-preserving defaults.
 | Local-first data | Searches, saved jobs, notes, resumes, salary floors, applications, and support reports stay local by default. |
 | No telemetry | JobSentinel does not collect analytics or behavioral telemetry. |
 | External AI | Optional, disabled by default, preview-gated, and routed through the privacy-first AI gateway. |
-| Secrets | Alert credentials and source access codes use the local encrypted vault and OS credential store where available. |
+| Secrets | Connection details use an encrypted local vault; its key uses device protection or a passphrase. Portable profiles avoid host credential entries. |
 | Applications | JobSentinel helps prepare and track applications, but the user reviews and submits outside JobSentinel. |
 | Restricted sources | User-gated, warning-backed, local, and review-first. JobSentinel does not store restricted-site cookies, tokens, browser storage, or auth headers. |
 
+The published v2.9.5 evidence snapshot reports:
 **Current macOS full-public-readiness: 94%; no-account path completion: 100%.**
+These historical scores do not establish v3 release readiness. Every release from
+v3 onward requires separate full Stability, Performance and Security phases in
+that order; see the [Release Contract](docs/developer/RELEASING.md#mandatory-final-release-phases).
 A zero-friction Mac release still requires Apple Developer Program materials,
 Developer ID signing, notarization, stapling, and Gatekeeper acceptance.
 
@@ -294,8 +300,9 @@ an embedded-ML build has verified model files, matching uses:
 | Blockers and evidence classes | Flags missing hard requirements, salary/location mismatch, seniority mismatch, and weak evidence. |
 | Model governance | `crates/jobsentinel-local-ai/models.lock.toml` pins model identity, revisions, hashes, sizes, licenses, and instruction profiles. |
 
-If local model files are not present, JobSentinel falls back to deterministic
-matching. Resume and job text stays local either way. See
+If no verified local model is present, JobSentinel falls back to exact-only
+deterministic matching without downloading a model. Resume and job text stays
+local either way. See
 [Local Semantic Matching](docs/developer/LOCAL_SEMANTIC_MATCHING.md) and the
 [semantic matching research notes](docs/research/semantic-resume-job-matching.md).
 
@@ -363,7 +370,7 @@ Requirements:
 - Rust 1.97.1 from `rust-toolchain.toml`
 - Platform packages from [developer setup](docs/developer/GETTING_STARTED.md)
 
-Current backend surface: **205 registered Tauri commands**.
+Current backend surface: **264 registered Tauri commands**.
 
 ```bash
 git clone https://github.com/cboyd0319/JobSentinel

@@ -1,10 +1,10 @@
+<!-- Defines the canonical repository-wide operating contract for JobSentinel contributors and agents. -->
 # JobSentinel Agent Contract
 
-JobSentinel is a privacy-first desktop job-search application for technical and
-non-technical job seekers. The frontend is React 19, TypeScript, Vite, and
-Tailwind CSS. The desktop and Rust owner layers use Tauri 2, Rust 2021, Tokio,
-SQLite, and SQLx offline mode. Runtime versions are owned by `.nvmrc`,
-`rust-toolchain.toml`, `package.json`, and the lockfiles.
+JobSentinel is a privacy-first desktop app for technical and non-technical job seekers.
+The frontend uses React 19, TypeScript, Vite and Tailwind CSS. Desktop owners use
+Tauri 2, Rust 2021, Tokio, SQLite and SQLx offline mode. Runtime versions live in
+`.nvmrc`, `rust-toolchain.toml`, `package.json` and the lockfiles.
 
 ## Startup Workflow
 
@@ -23,8 +23,23 @@ harness validation, and the baseline application smoke test. It does not install
 global tools, enable hooks, start services, or read secrets. Start the desktop app
 with `npm run tauri:dev`.
 
+## Serena and delegated work
+
+- Use Serena first for symbols, references and symbol edits; use `rg` for literals,
+  unsupported operations and LSP coverage gaps. Scope queries and avoid repeated file scans.
+- Follow [.serena/AGENTS.md](.serena/AGENTS.md) for setup, verified capabilities and client restart rules.
+- Give every repository subagent its own worktree and branch with bounded ownership.
+  Run init before dependent edits; review/integrate commits and verify the combined result.
+- Every worktree agent needs its own Serena stdio server targeting its absolute root.
+  Verify the root and obtain its session through `initial_instructions`; sessions do
+  not isolate server state. Never switch a shared server; use native tools if isolation is unavailable.
+
 ## Non-Negotiable Boundaries
 
+- Every `AGENTS.md`, including downstream files, is capped at 150 lines and 32 KiB. No exceptions.
+- Every release from v3 onward must finish three separate, full phases in order:
+  Stability, Performance, Security. All must pass before publication; the
+  [Release Contract](docs/developer/RELEASING.md#mandatory-final-release-phases) owns their gates.
 - User data stays local unless the user explicitly configures an external
   channel. External AI is optional, disabled by default, and routed through the
   privacy-first AI gateway.
@@ -35,6 +50,8 @@ with `npm run tauri:dev`.
   state, or mutate user-level configuration without explicit authority.
 - Use repo-relative paths and structured APIs. Do not commit secrets or local
   home paths.
+- Every maintained hand-authored file that supports comments starts with a one- or two-line native description
+  of its exact responsibility, after required shebang, front matter, or format directives.
 - `scripts/harness/contracts/repository-structure.json` covers every maintained text file. New or
   changed files must stay within their scope; exceptions need an owner, measured
   baseline, reason, and removal trigger.
@@ -54,16 +71,13 @@ with `npm run tauri:dev`.
 - Product behavior: `docs/features/` and `docs/harness/product-sense.md`
 - Reliability: `docs/harness/reliability.md`
 - Security: `docs/security/README.md`
-- Workflow: `docs/harness/change-contract.md` and
-  `docs/harness/verification-matrix.md`
+- Workflow: `docs/harness/change-contract.md` and `docs/harness/verification-matrix.md`
 - Tests and commands: `docs/developer/TESTING.md`
-- Change contracts: `docs/harness/change-contract.md`
 - UI and copy: `docs/design/design-system.md`, `docs/design/design-spec.md`, and
   `docs/style-guide/README.md`
 
-Closest feature documentation under `docs/features/` owns user-visible behavior.
-Detailed plans under `docs/plans/` may expand the active feature but cannot
-replace canonical state.
+Feature docs under `docs/features/` own user-visible behavior. Plans under `docs/plans/`
+may expand the active feature but cannot replace canonical state.
 
 ## Verification
 

@@ -1,19 +1,17 @@
-//! Configuration Tauri commands
-//!
-//! Commands for saving, retrieving, and validating app configuration.
+//! Exposes Tauri commands that save, retrieve, and validate application configuration.
 
 use crate::application::config::{AutoRefreshConfig, Config, EmailConfig};
 use crate::application::credentials::{
     decode_smtp_password_for_binding, CredentialKey, CredentialService, SmtpCredentialBinding,
 };
-use crate::bootstrap::AppState;
+use crate::bootstrap::operation::State;
+use crate::bootstrap::{AppState, StartupRecoveryState};
 use crate::desktop::path_label_for_logging;
 use crate::desktop::Database;
 use crate::ipc::errors::user_friendly_error;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::{fmt, path::Path};
-use tauri::State;
 use tokio::sync::RwLock;
 
 /// Email configuration for testing (matches frontend interface)
@@ -98,6 +96,14 @@ fn is_first_run_for_path(config_path: &Path) -> Result<bool, String> {
     })
 }
 
+fn first_run_or_recovery(config_path: &Path, recovery_required: bool) -> Result<bool, String> {
+    if recovery_required {
+        Err("JobSentinel started in local recovery mode.".to_string())
+    } else {
+        is_first_run_for_path(config_path)
+    }
+}
+
 async fn resolve_smtp_password_for_test(
     email_config: &TestEmailConfig,
     credentials: &CredentialService,
@@ -121,9 +127,20 @@ async fn save_config_to_runtime_and_path(
     config: Value,
     runtime_config: &RwLock<Config>,
     config_path: &Path,
+    database: &Database,
 ) -> Result<(), String> {
-    let parsed_config: Config = serde_json::from_value(config)
-        .map_err(|e| user_friendly_error("Invalid configuration", e))?;
+    let mut parsed_config =
+        Config::from_value(config).map_err(|e| user_friendly_error("Invalid configuration", e))?;
+    let mut current = runtime_config.write().await;
+    let previous = current.clone();
+    parsed_config.shared_computer_mode = previous.shared_computer_mode;
+    jobsentinel_application::restricted_source_consent::reconcile_restricted_source_consents(
+        database,
+        &previous,
+        &mut parsed_config,
+    )
+    .await
+    .map_err(|error| user_friendly_error("Failed to update restricted-source review", error))?;
 
     parsed_config.save(config_path).map_err(|e| {
         let message = user_friendly_error("Failed to save configuration", &e);
@@ -135,10 +152,7 @@ async fn save_config_to_runtime_and_path(
         message
     })?;
 
-    {
-        let mut runtime_config = runtime_config.write().await;
-        *runtime_config = parsed_config;
-    }
+    *current = parsed_config;
 
     Ok(())
 }
@@ -147,34 +161,9 @@ async fn complete_setup_to_runtime_and_paths(
     config: Value,
     runtime_config: &RwLock<Config>,
     config_path: &Path,
-    db_path: &Path,
+    database: &Database,
 ) -> Result<(), String> {
-    save_config_to_runtime_and_path(config, runtime_config, config_path).await?;
-
-    let database = connect_setup_database(db_path).await.map_err(|e| {
-        let message = user_friendly_error("Failed to initialize database", &e);
-        tracing::error!(
-            db_path = %path_label_for_logging(db_path),
-            error = %message,
-            "Failed to connect to setup database"
-        );
-        message
-    })?;
-
-    database.migrate().await.map_err(|e| {
-        let message = user_friendly_error("Failed to initialize database", &e);
-        tracing::error!(error = %message, "Failed to migrate setup database");
-        message
-    })?;
-
-    Ok(())
-}
-
-async fn connect_setup_database(_db_path: &Path) -> anyhow::Result<Database> {
-    #[cfg(test)]
-    return Ok(Database::connect_memory().await?);
-    #[cfg(not(test))]
-    Ok(Database::connect(_db_path).await?)
+    save_config_to_runtime_and_path(config, runtime_config, config_path, database).await
 }
 
 /// Save user configuration
@@ -183,7 +172,13 @@ pub(crate) async fn save_config(config: Value, state: State<'_, AppState>) -> Re
     tracing::info!("Command: save_config");
 
     let config_path = Config::default_path();
-    save_config_to_runtime_and_path(config, state.config.as_ref(), &config_path).await?;
+    save_config_to_runtime_and_path(
+        config,
+        state.config.as_ref(),
+        &config_path,
+        state.database.as_ref(),
+    )
+    .await?;
 
     tracing::info!("Configuration saved successfully");
     Ok(())
@@ -205,6 +200,7 @@ pub(crate) struct DashboardPreferences {
     pub auto_refresh: AutoRefreshConfig,
     pub salary_floor_usd: i64,
     pub any_job_source_enabled: bool,
+    pub search_country: Option<String>,
 }
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -219,6 +215,7 @@ impl DashboardPreferences {
             auto_refresh: config.auto_refresh.clone(),
             salary_floor_usd: config.salary_floor_usd,
             any_job_source_enabled: any_job_source_enabled(config),
+            search_country: config.location_preferences.search_country.clone(),
         }
     }
 }
@@ -228,10 +225,8 @@ async fn set_resume_matching_enabled_in_runtime_and_path(
     runtime_config: &RwLock<Config>,
     config_path: &Path,
 ) -> Result<ResumeMatchingPreference, String> {
-    let mut next_config = {
-        let config = runtime_config.read().await;
-        config.clone()
-    };
+    let mut config = runtime_config.write().await;
+    let mut next_config = config.clone();
     next_config.use_resume_matching = enabled;
 
     next_config.save(config_path).map_err(|e| {
@@ -244,10 +239,7 @@ async fn set_resume_matching_enabled_in_runtime_and_path(
         message
     })?;
 
-    {
-        let mut runtime_config = runtime_config.write().await;
-        *runtime_config = next_config;
-    }
+    *config = next_config;
 
     Ok(ResumeMatchingPreference { enabled })
 }
@@ -286,13 +278,8 @@ pub(crate) async fn set_resume_matching_enabled(
 fn any_job_source_enabled(config: &Config) -> bool {
     config.remoteok.enabled
         || config.weworkremotely.enabled
-        || config.builtin.enabled
         || config.hn_hiring.enabled
-        || config.dice.enabled
-        || config.yc_startup.enabled
         || config.usajobs.enabled
-        || config.simplyhired.enabled
-        || config.glassdoor.enabled
         || config
             .greenhouse_urls
             .iter()
@@ -323,12 +310,14 @@ pub(crate) async fn validate_slack_webhook(
 
 /// Check if first-run setup is complete
 #[tauri::command]
-pub(crate) async fn is_first_run() -> Result<bool, String> {
+pub(crate) async fn is_first_run(
+    recovery: State<'_, StartupRecoveryState>,
+) -> Result<bool, String> {
     tracing::info!("Command: is_first_run");
 
     // Check if configuration file exists
     let config_path = Config::default_path();
-    let first_run = is_first_run_for_path(&config_path)?;
+    let first_run = first_run_or_recovery(&config_path, recovery.required())?;
 
     tracing::info!("First run: {}", first_run);
     Ok(first_run)
@@ -343,9 +332,13 @@ pub(crate) async fn complete_setup(
     tracing::info!("Command: complete_setup");
 
     let config_path = Config::default_path();
-    let db_path = Database::default_path();
-    complete_setup_to_runtime_and_paths(config, state.config.as_ref(), &config_path, &db_path)
-        .await?;
+    complete_setup_to_runtime_and_paths(
+        config,
+        state.config.as_ref(),
+        &config_path,
+        state.database.as_ref(),
+    )
+    .await?;
 
     tracing::info!("Setup complete");
     Ok(())

@@ -1,3 +1,5 @@
+//! Verifies resume builder persistence and its canonical flat payload contract.
+
 use super::*;
 
 async fn setup_test_db() -> SqlitePool {
@@ -38,6 +40,30 @@ async fn test_create_resume() {
         .as_deref()
         .unwrap_or_default()
         .is_empty());
+}
+
+#[tokio::test]
+async fn explicitly_supplied_military_fields_survive_storage_round_trip() {
+    let pool = setup_test_db().await;
+    let builder = ResumeBuilder::new(pool);
+    let resume_id = builder.create_resume().await.unwrap();
+    let resume = StructuredResume {
+        clearance: Some("User-confirmed current clearance".to_string()),
+        military_info: Some("User-entered service evidence".to_string()),
+        ..StructuredResume::default()
+    };
+
+    builder.replace_content(resume_id, resume).await.unwrap();
+
+    let stored = builder.get_resume(resume_id).await.unwrap().unwrap();
+    assert_eq!(
+        stored.resume.clearance.as_deref(),
+        Some("User-confirmed current clearance")
+    );
+    assert_eq!(
+        stored.resume.military_info.as_deref(),
+        Some("User-entered service evidence")
+    );
 }
 
 #[tokio::test]
@@ -313,3 +339,6 @@ async fn test_delete_missing_resume_returns_error() {
 
     assert!(result.is_err());
 }
+
+#[path = "education_tests.rs"]
+mod education_tests;

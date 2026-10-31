@@ -137,7 +137,9 @@ async fn send_resolved_request_with_retry(
     target: &ResolvedExternalUrl,
     request: &ExternalHttpRequest,
 ) -> Result<ExternalTextResponse, ExternalFetchError> {
+    // Ambient proxies cannot override the validated destination address.
     let mut client_builder = reqwest::Client::builder()
+        .no_proxy()
         .timeout(request.timeout)
         .redirect(reqwest::redirect::Policy::none())
         .pool_max_idle_per_host(10)

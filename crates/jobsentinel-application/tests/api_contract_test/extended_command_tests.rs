@@ -1,3 +1,5 @@
+//! Verifies extended application-command contracts with isolated local fixtures.
+
 use super::*;
 
 // ============================================================================
@@ -257,7 +259,7 @@ mod credential_commands {
         let database = Database::connect_memory().await.unwrap();
         database.migrate().await.unwrap();
         let credentials =
-            CredentialService::with_fixed_master_key(database.credentials(), [29_u8; 32], false);
+            CredentialService::with_fixed_master_key(database.credentials(), [29_u8; 32]);
 
         // exists returns Result<bool, String> without touching OS keyring.
         let result = credentials.exists(CredentialKey::SmtpPassword).await;

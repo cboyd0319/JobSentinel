@@ -1,5 +1,4 @@
-// Dashboard Header Component
-// Logo, title, status indicator, theme toggle, settings button, search button
+/** Renders dashboard search context, source-check status, and primary controls. */
 
 import { memo, type ReactNode } from "react";
 import { Button } from "../../../ui/Button";
@@ -8,8 +7,10 @@ import { Tooltip } from "../../../ui/Tooltip";
 import { SentinelIcon, SearchIcon, SettingsIcon } from "./DashboardIcons";
 import type { ScrapingStatus } from "../types";
 import { formatRelativeDate } from "../../../shared/dateFormatting";
+import { searchCountryLabel } from "../../../shared/searchCountry";
 
 interface DashboardHeaderProps {
+  searchCountry?: string | null;
   scrapingStatus: ScrapingStatus;
   autoRefreshEnabled: boolean;
   nextRefreshTime: Date | null;
@@ -29,6 +30,7 @@ function formatLastUpdated(dateStr: string | null): string {
 }
 
 export const DashboardHeader = memo(function DashboardHeader({
+  searchCountry,
   scrapingStatus,
   autoRefreshEnabled,
   nextRefreshTime,
@@ -135,6 +137,9 @@ export const DashboardHeader = memo(function DashboardHeader({
           </div>
         </div>
       </div>
+      {searchCountry && <p className="max-w-7xl mx-auto px-4 pb-3 text-sm text-surface-600 dark:text-surface-300 sm:px-6">
+        <span>Searching in {searchCountryLabel(searchCountry)}</span>{" · "}Unclear countries stay visible. Change this in Settings.
+      </p>}
     </header>
   );
 });

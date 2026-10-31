@@ -1,4 +1,4 @@
-//! Configuration I/O operations
+//! Validates current config inputs and persists private settings atomically.
 
 use super::types::Config;
 use super::validation::validate_config;
@@ -10,15 +10,26 @@ pub(crate) fn write_file_atomic_private(path: &Path, content: &str) -> io::Resul
 }
 
 impl Config {
+    pub(crate) fn from_json(content: &str) -> Result<Self, Box<dyn std::error::Error>> {
+        reject_retired_config_fields(&serde_json::from_str(content)?)?;
+        // Preserve typed serde rejection of duplicate known fields in the original text.
+        let config: Config = serde_json::from_str(content)?;
+        validate_config(&config)?;
+        Ok(config)
+    }
+
+    /// Decode current command input and validate it before any persistent or runtime change.
+    pub fn from_value(value: serde_json::Value) -> Result<Self, Box<dyn std::error::Error>> {
+        reject_retired_config_fields(&value)?;
+        let config: Self = serde_json::from_value(value)?;
+        validate_config(&config)?;
+        Ok(config)
+    }
+
     /// Load configuration from file
     pub fn load(path: &Path) -> Result<Self, Box<dyn std::error::Error>> {
         let content = std::fs::read_to_string(path)?;
-        let config: Config = serde_json::from_str(&content)?;
-
-        // Validate configuration
-        validate_config(&config)?;
-
-        Ok(config)
+        Self::from_json(&content)
     }
 
     /// Save configuration to file
@@ -42,6 +53,36 @@ impl Config {
     pub fn default_path() -> PathBuf {
         jobsentinel_platform::get_config_dir().join("config.json")
     }
+}
+
+fn reject_retired_config_fields(value: &serde_json::Value) -> io::Result<()> {
+    if ["company_whitelist", "company_blacklist"]
+        .iter()
+        .any(|key| value.get(key).is_some())
+    {
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidInput,
+            "Retired company preference keys are unsupported",
+        ));
+    }
+    if [
+        "/alerts/email/smtp_password",
+        "/alerts/telegram/bot_token",
+        "/alerts/slack/webhook_url",
+        "/alerts/discord/webhook_url",
+        "/alerts/teams/webhook_url",
+        "/linkedin/session_cookie",
+        "/usajobs/api_key",
+    ]
+    .iter()
+    .any(|pointer| value.pointer(pointer).is_some())
+    {
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidInput,
+            "Plaintext credential config fields are unsupported; use Settings",
+        ));
+    }
+    Ok(())
 }
 
 #[cfg(test)]

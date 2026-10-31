@@ -1,145 +1,50 @@
-# End-to-End Testing with Playwright
+<!-- Documents the maintained Playwright mock journeys and their native-evidence limits. -->
 
-This guide owns browser-level workflow coverage. See
-[Frontend Testing Guide](FRONTEND_TESTING.md) for React component, hook,
-context, and Tauri command tests.
+# End-to-end testing with Playwright
 
-## Browser Workflow Tests
+Playwright exercises the Vite development runtime with repository-owned native
+command mocks. These tests prove browser workflows, not installed Tauri behavior,
+OS authentication, encrypted storage or real provider calls. See
+[Frontend testing](FRONTEND_TESTING.md) for component tests and
+[the E2E runner guide](../../tests/e2e/README.md) for its configuration.
 
-### Test Organization
+## Browser workflow tests
 
-E2E tests live in `tests/e2e/playwright` and test complete user workflows:
+Tests live under `tests/e2e/playwright/`; page objects live in `page-objects/`.
+Use the current tests and page objects as executable examples rather than copying
+old control labels or inventing globals such as `__MOCK_API_ERROR__`.
 
-```text
-tests/e2e/playwright/
-- app.spec.ts: app shell smoke coverage
-- application-tracking.spec.ts: application board flows
-- job-interactions.spec.ts: job card interactions
-- job-search-filtering.spec.ts: search and filter flows
-- keyboard-navigation.spec.ts: keyboard shortcuts and focus
-- hiring-trends.spec.ts: hiring trends flows
-- application-assist.spec.ts: human-reviewed apply settings
-- resume-builder.spec.ts: Resume Builder wizard
-- resume-upload-matching.spec.ts: resume library and matching
-- screenshots.spec.ts: documentation screenshots only
-- settings-save-load.spec.ts: settings persistence
-- page-objects/: Page Object Model helpers
-```
+The development backend is owned by `src/dev-runtime/`. Seed or modify its actual
+fixtures before the relevant page action, then assert a visible outcome. Preserve
+startup/setup routing and reset test state between journeys. Production builds
+must not activate the mock runtime.
 
-### Pattern 1: Complete User Flow
+Current suites cover the application shell, job search and interaction, Settings,
+applications, keyboard navigation, resume library/builder/matching, Hiring Trends
+and human-reviewed Application Assist. Suite presence does not certify complete
+coverage; use revision-bound execution evidence.
 
-**Test**: User navigates app and performs actions
+## Running Playwright tests
 
-```typescript
-import { test, expect } from "@playwright/test";
-
-test.describe("Job Search Workflow", () => {
-  test.beforeEach(async ({ page }) => {
-    // Visit app before each test
-    await page.goto("/");
-    await expect(page.getByTestId("job-list")).toBeVisible();
-  });
-
-  test("should search jobs and apply filters", async ({ page }) => {
-    // Search for jobs
-    const searchBox = page.getByRole("searchbox", { name: "Search jobs" });
-    await searchBox.fill("Care Coordinator");
-    await searchBox.press("Enter");
-
-    // Wait for results
-    await expect(page.getByText(/showing.*results/i)).toBeVisible();
-
-    // Apply filter
-    await page.getByRole("button", { name: "Ghost Filter" }).click();
-    await page.getByRole("option", { name: "Hide Ghost Jobs" }).click();
-
-    // Verify filter applied
-    await expect(page.getByText(/no ghost jobs/i)).toBeVisible();
-  });
-});
-```
-
-### Pattern 2: API Mocking in E2E Tests
-
-**Test**: Mock backend responses for consistent testing
-
-```typescript
-test("should handle backend errors gracefully", async ({ page }) => {
-  // Intercept Tauri command and return error
-  await page.evaluate(() => {
-    window.__MOCK_API_ERROR__ = "Database connection failed";
-  });
-
-  await page.goto("/");
-
-  // Verify error message displayed
-  await expect(page.getByText(/database connection failed/i)).toBeVisible();
-
-  // Verify user can retry
-  await page.getByRole("button", { name: "Retry" }).click();
-
-  // Mock successful response for retry
-  await page.evaluate(() => {
-    window.__MOCK_API_ERROR__ = null;
-  });
-
-  await expect(page.getByText(/jobs loaded/i)).toBeVisible();
-});
-```
-
-### Pattern 3: Visual Regression Testing
-
-**Test**: Ensure UI hasn't changed unexpectedly
-
-```typescript
-test("should render dashboard with correct layout", async ({ page }) => {
-  await page.goto("/");
-
-  // Take screenshot and compare to baseline
-  await expect(page).toHaveScreenshot("dashboard.png");
-});
-
-test("should maintain layout on mobile", async ({ page }) => {
-  // Test mobile viewport
-  await page.setViewportSize({ width: 375, height: 667 });
-
-  await page.goto("/");
-
-  await expect(page).toHaveScreenshot("dashboard-mobile.png");
-});
-```
-
-### Running Playwright Tests
-
-The npm commands below route through `scripts/dev/run-playwright.mjs`, which keeps
-Playwright output clean on current Node versions without hiding test failures.
-The wrapper automatically selects an available loopback port and does not reuse
-an existing server unless `PLAYWRIGHT_REUSE_EXISTING_SERVER=1` is explicitly
-set. Run `npm run doctor:e2e` first when setting up Playwright locally or
-diagnosing browser-launch failures.
+The npm scripts use `scripts/dev/run-playwright.mjs`. It selects an available
+loopback port and does not reuse a server by default. A reused server must be a
+verified JobSentinel mock runtime; never point a test at a personal live profile.
 
 ```bash
-# Check local E2E readiness
 npm run doctor:e2e
-
-# Run local Chromium functional E2E tests
-npm run test:e2e
-
-# Run full cross-browser E2E tests
-npm run test:e2e:all
-
-# Run specific test file
 npm run test:e2e -- tests/e2e/playwright/app.spec.ts
-
-# Refresh documentation screenshots
-npm run docs:screenshots
-
-# Debug with inspector
+npm run test:e2e:smoke
 npm run test:e2e:headed -- --debug
-
-# Generate HTML report
-npm run test:e2e
-# Open: playwright-report/index.html
 ```
 
----
+For planned broad browser qualification:
+
+```bash
+npm run test:e2e:all
+npm run test:e2e:all:budget
+```
+
+Documentation screenshots run separately through `npm run docs:screenshots`.
+Inspect the resulting report and actual collected/passed/skipped tests; wrapper
+success alone is insufficient. Run only the journeys needed by a development
+change. The final release phases own exhaustive installed-platform qualification.

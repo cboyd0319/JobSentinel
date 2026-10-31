@@ -14,6 +14,26 @@ impl ApplicationTracker {
         reminder_time: DateTime<Utc>,
         message: &str,
     ) -> Result<()> {
+        let mut transaction = self.db.begin().await?;
+        Self::set_reminder_on(
+            &mut transaction,
+            application_id,
+            reminder_type,
+            reminder_time,
+            message,
+        )
+        .await?;
+        transaction.commit().await?;
+        Ok(())
+    }
+
+    pub(super) async fn set_reminder_on(
+        connection: &mut sqlx::SqliteConnection,
+        application_id: i64,
+        reminder_type: &str,
+        reminder_time: DateTime<Utc>,
+        message: &str,
+    ) -> Result<()> {
         let reminder_time_str = reminder_time.to_rfc3339();
 
         sqlx::query!(
@@ -24,11 +44,12 @@ impl ApplicationTracker {
             reminder_time_str,
             message
         )
-        .execute(&self.db)
+        .execute(&mut *connection)
         .await?;
 
         // Log reminder set event
-        self.log_event(
+        Self::log_event_on(
+            connection,
             application_id,
             "reminder_set",
             serde_json::json!({

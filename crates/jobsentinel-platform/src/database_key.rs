@@ -1,8 +1,8 @@
-use chacha20poly1305::aead::Generate;
-use keyring::{Entry, Error as KeyringError};
-use zeroize::Zeroizing;
+//! Selects the verified portable key, device SQLCipher key or isolated macOS smoke key.
 
-use crate::SECURE_STORAGE_SERVICE;
+use chacha20poly1305::aead::Generate;
+use keyring::Entry;
+use zeroize::Zeroizing;
 
 const DATABASE_KEY_NAME: &str = "jobsentinel_database_key";
 #[cfg(target_os = "macos")]
@@ -16,13 +16,13 @@ pub struct DatabaseKeyError;
 
 impl std::fmt::Display for DatabaseKeyError {
     fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        formatter.write_str("device secure storage did not provide a valid database key")
+        formatter.write_str("the selected profile did not provide a valid database key")
     }
 }
 
 impl std::error::Error for DatabaseKeyError {}
 
-/// Load the existing SQLCipher key or create it in device secure storage.
+/// Use the verified portable passphrase, or load/create the installed profile's device key.
 pub async fn load_or_create_database_key() -> Result<Zeroizing<String>, DatabaseKeyError> {
     tokio::task::spawn_blocking(load_or_create_database_key_blocking)
         .await
@@ -30,38 +30,74 @@ pub async fn load_or_create_database_key() -> Result<Zeroizing<String>, Database
 }
 
 fn load_or_create_database_key_blocking() -> Result<Zeroizing<String>, DatabaseKeyError> {
+    if crate::portable_root().is_some() {
+        return crate::portable::database_key().ok_or(DatabaseKeyError);
+    }
     #[cfg(target_os = "macos")]
-    if let Some(encoded_key) = smoke_database_key_hex() {
-        tracing::info!("Using isolated macOS package-smoke database key");
-        let key = validate_database_key_hex(encoded_key)?;
-        tracing::info!("Validated macOS package-smoke database key");
+    if let Some(key) = smoke_database_key_hex()? {
+        tracing::info!("Using validated isolated macOS package-smoke database key");
         return Ok(key);
     }
 
-    let entry =
-        Entry::new(SECURE_STORAGE_SERVICE, DATABASE_KEY_NAME).map_err(|_| DatabaseKeyError)?;
-    match entry.get_password() {
-        Ok(encoded_key) => validate_database_key_hex(encoded_key),
-        Err(KeyringError::NoEntry) => {
-            let key = <[u8; DATABASE_KEY_LEN]>::generate();
-            let encoded_key = Zeroizing::new(hex::encode(key));
+    #[cfg(windows)]
+    let entry = crate::windows_local_key::entry(DATABASE_KEY_NAME);
+    #[cfg(not(windows))]
+    let entry = Entry::new(crate::SECURE_STORAGE_SERVICE, DATABASE_KEY_NAME);
+    load_or_create_device_database_key(&entry.map_err(|_| DatabaseKeyError)?)
+}
+
+fn load_or_create_device_database_key(
+    entry: &Entry,
+) -> Result<Zeroizing<String>, DatabaseKeyError> {
+    #[cfg(windows)]
+    let encoded_key =
+        crate::windows_local_key::load(entry, |key| is_valid_database_key_hex(key.trim()))
+            .map_err(|()| DatabaseKeyError)?;
+    #[cfg(not(windows))]
+    let encoded_key = match entry.get_password() {
+        Ok(key) => Some(Zeroizing::new(key)),
+        Err(keyring::Error::NoEntry) => None,
+        Err(_) => return Err(DatabaseKeyError),
+    };
+    match encoded_key {
+        Some(encoded_key) => validate_database_key_hex(encoded_key),
+        None => {
+            let key = Zeroizing::new(<[u8; DATABASE_KEY_LEN]>::generate());
+            let encoded_key = Zeroizing::new(hex::encode(key.as_ref()));
             entry
                 .set_password(encoded_key.as_str())
                 .map_err(|_| DatabaseKeyError)?;
             Ok(encoded_key)
         }
-        Err(_) => Err(DatabaseKeyError),
     }
 }
 
 #[cfg(target_os = "macos")]
-fn smoke_database_key_hex() -> Option<String> {
-    crate::package_smoke_root()?;
-    let encoded_key = std::env::var(SMOKE_DATABASE_KEY_HEX_ENV).ok()?;
-    is_valid_database_key_hex(&encoded_key).then_some(encoded_key)
+fn smoke_database_key_hex() -> Result<Option<Zeroizing<String>>, DatabaseKeyError> {
+    let smoke_root_present = crate::package_smoke_root().is_some();
+    let encoded_key = smoke_root_present
+        .then(|| std::env::var(SMOKE_DATABASE_KEY_HEX_ENV).ok())
+        .flatten();
+    select_smoke_database_key(smoke_root_present, encoded_key)
 }
 
-fn validate_database_key_hex(encoded_key: String) -> Result<Zeroizing<String>, DatabaseKeyError> {
+#[cfg(target_os = "macos")]
+fn select_smoke_database_key(
+    smoke_root_present: bool,
+    encoded_key: Option<String>,
+) -> Result<Option<Zeroizing<String>>, DatabaseKeyError> {
+    if !smoke_root_present {
+        return Ok(None);
+    }
+    encoded_key
+        .ok_or(DatabaseKeyError)
+        .and_then(|key| validate_database_key_hex(Zeroizing::new(key)))
+        .map(Some)
+}
+
+fn validate_database_key_hex(
+    encoded_key: Zeroizing<String>,
+) -> Result<Zeroizing<String>, DatabaseKeyError> {
     let trimmed = encoded_key.trim();
     if !is_valid_database_key_hex(trimmed) {
         return Err(DatabaseKeyError);
@@ -70,12 +106,95 @@ fn validate_database_key_hex(encoded_key: String) -> Result<Zeroizing<String>, D
 }
 
 fn is_valid_database_key_hex(value: &str) -> bool {
-    value.len() == DATABASE_KEY_HEX_LEN && hex::decode(value).is_ok()
+    value.len() == DATABASE_KEY_HEX_LEN && value.bytes().all(|byte| byte.is_ascii_hexdigit())
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use keyring_core::api::CredentialStoreApi;
+
+    fn mock_entry() -> Entry {
+        let store = keyring_core::mock::Store::new().unwrap();
+        Entry {
+            inner: store
+                .build(crate::SECURE_STORAGE_SERVICE, DATABASE_KEY_NAME, None)
+                .unwrap(),
+        }
+    }
+
+    #[test]
+    fn device_key_is_created_once_and_invalid_keys_are_not_replaced() {
+        let entry = mock_entry();
+        let key = load_or_create_device_database_key(&entry).unwrap();
+        assert!(is_valid_database_key_hex(&key));
+        assert_eq!(
+            load_or_create_device_database_key(&entry).unwrap().as_str(),
+            key.as_str()
+        );
+        entry.set_password("malformed").unwrap();
+        assert!(load_or_create_device_database_key(&entry).is_err());
+        assert_eq!(entry.get_password().unwrap(), "malformed");
+    }
+
+    #[test]
+    fn unavailable_device_store_never_creates_a_replacement_key() {
+        for key in [None, Some("ab".repeat(DATABASE_KEY_LEN))] {
+            let entry = mock_entry();
+            if let Some(key) = &key {
+                entry.set_password(key).unwrap();
+            }
+            let credential = entry
+                .inner
+                .as_any()
+                .downcast_ref::<keyring_core::mock::Cred>()
+                .unwrap();
+            credential.set_error(keyring::Error::NoStorageAccess(Box::new(
+                std::io::Error::from(std::io::ErrorKind::PermissionDenied),
+            )));
+            assert!(load_or_create_device_database_key(&entry).is_err());
+            assert_eq!(entry.get_password().ok(), key);
+        }
+    }
+
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn smoke_startup_uses_only_the_ephemeral_key() {
+        const CHILD: &str = "JOBSENTINEL_TEST_DATABASE_SMOKE_CHILD";
+        if let Ok(case) = std::env::var(CHILD) {
+            assert!(crate::package_smoke_root().is_some());
+            let result = load_or_create_database_key_blocking();
+            if case == "valid" {
+                assert_eq!(result.unwrap().as_str(), "ab".repeat(DATABASE_KEY_LEN));
+            } else {
+                assert!(result.is_err());
+            }
+            return;
+        }
+        let root = tempfile::Builder::new()
+            .prefix("jobsentinel-macos-smoke-")
+            .tempdir()
+            .unwrap();
+        for (case, key) in [
+            ("valid", Some("ab".repeat(DATABASE_KEY_LEN))),
+            ("invalid", Some("invalid".into())),
+            ("missing", None),
+        ] {
+            let mut command = std::process::Command::new(std::env::current_exe().unwrap());
+            command
+                .args([
+                    "--exact",
+                    "database_key::tests::smoke_startup_uses_only_the_ephemeral_key",
+                ])
+                .env(CHILD, case)
+                .env("JOBSENTINEL_MACOS_PACKAGE_SMOKE_ROOT", root.path())
+                .env_remove(SMOKE_DATABASE_KEY_HEX_ENV);
+            if let Some(key) = key {
+                command.env(SMOKE_DATABASE_KEY_HEX_ENV, key);
+            }
+            assert!(command.status().unwrap().success());
+        }
+    }
 
     #[test]
     fn database_key_requires_exact_hex_length() {
@@ -87,7 +206,33 @@ mod tests {
     #[test]
     fn validation_trims_without_exposing_key_material() {
         let key = format!("  {}\n", "ab".repeat(DATABASE_KEY_LEN));
-        let validated = validate_database_key_hex(key).unwrap();
+        let validated = validate_database_key_hex(Zeroizing::new(key)).unwrap();
         assert_eq!(validated.len(), DATABASE_KEY_HEX_LEN);
+    }
+
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn smoke_key_selection_requires_a_valid_ephemeral_key_when_smoke_is_active() {
+        for encoded_key in [
+            None,
+            Some("zz".repeat(DATABASE_KEY_LEN)),
+            Some(" \n\t ".to_string()),
+        ] {
+            assert!(select_smoke_database_key(true, encoded_key).is_err());
+        }
+    }
+
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn smoke_key_selection_trims_valid_ephemeral_key_and_normal_mode_falls_through() {
+        let key = format!("  {}\n", "ab".repeat(DATABASE_KEY_LEN));
+        let selected = select_smoke_database_key(true, Some(key)).unwrap().unwrap();
+        assert_eq!(selected.as_str(), "ab".repeat(DATABASE_KEY_LEN));
+        assert!(select_smoke_database_key(false, None).unwrap().is_none());
+        assert!(
+            select_smoke_database_key(false, Some("malformed".to_string()))
+                .unwrap()
+                .is_none()
+        );
     }
 }

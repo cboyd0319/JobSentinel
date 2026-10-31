@@ -1,3 +1,4 @@
+// Enforces credential, feedback and outbound-notification privacy boundaries.
 import {
   existsSync,
   readFileSync,
@@ -23,15 +24,15 @@ function readCredentialStoragePolicyText(root, path) {
   const productionText = stripRustTestModules(
     readFileSync(join(root, path), "utf8"),
   );
-  const validationPath = join(
-    root,
-    "crates/jobsentinel-credentials/src/validation.rs",
-  );
-
-  return path === "crates/jobsentinel-credentials/src/lib.rs" &&
-    existsSync(validationPath)
-    ? `${productionText}\n${stripRustTestModules(readFileSync(validationPath, "utf8"))}`
-    : productionText;
+  if (path !== "crates/jobsentinel-credentials/src/lib.rs") return productionText;
+  let policyText = productionText;
+  for (const module of ["validation.rs", "service.rs"]) {
+    const modulePath = join(root, "crates/jobsentinel-credentials/src", module);
+    if (existsSync(modulePath)) {
+      policyText += `\n${stripRustTestModules(readFileSync(modulePath, "utf8"))}`;
+    }
+  }
+  return policyText;
 }
 
 const activeSecretStorageWordingPaths = new Set([

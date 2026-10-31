@@ -1,30 +1,24 @@
-//! Application Automation Tauri Commands
-//!
-//! Commands for Application Assist with user-controlled submit.
-//!
-//! **Features:**
-//! - Profile management (contact info, work authorization)
-//! - Screening answer configuration
-//! - Automation attempt tracking
-//! - ATS platform detection
+//! Adapts reviewed application profiles, screening answers, and user-controlled assistance to Tauri.
 
 #[cfg(test)]
 use crate::application::automation::AutomationStatus;
 use crate::application::automation::{
     ApplicationProfileInput, AtsDetector, AtsPlatform, AutomationStats, ProfileManager,
 };
+use crate::bootstrap::operation::State;
 use crate::bootstrap::AppState;
 use crate::desktop::sanitize_url_for_logging;
 use crate::ipc::errors::user_friendly_error;
 use crate::ipc::limits::validate_optional_command_limit_usize;
 use std::path::Path;
-use tauri::State;
 
 mod responses;
 
+use responses::application_screening_answer_previews;
 pub(crate) use responses::{
-    ApplicationProfilePreviewResponse, ApplicationProfileResponse, AtsDetectionResponse,
-    AttemptResponse, ScreeningAnswerResponse,
+    ApplicationProfilePreviewResponse, ApplicationProfileResponse,
+    ApplicationScreeningAnswerPreviewResponse, AtsDetectionResponse, AttemptResponse,
+    ScreeningAnswerResponse,
 };
 
 #[path = "automation_browser_commands.rs"]
@@ -54,6 +48,7 @@ fn has_stored_path(path: Option<&str>) -> bool {
 #[tauri::command]
 pub(crate) async fn select_application_resume_file(
     app: tauri::AppHandle,
+    _operation: crate::bootstrap::operation::AdmissionState<'_>,
 ) -> Result<Option<ApplicationResumeFileSelection>, String> {
     select_application_resume_file_impl(app).await
 }
@@ -192,6 +187,22 @@ pub(crate) async fn get_screening_answers(
             .collect()),
         Err(e) => Err(user_friendly_error("Failed to get screening answers", e)),
     }
+}
+
+/// Get only non-user-controlled saved answers needed for application preview.
+#[tauri::command]
+pub(crate) async fn get_application_screening_answer_previews(
+    state: State<'_, AppState>,
+) -> Result<Vec<ApplicationScreeningAnswerPreviewResponse>, String> {
+    tracing::info!("Command: get_application_screening_answer_previews");
+
+    state
+        .database
+        .profile_manager()
+        .get_screening_answers()
+        .await
+        .map(application_screening_answer_previews)
+        .map_err(|e| user_friendly_error("Failed to get application screening previews", e))
 }
 
 /// Find the best answer for a specific question

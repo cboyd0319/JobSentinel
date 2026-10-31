@@ -1,3 +1,5 @@
+<!-- Documents JobSentinel - macOS Development Guide. -->
+
 # JobSentinel - macOS Development Guide
 
 **Status:** Local app packaging and universal DMG packaging verified on macOS
@@ -464,15 +466,16 @@ rustflags = ["-C", "link-arg=-fuse-ld=/opt/homebrew/bin/mold"]
 ## Current macOS Readiness
 
 Current macOS full-public-readiness is 94%; no-account path completion is 100%.
-The full-public value is the maximum honest readiness while the project has no
-Apple Developer Account. The remaining 6% requires Developer ID signing,
+These are structural readiness scores, not current v3 release acceptance or a
+percentage of development completed. The signed path still requires Developer ID signing,
 notarization, stapling, Gatekeeper acceptance, and signed public-artifact
 verification.
 
-1. **Local package path verified** - Universal DMG build, checksum
+1. **Historical local package evidence** - Universal DMG build, checksum
    verification, app signature verification, architecture check, and packaged
    plus installed visible-window launch smoke pass locally, including local
-   database creation under isolated macOS homes.
+   database creation under isolated macOS homes. Re-run applicable proof for the
+   actual release candidate; historical runs do not certify the current branch.
 2. **No-account public package path available** - Public macOS releases can use
    a clearly labeled ad-hoc signed package with a matching `.dmg.sha256` and a
    passing public verifier. It still requires first-open Privacy & Security

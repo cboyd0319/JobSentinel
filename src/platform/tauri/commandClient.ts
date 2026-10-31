@@ -1,14 +1,16 @@
 /** Product-neutral Tauri renderer command client. */
 
-import { invoke } from "@tauri-apps/api/core";
+import { invoke as nativeInvoke } from "@tauri-apps/api/core";
 
 interface CacheEntry<T> {
   data: T;
   timestamp: number;
+  generation: number;
 }
 
 interface InFlightRequest<T> {
   promise: Promise<T>;
+  generation: number;
 }
 
 // In-flight request tracking (prevents duplicate concurrent calls)
@@ -16,6 +18,18 @@ const inFlightRequests = new Map<string, InFlightRequest<unknown>>();
 
 // Response cache with TTL
 const responseCache = new Map<string, CacheEntry<unknown>>();
+
+// Per-command invalidation generations keep pre-invalidation work from affecting fresh reads.
+const commandGenerations = new Map<string, number>();
+let nextGeneration = 0;
+let sessionGeneration = 0;
+
+export async function invoke<T>(...args: Parameters<typeof nativeInvoke>): Promise<T> {
+  const generation = sessionGeneration;
+  const result = await nativeInvoke<T>(...args);
+  if (generation !== sessionGeneration) throw new Error("The private session changed. Try again.");
+  return result;
+}
 
 // Default cache TTL: 30 seconds
 const DEFAULT_CACHE_TTL = 30_000;
@@ -69,21 +83,24 @@ async function deduplicatedInvoke<T>(
   args?: Record<string, unknown>
 ): Promise<T> {
   const key = getCacheKey(cmd, args);
+  const generation = getCommandGeneration(cmd);
 
   // Check if request is already in flight
   const inFlight = inFlightRequests.get(key);
-  if (inFlight) {
+  if (inFlight?.generation === generation) {
     return inFlight.promise as Promise<T>;
   }
 
   // Create new request
-  const promise = invoke<T>(cmd, args).finally(() => {
-    // Remove from in-flight tracking when complete
-    inFlightRequests.delete(key);
-  });
+  const promise = invoke<T>(cmd, args);
+  const request: InFlightRequest<T> = { promise, generation };
+  void promise.then(
+    () => clearInFlightRequest(key, request),
+    () => clearInFlightRequest(key, request),
+  );
 
   // Track the in-flight request
-  inFlightRequests.set(key, { promise });
+  inFlightRequests.set(key, request);
 
   return promise;
 }
@@ -102,10 +119,15 @@ export async function cachedInvoke<T>(
   ttl: number = DEFAULT_CACHE_TTL
 ): Promise<T> {
   const key = getCacheKey(cmd, args);
+  const generation = getCommandGeneration(cmd);
 
   // Check cache first
   const cached = responseCache.get(key);
-  if (cached && Date.now() - cached.timestamp < ttl) {
+  if (
+    cached &&
+    cached.generation === generation &&
+    Date.now() - cached.timestamp < ttl
+  ) {
     return cached.data as T;
   }
 
@@ -113,10 +135,13 @@ export async function cachedInvoke<T>(
   const result = await deduplicatedInvoke<T>(cmd, args);
 
   // Cache the result
-  responseCache.set(key, {
-    data: result,
-    timestamp: Date.now(),
-  });
+  if (getCommandGeneration(cmd) === generation) {
+    responseCache.set(key, {
+      data: result,
+      timestamp: Date.now(),
+      generation,
+    });
+  }
 
   return result;
 }
@@ -125,10 +150,31 @@ export async function cachedInvoke<T>(
  * Invalidate all cached responses for a command (regardless of args)
  */
 export function invalidateCacheByCommand(cmd: string): void {
+  commandGenerations.set(cmd, ++nextGeneration);
   for (const key of responseCache.keys()) {
     if (key === cmd || key.startsWith(`${cmd}:`)) {
       responseCache.delete(key);
     }
+  }
+}
+
+export function clearCommandCache(): void {
+  sessionGeneration = ++nextGeneration;
+  commandGenerations.clear();
+  responseCache.clear();
+  inFlightRequests.clear();
+}
+
+function getCommandGeneration(cmd: string): number {
+  return commandGenerations.get(cmd) ?? sessionGeneration;
+}
+
+function clearInFlightRequest(
+  key: string,
+  request: InFlightRequest<unknown>,
+): void {
+  if (inFlightRequests.get(key) === request) {
+    inFlightRequests.delete(key);
   }
 }
 

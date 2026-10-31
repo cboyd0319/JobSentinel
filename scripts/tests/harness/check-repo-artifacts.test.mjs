@@ -1,3 +1,4 @@
+// Verifies artifact policy boundaries while preserving local agent metadata.
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
@@ -75,11 +76,12 @@ test("artifact checks reject unexpected root entries and local artifacts", () =>
   });
 });
 
-test("artifact checks ignore the local .claude agent directory", () => {
+test("artifact checks preserve local agent metadata directories", () => {
   withGitFixture((root) => {
     writeFixtureFile(root, "package.json", "{}\n");
     writeFixtureFile(root, "README.md", "# JobSentinel\n");
     writeFixtureFile(root, ".claude/settings.local.json", "{}\n");
+    writeFixtureFile(root, ".serena/project.local.yml", "language: rust\n");
 
     assert.deepEqual(collectUnexpectedRootEntries(root), []);
     assert.deepEqual(collectFilesystemBloat(root), []);

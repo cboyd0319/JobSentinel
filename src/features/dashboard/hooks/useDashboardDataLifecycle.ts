@@ -1,3 +1,5 @@
+/** Loads dashboard jobs, status, and current search-preference context. */
+
 import { useCallback, useEffect, useRef, type Dispatch, type SetStateAction } from "react";
 import { useToast } from "../../../shared/toast/useToast";
 import { cachedInvoke, invalidateCacheByCommand } from "../../../platform/tauri";
@@ -21,6 +23,7 @@ interface DashboardDataLifecycleOptions {
   setJobs: Dispatch<SetStateAction<Job[]>>;
   setLoading: Dispatch<SetStateAction<boolean>>;
   setSalaryFloorUsd: Dispatch<SetStateAction<number | null>>;
+  setSearchCountry: Dispatch<SetStateAction<string | null>>;
   setScrapingStatus: Dispatch<SetStateAction<ScrapingStatus>>;
   setStatistics: Dispatch<SetStateAction<Statistics>>;
 }
@@ -35,13 +38,16 @@ export function useDashboardDataLifecycle({
   setJobs,
   setLoading,
   setSalaryFloorUsd,
+  setSearchCountry,
   setScrapingStatus,
   setStatistics,
 }: DashboardDataLifecycleOptions) {
   const fetchDataRef = useRef<(() => Promise<void>) | null>(null);
+  const loadGeneration = useRef(0);
   const toast = useToast();
 
   const fetchData = useCallback(async () => {
+    const generation = ++loadGeneration.current;
     try {
       setLoading(true);
       setError(null);
@@ -51,6 +57,7 @@ export function useDashboardDataLifecycle({
         cachedInvoke<Statistics>("get_statistics", undefined, 30_000),
         cachedInvoke<ScrapingStatus>("get_scraping_status", undefined, 10_000),
       ]);
+      if (generation !== loadGeneration.current) return;
 
       setJobs(jobsData);
       setStatistics(statsData);
@@ -62,6 +69,7 @@ export function useDashboardDataLifecycle({
           undefined,
           60_000,
         );
+        if (generation !== loadGeneration.current) return;
         if (preferences?.autoRefresh) {
           setAutoRefreshEnabled(preferences.autoRefresh.enabled);
           setAutoRefreshInterval(preferences.autoRefresh.interval_minutes || 30);
@@ -72,14 +80,17 @@ export function useDashboardDataLifecycle({
         if (typeof preferences?.anyJobSourceEnabled === "boolean") {
           setAnyJobSourceEnabled(preferences.anyJobSourceEnabled);
         }
+        setSearchCountry(typeof preferences?.searchCountry === "string" && /^[A-Z]{2}$/.test(preferences.searchCountry)
+          ? preferences.searchCountry : null);
       } catch {
         // Preferences may be unavailable during startup; use defaults.
       }
     } catch (error: unknown) {
+      if (generation !== loadGeneration.current) return;
       logError("Failed to fetch dashboard data:", error);
       setError(getDashboardLoadErrorMessage(error));
     } finally {
-      setLoading(false);
+      if (generation === loadGeneration.current) setLoading(false);
     }
   }, [
     setAnyJobSourceEnabled,
@@ -89,6 +100,7 @@ export function useDashboardDataLifecycle({
     setJobs,
     setLoading,
     setSalaryFloorUsd,
+    setSearchCountry,
     setScrapingStatus,
     setStatistics,
   ]);
@@ -99,6 +111,7 @@ export function useDashboardDataLifecycle({
 
   useEffect(() => {
     void fetchData();
+    return () => { loadGeneration.current += 1; };
   }, [fetchData]);
 
   useEffect(() => {

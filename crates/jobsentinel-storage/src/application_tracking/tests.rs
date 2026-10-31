@@ -385,3 +385,66 @@ mod stats_edge_tests;
 mod status_basic_tests;
 #[path = "tests/status_coverage_tests.rs"]
 mod status_coverage_tests;
+
+#[tokio::test]
+async fn concurrent_applied_retries_record_one_transition_and_reminder() {
+    let pool = crate::test_support::migrated_pool().await;
+    sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('applied-retry', 'Engineer', 'Test', 'https://example.com/job', 'test')").execute(&pool).await.unwrap();
+    let tracker = ApplicationTracker::new(pool.clone());
+    let (first, second) = tokio::join!(
+        tracker.record_job_applied("applied-retry"),
+        tracker.record_job_applied("applied-retry")
+    );
+    first.unwrap();
+    second.unwrap();
+    let id = tracker
+        .find_application_id_by_job_hash("applied-retry")
+        .await
+        .unwrap()
+        .unwrap();
+    let events: i64 = sqlx::query_scalar("SELECT count(*) FROM application_events WHERE application_id=? AND event_type='status_change'").bind(id).fetch_one(&pool).await.unwrap();
+    let reminders: i64 =
+        sqlx::query_scalar("SELECT count(*) FROM application_reminders WHERE application_id=?")
+            .bind(id)
+            .fetch_one(&pool)
+            .await
+            .unwrap();
+    assert_eq!((events, reminders), (1, 1));
+    tracker
+        .update_status(id, ApplicationStatus::Withdrawn)
+        .await
+        .unwrap();
+    tracker.record_job_applied("applied-retry").await.unwrap();
+    let events: i64 = sqlx::query_scalar("SELECT count(*) FROM application_events WHERE application_id=? AND event_type='status_change'").bind(id).fetch_one(&pool).await.unwrap();
+    assert_eq!(events, 3);
+}
+
+#[tokio::test]
+async fn failed_applied_reminder_rolls_back_status_and_event() {
+    let pool = crate::test_support::migrated_pool().await;
+    sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('failed-apply', 'Engineer', 'Test', 'https://example.com/job', 'test')").execute(&pool).await.unwrap();
+    let tracker = ApplicationTracker::new(pool.clone());
+    let id = tracker.create_application("failed-apply").await.unwrap();
+    sqlx::query("CREATE TRIGGER refuse_reminder BEFORE INSERT ON application_reminders BEGIN SELECT RAISE(ABORT, 'fixture refusal'); END").execute(&pool).await.unwrap();
+    assert!(tracker.record_job_applied("failed-apply").await.is_err());
+    assert_eq!(
+        tracker.get_application(id).await.unwrap().status,
+        ApplicationStatus::ToApply
+    );
+    let events: i64 =
+        sqlx::query_scalar("SELECT count(*) FROM application_events WHERE application_id=?")
+            .bind(id)
+            .fetch_one(&pool)
+            .await
+            .unwrap();
+    assert_eq!(events, 0);
+    sqlx::query("DROP TRIGGER refuse_reminder")
+        .execute(&pool)
+        .await
+        .unwrap();
+    tracker.record_job_applied("failed-apply").await.unwrap();
+    assert_eq!(
+        tracker.get_application(id).await.unwrap().status,
+        ApplicationStatus::Applied
+    );
+}

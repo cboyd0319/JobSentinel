@@ -1,4 +1,7 @@
+/** Defines local notification preferences and evaluates job alert eligibility. */
+
 import { safeInvoke } from "../platform/tauri";
+import { getJobUsdAnnualPayBounds } from "./listedPay";
 
 const SALARY_INPUT_MULTIPLIER = 1000;
 
@@ -70,6 +73,8 @@ export interface JobForNotification {
   company: string;
   salary_min?: number | null;
   salary_max?: number | null;
+  currency?: string | null;
+  listed_pay?: unknown | null;
   remote?: boolean | null;
   location?: string | null;
 }
@@ -218,8 +223,9 @@ export function shouldNotifyForJob(
     if (advancedFilters.minSalary !== null) {
       const minSalaryThreshold =
         advancedFilters.minSalary * SALARY_INPUT_MULTIPLIER;
-      const jobMaxSalary = job.salary_max ?? job.salary_min ?? 0;
-      if (jobMaxSalary > 0 && jobMaxSalary < minSalaryThreshold) return false;
+      const pay = getJobUsdAnnualPayBounds(job);
+      const jobMaxSalary = pay?.max ?? pay?.min;
+      if (jobMaxSalary !== null && jobMaxSalary !== undefined && jobMaxSalary < minSalaryThreshold) return false;
     }
 
     // Remote-only filter

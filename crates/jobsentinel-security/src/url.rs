@@ -1,7 +1,17 @@
-//! Shared URL validation for user-controlled external destinations.
+//! Validates external destinations and encodes local paths as file URLs.
 
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
 use url::{form_urlencoded::Serializer, Url};
+
+/// Encodes an absolute or relative local path without interpreting filename bytes as URL syntax.
+pub fn local_file_url(path: &std::path::Path) -> std::io::Result<Url> {
+    Url::from_file_path(std::path::absolute(path)?).map_err(|()| {
+        std::io::Error::new(
+            std::io::ErrorKind::InvalidInput,
+            "Local file path cannot be encoded",
+        )
+    })
+}
 
 const MAX_LOG_URL_LEN: usize = 80;
 const BLOCKED_HOST_SUFFIXES: &[&str] = &["local", "lan", "home", "internal", "corp"];
@@ -117,6 +127,21 @@ pub fn validate_external_https_url(url: &str) -> Result<Url, String> {
         return Err("Blocked insecure URL: https required".to_string());
     }
 
+    Ok(parsed)
+}
+
+/// Validate a public HTTPS destination that is safe to retain as audit metadata.
+pub fn validate_credential_free_external_https_url(url: &str) -> Result<Url, String> {
+    let parsed = validate_external_https_url(url)?;
+    if !parsed.username().is_empty()
+        || parsed.password().is_some()
+        || parsed.query().is_some()
+        || parsed.fragment().is_some()
+    {
+        return Err(
+            "Blocked URL with credentials, query parameters, or a private fragment".to_string(),
+        );
+    }
     Ok(parsed)
 }
 
@@ -269,6 +294,14 @@ fn is_blocked_ipv4(ip: Ipv4Addr) -> bool {
         || ip.is_multicast()
         || octets[0] == 0
         || (octets[0] == 100 && (64..=127).contains(&octets[1]))
+        // IETF Protocol Assignments; `.9` and `.10` are globally reachable anycast exceptions.
+        || (octets[0] == 192
+            && octets[1] == 0
+            && octets[2] == 0
+            && !matches!(octets[3], 9 | 10))
+        || ip.is_documentation()
+        || (octets[0] == 198 && matches!(octets[1], 18 | 19))
+        || octets[0] >= 240
 }
 
 fn is_blocked_ipv6(ip: Ipv6Addr) -> bool {
@@ -282,8 +315,33 @@ fn is_blocked_ipv6(ip: Ipv6Addr) -> bool {
     ip.is_loopback()
         || ip.is_unspecified()
         || ip.is_multicast()
+        || is_iana_non_global_ipv6(ip)
         || (octets[0] & 0xfe) == 0xfc
         || (octets[0] == 0xfe && (octets[1] & 0xc0) == 0x80)
+}
+
+fn is_iana_non_global_ipv6(ip: Ipv6Addr) -> bool {
+    let segments = ip.segments();
+
+    matches!(
+        segments,
+        [0x0064, 0xff9b, 0x0001, ..]
+            | [0x0100, 0, 0, 0 | 1, ..]
+            | [0x2001, 0x0db8, ..]
+            | [0x3fff, 0..=0x0fff, ..]
+            | [0x5f00, ..]
+    ) || is_non_global_ietf_protocol_assignment_ipv6(segments)
+}
+
+fn is_non_global_ietf_protocol_assignment_ipv6(segments: [u16; 8]) -> bool {
+    segments[0] == 0x2001
+        && segments[1] <= 0x01ff
+        && !matches!(
+            segments,
+            [0x2001, 1, 0, 0, 0, 0, 0, 1 | 2 | 3]
+                | [0x2001, 3 | 0x0020..=0x003f, ..]
+                | [0x2001, 4, 0x0112, ..]
+        )
 }
 
 #[cfg(test)]

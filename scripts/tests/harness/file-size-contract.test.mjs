@@ -1,3 +1,4 @@
+// Verifies file-size ceilings, unsafe paths and non-exempt instruction-file limits.
 import assert from "node:assert/strict";
 import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -186,5 +187,29 @@ test("governed scans reject an intermediate junction or symlink escaping the rep
     } finally {
       rmSync(outside, { recursive: true, force: true });
     }
+  });
+});
+
+test("AGENTS limits include root and unlisted downstream files at exact boundaries", () => {
+  withFixture((root) => {
+    writeFixture(root, "AGENTS.md", "\n".repeat(149) + "x".repeat(32768 - 149));
+    writeFixture(root, "ignored/nested/AGENTS.md", "x\r\n".repeat(150));
+    assert.deepEqual(scan(root, []), []);
+    writeFixture(root, "ignored/nested/AGENTS.md", "x\r\n".repeat(151));
+    assert.match(scan(root, []).join("\n"), /AGENTS.md.*151 lines.*150/);
+    writeFixture(root, "ignored/nested/AGENTS.md", "é".repeat(16385));
+    assert.match(scan(root, []).join("\n"), /AGENTS.md.*32770 bytes.*32768/);
+  });
+});
+
+test("AGENTS caps cannot be bypassed by generated exclusions or source exceptions", () => {
+  withFixture((root) => {
+    writeFixture(root, "generated/AGENTS.md", "x\n".repeat(151));
+    const violations = scan(root, ["generated/AGENTS.md"]).join("\n");
+    assert.match(violations, /AGENTS.md.*151 lines.*150/);
+    assert.match(violations, /AGENTS.md.*exceptions are forbidden/);
+  }, {
+    non_hand_authored_exclusions: [{ path: "generated", category: "generated", owner: "test", reason: "fixture", refresh_trigger: "test" }],
+    exceptions: [{ path: "generated/AGENTS.md", max_lines: 501, max_bytes: 65536, affected_rules: ["hard_lines"], owner: "test", reason: "fixture", approval_date: "2026-10-28", retirement_condition: "test" }],
   });
 });

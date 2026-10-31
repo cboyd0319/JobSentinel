@@ -1,3 +1,5 @@
+<!-- Documents webhook Security Guide. -->
+
 # Webhook Security Guide
 
 Notification webhooks are both credentials and outbound data channels. A leaked
@@ -25,7 +27,7 @@ JobSentinel must:
 | Notification payloads and delivery | `crates/jobsentinel-notifications/src/` |
 | Notification orchestration | `crates/jobsentinel-application/src/notify/` |
 | Secret storage | `crates/jobsentinel-credentials/src/` |
-| Desktop credential commands | `src-tauri/src/ipc/credentials/` |
+| Desktop credential commands | `src-tauri/src/ipc/credentials.rs` |
 
 Provider rules are summarized in
 [Notification Webhook URL Validation](WEBHOOK_URL_VALIDATION.md).

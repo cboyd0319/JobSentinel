@@ -1,3 +1,5 @@
+/** Renders the filtered dashboard job list and job-scoped actions. */
+
 import type { ReactNode, RefObject } from "react";
 import { Button } from "../../../ui/Button";
 import { Card, CardHeader } from "../../../ui/Card";
@@ -11,6 +13,7 @@ interface DashboardJobListProps {
   filteredJobs: Job[];
   noJobsCopy: NoJobsEmptyStateCopy;
   noSourcesEnabled: boolean;
+  countryFiltered?: boolean;
   searching: boolean;
   jobListRef: RefObject<HTMLDivElement | null>;
   bulkMode: boolean;
@@ -26,7 +29,7 @@ interface DashboardJobListProps {
   onHideJob: (id: number) => void;
   onToggleBookmark: (id: number) => void;
   onEditNotes: (id: number, currentNotes?: string | null) => void;
-  onResearchCompany: (company: string) => void;
+  onResearchCompany: (company: string, jobHash: string | undefined) => void;
   renderApplicationAssistAction?: (job: Job) => ReactNode;
 }
 
@@ -35,6 +38,7 @@ export function DashboardJobList({
   filteredJobs,
   noJobsCopy,
   noSourcesEnabled,
+  countryFiltered = false,
   searching,
   jobListRef,
   bulkMode,
@@ -53,6 +57,7 @@ export function DashboardJobList({
   onResearchCompany,
   renderApplicationAssistAction,
 }: DashboardJobListProps) {
+  const showSettingsFirst = noSourcesEnabled || countryFiltered;
   if (jobs.length === 0) {
     return (
       <Card
@@ -70,13 +75,13 @@ export function DashboardJobList({
         />
         <div className="mt-4 flex flex-wrap justify-center gap-3">
           <Button
-            onClick={noSourcesEnabled ? onOpenSettings : onSearchNow}
-            loading={!noSourcesEnabled && searching}
+            onClick={showSettingsFirst ? onOpenSettings : onSearchNow}
+            loading={!showSettingsFirst && searching}
           >
             {noJobsCopy.primaryLabel}
           </Button>
           <Button
-            onClick={noSourcesEnabled ? onOpenImport : onOpenSettings}
+            onClick={showSettingsFirst ? onOpenImport : onOpenSettings}
             variant="secondary"
           >
             {noJobsCopy.secondaryLabel}

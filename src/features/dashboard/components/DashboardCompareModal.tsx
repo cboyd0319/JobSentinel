@@ -1,3 +1,5 @@
+/** Renders an accessible side-by-side comparison for selected dashboard jobs. */
+
 import { memo } from "react";
 import { Button } from "../../../ui/Button";
 import { Modal, ModalFooter } from "../../../ui/Modal";
@@ -78,7 +80,7 @@ export const DashboardCompareModal = memo(function DashboardCompareModal({
                   <CompareRow
                     label="Listed Pay"
                     values={comparedJobs.map((job) =>
-                      formatDashboardListedPay(job.salary_min, job.salary_max),
+                      formatDashboardListedPay(job),
                     )}
                   />
                   <CompareRow

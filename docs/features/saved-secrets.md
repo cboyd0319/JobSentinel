@@ -1,10 +1,12 @@
-# Saved Secrets
+<!-- Explains saving, using and deleting local secrets without exposing their values. -->
+
+# Saved secrets
 
 JobSentinel keeps alert passwords, access codes, and private connection links
 inside an encrypted local vault. They should not live in plain app files,
 screenshots, shared notes, support reports, or logs.
 
-## Why It Matters
+## Why it matters
 
 Job-search data is sensitive, and alert setup details can be sensitive too. A
 private connection link or app password can let someone else send alerts as you
@@ -14,7 +16,7 @@ JobSentinel reduces that risk by encrypting saved details inside the local app
 database and protecting the vault key with your computer's password store by
 default.
 
-## What Gets Saved There
+## What gets saved there
 
 | Saved detail | Used for |
 | ------------ | -------- |
@@ -25,10 +27,17 @@ default.
 | Telegram setup code | Telegram alerts |
 | USAJobs access code | USAJobs checks |
 
-Search preferences, alert choices, saved jobs, applications, private notes, and
-salary floors also stay in JobSentinel's encrypted local app data.
+Saved jobs, applications and private notes stay in the encrypted local database.
+Search preferences, alert choices and salary-floor settings also stay local but
+can live in the separate settings file; they are not all encrypted database fields.
 
-## What You May See
+Portable profiles protect both the database and saved credential key with the
+portable profile passphrase, without using host credential entries. Shared-computer
+mode must be turned off before changing an installed profile's vault-lock policy.
+Portable profiles cannot disable or independently change their saved-details
+passphrase. See [local-data controls](user-data-management.md).
+
+## What you may see
 
 | Computer | Password store name |
 | -------- | ------------------- |
@@ -52,7 +61,7 @@ this passive Settings view. Re-enter the connection link, app password, or
 access code before saving, or use the Test button for that alert when you are
 ready to confirm it.
 
-## If Something Stops Working
+## If something stops working
 
 Try these steps in order:
 
@@ -64,12 +73,12 @@ Try these steps in order:
 
 On Linux, signing out and back in can also reopen the local password store.
 
-## Older Installations
+## Supported settings
 
-Older JobSentinel versions may have saved some setup details in older app
-settings. When JobSentinel starts, it tries to move those details into the
-password store and clear the old copy. If that move cannot finish safely,
-JobSentinel retries later instead of pretending cleanup is complete.
+V3.0.0 is the first supported version. Settings files containing old password,
+token or private webhook fields are rejected without changing the file or saved
+secrets. JobSentinel does not automatically import plaintext config or old
+per-secret OS entries. Enter credentials through Settings.
 
 Legacy LinkedIn saved details may exist on older installations only so
 JobSentinel can delete or redact old values. JobSentinel does not collect new
@@ -91,7 +100,7 @@ sessions where JobSentinel does not inspect or automate the site, a privacy
 reminder is enough; hard expiry is reserved for any future restricted-source
 feature that reads or automates restricted content.
 
-## Safe Support Reports
+## Safe support reports
 
 Safe support reports must not include saved secret values. They may say whether
 a detail is saved or missing, but they should not include the actual connection
@@ -99,7 +108,7 @@ link, app password, access code, cookies, private URL parts, or local file paths
 
 Review every support report before sharing it.
 
-## Required Guardrails
+## Required guardrails
 
 - Saved secret values stay local unless you turn on an outside alert or
   job-source connection that needs them.

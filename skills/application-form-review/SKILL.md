@@ -6,6 +6,8 @@ metadata:
   jobsentinel_version_target: "2.9.0"
 ---
 
+<!-- Guides truthful application answers while preserving manual submission and source restrictions. -->
+
 # Application Form Review
 
 Use this skill to help the user prepare application-form answers without taking
@@ -55,8 +57,9 @@ documents, background-check details, salary history, or references.
 10. Flag questions that need user review before continuing.
 11. End with a submission checklist and convert unresolved mismatches into user
     questions. The user submits manually.
-12. Require explicit user approval before connecting accounts, uploading files,
-   using automation to fill fields, saving credentials, or saving cookies.
+12. Require explicit user approval before any permitted account connection,
+    upload or reviewed field fill. Never collect or store restricted-site login
+    details, cookies, tokens or browser storage.
 
 ## Load References
 
@@ -99,5 +102,6 @@ checklist.
 - Do not store or reuse sensitive answers outside the user's chosen local
   tracker.
 - Do not automate restricted application portals or bypass human checks.
-- Do not connect accounts, save credentials, save cookies, or upload resumes
-  without explicit approval for that exact action.
+- Do not collect restricted-site login details, cookies, tokens or browser storage.
+- Permitted account connections, credential saves and uploads still require
+  explicit approval for the exact action; site restrictions remain binding.

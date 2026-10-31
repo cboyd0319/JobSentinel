@@ -1,5 +1,6 @@
+// Tests workflow, credential and instruction-file security sensor boundaries.
 import assert from "node:assert/strict";
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import test from "node:test";
 import { checkSecuritySensors } from "../../checks/security-sensors.mjs";
@@ -192,6 +193,35 @@ test("checkSecuritySensors rejects missing CODEOWNERS owner boundary", () => {
       "CODEOWNERS is missing owner review boundary for .github/workflows/: @cboyd0319",
     ),
   );
+});
+
+test("checkSecuritySensors accepts only the reviewed Serena instruction path", () => {
+  const root = mkdtempRoot("jobsentinel-security-sensors-serena-");
+  writeSelfOnlyBaseRepo(root);
+  mkdirSync(join(root, ".serena/nested"), { recursive: true });
+  writeFileSync(join(root, ".serena/AGENTS.md"), "# Reviewed Serena workflow\n");
+  assert.deepEqual(checkSecuritySensors(root), []);
+  for (const path of [".serena/CLAUDE.md", ".serena/nested/AGENTS.md"]) {
+    writeFileSync(join(root, path), "# Unreviewed instructions\n");
+  }
+  assert.deepEqual(checkSecuritySensors(root), [
+    "unexpected persistent agent instruction file must be reviewed and added to the harness allowlist: .serena/CLAUDE.md",
+    "unexpected persistent agent instruction file must be reviewed and added to the harness allowlist: .serena/nested/AGENTS.md",
+  ]);
+});
+
+test("checkSecuritySensors requires vault, portable isolation and plaintext-secret evidence", () => {
+  const root = mkdtempRoot("jobsentinel-security-sensors-credential-matrix-");
+  writeSelfOnlyBaseRepo(root);
+  const path = join(root, "docs/harness/verification-matrix.md");
+  const matrix = readFileSync(path, "utf8");
+  assert.deepEqual(checkSecuritySensors(root), []);
+  for (const phrase of ["Vault/key-protection behavior", "portable host-store isolation", "no plaintext-secret path"]) {
+    writeFileSync(path, matrix.replace(phrase, ""));
+    assert.deepEqual(checkSecuritySensors(root), [
+      "verification matrix is missing security sensor entry: credential handling",
+    ]);
+  }
 });
 
 test("checkSecuritySensors rejects unexpected persistent agent instruction files", () => {

@@ -1,3 +1,5 @@
+//! Maintains canonical document-backed resume drafts and builder mutations.
+
 use crate::sqlite_time::parse_sqlite_datetime;
 use anyhow::{Context, Result};
 use chrono::{DateTime, Utc};
@@ -7,10 +9,8 @@ use jobsentinel_documents::{
 use serde::{Deserialize, Serialize};
 use sqlx::SqlitePool;
 
-mod deserialization;
 mod serialization;
 
-use deserialization::string_from_value;
 use serialization::group_skills;
 
 /// Persisted resume metadata wrapped around the canonical document model.
@@ -43,7 +43,7 @@ pub struct DraftEducation {
 /// Flat builder payload paired with the canonical skill content.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DraftSkill {
-    #[serde(default, deserialize_with = "string_from_value")]
+    #[serde(default)]
     pub category: String,
     #[serde(flatten)]
     pub skill: ResumeSkill,

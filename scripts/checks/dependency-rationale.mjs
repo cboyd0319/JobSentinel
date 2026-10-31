@@ -1,9 +1,6 @@
 #!/usr/bin/env node
+// Checks direct dependency rationales and unused Cargo workspace entries for lint:deps:why.
 
-// YAGNI enforcement sensor. Every direct dependency must earn its place with a
-// one-line rationale (engineering-principles.md ladder step 4). Adding a direct
-// npm or Cargo dependency without a matching rationale fails harness:check, and
-// a rationale for a dependency that no longer exists fails too.
 
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";

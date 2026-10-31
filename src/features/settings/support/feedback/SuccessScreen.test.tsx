@@ -1,3 +1,5 @@
+/** Verifies support-report completion copy and remaining review steps. */
+
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
@@ -33,7 +35,7 @@ describe("SuccessScreen", () => {
       screen.getByRole("heading", { name: /ready to finish the report/i })
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/your safe support report is in your clipboard/i)
+      screen.getByText(/your safe support report was copied to your clipboard/i)
     ).toBeInTheDocument();
     expect(
       screen.getByText(/online help page should have opened in your browser/i)

@@ -1,3 +1,5 @@
+<!-- Documents repository Architecture. -->
+
 # Repository Architecture
 
 ## Scale Contract
@@ -88,7 +90,10 @@ above 300 physical lines or 32,768 bytes. It fails above 500 physical lines or
 temporary ratchet with the affected rule, owner, reason, measured ceiling,
 approval date, and retirement condition. Blank and comment lines count.
 
-Generated, vendored, and lock exclusions must be exact files or directories
+Every `AGENTS.md`, including nested files, has a separate non-exempt limit of
+150 lines and 32 KiB.
+
+Generated, vendored, and lock exclusions for other files must be exact files or directories
 with a category, owner, and reason. Migrations, fixtures, snapshots, workflows,
 scripts, and tests remain governed unless proven generated.
 

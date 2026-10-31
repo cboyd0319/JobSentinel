@@ -1,3 +1,5 @@
+<!-- Routes readers to JobSentinel's maintained user, developer, security, research, and planning documentation. -->
+
 # JobSentinel Documentation
 
 This directory is the working documentation system for JobSentinel. The root
@@ -41,14 +43,15 @@ The maintained external source index lives in
 
 ## Current State
 
-- Package metadata version: `2.9.5` source candidate.
-- Current public release: `v2.9.1`, published on 2026-06-23 UTC at
-  `https://github.com/cboyd0319/JobSentinel/releases/tag/v2.9.1`.
+- Development package metadata version: `3.0.0`. This source line is unreleased.
+- Current public release: `v2.9.5`, published on 2026-07-18 UTC at
+  `https://github.com/cboyd0319/JobSentinel/releases/tag/v2.9.5`.
 - Release assets are produced from manual release workflow dispatches on GitHub
   version tags, or from verified local platform builds, and verified after
   publication with checksum, SBOM, attestation, and platform package checks.
-- Current macOS full-public-readiness is 94%; no-account path completion is
-  100% at the 94% public-readiness ceiling. The no-account universal DMG path
+- The historical v2.9.5 macOS readiness snapshot recorded 94% full-public-readiness
+  and 100% no-account path completion at that ceiling. These scorer figures do not
+  establish current v3 readiness. The no-account universal DMG path
   covers checksum, metadata, architecture, launch, install, and isolated-data
   smoke gates. Zero-friction Gatekeeper-ready public distribution still
   requires Apple Developer Program materials, Developer ID signing,
@@ -59,8 +62,10 @@ The maintained external source index lives in
   no-account release path when hosted macOS proof is not needed; hosted
   cross-platform release builds remain available by manual dispatch from a
   release tag.
-- Current active work is final `v2.9.5` release-readiness verification after the
-  full repository refactor and cleanup. Pending and unreleased work is tracked in
+- Every release from v3 onward requires separate full **Stability → Performance → Security**
+  phases, in order, under the [Release Contract](developer/RELEASING.md#mandatory-final-release-phases).
+- Current active work is the v3 master execution plan after the verified
+  `v2.9.5` release. Pending and unreleased work is tracked in
   [CHANGELOG.md](../CHANGELOG.md) and the
   [active plans index](plans/README.md#current-active-plans).
 - Historical release notes are indexed in

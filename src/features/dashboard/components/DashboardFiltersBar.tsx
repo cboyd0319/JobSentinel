@@ -295,7 +295,9 @@ export const DashboardFiltersBar = memo(function DashboardFiltersBar({
             options={[
               { value: "all", label: "All Locations" },
               { value: "remote", label: "Remote Only" },
+              { value: "hybrid", label: "Hybrid Only" },
               { value: "onsite", label: "On-site Only" },
+              { value: "unspecified", label: "Not disclosed / unspecified" },
             ]}
           />
 

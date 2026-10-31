@@ -1,4 +1,7 @@
+/** Shows optional work-history entries and user-controlled military-transition guidance. */
+
 import { memo } from "react";
+import { MilitaryTransitionGuidance } from "../../../../shared/MilitaryTransitionGuidance";
 import { Button } from "../../../../ui/Button";
 import { CardHeader } from "../../../../ui/Card";
 import { TrashIcon } from "../../library/ResumeIcons";
@@ -36,6 +39,11 @@ const ExperienceStep = memo(function ExperienceStep({
           + Add Experience
         </Button>
       </div>
+      <p className="text-sm text-surface-600 dark:text-surface-300">
+        This step is optional. If you have no work history or prefer not to include it,
+        continue with education, skills, and a truthful summary. Do not invent employment.
+      </p>
+      <MilitaryTransitionGuidance />
       {experiences.length === 0 ? (
         <div className="text-center py-8">
           <div className="w-12 h-12 bg-surface-100 dark:bg-surface-700 rounded-full flex items-center justify-center mx-auto mb-3">

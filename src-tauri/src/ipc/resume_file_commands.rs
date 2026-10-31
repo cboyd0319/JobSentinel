@@ -1,16 +1,19 @@
-use crate::application::resume::ResumeMatcher;
+//! Imports bounded regular resume files and cleans app-owned copies on failure.
+
+use crate::application::resume::{ResumeMatcher, MAX_RESUME_FILE_BYTES};
+use crate::bootstrap::operation::{OperationLease, State};
 use crate::bootstrap::AppState;
 use crate::desktop;
 use crate::desktop::path_label_for_logging;
 use crate::ipc::errors::user_friendly_error;
+use crate::ipc::local_file::{copy_bounded, open_regular_source, read_bounded_text, LocalFileCopy};
 use crate::ipc::resume_file_names::safe_resume_file_stem;
 use std::path::{Path, PathBuf};
-use tauri::State;
+use std::sync::Arc;
 use tauri_plugin_dialog::DialogExt;
 use uuid::Uuid;
 
 const MAX_JSON_RESUME_IMPORT_BYTES: u64 = 5 * 1024 * 1024;
-pub(super) const MAX_SELECTED_RESUME_UPLOAD_BYTES: u64 = 10 * 1024 * 1024;
 const MANAGED_RESUME_UPLOAD_DIR: &str = "resume-uploads";
 const SUPPORTED_RESUME_UPLOAD_EXTENSIONS: &[&str] = &["pdf", "docx", "txt", "md", "html", "htm"];
 
@@ -32,38 +35,56 @@ pub(crate) async fn select_and_upload_resume(
     let source_path = file_path
         .into_path()
         .map_err(|_| "Could not read the selected resume file.".to_string())?;
-    let (name, managed_path) = copy_selected_resume_to_managed_storage(&source_path)?;
-    let resume_id = match upload_resume_from_managed_path(name, managed_path.clone(), state).await {
-        Ok(resume_id) => resume_id,
-        Err(error) => {
-            delete_managed_resume_upload_file(
-                Some(managed_path.to_string_lossy().as_ref()),
-                &managed_resume_upload_dir(),
-            )
-            .ok();
-            return Err(error);
-        }
-    };
+    let name = selected_resume_name(&source_path, "Resume");
+    let resume_id = import_selected_resume_from_path(name, &source_path, state).await?;
 
     Ok(Some(resume_id))
 }
 
-async fn upload_resume_from_managed_path(
+pub(crate) async fn import_selected_resume_from_path(
     name: String,
-    file_path: PathBuf,
+    source_path: &Path,
     state: State<'_, AppState>,
 ) -> Result<i64, String> {
-    tracing::info!(
-        name_chars = name.chars().count(),
-        file_path = %path_label_for_logging(&file_path),
-        "Command: upload_resume"
-    );
+    import_resume_owned(
+        name,
+        source_path.to_path_buf(),
+        managed_resume_upload_dir(),
+        state.database.clone(),
+        state.lease(),
+    )
+    .await
+}
 
-    let matcher = state.database.resume_matcher();
-    matcher
-        .upload_resume(&name, &file_path.to_string_lossy())
-        .await
-        .map_err(|e| user_friendly_error("Failed to upload resume", e))
+async fn import_resume_owned(
+    name: String,
+    source_path: PathBuf,
+    managed_dir: PathBuf,
+    database: Arc<desktop::Database>,
+    lease: Arc<OperationLease>,
+) -> Result<i64, String> {
+    let runtime = tokio::runtime::Handle::current();
+    tauri::async_runtime::spawn_blocking(move || {
+        // The requesting future can disappear; this worker owns both the file and commit.
+        let _lease = lease;
+        let copy = copy_selected_resume_to_managed_storage(&source_path, &managed_dir)?;
+        let file_path = desktop::managed_resume_reference(&copy.path, &managed_dir, desktop::portable_root().is_some())
+            .map_err(|_| "Could not retain the managed resume reference.".to_string())?;
+        let matcher = database.resume_matcher();
+        match runtime.block_on(matcher.upload_resume_with_reference(&name, &copy.path, &file_path)) {
+            Ok(id) => { copy.keep(); Ok(id) }
+            Err(error) => match runtime.block_on(matcher.resume_id_for_file(&file_path)) {
+                Ok(Some(id)) => { copy.keep(); Ok(id) }
+                Ok(None) => Err(user_friendly_error("Failed to upload resume", error)),
+                Err(_) => {
+                    copy.keep();
+                    Err("The import outcome could not be confirmed. Its private file was preserved. Refresh Resumes before importing again.".into())
+                }
+            },
+        }
+    })
+    .await
+    .map_err(|_| "Resume import could not finish. Refresh Resumes before trying again.".to_string())?
 }
 
 /// Import resume from JSON Resume format
@@ -128,27 +149,15 @@ async fn import_json_resume_from_selected_path(
         );
     }
 
-    let metadata = tokio::fs::metadata(path).await.map_err(|_| {
-        "JobSentinel could not read that resume file. Choose another structured resume file or check that the file is still available.".to_string()
-    })?;
-
-    if !metadata.is_file() {
-        return Err(
-            "Choose a structured resume file exported from JobSentinel or another resume tool."
-                .to_string(),
-        );
-    }
-
-    if metadata.len() > MAX_JSON_RESUME_IMPORT_BYTES {
-        return Err(
-            "That resume file is too large for import. Choose a smaller structured resume file."
-                .to_string(),
-        );
-    }
-
-    let json_string = tokio::fs::read_to_string(path).await.map_err(|_| {
-        "JobSentinel could not read that resume file. Choose another structured resume file or check that the file is still available.".to_string()
-    })?;
+    let path = path.to_path_buf();
+    let lease = state.lease();
+    let json_string = tauri::async_runtime::spawn_blocking(move || {
+        let _lease = lease;
+        read_bounded_text(&path, MAX_JSON_RESUME_IMPORT_BYTES)
+    })
+    .await
+    .map_err(|_| "Could not read the selected resume export.".to_string())?
+    .map_err(|_| "Choose a regular UTF-8 resume export under 5 MB.".to_string())?;
 
     tracing::info!(
         name_chars = name.chars().count(),
@@ -195,38 +204,40 @@ pub(super) fn safe_resume_upload_file_name(path: &Path) -> String {
     format!("{}--{safe_stem}.{extension}", Uuid::new_v4())
 }
 
-pub(super) fn validate_selected_resume(path: &Path) -> Result<(), String> {
+pub(super) fn open_selected_resume(path: &Path) -> Result<std::fs::File, String> {
     if supported_resume_extension(path).is_none() {
         return Err("Choose a PDF, DOCX, TXT, Markdown, or HTML resume file.".to_string());
     }
 
-    let metadata = std::fs::metadata(path)
-        .map_err(|_| "JobSentinel could not read that resume file.".to_string())?;
-    if !metadata.is_file() {
-        return Err("Choose a resume file, not a folder.".to_string());
-    }
-
-    if metadata.len() > MAX_SELECTED_RESUME_UPLOAD_BYTES {
+    let source = open_regular_source(path)
+        .map_err(|_| "Choose a regular resume file, not a folder or link.".to_string())?;
+    let metadata = source
+        .metadata()
+        .map_err(|_| "Could not inspect resume file.".to_string())?;
+    if metadata.len() > MAX_RESUME_FILE_BYTES {
         return Err(
             "That resume file is too large for local review. Choose a file under 10 MB or export a smaller readable PDF, DOCX, TXT, Markdown, or HTML resume."
                 .to_string(),
         );
     }
 
-    Ok(())
+    Ok(source)
 }
 
-fn copy_selected_resume_to_managed_storage(path: &Path) -> Result<(String, PathBuf), String> {
-    validate_selected_resume(path)?;
-    let name = selected_resume_name(path, "Resume");
-    let managed_dir = managed_resume_upload_dir();
-    std::fs::create_dir_all(&managed_dir)
+fn copy_selected_resume_to_managed_storage(
+    path: &Path,
+    managed_dir: &Path,
+) -> Result<LocalFileCopy, String> {
+    let mut source = open_selected_resume(path)?;
+    desktop::ensure_private_dir(managed_dir)
         .map_err(|_| "Could not prepare local resume storage.".to_string())?;
-    let destination = managed_dir.join(safe_resume_upload_file_name(path));
-    std::fs::copy(path, &destination)
-        .map_err(|_| "Could not copy the selected resume file.".to_string())?;
-
-    Ok((name, destination))
+    copy_bounded(
+        &mut source,
+        managed_dir.join(safe_resume_upload_file_name(path)),
+        MAX_RESUME_FILE_BYTES,
+        || true,
+    )
+    .map_err(|_| "Could not copy the selected resume file within the 10 MB limit.".to_string())
 }
 
 fn validate_managed_resume_upload_file_name(file_name: &str) -> bool {
@@ -248,7 +259,12 @@ pub(super) fn managed_resume_upload_cleanup_path(
     managed_dir: &Path,
 ) -> Option<PathBuf> {
     let stored_path = stored_path.map(str::trim).filter(|path| !path.is_empty())?;
-    let stored_path = PathBuf::from(stored_path);
+    let stored_path = desktop::resolve_managed_resume_reference(
+        stored_path,
+        managed_dir,
+        desktop::portable_root().is_some(),
+    )
+    .ok()?;
     let file_name = stored_path.file_name()?.to_str()?;
     if !validate_managed_resume_upload_file_name(file_name) {
         return None;
@@ -314,17 +330,126 @@ pub(super) async fn delete_resume_with_file_cleanup(
     delete_managed_resume_upload_file(Some(&resume.file_path), managed_dir)
 }
 
-pub(super) fn read_html_resume_source_for_format_review(file_path: &str) -> Option<String> {
-    let path = Path::new(file_path);
-    let extension = path.extension()?.to_str()?.to_ascii_lowercase();
-    if !matches!(extension.as_str(), "html" | "htm") {
-        return None;
+#[cfg(test)]
+mod import_tests {
+    use super::*;
+
+    #[test]
+    fn portable_resume_cleanup_uses_current_owner_after_move() {
+        let root = tempfile::tempdir().unwrap();
+        let original = root.path().join("original");
+        let managed = original.join("resume-uploads");
+        std::fs::create_dir_all(&managed).unwrap();
+        let path = managed.join("7d9d16a1-2e5d-4b32-9eb2-bfbffb4ee871--resume.txt");
+        std::fs::write(&path, b"resume").unwrap();
+        let reference = desktop::managed_resume_reference(&path, &managed, true).unwrap();
+        let moved = root.path().join("moved");
+        std::fs::rename(original, &moved).unwrap();
+        let managed = moved.join("resume-uploads");
+        delete_managed_resume_upload_file(
+            Some(&reference.replace("resume-uploads", "application-resumes")),
+            &managed,
+        )
+        .unwrap();
+        assert_eq!(std::fs::read_dir(&managed).unwrap().count(), 1);
+        delete_managed_resume_upload_file(Some(&reference), &managed).unwrap();
+        assert_eq!(std::fs::read_dir(&managed).unwrap().count(), 0);
+    }
+    use crate::bootstrap::operation::OperationAdmission;
+    use std::time::Duration;
+
+    #[tokio::test]
+    async fn abandoned_import_retains_worker_until_file_and_record_agree() {
+        let root = tempfile::tempdir().unwrap();
+        let source = root.path().join("resume.txt");
+        let content = "Jordan Example\nPython developer with five years of experience.\n";
+        std::fs::write(&source, content).unwrap();
+        let directory = root.path().join("managed");
+        let database = Arc::new(desktop::Database::connect_memory().await.unwrap());
+        database.migrate().await.unwrap();
+        let pool = database.test_fixture_pool();
+        let blocked = pool.acquire().await.unwrap();
+        let admission = Arc::new(OperationAdmission::default());
+        let lease = admission.admit().unwrap();
+        let ownership = Arc::downgrade(&lease);
+        let importing = tokio::spawn(import_resume_owned(
+            "Example".into(),
+            source.clone(),
+            directory.clone(),
+            database.clone(),
+            lease,
+        ));
+        tokio::time::timeout(Duration::from_secs(5), async {
+            loop {
+                let copied = std::fs::read_dir(&directory)
+                    .ok()
+                    .and_then(|mut files| files.next())
+                    .is_some_and(|entry| {
+                        entry.unwrap().metadata().unwrap().len() == content.len() as u64
+                    });
+                if copied && ownership.strong_count() == 1 {
+                    break;
+                }
+                tokio::task::yield_now().await;
+            }
+        })
+        .await
+        .unwrap();
+        importing.abort();
+        assert!(importing.await.unwrap_err().is_cancelled());
+        let worker_retained = ownership.strong_count() > 0;
+        let closing = admission.clone();
+        let draining = tokio::spawn(async move { closing.close_and_wait().await });
+        tokio::task::yield_now().await;
+        let drained_before_commit = draining.is_finished();
+        drop(blocked);
+        tokio::time::timeout(Duration::from_secs(5), draining)
+            .await
+            .unwrap()
+            .unwrap()
+            .unwrap();
+        let resumes = database.resume_matcher().list_all_resumes().await.unwrap();
+        database.close().await;
+        assert!(
+            worker_retained,
+            "caller abandonment released active import ownership"
+        );
+        assert!(
+            !drained_before_commit,
+            "update/quit bypassed the import transaction"
+        );
+        assert_eq!(resumes.len(), 1);
+        assert_eq!(
+            std::fs::read_to_string(&resumes[0].file_path).unwrap(),
+            content
+        );
+        assert_eq!(std::fs::read_dir(directory).unwrap().count(), 1);
+        assert_eq!(std::fs::read_to_string(source).unwrap(), content);
     }
 
-    let metadata = std::fs::metadata(path).ok()?;
-    if !metadata.is_file() || metadata.len() > MAX_SELECTED_RESUME_UPLOAD_BYTES {
-        return None;
+    #[tokio::test]
+    async fn rejected_import_removes_only_its_unreferenced_copy() {
+        let root = tempfile::tempdir().unwrap();
+        let source = root.path().join("invalid.pdf");
+        std::fs::write(&source, b"not a PDF").unwrap();
+        let directory = root.path().join("managed");
+        let database = Arc::new(desktop::Database::connect_memory().await.unwrap());
+        database.migrate().await.unwrap();
+        let admission = Arc::new(OperationAdmission::default());
+        let result = import_resume_owned(
+            "Example".into(),
+            source.clone(),
+            directory.clone(),
+            database.clone(),
+            admission.admit().unwrap(),
+        )
+        .await;
+        let resumes = database.resume_matcher().list_all_resumes().await.unwrap();
+        database.close().await;
+        assert!(result.is_err());
+        assert!(resumes.is_empty());
+        assert_eq!(std::fs::read_dir(directory).unwrap().count(), 0);
+        assert_eq!(std::fs::read(source).unwrap(), b"not a PDF");
+        admission.close_and_wait().await.unwrap();
     }
-
-    std::fs::read_to_string(path).ok()
 }

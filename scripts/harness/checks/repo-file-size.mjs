@@ -1,6 +1,7 @@
+// Enforces repository file budgets and unconditional recursive AGENTS.md ceilings.
 import { execFileSync } from "node:child_process";
-import { closeSync, existsSync, lstatSync, openSync, readFileSync, readSync, realpathSync } from "node:fs";
-import { extname, isAbsolute, join, relative } from "node:path";
+import { closeSync, existsSync, globSync, lstatSync, openSync, readFileSync, readSync, realpathSync } from "node:fs";
+import { basename, extname, isAbsolute, join, relative } from "node:path";
 
 const cache = new Map();
 const globCache = new Map();
@@ -181,6 +182,7 @@ function validatePolicy(root, loaded) {
   }
   const exceptionPaths = new Set();
   for (const [path, row] of loaded.exceptions) {
+    if (basename(path) === "AGENTS.md") failures.push(`${path}: AGENTS.md size exceptions are forbidden`);
     if (!path || /[*?]/.test(path)) failures.push(`source-limit exception must use an exact path: ${path || "<missing>"}`);
     if (exceptionPaths.has(path)) failures.push(`duplicate source-limit exception: ${path}`);
     exceptionPaths.add(path);
@@ -212,13 +214,14 @@ function validatePolicy(root, loaded) {
 export function collectTrackedFileSizeViolations(root, inputPath) {
   const path = normalizeRepoPath(inputPath);
   const loaded = load(root);
-  if (!loaded.extensions.has(extname(path)) || excluded(path, loaded.exclusions)) return [];
+  const instructions = basename(path) === "AGENTS.md";
+  if (!instructions && (!loaded.extensions.has(extname(path)) || excluded(path, loaded.exclusions))) return [];
   if (!existsSync(join(root, path))) return [];
   const scopes = scopesFor(path, loaded.scopes);
-  if (scopes.length === 0) return [`classify source or configuration in ${repositoryStructurePolicyPath}: ${path}`];
+  if (!instructions && scopes.length === 0) return [`classify source or configuration in ${repositoryStructurePolicyPath}: ${path}`];
   const exception = loaded.exceptions.get(path);
-  const maxLines = exception?.max_lines ?? canonicalLimits.hard_lines;
-  const maxBytes = exception?.max_bytes ?? canonicalLimits.hard_bytes;
+  const maxLines = instructions ? 150 : (exception?.max_lines ?? canonicalLimits.hard_lines);
+  const maxBytes = instructions ? 32768 : (exception?.max_bytes ?? canonicalLimits.hard_bytes);
   const maxLineBytes = canonicalLimits.hard_bytes;
   let metrics;
   try {
@@ -271,7 +274,10 @@ export function collectRepositoryFileSizeViolations(root, options = {}) {
   const violations = collectFileSizeContractGlobalViolations(root);
   let files;
   try {
-    files = listGovernedFiles(root, options.execFileSync);
+    files = [...new Set([
+      ...listGovernedFiles(root, options.execFileSync),
+      ...globSync("**/AGENTS.md", { cwd: root, exclude: [".git/**"] }).map(normalizeRepoPath),
+    ])];
   } catch (error) {
     return [...violations, `source scan could not enumerate repository files: ${error instanceof Error ? error.message : String(error)}`];
   }

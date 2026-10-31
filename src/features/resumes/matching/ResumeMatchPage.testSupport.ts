@@ -1,3 +1,4 @@
+/** Supplies resume review IPC fixtures and UI test helpers. */
 import { screen } from "@testing-library/react";
 import type userEvent from "@testing-library/user-event";
 import { invoke } from "@tauri-apps/api/core";
@@ -94,6 +95,7 @@ export const validResume = {
 };
 
 export const mockAnalysis = {
+  resume_snapshot: { resume_id: 42, revision: "2026-01-02T00:00:00Z" },
   overall_score: 82,
   keyword_score: 80,
   format_score: 84,

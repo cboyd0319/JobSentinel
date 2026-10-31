@@ -1,26 +1,53 @@
-//! Database connection and configuration
-//!
-//! Handles SQLite connection, PRAGMA configuration, and migrations.
+//! Owns encrypted SQLite connections, configuration, migrations, and startup recovery.
 
 mod backups;
+mod bootstrap;
+mod portable_backup;
+mod portable_restore;
+mod portable_restore_bundle;
+mod portable_restore_promotion;
+mod recovery_operations;
+mod reviewed_export;
+mod reviewed_export_inspect;
+mod reviewed_export_sanitize;
+mod reviewed_export_schema;
+#[cfg(feature = "test-support")]
+mod test_fixture;
+mod update_backup;
+mod update_inventory;
+mod update_journal;
+pub use maintenance::{PortableBackupHistory, StorageHealth, StorageMaintenanceReport};
+pub use portable_backup::PortableBackupInfo;
+pub use portable_restore::PortableRestoreStatus;
+pub use reviewed_export::{ReviewedExportInfo, ReviewedExportPlan, ReviewedExportSelection};
+pub use update_backup::UpdateSnapshot;
+pub use update_journal::{
+    PreparedUpdate, SignedUpdateRelease, StagedUpdatePackage, UpdatePreparationPhase,
+};
 
 use sqlx::{
     sqlite::{SqlitePool, SqlitePoolOptions},
     Row,
 };
-use std::path::PathBuf;
-
-use super::encryption::{
-    connect_encrypted_pool, encrypt_plaintext_database, load_or_create_database_key,
-    plaintext_database_readable,
+use std::{
+    fs::{File, OpenOptions},
+    path::{Path, PathBuf},
 };
 
-/// Database handle
+#[cfg(test)]
+use super::encryption::{connect_encrypted_pool, load_or_create_database_key};
+use recovery_operations::finish_recovery_operation_record;
+
+const DATABASE_SCHEMA_VERSION: i64 = 2;
+pub(super) static MIGRATOR: sqlx::migrate::Migrator = sqlx::migrate!("./migrations");
+
 #[derive(Debug)]
 pub struct Database {
     pool: SqlitePool,
-    /// Path to the on-disk database file. `None` for in-memory databases.
+    migration_lock: tokio::sync::Mutex<()>,
+    /// Published primary path; `None` for memory and unpublished staged stores.
     db_path: Option<PathBuf>,
+    _owner_lock: Option<File>,
 }
 
 impl Database {
@@ -31,8 +58,13 @@ impl Database {
     }
 
     /// Connect to SQLite database with optimized settings
-    pub async fn connect(path: &std::path::Path) -> Result<Self, sqlx::Error> {
-        // Ensure parent directory exists
+    pub async fn connect(path: &Path) -> Result<Self, sqlx::Error> {
+        Self::ensure_database_parent(path)?;
+        let owner_lock = Self::acquire_owner_lock(path)?;
+        Self::connect_owned(path, &owner_lock).await
+    }
+
+    pub(super) fn ensure_database_parent(path: &Path) -> Result<(), sqlx::Error> {
         if let Some(parent) = path
             .parent()
             .filter(|parent| !parent.as_os_str().is_empty())
@@ -52,83 +84,43 @@ impl Database {
                 sqlx::Error::Io(e)
             })?;
         }
+        Ok(())
+    }
 
-        let key = load_or_create_database_key().await?;
-        let pool = match connect_encrypted_pool(path, &key, true).await {
-            Ok(pool) => pool,
-            Err(error) => {
-                if path.exists() && plaintext_database_readable(path).await.unwrap_or(false) {
-                    let backup_dir = path
-                        .parent()
-                        .filter(|parent| !parent.as_os_str().is_empty())
-                        .map(|parent| parent.join("backups"))
-                        .unwrap_or_else(Self::default_backup_dir);
-                    encrypt_plaintext_database(path, &key, &backup_dir).await?;
-                    connect_encrypted_pool(path, &key, true).await?
-                } else {
-                    return Err(error);
-                }
-            }
-        };
-
-        // Configure database-persistent settings and validate the connection.
-        Self::configure_database(&pool).await?;
-        jobsentinel_platform::ensure_private_sqlite_files(path).map_err(sqlx::Error::Io)?;
-
-        Ok(Database {
-            pool,
-            db_path: Some(path.to_path_buf()),
-        })
+    fn refuse_unsupported_database(stored_version: i64) -> Result<(), sqlx::Error> {
+        if stored_version > DATABASE_SCHEMA_VERSION {
+            return Err(sqlx::Error::Protocol(
+                format!(
+                    "Unsupported newer database schema version {stored_version}; this app supports through version {DATABASE_SCHEMA_VERSION}"
+                ),
+            ));
+        }
+        Ok(())
     }
 
     /// Configure database-persistent settings and log connection diagnostics.
     async fn configure_database(pool: &SqlitePool) -> Result<(), sqlx::Error> {
         tracing::info!("Configuring SQLite database");
 
-        // Set page size to 4096 bytes (optimal for most systems)
-        // MUST be set before any tables are created (only affects new databases)
-        // Common page sizes: 1024, 2048, 4096, 8192, 16384, 32768
+        let stored_version: i64 = sqlx::query_scalar("PRAGMA user_version")
+            .fetch_one(pool)
+            .await?;
+        Self::refuse_unsupported_database(stored_version)?;
+
         sqlx::query("PRAGMA page_size = 4096")
             .execute(pool)
             .await
             .ok(); // Ignore errors (can't change after DB created)
         tracing::debug!("Page size = 4096 bytes (if new DB)");
 
-        // Enable auto_vacuum for automatic space reclamation
-        // Options: NONE (manual), FULL (auto shrink), INCREMENTAL (auto but controlled)
-        sqlx::query("PRAGMA auto_vacuum = INCREMENTAL")
-            .execute(pool)
-            .await?;
-        tracing::debug!("Auto vacuum = INCREMENTAL");
-
-        // Run incremental vacuum to reclaim some free pages immediately
-        // Argument = number of pages to free (0 = free all)
-        sqlx::query("PRAGMA incremental_vacuum(100)")
-            .execute(pool)
-            .await
-            .ok(); // Ignore errors if no pages to free
-        tracing::debug!("Incremental vacuum attempted (100 pages)");
-
-        // Set application ID (unique identifier for JobSentinel)
-        // Helps identify database files in forensic analysis
-        // Using ASCII "JSDB" = 0x4A534442
         sqlx::query("PRAGMA application_id = 1246970946")
             .execute(pool)
             .await?;
         tracing::debug!("Application ID set (JSDB)");
 
-        // Set user version (complementary to migrations)
-        // We'll use this to track major schema versions
-        const SCHEMA_VERSION: i64 = 2; // Bumped with integrity tables
-        sqlx::query("PRAGMA user_version = 2").execute(pool).await?;
-        tracing::debug!("User version = {}", SCHEMA_VERSION);
-
-        // Run query optimizer analysis to update statistics
-        // Helps SQLite choose better query plans
         sqlx::query("PRAGMA optimize").execute(pool).await?;
         tracing::debug!("Query optimizer statistics updated");
 
-        // Log SQLite compile options (useful for debugging)
         if let Ok(rows) = sqlx::query("PRAGMA compile_options").fetch_all(pool).await {
             let options: Vec<String> = rows
                 .iter()
@@ -136,7 +128,6 @@ impl Database {
                 .collect();
             tracing::debug!("SQLite compile options: {} features", options.len());
 
-            // Check for important features
             let has_fts5 = options.iter().any(|opt| opt.contains("FTS5"));
             let has_json = options.iter().any(|opt| opt.contains("JSON"));
             let has_rtree = options.iter().any(|opt| opt.contains("RTREE"));
@@ -152,14 +143,12 @@ impl Database {
             }
         }
 
-        // Log SQLite version
         if let Ok(row) = sqlx::query("SELECT sqlite_version()").fetch_one(pool).await {
             if let Ok(version) = row.try_get::<String, _>(0) {
                 tracing::info!("SQLite version: {}", version);
             }
         }
 
-        // Verify cache size is AT LEAST 64MB
         if let Ok(row) = sqlx::query("PRAGMA cache_size").fetch_one(pool).await {
             if let Ok(cache_size) = row.try_get::<i64, _>(0) {
                 let actual_mb = if cache_size < 0 {
@@ -178,7 +167,6 @@ impl Database {
             }
         }
 
-        // Verify WAL mode is actually enabled
         if let Ok(row) = sqlx::query("PRAGMA journal_mode").fetch_one(pool).await {
             if let Ok(mode) = row.try_get::<String, _>(0) {
                 if mode.eq_ignore_ascii_case("wal") {
@@ -189,7 +177,6 @@ impl Database {
             }
         }
 
-        // Verify foreign keys are enforced
         if let Ok(row) = sqlx::query("PRAGMA foreign_keys").fetch_one(pool).await {
             if let Ok(enabled) = row.try_get::<i64, _>(0) {
                 if enabled == 1 {
@@ -204,43 +191,82 @@ impl Database {
         Ok(())
     }
 
-    /// Run database migrations
+    /// Run pending database migrations.
     ///
-    /// Before applying migrations, creates a timestamped backup of the database
-    /// file (if one already exists on disk) so that a failed migration can be
-    /// recovered. The backup is placed in [`Database::default_backup_dir()`] and
-    /// named `backup_pre_migration_YYYYMMDD_HHMMSS.db`. Only the 5 most recent
-    /// pre-migration backups are kept; older ones are pruned automatically.
-    ///
-    /// Migration stops if the required backup cannot be created and verified.
+    /// Each serialized attempt keeps a fresh same-device recovery snapshot.
+    /// This internal copy is not a portable user export.
     pub async fn migrate(&self) -> Result<(), sqlx::Error> {
-        // Only attempt a backup when we have a real on-disk database that has
-        // already been migrated at least once (i.e. not a fresh install).
-        if let Some(db_path) = &self.db_path {
-            let is_existing_db = sqlx::query_scalar::<_, i64>(
-                "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='_sqlx_migrations'",
-            )
-            .fetch_one(&self.pool)
-            .await
-            .unwrap_or(0)
-                > 0;
+        self.migrate_with(&MIGRATOR).await
+    }
 
-            if is_existing_db {
-                Self::backup_pre_migration(&self.pool, db_path)
+    async fn migrate_with(&self, migrator: &sqlx::migrate::Migrator) -> Result<(), sqlx::Error> {
+        let _migration = self.migration_lock.lock().await;
+        let pending = self.pending_migration_range(migrator).await?;
+        let snapshot =
+            if let (Some(db_path), Some((from_version, to_version))) = (&self.db_path, pending) {
+                Self::ensure_migration_snapshot(&self.pool, db_path, from_version, to_version)
                     .await
                     .map_err(|_| {
-                        tracing::error!("Required pre-migration backup failed");
-                        sqlx::Error::Protocol("Required pre-migration backup failed".into())
-                    })?;
-            }
-        }
+                        tracing::error!("Required migration recovery snapshot failed");
+                        sqlx::Error::Protocol("Required migration recovery snapshot failed".into())
+                    })?
+            } else {
+                None
+            };
 
-        sqlx::migrate!("./migrations").run(&self.pool).await?;
+        migrator.run(&self.pool).await?;
+        self.reconcile_interrupted_recovery_operations().await?;
+        self.reconcile_interrupted_pack_lifecycle()
+            .await
+            .map_err(|_| {
+                tracing::error!("Pack lifecycle startup reconciliation failed");
+                sqlx::Error::Protocol("Pack lifecycle startup reconciliation failed".into())
+            })?;
+        self.reconcile_pack_tasks().await.map_err(|_| {
+            tracing::error!("Reviewed pack task startup reconciliation failed");
+            sqlx::Error::Protocol("Reviewed pack task startup reconciliation failed".into())
+        })?;
+        Self::configure_database(&self.pool).await?;
+        sqlx::query("PRAGMA user_version = 2")
+            .execute(&self.pool)
+            .await?;
         self.verify_integrity().await?;
         if let Some(db_path) = &self.db_path {
             jobsentinel_platform::ensure_private_sqlite_files(db_path).map_err(sqlx::Error::Io)?;
+            if let Some(snapshot) = snapshot {
+                if let Some(backup_dir) = snapshot.parent() {
+                    Self::prune_superseded_migration_snapshots(backup_dir, &snapshot);
+                }
+            }
         }
         Ok(())
+    }
+
+    async fn pending_migration_range(
+        &self,
+        migrator: &sqlx::migrate::Migrator,
+    ) -> Result<Option<(i64, i64)>, sqlx::Error> {
+        let Some(target_version) = migrator
+            .iter()
+            .filter(|migration| migration.migration_type.is_up_migration())
+            .map(|migration| migration.version)
+            .max()
+        else {
+            return Ok(None);
+        };
+        let has_migration_ledger: i64 = sqlx::query_scalar(
+            "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='_sqlx_migrations'",
+        )
+        .fetch_one(&self.pool)
+        .await?;
+        if has_migration_ledger == 0 {
+            return Ok(None);
+        }
+        let applied_version: i64 =
+            sqlx::query_scalar("SELECT COALESCE(MAX(version), 0) FROM _sqlx_migrations")
+                .fetch_one(&self.pool)
+                .await?;
+        Ok((applied_version < target_version).then_some((applied_version, target_version)))
     }
 
     async fn verify_integrity(&self) -> Result<(), sqlx::Error> {
@@ -260,8 +286,80 @@ impl Database {
         Self::configure_memory_pragmas(&pool).await?;
         Ok(Database {
             pool,
+            migration_lock: tokio::sync::Mutex::new(()),
             db_path: None,
+            _owner_lock: None,
         })
+    }
+
+    pub(super) fn acquire_owner_lock(path: &Path) -> Result<File, sqlx::Error> {
+        let lock_path = Self::sibling_path(path, ".owner.lock");
+        let lock = loop {
+            match std::fs::symlink_metadata(&lock_path) {
+                Ok(metadata) if metadata.file_type().is_file() => {
+                    break OpenOptions::new()
+                        .read(true)
+                        .write(true)
+                        .open(&lock_path)
+                        .map_err(sqlx::Error::Io)?;
+                }
+                Ok(_) => {
+                    return Err(sqlx::Error::Protocol(
+                        "JobSentinel owner lock is invalid".into(),
+                    ));
+                }
+                Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
+                    match OpenOptions::new()
+                        .read(true)
+                        .write(true)
+                        .create_new(true)
+                        .open(&lock_path)
+                    {
+                        Ok(lock) => break lock,
+                        Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => {}
+                        Err(error) => return Err(sqlx::Error::Io(error)),
+                    }
+                }
+                Err(error) => return Err(sqlx::Error::Io(error)),
+            }
+        };
+        lock.try_lock().map_err(|error| match error {
+            std::fs::TryLockError::WouldBlock => {
+                sqlx::Error::Protocol("JobSentinel database is in use".into())
+            }
+            std::fs::TryLockError::Error(error) => sqlx::Error::Io(error),
+        })?;
+        if !owner_lock_matches(&lock, &lock_path).map_err(sqlx::Error::Io)? {
+            return Err(sqlx::Error::Protocol(
+                "JobSentinel owner lock is invalid".into(),
+            ));
+        }
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::PermissionsExt;
+
+            let original_permissions = lock.metadata().map_err(sqlx::Error::Io)?.permissions();
+            lock.set_permissions(std::fs::Permissions::from_mode(0o600))
+                .map_err(sqlx::Error::Io)?;
+            if !owner_lock_matches(&lock, &lock_path).map_err(sqlx::Error::Io)? {
+                let _ = lock.set_permissions(original_permissions);
+                return Err(sqlx::Error::Protocol(
+                    "JobSentinel owner lock is invalid".into(),
+                ));
+            }
+        }
+        if !owner_lock_matches(&lock, &lock_path).map_err(sqlx::Error::Io)? {
+            return Err(sqlx::Error::Protocol(
+                "JobSentinel owner lock is invalid".into(),
+            ));
+        }
+        Ok(lock)
+    }
+
+    fn sibling_path(path: &Path, suffix: &str) -> PathBuf {
+        let mut name = path.file_name().unwrap_or_default().to_os_string();
+        name.push(suffix);
+        path.with_file_name(name)
     }
 
     /// Configure SQLite PRAGMA settings compatible with in-memory databases (tests).
@@ -292,7 +390,6 @@ impl Database {
             .execute(pool)
             .await?;
 
-        // PERFORMANCE: Synchronous = NORMAL (balanced; no fsync cost for in-memory anyway).
         sqlx::query("PRAGMA synchronous = NORMAL")
             .execute(pool)
             .await?;
@@ -330,6 +427,33 @@ impl Database {
     pub(crate) const fn pool(&self) -> &SqlitePool {
         &self.pool
     }
+}
+
+fn owner_lock_matches(file: &File, path: &Path) -> std::io::Result<bool> {
+    let path_metadata = std::fs::symlink_metadata(path)?;
+    if !path_metadata.file_type().is_file() {
+        return Ok(false);
+    }
+    let opened_metadata = file.metadata()?;
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::MetadataExt;
+        Ok((opened_metadata.dev(), opened_metadata.ino())
+            == (path_metadata.dev(), path_metadata.ino())
+            && opened_metadata.nlink() == 1)
+    }
+    #[cfg(windows)]
+    {
+        use std::os::windows::fs::MetadataExt;
+        Ok(
+            opened_metadata.volume_serial_number() == path_metadata.volume_serial_number()
+                && opened_metadata.file_index() == path_metadata.file_index()
+                && opened_metadata.file_index().is_some()
+                && opened_metadata.number_of_links() == Some(1),
+        )
+    }
+    #[cfg(not(any(unix, windows)))]
+    Ok(true)
 }
 
 mod maintenance;

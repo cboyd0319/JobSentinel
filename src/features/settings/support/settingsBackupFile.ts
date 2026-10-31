@@ -1,3 +1,5 @@
+/** Serializes credential-free Settings backups and selects local backup files. */
+
 import { downloadTextFile } from "../../../shared/browserDownload";
 
 const SENSITIVE_CONFIG_FIELD_NAMES = new Set([
@@ -23,7 +25,11 @@ function scrubSensitiveFields(value: unknown): void {
 
   const record = value as Record<string, unknown>;
   Object.entries(record).forEach(([key, nested]) => {
-    if (SENSITIVE_CONFIG_FIELD_NAMES.has(key)) {
+    if (key === "jobswithgpt_approval") {
+      record[key] = { enabled: false, payload: null, approved_at: null };
+      return;
+    }
+    if (SENSITIVE_CONFIG_FIELD_NAMES.has(key) || key === "endpoint" || key.endsWith("_endpoint")) {
       record[key] = "";
       return;
     }
@@ -70,7 +76,9 @@ export function selectSettingsBackupFile<T>(): Promise<
       }
 
       try {
-        resolve({ status: "ok", backup: JSON.parse(await file.text()) as T });
+        const backup: unknown = JSON.parse(await file.text());
+        scrubSensitiveFields(backup);
+        resolve({ status: "ok", backup: backup as T });
       } catch {
         resolve({ status: "invalid" });
       }

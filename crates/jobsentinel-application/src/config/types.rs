@@ -16,6 +16,10 @@ use sources::{
 /// User configuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {
+    /// Lock private views at startup and when leaving the app on a shared computer.
+    #[serde(default)]
+    pub shared_computer_mode: bool,
+
     /// Job titles to match (e.g., "Security Engineer")
     pub title_allowlist: Vec<String>,
 
@@ -78,7 +82,9 @@ pub struct Config {
     #[serde(default)]
     pub linkedin: LinkedInConfig,
 
-    /// User acknowledgements for restricted scheduled job-board checks.
+    /// Legacy restricted-source review flags retained for config compatibility.
+    ///
+    /// These booleans never authorize a source request and are always cleared.
     #[serde(default)]
     pub restricted_source_acknowledgements: RestrictedSourceAcknowledgements,
 
@@ -90,7 +96,7 @@ pub struct Config {
     #[serde(default)]
     pub weworkremotely: WeWorkRemotelyConfig,
 
-    /// BuiltIn scraper configuration
+    /// Legacy Built In configuration retained for deserialization compatibility.
     #[serde(default)]
     pub builtin: BuiltInConfig,
 
@@ -98,7 +104,7 @@ pub struct Config {
     #[serde(default)]
     pub hn_hiring: HnHiringConfig,
 
-    /// Dice scraper configuration
+    /// Legacy Dice configuration retained for deserialization compatibility.
     #[serde(default)]
     pub dice: DiceConfig,
 
@@ -110,11 +116,11 @@ pub struct Config {
     #[serde(default)]
     pub usajobs: UsaJobsConfig,
 
-    /// SimplyHired job aggregator scraper configuration (v2.5.5)
+    /// Legacy SimplyHired configuration retained for deserialization compatibility.
     #[serde(default)]
     pub simplyhired: SimplyHiredConfig,
 
-    /// Glassdoor job board scraper configuration (v2.5.5)
+    /// Legacy Glassdoor configuration retained for deserialization compatibility.
     #[serde(default)]
     pub glassdoor: GlassdoorConfig,
 
@@ -151,12 +157,12 @@ pub struct Config {
 
     /// Preferred companies for scoring bonuses (case-insensitive fuzzy matching).
     /// Companies in this list receive scoring bonus
-    #[serde(default, alias = "company_\u{77}hitelist")]
+    #[serde(default)]
     pub preferred_companies: Vec<String>,
 
     /// Blocked companies for scoring penalties (case-insensitive fuzzy matching).
     /// Jobs from companies in this list receive very low scores
-    #[serde(default, alias = "company_\u{62}lacklist")]
+    #[serde(default)]
     pub blocked_companies: Vec<String>,
 }
 
@@ -198,6 +204,7 @@ impl Config {
     #[must_use]
     pub fn first_run() -> Self {
         Self {
+            shared_computer_mode: false,
             title_allowlist: vec![],
             title_blocklist: vec![],
             keywords_boost: vec![],
@@ -209,6 +216,7 @@ impl Config {
                 cities: vec![],
                 states: vec![],
                 country: "US".to_string(),
+                search_country: None,
             },
             salary_floor_usd: 0,
             salary_target_usd: None,
@@ -296,6 +304,10 @@ pub struct LocationPreferences {
 
     #[serde(default = "super::defaults::default_country")]
     pub country: String,
+
+    /// Optional local job-list filter; this never authorizes a source request.
+    #[serde(default)]
+    pub search_country: Option<String>,
 }
 
 /// Auto-refresh configuration for the frontend

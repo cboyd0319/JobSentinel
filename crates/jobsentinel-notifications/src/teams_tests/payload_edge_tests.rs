@@ -1,3 +1,5 @@
+//! Tests Microsoft Teams payload edge cases and content boundaries.
+
 use super::super::*;
 use super::{notification_fixture, validation_webhook_test_payload};
 
@@ -230,7 +232,7 @@ fn test_score_percentage_display_as_integer() {
 #[test]
 fn test_facts_array_complete_structure() {
     let notification = notification_fixture();
-    let salary_display = "$180,000 - $220,000";
+    let salary_display = "USD 180000–220000 period not disclosed";
 
     let facts = json!([
         {"name": "Location:", "value": notification.job.location.as_deref().unwrap_or("N/A")},

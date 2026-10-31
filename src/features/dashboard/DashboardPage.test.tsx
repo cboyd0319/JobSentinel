@@ -1,3 +1,5 @@
+/** Verifies dashboard display helpers and search pre-flight behavior. */
+
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { invoke } from "@tauri-apps/api/core";
 import {
@@ -73,16 +75,16 @@ describe("formatDashboardFitEstimate", () => {
 
 describe("formatDashboardListedPay", () => {
   it("formats listed-pay ranges for comparison rows", () => {
-    expect(formatDashboardListedPay(55000, 72000)).toBe("$55k - $72k");
-    expect(formatDashboardListedPay(80000, null)).toBe("$80k+");
-    expect(formatDashboardListedPay(null, 120000)).toBe("Up to $120k");
+    expect(formatDashboardListedPay({ salary_min: 55000, salary_max: 72000, currency: "USD" })).toBe("$55k - $72k");
+    expect(formatDashboardListedPay({ salary_min: 80000, salary_max: null, currency: "USD" })).toBe("$80k+");
+    expect(formatDashboardListedPay({ salary_min: null, salary_max: 120000, currency: "USD" })).toBe("Up to $120k");
   });
 
   it("shows not listed for missing or malformed pay evidence", () => {
-    expect(formatDashboardListedPay(null, null)).toBe("Not listed");
-    expect(formatDashboardListedPay(-50000, null)).toBe("Not listed");
-    expect(formatDashboardListedPay(null, Infinity)).toBe("Not listed");
-    expect(formatDashboardListedPay(150000, 80000)).toBe("Not listed");
+    expect(formatDashboardListedPay({ salary_min: null, salary_max: null, currency: "USD" })).toBe("Pay not listed");
+    expect(formatDashboardListedPay({ salary_min: -50000, salary_max: null, currency: "USD" })).toBe("Listed pay could not be read");
+    expect(formatDashboardListedPay({ salary_min: null, salary_max: Infinity, currency: "USD" })).toBe("Listed pay could not be read");
+    expect(formatDashboardListedPay({ salary_min: 150000, salary_max: 80000, currency: "USD" })).toBe("Listed pay could not be read");
   });
 });
 
@@ -278,4 +280,19 @@ describe("Dashboard no-jobs empty state copy", () => {
     expect(copy.firstStepTitle).toBe("Search selected job sites");
     expect(copy.firstStepDescription).toBe("JobSentinel checks them on your schedule");
   });
+
+  it.each([false, null, true])(
+    "explains an empty selected-country view for source status %s without claiming jobs or sources are absent",
+    (anyJobSourceEnabled) => {
+      const copy = getNoJobsEmptyStateCopy(anyJobSourceEnabled, "GB");
+      const visibleText = `${copy.title} ${copy.subtitle} ${copy.helperText}`;
+
+      expect(copy.title).toBe("No jobs for selected country");
+      expect(visibleText).toContain("No jobs are shown for your selected country");
+      expect(visibleText).toContain("Change or clear Search country in Settings");
+      expect(visibleText).not.toMatch(/storage|source failed|no sources/i);
+      expect(copy.primaryLabel).toBe("Adjust Search Country");
+      expect(copy.secondaryLabel).toBe("Import a Job Posting");
+    },
+  );
 });

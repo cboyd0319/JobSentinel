@@ -1,0 +1,313 @@
+{
+  "schema": "jobsentinel.feature_evidence.v1",
+  "feature_id": "v3-source-compatibility-cleanup",
+  "behavior": "Remove pre-v3-only readers and ordinary transition names while preserving immutable v3 contracts and local data.",
+  "result": "passing",
+  "verified_at": "2026-10-29T03:02:00.229059+00:00",
+  "revision": "4b96e8027b1e40db5714d75f4d38d6cf9a32fbf3",
+  "platform": "macOS27.2 arm64, pinned Rust1.97.1/Node24.18.0/npm12.0.1",
+  "scope": "D0 development acceptance. This revision is the preserved v3.0 core source cut before Next product changes; release qualification remains R1/R2.",
+  "earlier_checkpoints": {
+    "2349659d": "Pre-v3 classifier removal and ordinary application namespaces.",
+    "46a3a84f": "Atomic encrypted-v3 bootstrap, domain namespaces and deterministic Workbench checks.",
+    "cbc159d1": "Storage namespaces and dead gap-formatter removal.",
+    "7b22a148": "Vector table migration32 and canonical provider name."
+  },
+  "delivered": [
+    "Removed unused pre-v3 classification, automatic plaintext-primary conversion and unsupported-upgrade fixtures/claims. Unsupported, unmarked, inconsistent and future primary data fail closed before writable setup.",
+    "Normalized ordinary application/domain/storage/local-model modules and symbols through their actual callers without aliases. Retained only real compatibility/version identifiers.",
+    "Fresh encrypted stores migrate privately, checkpoint, close and sync before no-clobber publication. Interrupted creation never publishes an ambiguous primary; recoverable artifacts prevent empty recreation.",
+    "Append-only migrations32\u201334 normalize16 physical tables, five indexes and45 triggers without rebuilding rows or retaining alias views. Existing migrations0\u201332 remain byte-identical; all50 recreated guard/index definitions preserve normalized tokens and SQL strings.",
+    "Pre-migration identity requires successful checksum-bound migration11 and, for the renamed layout,33. All16 physical table pairs follow their actual introduction/cutover versions; mixed/missing layouts refuse before writer mutation. Future-data diagnostics keep precedence.",
+    "Eight reviewed-export-v1 record labels remain immutable; only their physical query targets change. Vectors, credentials, trust records and protected exclusions remain governed.",
+    "Older supported-v3 backups inspect, stage, restore, promote and roll back across the physical rename. Promoted crash recovery reads retained WAL before writer setup. SQLCipher copies attach selected input read-only to an owned destination; original bytes and standalone sidecar absence are preserved.",
+    "File URIs preserve relative/reserved paths and encode Windows drive/UNC forms. The existing URL owner handles generic path encoding; SQLite attachment policy stays in storage. External URL validation is unchanged.",
+    "Retired company-key aliases and education/category scalar coercions are removed with explicit rejection, preserving files/runtime/filter/draft data. Canonical config, comments/help fields, duplicate-key errors, builder data and JSON Resume import remain supported.",
+    "Workbench tests use a fixed reviewed date; production still uses the real clock and unchanged policy evidence. Minimum Gate4 dossier wiring has no confirmed development gap; broader runtime assurance remains R1.",
+    "Removed startup plaintext-config secret extraction, clearing and migration-flag APIs. Both config constructors reject presence of all seven retired secret paths, including empty/null/mixed inputs, before decoding; file/runtime/vault bytes remain unchanged on refusal.",
+    "Removed the per-secret OS compatibility reader/writer, lazy import and keyring-only service factory. Every runtime provider has a concrete vault repository; scheduler, notification and smoke owners use injected/current vault services. Missing rows return None; locked or unavailable storage returns sanitized errors.",
+    "Explicit credential deletion, including both retired LinkedIn entries, remains available. Current database/vault-key OS protection, passphrase wrapping, user presence and stable identifiers remain unchanged. Isolated fixed-key tests never touch OS entries.",
+    "Removed the newly unused credentials tempfile dev-dependency and only its lockfile edge; locked init completed with zero environment warnings and9 startup smoke tests. Updated current credential docs and security drift sensors without adding dependencies."
+  ],
+  "immutable_boundaries": [
+    "Schema IDs, signing contexts, signature-covered pack keys, format versions, model/backend identities, export-v1 labels and applied migration bytes remain unchanged.",
+    "Relational education graduation_year and its export remain current data. Fresh-install screening patterns, listed-pay/geography projections and secure-storage names remain required.",
+    "No production signing enrollment, model/threshold change, package build, VM provisioning, credential read or publication occurred."
+  ],
+  "proof_artifacts": [
+    "target/d0-physical-schema/guard-preservation.json",
+    "target/d0-physical-schema/final-migration-history.json",
+    "target/d0-retired-inputs/results.json"
+  ],
+  "source_files_sha256": {
+    "crates/jobsentinel-application/src/config/io.rs": "fdd133917df37c724148821e19da1ff02c583387304592ba64d2dc628ffc4f03",
+    "crates/jobsentinel-application/src/config/types.rs": "3a6f407fc4dccefb3364ea582292c7ec2024790205603748a4910d9ac36b85bf",
+    "crates/jobsentinel-application/src/resume/semantic.rs": "cbfcc4ede4c97c44a6e5aff4b386ae0542f5db09c47ef37ca2b04bde60427937",
+    "crates/jobsentinel-local-ai/src/lib.rs": "c36e3059dd109f644ce862396e8ab9764e49cea8e250c8c8e06198c18937f1f3",
+    "crates/jobsentinel-local-ai/src/manifest.rs": "35bd21c49f3a6c47744b8013572ecd876fe43244ece3cb67b55ce98921352f22",
+    "crates/jobsentinel-security/src/lib.rs": "e92c5b4ccde86134f11da430bfd4e7d03eee05ef0e1be11de8a5f70d9ae98142",
+    "crates/jobsentinel-security/src/url.rs": "4f1a1fd9675a76fc7f6e2257ab18aef6ede9f41ff68818110fb1c94fefbcef5a",
+    "crates/jobsentinel-storage/migrations/00000000000033_ordinary_storage_names.sql": "417c7b6522f95eb0b45e4462b734b802186dde452a443f3587501a611d795886",
+    "crates/jobsentinel-storage/migrations/00000000000034_ordinary_pack_guard_names.sql": "f13b79e362208053ab8b3f5091e7339481161bde2c4e510a56c71f95c52b811c",
+    "crates/jobsentinel-storage/src/connection/backups.rs": "5a901de14e67f4ceeb82ecfe394c07e109092f334af143dddd8cf063e08f8aa6",
+    "crates/jobsentinel-storage/src/connection/bootstrap.rs": "d9aed0483449558d54748dc4acbfa8f2d9e87efdd85167572b797c117dd9a0c9",
+    "crates/jobsentinel-storage/src/connection/maintenance.rs": "23e9a757d0965dda344844e4154ad982c307ea3a48bd083b165cd651d54c53c2",
+    "crates/jobsentinel-storage/src/connection/portable_backup.rs": "981c6213d3c7f351e350730120115fc93356397687fc6c3d8e3efc46513c026e",
+    "crates/jobsentinel-storage/src/connection/portable_restore.rs": "a3bf0a09931837cc56c1c0809ce68614bf6a1367706bc7b84f6ca4f5a8e42b8c",
+    "crates/jobsentinel-storage/src/connection/portable_restore_promotion.rs": "f274963e8e6738ffd9525c413d0969dfa1e41084737b273b30762841569199a1",
+    "crates/jobsentinel-storage/src/connection/recovery_operations.rs": "a9b029878e383139b786e88bd3498ce666bca1c523f67d35d3546bffee23ce4a",
+    "crates/jobsentinel-storage/src/connection/reviewed_export.rs": "55f6f46f1ca13e616a027334e01eaa7229ab84265d6582897088f830ea5cc4cd",
+    "crates/jobsentinel-storage/src/connection/reviewed_export_schema.rs": "92495a9e84dc7df39e5771a8591a79d6a49bc562bc280af20747ec530c77eb5e",
+    "crates/jobsentinel-storage/src/connection/update_inventory.rs": "9362879848f73f05593d50d66a11d50d64f8a64a2e2980b6fb9f894b0ff7ffca",
+    "crates/jobsentinel-storage/src/encryption.rs": "aa5c6b710ee2872ed1e5d27721d83562bc94532f21f7548d1e438a6ac67405e7",
+    "crates/jobsentinel-storage/src/foundation.rs": "9d79411ad32ebaa9a2f53e1a357870f06cfa12df2feb65a7e3f5edf73368af6d",
+    "crates/jobsentinel-storage/src/foundation/case_evidence.rs": "5c81ed674278beaf880b99088adf473d46c8ac27a978d450ff5e7b53777602cb",
+    "crates/jobsentinel-storage/src/foundation/evidence_packets.rs": "d9d8acc71c3569d3d223b669996285a264d441491c6656b69422daabdf2fa6e9",
+    "crates/jobsentinel-storage/src/foundation/opportunity_case.rs": "7f5f8fe33284f43c277cb6b617c4c72f109d8e1ae5f7951175ce58dc300966b3",
+    "crates/jobsentinel-storage/src/foundation/saved_match_evidence.rs": "978a3ba4f35b20f854d436a1da1bad235476d95a96b4ebb2c68c643ecca07603",
+    "crates/jobsentinel-storage/src/outside_ai.rs": "0776bac8da150bbbdc0fe43c3e07efb5f6a1188cf6cc8d562916a2ab2d32c63a",
+    "crates/jobsentinel-storage/src/pack_lifecycle.rs": "f3cc6040df98689ebf52c68847b3130b3af8712d11979910fd8f4c3fa2775830",
+    "crates/jobsentinel-storage/src/pack_lifecycle/artifacts.rs": "aa47e04dafbd45fd0ced513a14c47a906a100633f7b9ffa78f42974143592300",
+    "crates/jobsentinel-storage/src/pack_lifecycle/lifecycle.rs": "87615452f68981d3cd3cd4a91eb68adc968de0690b3da49a79fce879825c46eb",
+    "crates/jobsentinel-storage/src/pack_lifecycle/management.rs": "a4387df484a3af4a5bd862957406708a245d65db6bcaadb7cb266230d4515a72",
+    "crates/jobsentinel-storage/src/pack_lifecycle/transitions.rs": "490aee1c9b53e9ed6d6a34c86c41c0cd29b65bb495635be6a5f29b31049f1201",
+    "crates/jobsentinel-storage/src/pack_tasks.rs": "df52b7a8c7bb5062033a46dfdec1c0623adab7352af0b0286b39b6f43524aa06",
+    "crates/jobsentinel-storage/src/pack_tasks/input_guard.rs": "67ebe253744b019a44be297045aa9816e49d85f34027eebd17be9b1d3e66ce9b",
+    "crates/jobsentinel-storage/src/resume/builder.rs": "a2ced86f1abdc146e762c75b1b7ffef41841a4d335347aa572f7dc118577f7c8",
+    "crates/jobsentinel-storage/src/resume/builder/serialization.rs": "43a8fb2096e15ab23fc3a4d6de7ff776e529a0ec1b9b21143ff844697dd8baec",
+    "crates/jobsentinel-storage/src/source_consent.rs": "d10f0685be3f40b62070df9f69dda1e464a20b30f06addea500bbe54cc1d7c90",
+    "crates/jobsentinel-storage/src/source_manifest.rs": "9dffc857949b6e1cc9d1c17ccbdf46c9b4fe0c92737758e5f889bc3e10a94875",
+    "crates/jobsentinel-storage/src/user_data/models.rs": "78dfa181368e396ac55c4b3519e89df0cdf95ce24989c5db4fbba743e79b67cf",
+    "crates/jobsentinel-storage/src/user_data/notifications.rs": "43dbd8fc3469e0decdda7cc6b3b3767d5dc10c6e196b949f04f18bec658b4f1e",
+    "src-tauri/src/ipc/config.rs": "473a2ec36776c047980ccf67b3cdd36777f103950ee240e7f04734acb929d6bb",
+    "crates/jobsentinel-domain/src/contracts.rs": "a00a6437a042ef31f70a6bcadcd16e9bb63c958a0271e6904448f10443b188af",
+    "crates/jobsentinel-domain/src/lib.rs": "9f0ebe75dd7115ad75d62da71370c1ac810342327b3e72be9c406387cfecaaca",
+    "src-tauri/src/bootstrap/shutdown.rs": "e90495c4c4b7dbaada0b3b52c4f5cc9fccb33dc3cd2b446a382b1fe697518064",
+    "crates/jobsentinel-application/src/desktop/startup.rs": "d347a6c68f06fbde53b726df36ded550d112bac4b894a7313b02228cacbe30c0",
+    "crates/jobsentinel-credentials/src/lib.rs": "a1af7c5cacda5f22f77cd0a7ee8c960ee0396a7803faacf17ca195adf26c5b2b",
+    "crates/jobsentinel-platform/src/secure_storage.rs": "ce4c5fa15fd8921d7f8b78932876755cacb2ebb333c3fa6508f9d4fa6055ae91",
+    "crates/jobsentinel-application/src/desktop/mod.rs": "f3110e891a3ddc6ee23d658aa2cdaadb852efbd84b7cab571e665c239992b4f2",
+    "crates/jobsentinel-credentials/src/key.rs": "2d76d52d2af9419e1c3387094076f832dd83c779d9d07a9d8b0e9c1d2485ab70",
+    "crates/jobsentinel-application/src/scheduler/workers/persistence.rs": "95ccef324e7820722380613402c0fac61a5c2190c3826974f1796ee4c288e886",
+    "crates/jobsentinel-application/src/health/smoke_checks/mod.rs": "c2f3b63478e3cd6387f63c8cc96120dcc5e2f5ceceb15b6f850e3ecbf590e803",
+    "crates/jobsentinel-application/src/scheduler/mod.rs": "eca9a54c8fe91c60d984bfcba82de09aec0d6c0b8f2332a8501aff1b07222f02",
+    "crates/jobsentinel-application/src/scheduler/workers/scrapers/federal.rs": "fe6a5abdf900fa6f56909d9fa4c729983676d8f73adb1e460397093083419c34",
+    "crates/jobsentinel-application/src/recovery.rs": "99a6cefa424ca86ce511bf0bcb1123d7622e041f6be4d4da3998262044433f3c",
+    "crates/jobsentinel-application/src/notify/mod.rs": "d3edf91fc58a6b6ec28ec1e5cc26fd614daded0bfbe6110caed5286774ea61fc",
+    "Cargo.lock": "8fbac3b0ff7d1cd2af01f9528191792a226a6dc8f009ed434bbd9be4ded32a0e",
+    "crates/jobsentinel-credentials/Cargo.toml": "6a20302ea43b126f15580a2991503c44782594c2d7e0ac67e34c6c30265b9b0e",
+    "crates/jobsentinel-credentials/src/service.rs": "453fe3a1248b7672de6231290a1b6552cde6f85de81e2e5637c59535a1b47c16",
+    "crates/jobsentinel-platform/src/lib.rs": "254cb6d1edb49130e9bdd94d98eb648871937972a63540ad29df8ccef76b8cd1"
+  },
+  "commands": [
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-storage --lib physical_schema_tests",
+      "exit_status": 0,
+      "relevant_result": "5 tests passed.",
+      "caveat": "Focused Mac lane; target/d0-physical-schema/final-physical_schema_tests.log"
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-storage --lib bootstrap_tests",
+      "exit_status": 0,
+      "relevant_result": "9 tests passed.",
+      "caveat": "Focused Mac lane; target/d0-physical-schema/final-bootstrap_tests.log"
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-storage --lib migration_tests",
+      "exit_status": 0,
+      "relevant_result": "24 tests passed.",
+      "caveat": "Focused Mac lane; target/d0-physical-schema/final-migration_tests.log"
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-storage --lib reviewed_export_tests",
+      "exit_status": 0,
+      "relevant_result": "5 tests passed.",
+      "caveat": "Focused Mac lane; target/d0-physical-schema/final-reviewed_export_tests.log"
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-storage --lib portable_",
+      "exit_status": 0,
+      "relevant_result": "40 tests passed.",
+      "caveat": "Focused Mac lane; target/d0-physical-schema/final-portable_.log"
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-storage --lib foundation",
+      "exit_status": 0,
+      "relevant_result": "31 tests passed.",
+      "caveat": "Focused Mac lane; target/d0-physical-schema/final-foundation.log"
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-storage --lib source_consent",
+      "exit_status": 0,
+      "relevant_result": "6 tests passed.",
+      "caveat": "Focused Mac lane; target/d0-physical-schema/final-source_consent.log"
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-storage --lib source_manifest",
+      "exit_status": 0,
+      "relevant_result": "5 tests passed.",
+      "caveat": "Focused Mac lane; target/d0-physical-schema/final-source_manifest.log"
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-storage --lib outside_ai",
+      "exit_status": 0,
+      "relevant_result": "9 tests passed.",
+      "caveat": "Focused Mac lane; target/d0-physical-schema/final-outside_ai.log"
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-storage --lib pack_",
+      "exit_status": 0,
+      "relevant_result": "41 tests passed.",
+      "caveat": "Focused Mac lane; target/d0-physical-schema/final-pack_.log"
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-storage --lib connection::backups::source_uri_tests",
+      "exit_status": 0,
+      "relevant_result": "1 tests passed.",
+      "caveat": "Focused Mac lane; target/d0-physical-schema/uri-final.log"
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-security --lib local_file_urls",
+      "exit_status": 0,
+      "relevant_result": "1 tests passed.",
+      "caveat": "Focused Mac lane; target/d0-physical-schema/security-url-final.log"
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-application --features embedded-ml --lib resume::semantic::tests::",
+      "exit_status": 0,
+      "relevant_result": "8 tests passed.",
+      "caveat": "Focused Mac lane; target/d0-physical-schema/semantic-final.log"
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-application --features embedded-ml --lib update_preflight",
+      "exit_status": 0,
+      "relevant_result": "15 tests passed.",
+      "caveat": "Focused Mac lane; target/d0-physical-schema/update-inventory-final.log"
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel --features embedded-ml --lib local_update",
+      "exit_status": 0,
+      "relevant_result": "7 tests passed.",
+      "caveat": "Focused Mac lane; target/d0-physical-schema/native-update-final.log"
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs clippy --locked --offline -p jobsentinel --lib --features embedded-ml -- -D warnings",
+      "exit_status": 0,
+      "relevant_result": "Production lint/format check passed.",
+      "caveat": "Focused Mac lane; target/d0-physical-schema/native-clippy-final.log"
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs fmt --all -- --check",
+      "exit_status": 0,
+      "relevant_result": "Production lint/format check passed.",
+      "caveat": "Focused Mac lane; target/d0-physical-schema/format-final.log"
+    },
+    {
+      "command": "RUSTUP_AUTO_INSTALL=0 cargo test --locked --offline -p jobsentinel-application --lib config::tests::tests::persistence_tests::",
+      "exit_status": 0,
+      "relevant_result": "11 tests passed.",
+      "caveat": "Focused Mac lane; target/d0-retired-inputs/green-config.log"
+    },
+    {
+      "command": "RUSTUP_AUTO_INSTALL=0 cargo test --locked --offline -p jobsentinel-storage --lib notification_filters",
+      "exit_status": 0,
+      "relevant_result": "3 tests passed.",
+      "caveat": "Focused Mac lane; target/d0-retired-inputs/green-filters.log"
+    },
+    {
+      "command": "RUSTUP_AUTO_INSTALL=0 cargo test --locked --offline -p jobsentinel-storage --lib resume::builder::tests::",
+      "exit_status": 0,
+      "relevant_result": "16 tests passed.",
+      "caveat": "Focused Mac lane; target/d0-retired-inputs/green-builder-import.log"
+    },
+    {
+      "command": "RUSTUP_AUTO_INSTALL=0 cargo test --locked --offline -p jobsentinel --lib -- --exact ipc::config::tests::retired_company_keys_cannot_change_config_file_or_runtime ipc::config::tests::save_config_updates_runtime_config_after_disk_save ipc::config::tests::save_config_clears_legacy_review_for_a_retired_source ipc::config::tests::complete_setup_reuses_the_owned_database",
+      "exit_status": 0,
+      "relevant_result": "4 tests passed.",
+      "caveat": "Focused Mac lane; target/d0-retired-inputs/green-native-config.log"
+    },
+    {
+      "command": "npm run typecheck",
+      "exit_status": 0,
+      "relevant_result": "TypeScript project build passed.",
+      "caveat": "Static check; no frontend runtime journey."
+    },
+    {
+      "command": "npm run harness:check",
+      "exit_status": 0,
+      "relevant_result": "D0 passing/D1 single-active state, architecture, ownership and startup budgets passed.",
+      "caveat": "Static development guard; no release qualification."
+    },
+    {
+      "command": "./init.sh",
+      "exit_status": 0,
+      "relevant_result": "Locked init passed; zero warnings and9 smoke tests.",
+      "caveat": "Focused current-owner lane; target/d0-credential-compatibility/init.log"
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-credentials --lib",
+      "exit_status": 0,
+      "relevant_result": "34 tests passed.",
+      "caveat": "Focused current-owner lane; target/d0-credential-compatibility/credentials.log"
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-application --lib -- config::tests::tests::persistence_tests::plaintext_credential_fields desktop::startup::tests",
+      "exit_status": 0,
+      "relevant_result": "6 tests passed.",
+      "caveat": "Focused current-owner lane; target/d0-credential-compatibility/config-startup.log"
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel --features embedded-ml --lib -- ipc::credentials::tests ipc::linkedin_auth::credential_integration_tests ipc::config::tests::plaintext_credential_fields",
+      "exit_status": 0,
+      "relevant_result": "15 tests passed.",
+      "caveat": "Focused current-owner lane; target/d0-credential-compatibility/native-credentials.log"
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs clippy --locked --offline -p jobsentinel --lib --features embedded-ml -- -D warnings",
+      "exit_status": 0,
+      "relevant_result": "Current-owner static check passed.",
+      "caveat": "Focused current-owner lane; target/d0-credential-compatibility/native-clippy.log"
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs fmt --all -- --check",
+      "exit_status": 0,
+      "relevant_result": "Current-owner static check passed.",
+      "caveat": "Focused current-owner lane; target/d0-credential-compatibility/format.log"
+    },
+    {
+      "command": "node --test scripts/tests/harness/check-security-docs.test.mjs",
+      "exit_status": 0,
+      "relevant_result": "15 tests passed.",
+      "caveat": "Focused current-owner lane; target/d0-credential-compatibility/security-contract.log"
+    },
+    {
+      "command": "node --test scripts/tests/harness/check-privacy-logging-runtime.test.mjs",
+      "exit_status": 0,
+      "relevant_result": "11 tests passed.",
+      "caveat": "Focused current-owner lane; target/d0-credential-compatibility/privacy-policy.log"
+    },
+    {
+      "command": "npm run lint:bloat",
+      "exit_status": 0,
+      "relevant_result": "Current-owner static check passed.",
+      "caveat": "Focused current-owner lane; target/d0-credential-compatibility/policy.log"
+    },
+    {
+      "command": "node_modules/.bin/eslint scripts/harness/checks/privacy-logging/credentials-feedback-notifications.mjs scripts/tests/harness/check-privacy-logging-runtime.test.mjs",
+      "exit_status": 0,
+      "relevant_result": "Current-owner static check passed.",
+      "caveat": "Focused current-owner lane; target/d0-credential-compatibility/script-lint.log"
+    }
+  ],
+  "review": {
+    "result": "PASS for production source; schema, retired inputs, copy/URI and credential compatibility received independent scoped review. Identified documentation defects were corrected.",
+    "scope": "Independent read-only source review; runtime claims come from the executed checks above."
+  },
+  "limits": [
+    "No full workspace/frontend/E2E/installed-app campaign; historical passing milestones are not new release certification.",
+    "Windows/Linux VM tests are user-deferred. URI shape checks are not native Windows execution. Current Mac27.2 is not exact26 or enforced8GiB qualification.",
+    "Actual OS update acknowledgement remains simulated in unit integration; signing/notarization/public artifacts remain R2/R3.",
+    "Production Workbench policy remains expired until genuinely reviewed; no production review date was advanced."
+  ],
+  "remaining": []
+}

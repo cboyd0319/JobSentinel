@@ -1,3 +1,4 @@
+// Registers maintained source and documentation policy checks.
 import {
   hasDirectPlaywrightE2eScript,
   hasRedundantDirectPlaywrightDependency,
@@ -50,7 +51,7 @@ import {
   hasStaleUrlValidationSecurityDocMarkers,
   hasStaleWebhookSecurityDocMarkers,
   hasStaleXssSecurityDocs,
-  hasUnsafeKeyringMigration,
+  hasUnsafeCredentialConfigCompatibility,
 } from "../../harness/checks/security-docs.mjs";
 import {
   hasStaleNotificationPreferenceSyncWrapper,
@@ -154,7 +155,7 @@ const repositoryPolicies = [
   ],
   [hasStaleXssSecurityDocs, "sync XSS security docs with live sanitizer path"],
   [hasStaleKeyringSecurityDocs, "sync keyring credential docs"],
-  [hasUnsafeKeyringMigration, "keep keyring migration retry-safe"],
+  [hasUnsafeCredentialConfigCompatibility, "reject retired credential configuration before decoding"],
   [
     hasStaleCredentialArchitectureComments,
     "sync credential architecture comments",

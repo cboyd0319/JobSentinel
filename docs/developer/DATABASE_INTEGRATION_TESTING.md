@@ -1,135 +1,68 @@
-# Database Integration Testing
+<!-- Documents synthetic SQLite fixtures, owner locking and database integration coverage. -->
 
-This guide owns SQLite integration setup, migrations, constraints, and
-concurrency coverage. See [Integration Testing Guide](INTEGRATION_TESTING.md)
-for scraper, command, fixture, and troubleshooting patterns.
+# Database integration testing
 
-## Database Tests
+Storage owns SQL, migrations and database fixtures. Use
+[the maintained integration tests](../../crates/jobsentinel-storage/tests/database_integration_test.rs)
+and owner-local tests under `crates/jobsentinel-storage/src/connection/tests/`
+as executable examples. [Integration testing](INTEGRATION_TESTING.md) covers
+cross-owner behavior.
 
-### In-Memory Database Setup
+## In-memory fixtures
 
-Integration tests use in-memory SQLite databases for speed:
-
-```rust
-/// Setup test database with migrations
-async fn setup_test_db() -> (Database, TempDir) {
-    let temp_dir = TempDir::new().unwrap();
-
-    // Use in-memory database (no disk I/O)
-    let db = Database::connect_memory().await.unwrap();
-
-    // Run all migrations
-    db.migrate().await.unwrap();
-
-    (db, temp_dir)
-}
-```
-
-**Why in-memory?**
-
-- Fast: No disk I/O
-- Isolated: Each test has clean state
-- Auto-cleanup: Dropped when test ends
-
-### File-Based Database for Backup Tests
-
-Some tests require persistent file operations:
+`Database::connect_memory` creates a real isolated SQLite database. Apply the
+production migrations before testing repositories:
 
 ```rust
-/// Setup persistent database on disk
-async fn setup_file_db() -> (Database, TempDir) {
-    let temp_dir = TempDir::new().unwrap();
-    let db_path = temp_dir.path().join("test.db");
-
-    let db = Database::connect(&db_path).await.unwrap();
-    db.migrate().await.unwrap();
-
-    (db, temp_dir)
-}
-```
-
-### Testing Migrations
-
-Verify migrations run correctly and are idempotent:
-
-```rust
-#[tokio::test]
-async fn test_migrations_run_successfully() {
-    let (db, _temp_dir) = setup_test_db().await;
-
-    // If setup succeeded, migrations ran
-    let stats = db.get_statistics().await.unwrap();
-    assert_eq!(stats.total_jobs, 0);
-}
+use jobsentinel_storage::Database;
 
 #[tokio::test]
-async fn test_migrations_are_idempotent() {
-    let temp_dir = TempDir::new().unwrap();
-    let db_path = temp_dir.path().join("test.db");
-
-    // Run migrations twice
-    let db1 = Database::connect(&db_path).await.unwrap();
-    db1.migrate().await.unwrap();
-
-    let db2 = Database::connect(&db_path).await.unwrap();
-    db2.migrate().await.unwrap(); // Should not fail
-
-    assert!(db2.get_statistics().await.is_ok());
+async fn empty_database_has_no_jobs() {
+    let database = Database::connect_memory().await.unwrap();
+    database.migrate().await.unwrap();
+    assert_eq!(database.get_statistics().await.unwrap().total_jobs, 0);
+    database.close().await;
 }
 ```
 
-### Testing Schema Constraints
+An in-memory fixture cannot establish encryption, file permissions, WAL,
+exclusive profile ownership or restart behavior.
 
-Verify foreign keys, unique constraints work:
+## File-backed fixtures
 
-```rust
-#[tokio::test]
-async fn test_foreign_key_constraint() {
-    let (db, _) = setup_test_db().await;
+Do not call production `Database::connect` casually from tests: installed-mode
+startup can access the real OS database key. Storage's owner-local fixtures use
+synthetic keys. The explicit `test-support` feature exposes
+`Database::connect_test_fixture` for a new destination; it refuses existing files.
+Its fixed test key must never become a production key path.
 
-    let job = create_test_job("hash1", "Test Job", "Company");
-    let job_id = db.upsert_job(&job).await.unwrap();
+Keep fixture directories private and test data synthetic. Close each database
+before reopening its path; a live owner reservation intentionally prevents a
+second independent startup. Use shared pool transactions to test concurrent work
+inside one owner, rather than bypassing the owner lock.
 
-    // Constraint should prevent orphaned records
-    let result = db.query_raw("DELETE FROM jobs WHERE id = ?").await;
-    assert!(result.is_ok());
-}
+## Required boundaries
+
+- Migrations preserve rows and enforce current schema identity.
+- Required snapshot failure stops migration; a failed migration preserves recovery.
+- Foreign keys and uniqueness reject invalid writes through the owning storage API.
+- Concurrent writes preserve records and report contention without silent loss.
+- Wrong-key and unsupported-data startup do not authorize primary writers.
+- Portable authentication includes committed WAL data and preserves durable bytes;
+  transient SQLite shared-memory read marks may change.
+- Restore and update tests retain their journal, snapshot and rollback provenance.
+
+SQL-only schema fixtures may open a raw SQLite pool inside the storage test owner.
+That is not encrypted-runtime evidence, and it does not authorize SQL in application
+or Tauri owners. There is no public `Database::query_raw` escape hatch.
+
+## Commands
+
+```bash
+node scripts/dev/run-cargo.mjs test --locked -p jobsentinel-storage --test database_integration_test
+node scripts/dev/run-cargo.mjs test --locked -p jobsentinel-storage --lib bootstrap_tests
+npm run lint:sqlx
 ```
 
-### Concurrent Operations
-
-Test thread-safe database operations:
-
-```rust
-#[tokio::test]
-async fn test_concurrent_writes() {
-    let (db, _) = setup_test_db().await;
-    let db = Arc::new(db);
-
-    let mut tasks = vec![];
-
-    for i in 0..10 {
-        let db = Arc::clone(&db);
-        let task = tokio::spawn(async move {
-            let job = create_test_job(
-                &format!("hash_{}", i),
-                "Job Title",
-                "Company"
-            );
-            db.upsert_job(&job).await
-        });
-        tasks.push(task);
-    }
-
-    // All tasks complete without error
-    for task in tasks {
-        assert!(task.await.unwrap().is_ok());
-    }
-
-    // All jobs persisted
-    let stats = db.get_statistics().await.unwrap();
-    assert_eq!(stats.total_jobs, 10);
-}
-```
-
----
+Select additional recovery or migration filters for the changed boundary. Record
+the actual result and platform; listing a command here is not a passing result.

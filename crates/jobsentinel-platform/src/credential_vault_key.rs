@@ -1,8 +1,5 @@
-//! OS-backed storage for the credential-vault master key.
-//!
-//! Normal credential status checks must never call this module. These functions
-//! can trigger OS authentication prompts and should only run for explicit secret
-//! use, passphrase lock changes, or vault-key creation.
+//! OS-backed credential-vault master keys, accessed only for explicit secret use or lock changes.
+//! Passive status checks must never load these keys or trigger authentication.
 
 #![cfg_attr(target_os = "macos", allow(unsafe_code))]
 
@@ -20,8 +17,10 @@ fn secure_storage_error() -> String {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum CredentialVaultKeyBackend {
-    #[cfg(not(target_os = "macos"))]
+    #[cfg(not(any(target_os = "macos", windows)))]
     GenericKeyring,
+    #[cfg(windows)]
+    WindowsLocalCredentialManager,
     #[cfg(target_os = "macos")]
     MacosUserPresenceKeychain,
 }
@@ -34,6 +33,10 @@ pub struct CredentialVaultKeyStoragePolicy {
     pub biometry_current_set: bool,
 }
 
+/// Protection enforced on newly stored and successfully loaded keys.
+///
+/// Windows migrates legacy persistence on explicit load; previously roamed copies
+/// are not revoked. Credential Manager itself does not require Hello consent.
 pub const fn credential_vault_key_storage_policy() -> CredentialVaultKeyStoragePolicy {
     #[cfg(target_os = "macos")]
     {
@@ -45,7 +48,18 @@ pub const fn credential_vault_key_storage_policy() -> CredentialVaultKeyStorageP
         }
     }
 
-    #[cfg(not(target_os = "macos"))]
+    #[cfg(windows)]
+    {
+        CredentialVaultKeyStoragePolicy {
+            backend: CredentialVaultKeyBackend::WindowsLocalCredentialManager,
+            // Hello consent is enforced by the action owner, not Credential Manager.
+            user_presence_required: false,
+            device_local: true,
+            biometry_current_set: false,
+        }
+    }
+
+    #[cfg(not(any(target_os = "macos", windows)))]
     {
         CredentialVaultKeyStoragePolicy {
             backend: CredentialVaultKeyBackend::GenericKeyring,
@@ -119,10 +133,17 @@ mod platform {
 
     use super::MASTER_KEY_LEN;
     use super::{secure_storage_error, VAULT_KEY_NAME};
-    use crate::SECURE_STORAGE_SERVICE as SERVICE_NAME;
+
+    fn vault_key_entry() -> Result<Entry, String> {
+        #[cfg(windows)]
+        let entry = crate::windows_local_key::entry(VAULT_KEY_NAME);
+        #[cfg(not(windows))]
+        let entry = Entry::new(crate::SECURE_STORAGE_SERVICE, VAULT_KEY_NAME);
+        entry.map_err(|_| secure_storage_error())
+    }
 
     pub(super) fn store_vault_key(key: &Zeroizing<[u8; MASTER_KEY_LEN]>) -> Result<(), String> {
-        let entry = Entry::new(SERVICE_NAME, VAULT_KEY_NAME).map_err(|_| secure_storage_error())?;
+        let entry = vault_key_entry()?;
         let encoded_key = Zeroizing::new(hex::encode(key.as_ref()));
         entry
             .set_password(encoded_key.as_str())
@@ -130,7 +151,7 @@ mod platform {
     }
 
     pub(super) fn delete_vault_key() -> Result<(), String> {
-        let entry = Entry::new(SERVICE_NAME, VAULT_KEY_NAME).map_err(|_| secure_storage_error())?;
+        let entry = vault_key_entry()?;
         match entry.delete_credential() {
             Ok(()) | Err(KeyringError::NoEntry) => Ok(()),
             Err(_) => Err(secure_storage_error()),
@@ -138,7 +159,17 @@ mod platform {
     }
 
     pub(super) fn load_vault_key() -> Result<Option<Zeroizing<String>>, String> {
-        let entry = Entry::new(SERVICE_NAME, VAULT_KEY_NAME).map_err(|_| secure_storage_error())?;
+        let entry = vault_key_entry()?;
+        #[cfg(windows)]
+        {
+            crate::windows_local_key::load(&entry, |key| {
+                super::decode_credential_vault_key(key)
+                    .map(Zeroizing::new)
+                    .is_ok()
+            })
+            .map_err(|()| secure_storage_error())
+        }
+        #[cfg(not(windows))]
         match entry.get_password() {
             Ok(encoded_key) => Ok(Some(Zeroizing::new(encoded_key))),
             Err(KeyringError::NoEntry) => Ok(None),

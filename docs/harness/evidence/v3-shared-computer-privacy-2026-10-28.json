@@ -1,0 +1,183 @@
+{
+  "schema": "jobsentinel.feature_evidence.v1",
+  "feature_id": "v3-shared-computer-privacy",
+  "behavior": "Shared-computer mode protects private views and native access, limits recent-data exposure, and supports reviewed session cleanup.",
+  "result": "passing",
+  "verified_at": "2026-10-29T03:40:09.780061+00:00",
+  "revision": "70b813d7b8019f31201dad5c474e520a703aa04e",
+  "platform": "macOS27.2 arm64; Rust1.97.1, Node24.18.0, npm12.0.1",
+  "scope": "D1/R13 development acceptance only; Next source remains separate from v3.0 core cut 4b96e802.",
+  "delivered": [
+    "Native privacy admission is separate from update/shutdown admission; lock generations reject stale authentication.",
+    "Fresh passphrase verification bypasses cached keys; native user presence is required for system-mode unlock. Other platforms require configured passphrase.",
+    "Private views, toast/undo state and command caches are removed on lock; stale renderer responses cannot refill cleared session data.",
+    "Reviewed cleanup clears owned transient review/session data and drains Browser Import connections, preserving saved records and external copies.",
+    "Scheduler pause cancels source and notification futures; actual desktop loop wakes on unlock and defers recovery while locked.",
+    "Config transactions preserve privacy settings; passphrase policy cannot remove the active unlock method. Cleanup errors remain visible after remount."
+  ],
+  "commands": [
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-credentials --lib app_unlock",
+      "exit_status": 0,
+      "relevant_result": "running 2 tests\ntest service::tests::app_unlock_does_not_treat_a_fixed_key_as_user_presence ... ok\ntest service::tests::app_unlock_rechecks_passphrase_with_a_warm_vault_key ... ok\ntest result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 34 filtered out; finished in 5.51s",
+      "caveat": "Focused synthetic Mac check; source evolution and platform limits are recorded below."
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs clippy --locked --offline -p jobsentinel-credentials --lib -- -D warnings",
+      "exit_status": 0,
+      "relevant_result": "Checking jobsentinel-credentials v3.0.0\nFinished `dev` profile [unoptimized + debuginfo] target(s) in 9.48s",
+      "caveat": "Focused synthetic Mac check; source evolution and platform limits are recorded below."
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs fmt --package jobsentinel-credentials -- --check",
+      "exit_status": 0,
+      "relevant_result": "Passed.",
+      "caveat": "Focused synthetic Mac check; source evolution and platform limits are recorded below."
+    },
+    {
+      "command": "git diff --check -- crates/jobsentinel-credentials",
+      "exit_status": 0,
+      "relevant_result": "Passed.",
+      "caveat": "Focused synthetic Mac check; source evolution and platform limits are recorded below."
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-application --lib -- scheduler::tests::privacy_ scheduler::tests::shutdown_waits_for_active_work scheduler::workers::scrapers::tests::shutdown_cancels_remaining_boards",
+      "exit_status": 0,
+      "relevant_result": "running 5 tests\ntest scheduler::tests::privacy_resume_never_reopens_a_shutdown_scheduler ... ok\ntest scheduler::tests::shutdown_waits_for_active_work_and_refuses_later_writes ... ok\ntest scheduler::tests::privacy_resume_wakes_a_paused_start_and_performs_deferred_recovery ... ok\ntest scheduler::tests::privacy_pause_cancels_active_checks_and_drains_without_shutdown ... ok\ntest scheduler::workers::scrapers::tests::shutdown_cancels_remaining_boards_and_finishes_only_its_audit ... ok\ntest result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 717 filtered out; finished in 2.72s",
+      "caveat": "Focused synthetic Mac check; source evolution and platform limits are recorded below."
+    },
+    {
+      "command": "git diff --check -- crates/jobsentinel-application/src/scheduler",
+      "exit_status": 0,
+      "relevant_result": "Passed.",
+      "caveat": "Focused synthetic Mac check; source evolution and platform limits are recorded below."
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel --features embedded-ml --lib -- ipc::credentials::tests::shared_computer_mode_preserves_its_unlock_method_until_disabled ipc::credentials::tests::passphrase_mode_can_return_to_system_locking",
+      "exit_status": 0,
+      "relevant_result": "running 2 tests\ntest ipc::credentials::tests::passphrase_mode_can_return_to_system_locking ... ok\ntest ipc::credentials::tests::shared_computer_mode_preserves_its_unlock_method_until_disabled ... ok\ntest result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 262 filtered out; finished in 4.17s",
+      "caveat": "Focused synthetic Mac check; source evolution and platform limits are recorded below."
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-application --lib scheduler::workers::persistence",
+      "exit_status": 0,
+      "relevant_result": "Finished `test` profile [unoptimized + debuginfo] target(s) in 4.99s\n     Running unittests src/lib.rs (target/debug/deps/jobsentinel_application-5fb7eeac3b62ff97)\n\nrunning 11 tests\ntest scheduler::workers::persistence::persistence_repost_tests::failed_save_does_not_create_canonical_or_wrongly_keyed_repost_history ... ok\ntest scheduler::workers::persistence::persistence_repost_tests::privacy_cancellation_drops_active_delivery_before_later_channels ... ok\ntest scheduler::workers::persistence::tests::failed_save_does_not_claim_an_existing_job ... ok\ntest scheduler::workers::persistence::tests::incoming_mismatch_is_stored_but_not_a_high_match_or_alert_claim ... ok\ntest scheduler::workers::persistence::persistence_repost_tests::successful_persistence_tracks_reposts_under_the_job_identity ... ok\ntest scheduler::workers::persistence::persistence_repost_tests::failed_notification_is_not_retried_automatically ... ok\ntest scheduler::workers::persistence::tests::later_reobservation_can_claim_a_previously_excluded_job ... ok\ntest scheduler::workers::persistence::tests::missing_and_mixed_country_observations_remain_alert_eligible ... ok\ntest scheduler::workers::persistence::tests::legacy_incoming_none_uses_preserved_persisted_geography_for_alert_gating ... ok\ntest scheduler::workers::persistence::persistence_repost_tests::privacy_cancellation_preserves_jobs_without_claiming_or_sending_alerts ... ok\ntest scheduler::workers::persistence::tests::remote_uses_applicant_locations_not_us_headquarters ... ok\n\ntest result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 713 filtered out; finished in 5.87s",
+      "caveat": "Focused synthetic Mac check; source evolution and platform limits are recorded below."
+    },
+    {
+      "command": "RUSTUP_AUTO_INSTALL=0 rustup run 1.97.1 rustfmt --edition 2021 --config skip_children=true --check crates/jobsentinel-application/src/scheduler/types.rs crates/jobsentinel-application/src/scheduler/pipeline.rs crates/jobsentinel-application/src/scheduler/workers/persistence.rs crates/jobsentinel-application/src/scheduler/workers/persistence_repost_tests.rs src-tauri/src/ipc/credentials.rs src-tauri/src/ipc/credentials/tests.rs src-tauri/src/bootstrap/mod.rs",
+      "exit_status": 0,
+      "relevant_result": "Passed.",
+      "caveat": "Focused synthetic Mac check; source evolution and platform limits are recorded below."
+    },
+    {
+      "command": "npm run harness:check",
+      "exit_status": 0,
+      "relevant_result": "Harness, architecture, state and file coverage passed.",
+      "caveat": "Development evidence; installed platform qualification remains R1."
+    },
+    {
+      "command": "npm run typecheck",
+      "exit_status": 0,
+      "relevant_result": "Project TypeScript build check passed.",
+      "caveat": "Development evidence; installed platform qualification remains R1."
+    },
+    {
+      "command": "npm run test:run -- src/app/AppPrivacy.test.tsx",
+      "exit_status": 0,
+      "relevant_result": "11 privacy tests passed, including disabled-mode cleanup failure.",
+      "caveat": "Development evidence; installed platform qualification remains R1."
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel --lib -- bootstrap::operation::tests ipc::privacy::tests ipc::config::tests::save_config_updates_runtime_config_after_disk_save",
+      "exit_status": 0,
+      "relevant_result": "6 tests passed.",
+      "caveat": "Development evidence; installed platform qualification remains R1."
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-application --lib session_cleanup_invalidates_pending_review_tokens",
+      "exit_status": 0,
+      "relevant_result": "1 test passed.",
+      "caveat": "Development evidence; installed platform qualification remains R1."
+    },
+    {
+      "command": "cargo test --locked --offline -p jobsentinel-assistance --lib stopping_server_drains_incomplete_connections",
+      "exit_status": 0,
+      "relevant_result": "1 test passed after the original detached-connection regression failed.",
+      "caveat": "Development evidence; installed platform qualification remains R1."
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs clippy --locked --offline -p jobsentinel --features embedded-ml --lib -- -D warnings",
+      "exit_status": 0,
+      "relevant_result": "Production native graph passed with embedded ML.",
+      "caveat": "Development evidence; installed platform qualification remains R1."
+    },
+    {
+      "command": "cargo fmt --all -- --check",
+      "exit_status": 0,
+      "relevant_result": "Workspace formatting passed.",
+      "caveat": "Development evidence; installed platform qualification remains R1."
+    },
+    {
+      "command": "node scripts/harness/pre-commit.mjs",
+      "exit_status": 0,
+      "relevant_result": "Secret scan, staged descriptions, Markdown and scoped frontend checks passed.",
+      "caveat": "Development evidence; installed platform qualification remains R1."
+    }
+  ],
+  "source_files_sha256": {
+    "crates/jobsentinel-application/src/config/types.rs": "c21f0bb0d680c9890245ecd63dc63efc9c348156d00d1a9aaed706ba8f5bd08b",
+    "crates/jobsentinel-application/src/foundation/saved_match_military_transition.rs": "6c212320fe7827e54db1a3f4050dd587abb36b743979e80e6c5afa605b29fd5e",
+    "crates/jobsentinel-application/src/pending.rs": "9f5262d9744c19d5bf5835e3ad5f6a60ecfc38cac9ef7eede718b1a7047c9a8b",
+    "crates/jobsentinel-application/src/scheduler/mod.rs": "7cdeeac9dd1aec4841db4c403074acffea3325ddb4266b5d1f9e6d5514559784",
+    "crates/jobsentinel-application/src/scheduler/pipeline.rs": "fce296a914c33ff4e4d74c4163180c2c7339bd9aec3b4ec0ec7fe7d731804c97",
+    "crates/jobsentinel-application/src/scheduler/tests.rs": "3d97b71e8ced982f12051f257afb2238c2b7b9c2f60668564c20daad04ef5d33",
+    "crates/jobsentinel-application/src/scheduler/types.rs": "1c2f9d26d220d7bb09c6f16758102621435a9209412c7b88119762628b0daae4",
+    "crates/jobsentinel-application/src/scheduler/workers/persistence.rs": "475aff44d4137b33cbaf2044155c4e0891e8dc6c1db89d73bc2cba1ab2ce9db1",
+    "crates/jobsentinel-application/src/scheduler/workers/persistence_repost_tests.rs": "7a66bb5d3e3371ccb0621747826d0f641c427503d8b1fef8d004967963ad1c4b",
+    "crates/jobsentinel-application/src/test_support.rs": "5940e0d1e85779dde04ff6d48ff04aaf05c8fe4025959cf06eaba927e9080070",
+    "crates/jobsentinel-assistance/src/bookmarklet/server.rs": "de89a3ab720b0740037f43a5fa62ce823254a52db679f2de9368b87d6f8a5b55",
+    "crates/jobsentinel-assistance/src/bookmarklet/server/tests.rs": "3bc2e05aa544e9047e81282b3c64b328ca67789d708fe43f8eac638815c8a116",
+    "crates/jobsentinel-credentials/src/service.rs": "b2d374d75f25a32d0dbcc0056de0c5e6fbf02fa51fcbaf63e7d5c04c4fd56556",
+    "crates/jobsentinel-credentials/src/service/tests.rs": "b46b85869de5361eafce7bf4b14d7f63d9fb2cc972d85cd37a090ae31332c536",
+    "docs/features/user-data-management.md": "6bdeb1457d613c86799f41643ee6a38f943225decc5ae299d3e6909c338b8810",
+    "docs/harness/current-status.md": "616c544d5861b2cf670d6b2c2b9d8eaebe672eabf847eeca93bd1cd3ddae1ec8",
+    "docs/plans/v3/master-exec-plan.md": "fd45d9fcc1ca1dc6ee6c4a17b79f81970c26790bebecf8d5c85869db1531f382",
+    "src-tauri/src/bootstrap/mod.rs": "f6aa495122e2e16930bbfcfd54c0abe7d7762b59c1b27fea0767f3d809e66106",
+    "src-tauri/src/bootstrap/operation.rs": "3391717eb9ab44e116708663f2c829c7d49a720f8c760e36031846fc40dfa34e",
+    "src-tauri/src/desktop/mod.rs": "e9107590d4259176eb3033790c53df2c2a7ca08d238c3b8614afd50bf03d68f4",
+    "src-tauri/src/ipc/config.rs": "606380cc43b9f429ae5612133abb3f2e0eee7db39d5119a61c621f0d170f7fa1",
+    "src-tauri/src/ipc/config/tests.rs": "1a7d9c67fc1582842dc5e016376ae71d6b8bc6c6bbd8b732761d70821e7f8e4c",
+    "src-tauri/src/ipc/credentials.rs": "3db067e3299a0fe7c799dd326bad2194d1d2541af5419f606ca53ed205c0ad27",
+    "src-tauri/src/ipc/credentials/tests.rs": "caaa45ab78793a1fb40f0e73b02cb5f8a15f3f255c1c47863401ee9e6810c2ef",
+    "src-tauri/src/ipc/health.rs": "d88984a3c9240c4070dfa2fdc9e1a2efb44a75963c75375d9bba21803d9c8276",
+    "src-tauri/src/ipc/mod.rs": "bf0daf590779aa48af1c77e2d80f457d7ca0db9644594dd3fc7deb641f81c91b",
+    "src-tauri/src/ipc/privacy.rs": "19fdde949177662d6b9c6d95099d98679eda6aa26a10cc5eb9ec90f7b6cfabbb",
+    "src-tauri/src/ipc/registry.rs": "546811c060ae350314ce3370f6c1ebaabfad75cf21df9967adeb89ea54a76e6e",
+    "src-tauri/src/ipc/tests.rs": "ad9f4df7383cb4936414126798bd27c9224a5a00e9a8991c701d0fadc192bf97",
+    "src/app/AppPrivacy.test.tsx": "e23172ee5b3dfe5af5e18438ac9c58ff227dea27e8a14517d541ea64043cc3e7",
+    "src/app/AppPrivacy.tsx": "c89e92c727215b212b4d5ad790a30bc7edde06194fb6a41119dc7a468783f11b",
+    "src/app/bootstrap.tsx": "8797c4eb9c0a0397edfbd533df8f4ff4eefe2d4917b9c0a3247b5a032a221bc0",
+    "src/dev-runtime/mocks/commandRegistry.ts": "ee0e8ebbfa3691a8936dd328e2c6975553adf49d8823ec54f420c453933e14f2",
+    "src/dev-runtime/mocks/runtimeCommandAdapters.ts": "8960a8c27759a6735ca1056d16161b527b9c9995d12937bbf5cc8fb8834a5c1b",
+    "src/features/settings/SettingsPage.tsx": "77aadd285052cc80a63e0c05291b9313843765e57bf35b28561b97878ad6c4b4",
+    "src/features/settings/SettingsPrivacySection.tsx": "ca940b7a5febc7f156b0e2b498983d4ea7160e629555e594eecb541eb697349c",
+    "src/platform/tauri/appPrivacy.ts": "63b244033519db3a22847e9007e7bff195f10f7e649b7c170767291ae9c5353b",
+    "src/platform/tauri/commandClient.test.ts": "4a8cd7dd9657a4b99bb8484b1ed8532a3bbf8f5e39fd74251512845daf1adec7",
+    "src/platform/tauri/commandClient.ts": "b50e5557481ea6f087c9bd42db8758f578e1b35bc8a9c84a11793f3b5efdcca5",
+    "src/platform/tauri/index.ts": "1a43edbdf613ad7403a7dad5e6ac20fa6dfaf29f82c6fb693cdc19153a11d802",
+    "src/test-support/setup.ts": "7578bd264650740a1c69d281fd1b93c59e6eb2c318b0559dc72f771a7f40eb94"
+  },
+  "review": "Independent adversarial review found and corrected transition deadlocks/races, unlock-method removal, desktop scheduler wiring, notification cancellation and stale UI responses; final bounded recheck passed.",
+  "limits": [
+    "Native authentication prompts/cancellation and installed journeys remain unexecuted; R1 qualification is deferred by user.",
+    "Windows/Linux VM execution remains deferred; non-Mac passphrase fallback has source/synthetic evidence only.",
+    "Notifications already accepted externally cannot be unsent. Cleanup does not erase saved records, clipboard or external copies.",
+    "Earlier component check artifacts precede later reviewed fixes; final affected tests and production clippy establish their stated scopes, not full-suite completion."
+  ],
+  "proof_artifacts": [
+    "target/d1-privacy-authentication/reviewer-fixes.json",
+    "target/d1-privacy-ui/session-regression-results.json",
+    "target/d1-privacy-ui/cleanup-failure-results.json"
+  ]
+}
