@@ -18,6 +18,8 @@ mod private_files;
 mod secure_storage;
 #[cfg(any(windows, test))]
 mod windows_acl_policy;
+#[cfg(any(windows, test))]
+mod windows_local_key;
 #[cfg(windows)]
 mod windows_private_child;
 #[cfg(windows)]
