@@ -12,6 +12,7 @@ use zeroize::Zeroizing;
 const MARKER: &str = ".jobsentinel-portable";
 const MARKER_CONTENT: &str = "jobsentinel.portable.v1\n";
 const MARKER_PREFIX: &str = "jobsentinel.portable.v2\n";
+const MARKER_STAGE: &str = ".jobsentinel-portable-stage";
 const LOCK: &str = ".portable.lock";
 const CHILDREN: [&str; 3] = ["data", "config", "cache"];
 static PROFILE: OnceLock<PortableProfile> = OnceLock::new();
@@ -134,6 +135,7 @@ impl PortableProfile {
         for entry in fs::read_dir(&root)? {
             let name = entry?.file_name();
             if name != OsStr::new(MARKER)
+                && name != OsStr::new(MARKER_STAGE)
                 && name != OsStr::new(LOCK)
                 && !CHILDREN.iter().any(|child| name == OsStr::new(child))
             {
@@ -148,14 +150,16 @@ impl PortableProfile {
         read_profile_id(&root)?;
         let mut lock = open_profile_lock(&root.join(LOCK))?;
         // Re-read under ownership: another process may have adopted a legacy marker.
-        let id = match read_profile_id(&root)? {
+        let marker_id = read_profile_id(&root)?;
+        let adopting = marker_id.is_none();
+        let id = match marker_id {
             Some(id) => id,
-            None => {
-                let id = legacy_profile_id(&mut lock)?;
-                write_profile_marker(&root, &id)?;
-                id
-            }
+            None => legacy_profile_id(&mut lock)?,
         };
+        remove_marker_stage(&root)?;
+        if adopting {
+            write_profile_marker(&root, &id)?;
+        }
         for child in CHILDREN {
             if !root.join(child).try_exists()? {
                 crate::ensure_private_dir_tree(&root.join(child))?;
@@ -218,10 +222,17 @@ fn legacy_profile_id(lock: &mut File) -> io::Result<String> {
 }
 
 fn write_profile_marker(root: &Path, id: &str) -> io::Result<()> {
-    let mut temporary = tempfile::NamedTempFile::new_in(root)?;
+    let mut temporary = tempfile::Builder::new()
+        .prefix(MARKER_STAGE)
+        .rand_bytes(0)
+        .tempfile_in(root)?;
     crate::ensure_private_file(temporary.path())?;
     writeln!(temporary, "{MARKER_PREFIX}{id}")?;
     temporary.as_file().sync_all()?;
+    #[cfg(test)]
+    if std::env::var_os("JOBSENTINEL_TEST_MARKER_CRASH").is_some() {
+        std::process::exit(113);
+    }
     #[cfg(windows)]
     crate::persist_file_write_through(temporary, &root.join(MARKER))?;
     #[cfg(not(windows))]
@@ -230,6 +241,22 @@ fn write_profile_marker(root: &Path, id: &str) -> io::Result<()> {
         .map_err(|error| error.error)?;
     #[cfg(unix)]
     File::open(root)?.sync_all()?;
+    Ok(())
+}
+
+fn remove_marker_stage(root: &Path) -> io::Result<()> {
+    let path = root.join(MARKER_STAGE);
+    if let Some(file) = crate::open_private_file(&path)? {
+        if !crate::opened_file_matches_path(&file, &path) {
+            return Err(invalid(
+                "Portable marker staging changed during inspection.",
+            ));
+        }
+        drop(file);
+        fs::remove_file(path)?;
+        #[cfg(unix)]
+        File::open(root)?.sync_all()?;
+    }
     Ok(())
 }
 

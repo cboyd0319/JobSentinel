@@ -96,6 +96,17 @@ fn portable_profile_refuses_malformed_identity_without_replacing_it() {
         assert_eq!(fs::read_to_string(path.join(LOCK)).unwrap(), id);
         assert!(!path.join(MARKER).exists());
     }
+    crate::write_file_atomic_private(&path.join(MARKER), MARKER_CONTENT).unwrap();
+    crate::write_file_atomic_private(&path.join(MARKER_STAGE), "preserved stage").unwrap();
+    assert!(PortableProfile::open(&path).is_err());
+    assert_eq!(
+        fs::read_to_string(path.join(MARKER_STAGE)).unwrap(),
+        "preserved stage"
+    );
+    assert_eq!(
+        fs::read_to_string(path.join(MARKER)).unwrap(),
+        MARKER_CONTENT
+    );
 }
 
 #[test]
@@ -162,6 +173,52 @@ fn portable_marker_refuses_incomplete_identity_before_creating_lock() {
         assert_eq!(fs::read_to_string(path.join(MARKER)).unwrap(), marker);
         assert!(!path.join(LOCK).exists());
     }
+}
+
+#[test]
+fn portable_marker_upgrade_recovers_abrupt_publication_exit() {
+    const ROOT: &str = "JOBSENTINEL_TEST_MARKER_CRASH";
+    if let Some(path) = std::env::var_os(ROOT) {
+        PortableProfile::open(Path::new(&path)).unwrap();
+        panic!("marker crash hook did not terminate child");
+    }
+    let (_directory, path) = root();
+    let id = "a".repeat(64);
+    crate::write_file_atomic_private(&path.join(MARKER), MARKER_CONTENT).unwrap();
+    crate::write_file_atomic_private(&path.join(LOCK), &id).unwrap();
+    crate::ensure_private_dir(&path.join("data")).unwrap();
+    let data = path.join("data/preserved");
+    crate::write_file_atomic_private(&data, "retained data").unwrap();
+    let status = std::process::Command::new(std::env::current_exe().unwrap())
+        .args([
+            "--exact",
+            "portable::tests::portable_marker_upgrade_recovers_abrupt_publication_exit",
+        ])
+        .env(ROOT, &path)
+        .status()
+        .unwrap();
+    assert_eq!(status.code(), Some(113));
+    assert_eq!(
+        fs::read_to_string(path.join(MARKER)).unwrap(),
+        MARKER_CONTENT
+    );
+    assert_eq!(PortableProfile::open(&path).unwrap().id, id);
+    assert_eq!(fs::read_to_string(data).unwrap(), "retained data");
+    assert!(!path.join(MARKER_STAGE).exists());
+    crate::write_file_atomic_private(&path.join(MARKER_STAGE), "interrupted stage").unwrap();
+    assert_eq!(PortableProfile::open(&path).unwrap().id, id);
+    assert!(!path.join(MARKER_STAGE).exists());
+    crate::write_file_atomic_private(&path.join(MARKER), "invalid marker").unwrap();
+    crate::write_file_atomic_private(&path.join(MARKER_STAGE), "preserved stage").unwrap();
+    assert!(PortableProfile::open(&path).is_err());
+    assert_eq!(
+        fs::read_to_string(path.join(MARKER_STAGE)).unwrap(),
+        "preserved stage"
+    );
+    assert_eq!(
+        fs::read_to_string(path.join(MARKER)).unwrap(),
+        "invalid marker"
+    );
 }
 
 #[cfg(unix)]
