@@ -129,6 +129,20 @@ impl Database {
     }
 
     pub(super) fn update_database_identity(path: &std::path::Path) -> Result<String, sqlx::Error> {
+        Ok(Self::update_database_identities(path)?.0)
+    }
+
+    pub(super) fn matches_update_database_identity(
+        path: &std::path::Path,
+        expected: &str,
+    ) -> Result<bool, sqlx::Error> {
+        let (current, legacy) = Self::update_database_identities(path)?;
+        Ok(expected == current || legacy.as_deref() == Some(expected))
+    }
+
+    fn update_database_identities(
+        path: &std::path::Path,
+    ) -> Result<(String, Option<String>), sqlx::Error> {
         match std::fs::symlink_metadata(path) {
             Ok(metadata) if !metadata.is_file() => return Err(failure()),
             Err(error) if error.kind() != std::io::ErrorKind::NotFound => return Err(error.into()),
@@ -139,6 +153,7 @@ impl Database {
             .ok_or_else(failure)?
             .canonicalize()?
             .join(path.file_name().ok_or_else(failure)?);
+        let path_bound = hex::encode(Sha256::digest(identity.as_os_str().as_encoded_bytes()));
         if let Some(root) = jobsentinel_platform::portable_root() {
             let relative = identity.strip_prefix(root).map_err(|_| failure())?;
             let mut hash = Sha256::new();
@@ -148,11 +163,10 @@ impl Database {
                 hash.update(b"/");
                 hash.update(component.as_os_str().to_str().ok_or_else(failure)?);
             }
-            return Ok(hex::encode(hash.finalize()));
+            // Existing receipts remain valid only at their exact original location.
+            return Ok((hex::encode(hash.finalize()), Some(path_bound)));
         }
-        Ok(hex::encode(Sha256::digest(
-            identity.as_os_str().as_encoded_bytes(),
-        )))
+        Ok((path_bound, None))
     }
 
     fn update_snapshot_directory(&self, id: Uuid) -> Result<PathBuf, sqlx::Error> {
@@ -242,8 +256,10 @@ impl Database {
         let receipt: UpdateSnapshot = serde_json::from_slice(&bytes).map_err(|_| failure())?;
         let snapshot = directory.join("snapshot.db");
         if receipt.schema != "jobsentinel.update-snapshot.v1"
-            || receipt.database_identity
-                != Self::update_database_identity(self.db_path.as_deref().ok_or_else(failure)?)?
+            || !Self::matches_update_database_identity(
+                self.db_path.as_deref().ok_or_else(failure)?,
+                &receipt.database_identity,
+            )?
             || receipt.operation_id != id.to_string()
             || receipt.database_schema == 0
             || receipt.migration_sequence == 0

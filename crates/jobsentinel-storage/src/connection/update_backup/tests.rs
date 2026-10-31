@@ -10,41 +10,91 @@ async fn portable_update_recovery_survives_relocation_and_rejects_other_profiles
         let root = PathBuf::from(root);
         jobsentinel_platform::select_portable_root(&root).unwrap();
         let path = root.join("data/jobs.db");
-        match std::env::var(PHASE).unwrap().as_str() {
-            "create" => {
+        let phase = std::env::var(PHASE).unwrap();
+        match phase.as_str() {
+            "create" | "legacy-create" => {
                 let database = Database::connect(&path).await.unwrap();
                 sqlx::query("INSERT INTO jobs(hash,title,company,url,source) VALUES('moved','Retained role','Example','https://example.test/job','test')")
                     .execute(database.pool()).await.unwrap();
-                database
+                let mut journal = database
                     .prepare_update_snapshot(env!("CARGO_PKG_VERSION"), "3.1.0", &"a".repeat(64))
                     .await
                     .unwrap();
+                if phase == "legacy-create" {
+                    journal.snapshot.database_identity =
+                        hex::encode(Sha256::digest(path.as_os_str().as_encoded_bytes()));
+                    let receipt = path.parent().unwrap().join(format!(
+                        ".update-snapshot-{}/receipt.json",
+                        journal.snapshot.operation_id
+                    ));
+                    std::fs::write(receipt, serde_json::to_vec(&journal.snapshot).unwrap())
+                        .unwrap();
+                    let marker = path.parent().unwrap().join(format!(
+                        ".jobsentinel-update-{}.json",
+                        hex::encode(Sha256::digest(b"jobs.db"))
+                    ));
+                    std::fs::write(marker, serde_json::to_vec(&journal).unwrap()).unwrap();
+                }
             }
-            "recover" => {
+            "recover" | "legacy-healthy" | "legacy-corrupt" | "legacy-missing" => {
                 let journal = super::super::update_journal::read_journal(&path)
                     .unwrap()
                     .unwrap();
-                std::fs::write(&path, b"interrupted target").unwrap();
-                let before = std::fs::read(&path).unwrap();
+                match phase.as_str() {
+                    "legacy-healthy" => {}
+                    "legacy-missing" => std::fs::remove_file(&path).unwrap(),
+                    _ => std::fs::write(&path, b"interrupted target").unwrap(),
+                }
+                let files = [
+                    path.clone(),
+                    path.parent().unwrap().join(format!(
+                        ".jobsentinel-update-{}.json",
+                        hex::encode(Sha256::digest(b"jobs.db"))
+                    )),
+                    path.parent().unwrap().join(format!(
+                        ".update-snapshot-{}/receipt.json",
+                        journal.snapshot.operation_id
+                    )),
+                    path.parent().unwrap().join(format!(
+                        ".update-snapshot-{}/snapshot.db",
+                        journal.snapshot.operation_id
+                    )),
+                ];
+                let snapshot = || {
+                    files
+                        .iter()
+                        .map(|file| std::fs::read(file).ok())
+                        .collect::<Vec<_>>()
+                };
+                let before = snapshot();
                 assert!(Database::verify_portable_passphrase(
                     &path,
                     "incorrect portable passphrase"
                 )
                 .await
                 .is_err());
+                assert!(
+                    snapshot() == before,
+                    "Wrong-key authentication changed recovery files"
+                );
                 let key = crate::encryption::load_or_create_database_key()
                     .await
                     .unwrap();
                 Database::verify_portable_passphrase(&path, &key)
                     .await
                     .unwrap();
-                assert_eq!(std::fs::read(&path).unwrap(), before);
-                let owner = Database::acquire_owner_lock(&path).unwrap();
-                Database::restore_update_snapshot_at(&path, &journal.snapshot)
-                    .await
-                    .unwrap();
-                drop(owner);
-                let database = Database::connect(&path).await.unwrap();
+                assert!(
+                    snapshot() == before,
+                    "Authentication changed recovery files"
+                );
+                if phase != "legacy-healthy" {
+                    let owner = Database::acquire_owner_lock(&path).unwrap();
+                    Database::restore_update_snapshot_at(&path, &journal.snapshot)
+                        .await
+                        .unwrap();
+                    drop(owner);
+                }
+                let database = Database::connect_with_staged_restore(&path).await.unwrap();
                 database.verify_integrity().await.unwrap();
                 assert_eq!(
                     sqlx::query_scalar::<_, String>("SELECT title FROM jobs WHERE hash='moved'")
@@ -89,6 +139,15 @@ async fn portable_update_recovery_survives_relocation_and_rejects_other_profiles
     let destination = other.join("data").join(journal.file_name().unwrap());
     std::fs::copy(journal, destination).unwrap();
     run(&other, "reject");
+    for state in ["legacy-healthy", "legacy-corrupt", "legacy-missing"] {
+        let legacy = root.join(state);
+        jobsentinel_platform::ensure_private_dir_tree(&legacy).unwrap();
+        run(&legacy, "legacy-create");
+        run(&legacy, state);
+        let moved = root.join(format!("moved-{state}"));
+        std::fs::rename(legacy, &moved).unwrap();
+        run(&moved, "reject");
+    }
 }
 
 #[tokio::test]

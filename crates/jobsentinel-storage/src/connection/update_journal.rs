@@ -125,7 +125,10 @@ pub(super) fn read_journal(database: &Path) -> Result<Option<PreparedUpdate>, sq
             release.metadata.len() > 64 * 1024 || release.signature.len() > 128
         })
         || journal.schema != "jobsentinel.prepared-update.v1"
-        || journal.snapshot.database_identity != Database::update_database_identity(database)?
+        || !Database::matches_update_database_identity(
+            database,
+            &journal.snapshot.database_identity,
+        )?
         || !valid_version(&journal.source_version)
         || !valid_version(&journal.target_version)
         || journal.package_sha256.len() != 64
