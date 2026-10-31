@@ -39,12 +39,12 @@ pub(crate) struct PortableProfileStatus {
 fn profile_is_new(path: &std::path::Path, config: &std::path::Path) -> Result<bool, String> {
     let new = desktop::Database::portable_primary_is_new(path)
         .map_err(|_| "Could not inspect the portable profile.")?;
-    if new
-        && config
-            .try_exists()
-            .map_err(|_| "Could not inspect portable settings.")?
-    {
-        return Err("Portable data is missing from an existing profile. Restore a backup into a separate profile.".into());
+    if new {
+        match std::fs::symlink_metadata(config) {
+            Ok(_) => return Err("Portable data is missing from an existing profile. Restore a backup into a separate profile.".into()),
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
+            Err(_) => return Err("Could not inspect portable settings.".into()),
+        }
     }
     Ok(new)
 }
@@ -124,6 +124,20 @@ mod tests {
         std::fs::write(&config, "{}").unwrap();
         assert!(super::profile_is_new(&database, &config).is_err());
         assert!(!database.exists());
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn dangling_settings_link_does_not_authorize_profile_creation() {
+        let root = tempfile::tempdir().unwrap();
+        let database = root.path().join("data/jobs.db");
+        let config = root.path().join("config.json");
+        let target = root.path().join("missing-settings.json");
+        std::os::unix::fs::symlink(&target, &config).unwrap();
+        assert!(super::profile_is_new(&database, &config).is_err());
+        assert_eq!(std::fs::read_link(&config).unwrap(), target);
+        assert!(!database.exists());
+        assert!(!target.exists());
     }
 
     #[tokio::test]
