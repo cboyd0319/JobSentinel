@@ -82,4 +82,5 @@
 "behavior":"Sensitive actions reuse Mac presence and add Windows Hello/device-bound protection with explicit cancellation and passphrase fallback.",
 "user_visible_behavior":"Users can authorize, cancel or choose a passphrase fallback when native protection is unavailable.",
 "notes":"D1/P08/N15; consumed A14 contracts only. N19 remains separate.",
-"verification":["npm run harness:check","npm run lint:security"],"evidence":[]}]}
+"verification":["npm run harness:check","npm run lint:security"],
+"evidence":["docs/harness/evidence/v3-native-sensitive-actions-2026-10-31.json"]}]}

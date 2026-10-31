@@ -13,7 +13,9 @@ Last updated: 2026-10-31
   finish accepted engineering and code cleanup before broad qualification or release.
 - E15 development accepted at `0620d130`; installed qualification remains R1.
 - R13 development accepted at `70b813d7`; installed qualification remains R1.
-- Evidence: `docs/harness/evidence/v3-portable-app-2026-10-31.json`.
+- P08/N15 checkpoint: `5c4fa8ef` adds Windows app-unlock consent and local vault-key persistence.
+- Next: finish focus/action coverage, localize the database key and resolve the Windows SDK build gap.
+- Evidence: `docs/harness/evidence/v3-native-sensitive-actions-2026-10-31.json` (partial).
 
 ## Remaining Scope
 
@@ -30,11 +32,7 @@ Last updated: 2026-10-31
 
 ## Preserved Work And Evidence
 
-- Serena 2.1.0: seven backends, Rust/TS bodies/callers, test sources and diagnostics verified.
-  Separate main/worktree stdio servers are verified; reconnect the MCP client after restart.
-  Root AGENTS links `.serena/AGENTS.md`; local overrides remain private.
-- Documentation audit: 215 tracked Markdown files reviewed; current claims corrected,
-  historical evidence retained. Docs checks and 36 focused documentation sensors pass.
+- Serena setup and worktree constraints: `.serena/AGENTS.md`.
 - D0 is development-passing at `4b96e802`, the preserved v3.0 core source cut.
 - D0 scope/results: `docs/harness/evidence/v3-source-compatibility-cleanup-2026-10-28.json`.
 - Audit coverage/gaps: `docs/harness/evidence/v3-retrospective-audit-2026-10-28.json`.

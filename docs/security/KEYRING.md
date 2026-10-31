@@ -33,7 +33,7 @@ Passphrase settings wrap, unlock or disable wrapping for the vault key.
 
 | Platform | Current runtime path | Remaining target |
 | -------- | -------------------- | ---------------- |
-| Windows | SQLCipher database, encrypted SQLite vault rows, database/vault keys protected by Windows Credential Manager through `keyring`, and optional passphrase wrapping for the vault key | Equivalent user-presence policy when available |
+| Windows | SQLCipher, encrypted vault rows, local Credential Manager vault keys, separate generic-keyring database keys, and optional passphrase wrapping | Windows Hello and persistence qualification |
 | macOS | SQLCipher database, encrypted SQLite vault rows, database key protected by macOS Keychain through `keyring`, vault key protected by native `Security.framework` Keychain access control with `LocalAuthentication` context and user presence, and optional passphrase wrapping for the vault key | Signed-app packaging and notarization verification when Apple credentials are available |
 | Linux | SQLCipher database, encrypted SQLite vault rows, database/vault keys protected by Secret Service through `keyring`, and optional passphrase wrapping for the vault key | Native user-presence support when available |
 
@@ -87,8 +87,9 @@ Current default key mode:
    `jobsentinel_vault_key`. On macOS, the vault key uses native
    `Security.framework` Keychain access control with
    `AccessibleWhenUnlockedThisDeviceOnly`, `kSecAccessControlUserPresence`,
-   `kSecUseAuthenticationContext`, and an `LAContext`. On Windows and Linux,
-   the vault key uses the `keyring` crate.
+   `kSecUseAuthenticationContext`, and an `LAContext`. Windows vault-key entries
+   use explicit Local persistence through the native keyring store. Linux uses
+   the generic `keyring` entry.
 3. Generate a separate random SQLCipher database key and store it as
    `jobsentinel_database_key` through the same OS credential service.
 4. Cache the unlocked vault key in memory for the app session after successful
@@ -103,6 +104,22 @@ macOS default key policy:
 4. Keep the item device-local and avoid iCloud Keychain synchronization.
 5. Cache the unlocked vault key in memory for the app session after successful
    user presence.
+
+Windows default key policy:
+
+- Vault-key creation, storage and successful loads use Local persistence. A valid
+  older vault key is rewritten at the same target without deletion; failed
+  validation or writing never authorizes use. Previously roamed copies are not revoked.
+- The separate SQLCipher database key still uses generic keyring persistence.
+  Completing its device-local path remains part of N15.
+- In system mode, shared-computer preparation and unlock require fresh Windows Hello consent,
+  using a native window handle obtained by the backend. Cancellation or unavailable
+  verification cannot unlock the app. A cached vault key cannot replace consent.
+- Hello gates the app action; it does not cryptographically protect the stored key.
+  [Microsoft's desktop verification API](https://learn.microsoft.com/en-us/windows/win32/api/userconsentverifierinterop/nf-userconsentverifierinterop-iuserconsentverifierinterop-requestverificationforwindowasync)
+  and [credential persistence contract](https://learn.microsoft.com/en-us/windows/win32/api/wincred/ns-wincred-credentialw)
+  define these separate mechanisms. Full Windows build, runtime and store-migration
+  qualification remain pending.
 
 Advanced passphrase mode:
 
@@ -219,6 +236,10 @@ return saved credential values or echo passphrases.
 Shared-computer unlock freshly verifies the passphrase or native user presence;
 a cached vault key cannot authorize it. Changing the passphrase policy while
 shared-computer mode is active is refused to preserve its unlock method.
+An unconfigured passphrase is rejected before native access. Passphrase mode is
+an explicit alternative configured before locking, not an automatic native-failure bypass.
+Native window close invalidates queued and active unlock proofs before hiding.
+This authentication generation is separate from the session-cleanup generation.
 
 Portable startup authenticates the profile before private services are installed.
 Its passphrase protects the SQLCipher database and wraps the vault key using the
