@@ -15,11 +15,13 @@ export function AppPrivacy({ children }: { children: ReactNode }) {
   const [session, setSession] = useState(0);
   const [retry, setRetry] = useState(0);
   const revision = useRef(0);
+  const focused = useRef(true);
   const current = useRef(status);
   const invalidate = useCallback(() => ++revision.current, []);
 
   const applyStatus = useCallback((value: unknown) => {
     const next = parseAppPrivacyStatus(value);
+    if (next.enabled && !focused.current) next.locked = true;
     current.current = next;
     setStatus(next);
     if (next.locked) {
@@ -82,7 +84,7 @@ export function AppPrivacy({ children }: { children: ReactNode }) {
 
   const lock = useCallback(async () => {
     const previous = current.current;
-    if (!previous?.enabled || previous.locked) return;
+    if (!previous?.enabled || (previous.locked && previous.unlock_method !== "passphrase")) return;
     const request = invalidate();
     applyStatus({ ...previous, locked: true });
     setProblem("");
@@ -95,17 +97,20 @@ export function AppPrivacy({ children }: { children: ReactNode }) {
   }, [applyStatus, invalidate]);
 
   useEffect(() => {
-    const leaveWindow = () => { void lock(); };
+    const leaveWindow = () => { focused.current = false; void lock(); };
+    const enterWindow = () => { focused.current = true; void refresh(); };
     const cleanupFailed = () => {
       setProblem("Session cleanup did not finish. Keep this session private, then restart JobSentinel before trying again.");
     };
     window.addEventListener("blur", leaveWindow);
+    window.addEventListener("focus", enterWindow);
     window.addEventListener(SESSION_CLEANUP_FAILED_EVENT, cleanupFailed);
     return () => {
       window.removeEventListener("blur", leaveWindow);
+      window.removeEventListener("focus", enterWindow);
       window.removeEventListener(SESSION_CLEANUP_FAILED_EVENT, cleanupFailed);
     };
-  }, [lock]);
+  }, [lock, refresh]);
 
   async function unlock() {
     const request = invalidate();

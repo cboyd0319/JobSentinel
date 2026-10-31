@@ -14,6 +14,7 @@ use tokio::sync::Notify;
 pub(crate) struct OperationAdmission {
     state: Mutex<Admission>,
     idle: Notify,
+    focus: Notify,
 }
 
 #[derive(Default)]
@@ -24,6 +25,18 @@ struct Admission {
     privacy_locked: bool,
     privacy_generation: u64,
     authentication_generation: u64,
+    unfocused: bool,
+    native_authentication: Option<u64>,
+    native_focus_returned: bool,
+}
+
+pub(crate) struct NativeAuthentication<'a>(&'a OperationAdmission);
+impl Drop for NativeAuthentication<'_> {
+    fn drop(&mut self) {
+        if let Ok(mut state) = self.0.state.lock() {
+            state.native_authentication = None;
+        }
+    }
 }
 
 pub(crate) struct OperationLease(Arc<OperationAdmission>);
@@ -45,6 +58,7 @@ impl OperationAdmission {
                 ..Admission::default()
             }),
             idle: Notify::new(),
+            focus: Notify::new(),
         }
     }
 
@@ -60,6 +74,8 @@ impl OperationAdmission {
         state.privacy_locked = true;
         state.privacy_generation = state.privacy_generation.wrapping_add(1);
         state.authentication_generation = state.authentication_generation.wrapping_add(1);
+        state.native_authentication = None;
+        self.focus.notify_waiters();
         Ok(())
     }
 
@@ -70,7 +86,71 @@ impl OperationAdmission {
             .lock()
             .map_err(|_| "Native operation admission is unavailable.")?;
         state.authentication_generation = state.authentication_generation.wrapping_add(1);
+        state.native_authentication = None;
+        self.focus.notify_waiters();
         Ok(())
+    }
+
+    pub(crate) fn focus_changed(&self, focused: bool) -> Result<(), String> {
+        let mut state = self
+            .state
+            .lock()
+            .map_err(|_| "Native operation admission is unavailable.")?;
+        if focused && state.unfocused && state.native_authentication.is_some() {
+            state.native_focus_returned = true;
+        }
+        if !focused {
+            state.authentication_generation = state.authentication_generation.wrapping_add(1);
+            if state.native_focus_returned {
+                state.native_authentication = None;
+            }
+        }
+        state.unfocused = !focused;
+        self.focus.notify_waiters();
+        Ok(())
+    }
+
+    pub(crate) fn native_authentication(
+        &self,
+        generation: u64,
+    ) -> Result<NativeAuthentication<'_>, String> {
+        let mut state = self
+            .state
+            .lock()
+            .map_err(|_| "Native operation admission is unavailable.")?;
+        if state.authentication_generation != generation || state.closed || state.unfocused {
+            return Err("The session changed. Unlock JobSentinel again.".into());
+        }
+        state.native_authentication = Some(generation);
+        state.native_focus_returned = false;
+        Ok(NativeAuthentication(self))
+    }
+
+    pub(crate) async fn wait_for_authentication_focus(
+        &self,
+        generation: u64,
+    ) -> Result<(), String> {
+        loop {
+            let focused = self.focus.notified();
+            tokio::pin!(focused);
+            focused.as_mut().enable();
+            {
+                let state = self
+                    .state
+                    .lock()
+                    .map_err(|_| "Native operation admission is unavailable.")?;
+                if (state.authentication_generation != generation
+                    && state.native_authentication != Some(generation))
+                    || state.closed
+                {
+                    return Err("The session changed. Unlock JobSentinel again.".into());
+                }
+                if !state.unfocused {
+                    return Ok(());
+                }
+            }
+            focused.await;
+        }
     }
 
     pub(crate) fn authentication_generation(&self) -> Result<u64, String> {
@@ -85,7 +165,11 @@ impl OperationAdmission {
             .state
             .lock()
             .map_err(|_| "Native operation admission is unavailable.")?;
-        if state.authentication_generation != generation || state.closed {
+        if (state.authentication_generation != generation
+            && state.native_authentication != Some(generation))
+            || state.closed
+            || state.unfocused
+        {
             return Err("The session changed. Unlock JobSentinel again.".into());
         }
         state.privacy_locked = false;
@@ -139,6 +223,7 @@ impl OperationAdmission {
                 .lock()
                 .map_err(|_| "Native operation admission is unavailable.")?;
             state.closed = true;
+            self.focus.notify_waiters();
         }
         self.wait_for_idle().await
     }
@@ -168,6 +253,7 @@ impl OperationAdmission {
             .map_err(|_| "Native operation admission is unavailable.")?;
         state.closed = true;
         state.shutdown = true;
+        self.focus.notify_waiters();
         Ok(())
     }
 

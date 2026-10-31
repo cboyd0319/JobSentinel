@@ -39,6 +39,19 @@ fn authentication_window(_app: &tauri::AppHandle) -> Result<Option<isize>, Strin
     Ok(None)
 }
 
+fn require_visible_window(app: &tauri::AppHandle, focused: bool) -> Result<(), String> {
+    let window = app
+        .get_webview_window("main")
+        .ok_or("The JobSentinel window is unavailable.")?;
+    if !window.is_visible().unwrap_or(false)
+        || window.is_minimized().unwrap_or(true)
+        || (focused && !window.is_focused().unwrap_or(false))
+    {
+        return Err("Return to JobSentinel and unlock it again.".into());
+    }
+    Ok(())
+}
+
 async fn status(state: &AppState, gate: &OperationAdmission) -> Result<AppPrivacyStatus, String> {
     let credential = state.credentials.unlock_status().await?;
     Ok(AppPrivacyStatus {
@@ -203,7 +216,18 @@ pub(crate) async fn unlock_app(
     operation: tauri::State<'_, PrivacyOperation>,
 ) -> Result<AppPrivacyStatus, String> {
     let passphrase = passphrase.map(Zeroizing::new);
+    require_visible_window(&app, true)?;
     let (_operation, generation) = begin_unlock(&gate, &operation).await?;
+    require_visible_window(&app, true)?;
+    let native = matches!(
+        state.credentials.unlock_status().await?.mode,
+        CredentialUnlockMode::System
+    );
+    let _native = if native {
+        Some(gate.native_authentication(generation)?)
+    } else {
+        None
+    };
     state
         .credentials
         .verify_app_unlock(
@@ -211,11 +235,20 @@ pub(crate) async fn unlock_app(
             authentication_window(&app)?,
         )
         .await?;
+    let mut status = status(&state, &gate).await?;
+    require_visible_window(&app, false)?;
+    tokio::time::timeout(
+        std::time::Duration::from_secs(2),
+        gate.wait_for_authentication_focus(generation),
+    )
+    .await
+    .map_err(|_| "Return to JobSentinel and unlock it again.")??;
+    require_visible_window(&app, true)?;
     gate.unlock_after_authentication(generation)?;
     if let Some(scheduler) = &state.scheduler {
         scheduler.resume_after_privacy();
     }
-    let status = status(&state, &gate).await?;
+    status.locked = false;
     app.emit("app-privacy-changed", &status)
         .map_err(|_| "Could not refresh privacy controls.")?;
     Ok(status)
@@ -291,6 +324,41 @@ mod tests {
         assert!(pending.await.is_err());
         assert!(!verified.get());
         assert!(gate.privacy_locked());
+    }
+
+    #[tokio::test]
+    async fn prompt_blur_rejects_queued_passphrase_and_native_unlocks() {
+        use std::{cell::Cell, future::Future, task::Poll};
+        for native_request in [false, true] {
+            let gate = super::OperationAdmission::with_privacy_lock(true);
+            let operation = super::PrivacyOperation::default();
+            let occupied = operation.0.lock().await;
+            let active_generation = gate.authentication_generation().unwrap();
+            let active_native = gate.native_authentication(active_generation).unwrap();
+            let verified = Cell::new(false);
+            let mut pending = std::pin::pin!(async {
+                let (_operation, generation) = super::begin_unlock(&gate, &operation).await?;
+                let _native = if native_request {
+                    Some(gate.native_authentication(generation)?)
+                } else {
+                    None
+                };
+                verified.set(true);
+                gate.unlock_after_authentication(generation)
+            });
+            std::future::poll_fn(|context| {
+                assert!(pending.as_mut().poll(context).is_pending());
+                Poll::Ready(())
+            })
+            .await;
+            gate.focus_changed(false).unwrap();
+            gate.focus_changed(true).unwrap();
+            gate.unlock_after_authentication(active_generation).unwrap();
+            drop(active_native);
+            drop(occupied);
+            assert!(pending.await.is_err());
+            assert!(!verified.get());
+        }
     }
 
     #[test]

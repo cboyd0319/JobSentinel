@@ -9,13 +9,22 @@ pub(crate) use tray::{initialize_tray, show_main_window};
 pub(crate) fn preserve_main_window_on_close<R: Runtime>(builder: Builder<R>) -> Builder<R> {
     builder.on_window_event(|window, event| {
         if window.label() == "main" {
-            if matches!(event, WindowEvent::CloseRequested { .. }) {
+            if matches!(
+                event,
+                WindowEvent::Focused(_)
+                    | WindowEvent::Resized(_)
+                    | WindowEvent::CloseRequested { .. }
+            ) {
                 if let Some(gate) = window
                     .app_handle()
                     .try_state::<std::sync::Arc<crate::bootstrap::operation::OperationAdmission>>()
                 {
-                    if gate.invalidate_authentication().is_err() {
-                        tracing::warn!("Could not invalidate pending app authentication");
+                    let hidden = matches!(event, WindowEvent::CloseRequested { .. })
+                        || window.is_minimized().unwrap_or(true)
+                        || !window.is_visible().unwrap_or(false);
+                    let result = record_authentication_focus(&gate, event, hidden);
+                    if result.is_err() {
+                        tracing::warn!("Could not update app authentication focus");
                     }
                 }
             }
@@ -45,6 +54,21 @@ pub(crate) fn preserve_main_window_on_close<R: Runtime>(builder: Builder<R>) -> 
     })
 }
 
+fn record_authentication_focus(
+    gate: &crate::bootstrap::operation::OperationAdmission,
+    event: &WindowEvent,
+    hidden: bool,
+) -> Result<(), String> {
+    if hidden {
+        gate.invalidate_authentication()?;
+        gate.focus_changed(false)
+    } else if let WindowEvent::Focused(focused) = event {
+        gate.focus_changed(*focused)
+    } else {
+        Ok(())
+    }
+}
+
 fn handle_close_request(
     window_label: &str,
     prevent_close: impl FnOnce(),
@@ -61,24 +85,4 @@ fn handle_close_request(
 }
 
 #[cfg(test)]
-mod tests {
-    use std::cell::Cell;
-
-    #[test]
-    fn close_request_prevents_close_and_hides_main_window() {
-        let prevented = Cell::new(false);
-        let hidden = Cell::new(false);
-
-        super::handle_close_request(
-            "main",
-            || prevented.set(true),
-            || {
-                hidden.set(true);
-                Ok(())
-            },
-        );
-
-        assert!(prevented.get());
-        assert!(hidden.get());
-    }
-}
+mod tests;

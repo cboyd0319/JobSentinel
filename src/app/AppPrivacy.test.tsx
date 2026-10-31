@@ -118,6 +118,39 @@ describe("app privacy", () => {
     expect(await screen.findByText("Private notes")).toBeVisible();
   });
 
+  it.each(["passphrase", "system"])("handles focus loss during pending %s verification", async (unlock_method) => {
+    const user = userEvent.setup();
+    mockInvoke.mockResolvedValue({ ...locked, unlock_method });
+    render(<AppPrivacy><p>Private notes</p></AppPrivacy>);
+    await screen.findByRole("heading", { name: "JobSentinel is locked" });
+    if (unlock_method === "passphrase") {
+      await user.type(screen.getByLabelText("App unlock passphrase"), "correct horse battery");
+    }
+    let finish: (value: unknown) => void = () => {};
+    mockInvoke.mockImplementationOnce(() => new Promise((resolve) => { finish = resolve; }));
+    await user.click(screen.getByRole("button", { name: "Unlock JobSentinel" }));
+    act(() => window.dispatchEvent(new Event("blur")));
+    if (unlock_method === "system") {
+      expect(mockInvoke).toHaveBeenLastCalledWith("unlock_app", {});
+      act(() => window.dispatchEvent(new Event("focus")));
+      publish("app-privacy-changed", { ...unlocked, unlock_method });
+    }
+    await act(async () => finish({ ...unlocked, unlock_method }));
+    expect(screen.queryByText("Private notes") !== null).toBe(unlock_method === "system");
+  });
+
+  it("keeps late native unlock events covered while unfocused and refreshes on return", async () => {
+    mockInvoke.mockResolvedValue({ ...locked, unlock_method: "system" });
+    render(<AppPrivacy><p>Private notes</p></AppPrivacy>);
+    await screen.findByRole("heading", { name: "JobSentinel is locked" });
+    act(() => window.dispatchEvent(new Event("blur")));
+    publish("app-privacy-changed", { ...unlocked, unlock_method: "system" });
+    expect(screen.queryByText("Private notes")).not.toBeInTheDocument();
+    mockInvoke.mockResolvedValue({ ...unlocked, unlock_method: "system" });
+    act(() => window.dispatchEvent(new Event("focus")));
+    expect(await screen.findByText("Private notes")).toBeVisible();
+  });
+
   it("keeps cancelled device verification locked without suggesting an unconfigured passphrase", async () => {
     const user = userEvent.setup();
     mockInvoke.mockResolvedValue({ ...locked, unlock_method: "system" });
