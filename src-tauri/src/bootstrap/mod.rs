@@ -46,15 +46,22 @@ fn command_handler() -> impl Fn(tauri::ipc::Invoke<tauri::Wry>) -> bool + Send +
     crate::ipc::jobsentinel_command_handlers!()
 }
 
-fn configure_package_smoke_windows(
+fn configure_startup_windows(
     windows: &mut [tauri::utils::config::WindowConfig],
     package_smoke: bool,
-) {
-    if package_smoke {
-        for window in windows {
+    portable: bool,
+) -> Vec<tauri::utils::config::WindowConfig> {
+    let mut deferred = Vec::new();
+    for window in windows {
+        if package_smoke || portable {
             window.incognito = true;
         }
+        if portable && window.create {
+            deferred.push(window.clone());
+            window.create = false;
+        }
     }
+    deferred
 }
 
 pub(crate) fn run() {
@@ -80,9 +87,10 @@ pub(crate) fn run() {
     let package_smoke = desktop::package_smoke_root().is_some();
     #[cfg(not(target_os = "macos"))]
     let package_smoke = false;
-    configure_package_smoke_windows(
+    let portable_windows = configure_startup_windows(
         &mut context.config_mut().app.windows,
-        package_smoke || desktop::portable_root().is_some(),
+        package_smoke,
+        desktop::portable_root().is_some(),
     );
 
     desktop::preserve_main_window_on_close(policy::builder())
@@ -153,9 +161,17 @@ pub(crate) fn run() {
             }
         })
         .setup(move |app| {
-            if desktop::portable_root().is_some() {
+            if let Some(root) = desktop::portable_root() {
                 if platform_recovery_required {
                     return Err("Portable storage could not initialize safely.".into());
+                }
+                let browser_data = root.join("cache").join("webview");
+                desktop::ensure_private_dir(&browser_data)?;
+                for window in &portable_windows {
+                    // Incognito alone still creates host browser directories on Windows/Linux.
+                    tauri::WebviewWindowBuilder::from_config(app, window)?
+                        .data_directory(browser_data.clone())
+                        .build()?;
                 }
                 desktop::show_main_window(app.handle());
                 return Ok(());
@@ -432,69 +448,4 @@ pub(crate) async fn install_services(
 }
 
 #[cfg(test)]
-mod tests {
-    use super::{
-        background_cycle_allowed, configure_package_smoke_windows, primary_initialization_allowed,
-        startup_recovery_command_allowed,
-    };
-    use crate::application::{desktop::Database, scheduler::Scheduler, Config};
-    use std::sync::Arc;
-
-    #[tokio::test]
-    async fn shutdown_before_bootstrap_cycle_prevents_work() {
-        let database = Database::connect_memory().await.unwrap();
-        database.migrate().await.unwrap();
-        let scheduler = Scheduler::new(Arc::new(Config::first_run()), Arc::new(database));
-        scheduler.shutdown().unwrap();
-
-        assert!(!background_cycle_allowed(&scheduler));
-    }
-
-    #[test]
-    fn startup_recovery_rejects_normal_and_network_commands() {
-        assert!(startup_recovery_command_allowed(
-            "get_startup_recovery_status"
-        ));
-        assert!(startup_recovery_command_allowed("stage_portable_restore"));
-        assert!(!startup_recovery_command_allowed(
-            "stage_dropped_portable_restore"
-        ));
-        assert!(startup_recovery_command_allowed("generate_feedback_report"));
-        assert!(!startup_recovery_command_allowed("run_scraping_cycle"));
-        assert!(!startup_recovery_command_allowed("save_config"));
-        assert!(!startup_recovery_command_allowed("store_credential"));
-    }
-
-    #[test]
-    fn platform_failure_skips_primary_storage_initialization() {
-        assert!(!primary_initialization_allowed(true));
-        assert!(primary_initialization_allowed(false));
-    }
-
-    #[test]
-    fn package_smoke_marks_every_configured_window_incognito() {
-        let mut windows = vec![
-            tauri::utils::config::WindowConfig::default(),
-            tauri::utils::config::WindowConfig::default(),
-        ];
-
-        configure_package_smoke_windows(&mut windows, true);
-
-        assert!(windows.iter().all(|window| window.incognito));
-    }
-
-    #[test]
-    fn normal_launch_keeps_configured_window_settings() {
-        let mut additional_window = tauri::utils::config::WindowConfig::default();
-        additional_window.incognito = true;
-        let mut windows = vec![
-            tauri::utils::config::WindowConfig::default(),
-            additional_window,
-        ];
-        let expected_windows = serde_json::to_value(&windows).unwrap();
-
-        configure_package_smoke_windows(&mut windows, false);
-
-        assert_eq!(serde_json::to_value(&windows).unwrap(), expected_windows);
-    }
-}
+mod tests;
