@@ -33,7 +33,7 @@ Passphrase settings wrap, unlock or disable wrapping for the vault key.
 
 | Platform | Current runtime path | Remaining target |
 | -------- | -------------------- | ---------------- |
-| Windows | SQLCipher, encrypted vault rows, local Credential Manager vault keys, separate generic-keyring database keys, and optional passphrase wrapping | Windows Hello and persistence qualification |
+| Windows | SQLCipher, encrypted vault rows, local Credential Manager database/vault keys, and optional vault-key passphrase wrapping | Windows Hello and persistence qualification |
 | macOS | SQLCipher database, encrypted SQLite vault rows, database key protected by macOS Keychain through `keyring`, vault key protected by native `Security.framework` Keychain access control with `LocalAuthentication` context and user presence, and optional passphrase wrapping for the vault key | Signed-app packaging and notarization verification when Apple credentials are available |
 | Linux | SQLCipher database, encrypted SQLite vault rows, database/vault keys protected by Secret Service through `keyring`, and optional passphrase wrapping for the vault key | Native user-presence support when available |
 
@@ -107,11 +107,10 @@ macOS default key policy:
 
 Windows default key policy:
 
-- Vault-key creation, storage and successful loads use Local persistence. A valid
-  older vault key is rewritten at the same target without deletion; failed
+- Database and vault key creation, storage and successful loads use Local persistence. A valid
+  older key is rewritten at the same target without deletion; failed
   validation or writing never authorizes use. Previously roamed copies are not revoked.
-- The separate SQLCipher database key still uses generic keyring persistence.
-  Completing its device-local path remains part of N15.
+- Both keys share the Windows native-store and validated migration owner.
 - In system mode, shared-computer preparation and unlock require fresh Windows Hello consent,
   using a native window handle obtained by the backend. Cancellation or unavailable
   verification cannot unlock the app. A cached vault key cannot replace consent.
@@ -240,6 +239,11 @@ An unconfigured passphrase is rejected before native access. Passphrase mode is
 an explicit alternative configured before locking, not an automatic native-failure bypass.
 Native window close invalidates queued and active unlock proofs before hiding.
 This authentication generation is separate from the session-cleanup generation.
+Focus loss rejects queued and passphrase unlocks. An active native prompt may
+temporarily take focus, but the app stays covered until focus returns; the
+post-verification handoff expires after two seconds. Hidden/minimized observations
+invalidate proof. Actual native prompt and minimize/restore ordering still needs
+macOS/Windows qualification.
 
 Portable startup authenticates the profile before private services are installed.
 Its passphrase protects the SQLCipher database and wraps the vault key using the

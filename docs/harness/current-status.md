@@ -8,13 +8,13 @@ Last updated: 2026-10-31
 
 - Active feature: `v3-native-sensitive-actions`
 - Status: `active`
-- Implementation goal: **active**. Continue D1 P08/N15; broad qualification remains parked.
+- Implementation goal: **paused** at the user's request. Resume D1 P08/N15 when requested.
 - Follow the [development queue](../plans/v3/master-exec-plan.md#remaining-development-queue):
   finish accepted engineering and code cleanup before broad qualification or release.
 - E15 development accepted at `0620d130`; installed qualification remains R1.
 - R13 development accepted at `70b813d7`; installed qualification remains R1.
-- P08/N15 checkpoint: `5c4fa8ef` adds Windows app-unlock consent and local vault-key persistence.
-- Next: finish focus/action coverage, localize the database key and resolve the Windows SDK build gap.
+- P08/N15 checkpoint: `1ccb5490` adds focus-safe unlocks and local Windows database/vault keys.
+- Next: finish action coverage and native prompt/minimize proof; resolve the Windows SDK build gap.
 - Evidence: `docs/harness/evidence/v3-native-sensitive-actions-2026-10-31.json` (partial).
 
 ## Remaining Scope

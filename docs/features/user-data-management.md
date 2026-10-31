@@ -61,6 +61,8 @@ state, rejects late renderer responses, and pauses background source work and
 notifications. Unlock resumes scheduling. This protects the app session; it does
 not erase saved records or protect against another process running as your OS user.
 Closing the window keeps JobSentinel locked even if a pending verification later succeeds.
+Pending passphrase unlocks are canceled by focus loss. Device verification keeps
+the app covered until focus returns; return and unlock again if verification expires.
 
 **Review session cleanup** explains its changes before confirmation. It clears
 temporary job text, resume-match drafts, detected location, command caches and

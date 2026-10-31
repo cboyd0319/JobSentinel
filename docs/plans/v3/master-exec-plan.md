@@ -8,8 +8,9 @@ This is the sole execution plan for the v3 major line. Finish the remaining
 accepted development and code cleanup before broad qualification or release work.
 The [remaining development queue](#remaining-development-queue) owns execution order.
 
-Implementation is active. D0, R13 and E15 development are accepted; execute the selected
-D1 native sensitive actions child. Other documents do not independently add scope.
+D0, R13 and E15 development are accepted; D1 native sensitive actions is the selected
+child. [Current status](../../harness/current-status.md) owns execution state.
+Other documents do not independently add scope.
 
 ## Problem
 
