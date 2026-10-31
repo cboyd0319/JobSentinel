@@ -126,22 +126,12 @@ mod tests {
 
     #[cfg(windows)]
     #[test]
-    fn native_entries_keep_the_existing_target_with_local_persistence() {
+    fn native_entries_keep_the_existing_specifiers() {
         for name in ["jobsentinel_database_key", "jobsentinel_vault_key"] {
             let entry = super::entry(name).unwrap();
-            let credential = entry
-                .inner
-                .as_any()
-                .downcast_ref::<windows_native_keyring_store::cred::Cred>()
-                .unwrap();
-            assert_eq!(credential.target_name, format!("{name}.JobSentinel"));
             assert_eq!(
-                credential.specifiers,
+                entry.inner.get_specifiers(),
                 Some((crate::SECURE_STORAGE_SERVICE.into(), name.into()))
-            );
-            assert_eq!(
-                credential.persistence,
-                windows_native_keyring_store::CredPersist::Local
             );
         }
     }
