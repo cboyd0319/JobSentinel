@@ -24,6 +24,21 @@ pub(crate) fn locked_command_allowed(command: &str) -> bool {
     )
 }
 
+fn authentication_window(_app: &tauri::AppHandle) -> Result<Option<isize>, String> {
+    #[cfg(windows)]
+    {
+        let window = _app
+            .get_webview_window("main")
+            .ok_or("Device verification needs the JobSentinel window.")?;
+        return window
+            .hwnd()
+            .map(|handle| Some(handle.0 as isize))
+            .map_err(|_| "Could not use the JobSentinel window for device verification.".into());
+    }
+    #[cfg(not(windows))]
+    Ok(None)
+}
+
 async fn status(state: &AppState, gate: &OperationAdmission) -> Result<AppPrivacyStatus, String> {
     let credential = state.credentials.unlock_status().await?;
     Ok(AppPrivacyStatus {
@@ -31,7 +46,7 @@ async fn status(state: &AppState, gate: &OperationAdmission) -> Result<AppPrivac
         locked: gate.privacy_locked(),
         unlock_method: match credential.mode {
             CredentialUnlockMode::Passphrase => "passphrase",
-            CredentialUnlockMode::System if cfg!(target_os = "macos") => "system",
+            CredentialUnlockMode::System if cfg!(any(target_os = "macos", windows)) => "system",
             CredentialUnlockMode::System => "unavailable",
         },
     })
@@ -67,7 +82,10 @@ pub(crate) async fn set_shared_computer_mode(
     }
     let mut config = state.config.write().await;
     if enabled {
-        state.credentials.prepare_app_lock().await?;
+        state
+            .credentials
+            .prepare_app_lock(authentication_window(&app)?)
+            .await?;
     }
     if gate.privacy_locked() {
         return Err("Unlock JobSentinel before changing privacy settings.".into());
@@ -177,7 +195,10 @@ pub(crate) async fn unlock_app(
     let passphrase = passphrase.map(Zeroizing::new);
     state
         .credentials
-        .verify_app_unlock(passphrase.as_deref().map(String::as_str))
+        .verify_app_unlock(
+            passphrase.as_deref().map(String::as_str),
+            authentication_window(&app)?,
+        )
         .await?;
     gate.unlock_privacy(generation)?;
     if let Some(scheduler) = &state.scheduler {

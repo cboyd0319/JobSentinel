@@ -1,4 +1,4 @@
-//! Provides vault-backed credentials with metadata-only status and explicit native cleanup.
+//! Owns vault credentials, metadata-only status, passphrase policy and fresh app authentication.
 
 use chacha20poly1305::aead::Generate;
 use jobsentinel_storage::CredentialRepository;
@@ -218,19 +218,23 @@ impl CredentialService {
     }
 
     /// Prepare a persistent passphrase or user-presence key before enabling app lock.
-    pub async fn prepare_app_lock(&self) -> Result<(), String> {
+    pub async fn prepare_app_lock(&self, parent_window: Option<isize>) -> Result<(), String> {
         if !passphrase::is_configured(&self.repository)
             .await
             .map_err(sanitize_passphrase_error)?
         {
-            self.require_app_user_presence()?;
+            self.verify_native_presence(parent_window).await?;
             self.master_key(true).await?;
         }
         Ok(())
     }
 
     /// Authenticate app unlock afresh; a cached vault key is never proof of identity.
-    pub async fn verify_app_unlock(&self, passphrase: Option<&str>) -> Result<(), String> {
+    pub async fn verify_app_unlock(
+        &self,
+        passphrase: Option<&str>,
+        parent_window: Option<isize>,
+    ) -> Result<(), String> {
         let key = if passphrase::is_configured(&self.repository)
             .await
             .map_err(sanitize_passphrase_error)?
@@ -239,10 +243,24 @@ impl CredentialService {
                 .await
                 .map_err(sanitize_passphrase_error)?
         } else {
-            self.require_app_user_presence()?;
+            if passphrase.is_some() {
+                return Err("No saved-details passphrase is configured.".into());
+            }
+            self.verify_native_presence(parent_window).await?;
             Zeroizing::new(vault_key_store::load_vault_key(false).await?)
         };
         self.cache_master_key(key)
+    }
+
+    async fn verify_native_presence(&self, _parent_window: Option<isize>) -> Result<(), String> {
+        self.require_app_user_presence()?;
+        #[cfg(windows)]
+        jobsentinel_platform::verify_windows_user_presence(
+            _parent_window.ok_or("Device verification needs the JobSentinel window.")?,
+        )
+        .await
+        .map_err(|error| error.to_string())?;
+        Ok(())
     }
 
     fn require_app_user_presence(&self) -> Result<(), String> {
@@ -250,7 +268,8 @@ impl CredentialService {
             return Err("Portable credentials require their passphrase.".into());
         }
         if self.fixed_master_key.is_some()
-            || !jobsentinel_platform::credential_vault_key_storage_policy().user_presence_required
+            || (!jobsentinel_platform::credential_vault_key_storage_policy().user_presence_required
+                && !cfg!(windows))
         {
             return Err("Configure a saved-details passphrase before enabling shared-computer mode on this device.".into());
         }

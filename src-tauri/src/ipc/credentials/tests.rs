@@ -231,7 +231,7 @@ async fn shared_computer_mode_preserves_its_unlock_method_until_disabled() {
         SHARED_COMPUTER_LOCK_CHANGE
     );
     credentials
-        .verify_app_unlock(Some("correct battery staple"))
+        .verify_app_unlock(Some("correct battery staple"), None)
         .await
         .unwrap();
     config.write().await.shared_computer_mode = false;

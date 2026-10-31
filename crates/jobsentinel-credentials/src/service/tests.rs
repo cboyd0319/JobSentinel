@@ -134,7 +134,18 @@ fn production_vault_key_backend_uses_expected_platform_policy() {
         assert!(!policy.biometry_current_set);
     }
 
-    #[cfg(not(target_os = "macos"))]
+    #[cfg(windows)]
+    {
+        assert_eq!(
+            policy.backend,
+            vault_key_store::VaultKeyBackend::WindowsLocalCredentialManager
+        );
+        assert!(!policy.user_presence_required);
+        assert!(policy.device_local);
+        assert!(!policy.biometry_current_set);
+    }
+
+    #[cfg(not(any(target_os = "macos", windows)))]
     {
         assert_eq!(
             policy.backend,
@@ -204,15 +215,18 @@ async fn app_unlock_rechecks_passphrase_with_a_warm_vault_key() {
         .await
         .unwrap();
     assert!(service.master_key.get().is_some());
-    service.prepare_app_lock().await.unwrap();
+    service.prepare_app_lock(None).await.unwrap();
 
     for passphrase in [None, Some(""), Some("wrong secret phrase")] {
-        let error = service.verify_app_unlock(passphrase).await.unwrap_err();
+        let error = service
+            .verify_app_unlock(passphrase, None)
+            .await
+            .unwrap_err();
         assert!(!error.contains("private-test-value"));
         assert!(!error.contains("wrong secret phrase"));
     }
     service
-        .verify_app_unlock(Some("correct battery staple"))
+        .verify_app_unlock(Some("correct battery staple"), None)
         .await
         .unwrap();
     assert_eq!(
@@ -220,10 +234,10 @@ async fn app_unlock_rechecks_passphrase_with_a_warm_vault_key() {
         Some("private-test-value".into())
     );
     let restarted = CredentialService::with_fixed_master_key(service.repository.clone(), [9; 32]);
-    restarted.prepare_app_lock().await.unwrap();
+    restarted.prepare_app_lock(None).await.unwrap();
     assert!(restarted.master_key.get().is_none());
     restarted
-        .verify_app_unlock(Some("correct battery staple"))
+        .verify_app_unlock(Some("correct battery staple"), None)
         .await
         .unwrap();
     assert_eq!(
@@ -240,15 +254,27 @@ async fn app_unlock_does_not_treat_a_fixed_key_as_user_presence() {
     let service = test_service().await;
     service.master_key(true).await.unwrap();
     for error in [
-        service.prepare_app_lock().await.unwrap_err(),
-        service.verify_app_unlock(None).await.unwrap_err(),
+        service.prepare_app_lock(None).await.unwrap_err(),
+        service.verify_app_unlock(None, None).await.unwrap_err(),
         service
-            .verify_app_unlock(Some("unconfigured passphrase"))
+            .verify_app_unlock(Some("unconfigured passphrase"), None)
             .await
             .unwrap_err(),
     ] {
         assert!(error.contains("passphrase"));
     }
+}
+
+#[tokio::test]
+async fn app_unlock_rejects_an_unconfigured_passphrase_before_native_access() {
+    let service = test_service().await;
+    assert_eq!(
+        service
+            .verify_app_unlock(Some("unconfigured passphrase"), None)
+            .await
+            .unwrap_err(),
+        "No saved-details passphrase is configured."
+    );
 }
 
 #[tokio::test]
@@ -272,10 +298,13 @@ async fn portable_vault_roundtrips_without_host_keys_and_rechecks_passphrases() 
     );
     assert_eq!(repository.load_key_wrap().await.unwrap(), wrapped);
     assert!(service
-        .verify_app_unlock(Some("wrong portable passphrase"))
+        .verify_app_unlock(Some("wrong portable passphrase"), None)
         .await
         .is_err());
-    service.verify_app_unlock(Some(passphrase)).await.unwrap();
+    service
+        .verify_app_unlock(Some(passphrase), None)
+        .await
+        .unwrap();
     assert!(service.enable_passphrase_lock(passphrase).await.is_err());
     assert!(service.disable_passphrase_lock(passphrase).await.is_err());
     assert_eq!(repository.load_key_wrap().await.unwrap(), wrapped);
@@ -341,8 +370,8 @@ async fn portable_vault_never_falls_back_to_system_when_wrapping_is_removed() {
     passphrase::delete_config(&service.repository)
         .await
         .unwrap();
-    assert!(service.prepare_app_lock().await.is_err());
-    assert!(service.verify_app_unlock(None).await.is_err());
+    assert!(service.prepare_app_lock(None).await.is_err());
+    assert!(service.verify_app_unlock(None, None).await.is_err());
     assert!(service.unlock_status().await.is_err());
     assert!(service
         .disable_passphrase_lock("portable correct battery staple")
