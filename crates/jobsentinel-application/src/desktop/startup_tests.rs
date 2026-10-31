@@ -120,3 +120,138 @@ async fn recovery_services_are_ephemeral_offline_and_keychain_free() {
         0
     );
 }
+
+#[test]
+fn portable_desktop_services_reopen_after_profile_move() {
+    use crate::credentials::{CredentialKey, CredentialUnlockMode};
+    use std::{collections::BTreeMap, fs, process::Command};
+
+    const PHASE: &str = "JOBSENTINEL_TEST_PORTABLE_STARTUP_PHASE";
+    const ROOT: &str = "JOBSENTINEL_TEST_PORTABLE_STARTUP_ROOT";
+    const PASSPHRASE: &str = "synthetic portable startup passphrase";
+    const RECORD: &str = "synthetic portable search";
+    const CREDENTIAL: &str = "synthetic portable saved detail";
+
+    fn durable_files(root: &Path) -> BTreeMap<PathBuf, Vec<u8>> {
+        let mut pending = vec![root.to_path_buf()];
+        let mut files = BTreeMap::new();
+        while let Some(directory) = pending.pop() {
+            for entry in fs::read_dir(directory).unwrap() {
+                let path = entry.unwrap().path();
+                if path.is_dir() {
+                    pending.push(path);
+                } else if path != root.join("data/jobs.db-shm") {
+                    let bytes = fs::read(&path).unwrap();
+                    files.insert(path, bytes);
+                }
+            }
+        }
+        files
+    }
+
+    let Ok(phase) = std::env::var(PHASE) else {
+        let directory = tempfile::tempdir().unwrap();
+        let original = directory.path().canonicalize().unwrap().join("original");
+        let moved = original.with_file_name("moved");
+        jobsentinel_platform::ensure_private_dir(&original).unwrap();
+        let run = |phase: &str, root: &Path| {
+            let status = Command::new(std::env::current_exe().unwrap())
+                .args([
+                    "--exact",
+                    "desktop::startup::tests::portable_desktop_services_reopen_after_profile_move",
+                    "--nocapture",
+                ])
+                .env(PHASE, phase)
+                .env(ROOT, root)
+                .status()
+                .unwrap();
+            assert!(status.success(), "portable startup phase failed: {phase}");
+        };
+        run("create", &original);
+        assert!(original.join("data/jobs.db").is_file());
+        fs::rename(&original, &moved).unwrap();
+        let before = durable_files(&moved);
+        run("refuse", &moved);
+        assert!(
+            before == durable_files(&moved),
+            "rejected unlock changed durable profile files"
+        );
+        run("reopen", &moved);
+        assert!(!original.exists());
+        return;
+    };
+
+    let root = PathBuf::from(std::env::var_os(ROOT).unwrap());
+    jobsentinel_platform::select_portable_root(&root).unwrap();
+    assert_eq!(jobsentinel_platform::portable_root(), Some(root.as_path()));
+    assert_eq!(Database::default_path(), root.join("data/jobs.db"));
+    assert_eq!(Config::default_path(), root.join("config/config.json"));
+    tokio::runtime::Builder::new_current_thread()
+        .enable_all()
+        .build()
+        .unwrap()
+        .block_on(async {
+            let database = Database::default_path();
+            assert!(jobsentinel_platform::load_or_create_database_key()
+                .await
+                .is_err());
+            if phase == "refuse" {
+                assert!(Database::verify_portable_passphrase(
+                    &database,
+                    "incorrect portable passphrase"
+                )
+                .await
+                .is_err());
+                assert!(jobsentinel_platform::load_or_create_database_key()
+                    .await
+                    .is_err());
+                return;
+            }
+            assert!(matches!(phase.as_str(), "create" | "reopen"));
+            assert_eq!(
+                Database::portable_primary_is_new(&database).unwrap(),
+                phase == "create"
+            );
+            Database::verify_portable_passphrase(&database, PASSPHRASE)
+                .await
+                .unwrap();
+            jobsentinel_platform::set_portable_database_key(zeroize::Zeroizing::new(
+                PASSPHRASE.into(),
+            ))
+            .unwrap();
+            let services = DesktopServices::initialize().await.unwrap();
+            let user_data = services.database.user_data_manager();
+            assert_eq!(services.is_first_run, phase == "create");
+            assert!(!services.scheduler_status.read().await.is_running);
+            assert!(!services.bookmarklet_server.read().await.is_running());
+            let unlocked = services.credentials.unlock_status().await.unwrap();
+            assert_eq!(unlocked.mode, CredentialUnlockMode::Passphrase);
+            assert!(unlocked.configured && unlocked.unlocked);
+            if phase == "create" {
+                services
+                    .config
+                    .read()
+                    .await
+                    .save(&Config::default_path())
+                    .unwrap();
+                user_data.add_search_history(RECORD).await.unwrap();
+                services
+                    .credentials
+                    .store(CredentialKey::SmtpPassword, CREDENTIAL)
+                    .await
+                    .unwrap();
+            } else {
+                assert_eq!(user_data.get_search_history(10).await.unwrap(), [RECORD]);
+                assert_eq!(
+                    services
+                        .credentials
+                        .retrieve(CredentialKey::SmtpPassword)
+                        .await
+                        .unwrap()
+                        .as_deref(),
+                    Some(CREDENTIAL)
+                );
+            }
+            services.database.close().await;
+        });
+}
