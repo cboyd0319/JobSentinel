@@ -10,8 +10,7 @@ The [remaining development queue](master-exec-plan.md#remaining-development-queu
 implements the user's 2026-10-28 reprioritization. Complete accepted code and
 cleanup before broad qualification or delivery. Earlier suggested timing in
 reference documents does not override this queue. The [current status](../../harness/current-status.md)
-owns the selected child; D0 and R13 have development acceptance, while E15 has an
-implementation checkpoint awaiting acceptance.
+owns the selected child and development acceptance.
 
 ## Current source foundations
 

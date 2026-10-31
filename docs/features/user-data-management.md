@@ -72,7 +72,12 @@ Launch the application executable with `--portable <absolute-directory>` to use
 a separate portable profile. Select an empty private directory, or a previously
 created portable profile. On macOS/Linux the root must have owner-only permissions
 (mode 0700); unsupported filesystems, links outside the profile and simultaneous
-use are refused. Close JobSentinel before moving the whole directory.
+use are refused. Close JobSentinel before moving the whole directory, including hidden files.
+
+Open profiles from older development builds successfully at their original location
+with the current build before moving them. If an already moved profile refuses
+startup, return the whole directory to its original location and retry; preserve
+its recovery files.
 
 The profile owns its data, settings, model/pack files and caches. Browser-only
 state is temporary; saved application records remain in the profile. Native logs
