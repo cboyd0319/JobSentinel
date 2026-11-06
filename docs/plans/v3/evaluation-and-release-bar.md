@@ -163,7 +163,8 @@ Build and inspect the selected artifacts using the exact commands in the
 Mac universal build plus launch/install smoke, Windows MSI/NSIS build, Linux AppImage/DEB
 build and package inspection. Record source SHA and package hashes before installation.
 Keep no-account/unsigned labels truthful; final signature/notarization and supply-chain
-acceptance belongs to R3. Approved update signatures are a separate pre-R1 prerequisite.
+acceptance belongs to R3. Approved update signatures are required before installed
+positive update/rollback journeys, after the frozen artifacts are built.
 
 ### Installed acceptance matrix
 
@@ -182,16 +183,11 @@ unsupported optional integrations must show their documented fallback.
 | Accessibility and usability | Keyboard-only and screen-reader journeys; focus after dialogs/errors; empty/loading/error states; narrow width, high zoom, reduced motion and novice tasks | Every shipped action is reachable and understandable; no focus trap, unlabeled control or obscured required action. Record reader/browser/OS versions and observations. |
 | Sustained use | Synthetic working-day run per supported OS; eight hours is proposed, with duration selected and recorded from risk before execution. Repeat the core save/import/track cycle, cancel/retry one failed operation, and restart twice | No unexpected crash, hang, unhandled error or data mismatch; final restart and backup/restore succeed. This protocol makes no performance-budget claim. |
 
-The trusted-update prerequisite blocks freeze: `ReleasePublisher::production_trust()`
-is empty in `update_preflight/review.rs`; the desktop review command refuses before
-file selection, and target startup also requires production trust. The only injected
-publisher path is a test-only coordinator with a simulated installer launcher.
-The master plan currently reserves production enrollment/signing for R3, while M11
-requires actual positive native update/rollback. Resolve this sequencing decision
-before freezing: production trust and candidate-valid qualification artifacts must
-exist before that R1 row can pass, with separately authorized enrollment/signing.
-Formal R3 acceptance still follows R2. No such authority or alternate installed route
-is established here; do not add fixture trust, a smoke bypass or a passing exception.
+The empty `ReleasePublisher::production_trust()` registry still blocks freeze; desktop
+review and target startup require it. Complete the
+[approved update-trust preparation](#approved-update-trust-preparation) in its stated
+order. The test-only coordinator does not prove installed behavior; do not add fixture
+trust, a smoke bypass or a passing exception.
 
 ### Exit and change handling
 
