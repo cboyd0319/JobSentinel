@@ -944,7 +944,7 @@ claims are historical, not fresh verification. Current state is in Handoff.
   retains results, review scope and earlier interrupted or failed runs.
 - Engineering baseline `4c811f5a` is committed on `agent/goal-v3-baseline`.
 - The [R1 plan](evaluation-and-release-bar.md#r1-stability-plan) owns the frozen matrix and acceptance work.
-  Complete approved update-trust preparation before recording the freeze; draft release metadata is prepared.
+  Update trust is reviewed and full-gate verified; accept the prepared source before recording the freeze.
 - Work only on `v3-release-candidate`; the release-first queue above owns the next slice.
 - Preserve the enhancement branch and its development acceptance. Do not resume P08/N15 for v3.0.
 - Retain M11 partial evidence and the governed Qwen decision; no new model or relaxed threshold is approved.

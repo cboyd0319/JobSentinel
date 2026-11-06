@@ -19,10 +19,10 @@
     "Isolated the reconnect test in an owned temporary directory and closed its pool before cleanup; production recovery refusal is unchanged."
   ],
   "pending": [
-    "Complete approved update-trust preparation, then record the frozen source and begin Stability; draft release metadata is prepared.",
+    "Accept the reviewed update-trust source, record its frozen SHA and begin Stability; draft release metadata is prepared.",
     "Run separate full Stability, Performance and Security phases for the frozen candidate; no phase has passed.",
     "Complete native Windows 11, Linux, exact macOS 26 and enforced 8 GiB qualification after development; current Mac checks do not establish these.",
-    "Complete production trust/enrollment/signing, Region artifacts, packaged update compatibility, checksums, SBOMs, attestations and public-download proof.",
+    "Complete qualification signatures, Region artifacts, packaged update compatibility, checksums, SBOMs, attestations and public-download proof.",
     "Resolve retained hosted-CI/release decisions; no hosted dispatch, signing, publication or push was performed."
   ],
   "historical_commands": [
@@ -211,5 +211,35 @@
     "status": "draft; not frozen or executed",
     "commit_authority": "Scoped local commits are authorized; freeze follows prerequisite resolution.",
     "evidence": "Record actual source SHA, artifacts and phase results externally after the accepted planning commit; never invent an unborn commit SHA."
+  },
+  "update_trust_preparation": {
+    "base_revision": "04e9a2d416b17258a60bd5ac7fcf2de2a1ca43a7",
+    "verified_diff_sha256": "c109b8dafa2cbba6273e22cabdb683e4d45ab2826cc2d45d8cbd0bd575ae1cf0",
+    "verified_files": {
+      "CHANGELOG.md": "76c0e838436b94ce4044ae5679d151951a7ae4789377feb1ee45b6477123f438",
+      "crates/jobsentinel-application/src/update_preflight/review.rs": "00627dfc8398611264f61dccc95f3cfb19917419eff06be6e98e6bbe29ff5e8e",
+      "crates/jobsentinel-application/src/update_preflight/tests.rs": "60faacd9e15ccfa98cfb381d2e372aca4a1be786b81552687e4394669f43466e",
+      "docs/developer/RELEASING.md": "749128bec32cac794b60e9523fa50fba3ba77366920b71f7c6177f0f34eb38fd",
+      "docs/plans/v3/evaluation-and-release-bar.md": "6247128ea237bc29f09695a174edb43f680be361a83875c9f9d3cb26e3d248e8",
+      "docs/releases/README.md": "f67d966e98e9aa3e1083337309ef0927cac12f2f3a5a94ea82e3b912a215ca88",
+      "docs/releases/v3.0.0.md": "19d6c80051dbfa6df3b605b11f43e8656219a183cad9528e296ba8a4388f3f23"
+    },
+    "publisher_key_id": "jobsentinel-update-publisher-v1",
+    "result": "Public-only enrollment independently reviewed and full development gate passed; no freeze or release phase pass.",
+    "commands": [
+      {
+        "command": "npm run verify:full",
+        "exit_status": 1,
+        "result": "Stopped at lint:bloat: draft notes missing from release index; corrected index without weakening policy."
+      },
+      {
+        "command": "npm run clean:generated && npm run verify:full",
+        "exit_status": 0,
+        "result": "892 script, 3373 frontend, 10 Chromium smoke, 3561 top-level Rust plus 3 nested checks;21 declared Rust skips;builds/Clippy/fmt/doctests passed."
+      }
+    ],
+    "review": "Lead accepted independent source review PASS; later record/index corrections are docs-only.",
+    "runtime": "macOS27.2 arm64;Node24.18.0/npm12.0.1/Rust1.97.1;credential-denying sandbox",
+    "limits": "No private key in source/tests; qualification signing and installed R1 journeys remain unexecuted."
   }
 }

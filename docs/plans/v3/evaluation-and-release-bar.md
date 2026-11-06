@@ -73,18 +73,18 @@ Mac/Windows testing and the explicit update-identity authorization below remain 
 
 ### Approved update-trust preparation
 
-The user approved creating/storing `jobsentinel-update-publisher-v1` in the project
-1Password environment, enrolling only its public key, and signing exact unpublished
+The user approved creating/storing `jobsentinel-update-publisher-v1` as a concealed item
+in the 1Password Private vault, enrolling only its public key, and signing exact unpublished
 3.0.0/3.0.1 qualification artifacts before installed R1 journeys. Enroll and verify
 public trust first, freeze source second, then build and sign the exact artifacts.
 Final full R3 Security still follows R2. Approval is not execution evidence.
 
 | Input | Approved scope and remaining preparation |
 | --- | --- |
-| Public registry | `crates/jobsentinel-application/src/update_preflight/review.rs`, `ReleasePublisher::production_trust()`, currently empty; enroll only approved public ID/key/revocation metadata. |
-| Publisher identity | Approved `jobsentinel-update-publisher-v1`; enrollment is not yet complete. This is distinct from pack publisher identities and the public test seed. |
+| Public registry | `crates/jobsentinel-application/src/update_preflight/review.rs`, `ReleasePublisher::production_trust()`, contains only the approved public ID/key/revocation metadata; enrollment passed independent review and full development verification. |
+| Publisher identity | Approved `jobsentinel-update-publisher-v1`; public-key enrollment is reviewed and verified. This is distinct from pack publisher identities and the public test seed. |
 | Concealed signing variable | Proposed `JOBSENTINEL_UPDATE_PRIVATE_KEY_PKCS8_B64`; the CLI accepts a caller-selected `--key-env`, and no production update variable is currently defined. |
-| Secret-store inputs | Operator-selected 1Password Developer Environment ID, approved concealed Ed25519 PKCS#8 base64 variable, matching raw 32-byte public-key hex, publisher ID and authority to use it for the exact qualification artifact. No secret values enter evidence or the repository. |
+| Secret-store inputs | Concealed “JobSentinel Update Publisher v1” item in the approved Private vault, Ed25519 PKCS#8 base64 injected into the caller-selected signing variable, matching raw 32-byte public-key hex, publisher ID and authority to use it for the exact qualification artifact. No secret values enter evidence or the repository. |
 | First artifact target | A macOS aarch64 Essentials v3.0.0 DMG from the eventual frozen candidate, with exact checksum and adjacent `.manifest.json`/`.sig`; use reviewed `macos`/`aarch64` edition and compatibility/readers metadata. Universal first-install artifacts do not imply a universal update-manifest architecture. |
 | Positive-path counterpart | Qualification-only 3.0.1 build from the same code with a coherent version-only metadata/lock delta in a separate checkout; not published or substituted for the 3.0.0 candidate. This version-only preparation is authorized. |
 
@@ -183,8 +183,8 @@ unsupported optional integrations must show their documented fallback.
 | Accessibility and usability | Keyboard-only and screen-reader journeys; focus after dialogs/errors; empty/loading/error states; narrow width, high zoom, reduced motion and novice tasks | Every shipped action is reachable and understandable; no focus trap, unlabeled control or obscured required action. Record reader/browser/OS versions and observations. |
 | Sustained use | Synthetic working-day run per supported OS; eight hours is proposed, with duration selected and recorded from risk before execution. Repeat the core save/import/track cycle, cancel/retry one failed operation, and restart twice | No unexpected crash, hang, unhandled error or data mismatch; final restart and backup/restore succeed. This protocol makes no performance-budget claim. |
 
-The empty `ReleasePublisher::production_trust()` registry still blocks freeze; desktop
-review and target startup require it. Complete the
+The `ReleasePublisher::production_trust()` enrollment passed review and development
+verification; source acceptance and freeze remain pending. Follow the
 [approved update-trust preparation](#approved-update-trust-preparation) in its stated
 order. The test-only coordinator does not prove installed behavior; do not add fixture
 trust, a smoke bypass or a passing exception.

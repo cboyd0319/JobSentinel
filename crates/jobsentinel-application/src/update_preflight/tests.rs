@@ -7,6 +7,28 @@ use jobsentinel_security::sign_ed25519_for_test;
 pub(super) use super::test_support::{fixture, signed};
 
 #[test]
+fn production_identity_is_exact_and_rejects_fixture_signatures() {
+    let publishers = ReleasePublisher::production_trust();
+    assert_eq!(publishers.len(), 1);
+    assert_eq!(publishers[0].key_id, "jobsentinel-update-publisher-v1");
+    assert_eq!(
+        hex::encode(publishers[0].public_key),
+        "b33f69169ed5daa9095cf24ca23c9d370136c85cf00a3d742604e76104f61bc8"
+    );
+    assert!(!publishers[0].revoked);
+    let (mut manifest, installed) = fixture();
+    for identity in ["release-test", "jobsentinel-update-publisher-v1"] {
+        manifest.publisher_key_id = identity.into();
+        let (metadata, signature, _) = signed(&manifest);
+        assert_eq!(
+            preflight_update(&metadata, &signature, b"package", publishers, &installed)
+                .unwrap_err(),
+            UpdatePreflightError::Trust
+        );
+    }
+}
+
+#[test]
 fn authenticated_candidate_preserves_installed_state() {
     let (manifest, installed) = fixture();
     let before = installed.clone();

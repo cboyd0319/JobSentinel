@@ -12,8 +12,9 @@ Last updated: 2026-11-06
 - Follow the approved [release-first queue](../plans/v3/master-exec-plan.md#remaining-development-queue).
 - Candidate: `feat/v3-release-candidate`, based on core `4b96e802`.
 - Engineering baseline: `4c811f5a`, committed on `agent/goal-v3-baseline`.
-- Next: resolve the [R1 freeze prerequisites](../plans/v3/evaluation-and-release-bar.md#r1-stability-plan),
-  record the frozen source SHA externally, then begin Stability.
+- Update-publisher public trust is enrolled, independently reviewed and full-gate verified.
+- Next: accept the prepared source, record its frozen SHA externally, then follow the
+  [R1 plan](../plans/v3/evaluation-and-release-bar.md#r1-stability-plan).
 - [Preparation evidence](evidence/v3-release-candidate-2026-11-06.json)
   records the passing full development gate, reviews and earlier interrupted or failed runs.
 
@@ -31,6 +32,6 @@ Last updated: 2026-11-06
 - Existing M11 and retrospective audit records remain partial, not current passes.
 - R1 planning is active; no final release phase or native VM test has passed.
 - Windows 11, Linux, exact macOS 26 and enforced 8 GiB proof remain open.
-- Production trust, signing/notarization, Region artifacts and public-download verification remain open.
+- Qualification signatures, OS signing/notarization, Region artifacts and public-download proof remain open.
 - Hosted general CI remains absent under `pre-alpha-private-no-ci`; its release decision remains open.
 - Keep governed Qwen and numeric thresholds unchanged. Workbench policy remains expired and fail-closed.

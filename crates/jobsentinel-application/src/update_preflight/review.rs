@@ -15,8 +15,19 @@ pub struct ReviewedUpdate {
 
 impl ReleasePublisher {
     /// Production enrollment belongs to release qualification; downloaded keys never grant trust.
-    pub const fn production_trust() -> &'static [Self] {
-        &[]
+    pub fn production_trust() -> &'static [Self] {
+        static PUBLISHERS: std::sync::OnceLock<[ReleasePublisher; 1]> = std::sync::OnceLock::new();
+        PUBLISHERS.get_or_init(|| {
+            [ReleasePublisher {
+                key_id: "jobsentinel-update-publisher-v1".into(),
+                public_key: [
+                    0xb3, 0x3f, 0x69, 0x16, 0x9e, 0xd5, 0xda, 0xa9, 0x09, 0x5c, 0xf2, 0x4c, 0xa2,
+                    0x3c, 0x9d, 0x37, 0x01, 0x36, 0xc8, 0x5c, 0xf0, 0x0a, 0x3d, 0x74, 0x26, 0x04,
+                    0xe7, 0x61, 0x04, 0xf6, 0x1b, 0xc8,
+                ],
+                revoked: false,
+            }]
+        })
     }
 }
 

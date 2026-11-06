@@ -81,6 +81,6 @@
 "priority":26,"area":"v3 release preparation","title":"Prepare the v3.0 core release candidate","status":"active",
 "behavior":"Prepare the preserved v3.0 core with required shared fixes and release engineering, keeping Next enhancements outside the candidate.",
 "user_visible_behavior":"The first v3 release delivers the approved core without waiting for later enhancements.",
-"notes":"Engineering baseline committed at 4c811f5a. R1 plan drafted; resolve freeze prerequisites, then start qualification.","verification":["./init.sh","npm run harness:check","npm run lint:docs","npm run lint:file-size",
+"notes":"Baseline 4c811f5a retained. Update trust reviewed and full-gate verified; source acceptance, freeze and R1 remain pending.","verification":["./init.sh","npm run harness:check","npm run lint:docs","npm run lint:file-size",
 "npm run test:scripts","npm run verify:full"],
 "evidence":["docs/harness/evidence/v3-release-candidate-2026-11-06.json"]}]}

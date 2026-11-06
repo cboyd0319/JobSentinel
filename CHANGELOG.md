@@ -37,7 +37,7 @@ for scope, compatibility and distribution limits.
 - Breaking: startup refuses pre-v3, unmarked and plaintext databases. Preserve original profiles and backups. No
   v2 migration path is qualified.
 - Release tooling gates publication on candidate-bound phase and artifact evidence and produces signed update
-  sidecars. Production trust remains unenrolled.
+  sidecars. Update-publisher trust is enrolled; native qualification remains pending.
 
 ## [2.9.5] - 2026-07-18
 
