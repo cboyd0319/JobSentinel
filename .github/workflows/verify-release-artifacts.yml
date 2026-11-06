@@ -1,10 +1,45 @@
+# Verifies public installer downloads anonymously, with separate attestation authorization.
 name: Verify Release Artifacts
 
 on:
+  workflow_call:
+    inputs:
+      local_macos:
+        description: Verify locally built macOS assets against accepted candidate evidence.
+        required: false
+        default: false
+        type: boolean
+      expected_revision:
+        description: Exact candidate source SHA required for local macOS evidence.
+        required: false
+        type: string
+      tag:
+        required: true
+        type: string
+      platforms:
+        required: true
+        type: string
+      require_gatekeeper:
+        required: false
+        default: false
+        type: boolean
+      require_windows_unsigned_label:
+        required: false
+        default: true
+        type: boolean
   release:
     types: [published]
   workflow_dispatch:
     inputs:
+      local_macos:
+        description: Verify locally built macOS assets against accepted candidate evidence.
+        required: false
+        default: false
+        type: boolean
+      expected_revision:
+        description: Exact candidate source SHA required for local macOS evidence.
+        required: false
+        type: string
       tag:
         description: Release tag to verify. Leave blank to verify the latest public release.
         required: false
@@ -57,6 +92,8 @@ jobs:
       - name: Verify public release asset set
         shell: bash
         env:
+          LOCAL_MACOS: ${{ inputs.local_macos }}
+          EXPECTED_REVISION: ${{ inputs.expected_revision }}
           RELEASE_TAG: ${{ github.event.release.tag_name }}
           DISPATCH_TAG: ${{ inputs.tag }}
           DISPATCH_PLATFORMS: ${{ inputs.platforms }}
@@ -66,7 +103,11 @@ jobs:
         run: |
           set -euo pipefail
 
-          args=(--require-supply-chain)
+          # HTTP metadata and downloads ignore this token; gh uses it only for attestations.
+          args=(--unauthenticated --require-supply-chain --repo "$GITHUB_REPOSITORY")
+          if [ "${LOCAL_MACOS:-false}" = true ]; then
+            args+=(--local-macos --expected-revision "$EXPECTED_REVISION")
+          fi
           release_tag="${RELEASE_TAG:-${DISPATCH_TAG:-}}"
           if [ -n "$release_tag" ]; then
             args+=(--tag "$release_tag")
@@ -86,6 +127,7 @@ jobs:
           npm run release:verify:public -- "${args[@]}"
 
   verify-macos-public-artifact:
+    if: ${{ contains(format(',{0},', inputs.platforms || 'windows,macos,linux'), ',macos,') }}
     name: Verify public macOS DMG
     runs-on: macos-26
     timeout-minutes: 30
@@ -114,6 +156,8 @@ jobs:
       - name: Verify public macOS release artifact
         shell: bash
         env:
+          LOCAL_MACOS: ${{ inputs.local_macos }}
+          EXPECTED_REVISION: ${{ inputs.expected_revision }}
           RELEASE_TAG: ${{ github.event.release.tag_name }}
           DISPATCH_TAG: ${{ inputs.tag }}
           REQUIRE_GATEKEEPER: ${{ inputs.require_gatekeeper || vars.JOBSENTINEL_MACOS_REQUIRE_GATEKEEPER || 'false' }}
@@ -121,7 +165,11 @@ jobs:
         run: |
           set -euo pipefail
 
-          args=()
+          # HTTP metadata and downloads are always unauthenticated.
+          args=(--unauthenticated --repo "$GITHUB_REPOSITORY")
+          if [ "${LOCAL_MACOS:-false}" = true ]; then
+            args+=(--local-macos --expected-revision "$EXPECTED_REVISION")
+          fi
           release_tag="${RELEASE_TAG:-${DISPATCH_TAG:-}}"
           if [ -n "$release_tag" ]; then
             args+=(--tag "$release_tag")

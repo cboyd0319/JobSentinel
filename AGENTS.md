@@ -5,8 +5,7 @@
 JobSentinel is a privacy-first desktop job-search application for technical and
 non-technical job seekers. The frontend is React 19, TypeScript, Vite, and
 Tailwind CSS. The desktop and Rust owner layers use Tauri 2, Rust 2021, Tokio,
-SQLite, and SQLx offline mode. Runtime versions are owned by `.nvmrc`,
-`rust-toolchain.toml`, `package.json`, and the lockfiles.
+SQLite, and SQLx offline mode. Runtime pins: `.nvmrc`, `rust-toolchain.toml`, `package.json`, and lockfiles.
 
 ## Startup Workflow
 
@@ -19,13 +18,17 @@ Before implementation:
 5. Repair a failed baseline before adding scope.
 6. Work only on the single `active` feature in `scripts/harness/state/feature-list.json`.
 
-First run and every dependency refresh use the same init command. It performs
-locked project dependency synchronization, read-only environment diagnosis,
+First run and dependency refresh use the same init command for locked dependencies, environment diagnosis,
 harness validation, and the baseline application smoke test. It does not install
 global tools, enable hooks, start services, or read secrets. Start the desktop app
 with `npm run tauri:dev`.
 
 ## Non-Negotiable Boundaries
+
+- Every `AGENTS.md` is capped at 150 lines and 32 KiB, without exceptions.
+- Every release from v3 onward requires separate full Stability, Performance and
+  Security phases, in order; the
+  [Release Contract](docs/developer/RELEASING.md#mandatory-final-release-phases) owns their gates.
 
 - User data stays local unless the user explicitly configures an external
   channel. External AI is optional, disabled by default, and routed through the
@@ -61,13 +64,10 @@ with `npm run tauri:dev`.
 - Workflow: `docs/harness/change-contract.md` and
   `docs/harness/verification-matrix.md`
 - Tests and commands: `docs/developer/TESTING.md`
-- Change contracts: `docs/harness/change-contract.md`
 - UI and copy: `docs/design/design-system.md`, `docs/design/design-spec.md`, and
   `docs/style-guide/README.md`
 
-Closest feature documentation under `docs/features/` owns user-visible behavior.
-Detailed plans under `docs/plans/` may expand the active feature but cannot
-replace canonical state.
+Feature docs own behavior; plans may expand the active feature without replacing canonical state.
 
 ## Verification
 

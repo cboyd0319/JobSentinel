@@ -1,0 +1,208 @@
+{
+  "schema": "jobsentinel.feature_evidence.v1",
+  "feature_id": "v3-release-candidate",
+  "behavior": "Prepare the preserved v3.0 core with required shared fixes and release engineering, keeping Next enhancements outside the candidate.",
+  "result": "partial",
+  "verified_at": "2026-11-06T13:24:03.154390+00:00",
+  "revision": "4b96e8027b1e40db5714d75f4d38d6cf9a32fbf3 plus uncommitted candidate changes",
+  "platform": "macOS 27.2 arm64; Rust 1.97.1; Node 24.18.0; npm 12.0.1",
+  "scope": "Development engineering and local verification complete for reviewed working changes; commit, freeze and release qualification remain pending.",
+  "preserved_enhancement_revision": "299779fb4cd1aea0cee9d1c4956fa4f40ba26581",
+  "changes": [
+    "Release-first scope recorded in the master plan and canonical state; Next work stays on feat/v3-major-line.",
+    "Existing final release-phase contract retained from the enhancement branch.",
+    "Retired-key language-check fix and tests transferred from fbcbba54 without Next behavior.",
+    "Consolidated duplicated Rust test assertions while preserving all corruption, consent and policy-drift cases.",
+    "Integrated device-local Windows key storage and fail-closed mock boundary tests without Next consumers.",
+    "Bound draft/public verification and phase publication gates to exact candidate assets; preserved platform selection and unauthenticated public downloads.",
+    "Added update-candidate metadata/signature producer with actual CLI-to-Rust preflight and tampering tests using synthetic trust.",
+    "Isolated the reconnect test in an owned temporary directory and closed its pool before cleanup; production recovery refusal is unchanged."
+  ],
+  "pending": [
+    "Obtain local commit approval, then record the already-authorized candidate freeze and begin R1 Stability.",
+    "Run separate full Stability, Performance and Security phases for the frozen candidate; no phase has passed.",
+    "Complete native Windows 11, Linux, exact macOS 26 and enforced 8 GiB qualification after development; current Mac checks do not establish these.",
+    "Complete production trust/enrollment/signing, Region artifacts, packaged update compatibility, checksums, SBOMs, attestations and public-download proof.",
+    "Resolve retained hosted-CI/release decisions; no hosted dispatch, signing, publication or push was performed."
+  ],
+  "historical_commands": [
+    {
+      "command": "./init.sh",
+      "exit_status": 0,
+      "relevant_result": "Locked dependencies synchronized; harness and 9 startup smoke tests passed.",
+      "caveat": "Local Node/npm differ from release pins. Isolated execution denied credential directories and native credential services."
+    },
+    {
+      "command": "npm run lint:docs",
+      "exit_status": 0,
+      "relevant_result": "Harness, Markdown, links and prose checks passed.",
+      "caveat": "Run before this pause/evidence update."
+    },
+    {
+      "command": "npm run lint:file-size",
+      "exit_status": 0,
+      "relevant_result": "Hard limits passed.",
+      "caveat": "Review thresholds remain on existing large test/evidence owners."
+    },
+    {
+      "command": "npm run lint:language",
+      "exit_status": 0,
+      "relevant_result": "Passed after transferring the path-scoped retired-key fix.",
+      "caveat": ""
+    },
+    {
+      "command": "npm run test:scripts",
+      "exit_status": 0,
+      "relevant_result": "873 passed; no failures or skips.",
+      "caveat": "No hosted workflow dispatch."
+    },
+    {
+      "command": "npm run lint:dup",
+      "exit_status": 0,
+      "relevant_result": "Zero duplicated lines across all six governed scopes.",
+      "caveat": ""
+    },
+    {
+      "command": "cargo test --locked --offline -p jobsentinel-storage --lib inconsistent_",
+      "exit_status": 0,
+      "relevant_result": "3 passed, including both refactored corruption tests.",
+      "caveat": "Synthetic local databases."
+    },
+    {
+      "command": "cargo test --locked --offline -p jobsentinel-application --lib linkedin_workbench::tests",
+      "exit_status": 0,
+      "relevant_result": "11 passed.",
+      "caveat": "Fixed review date; production freshness policy unchanged."
+    },
+    {
+      "command": "npm run verify:full",
+      "exit_status": 143,
+      "relevant_result": "Interrupted at user request during the storage workspace tests; NOT PASSED.",
+      "caveat": "Completed prefix includes harness, architecture/security/dependency/SQLx/duplication/lint/type checks, 873 script tests, 3373 frontend tests, production and Storybook builds, 10 Chromium smoke journeys and workspace Clippy. Rust workspace testing and final completion remain incomplete."
+    }
+  ],
+  "historical_review": {
+    "independent": false,
+    "scope": "Separate local cold read of scope, retained authority, state and test-assertion equivalence."
+  },
+  "historical_pause": "User requested stopping implementation to create an accelerated-v3 goal prompt; no goal was activated.",
+  "historical_code_diff_sha256": "2c288a5f1e3168eb5f9639b9f86ca45ba60d7ef6924dc4e841cad50e17966a92",
+  "development_status": "validated",
+  "integration_branch": "agent/goal-v3-baseline",
+  "validated_snapshot": {
+    "scope": "Before final status, feature notes, handoff and this evidence record were updated.",
+    "tracked_diff_sha256": "d5aecf37fc76763947e1f3d0d2bbc39ec149ff3865839a568e9c75158859554d",
+    "untracked_files": {
+      "crates/jobsentinel-application/src/update_preflight/producer_tests.rs": "6051bb0642b16fb0f3e093a4806e9d76127c8151f2ed8aa5e1dd09ef3cd19598",
+      "crates/jobsentinel-platform/src/windows_local_key.rs": "8b44f1741552d8e3bc54b572a291bef776af35d18581181ed11d30142a6acc20",
+      "docs/harness/evidence/v3-release-candidate-2026-11-06.json": "134faa3a7b66ac4244ac72101ec67ed5360b6489ce3f3aa6e50a5a84d9fe052f",
+      "scripts/release/phase-assets.mjs": "3443c030c8e49562dab44171af2b7cc753311a25009b8d677d28557f0e702dfd",
+      "scripts/release/public-assets/client.mjs": "3b5303d4a56b4b8e4c82448e010d7f90b9539bd0d8839f69a074b8e20ebf148a",
+      "scripts/release/release-phases.mjs": "b7d7a8519d303f820d19f682aae8e84dfa37c3252af0d73cf55ebb82485207d0",
+      "scripts/release/release-snapshot.mjs": "995189a8ef738c9893914eb38daa800b3c7935f3d26bf7aab77773babc3a975a",
+      "scripts/release/sign-update-candidate.mjs": "704e0c938175a989de031791b120d8075cd13fd25b1a35420555098069b852f2",
+      "scripts/release/update-candidate-metadata.mjs": "1094a34d492ae1f3f5ca55013bab329e665f2b19871077278ce2471dc496795b",
+      "scripts/tests/release/release-candidate.test.mjs": "959a37e43bb1cc31f54b625693c7f5156a23f1b891b98241c722f76aabb118d4",
+      "scripts/tests/release/release-downloads.test.mjs": "2cc74c6f2e1301c4b4104b2e6956847aeac0996184995d89cc0f96179b7ddd84",
+      "scripts/tests/release/release-gates.test.mjs": "63d7371522d959da88fcffcd1941c1415817ad662a99d71073a212616d0eeb67",
+      "scripts/tests/release/sign-update-candidate.test.mjs": "505125a341cdf3b09e9f3534c444a74f1a2f38e5591ee7fd2347b2974353b729"
+    },
+    "implementation_manifest_sha256": "623b21548293b551053f57cb17691afef2c2945dcce8b9b72dc64b0ebff89212",
+    "implementation_files": {
+      ".github/workflows/release.yml": "bb8bb31b38b6f43315e22ecf6a7ade52b9c2a520f4a13b2b2edd77e404aa6a6d",
+      ".github/workflows/verify-release-artifacts.yml": "f3c1401122a966aa6f0f5ec2f09841aa051b0a65b024406c670ad191bd3d6674",
+      "AGENTS.md": "2ce94c14dd69880d98576facaf3d02140ff3447d0912046250516e77ae58bc08",
+      "Cargo.lock": "188434623874ca3feeb106254d75f733ae6e019b5703f035e24355a64f6ce9ed",
+      "Cargo.toml": "0e8939dc46b43d334b8517b5ff74fe4226adf90e6ce4bd7985bcb75bd57af6bd",
+      "crates/jobsentinel-application/src/linkedin_workbench/tests.rs": "d89347eae16b622a87793c772da6e2faf5ef53f13df935e3ac340154455a659a",
+      "crates/jobsentinel-application/src/update_preflight.rs": "4ee54a6290b69d2e8cdeea24d1ff4493c6d0dae531ae8268a4185ba9a2abb871",
+      "crates/jobsentinel-application/src/update_preflight/producer_tests.rs": "6051bb0642b16fb0f3e093a4806e9d76127c8151f2ed8aa5e1dd09ef3cd19598",
+      "crates/jobsentinel-credentials/src/service/tests.rs": "92a37d14fa0a23788c953f4562ebc36076529e5e0db7d4aad8dd4bdbac137def",
+      "crates/jobsentinel-platform/Cargo.toml": "4bcdaa7566f89c6ac3cdc4234486edf3c01ffe85e1079ba0d30010e2b409593d",
+      "crates/jobsentinel-platform/src/credential_vault_key.rs": "f7098e72a7a9921f25008321f7cffb7a07845b3d59bf92269648be8a56389f0a",
+      "crates/jobsentinel-platform/src/database_key.rs": "6f83d39768a65c94a78bb58e7f0a18b51032e19fb59c57d0a454bc8bb4353326",
+      "crates/jobsentinel-platform/src/lib.rs": "9864130d61dcabdb2c243ed5d11b3a2d7fc12c2ef0ecd73f8f99d79b2748726a",
+      "crates/jobsentinel-platform/src/windows_local_key.rs": "8b44f1741552d8e3bc54b572a291bef776af35d18581181ed11d30142a6acc20",
+      "crates/jobsentinel-storage/src/connection/tests.rs": "bb842fb93a2bafb0d8688bd4253fd46f8e14e84e10402289359fa2fa6fc52364",
+      "crates/jobsentinel-storage/src/connection/tests/bootstrap_tests.rs": "bf367b8875fea9c5db0f1c594233b070e52005326f0293ba84a4ac4496257dc3",
+      "crates/jobsentinel-storage/src/connection/tests/physical_schema_tests.rs": "19e42f53f721d21e38e3d7cf56a60e37dd9b48e76db72b574d95254f4cef1e6a",
+      "crates/jobsentinel-storage/src/tests/job_connection_tests.rs": "f4806e835601d7528489966e5a3fd6f6f031411fb7a8dd317bb2496fbbc44766",
+      "docs/developer/RELEASING.md": "92acbd68169cdf858230870a68f6c6131d140c2ab01e6127180120dbce60e3bd",
+      "docs/harness/evidence/v3-source-compatibility-cleanup-2026-10-28.json": "d331d7ccc3b8fdd2aa54d6568a92569922453d64f561cb89cb9c703805477c91",
+      "docs/plans/v3/README.md": "84c52f163513f8a7a95e983d70dacf918b698436f8c7d203ce23add253fc8c4f",
+      "docs/plans/v3/evaluation-and-release-bar.md": "2dc0f7d68901c2c0e1d69f131d1c21ebc892cc11ce206a6fdc85aa361ba6b12c",
+      "package.json": "cffbc13a7430b31b57880d2f040fc3134999182d0b3175e52b8a5ae3f80100e5",
+      "scripts/harness/checks/language-style.mjs": "902ea1f31e1c055378ee69cedebebaf84a21b3746e242607dd22eb9868c79cac",
+      "scripts/harness/contracts/dependency-rationale.json": "3e03c1982fb64142db762e2c0f0e0296a074e057ba5f836327bbf0616c30eeef",
+      "scripts/release/phase-assets.mjs": "3443c030c8e49562dab44171af2b7cc753311a25009b8d677d28557f0e702dfd",
+      "scripts/release/public-assets/client.mjs": "3b5303d4a56b4b8e4c82448e010d7f90b9539bd0d8839f69a074b8e20ebf148a",
+      "scripts/release/public-assets/options.mjs": "afc202afc3c6721919e4dc5693a6299f0a9da99d06a523fb1af1a5ae336ae305",
+      "scripts/release/release-phases.mjs": "b7d7a8519d303f820d19f682aae8e84dfa37c3252af0d73cf55ebb82485207d0",
+      "scripts/release/release-snapshot.mjs": "995189a8ef738c9893914eb38daa800b3c7935f3d26bf7aab77773babc3a975a",
+      "scripts/release/sign-pack-envelope.mjs": "2a60b6add135b886a3ba848beefcf2c4e222bee40a28218bad5ef8569f42ad3c",
+      "scripts/release/sign-update-candidate.mjs": "704e0c938175a989de031791b120d8075cd13fd25b1a35420555098069b852f2",
+      "scripts/release/update-candidate-metadata.mjs": "1094a34d492ae1f3f5ca55013bab329e665f2b19871077278ce2471dc496795b",
+      "scripts/release/verify-latest-macos-release.mjs": "cfdf53db04847606f6e8e04def1163ec9e3160100b2f03a0483e8cd00ebb9b16",
+      "scripts/release/verify-public-release-assets.mjs": "d06858a52bc474b65df07ffd31d8f456c7e69fa778e1e0b66b4ea1863b4cc10a",
+      "scripts/tests/harness/check-language-style.test.mjs": "0c118f5830724572edeaa4651e7ebf6c2391ced705d74708fb49ce51d218ae2d",
+      "scripts/tests/release/release-candidate.test.mjs": "959a37e43bb1cc31f54b625693c7f5156a23f1b891b98241c722f76aabb118d4",
+      "scripts/tests/release/release-downloads.test.mjs": "2cc74c6f2e1301c4b4104b2e6956847aeac0996184995d89cc0f96179b7ddd84",
+      "scripts/tests/release/release-gates.test.mjs": "63d7371522d959da88fcffcd1941c1415817ad662a99d71073a212616d0eeb67",
+      "scripts/tests/release/sign-update-candidate.test.mjs": "505125a341cdf3b09e9f3534c444a74f1a2f38e5591ee7fd2347b2974353b729",
+      "scripts/tests/release/verify-latest-macos-release.test.mjs": "e0a4207b49e9d89d62a1ec72ad1f5ab8eb16a4cd67da623894f90054bd8c4779",
+      "scripts/tests/release/verify-public-release-assets.test.mjs": "07b07e1f1fe62731b1bcdff17b8a22fe9594ac1ff3837040520cba2642bd00f7"
+    }
+  },
+  "commands": [
+    {
+      "command": "./init.sh --offline",
+      "exit_status": 0,
+      "relevant_result": "Pinned Node/npm; locked dependencies, harness and 9 startup tests passed.",
+      "caveat": "Task-local runtime verified against official Node SHA256 and npm registry integrity; no global configuration changed."
+    },
+    {
+      "command": "npm run harness:plan -- --since HEAD",
+      "exit_status": 0,
+      "relevant_result": "Shared changes selected full verification."
+    },
+    {
+      "command": "npm run verify:full",
+      "exit_status": 101,
+      "relevant_result": "Earlier integrated run failed one fixed-path reconnect fixture; 866 storage tests passed.",
+      "caveat": "Not a pass; focused reproduction confirmed leftover WAL/SHM with absent primary."
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test --locked --offline -p jobsentinel-storage --lib tests::job_connection_tests::connection_tests::test_connect_with_existing_file -- --exact",
+      "exit_status": 0,
+      "relevant_result": "Repaired fixture passed twice; production guard unchanged."
+    },
+    {
+      "command": "npm run verify:full",
+      "exit_status": 1,
+      "relevant_result": "Restart rejected generated outputs from preceding run at lint:bloat.",
+      "caveat": "Canonical clean:generated removed only task-generated outputs before rerun."
+    },
+    {
+      "command": "npm run verify:full",
+      "exit_status": 0,
+      "relevant_result": "Final producer-integrated gate: 892 script tests, 3373 frontend tests, 10 Chromium smoke journeys, 3560 top-level Rust tests and 3 nested subprocess checks; builds, Clippy, formatting and doctests passed.",
+      "caveat": "21 declared Rust skips remain; default-feature local development only. Exact pre-record snapshot above."
+    }
+  ],
+  "reviews": [
+    {
+      "reviewer": "review_baseline_changes",
+      "configuration": "adversarial-reviewer; gpt-6-astra high; read-only",
+      "result": "PASS",
+      "scope": "Baseline changes, release ordering, pipeline and native byte-binding corrections, reconnect fixture and all eight update-producer paths.",
+      "evidence": "Lead received reviewer messages and inspected patches and actual worker logs; fixture review included before-failure and two focused passes."
+    },
+    {
+      "reviewer": "review_windows_keys",
+      "configuration": "adversarial-reviewer; gpt-6-astra high; read-only",
+      "result": "VERIFY",
+      "scope": "Nine Windows-key paths; no supported source defect found.",
+      "gap": "Native Windows compilation/runtime and disposable Enterprise-to-Local persistence readback remain required during qualification."
+    }
+  ]
+}

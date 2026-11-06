@@ -1,8 +1,5 @@
-//! OS-backed storage for the credential-vault master key.
-//!
-//! Normal credential status checks must never call this module. These functions
-//! can trigger OS authentication prompts and should only run for explicit secret
-//! use, passphrase lock changes, or vault-key creation.
+//! Stores the credential-vault master key using OS authentication for explicit secret use only.
+//! Normal status checks must not call this module because it can prompt for authentication.
 
 #![cfg_attr(target_os = "macos", allow(unsafe_code))]
 
@@ -50,7 +47,7 @@ pub const fn credential_vault_key_storage_policy() -> CredentialVaultKeyStorageP
         CredentialVaultKeyStoragePolicy {
             backend: CredentialVaultKeyBackend::GenericKeyring,
             user_presence_required: false,
-            device_local: false,
+            device_local: cfg!(windows),
             biometry_current_set: false,
         }
     }
@@ -119,10 +116,17 @@ mod platform {
 
     use super::MASTER_KEY_LEN;
     use super::{secure_storage_error, VAULT_KEY_NAME};
-    use crate::SECURE_STORAGE_SERVICE as SERVICE_NAME;
+
+    fn vault_key_entry() -> Result<Entry, String> {
+        #[cfg(windows)]
+        let entry = crate::windows_local_key::entry(VAULT_KEY_NAME);
+        #[cfg(not(windows))]
+        let entry = Entry::new(crate::SECURE_STORAGE_SERVICE, VAULT_KEY_NAME);
+        entry.map_err(|_| secure_storage_error())
+    }
 
     pub(super) fn store_vault_key(key: &Zeroizing<[u8; MASTER_KEY_LEN]>) -> Result<(), String> {
-        let entry = Entry::new(SERVICE_NAME, VAULT_KEY_NAME).map_err(|_| secure_storage_error())?;
+        let entry = vault_key_entry()?;
         let encoded_key = Zeroizing::new(hex::encode(key.as_ref()));
         entry
             .set_password(encoded_key.as_str())
@@ -130,7 +134,7 @@ mod platform {
     }
 
     pub(super) fn delete_vault_key() -> Result<(), String> {
-        let entry = Entry::new(SERVICE_NAME, VAULT_KEY_NAME).map_err(|_| secure_storage_error())?;
+        let entry = vault_key_entry()?;
         match entry.delete_credential() {
             Ok(()) | Err(KeyringError::NoEntry) => Ok(()),
             Err(_) => Err(secure_storage_error()),
@@ -138,7 +142,17 @@ mod platform {
     }
 
     pub(super) fn load_vault_key() -> Result<Option<Zeroizing<String>>, String> {
-        let entry = Entry::new(SERVICE_NAME, VAULT_KEY_NAME).map_err(|_| secure_storage_error())?;
+        let entry = vault_key_entry()?;
+        #[cfg(windows)]
+        {
+            crate::windows_local_key::load(&entry, |key| {
+                super::decode_credential_vault_key(key)
+                    .map(Zeroizing::new)
+                    .is_ok()
+            })
+            .map_err(|()| secure_storage_error())
+        }
+        #[cfg(not(windows))]
         match entry.get_password() {
             Ok(encoded_key) => Ok(Some(Zeroizing::new(encoded_key))),
             Err(KeyringError::NoEntry) => Ok(None),

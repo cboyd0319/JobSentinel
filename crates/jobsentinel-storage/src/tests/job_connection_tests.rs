@@ -1,3 +1,5 @@
+//! Verifies database connection, migration, and pool access with local fixtures.
+
 use super::*;
 
 mod connection_tests {
@@ -45,8 +47,8 @@ mod connection_tests {
 
     #[tokio::test]
     async fn test_connect_with_existing_file() {
-        let temp_dir = std::env::temp_dir();
-        let db_path = temp_dir.join("test_existing.db");
+        let temp_dir = tempfile::tempdir().unwrap();
+        let db_path = temp_dir.path().join("test_existing.db");
 
         // Create database
         let db1 = Database::connect(&db_path).await.unwrap();
@@ -64,9 +66,8 @@ mod connection_tests {
         // Should be able to read the job
         let fetched = db2.get_job_by_id(id).await.unwrap();
         assert!(fetched.is_some());
-
-        // Cleanup
-        let _ = std::fs::remove_file(&db_path);
+        db2.pool().close().await;
+        drop(db2);
     }
 
     #[tokio::test]

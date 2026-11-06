@@ -1,3 +1,4 @@
+// Exercises public platform assets, skills archives and supply-chain contracts.
 import assert from "node:assert/strict";
 import { dirname, resolve } from "node:path";
 import test from "node:test";
@@ -20,6 +21,12 @@ const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..", ".
 
 test("public release verifier defaults to all supported platforms", () => {
   assert.deepEqual(parseArgs([]), {
+    expectedSnapshot: undefined,
+    writeSnapshotOutput: false,
+    localMacos: false,
+    draft: false,
+    requirePhases: false,
+    expectedRevision: undefined,
     expectedVersion: undefined,
     platforms: ["windows", "macos", "linux"],
     releaseTag: undefined,
@@ -60,7 +67,13 @@ test("public release verifier supports scoped platform and supply-chain options"
       "--no-require-supply-chain",
     ]),
     {
-      expectedVersion: "2.9.0",
+      expectedSnapshot: undefined,
+    writeSnapshotOutput: false,
+    localMacos: false,
+    draft: false,
+    requirePhases: false,
+    expectedRevision: undefined,
+    expectedVersion: "2.9.0",
       platforms: ["windows", "linux"],
       releaseTag: "v2.9.0",
       repo: "example/project",

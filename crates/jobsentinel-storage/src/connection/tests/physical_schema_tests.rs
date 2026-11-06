@@ -220,33 +220,7 @@ async fn inconsistent_physical_layouts_and_rename_checksums_preserve_main_and_wa
         "UPDATE _sqlx_migrations SET checksum=X'00' WHERE version=33",
         "UPDATE _sqlx_migrations SET success=0 WHERE version=33",
     ] {
-        let root = tempfile::tempdir().unwrap();
-        let path = root.path().join("jobs.db");
-        let database = Database::connect(&path).await.unwrap();
-        sqlx::query("PRAGMA wal_autocheckpoint=0")
-            .execute(database.pool())
-            .await
-            .unwrap();
-        sqlx::query(corruption)
-            .execute(database.pool())
-            .await
-            .unwrap();
-        let pool = database.pool().clone();
-        drop(database);
-        let wal = crate::encryption::sqlite_sidecar_path(&path, "-wal");
-        let before = (std::fs::read(&path).unwrap(), std::fs::read(&wal).unwrap());
-        let error = Database::connect(&path).await.unwrap_err();
-        assert!(
-            error
-                .to_string()
-                .contains("inconsistent; requires recovery"),
-            "{error}"
-        );
-        assert_eq!(
-            before,
-            (std::fs::read(&path).unwrap(), std::fs::read(&wal).unwrap())
-        );
-        pool.close().await;
+        assert_corrupt_identity_preserves_files(corruption).await;
     }
 }
 

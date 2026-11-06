@@ -267,3 +267,6 @@ fn compatible(candidate: &UpdateManifest, local: &InstalledUpdateState) -> bool 
 
 #[cfg(test)]
 mod tests;
+
+#[cfg(test)]
+mod producer_tests;

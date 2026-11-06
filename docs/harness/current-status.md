@@ -2,47 +2,34 @@
 
 # Current Status
 
-Last updated: 2026-10-28
+Last updated: 2026-11-06
 
 ## Execution
 
-- Active feature: `v3-source-compatibility-cleanup`
+- Active feature: `v3-release-candidate`
 - Status: `active`
-- Implementation goal: **active**, resumed by the user on 2026-10-28.
-  Work starts with the selected D0 child, not the parked qualification campaign.
-- Follow the [development queue](../plans/v3/master-exec-plan.md#remaining-development-queue):
-  finish accepted engineering and code cleanup before broad qualification or release.
-- Current work: D0 final plaintext-credential migration disposition. Physical-schema
-  cleanup and strict retired-input handling are committed in `b521cc00`.
+- Development resumed; approved core fixes and release engineering are reviewed and locally verified.
+- Follow the approved [release-first queue](../plans/v3/master-exec-plan.md#remaining-development-queue).
+- Candidate: `feat/v3-release-candidate`, based on core `4b96e802`.
+- Verified integration: `agent/goal-v3-baseline`; changes remain uncommitted.
+- Next: obtain local commit approval, record the authorized candidate freeze, then begin R1 Stability.
+- [Preparation evidence](evidence/v3-release-candidate-2026-11-06.json)
+  records the passing full development gate, reviews and earlier interrupted or failed runs.
 
-## Remaining Scope
+## Preserved Scope
 
-- Milestones 0 through 10 record development checkpoints for 105 Now IDs. Historical labels do not
-  establish current acceptance or release readiness.
-- All 82 Next IDs have explicit remaining outcomes and dependency groups in the master plan.
-  Existing foundations are reused. Partial surfaces do not count as completed features.
-- Milestone 13 code cleanup moves before final QA. Release-pipeline implementation
-  and remaining documentation/header/boundary repairs are development, not final testing.
-- M11 broad qualification is parked until development is ready. Its earlier partial
-  evidence and failures remain recorded, not passing or silently reset.
-- Keep Gate 5's v3.0/Next release cuts separate while changing coding order.
-- Later/Moonshot scope and prohibited behavior remain unchanged.
+- `feat/v3-major-line` at `299779fb` preserves PR #329 and all Next implementation.
+- R13/E15 development acceptance and partial P08/N15 remain on that branch, outside v3.0.
+- D0 development acceptance is retained; it does not establish release readiness.
+- V3.0.1 targets fixes/polish. Substantial enhancements resume in v3.1+.
+- The master plan retains all 105 Now / 82 Next dispositions and the Gate 5 boundary.
 
-## Preserved Work And Evidence
+## Open Release Evidence
 
-- `e6b97d9b` records M10 development acceptance. Positive OS acknowledgement was simulated.
-- `ecf321dc` checkpoints the development-first plan and preserved M11 corrections.
-- D0 scope/results: `docs/harness/evidence/v3-source-compatibility-cleanup-2026-10-28.json`.
-- Audit coverage/gaps: `docs/harness/evidence/v3-retrospective-audit-2026-10-28.json`.
-- Partial M11 work: `docs/harness/evidence/v3-milestone-11-local-qualification-2026-10-28.json`.
-- Workbench fixture aging is corrected: 11 focused tests pass with an explicit date.
-  Production policy remains expired and fail-closed until genuinely reviewed.
-- The bounded Mac reference comparison supports retaining governed Qwen. No model or
-  numeric threshold change is approved. Reuse results instead of repeating comparisons now.
-- Windows/Linux VM testing remains user-deferred. Current Mac27.2 evidence does not
-  establish exact26 or enforced8GiB zero-swap qualification.
-- Production app/Region enrollment, signing, notarization, installed journeys and
-  public artifact checks remain late work. Hosted general CI remains absent under
-  `pre-alpha-private-no-ci`. The release decision must state retained exceptions.
-
-The master plan owns the detailed order and remaining gates. Broad qualification remains deferred.
+- Final full phases remain Stability → Performance → Security, in order, before publication.
+- Existing M11 and retrospective audit records remain partial, not current passes.
+- Native qualification follows development and freeze; this session has not run native VM tests.
+- Windows 11, Linux, exact macOS 26 and enforced 8 GiB proof remain open.
+- Production trust, signing/notarization, Region artifacts and public-download verification remain open.
+- Hosted general CI remains absent under `pre-alpha-private-no-ci`; its release decision remains open.
+- Keep governed Qwen and numeric thresholds unchanged. Workbench policy remains expired and fail-closed.

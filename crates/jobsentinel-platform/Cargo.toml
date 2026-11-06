@@ -27,6 +27,8 @@ zeroize.workspace = true
 rustix.workspace = true
 
 [target.'cfg(windows)'.dependencies]
+keyring-core.workspace = true
+windows-native-keyring-store.workspace = true
 windows-sys.workspace = true
 
 [target.'cfg(target_os = "macos")'.dependencies]
@@ -36,6 +38,7 @@ objc2-local-authentication.workspace = true
 security-framework.workspace = true
 
 [dev-dependencies]
+keyring-core.workspace = true
 serde_json.workspace = true
 
 [lints]

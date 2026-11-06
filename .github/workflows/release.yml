@@ -1,3 +1,4 @@
+# Builds draft assets, gates publication on candidate evidence, then verifies public downloads.
 name: Release
 
 on:
@@ -19,6 +20,10 @@ on:
           - macos
           - linux
 
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
 permissions: {}
 
 env:
@@ -35,6 +40,7 @@ jobs:
       version: ${{ steps.release_inputs.outputs.version }}
       tag: ${{ steps.release_inputs.outputs.tag }}
       matrix: ${{ steps.release_inputs.outputs.matrix }}
+      platforms: ${{ steps.release_inputs.outputs.platforms }}
 
     steps:
       - name: Checkout repository
@@ -105,7 +111,13 @@ jobs:
               ;;
           esac
 
+          case "$INPUT_PLATFORM" in
+            all|windows-linux) platforms='windows,macos,linux' ;;
+            *) platforms="$INPUT_PLATFORM" ;;
+          esac
+
           {
+            printf 'platforms=%s\n' "$platforms"
             printf 'version=%s\n' "$version"
             printf 'tag=v%s\n' "$version"
             printf 'matrix=%s\n' "$matrix"
@@ -379,28 +391,98 @@ jobs:
       tag: ${{ needs.release-inputs.outputs.tag }}
       version: ${{ needs.release-inputs.outputs.version }}
 
+  verify-draft-release:
+    outputs:
+      snapshot: ${{ steps.verify.outputs.snapshot }}
+    needs: [release-inputs, build-release]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      attestations: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "24.18.0"
+          package-manager-cache: false
+      - name: Verify draft assets and final phases
+        id: verify
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ needs.release-inputs.outputs.tag }}
+          RELEASE_VERSION: ${{ needs.release-inputs.outputs.version }}
+          RELEASE_PLATFORMS: ${{ needs.release-inputs.outputs.platforms }}
+          INPUT_PLATFORM: ${{ inputs.platform }}
+        run: |
+          args=()
+          if [ "$INPUT_PLATFORM" = windows-linux ]; then args+=(--local-macos); fi
+          node scripts/release/verify-public-release-assets.mjs --draft \
+            --repo "$GITHUB_REPOSITORY" --tag "$RELEASE_TAG" --expected-version "$RELEASE_VERSION" \
+            --platforms "$RELEASE_PLATFORMS" --require-supply-chain \
+            --require-phases --expected-revision "$GITHUB_SHA" --write-snapshot-output "${args[@]}"
+
   publish-release:
     needs:
       - release-inputs
       - build-release
+      - verify-draft-release
     runs-on: ubuntu-24.04
-    timeout-minutes: 5
+    timeout-minutes: 30
     environment:
       name: release
     permissions:
       contents: write
+      attestations: read
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "24.18.0"
+          package-manager-cache: false
       - name: Publish hosted release
         shell: bash
         env:
+          APPROVED_SNAPSHOT: ${{ needs.verify-draft-release.outputs.snapshot }}
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
           RELEASE_TAG: ${{ needs.release-inputs.outputs.tag }}
           RELEASE_VERSION: ${{ needs.release-inputs.outputs.version }}
+          RELEASE_PLATFORMS: ${{ needs.release-inputs.outputs.platforms }}
+          INPUT_PLATFORM: ${{ inputs.platform }}
         run: |
           set -euo pipefail
+
+          args=()
+          if [ "$INPUT_PLATFORM" = windows-linux ]; then args+=(--local-macos); fi
+          # Recheck the approved snapshot immediately before publishing.
+          node scripts/release/verify-public-release-assets.mjs --draft \
+            --repo "$GH_REPO" --tag "$RELEASE_TAG" --expected-version "$RELEASE_VERSION" \
+            --platforms "$RELEASE_PLATFORMS" --require-supply-chain \
+            --require-phases --expected-revision "$GITHUB_SHA" --expected-snapshot "$APPROVED_SNAPSHOT" "${args[@]}"
 
           gh release edit "$RELEASE_TAG" \
             --title "JobSentinel $RELEASE_VERSION" \
             --draft=false \
             --prerelease=false
+
+  verify-public-release:
+    needs: [release-inputs, publish-release]
+    permissions:
+      contents: read
+      attestations: read
+    uses: ./.github/workflows/verify-release-artifacts.yml
+    with:
+      tag: ${{ needs.release-inputs.outputs.tag }}
+      platforms: ${{ needs.release-inputs.outputs.platforms }}
+      local_macos: ${{ inputs.platform == 'windows-linux' }}
+      expected_revision: ${{ github.sha }}
+      require_windows_unsigned_label: ${{ vars.JOBSENTINEL_WINDOWS_REQUIRE_UNSIGNED_LABEL != 'false' }}

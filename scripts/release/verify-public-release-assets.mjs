@@ -1,17 +1,21 @@
 #!/usr/bin/env node
+// Verifies exact release assets, supply chain and optional final-phase evidence.
 
+import { appendFileSync } from "node:fs";
+import { verifiedSnapshot } from "./release-snapshot.mjs";
 import { createHash } from "node:crypto";
-import { createWriteStream, mkdtempSync, rmSync } from "node:fs";
+import { mkdtempSync, rmSync } from "node:fs";
 import { readFile, stat } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { basename, join, resolve } from "node:path";
-import { pipeline } from "node:stream/promises";
 import { pathToFileURL } from "node:url";
 import {
   findAgentSkillsArchiveAssets,
   validateExactAgentSkillsAssetSet,
   validateAgentSkillsArchiveContents,
 } from "./public-assets/agent-skills.mjs";
+import { createReleaseClient } from "./public-assets/client.mjs";
+import { verifyPhaseAssets } from "./phase-assets.mjs";
 import { parseArgs } from "./public-assets/options.mjs";
 
 export {
@@ -32,7 +36,6 @@ import {
   verifyGitHubAttestation,
 } from "./verify-latest-macos-release.mjs";
 
-const verifierUserAgent = "JobSentinel-public-release-verifier";
 const spdxPredicateType = "https://spdx.dev/Document/v2.3";
 const slsaPredicateType = "https://slsa.dev/provenance/v1";
 export const publicReleaseAssetSpecs = {
@@ -43,31 +46,6 @@ export const publicReleaseAssetSpecs = {
 
 export function platformSignerWorkflow(repo, platform) {
   return `${repo}/.github/workflows/release-build-${platform}.yml`;
-}
-
-function releaseApiUrl({ repo, releaseTag }) {
-  const base = `https://api.github.com/repos/${repo}/releases`;
-  return releaseTag ? `${base}/tags/${encodeURIComponent(releaseTag)}` : `${base}/latest`;
-}
-
-function githubFetchHeaders({
-  acceptJson = false,
-  token = process.env.GITHUB_TOKEN || process.env.GH_TOKEN || "",
-} = {}) {
-  const headers = {
-    "User-Agent": verifierUserAgent,
-  };
-
-  if (acceptJson) {
-    headers.Accept = "application/vnd.github+json";
-  }
-
-  const trimmedToken = token.trim();
-  if (trimmedToken) {
-    headers.Authorization = `Bearer ${trimmedToken}`;
-  }
-
-  return headers;
 }
 
 function assetNameMatchesVersion(name, expectedVersion) {
@@ -154,6 +132,14 @@ export function validateExactPublicInstallerAssetSet(release, { platforms, expec
   }
 }
 
+export function validatePublicationPlatformScope(release, platforms) {
+  const excluded = Object.keys(publicReleaseAssetSpecs).filter(platform => !platforms.includes(platform));
+  const extensions = selectedPlatformAssetExtensions(excluded);
+  if (release.assets.some(asset => selectedAssetExtension(asset.name, extensions))) {
+    throw new Error("Draft contains installers outside the advertised platform scope.");
+  }
+}
+
 export function validateWindowsUnsignedAssetLabel(asset, { requireWindowsUnsignedLabel }) {
   if (!requireWindowsUnsignedLabel) return;
 
@@ -170,31 +156,7 @@ async function sha256File(path) {
   return createHash("sha256").update(data).digest("hex");
 }
 
-async function fetchJson(url) {
-  const response = await fetch(url, {
-    headers: githubFetchHeaders({ acceptJson: true }),
-  });
-
-  if (!response.ok) {
-    throw new Error(`GitHub release lookup failed: ${response.status} ${response.statusText}`);
-  }
-
-  return await response.json();
-}
-
-async function downloadFile(url, destination) {
-  const response = await fetch(url, {
-    headers: githubFetchHeaders(),
-  });
-
-  if (!response.ok || !response.body) {
-    throw new Error(`Release asset download failed: ${response.status} ${response.statusText}`);
-  }
-
-  await pipeline(response.body, createWriteStream(destination));
-}
-
-async function verifyChecksum({ release, asset, assetPath, requireChecksum }) {
+async function verifyChecksum({ release, asset, assetPath, requireChecksum, downloadFile }) {
   const checksumAsset = findChecksumAsset(release, asset);
   if (!checksumAsset) {
     if (requireChecksum) {
@@ -206,7 +168,7 @@ async function verifyChecksum({ release, asset, assetPath, requireChecksum }) {
 
   const checksumPath = `${assetPath}.sha256`;
   console.log(`Downloading public checksum asset: ${checksumAsset.browser_download_url}`);
-  await downloadFile(checksumAsset.browser_download_url, checksumPath);
+  await downloadFile(checksumAsset, checksumPath);
 
   const expected = parseSha256Checksum(await readFile(checksumPath, "utf8"), basename(assetPath));
   const actual = await sha256File(assetPath);
@@ -259,6 +221,8 @@ async function verifySupplyChain({
   requireSupplyChain,
   requireAttestations,
   assetPaths,
+  expectedRevision,
+  downloadFile,
 }) {
   const { manifestName, sbomName } = expectedReleaseSbomNames(expectedVersion, platform);
   const manifestAsset = findReleaseAssetByName(release, manifestName);
@@ -275,9 +239,9 @@ async function verifySupplyChain({
   const manifestPath = join(tempRoot, manifestName);
   const sbomPath = join(tempRoot, sbomName);
   console.log(`Downloading public ${platform} SBOM manifest asset: ${manifestAsset.browser_download_url}`);
-  await downloadFile(manifestAsset.browser_download_url, manifestPath);
+  await downloadFile(manifestAsset, manifestPath);
   console.log(`Downloading public ${platform} SBOM asset: ${sbomAsset.browser_download_url}`);
-  await downloadFile(sbomAsset.browser_download_url, sbomPath);
+  await downloadFile(sbomAsset, sbomPath);
 
   validatePublicReleaseSupplyChain({
     manifest: JSON.parse(await readFile(manifestPath, "utf8")),
@@ -299,24 +263,26 @@ async function verifySupplyChain({
       repo,
       predicateType: slsaPredicateType,
       signerWorkflow,
+      expectedRevision,
     });
     verifyGitHubAttestation({
       artifactPath: assetPath,
       repo,
       predicateType: spdxPredicateType,
       signerWorkflow,
+      expectedRevision,
     });
   }
 }
 
-async function verifyPlatform({ release, platform, expectedVersion, options, tempRoot, assets }) {
+async function verifyPlatform({ release, platform, expectedVersion, options, tempRoot, assets, downloadFile }) {
   const assetDigests = {};
   const assetPaths = [];
 
   for (const asset of assets) {
     const assetPath = join(tempRoot, basename(asset.name));
     console.log(`Downloading public ${platform} release asset: ${asset.browser_download_url}`);
-    await downloadFile(asset.browser_download_url, assetPath);
+    await downloadFile(asset, assetPath);
 
     const assetStat = await stat(assetPath);
     if (!assetStat.isFile() || assetStat.size === 0) {
@@ -334,6 +300,7 @@ async function verifyPlatform({ release, platform, expectedVersion, options, tem
       asset,
       assetPath,
       requireChecksum: options.requireChecksum,
+      downloadFile,
     });
     assetPaths.push(assetPath);
   }
@@ -346,20 +313,22 @@ async function verifyPlatform({ release, platform, expectedVersion, options, tem
     tempRoot,
     repo: options.repo,
     requireSupplyChain: options.requireSupplyChain,
-    requireAttestations: options.requireAttestations,
+    requireAttestations: options.requireAttestations && !(options.localMacos && platform === "macos"),
     assetPaths,
+    expectedRevision: options.expectedRevision,
+    downloadFile,
   });
 
   console.log(`Public ${platform} release assets verified.`);
 }
 
-async function verifyAgentSkillsArchives({ release, expectedVersion, options, tempRoot }) {
+async function verifyAgentSkillsArchives({ release, expectedVersion, options, tempRoot, downloadFile }) {
   const assets = findAgentSkillsArchiveAssets(release, { expectedVersion });
 
   for (const asset of assets) {
     const assetPath = join(tempRoot, basename(asset.name));
     console.log(`Downloading public Agent Skills archive: ${asset.browser_download_url}`);
-    await downloadFile(asset.browser_download_url, assetPath);
+    await downloadFile(asset, assetPath);
 
     const assetStat = await stat(assetPath);
     if (!assetStat.isFile() || assetStat.size === 0) {
@@ -371,6 +340,7 @@ async function verifyAgentSkillsArchives({ release, expectedVersion, options, te
       asset,
       assetPath,
       requireChecksum: options.requireChecksum,
+      downloadFile,
     });
     validateAgentSkillsArchiveContents({
       archive: await readFile(assetPath),
@@ -384,6 +354,7 @@ async function verifyAgentSkillsArchives({ release, expectedVersion, options, te
         repo: options.repo,
         predicateType: slsaPredicateType,
         signerWorkflow: `${options.repo}/.github/workflows/release-stage.yml`,
+        expectedRevision: options.expectedRevision,
       });
     }
   }
@@ -392,7 +363,14 @@ async function verifyAgentSkillsArchives({ release, expectedVersion, options, te
 }
 
 export async function verifyPublicReleaseAssets(options) {
-  const release = await fetchJson(releaseApiUrl(options));
+  const client = createReleaseClient(options);
+  const release = await client.release();
+  const downloaded = new Map(), digests = new Map();
+  const downloadFile = async (asset, path) => {
+    if (downloaded.get(asset.id ?? asset.name) !== path) await client.download(asset, path);
+    downloaded.set(asset.id ?? asset.name, path);
+    digests.set(asset.id, await sha256File(path));
+  };
   const expectedVersion =
     options.expectedVersion ??
     (typeof release.tag_name === "string" ? release.tag_name.replace(/^v/, "") : undefined);
@@ -414,12 +392,20 @@ export async function verifyPublicReleaseAssets(options) {
       expectedAssets: [...platformAssets.values()].flat(),
     });
     validateExactAgentSkillsAssetSet(release, { expectedVersion });
+    if (options.requirePhases) validatePublicationPlatformScope(release, options.platforms);
+
+    if (options.requirePhases || options.localMacos) {
+      await verifyPhaseAssets({ release, tempRoot, downloadFile, revision: options.expectedRevision,
+        version: expectedVersion, platforms: options.platforms, localMacos: options.localMacos,
+        macosAsset: platformAssets.get("macos")?.[0] });
+    }
 
     await verifyAgentSkillsArchives({
       release,
       expectedVersion,
       options,
       tempRoot,
+      downloadFile,
     });
 
     for (const platform of options.platforms) {
@@ -429,8 +415,12 @@ export async function verifyPublicReleaseAssets(options) {
         expectedVersion,
         options,
         tempRoot,
+        downloadFile,
         assets: platformAssets.get(platform),
       });
+    }
+    if (options.requirePhases) {
+      return verifiedSnapshot(release, await client.release(), digests, options.expectedSnapshot);
     }
   } finally {
     rmSync(tempRoot, { recursive: true, force: true });
@@ -443,7 +433,11 @@ export async function main({ args = process.argv.slice(2) } = {}) {
     throw new Error("At least one platform must be specified.");
   }
 
-  await verifyPublicReleaseAssets(options);
+  const snapshot = await verifyPublicReleaseAssets(options);
+  if (options.writeSnapshotOutput) {
+    if (!snapshot || !process.env.GITHUB_OUTPUT) throw new Error("Verified snapshot output requires GITHUB_OUTPUT.");
+    appendFileSync(process.env.GITHUB_OUTPUT, `snapshot=${snapshot}\n`);
+  }
 }
 
 if (process.argv[1] && pathToFileURL(resolve(process.argv[1])).href === import.meta.url) {

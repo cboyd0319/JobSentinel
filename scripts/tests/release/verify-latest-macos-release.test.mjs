@@ -1,3 +1,4 @@
+// Exercises macOS release metadata, package labels and attestation validation.
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
@@ -5,7 +6,6 @@ import {
   findChecksumAsset,
   findMacosDmgAsset,
   findReleaseAssetByName,
-  githubFetchHeaders,
   parseArgs,
   parseSha256Checksum,
   validateReleaseSbomManifest,
@@ -15,6 +15,8 @@ import {
 
 test("latest macOS release verifier defaults to no-account public checks", () => {
   assert.deepEqual(parseArgs([]), {
+    localMacos: false,
+    expectedRevision: undefined,
     appName: "JobSentinel.app",
     assetPattern: "universal.dmg",
     expectedBundleMetadata: {
@@ -68,7 +70,9 @@ test("latest macOS release verifier supports scoped overrides", () => {
       "Example.app",
     ]),
     {
-      appName: "Example.app",
+      localMacos: false,
+    expectedRevision: undefined,
+    appName: "Example.app",
       assetPattern: "aarch64.dmg",
       expectedBundleMetadata: {
         bundleIdentifier: "com.example.project",
@@ -89,20 +93,6 @@ test("latest macOS release verifier supports scoped overrides", () => {
       smokeSeconds: 3,
     },
   );
-});
-
-test("latest macOS release verifier adds GitHub auth when a token is available", () => {
-  assert.deepEqual(githubFetchHeaders({ acceptJson: true, token: "  test-token  " }), {
-    Accept: "application/vnd.github+json",
-    Authorization: "Bearer test-token",
-    "User-Agent": "JobSentinel-macOS-release-verifier",
-  });
-});
-
-test("latest macOS release verifier omits GitHub auth without a token", () => {
-  assert.deepEqual(githubFetchHeaders({ token: "" }), {
-    "User-Agent": "JobSentinel-macOS-release-verifier",
-  });
 });
 
 test("latest macOS release verifier checks no-account asset labels", () => {

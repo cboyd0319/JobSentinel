@@ -2,11 +2,11 @@
   "schema": "jobsentinel.feature_evidence.v1",
   "feature_id": "v3-source-compatibility-cleanup",
   "behavior": "Remove pre-v3-only readers and ordinary transition names while preserving immutable v3 contracts and local data.",
-  "result": "partial",
-  "verified_at": "2026-10-29T02:58:56.447294+00:00",
-  "revision": "b521cc00a0e2deb71d4d1a3082d94fc53822f1f1",
+  "result": "passing",
+  "verified_at": "2026-10-29T03:02:00.229059+00:00",
+  "revision": "4b96e8027b1e40db5714d75f4d38d6cf9a32fbf3",
   "platform": "macOS27.2 arm64, pinned Rust1.97.1/Node24.18.0/npm12.0.1",
-  "scope": "D0 development acceptance only; broad qualification and release operations remain deferred.",
+  "scope": "D0 development acceptance. This revision is the preserved v3.0 core source cut before Next product changes; release qualification remains R1/R2.",
   "earlier_checkpoints": {
     "2349659d": "Pre-v3 classifier removal and ordinary application namespaces.",
     "46a3a84f": "Atomic encrypted-v3 bootstrap, domain namespaces and deterministic Workbench checks.",
@@ -235,7 +235,7 @@
     {
       "command": "npm run harness:check",
       "exit_status": 0,
-      "relevant_result": "State, architecture, hosted-policy, ownership and size checks passed.",
+      "relevant_result": "D0 passing/D1 single-active state, architecture, ownership and startup budgets passed.",
       "caveat": "Static development guard; no release qualification."
     },
     {
@@ -309,7 +309,5 @@
     "Actual OS update acknowledgement remains simulated in unit integration; signing/notarization/public artifacts remain R2/R3.",
     "Production Workbench policy remains expired until genuinely reviewed; no production review date was advanced."
   ],
-  "remaining": [
-    "Commit the verified credential cleanup, record its final core revision and advance canonical work selection to D1."
-  ]
+  "remaining": []
 }

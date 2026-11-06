@@ -1,3 +1,4 @@
+// Parses platform scope, draft access and final-phase verification options.
 const defaultRepo = "cboyd0319/JobSentinel";
 
 function getArgValue(args, name) {
@@ -27,7 +28,32 @@ export function parseArgs(args) {
     hasArg(args, "--require-supply-chain") ||
     !hasArg(args, "--no-require-supply-chain");
 
+  if (platforms.length === 0 || new Set(platforms).size !== platforms.length ||
+    platforms.some(platform => !["windows", "macos", "linux"].includes(platform))) throw new Error("Invalid release platform scope.");
+
+  if (hasArg(args, "--draft") && hasArg(args, "--unauthenticated")) throw new Error("Draft and unauthenticated modes conflict.");
+  if (hasArg(args, "--require-phases") && (!hasArg(args, "--draft") ||
+    !/^[a-f0-9]{40}$/.test(getArgValue(args, "--expected-revision") ?? "") ||
+    ["--no-require-checksum", "--no-require-supply-chain", "--no-require-attestations"].some(flag => hasArg(args, flag)))) {
+    throw new Error("Phase verification requires authenticated draft, source revision and all supply-chain checks.");
+  }
+
+  if (hasArg(args, "--local-macos") && (!platforms.includes("macos") ||
+    !/^[a-f0-9]{40}$/.test(getArgValue(args, "--expected-revision") ?? "") ||
+    ["--no-require-checksum", "--no-require-supply-chain", "--no-require-attestations"].some(flag => hasArg(args, flag)))) {
+    throw new Error("Local macOS verification requires source revision, phase evidence and full integrity checks.");
+  }
+
+  if ((hasArg(args, "--expected-snapshot") || hasArg(args, "--write-snapshot-output")) && !hasArg(args, "--require-phases")) throw new Error("Snapshot binding requires phase verification.");
+  if (hasArg(args, "--expected-snapshot") && !/^[a-f0-9]{64}$/.test(getArgValue(args, "--expected-snapshot") ?? "")) throw new Error("Invalid approved snapshot.");
+
   return {
+    expectedSnapshot: getArgValue(args, "--expected-snapshot"),
+    writeSnapshotOutput: hasArg(args, "--write-snapshot-output"),
+    localMacos: hasArg(args, "--local-macos"),
+    draft: hasArg(args, "--draft"),
+    requirePhases: hasArg(args, "--require-phases"),
+    expectedRevision: getArgValue(args, "--expected-revision"),
     expectedVersion: getArgValue(args, "--expected-version"),
     platforms,
     releaseTag: getArgValue(args, "--tag"),

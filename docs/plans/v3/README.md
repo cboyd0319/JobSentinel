@@ -7,9 +7,9 @@ The [Master Execution Plan](master-exec-plan.md) owns scope, sequence, decisions
 verification and handoff. Strategy references do not independently add scope.
 
 The [remaining development queue](master-exec-plan.md#remaining-development-queue)
-implements the user's 2026-10-28 reprioritization. Complete accepted code and
-cleanup before broad qualification or delivery. Earlier suggested timing in
-reference documents does not override this queue. Implementation resumed at D0 on 2026-10-28.
+owns the user-approved release-first order. Prepare and qualify the preserved v3.0
+core before resuming Next enhancements. V3.0.1 targets fixes/polish; substantial
+additions belong in v3.1+. All releases retain the three full qualification phases.
 
 ## Baseline
 

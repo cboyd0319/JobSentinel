@@ -10,21 +10,17 @@ platforms.
 ## When To Run These Checks
 
 The master plan's [remaining development queue](master-exec-plan.md#remaining-development-queue)
-owns timing. The 2026-10-28 user direction finishes all accepted engineering,
-including Next features, source cleanup and release-pipeline code, before the broad
-qualification campaign. Milestone numbers retain scope/history, not execution order.
+owns timing. The approved v3.0 core proceeds to qualification after release-critical
+engineering; Next enhancements and broad cleanup do not block it.
 
-During development, use focused compile, migration, authorization and regression
-checks needed by the changed boundary. Evaluation corpora/scorers and readiness
-scorecards are real feature development; running broad benchmarks is late assurance.
-Do not repeat full suites, installed journeys, model comparisons, signing or package
-builds merely because a coding slice finishes. Reuse valid unchanged evidence.
+Use focused regression checks while preparing the candidate. Then run the
+[Release Contract](../../developer/RELEASING.md#mandatory-final-release-phases)'s
+separate full Stability, Performance and Security phases, in order, for every release.
+Reuse evidence only while its candidate, environment and inputs remain applicable.
 
-After development freezes, qualify each intended release cut and state failed,
-unrun or deferred coverage explicitly. Keep the approved Now/Next product boundary;
-early Next development does not enlarge v3.0. Current local testing uses this Mac;
-Windows/Linux VM work remains user-deferred. All numeric limits and release safety
-requirements remain unchanged. Implementation has resumed at D0; broad qualification remains deferred.
+Windows/Linux VM work remains user-deferred, not waived. Current Mac results do
+not establish other-platform, exact macOS 26 or enforced modest-hardware coverage.
+Numeric limits and release safety requirements remain unchanged.
 
 ## Release Bar Summary
 

@@ -52,51 +52,34 @@ export function createSignedPackEnvelope({
     throw new Error("Release bytes are not canonical UTF-8");
   }
   JSON.parse(releaseText);
+  const signingBytes = Buffer.concat([
+    signingDomain, lengthBytes(Buffer.byteLength(publisherKeyId)), Buffer.from(publisherKeyId, "utf8"),
+    lengthBytes(releaseBytes.length), releaseBytes,
+  ]);
+  const signature = signReleaseBytes({ message: signingBytes, expectedPublicKeyHex, privateKeyPkcs8Base64 });
+  const envelope = Buffer.from(JSON.stringify({ schema: envelopeSchema, publisher_key_id: publisherKeyId,
+    signed_release: releaseText, signature: signature.toString("hex") }), "utf8");
+  if (envelope.length > MAX_SIGNED_PACK_BYTES) throw new Error("Signed pack exceeds the byte limit");
+  return envelope;
+}
+
+// Both release formats supply their own exact domain framing to this identity-checked signer.
+export function signReleaseBytes({ message, expectedPublicKeyHex, privateKeyPkcs8Base64 }) {
+  if (!Buffer.isBuffer(message) || !publicKeyPattern.test(expectedPublicKeyHex)) throw new Error("Invalid signing inputs");
   const privateKeyBytes = decodeBase64(privateKeyPkcs8Base64);
   try {
     const privateKey = createPrivateKey({ key: privateKeyBytes, format: "der", type: "pkcs8" });
-    if (privateKey.asymmetricKeyType !== "ed25519") {
-      throw new Error("Invalid signing key type");
-    }
+    if (privateKey.asymmetricKeyType !== "ed25519") throw new Error("Invalid signing key type");
     const publicKey = createPublicKey(privateKey);
     const publicKeyDer = publicKey.export({ format: "der", type: "spki" });
-    if (
-      publicKeyDer.length !== publicKeyPrefix.length + 32 ||
-      !publicKeyDer.subarray(0, publicKeyPrefix.length).equals(publicKeyPrefix)
-    ) {
-      throw new Error("Invalid signing public key");
-    }
-    const derivedPublicKey = publicKeyDer.subarray(publicKeyPrefix.length);
-    const expectedPublicKey = Buffer.from(expectedPublicKeyHex, "hex");
-    if (!timingSafeEqual(derivedPublicKey, expectedPublicKey)) {
+    if (publicKeyDer.length !== publicKeyPrefix.length + 32 ||
+      !publicKeyDer.subarray(0, publicKeyPrefix.length).equals(publicKeyPrefix)) throw new Error("Invalid signing public key");
+    if (!timingSafeEqual(publicKeyDer.subarray(publicKeyPrefix.length), Buffer.from(expectedPublicKeyHex, "hex"))) {
       throw new Error("Signing identity mismatch");
     }
-
-    const signingBytes = Buffer.concat([
-      signingDomain,
-      lengthBytes(Buffer.byteLength(publisherKeyId)),
-      Buffer.from(publisherKeyId, "utf8"),
-      lengthBytes(releaseBytes.length),
-      releaseBytes,
-    ]);
-    const signature = sign(null, signingBytes, privateKey);
-    if (signature.length !== 64 || !verify(null, signingBytes, publicKey, signature)) {
-      throw new Error("Signing self-verification failed");
-    }
-
-    const envelope = Buffer.from(
-      JSON.stringify({
-        schema: envelopeSchema,
-        publisher_key_id: publisherKeyId,
-        signed_release: releaseText,
-        signature: signature.toString("hex"),
-      }),
-      "utf8",
-    );
-    if (envelope.length > MAX_SIGNED_PACK_BYTES) {
-      throw new Error("Signed pack exceeds the byte limit");
-    }
-    return envelope;
+    const signature = sign(null, message, privateKey);
+    if (signature.length !== 64 || !verify(null, message, publicKey, signature)) throw new Error("Signing self-verification failed");
+    return signature;
   } finally {
     privateKeyBytes.fill(0);
   }

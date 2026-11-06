@@ -141,7 +141,7 @@ fn production_vault_key_backend_uses_expected_platform_policy() {
             vault_key_store::VaultKeyBackend::GenericKeyring
         );
         assert!(!policy.user_presence_required);
-        assert!(!policy.device_local);
+        assert_eq!(policy.device_local, cfg!(windows));
         assert!(!policy.biometry_current_set);
     }
 }

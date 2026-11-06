@@ -56,6 +56,8 @@
     "tauri-plugin-notification": "Native notifications from Rust.",
     "tauri-plugin-dialog": "Native dialogs from Rust.",
     "keyring": "OS keychain access for credentials.",
+    "keyring-core": "Builds explicit Windows device-key entries and isolated mock credential tests.",
+    "windows-native-keyring-store": "Sets Windows database and vault keys to device-local persistence while preserving existing targets.",
     "argon2": "Password hashing and key derivation.",
     "chacha20poly1305": "Authenticated encryption for local data at rest.",
     "zeroize": "Wipes secret material from memory after use.",

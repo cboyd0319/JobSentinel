@@ -3575,6 +3575,7 @@ dependencies = [
  "hex",
  "jobsentinel-security",
  "keyring",
+ "keyring-core",
  "objc2",
  "objc2-foundation",
  "objc2-local-authentication",
@@ -3585,6 +3586,7 @@ dependencies = [
  "tempfile",
  "tokio",
  "tracing",
+ "windows-native-keyring-store",
  "windows-sys 0.61.2",
  "zeroize",
 ]

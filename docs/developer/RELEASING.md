@@ -7,6 +7,109 @@ authority. GitHub-hosted release, publication, and public-verification workflows
 are manual. Their existence does not authorize dispatch, signing, upload,
 attestation, or publication.
 
+## Mandatory final release phases
+
+Standing rule, effective with v3 and every subsequent release: after feature
+engineering and candidate preparation, the final three phases before **any**
+release are **Stability, Performance, Security**, in that order. Each is a full,
+separately planned and evidenced phase with its own entry criteria, work, defect
+resolution and pass decision. This applies to major, minor, patch and prereleases.
+A quick check, combined checklist or development checkpoint cannot replace a phase.
+
+### 1. Stability
+
+Entry: engineering is complete and the candidate, advertised platforms and
+acceptance matrix are frozen. Run full applicable suites, installed user journeys,
+accessibility, persistence, migration, backup, rollback, interrupted-operation and
+failure-recovery scenarios, and sustained-use reliability checks. Resolve blocking
+defects and accept reproducible candidate-bound evidence before Performance starts.
+
+### 2. Performance
+
+Entry: Stability has passed. Measure startup, interaction and workflow latency,
+throughput, CPU, memory, disk, network and model workloads across representative
+supported hardware. Run the declared distributions and budgets, including modest
+hardware and commercial comparisons. Resolve regressions, recheck stability affected
+by optimization changes, and accept measured evidence before Security starts.
+
+### 3. Security
+
+Entry: Stability and Performance pass for the candidate. Complete the final
+threat-boundary and adversarial review, current dependency/advisory and secret
+checks, abuse/failure cases, privacy and permission verification, and supply-chain
+validation. Verify required signatures, notarization, checksums, SBOMs, attestations
+and packaged artifacts. Resolve release-blocking findings and accept security
+evidence before publication approval.
+
+The release owner records each phase's scope, commands, results, remaining risks,
+source revision and tested artifacts. Required skipped, failed or deferred work
+leaves its phase incomplete. Existing development-stage deferrals do not waive
+these release gates. Any exception requires explicit user approval and remains
+visible in the release decision; never infer approval from an earlier deferral.
+
+All three phases must pass for the intended release candidate. Subsequent changes
+invalidate affected evidence: repeat the affected phase work and downstream checks
+before publication. Signature-only changes require applicable artifact/trust checks,
+not automatic reruns of unrelated unchanged behavior. Gate 6/publication follows
+these phases; publication itself is a delivery action, not a replacement phase.
+
+Focused development checks continue while engineering is underway. These full
+phases run at the end, beginning with the v3 release.
+
+### Publication evidence gate
+
+The release workflow verifies draft assets before publication and rechecks them
+immediately after release-environment approval. It requires
+`release-evidence-phases.json` plus the referenced `release-evidence-*.json` assets.
+Upload these only after the full phases above pass; rerun the failed verification
+and dependent publication jobs without rebuilding the accepted artifacts.
+Missing evidence leaves the release draft. Never create passing placeholder records.
+
+The JSON record uses `schemaVersion: 1`, exact `version`, 40-character source
+`revision`, selected `platforms`, and `artifacts` mapping every non-evidence asset
+name to its downloaded SHA-256. Its `phases` array contains exactly `Stability`,
+`Performance`, then `Security`. Each phase records `name`, `status: "passed"`,
+`revision`, `scope`, full phase `plan`, UTC `startedAt` and `completedAt`, `remainingRisks`, and
+`commands`. A `decision` records the accepting `owner`, `rationale` and
+`acceptedAt` timestamp before the next phase starts. Each command records `command`, `platform`, `exitCode: 0`, an uploaded
+`evidence` filename and its `sha256`. Every phase covers every selected platform;
+phase intervals cannot overlap. Each proof JSON uses `schemaVersion: 1`, names its
+`phase`, repeats `revision`, `artifacts`, `command`, `platform`, `exitCode`, and
+contains nonempty captured `output`. Its `startedAt` and `completedAt` must fall
+within that phase.
+Preserve full plans, results and acceptance
+reasoning in those evidence files. Redact secrets and private data before upload.
+
+The gate checks record structure and downloaded proof hashes; it cannot establish
+that an owner ran complete, adequate phases. The release approver must inspect
+that evidence against the full phase plans before approving publication. Failed,
+skipped or deferred requirements cannot be represented as passing commands.
+Hosted installer and skills provenance must also match the exact source revision.
+
+The preapproval gate records a snapshot of the resolved tag revision, release
+identity and every asset ID, name, size, update time, API digest and content hash,
+including proofs.
+The gate rereads the inventory and tag after verification; publication must match
+the approved snapshot. Changed assets or a moved tag require fresh verification
+and approval. Draft installers outside the advertised platform scope are rejected.
+
+`windows-linux` builds verify all three platforms, including the separately
+uploaded macOS assets, with explicit `--local-macos --expected-revision <SHA>`.
+This requires all phase evidence plus `localOrigins.macos`: exact `revision`,
+`sourceClean: true`, `buildCommand`, `buildEnvironment`, and `artifacts` containing
+the DMG, its checksum, macOS SBOM and SBOM manifest hashes. Its `evidence` must
+reference a validated macOS Security command proof. The Security owner reviews
+the local build and source declaration. Public and native macOS verification
+validate the same proof before accepting local origin. Windows, Linux and skills
+still require hosted attestations; no checksum, SBOM or phase checks are waived.
+Local-origin evidence is owner-reviewed evidence, never GitHub provenance.
+Single-platform builds verify only that platform and the
+shared skills archives. Public HTTP metadata and downloads are always anonymous;
+the token is used separately for attestation lookup. The publishing workflow calls
+public verification directly because token-created release events do not trigger
+another workflow. A failed public check requires owner follow-up; it does not
+silently delete or replace a published release.
+
 ## Preconditions
 
 Before tagging, building release assets, uploading, or publishing:
@@ -17,8 +120,41 @@ Before tagging, building release assets, uploading, or publishing:
    Tauri, lockfiles, changelog, and `docs/releases/vX.Y.Z.md`.
 3. Obtain explicit authority for every external mutation: tag push, release
    creation, asset deletion, upload, publication, signing, or notarization.
-4. Use only local or explicitly authorized hosted or native runners. Workflow
+4. Before publication, complete the three [final release phases](#mandatory-final-release-phases).
+5. Use only local or explicitly authorized hosted or native runners. Workflow
    configuration is not evidence; retain the actual run and artifact evidence.
+
+## Signed Update Candidates
+
+`release:sign-update` creates the local updater's installer-adjacent
+`.manifest.json` and `.sig` files. It uses the update-candidate signature domain;
+pack envelopes are not interchangeable. Provide the exact installer and reviewed
+JSON metadata containing `version`, `minimum_source`, `maximum_source` (v3 integer
+triplets), `edition`, `compatibility` and all eight `readers` ranges from
+`crates/jobsentinel-application/src/update_preflight.rs`. No platform, architecture,
+source-version range or data-format floor is inferred from the build host.
+
+```bash
+npm run release:sign-update -- \
+  --package release-assets/public/installer.pkg --metadata candidate-spec.json \
+  --publisher-key-id RELEASE_KEY_ID --expected-public-key-hex PUBLIC_KEY_HEX \
+  --key-env AUTHORIZED_UPDATE_SIGNING_KEY
+```
+
+The authorized consuming process must receive that environment variable through
+approved secret injection; never put a private key in arguments or files. The
+producer checks the expected Ed25519 public identity, hashes the installer, and
+writes both sidecars exclusively. Existing files and symlinks are refused; failed
+pair creation removes only files created by that invocation. The installer stays
+unchanged. Metadata is limited to 64 KiB, installers to 512 MiB, and numeric input
+to exact safe integers. Supported installer extensions match the local updater:
+macOS DMG/PKG, Windows MSI/EXE, Linux DEB/RPM. AppImage is not a local-update input.
+
+Synthetic CLI output is tested through actual Rust preflight, including altered
+package, metadata and signature refusal. This establishes format interoperability,
+not native installation or release trust. Production publisher enrollment remains
+R3 Security; the application production trust registry remains empty until that
+separately authorized work. A new file pair does not grant installation authority.
 
 ## Signed Pack Releases
 
@@ -65,6 +201,8 @@ does not install, activate, publish, upload, or otherwise trust the result.
 
 ## Local Release Gate
 
+Assign these commands to the full phase plans above and retain their outcomes.
+Performance also requires the release's declared benchmarks and resource budgets.
 Run from the repository root:
 
 ```bash
@@ -193,12 +331,13 @@ After publication, verify the downloadable assets locally:
 
 ```bash
 npm run release:verify:public -- --tag vX.Y.Z --platforms windows,macos,linux
-npm run tauri:verify:macos:latest -- --tag vX.Y.Z --no-require-supply-chain
+npm run tauri:verify:macos:latest -- --tag vX.Y.Z
 ```
 
-The no-supply-chain flag is required for locally built assets because they have
-no GitHub Actions provenance. Never claim hosted provenance, SLSA attestation,
-or GitHub-generated SBOM attestation for local builds.
+For locally built macOS assets, add `--local-macos --expected-revision <SHA>` to
+both commands. This requires accepted candidate evidence while preserving all
+checksum and SBOM checks. Never claim hosted provenance, SLSA attestation or
+GitHub-generated SBOM attestation for local builds.
 
 ## Rollback
 

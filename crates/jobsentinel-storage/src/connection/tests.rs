@@ -2,6 +2,37 @@
 
 use super::*;
 
+async fn assert_corrupt_identity_preserves_files(corruption: &'static str) {
+    let root = tempfile::tempdir().unwrap();
+    let path = root.path().join("jobs.db");
+    let database = Database::connect(&path).await.unwrap();
+    sqlx::query("PRAGMA wal_autocheckpoint = 0")
+        .execute(database.pool())
+        .await
+        .unwrap();
+    sqlx::query(corruption)
+        .execute(database.pool())
+        .await
+        .unwrap();
+    // Keep the WAL open while releasing JobSentinel's process owner.
+    let pool = database.pool().clone();
+    drop(database);
+    let wal = crate::encryption::sqlite_sidecar_path(&path, "-wal");
+    let before = (std::fs::read(&path).unwrap(), std::fs::read(&wal).unwrap());
+    let error = Database::connect(&path).await.unwrap_err();
+    assert!(
+        error
+            .to_string()
+            .contains("inconsistent; requires recovery"),
+        "{error}"
+    );
+    assert_eq!(
+        before,
+        (std::fs::read(&path).unwrap(), std::fs::read(&wal).unwrap())
+    );
+    pool.close().await;
+}
+
 async fn insert_private_credential_rows(database: &Database, key: &str) {
     sqlx::query(
         "INSERT INTO secret_vault(

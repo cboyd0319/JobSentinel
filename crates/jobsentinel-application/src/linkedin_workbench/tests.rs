@@ -29,6 +29,27 @@ async fn memory_db() -> Database {
     db
 }
 
+async fn assert_unreviewed_event_denied(db: &Database) {
+    assert_ne!(
+        workbench_review_status_on(db, reviewed_date())
+            .await
+            .unwrap(),
+        LinkedInWorkbenchReviewStatus::Reviewed
+    );
+    assert!(record_reviewed_event(
+        db,
+        LinkedInWorkbenchEventInput {
+            event_type: LinkedInWorkbenchEventType::Saved,
+            title: None,
+            company: None,
+            url: None,
+            notes: None,
+        },
+    )
+    .await
+    .is_err());
+}
+
 #[tokio::test]
 async fn direct_record_without_backend_review_makes_no_durable_changes() {
     let db = unreviewed_db().await;
@@ -60,24 +81,7 @@ async fn direct_record_without_backend_review_makes_no_durable_changes() {
 async fn revoked_or_drifted_workbench_review_fails_closed() {
     let db = memory_db().await;
     assert!(revoke_workbench_review(&db).await.unwrap());
-    assert_ne!(
-        workbench_review_status_on(&db, reviewed_date())
-            .await
-            .unwrap(),
-        LinkedInWorkbenchReviewStatus::Reviewed
-    );
-    assert!(record_reviewed_event(
-        &db,
-        LinkedInWorkbenchEventInput {
-            event_type: LinkedInWorkbenchEventType::Saved,
-            title: None,
-            company: None,
-            url: None,
-            notes: None,
-        },
-    )
-    .await
-    .is_err());
+    assert_unreviewed_event_denied(&db).await;
 
     remember_workbench_review_on(&db, reviewed_date())
         .await
@@ -85,24 +89,7 @@ async fn revoked_or_drifted_workbench_review_fails_closed() {
     let mut drifted = crate::source_governance::linkedin_workbench_policy().unwrap();
     drifted.revision += 1;
     db.upsert_source_policy(&drifted).await.unwrap();
-    assert_ne!(
-        workbench_review_status_on(&db, reviewed_date())
-            .await
-            .unwrap(),
-        LinkedInWorkbenchReviewStatus::Reviewed
-    );
-    assert!(record_reviewed_event(
-        &db,
-        LinkedInWorkbenchEventInput {
-            event_type: LinkedInWorkbenchEventType::Saved,
-            title: None,
-            company: None,
-            url: None,
-            notes: None,
-        },
-    )
-    .await
-    .is_err());
+    assert_unreviewed_event_denied(&db).await;
 }
 
 #[tokio::test]
