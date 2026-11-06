@@ -152,8 +152,11 @@ macOS DMG/PKG, Windows MSI/EXE, Linux DEB/RPM. AppImage is not a local-update in
 
 Synthetic CLI output is tested through actual Rust preflight, including altered
 package, metadata and signature refusal. This establishes format interoperability,
-not native installation or release trust. Production publisher enrollment remains
-R3 Security; the application production trust registry remains empty until that
+not native installation or release trust. The user approved public update-trust
+enrollment first, source freeze second, then building/signing exact unpublished
+3.0.0/3.0.1 qualification artifacts before installed R1 journeys. Final full R3
+Security remains after R2.
+The application production trust registry remains empty until that
 separately authorized work. A new file pair does not grant installation authority.
 
 ## Signed Pack Releases

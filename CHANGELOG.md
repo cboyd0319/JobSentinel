@@ -14,11 +14,30 @@ supported path is user-opened search links plus user-clicked Browser Import.
 
 ## [Unreleased]
 
+## [3.0.0] - Draft
+
+Unpublished core candidate. Full Stability, Performance and Security qualification
+and publication approval remain pending. See the [draft release notes](docs/releases/v3.0.0.md)
+for scope, compatibility and distribution limits.
+
+### Added
+
+- Opportunity Cases and daily mission connect local job, resume-fit, application and follow-up evidence.
+- Employer dossiers separate saved observations, source freshness and unknowns without background employer
+  research.
+- Encrypted portable backups, staged recovery, reviewed plaintext export and safe support reports provide
+  distinct local-data controls.
+- Regional search and pay guidance, reviewed first-run choices and optional governed model setup support broader
+  job searches.
+
 ### Changed
 
-- Development source metadata and the compiled signed-pack runtime now identify
-  `3.0.0`. This source line is not published; `v2.9.5` remains the latest
-  public release.
+- Source metadata targets `3.0.0`. The approved core excludes deferred enhancements, including shared-computer
+  mode and portable distribution.
+- Breaking: startup refuses pre-v3, unmarked and plaintext databases. Preserve original profiles and backups. No
+  v2 migration path is qualified.
+- Release tooling gates publication on candidate-bound phase and artifact evidence and produces signed update
+  sidecars. Production trust remains unenrolled.
 
 ## [2.9.5] - 2026-07-18
 

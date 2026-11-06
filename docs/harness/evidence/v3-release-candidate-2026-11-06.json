@@ -4,9 +4,9 @@
   "behavior": "Prepare the preserved v3.0 core with required shared fixes and release engineering, keeping Next enhancements outside the candidate.",
   "result": "partial",
   "verified_at": "2026-11-06T13:24:03.154390+00:00",
-  "revision": "4b96e8027b1e40db5714d75f4d38d6cf9a32fbf3 plus uncommitted candidate changes",
+  "revision": "4c811f5a11adcef19fab68229ff47fa1e1d669b7 (engineering baseline)",
   "platform": "macOS 27.2 arm64; Rust 1.97.1; Node 24.18.0; npm 12.0.1",
-  "scope": "Development engineering and local verification complete for reviewed working changes; commit, freeze and release qualification remain pending.",
+  "scope": "Reviewed development engineering committed and locally verified; R1 planning is active, source freeze and release qualification remain pending.",
   "preserved_enhancement_revision": "299779fb4cd1aea0cee9d1c4956fa4f40ba26581",
   "changes": [
     "Release-first scope recorded in the master plan and canonical state; Next work stays on feat/v3-major-line.",
@@ -19,7 +19,7 @@
     "Isolated the reconnect test in an owned temporary directory and closed its pool before cleanup; production recovery refusal is unchanged."
   ],
   "pending": [
-    "Obtain local commit approval, then record the already-authorized candidate freeze and begin R1 Stability.",
+    "Complete approved update-trust preparation, then record the frozen source and begin Stability; draft release metadata is prepared.",
     "Run separate full Stability, Performance and Security phases for the frozen candidate; no phase has passed.",
     "Complete native Windows 11, Linux, exact macOS 26 and enforced 8 GiB qualification after development; current Mac checks do not establish these.",
     "Complete production trust/enrollment/signing, Region artifacts, packaged update compatibility, checksums, SBOMs, attestations and public-download proof.",
@@ -204,5 +204,12 @@
       "scope": "Nine Windows-key paths; no supported source defect found.",
       "gap": "Native Windows compilation/runtime and disposable Enterprise-to-Local persistence readback remain required during qualification."
     }
-  ]
+  ],
+  "integration_commit": "4c811f5a11adcef19fab68229ff47fa1e1d669b7",
+  "r1_plan": {
+    "owner": "docs/plans/v3/evaluation-and-release-bar.md#r1-stability-plan",
+    "status": "draft; not frozen or executed",
+    "commit_authority": "Scoped local commits are authorized; freeze follows prerequisite resolution.",
+    "evidence": "Record actual source SHA, artifacts and phase results externally after the accepted planning commit; never invent an unborn commit SHA."
+  }
 }

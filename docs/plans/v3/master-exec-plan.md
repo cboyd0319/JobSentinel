@@ -466,7 +466,9 @@ Owner: Existing Rust schema/evaluation owners, regional/source facts, documentat
 
 - Finish missing signed-candidate/catalog metadata producers and release CLI code
   using fixture identities. Reuse existing pack signing and verification owners;
-  production identity enrollment/signing still waits for R3 Security.
+  the user approved public update-trust enrollment before freeze, then building/signing
+  exact unpublished qualification artifacts before installed R1 journeys. Final full R3
+  Security and OS distribution signing stay last.
 - Implement the remaining release-pipeline code: blocking authenticated draft-asset
   verification, correct platform scoping and explicit unauthenticated public verification.
 - Complete necessary scenario/scorer/evidence and narrow budget instrumentation for
@@ -510,7 +512,8 @@ owns the full scope and evidence rules for every release, including patches and 
 
 Only then may Gate 6 authorize publication and public-download verification.
 Failed, skipped or deferred required coverage remains incomplete.
-Windows/Linux VM work remains user-deferred; obtain authority when needed.
+Local Mac and the running Windows 11 VM are authorized for testing; runner safety remains required.
+Linux provisioning awaits a concrete scope; no platform requirement is waived.
 This Mac cannot establish exact macOS 26 or enforced 8 GiB, zero-swap qualification.
 
 ## Orchestration
@@ -939,7 +942,9 @@ claims are historical, not fresh verification. Current state is in Handoff.
 - Core fixes and release engineering are reviewed; the pinned-runtime full development gate passed.
   [Preparation evidence](../../harness/evidence/v3-release-candidate-2026-11-06.json)
   retains results, review scope and earlier interrupted or failed runs.
-- Integration is uncommitted on `agent/goal-v3-baseline`; obtain local commit approval, then record the freeze.
+- Engineering baseline `4c811f5a` is committed on `agent/goal-v3-baseline`.
+- The [R1 plan](evaluation-and-release-bar.md#r1-stability-plan) owns the frozen matrix and acceptance work.
+  Complete approved update-trust preparation before recording the freeze; draft release metadata is prepared.
 - Work only on `v3-release-candidate`; the release-first queue above owns the next slice.
 - Preserve the enhancement branch and its development acceptance. Do not resume P08/N15 for v3.0.
 - Retain M11 partial evidence and the governed Qwen decision; no new model or relaxed threshold is approved.

@@ -18,9 +18,192 @@ Use focused regression checks while preparing the candidate. Then run the
 separate full Stability, Performance and Security phases, in order, for every release.
 Reuse evidence only while its candidate, environment and inputs remain applicable.
 
-Windows/Linux VM work remains user-deferred, not waived. Current Mac results do
-not establish other-platform, exact macOS 26 or enforced modest-hardware coverage.
+Local Mac and the running Windows 11 VM are authorized for testing after development.
+Runner safety and availability remain prerequisites; no platform coverage is waived.
+Current Mac results do not establish other-platform, exact macOS 26 or modest-hardware coverage.
 Numeric limits and release safety requirements remain unchanged.
+
+## R1 Stability Plan
+
+The release coordinator owns execution and the pass decision. Engineering baseline
+`4c811f5a` passed development verification; it is not an R1 pass. Resolve the
+trusted-update prerequisite below before freeze. Once resolved,
+record the accepted planning commit's actual full SHA externally before building or
+testing. A draft plan is not a source freeze; do not guess the SHA or move source during R1.
+Keep the approved v3.0 core, Gate 5 cut, 105 Now / 82 Next dispositions and governed
+Qwen models unchanged; Next consumers remain outside this candidate.
+
+### Entry and evidence
+
+Entry requires the reviewed engineering baseline, this platform/acceptance matrix,
+the committed source SHA and a credential-isolated runner for each executed row.
+Draft v3.0.0 release notes and changelog metadata are prepared under the Release Contract;
+validate them before package builds. The release remains unpublished.
+Missing runners block their rows, not independent work on an available runner.
+Use synthetic data in disposable app storage; never test against the user's live store.
+Retain exact tool versions, source tree, OS/architecture, fixture hashes, commands,
+exit codes, UTC start/end times, installer hashes and observed outcomes.
+
+Set `EVIDENCE_ROOT` to an external directory for the frozen SHA. Keep `r1/commands.json`,
+`r1/platforms.json`, `r1/journeys.json`, `r1/recovery.json`, `r1/accessibility.json`,
+`r1/sustained-use.json` and `r1/decision.json` there, with raw logs/artifact manifests
+alongside them. Each scenario records expected/observed behavior, platform and artifact
+identity, result and unresolved gap. Failed/blocked/skipped records remain explicit.
+The Release Contract owns the eventual publication-proof schema; do not fabricate
+passing records or upload these working records before qualification is accepted.
+
+### Frozen platform matrix
+
+The advertised target set follows the release workflow; unavailable rows are not dropped.
+
+| Qualification row | Candidate artifact and required execution | Available evidence and prerequisite |
+| --- | --- | --- |
+| macOS 26+ arm64 | Universal DMG/app; installed arm64 journeys, vault, OS fallback and recovery | Local macOS 27.2 arm64/64 GiB is authorized; it does not prove exact macOS 26 or constrained memory. |
+| macOS 26+ x86_64 slice | Same universal artifact; exercise the x86_64 slice on macOS where supported | Rosetta availability is unverified. Record translation explicitly; require additional hardware only for a claim translation cannot establish. |
+| Windows 11, x86_64 installers | MSI and NSIS; install/uninstall, Windows workflows, key persistence and recovery | Authorized ARM64 Windows 11 VM can exercise x64 installers under OS translation. Record that limit; its 10 GiB and pagefile do not prove 8 GiB zero-swap. |
+| Linux x86_64 | AppImage and Debian package; installed journeys, vault/passphrase fallback and recovery | No local Linux runner. Define a concrete VM scope before any provisioning; conditional willingness is not an executed environment. |
+| Enforced modest hardware | Complete model-free Essentials journey and persistence on an enforced 8 GiB zero-swap profile | No current qualifying profile. R1 proves functional reliability; R2 measures the unchanged numeric budgets below. |
+
+The Windows guest-agent executes as SYSTEM and is not an approved repository test
+launcher. Before Windows execution, establish a supported credential-isolated user
+launcher, bounded filesystem/network/share access, pinned Node/npm/Rust and native
+MSVC/SDK tools. Existing restricted account names and PATH probes do not prove this.
+This plan adds no VM provisioning or hosted dispatch authority. Existing local
+Mac/Windows testing and the explicit update-identity authorization below remain in force.
+
+### Approved update-trust preparation
+
+The user approved creating/storing `jobsentinel-update-publisher-v1` in the project
+1Password environment, enrolling only its public key, and signing exact unpublished
+3.0.0/3.0.1 qualification artifacts before installed R1 journeys. Enroll and verify
+public trust first, freeze source second, then build and sign the exact artifacts.
+Final full R3 Security still follows R2. Approval is not execution evidence.
+
+| Input | Approved scope and remaining preparation |
+| --- | --- |
+| Public registry | `crates/jobsentinel-application/src/update_preflight/review.rs`, `ReleasePublisher::production_trust()`, currently empty; enroll only approved public ID/key/revocation metadata. |
+| Publisher identity | Approved `jobsentinel-update-publisher-v1`; enrollment is not yet complete. This is distinct from pack publisher identities and the public test seed. |
+| Concealed signing variable | Proposed `JOBSENTINEL_UPDATE_PRIVATE_KEY_PKCS8_B64`; the CLI accepts a caller-selected `--key-env`, and no production update variable is currently defined. |
+| Secret-store inputs | Operator-selected 1Password Developer Environment ID, approved concealed Ed25519 PKCS#8 base64 variable, matching raw 32-byte public-key hex, publisher ID and authority to use it for the exact qualification artifact. No secret values enter evidence or the repository. |
+| First artifact target | A macOS aarch64 Essentials v3.0.0 DMG from the eventual frozen candidate, with exact checksum and adjacent `.manifest.json`/`.sig`; use reviewed `macos`/`aarch64` edition and compatibility/readers metadata. Universal first-install artifacts do not imply a universal update-manifest architecture. |
+| Positive-path counterpart | Qualification-only 3.0.1 build from the same code with a coherent version-only metadata/lock delta in a separate checkout; not published or substituted for the 3.0.0 candidate. This version-only preparation is authorized. |
+
+The signing consumer is `npm run release:sign-update` with exact package/spec paths,
+`--publisher-key-id`, `--expected-public-key-hex` and the approved `--key-env` name.
+Load the installed 1Password skill and host execution gate before any eventual secret
+operation. Keep private material concealed and injected only into the approved consuming
+process; no key file, command argument or repository value. Enrollment changes the
+source candidate, so review/verify it before freezing. This preparation is not an R3 pass.
+
+### Proposed installed update/rollback route
+
+Same-version repair is not a substitute: `connection/update_journal.rs` rejects equal
+source/target versions and requires the source version to match the running build.
+`update_preflight/startup.rs` authenticates the signed target edition/version against
+the actual running binary. Changing only a manifest version cannot satisfy this contract.
+
+After the approved trust preparation is verified:
+
+1. Build the frozen 3.0.0 candidate and the separately identified 3.0.1 counterpart for
+   macOS/aarch64. Keep both no-account DMGs and app bundles under external
+   `r1/update/artifacts/candidate/` and `r1/update/artifacts/counterpart/`; record both
+   source trees, version-only diff, coherent Cargo/npm/Tauri/lock versions and checksums.
+2. Produce exact signed sidecars for each real DMG. The 3.0.1 target accepts source
+   `[3,0,0]`; the 3.0.0 rollback target accepts source `[3,0,1]`. Both require matching
+   Essentials/macOS/aarch64 identity. Derive compatibility and all eight reader ranges
+   from the Rust inventory, not fixture guesses. Current code owns database schema 2,
+   migrations through 34 and backup/export format 1; verify those actual installed values.
+   Keep migration files/checksums unchanged in the version-only counterpart, so its
+   data remains readable by the candidate. Do not claim new-format migration from this run.
+3. Use the existing macOS package-smoke data contract: a temporary
+   `jobsentinel-macos-smoke-` root and one ephemeral database key held across relaunches.
+   Reuse `macos-package-contract.mjs` launch/redaction helpers under verified process
+   isolation; they redirect app/config data and configure incognito app views. This
+   isolates synthetic user data; it does not override the update publisher registry.
+4. Install/copy and launch the actual 3.0.0 app in task-owned storage, create synthetic
+   records, then use the real reviewed local-update UI to select/apply the signed
+   3.0.1 DMG. Complete the real installer handoff in the task-owned app location,
+   restart 3.0.1 with the same isolated data root/key, and verify journal completion,
+   displayed version, exact records and backup state. Do not replace the live user app.
+5. From the actual 3.0.1 app, review/apply the signed frozen 3.0.0 DMG, complete the
+   native handoff and restart the actual candidate using the same isolation. Confirm
+   rollback labeling, authenticated startup, unchanged data and retry/repair behavior.
+   Record both artifact identities; any inaccessible OS step remains a gap.
+
+Both binaries need the approved public update identity. The only secret signing input
+is consumed by the separately authorized signer; no production key enters either build
+or installed test. This authorized route has not been executed.
+
+### Automated lane
+
+Run from the frozen checkout in verified isolation with the repository-pinned tools.
+Use `pwsh -File ./init.ps1` instead of `./init.sh` on Windows. Capture every command's
+output and exit code under `EVIDENCE_ROOT/r1`; do not infer a pass from a wrapper starting.
+
+```bash
+./init.sh
+npm run clean:generated
+npm run release:check-version -- v3.0.0
+npm run verify:full
+npm run lint:sqlx
+npm run test:e2e:all:budget
+node scripts/dev/run-cargo.mjs clippy --workspace --all-features -- -D warnings
+node scripts/dev/run-cargo.mjs test --workspace --all-features
+```
+
+The full gate includes default Rust tests, frontend/script checks, builds and Chromium
+smoke; the explicit commands add all-browser and shipped embedded-ML feature coverage.
+Inventory ignored tests and bind each required native/model scenario to an attended,
+scoped execution or a remaining gap; never enable all ignored tests indiscriminately.
+Use current governed model caches where available; absence does not justify a model swap.
+Development results and the 21 historical default-suite skips are context, not R1 passes.
+
+Build and inspect the selected artifacts using the exact commands in the
+[Native Platform Assets](../../developer/RELEASING.md#native-platform-assets) contract:
+Mac universal build plus launch/install smoke, Windows MSI/NSIS build, Linux AppImage/DEB
+build and package inspection. Record source SHA and package hashes before installation.
+Keep no-account/unsigned labels truthful; final signature/notarization and supply-chain
+acceptance belongs to R3. Approved update signatures are a separate pre-R1 prerequisite.
+
+### Installed acceptance matrix
+
+Execute each applicable row on the advertised OS/artifact combinations above. Cover every
+shipped click/action using [End-To-End User Scenarios](#end-to-end-user-scenarios);
+unsupported optional integrations must show their documented fallback.
+
+| Row | Required scenarios | Pass evidence |
+| --- | --- | --- |
+| Essentials and core workflows | Fresh model-free setup without accounts; public source check; visible browser import; synthetic civilian/veteran resume; deterministic matching; packet review; tracking/reminders; interview/pay review; support report | All scenario expectations pass, final user review is preserved, records survive restart, and support output omits synthetic private markers. |
+| Installed platform and optional components | Native file picker/drop, deep links, notifications, permissions, browser companion, vault/fallback; governed model setup/removal and unavailable-model behavior; pack/Region lifecycle | Installed behavior and unavailable-platform fallback match the shipped surface; no fixture-only substitute for native claims. |
+| Persistence and portability | Save/relaunch; export/import; encrypted backup/restore; settings and component removal; offline reopen | Record identities, counts and selected synthetic values remain correct; removed components stay removed and user data is preserved. |
+| Migration and rollback | Fresh v3.0.0 baseline; supported v3.x migration with backup; compatible rollback; unsupported-newer/pre-v3 refusal; failed migration retry | Accepted paths preserve data; rejected paths preserve primary/WAL/backup state and provide usable recovery/support output. |
+| Interrupted and failed operations | Cancel import/download; kill/restart during import, migration and update/restore; unavailable source/network/model/vault; corrupt/incomplete backup or package | No silent loss, duplicate durable action or unusable half-state; retry/repair works with explicit user review. |
+| Installed update workflow | Review/cancel/refuse untrusted or incompatible package; positive trusted update and compatible rollback on disposable data | Actual native execution, restart and preserved data are proven. CLI-to-Rust fixtures do not establish this row. Candidate-valid trusted artifacts remain a prerequisite; no trust enrollment is implied. |
+| Accessibility and usability | Keyboard-only and screen-reader journeys; focus after dialogs/errors; empty/loading/error states; narrow width, high zoom, reduced motion and novice tasks | Every shipped action is reachable and understandable; no focus trap, unlabeled control or obscured required action. Record reader/browser/OS versions and observations. |
+| Sustained use | Synthetic working-day run per supported OS; eight hours is proposed, with duration selected and recorded from risk before execution. Repeat the core save/import/track cycle, cancel/retry one failed operation, and restart twice | No unexpected crash, hang, unhandled error or data mismatch; final restart and backup/restore succeed. This protocol makes no performance-budget claim. |
+
+The trusted-update prerequisite blocks freeze: `ReleasePublisher::production_trust()`
+is empty in `update_preflight/review.rs`; the desktop review command refuses before
+file selection, and target startup also requires production trust. The only injected
+publisher path is a test-only coordinator with a simulated installer launcher.
+The master plan currently reserves production enrollment/signing for R3, while M11
+requires actual positive native update/rollback. Resolve this sequencing decision
+before freezing: production trust and candidate-valid qualification artifacts must
+exist before that R1 row can pass, with separately authorized enrollment/signing.
+Formal R3 acceptance still follows R2. No such authority or alternate installed route
+is established here; do not add fixture trust, a smoke bypass or a passing exception.
+
+### Exit and change handling
+
+R1 passes only after all required matrix rows and applicable suites pass for the exact
+frozen source/artifacts, blocking defects are resolved and the coordinator accepts the
+recorded evidence and remaining risks. Missing native hardware, ignored required cases,
+failed recovery, unavailable trust or deferred rows leave R1 incomplete; no R2 starts.
+If a correction is required, record the defect and new source/artifact identity, then
+repeat affected checks and downstream evidence under the Release Contract. Do not keep
+calling an edited candidate frozen. R2 budgets/commercial comparisons and full R3
+security/trust/supply-chain work remain separately planned phases, not passes inferred
+from R1 or from this development checkpoint.
 
 ## Release Bar Summary
 
@@ -281,10 +464,10 @@ Use real novice-user tasks, not only component snapshots.
 
 ## Cross-Platform Verification
 
-Current execution scope, approved by the user on 2026-10-28: run local testing
-directly on the existing Mac; plan Windows/Linux VM testing later. Those matrix
-rows remain deferred, never passed by proxy. Record this limitation in Gate 6
-evidence before publication; frozen thresholds remain unchanged.
+The current execution scope and runner gaps are frozen in the [R1 matrix](#frozen-platform-matrix).
+Local Mac and running Windows 11 VM testing are authorized after development; Linux
+provisioning needs a concrete scope. Missing native rows remain open, never passed by
+proxy. Record these limitations in Gate 6 evidence; frozen thresholds remain unchanged.
 
 Required platform checks:
 

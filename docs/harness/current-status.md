@@ -11,8 +11,9 @@ Last updated: 2026-11-06
 - Development resumed; approved core fixes and release engineering are reviewed and locally verified.
 - Follow the approved [release-first queue](../plans/v3/master-exec-plan.md#remaining-development-queue).
 - Candidate: `feat/v3-release-candidate`, based on core `4b96e802`.
-- Verified integration: `agent/goal-v3-baseline`; changes remain uncommitted.
-- Next: obtain local commit approval, record the authorized candidate freeze, then begin R1 Stability.
+- Engineering baseline: `4c811f5a`, committed on `agent/goal-v3-baseline`.
+- Next: resolve the [R1 freeze prerequisites](../plans/v3/evaluation-and-release-bar.md#r1-stability-plan),
+  record the frozen source SHA externally, then begin Stability.
 - [Preparation evidence](evidence/v3-release-candidate-2026-11-06.json)
   records the passing full development gate, reviews and earlier interrupted or failed runs.
 
@@ -28,7 +29,7 @@ Last updated: 2026-11-06
 
 - Final full phases remain Stability → Performance → Security, in order, before publication.
 - Existing M11 and retrospective audit records remain partial, not current passes.
-- Native qualification follows development and freeze; this session has not run native VM tests.
+- R1 planning is active; no final release phase or native VM test has passed.
 - Windows 11, Linux, exact macOS 26 and enforced 8 GiB proof remain open.
 - Production trust, signing/notarization, Region artifacts and public-download verification remain open.
 - Hosted general CI remains absent under `pre-alpha-private-no-ci`; its release decision remains open.
