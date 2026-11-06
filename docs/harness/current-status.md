@@ -12,9 +12,10 @@ Last updated: 2026-11-06
 - Follow the approved [release-first queue](../plans/v3/master-exec-plan.md#remaining-development-queue).
 - Candidate: `feat/v3-release-candidate`, based on core `4b96e802`.
 - Engineering baseline: `4c811f5a`, committed on `agent/goal-v3-baseline`.
-- Update-publisher public trust is enrolled, independently reviewed and full-gate verified.
-- Next: accept the prepared source, record its frozen SHA externally, then follow the
-  [R1 plan](../plans/v3/evaluation-and-release-bar.md#r1-stability-plan).
+- Update and Region public trust are enrolled, independently reviewed and full-gate verified.
+- User requested a pause after committing and pushing this verified checkpoint.
+- Resume: accept and freeze the prepared source, record its SHA externally, then follow
+  the [R1 plan](../plans/v3/evaluation-and-release-bar.md#r1-stability-plan).
 - [Preparation evidence](evidence/v3-release-candidate-2026-11-06.json)
   records the passing full development gate, reviews and earlier interrupted or failed runs.
 

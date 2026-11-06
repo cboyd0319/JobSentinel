@@ -14,10 +14,10 @@ use crate::{
 };
 
 #[test]
-fn production_trust_contains_only_the_five_approved_publishers() {
+fn production_trust_contains_only_the_six_approved_publishers() {
     let publishers = production_trusted_publishers();
 
-    assert_eq!(publishers.len(), 5);
+    assert_eq!(publishers.len(), 6);
     assert_eq!(
         publishers
             .iter()
@@ -29,6 +29,7 @@ fn production_trust_contains_only_the_five_approved_publishers() {
             "jobsentinel-evaluation-publisher-v1",
             "jobsentinel-evidence-reviewer-publisher-v1",
             "jobsentinel-packet-builder-publisher-v1",
+            "jobsentinel-region-publisher-v1",
         ]
     );
     assert!(publishers.iter().all(|publisher| !publisher.revoked));
@@ -68,6 +69,11 @@ fn production_public_keys_and_fingerprints_match_the_approved_identities() {
             "3385e840b859e6a8afb60baf03d145c097a52be69a612397bd3570a84d9a750d",
             "7a78e4dc5fd257f494d6c9d94948aa4a5169d0e3a1e41248c90acb2b0979d5c3",
         ),
+        (
+            "jobsentinel-region-publisher-v1",
+            "40af9fa56f534a138f6ecc2efef81d912b5e3131511f2b282bd88bf69b1bd8fd",
+            "e5a9748716b7e58c84671d29c7d94073adec2d1f197638312a1bdcf5b6b51b2e",
+        ),
     ];
 
     for (publisher_key_id, public_key_hex, fingerprint) in expected {
@@ -90,6 +96,7 @@ fn production_publishers_have_the_approved_exact_authority_ceilings() {
         ("jobsentinel-source-publisher-v1", PackType::Source),
         ("jobsentinel-skill-publisher-v1", PackType::Skill),
         ("jobsentinel-evaluation-publisher-v1", PackType::Evaluation),
+        ("jobsentinel-region-publisher-v1", PackType::Region),
     ] {
         let publisher = publishers
             .iter()
@@ -157,6 +164,48 @@ async fn production_staging_rejects_a_valid_nonproduction_publisher() {
         .get_pack_stream(super::PUBLISHER_ID, super::PACK_ID)
         .await
         .is_err());
+}
+
+#[tokio::test]
+async fn production_region_staging_rejects_fixture_signatures_even_with_enrolled_id() {
+    use jobsentinel_domain::signed_packs::parse_signed_pack_release;
+
+    let database = jobsentinel_storage::Database::connect_memory()
+        .await
+        .unwrap();
+    database.migrate().await.unwrap();
+    let data_dir = tempfile::tempdir().unwrap();
+    let runtime = PackRuntimeEnvironment::for_data_dir(data_dir.path());
+    let (mut fixture_key, original) = super::signed_region_pack(1);
+    let release = parse_signed_pack_release(&original, std::slice::from_ref(&fixture_key))
+        .expect("valid synthetic Region fixture");
+    let mut manifest = release.manifest().clone();
+    for identity in [
+        super::REGION_PUBLISHER_ID,
+        "jobsentinel-region-publisher-v1",
+    ] {
+        fixture_key.publisher_key_id = identity.into();
+        manifest.publisher_key_id = identity.into();
+        let envelope = super::signed_envelope(
+            [11; 32],
+            identity,
+            super::REGION_PACK_ID,
+            1,
+            &manifest,
+            release.payload(),
+            "Synthetic Region trust rejection",
+        );
+        assert!(parse_signed_pack_release(&envelope, std::slice::from_ref(&fixture_key)).is_ok());
+        assert!(
+            stage_production_pack_artifact(&database, &runtime, &envelope)
+                .await
+                .is_err()
+        );
+        assert!(database
+            .get_pack_stream(identity, super::REGION_PACK_ID)
+            .await
+            .is_err());
+    }
 }
 
 fn assert_agent_ceiling(

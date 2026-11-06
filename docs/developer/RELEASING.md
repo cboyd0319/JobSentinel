@@ -164,8 +164,9 @@ A new file pair does not grant installation authority.
 ## Signed Pack Releases
 
 Pack signing is local-only. Production private keys stay concealed in the
-dedicated 1Password Developer Environment and must never be copied into the
-repository, a command argument, a key file, or a dotenv file. The compiled
+dedicated 1Password Developer Environment, except the approved Region identity in
+the concealed “JobSentinel Region Publisher v1” item in the Private vault. Never copy
+private keys into the repository, a command argument, a key file, or a dotenv file. The compiled
 public identities and exact authority ceilings in
 `crates/jobsentinel-application/src/pack_runtime/trust.rs` are authoritative.
 
@@ -176,6 +177,15 @@ public identities and exact authority ceilings in
 | Evaluation | `jobsentinel-evaluation-publisher-v1` | `JOBSENTINEL_EVALUATION_PRIVATE_KEY_PKCS8_B64` |
 | Evidence Reviewer | `jobsentinel-evidence-reviewer-publisher-v1` | `JOBSENTINEL_EVIDENCE_REVIEWER_PRIVATE_KEY_PKCS8_B64` |
 | Packet Builder | `jobsentinel-packet-builder-publisher-v1` | `JOBSENTINEL_PACKET_BUILDER_PRIVATE_KEY_PKCS8_B64` |
+
+The Region publisher is `jobsentinel-region-publisher-v1`, restricted to static,
+LocalOnly Region content with empty capabilities and no external AI. Its approved
+public-key enrollment precedes source freeze; exact UK/EU/India starter artifacts
+are built and signed from the frozen inputs before positive installed R1 lifecycle
+journeys. Final full R3 Security stays after R2. Its vault-item credential is injected
+only into a caller-selected `--key-env` variable for `release:sign-pack`; the existing
+five identities retain the Environment route below. No secret references belong in
+repository records.
 
 Set `JOBSENTINEL_1PASSWORD_ENVIRONMENT_ID` only in the operator's local shell.
 Then sign an exact release JSON file with the matching ID, concealed-variable

@@ -11,7 +11,7 @@ use jobsentinel_domain::{
 };
 
 pub(crate) fn production_trusted_publishers() -> &'static [TrustedPublisherKey] {
-    static PUBLISHERS: OnceLock<[TrustedPublisherKey; 5]> = OnceLock::new();
+    static PUBLISHERS: OnceLock<[TrustedPublisherKey; 6]> = OnceLock::new();
     PUBLISHERS.get_or_init(|| {
         [
             static_publisher(
@@ -43,6 +43,15 @@ pub(crate) fn production_trusted_publishers() -> &'static [TrustedPublisherKey] 
             ),
             evidence_reviewer_publisher(),
             packet_builder_publisher(),
+            static_publisher(
+                "jobsentinel-region-publisher-v1",
+                [
+                    0x40, 0xaf, 0x9f, 0xa5, 0x6f, 0x53, 0x4a, 0x13, 0x8f, 0x6e, 0xcc, 0x2e, 0xfe,
+                    0xf8, 0x1d, 0x91, 0x2b, 0x5e, 0x31, 0x31, 0x51, 0x1f, 0x2b, 0x28, 0x2b, 0xd8,
+                    0x8b, 0xf6, 0x9b, 0x1b, 0xd8, 0xfd,
+                ],
+                PackType::Region,
+            ),
         ]
     })
 }

@@ -95,6 +95,13 @@ operation. Keep private material concealed and injected only into the approved c
 process; no key file, command argument or repository value. Enrollment changes the
 source candidate, so review/verify it before freezing. This preparation is not an R3 pass.
 
+The user also approved one Region publisher and exact qualification signing.
+[Signed Pack Releases](../../developer/RELEASING.md#signed-pack-releases) owns its
+static authority ceiling and concealed vault-item route. Review and verify Region
+public trust before freeze, then build/sign the existing UK/EU/India starter inputs
+before positive installed Region lifecycle journeys. This adds no new product scope
+or R3 pass; source freeze remains pending.
+
 ### Proposed installed update/rollback route
 
 Same-version repair is not a substitute: `connection/update_journal.rs` rejects equal

@@ -19,7 +19,7 @@
     "Isolated the reconnect test in an owned temporary directory and closed its pool before cleanup; production recovery refusal is unchanged."
   ],
   "pending": [
-    "Accept the reviewed update-trust source, record its frozen SHA and begin Stability; draft release metadata is prepared.",
+    "Deliver committed/pushed checkpoint, then pause as requested; on resume accept/freeze the prepared source and begin R1.",
     "Run separate full Stability, Performance and Security phases for the frozen candidate; no phase has passed.",
     "Complete native Windows 11, Linux, exact macOS 26 and enforced 8 GiB qualification after development; current Mac checks do not establish these.",
     "Complete qualification signatures, Region artifacts, packaged update compatibility, checksums, SBOMs, attestations and public-download proof.",
@@ -241,5 +241,24 @@
     "review": "Lead accepted independent source review PASS; later record/index corrections are docs-only.",
     "runtime": "macOS27.2 arm64;Node24.18.0/npm12.0.1/Rust1.97.1;credential-denying sandbox",
     "limits": "No private key in source/tests; qualification signing and installed R1 journeys remain unexecuted."
+  },
+  "region_trust_preparation": {
+    "base_revision": "8d88f241618215a4da3cf7b9c9ea89a60190e1b1",
+    "verified_diff_sha256": "a7ef83dbb92b9b15fd56861c154d9c56b16759e3c5f5c9e5cfdda6338086b411",
+    "verified_files": {
+      "crates/jobsentinel-application/src/pack_runtime/trust.rs": "b91aacc266b54c091e1dc125d36132539bb9f27d763e0e5ee377791b217610e1",
+      "crates/jobsentinel-application/src/pack_runtime_tests/trust.rs": "4bcecaa03f108cbd72e55cef7efe9aba122212b7d335311ea279cbb95516a3ac",
+      "docs/developer/RELEASING.md": "9435810c4f64d787e94ea043adf166d71ba2149299ae76c5aebdd32d108ce182",
+      "docs/plans/v3/evaluation-and-release-bar.md": "c80cb1b7a5784705425e8bd946bd29f0a98fe2ad142b4f9adddd13822993835c",
+      "docs/plans/v3/master-exec-plan.md": "50fd2cff78c803a45419729c2b669ba1690bc3e0401d3cca1c1db9bce7aa16e5"
+    },
+    "publisher_key_id": "jobsentinel-region-publisher-v1",
+    "result": "Public-only static LocalOnly Region enrollment independently reviewed and full development gate passed; five existing pack identities unchanged.",
+    "command": "npm run clean:generated && npm run verify:full",
+    "exit_status": 0,
+    "counts": "892 script;3373 frontend;10 Chromium smoke;3562 top-level Rust plus3 nested;21 declared skips;builds/Clippy/fmt/doctests passed.",
+    "review": "Lead accepted independent source review PASS; subsequent record edits are docs-only.",
+    "environment": "credential-denying baseline sandbox;Node24.18.0/npm12.0.1/Rust1.97.1;macOS27.2arm64",
+    "limits": "No private keys in source/tests; no candidate freeze, artifact signing or R1/R2/R3 execution. User pause follows checkpoint delivery."
   }
 }
