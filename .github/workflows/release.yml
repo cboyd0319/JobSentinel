@@ -269,10 +269,10 @@ jobs:
             librsvg2-dev=2.58.0+dfsg-1build1
 
       - name: Run Rust clippy
-        run: cargo clippy --workspace -- -D warnings
+        run: cargo clippy --workspace --locked -- -D warnings
 
       - name: Run Rust tests
-        run: cargo test --workspace
+        run: cargo test --workspace --locked
 
       - name: Install SQLx CLI
         run: cargo install sqlx-cli --version 0.9.0 --no-default-features --features sqlite,rustls --locked

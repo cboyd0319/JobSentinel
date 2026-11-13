@@ -130,6 +130,8 @@ git checkout -b feature/your-feature-name
 cargo check --workspace
 ```
 
+Dependency versions younger than 7 days are not adopted; exceptions for security fixes need the owner's approval.
+
 ### Run Development Mode
 
 ```bash

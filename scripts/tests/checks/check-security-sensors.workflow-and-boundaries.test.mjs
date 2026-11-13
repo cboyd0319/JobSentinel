@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import test from "node:test";
 import { checkSecuritySensors } from "../../checks/security-sensors.mjs";
@@ -173,6 +173,15 @@ test("checkSecuritySensors rejects Dependabot without grouped cooldown governanc
       "Dependabot config is missing supply-chain update governance: npm grouped version updates",
     ),
   );
+});
+
+test("checkSecuritySensors rejects a Dependabot cooldown below 8 days", () => {
+  const root = mkdtempRoot("jobsentinel-security-sensors-dependabot-cooldown-");
+  writeSelfOnlyBaseRepo(root);
+  const path = join(root, ".github/dependabot.yml");
+  writeFileSync(path, readFileSync(path, "utf8").replace("semver-patch-days: 8", "semver-patch-days: 7"));
+
+  assert(checkSecuritySensors(root).includes("Dependabot cooldown semver-patch-days must be at least 8 days"));
 });
 
 test("checkSecuritySensors rejects missing CODEOWNERS owner boundary", () => {

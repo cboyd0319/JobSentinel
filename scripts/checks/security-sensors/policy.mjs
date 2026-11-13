@@ -91,8 +91,8 @@ export const releasePreflightChecks = [
   ["Node security preflight", "npm run lint:security", "zizmorcore/zizmor-action@", "npm audit --audit-level=moderate"],
   ["cargo deny supply-chain policy", "cargo install cargo-deny --version 0.20.2 --locked", "cargo deny check advisories bans licenses sources"],
   ["Rust formatting", "cargo fmt --all -- --check"],
-  ["Rust clippy", "cargo clippy --workspace -- -D warnings"],
-  ["Rust tests", "cargo test --workspace"],
+  ["Rust clippy", "cargo clippy --workspace --locked -- -D warnings"],
+  ["Rust tests", "cargo test --workspace --locked"],
 ].map(([label, ...phrases]) => ({ label, phrases }));
 
 export const publishedReleaseWorkflowChecks = [
@@ -158,6 +158,8 @@ export const ciDocsChecks = [
   ["npm audit", "npm audit --audit-level=moderate"],
   ["cargo deny supply-chain policy", "cargo deny check advisories bans licenses sources"],
 ].map(([label, ...phrases]) => ({ label, phrases }));
+// Owner rule: adopt only releases more than 7 days old.
+export const minimumDependabotCooldownDays = 8;
 export const dependabotGovernanceChecks = [
   ["version update cooldown", "cooldown:", "semver-major-days:", "semver-minor-days:", "semver-patch-days:"],
   ["npm grouped version updates", 'package-ecosystem: "npm"', "npm-production:", "npm-development:", 'dependency-type: "production"', 'dependency-type: "development"'],
