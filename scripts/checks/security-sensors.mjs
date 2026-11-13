@@ -21,6 +21,7 @@ import {
   credentialPassiveProbeFiles,
   credentialUiGateFiles,
   dependabotGovernanceChecks,
+  minimumDependabotCooldownDays,
   forbiddenRendererConnectHosts,
   forbiddenWorkflowTriggers,
   ignoredAgentInstructionPathParts,
@@ -299,6 +300,11 @@ export function checkSecuritySensors(root = defaultRoot) {
     "Dependabot config is missing supply-chain update governance",
     violations,
   );
+  for (const [, key, days] of dependabotConfig.matchAll(/^\s*((?:default|semver-(?:major|minor|patch))-days):\s*(\d+)/gm)) {
+    if (Number(days) < minimumDependabotCooldownDays) {
+      violations.push(`Dependabot cooldown ${key} must be at least ${minimumDependabotCooldownDays} days`);
+    }
+  }
   checkCodeownersBoundary(root, violations);
   checkAgentInstructionFileBoundary(root, violations);
   checkBrowserAutomationBoundary(root, violations);
