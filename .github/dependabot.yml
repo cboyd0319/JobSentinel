@@ -8,9 +8,7 @@ updates:
       day: "monday"
     open-pull-requests-limit: 5
     cooldown:
-      semver-major-days: 7
-      semver-minor-days: 3
-      semver-patch-days: 1
+      default-days: 8 # owner rule: adopt only versions older than 7 days (version updates only)
     groups:
       npm-production:
         dependency-type: "production"
@@ -39,9 +37,7 @@ updates:
       day: "monday"
     open-pull-requests-limit: 5
     cooldown:
-      semver-major-days: 7
-      semver-minor-days: 3
-      semver-patch-days: 1
+      default-days: 8 # owner rule: adopt only versions older than 7 days (version updates only)
     groups:
       cargo-minor-patch:
         patterns:
@@ -62,9 +58,7 @@ updates:
       day: "monday"
     open-pull-requests-limit: 3
     cooldown:
-      semver-major-days: 7
-      semver-minor-days: 3
-      semver-patch-days: 1
+      default-days: 8 # owner rule: adopt only versions older than 7 days (version updates only)
     groups:
       actions-minor-patch:
         patterns:

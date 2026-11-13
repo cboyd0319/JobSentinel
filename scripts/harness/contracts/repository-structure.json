@@ -134,6 +134,7 @@
       ".gitignore",
       ".lintstagedrc.json",
       ".markdownlint.json",
+      ".npmrc",
       ".nvmrc",
       ".vale.ini",
       "AGENTS.md",
