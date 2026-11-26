@@ -9,9 +9,8 @@ import {
   verify,
 } from "node:crypto";
 import { readFileSync, writeFileSync } from "node:fs";
-import { resolve } from "node:path";
-import { pathToFileURL } from "node:url";
 import { TextDecoder } from "node:util";
+import { isMainModule } from "./args.mjs";
 
 export const MAX_SIGNED_PACK_BYTES = 4 * 1024 * 1024;
 
@@ -170,7 +169,7 @@ function lengthBytes(value) {
   return bytes;
 }
 
-if (process.argv[1] && pathToFileURL(resolve(process.argv[1])).href === import.meta.url) {
+if (isMainModule(import.meta.url)) {
   try {
     main();
   } catch {

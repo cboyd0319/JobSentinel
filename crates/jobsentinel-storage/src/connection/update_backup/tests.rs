@@ -38,6 +38,26 @@ async fn interrupted_update_recovers_missing_primary_and_preserves_sidecars() {
 }
 
 #[tokio::test]
+async fn snapshot_restore_never_creates_a_missing_key() {
+    use crate::encryption::test_key;
+    let root = tempfile::tempdir().unwrap();
+    let path = root.path().join("jobs.db");
+    let database = Database::connect(&path).await.unwrap();
+    database.migrate().await.unwrap();
+    let snapshot = database.create_update_snapshot().await.unwrap();
+    database.close().await;
+    let before = std::fs::read(&path).unwrap();
+    test_key::clear();
+    // `database` retains the process owner even though its pool has closed.
+    assert!(Database::restore_update_snapshot_at(&path, &snapshot)
+        .await
+        .is_err());
+    assert_eq!(test_key::writes(), 0);
+    assert_eq!(std::fs::read(&path).unwrap(), before);
+    drop(database);
+}
+
+#[tokio::test]
 async fn interrupted_update_recovers_without_opening_corrupt_primary() {
     let root = tempfile::tempdir().unwrap();
     let path = root.path().join("jobs.db");

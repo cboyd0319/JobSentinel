@@ -285,6 +285,31 @@ describe("PortableRecoveryPanel", () => {
     });
   });
 
+  it("states saved data is unchanged when restore staging fails", async () => {
+    mockInvoke.mockImplementation((command: string) => {
+      if (command === "get_staged_restore_status") {
+        return Promise.resolve("none");
+      }
+      return Promise.reject(new Error("staging failed"));
+    });
+    const user = userEvent.setup();
+
+    render(<PortableRecoveryPanel />);
+    await user.type(
+      screen.getByLabelText("Restore passphrase"),
+      "restore-passphrase",
+    );
+    await user.click(
+      screen.getByRole("button", { name: "Choose and stage backup" }),
+    );
+
+    expect(
+      screen.getByRole("status", { name: "Portable recovery status" }),
+    ).toHaveTextContent(
+      "Encrypted backup could not be staged. Your saved data was not changed.",
+    );
+  });
+
   it("shows fixed failure text without raw paths or secrets", async () => {
     mockInvoke.mockImplementation((command: string) => {
       if (command === "get_staged_restore_status") {

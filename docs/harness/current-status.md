@@ -2,22 +2,25 @@
 
 # Current Status
 
-Last updated: 2026-11-06
+Last updated: 2026-11-21
 
 ## Execution
 
 - Active feature: `v3-release-candidate`
 - Status: `active`
-- Development resumed; approved core fixes and release engineering are reviewed and locally verified.
 - Follow the approved [release-first queue](../plans/v3/master-exec-plan.md#remaining-development-queue).
-- Candidate: `feat/v3-release-candidate`, based on core `4b96e802`.
-- Engineering baseline: `4c811f5a`, committed on `agent/goal-v3-baseline`.
-- Update and Region public trust are enrolled, independently reviewed and full-gate verified.
-- User requested a pause after committing and pushing this verified checkpoint.
-- Resume: accept and freeze the prepared source, record its SHA externally, then follow
-  the [R1 plan](../plans/v3/evaluation-and-release-bar.md#r1-stability-plan).
-- [Preparation evidence](evidence/v3-release-candidate-2026-11-06.json)
-  records the passing full development gate, reviews and earlier interrupted or failed runs.
+- Candidate `v3.0.0` is the tagged commit on `feat/v3-release-candidate`: checkpoint
+  `6c72871c` plus fail-closed key creation, the exact-draft pipeline and the recovery key warning.
+- The checkpoint's update and Region public trust are enrolled, reviewed and full-gate verified.
+- The integrated tree passed `verify:full` and independent merge review:
+  [evidence](evidence/v3-release-candidate-2026-11-22.json).
+- Qualification: hosted `build-draft`, then R1 Stability → R2 Performance → R3 Security on
+  that draft, per the [R1 plan](../plans/v3/evaluation-and-release-bar.md#r1-stability-plan).
+- Phase evidence goes only in `docs/releases/v3.0.0-final-phases.json` and its records;
+  any source change needs a new candidate tag.
+- Earlier [2026-11-21](evidence/v3-release-candidate-2026-11-21.json),
+  [2026-11-20](evidence/v3-release-candidate-2026-11-20.json) and
+  [2026-11-06](evidence/v3-release-candidate-2026-11-06.json) evidence covers its own trees.
 
 ## Preserved Scope
 
@@ -31,8 +34,9 @@ Last updated: 2026-11-06
 
 - Final full phases remain Stability → Performance → Security, in order, before publication.
 - Existing M11 and retrospective audit records remain partial, not current passes.
-- R1 planning is active; no final release phase or native VM test has passed.
+- No final release phase or native VM test has passed.
 - Windows 11, Linux, exact macOS 26 and enforced 8 GiB proof remain open.
 - Qualification signatures, OS signing/notarization, Region artifacts and public-download proof remain open.
+- Hosted release-pipeline behavior remains unproven until an authorized `build-draft` run.
 - Hosted general CI remains absent under `pre-alpha-private-no-ci`; its release decision remains open.
 - Keep governed Qwen and numeric thresholds unchanged. Workbench policy remains expired and fail-closed.

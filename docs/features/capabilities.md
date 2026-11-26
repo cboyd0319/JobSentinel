@@ -5,8 +5,8 @@
 Last reviewed: 2026-07-22.
 
 This page is the single maintained map of what JobSentinel can do in the
-current source line. Development metadata targets the unreleased `3.0.0` line.
-The published `v2.9.5` release remains the latest public product boundary.
+current source line, which prepares `3.0.0` (see the
+[v3.0.0 release notes](../releases/v3.0.0.md)).
 Detailed behavior stays in the linked feature, security, architecture,
 research, and harness docs.
 
@@ -45,8 +45,8 @@ account, telemetry, cloud sync, or external AI provider.
 
 | Item | Current state |
 | ---- | ------------- |
-| Source status | `3.0.0` is the current development source version and is unreleased |
-| Public release | `v2.9.5` is the latest verified GitHub release with Windows, macOS, Linux, and Agent Skills assets |
+| Source version | `3.0.0` (see the [v3.0.0 release notes](../releases/v3.0.0.md)) |
+| Downloads | Use the [latest GitHub release](https://github.com/cboyd0319/JobSentinel/releases/latest) |
 | Primary platforms | Windows 11+, macOS, and Linux |
 | Default data model | Local SQLite and local settings |
 | Telemetry | None |

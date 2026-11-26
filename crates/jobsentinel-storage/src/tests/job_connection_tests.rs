@@ -1,23 +1,10 @@
-//! Verifies database connection, migration, and pool access with local fixtures.
+//! Proves in-memory and file-backed database connections, reopening and pool access.
 
 use super::*;
 
 mod connection_tests {
     use super::*;
     use std::path::Path;
-
-    fn sqlite_sidecar_path(path: &Path, suffix: &str) -> std::path::PathBuf {
-        let mut sidecar = path.as_os_str().to_os_string();
-        sidecar.push(suffix);
-        sidecar.into()
-    }
-
-    fn remove_sqlite_artifacts(path: &Path) {
-        let _ = std::fs::remove_file(path);
-        let _ = std::fs::remove_file(sqlite_sidecar_path(path, "-shm"));
-        let _ = std::fs::remove_file(sqlite_sidecar_path(path, "-wal"));
-        let _ = std::fs::remove_file(sqlite_sidecar_path(path, ".owner.lock"));
-    }
 
     #[tokio::test]
     async fn test_connect_memory_and_migrate() {
@@ -28,25 +15,21 @@ mod connection_tests {
 
     #[tokio::test]
     async fn test_connect_creates_parent_directory() {
-        let temp_dir = std::env::temp_dir();
-        let test_db_dir = temp_dir.join("jobsentinel_test_db_parent");
+        let temp_dir = tempfile::tempdir().unwrap();
+        let test_db_dir = temp_dir.path().join("missing-parent");
         let db_path = test_db_dir.join("test_create_parent.db");
-
-        // Ensure directory doesn't exist
-        let _ = std::fs::remove_dir_all(&test_db_dir);
+        assert!(!test_db_dir.exists());
 
         let db = Database::connect(&db_path).await.unwrap();
         db.migrate().await.unwrap();
+        db.pool().close().await;
 
-        // Verify directory was created
-        assert!(test_db_dir.exists());
-
-        // Cleanup
-        let _ = std::fs::remove_dir_all(&test_db_dir);
+        assert!(test_db_dir.is_dir());
     }
 
     #[tokio::test]
     async fn test_connect_with_existing_file() {
+        // A unique directory keeps SQLite sidecars from other runs out of this test.
         let temp_dir = tempfile::tempdir().unwrap();
         let db_path = temp_dir.path().join("test_existing.db");
 
@@ -67,21 +50,22 @@ mod connection_tests {
         let fetched = db2.get_job_by_id(id).await.unwrap();
         assert!(fetched.is_some());
         db2.pool().close().await;
-        drop(db2);
     }
 
     #[tokio::test]
     async fn test_connect_without_parent_directory() {
-        // Test connecting to a path in root directory (should succeed)
-        let db_path = Path::new("test_no_parent.db");
-        remove_sqlite_artifacts(db_path);
+        // A bare file name has an empty parent; connect must not try to create one.
+        let bare = Path::new("test_no_parent.db");
+        Database::ensure_database_parent(bare).unwrap();
 
-        let db = Database::connect(db_path).await.unwrap();
+        // Parent resolution is covered by `bare_file_name_bootstraps_in_the_current_directory`;
+        // the rest of connect is path-agnostic, so prove it in an isolated directory.
+        let temp_dir = tempfile::tempdir().unwrap();
+        let db = Database::connect(&temp_dir.path().join(bare))
+            .await
+            .unwrap();
         db.migrate().await.unwrap();
-
-        // Cleanup
-        drop(db);
-        remove_sqlite_artifacts(db_path);
+        db.pool().close().await;
     }
 
     #[tokio::test]

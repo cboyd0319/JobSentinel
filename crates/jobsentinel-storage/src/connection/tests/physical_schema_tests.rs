@@ -147,7 +147,7 @@ async fn interrupted_physical_rename_reopens_with_pack_guards_and_retries() {
     };
     let root = tempfile::tempdir().unwrap();
     let path = root.path().join("jobs.db");
-    let key = load_or_create_database_key().await.unwrap();
+    let key = load_database_key(true).await.unwrap();
     let pool = connect_encrypted_pool(&path, &key, true).await.unwrap();
     MIGRATOR.run_to(32, &pool).await.unwrap();
     sqlx::query("PRAGMA user_version=2")
@@ -229,7 +229,7 @@ async fn both_physical_metadata_names_keep_future_refusal_before_identity_checks
     for table in ["v3_compatibility_metadata", "compatibility_metadata"] {
         let root = tempfile::tempdir().unwrap();
         let path = root.path().join("jobs.db");
-        let key = load_or_create_database_key().await.unwrap();
+        let key = load_database_key(true).await.unwrap();
         let pool = connect_encrypted_pool(&path, &key, true).await.unwrap();
         sqlx::query("PRAGMA wal_autocheckpoint=0")
             .execute(&pool)
@@ -264,7 +264,7 @@ async fn every_supported_pre_rename_schema_reopens_at_its_original_sequence() {
     for version in 11..=32 {
         let root = tempfile::tempdir().unwrap();
         let path = root.path().join("jobs.db");
-        let key = load_or_create_database_key().await.unwrap();
+        let key = load_database_key(true).await.unwrap();
         let pool = connect_encrypted_pool(&path, &key, true).await.unwrap();
         MIGRATOR.run_to(version, &pool).await.unwrap();
         pool.close().await;

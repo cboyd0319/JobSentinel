@@ -66,7 +66,8 @@ async fn database_startup_reconciles_interrupted_reviewed_tasks_before_returning
 async fn approval_must_remain_unexpired_at_completion() {
     let database = migrated_database().await;
     let mut context = ready_context(database.pool()).await;
-    context.expires_at = Utc::now() + Duration::seconds(1);
+    // Wide enough that create and start finish under load; completion runs after expiry.
+    context.expires_at = Utc::now() + Duration::seconds(5);
     crate::test_support::insert_test_job(
         database.pool(),
         "job-1",
@@ -78,7 +79,7 @@ async fn approval_must_remain_unexpired_at_completion() {
     .await;
     database.create_pack_task(&context).await.unwrap();
     database.start_pack_task(&context).await.unwrap();
-    tokio::time::sleep(StdDuration::from_millis(1_100)).await;
+    tokio::time::sleep(StdDuration::from_millis(5_100)).await;
 
     assert!(database
         .complete_reviewed_pack_task(&context.run_id, &local_receipt(&context), "job-1", None,)

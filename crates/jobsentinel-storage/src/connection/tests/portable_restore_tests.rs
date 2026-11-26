@@ -1,9 +1,7 @@
 //! Verifies staged portable restore, promotion, rollback, and unsafe-path refusal.
 
 use super::*;
-use crate::encryption::{
-    connect_encrypted_read_only_pool, load_or_create_database_key, sqlite_sidecar_path,
-};
+use crate::encryption::{connect_encrypted_read_only_pool, load_database_key, sqlite_sidecar_path};
 use sqlx::{sqlite::SqlitePool, Executor};
 use std::path::{Path, PathBuf};
 
@@ -152,7 +150,7 @@ async fn valid_stage_is_device_encrypted_and_contains_no_secrets_or_plaintext_ar
     );
     unkeyed.close().await;
 
-    let key = load_or_create_database_key().await.unwrap();
+    let key = load_database_key(true).await.unwrap();
     let staged = connect_encrypted_read_only_pool(&stage, &key)
         .await
         .unwrap();
@@ -386,7 +384,7 @@ async fn marked_stage_promotes_and_retains_device_encrypted_rollback() {
         })
         .collect();
     assert_eq!(rollback_files.len(), 1);
-    let key = load_or_create_database_key().await.unwrap();
+    let key = load_database_key(true).await.unwrap();
     let rollback = connect_encrypted_read_only_pool(&rollback_files[0], &key)
         .await
         .unwrap();

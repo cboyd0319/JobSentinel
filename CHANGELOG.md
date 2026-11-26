@@ -14,30 +14,60 @@ supported path is user-opened search links plus user-clicked Browser Import.
 
 ## [Unreleased]
 
-## [3.0.0] - Draft
+## [3.0.0] - 2026-11-21
 
-Unpublished core candidate. Full Stability, Performance and Security qualification
-and publication approval remain pending. See the [draft release notes](docs/releases/v3.0.0.md)
-for scope, compatibility and distribution limits.
+Major release and first supported compatibility baseline. The date is the
+release-candidate freeze; the GitHub release records publication. See the
+[v3.0.0 release notes](docs/releases/v3.0.0.md).
+
+### Removed
+
+- **Pre-v3 upgrades** - Version 3.0.0 doesn't open, migrate, restore, or roll
+  back data, settings, or backups from `2.9.5` or earlier. Pre-v3 or unmarked
+  databases stop at local recovery without being changed.
+- **Old credential imports** - Startup no longer imports old plaintext or
+  per-secret credentials. Settings files with retired credential fields are
+  refused unchanged; enter credentials again in Settings.
+- **Unreviewed scheduled sources** - Built In, Dice, SimplyHired, Glassdoor,
+  and JobsWithGPT scheduled checks are disabled. Y Combinator jobs are
+  user-opened links only.
 
 ### Added
 
-- Opportunity Cases and daily mission connect local job, resume-fit, application and follow-up evidence.
-- Employer dossiers separate saved observations, source freshness and unknowns without background employer
-  research.
-- Encrypted portable backups, staged recovery, reviewed plaintext export and safe support reports provide
-  distinct local-data controls.
-- Regional search and pay guidance, reviewed first-run choices and optional governed model setup support broader
-  job searches.
+- **Opportunity case** - One local view per job with an Apply, Maybe, Skip, or
+  Research more summary, "Why not this job?" reasons, Prepare this job, and
+  interview debriefs.
+- **Daily mission** - Three to seven concrete next actions in Applications.
+- **Evidence-bound resume matching** - Matches cite local resume evidence, with
+  deterministic matching when no local model is installed and a Local Match
+  Check in Settings.
+- **Military transition** - Reviewed civilian wording from confirmed service,
+  credentials, and clearances; protected answers stay manual.
+- **Employer dossier** - Sourced, dated employer evidence inside the case.
+- **Regional search** - Regional search and pay guidance, reviewed first-run
+  choices, and optional governed local model setup.
+- **Backup, restore, and export** - Encrypted portable backup, staged restore
+  at restart, and reviewed plaintext JSON Lines export.
+- **Offline recovery** - Local recovery screen, Privacy Doctor, safe support
+  report, storage cleanup, and reviewed native file drops.
+- **Signed packs** - Quarantined, reviewed pack lifecycle limited to reviewed
+  typed actions. One approved Region publisher signs static Region packs.
+- **Signed local updates** - Release tooling writes signed update metadata next
+  to an installer. Version 3.0.0 trusts one approved update publisher key.
 
 ### Changed
 
-- Source metadata targets `3.0.0`. The approved core excludes deferred enhancements, including shared-computer
-  mode and portable distribution.
-- Breaking: startup refuses pre-v3, unmarked and plaintext databases. Preserve original profiles and backups. No
-  v2 migration path is qualified.
-- Release tooling gates publication on candidate-bound phase and artifact evidence and produces signed update
-  sidecars. Update-publisher trust is enrolled; native qualification remains pending.
+- **Browser Import** - One-use pairing bound to one confirmed website.
+- **Restricted sources** - Sign-in sites require exact acknowledgement; outside
+  AI sends require governed approval.
+- **Key storage** - Windows keys use device-local Credential Manager
+  persistence. Missing keys fail closed, and only a recovery restore can
+  create a key when existing data can't be unlocked.
+- **Release process** - Builds create a draft; publication checks Stability,
+  Performance, and Security evidence against exact draft checksums.
+- **Dependencies** - Applied Tauri and other dependency security patches.
+- **Scope** - Shared-computer mode, portable distribution, and other deferred
+  enhancements stay outside 3.0.0.
 
 ## [2.9.5] - 2026-07-18
 

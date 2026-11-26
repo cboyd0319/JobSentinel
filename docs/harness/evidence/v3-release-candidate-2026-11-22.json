@@ -1,0 +1,58 @@
+{
+  "schema": "jobsentinel.feature_evidence.v1",
+  "feature_id": "v3-release-candidate",
+  "behavior": "Prepare the preserved v3.0 core with required shared fixes and release engineering, keeping Next enhancements outside the candidate.",
+  "result": "partial",
+  "verified_at": "2026-11-22T02:30:00Z",
+  "revision": "6c72871cbb02d267c7ce99ca75d15bf1a3093fae plus staged integration changes",
+  "platform": "macOS 27.2.1 arm64; Rust 1.97.1; Node 26.13.1; npm 12.2.3",
+  "scope": "Integration of the 2026-11-21 candidate additions onto remote checkpoint 6c72871c, plus merge-review fixes. Not release qualification.",
+  "gate_tree_sha256": "pending",
+  "post_gate_changes": "Only this file changed after the full gate.",
+  "decisions": [
+    "User: rebase the candidate additions onto remote checkpoint 6c72871c, keeping its update and Region trust enrollment.",
+    "User: final Stability, Performance and Security phases certify the exact hosted draft binaries that get published.",
+    "User: only a recovery-mode restore may create a database key while an unreadable primary exists; every other existing-data path fails closed.",
+    "Immutable releases stay off until the user decides the trade-off with automatic re-draft containment."
+  ],
+  "changes": [
+    "Kept checkpoint trust enrollment, update-candidate signing and metadata, and the R1 plan; the exact-draft pipeline replaces its release-snapshot, release-phases, phase-assets and public-assets client modules.",
+    "Release body bound to notes generated from the tag at draft verification, confirmation and publish, compared after line-ending and trailing-whitespace normalization.",
+    "Phase records ported from the checkpoint rules: exact release-platform coverage, exit-code-0 commands with hash-bound proofs captured inside the phase window, and owner decisions bounded by phase order.",
+    "Owner/name repository validation for every --repo reader, refusal of credentialed paths that URL parsing rewrites, macOS verifier asset identity binding, and redirect hop, userinfo, port and fragment tests.",
+    "Widened the pack-task approval expiry test window to 5 s to remove a load flake."
+  ],
+  "commands": [
+    {
+      "command": "npm run verify:full",
+      "exit_status": -1,
+      "relevant_result": "pending",
+      "caveat": "pending"
+    },
+    {
+      "command": "npm run test:scripts and release, harness, lint and type checks (merge-review fixes)",
+      "exit_status": 0,
+      "relevant_result": "Script tests 971/971; release:readiness, harness:check, lint:tests, lint:file-size, lint:architecture, lint:actions, lint:dup, lint:md, lint:prose, lint, typecheck and lint:bloat passed. 31 mutations of the restored guards each failed a test.",
+      "caveat": "Worker run before the lead's state changes; superseded by the full gate above."
+    }
+  ],
+  "review": {
+    "independent": true,
+    "scope": "pending"
+  },
+  "unproven": [
+    "Native Windows compile and runtime, Credential Manager Local persistence and the 150 ms spurious-miss re-read; Linux runtime.",
+    "Hosted pipeline: cancel drill on a throwaway tag, draft permissions, asset digest fields, stored release body form, runner gh flags, re-draft PATCH, concurrency and release environment approval."
+  ],
+  "follow_ups_v3_0_1": [
+    "Pipeline: publish request hanging beyond 3 s at cancel; signal tests bypass the bash exec path; CLI test for confirm-verified-draft; draft manifest artifact; minimum gh version; final-phase-evidence.mjs past the 300-line review threshold; function-only import cycle between verify-latest-macos-release.mjs and release-set.mjs.",
+    "Keys: cache lock held across native loads without a timeout; disable_passphrase_lock not spawned; end-to-end zeroized vault key copies; stray non-encrypted files in backups block key creation; Windows device_local reporting; shared key helper module and remaining test gaps.",
+    "Environment: Chromium headless close stalls under load (Playwright #43475)."
+  ],
+  "pending": [
+    "Commit and tag v3.0.0; push, hosted build-draft dispatch and hosted cancel drill.",
+    "Windows 11 and Linux verification on user VMs; universal macOS build; qualification signatures, OS signing and notarization.",
+    "R1 Stability, R2 Performance and R3 Security on the hosted draft, then publication.",
+    "Commit, push, hosted dispatch, signing and publication require explicit authority."
+  ]
+}

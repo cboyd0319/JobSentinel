@@ -1,3 +1,4 @@
+// Verifies security sensors for workflows, release verifiers and trust boundaries.
 import assert from "node:assert/strict";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -311,11 +312,9 @@ test("checkSecuritySensors rejects public release verifier without exact asset-s
     "export function findPlatformInstallerAssets() {}\n",
   );
 
-  assert(
-    checkSecuritySensors(root).includes(
-      "public release verifier is missing artifact gate: exact public installer asset set",
-    ),
-  );
+  const violations = checkSecuritySensors(root);
+  assert(violations.includes("public release verifier is missing artifact gate: exact public installer asset set"));
+  assert(violations.includes("public release verifier is missing artifact gate: credential-free public downloads"));
 });
 
 test("checkSecuritySensors rejects passive credential state in Settings gating", () => {

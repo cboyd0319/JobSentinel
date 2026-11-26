@@ -28,11 +28,79 @@ async fn fresh_connection_publishes_only_a_supported_v3_database() {
 }
 
 #[tokio::test]
+async fn existing_database_with_missing_key_fails_closed_without_writing_a_key() {
+    use crate::encryption::test_key;
+    let root = tempfile::tempdir().unwrap();
+    let path = root.path().join("jobs.db");
+    let database = Database::connect(&path).await.unwrap();
+    database.pool().close().await;
+    drop(database);
+    test_key::clear();
+    for _ in 0..2 {
+        let error = Database::connect(&path).await.unwrap_err();
+        assert!(error
+            .to_string()
+            .contains("could not unlock local database encryption"));
+    }
+    assert_eq!(test_key::writes(), 0);
+}
+
+#[tokio::test]
+async fn new_database_creates_its_key_exactly_once() {
+    use crate::encryption::test_key;
+    let root = tempfile::tempdir().unwrap();
+    let path = root.path().join("jobs.db");
+    test_key::clear();
+    for _ in 0..2 {
+        let database = Database::connect(&path).await.unwrap();
+        database.pool().close().await;
+        drop(database);
+    }
+    assert_eq!(test_key::writes(), 1);
+}
+
+#[test]
+fn bare_file_name_bootstraps_in_the_current_directory() {
+    use crate::connection::bootstrap::bootstrap_parent;
+    assert_eq!(bootstrap_parent(Path::new("jobs.db")), Path::new("."));
+    assert_eq!(
+        bootstrap_parent(Path::new("data/jobs.db")),
+        Path::new("data")
+    );
+}
+
+#[test]
+fn primary_existence_reports_errors_instead_of_absence() {
+    use crate::connection::bootstrap::primary_entry_exists;
+    let root = tempfile::tempdir().unwrap();
+    let file = root.path().join("not-a-directory");
+    std::fs::write(&file, b"").unwrap();
+    assert!(!primary_entry_exists(&root.path().join("jobs.db")).unwrap());
+    let error = primary_entry_exists(&file.join("jobs.db")).unwrap_err();
+    assert_ne!(error.kind(), std::io::ErrorKind::NotFound);
+}
+
+#[cfg(unix)]
+#[tokio::test]
+async fn dangling_primary_symlink_is_existing_data_not_a_new_database() {
+    use crate::encryption::test_key;
+    let root = tempfile::tempdir().unwrap();
+    let path = root.path().join("jobs.db");
+    let target = root.path().join("missing-target.db");
+    std::os::unix::fs::symlink(&target, &path).unwrap();
+    test_key::clear();
+    assert!(Database::connect(&path).await.is_err());
+    assert_eq!(test_key::writes(), 0);
+    assert!(std::fs::symlink_metadata(&path).unwrap().is_symlink());
+    assert!(!target.exists());
+}
+
+#[tokio::test]
 async fn encrypted_unmarked_and_inconsistent_data_are_preserved() {
     for version in [None, Some(10), Some(11)] {
         let root = tempfile::tempdir().unwrap();
         let path = root.path().join("jobs.db");
-        let key = load_or_create_database_key().await.unwrap();
+        let key = load_database_key(true).await.unwrap();
         let pool = connect_encrypted_pool(&path, &key, true).await.unwrap();
         sqlx::query("PRAGMA wal_autocheckpoint = 0")
             .execute(&pool)
@@ -75,7 +143,7 @@ async fn encrypted_unmarked_and_inconsistent_data_are_preserved() {
 async fn first_supported_v3_store_reopens_and_migrates_with_a_recovery_snapshot() {
     let root = tempfile::tempdir().unwrap();
     let path = root.path().join("jobs.db");
-    let key = load_or_create_database_key().await.unwrap();
+    let key = load_database_key(true).await.unwrap();
     let pool = connect_encrypted_pool(&path, &key, true).await.unwrap();
     MIGRATOR.run_to(11, &pool).await.unwrap();
     sqlx::query("INSERT INTO jobs (hash, title, company, url, source) VALUES ('supported-v3', 'Role', 'Example', 'https://example.test/job', 'test')")
@@ -113,7 +181,7 @@ async fn failed_bootstrap_keeps_primary_absent_and_can_retry() {
     };
     let root = tempfile::tempdir().unwrap();
     let path = root.path().join("jobs.db");
-    let key = load_or_create_database_key().await.unwrap();
+    let key = load_database_key(true).await.unwrap();
     let _owner = Database::acquire_owner_lock(&path).unwrap();
     let migrations = MIGRATOR
         .iter()
@@ -149,7 +217,7 @@ async fn bootstrap_publication_never_overwrites_an_existing_destination() {
     let root = tempfile::tempdir().unwrap();
     let path = root.path().join("jobs.db");
     std::fs::write(&path, b"existing user data").unwrap();
-    let key = load_or_create_database_key().await.unwrap();
+    let key = load_database_key(true).await.unwrap();
     let _owner = Database::acquire_owner_lock(&path).unwrap();
     assert!(Database::bootstrap_database(&path, &key, &MIGRATOR)
         .await
@@ -219,4 +287,47 @@ async fn missing_primary_with_orphaned_sqlite_sidecars_is_not_recreated() {
             b"preserved recovery evidence"
         );
     }
+}
+
+#[tokio::test]
+async fn missing_primary_with_encrypted_recovery_copies_never_creates_a_key() {
+    use crate::encryption::test_key;
+    for copy in [
+        ".update-snapshot-x/snapshot.db",
+        "backups/restore_rollback_x.db",
+        "backups/restore_quarantine_x.db",
+        "backups/backup_pre_migration_x.db",
+        "backups/0a1b2c/migration_snapshot_v1_to_v2_x.db",
+        "jobs.db.restore-x.failed",
+        "jobs.db.restore-stage",
+        "jobs.db.restore-x.previous",
+        "jobs.db.restore-invalid-x.stage",
+    ] {
+        let root = tempfile::tempdir().unwrap();
+        let path = root.path().join("jobs.db");
+        let copy = root.path().join(copy);
+        std::fs::create_dir_all(copy.parent().unwrap()).unwrap();
+        std::fs::write(&copy, b"encrypted with the missing key").unwrap();
+        test_key::clear();
+        assert!(Database::connect(&path).await.is_err(), "{copy:?}");
+        assert_eq!(test_key::writes(), 0);
+        assert!(!path.exists());
+        assert_eq!(
+            std::fs::read(&copy).unwrap(),
+            b"encrypted with the missing key"
+        );
+    }
+}
+
+#[tokio::test]
+async fn fresh_install_beside_unrelated_files_creates_its_key() {
+    use crate::encryption::test_key;
+    let root = tempfile::tempdir().unwrap();
+    let path = root.path().join("jobs.db");
+    std::fs::write(root.path().join("config.json"), b"{}").unwrap();
+    std::fs::write(root.path().join("other.db.restore-x.failed"), b"").unwrap();
+    test_key::clear();
+    let database = Database::connect(&path).await.unwrap();
+    database.pool().close().await;
+    assert_eq!(test_key::writes(), 1);
 }

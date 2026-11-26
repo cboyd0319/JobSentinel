@@ -1,25 +1,17 @@
 #!/usr/bin/env node
+// Packages the Agent Skills tar.gz and ZIP release archives with SHA-256 sidecars.
 
 import { createHash } from "node:crypto";
 import { deflateRawSync, gzipSync } from "node:zlib";
 import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { basename, dirname, join, relative, resolve } from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { fileURLToPath } from "node:url";
 
 import { checkAgentSkills } from "../checks/agent-skills.mjs";
+import { getArgValue, isMainModule } from "./args.mjs";
 
 const scriptPath = fileURLToPath(import.meta.url);
 const defaultRoot = resolve(dirname(scriptPath), "../..");
-
-function getArgValue(args, name) {
-  const exactIndex = args.indexOf(name);
-  if (exactIndex >= 0) {
-    return args[exactIndex + 1];
-  }
-
-  const prefixed = args.find((arg) => arg.startsWith(`${name}=`));
-  return prefixed ? prefixed.slice(name.length + 1) : undefined;
-}
 
 function readJson(path) {
   return JSON.parse(readFileSync(path, "utf8"));
@@ -338,7 +330,7 @@ export function main({ args = process.argv.slice(2) } = {}) {
   console.log(`Agent Skills ZIP checksum written: ${result.zipChecksumPath}`);
 }
 
-if (process.argv[1] && pathToFileURL(resolve(process.argv[1])).href === import.meta.url) {
+if (isMainModule(import.meta.url)) {
   try {
     main();
   } catch (error) {

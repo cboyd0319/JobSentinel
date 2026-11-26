@@ -33,7 +33,7 @@ pub use credential_vault_key::{
     load_credential_vault_key, store_credential_vault_key, CredentialVaultKeyBackend,
     CredentialVaultKeyStoragePolicy, SECURE_STORAGE_UNAVAILABLE_MESSAGE,
 };
-pub use database_key::{load_or_create_database_key, DatabaseKeyError};
+pub use database_key::{load_database_key, DatabaseKeyError};
 pub use platform_health::{
     inspect_platform_health, repair_platform_permissions, PackageRepairAction,
     PackageRepairActionId, PackageRepairGuidance, PackageRepairMode, PlatformHealthReport,

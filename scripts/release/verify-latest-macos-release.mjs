@@ -1,44 +1,24 @@
 #!/usr/bin/env node
-// Verifies anonymously downloaded macOS packages and their release supply chain.
+// Verifies the public macOS DMG, its checksum, SBOM and attestations, and installs it for smoke checks.
 
-import { spawnSync } from "node:child_process";
+import { execFile } from "node:child_process";
 import { mkdtempSync, rmSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
-import { basename, dirname, join, resolve } from "node:path";
-import { pathToFileURL } from "node:url";
-import { verifyPhaseAssets } from "./phase-assets.mjs";
-import { createReleaseClient } from "./public-assets/client.mjs";
+import { basename, join } from "node:path";
 import { parseSha256Checksum } from "./checksum.mjs";
+import { parseStrictJson } from "./strict-json.mjs";
+import { boundedTimeoutMs, downloadPublicAsset, envToken, fetchGitHubJson, fetchTagCommit, githubReleaseUrl } from "./public-assets/http.mjs";
+import { validateReleaseAssetIdentity } from "./public-assets/release-set.mjs";
 import { verifyMacosPackage } from "./verify-macos-package.mjs";
+import { getArgValue, getRepoArg, hasArg, splitList, isMainModule } from "./args.mjs";
 
 export { parseSha256Checksum } from "./checksum.mjs";
 
 const defaultRepo = "cboyd0319/JobSentinel";
 const spdxPredicateType = "https://spdx.dev/Document/v2.3";
 const slsaPredicateType = "https://slsa.dev/provenance/v1";
-
-export function getArgValue(args, name) {
-  const exactIndex = args.indexOf(name);
-  if (exactIndex >= 0) {
-    return args[exactIndex + 1];
-  }
-
-  const prefixed = args.find((arg) => arg.startsWith(`${name}=`));
-  return prefixed ? prefixed.slice(name.length + 1) : undefined;
-}
-
-export function hasArg(args, name) {
-  return args.some((arg) => arg === name || arg.startsWith(`${name}=`));
-}
-
-function splitList(value) {
-  return value
-    .split(",")
-    .map((item) => item.trim())
-    .filter(Boolean);
-}
 
 export function parseArgs(args) {
   const expectedArchitectures =
@@ -48,13 +28,7 @@ export function parseArgs(args) {
   const requireGatekeeper =
     hasArg(args, "--require-gatekeeper") && !hasArg(args, "--no-require-gatekeeper");
 
-  if (hasArg(args, "--local-macos") && (!/^[a-f0-9]{40}$/.test(getArgValue(args, "--expected-revision") ?? "") ||
-    hasArg(args, "--no-require-checksum") || hasArg(args, "--no-require-supply-chain"))) {
-    throw new Error("Local macOS verification requires source revision and full integrity checks.");
-  }
   return {
-    localMacos: hasArg(args, "--local-macos"),
-    expectedRevision: getArgValue(args, "--expected-revision"),
     appName: getArgValue(args, "--app-name") ?? "JobSentinel.app",
     assetPattern: getArgValue(args, "--asset-pattern") ?? "universal.dmg",
     expectedBundleMetadata: {
@@ -72,7 +46,7 @@ export function parseArgs(args) {
     requireNoAccountLabel:
       hasArg(args, "--require-no-account-label") ||
       (!requireGatekeeper && !hasArg(args, "--no-require-no-account-label")),
-    repo: getArgValue(args, "--repo") ?? defaultRepo,
+    repo: getRepoArg(args, defaultRepo),
     requireGatekeeper,
     requireSupplyChain:
       hasArg(args, "--require-supply-chain") || !hasArg(args, "--no-require-supply-chain"),
@@ -169,7 +143,7 @@ async function sha256File(path) {
   return createHash("sha256").update(data).digest("hex");
 }
 
-async function verifyChecksum({ release, dmgAsset, dmgPath, requireChecksum, downloadFile }) {
+async function verifyChecksum({ release, dmgAsset, dmgPath, requireChecksum }) {
   const checksumAsset = findChecksumAsset(release, dmgAsset);
   if (!checksumAsset) {
     if (requireChecksum) {
@@ -181,7 +155,7 @@ async function verifyChecksum({ release, dmgAsset, dmgPath, requireChecksum, dow
 
   const checksumPath = `${dmgPath}.sha256`;
   console.log(`Downloading public macOS checksum asset: ${checksumAsset.browser_download_url}`);
-  await downloadFile(checksumAsset, checksumPath);
+  await downloadPublicAsset(checksumAsset.browser_download_url, checksumPath);
 
   const expected = parseSha256Checksum(await readFile(checksumPath, "utf8"), basename(dmgPath));
   const actual = await sha256File(dmgPath);
@@ -259,15 +233,47 @@ export function validateReleaseSbomManifest({
   }
 }
 
-export function verifyGitHubAttestation({
+const attestationFlagsChecked = new WeakSet();
+
+/** Runs a command without blocking the event loop, so cancellation signals are handled while it runs. */
+export function runCommand(command, args, { timeout, maxBuffer = 1024 * 1024 * 10 }) {
+  return new Promise((resolveRun) => {
+    execFile(command, args, { encoding: "utf8", timeout, maxBuffer }, (error, stdout, stderr) => {
+      const status = error ? (typeof error.code === "number" ? error.code : null) : 0;
+      resolveRun({ status, stdout, stderr, error: status === null ? error : undefined });
+    });
+  });
+}
+
+/** Fails closed, once per `run`, unless this gh lists the flags that bind an attestation to the tag commit and ref. */
+export async function assertGhAttestationFlags({ run = runCommand, deadline } = {}) {
+  if (attestationFlagsChecked.has(run)) return;
+  const result = await run("gh", ["attestation", "verify", "--help"], { timeout: boundedTimeoutMs(30_000, deadline) });
+  const help = `${result.stdout ?? ""}${result.stderr ?? ""}`;
+  const missing = ["--source-digest", "--source-ref"].filter((flag) => !help.includes(flag));
+  if (result.error || result.status !== 0 || missing.length > 0) {
+    const reason = result.error?.message ?? (result.status !== 0 ? `exit ${result.status}` : `missing ${missing.join(", ")}`);
+    throw new Error(`gh attestation verify must support --source-digest and --source-ref (${reason}); upgrade the GitHub CLI.`);
+  }
+  attestationFlagsChecked.add(run);
+}
+
+/** Runs one gh attestation verification, bounded by 120 s and the caller's deadline. */
+export async function verifyGitHubAttestation({
   artifactPath,
   repo,
   predicateType,
   signerWorkflow = `${repo}/.github/workflows/release-build-macos.yml`,
-  expectedRevision,
-  spawn = spawnSync,
+  sourceDigest,
+  sourceRef,
+  run = runCommand,
+  deadline,
 }) {
-  const result = spawn(
+  if (!/^[0-9a-f]{40}$/.test(String(sourceDigest)) || !String(sourceRef).startsWith("refs/tags/v")) {
+    throw new Error(`GitHub attestation verification for ${artifactPath} requires the tag commit and refs/tags/<tag>.`);
+  }
+  await assertGhAttestationFlags({ run, deadline });
+  const result = await run(
     "gh",
     [
       "attestation",
@@ -279,12 +285,12 @@ export function verifyGitHubAttestation({
       predicateType,
       "--signer-workflow",
       signerWorkflow,
-      ...(expectedRevision ? ["--source-digest", expectedRevision] : []),
+      "--source-digest",
+      sourceDigest,
+      "--source-ref",
+      sourceRef,
     ],
-    {
-      encoding: "utf8",
-      maxBuffer: 1024 * 1024 * 10,
-    },
+    { timeout: boundedTimeoutMs(120_000, deadline) },
   );
 
   if (result.error) {
@@ -307,8 +313,8 @@ async function verifyReleaseSupplyChain({
   platform = "macos",
   repo,
   requireSupplyChain,
-  localMacos,
-  downloadFile,
+  sourceDigest,
+  sourceRef,
 }) {
   const { manifestName, sbomName } = expectedReleaseSbomNames(expectedVersion, platform);
   const manifestAsset = findReleaseAssetByName(release, manifestName);
@@ -322,14 +328,14 @@ async function verifyReleaseSupplyChain({
     return;
   }
 
-  const manifestPath = join(dirname(dmgPath), manifestName);
-  const sbomPath = join(dirname(dmgPath), sbomName);
+  const manifestPath = `${dmgPath}.${manifestName}`;
+  const sbomPath = `${dmgPath}.${sbomName}`;
   console.log(`Downloading public macOS SBOM manifest asset: ${manifestAsset.browser_download_url}`);
-  await downloadFile(manifestAsset, manifestPath);
+  await downloadPublicAsset(manifestAsset.browser_download_url, manifestPath);
   console.log(`Downloading public macOS SBOM asset: ${sbomAsset.browser_download_url}`);
-  await downloadFile(sbomAsset, sbomPath);
+  await downloadPublicAsset(sbomAsset.browser_download_url, sbomPath);
 
-  const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
+  const manifest = parseStrictJson(await readFile(manifestPath, "utf8"), `macOS SBOM manifest ${manifestName}`);
   const sbom = JSON.parse(await readFile(sbomPath, "utf8"));
   validateReleaseSbomManifest({
     manifest,
@@ -342,35 +348,35 @@ async function verifyReleaseSupplyChain({
   });
   console.log(`Release SBOM manifest verified: ${manifestName}`);
 
-  if (!requireSupplyChain || localMacos) {
+  if (!requireSupplyChain) {
     return;
   }
 
-  verifyGitHubAttestation({
+  await verifyGitHubAttestation({
     artifactPath: dmgPath,
     repo,
     predicateType: slsaPredicateType,
+    sourceDigest,
+    sourceRef,
   });
-  verifyGitHubAttestation({
+  await verifyGitHubAttestation({
     artifactPath: dmgPath,
     repo,
     predicateType: spdxPredicateType,
+    sourceDigest,
+    sourceRef,
   });
   console.log("GitHub artifact attestations verified for macOS DMG.");
 }
 
-export async function verifyLatestMacosRelease(options, { verifyPackage = verifyMacosPackage } = {}) {
-  const client = createReleaseClient({ ...options, draft: false });
-  const release = await client.release();
-  const downloaded = new Map();
-  const downloadFile = async (asset, path) => {
-    if (downloaded.has(asset.id)) {
-      if (downloaded.get(asset.id) !== path) throw new Error("Verified asset destination changed.");
-      return;
-    }
-    await client.download(asset, path);
-    downloaded.set(asset.id, path);
-  };
+export async function verifyLatestMacosRelease(options, { fetchImpl = fetch, token = envToken() } = {}) {
+  const release = await fetchGitHubJson(githubReleaseUrl(options.repo, options.releaseTag), { fetchImpl, token });
+  if (release.draft !== false || typeof release.tag_name !== "string") {
+    throw new Error("Public macOS verification needs a published release with a tag.");
+  }
+  // Every asset's first download hop must be https://github.com/<repo>/releases/download/<tag>/<name>.
+  validateReleaseAssetIdentity(release, { repo: options.repo, tag: release.tag_name, draft: false });
+  const tagCommit = await fetchTagCommit(options.repo, release.tag_name, { fetchImpl, token });
   const expectedBundleMetadata = {
     ...options.expectedBundleMetadata,
     version:
@@ -398,18 +404,13 @@ export async function verifyLatestMacosRelease(options, { verifyPackage = verify
   const dmgPath = join(tempRoot, basename(asset.name));
 
   try {
-    if (options.localMacos) {
-      await verifyPhaseAssets({ release, tempRoot, downloadFile, revision: options.expectedRevision,
-        version: expectedBundleMetadata.version, localMacos: true, macosAsset: asset });
-    }
     console.log(`Downloading public macOS release asset: ${asset.browser_download_url}`);
-    await downloadFile(asset, dmgPath);
+    await downloadPublicAsset(asset.browser_download_url, dmgPath);
     await verifyChecksum({
       release,
       dmgAsset: asset,
       dmgPath,
       requireChecksum: options.requireChecksum,
-      downloadFile,
     });
     await verifyReleaseSupplyChain({
       release,
@@ -418,10 +419,10 @@ export async function verifyLatestMacosRelease(options, { verifyPackage = verify
       expectedVersion: expectedBundleMetadata.version,
       repo: options.repo,
       requireSupplyChain: options.requireSupplyChain,
-      localMacos: options.localMacos,
-      downloadFile,
+      sourceDigest: tagCommit,
+      sourceRef: `refs/tags/${release.tag_name}`,
     });
-    await verifyPackage({
+    await verifyMacosPackage({
       appName: options.appName,
       dmgPath,
       expectedBundleMetadata,
@@ -445,7 +446,7 @@ export async function main({ args = process.argv.slice(2) } = {}) {
   await verifyLatestMacosRelease(options);
 }
 
-if (process.argv[1] && pathToFileURL(resolve(process.argv[1])).href === import.meta.url) {
+if (isMainModule(import.meta.url)) {
   try {
     await main();
   } catch (error) {

@@ -67,7 +67,13 @@ fn copy_regular_bundle(
                 "Portable restore quarantine must contain regular files",
             ));
         }
-        let mut input = std::fs::File::open(source).map_err(sqlx::Error::Io)?;
+        let mut input = match std::fs::File::open(source) {
+            Ok(input) => input,
+            Err(error) => {
+                remove_linked_files(&copied);
+                return Err(sqlx::Error::Io(error));
+            }
+        };
         if !opened_file_matches_path(&input, source) {
             remove_linked_files(&copied);
             return Err(restore_error(

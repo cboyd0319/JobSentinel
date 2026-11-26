@@ -178,21 +178,32 @@ impl CredentialService {
 
     /// Enable passphrase wrapping for the credential-vault master key.
     pub async fn enable_passphrase_lock(&self, passphrase: &str) -> Result<(), String> {
-        let repository = &self.repository;
-
-        let key = self.master_key(true).await?;
-        passphrase::wrap_key(repository, passphrase, copy_key_bytes(key.as_ref()))
-            .await
-            .map_err(sanitize_passphrase_error)?;
-
-        if self.fixed_master_key.is_none() {
-            if let Err(error) = vault_key_store::delete_vault_key().await {
-                let _ = passphrase::delete_config(repository).await;
-                return Err(error);
-            }
+        if self.fixed_master_key.is_some() {
+            let key = self.master_key(true).await?;
+            return passphrase::wrap_key(&self.repository, passphrase, copy_key_bytes(&key))
+                .await
+                .map_err(sanitize_passphrase_error);
         }
 
-        Ok(())
+        let repository = self.repository.clone();
+        let passphrase = Zeroizing::new(passphrase.to_owned());
+        // One task holds the cache lock from load through delete, so no creator interleaves.
+        let key = tokio::spawn(async move {
+            let mut cached = vault_key_store::cache().lock().await;
+            let key = load_vault_key_locked(&mut cached, &repository, true).await?;
+            passphrase::wrap_key(&repository, &passphrase, copy_key_bytes(&key))
+                .await
+                .map_err(sanitize_passphrase_error)?;
+            *cached = None;
+            if let Err(error) = vault_key_store::delete_vault_key().await {
+                let _ = passphrase::delete_config(&repository).await;
+                return Err(error);
+            }
+            Ok(key)
+        })
+        .await
+        .map_err(|_| secure_storage_error())??;
+        self.cache_master_key(key)
     }
 
     /// Unlock a passphrase-protected credential vault for this app session.
@@ -224,13 +235,17 @@ impl CredentialService {
             .await
             .map_err(sanitize_passphrase_error)?;
 
+        // Under the cache lock, no creator sees the config gone before the OS key returns.
+        let mut cached = vault_key_store::cache().lock().await;
         if self.fixed_master_key.is_none() {
+            *cached = None;
             vault_key_store::store_vault_key(key.as_ref()).await?;
         }
 
         passphrase::delete_config(repository)
             .await
             .map_err(sanitize_passphrase_error)?;
+        drop(cached);
         self.cache_master_key(key)
     }
 
@@ -252,15 +267,11 @@ impl CredentialService {
                     return Err(secure_storage_error());
                 }
 
-                let key = if let Some(fixed_key) = &self.fixed_master_key {
-                    let mut bytes = [0_u8; MASTER_KEY_LEN];
-                    bytes.copy_from_slice(fixed_key.as_ref());
-                    bytes
-                } else {
-                    vault_key_store::load_vault_key(create_if_missing).await?
+                let key = match &self.fixed_master_key {
+                    Some(fixed_key) => fixed_key.clone(),
+                    None => shared_vault_key(self.repository.clone(), create_if_missing).await?,
                 };
-
-                Ok(Arc::new(Zeroizing::new(key)))
+                Ok(Arc::new(key))
             })
             .await
             .cloned()
@@ -284,6 +295,53 @@ impl CredentialService {
             .await
             .map_err(|_| secure_storage_error())
     }
+}
+
+/// Return the process-wide vault key, reading the OS store at most once per process.
+///
+/// The cache lock single-flights native loads and is the only creator, so separate
+/// services share one key even if the OS store later reports a spurious miss. The work
+/// runs as its own task, so a dropped caller can't leave a native load or create running
+/// after the lock is released. The lock is per process; keys are per user, so processes
+/// with different data directories race only when no key exists.
+async fn shared_vault_key(
+    repository: CredentialRepository,
+    create_if_missing: bool,
+) -> Result<Zeroizing<[u8; MASTER_KEY_LEN]>, String> {
+    tokio::spawn(async move {
+        let mut cached = vault_key_store::cache().lock().await;
+        load_vault_key_locked(&mut cached, &repository, create_if_missing).await
+    })
+    .await
+    .map_err(|_| secure_storage_error())?
+}
+
+/// Callers hold the cache lock. Creation re-checks passphrase mode under it, so a
+/// concurrent passphrase enable is never followed by a fresh OS key.
+async fn load_vault_key_locked(
+    cached: &mut Option<Zeroizing<[u8; MASTER_KEY_LEN]>>,
+    repository: &CredentialRepository,
+    create_if_missing: bool,
+) -> Result<Zeroizing<[u8; MASTER_KEY_LEN]>, String> {
+    if let Some(key) = cached.as_ref() {
+        return Ok(key.clone());
+    }
+    if create_if_missing
+        && passphrase::is_configured(repository)
+            .await
+            .map_err(sanitize_passphrase_error)?
+    {
+        return Err(secure_storage_error());
+    }
+    // Existing ciphertext needs its original key; never replace a missing one.
+    let create = create_if_missing
+        && !repository
+            .any_secret_exists()
+            .await
+            .map_err(|_| secure_storage_error())?;
+    let key = Zeroizing::new(vault_key_store::load_vault_key(create).await?);
+    *cached = Some(key.clone());
+    Ok(key)
 }
 
 fn sanitize_vault_error(error: SecretVaultError) -> String {

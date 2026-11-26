@@ -1,31 +1,19 @@
 #!/usr/bin/env node
+// Generates release SPDX SBOMs and the revision-bound asset manifest for one platform.
 
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { basename, dirname, join, resolve } from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { fileURLToPath } from "node:url";
 
 import { npmInvocation } from "../lib/dependency/npm-invocation.mjs";
+import { getArgValue, hasArg, isMainModule } from "./args.mjs";
 
 const scriptPath = fileURLToPath(import.meta.url);
 const defaultRoot = resolve(dirname(scriptPath), "../..");
 const defaultRepoUrl = "https://github.com/cboyd0319/JobSentinel";
 const installableAssetPattern = /\.(?:dmg|msi|exe|AppImage|deb)$/;
-
-function getArgValue(args, name) {
-  const exactIndex = args.indexOf(name);
-  if (exactIndex >= 0) {
-    return args[exactIndex + 1];
-  }
-
-  const prefixed = args.find((arg) => arg.startsWith(`${name}=`));
-  return prefixed ? prefixed.slice(name.length + 1) : undefined;
-}
-
-function hasArg(args, name) {
-  return args.some((arg) => arg === name || arg.startsWith(`${name}=`));
-}
 
 function readJson(path) {
   return JSON.parse(readFileSync(path, "utf8"));
@@ -256,6 +244,7 @@ function releaseAssetKind(name) {
   return "supporting";
 }
 
+/** Platform manifests list only platform assets; release-wide Agent Skills and platform declarations stay out. */
 export function collectReleaseAssets(outDir) {
   if (!existsSync(outDir)) {
     return [];
@@ -264,6 +253,7 @@ export function collectReleaseAssets(outDir) {
   return readdirSync(outDir)
     .filter((name) => !/\.sbom\.spdx\.json$/.test(name))
     .filter((name) => !/\.sbom-manifest\.json$/.test(name))
+    .filter((name) => !/-(?:agent-skills\.(?:tar\.gz|zip)|release-platforms\.json)(?:\.sha256)?$/.test(name))
     .filter((name) => name !== "attestation-subjects.sha256")
     .map((name) => {
       const path = join(outDir, name);
@@ -294,13 +284,22 @@ function repositoryUrl(pkg) {
   return defaultRepoUrl;
 }
 
-function sourceInfo() {
+/** Returns HEAD only when nothing is modified or untracked, so local manifests never claim an unbuilt revision. */
+export function cleanGitRevision(root) {
+  const run = (args) => spawnSync("git", args, { cwd: root, encoding: "utf8" });
+  const head = run(["rev-parse", "--verify", "HEAD"]);
+  const status = run(["status", "--porcelain", "--untracked-files=normal"]);
+  if (head.status !== 0 || status.status !== 0 || status.stdout.trim() !== "") return undefined;
+  return head.stdout.trim();
+}
+
+function sourceInfo(root) {
   return {
     repository: process.env.GITHUB_REPOSITORY
       ? `https://github.com/${process.env.GITHUB_REPOSITORY}`
       : defaultRepoUrl,
     ref: process.env.GITHUB_REF_NAME || process.env.GITHUB_REF || "local",
-    sha: process.env.GITHUB_SHA || "local",
+    sha: process.env.GITHUB_SHA || cleanGitRevision(root) || "local",
     workflow: process.env.GITHUB_WORKFLOW || "local",
     runId: process.env.GITHUB_RUN_ID || "local",
   };
@@ -333,7 +332,7 @@ export async function generateReleaseSbom({
   const releaseVersion = version ?? packageJson.version;
   const cargoName = appCargoToml.match(/^\s*name\s*=\s*"([^"]+)"/m)?.[1] ?? packageJson.name;
   const cargoVersion = workspaceCargoToml.match(/^\s*version\s*=\s*"([^"]+)"/m)?.[1] ?? releaseVersion;
-  const source = sourceInfo();
+  const source = sourceInfo(root);
   const releaseOutDir = resolve(root, outDir);
   mkdirSync(releaseOutDir, { recursive: true });
 
@@ -452,7 +451,7 @@ export async function main({ args = process.argv.slice(2) } = {}) {
   );
 }
 
-if (process.argv[1] && pathToFileURL(resolve(process.argv[1])).href === import.meta.url) {
+if (isMainModule(import.meta.url)) {
   try {
     await main();
   } catch (error) {

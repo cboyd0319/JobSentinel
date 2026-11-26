@@ -19,7 +19,6 @@ import {
   getReleaseDir,
   getSigningIdentity,
   hasPartialNotarizationCredentials,
-  hasArg,
   isTransientHdiutilVerifyError,
   parseNotarytoolSubmitResult,
   prependPathDir,
@@ -42,7 +41,6 @@ test("macOS DMG builder defaults to app bundle builds", () => {
 });
 
 test("macOS DMG builder preserves explicit bundle args", () => {
-  assert.equal(hasArg(["build", "--bundles", "app"], "--bundles"), true);
   assert.deepEqual(buildTauriArgs(["--bundles", "app"]), ["build", "--bundles", "app"]);
 });
 

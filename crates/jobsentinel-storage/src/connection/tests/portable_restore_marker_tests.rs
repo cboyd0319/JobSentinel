@@ -1,3 +1,4 @@
+//! Proves restore markers, owner locks and recovery copies resist links and leave no partial files.
 use super::{
     portable_restore_tests::{
         database_bytes, database_with_probe, portable_backup, sibling, BACKUP_PASSPHRASE,
@@ -179,4 +180,41 @@ fn hard_linked_owner_lock_cannot_change_external_file_permissions() {
         std::fs::metadata(external).unwrap().permissions().mode() & 0o777,
         0o644
     );
+}
+
+#[test]
+fn failed_restore_request_publish_leaves_no_temporary_file() {
+    use crate::connection::portable_restore::{
+        publish_restore_request, RestorePhase, RestoreRequest, FAIL_RESTORE_REQUEST_PUBLISH,
+    };
+    let root = tempfile::tempdir().unwrap();
+    let marker = root.path().join("jobs.db.restore-request.json");
+    let request = RestoreRequest {
+        format_version: 1,
+        restore_id: uuid::Uuid::new_v4().to_string(),
+        backup_id: uuid::Uuid::new_v4().to_string(),
+        requested_at: "2026-01-01T00:00:00.000Z".into(),
+        phase: RestorePhase::Ready,
+    };
+    FAIL_RESTORE_REQUEST_PUBLISH.set(true);
+    assert!(publish_restore_request(&marker, &request).is_err());
+    assert_eq!(std::fs::read_dir(root.path()).unwrap().count(), 0);
+}
+
+#[cfg(unix)]
+#[test]
+fn unreadable_bundle_member_removes_already_copied_files() {
+    use std::os::unix::fs::PermissionsExt;
+    let root = tempfile::tempdir().unwrap();
+    let source = root.path().join("source.db");
+    let destination = root.path().join("copy.db");
+    std::fs::write(&source, b"primary").unwrap();
+    let wal = crate::encryption::sqlite_sidecar_path(&source, "-wal");
+    std::fs::write(&wal, b"wal").unwrap();
+    std::fs::set_permissions(&wal, std::fs::Permissions::from_mode(0o000)).unwrap();
+    let copied =
+        crate::connection::portable_restore_bundle::preserve_opaque_bundle(&source, &destination);
+    std::fs::set_permissions(&wal, std::fs::Permissions::from_mode(0o600)).unwrap();
+    assert!(copied.is_err());
+    assert!(!destination.exists());
 }

@@ -15,7 +15,7 @@ use super::{
     Database, PortableBackupInfo,
 };
 use crate::encryption::{
-    connect_encrypted_pool, connect_encrypted_read_only_primary_pool, load_or_create_database_key,
+    connect_encrypted_pool, connect_encrypted_read_only_primary_pool, load_database_key,
     sqlite_sidecar_path,
 };
 use sqlx::SqlitePool;
@@ -75,7 +75,7 @@ impl Database {
         let Some(mut request) = read_restore_request(database_path)? else {
             return Ok(false);
         };
-        let key = load_or_create_database_key().await?;
+        let key = load_database_key(false).await?;
         match request.phase {
             RestorePhase::Promoted => {
                 let finished = verify_promoted(database_path, &key, &request).await?;
@@ -166,7 +166,7 @@ impl Database {
         if request.phase == RestorePhase::Ready {
             return Err(restore_error("Portable restore has not been promoted"));
         }
-        let key = load_or_create_database_key().await?;
+        let key = load_database_key(false).await?;
         rollback_from_available_copy(database_path, &key, &request).await?;
         Ok(true)
     }

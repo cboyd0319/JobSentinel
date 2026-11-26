@@ -17,6 +17,7 @@ import {
 import { tmpdir } from "node:os";
 import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { getArgValue, hasArg } from "../release/args.mjs";
 import {
   buildMacosTauriEnv,
   getSigningIdentity,
@@ -54,20 +55,6 @@ export {
 
 const scriptPath = fileURLToPath(import.meta.url);
 const defaultRoot = resolve(dirname(scriptPath), "../..");
-
-export function hasArg(args, name) {
-  return args.some((arg) => arg === name || arg.startsWith(`${name}=`));
-}
-
-export function getArgValue(args, name) {
-  const exactIndex = args.indexOf(name);
-  if (exactIndex >= 0) {
-    return args[exactIndex + 1];
-  }
-
-  const prefixed = args.find((arg) => arg.startsWith(`${name}=`));
-  return prefixed ? prefixed.slice(name.length + 1) : undefined;
-}
 
 export function buildTauriArgs(args) {
   const tauriArgs = ["build", ...args];

@@ -1,9 +1,13 @@
+# Dispatches one platform build to its reusable workflow, passing the tag, version and draft release id.
 name: Release build dispatcher
 
 on:
   workflow_call:
     inputs:
       platform_key:
+        required: true
+        type: string
+      release_id:
         required: true
         type: string
       tag:
@@ -27,6 +31,7 @@ jobs:
     with:
       tag: ${{ inputs.tag }}
       version: ${{ inputs.version }}
+      release_id: ${{ inputs.release_id }}
   macos:
     if: inputs.platform_key == 'macos'
     permissions:
@@ -38,6 +43,7 @@ jobs:
     with:
       tag: ${{ inputs.tag }}
       version: ${{ inputs.version }}
+      release_id: ${{ inputs.release_id }}
   linux:
     if: inputs.platform_key == 'linux'
     permissions:
@@ -49,3 +55,4 @@ jobs:
     with:
       tag: ${{ inputs.tag }}
       version: ${{ inputs.version }}
+      release_id: ${{ inputs.release_id }}

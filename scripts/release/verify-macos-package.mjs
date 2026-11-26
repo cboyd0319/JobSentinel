@@ -14,7 +14,7 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { fileURLToPath } from "node:url";
 import {
   parseArgs,
   parseLipoArchitectures,
@@ -36,8 +36,6 @@ import {
   verifyMacosRuntimeProfile,
 } from "../platform/macos-runtime-profile.mjs";
 export {
-  getArgValue,
-  hasArg,
   defaultArchitectures,
   parseArgs,
   parseLipoArchitectures,
@@ -70,6 +68,7 @@ import {
   sampleMacosAppRss,
   stopMacosAppCoalition,
 } from "./macos-package-performance.mjs";
+import { isMainModule } from "./args.mjs";
 
 export {
   buildMacosCoalitionKillArgs,
@@ -484,7 +483,7 @@ export async function main({ args = process.argv.slice(2) } = {}) {
   await verifyMacosPackage(options);
 }
 
-if (process.argv[1] && pathToFileURL(resolve(process.argv[1])).href === import.meta.url) {
+if (isMainModule(import.meta.url)) {
   try {
     await main();
   } catch (error) {

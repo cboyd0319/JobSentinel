@@ -209,8 +209,8 @@ test("release readiness rejects staged release body without versioned release no
   const report = evaluateReleaseReadinessFromInputs({
     ...inputs,
     releaseWorkflow: inputs.releaseWorkflow.replace(
-      'release_notes_path="docs/releases/v${RELEASE_VERSION}.md"',
-      'release_notes_path=""',
+      'node scripts/release/release-notes.mjs --version "$RELEASE_VERSION" --out "$notes_file"',
+      'cp docs/releases/README.md "$notes_file"',
     ),
   });
 
@@ -230,13 +230,14 @@ test("release readiness rejects staged release notes without create-release chec
     "        with:",
     "          persist-credentials: false",
     "",
-    "      - name: Create staged release",
+    "      - name: Setup Node.js",
   ].join("\n");
+  assert(inputs.releaseWorkflow.includes(createReleaseCheckout));
   const report = evaluateReleaseReadinessFromInputs({
     ...inputs,
     releaseWorkflow: inputs.releaseWorkflow.replace(
       createReleaseCheckout,
-      "\n      - name: Create staged release",
+      "\n      - name: Setup Node.js",
     ),
   });
 
@@ -335,4 +336,12 @@ test("release readiness rejects front-door docs without checksum guidance", () =
 test("release readiness parses version flags", () => {
   assert.deepEqual(parseArgs(["--version", "v2.9.0"]), { version: "v2.9.0" });
   assert.deepEqual(parseArgs(["--tag=v2.9.0"]), { version: "v2.9.0" });
+});
+
+test("release readiness with --version fails closed without valid final-phase evidence", () => {
+  const report = evaluateReleaseReadiness({ version: "3.0.0", env: {} });
+  const evidence = report.criteria.find((item) => item.id === "final release phase evidence is valid");
+  assert.equal(evidence.ok, false);
+  assert.match(evidence.detail, /Final-phase evidence at HEAD (?:against|without) local tag v3\.0\.0.*missing at/);
+  assert.equal(evaluateReleaseReadiness({ env: {} }).criteria.some((item) => item.id === "final release phase evidence is valid"), false);
 });

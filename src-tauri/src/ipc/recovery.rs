@@ -209,7 +209,9 @@ pub(crate) async fn stage_portable_restore_from_path(
     backup: &std::path::Path,
     passphrase: &str,
 ) -> Result<PortableRestoreActionResult, String> {
-    require_restore_available(recovery)?;
+    // Dropped files stage only in normal mode; only the startup-recovery flow, which shows
+    // the missing-key warning, may stage a restore that creates a database key.
+    require_ready_storage(recovery)?;
     validate_portable_passphrase(passphrase)?;
     stage_portable_restore_at_validated_path(state, recovery, backup, passphrase).await
 }
@@ -448,6 +450,22 @@ mod tests {
     fn portable_recovery_requires_a_substantial_passphrase() {
         assert!(validate_portable_passphrase("too-short").is_err());
         assert!(validate_portable_passphrase("sixteen-letters!!").is_ok());
+    }
+
+    #[tokio::test]
+    async fn dropped_restore_is_refused_during_any_startup_recovery() {
+        let state = crate::ipc::tests::create_test_app_state().await;
+        let database = Some(DesktopStartupFailureKind::Database);
+        for recovery in [(false, database), (true, None)] {
+            let recovery = StartupRecoveryState::new(recovery.0, recovery.1);
+            // A short passphrase fails a missing guard before any storage access.
+            let path = std::path::Path::new("dropped.db");
+            let staged = stage_portable_restore_from_path(&state, &recovery, path, "too-short");
+            assert!(staged
+                .await
+                .unwrap_err()
+                .contains("until startup recovery finishes"));
+        }
     }
 
     #[test]

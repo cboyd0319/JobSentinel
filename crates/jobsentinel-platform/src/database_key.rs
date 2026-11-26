@@ -22,14 +22,22 @@ impl std::fmt::Display for DatabaseKeyError {
 
 impl std::error::Error for DatabaseKeyError {}
 
-/// Load the existing SQLCipher key or create it in device secure storage.
-pub async fn load_or_create_database_key() -> Result<Zeroizing<String>, DatabaseKeyError> {
-    tokio::task::spawn_blocking(load_or_create_database_key_blocking)
+/// Load the SQLCipher key; only a new database or recovery-mode restore staging may pass
+/// `create_if_missing`.
+///
+/// A missing key fails closed otherwise, because Credential Manager can report a
+/// spurious miss and a replacement key would make existing data unreadable.
+pub async fn load_database_key(
+    create_if_missing: bool,
+) -> Result<Zeroizing<String>, DatabaseKeyError> {
+    tokio::task::spawn_blocking(move || load_database_key_blocking(create_if_missing))
         .await
         .map_err(|_| DatabaseKeyError)?
 }
 
-fn load_or_create_database_key_blocking() -> Result<Zeroizing<String>, DatabaseKeyError> {
+fn load_database_key_blocking(
+    create_if_missing: bool,
+) -> Result<Zeroizing<String>, DatabaseKeyError> {
     #[cfg(target_os = "macos")]
     if let Some(key) = smoke_database_key_hex()? {
         tracing::info!("Using validated isolated macOS package-smoke database key");
@@ -40,32 +48,73 @@ fn load_or_create_database_key_blocking() -> Result<Zeroizing<String>, DatabaseK
     let entry = crate::windows_local_key::entry(DATABASE_KEY_NAME);
     #[cfg(not(windows))]
     let entry = Entry::new(crate::SECURE_STORAGE_SERVICE, DATABASE_KEY_NAME);
-    load_or_create_device_database_key(&entry.map_err(|_| DatabaseKeyError)?)
+    load_device_database_key(&entry.map_err(|_| DatabaseKeyError)?, create_if_missing)
 }
 
-fn load_or_create_device_database_key(
+fn load_device_database_key(
     entry: &Entry,
+    create_if_missing: bool,
 ) -> Result<Zeroizing<String>, DatabaseKeyError> {
-    #[cfg(windows)]
-    let encoded_key =
-        crate::windows_local_key::load(entry, |key| is_valid_database_key_hex(key.trim()))
-            .map_err(|()| DatabaseKeyError)?;
-    #[cfg(not(windows))]
-    let encoded_key = match entry.get_password() {
-        Ok(key) => Some(Zeroizing::new(key)),
-        Err(keyring::Error::NoEntry) => None,
-        Err(_) => return Err(DatabaseKeyError),
+    let read = || {
+        read_device_database_key(entry)?
+            .map(validate_database_key_hex)
+            .transpose()
     };
-    match encoded_key {
-        Some(encoded_key) => validate_database_key_hex(encoded_key),
-        None => {
+    load_or_create_key(
+        create_if_missing,
+        read,
+        || DatabaseKeyError,
+        || {
             let key = Zeroizing::new(<[u8; DATABASE_KEY_LEN]>::generate());
             let encoded_key = Zeroizing::new(hex::encode(key.as_ref()));
             entry
                 .set_password(encoded_key.as_str())
                 .map_err(|_| DatabaseKeyError)?;
             Ok(encoded_key)
+        },
+    )
+}
+
+fn read_device_database_key(entry: &Entry) -> Result<Option<Zeroizing<String>>, DatabaseKeyError> {
+    #[cfg(windows)]
+    {
+        crate::windows_local_key::load(entry).map_err(|()| DatabaseKeyError)
+    }
+    #[cfg(not(windows))]
+    {
+        match entry.get_password() {
+            Ok(key) => Ok(Some(Zeroizing::new(key))),
+            Err(keyring::Error::NoEntry) => Ok(None),
+            Err(error) => {
+                wipe_keyring_error(error);
+                Err(DatabaseKeyError)
+            }
         }
+    }
+}
+
+/// Delay before re-reading a missing key; Credential Manager can report a spurious miss.
+const MISSING_KEY_REREAD_DELAY: std::time::Duration = std::time::Duration::from_millis(150);
+
+/// Read a key, creating it only if `create_if_missing` and a delayed second read also misses.
+///
+/// Blocking: call only from a blocking context.
+pub(crate) fn load_or_create_key<T, E>(
+    create_if_missing: bool,
+    read: impl Fn() -> Result<Option<T>, E>,
+    missing: impl FnOnce() -> E,
+    create: impl FnOnce() -> Result<T, E>,
+) -> Result<T, E> {
+    if let Some(key) = read()? {
+        return Ok(key);
+    }
+    if !create_if_missing {
+        return Err(missing());
+    }
+    std::thread::sleep(MISSING_KEY_REREAD_DELAY);
+    match read()? {
+        Some(key) => Ok(key),
+        None => create(),
     }
 }
 
@@ -96,13 +145,23 @@ fn validate_database_key_hex(
     encoded_key: Zeroizing<String>,
 ) -> Result<Zeroizing<String>, DatabaseKeyError> {
     let trimmed = encoded_key.trim();
-    if !is_valid_database_key_hex(trimmed) {
+    if !is_valid_key_hex(trimmed) {
         return Err(DatabaseKeyError);
     }
     Ok(Zeroizing::new(trimmed.to_string()))
 }
 
-fn is_valid_database_key_hex(value: &str) -> bool {
+/// Wipe undecodable secret bytes that a keyring error carries before dropping it.
+pub(crate) fn wipe_keyring_error(error: keyring::Error) {
+    if let keyring::Error::BadEncoding(mut bytes) | keyring::Error::BadDataFormat(mut bytes, _) =
+        error
+    {
+        zeroize::Zeroize::zeroize(&mut bytes);
+    }
+}
+
+/// Whether `value` is the exact hex encoding of a 32-byte database or vault key.
+pub(crate) fn is_valid_key_hex(value: &str) -> bool {
     value.len() == DATABASE_KEY_HEX_LEN && value.bytes().all(|byte| byte.is_ascii_hexdigit())
 }
 
@@ -123,15 +182,40 @@ mod tests {
     #[test]
     fn device_key_is_created_once_and_invalid_keys_are_not_replaced() {
         let entry = mock_entry();
-        let key = load_or_create_device_database_key(&entry).unwrap();
-        assert!(is_valid_database_key_hex(&key));
-        assert_eq!(
-            load_or_create_device_database_key(&entry).unwrap().as_str(),
-            key.as_str()
-        );
+        let key = load_device_database_key(&entry, true).unwrap();
+        assert!(is_valid_key_hex(&key));
+        for create_if_missing in [true, false] {
+            let loaded = load_device_database_key(&entry, create_if_missing).unwrap();
+            assert_eq!(loaded.as_str(), key.as_str());
+        }
         entry.set_password("malformed").unwrap();
-        assert!(load_or_create_device_database_key(&entry).is_err());
+        assert!(load_device_database_key(&entry, true).is_err());
         assert_eq!(entry.get_password().unwrap(), "malformed");
+    }
+
+    #[test]
+    fn one_spurious_miss_rereads_the_existing_key_without_writing() {
+        let entry = mock_entry();
+        let key = "ab".repeat(DATABASE_KEY_LEN);
+        entry.set_password(&key).unwrap();
+        let credential = entry
+            .inner
+            .as_any()
+            .downcast_ref::<keyring_core::mock::Cred>()
+            .unwrap();
+        credential.set_error(keyring::Error::NoEntry);
+        assert_eq!(
+            load_device_database_key(&entry, true).unwrap().as_str(),
+            key
+        );
+        assert_eq!(entry.get_password().unwrap(), key);
+    }
+
+    #[test]
+    fn existing_database_with_missing_key_fails_without_writing() {
+        let entry = mock_entry();
+        assert!(load_device_database_key(&entry, false).is_err());
+        assert!(matches!(entry.get_password(), Err(keyring::Error::NoEntry)));
     }
 
     #[test]
@@ -149,7 +233,7 @@ mod tests {
             credential.set_error(keyring::Error::NoStorageAccess(Box::new(
                 std::io::Error::from(std::io::ErrorKind::PermissionDenied),
             )));
-            assert!(load_or_create_device_database_key(&entry).is_err());
+            assert!(load_device_database_key(&entry, true).is_err());
             assert_eq!(entry.get_password().ok(), key);
         }
     }
@@ -160,7 +244,7 @@ mod tests {
         const CHILD: &str = "JOBSENTINEL_TEST_DATABASE_SMOKE_CHILD";
         if let Ok(case) = std::env::var(CHILD) {
             assert!(crate::package_smoke_root().is_some());
-            let result = load_or_create_database_key_blocking();
+            let result = load_database_key_blocking(true);
             if case == "valid" {
                 assert_eq!(result.unwrap().as_str(), "ab".repeat(DATABASE_KEY_LEN));
             } else {
@@ -195,9 +279,9 @@ mod tests {
 
     #[test]
     fn database_key_requires_exact_hex_length() {
-        assert!(is_valid_database_key_hex(&"ab".repeat(DATABASE_KEY_LEN)));
-        assert!(!is_valid_database_key_hex("ab"));
-        assert!(!is_valid_database_key_hex(&"zz".repeat(DATABASE_KEY_LEN)));
+        assert!(is_valid_key_hex(&"ab".repeat(DATABASE_KEY_LEN)));
+        assert!(!is_valid_key_hex("ab"));
+        assert!(!is_valid_key_hex(&"zz".repeat(DATABASE_KEY_LEN)));
     }
 
     #[test]

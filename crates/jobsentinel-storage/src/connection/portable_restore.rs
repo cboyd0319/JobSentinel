@@ -1,9 +1,9 @@
-//! Stages and cancels verified portable database restoration.
+//! Stages verified portable database restoration and owns its request marker format.
 use super::{
     backups::export_encrypted_to_encrypted, portable_restore_bundle::sync_parent, Database,
     PortableBackupInfo,
 };
-use crate::encryption::{connect_encrypted_pool, load_or_create_database_key, sqlite_sidecar_path};
+use crate::encryption::{connect_encrypted_pool, load_database_key, sqlite_sidecar_path};
 use serde::{Deserialize, Serialize};
 use sqlx::SqlitePool;
 use std::{
@@ -13,7 +13,7 @@ use std::{
 };
 use uuid::Uuid;
 const RESTORE_FORMAT_VERSION: i64 = 1;
-const MAX_RESTORE_MARKER_BYTES: u64 = 4096;
+pub(super) const MAX_RESTORE_MARKER_BYTES: u64 = 4096;
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub(super) enum RestorePhase {
@@ -57,8 +57,10 @@ impl Database {
         let request = new_restore_request(&info);
         self.start_restore_operation(&request.restore_id, info.migration_sequence)
             .await?;
+        // A live pool proves the key exists; only recovery-mode `_at` staging may create one.
         let result =
-            Self::stage_portable_restore_files(backup, passphrase, db_path, &request, &info).await;
+            Self::stage_portable_restore_files(backup, passphrase, db_path, &request, &info, false)
+                .await;
         if let Err(error) = &result {
             let _ = self
                 .finish_restore_operation(
@@ -79,8 +81,15 @@ impl Database {
         let _owner = Self::acquire_owner_lock(database_path)?;
         let info = Self::inspect_portable_backup(backup, passphrase).await?;
         let request = new_restore_request(&info);
-        Self::stage_portable_restore_files(backup, passphrase, database_path, &request, &info)
-            .await?;
+        Self::stage_portable_restore_files(
+            backup,
+            passphrase,
+            database_path,
+            &request,
+            &info,
+            true,
+        )
+        .await?;
         Ok(info)
     }
 
@@ -90,13 +99,14 @@ impl Database {
         database_path: &Path,
         request: &RestoreRequest,
         info: &PortableBackupInfo,
+        create_key_if_missing: bool,
     ) -> Result<(), sqlx::Error> {
         let stage = restore_stage_path(database_path);
         let marker = restore_request_path(database_path);
         if path_entry_exists(&stage)? || path_entry_exists(&marker)? {
             return Err(restore_error("A portable restore is already staged"));
         }
-        let key = load_or_create_database_key().await?;
+        let key = load_database_key(create_key_if_missing).await?;
         let stage_file = OwnedDatabaseFile::create(stage.clone())?;
         export_encrypted_to_encrypted(backup, passphrase, &stage, &key).await?;
         let pool = connect_encrypted_pool(&stage, &key, false).await?;
@@ -122,47 +132,6 @@ impl Database {
         Ok(())
     }
 
-    pub async fn cancel_staged_restore(&self) -> Result<bool, sqlx::Error> {
-        let db_path = self
-            .db_path
-            .as_deref()
-            .ok_or_else(|| restore_error("Portable restore requires an on-disk database"))?;
-        let (cancelled, request) = revoke_staged_restore(db_path)?;
-        if let Some(request) = request {
-            self.finish_restore_operation(&request.restore_id, "cancelled", None)
-                .await?;
-        }
-        Ok(cancelled)
-    }
-
-    pub fn cancel_staged_restore_at(database_path: &Path) -> Result<bool, sqlx::Error> {
-        let _owner = Self::acquire_owner_lock(database_path)?;
-        revoke_staged_restore(database_path).map(|(cancelled, _)| cancelled)
-    }
-
-    pub fn staged_restore_status(
-        database_path: &Path,
-    ) -> Result<PortableRestoreStatus, sqlx::Error> {
-        let request = match read_restore_request(database_path) {
-            Ok(request) => request,
-            Err(_) if repairable_invalid_restore_request(database_path)? => {
-                return Ok(PortableRestoreStatus::Invalid);
-            }
-            Err(error) => return Err(error),
-        };
-        Ok(match request {
-            Some(request) => match request.phase {
-                RestorePhase::Ready => PortableRestoreStatus::Ready,
-                RestorePhase::Promoting => PortableRestoreStatus::Promoting,
-                RestorePhase::Promoted => PortableRestoreStatus::Promoted,
-            },
-            None if path_entry_exists(&restore_stage_path(database_path))? => {
-                PortableRestoreStatus::Incomplete
-            }
-            None => PortableRestoreStatus::None,
-        })
-    }
-
     async fn start_restore_operation(
         &self,
         restore_id: &str,
@@ -175,7 +144,7 @@ impl Database {
         insert_restore_operation(&self.pool, restore_id, source_migration, target_migration).await
     }
 
-    async fn finish_restore_operation(
+    pub(super) async fn finish_restore_operation(
         &self,
         restore_id: &str,
         outcome: &str,
@@ -230,102 +199,7 @@ fn new_restore_request(info: &PortableBackupInfo) -> RestoreRequest {
     }
 }
 
-fn revoke_staged_restore(
-    database_path: &Path,
-) -> Result<(bool, Option<RestoreRequest>), sqlx::Error> {
-    let request = match read_restore_request(database_path) {
-        Ok(request) => request,
-        Err(_) if repairable_invalid_restore_request(database_path)? => {
-            preserve_invalid_restore(database_path)?;
-            return Ok((true, None));
-        }
-        Err(error) => return Err(error),
-    };
-    let Some(request) = request else {
-        let stage = restore_stage_path(database_path);
-        if !path_entry_exists(&stage)? {
-            return Ok((false, None));
-        }
-        remove_owned_database(&stage).map_err(sqlx::Error::Io)?;
-        return Ok((true, None));
-    };
-    if request.phase != RestorePhase::Ready {
-        return Err(restore_error("Portable restore can no longer be cancelled"));
-    }
-    std::fs::remove_file(restore_request_path(database_path)).map_err(sqlx::Error::Io)?;
-    remove_owned_database(&restore_stage_path(database_path)).map_err(sqlx::Error::Io)?;
-    Ok((true, Some(request)))
-}
-
-fn repairable_invalid_restore_request(database_path: &Path) -> Result<bool, sqlx::Error> {
-    let marker = restore_request_path(database_path);
-    let metadata = std::fs::symlink_metadata(&marker).map_err(sqlx::Error::Io)?;
-    if !metadata.file_type().is_file() || metadata.len() > MAX_RESTORE_MARKER_BYTES {
-        return Ok(false);
-    }
-    let mut bytes = Vec::new();
-    std::fs::File::open(marker)
-        .map_err(sqlx::Error::Io)?
-        .take(MAX_RESTORE_MARKER_BYTES + 1)
-        .read_to_end(&mut bytes)
-        .map_err(sqlx::Error::Io)?;
-    Ok(bytes.len() as u64 <= MAX_RESTORE_MARKER_BYTES)
-}
-
-fn preserve_invalid_restore(database_path: &Path) -> Result<(), sqlx::Error> {
-    let repair_id = Uuid::new_v4();
-    let marker = restore_request_path(database_path);
-    let stage = restore_stage_path(database_path);
-    let mut moves = vec![(
-        marker,
-        sibling_path(
-            database_path,
-            &format!(".restore-invalid-{repair_id}.request.json"),
-        ),
-    )];
-    for suffix in ["", "-wal", "-shm", "-journal"] {
-        let source = if suffix.is_empty() {
-            stage.clone()
-        } else {
-            sqlite_sidecar_path(&stage, suffix)
-        };
-        match std::fs::symlink_metadata(&source) {
-            Ok(metadata) if metadata.file_type().is_file() => moves.push((
-                source,
-                sibling_path(
-                    database_path,
-                    &format!(".restore-invalid-{repair_id}.stage{suffix}"),
-                ),
-            )),
-            Ok(_) => {
-                return Err(restore_error("Invalid restore files require manual review"));
-            }
-            Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
-            Err(error) => return Err(sqlx::Error::Io(error)),
-        }
-    }
-    for (source, destination) in &moves {
-        let metadata = std::fs::symlink_metadata(source).map_err(sqlx::Error::Io)?;
-        if !metadata.file_type().is_file() || path_entry_exists(destination)? {
-            return Err(restore_error("Invalid restore files require manual review"));
-        }
-        jobsentinel_platform::ensure_private_file(source).map_err(sqlx::Error::Io)?;
-    }
-    let mut preserved = Vec::new();
-    for (source, destination) in &moves {
-        if let Err(error) = std::fs::rename(source, destination) {
-            for (source, destination) in preserved.into_iter().rev() {
-                let _ = std::fs::rename(destination, source);
-            }
-            return Err(sqlx::Error::Io(error));
-        }
-        preserved.push((source, destination));
-    }
-    sync_parent(database_path);
-    Ok(())
-}
-
-fn path_entry_exists(path: &Path) -> Result<bool, sqlx::Error> {
+pub(super) fn path_entry_exists(path: &Path) -> Result<bool, sqlx::Error> {
     match std::fs::symlink_metadata(path) {
         Ok(_) => Ok(true),
         Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(false),
@@ -401,7 +275,10 @@ pub(super) fn read_restore_request(
     Ok(Some(request))
 }
 
-fn publish_restore_request(path: &Path, request: &RestoreRequest) -> Result<(), sqlx::Error> {
+pub(super) fn publish_restore_request(
+    path: &Path,
+    request: &RestoreRequest,
+) -> Result<(), sqlx::Error> {
     let content = serde_json::to_vec(request)
         .map_err(|_| restore_error("Portable restore request could not be encoded"))?;
     let temporary = path.with_file_name(format!(
@@ -413,13 +290,33 @@ fn publish_restore_request(path: &Path, request: &RestoreRequest) -> Result<(), 
         .create_new(true)
         .open(&temporary)
         .map_err(sqlx::Error::Io)?;
-    file.write_all(&content).map_err(sqlx::Error::Io)?;
-    file.sync_all().map_err(sqlx::Error::Io)?;
-    jobsentinel_platform::ensure_private_file(&temporary).map_err(sqlx::Error::Io)?;
-    let result = std::fs::hard_link(&temporary, path).map_err(sqlx::Error::Io);
+    // Remove the temporary on every outcome, so a failed staging leaves no stray file.
+    let result = file
+        .write_all(&content)
+        .and_then(|()| file.sync_all())
+        .and_then(|()| fail_restore_request_publish())
+        .and_then(|()| jobsentinel_platform::ensure_private_file(&temporary))
+        .and_then(|()| std::fs::hard_link(&temporary, path))
+        .map_err(sqlx::Error::Io);
+    drop(file);
     let _ = std::fs::remove_file(temporary);
     sync_parent(path);
     result
+}
+
+#[cfg(test)]
+thread_local! {
+    /// Test seam: fail the next marker publish after its temporary file is written.
+    pub(super) static FAIL_RESTORE_REQUEST_PUBLISH: std::cell::Cell<bool> =
+        const { std::cell::Cell::new(false) };
+}
+
+fn fail_restore_request_publish() -> std::io::Result<()> {
+    #[cfg(test)]
+    if FAIL_RESTORE_REQUEST_PUBLISH.replace(false) {
+        return Err(std::io::Error::other("injected restore request failure"));
+    }
+    Ok(())
 }
 
 pub(super) fn write_restore_request(

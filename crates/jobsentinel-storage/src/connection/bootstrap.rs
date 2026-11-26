@@ -31,8 +31,10 @@ impl StorageLayout {
 tokio::task_local! { pub(super) static BOOTSTRAP_CRASH_POINT: u8; }
 
 impl Database {
-    pub(super) fn refuse_missing_primary(path: &Path) -> Result<(), sqlx::Error> {
-        if !path.exists() {
+    /// Return whether the primary exists; only `NotFound` means absent, and symlinks exist.
+    pub(super) fn primary_exists_or_refuse(path: &Path) -> Result<bool, sqlx::Error> {
+        let exists = primary_entry_exists(path)?;
+        if !exists {
             for artifact in std::iter::once(path.with_extension("db.sqlcipher-new")).chain(
                 ["-wal", "-shm", "-journal"]
                     .map(|suffix| crate::encryption::sqlite_sidecar_path(path, suffix)),
@@ -44,7 +46,13 @@ impl Database {
                 }
             }
         }
-        Ok(())
+        Ok(exists)
+    }
+
+    /// A key may be created only without a primary or any possibly encrypted copy.
+    /// Orphaned sidecars are refused earlier, by `primary_exists_or_refuse`.
+    pub(super) fn may_create_key(path: &Path, primary_exists: bool) -> std::io::Result<bool> {
+        Ok(!primary_exists && !encrypted_recovery_copies_exist(path)?)
     }
 
     pub(crate) async fn require_supported_v3(
@@ -201,10 +209,7 @@ impl Database {
         key: &str,
         migrator: &Migrator,
     ) -> Result<(), sqlx::Error> {
-        let parent = path
-            .parent()
-            .filter(|path| !path.as_os_str().is_empty())
-            .unwrap_or_else(|| Path::new("."));
+        let parent = bootstrap_parent(path);
         let directory = tempfile::Builder::new()
             .prefix(".jobsentinel-bootstrap-")
             .tempdir_in(parent)?;
@@ -257,5 +262,51 @@ impl Database {
         #[cfg(unix)]
         std::fs::File::open(parent)?.sync_all()?;
         Ok(())
+    }
+}
+
+/// Directory that receives the staged bootstrap; a bare file name resolves to `.`.
+pub(super) fn bootstrap_parent(path: &Path) -> &Path {
+    path.parent()
+        .filter(|parent| !parent.as_os_str().is_empty())
+        .unwrap_or_else(|| Path::new("."))
+}
+
+/// Whether any copy that may be encrypted with the device key remains beside the primary.
+///
+/// Conservative: any `backups` entry, `<db>.restore-*` sibling or update snapshot counts,
+/// so a missing primary stays load-only and a new key never orphans them.
+fn encrypted_recovery_copies_exist(path: &Path) -> std::io::Result<bool> {
+    let parent = bootstrap_parent(path);
+    let mut restore_prefix = path.file_name().unwrap_or_default().to_os_string();
+    restore_prefix.push(".restore-");
+    let restore_prefix = restore_prefix.to_string_lossy();
+    Ok(has_matching_entry(parent, |name| {
+        name.starts_with(restore_prefix.as_ref())
+            || name.starts_with(super::update_backup::UPDATE_SNAPSHOT_DIR_PREFIX)
+    })? || has_matching_entry(&parent.join("backups"), |_| true)?)
+}
+
+/// `NotFound` means no entries; every other error fails closed.
+fn has_matching_entry(directory: &Path, matches: impl Fn(&str) -> bool) -> std::io::Result<bool> {
+    let entries = match std::fs::read_dir(directory) {
+        Ok(entries) => entries,
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(false),
+        Err(error) => return Err(error),
+    };
+    for entry in entries {
+        if matches(&entry?.file_name().to_string_lossy()) {
+            return Ok(true);
+        }
+    }
+    Ok(false)
+}
+
+/// Treat any entry, including a dangling symlink, as present; surface non-`NotFound` errors.
+pub(super) fn primary_entry_exists(path: &Path) -> std::io::Result<bool> {
+    match std::fs::symlink_metadata(path) {
+        Ok(_) => Ok(true),
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(false),
+        Err(error) => Err(error),
     }
 }

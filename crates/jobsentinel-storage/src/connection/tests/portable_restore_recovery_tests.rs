@@ -3,6 +3,65 @@
 use super::*;
 
 #[tokio::test]
+async fn live_staging_promotion_and_rollback_never_create_a_missing_key() {
+    use crate::encryption::test_key;
+    let temp_dir = tempfile::tempdir().unwrap();
+    let backup = portable_backup(temp_dir.path()).await;
+    let db_path = temp_dir.path().join("primary/jobs.db");
+    let database = database_with_probe(&db_path, "current local history", false).await;
+    test_key::clear();
+    let staged = database.stage_portable_restore(&backup, BACKUP_PASSPHRASE);
+    assert!(staged.await.is_err());
+    assert_eq!(test_key::writes(), 0);
+    assert_eq!(
+        Database::staged_restore_status(&db_path).unwrap(),
+        PortableRestoreStatus::None
+    );
+
+    load_database_key(true).await.unwrap();
+    database
+        .stage_portable_restore(&backup, BACKUP_PASSPHRASE)
+        .await
+        .unwrap();
+    database.pool().close().await;
+    drop(database);
+    test_key::clear();
+    assert!(Database::promote_staged_restore(&db_path).await.is_err());
+    rewrite_request(&db_path, "phase", "promoted");
+    assert!(Database::rollback_staged_restore(&db_path).await.is_err());
+    assert_eq!(test_key::writes(), 0);
+}
+
+#[tokio::test]
+async fn user_restore_over_unreadable_primary_creates_a_missing_key_once() {
+    use crate::encryption::test_key;
+    let temp_dir = tempfile::tempdir().unwrap();
+    let backup = portable_backup(temp_dir.path()).await;
+    let db_path = temp_dir.path().join("primary/jobs.db");
+    std::fs::create_dir_all(db_path.parent().unwrap()).unwrap();
+    std::fs::write(&db_path, b"primary sealed by a lost key").unwrap();
+    test_key::clear();
+
+    Database::stage_portable_restore_at(&db_path, &backup, BACKUP_PASSPHRASE)
+        .await
+        .unwrap();
+    assert_eq!(test_key::writes(), 1);
+    assert_eq!(
+        Database::staged_restore_status(&db_path).unwrap(),
+        PortableRestoreStatus::Ready
+    );
+    let restored = Database::connect_with_staged_restore(&db_path)
+        .await
+        .unwrap();
+    let value: String = sqlx::query_scalar("SELECT value FROM restore_probe")
+        .fetch_one(restored.pool())
+        .await
+        .unwrap();
+    assert_eq!(value, "restored private history");
+    assert_eq!(test_key::writes(), 1);
+}
+
+#[tokio::test]
 async fn finishing_promoted_restore_cleans_raw_artifacts_and_allows_another_backup() {
     let temp_dir = tempfile::tempdir().unwrap();
     let backup = portable_backup(temp_dir.path()).await;
@@ -185,7 +244,7 @@ async fn ready_restore_rebuilds_a_partial_marker_owned_rollback() {
 
     assert!(Database::promote_staged_restore(&db_path).await.unwrap());
 
-    let key = load_or_create_database_key().await.unwrap();
+    let key = load_database_key(true).await.unwrap();
     let rollback = connect_encrypted_read_only_pool(&rollback, &key)
         .await
         .unwrap();
@@ -249,7 +308,7 @@ async fn rollback_restores_original_and_records_failed_restore() {
     );
 
     assert!(rollback_path.exists());
-    let key = load_or_create_database_key().await.unwrap();
+    let key = load_database_key(true).await.unwrap();
     let rollback = connect_encrypted_read_only_pool(&rollback_path, &key)
         .await
         .unwrap();

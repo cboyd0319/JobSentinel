@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-
+// Runs repository security sensors over workflows, boundaries and policy files, and reports every violation.
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { dirname, extname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -13,6 +13,7 @@ import {
 } from "./security/permission-boundaries.mjs";
 import { checkRendererCspBoundary as checkTauriRendererCsp } from "./security/renderer-csp.mjs";
 import { checkWorkflowRunExpressionBoundary } from "./security/workflow-boundaries.mjs";
+import { workflowJobBlock } from "../lib/workflow-text.mjs";
 import {
   agentInstructionFilePatterns,
   allowedAgentInstructionFiles,
@@ -186,13 +187,6 @@ function checkCodeownersBoundary(root, violations) {
       );
     }
   }
-}
-
-function workflowJobBlock(text, jobName) {
-  const match = String(text ?? "").match(
-    new RegExp(`(?:^|\\n)  ${jobName}:\\n([\\s\\S]*?)(?=\\n  [A-Za-z0-9_-]+:\\n|\\s*$)`),
-  );
-  return match?.[1] ?? "";
 }
 
 function normalizePath(path) {

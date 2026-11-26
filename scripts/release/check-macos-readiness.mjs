@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// Scores macOS release readiness and owns the list of release workflow files that readiness checks read.
 
 import { readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
@@ -6,12 +7,14 @@ import { fileURLToPath } from "node:url";
 
 const defaultRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const noAccountReadinessCeiling = 94;
-const releaseWorkflowPaths = [
+export const releaseWorkflowPaths = [
   ".github/workflows/release-stage.yml",
   ".github/workflows/release-build-windows.yml",
   ".github/workflows/release-build-macos.yml",
   ".github/workflows/release-build-linux.yml",
   ".github/workflows/release-build.yml",
+  ".github/workflows/release-verify-draft.yml",
+  ".github/workflows/release-publish.yml",
   ".github/workflows/release.yml",
 ];
 
@@ -27,6 +30,10 @@ function readAll(root, paths) {
   return paths.map((path) => read(root, path)).join("\n");
 }
 
+export function readReleaseWorkflows(root = defaultRoot) {
+  return readAll(root, releaseWorkflowPaths);
+}
+
 import { hasAll, hasAny } from "./macos-readiness-text.mjs";
 import {
   hasNoAccountMacosReleaseOrder,
@@ -36,6 +43,7 @@ import {
   releaseWorkflowBuildsUniversalMacosPackage,
   windowsInstallerUploadRequiresSignatureOrUnsignedLabel,
 } from "./macos-readiness-workflow.mjs";
+import { isMainModule } from "./args.mjs";
 
 export {
   hasNoAccountMacosReleaseOrder,
@@ -430,7 +438,7 @@ export function main({ root = defaultRoot } = {}) {
   }
 }
 
-if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
+if (isMainModule(import.meta.url)) {
   try {
     main();
   } catch (error) {

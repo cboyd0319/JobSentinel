@@ -1,3 +1,5 @@
+<!-- Describes local verification lanes and the manual hosted release workflows. -->
+
 # Local Verification And Hosted Releases
 
 JobSentinel has no hosted continuous integration during private pre-alpha
@@ -39,9 +41,11 @@ CI compliance.
 
 ## Release Workflows
 
-`.github/workflows/release.yml` is manual release automation.
-`.github/workflows/verify-release-artifacts.yml` runs after a published release
-or through manual dispatch. Neither workflow is continuous integration.
+`.github/workflows/release.yml` is manual release automation with separate
+`build-draft` and `publish` modes.
+`.github/workflows/verify-release-artifacts.yml` keeps a `release: published`
+trigger, but releases published with the workflow token do not fire it, so
+dispatch it manually after publication. Neither workflow is continuous integration.
 
 Dispatch, signing, upload, publication, and release-environment approval require
 separate explicit authority. Workflow presence is not evidence that any release

@@ -26,31 +26,32 @@ Numeric limits and release safety requirements remain unchanged.
 ## R1 Stability Plan
 
 The release coordinator owns execution and the pass decision. Engineering baseline
-`4c811f5a` passed development verification; it is not an R1 pass. Resolve the
-trusted-update prerequisite below before freeze. Once resolved,
-record the accepted planning commit's actual full SHA externally before building or
-testing. A draft plan is not a source freeze; do not guess the SHA or move source during R1.
+`4c811f5a` passed development verification; it is not an R1 pass. Update and Region
+public trust are enrolled, and the source is frozen at tag `v3.0.0` (commit T). Do not
+move source during R1.
 Keep the approved v3.0 core, Gate 5 cut, 105 Now / 82 Next dispositions and governed
 Qwen models unchanged; Next consumers remain outside this candidate.
 
 ### Entry and evidence
 
-Entry requires the reviewed engineering baseline, this platform/acceptance matrix,
-the committed source SHA and a credential-isolated runner for each executed row.
-Draft v3.0.0 release notes and changelog metadata are prepared under the Release Contract;
-validate them before package builds. The release remains unpublished.
+Entry requires frozen tag `v3.0.0`, a `release.yml` `build-draft` run from it whose
+`verify-draft-release` summary lists the release id, T and every draft asset SHA-256,
+this platform/acceptance matrix and a credential-isolated runner for each executed row.
+The v3.0.0 release notes and changelog are frozen with T; `build-draft` stages them as
+the release body. The release remains a draft until the publish gate passes.
 Missing runners block their rows, not independent work on an available runner.
 Use synthetic data in disposable app storage; never test against the user's live store.
 Retain exact tool versions, source tree, OS/architecture, fixture hashes, commands,
 exit codes, UTC start/end times, installer hashes and observed outcomes.
 
-Set `EVIDENCE_ROOT` to an external directory for the frozen SHA. Keep `r1/commands.json`,
+Set `EVIDENCE_ROOT` to an external working directory for T. Keep `r1/commands.json`,
 `r1/platforms.json`, `r1/journeys.json`, `r1/recovery.json`, `r1/accessibility.json`,
 `r1/sustained-use.json` and `r1/decision.json` there, with raw logs/artifact manifests
 alongside them. Each scenario records expected/observed behavior, platform and artifact
 identity, result and unresolved gap. Failed/blocked/skipped records remain explicit.
-The Release Contract owns the eventual publication-proof schema; do not fabricate
-passing records or upload these working records before qualification is accepted.
+Phase evidence lives only in `docs/releases/v3.0.0-final-phases.json` and its records, per
+[Certified draft and phase evidence](../../developer/RELEASING.md#certified-draft-and-phase-evidence);
+these working records support it. Never fabricate passing records.
 
 ### Frozen platform matrix
 
@@ -85,7 +86,7 @@ Final full R3 Security still follows R2. Approval is not execution evidence.
 | Publisher identity | Approved `jobsentinel-update-publisher-v1`; public-key enrollment is reviewed and verified. This is distinct from pack publisher identities and the public test seed. |
 | Concealed signing variable | Proposed `JOBSENTINEL_UPDATE_PRIVATE_KEY_PKCS8_B64`; the CLI accepts a caller-selected `--key-env`, and no production update variable is currently defined. |
 | Secret-store inputs | Concealed “JobSentinel Update Publisher v1” item in the approved Private vault, Ed25519 PKCS#8 base64 injected into the caller-selected signing variable, matching raw 32-byte public-key hex, publisher ID and authority to use it for the exact qualification artifact. No secret values enter evidence or the repository. |
-| First artifact target | A macOS aarch64 Essentials v3.0.0 DMG from the eventual frozen candidate, with exact checksum and adjacent `.manifest.json`/`.sig`; use reviewed `macos`/`aarch64` edition and compatibility/readers metadata. Universal first-install artifacts do not imply a universal update-manifest architecture. |
+| First artifact target | A qualification-only macOS aarch64 Essentials v3.0.0 DMG built from T, with exact checksum and adjacent `.manifest.json`/`.sig`; use reviewed `macos`/`aarch64` edition and compatibility/readers metadata. Universal first-install artifacts do not imply a universal update-manifest architecture. |
 | Positive-path counterpart | Qualification-only 3.0.1 build from the same code with a coherent version-only metadata/lock delta in a separate checkout; not published or substituted for the 3.0.0 candidate. This version-only preparation is authorized. |
 
 The signing consumer is `npm run release:sign-update` with exact package/spec paths,
@@ -100,7 +101,7 @@ The user also approved one Region publisher and exact qualification signing.
 static authority ceiling and concealed vault-item route. Review and verify Region
 public trust before freeze, then build/sign the existing UK/EU/India starter inputs
 before positive installed Region lifecycle journeys. This adds no new product scope
-or R3 pass; source freeze remains pending.
+or R3 pass. The source is now frozen at tag `v3.0.0`.
 
 ### Proposed installed update/rollback route
 
@@ -111,8 +112,9 @@ the actual running binary. Changing only a manifest version cannot satisfy this 
 
 After the approved trust preparation is verified:
 
-1. Build the frozen 3.0.0 candidate and the separately identified 3.0.1 counterpart for
-   macOS/aarch64. Keep both no-account DMGs and app bundles under external
+1. Build qualification-only macOS/aarch64 DMGs from T (3.0.0) and from the separately
+   identified 3.0.1 counterpart; neither replaces a draft asset. Keep both no-account
+   DMGs and app bundles under external
    `r1/update/artifacts/candidate/` and `r1/update/artifacts/counterpart/`; record both
    source trees, version-only diff, coherent Cargo/npm/Tauri/lock versions and checksums.
 2. Produce exact signed sidecars for each real DMG. The 3.0.1 target accepts source
@@ -165,13 +167,15 @@ scoped execution or a remaining gap; never enable all ignored tests indiscrimina
 Use current governed model caches where available; absence does not justify a model swap.
 Development results and the 21 historical default-suite skips are context, not R1 passes.
 
-Build and inspect the selected artifacts using the exact commands in the
-[Native Platform Assets](../../developer/RELEASING.md#native-platform-assets) contract:
-Mac universal build plus launch/install smoke, Windows MSI/NSIS build, Linux AppImage/DEB
-build and package inspection. Record source SHA and package hashes before installation.
+The phases certify the exact hosted draft binaries that get published, so installed
+rows use the `build-draft` assets, not separate local builds. Download each asset and
+match its SHA-256 to the draft summary before inspection or installation. For
+`windows-linux`, the draft's macOS DMG is the clean local build uploaded under
+[Native Platform Assets](../../developer/RELEASING.md#native-platform-assets).
+A rebuilt or re-signed draft needs new evidence.
 Keep no-account/unsigned labels truthful; final signature/notarization and supply-chain
 acceptance belongs to R3. Approved update signatures are required before installed
-positive update/rollback journeys, after the frozen artifacts are built.
+positive update/rollback journeys; the signed update DMGs are qualification-only inputs.
 
 ### Installed acceptance matrix
 
@@ -191,15 +195,15 @@ unsupported optional integrations must show their documented fallback.
 | Sustained use | Synthetic working-day run per supported OS; eight hours is proposed, with duration selected and recorded from risk before execution. Repeat the core save/import/track cycle, cancel/retry one failed operation, and restart twice | No unexpected crash, hang, unhandled error or data mismatch; final restart and backup/restore succeed. This protocol makes no performance-budget claim. |
 
 The `ReleasePublisher::production_trust()` enrollment passed review and development
-verification; source acceptance and freeze remain pending. Follow the
+verification, and the source is frozen at tag `v3.0.0`. Follow the
 [approved update-trust preparation](#approved-update-trust-preparation) in its stated
 order. The test-only coordinator does not prove installed behavior; do not add fixture
 trust, a smoke bypass or a passing exception.
 
 ### Exit and change handling
 
-R1 passes only after all required matrix rows and applicable suites pass for the exact
-frozen source/artifacts, blocking defects are resolved and the coordinator accepts the
+R1 passes only after all required matrix rows and applicable suites pass for T and the
+exact draft assets, blocking defects are resolved and the coordinator accepts the
 recorded evidence and remaining risks. Missing native hardware, ignored required cases,
 failed recovery, unavailable trust or deferred rows leave R1 incomplete; no R2 starts.
 If a correction is required, record the defect and new source/artifact identity, then

@@ -44,71 +44,142 @@ evidence before publication approval.
 The release owner records each phase's scope, commands, results, remaining risks,
 source revision and tested artifacts. Required skipped, failed or deferred work
 leaves its phase incomplete. Existing development-stage deferrals do not waive
-these release gates. Any exception requires explicit user approval and remains
-visible in the release decision; never infer approval from an earlier deferral.
+these release gates. Any exception requires explicit user approval and is recorded
+in the release decision, never in phase evidence, which rejects waivers. Never
+infer approval from an earlier deferral.
 
 All three phases must pass for the intended release candidate. Subsequent changes
 invalidate affected evidence: repeat the affected phase work and downstream checks
 before publication. Signature-only changes require applicable artifact/trust checks,
-not automatic reruns of unrelated unchanged behavior. Gate 6/publication follows
+not automatic reruns of unrelated unchanged behavior. Because the evidence certifies
+exact draft digests, any re-signed or rebuilt draft, including a `build-draft`
+rerun, needs new evidence; only the affected phase work is repeated, and the
+records must still name the new draft. Gate 6/publication follows
 these phases; publication itself is a delivery action, not a replacement phase.
 
 Focused development checks continue while engineering is underway. These full
 phases run at the end, beginning with the v3 release.
 
-### Publication evidence gate
+### Certified draft and phase evidence
 
-The release workflow verifies draft assets before publication and rechecks them
-immediately after release-environment approval. It requires
-`release-evidence-phases.json` plus the referenced `release-evidence-*.json` assets.
-Upload these only after the full phases above pass; rerun the failed verification
-and dependent publication jobs without rebuilding the accepted artifacts.
-Missing evidence leaves the release draft. Never create passing placeholder records.
+The phases certify the exact hosted draft binaries that get published:
 
-The JSON record uses `schemaVersion: 1`, exact `version`, 40-character source
-`revision`, selected `platforms`, and `artifacts` mapping every non-evidence asset
-name to its downloaded SHA-256. Its `phases` array contains exactly `Stability`,
-`Performance`, then `Security`. Each phase records `name`, `status: "passed"`,
-`revision`, `scope`, full phase `plan`, UTC `startedAt` and `completedAt`, `remainingRisks`, and
-`commands`. A `decision` records the accepting `owner`, `rationale` and
-`acceptedAt` timestamp before the next phase starts. Each command records `command`, `platform`, `exitCode: 0`, an uploaded
-`evidence` filename and its `sha256`. Every phase covers every selected platform;
-phase intervals cannot overlap. Each proof JSON uses `schemaVersion: 1`, names its
-`phase`, repeats `revision`, `artifacts`, `command`, `platform`, `exitCode`, and
-contains nonempty captured `output`. Its `startedAt` and `completedAt` must fall
-within that phase.
-Preserve full plans, results and acceptance
-reasoning in those evidence files. Redact secrets and private data before upload.
+1. Dispatch `release.yml` from tag `vX.Y.Z` (commit T) with `mode: build-draft`.
+   It stages, builds and verifies the draft, and never publishes. Staging refuses a
+   tag that already has a published release. Every asset delete or upload runs
+   `scripts/release/draft-assets.mjs`, which re-checks by release id that the
+   release is still this tag's draft, then deletes by asset id and uploads by release
+   id in the same process. Draft verification requires the draft body to equal
+   the notes `release-notes.mjs` generates from T, compared after converting CRLF
+   and CR to LF and dropping trailing whitespace, so a mismatch fails before the
+   phases. The `verify-draft-release` job summary lists the release id, T and
+   every draft asset's name and SHA-256.
+2. Run Stability, Performance and Security against those draft assets.
+3. Commit evidence commit E, descending from T, that adds only
+   `docs/releases/vX.Y.Z-final-phases.json` and the phase records and command
+   proofs it references in `docs/releases/vX.Y.Z-phases/`:
 
-The gate checks record structure and downloaded proof hashes; it cannot establish
-that an owner ran complete, adequate phases. The release approver must inspect
-that evidence against the full phase plans before approving publication. Failed,
-skipped or deferred requirements cannot be represented as passing commands.
-Hosted installer and skills provenance must also match the exact source revision.
+   ```json
+   {
+     "schemaVersion": 1,
+     "version": "X.Y.Z",
+     "sourceRevision": "<T, full commit SHA>",
+     "releaseId": 123456789,
+     "platforms": ["linux", "macos", "windows"],
+     "artifacts": [{ "name": "<draft asset>", "sha256": "<hex>" }],
+     "phases": [
+       { "phase": "stability", "status": "passed", "startedAt": "<UTC ISO-8601>", "completedAt": "<UTC ISO-8601>", "record": "docs/releases/vX.Y.Z-phases/stability.json" },
+       { "phase": "performance", "status": "passed", "startedAt": "...", "completedAt": "...", "record": "..." },
+       { "phase": "security", "status": "passed", "startedAt": "...", "completedAt": "...", "record": "..." }
+     ]
+   }
+   ```
 
-The preapproval gate records a snapshot of the resolved tag revision, release
-identity and every asset ID, name, size, update time, API digest and content hash,
-including proofs.
-The gate rereads the inventory and tag after verification; publication must match
-the approved snapshot. Changed assets or a moved tag require fresh verification
-and approval. Draft installers outside the advertised platform scope are rejected.
+   `artifacts` is the draft manifest's list, sorted by name. `platforms` is the
+   sorted platform set of the draft's release platform declaration; the publish
+   gate and public verification reject any other set. Each record is JSON with
+   exactly these fields:
 
-`windows-linux` builds verify all three platforms, including the separately
-uploaded macOS assets, with explicit `--local-macos --expected-revision <SHA>`.
-This requires all phase evidence plus `localOrigins.macos`: exact `revision`,
-`sourceClean: true`, `buildCommand`, `buildEnvironment`, and `artifacts` containing
-the DMG, its checksum, macOS SBOM and SBOM manifest hashes. Its `evidence` must
-reference a validated macOS Security command proof. The Security owner reviews
-the local build and source declaration. Public and native macOS verification
-validate the same proof before accepting local origin. Windows, Linux and skills
-still require hosted attestations; no checksum, SBOM or phase checks are waived.
-Local-origin evidence is owner-reviewed evidence, never GitHub provenance.
-Single-platform builds verify only that platform and the
-shared skills archives. Public HTTP metadata and downloads are always anonymous;
-the token is used separately for attestation lookup. The publishing workflow calls
-public verification directly because token-created release events do not trigger
-another workflow. A failed public check requires owner follow-up; it does not
-silently delete or replace a published release.
+   - `phase`, `"status": "passed"`, `sourceRevision` (T), `releaseId`,
+     `platforms` (equal to the evidence `platforms`) and `testedArtifacts` (the
+     same list as `artifacts`).
+   - `scope`, `results` (text or non-empty list) and `remainingRisks` (list).
+   - `commands`: a non-empty list of `command`, `exitCode` and
+     `proof: { path, sha256 }` objects. Every `exitCode` is 0. The proof is a
+     JSON file directly in the record directory whose SHA-256 at E matches. It
+     holds exactly `schemaVersion` 1, `phase`, `sourceRevision` (T), `command`
+     (the same text), `platform` (a release platform), `exitCode` 0, non-empty
+     `output`, `startedAt` and `completedAt` inside the phase window, and
+     `artifacts` (the evidence list). Each release platform needs at least one
+     proof per phase.
+   - `decision`: `owner`, `rationale` and a UTC ISO-8601 `acceptedAt` no earlier
+     than the phase's `completedAt` and no later than the next phase's
+     `startedAt`, or E's commit for Security.
+
+   Phases appear in this order and do not overlap. Every timestamp falls after T's
+   commit and the newest draft asset upload, and no later than E's commit. A
+   `build-draft` rerun therefore invalidates the phases. Duplicate JSON keys and
+   unknown fields, including waivers, are rejected. Any other change between T and
+   E, including an unreferenced file in the record directory, invalidates the
+   evidence.
+
+4. Push E to a branch, because the publish job's full-history checkout of the tag
+   finds E only through a pushed ref. Then dispatch `release.yml` from the same
+   tag with `mode: publish`, `evidence_ref` E and the same `platform` input as
+   the `build-draft` run. The `release` environment applies. The workflow runs the
+   scripts with `node`, not `npm run`. `publish-gate.mjs`
+   (`release:publish-gate`) checks the evidence, that the tag still resolves to T,
+   and that the draft id, platform set, exact asset set and every SHA-256 match
+   the evidence. It also re-runs full draft verification, including that body
+   check. `confirm-verified-draft.mjs`
+   (`release:confirm-draft`) then rechecks the id, tag commit, body and asset list, and
+   requires every asset's API content digest, when GitHub reports one, to equal
+   the evidence SHA-256. `publish-release.mjs` (`release:publish`) then publishes
+   by release id, setting the body to those generated notes and requiring the
+   response to carry them, and downloads the public assets anonymously. On any failure once
+   the publish request is attempted, including a failed or timed-out request and
+   any verification failure, it returns the release to draft by id and fails.
+   The re-draft retries network errors, 5xx responses and rate limits for up to
+   4 minutes. The gate and confirmation steps have step timeouts. The publish
+   step has a 20-minute budget that bounds every request, download and attestation
+   call. `release:readiness` keeps the job timeout above the step timeouts, that
+   budget, the re-draft window and a margin, so the re-draft runs before the job
+   timeout. The release is public during that window, and a failed re-draft is
+   reported as such. Runs for one tag never overlap. GitHub keeps only one pending run per concurrency group, so a newer
+   dispatch cancels an older run that is still pending.
+
+Cancelling the run sends SIGINT and then SIGTERM only to the step's top process,
+and SIGKILL follows about 10 seconds after the first signal. The publish step
+therefore runs `exec node scripts/release/publish-release.mjs`, so `node` is that
+process. Once the publish request was attempted, it waits up to 3 seconds for an
+in-flight publish request, returns the release to draft by id within 7 seconds of
+the first signal, retrying transient failures, then fails. Attestation calls run
+asynchronously, so a signal is handled while `gh` runs. A SIGKILL, a lost runner or
+a failed re-draft can leave the release public. Check the run log, then re-draft it
+by id with a token that has push access:
+
+```bash
+gh api -X PATCH repos/<owner/repo>/releases/<release id> -F draft=true
+```
+
+This cancellation path is proven only by local process tests. Before relying on
+it, run a hosted cancel drill on a throwaway tag: publish a throwaway draft,
+cancel the run after the publish step starts, and confirm that the release returns
+to draft.
+
+E's committer date is chosen by its author, so the "no later than E" bound is
+advisory. The server-observed bound is the draft upload time: phases cannot claim
+to start before the newest draft asset was uploaded.
+
+Do not enable GitHub immutable releases until the containment trade-off is decided.
+Once an immutable release is published, GitHub allows only title, notes, pre-release
+and latest changes, so the post-publication re-draft would likely be refused. This
+contract does not assume immutable releases.
+
+`npm run release:readiness -- --version vX.Y.Z` validates the evidence at `HEAD`
+locally: against the local tag commit when the tag exists, otherwise only its
+structure, records and ancestry. It cannot check draft digests offline. Without
+`--version` it skips this gate, as the `build-draft` preflight does.
 
 ## Preconditions
 
@@ -120,7 +191,8 @@ Before tagging, building release assets, uploading, or publishing:
    Tauri, lockfiles, changelog, and `docs/releases/vX.Y.Z.md`.
 3. Obtain explicit authority for every external mutation: tag push, release
    creation, asset deletion, upload, publication, signing, or notarization.
-4. Before publication, complete the three [final release phases](#mandatory-final-release-phases).
+4. Before publication, complete the three [final release phases](#mandatory-final-release-phases)
+   and commit their [evidence](#certified-draft-and-phase-evidence).
 5. Use only local or explicitly authorized hosted or native runners. Workflow
    configuration is not evidence; retain the actual run and artifact evidence.
 
@@ -224,7 +296,7 @@ Run from the repository root:
 ./init.sh
 npm run release:check-version -- vX.Y.Z
 npm run release:check-env
-npm run release:readiness -- --version vX.Y.Z
+npm run release:readiness
 npm run release:check-deps
 npm run verify:full
 npm run lint:sqlx
@@ -335,24 +407,90 @@ Upload `JobSentinel-X.Y.Z-agent-skills.tar.gz`,
 `JobSentinel-X.Y.Z-agent-skills.zip`, and both `.sha256` sidecars. Upload only
 after the local archive verifier passes.
 
+Every release also carries `JobSentinel-X.Y.Z-release-platforms.json` and its
+`.sha256`. Release staging writes it from the workflow `platform` input, tag and
+tag commit, and records each platform as `hosted` or `local`. `windows-linux`
+declares a locally built macOS DMG. Verifiers derive the platform set from this
+attested declaration and fail if it is missing, malformed or inconsistent. Local
+SBOM manifests record `HEAD` only when the tree has no modified or untracked
+files; generate them right after building from a clean checkout of the tag commit.
+`release-assets/` is ignored by Git, so staged assets do not dirty the tree.
+
+For `windows-linux`, upload the local macOS assets before the hosted build:
+
+1. Write the same body that hosted staging uses, including the Package Status
+   section, with `npm run release:notes -- --version X.Y.Z --out
+   release-assets/release-notes.md`. Then create the draft from the tag: `gh
+   release create vX.Y.Z --draft --verify-tag --title "JobSentinel X.Y.Z"
+   --notes-file release-assets/release-notes.md`. Hosted staging reuses this
+   draft without editing its notes.
+2. Build and verify the universal DMG from a clean checkout of the tag commit.
+   Copy the DMG and its `.dmg.sha256` into `release-assets/public`, then run
+   `release:sbom` for `macos` with `--out-dir release-assets/public
+   --require-artifacts`. The platform manifest ignores Agent Skills archives and
+   platform declarations, so earlier `release:skills` output there is harmless.
+3. Export a token with push access as `GH_TOKEN` or `GITHUB_TOKEN`, for example
+   `export GH_TOKEN="$(gh auth token)"`, and get the draft id with
+   `node scripts/release/stage-target.mjs --require-draft --repo <owner/repo>
+   --tag vX.Y.Z`. Then run `node scripts/release/draft-assets.mjs upload --repo
+   <owner/repo> --release-id <id> --tag vX.Y.Z --tag-commit <T> -- <files>` for
+   the DMG, its `.sha256`, the SBOM and the manifest. It re-checks the draft guard
+   and uploads by release id, like the hosted pipeline.
+4. Dispatch `release.yml` with `mode: build-draft` and `platform: windows-linux`.
+
 ## Publication And Public Verification
 
 Tagging, pushing, creating a GitHub Release, deleting assets, uploading, and
 publishing are external mutations and need explicit authority at execution time.
-The authorized operator may use `gh` after reviewing the exact tag and asset
-list. Do not dispatch a workflow as a release shortcut without that authority.
+Do not dispatch a workflow as a release shortcut without that authority.
 
-After publication, verify the downloadable assets locally:
+The readiness checks on workflow text are regression guards against accidental
+edits, not a security boundary against people who can write to the repository.
+
+Draft verification selects the draft by exact tag through the authenticated asset
+API and rejects missing, duplicate, stale or extra assets, checksum or SBOM drift,
+invalid Agent Skills archives, and attestations not bound to the tag and T. Any
+failure leaves the release in draft.
+
+Manual publication is an exception: it has no `release` environment approval and
+no concurrency queue. Use it only with explicit authority for that release. Export
+`GITHUB_TOKEN` or `GH_TOKEN` with push access first; the gate downloads draft assets
+with it and `release:publish` uses it to publish and, on failure, re-draft. Run the
+same gates from a checkout containing E:
 
 ```bash
-npm run release:verify:public -- --tag vX.Y.Z --platforms windows,macos,linux
-npm run tauri:verify:macos:latest -- --tag vX.Y.Z
+npm run release:publish-gate -- --version vX.Y.Z --evidence-revision <E> \
+  --source-revision <T> --repo <owner/repo> --selection <platform input> \
+  --require-windows-unsigned-label --github-output gate.out
+npm run release:confirm-draft -- --repo <owner/repo> --release-id <id> \
+  --tag vX.Y.Z --tag-commit <T> --asset-digest <asset_digest from gate.out> \
+  --evidence-revision <E>
+npm run release:publish -- --tag vX.Y.Z --expected-version X.Y.Z --release-id <id> \
+  --repo <owner/repo> --require-supply-chain --require-windows-unsigned-label \
+  --evidence-revision <E>
 ```
 
-For locally built macOS assets, add `--local-macos --expected-revision <SHA>` to
-both commands. This requires accepted candidate evidence while preserving all
-checksum and SBOM checks. Never claim hosted provenance, SLSA attestation or
-GitHub-generated SBOM attestation for local builds.
+Omit `--require-windows-unsigned-label` only for Authenticode-signed Windows
+installers.
+
+The `release: published` trigger of `verify-release-artifacts.yml` does not fire
+for releases published with the workflow token, so dispatch that workflow
+manually after publication, passing `evidence_ref` E, or verify locally. Asset downloads never send
+credentials; a token, when present, is used only for API metadata reads and
+attestation lookups. These commands verify v3 and later releases; releases before v3
+have no platform declaration and cannot be re-verified with them:
+
+```bash
+npm run release:verify:public -- --tag vX.Y.Z
+npm run tauri:verify:macos:latest -- --tag vX.Y.Z --no-require-supply-chain
+```
+
+Omitting `--platforms` verifies the declared set. A supplied list must match it
+exactly.
+
+The no-supply-chain flag is required for locally built assets because they have
+no GitHub Actions provenance. Never claim hosted provenance, SLSA attestation,
+or GitHub-generated SBOM attestation for local builds.
 
 ## Rollback
 

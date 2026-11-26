@@ -21,6 +21,9 @@ pub struct UpdateSnapshot {
     pub sha256: String,
 }
 
+/// Directory-name prefix of update snapshots beside the primary database.
+pub(super) const UPDATE_SNAPSHOT_DIR_PREFIX: &str = ".update-snapshot-";
+
 fn failure() -> sqlx::Error {
     sqlx::Error::Protocol("Update recovery snapshot verification failed".into())
 }
@@ -36,7 +39,7 @@ impl Database {
         let snapshot = path
             .parent()
             .ok_or_else(failure)?
-            .join(format!(".update-snapshot-{id}"))
+            .join(format!("{UPDATE_SNAPSHOT_DIR_PREFIX}{id}"))
             .join("snapshot.db");
         // Verify the snapshot directory/file before any credential-backed SQLite open.
         let metadata = std::fs::symlink_metadata(snapshot.parent().ok_or_else(failure)?)?;
@@ -44,7 +47,7 @@ impl Database {
             return Err(failure());
         }
         let input = open_snapshot_file(&snapshot)?;
-        let key = crate::encryption::load_or_create_database_key().await?;
+        let key = crate::encryption::load_database_key(false).await?;
         let pool = crate::encryption::connect_encrypted_read_only_pool(&snapshot, &key).await?;
         let verifier = Self {
             pool,
@@ -128,7 +131,7 @@ impl Database {
             .and_then(|path| path.parent())
             .filter(|path| !path.as_os_str().is_empty())
             .ok_or_else(failure)?;
-        Ok(parent.join(format!(".update-snapshot-{id}")))
+        Ok(parent.join(format!("{UPDATE_SNAPSHOT_DIR_PREFIX}{id}")))
     }
 
     /// Caller must quiesce writers before treating this consistent SQLite snapshot as its update boundary.

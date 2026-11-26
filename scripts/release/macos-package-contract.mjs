@@ -4,6 +4,7 @@ import { spawnSync } from "node:child_process";
 import { createHash, randomBytes } from "node:crypto";
 import { existsSync, lstatSync, readdirSync, readFileSync } from "node:fs";
 import { basename, dirname, join } from "node:path";
+import { getArgValue, hasArg, splitList } from "./args.mjs";
 import { parseSha256Checksum } from "./checksum.mjs";
 
 export { parseSha256Checksum } from "./checksum.mjs";
@@ -16,27 +17,6 @@ export {
 const defaultSmokeSeconds = 12;
 const smokeDatabaseKeyHexEnv = "JOBSENTINEL_MACOS_PACKAGE_SMOKE_DATABASE_KEY_HEX";
 const smokeRootEnv = "JOBSENTINEL_MACOS_PACKAGE_SMOKE_ROOT";
-
-export function getArgValue(args, name) {
-  const exactIndex = args.indexOf(name);
-  if (exactIndex >= 0) {
-    return args[exactIndex + 1];
-  }
-
-  const prefixed = args.find((arg) => arg.startsWith(`${name}=`));
-  return prefixed ? prefixed.slice(name.length + 1) : undefined;
-}
-
-export function hasArg(args, name) {
-  return args.some((arg) => arg === name || arg.startsWith(`${name}=`));
-}
-
-function splitList(value) {
-  return value
-    .split(",")
-    .map((item) => item.trim())
-    .filter(Boolean);
-}
 
 export function defaultArchitectures(arch = process.arch) {
   if (arch === "arm64") return ["arm64"];

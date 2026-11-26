@@ -1,3 +1,4 @@
+# Builds, verifies, attests and uploads the macOS release assets to the staged draft, re-checking it is still a draft.
 name: Release build macos
 
 on:
@@ -7,6 +8,9 @@ on:
         required: true
         type: string
       version:
+        required: true
+        type: string
+      release_id:
         required: true
         type: string
 
@@ -281,22 +285,15 @@ jobs:
       - name: Remove old macOS release assets
         env:
           GH_TOKEN: ${{ github.token }}
-          GH_REPO: ${{ github.repository }}
+          RELEASE_ID: ${{ inputs.release_id }}
           RELEASE_TAG: ${{ inputs.tag }}
         shell: bash
         run: |
           set -euo pipefail
 
-          while IFS= read -r asset; do
-            [ -n "$asset" ] || continue
-            printf 'Deleting stale macOS release asset: %s\n' "$asset"
-            gh release delete-asset "$RELEASE_TAG" "$asset" -y
-          done < <(
-            gh release view "$RELEASE_TAG" \
-              --json assets \
-              --jq '.assets[].name' \
-              | grep -E '\.dmg(\.sha256)?$' || true
-          )
+          # Re-checks by id that the release is still this tag's draft, then deletes stale macOS assets by asset id.
+          node scripts/release/draft-assets.mjs delete-stale --platform macos --repo "$GITHUB_REPOSITORY" \
+            --release-id "$RELEASE_ID" --tag "$RELEASE_TAG" --tag-commit "$GITHUB_SHA"
 
       - name: Stage macOS release assets
         shell: bash
@@ -339,7 +336,7 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
-          GH_REPO: ${{ github.repository }}
+          RELEASE_ID: ${{ inputs.release_id }}
           RELEASE_TAG: ${{ inputs.tag }}
         run: |
           set -euo pipefail
@@ -351,4 +348,6 @@ jobs:
             exit 1
           fi
 
-          gh release upload "$RELEASE_TAG" "${assets[@]}" --clobber
+          # Re-checks by id that the release is still this tag's draft, then replaces and uploads by release id.
+          node scripts/release/draft-assets.mjs upload --repo "$GITHUB_REPOSITORY" \
+            --release-id "$RELEASE_ID" --tag "$RELEASE_TAG" --tag-commit "$GITHUB_SHA" -- "${assets[@]}"

@@ -32,7 +32,7 @@ Passphrase settings wrap, unlock or disable wrapping for the vault key.
 
 | Platform | Current runtime path | Remaining target |
 | -------- | -------------------- | ---------------- |
-| Windows | SQLCipher database, encrypted SQLite vault rows, database/vault keys protected by Windows Credential Manager through `keyring`, and optional passphrase wrapping for the vault key | Equivalent user-presence policy when available |
+| Windows | SQLCipher database, encrypted SQLite vault rows, database/vault keys protected by Windows Credential Manager through `keyring-core` and `windows-native-keyring-store` entries with device-local `Local` persistence, and optional passphrase wrapping for the vault key | Equivalent user-presence policy when available |
 | macOS | SQLCipher database, encrypted SQLite vault rows, database key protected by macOS Keychain through `keyring`, vault key protected by native `Security.framework` Keychain access control with `LocalAuthentication` context and user presence, and optional passphrase wrapping for the vault key | Signed-app packaging and notarization verification when Apple credentials are available |
 | Linux | SQLCipher database, encrypted SQLite vault rows, database/vault keys protected by Secret Service through `keyring`, and optional passphrase wrapping for the vault key | Native user-presence support when available |
 
@@ -131,6 +131,36 @@ macOS implementation:
 - Avoid `biometryCurrentSet` as the default because enrolled biometric changes
   can orphan the key. Reserve stricter policies for a future explicit hardening
   option.
+
+### Missing-key contract
+
+On every platform, a missing key fails closed:
+
+- A database key is never created while the primary database, its SQLite
+  sidecars or any possibly encrypted copy exists. Copies include anything in
+  `backups` (pre-migration and migration snapshots, rollback and quarantine
+  copies), any `<database>.restore-*` file beside the primary and any update
+  snapshot (`.update-snapshot-*`). Then the key is load-only, and an unreadable
+  folder also fails closed.
+- The vault key is created only when the vault has no ciphertext rows.
+- Before creating either key, JobSentinel reads the store again after a short
+  delay, because Credential Manager can report a spurious miss.
+- The first vault-key load or creation in a process runs once under one cache
+  lock, even if its caller is cancelled. Every later use in that process reuses
+  the in-memory key, so a spurious miss can't produce a second key there.
+- Vault-key creation re-checks passphrase mode under that lock. Enabling or
+  disabling the passphrase lock holds it too, and clears the in-memory key.
+- The lock is per process, but keys belong to the OS user. A process with a new
+  data directory or empty vault creates a key when no key exists, or when both
+  of its reads report a spurious miss. Then its write replaces the existing key,
+  and other data directories can't unlock their data.
+
+The one exception is a user-confirmed restore from the startup recovery screen;
+dropped backup files are refused in recovery mode. If this
+device's database key is missing, a recovery restore creates a new key when it
+is staged. Data saved before the restore then can't be unlocked, even if the
+restore is cancelled or fails. That includes the old primary database, its
+update snapshots, pre-migration snapshots and promotion rollback copies.
 
 ## Stored credentials
 
@@ -416,6 +446,11 @@ adjust access control for the relevant item, such as `jobsentinel_vault_key`.
 
 Open Windows Credential Manager, select Windows Credentials, and search for
 entries owned by `JobSentinel`.
+
+JobSentinel validates an existing roaming key, then rewrites it once in place
+with `Local` persistence. An invalid key or failed rewrite fails closed without
+replacing the key. Previously roamed copies aren't revoked. The
+[missing-key contract](#missing-key-contract) applies on every platform.
 
 ## Adding new credentials
 

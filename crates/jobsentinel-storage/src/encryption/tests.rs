@@ -131,7 +131,7 @@ async fn newer_same_generation_data_is_refused_without_changing_main_or_wal() {
         for ledger in [false, true] {
             let root = tempfile::tempdir().unwrap();
             let path = root.path().join("jobs.db");
-            let key = super::load_or_create_database_key().await.unwrap();
+            let key = super::load_database_key(true).await.unwrap();
             let pool = if encrypted {
                 super::connect_encrypted_pool(&path, &key, true)
                     .await

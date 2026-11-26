@@ -29,8 +29,16 @@ fn secure_storage_error() -> String {
     SECURE_STORAGE_UNAVAILABLE_MESSAGE.to_string()
 }
 
+#[cfg(not(test))]
 fn delete_os_credential(key: CredentialKey) -> Result<(), String> {
     jobsentinel_platform::delete_device_secret(key.as_str()).map_err(|_| secure_storage_error())
+}
+
+/// Tests never reach the native store; vault rows remain the only observable state.
+#[cfg(test)]
+#[allow(clippy::unnecessary_wraps)]
+const fn delete_os_credential(_key: CredentialKey) -> Result<(), String> {
+    Ok(())
 }
 
 #[cfg(test)]

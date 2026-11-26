@@ -943,13 +943,15 @@ claims are historical, not fresh verification. Current state is in Handoff.
   [Preparation evidence](../../harness/evidence/v3-release-candidate-2026-11-06.json)
   retains results, review scope and earlier interrupted or failed runs.
 - Engineering baseline `4c811f5a` is committed on `agent/goal-v3-baseline`.
-- User requested a pause after this verified checkpoint is committed and pushed; freeze and phases remain pending.
+- The candidate is frozen at tag `v3.0.0`: checkpoint `6c72871c` plus fail-closed key creation,
+  the exact-draft release pipeline and the recovery key warning
+  ([integration evidence](../../harness/evidence/v3-release-candidate-2026-11-22.json)).
 - The [R1 plan](evaluation-and-release-bar.md#r1-stability-plan) owns the frozen matrix and acceptance work.
-  Update and Region trust are reviewed and full-gate verified; accept the source before recording the freeze.
+  Update and Region trust are reviewed and full-gate verified.
 - Work only on `v3-release-candidate`; the release-first queue above owns the next slice.
 - Preserve the enhancement branch and its development acceptance. Do not resume P08/N15 for v3.0.
 - Retain M11 partial evidence and the governed Qwen decision; no new model or relaxed threshold is approved.
-- The goal authorizes candidate freeze after preparation; then run full R1, R2 and R3 in order.
+- Run a hosted `build-draft`, then full R1, R2 and R3 in order against that draft.
 - Native and VM qualification follows development; no native test or production-signing result is claimed.
 - Installed Windows/Linux, exact macOS 26, enforced 8 GiB, signing and artifact evidence remain open.
 - Update state from observed results. No release, hosted dispatch, commit or push is implied by this plan.

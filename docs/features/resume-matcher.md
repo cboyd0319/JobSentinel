@@ -1,3 +1,5 @@
+<!-- Explains local Resume Match workflow, fit results, privacy labels, and boundaries. -->
+
 # Resume Match
 
 **Compare a resume with a job posting locally, then decide where careful
@@ -80,7 +82,7 @@ call.
 1. Open **Resume Match**.
 2. Paste the job post.
 3. If you already have an active saved resume, JobSentinel selects it for the
-   review automatically. Choose **Choose or Add Resume** only when you need to
+   review automatically. Use **Choose or Add Resume** only when you need to
    add, change, or refresh the selected resume.
 4. Choose **See what JobSentinel read** if you want to inspect the readable
    resume text before using match results.

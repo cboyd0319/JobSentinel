@@ -86,9 +86,10 @@ not need terminal commands or debugging skill to get value.
 
 ## Download
 
-The current public release is
-[v2.9.5](https://github.com/cboyd0319/JobSentinel/releases/tag/v2.9.5),
-published July 18, 2026.
+This source line prepares v3.0.0 (see the
+[v3.0.0 release notes](docs/releases/v3.0.0.md)). Version 3.0.0 can't open or
+upgrade data from version 2.9.5 or earlier. Follow
+[Coming From Version 2](docs/user/UPDATES.md#coming-from-version-2) first.
 
 Use the [latest GitHub release](https://github.com/cboyd0319/JobSentinel/releases/latest)
 and verify the matching `.sha256` checksum from the same release before opening
@@ -167,19 +168,11 @@ Read more in [PRIVACY.md](PRIVACY.md),
 [RESPONSIBLE_AI.md](RESPONSIBLE_AI.md), and the
 [security docs](docs/security/README.md).
 
-## Current Release: v2.9.5
+## Release: v3.0.0
 
-`v2.9.5` is the current public release. It completes a full repository refactor
-around explicit ownership, a 15-member Cargo workspace, application-layer
-orchestration, a thin private IPC shell, feature-owned frontend code,
-deterministic discovery, and enforced file limits. It also includes database
-integrity safeguards, full-text search and saved-alert corrections, and GUI
-fixes found during release QA.
-
-The hosted release workflow passed 288 browser journeys and published 20
-verified assets. Those assets include five desktop packages, two Agent Skills
-archives, matching checksums, and SPDX SBOM material. Release verification also
-binds the packages and archives to build provenance.
+This source line prepares `v3.0.0`, the first supported compatibility baseline.
+Read the [v3.0.0 release notes](docs/releases/v3.0.0.md) for changes, package
+status, and what version 2 users must do first.
 
 Privacy and security guarantees do not change. Local data remains local by
 default, external AI remains optional and disabled by default, credential
@@ -188,14 +181,13 @@ require verified encrypted snapshots and integrity checks, and users retain
 review control over imports, external channels, browser actions, and final
 application submission.
 
-[Download v2.9.5](https://github.com/cboyd0319/JobSentinel/releases/tag/v2.9.5)
-or review the
-[release verification evidence](docs/harness/evidence/v2.9.5-release-cut-2026-07-18.json).
+Download from the
+[latest GitHub release](https://github.com/cboyd0319/JobSentinel/releases/latest).
 
-## Product Highlights In v2.9.5
+## Product Highlights
 
-The current release carries forward the user-facing product work introduced in
-the 2.9 release line:
+Version 3.0.0 carries forward the user-facing product work introduced in the
+2.9 release line:
 
 - Browser Import review queue for visible jobs the user chooses to send into
   JobSentinel before saving.
@@ -219,9 +211,7 @@ the 2.9 release line:
 - Optional external AI provider configuration for OpenAI, Anthropic, Google
   Gemini, GitHub Copilot, and custom HTTPS providers through the local gateway.
 
-See the
-[published v2.9.5 release](https://github.com/cboyd0319/JobSentinel/releases/tag/v2.9.5)
-and [CHANGELOG.md](CHANGELOG.md) for release history.
+See [CHANGELOG.md](CHANGELOG.md) for release history.
 
 ## Job Source Terms And User Control
 

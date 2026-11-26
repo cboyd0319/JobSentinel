@@ -361,6 +361,24 @@ describe("NativeFileDropReview", () => {
     );
   });
 
+  it("states saved data is unchanged when backup staging fails", async () => {
+    const user = userEvent.setup();
+    mockInvoke.mockRejectedValueOnce(new Error("staging failed"));
+    await openDrop("backup.db");
+
+    await user.click(screen.getByRole("button", { name: "Backup/Recovery" }));
+    fireEvent.change(screen.getByLabelText("Backup passphrase"), {
+      target: { value: "local-backup-passphrase" },
+    });
+    await user.click(screen.getByRole("button", { name: "Stage backup" }));
+
+    expect(
+      await screen.findByRole("alert", { name: "Native file drop alert" }),
+    ).toHaveTextContent(
+      "backup.db could not be staged as a backup. Your saved data was not changed.",
+    );
+  });
+
   it("clears a backup passphrase when leaving its review step", async () => {
     const user = userEvent.setup();
     await openDrop();

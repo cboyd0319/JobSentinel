@@ -1,4 +1,7 @@
 #!/usr/bin/env node
+// Checks that release signing and notarization inputs are configured for the selected platforms.
+
+import { getArgValue, hasArg, splitList, isMainModule } from "./args.mjs";
 
 const windowsRequired = [
   "WINDOWS_CERTIFICATE",
@@ -20,25 +23,6 @@ const macosHostedProfileFields = [
   "JOBSENTINEL_MACOS_NOTARY_PROFILE",
   "NOTARYTOOL_KEYCHAIN_PROFILE",
 ];
-
-function getArgValue(args, name) {
-  const exactIndex = args.indexOf(name);
-  if (exactIndex >= 0) return args[exactIndex + 1];
-
-  const prefixed = args.find((arg) => arg.startsWith(`${name}=`));
-  return prefixed ? prefixed.slice(name.length + 1) : undefined;
-}
-
-function hasArg(args, name) {
-  return args.some((arg) => arg === name || arg.startsWith(`${name}=`));
-}
-
-function splitList(value) {
-  return String(value ?? "")
-    .split(",")
-    .map((item) => item.trim())
-    .filter(Boolean);
-}
 
 function hasEnvValue(env, name) {
   return typeof env[name] === "string" && env[name].trim() !== "";
@@ -289,7 +273,7 @@ export function parseArgs(args) {
   };
 }
 
-if (process.argv[1] && process.argv[1].endsWith("check-release-environment.mjs")) {
+if (isMainModule(import.meta.url)) {
   const report = evaluateReleaseEnvironment(parseArgs(process.argv.slice(2)));
   console.log(formatReleaseEnvironmentReport(report));
   if (report.failures.length > 0) {

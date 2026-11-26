@@ -14,16 +14,17 @@ pub(super) fn entry(name: &str) -> Result<Entry, Error> {
     Ok(Entry { inner })
 }
 
-pub(super) fn load(
-    entry: &Entry,
-    validate: impl FnOnce(&str) -> bool,
-) -> Result<Option<Zeroizing<String>>, ()> {
+/// Load a 32-byte hex key; `Ok(None)` means `NoEntry`, which is not proof of absence.
+pub(super) fn load(entry: &Entry) -> Result<Option<Zeroizing<String>>, ()> {
     let encoded_key = match entry.get_password() {
         Ok(encoded_key) => Zeroizing::new(encoded_key),
         Err(Error::NoEntry) => return Ok(None),
-        Err(_) => return Err(()),
+        Err(error) => {
+            crate::database_key::wipe_keyring_error(error);
+            return Err(());
+        }
     };
-    if !validate(&encoded_key) {
+    if !crate::database_key::is_valid_key_hex(encoded_key.trim()) {
         return Err(());
     }
     let attributes = entry.inner.get_attributes().map_err(|_| ())?;
@@ -47,7 +48,7 @@ mod tests {
 
     struct Credential {
         inner: keyring_core::Entry,
-        persistence: &'static str,
+        persistence: std::sync::Mutex<&'static str>,
         fail_read: bool,
         fail_attributes: bool,
         fail_write: bool,
@@ -66,16 +67,16 @@ mod tests {
             if self.fail_write {
                 return Err(Error::NoDefaultStore);
             }
+            // Native writes go through the `Local` entry, so later reads see `Local`.
+            *self.persistence.lock().unwrap() = "Local";
             self.inner.set_secret(secret)
         }
         fn get_attributes(&self) -> keyring_core::Result<HashMap<String, String>> {
             if self.fail_attributes {
                 return Err(Error::NoDefaultStore);
             }
-            Ok(HashMap::from([(
-                "persistence".into(),
-                self.persistence.into(),
-            )]))
+            let persistence = *self.persistence.lock().unwrap();
+            Ok(HashMap::from([("persistence".into(), persistence.into())]))
         }
         fn delete_credential(&self) -> keyring_core::Result<()> {
             panic!("migration must never delete the existing key")
@@ -102,7 +103,7 @@ mod tests {
         }
         Credential {
             inner,
-            persistence,
+            persistence: std::sync::Mutex::new(persistence),
             fail_read: false,
             fail_attributes: false,
             fail_write: false,
@@ -114,14 +115,6 @@ mod tests {
         Entry {
             inner: keyring_core::Entry::new_with_credential(credential.clone()),
         }
-    }
-
-    fn load(entry: &Entry) -> Result<Option<Zeroizing<String>>, ()> {
-        super::load(entry, |key| {
-            crate::decode_credential_vault_key(key)
-                .map(Zeroizing::new)
-                .is_ok()
-        })
     }
 
     #[cfg(windows)]
@@ -151,12 +144,14 @@ mod tests {
     }
 
     #[test]
-    fn legacy_keys_keep_exact_value_and_local_keys_are_not_rewritten() {
+    fn legacy_keys_are_repersisted_once_with_exact_value_and_local_keys_never() {
         let value = format!("  {}\n", "AB".repeat(32));
         for name in ["jobsentinel_database_key", "jobsentinel_vault_key"] {
             for (persistence, writes) in [("Enterprise", 1), ("Local", 0)] {
                 let credential = Arc::new(fixture(name, Some(&value), persistence));
-                assert_eq!(load(&entry(&credential)).unwrap().unwrap().as_str(), value);
+                for _ in 0..2 {
+                    assert_eq!(load(&entry(&credential)).unwrap().unwrap().as_str(), value);
+                }
                 assert_eq!(credential.inner.get_password().unwrap(), value);
                 assert_eq!(credential.writes.load(Ordering::SeqCst), writes);
             }

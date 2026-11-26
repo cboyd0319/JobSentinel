@@ -3,9 +3,7 @@
 use super::{freshness, model};
 use crate::{
     connection::MIGRATOR,
-    encryption::{
-        connect_encrypted_pool, connect_encrypted_read_only_pool, load_or_create_database_key,
-    },
+    encryption::{connect_encrypted_pool, connect_encrypted_read_only_pool, load_database_key},
     vectors::StoredVectorRead,
     Database, ReviewedExportSelection,
 };
@@ -43,7 +41,7 @@ async fn current_vector(pool: &SqlitePool) -> VectorRow {
 }
 
 async fn supported_31_fixture(path: &Path) -> (VectorRow, i64) {
-    let key = load_or_create_database_key().await.unwrap();
+    let key = load_database_key(true).await.unwrap();
     let pool = connect_encrypted_pool(path, &key, true).await.unwrap();
     MIGRATOR.run_to(31, &pool).await.unwrap();
     sqlx::query("PRAGMA user_version = 2")
@@ -181,7 +179,7 @@ async fn encrypted_31_vectors_preserve_bytes_revisions_and_recovery() {
     );
 
     let snapshot = migration_snapshot(root.path());
-    let key = load_or_create_database_key().await.unwrap();
+    let key = load_database_key(true).await.unwrap();
     let backup = connect_encrypted_read_only_pool(&snapshot, &key)
         .await
         .unwrap();

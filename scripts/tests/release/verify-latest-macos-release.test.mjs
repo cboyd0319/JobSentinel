@@ -1,4 +1,4 @@
-// Exercises macOS release metadata, package labels and attestation validation.
+// Verifies public macOS release selection, checksum, SBOM and attestation contracts.
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
@@ -11,12 +11,12 @@ import {
   validateReleaseSbomManifest,
   validateMacosAssetLabel,
   verifyGitHubAttestation,
+  verifyLatestMacosRelease,
 } from "../../release/verify-latest-macos-release.mjs";
+import { fetchGitHubJson, githubApiHeaders } from "../../release/public-assets/http.mjs";
 
 test("latest macOS release verifier defaults to no-account public checks", () => {
   assert.deepEqual(parseArgs([]), {
-    localMacos: false,
-    expectedRevision: undefined,
     appName: "JobSentinel.app",
     assetPattern: "universal.dmg",
     expectedBundleMetadata: {
@@ -70,9 +70,7 @@ test("latest macOS release verifier supports scoped overrides", () => {
       "Example.app",
     ]),
     {
-      localMacos: false,
-    expectedRevision: undefined,
-    appName: "Example.app",
+      appName: "Example.app",
       assetPattern: "aarch64.dmg",
       expectedBundleMetadata: {
         bundleIdentifier: "com.example.project",
@@ -93,6 +91,36 @@ test("latest macOS release verifier supports scoped overrides", () => {
       smokeSeconds: 3,
     },
   );
+});
+
+test("release verifiers send the token only to the GitHub API", async () => {
+  assert.deepEqual(githubApiHeaders("  test-token  "), {
+    Accept: "application/vnd.github+json",
+    Authorization: "Bearer test-token",
+    "User-Agent": "JobSentinel-release-verifier",
+  });
+  assert.equal(githubApiHeaders("").Authorization, undefined);
+  await assert.rejects(
+    fetchGitHubJson("https://example.invalid/repos/x", { token: "t", fetchImpl: () => assert.fail("must not fetch") }),
+    /Refusing to send GitHub API credentials outside/,
+  );
+});
+
+test("latest macOS release verifier refuses asset URLs not bound to the repository and tag", async () => {
+  const name = "JobSentinel_3.0.0_no-account_universal.dmg";
+  const exact = `https://github.com/o/r/releases/download/v3.0.0/${name}`;
+  for (const url of [`https://evil.example.test/${name}`, `https://github.com/other/r/releases/download/v3.0.0/${name}`, exact.replace("v3.0.0", "v2.9.0")]) {
+    const requests = [];
+    const fetchImpl = async (requested) => {
+      requests.push(requested);
+      return Response.json({ tag_name: "v3.0.0", draft: false, assets: [{ name, state: "uploaded", browser_download_url: url }] });
+    };
+    await assert.rejects(
+      verifyLatestMacosRelease(parseArgs(["--repo", "o/r", "--tag", "v3.0.0"]), { fetchImpl, token: "" }),
+      /download URL is not bound to v3\.0\.0 in o\/r/,
+    );
+    assert.deepEqual(requests, ["https://api.github.com/repos/o/r/releases/tags/v3.0.0"], "no tag lookup or download follows");
+  }
 });
 
 test("latest macOS release verifier checks no-account asset labels", () => {
@@ -257,20 +285,29 @@ test("latest macOS release verifier validates SBOM manifest binding to downloade
   );
 });
 
-test("latest macOS release verifier invokes gh attestation with repo, workflow, and predicate", () => {
-  const calls = [];
-  verifyGitHubAttestation({
-    artifactPath: "/tmp/JobSentinel.dmg",
-    repo: "example/project",
-    predicateType: "https://slsa.dev/provenance/v1",
-    spawn(command, args) {
-      calls.push([command, args]);
-      return { status: 0, stdout: "", stderr: "" };
-    },
-  });
+const ghHelp = "Flags:\n      --source-digest string\n      --source-ref string\n";
+const attestationCall = {
+  artifactPath: "/tmp/JobSentinel.dmg",
+  repo: "example/project",
+  predicateType: "https://slsa.dev/provenance/v1",
+  sourceDigest: "a".repeat(40),
+  sourceRef: "refs/tags/v3.0.0",
+};
 
-  assert.equal(calls[0][0], "gh");
-  assert.deepEqual(calls[0][1], [
+test("latest macOS release verifier invokes gh attestation with repo, workflow, and predicate", async () => {
+  const calls = [];
+  const run = (command, args, options) => {
+    calls.push([command, args, options.timeout]);
+    return { status: 0, stdout: args.includes("--help") ? ghHelp : "", stderr: "" };
+  };
+  await verifyGitHubAttestation({ ...attestationCall, run });
+  await verifyGitHubAttestation({ ...attestationCall, run });
+
+  assert.deepEqual(calls[0], ["gh", ["attestation", "verify", "--help"], 30_000]);
+  assert.equal(calls.length, 3, "the flag check runs once per gh");
+  assert.equal(calls[1][2], 120_000);
+  assert.equal(calls[1][0], "gh");
+  assert.deepEqual(calls[1][1], [
     "attestation",
     "verify",
     "/tmp/JobSentinel.dmg",
@@ -280,19 +317,56 @@ test("latest macOS release verifier invokes gh attestation with repo, workflow, 
     "https://slsa.dev/provenance/v1",
     "--signer-workflow",
     "example/project/.github/workflows/release-build-macos.yml",
+    "--source-digest",
+    "a".repeat(40),
+    "--source-ref",
+    "refs/tags/v3.0.0",
   ]);
 
-  assert.throws(
+  await assert.rejects(
+    () => verifyGitHubAttestation({ artifactPath: "/tmp/x", repo: "example/project", predicateType: "p", run: () => assert.fail("must not run") }),
+    /requires the tag commit and refs\/tags\/<tag>/,
+  );
+
+  await assert.rejects(
     () =>
       verifyGitHubAttestation({
         artifactPath: "/tmp/JobSentinel.dmg",
         repo: "example/project",
         predicateType: "https://spdx.dev/Document/v2.3",
-        spawn() {
-          return { status: 1, stdout: "verification failed", stderr: "" };
+        sourceDigest: "a".repeat(40),
+        sourceRef: "refs/tags/v3.0.0",
+        run(_command, args) {
+          return args.includes("--help") ? { status: 0, stdout: ghHelp, stderr: "" } : { status: 1, stdout: "verification failed", stderr: "" };
         },
       }),
     /GitHub attestation verification failed/,
+  );
+});
+
+test("attestation verification fails closed when gh lacks the source-binding flags", async () => {
+  const calls = [];
+  const oldGh = (_command, args) => {
+    calls.push(args);
+    return { status: 0, stdout: "Flags:\n      --repo string\n      --source-digest string\n", stderr: "" };
+  };
+  await assert.rejects(() => verifyGitHubAttestation({ ...attestationCall, run: oldGh }), /must support --source-digest and --source-ref \(missing --source-ref\); upgrade the GitHub CLI/);
+  assert.deepEqual(calls, [["attestation", "verify", "--help"]], "no verification runs without the flags");
+  const missingGh = () => ({ error: new Error("spawn gh ENOENT"), status: null, stdout: "", stderr: "" });
+  await assert.rejects(() => verifyGitHubAttestation({ ...attestationCall, run: missingGh }), /\(spawn gh ENOENT\)/);
+});
+
+test("attestation calls are bounded by the remaining publication budget", async () => {
+  const timeouts = [];
+  const run = (_command, args, options) => {
+    timeouts.push(options.timeout);
+    return { status: 0, stdout: args.includes("--help") ? ghHelp : "", stderr: "" };
+  };
+  await verifyGitHubAttestation({ ...attestationCall, run, deadline: Date.now() + 5_000 });
+  assert(timeouts.length === 2 && timeouts.every((timeout) => timeout > 0 && timeout <= 5_000), String(timeouts));
+  await assert.rejects(
+    () => verifyGitHubAttestation({ ...attestationCall, run: () => assert.fail("must not run"), deadline: Date.now() - 1 }),
+    /budget exhausted/,
   );
 });
 

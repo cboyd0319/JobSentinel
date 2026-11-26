@@ -1,0 +1,92 @@
+{
+  "schema": "jobsentinel.feature_evidence.v1",
+  "feature_id": "v3-release-candidate",
+  "behavior": "Prepare the preserved v3.0 core with required shared fixes and release engineering, keeping Next enhancements outside the candidate.",
+  "result": "partial",
+  "verified_at": "2026-11-21T22:15:57Z",
+  "revision": "4b96e8027b1e40db5714d75f4d38d6cf9a32fbf3 plus uncommitted candidate changes",
+  "platform": "macOS 27.2.1 arm64; Rust 1.97.1; Node 26.13.1; npm 12.2.3",
+  "scope": "Pre-R1 follow-ups on the 2026-11-20 candidate: release-pipeline containment and id-scoped mutations, key-storage fail-closed hardening, and recovery-screen disclosure. Not release qualification.",
+  "gate_tree_sha256": "3b2811be0a187468b982cd49b0542b3ad303121f26a96e610404004a1eacefbf",
+  "post_gate_changes": "Only this file changed after the frozen-candidate full gate. Release notes, changelog, README, capabilities, user updating guidance and freeze state were in the gated tree.",
+  "decisions": [
+    "User: final Stability, Performance and Security phases certify the exact hosted draft binaries that get published.",
+    "User: only a recovery-mode restore may create a database key while an unreadable primary exists; every other existing-data path fails closed.",
+    "Immutable releases stay off until the user decides the trade-off with automatic re-draft containment."
+  ],
+  "changes": [
+    "Publish containment: step caps and budget lint, retried re-draft, exec'd publisher with SIGINT/SIGTERM re-draft, async attestation calls, in-flight publish settling and draft confirmation.",
+    "Draft mutations by release id through draft-assets.mjs with id-scoped uploads; per-asset digest confirmation; runtime gh flag probe; shared release notes, workflow parser and strict JSON owners; Vale drift warning.",
+    "Key storage: one process-wide vault key with single-flight native loads, re-read before any key creation, passphrase changes under the cache lock, and no database key creation while backups, restore or update-snapshot artifacts exist.",
+    "Recovery screen warns that a recovery restore can create a key that makes earlier data unreadable; restore status copy is accurate; dropped backups are refused during startup recovery."
+  ],
+  "commands": [
+    {
+      "command": "npm run verify:full (frozen candidate tree)",
+      "exit_status": 0,
+      "relevant_result": "Tree hash unchanged during run. Script tests 949/949, frontend 3378/3378, 10 e2e smoke journeys with 0 unexpected, Rust 41 suites 3585 passed 0 failed 21 ignored.",
+      "caveat": "Includes the v3.0.0 release notes, changelog and documentation updates added after the follow-up gate below."
+    },
+    {
+      "command": "npm run verify:full",
+      "exit_status": 0,
+      "relevant_result": "Tree hash unchanged during run. Script tests 949/949, frontend 3378/3378 in 288 files, 10 e2e smoke journeys with 0 unexpected, Rust 41 suites 3585 passed 0 failed 21 ignored; all lint, build and harness stages passed.",
+      "caveat": "Ran before the post-gate state changes. A same-day run under heavy shared-machine load timed out 10 frontend tests and was discarded, not counted."
+    },
+    {
+      "command": "JOBSENTINEL_MACOS_NO_ACCOUNT=true npm run tauri:build:macos -- --target aarch64-apple-darwin && npm run tauri:verify:macos -- --launch-smoke --install-smoke --require-checksum && npm run macos:readiness",
+      "exit_status": 0,
+      "relevant_result": "arm64 no-account DMG built; architecture, bundle id, version, icon, minimum OS and checksum verified; launch, visible-window, private-data and install smokes passed; macOS readiness passed.",
+      "caveat": "Local pre-freeze dry run only. Universal build needs the x86_64-apple-darwin Rust target, which is not installed. Not phase evidence: phases certify hosted draft binaries."
+    },
+    {
+      "command": "./init.sh",
+      "exit_status": 0,
+      "relevant_result": "Locked dependencies, harness validation and the startup smoke test passed after the state update.",
+      "caveat": "Local Node and npm differ from release pins; doctor warns that local Vale 3.28.1 differs from the pinned 3.15.1."
+    },
+    {
+      "command": "npm run harness:check",
+      "exit_status": 0,
+      "relevant_result": "Harness contract, state, architecture, hosted-workflow policy and file-size coverage passed.",
+      "caveat": ""
+    },
+    {
+      "command": "npm run lint:docs",
+      "exit_status": 0,
+      "relevant_result": "Harness, Markdown, links and prose checks passed after the state update.",
+      "caveat": ""
+    },
+    {
+      "command": "npm run lint:file-size",
+      "exit_status": 0,
+      "relevant_result": "Hard limits passed.",
+      "caveat": "Several touched owners are at review thresholds."
+    },
+    {
+      "command": "npm run test:scripts",
+      "exit_status": 0,
+      "relevant_result": "949 passed, 0 failed after the state update.",
+      "caveat": "No hosted workflow dispatch."
+    }
+  ],
+  "review": {
+    "independent": true,
+    "scope": "Fresh-context adversarial acceptance reviews of the pipeline and key-storage targets. Final round blocked once in each area (hosted cancel re-draft; key creation beside encrypted copies); both blocks were fixed and confirmed cleared by the same reviewers. Verdicts: accept with follow-ups."
+  },
+  "unproven": [
+    "Native Windows compile and runtime, Credential Manager Local persistence and the 150 ms spurious-miss re-read; Linux runtime.",
+    "Hosted pipeline: cancel drill on a throwaway tag, draft permissions, asset digest fields, uploads.github.com behavior under Node 24.18, runner gh flags, re-draft PATCH, concurrency and release environment approval."
+  ],
+  "follow_ups_v3_0_1": [
+    "Pipeline: publish request hanging beyond 3 s at cancel; signal tests bypass the bash exec path; CLI test for confirm-verified-draft; draft manifest artifact; minimum gh version.",
+    "Keys: cache lock held across native loads without a timeout; disable_passphrase_lock not spawned; end-to-end zeroized vault key copies; stray non-encrypted files in backups block key creation; Windows device_local reporting; shared key helper module and remaining test gaps.",
+    "Environment: Chromium headless close stalls under load (Playwright #43475)."
+  ],
+  "pending": [
+    "Commit and freeze the candidate; tag push, hosted build-draft dispatch and hosted cancel drill.",
+    "Windows 11 and Linux verification on user VMs; universal macOS build; signing, notarization and production trust.",
+    "R1 Stability, R2 Performance and R3 Security on the hosted draft, then publication.",
+    "Commit, push, hosted dispatch, signing and publication require explicit authority."
+  ]
+}

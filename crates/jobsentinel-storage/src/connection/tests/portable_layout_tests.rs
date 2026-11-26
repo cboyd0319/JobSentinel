@@ -1,7 +1,7 @@
 //! Proves genuine pre-rename portable backups restore and roll back through supported layouts.
 
 use super::*;
-use crate::encryption::load_or_create_database_key;
+use crate::encryption::load_database_key;
 use std::path::Path;
 
 const PASSPHRASE: &str = "public baseline restore fixture phrase";
@@ -46,7 +46,7 @@ async fn baseline_portable_backups_restore_and_rollback_without_rewriting_input(
         assert_eq!(info.migration_sequence, 32);
         let input_before = std::fs::read(&backup).unwrap();
         let path = root.path().join("jobs.db");
-        let key = load_or_create_database_key().await.unwrap();
+        let key = load_database_key(true).await.unwrap();
         baseline_pool(&path, &key, "original private history")
             .await
             .close()
@@ -135,7 +135,7 @@ async fn reserved_relative_source_paths_preserve_backup_bytes_and_sidecar_absenc
     let info = baseline_backup(relative).await;
     let before = std::fs::read(relative).unwrap();
     let destination = tempfile::NamedTempFile::new_in(root.path()).unwrap();
-    let key = load_or_create_database_key().await.unwrap();
+    let key = load_database_key(true).await.unwrap();
     super::super::backups::export_encrypted_to_encrypted(
         relative,
         PASSPHRASE,

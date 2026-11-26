@@ -17,15 +17,19 @@ const DATABASE_KEY_LEN: usize = 32;
 const DATABASE_ENCRYPTION_ERROR: &str =
     "JobSentinel could not unlock local database encryption. Check system permission prompts, then try again.";
 
-pub(super) async fn load_or_create_database_key() -> Result<Zeroizing<String>, sqlx::Error> {
+/// Load the device key; create only for a new database or recovery-mode restore staging.
+/// Any other missing key for existing data fails closed on the unlock-recovery path.
+pub(super) async fn load_database_key(
+    create_if_missing: bool,
+) -> Result<Zeroizing<String>, sqlx::Error> {
     #[cfg(test)]
     {
-        return Ok(Zeroizing::new(hex::encode([0xDB; DATABASE_KEY_LEN])));
+        return test_key::load(create_if_missing).ok_or_else(database_encryption_error);
     }
 
     #[cfg(not(test))]
     {
-        jobsentinel_platform::load_or_create_database_key()
+        jobsentinel_platform::load_database_key(create_if_missing)
             .await
             .map_err(|_| database_encryption_error())
     }
@@ -250,6 +254,39 @@ fn package_smoke_logging_enabled() -> bool {
     #[cfg(not(target_os = "macos"))]
     {
         false
+    }
+}
+
+/// Per-thread stand-in for device secure storage so tests never reach a native store.
+#[cfg(test)]
+pub(crate) mod test_key {
+    use std::cell::Cell;
+    use zeroize::Zeroizing;
+
+    thread_local! {
+        static STORED: Cell<bool> = const { Cell::new(true) };
+        static WRITES: Cell<usize> = const { Cell::new(0) };
+    }
+
+    /// Remove the stored key and reset the write count for this test thread.
+    pub(crate) fn clear() {
+        STORED.set(false);
+        WRITES.set(0);
+    }
+
+    pub(crate) fn writes() -> usize {
+        WRITES.get()
+    }
+
+    pub(super) fn load(create_if_missing: bool) -> Option<Zeroizing<String>> {
+        if !STORED.get() {
+            if !create_if_missing {
+                return None;
+            }
+            STORED.set(true);
+            WRITES.set(WRITES.get() + 1);
+        }
+        Some(Zeroizing::new(hex::encode([0xDB; super::DATABASE_KEY_LEN])))
     }
 }
 

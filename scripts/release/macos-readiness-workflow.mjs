@@ -1,3 +1,4 @@
+// Inspects release workflow text for draft staging, upload and publication ordering contracts.
 import { hasAll, hasAny } from "./macos-readiness-text.mjs";
 
 export function hasOrderedSnippets(text, snippets) {
@@ -29,8 +30,7 @@ export function hasNoAccountMacosReleaseOrder(releaseWorkflow) {
       "npm run tauri:verify:macos",
       "rm -f \"$current_path.sha256\" \"$labeled_path.sha256\"",
       "shasum -a 256",
-      "while IFS= read -r asset; do",
-      "gh release delete-asset",
+      "node scripts/release/draft-assets.mjs delete-stale --platform macos",
       "release/bundle/dmg/*.dmg.sha256 release-assets/public/",
       "npm run release:sbom",
       "--require-artifacts",
@@ -38,7 +38,7 @@ export function hasNoAccountMacosReleaseOrder(releaseWorkflow) {
       "release-assets/public/*.dmg",
       "release-assets/public/*.exe",
       "sbom-path: release-assets/public/JobSentinel-",
-      'gh release upload "$RELEASE_TAG" "${assets[@]}" --clobber',
+      "node scripts/release/draft-assets.mjs upload",
     ]) &&
     !releaseWorkflow.includes("mapfile ") &&
     !releaseWorkflow.includes("macos_assets")
@@ -82,7 +82,6 @@ export function releaseAssetUploadsStayDraft(releaseWorkflow) {
   const createRelease =
     getWorkflowStepBlock(releaseWorkflow, "Create staged release") ||
     getWorkflowStepBlock(releaseWorkflow, "Create draft release");
-  const releaseEdit = getShellCommandBlock(createRelease, 'gh release edit "$RELEASE_TAG"');
   const releaseCreate = getShellCommandBlock(createRelease, 'gh release create "$RELEASE_TAG"');
   const createsDraftRelease =
     (createRelease.includes("GH_TOKEN: ${{ github.token }}") &&
@@ -91,12 +90,7 @@ export function releaseAssetUploadsStayDraft(releaseWorkflow) {
         "RELEASE_TAG: ${{ steps.get_version.outputs.tag }}",
         "RELEASE_TAG: ${{ steps.release_inputs.outputs.tag }}",
       ]) &&
-      hasAll(releaseEdit, [
-        'gh release edit "$RELEASE_TAG"',
-        "--draft",
-        "--prerelease=false",
-        "--notes-file",
-      ]) &&
+      !createRelease.includes("gh release edit") &&
       hasAll(releaseCreate, [
         'gh release create "$RELEASE_TAG"',
         "--draft",
@@ -120,9 +114,10 @@ export function releaseAssetUploadsStayDraft(releaseWorkflow) {
       (createsDraftRelease &&
         hasAll(commonUpload, [
           "GH_TOKEN: ${{ github.token }}",
-          "GH_REPO: ${{ github.repository }}",
+          "RELEASE_ID: ${{ inputs.release_id }}",
           "assets=(release-assets/public/*)",
-          'gh release upload "$RELEASE_TAG" "${assets[@]}" --clobber',
+          "node scripts/release/draft-assets.mjs upload",
+          '-- "${assets[@]}"',
         ]) &&
         hasAny(commonUpload, [
           "RELEASE_TAG: ${{ needs.create-release.outputs.tag }}",
@@ -140,18 +135,14 @@ export function releaseAssetUploadsStayDraft(releaseWorkflow) {
 export function releasePublishesAfterSuccessfulUploads(releaseWorkflow) {
   const publishStep = getWorkflowStepBlock(releaseWorkflow, "Publish hosted release");
   return (
-    hasAll(releaseWorkflow, ["publish-release:", "- build-release"]) &&
+    releaseWorkflow.includes("publish-release:") &&
     hasAll(publishStep, [
-      "GH_TOKEN: ${{ github.token }}",
-      "GH_REPO: ${{ github.repository }}",
-      'gh release edit "$RELEASE_TAG"',
-      "--draft=false",
-      "--prerelease=false",
+      "GITHUB_TOKEN: ${{ github.token }}",
+      "RELEASE_ID: ${{ steps.publish_gate.outputs.release_id }}",
+      "node scripts/release/publish-release.mjs",
     ]) &&
-    hasAny(publishStep, [
-      "RELEASE_TAG: ${{ needs.create-release.outputs.tag }}",
-      "RELEASE_TAG: ${{ needs.release-inputs.outputs.tag }}",
-    ])
+    hasOrderedSnippets(releaseWorkflow, ["node scripts/release/confirm-verified-draft.mjs", "- name: Publish hosted release"]) &&
+    !/gh release edit|gh api/.test(publishStep)
   );
 }
 

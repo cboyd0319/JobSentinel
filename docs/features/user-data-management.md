@@ -284,13 +284,6 @@ reported failure rather than a reason to force another process or reader out.
 Each attempted cleanup after the health check records only structural local
 provenance and a sanitized error category.
 
-## Older Local Data
-
-Users who had older browser-saved templates or searches may see a migration
-prompt. The migration moves supported local data into the current local store.
-If no prompt appears, make a safe support report first, then close and reopen
-JobSentinel and check Settings.
-
 ## Backups And Deletion
 
 - Delete templates and saved searches carefully; deleted items may not be

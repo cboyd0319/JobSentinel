@@ -146,7 +146,7 @@ mod memory_tests {
         assert_eq!(after[0], before[0], "refusal modified the database");
         assert_eq!(after[1], before[1], "refusal modified the WAL");
 
-        let key = load_or_create_database_key().await.unwrap();
+        let key = load_database_key(true).await.unwrap();
         let mut reader = SqliteConnectOptions::new()
             .filename(&db_path)
             .read_only(true)

@@ -105,7 +105,7 @@ export function PortableRecoveryPanel() {
         setStatus("Restore selection was cancelled. Nothing was staged.");
       }
     } catch {
-      setStatus("Encrypted backup could not be staged. Nothing was changed.");
+      setStatus("Encrypted backup could not be staged. Your saved data was not changed.");
     } finally {
       setOperation(null);
     }

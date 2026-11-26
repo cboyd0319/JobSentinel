@@ -1,0 +1,69 @@
+# Verifies the staged draft for build-draft mode and emits its manifest for the final release phases.
+name: Release draft verification
+
+on:
+  workflow_call:
+    inputs:
+      selection:
+        required: true
+        type: string
+      tag:
+        required: true
+        type: string
+
+permissions: {}
+
+jobs:
+  draft-verification:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      attestations: read
+      # Draft releases are listed and downloadable only with push access. This job performs no writes.
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "24.18.0"
+          package-manager-cache: false
+
+      # No npm install: the verifier imports only Node built-ins (enforced by release-script-imports.test.mjs).
+      - name: Verify draft release assets
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          RELEASE_SELECTION: ${{ inputs.selection }}
+          RELEASE_TAG: ${{ inputs.tag }}
+          VAR_REQUIRE_WINDOWS_UNSIGNED_LABEL: ${{ vars.JOBSENTINEL_WINDOWS_REQUIRE_UNSIGNED_LABEL }}
+        run: |
+          set -euo pipefail
+
+          manifest="$RUNNER_TEMP/draft-manifest.json"
+          args=(
+            --draft
+            --draft-manifest "$manifest"
+            --tag "$RELEASE_TAG"
+            --selection "$RELEASE_SELECTION"
+            --expected-revision "$GITHUB_SHA"
+            --repo "$GITHUB_REPOSITORY"
+            --require-supply-chain
+          )
+          if [ "${VAR_REQUIRE_WINDOWS_UNSIGNED_LABEL:-true}" = "true" ]; then
+            args+=(--require-windows-unsigned-label)
+          fi
+
+          node scripts/release/verify-public-release-assets.mjs "${args[@]}"
+
+          {
+            printf '## Draft manifest for the final release phases\n\n```json\n'
+            cat "$manifest"
+            printf '```\n'
+          } >> "$GITHUB_STEP_SUMMARY"

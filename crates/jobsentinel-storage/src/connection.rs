@@ -6,6 +6,7 @@ mod portable_backup;
 mod portable_restore;
 mod portable_restore_bundle;
 mod portable_restore_promotion;
+mod portable_restore_status;
 mod recovery_operations;
 mod reviewed_export;
 mod reviewed_export_inspect;
@@ -35,7 +36,7 @@ use std::{
 };
 
 use super::encryption::{
-    connect_encrypted_pool, load_or_create_database_key, probe_encrypted_user_version,
+    connect_encrypted_pool, load_database_key, probe_encrypted_user_version,
     probe_plaintext_user_version,
 };
 use recovery_operations::finish_recovery_operation_record;
@@ -91,9 +92,9 @@ impl Database {
 
     pub(super) async fn connect_owned(path: &Path, owner: &File) -> Result<Self, sqlx::Error> {
         let owner_lock = owner.try_clone()?;
-        Self::refuse_missing_primary(path)?;
+        let existing = Self::primary_exists_or_refuse(path)?;
 
-        let plaintext_version = if path.exists() {
+        let plaintext_version = if existing {
             probe_plaintext_user_version(path).await?
         } else {
             None
@@ -105,8 +106,8 @@ impl Database {
             ));
         }
 
-        let key = load_or_create_database_key().await?;
-        if path.exists() {
+        let key = load_database_key(Self::may_create_key(path, existing)?).await?;
+        if existing {
             probe_encrypted_user_version(path, &key).await?;
         } else {
             Self::bootstrap_database(path, &key, &MIGRATOR).await?;

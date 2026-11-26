@@ -1,4 +1,4 @@
-{"schema":"jobsentinel.feature_list.v1","project":"JobSentinel","last_updated":"2026-11-06","active_status":"active","rules":{"single_active_feature":true,"passing_requires_evidence":true,"passing_is_irreversible":true},
+{"schema":"jobsentinel.feature_list.v1","project":"JobSentinel","last_updated":"2026-11-21","active_status":"active","rules":{"single_active_feature":true,"passing_requires_evidence":true,"passing_is_irreversible":true},
 "features":[{"id":"harness-standard-contract","priority":1,"area":"repository harness","title":"Standard repository harness",
 "behavior":"A fresh session can initialize the repository, see one current objective, select the next task, route its diff, and verify completion without contradictory owners.",
 "user_visible_behavior":"Contributors can resume and verify work across supported platforms.","status":"passing","verification":["npm run harness:check","npm run lint:file-size","npm run test:scripts","npm run test:smoke",
@@ -81,6 +81,9 @@
 "priority":26,"area":"v3 release preparation","title":"Prepare the v3.0 core release candidate","status":"active",
 "behavior":"Prepare the preserved v3.0 core with required shared fixes and release engineering, keeping Next enhancements outside the candidate.",
 "user_visible_behavior":"The first v3 release delivers the approved core without waiting for later enhancements.",
-"notes":"Update/Region trust reviewed and full-gate verified. User pause follows commit/push; resume with source freeze and R1.","verification":["./init.sh","npm run harness:check","npm run lint:docs","npm run lint:file-size",
-"npm run test:scripts","npm run verify:full"],
-"evidence":["docs/harness/evidence/v3-release-candidate-2026-11-06.json"]}]}
+"notes":"Release-first scope approved 2026-11-06; update/Region trust enrolled in checkpoint 6c72871c. Frozen at tag v3.0.0 on 2026-11-21; hosted draft and full phases remain required.",
+"verification":["./init.sh","npm run harness:check","npm run lint:docs","npm run lint:file-size","npm run test:scripts","npm run verify:full"],
+"evidence":["docs/harness/evidence/v3-release-candidate-2026-11-06.json",
+"docs/harness/evidence/v3-release-candidate-2026-11-20.json",
+"docs/harness/evidence/v3-release-candidate-2026-11-21.json",
+"docs/harness/evidence/v3-release-candidate-2026-11-22.json"]}]}

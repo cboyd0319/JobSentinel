@@ -266,7 +266,7 @@ export function NativeFileDropReview() {
         `${name} is staged locally. Restart is required; the current session is unchanged.`,
       );
     } catch {
-      setAlert(`${name} could not be staged as a backup. Nothing was changed.`);
+      setAlert(`${name} could not be staged as a backup. Your saved data was not changed.`);
     } finally {
       setBusy(false);
     }

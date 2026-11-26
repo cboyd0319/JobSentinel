@@ -1,3 +1,4 @@
+/** Renders local startup repairs and encrypted restore staging when saved setup cannot open. */
 import { useEffect, useState } from "react";
 import { invoke } from "../platform/tauri";
 import { default as ErrorBoundary } from "./errors/ErrorBoundary";
@@ -15,6 +16,11 @@ type StagedRestoreStatus =
   | "ready"
   | "promoting"
   | "promoted";
+
+// Recovery staging may create a missing device key, and cancelling never removes it.
+const KEY_NOTE =
+  "Saved data was not removed. If a new key was created, data saved before the restore can't be unlocked.";
+const RESTORE_KEY_WARNING_ID = "startup-restore-key-warning";
 
 export function StartupRecovery({ onRetry }: { onRetry: () => void }) {
   const [recovery, setRecovery] = useState<{
@@ -118,7 +124,7 @@ export function StartupRecovery({ onRetry }: { onRetry: () => void }) {
       );
     } catch {
       setRecoveryStatus(
-        "Encrypted restore could not be staged. Saved data was not changed.",
+        `Encrypted restore could not be staged. ${KEY_NOTE}`,
       );
     } finally {
       setRepairing(false);
@@ -137,13 +143,13 @@ export function StartupRecovery({ onRetry }: { onRetry: () => void }) {
       setRecoveryStatus(
         result.outcome === "cancelled"
           ? invalid
-            ? "Invalid restore files were preserved privately and cleared from startup. Saved data was not changed."
-            : "Staged restore was cancelled. Saved data was not changed."
-          : "No staged restore was found. Saved data was not changed.",
+            ? `Invalid restore files were preserved privately and cleared from startup. ${KEY_NOTE}`
+            : `Staged restore was cancelled. ${KEY_NOTE}`
+          : `No staged restore was found. ${KEY_NOTE}`,
       );
     } catch {
       setRecoveryStatus(
-        "Staged restore could not be cancelled. Saved data was not changed.",
+        `Staged restore could not be cancelled. ${KEY_NOTE}`,
       );
     } finally {
       setRepairing(false);
@@ -201,9 +207,19 @@ export function StartupRecovery({ onRetry }: { onRetry: () => void }) {
               <div className="rounded-lg border border-surface-700 p-4">
                 <p className="mb-3 text-sm text-surface-300">
                   Restore from a JobSentinel encrypted backup. No internet is
-                  required. The restore is staged first, can be cancelled, and
-                  keeps a private recovery copy when applied after restart.
-                  Credentials and secrets are not restored.
+                  required. The restore is staged first and keeps a private
+                  recovery copy when applied after restart. You can cancel the
+                  restore before restart. Credentials and secrets are not
+                  restored.
+                </p>
+                <p
+                  id={RESTORE_KEY_WARNING_ID}
+                  className="mb-3 rounded-lg border border-warning/40 bg-warning/10 p-3 text-sm text-surface-100"
+                >
+                  <strong>Warning:</strong> If this device&apos;s key for your
+                  saved data is missing, restoring creates a new key. Data
+                  saved before the restore then can&apos;t be unlocked, even if
+                  you cancel the restore or it fails.
                 </p>
                 <label
                   className="mb-3 block text-sm text-surface-200"
@@ -224,6 +240,7 @@ export function StartupRecovery({ onRetry }: { onRetry: () => void }) {
                 </label>
                 <button
                   className="w-full rounded-lg bg-sentinel-500 px-4 py-3 text-sm font-semibold text-white hover:bg-sentinel-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-sentinel-400 disabled:opacity-50"
+                  aria-describedby={RESTORE_KEY_WARNING_ID}
                   disabled={
                     repairing || Array.from(restorePassphrase).length < 16
                   }
