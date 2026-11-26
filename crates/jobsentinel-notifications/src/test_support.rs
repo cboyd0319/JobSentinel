@@ -1,3 +1,5 @@
+//! Provides shared scored-job fixtures for notification contract tests.
+
 use crate::Notification;
 use chrono::Utc;
 use jobsentinel_domain::Job;
@@ -23,6 +25,8 @@ pub fn notification_fixture() -> Notification {
             salary_min: Some(180000),
             salary_max: Some(220000),
             currency: Some("USD".to_string()),
+            listed_pay: None,
+            geography: None,
             created_at: now,
             updated_at: now,
             last_seen: now,

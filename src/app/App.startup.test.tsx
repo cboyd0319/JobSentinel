@@ -1,11 +1,25 @@
+/** Verifies startup recovery routing, repair actions, and encrypted restore copy. */
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { invoke } from "@tauri-apps/api/core";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import App, { StartupRecovery } from "./App";
 import * as supportReport from "../shared/errorReporting/supportReport";
+import { ToastProvider } from "./providers/ToastProvider";
+import { UndoProvider } from "./providers/UndoProvider";
 
 const mockInvoke = vi.mocked(invoke);
+const keyWarning =
+  "Warning: If this device's key for your saved data is missing, restoring creates a new key. Data saved before the restore then can't be unlocked, even if you cancel the restore or it fails.";
+const keyNote =
+  "Saved data was not removed. If a new key was created, data saved before the restore can't be unlocked.";
+const databaseRecovery = {
+  required: true,
+  platform: false,
+  configuration: false,
+  database: true,
+  connectivity_required: false,
+};
 
 vi.mock("../shared/errorReporting/logger", () => ({
   logError: vi.fn(),
@@ -39,6 +53,25 @@ describe("App startup recovery", () => {
     expect(screen.queryByText(/pick a career path/i)).not.toBeInTheDocument();
   });
 
+  it("enters the local app for this session when first-run setup is skipped", async () => {
+    const user = userEvent.setup();
+    mockInvoke.mockResolvedValueOnce(true);
+
+    render(
+      <ToastProvider>
+        <UndoProvider>
+          <App />
+        </UndoProvider>
+      </ToastProvider>,
+    );
+
+    await user.click(await screen.findByRole("button", { name: "Skip for now" }));
+
+    expect(await screen.findByRole("navigation", { name: "Main navigation" })).toBeInTheDocument();
+    expect(mockInvoke).toHaveBeenCalledWith("is_first_run");
+    expect(mockInvoke.mock.calls.some(([command]) => command === "complete_setup")).toBe(false);
+  });
+
   it("lets users copy a safe support report from startup recovery", async () => {
     const user = userEvent.setup();
     vi.spyOn(supportReport, "copySanitizedDebugReport").mockResolvedValueOnce({
@@ -53,6 +86,257 @@ describe("App startup recovery", () => {
 
     expect(supportReport.copySanitizedDebugReport).toHaveBeenCalledTimes(1);
     expect(screen.getByText("Safe support report copied")).toBeInTheDocument();
+  });
+
+  it("preserves invalid saved settings before resetting startup", async () => {
+    const user = userEvent.setup();
+    mockInvoke
+      .mockResolvedValueOnce({
+        required: true,
+        platform: false,
+        configuration: true,
+        database: false,
+        connectivity_required: false,
+      })
+      .mockResolvedValueOnce({
+        outcome: "preserved_and_reset",
+        connectivity_required: false,
+      });
+
+    render(<StartupRecovery onRetry={vi.fn()} />);
+
+    await user.click(
+      await screen.findByRole("button", {
+        name: "Preserve and reset saved settings",
+      }),
+    );
+
+    expect(mockInvoke).toHaveBeenLastCalledWith(
+      "repair_invalid_startup_config",
+    );
+    expect(
+      screen.getByRole("status", { name: "Startup recovery status" }),
+    ).toHaveTextContent(
+      "Saved settings were preserved locally. Restart JobSentinel to continue.",
+    );
+    expect(
+      screen.queryByRole("button", { name: "Try Again" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("offers an offline permission repair when platform setup failed", async () => {
+    const user = userEvent.setup();
+    mockInvoke
+      .mockResolvedValueOnce({
+        required: true,
+        platform: true,
+        configuration: false,
+        database: true,
+        connectivity_required: false,
+      });
+    for (let index = 0; index < 3; index += 1) {
+      mockInvoke.mockResolvedValueOnce({
+        outcome: "repaired",
+        connectivity_required: false,
+      });
+    }
+
+    render(<StartupRecovery onRetry={vi.fn()} />);
+
+    await user.click(
+      await screen.findByRole("button", {
+        name: "Repair local permissions",
+      }),
+    );
+
+    for (const area of ["application_data", "configuration", "cache"]) {
+      expect(mockInvoke).toHaveBeenCalledWith("repair_local_permissions", {
+        area,
+      });
+    }
+    expect(
+      screen.getByRole("status", { name: "Startup recovery status" }),
+    ).toHaveTextContent(
+      "Local permissions were repaired. Restart JobSentinel to continue.",
+    );
+    expect(screen.queryByLabelText("Backup passphrase")).not.toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Repair local permissions and restart before restoring a backup.",
+      ),
+    ).toBeVisible();
+  });
+
+  it("stages an encrypted backup when the local database cannot open", async () => {
+    const user = userEvent.setup();
+    mockInvoke
+      .mockResolvedValueOnce({
+        required: true,
+        platform: false,
+        configuration: false,
+        database: true,
+        connectivity_required: false,
+      })
+      .mockResolvedValueOnce("none")
+      .mockResolvedValueOnce({
+        outcome: "staged",
+        connectivity_required: false,
+        restart_required: true,
+      });
+
+    render(<StartupRecovery onRetry={vi.fn()} />);
+
+    const passphrase = await screen.findByLabelText("Backup passphrase");
+    expect(
+      screen.getByText(/keeps a private recovery copy/i),
+    ).toHaveTextContent("You can cancel the restore before restart.");
+    const restore = screen.getByRole("button", {
+      name: "Choose backup and stage restore",
+    });
+    const warning = screen.getByText(/restoring creates a new key/i);
+    expect(warning).toBeVisible();
+    expect(warning).toHaveTextContent(keyWarning);
+    expect(restore).toHaveAccessibleDescription(keyWarning);
+    expect(
+      warning.compareDocumentPosition(restore) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(mockInvoke).not.toHaveBeenCalledWith(
+      "stage_portable_restore",
+      expect.anything(),
+    );
+    await user.type(passphrase, "sixteen-letters!!");
+    await user.click(restore);
+
+    expect(mockInvoke).toHaveBeenLastCalledWith("stage_portable_restore", {
+      passphrase: "sixteen-letters!!",
+    });
+    expect(passphrase).toHaveValue("");
+    expect(
+      screen.getByRole("status", { name: "Startup recovery status" }),
+    ).toHaveTextContent(
+      "Encrypted restore is staged. Close and reopen JobSentinel to finish.",
+    );
+  });
+
+  it("lets users cancel a staged database restore before restart", async () => {
+    const user = userEvent.setup();
+    mockInvoke
+      .mockResolvedValueOnce({
+        required: true,
+        platform: false,
+        configuration: false,
+        database: true,
+        connectivity_required: false,
+      })
+      .mockResolvedValueOnce("ready")
+      .mockResolvedValueOnce({
+        outcome: "cancelled",
+        connectivity_required: false,
+        restart_required: false,
+      });
+
+    render(<StartupRecovery onRetry={vi.fn()} />);
+
+    await user.click(
+      await screen.findByRole("button", { name: "Cancel staged restore" }),
+    );
+
+    expect(mockInvoke).toHaveBeenLastCalledWith("cancel_staged_restore");
+    expect(await screen.findByLabelText("Backup passphrase")).toBeVisible();
+    expect(
+      screen.getByRole("status", { name: "Startup recovery status" }),
+    ).toHaveTextContent(`Staged restore was cancelled. ${keyNote}`);
+  });
+
+  it("qualifies saved-data claims when restore staging fails", async () => {
+    const user = userEvent.setup();
+    mockInvoke
+      .mockResolvedValueOnce(databaseRecovery)
+      .mockResolvedValueOnce("none")
+      .mockRejectedValueOnce(new Error("staging failed"));
+
+    render(<StartupRecovery onRetry={vi.fn()} />);
+
+    await user.type(
+      await screen.findByLabelText("Backup passphrase"),
+      "sixteen-letters!!",
+    );
+    await user.click(
+      screen.getByRole("button", { name: "Choose backup and stage restore" }),
+    );
+
+    const status = screen.getByRole("status", {
+      name: "Startup recovery status",
+    });
+    expect(status).toHaveTextContent(
+      `Encrypted restore could not be staged. ${keyNote}`,
+    );
+    expect(status).not.toHaveTextContent("Saved data was not changed.");
+  });
+
+  it.each([
+    [
+      "reports a missing staged restore",
+      () => mockInvoke.mockResolvedValueOnce({ outcome: "not_found" }),
+      "No staged restore was found.",
+    ],
+    [
+      "reports a failed cancellation",
+      () => mockInvoke.mockRejectedValueOnce(new Error("cancel failed")),
+      "Staged restore could not be cancelled.",
+    ],
+  ])("qualifies saved-data claims when it %s", async (_name, arrange, lead) => {
+    const user = userEvent.setup();
+    mockInvoke
+      .mockResolvedValueOnce(databaseRecovery)
+      .mockResolvedValueOnce("ready");
+    arrange();
+
+    render(<StartupRecovery onRetry={vi.fn()} />);
+    await user.click(
+      await screen.findByRole("button", { name: "Cancel staged restore" }),
+    );
+
+    const status = screen.getByRole("status", {
+      name: "Startup recovery status",
+    });
+    expect(status).toHaveTextContent(`${lead} ${keyNote}`);
+    expect(status).not.toHaveTextContent("Saved data was not changed.");
+  });
+
+  it("lets users preserve and clear an invalid restore marker", async () => {
+    const user = userEvent.setup();
+    mockInvoke
+      .mockResolvedValueOnce({
+        required: true,
+        platform: false,
+        configuration: false,
+        database: true,
+        connectivity_required: false,
+      })
+      .mockResolvedValueOnce("invalid")
+      .mockResolvedValueOnce({
+        outcome: "cancelled",
+        connectivity_required: false,
+        restart_required: false,
+      });
+
+    render(<StartupRecovery onRetry={vi.fn()} />);
+
+    await user.click(
+      await screen.findByRole("button", {
+        name: "Preserve and remove invalid restore files",
+      }),
+    );
+
+    expect(mockInvoke).toHaveBeenLastCalledWith("cancel_staged_restore");
+    expect(await screen.findByLabelText("Backup passphrase")).toBeVisible();
+    expect(
+      screen.getByRole("status", { name: "Startup recovery status" }),
+    ).toHaveTextContent(
+      `Invalid restore files were preserved privately and cleared from startup. ${keyNote}`,
+    );
   });
 
   it("opens the documented Search Links page from navigation", async () => {

@@ -2,11 +2,15 @@
 
 use jobsentinel_domain::ExternalAiProvider;
 use jobsentinel_network::{
-    send_external_https_text_with_retry, ExternalHttpRequest, ExternalTextResponse,
+    send_external_https_text_with_retry, ExternalFetchError, ExternalHttpRequest,
+    ExternalTextResponse,
 };
 use serde_json::Value;
 
-use crate::{CHOOSE_EXTERNAL_AI_PROVIDER_MESSAGE, CUSTOM_EXTERNAL_AI_ENDPOINT_REQUIRED_MESSAGE};
+use crate::{
+    ExternalAiSendError, CHOOSE_EXTERNAL_AI_PROVIDER_MESSAGE,
+    CUSTOM_EXTERNAL_AI_ENDPOINT_REQUIRED_MESSAGE,
+};
 
 const MAX_PROVIDER_RESPONSE_CHARS: usize = 16_000;
 const OPENAI_RESPONSES_ENDPOINT: &str = "https://api.openai.com/v1/responses";
@@ -28,34 +32,57 @@ pub(crate) struct ProviderRequest {
 pub(crate) async fn send_provider_request(
     request: &ProviderRequest,
     api_key: &str,
-) -> Result<String, String> {
+) -> Result<String, ExternalAiSendError> {
+    let destination = provider_destination(request).map_err(ExternalAiSendError::Rejected)?;
     match request.provider {
         ExternalAiProvider::OpenAi => {
-            send_openai_request(&request.model, &request.prompt, api_key).await
+            send_openai_request(&destination, &request.model, &request.prompt, api_key).await
         }
         ExternalAiProvider::Anthropic => {
-            send_anthropic_request(&request.model, &request.prompt, api_key).await
+            send_anthropic_request(&destination, &request.model, &request.prompt, api_key).await
         }
         ExternalAiProvider::GoogleGemini => {
-            send_gemini_request(&request.model, &request.prompt, api_key).await
+            send_gemini_request(&destination, &request.prompt, api_key).await
         }
         ExternalAiProvider::GithubCopilot => {
-            send_github_models_request(&request.model, &request.prompt, api_key).await
+            send_github_models_request(&destination, &request.model, &request.prompt, api_key).await
         }
         ExternalAiProvider::Custom => {
-            let endpoint = request
-                .custom_endpoint
-                .as_deref()
-                .ok_or_else(|| CUSTOM_EXTERNAL_AI_ENDPOINT_REQUIRED_MESSAGE.to_string())?;
-            send_custom_chat_request(endpoint, &request.model, &request.prompt, api_key).await
+            send_custom_chat_request(&destination, &request.model, &request.prompt, api_key).await
         }
+        ExternalAiProvider::None => Err(ExternalAiSendError::Rejected(
+            CHOOSE_EXTERNAL_AI_PROVIDER_MESSAGE.to_string(),
+        )),
+    }
+}
+
+pub(crate) fn provider_destination(request: &ProviderRequest) -> Result<String, String> {
+    match request.provider {
+        ExternalAiProvider::OpenAi => Ok(OPENAI_RESPONSES_ENDPOINT.to_string()),
+        ExternalAiProvider::Anthropic => Ok(ANTHROPIC_MESSAGES_ENDPOINT.to_string()),
+        ExternalAiProvider::GoogleGemini => Ok(format!(
+            "{GEMINI_GENERATE_CONTENT_ENDPOINT_PREFIX}{}{GEMINI_GENERATE_CONTENT_ENDPOINT_SUFFIX}",
+            urlencoding::encode(&request.model)
+        )),
+        ExternalAiProvider::GithubCopilot => {
+            Ok(GITHUB_MODELS_CHAT_COMPLETIONS_ENDPOINT.to_string())
+        }
+        ExternalAiProvider::Custom => request
+            .custom_endpoint
+            .clone()
+            .ok_or_else(|| CUSTOM_EXTERNAL_AI_ENDPOINT_REQUIRED_MESSAGE.to_string()),
         ExternalAiProvider::None => Err(CHOOSE_EXTERNAL_AI_PROVIDER_MESSAGE.to_string()),
     }
 }
 
-async fn send_openai_request(model: &str, prompt: &str, api_key: &str) -> Result<String, String> {
+async fn send_openai_request(
+    endpoint: &str,
+    model: &str,
+    prompt: &str,
+    api_key: &str,
+) -> Result<String, ExternalAiSendError> {
     let response = send_provider_http_request(
-        ExternalHttpRequest::post(OPENAI_RESPONSES_ENDPOINT)
+        ExternalHttpRequest::post(endpoint)
             .header("authorization", format!("Bearer {api_key}"))
             .json(serde_json::json!({
                 "model": model,
@@ -68,12 +95,13 @@ async fn send_openai_request(model: &str, prompt: &str, api_key: &str) -> Result
 }
 
 async fn send_anthropic_request(
+    endpoint: &str,
     model: &str,
     prompt: &str,
     api_key: &str,
-) -> Result<String, String> {
+) -> Result<String, ExternalAiSendError> {
     let response = send_provider_http_request(
-        ExternalHttpRequest::post(ANTHROPIC_MESSAGES_ENDPOINT)
+        ExternalHttpRequest::post(endpoint)
             .header("x-api-key", api_key)
             .header("anthropic-version", "2023-06-01")
             .json(serde_json::json!({
@@ -87,11 +115,11 @@ async fn send_anthropic_request(
     extract_anthropic_response_text(&value).ok_or_else(provider_text_error)
 }
 
-async fn send_gemini_request(model: &str, prompt: &str, api_key: &str) -> Result<String, String> {
-    let encoded_model = urlencoding::encode(model);
-    let endpoint = format!(
-        "{GEMINI_GENERATE_CONTENT_ENDPOINT_PREFIX}{encoded_model}{GEMINI_GENERATE_CONTENT_ENDPOINT_SUFFIX}"
-    );
+async fn send_gemini_request(
+    endpoint: &str,
+    prompt: &str,
+    api_key: &str,
+) -> Result<String, ExternalAiSendError> {
     let response = send_provider_http_request(
         ExternalHttpRequest::post(endpoint)
             .query([("key".to_string(), api_key.to_string())])
@@ -105,12 +133,13 @@ async fn send_gemini_request(model: &str, prompt: &str, api_key: &str) -> Result
 }
 
 async fn send_github_models_request(
+    endpoint: &str,
     model: &str,
     prompt: &str,
     api_key: &str,
-) -> Result<String, String> {
+) -> Result<String, ExternalAiSendError> {
     let response = send_provider_http_request(
-        ExternalHttpRequest::post(GITHUB_MODELS_CHAT_COMPLETIONS_ENDPOINT)
+        ExternalHttpRequest::post(endpoint)
             .header("authorization", format!("Bearer {api_key}"))
             .json(chat_completion_body(model, prompt)),
     )
@@ -124,7 +153,7 @@ async fn send_custom_chat_request(
     model: &str,
     prompt: &str,
     api_key: &str,
-) -> Result<String, String> {
+) -> Result<String, ExternalAiSendError> {
     let response = send_provider_http_request(
         ExternalHttpRequest::post(endpoint)
             .header("authorization", format!("Bearer {api_key}"))
@@ -132,15 +161,7 @@ async fn send_custom_chat_request(
     )
     .await?;
     let value = provider_json(response, "custom").await?;
-    extract_chat_response_text(&value)
-        .or_else(|| extract_openai_response_text(&value))
-        .or_else(|| {
-            value
-                .get("text")
-                .and_then(Value::as_str)
-                .map(trimmed_response_text)
-        })
-        .ok_or_else(provider_text_error)
+    extract_custom_response_text(&value).ok_or_else(provider_text_error)
 }
 
 fn chat_completion_body(model: &str, prompt: &str) -> Value {
@@ -152,31 +173,64 @@ fn chat_completion_body(model: &str, prompt: &str) -> Value {
 
 async fn send_provider_http_request(
     request: ExternalHttpRequest,
-) -> Result<ExternalTextResponse, String> {
+) -> Result<ExternalTextResponse, ExternalAiSendError> {
     send_external_https_text_with_retry(request.without_retries())
         .await
-        .map_err(|_| "Outside AI provider could not be reached.".to_string())
+        .map_err(classify_fetch_error)
 }
 
-async fn provider_json(response: ExternalTextResponse, provider: &str) -> Result<Value, String> {
+fn classify_fetch_error(error: ExternalFetchError) -> ExternalAiSendError {
+    match error {
+        ExternalFetchError::InvalidTarget(_) | ExternalFetchError::Client => {
+            ExternalAiSendError::Rejected(
+                "Outside AI provider could not be reached before sending.".to_string(),
+            )
+        }
+        ExternalFetchError::Timeout | ExternalFetchError::Request | ExternalFetchError::Body(_) => {
+            ExternalAiSendError::OutcomeUnknown(
+                "The Outside AI provider request outcome is unknown. Do not retry.".to_string(),
+            )
+        }
+    }
+}
+
+async fn provider_json(
+    response: ExternalTextResponse,
+    provider: &str,
+) -> Result<Value, ExternalAiSendError> {
     if !(200..300).contains(&response.status) {
         tracing::warn!(
             provider,
             status = response.status,
             "Outside AI provider returned an unsuccessful status"
         );
-        return Err(
-            "Outside AI provider returned an error. Check provider setup and try again."
+        return Err(provider_status_error(response.status));
+    }
+
+    serde_json::from_str(&response.body).map_err(|_| {
+        ExternalAiSendError::OutcomeUnknown(
+            "Outside AI returned an unreadable response. Do not retry.".to_string(),
+        )
+    })
+}
+
+fn provider_status_error(status: u16) -> ExternalAiSendError {
+    if status == 408 || (500..600).contains(&status) {
+        return ExternalAiSendError::OutcomeUnknown(
+            "The Outside AI provider returned an uncertain server outcome. Do not retry."
                 .to_string(),
         );
     }
-
-    serde_json::from_str(&response.body)
-        .map_err(|_| "Outside AI provider returned an unreadable response.".to_string())
+    ExternalAiSendError::Rejected(
+        "Outside AI provider rejected the request. Check provider setup before trying again."
+            .to_string(),
+    )
 }
 
-fn provider_text_error() -> String {
-    "Outside AI provider returned a response JobSentinel could not read.".to_string()
+fn provider_text_error() -> ExternalAiSendError {
+    ExternalAiSendError::OutcomeUnknown(
+        "Outside AI returned a response JobSentinel could not read. Do not retry.".to_string(),
+    )
 }
 
 fn trimmed_response_text(text: &str) -> String {
@@ -186,13 +240,48 @@ fn trimmed_response_text(text: &str) -> String {
         .collect()
 }
 
+fn extract_custom_response_text(value: &Value) -> Option<String> {
+    extract_chat_response_text(value)
+        .or_else(|| extract_openai_response_text(value))
+        .or_else(|| {
+            value
+                .get("text")
+                .and_then(Value::as_str)
+                .map(trimmed_response_text)
+                .filter(|text| !text.is_empty())
+        })
+}
+
 fn extract_openai_response_text(value: &Value) -> Option<String> {
     value
         .get("output_text")
         .and_then(Value::as_str)
         .map(trimmed_response_text)
         .filter(|text| !text.is_empty())
-        .or_else(|| extract_content_array_text(value.get("output")))
+        .or_else(|| {
+            let text = value
+                .get("output")
+                .and_then(Value::as_array)
+                .into_iter()
+                .flatten()
+                .filter(|item| {
+                    item.get("type").and_then(Value::as_str) == Some("message")
+                        && item.get("role").and_then(Value::as_str) == Some("assistant")
+                })
+                .flat_map(|item| {
+                    item.get("content")
+                        .and_then(Value::as_array)
+                        .into_iter()
+                        .flatten()
+                })
+                .filter(|part| part.get("type").and_then(Value::as_str) == Some("output_text"))
+                .filter_map(|part| part.get("text").and_then(Value::as_str))
+                .flat_map(|text| text.chars().chain(std::iter::once('\n')))
+                .take(MAX_PROVIDER_RESPONSE_CHARS)
+                .collect::<String>();
+            let text = text.trim().to_string();
+            (!text.is_empty()).then_some(text)
+        })
 }
 
 fn extract_anthropic_response_text(value: &Value) -> Option<String> {
@@ -245,7 +334,13 @@ mod tests {
 
     #[test]
     fn extracts_provider_response_text() {
-        let openai = serde_json::json!({ "output_text": " Summary text " });
+        let openai = serde_json::json!({ "output": [
+            {"type":"reasoning", "text":"not a summary"},
+            {"type":"message", "role":"assistant", "content":[
+                {"type":"output_text", "text":" Summary text "},
+                {"type":"refusal", "refusal":"not text"}
+            ]}
+        ] });
         let anthropic =
             serde_json::json!({ "content": [{ "type": "text", "text": " Anthropic text " }] });
         let gemini = serde_json::json!({
@@ -269,5 +364,49 @@ mod tests {
             extract_chat_response_text(&chat),
             Some("Chat text".to_string())
         );
+    }
+
+    #[test]
+    fn rejects_empty_custom_text_and_non_message_response_items() {
+        for value in [
+            serde_json::json!({"text":" \n\t"}),
+            serde_json::json!({"output":[{"type":"reasoning","text":"hidden"}]}),
+        ] {
+            assert!(extract_custom_response_text(&value).is_none());
+        }
+        assert_eq!(
+            extract_custom_response_text(&serde_json::json!({"text":" summary "})),
+            Some("summary".into())
+        );
+        let value = serde_json::json!({"output":[{"type":"message","role":"assistant","content":[{"type":"output_text","text":"first"},{"type":"output_text","text":"second"}]}]});
+        assert_eq!(
+            extract_openai_response_text(&value),
+            Some("first\nsecond".into())
+        );
+    }
+
+    #[test]
+    fn classifies_only_proven_pre_dispatch_failures_as_rejected() {
+        assert!(matches!(
+            classify_fetch_error(jobsentinel_network::ExternalFetchError::Client),
+            ExternalAiSendError::Rejected(_)
+        ));
+        for error in [
+            jobsentinel_network::ExternalFetchError::Timeout,
+            jobsentinel_network::ExternalFetchError::Request,
+        ] {
+            assert!(matches!(
+                classify_fetch_error(error),
+                ExternalAiSendError::OutcomeUnknown(_)
+            ));
+        }
+    }
+
+    #[test]
+    fn provider_server_error_is_an_unknown_outcome() {
+        assert!(matches!(
+            provider_status_error(503),
+            ExternalAiSendError::OutcomeUnknown(_)
+        ));
     }
 }

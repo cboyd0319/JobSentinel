@@ -3,9 +3,9 @@
 use crate::application::resume::{
     DraftEducation, DraftExperience, DraftSkill, ResumeDraft, ResumePersonalInfo,
 };
+use crate::bootstrap::operation::State;
 use crate::bootstrap::AppState;
 use crate::ipc::errors::user_friendly_error;
-use tauri::State;
 
 /// Create a new empty resume draft
 #[tauri::command]

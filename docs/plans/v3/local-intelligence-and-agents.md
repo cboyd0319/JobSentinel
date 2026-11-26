@@ -1,3 +1,5 @@
+<!-- Defines local intelligence behavior, model selection, and reviewed agent boundaries. -->
+
 # Local Intelligence And Agents
 
 V3 should turn JobSentinel's local Qwen3 and taxonomy foundation into a broader
@@ -15,6 +17,66 @@ cloud model.
 - Every model suggestion can be reviewed, edited, ignored, or deleted.
 - Ranking behavior changes require eval coverage.
 - Agents propose and prepare. Users approve external actions and final submits.
+
+## Model Selection Revalidation (2026-10-28)
+
+The user requested a current comparison before treating the historical Qwen
+choice as best. Keep the pinned Qwen3 0.6B embedding/reranker pair as the
+calibrated baseline, not a proven present-day winner. No replacement is approved.
+
+Current primary-source candidates:
+
+- [EmbeddingGemma 2](https://huggingface.co/google/embeddinggemma-2),
+  [released October 6, 2026](https://blog.google/innovation-and-ai/technology/developers-tools/embeddinggemma-2/):
+  Apache-2.0, selectively loadable 270M text backbone. Verify actual text-only
+  artifact size and native runtime support; active parameter count is not download size.
+- [Ettin rerankers](https://huggingface.co/blog/ettin-reranker): Apache-2.0,
+  including 17M/32M CPU-oriented candidates and a 150M quality comparison.
+  Publisher benchmarks do not establish resume-evidence or regional accuracy.
+- [Current Qwen3 text baseline](https://huggingface.co/Qwen/Qwen3-Embedding-0.6B):
+  retain as the comparison anchor; newer multimodal Qwen models are not automatic
+  improvements for this text-first desktop workload.
+
+The 119.52s and 121.05s application runs used unoptimized Rust test builds.
+They prove functional dispatch/citations, not production latency or model superiority.
+One release-profile synthetic workflow passed in 5.70s with 6,668,730,368-byte
+peak RSS at `c3882eb3`; the existing cache was verified and no models were downloaded.
+This is not a representative latency distribution or enforced-memory qualification.
+Measure optimized release cold/warm latency, peak memory and stage costs;
+then compare shortlisted pipelines on identical frozen positive/hard-negative,
+regional and protected-claim cases. Keep data local and separate model changes
+from runtime/quantization changes. Compare retrieval, false support, abstention,
+licenses, downloads and cross-platform deployment cost. New score scales need
+new calibration; do not copy Qwen thresholds or weaken existing acceptance labels.
+
+### Current Mac Reference Results
+
+A separate CPU reference evaluation completed the 13 frozen triples and 20 warm
+synthetic workflows per pipeline on this 64 GiB Mac. Each workflow embeds 13
+queries and 26 passages, then scores the labeled pairs admitted by the frozen
+retrieval gate. This is not the earlier single JobSentinel workflow or a native
+backend qualification.
+
+| Reference pipeline | Warm median | Observed peak RSS |
+| --- | --- | --- |
+| Qwen embedding + Qwen reranker | 4.017 s | 6.101 GiB |
+| Qwen embedding + Ettin17 | 2.259 s | 3.848 GiB |
+| Qwen embedding + Ettin32 | 2.149 s | 3.848 GiB |
+| EmbeddingGemma 2 + Qwen reranker | 2.881 s | 5.117 GiB |
+
+All rerankers order the 13 paired positives above their negatives. Qwen's raw
+positive/negative ranges separate on this sample, while both Ettin ranges
+overlap; their ranking result does not establish calibrated support. Gemma2
+raises known-positive Recall@1 from 10/13 to 12/13, but worsens the French
+positive's rank from second to third. Final accepted positives and false support
+remain unchanged with Qwen reranking. Unrelated corpus passages are unjudged.
+
+Retain the current governed Qwen pair. Gemma2 merits broader embedding evaluation,
+but neither alternative is an implemented native replacement. These short inputs,
+fixed pipeline order and uncontrolled filesystem cache do not prove production
+p95 or an enforced 8 GiB budget. No model, prompt or numeric threshold changed.
+Exact protocol, provenance, measurements and limitations are owned by the
+[M11 evidence](../../harness/evidence/v3-milestone-11-local-qualification-2026-10-28.json).
 
 ## Model Layer Direction
 

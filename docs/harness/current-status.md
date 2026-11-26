@@ -1,60 +1,46 @@
+<!-- Owns current work selection, execution state and the immediate development handoff. -->
+
 # Current Status
 
-Last updated: 2026-07-18
+Last updated: 2026-11-25
 
-## Done
+## Execution
 
-- Rust ownership is implemented across the declared crates. `jobsentinel-core`
-  is deleted, storage hides its raw SQLx pool, and Tauri delegates product
-  behavior through `jobsentinel-application`.
-- Desktop, frontend, script, workflow, and maintained-file ownership match the
-  executable contracts.
-- The final structural batch eliminated 17 temporary exceptions through focused
-  suite splits, fixture extraction, taxonomy compaction, and reusable release
-  workflows. The sole retained exception is the unchanged initial SQLx migration,
-  protected by an exact checksum-compatible no-growth contract.
-- Release workflow policy sensors now aggregate the focused reusable owners
-  while retaining root-level dispatch, publication, and permission checks.
-- The final repository audit passed the full local gate, all 286 browser
-  journeys, and the Rust workspace all-features lane. The feature is `passing`
-  with fresh structured evidence in the canonical ledger.
-- Repository-root ownership was committed at `880fca80` and passed its complete
-  post-commit gate. Canonical state, contracts, plans, documents, examples, and
-  generated-output boundaries now live at their recorded owners.
-- Crate DRY remediation is complete. Maintained crate production duplication
-  fell from 693 lines across 35 regions to zero, and crate test duplication fell
-  from 2,184 lines across 79 regions to zero. The baselines are ratcheted to
-  zero and the full local gate passed with structured completion evidence.
-- Frontend DRY remediation is complete. Maintained production duplication fell
-  from 778 lines across 38 regions to zero. Shared resume, score, dashboard,
-  market, feedback, error, and desktop-adapter behavior now has canonical owners,
-  and the full local gate passed.
-- Residual cleanup is complete. Fixtures, file-size policy, records,
-  dependencies, and Rust support have canonical owners. All maintained scopes
-  are at zero duplication under the 14-line contract, the full gate passed, and
-  the post-cleanup review recorded a bounded concerns verdict.
-- Post-cleanup corrections and the v2.9.5 source-candidate closure are complete.
-  Database settings and FTS updates are sound, saved alerts evaluate new jobs,
-  maintained links and release records are current, and dependencies are fresh.
-  The full gate, 286 browser journeys, all-feature Rust lane, universal package
-  smoke, skills archives, and SBOM generation passed with structured evidence.
-- The v2.9.5 GUI QA and release publication are complete. All 288 browser
-  journeys and hosted release gates passed. The public release contains 20
-  checksummed assets with SBOM and provenance validation. The no-account Mac
-  package passed fresh-download installation and launch smoke verification.
-
-## In Progress
-
-- Active feature: `v3-workstream-selection`
+- Active feature: `v3-release-candidate`
 - Status: `active`
-- Objective: Select one user-approved, bounded v3 major workstream.
-- Branch: `refactor/full-repo-v2.9.5`
-- Current slice: Review and rank the existing v3 planning package.
-- Next action: Present the bounded workstream options for user approval.
+- Follow the approved [release-first queue](../plans/v3/master-exec-plan.md#remaining-development-queue).
+- The candidate for tag `v3.0.0` is the head of `feat/v3-release-candidate`: checkpoint `6c72871c`
+  plus fail-closed key creation, the exact-draft pipeline, its local release route and the
+  recovery key warning. No tag exists yet.
+- The checkpoint's update and Region public trust are enrolled, reviewed and full-gate verified.
+- The integrated tree passed `verify:full` and independent review:
+  [evidence](evidence/v3-release-candidate-2026-11-26.json).
+- Qualification: a draft built by the [local release route](../developer/RELEASING.md#local-release-route),
+  with no hosted runner, then R1 Stability → R2 Performance → R3 Security on that draft, per the
+  [R1 plan](../plans/v3/evaluation-and-release-bar.md#r1-stability-plan).
+- Phase evidence goes only in `docs/releases/v3.0.0-final-phases.json` and its records;
+  any source change after tagging needs a new candidate tag.
+- Earlier [2026-11-21](evidence/v3-release-candidate-2026-11-21.json),
+  [2026-11-20](evidence/v3-release-candidate-2026-11-20.json) and
+  [2026-11-06](evidence/v3-release-candidate-2026-11-06.json) evidence covers its own trees.
 
-## Deferred
+## Preserved Scope
 
-- Hosted general CI remains intentionally absent under the named
-  `pre-alpha-private-no-ci` user override.
+- `feat/v3-major-line` at `299779fb` preserves PR #329 and all Next implementation.
+- R13/E15 development acceptance and partial P08/N15 remain on that branch, outside v3.0.
+- D0 development acceptance is retained; it does not establish release readiness.
+- V3.0.1 targets fixes/polish. Substantial enhancements resume in v3.1+.
+- The master plan retains all 105 Now / 82 Next dispositions and the Gate 5 boundary.
 
-Keep this current; put command history and long evidence under `docs/harness/evidence/`.
+## Open Release Evidence
+
+- Final full phases remain Stability → Performance → Security, in order, before publication.
+- Existing M11 and retrospective audit records remain partial, not current passes.
+- No final release phase or native VM test has passed.
+- Windows 11 and Linux are planned for local ARM64 UTM guests under x86_64 translation.
+  Their toolchains, cross-builds and isolated launchers are not yet established.
+- Exact macOS 26 and enforced 8 GiB proof remain open.
+- Qualification signatures, OS signing/notarization, Region artifacts and public-download proof remain open.
+- The local release route is unexecuted; tag push, draft upload and publication need explicit authority.
+- Hosted general CI remains absent under `pre-alpha-private-no-ci`; its release decision remains open.
+- Keep governed Qwen and numeric thresholds unchanged. Workbench policy remains expired and fail-closed.

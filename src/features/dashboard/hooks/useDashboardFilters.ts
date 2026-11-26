@@ -12,37 +12,12 @@ import type {
 } from "../types";
 import { GOOD_JOB_MATCH_THRESHOLD } from "../../../shared/jobMatchScore";
 import { hasPostingReviewAlert } from "../postingRisk";
+import { getJobUsdAnnualPayBounds } from "../../../shared/listedPay";
+import { getDashboardWorkArrangement } from "../workArrangement";
 
 // Coerce score to a finite number for safe comparison (null/NaN/Infinity → -1)
 const safeScore = (s: number | null | undefined): number =>
   s != null && Number.isFinite(s) ? s : -1;
-
-function isListedSalaryValue(value: number | null | undefined): value is number {
-  return value != null && Number.isFinite(value) && value > 0;
-}
-
-function getListedSalaryBounds(
-  job: Job,
-): { min?: number; max?: number } | null {
-  const hasRawMin = job.salary_min != null;
-  const hasRawMax = job.salary_max != null;
-  const min = isListedSalaryValue(job.salary_min) ? job.salary_min : undefined;
-  const max = isListedSalaryValue(job.salary_max) ? job.salary_max : undefined;
-
-  if ((hasRawMin && min === undefined) || (hasRawMax && max === undefined)) {
-    return null;
-  }
-
-  if (min === undefined && max === undefined) {
-    return null;
-  }
-
-  if (min !== undefined && max !== undefined && max < min) {
-    return null;
-  }
-
-  return { min, max };
-}
 
 // Sort comparators lookup (better performance than switch)
 const SORT_COMPARATORS: Record<SortOption, (a: Job, b: Job) => number> = {
@@ -205,8 +180,11 @@ export function useDashboardFilters(jobs: Job[]): FilterState &
     // Apply remote filter
     if (remoteFilter !== "all") {
       result = result.filter((job) => {
-        if (remoteFilter === "remote") return job.remote === true;
-        if (remoteFilter === "onsite") return job.remote === false;
+        const arrangement = getDashboardWorkArrangement(job);
+        if (remoteFilter === "remote") return arrangement === "remote";
+        if (remoteFilter === "hybrid") return arrangement === "hybrid";
+        if (remoteFilter === "onsite") return arrangement === "onsite";
+        if (remoteFilter === "unspecified") return arrangement === "unspecified";
         return true;
       });
     }
@@ -246,15 +224,15 @@ export function useDashboardFilters(jobs: Job[]): FilterState &
     // Apply salary filter
     if (salaryMinFilter !== null || salaryMaxFilter !== null) {
       result = result.filter((job) => {
-        const bounds = getListedSalaryBounds(job);
+        const bounds = getJobUsdAnnualPayBounds(job);
         if (bounds === null) return false;
 
         // Salary filters use full yearly dollars, matching job salary storage.
         if (salaryMinFilter !== null) {
-          if (bounds.max !== undefined && bounds.max < salaryMinFilter) return false;
+          if (bounds.max !== null && bounds.max < salaryMinFilter) return false;
         }
         if (salaryMaxFilter !== null) {
-          if (bounds.min !== undefined && bounds.min > salaryMaxFilter) return false;
+          if (bounds.min !== null && bounds.min > salaryMaxFilter) return false;
         }
         return true;
       });

@@ -1,13 +1,11 @@
-//! Credential Management Tauri Commands
-//!
-//! Commands for secure credential storage using the runtime credential service.
+//! Adapts credential validation, storage, retrieval, and deletion through the credential service.
 
 use crate::application::credentials::{
     encode_smtp_password, CredentialKey, CredentialService, SmtpCredentialBinding,
 };
+use crate::bootstrap::operation::State;
 use crate::bootstrap::AppState;
 use serde::{Deserialize, Serialize};
-use tauri::State;
 use zeroize::Zeroizing;
 
 const UNKNOWN_CREDENTIAL_KEY: &str = "Unknown credential key";

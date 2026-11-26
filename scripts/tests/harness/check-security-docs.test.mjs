@@ -1,5 +1,6 @@
+// Exercises security-document and credential-config policy checks in synthetic repositories.
 import assert from "node:assert/strict";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import test from "node:test";
@@ -12,7 +13,7 @@ import {
   hasStaleUrlValidationSecurityDocMarkers,
   hasStaleWebhookSecurityDocMarkers,
   hasStaleXssSecurityDocs,
-  hasUnsafeKeyringMigration,
+  hasUnsafeCredentialConfigCompatibility,
 } from "../../harness/checks/security-docs.mjs";
 
 function writeFixtureFile(root, path, content = "") {
@@ -29,6 +30,53 @@ function withFixture(callback) {
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
+}
+
+const configIoPath = "crates/jobsentinel-application/src/config/io.rs";
+const nativeConfigPath = "src-tauri/src/ipc/config.rs";
+const startupPath = "crates/jobsentinel-application/src/desktop/startup.rs";
+const credentialLibPath = "crates/jobsentinel-credentials/src/lib.rs";
+
+function writeCurrentCredentialBoundary(root) {
+  writeFixtureFile(root, startupPath, "// Starts the current application.\n");
+  writeFixtureFile(root, credentialLibPath, "pub use service::CredentialService;\n");
+  writeFixtureFile(root, configIoPath, [
+    "impl Config {",
+    "    pub(crate) fn from_json(content: &str) -> Result<Self, Error> {",
+    "        reject_retired_config_fields(&serde_json::from_str(content)?)?;",
+    "        let config: Config = serde_json::from_str(content)?;",
+    "        Ok(config)",
+    "    }",
+    "    pub fn from_value(value: Value) -> Result<Self, Error> {",
+    "        reject_retired_config_fields(&value)?;",
+    "        let config: Self = serde_json::from_value(value)?;",
+    "        Ok(config)",
+    "    }",
+    "}",
+    "fn reject_retired_config_fields(value: &Value) -> io::Result<()> {",
+    "    if [",
+    '        "/alerts/email/smtp_password",',
+    '        "/alerts/telegram/bot_token",',
+    '        "/alerts/slack/webhook_url",',
+    '        "/alerts/discord/webhook_url",',
+    '        "/alerts/teams/webhook_url",',
+    '        "/linkedin/session_cookie",',
+    '        "/usajobs/api_key",',
+    "    ].iter().any(|pointer| value.pointer(pointer).is_some()) {",
+    '        return Err(io::Error::other("unsupported"));',
+    "    }",
+    "    Ok(())",
+    "}",
+  ].join("\n"));
+  writeFixtureFile(root, nativeConfigPath, [
+    "async fn save_config_to_runtime_and_path(config: Value) -> Result<(), String> {",
+    "    let mut parsed_config = Config::from_value(config).map_err(error)?;",
+    "    let previous = runtime_config.read().await.clone();",
+    "    reconcile_restricted_source_consents(database, previous, parsed_config).await?;",
+    "    parsed_config.save(config_path)?;",
+    "    Ok(())",
+    "}",
+  ].join("\n"));
 }
 
 test("security docs reject stale notification webhook docs", () => {
@@ -216,43 +264,79 @@ test("keyring docs allow plain feature copy with implementation link", () => {
   });
 });
 
-test("security docs reject unsafe keyring migration", () => {
+test("security docs allow startup without plaintext credential migration", () => {
   withFixture((root) => {
-    writeFixtureFile(
-      root,
-      "crates/jobsentinel-application/src/desktop/startup.rs",
-      'tracing::info!("✓ Migrated {:?} to secure storage", key);\n// even if partial\n',
-    );
-
-    assert.equal(
-      hasUnsafeKeyringMigration(
-        root,
-        "crates/jobsentinel-application/src/desktop/startup.rs",
-      ),
-      true,
-    );
+    writeCurrentCredentialBoundary(root);
+    for (const path of [startupPath, credentialLibPath, configIoPath, nativeConfigPath]) {
+      assert.equal(hasUnsafeCredentialConfigCompatibility(root, path), false, path);
+    }
   });
 });
 
-test("security docs allow secure-storage migration retry marker", () => {
+test("security docs reject retained credential migration modules and startup calls", () => {
   withFixture((root) => {
-    writeFixtureFile(
-      root,
-      "crates/jobsentinel-application/src/desktop/startup.rs",
-      [
-        "let mark_migration_complete = migration_success;",
-        'tracing::warn!("Secure-storage migration incomplete; will retry on next startup");',
-        "if mark_migration_complete { migration::set_migrated(); }",
-      ].join("\n"),
-    );
+    writeCurrentCredentialBoundary(root);
+    writeFixtureFile(root, startupPath, "migrate_plaintext_credentials_to_secure_storage();\n");
+    assert.equal(hasUnsafeCredentialConfigCompatibility(root, startupPath), true);
+    writeCurrentCredentialBoundary(root);
+    writeFixtureFile(root, credentialLibPath, "mod migration;\npub use migration::set_migrated;\n");
+    assert.equal(hasUnsafeCredentialConfigCompatibility(root, credentialLibPath), true);
+    writeCurrentCredentialBoundary(root);
+    writeFixtureFile(root, "crates/jobsentinel-credentials/src/migration.rs");
+    assert.equal(hasUnsafeCredentialConfigCompatibility(root, startupPath), true);
+  });
+});
 
-    assert.equal(
-      hasUnsafeKeyringMigration(
-        root,
-        "crates/jobsentinel-application/src/desktop/startup.rs",
-      ),
-      false,
-    );
+test("credential config checks require each pointer and presence-based error propagation", () => {
+  withFixture((root) => {
+    writeCurrentCredentialBoundary(root);
+    const current = readFileSync(join(root, configIoPath), "utf8");
+    const pointers = current.match(/"\/[^"]+"/g);
+    assert.equal(pointers.length, 7);
+    const unsafe = [
+      ...pointers.map((pointer) => current.replace(pointer, '"/unrelated"')),
+      current.replace("value.pointer(pointer).is_some()", "false"),
+      current.replace("value.pointer(pointer).is_some()", "value.pointer(pointer).and_then(Value::as_str).is_some()"),
+      current.replace('return Err(io::Error::other("unsupported"));', "let _ = value;"),
+      current.replace("reject_retired_config_fields(&value)?;", "reject_retired_config_fields(&value);"),
+      current.replace("        reject_retired_config_fields(&serde_json::from_str(content)?)?;\n", ""),
+      current.replace("        reject_retired_config_fields(&value)?;\n", "")
+        .replace("        Ok(config)\n    }\n}", "        reject_retired_config_fields(&value)?;\n        Ok(config)\n    }\n}"),
+    ];
+    for (const text of unsafe) {
+      writeFixtureFile(root, configIoPath, text);
+      assert.equal(hasUnsafeCredentialConfigCompatibility(root, configIoPath), true);
+    }
+    assert.equal(hasUnsafeCredentialConfigCompatibility(root, "unrelated.rs"), false);
+  });
+});
+
+test("native config save checks require validated decode before state or disk access", () => {
+  withFixture((root) => {
+    writeCurrentCredentialBoundary(root);
+    const current = readFileSync(join(root, nativeConfigPath), "utf8");
+    for (const text of [
+      current.replace("Config::from_value(config)", "serde_json::from_value(config)"),
+      current.replace("Config::from_value(config).map_err(error)?;", "Config::from_value(config).unwrap();"),
+      current.replace("    let previous = runtime_config.read().await.clone();\n", "")
+        .replace("    let mut parsed_config", "    let previous = runtime_config.read().await.clone();\n    let mut parsed_config"),
+    ]) {
+      writeFixtureFile(root, nativeConfigPath, text);
+      assert.equal(hasUnsafeCredentialConfigCompatibility(root, nativeConfigPath), true);
+    }
+  });
+});
+
+test("keyring docs reject retired automatic credential-import promises", () => {
+  withFixture((root) => {
+    for (const path of ["docs/security/KEYRING.md", "docs/features/saved-secrets.md"]) {
+      writeFixtureFile(root, path, [
+        "USAJobs access code jobsentinel_usajobs_api_key store_credential",
+        "[Local Secret Vault And Keychain Integration](../security/KEYRING.md)",
+        "Startup migration runs when the config file exists.",
+      ].join("\n"));
+      assert.equal(hasStaleKeyringSecurityDocs(root, path), true);
+    }
   });
 });
 

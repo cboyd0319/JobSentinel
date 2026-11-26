@@ -1,3 +1,5 @@
+<!-- Guides contributors through setup, workflow, coding standards and change submission. -->
+
 # Contributing to JobSentinel
 
 Thank you for your interest in contributing to JobSentinel! This guide will help you get started.

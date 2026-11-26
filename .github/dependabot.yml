@@ -1,3 +1,4 @@
+# Configures weekly Dependabot version updates with a 7-day adoption cooldown.
 version: 2
 
 updates:

@@ -1,3 +1,5 @@
+/** Presents verified support-report completion and remaining review steps. */
+
 import { memo } from "react";
 import { Button } from "../../../../ui/Button";
 import { CheckCircleIcon, FolderIcon } from "../../../../ui/StatusIcons";
@@ -35,7 +37,7 @@ export const SuccessScreen = memo(function SuccessScreen({
           <div className="space-y-3 text-sm text-surface-600 dark:text-surface-400">
             <p>
               The online help page should have opened in your browser. Your safe
-              support report is in your clipboard.
+              support report was copied to your clipboard.
             </p>
 
             <div className="bg-surface-50 dark:bg-surface-900 rounded-lg p-4 border border-surface-200 dark:border-surface-700">

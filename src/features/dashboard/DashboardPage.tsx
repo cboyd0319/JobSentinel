@@ -1,5 +1,4 @@
-// Dashboard - Main job search interface
-// Refactored for v1.5 modularization - uses extracted hooks and components
+/** Coordinates the saved-job dashboard, current search context, and user actions. */
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { DashboardSkeleton } from "../../ui/Skeleton";
@@ -41,6 +40,7 @@ import {
   DashboardLinkedInWorkbenchModal,
   DashboardSettingsPanel,
 } from "./components/DashboardOverlays";
+import type { CompanyResearchTarget } from "../../shared/companyResearch";
 import { DashboardWidgetsSection } from "./components/DashboardWidgetsSection";
 import { QuickActions } from "./components/QuickActions";
 import { getNoJobsEmptyStateCopy } from "./components/noJobsEmptyStateCopy";
@@ -51,6 +51,7 @@ export default function Dashboard({
   renderApplicationAssistAction,
   renderCompanyResearch,
   settingsPage: SettingsPage,
+  settingsInitialTab,
   linkedinWorkbench,
   showSettings: showSettingsProp,
   onShowSettingsChange,
@@ -72,10 +73,11 @@ export default function Dashboard({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showSettingsLocal, setShowSettingsLocal] = useState(false);
-  const [researchCompany, setResearchCompany] = useState<string | null>(null);
+  const [researchTarget, setResearchTarget] = useState<CompanyResearchTarget | null>(null);
   const [showImportModal, setShowImportModal] = useState(false);
   const [showLinkedInWorkbench, setShowLinkedInWorkbench] = useState(false);
   const [salaryFloorUsd, setSalaryFloorUsd] = useState<number | null>(null);
+  const [searchCountry, setSearchCountry] = useState<string | null>(null);
   const [anyJobSourceEnabled, setAnyJobSourceEnabled] = useState<
     boolean | null
   >(null);
@@ -119,6 +121,7 @@ export default function Dashboard({
   const savedSearches = useDashboardSavedSearches();
   const { cooldownSeconds, handleSearchNow, searchCooldown, searching } =
     useDashboardManualSearch({
+      showSettings,
       jobs,
       setAnyJobSourceEnabled,
       setError,
@@ -146,6 +149,7 @@ export default function Dashboard({
     setJobs,
     setLoading,
     setSalaryFloorUsd,
+    setSearchCountry,
     setScrapingStatus,
     setStatistics,
   });
@@ -176,11 +180,11 @@ export default function Dashboard({
   );
 
   useEffect(() => {
-    if (!researchCompany) return;
+    if (!researchTarget) return;
 
     const handleResearchEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        setResearchCompany(null);
+        setResearchTarget(null);
       }
     };
 
@@ -188,7 +192,7 @@ export default function Dashboard({
     return () => {
       document.removeEventListener("keydown", handleResearchEscape);
     };
-  }, [researchCompany]);
+  }, [researchTarget]);
 
   const { selectedIndex, isKeyboardActive } = useDashboardKeyboard({
     items: filters.filteredAndSortedJobs,
@@ -198,7 +202,7 @@ export default function Dashboard({
     onHide: (job) => jobOps.handleHideJob(job.id),
     onBookmark: (job) => jobOps.handleToggleBookmark(job.id),
     onNotes: (job) => jobOps.handleEditNotes(job.id, job.notes),
-    onResearch: (job) => setResearchCompany(job.company),
+    onResearch: (job) => setResearchTarget({ companyName: job.company, jobHash: job.hash }),
     onToggleSelect: (job) => {
       jobOps.setSelectedJobIds((prev) => {
         const next = new Set(prev);
@@ -260,6 +264,7 @@ export default function Dashboard({
 
   const handleSettingsClose = useCallback(() => {
     invalidateCacheByCommand("get_dashboard_preferences");
+    for (const command of ["get_recent_jobs", "search_jobs_query", "get_bookmarked_jobs", "get_job_by_id"]) invalidateCacheByCommand(command);
     setShowSettings(false);
     void fetchDataRef.current?.();
   }, [fetchDataRef, setShowSettings]);
@@ -270,6 +275,7 @@ export default function Dashboard({
       <DashboardSettingsPanel onClose={handleSettingsClose}>
         {SettingsPage ? (
           <SettingsPage
+            initialTab={settingsInitialTab}
             linkedinWorkbench={linkedinWorkbench}
             onClose={handleSettingsClose}
           />
@@ -288,12 +294,13 @@ export default function Dashboard({
     return <DashboardErrorState error={error} onRetry={fetchData} />;
   }
 
-  const noJobsCopy = getNoJobsEmptyStateCopy(anyJobSourceEnabled);
+  const noJobsCopy = getNoJobsEmptyStateCopy(anyJobSourceEnabled, searchCountry);
   const noSourcesEnabled = anyJobSourceEnabled === false;
 
   return (
     <div className="min-h-screen bg-surface-50 dark:bg-surface-900">
       <DashboardHeader
+        searchCountry={searchCountry}
         scrapingStatus={scrapingStatus}
         autoRefreshEnabled={autoRefresh.autoRefreshEnabled}
         nextRefreshTime={autoRefresh.nextRefreshTime}
@@ -382,6 +389,7 @@ export default function Dashboard({
             filteredJobs={filters.filteredAndSortedJobs}
             noJobsCopy={noJobsCopy}
             noSourcesEnabled={noSourcesEnabled}
+            countryFiltered={searchCountry !== null}
             searching={searching}
             jobListRef={jobListRef}
             bulkMode={jobOps.bulkMode}
@@ -397,7 +405,7 @@ export default function Dashboard({
             onHideJob={jobOps.handleHideJob}
             onToggleBookmark={jobOps.handleToggleBookmark}
             onEditNotes={jobOps.handleEditNotes}
-            onResearchCompany={setResearchCompany}
+            onResearchCompany={(companyName, jobHash) => setResearchTarget({ companyName, jobHash })}
             renderApplicationAssistAction={
               renderApplicationAssistAction && onNavigate
                 ? (job) =>
@@ -467,9 +475,9 @@ export default function Dashboard({
       />
 
       <DashboardCompanyResearchOverlay
-        researchCompany={researchCompany}
+        researchTarget={researchTarget}
         renderCompanyResearch={renderCompanyResearch}
-        onClose={() => setResearchCompany(null)}
+        onClose={() => setResearchTarget(null)}
       />
 
       <DashboardImportJobModal

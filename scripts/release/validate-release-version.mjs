@@ -1,8 +1,10 @@
 #!/usr/bin/env node
+// Checks that Cargo, npm, Tauri and lockfile release versions match one expected version.
 
 import { readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { isMainModule } from "./args.mjs";
 
 const scriptPath = fileURLToPath(import.meta.url);
 const defaultRoot = resolve(dirname(scriptPath), "../..");
@@ -76,7 +78,7 @@ export function compareReleaseVersions(expectedValue, versions) {
   };
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === scriptPath) {
+if (isMainModule(import.meta.url)) {
   const expectedValue = process.argv[2] ?? process.env.GITHUB_REF_NAME;
 
   if (!expectedValue) {

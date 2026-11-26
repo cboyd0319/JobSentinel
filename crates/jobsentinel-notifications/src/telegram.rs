@@ -1,6 +1,4 @@
-//! Telegram Notifications via Bot API
-//!
-//! Sends formatted job alerts to Telegram using the Bot API with Markdown.
+//! Formats and sends bounded Markdown job alerts through the Telegram Bot API.
 
 use super::{
     notification_job_href, notification_provider_failure_summary, Notification,
@@ -160,7 +158,7 @@ fn format_telegram_message(
     let source = escape(&job.source);
 
     // Format salary
-    let salary_display = escape(&super::format_salary_range(job.salary_min, job.salary_max));
+    let salary_display = escape(&super::format_salary_range(job));
 
     let remote = if job.remote.unwrap_or(false) {
         "✅ Yes"

@@ -1,11 +1,14 @@
+// Verifies release SBOM generation, manifest binding and npm SBOM invocation.
 import assert from "node:assert/strict";
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 
 import {
   buildCargoSpdx,
+  cleanGitRevision,
   generateReleaseSbom,
   npmSbom,
   parseCargoLock,
@@ -140,6 +143,9 @@ checksum = "7f202df86484c868dbad7eaa557ef785d5c66295e41b460ef922eca0723b842c"
   );
   writeFileSync(join(root, "release-assets/public/JobSentinel_9.9.9_no-account_universal.dmg"), "dmg");
   writeFileSync(join(root, "release-assets/public/JobSentinel_9.9.9_no-account_universal.dmg.sha256"), "digest  file");
+  for (const name of ["agent-skills.zip", "agent-skills.tar.gz.sha256", "release-platforms.json"]) {
+    writeFileSync(join(root, `release-assets/public/JobSentinel-9.9.9-${name}`), "release-wide");
+  }
 
   const result = await generateReleaseSbom({
     root,
@@ -159,7 +165,10 @@ checksum = "7f202df86484c868dbad7eaa557ef785d5c66295e41b460ef922eca0723b842c"
   assert.equal(sbom.spdxVersion, "SPDX-2.3");
   assert(sbom.packages.some((pkg) => pkg.SPDXID === "SPDXRef-Cargo-Package-anyhow-1.0.102"));
   assert.equal(manifest.sbom.fileName, "JobSentinel-9.9.9-macos.sbom.spdx.json");
-  assert.equal(manifest.assets.length, 2);
+  assert.deepEqual(manifest.assets.map((asset) => asset.fileName), [
+    "JobSentinel_9.9.9_no-account_universal.dmg",
+    "JobSentinel_9.9.9_no-account_universal.dmg.sha256",
+  ]);
   assert.match(checksums, /^[a-f0-9]{64} {2}JobSentinel_9\.9\.9_no-account_universal\.dmg\n$/);
 });
 
@@ -224,3 +233,24 @@ function mkdtempRoot(prefix) {
   mkdirSync(root, { recursive: true });
   return root;
 }
+
+test("cleanGitRevision binds local manifests to a clean HEAD only", () => {
+  const root = mkdtempRoot("jobsentinel-release-sbom-git-");
+  const env = { ...process.env, GIT_CONFIG_GLOBAL: "/dev/null", GIT_CONFIG_NOSYSTEM: "1" };
+  const git = (...args) => execFileSync("git", args, { cwd: root, encoding: "utf8", env }).trim();
+  try {
+    assert.equal(cleanGitRevision(root), undefined);
+    git("init", "-q");
+    writeFileSync(join(root, "tracked.txt"), "clean\n");
+    git("add", "tracked.txt");
+    git("-c", "user.name=fixture", "-c", "user.email=fixture@example.invalid", "commit", "-qm", "fixture");
+    assert.equal(cleanGitRevision(root), git("rev-parse", "HEAD"));
+    writeFileSync(join(root, "untracked.txt"), "new\n");
+    assert.equal(cleanGitRevision(root), undefined);
+    rmSync(join(root, "untracked.txt"));
+    writeFileSync(join(root, "tracked.txt"), "dirty\n");
+    assert.equal(cleanGitRevision(root), undefined);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});

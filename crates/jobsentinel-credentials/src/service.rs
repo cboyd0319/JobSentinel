@@ -1,7 +1,4 @@
-//! Runtime credential provider for vault-backed credential access.
-//!
-//! Status checks use SQLite metadata only and do not touch the OS credential
-//! store. Actual secret reads and writes lazily unlock or create the vault key.
+//! Provides vault-backed credentials with metadata-only status and explicit native cleanup.
 
 use jobsentinel_storage::CredentialRepository;
 use std::{fmt, sync::Arc};
@@ -9,11 +6,11 @@ use tokio::sync::OnceCell;
 use zeroize::Zeroizing;
 
 use super::{
+    delete_os_credential,
     passphrase::{self, PassphraseError},
     reject_disabled_credential_storage, secure_storage_error, validate_credential_value,
     vault::MASTER_KEY_LEN,
-    vault_key_store, CredentialKey, CredentialPresence, CredentialStore, SecretVault,
-    SecretVaultError,
+    vault_key_store, CredentialKey, CredentialPresence, SecretVault, SecretVaultError,
 };
 
 /// App-level credential vault lock mode.
@@ -43,20 +40,17 @@ pub struct CredentialUnlockState {
 
 /// Credential access service used by Tauri commands and backend workers.
 pub struct CredentialService {
-    repository: Option<CredentialRepository>,
+    repository: CredentialRepository,
     master_key: OnceCell<Arc<Zeroizing<[u8; MASTER_KEY_LEN]>>>,
     fixed_master_key: Option<Zeroizing<[u8; MASTER_KEY_LEN]>>,
-    legacy_fallback: bool,
 }
 
 impl fmt::Debug for CredentialService {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("CredentialService")
-            .field("has_vault", &self.repository.is_some())
             .field("has_cached_key", &self.master_key.get().is_some())
             .field("has_fixed_key", &self.fixed_master_key.is_some())
-            .field("legacy_fallback", &self.legacy_fallback)
-            .finish()
+            .finish_non_exhaustive()
     }
 }
 
@@ -65,21 +59,9 @@ impl CredentialService {
     #[must_use]
     pub fn new(repository: CredentialRepository) -> Self {
         Self {
-            repository: Some(repository),
+            repository,
             master_key: OnceCell::new(),
             fixed_master_key: None,
-            legacy_fallback: true,
-        }
-    }
-
-    /// Create a keyring-only compatibility provider for old tests and helpers.
-    #[must_use]
-    pub fn compatibility_keyring() -> Self {
-        Self {
-            repository: None,
-            master_key: OnceCell::new(),
-            fixed_master_key: None,
-            legacy_fallback: true,
         }
     }
 
@@ -88,13 +70,11 @@ impl CredentialService {
     pub fn with_fixed_master_key(
         repository: CredentialRepository,
         master_key: [u8; MASTER_KEY_LEN],
-        legacy_fallback: bool,
     ) -> Self {
         Self {
-            repository: Some(repository),
+            repository,
             master_key: OnceCell::new(),
             fixed_master_key: Some(Zeroizing::new(master_key)),
-            legacy_fallback,
         }
     }
 
@@ -107,51 +87,37 @@ impl CredentialService {
         reject_disabled_credential_storage(key)?;
         validate_credential_value(key, value)?;
 
-        if let Some(vault) = self.vault(true).await? {
-            vault
-                .store(key, value)
-                .await
-                .map_err(sanitize_vault_error)?;
-            self.delete_legacy_best_effort(key).await;
-            return Ok(());
-        }
-
-        Self::legacy_store(key, value).await
+        self.vault(true)
+            .await?
+            .store(key, value)
+            .await
+            .map_err(sanitize_vault_error)
     }
 
-    /// Retrieve a credential. Reads the vault first, then lazily migrates a
-    /// legacy OS-keyring item only when a secret is actually needed.
+    /// Read a vault entry without consulting retired per-secret OS items.
     pub async fn retrieve(&self, key: CredentialKey) -> Result<Option<String>, String> {
-        if self.vault_row_exists(key).await? {
-            let vault = self.vault(false).await?.ok_or_else(secure_storage_error)?;
-            return vault.retrieve(key).await.map_err(sanitize_vault_error);
-        }
-
-        if !self.legacy_fallback {
+        if !self.vault_row_exists(key).await? {
             return Ok(None);
         }
-
-        let legacy_value = Self::legacy_retrieve(key).await?;
-        if let Some(value) = legacy_value.as_deref().filter(|value| !value.is_empty()) {
-            self.migrate_legacy_value_best_effort(key, value).await;
-        }
-
-        Ok(legacy_value)
+        self.vault(false)
+            .await?
+            .retrieve(key)
+            .await
+            .map_err(sanitize_vault_error)
     }
 
-    /// Delete a credential from both vault and legacy compatibility storage.
+    /// Delete the vault entry and explicitly clean matching OS entries for native providers.
     pub async fn delete(&self, key: CredentialKey) -> Result<(), String> {
-        if let Some(repository) = &self.repository {
-            repository
-                .delete_secret(key.as_str())
+        self.repository
+            .delete_secret(key.as_str())
+            .await
+            .map_err(|_| secure_storage_error())?;
+        // Fixed-key providers are isolated, non-interactive test vaults, as in key wrapping.
+        if self.fixed_master_key.is_none() {
+            tokio::task::spawn_blocking(move || delete_os_credential(key))
                 .await
-                .map_err(|_| secure_storage_error())?;
+                .map_err(|_| secure_storage_error())??;
         }
-
-        if self.legacy_fallback {
-            Self::legacy_delete(key).await?;
-        }
-
         Ok(())
     }
 
@@ -189,13 +155,7 @@ impl CredentialService {
 
     /// Return non-secret vault-lock status without touching the OS keyring.
     pub async fn unlock_status(&self) -> Result<CredentialUnlockState, String> {
-        let Some(repository) = &self.repository else {
-            return Ok(CredentialUnlockState {
-                mode: CredentialUnlockMode::System,
-                configured: false,
-                unlocked: true,
-            });
-        };
+        let repository = &self.repository;
 
         let configured = passphrase::is_configured(repository)
             .await
@@ -218,30 +178,37 @@ impl CredentialService {
 
     /// Enable passphrase wrapping for the credential-vault master key.
     pub async fn enable_passphrase_lock(&self, passphrase: &str) -> Result<(), String> {
-        let Some(repository) = &self.repository else {
-            return Err(secure_storage_error());
-        };
-
-        let key = self.master_key(true).await?;
-        passphrase::wrap_key(repository, passphrase, copy_key_bytes(key.as_ref()))
-            .await
-            .map_err(sanitize_passphrase_error)?;
-
-        if self.fixed_master_key.is_none() {
-            if let Err(error) = vault_key_store::delete_vault_key().await {
-                let _ = passphrase::delete_config(repository).await;
-                return Err(error);
-            }
+        if self.fixed_master_key.is_some() {
+            let key = self.master_key(true).await?;
+            return passphrase::wrap_key(&self.repository, passphrase, copy_key_bytes(&key))
+                .await
+                .map_err(sanitize_passphrase_error);
         }
 
-        Ok(())
+        let repository = self.repository.clone();
+        let passphrase = Zeroizing::new(passphrase.to_owned());
+        // One task holds the cache lock from load through delete, so no creator interleaves.
+        let key = tokio::spawn(async move {
+            let mut cached = vault_key_store::cache().lock().await;
+            let key = load_vault_key_locked(&mut cached, &repository, true).await?;
+            passphrase::wrap_key(&repository, &passphrase, copy_key_bytes(&key))
+                .await
+                .map_err(sanitize_passphrase_error)?;
+            *cached = None;
+            if let Err(error) = vault_key_store::delete_vault_key().await {
+                let _ = passphrase::delete_config(&repository).await;
+                return Err(error);
+            }
+            Ok(key)
+        })
+        .await
+        .map_err(|_| secure_storage_error())??;
+        self.cache_master_key(key)
     }
 
     /// Unlock a passphrase-protected credential vault for this app session.
     pub async fn unlock_passphrase_vault(&self, passphrase: &str) -> Result<(), String> {
-        let Some(repository) = &self.repository else {
-            return Err(secure_storage_error());
-        };
+        let repository = &self.repository;
 
         if !passphrase::is_configured(repository)
             .await
@@ -262,30 +229,29 @@ impl CredentialService {
 
     /// Disable passphrase wrapping and return the vault key to the OS keyring.
     pub async fn disable_passphrase_lock(&self, passphrase: &str) -> Result<(), String> {
-        let Some(repository) = &self.repository else {
-            return Err(secure_storage_error());
-        };
+        let repository = &self.repository;
 
         let key = passphrase::unwrap_key(repository, passphrase)
             .await
             .map_err(sanitize_passphrase_error)?;
 
+        // Under the cache lock, no creator sees the config gone before the OS key returns.
+        let mut cached = vault_key_store::cache().lock().await;
         if self.fixed_master_key.is_none() {
+            *cached = None;
             vault_key_store::store_vault_key(key.as_ref()).await?;
         }
 
         passphrase::delete_config(repository)
             .await
             .map_err(sanitize_passphrase_error)?;
+        drop(cached);
         self.cache_master_key(key)
     }
 
-    async fn vault(&self, create_if_missing: bool) -> Result<Option<SecretVault>, String> {
-        let Some(repository) = &self.repository else {
-            return Ok(None);
-        };
+    async fn vault(&self, create_if_missing: bool) -> Result<SecretVault, String> {
         let key = self.master_key(create_if_missing).await?;
-        Ok(Some(SecretVault::from_shared_key(repository.clone(), key)))
+        Ok(SecretVault::from_shared_key(self.repository.clone(), key))
     }
 
     async fn master_key(
@@ -294,24 +260,18 @@ impl CredentialService {
     ) -> Result<Arc<Zeroizing<[u8; MASTER_KEY_LEN]>>, String> {
         self.master_key
             .get_or_try_init(|| async move {
-                if let Some(repository) = &self.repository {
-                    if passphrase::is_configured(repository)
-                        .await
-                        .map_err(sanitize_passphrase_error)?
-                    {
-                        return Err(secure_storage_error());
-                    }
+                if passphrase::is_configured(&self.repository)
+                    .await
+                    .map_err(sanitize_passphrase_error)?
+                {
+                    return Err(secure_storage_error());
                 }
 
-                let key = if let Some(fixed_key) = &self.fixed_master_key {
-                    let mut bytes = [0_u8; MASTER_KEY_LEN];
-                    bytes.copy_from_slice(fixed_key.as_ref());
-                    bytes
-                } else {
-                    vault_key_store::load_vault_key(create_if_missing).await?
+                let key = match &self.fixed_master_key {
+                    Some(fixed_key) => fixed_key.clone(),
+                    None => shared_vault_key(self.repository.clone(), create_if_missing).await?,
                 };
-
-                Ok(Arc::new(Zeroizing::new(key)))
+                Ok(Arc::new(key))
             })
             .await
             .cloned()
@@ -330,48 +290,58 @@ impl CredentialService {
     }
 
     async fn vault_row_exists(&self, key: CredentialKey) -> Result<bool, String> {
-        let Some(repository) = &self.repository else {
-            return Ok(false);
-        };
-
-        repository
+        self.repository
             .secret_exists(key.as_str())
             .await
             .map_err(|_| secure_storage_error())
     }
+}
 
-    async fn migrate_legacy_value_best_effort(&self, key: CredentialKey, value: &str) {
-        if let Some(vault) = self.vault(true).await.ok().flatten() {
-            if vault.store(key, value).await.is_ok() {
-                self.delete_legacy_best_effort(key).await;
-            }
-        }
+/// Return the process-wide vault key, reading the OS store at most once per process.
+///
+/// The cache lock single-flights native loads and is the only creator, so separate
+/// services share one key even if the OS store later reports a spurious miss. The work
+/// runs as its own task, so a dropped caller can't leave a native load or create running
+/// after the lock is released. The lock is per process; keys are per user, so processes
+/// with different data directories race only when no key exists.
+async fn shared_vault_key(
+    repository: CredentialRepository,
+    create_if_missing: bool,
+) -> Result<Zeroizing<[u8; MASTER_KEY_LEN]>, String> {
+    tokio::spawn(async move {
+        let mut cached = vault_key_store::cache().lock().await;
+        load_vault_key_locked(&mut cached, &repository, create_if_missing).await
+    })
+    .await
+    .map_err(|_| secure_storage_error())?
+}
+
+/// Callers hold the cache lock. Creation re-checks passphrase mode under it, so a
+/// concurrent passphrase enable is never followed by a fresh OS key.
+async fn load_vault_key_locked(
+    cached: &mut Option<Zeroizing<[u8; MASTER_KEY_LEN]>>,
+    repository: &CredentialRepository,
+    create_if_missing: bool,
+) -> Result<Zeroizing<[u8; MASTER_KEY_LEN]>, String> {
+    if let Some(key) = cached.as_ref() {
+        return Ok(key.clone());
     }
-
-    async fn delete_legacy_best_effort(&self, key: CredentialKey) {
-        if self.legacy_fallback {
-            let _ = Self::legacy_delete(key).await;
-        }
-    }
-
-    async fn legacy_store(key: CredentialKey, value: &str) -> Result<(), String> {
-        let value = value.to_string();
-        tokio::task::spawn_blocking(move || CredentialStore::store(key, &value))
+    if create_if_missing
+        && passphrase::is_configured(repository)
             .await
-            .map_err(|_| secure_storage_error())?
+            .map_err(sanitize_passphrase_error)?
+    {
+        return Err(secure_storage_error());
     }
-
-    async fn legacy_retrieve(key: CredentialKey) -> Result<Option<String>, String> {
-        tokio::task::spawn_blocking(move || CredentialStore::retrieve(key))
+    // Existing ciphertext needs its original key; never replace a missing one.
+    let create = create_if_missing
+        && !repository
+            .any_secret_exists()
             .await
-            .map_err(|_| secure_storage_error())?
-    }
-
-    async fn legacy_delete(key: CredentialKey) -> Result<(), String> {
-        tokio::task::spawn_blocking(move || CredentialStore::delete(key))
-            .await
-            .map_err(|_| secure_storage_error())?
-    }
+            .map_err(|_| secure_storage_error())?;
+    let key = Zeroizing::new(vault_key_store::load_vault_key(create).await?);
+    *cached = Some(key.clone());
+    Ok(key)
 }
 
 fn sanitize_vault_error(error: SecretVaultError) -> String {

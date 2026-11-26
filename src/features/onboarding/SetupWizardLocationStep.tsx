@@ -1,6 +1,9 @@
+/** Collects optional setup work-location preferences and manual regional guidance access. */
+
 import { Badge } from "../../ui/Badge";
 import { Button } from "../../ui/Button";
 import { Input } from "../../ui/Input";
+import { SearchCountrySelect } from "../../shared/SearchCountrySelect";
 import type { DetectedLocation } from "../../shared/location/detectedLocationCache";
 import {
   BuildingIcon,
@@ -9,6 +12,7 @@ import {
   OfficeIcon,
 } from "./SetupWizardIcons";
 import { LocationOption } from "./SetupWizardLocationOption";
+import { RegionGuidancePicker } from "./RegionGuidancePicker";
 import type { SetupConfig } from "./setupWizardPreferences";
 
 type WorkLocationPreferenceKey = "allow_remote" | "allow_hybrid" | "allow_onsite";
@@ -26,6 +30,7 @@ interface SetupWizardLocationStepProps {
   onDetectLocation: () => void;
   onLocationNotSure: () => void;
   onRemoveCity: (city: string) => void;
+  onSearchCountryChange: (value: string | null) => void;
   onUseDetectedLocation: () => void;
   onWorkTypeChange: (key: WorkLocationPreferenceKey, checked: boolean) => void;
 }
@@ -43,6 +48,7 @@ export function SetupWizardLocationStep({
   onDetectLocation,
   onLocationNotSure,
   onRemoveCity,
+  onSearchCountryChange,
   onUseDetectedLocation,
   onWorkTypeChange,
 }: SetupWizardLocationStepProps) {
@@ -184,6 +190,13 @@ export function SetupWizardLocationStep({
           )}
         </div>
       )}
+
+      <SearchCountrySelect
+        onChange={onSearchCountryChange}
+        value={locationPreferences.search_country}
+      />
+
+      <RegionGuidancePicker />
 
       <div className="flex gap-3">
         <Button variant="secondary" onClick={onBack} className="flex-1" size="lg">

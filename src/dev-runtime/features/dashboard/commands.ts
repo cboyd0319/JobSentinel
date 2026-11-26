@@ -1,12 +1,17 @@
-import { mockStatistics } from "../../mocks/data";
+/** Projects deterministic dashboard commands for browser development. */
+
+import { mockSearchCountryOptions, mockStatistics } from "../../mocks/data";
 import {
   getArg,
   getJobId,
 } from "../../mocks/handlers/commandHelpers";
-import type { MockJob } from "../../mocks/handlers/types";
+import type { MockConfig, MockJob } from "../../mocks/handlers/types";
+import { classifyMockCountryScope } from "./countryScope";
+import { deriveMockWorkArrangement } from "./workArrangement";
 
 export interface MockDashboardCommandState {
   jobs: MockJob[];
+  config?: MockConfig;
 }
 
 export interface MockDashboardCommandResult {
@@ -22,13 +27,17 @@ export function handleMockDashboardCommand(
   state: MockDashboardCommandState,
 ): MockDashboardCommandResult {
   switch (command) {
+    case "get_search_country_options":
+      return withoutSave(state, mockSearchCountryOptions.map((option) => [...option]));
+
     case "get_jobs":
-      return withoutSave(state, filterJobs(state.jobs, args));
+      return withoutSave(state, filterJobs(state.jobs, args).map((job) => projectJob(job, searchCountry(state))));
 
     case "get_job":
+    case "get_job_by_id":
       return withoutSave(
         state,
-        state.jobs.find((job) => job.id === getJobId(args)),
+        projectJob(state.jobs.find((job) => job.id === getJobId(args)), searchCountry(state)),
       );
 
     case "hide_job":
@@ -53,7 +62,9 @@ export function handleMockDashboardCommand(
     case "get_bookmarked_jobs":
       return withoutSave(
         state,
-        state.jobs.filter((job) => job.bookmarked),
+        visibleCountryJobs(state.jobs.filter((job) => job.bookmarked), searchCountry(state))
+          .slice(0, getLimit(args))
+          .map((job) => projectJob(job, searchCountry(state))),
       );
 
     case "set_job_notes":
@@ -117,7 +128,20 @@ export function handleMockDashboardCommand(
       });
 
     case "get_recent_jobs":
-      return withoutSave(state, state.jobs.slice(0, (args?.limit as number) || 10));
+      return withoutSave(
+        state,
+        visibleCountryJobs(state.jobs, searchCountry(state))
+          .slice(0, getLimit(args))
+          .map((job) => projectJob(job, searchCountry(state))),
+      );
+
+    case "search_jobs_query":
+      return withoutSave(
+        state,
+        visibleCountryJobs(filterJobs(state.jobs, { search: getArg(args, "query") }), searchCountry(state))
+          .slice(0, getLimit(args))
+          .map((job) => projectJob(job, searchCountry(state))),
+      );
 
     case "get_scraping_status":
       return withoutSave(state, {
@@ -144,6 +168,31 @@ function withoutSave(
   value: unknown,
 ): MockDashboardCommandResult {
   return { handled: true, shouldSave: false, state, value };
+}
+
+function projectJob(job: MockJob | undefined, selectedCountry: string | null) {
+  if (!job) return undefined;
+  return {
+    ...job,
+    work_arrangement: deriveMockWorkArrangement(job),
+    country_scope: classifyMockCountryScope(job, selectedCountry),
+    search_country: selectedCountry,
+  };
+}
+
+function searchCountry(state: MockDashboardCommandState): string | null {
+  return state.config?.location_preferences.search_country ?? null;
+}
+
+function visibleCountryJobs(jobs: MockJob[], selectedCountry: string | null): MockJob[] {
+  return jobs.filter((job) => classifyMockCountryScope(job, selectedCountry) !== "mismatch");
+}
+
+function getLimit(args: Record<string, unknown> | undefined): number {
+  const limit = getArg(args, "limit");
+  return typeof limit === "number" && Number.isFinite(limit) && limit > 0
+    ? Math.floor(limit)
+    : 10;
 }
 
 function withJobs(

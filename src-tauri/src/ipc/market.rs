@@ -1,15 +1,13 @@
-//! Market intelligence Tauri commands
-//!
-//! Commands for skill trends, company activity, location analysis, and market alerts.
+//! Adapts local skill trends, employer activity, location analysis, and market alerts to Tauri.
 
 use crate::application::market_intelligence::{
     CompanyActivity, LocationHeat, MarketAlert, MarketSnapshot, SkillTrend,
 };
+use crate::bootstrap::operation::State;
 use crate::bootstrap::AppState;
 use crate::ipc::errors::user_friendly_error;
 use crate::ipc::limits::validate_command_limit_usize;
 use serde_json::Value;
-use tauri::State;
 
 const MAX_HISTORICAL_SNAPSHOT_DAYS: i64 = 3_650;
 

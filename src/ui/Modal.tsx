@@ -1,3 +1,5 @@
+// Owns accessible modal portals, focus, keyboard dismissal, and scroll locking.
+
 import {
   createContext,
   memo,
@@ -62,7 +64,6 @@ export const Modal = memo(function Modal({
   const overlayRef = useRef<HTMLDivElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
   const previousActiveElement = useRef<Element | null>(null);
-  const isMountedRef = useRef(true);
   const generatedId = useId();
   const parentDepth = useContext(ModalDepthContext);
   const modalDepth = parentDepth + 1;
@@ -74,10 +75,9 @@ export const Modal = memo(function Modal({
       previousActiveElement.current = document.activeElement;
       const unlockBodyScroll = lockBodyScroll();
 
-      // Focus the modal with proper timing and mounted check
+      // Cleanup cancels pending focus when the modal closes or unmounts.
       const rafId = requestAnimationFrame(() => {
         if (
-          isMountedRef.current &&
           modalRef.current &&
           overlayRef.current === getTopmostModalOverlay()
         ) {
@@ -98,12 +98,6 @@ export const Modal = memo(function Modal({
 
     return undefined;
   }, [isOpen]);
-
-  useEffect(() => {
-    return () => {
-      isMountedRef.current = false;
-    };
-  }, []);
 
   useEffect(() => {
     if (!isOpen) return undefined;

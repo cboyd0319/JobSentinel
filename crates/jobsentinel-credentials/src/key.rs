@@ -1,10 +1,12 @@
+//! Defines allowlisted vault identifiers and explicit retired-credential cleanup keys.
+
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 
 /// Enumeration of all credential types supported by JobSentinel.
 ///
 /// Each variant maps to a specific storage identifier used as an encrypted
-/// vault row key and, during legacy fallback, as an OS credential item name.
+/// vault row key and, during explicit OS cleanup, as an OS credential item name.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum CredentialKey {
@@ -67,7 +69,7 @@ impl CredentialKey {
         }
     }
 
-    /// Return active credential keys used for migration and diagnostics.
+    /// Return active credential keys used for status diagnostics.
     ///
     /// # Examples
     ///

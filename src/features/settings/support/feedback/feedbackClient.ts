@@ -1,5 +1,6 @@
+/** Routes safe support report generation, copying, saving, and opening. */
+
 import { invoke } from "../../../../platform/tauri";
-import { logError } from "../../../../shared/errorReporting/logger";
 import type { SavedFeedbackFile } from "../../../../shared/errorReporting/supportReport";
 
 export type { SavedFeedbackFile } from "../../../../shared/errorReporting/supportReport";
@@ -86,14 +87,10 @@ export async function openGitHubIssue(
   ];
   if (debugInfo) sections.push("", "SAFE APP DETAILS", debugInfo);
 
-  try {
-    const content = await invoke<string>("sanitize_feedback_text", {
-      content: sections.join("\n"),
-    });
-    await navigator.clipboard.writeText(content);
-  } catch (error) {
-    logError("Failed to copy feedback debug info to clipboard:", error);
-  }
+  const content = await invoke<string>("sanitize_feedback_text", {
+    content: sections.join("\n"),
+  });
+  await navigator.clipboard.writeText(content);
 
   await invoke("open_github_issues", { template: category });
 }

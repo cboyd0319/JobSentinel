@@ -1,3 +1,4 @@
+# Manual release: build-draft stages, builds and verifies a draft; publish certifies that draft with phase evidence.
 name: Release
 
 on:
@@ -7,8 +8,21 @@ on:
         description: "Release version or tag, for example X.Y.Z or vX.Y.Z"
         required: true
         type: string
+      mode:
+        description: "build-draft builds and verifies the draft and never publishes. publish publishes the verified draft certified by evidence_ref."
+        required: true
+        default: build-draft
+        type: choice
+        options:
+          - build-draft
+          - publish
+      evidence_ref:
+        description: "publish only: full commit SHA of evidence commit E holding docs/releases/vX.Y.Z-final-phases.json"
+        required: false
+        default: ""
+        type: string
       platform:
-        description: "Platform assets to build. Use windows-linux only after macOS was built and uploaded locally."
+        description: "Platform assets to build. windows-linux needs the local macOS assets already on the draft (see RELEASING.md)."
         required: true
         default: all
         type: choice
@@ -20,6 +34,10 @@ on:
           - linux
 
 permissions: {}
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
 
 env:
   CARGO_INCREMENTAL: "0"
@@ -35,6 +53,9 @@ jobs:
       version: ${{ steps.release_inputs.outputs.version }}
       tag: ${{ steps.release_inputs.outputs.tag }}
       matrix: ${{ steps.release_inputs.outputs.matrix }}
+      selection: ${{ steps.release_inputs.outputs.selection }}
+      mode: ${{ steps.release_inputs.outputs.mode }}
+      evidence_ref: ${{ steps.release_inputs.outputs.evidence_ref }}
 
     steps:
       - name: Checkout repository
@@ -58,6 +79,8 @@ jobs:
           EVENT_NAME: ${{ github.event_name }}
           INPUT_PLATFORM: ${{ github.event_name == 'workflow_dispatch' && inputs.platform || 'all' }}
           INPUT_VERSION: ${{ github.event_name == 'workflow_dispatch' && inputs.version || '' }}
+          INPUT_MODE: ${{ inputs.mode }}
+          INPUT_EVIDENCE_REF: ${{ inputs.evidence_ref }}
         run: |
           set -euo pipefail
           event="${EVENT_NAME:-}"
@@ -82,6 +105,25 @@ jobs:
             fi
             exit 1
           fi
+
+          case "$INPUT_MODE" in
+            build-draft)
+              if [ -n "$INPUT_EVIDENCE_REF" ]; then
+                printf 'build-draft mode does not take evidence_ref.\n'
+                exit 1
+              fi
+              ;;
+            publish)
+              if [[ ! "$INPUT_EVIDENCE_REF" =~ ^[0-9a-f]{40}$ ]]; then
+                printf 'publish mode requires evidence_ref as a full 40-character commit SHA.\n'
+                exit 1
+              fi
+              ;;
+            *)
+              printf 'Unsupported release mode: %s\n' "$INPUT_MODE"
+              exit 1
+              ;;
+          esac
 
           case "$INPUT_PLATFORM" in
             all)
@@ -109,6 +151,9 @@ jobs:
             printf 'version=%s\n' "$version"
             printf 'tag=v%s\n' "$version"
             printf 'matrix=%s\n' "$matrix"
+            printf 'selection=%s\n' "$INPUT_PLATFORM"
+            printf 'mode=%s\n' "$INPUT_MODE"
+            printf 'evidence_ref=%s\n' "$INPUT_EVIDENCE_REF"
           } >> "$GITHUB_OUTPUT"
 
       - name: Validate release version
@@ -118,6 +163,7 @@ jobs:
 
   preflight-harness:
     needs: release-inputs
+    if: needs.release-inputs.outputs.mode == 'build-draft'
     runs-on: ubuntu-24.04
     timeout-minutes: 18
     permissions:
@@ -138,10 +184,10 @@ jobs:
       - name: Install pinned npm
         run: node scripts/harness/npm-pin.mjs
 
+      # Without --version, readiness checks package metadata (matched to the tag by release:check-version)
+      # and skips the final-phase evidence gate, which only exists after the draft is qualified.
       - name: Run release readiness checks
-        env:
-          RELEASE_VERSION: ${{ needs.release-inputs.outputs.version }}
-        run: npm run release:readiness -- --version "$RELEASE_VERSION"
+        run: npm run release:readiness
 
       - name: Install dependencies
         run: npm ci --ignore-scripts --prefer-offline --no-audit --no-fund
@@ -182,6 +228,7 @@ jobs:
 
   preflight-frontend:
     needs: release-inputs
+    if: needs.release-inputs.outputs.mode == 'build-draft'
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     permissions:
@@ -225,6 +272,7 @@ jobs:
 
   preflight-rust:
     needs: release-inputs
+    if: needs.release-inputs.outputs.mode == 'build-draft'
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     permissions:
@@ -282,6 +330,7 @@ jobs:
 
   preflight-security-node:
     needs: release-inputs
+    if: needs.release-inputs.outputs.mode == 'build-draft'
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     permissions:
@@ -320,6 +369,7 @@ jobs:
 
   preflight-security-rust:
     needs: release-inputs
+    if: needs.release-inputs.outputs.mode == 'build-draft'
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     permissions:
@@ -356,7 +406,7 @@ jobs:
       id-token: write
     uses: ./.github/workflows/release-stage.yml
     with:
-      matrix: ${{ needs.release-inputs.outputs.matrix }}
+      selection: ${{ needs.release-inputs.outputs.selection }}
       tag: ${{ needs.release-inputs.outputs.tag }}
       version: ${{ needs.release-inputs.outputs.version }}
 
@@ -376,31 +426,31 @@ jobs:
     uses: ./.github/workflows/release-build.yml
     with:
       platform_key: ${{ matrix.platform_key }}
+      release_id: ${{ needs.stage-release.outputs.release_id }}
       tag: ${{ needs.release-inputs.outputs.tag }}
       version: ${{ needs.release-inputs.outputs.version }}
 
-  publish-release:
+  verify-draft-release:
     needs:
       - release-inputs
       - build-release
-    runs-on: ubuntu-24.04
-    timeout-minutes: 5
-    environment:
-      name: release
     permissions:
+      attestations: read
       contents: write
-    steps:
-      - name: Publish hosted release
-        shell: bash
-        env:
-          GH_TOKEN: ${{ github.token }}
-          GH_REPO: ${{ github.repository }}
-          RELEASE_TAG: ${{ needs.release-inputs.outputs.tag }}
-          RELEASE_VERSION: ${{ needs.release-inputs.outputs.version }}
-        run: |
-          set -euo pipefail
+    uses: ./.github/workflows/release-verify-draft.yml
+    with:
+      selection: ${{ needs.release-inputs.outputs.selection }}
+      tag: ${{ needs.release-inputs.outputs.tag }}
 
-          gh release edit "$RELEASE_TAG" \
-            --title "JobSentinel $RELEASE_VERSION" \
-            --draft=false \
-            --prerelease=false
+  publish-release:
+    needs: release-inputs
+    if: needs.release-inputs.outputs.mode == 'publish'
+    permissions:
+      attestations: read
+      contents: write
+    uses: ./.github/workflows/release-publish.yml
+    with:
+      evidence_ref: ${{ needs.release-inputs.outputs.evidence_ref }}
+      selection: ${{ needs.release-inputs.outputs.selection }}
+      tag: ${{ needs.release-inputs.outputs.tag }}
+      version: ${{ needs.release-inputs.outputs.version }}

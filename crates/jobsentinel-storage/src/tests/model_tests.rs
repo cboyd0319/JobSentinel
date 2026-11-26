@@ -1,3 +1,5 @@
+//! Verifies storage model construction and native listed-pay defaults.
+
 use super::*;
 
 #[path = "model_tests/database_path_tests.rs"]
@@ -24,6 +26,8 @@ mod job_struct_tests {
             salary_min: Some(150000),
             salary_max: Some(200000),
             currency: Some("USD".to_string()),
+            listed_pay: None,
+            geography: None,
             created_at: now,
             updated_at: now,
             last_seen: now,

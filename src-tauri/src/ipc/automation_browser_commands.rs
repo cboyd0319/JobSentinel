@@ -1,6 +1,9 @@
+//! Adapts visible browser setup, form inspection, and reviewed application filling to Tauri.
+
 use crate::application::automation::{
     AtsDetector, AtsPlatform, AutomationStatus, BrowserManager, FillResult, FormFiller,
 };
+use crate::bootstrap::operation::State;
 use crate::bootstrap::AppState;
 use crate::desktop::sanitize_url_for_logging;
 #[cfg(test)]
@@ -9,7 +12,6 @@ use crate::desktop::validate_external_https_url_for_fetch;
 use crate::ipc::errors::user_friendly_error;
 use serde::{Deserialize, Serialize};
 use std::sync::{Arc, LazyLock};
-use tauri::State;
 use tokio::sync::Mutex;
 
 use super::profile_resume::{application_resume_dir, trusted_application_resume_path};
@@ -26,7 +28,9 @@ static BROWSER_MANAGER: LazyLock<Arc<Mutex<BrowserManager>>> =
 ///
 /// Opens a visible Chrome browser window that the user can observe.
 #[tauri::command]
-pub(crate) async fn launch_automation_browser() -> Result<(), String> {
+pub(crate) async fn launch_automation_browser(
+    _operation: crate::bootstrap::operation::AdmissionState<'_>,
+) -> Result<(), String> {
     tracing::info!("Command: launch_automation_browser");
 
     let manager = BROWSER_MANAGER.lock().await;
@@ -38,7 +42,13 @@ pub(crate) async fn launch_automation_browser() -> Result<(), String> {
 
 /// Close the application review browser
 #[tauri::command]
-pub(crate) async fn close_automation_browser() -> Result<(), String> {
+pub(crate) async fn close_automation_browser(
+    _operation: crate::bootstrap::operation::AdmissionState<'_>,
+) -> Result<(), String> {
+    stop_automation_browser().await
+}
+
+pub(crate) async fn stop_automation_browser() -> Result<(), String> {
     tracing::info!("Command: close_automation_browser");
 
     let manager = BROWSER_MANAGER.lock().await;

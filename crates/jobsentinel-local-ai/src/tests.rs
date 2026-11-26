@@ -1,7 +1,4 @@
-//! Tests for ML module
-//!
-//! Note: Most tests require the model to be downloaded first.
-//! Run with: cargo test --features embedded-ml
+//! Tests local matching and opt-in inference against an explicitly governed model cache.
 
 #[cfg(test)]
 mod tests {
@@ -11,6 +8,22 @@ mod tests {
 
     fn get_test_cache_dir() -> TempDir {
         tempfile::tempdir().unwrap()
+    }
+
+    fn governed_minilm_matcher() -> SemanticMatcher {
+        let root = std::path::PathBuf::from(
+            std::env::var_os("JOBSENTINEL_MINILM_TEST_CACHE")
+                .expect("explicit governed model cache"),
+        );
+        let matcher = SemanticMatcher::new(root).unwrap();
+        let probe = matcher
+            .match_skills(&["Python".to_string()], &["Python".to_string()])
+            .unwrap();
+        assert_eq!(
+            probe.runtime_profile,
+            crate::matcher::SemanticRuntimeProfile::MiniLm
+        );
+        matcher
     }
 
     #[test]
@@ -126,28 +139,36 @@ mod tests {
     }
 
     // Integration tests - require model download
-    // These should be run manually with: cargo test --features embedded-ml -- --ignored
+    // Run manually, one at a time:
+    // cargo test --features embedded-ml -- --ignored --test-threads=1
 
     #[test]
-    #[ignore]
+    #[ignore = "downloads the pinned MiniLM fixture into JOBSENTINEL_MINILM_TEST_CACHE"]
     fn test_download_model() {
-        let cache_dir = get_test_cache_dir();
-        let manager = ModelManager::new(cache_dir.path().to_path_buf());
+        let cache_dir = std::path::PathBuf::from(
+            std::env::var_os("JOBSENTINEL_MINILM_TEST_CACHE")
+                .expect("explicit governed model cache"),
+        );
+        std::fs::create_dir_all(&cache_dir).unwrap();
+        crate::model::set_download_policy_env(&cache_dir);
+        let manager = ModelManager::new(cache_dir);
 
         // Download model
         let runtime = tokio::runtime::Runtime::new().unwrap();
         let result = runtime.block_on(manager.download_model());
 
-        assert!(result.is_ok());
+        result.expect("governed model download");
         assert!(manager.is_model_downloaded());
     }
 
     #[test]
-    #[ignore]
+    #[ignore = "requires JOBSENTINEL_MINILM_TEST_CACHE containing the governed MiniLM model"]
     fn test_embedding_generation() {
-        let cache_dir = get_test_cache_dir();
-
-        let generator = EmbeddingGenerator::new(cache_dir.path().to_path_buf()).unwrap();
+        let cache_dir = std::path::PathBuf::from(
+            std::env::var_os("JOBSENTINEL_MINILM_TEST_CACHE")
+                .expect("explicit governed model cache"),
+        );
+        let generator = EmbeddingGenerator::new(cache_dir).unwrap();
 
         let text = "Machine learning engineer with Python experience";
         let embedding = generator.embed_text(text).unwrap();
@@ -157,14 +178,27 @@ mod tests {
 
         // Check embeddings are non-zero
         let norm: f32 = embedding.iter().map(|x| x * x).sum::<f32>().sqrt();
-        assert!(norm > 0.0);
+        assert!((norm - 1.0).abs() < 1e-5);
+        let related = generator
+            .embed_text("Python software developer with machine learning skills")
+            .unwrap();
+        let unrelated = generator
+            .embed_text("Marine biologist studying coral reef ecosystems")
+            .unwrap();
+        assert!(
+            EmbeddingGenerator::cosine_similarity(&embedding, &related)
+                > EmbeddingGenerator::cosine_similarity(&embedding, &unrelated)
+        );
     }
 
     #[test]
-    #[ignore]
+    #[ignore = "requires JOBSENTINEL_MINILM_TEST_CACHE containing the governed MiniLM model"]
     fn test_batch_embeddings() {
-        let cache_dir = get_test_cache_dir();
-        let generator = EmbeddingGenerator::new(cache_dir.path().to_path_buf()).unwrap();
+        let cache_dir = std::path::PathBuf::from(
+            std::env::var_os("JOBSENTINEL_MINILM_TEST_CACHE")
+                .expect("explicit governed model cache"),
+        );
+        let generator = EmbeddingGenerator::new(cache_dir).unwrap();
 
         let texts = vec!["Python programming", "Machine Learning", "Data Science"];
 
@@ -175,10 +209,9 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
+    #[ignore = "requires JOBSENTINEL_MINILM_TEST_CACHE containing the governed MiniLM model"]
     fn test_semantic_matching() {
-        let cache_dir = get_test_cache_dir();
-        let matcher = SemanticMatcher::new(cache_dir.path().to_path_buf()).unwrap();
+        let matcher = governed_minilm_matcher();
 
         let user_skills = vec![
             "Python programming".to_string(),
@@ -213,10 +246,9 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
+    #[ignore = "requires JOBSENTINEL_MINILM_TEST_CACHE containing the governed MiniLM model"]
     fn test_semantic_similarity() {
-        let cache_dir = get_test_cache_dir();
-        let matcher = SemanticMatcher::new(cache_dir.path().to_path_buf()).unwrap();
+        let matcher = governed_minilm_matcher();
 
         let candidates = vec![
             "Python programming".to_string(),
@@ -237,10 +269,9 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
+    #[ignore = "requires JOBSENTINEL_MINILM_TEST_CACHE containing the governed MiniLM model"]
     fn test_semantic_vs_keyword_matching() {
-        let cache_dir = get_test_cache_dir();
-        let matcher = SemanticMatcher::new(cache_dir.path().to_path_buf()).unwrap();
+        let matcher = governed_minilm_matcher();
 
         // These should match semantically but not by exact string
         let user_skills = vec!["Machine Learning".to_string(), "Deep Learning".to_string()];

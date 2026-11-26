@@ -1,3 +1,5 @@
+//! Verifies notification behavior through an isolated, explicitly injected credential vault.
+
 use super::*;
 
 #[test]
@@ -83,10 +85,11 @@ fn test_enabled_channel_counting_all_enabled() {
     assert_eq!(enabled_count, 5, "All five channels should be enabled");
 }
 
-#[test]
-fn test_notification_service_config_immutability() {
+#[tokio::test]
+async fn test_notification_service_config_immutability() {
     let config = create_disabled_config();
-    let service = NotificationService::new(config.clone());
+    let service =
+        NotificationService::with_credentials(config.clone(), Arc::new(test_credentials().await));
 
     // Service should hold a reference to the same config
     assert_eq!(
@@ -96,12 +99,12 @@ fn test_notification_service_config_immutability() {
     assert_eq!(service.config.salary_floor_usd, config.salary_floor_usd);
 }
 
-#[test]
-fn test_notification_service_checks_slack_enabled() {
+#[tokio::test]
+async fn test_notification_service_checks_slack_enabled() {
     let mut config = create_disabled_config();
     Arc::get_mut(&mut config).unwrap().alerts.slack.enabled = true;
 
-    let service = NotificationService::new(config);
+    let service = NotificationService::with_credentials(config, Arc::new(test_credentials().await));
 
     assert!(
         service.config.alerts.slack.enabled,
@@ -113,12 +116,12 @@ fn test_notification_service_checks_slack_enabled() {
     );
 }
 
-#[test]
-fn test_notification_service_checks_email_enabled() {
+#[tokio::test]
+async fn test_notification_service_checks_email_enabled() {
     let mut config = create_disabled_config();
     Arc::get_mut(&mut config).unwrap().alerts.email.enabled = true;
 
-    let service = NotificationService::new(config);
+    let service = NotificationService::with_credentials(config, Arc::new(test_credentials().await));
 
     assert!(
         service.config.alerts.email.enabled,
@@ -128,12 +131,6 @@ fn test_notification_service_checks_email_enabled() {
         !service.config.alerts.slack.enabled,
         "Slack should remain disabled"
     );
-}
-
-async fn test_credentials() -> CredentialService {
-    let database = Database::connect_memory().await.unwrap();
-    database.migrate().await.unwrap();
-    CredentialService::with_fixed_master_key(database.credentials(), [22_u8; 32], false)
 }
 
 fn email_config_for(server: &str, username: &str) -> EmailConfig {
@@ -190,12 +187,12 @@ async fn runtime_email_resolution_rejects_legacy_unbound_smtp_password() {
     assert!(!err.contains("smtp-secret"));
 }
 
-#[test]
-fn test_notification_service_checks_discord_enabled() {
+#[tokio::test]
+async fn test_notification_service_checks_discord_enabled() {
     let mut config = create_disabled_config();
     Arc::get_mut(&mut config).unwrap().alerts.discord.enabled = true;
 
-    let service = NotificationService::new(config);
+    let service = NotificationService::with_credentials(config, Arc::new(test_credentials().await));
 
     assert!(
         service.config.alerts.discord.enabled,
@@ -207,12 +204,12 @@ fn test_notification_service_checks_discord_enabled() {
     );
 }
 
-#[test]
-fn test_notification_service_checks_telegram_enabled() {
+#[tokio::test]
+async fn test_notification_service_checks_telegram_enabled() {
     let mut config = create_disabled_config();
     Arc::get_mut(&mut config).unwrap().alerts.telegram.enabled = true;
 
-    let service = NotificationService::new(config);
+    let service = NotificationService::with_credentials(config, Arc::new(test_credentials().await));
 
     assert!(
         service.config.alerts.telegram.enabled,
@@ -224,12 +221,12 @@ fn test_notification_service_checks_telegram_enabled() {
     );
 }
 
-#[test]
-fn test_notification_service_checks_teams_enabled() {
+#[tokio::test]
+async fn test_notification_service_checks_teams_enabled() {
     let mut config = create_disabled_config();
     Arc::get_mut(&mut config).unwrap().alerts.teams.enabled = true;
 
-    let service = NotificationService::new(config);
+    let service = NotificationService::with_credentials(config, Arc::new(test_credentials().await));
 
     assert!(
         service.config.alerts.teams.enabled,

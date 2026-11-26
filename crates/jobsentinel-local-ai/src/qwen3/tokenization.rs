@@ -1,8 +1,13 @@
+//! Rejects oversized Qwen inputs and constructs bounded, untruncated token batches.
+
 use anyhow::Result;
 use candle_core::{Device, Tensor};
 use tokenizers::Tokenizer;
 
-use crate::qwen3::{DEFAULT_PAD_TOKEN_ID, QWEN3_RERANKER_PREFIX, QWEN3_RERANKER_SUFFIX};
+use crate::qwen3::{
+    DEFAULT_PAD_TOKEN_ID, MAX_INFERENCE_BATCH, MAX_INFERENCE_TOKENS, QWEN3_RERANKER_PREFIX,
+    QWEN3_RERANKER_SUFFIX,
+};
 use crate::runtime::{
     EmbeddingInput, EmbeddingInputKind, RerankCandidate, RerankQuery, RerankQueryKind,
 };
@@ -19,9 +24,9 @@ pub(super) fn tokenize_left_padded(
     max_tokens: usize,
     device: &Device,
 ) -> Result<TokenBatch> {
-    if max_tokens == 0 {
-        anyhow::bail!("Qwen3 max token limit must be positive");
-    }
+    validate_tokenization_inputs(tokenizer, texts)?;
+    let max_tokens = max_tokens.min(MAX_INFERENCE_TOKENS);
+    anyhow::ensure!(max_tokens > 0, "Qwen3 max token limit must be positive");
 
     let mut token_rows = Vec::with_capacity(texts.len());
     let mut mask_rows = Vec::with_capacity(texts.len());
@@ -38,8 +43,10 @@ pub(super) fn tokenize_left_padded(
             mask.push(1);
         }
 
-        ids.truncate(max_tokens);
-        mask.truncate(max_tokens);
+        anyhow::ensure!(
+            ids.len() <= max_tokens,
+            "Qwen3 input exceeds the inference token budget"
+        );
         token_rows.push(ids);
         mask_rows.push(mask);
     }
@@ -53,9 +60,12 @@ pub(super) fn tokenize_rerank_inputs(
     max_tokens: usize,
     device: &Device,
 ) -> Result<TokenBatch> {
-    if max_tokens == 0 {
-        anyhow::bail!("Qwen3 reranker max token limit must be positive");
-    }
+    validate_tokenization_inputs(tokenizer, texts)?;
+    let max_tokens = max_tokens.min(MAX_INFERENCE_TOKENS);
+    anyhow::ensure!(
+        max_tokens > 0,
+        "Qwen3 reranker max token limit must be positive"
+    );
 
     let prefix_ids = encode_tokenizer_fragment(tokenizer, QWEN3_RERANKER_PREFIX)?;
     let suffix_ids = encode_tokenizer_fragment(tokenizer, QWEN3_RERANKER_SUFFIX)?;
@@ -68,8 +78,11 @@ pub(super) fn tokenize_rerank_inputs(
     let mut token_rows = Vec::with_capacity(texts.len());
     let mut mask_rows = Vec::with_capacity(texts.len());
     for text in texts {
-        let mut body_ids = encode_tokenizer_fragment(tokenizer, text)?;
-        body_ids.truncate(body_limit);
+        let body_ids = encode_tokenizer_fragment(tokenizer, text)?;
+        anyhow::ensure!(
+            body_ids.len() <= body_limit,
+            "Qwen3 reranker input exceeds the inference token budget"
+        );
 
         let mut ids = Vec::with_capacity(prefix_ids.len() + body_ids.len() + suffix_ids.len());
         ids.extend(prefix_ids.iter().copied());
@@ -82,6 +95,22 @@ pub(super) fn tokenize_rerank_inputs(
     }
 
     token_rows_to_left_padded_batch(token_rows, mask_rows, device)
+}
+
+fn validate_tokenization_inputs(tokenizer: &Tokenizer, texts: &[String]) -> Result<()> {
+    anyhow::ensure!(
+        texts.len() <= MAX_INFERENCE_BATCH,
+        "Qwen3 inference batch exceeds its budget"
+    );
+    anyhow::ensure!(
+        texts.iter().all(|text| text.len() <= 64 * 1024),
+        "Qwen3 formatted input exceeds its byte budget"
+    );
+    anyhow::ensure!(
+        tokenizer.get_truncation().is_none(),
+        "Qwen3 tokenization must not silently truncate evidence"
+    );
+    Ok(())
 }
 
 fn encode_tokenizer_fragment(tokenizer: &Tokenizer, text: &str) -> Result<Vec<u32>> {
@@ -180,5 +209,129 @@ fn default_rerank_instruction(query_kind: &RerankQueryKind) -> &'static str {
         RerankQueryKind::GapAnalysis => {
             "Given a missing or weak job requirement and a resume passage, determine whether the passage closes the gap with concrete evidence."
         }
+    }
+}
+
+#[cfg(test)]
+mod budget_tests {
+    use super::*;
+    fn tokenizer() -> Tokenizer {
+        let model = tokenizers::models::wordlevel::WordLevel::builder()
+            .vocab([("[UNK]".into(), 0), ("x".into(), 1)].into_iter().collect())
+            .unk_token("[UNK]".into())
+            .build()
+            .unwrap();
+        let mut tokenizer = Tokenizer::new(model);
+        tokenizer.with_pre_tokenizer(Some(tokenizers::pre_tokenizers::whitespace::Whitespace));
+        tokenizer
+    }
+    #[test]
+    fn tokenization_refuses_evidence_instead_of_truncating_it() {
+        let tokenizer = tokenizer();
+        assert!(tokenize_left_padded(&tokenizer, &["x".into()], 8, &Device::Cpu).is_ok());
+        assert!(tokenize_left_padded(&tokenizer, &["x ".repeat(9)], 8, &Device::Cpu).is_err());
+        assert!(
+            tokenize_left_padded(&tokenizer, &["x".into(), "x".into()], 32768, &Device::Cpu)
+                .is_err()
+        );
+        assert!(tokenize_rerank_inputs(&tokenizer, &["x".into()], 32768, &Device::Cpu).is_ok());
+        assert!(tokenize_rerank_inputs(
+            &tokenizer,
+            &["x ".repeat(MAX_INFERENCE_TOKENS)],
+            32768,
+            &Device::Cpu
+        )
+        .is_err());
+        assert!(
+            tokenize_left_padded(&tokenizer, &["x".repeat(65537)], 32768, &Device::Cpu).is_err()
+        );
+    }
+    #[test]
+    #[ignore = "requires verified tokenizer-only fixtures in JOBSENTINEL_QWEN_TOKENIZER_CACHE"]
+    fn governed_tokenizers_preserve_existing_fixture_inputs_within_budget() {
+        use sha2::{Digest, Sha256};
+        let root = std::path::PathBuf::from(
+            std::env::var_os("JOBSENTINEL_QWEN_TOKENIZER_CACHE").expect("explicit tokenizer cache"),
+        );
+        let manifest = crate::manifest::load_model_manifest().unwrap();
+        let load = |spec: &crate::manifest::ModelSpec| {
+            let file = spec.file("tokenizer.json").unwrap();
+            let bytes = std::fs::read(root.join(format!("{}.json", spec.id))).unwrap();
+            assert_eq!(Some(bytes.len() as u64), file.size_bytes);
+            assert_eq!(hex::encode(Sha256::digest(&bytes)), file.sha256);
+            Tokenizer::from_bytes(bytes).unwrap()
+        };
+        let embedding = load(manifest.default_embedding().unwrap());
+        let reranker = load(manifest.default_reranker().unwrap());
+        let mut fixtures = crate::EvalFixtureSet::seed().unwrap().hard_negatives;
+        let regional: crate::EvalFixtureSet = serde_json::from_str(include_str!(
+            "../eval_fixtures/regional_requirement_hard_negatives_v1.json"
+        ))
+        .unwrap();
+        fixtures.extend(regional.hard_negatives);
+        let instruction = manifest
+            .instruction_profiles
+            .get("resume_requirement_v1")
+            .unwrap()
+            .query
+            .clone();
+        let mut maxima = (0, 0);
+        for fixture in fixtures {
+            let query = RerankQuery {
+                text: fixture.query.clone(),
+                instruction: Some(instruction.clone()),
+                query_kind: RerankQueryKind::ResumeRequirement,
+            };
+            let formatted = format_embedding_input(&EmbeddingInput {
+                text: fixture.query,
+                instruction: Some(instruction.clone()),
+                input_kind: EmbeddingInputKind::Requirement,
+            });
+            maxima.0 = maxima.0.max(
+                tokenize_left_padded(&embedding, &[formatted], 32768, &Device::Cpu)
+                    .unwrap()
+                    .input_ids
+                    .dims2()
+                    .unwrap()
+                    .1,
+            );
+            for text in [fixture.positive, fixture.hard_negative] {
+                maxima.0 = maxima.0.max(
+                    tokenize_left_padded(
+                        &embedding,
+                        std::slice::from_ref(&text),
+                        32768,
+                        &Device::Cpu,
+                    )
+                    .unwrap()
+                    .input_ids
+                    .dims2()
+                    .unwrap()
+                    .1,
+                );
+                let candidate = RerankCandidate {
+                    id: "fixture".into(),
+                    text,
+                    metadata: serde_json::Value::Null,
+                };
+                maxima.1 = maxima.1.max(
+                    tokenize_rerank_inputs(
+                        &reranker,
+                        &format_rerank_inputs(&query, &[&candidate]),
+                        32768,
+                        &Device::Cpu,
+                    )
+                    .unwrap()
+                    .input_ids
+                    .dims2()
+                    .unwrap()
+                    .1,
+                );
+            }
+        }
+        eprintln!(
+            "Existing fixtures maximum tokens: embedding={}, reranker={}",
+            maxima.0, maxima.1
+        );
     }
 }

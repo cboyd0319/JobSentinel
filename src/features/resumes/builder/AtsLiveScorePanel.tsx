@@ -1,20 +1,13 @@
-/**
- * AtsLiveScorePanel - real-time resume readability feedback for Resume Builder
- *
- * Shows live readability feedback as users build their resume, with detailed
- * breakdowns for job-word fit, format, and details included.
- *
- * @version 2.5.5
- */
+/** Shows current-input resume readability feedback and cancels superseded local reviews. */
 
-import { memo, useState, useEffect, useCallback, useMemo } from "react";
+import { memo, useState, useEffect, useMemo } from "react";
+import { useResumeReviewRequest } from "../shared/useResumeReviewRequest";
 import { invoke } from "../../../platform/tauri";
 import { Badge } from "../../../ui/Badge";
 import { Button } from "../../../ui/Button";
 import { Tooltip } from "../../../ui/Tooltip";
 import { logError } from "../../../shared/errorReporting/logger";
 import { getUserFriendlyError } from "../../../shared/errorReporting/messages";
-import type { SkillProficiency } from "../shared/resumeSkillUiTaxonomy";
 import {
   getScoreBg,
   getScoreColor,
@@ -24,6 +17,8 @@ import {
 } from "../shared/resumeScore";
 import { takeStoredResumeJobContext } from "../shared/resumeJobContext";
 import { AtsLiveScoreDetailsModal } from "./AtsLiveScoreDetailsModal";
+import type { ResumeData } from "./resumeBuilderData";
+import { toResumeAnalysisInput } from "./resumeBuilderTransforms";
 import {
   formatHardConstraintRiskCategory,
   getHardConstraintRisks,
@@ -32,51 +27,6 @@ import {
 } from "./AtsLiveScorePanelModel";
 
 export type { AtsAnalysisResult } from "./AtsLiveScorePanelModel";
-
-// Resume data structure for analysis
-interface ContactInfo {
-  name: string;
-  email: string;
-  phone: string | null;
-  linkedin: string | null;
-  github: string | null;
-  location: string | null;
-  website: string | null;
-}
-
-interface Experience {
-  id: number;
-  title: string;
-  company: string;
-  location: string | null;
-  start_date: string;
-  end_date: string | null;
-  achievements: string[];
-}
-
-interface Education {
-  id: number;
-  degree: string;
-  institution: string;
-  location: string | null;
-  graduation_date: string | null;
-  gpa: string | null;
-  honors: string[];
-}
-
-interface SkillEntry {
-  name: string;
-  category: string;
-  proficiency: SkillProficiency | null;
-}
-
-interface ResumeData {
-  contact: ContactInfo;
-  summary: string;
-  experience: Experience[];
-  education: Education[];
-  skills: SkillEntry[];
-}
 
 interface AtsLiveScorePanelProps {
   resumeData: ResumeData | null;
@@ -91,12 +41,19 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
   debounceMs = 1000,
   showFullAnalysis = true,
 }: AtsLiveScorePanelProps) {
+  const { begin, cancel, isCurrent, finish } = useResumeReviewRequest();
+  const [cancelled, setCancelled] = useState(false);
   const [analysis, setAnalysis] = useState<AtsAnalysisResult | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [jobDescription, setJobDescription] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [retryTrigger, setRetryTrigger] = useState(0);
+  const [evidenceRevision, setEvidenceRevision] = useState(() => crypto.randomUUID());
+
+  useEffect(() => {
+    setEvidenceRevision(crypto.randomUUID());
+  }, [resumeData]);
 
   // Load job context from sessionStorage (set by Resume Match)
   useEffect(() => {
@@ -106,65 +63,23 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
     }
   }, []);
 
-  // Convert ResumeData to the format expected by backend
-  const convertToAtsFormat = useCallback((data: ResumeData) => {
-    return {
-      contact_info: {
-        name: data.contact.name,
-        email: data.contact.email,
-        phone: data.contact.phone || "",
-        location: data.contact.location || "",
-        linkedin: data.contact.linkedin,
-        github: data.contact.github,
-        website: data.contact.website,
-      },
-      summary: data.summary,
-      experience: data.experience.map((exp) => ({
-        title: exp.title,
-        company: exp.company,
-        location: exp.location || "",
-        start_date: exp.start_date,
-        end_date: exp.end_date || "Present",
-        achievements: exp.achievements,
-        current: !exp.end_date,
-      })),
-      education: data.education.map((edu) => ({
-        degree: edu.degree,
-        institution: edu.institution,
-        location: edu.location || "",
-        graduation_date: edu.graduation_date || "",
-        gpa: edu.gpa ? parseFloat(edu.gpa) : null,
-        honors: edu.honors,
-      })),
-      skills: data.skills.map((skill) => ({
-        name: skill.name,
-        category: skill.category,
-        proficiency: skill.proficiency,
-      })),
-      certifications: [],
-      projects: [],
-      custom_sections: {},
-    };
-  }, []);
-
   // Analyze resume with debouncing
   useEffect(() => {
-    if (!resumeData) {
-      setAnalysis(null);
-      return;
-    }
-
-    // Check minimum data requirements
-    if (!resumeData.contact.name || !resumeData.contact.email) {
-      return;
-    }
+    cancel();
+    setAnalysis(null);
+    setAnalyzing(false);
+    setCancelled(false);
+    setError(null);
+    setShowDetailModal(false);
+    if (!resumeData?.contact.name || !resumeData.contact.email) return;
 
     const timeoutId = setTimeout(async () => {
+      const requestId = begin(Boolean(jobDescription));
       try {
         setAnalyzing(true);
         setError(null);
 
-        const atsData = convertToAtsFormat(resumeData);
+        const atsData = toResumeAnalysisInput(resumeData, evidenceRevision);
 
         let result: AtsAnalysisResult;
         if (jobDescription) {
@@ -172,6 +87,7 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
           result = await invoke<AtsAnalysisResult>("analyze_resume_for_job", {
             resume: atsData,
             jobDescription,
+            requestId,
           });
         } else {
           // Format-only analysis
@@ -180,18 +96,20 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
           });
         }
 
-        setAnalysis(result);
+        if (isCurrent(requestId)) setAnalysis(result);
       } catch (err: unknown) {
+        if (!isCurrent(requestId)) return;
         logError("Resume readability analysis error:", err);
         const friendly = getUserFriendlyError(err);
         setError(friendly.action ?? friendly.message);
       } finally {
-        setAnalyzing(false);
+        if (isCurrent(requestId)) setAnalyzing(false);
+        finish(requestId);
       }
     }, debounceMs);
 
-    return () => clearTimeout(timeoutId);
-  }, [resumeData, jobDescription, debounceMs, convertToAtsFormat, retryTrigger]);
+    return () => { clearTimeout(timeoutId); cancel(); };
+  }, [resumeData, jobDescription, debounceMs, evidenceRevision, retryTrigger, begin, cancel, isCurrent, finish]);
 
   // Memoize tips
   const tips = useMemo(() => getStepTips(currentStep, analysis), [currentStep, analysis]);
@@ -222,6 +140,9 @@ export const AtsLiveScorePanel = memo(function AtsLiveScorePanel({
           )}
         </div>
       </div>
+
+      {analyzing && <Button variant="ghost" size="sm" onClick={() => { cancel(); setAnalyzing(false); setCancelled(true); }}>Cancel readability check</Button>}
+      {cancelled && <div className="px-4 py-2 text-sm" role="status">Review dismissed. Local processing may take a moment to stop. <Button variant="ghost" size="sm" onClick={() => setRetryTrigger((value) => value + 1)}>Review again</Button></div>}
 
       {/* Readability display */}
       <div className="p-4">

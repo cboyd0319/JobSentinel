@@ -1,37 +1,24 @@
+// Parses release asset verifier options for draft (pre-publication) and public (post-publication) modes.
+import { getArgValue, getRepoArg, hasArg, splitList } from "../args.mjs";
+
 const defaultRepo = "cboyd0319/JobSentinel";
 
-function getArgValue(args, name) {
-  const exactIndex = args.indexOf(name);
-  if (exactIndex >= 0) return args[exactIndex + 1];
-
-  const prefixed = args.find((arg) => arg.startsWith(`${name}=`));
-  return prefixed ? prefixed.slice(name.length + 1) : undefined;
-}
-
-function hasArg(args, name) {
-  return args.some((arg) => arg === name || arg.startsWith(`${name}=`));
-}
-
-function splitList(value) {
-  return String(value ?? "")
-    .split(",")
-    .map((item) => item.trim())
-    .filter(Boolean);
-}
-
 export function parseArgs(args) {
-  const platforms = splitList(
-    getArgValue(args, "--platforms") ?? "windows,macos,linux",
-  );
+  const platforms = getArgValue(args, "--platforms");
   const requireSupplyChain =
     hasArg(args, "--require-supply-chain") ||
     !hasArg(args, "--no-require-supply-chain");
 
   return {
+    draft: hasArg(args, "--draft"),
+    draftManifest: getArgValue(args, "--draft-manifest"),
+    evidenceRevision: getArgValue(args, "--evidence-revision"),
+    expectedRevision: getArgValue(args, "--expected-revision"),
     expectedVersion: getArgValue(args, "--expected-version"),
-    platforms,
+    githubOutput: getArgValue(args, "--github-output"),
+    platforms: platforms === undefined ? undefined : splitList(platforms),
     releaseTag: getArgValue(args, "--tag"),
-    repo: getArgValue(args, "--repo") ?? defaultRepo,
+    repo: getRepoArg(args, defaultRepo),
     requireAttestations:
       requireSupplyChain &&
       !hasArg(args, "--no-require-attestations") &&
@@ -39,5 +26,6 @@ export function parseArgs(args) {
     requireChecksum: !hasArg(args, "--no-require-checksum"),
     requireSupplyChain,
     requireWindowsUnsignedLabel: hasArg(args, "--require-windows-unsigned-label"),
+    selection: getArgValue(args, "--selection"),
   };
 }

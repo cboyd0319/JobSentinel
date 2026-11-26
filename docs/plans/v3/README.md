@@ -1,15 +1,15 @@
+<!-- Indexes v3 strategy references and points to the canonical execution order. -->
+
 # JobSentinel V3 Planning
 
-JobSentinel v3.0 is the next major-release planning horizon. Everything in the
-v2.9 line should be treated as stabilization, minor feature polish, and bug
-fixes unless a v3 discovery exposes a release-critical issue.
+V3 covers the local-first job-search workspace and its accepted enhancement line.
+The [Master Execution Plan](master-exec-plan.md) owns scope, sequence, decisions,
+verification and handoff. Strategy references do not independently add scope.
 
-This directory is intentionally expansive. V3 can include a full refactor,
-paper-driven model changes, new source architecture, new browser companion
-workflows, a local agent runtime, and a different product shape. Rust remains
-the base of JobSentinel and the primary local trust boundary. The point of this
-package is to think beyond "make v2 better" and identify what would make
-JobSentinel genuinely impressive.
+The [remaining development queue](master-exec-plan.md#remaining-development-queue)
+owns the user-approved release-first order. Prepare and qualify the preserved v3.0
+core before resuming Next enhancements. V3.0.1 targets fixes/polish; substantial
+additions belong in v3.1+. All releases retain the three full qualification phases.
 
 ## Baseline
 
@@ -47,11 +47,12 @@ That means:
   local, and useful without large model downloads.
 - V3 is the easiest release to install, set up, recover, and use.
 
-V3 is also the first long-term compatibility boundary. Releases before v3 may
-provide best-effort forward migration, but they do not carry a durable backward
-compatibility promise. Starting with v3, JobSentinel should lock the long-term
-architecture, define stable data and config contracts, and support documented
-rollback paths within the v3 compatibility line.
+V3.0.0 is the first supported compatibility baseline. JobSentinel makes no
+forward-migration, rollback, or contract-compatibility promise for databases,
+settings, APIs, packs, or artifacts created before v3.0.0. Starting with v3,
+JobSentinel should lock the long-term architecture, define stable data and
+config contracts, and support documented rollback paths within the v3
+compatibility line.
 
 ## Non-Negotiables
 
@@ -81,6 +82,7 @@ burdens for the user, not hidden behavior.
 
 | Doc | Purpose |
 | --- | --- |
+| [V3 Master Execution Plan](master-exec-plan.md) | Sole active execution owner for the v3.0 and v3.x scope, backlog disposition, milestones, gates, verification, and release closure. |
 | [North Star](north-star.md) | Product vision, strategic bets, and anti-goals. |
 | [Idea Catalog](idea-catalog.md) | Broad v3 feature and moonshot inventory. |
 | [Idea Index](idea-index.md) | Ranked benefit and effort index for v3 ideas and implementation sequencing. |

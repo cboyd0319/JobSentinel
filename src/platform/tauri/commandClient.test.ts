@@ -1,3 +1,5 @@
+/** Verifies product-neutral Tauri command caching and safe invocation behavior. */
+
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { cachedInvoke, invalidateCacheByCommand } from "./commandClient";
 import { invoke } from "@tauri-apps/api/core";
@@ -8,6 +10,14 @@ vi.mock("@tauri-apps/api/core", () => ({
 }));
 
 const mockInvoke = vi.mocked(invoke);
+
+function createDeferred<T>() {
+  let resolve: (value: T) => void;
+  const promise = new Promise<T>((resolvePromise) => {
+    resolve = resolvePromise;
+  });
+  return { promise, resolve: (value: T) => resolve(value) };
+}
 
 describe("Tauri command client", () => {
   beforeEach(() => {
@@ -109,6 +119,71 @@ describe("Tauri command client", () => {
 
       expect(mockInvoke).toHaveBeenCalledTimes(2);
       expect(result).toEqual({ version: 2 });
+    });
+
+    it("starts a fresh request after invalidating an in-flight cache key", async () => {
+      const originalRequest = createDeferred<{ version: "original" }>();
+      const refreshedRequest = createDeferred<{ version: "refreshed" }>();
+      mockInvoke
+        .mockReturnValueOnce(originalRequest.promise)
+        .mockReturnValueOnce(refreshedRequest.promise);
+
+      const original = cachedInvoke("invalidate_inflight_start", { id: 1 });
+      invalidateCacheByCommand("invalidate_inflight_start");
+      const refreshed = cachedInvoke("invalidate_inflight_start", { id: 1 });
+
+      expect(mockInvoke).toHaveBeenCalledTimes(2);
+      originalRequest.resolve({ version: "original" });
+      refreshedRequest.resolve({ version: "refreshed" });
+      await expect(Promise.all([original, refreshed])).resolves.toEqual([
+        { version: "original" },
+        { version: "refreshed" },
+      ]);
+    });
+
+    it("keeps a newer in-flight request registered when the old request completes", async () => {
+      const originalRequest = createDeferred<{ version: "original" }>();
+      const refreshedRequest = createDeferred<{ version: "refreshed" }>();
+      mockInvoke
+        .mockReturnValueOnce(originalRequest.promise)
+        .mockReturnValueOnce(refreshedRequest.promise);
+
+      const original = cachedInvoke("invalidate_inflight_identity", { id: 1 });
+      invalidateCacheByCommand("invalidate_inflight_identity");
+      const refreshed = cachedInvoke("invalidate_inflight_identity", { id: 1 });
+
+      originalRequest.resolve({ version: "original" });
+      await original;
+      const deduplicatedRefresh = cachedInvoke("invalidate_inflight_identity", { id: 1 });
+
+      expect(mockInvoke).toHaveBeenCalledTimes(2);
+      refreshedRequest.resolve({ version: "refreshed" });
+      await expect(Promise.all([refreshed, deduplicatedRefresh])).resolves.toEqual([
+        { version: "refreshed" },
+        { version: "refreshed" },
+      ]);
+    });
+
+    it("does not let an invalidated completion overwrite refreshed cached data", async () => {
+      const originalRequest = createDeferred<{ version: "original" }>();
+      const refreshedRequest = createDeferred<{ version: "refreshed" }>();
+      mockInvoke
+        .mockReturnValueOnce(originalRequest.promise)
+        .mockReturnValueOnce(refreshedRequest.promise);
+
+      const original = cachedInvoke("invalidate_stale_cache", { id: 1 });
+      invalidateCacheByCommand("invalidate_stale_cache");
+      const refreshed = cachedInvoke("invalidate_stale_cache", { id: 1 });
+
+      refreshedRequest.resolve({ version: "refreshed" });
+      await expect(refreshed).resolves.toEqual({ version: "refreshed" });
+      originalRequest.resolve({ version: "original" });
+      await expect(original).resolves.toEqual({ version: "original" });
+
+      await expect(cachedInvoke("invalidate_stale_cache", { id: 1 })).resolves.toEqual({
+        version: "refreshed",
+      });
+      expect(mockInvoke).toHaveBeenCalledTimes(2);
     });
   });
 

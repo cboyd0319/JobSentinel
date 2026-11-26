@@ -1,3 +1,5 @@
+//! Provides synthetic configuration and job records for application integration tests.
+
 use chrono::Utc;
 use jobsentinel_application::config::{Config, LocationPreferences};
 use jobsentinel_domain::Job;
@@ -18,6 +20,7 @@ pub(crate) fn test_config() -> Config {
             cities: vec!["Chicago".to_string()],
             states: vec!["IL".to_string()],
             country: "US".to_string(),
+            search_country: None,
         },
         salary_floor_usd: 50000,
         salary_target_usd: None,
@@ -67,6 +70,8 @@ pub(crate) fn test_job(hash: &str, title: &str, company: &str) -> Job {
         salary_min: None,
         salary_max: None,
         currency: Some("USD".to_string()),
+        listed_pay: None,
+        geography: None,
         created_at: now,
         updated_at: now,
         last_seen: now,

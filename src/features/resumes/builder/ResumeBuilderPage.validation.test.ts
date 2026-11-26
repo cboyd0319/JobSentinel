@@ -1,3 +1,5 @@
+/** Proves builder requirements preserve truthful optional work and education history. */
+
 import { describe, expect, it } from "vitest";
 import {
   canProceedResumeBuilderStep,
@@ -59,13 +61,6 @@ describe("Resume Builder step validation copy", () => {
     ).toBe("Write a summary of at least 10 characters.");
 
     expect(
-      getResumeBuilderStepValidationMessage(3, {
-        ...validInput,
-        experiences: [],
-      })
-    ).toBe("Add one work experience before continuing.");
-
-    expect(
       getResumeBuilderStepValidationMessage(5, {
         ...validInput,
         skills: [],
@@ -88,5 +83,11 @@ describe("Resume Builder step validation copy", () => {
 
     expect(canProceedResumeBuilderStep(4, inputWithoutEducation)).toBe(true);
     expect(getResumeBuilderStepValidationMessage(4, inputWithoutEducation)).toBe("");
+  });
+
+  it("allows early-career users to continue without inventing work history", () => {
+    const input = { ...validInput, experiences: [] };
+    expect(canProceedResumeBuilderStep(3, input)).toBe(true);
+    expect(getResumeBuilderStepValidationMessage(3, input)).toBe("");
   });
 });

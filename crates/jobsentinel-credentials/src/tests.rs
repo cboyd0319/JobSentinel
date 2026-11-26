@@ -1,3 +1,5 @@
+//! Verifies credential identifiers and sanitized validation without touching OS stores.
+
 use super::*;
 
 #[test]
@@ -142,7 +144,7 @@ fn telegram_bot_token_validation_accepts_token_shape() {
 #[test]
 fn linkedin_credential_storage_is_disabled_before_keyring() {
     let secret = "legacy-session-secret";
-    let err = CredentialStore::store(CredentialKey::LinkedInCookie, secret).unwrap_err();
+    let err = reject_disabled_credential_storage(CredentialKey::LinkedInCookie).unwrap_err();
 
     assert_eq!(err, LINKEDIN_CREDENTIAL_STORAGE_DISABLED);
     assert!(!err.contains(secret));
@@ -165,77 +167,5 @@ fn secure_storage_error_does_not_echo_provider_details() {
             !err.contains(raw_detail),
             "secure storage error must not echo raw provider details: {err}"
         );
-    }
-}
-
-#[test]
-fn migration_extracts_active_secrets_and_clears_all_legacy_fields() {
-    let temp_dir = tempfile::tempdir().unwrap();
-    let config_path = temp_dir.path().join("config.json");
-    std::fs::write(
-        &config_path,
-        r#"{
-              "alerts": {
-                "email": {
-                  "smtp_password": "smtp-secret",
-                  "smtp_server": "smtp.example.com"
-                },
-                "telegram": { "bot_token": "telegram-secret" },
-                "slack": { "webhook_url": "slack-secret" },
-                "discord": { "webhook_url": "discord-secret" },
-                "teams": { "webhook_url": "teams-secret" }
-              },
-              "linkedin": { "session_cookie": "legacy-linkedin-secret" },
-              "usajobs": {
-                "api_key": "usajobs-secret",
-                "email": "user@example.com"
-              }
-            }"#,
-    )
-    .unwrap();
-
-    let credentials = extract_plaintext_credentials(&config_path).unwrap();
-    let expected = [
-        (CredentialKey::SmtpPassword, "smtp-secret"),
-        (CredentialKey::TelegramBotToken, "telegram-secret"),
-        (CredentialKey::SlackWebhook, "slack-secret"),
-        (CredentialKey::DiscordWebhook, "discord-secret"),
-        (CredentialKey::TeamsWebhook, "teams-secret"),
-        (CredentialKey::UsaJobsApiKey, "usajobs-secret"),
-    ];
-    assert_eq!(credentials.len(), expected.len());
-    for (key, value) in expected {
-        assert!(credentials.contains(&(key, value.to_string())));
-    }
-    assert!(!credentials
-        .iter()
-        .any(|(key, _)| matches!(key, CredentialKey::LinkedInCookie)));
-
-    clear_config_credentials(&config_path).unwrap();
-
-    let cleaned = std::fs::read_to_string(&config_path).unwrap();
-    let cleaned_json: serde_json::Value = serde_json::from_str(&cleaned).unwrap();
-    assert_eq!(
-        cleaned_json
-            .pointer("/alerts/email/smtp_server")
-            .and_then(|v| v.as_str()),
-        Some("smtp.example.com")
-    );
-    assert_eq!(
-        cleaned_json
-            .pointer("/usajobs/email")
-            .and_then(|v| v.as_str()),
-        Some("user@example.com")
-    );
-    for pointer in [
-        "/alerts/email/smtp_password",
-        "/alerts/telegram/bot_token",
-        "/alerts/slack/webhook_url",
-        "/alerts/discord/webhook_url",
-        "/alerts/teams/webhook_url",
-        "/linkedin/session_cookie",
-        "/usajobs/api_key",
-    ] {
-        assert!(cleaned_json.pointer(pointer).is_none(), "{pointer}");
     }
 }

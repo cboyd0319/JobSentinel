@@ -1,11 +1,12 @@
 #!/usr/bin/env node
-
+// Diagnoses the local toolchain, dependencies and browsers against the repository baselines, failing or warning per check.
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { repositoryToolchainEnvironment } from "../lib/rust-toolchain.mjs";
+import { checkValeVersion } from "./vale-version.mjs";
 
 const scriptPath = fileURLToPath(import.meta.url);
 const defaultRoot = resolve(dirname(scriptPath), "../..");
@@ -436,13 +437,8 @@ export function runDoctor(options = {}) {
     mustHaveEntries: true,
     fix: "Run npm run sqlx:prepare from the repository root after schema changes",
   });
-  checkPath(
-    results,
-    root,
-    ".cargo/config.toml",
-    "SQLx offline env config",
-    { mustContain: 'SQLX_OFFLINE = "true"' },
-  );
+  checkPath(results, root, ".cargo/config.toml", "SQLx offline env config", { mustContain: 'SQLX_OFFLINE = "true"' });
+  results.push(checkValeVersion(root, { execFileSync: options.execFileSync }));
 
   if (!options.preflight) {
     checkPlaywrightReadiness(results, root, {

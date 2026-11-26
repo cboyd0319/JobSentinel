@@ -1,3 +1,5 @@
+// Proves macOS bundle arguments, artifact handling, and signing configuration boundaries.
+
 import assert from "node:assert/strict";
 import { existsSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -17,7 +19,6 @@ import {
   getReleaseDir,
   getSigningIdentity,
   hasPartialNotarizationCredentials,
-  hasArg,
   isTransientHdiutilVerifyError,
   parseNotarytoolSubmitResult,
   prependPathDir,
@@ -40,7 +41,6 @@ test("macOS DMG builder defaults to app bundle builds", () => {
 });
 
 test("macOS DMG builder preserves explicit bundle args", () => {
-  assert.equal(hasArg(["build", "--bundles", "app"], "--bundles"), true);
   assert.deepEqual(buildTauriArgs(["--bundles", "app"]), ["build", "--bundles", "app"]);
 });
 
@@ -218,33 +218,21 @@ test("macOS DMG builder does not retry hard hdiutil verify failures", () => {
 });
 
 test("macOS DMG builder identifies stale no-account artifact variants", () => {
-  assert.deepEqual(
-    Array.from(staleDmgArtifactNames("JobSentinel_2.6.4_universal.dmg")).sort(),
+  for (const variants of [
     [
-      "JobSentinel_2.6.4_no-account_universal.dmg",
-      "JobSentinel_2.6.4_no-account_universal.dmg.sha256",
-      "JobSentinel_2.6.4_universal.dmg",
-      "JobSentinel_2.6.4_universal.dmg.sha256",
+      "JobSentinel_2.6.4_universal.dmg", "JobSentinel_2.6.4_no-account_universal.dmg",
+      "JobSentinel_2.6.4_stronger-local_universal.dmg", "JobSentinel_2.6.4_stronger-local_no-account_universal.dmg",
     ],
-  );
-  assert.deepEqual(
-    Array.from(staleDmgArtifactNames("JobSentinel_2.6.4_aarch64.dmg")).sort(),
     [
-      "JobSentinel_2.6.4_aarch64.dmg",
-      "JobSentinel_2.6.4_aarch64.dmg.sha256",
-      "JobSentinel_2.6.4_aarch64_no-account_macos.dmg",
-      "JobSentinel_2.6.4_aarch64_no-account_macos.dmg.sha256",
+      "JobSentinel_2.6.4_aarch64.dmg", "JobSentinel_2.6.4_aarch64_no-account_macos.dmg",
+      "JobSentinel_2.6.4_stronger-local_aarch64.dmg", "JobSentinel_2.6.4_stronger-local_aarch64_no-account_macos.dmg",
     ],
-  );
-  assert.deepEqual(
-    Array.from(staleDmgArtifactNames("JobSentinel_2.6.4_no-account_universal.dmg")).sort(),
-    [
-      "JobSentinel_2.6.4_no-account_universal.dmg",
-      "JobSentinel_2.6.4_no-account_universal.dmg.sha256",
-      "JobSentinel_2.6.4_universal.dmg",
-      "JobSentinel_2.6.4_universal.dmg.sha256",
-    ],
-  );
+  ]) {
+    const expected = variants.flatMap((name) => [name, `${name}.sha256`]).sort();
+    for (const input of variants.slice(0, 2)) {
+      assert.deepEqual(Array.from(staleDmgArtifactNames(input)).sort(), expected);
+    }
+  }
 });
 
 test("macOS DMG builder removes stale DMG and checksum artifacts", () => {
@@ -257,6 +245,10 @@ test("macOS DMG builder removes stale DMG and checksum artifacts", () => {
       "JobSentinel_2.6.4_no-account_universal.dmg",
       "JobSentinel_2.6.4_no-account_universal.dmg.sha256",
       "rw.JobSentinel_2.6.4_universal.dmg",
+      "JobSentinel_2.6.4_stronger-local_universal.dmg",
+      "JobSentinel_2.6.4_stronger-local_universal.dmg.sha256",
+      "JobSentinel_2.6.3_stronger-local_universal.dmg",
+      "JobSentinel_2.6.4_stronger-local_aarch64.dmg",
       "keep.txt",
     ]) {
       writeFileSync(join(root, name), "fixture");
@@ -270,6 +262,10 @@ test("macOS DMG builder removes stale DMG and checksum artifacts", () => {
     assert.equal(existsSync(join(root, "JobSentinel_2.6.4_no-account_universal.dmg.sha256")), false);
     assert.equal(existsSync(join(root, "rw.JobSentinel_2.6.4_universal.dmg")), false);
     assert.equal(existsSync(join(root, "keep.txt")), true);
+    assert.equal(existsSync(join(root, "JobSentinel_2.6.4_stronger-local_universal.dmg")), false);
+    assert.equal(existsSync(join(root, "JobSentinel_2.6.4_stronger-local_universal.dmg.sha256")), false);
+    assert.equal(existsSync(join(root, "JobSentinel_2.6.3_stronger-local_universal.dmg")), true);
+    assert.equal(existsSync(join(root, "JobSentinel_2.6.4_stronger-local_aarch64.dmg")), true);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

@@ -1,10 +1,36 @@
-import { beforeEach, describe, expect, it } from "vitest";
+/** Verifies browser resume command routing and honest model-disabled review behavior. */
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { mockInvoke } from "../../mocks/handlers";
 import { atsResume } from "./resumeAnalysisTestData";
 import type { AtsAnalysisResult } from "./resumeAnalysisTestData";
 import { setupResumeRuntimeMocks } from "./resumeRuntimeTestSupport";
 describe("mock resume runtime commands", () => {
   beforeEach(setupResumeRuntimeMocks);
+  it("returns no semantic assessment through the registered browser route without saving", async () => {
+    const resumeId = await mockInvoke<number>("select_and_upload_resume");
+    const jobs = await mockInvoke<{ hash: string }[]>("get_jobs");
+    const jobHash = jobs[0]?.hash;
+    await mockInvoke("match_resume_to_job", { resumeId, jobHash });
+    const saved = await mockInvoke("get_recent_matches", { resumeId });
+    expect(saved).toEqual([expect.objectContaining({ resume_id: resumeId, job_hash: jobHash, overall_match_score: expect.any(Number) })]);
+    const writes = vi.mocked(localStorage.setItem).mock.calls.length;
+    await expect(mockInvoke("match_resume_semantic", {
+      resumeId, jobHash, requestId: crypto.randomUUID(),
+    })).resolves.toBeNull();
+    expect(await mockInvoke("get_recent_matches", { resumeId })).toEqual(saved);
+    expect(vi.mocked(localStorage.setItem)).toHaveBeenCalledTimes(writes);
+  });
+  it.each([
+    { resumeId: 0, jobHash: "saved-job" },
+    { resumeId: 1.5, jobHash: "saved-job" },
+    { resumeId: "42", jobHash: "saved-job" },
+    { resumeId: Infinity, jobHash: "saved-job" },
+    { resumeId: 42, jobHash: "" },
+    { resumeId: 42, jobHash: "é".repeat(65) },
+    { resumeId: 42, jobHash: "job\nunsafe" },
+  ])("refuses malformed semantic review arguments: %j", async (args) => {
+    await expect(mockInvoke("match_resume_semantic", args)).rejects.toThrow(/Choose a saved/);
+  });
   it("does not cap degree-or-equivalent experience requirements in mock resume review", async () => {
     const result = await mockInvoke<AtsAnalysisResult>("analyze_resume_for_job", {
       resume: {

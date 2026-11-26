@@ -1,12 +1,12 @@
+# Verifies a published v3+ release anonymously against its declared platform set and revision.
+# Manual only: all-local releases are verified locally, or here with their selection named.
 name: Verify Release Artifacts
 
 on:
-  release:
-    types: [published]
   workflow_dispatch:
     inputs:
       tag:
-        description: Release tag to verify. Leave blank to verify the latest public release.
+        description: Release tag (v3.0.0 or later) to verify. Blank selects the latest public release, which fails if it predates v3 platform declarations.
         required: false
         type: string
       require_gatekeeper:
@@ -15,9 +15,19 @@ on:
         default: false
         type: boolean
       platforms:
-        description: Comma-separated public platforms to verify.
+        description: Optional comma-separated platforms. Blank uses the release's verified declaration; a value must match it exactly.
         required: false
-        default: windows,macos,linux
+        default: ""
+        type: string
+      evidence_ref:
+        description: Optional evidence commit E; when set, public downloads must match its certified digests.
+        required: false
+        default: ""
+        type: string
+      selection:
+        description: Release selection the declaration must equal. Required as "local" for an all-local release.
+        required: false
+        default: ""
         type: string
       require_windows_unsigned_label:
         description: Require Windows installer filenames to include _unsigned for no-account releases.
@@ -35,11 +45,15 @@ jobs:
     permissions:
       attestations: read
       contents: read
+    outputs:
+      tag: ${{ steps.verify_public.outputs.tag }}
+      macos_source: ${{ steps.verify_public.outputs.macos_source }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
+          fetch-depth: 0
           persist-credentials: false
 
       - name: Setup Node.js
@@ -55,25 +69,34 @@ jobs:
         run: npm ci --ignore-scripts --prefer-offline --no-audit --no-fund
 
       - name: Verify public release asset set
+        id: verify_public
         shell: bash
         env:
-          RELEASE_TAG: ${{ github.event.release.tag_name }}
           DISPATCH_TAG: ${{ inputs.tag }}
+          DISPATCH_SELECTION: ${{ inputs.selection }}
           DISPATCH_PLATFORMS: ${{ inputs.platforms }}
+          DISPATCH_EVIDENCE_REF: ${{ inputs.evidence_ref }}
           DISPATCH_REQUIRE_WINDOWS_UNSIGNED_LABEL: ${{ inputs.require_windows_unsigned_label }}
           VAR_REQUIRE_WINDOWS_UNSIGNED_LABEL: ${{ vars.JOBSENTINEL_WINDOWS_REQUIRE_UNSIGNED_LABEL }}
+          # API metadata reads and gh attestation only; asset downloads are always anonymous.
           GITHUB_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
 
-          args=(--require-supply-chain)
-          release_tag="${RELEASE_TAG:-${DISPATCH_TAG:-}}"
-          if [ -n "$release_tag" ]; then
-            args+=(--tag "$release_tag")
+          args=(--require-supply-chain --repo "$GITHUB_REPOSITORY" --github-output "$GITHUB_OUTPUT")
+          if [ -n "${DISPATCH_TAG:-}" ]; then
+            args+=(--tag "$DISPATCH_TAG")
+          fi
+          if [ -n "${DISPATCH_SELECTION:-}" ]; then
+            args+=(--selection "$DISPATCH_SELECTION")
           fi
 
-          platforms="${DISPATCH_PLATFORMS:-windows,macos,linux}"
-          args+=(--platforms "$platforms")
+          if [ -n "${DISPATCH_PLATFORMS:-}" ]; then
+            args+=(--platforms "$DISPATCH_PLATFORMS")
+          fi
+          if [ -n "${DISPATCH_EVIDENCE_REF:-}" ]; then
+            args+=(--evidence-revision "$DISPATCH_EVIDENCE_REF")
+          fi
 
           require_windows_unsigned_label="${VAR_REQUIRE_WINDOWS_UNSIGNED_LABEL:-true}"
           if [ -n "${DISPATCH_REQUIRE_WINDOWS_UNSIGNED_LABEL:-}" ]; then
@@ -87,6 +110,8 @@ jobs:
 
   verify-macos-public-artifact:
     name: Verify public macOS DMG
+    needs: verify-public-release-assets
+    if: needs.verify-public-release-assets.outputs.macos_source == 'hosted' || needs.verify-public-release-assets.outputs.macos_source == 'local'
     runs-on: macos-26
     timeout-minutes: 30
     permissions:
@@ -114,21 +139,23 @@ jobs:
       - name: Verify public macOS release artifact
         shell: bash
         env:
-          RELEASE_TAG: ${{ github.event.release.tag_name }}
-          DISPATCH_TAG: ${{ inputs.tag }}
+          RELEASE_TAG: ${{ needs.verify-public-release-assets.outputs.tag }}
+          MACOS_SOURCE: ${{ needs.verify-public-release-assets.outputs.macos_source }}
           REQUIRE_GATEKEEPER: ${{ inputs.require_gatekeeper || vars.JOBSENTINEL_MACOS_REQUIRE_GATEKEEPER || 'false' }}
+          # API metadata reads and gh attestation only; the DMG download is anonymous.
           GITHUB_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
 
-          args=()
-          release_tag="${RELEASE_TAG:-${DISPATCH_TAG:-}}"
-          if [ -n "$release_tag" ]; then
-            args+=(--tag "$release_tag")
-          fi
+          args=(--tag "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY")
           if [ "${REQUIRE_GATEKEEPER:-false}" = "true" ]; then
             args+=(--require-gatekeeper)
           fi
-          args+=(--require-supply-chain)
+          # A locally built DMG has no hosted provenance; the public asset job verified its SBOM and checksum.
+          if [ "$MACOS_SOURCE" = "hosted" ]; then
+            args+=(--require-supply-chain)
+          else
+            args+=(--no-require-supply-chain)
+          fi
 
           npm run tauri:verify:macos:latest -- "${args[@]}"

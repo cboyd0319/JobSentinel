@@ -1,7 +1,48 @@
+<!-- Guides users through manual updates, version 2 to 3.0.0 fresh starts, and going back. -->
+
 # Updating Or Going Back
 
 JobSentinel does not update itself silently. Updating is manual so you choose
 when to replace the app and can check the download first.
+
+## Coming From Version 2
+
+JobSentinel 3.0.0 can't open, upgrade, or restore data, settings, or backups
+from version 2.9.5 or earlier. To use 3.0.0, start fresh. Keep your version 2
+folders so 2.9.5 can still use them later.
+
+1. If you need anything from version 2, copy it out first while 2.9.5 still
+   works.
+2. Close JobSentinel. Make sure it's not still running in the system tray or
+   menu bar.
+3. Rename the two JobSentinel folders. For example, add `-v2` to the end of
+   each folder name. Don't delete them.
+
+   | Computer | Data folder | Settings folder |
+   | --- | --- | --- |
+   | Windows | `%LOCALAPPDATA%\JobSentinel` | `%APPDATA%\JobSentinel` |
+   | macOS | `~/Library/Application Support/JobSentinel` | `~/.config/jobsentinel` |
+   | Linux | `~/.local/share/jobsentinel` | `~/.config/jobsentinel` |
+
+   If you set `XDG_DATA_HOME` or `XDG_CONFIG_HOME`, use the `jobsentinel`
+   folder inside it instead. On macOS, only `XDG_CONFIG_HOME` applies.
+4. Install and open 3.0.0. With no saved data, it creates a new encrypted local
+   database and starts first-run setup. Automatic job checks start off.
+5. Add your searches and settings again. Enter saved passwords and connection
+   links again in **Settings**. Version 2 Settings backups can't be restored.
+
+Don't delete JobSentinel's entries in Keychain, Credential Manager, or your
+Linux password store. They use the service name `JobSentinel`. 3.0.0 reuses
+those keys for its new data, and your version 2 data can't be opened without
+them.
+
+If you skip these steps, 3.0.0 finds the version 2 data and opens a recovery
+screen. It doesn't change or remove that data. Close JobSentinel and follow the
+steps above.
+
+To use 2.9.5 again, close JobSentinel, rename the 3.0.0 folders, and remove
+`-v2` from the version 2 folder names. Then install 2.9.5. Going back from
+3.0.0 data to version 2 isn't supported.
 
 ## Before Updating
 
@@ -80,9 +121,9 @@ release.
 8. If something looks wrong, open **Settings** and use **Restore Settings** with
    the backup you saved before updating.
 
-Do not delete JobSentinel's local data folder while going back unless a support
-doc or maintainer tells you to. Deleting that folder can remove saved jobs,
-applications, notes, settings, and local records.
+Don't delete JobSentinel's local data folder while going back. Deleting it can
+remove saved jobs, applications, notes, settings, and local records. To set
+version 2 data aside, follow [Coming From Version 2](#coming-from-version-2).
 
 ## What JobSentinel Will Not Do
 

@@ -1,3 +1,5 @@
+/** Tests private Settings backup serialization and file selection. */
+
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   downloadPrivateSettingsBackup,
@@ -71,6 +73,19 @@ describe("Settings backup files", () => {
     expect(exported.nested[0]?.label).toBe("keep");
   });
 
+  it("omits endpoint credentials and invalidates exported endpoint approval", () => {
+    const backup = { settings: { jobswithgpt_endpoint: "https://user:password@example.com/mcp?token=secret",
+      jobswithgpt_approval: { enabled: true, payload: { endpoint: "https://example.com/mcp?token=secret" }, approved_at: "date" },
+      provider: { endpoint: "https://example.com/path/private-token", enabled: true } } };
+    downloadPrivateSettingsBackup(backup);
+    const text = downloadTextFile.mock.calls[0]?.[0];
+    expect(text).not.toContain("password");
+    expect(text).not.toContain("secret");
+    expect(text).not.toContain("private-token");
+    expect(JSON.parse(text).settings.jobswithgpt_approval).toEqual({ enabled: false, payload: null, approved_at: null });
+    expect(backup.settings.jobswithgpt_approval.enabled).toBe(true);
+  });
+
   describe("file selection", () => {
     let input: {
       type: string;
@@ -124,6 +139,14 @@ describe("Settings backup files", () => {
       input.onchange?.({ target: input } as unknown as Event);
 
       await expect(result).resolves.toEqual({ status: "ok", backup });
+    });
+
+    it("removes connection values and approval from legacy selected files", async () => {
+      const file = { text: vi.fn().mockResolvedValue(JSON.stringify({ jobswithgpt_endpoint: "https://u:p@example.com/?token=fixture", jobswithgpt_approval: { enabled: true, payload: { endpoint: "https://example.com/?token=fixture" } } })) };
+      const result = selectSettingsBackupFile();
+      input.files = { 0: file, length: 1 } as unknown as FileList;
+      input.onchange?.({ target: input } as unknown as Event);
+      await expect(result).resolves.toEqual({ status: "ok", backup: { jobswithgpt_endpoint: "", jobswithgpt_approval: { enabled: false, payload: null, approved_at: null } } });
     });
 
     it("rejects unreadable JSON", async () => {

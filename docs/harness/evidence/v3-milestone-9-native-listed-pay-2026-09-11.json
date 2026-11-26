@@ -1,0 +1,102 @@
+{
+  "schema": "jobsentinel.v3.milestone-evidence.v1",
+  "feature_id": "v3-milestone-9-regions-access-editions-first-run",
+  "recorded_on": "2026-09-11",
+  "result": "partial",
+  "slice": "Native regional listed pay",
+  "base_revision": "db8ec834b0e113e617702702b7501392e1d2a38d",
+  "platform": "macOS arm64",
+  "toolchain": "Repository-pinned Rust 1.97.1 through scripts/dev/run-cargo.mjs",
+  "source_snapshot": {
+    "modified_source_count": 97,
+    "modified_source_digest_sha256": "e06ed7134b82ea397a0baa21ae34424020f85ee6cc84b536fd907ce750d4303a",
+    "recipe": "Union git diff --name-only -z and git ls-files --others --exclude-standard -z for crates, src, src-tauri; sort unique paths; SHA256(JSON.stringify(paths.map(path => [path, SHA256(file bytes)]))).",
+    "caveat": "Includes earlier uncommitted Milestone 9 foundations; this record verifies only the listed-pay slice."
+  },
+  "behavior": [
+    "Native amounts, currency, period, qualifiers, and bounded source text survive preview, confirmation, storage, dossier, dashboard, and reviewed export.",
+    "No FX conversion, guessed USD, or automatic annualization. Ambiguous native evidence cannot fall back to conflicting legacy values.",
+    "Only unqualified annual USD native pay enters USD comparisons; noncomparable listed pay receives neutral salary scoring.",
+    "Legacy whole-dollar projection clears both bounds if either native bound is fractional.",
+    "External notifications omit raw pay text and do not invent a legacy period. RemoteOK numeric fields no longer imply USD.",
+    "Migration 28 preserves existing records and rejects invalid persisted JSON; domain validation rejects malformed native writes and reads."
+  ],
+  "red_evidence": [
+    {
+      "case": "Fractional USD annual import projection",
+      "exit_status": 101,
+      "result": "Observed (None, Some(120000)) instead of (None, None)."
+    },
+    {
+      "case": "Legacy notification period",
+      "exit_status": 101,
+      "result": "Legacy pay incorrectly contained annual."
+    },
+    {
+      "case": "RemoteOK numeric-only currency",
+      "exit_status": 101,
+      "result": "Observed Some(USD) instead of None."
+    },
+    {
+      "case": "Desktop Job fixtures",
+      "exit_status": 101,
+      "result": "Two E0063 errors for missing listed_pay; fixtures now explicitly set None."
+    }
+  ],
+  "checks": [
+    {
+      "command": "node scripts/dev/run-cargo.mjs test -p jobsentinel-domain -p jobsentinel-storage --lib listed_pay",
+      "exit_status": 0,
+      "result": "4 domain and 3 storage/migration tests passed."
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test -p jobsentinel-sources --lib -- job_page::tests scrapers::remoteok::tests::parse_tests",
+      "exit_status": 0,
+      "result": "36 passed."
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test -p jobsentinel-notifications --lib -- salary native_pay legacy_notifications test_html_email_formatting test_text_email_formatting test_complete_payload_structure test_full_message_card_payload_structure",
+      "exit_status": 0,
+      "result": "22 passed; payload builders only, no sends."
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs test -p jobsentinel --lib military_transition_confirmation_serializes_only_the_fixed_safe_projection",
+      "exit_status": 0,
+      "result": "1 passed; desktop test target compiled."
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs clippy -p jobsentinel-domain -p jobsentinel-sources -p jobsentinel-storage -p jobsentinel-application -p jobsentinel-notifications --lib -- -D warnings",
+      "exit_status": 0,
+      "result": "Passed after correcting parser lint diagnostics."
+    },
+    {
+      "command": "node scripts/dev/run-cargo.mjs fmt --all -- --check",
+      "exit_status": 0
+    },
+    {
+      "command": "npm run harness:check",
+      "exit_status": 0
+    },
+    {
+      "command": "npm run lint:docs",
+      "exit_status": 0,
+      "result": "Final wording also passed targeted markdownlint."
+    },
+    {
+      "command": "git diff --check",
+      "exit_status": 0
+    }
+  ],
+  "reused_verification": {
+    "application": "Earlier focused scoring 67, import service 10, and dossier 6 tests passed; these consumer implementations are unchanged since that evidence.",
+    "frontend": "TERRA High UI-owner verification reported 136 tests across eight focused suites plus typecheck, lint, build, and architecture. Final shared-pay and filter edits separately passed 6 and 24 focused tests.",
+    "review": "Second bounded adversarial pass returned SOUND. Subsequent parser lint refactoring, RemoteOK default removal, and fixture corrections have focused root verification."
+  },
+  "remaining": [
+    "Milestone 9 stays active; milestones 0–8 remain passing.",
+    "Regional taxonomy/CV/location/public-source fixtures and signed production starter packs are unfinished.",
+    "Veteran/access variants, Gate 5 editions, controlled 8 GiB, and remaining platform proof remain open.",
+    "No full suite, installer rebuild, model download, publication, signing-secret access, or user configuration change in this slice.",
+    "Earlier installer evidence is historical and does not certify the changed source snapshot."
+  ]
+}

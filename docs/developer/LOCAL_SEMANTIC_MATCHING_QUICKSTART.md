@@ -1,7 +1,10 @@
+<!-- Explains governed local model setup, diagnostics, matching, and focused developer checks. -->
+
 # Local ML Quick Start
 
-This quick start is for developers testing the optional `embedded-ml` feature.
-Core JobSentinel workflows do not require it.
+Shipping Tauri builds include the `embedded-ml` runtime so users can add stronger
+local matching in Settings without reinstalling. No model files are bundled or
+downloaded automatically, and core workflows remain model-free.
 
 ## Build
 
@@ -12,9 +15,10 @@ cargo build -p jobsentinel --release --features embedded-ml
 ## Check status
 
 The model is not bundled into normal builds. `get_semantic_matching_diagnostics`
-is always available and reports the current local matching mode. Normal builds
-show the built-in local fallback. `embedded-ml` builds also show Qwen3 model
-lock and cache readiness details.
+is always available and reports the current local matching mode. Shipping builds
+show Qwen3 model-lock and cache readiness details, with the built-in fallback
+until verified models are available. Direct Cargo builds without `embedded-ml`
+remain available for development and show only the fallback.
 
 ```typescript
 import { invoke } from "@tauri-apps/api/core";
@@ -45,9 +49,9 @@ download fetches model files from Hugging Face Hub. It must not include resume
 text, salary floors, private notes, application history, or other job-search
 records.
 
-The current wired runtime downloads the governed MiniLM baseline from
-`crates/jobsentinel-local-ai/models.lock.toml`. Qwen3 embedding and reranker profiles are already pinned in
-the same lockfile for the production backend work.
+The runtime downloads the exact Qwen3 embedding and reranker pair pinned in
+`crates/jobsentinel-local-ai/models.lock.toml`. MiniLM is a legacy verified
+fallback, not the setup download.
 
 ```typescript
 await invoke("download_ml_model");

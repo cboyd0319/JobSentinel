@@ -1,0 +1,214 @@
+{
+  "schema": "jobsentinel.feature_evidence.v1",
+  "feature_id": "v3-milestone-9-regions-access-editions-first-run",
+  "slice": "regional-runtime-upgradable-essentials-first-run-doctor",
+  "result": "partial",
+  "verified_at": "2026-09-11T05:21:09Z",
+  "platform": "macOS 27 arm64; unconstrained host, not an enforced 8 GiB measurement",
+  "base_revision": "db8ec834b0e113e617702702b7501392e1d2a38d",
+  "source_files_sha256": {
+    ".nvmrc": "55075b5ec4e8b31936cbbc282b8829116d1fd48f2f2f1856dee592a6650700ce",
+    "Cargo.lock": "07af9af88030b2786b29a685cca25f0e095458b179c9ea0bb161397ebe7c17b0",
+    "Cargo.toml": "0258c58909ee92079f86c8704501dc2e3b21294e5c8bc0662efb4b5cbcb94da5",
+    "README.md": "8f47eb86d2600e054d59c060ff73eb746d9c33b9b35f8acf08e1fbde15c3930b",
+    "crates/jobsentinel-application/src/pack_runtime.rs": "8cfa03c9de061c7d3bbd95089181ab313bb7d1cf23606dc5099da90b29f6eb25",
+    "crates/jobsentinel-application/src/pack_runtime/execution.rs": "72ad7a7c632f09075a93318edb203e9e71885a2c5a8d0939a9805a07e003858a",
+    "crates/jobsentinel-application/src/pack_runtime/production.rs": "070626d4a6b6e39b08914ec10293e80e63698d226d33fa28a2197f0f5f11be31",
+    "crates/jobsentinel-application/src/pack_runtime_tests.rs": "2555239a2357daa46afb9cc2d514464e1717fb247e8768c17666d41011797999",
+    "crates/jobsentinel-application/src/pack_runtime_tests/region.rs": "408ba649c97d7cd8462928c8935b90c4b117e68e2f27794813b1a32d774c839a",
+    "crates/jobsentinel-domain/src/v3_pack_payloads.rs": "cf02b7794e64f3ffa340d3312e659bf6daaa8f55409338a6329c4794d0645cf9",
+    "crates/jobsentinel-domain/src/v3_region_manifest_tests.rs": "ce8225f84650826a8bef1089b7041ed19de62fc7945965ab076a4cc69dd6509c",
+    "crates/jobsentinel-local-ai/models.lock.toml": "13876d65c8cfcb361ad01f877554891e86d6218c38b4e9ce0c5b042a7a73ab69",
+    "crates/jobsentinel-storage/migrations/00000000000027_region_pack_type.sql": "1fe77cd5cb49f05e7182c9463fa5c64ba7b8c44318308b390e8b392a2c018c00",
+    "crates/jobsentinel-storage/src/connection/tests/v3_pack_migration_tests.rs": "d4e783526003b6e402c565cc9bb1025ce8f7899600a4e1f7dca58547285e864f",
+    "crates/jobsentinel-storage/src/connection/tests/v3_policy_migration_tests.rs": "5d88993b8e3e95fb1d9304c879604f2e5e704b23762ecf5e5c68fb819ea94ba1",
+    "crates/jobsentinel-storage/src/v3_pack_lifecycle.rs": "6a8b41afcd9b05c48cc1a4b3213c8f794b4398589116d4290a171fd9b68c08ad",
+    "crates/jobsentinel-storage/src/v3_pack_lifecycle_tests.rs": "9209ba80211c8093b42562b3bbfff221b707e27d5c9750875e4db6b8bf2ee0b8",
+    "docs/ROADMAP.md": "be5580885d97bca8cdc7070b1c61b9ed4311f5b7e0eb11aab3d6ed90d946e1ec",
+    "docs/developer/LOCAL_SEMANTIC_MATCHING.md": "3a53e8ab3c821845cd83ca0cadb41f3e0a7cc195258c202b44090e11ef957e3b",
+    "docs/developer/LOCAL_SEMANTIC_MATCHING_QUICKSTART.md": "5d3b75586010119cc1b83852311afc9c24cec3ca8a172eccb7784ff11cb67ccc",
+    "docs/features/user-data-management.md": "5e70fec8097ac1d2aa10b422730887395f5a468599687e291ba08cf045558f1f",
+    "docs/plans/v3/editions-and-packaging.md": "0c168d92e2f380aac29b91d771a6b8e104c651582c392ba5dd53c5cfc6583370",
+    "docs/plans/v3/regional-readiness-framework.md": "c53d8e9a0d4ff532bbc1ee915342652ae4b1ea4e153e8c335496f8c1d383fd43",
+    "package-lock.json": "3a5f296687004d35b6420c726594f9f3760d2e6108df7a6c803b145f0fb9d15d",
+    "package.json": "7b9705e385ea3c64eaffc5147942ef4ba9cbbd661e7ee26da5535140771d9da6",
+    "rust-toolchain.toml": "d62fe5942695d5651454b25402abba836210f5e3bd335a150589733dc9cbf39c",
+    "scripts/platform/build-macos-dmg.mjs": "3d91e620726a586e85386705c19bc02e43d4148cbb71cbd12ff3f355a0fa3868",
+    "scripts/platform/macos-runtime-profile.mjs": "44286ade08083d1f5ee4c07450478137fdce8c63deba1255c9b899567f82ca48",
+    "scripts/release/macos-package-contract.mjs": "844d36d91a03996a7c5ca705712a45e61db5d5b447aa68aa16c75e0950d2b694",
+    "scripts/release/verify-macos-package.mjs": "63c30c54aa3d033f4c491f768ed53a470cee73c92c3508d332b578de260d5575",
+    "scripts/tests/platform/build-macos-dmg.test.mjs": "44e8a6017e9dba2a8037ce869932d33bd11e9cd2fd94cd0fac221da130cae42f",
+    "scripts/tests/platform/macos-runtime-profile.test.mjs": "b310e20a5a916520ae19d35ab0f46e270f5a2c8eef188f5b1589cf623c0b1af8",
+    "scripts/tests/release/verify-macos-package.test.mjs": "3a82a5d3093cfd64083afeac2170ad94d2af34f2cd31c5059d91c3d74a2b51ce",
+    "src-tauri/src/ipc/pack_management.rs": "9d2405de407807ca36bcc840e0107aff5fbe163c816b27a143718133049a08f6",
+    "src-tauri/src/ipc/registry.rs": "d0c05c11c04c16cda8d340595817115a0609ead11db6a4728b989444fb02c654",
+    "src-tauri/src/ipc/semantic_matching/tests.rs": "14dcf0d53df11ecd15fe905add0e99ba206ca50b867945d1c6ebfb6aa55c45d9",
+    "src-tauri/tauri.conf.json": "1b1fabad978aaeeed7ab142c7e0541cfe3c22d61186e79a9eabe361c9e528fde",
+    "src/dev-runtime/features/settings/packCommands.ts": "08cb7aa642267a1fc4accbde713dd31541fc81deeb63cf7082b81804b5368975",
+    "src/dev-runtime/mocks/commandRegistry.ts": "979be95c23cb69e47548dfcd5eecf87ac4e7bc9e0f93bd404e2bbc75379f80c4",
+    "src/dev-runtime/mocks/handlers.test.ts": "36ff37e998fc3fc0e8b19be04055822d2505275ac36a6e8fefe71a22ff486840",
+    "src/features/onboarding/FirstRunDoctor.test.tsx": "08866bef4d9b7b14d0eb9261c9dc2e98a282c72e9b8bd28bb6f2af4f9ddd842c",
+    "src/features/onboarding/FirstRunDoctor.tsx": "87908acfe36bf857c5ec59b0843e037e07f973f190cfe2c432df567847cf38ec",
+    "src/features/onboarding/SetupWizard.tsx": "e84adf1221649fcfbbda9e0d81e664b40a11b566a09a6f644087a36bf2b89964",
+    "src/features/settings/packs/PackManagementModal.tsx": "c3ffd47aad1e42e2fe837f8ecde04550889fafb7345bdb941b153958b7a8ae01",
+    "src/features/settings/packs/PackRegionReview.test.tsx": "c9911786406fa5b16e4b9f13d578fe1a5df9539dc41a53871f8e246af40e87a0",
+    "src/features/settings/packs/PackRegionReview.tsx": "776734a41d3caf5d90825f7b8dc2edb4b00c7530af43c07cef34647ecdf04353",
+    "src/shared/packManagementProjection.ts": "d26491c300487d944e673bfcafc636af841e9f4f0e9f5369e8b7f548c7149484"
+  },
+  "scope": "Working-tree verification of signed static region runtime/review foundations, model-free upgradable Essentials composition, and optional local First-run Doctor; Milestone 9 and the full v3 plan remain incomplete.",
+  "acceptance_matrix": [
+    {
+      "requirement": "R05/R06/R07: independently managed signed static regional packs",
+      "verified": "Generic payload, storage migration, lifecycle, inert UI, generation/tamper/revocation boundaries",
+      "remaining": "Production publisher enrollment, signed UK/EU/India artifacts, complete starter guidance and regional evaluations"
+    },
+    {
+      "requirement": "R04: regional vocabulary, location, pay, CV and taxonomy behavior",
+      "verified": "Existing incomplete research manifests and spelling profiles retained",
+      "remaining": "Native pay/currency semantics, location normalization, taxonomy provenance, CV behavior, public-source and multilingual fixtures"
+    },
+    {
+      "requirement": "R17/E01: model-free Essentials and in-place stronger-local setup",
+      "verified": "Single runtime-enabled package, absent model payloads, installed diagnostics, native setup review/cancellation, measured macOS size/startup/RSS",
+      "remaining": "Download chooser, edition metadata, updated controlled 8 GiB journey and platform matrix; full model transfer reused only as historical M5 evidence"
+    },
+    {
+      "requirement": "E03: First-run Doctor",
+      "verified": "Explicit local inspection, safe states/retry, no automatic changes, keyboard component activation, installed offline status review",
+      "remaining": "Broader first-run accessibility variants and release-platform journey proof"
+    },
+    {
+      "requirement": "R10: veteran, disability-aware and early-career paths",
+      "verified": "Existing protected-answer and evidence behavior preserved by scope",
+      "remaining": "Connected six-surface journey and inclusive role/work-mode/credential/pay/accessibility matrix"
+    },
+    {
+      "requirement": "Gate 5: edition and component decisions",
+      "verified": "One upgradable Essentials implementation removes the duplicate stronger-local installer",
+      "remaining": "Final names/component matrix, update and rollback UX approval, and v3.0 feature cut"
+    }
+  ],
+  "commands": [
+    {
+      "command": "./init.sh",
+      "exit_status": 0,
+      "result": "Locked dependency sync, harness and 9 startup tests passed; local Node/npm version warnings retained"
+    },
+    {
+      "command": "node --test scripts/tests/platform/macos-runtime-profile.test.mjs scripts/tests/platform/build-macos-dmg.test.mjs scripts/tests/release/verify-macos-package.test.mjs",
+      "exit_status": 0,
+      "result": "48 focused packaging tests passed; obsolete profile-parser cases were removed with the parser"
+    },
+    {
+      "command": "node --test scripts/tests/release/verify-macos-package.test.mjs",
+      "exit_status": 0,
+      "result": "19 verifier tests passed after canonical temporary-root and child TMPDIR correction"
+    },
+    {
+      "command": "cargo test -p jobsentinel-domain --lib v3_region_manifest_tests",
+      "exit_status": 0,
+      "result": "6 tests passed; delegated owner"
+    },
+    {
+      "command": "cargo test -p jobsentinel-storage --lib v3_pack_lifecycle_tests::region_release_uses_the_same_signed_static_local_lifecycle -- --exact",
+      "exit_status": 0,
+      "result": "1 lifecycle test passed; delegated owner"
+    },
+    {
+      "command": "cargo test -p jobsentinel-storage --lib connection::tests::v3_pack_migration_tests::migration_27_preserves_pack_history_foreign_keys_tasks_and_guards -- --exact",
+      "exit_status": 0,
+      "result": "1 populated migration-preservation test passed; delegated owner"
+    },
+    {
+      "command": "cargo test -p jobsentinel-application pack_runtime_tests::region --lib --no-fail-fast",
+      "exit_status": 0,
+      "result": "2 application tests passed; delegated owner"
+    },
+    {
+      "command": "cargo test -p jobsentinel --lib ipc::pack_management::tests --no-fail-fast",
+      "exit_status": 0,
+      "result": "2 desktop IPC tests passed; delegated owner"
+    },
+    {
+      "command": "npm run test:run -- src/features/settings/packs/PackRegionReview.test.tsx src/features/settings/packs/PackManagementModal.test.tsx src/features/settings/packs/PackLifecycleControls.test.tsx src/dev-runtime/mocks/handlers.test.ts",
+      "exit_status": 0,
+      "result": "56 UI/mock tests passed; later targeted region tests passed 6/6 after stale-response test improvements"
+    },
+    {
+      "command": "npm run test:run -- src/features/onboarding",
+      "exit_status": 0,
+      "result": "119 onboarding tests passed; final behavior-preserving doctor cleanup subsequently passed 14 focused doctor/first-run tests"
+    },
+    {
+      "command": "env -u JOBSENTINEL_LIVE_KEYRING_TESTS node scripts/dev/run-cargo.mjs test -p jobsentinel --features embedded-ml --lib ipc::semantic_matching::tests",
+      "exit_status": 0,
+      "result": "5 diagnostics tests passed, including zero file creation for missing model caches"
+    },
+    {
+      "command": "npm run lint:sqlx",
+      "exit_status": 0,
+      "result": "All migrations, including 27, applied in isolation; workspace offline query metadata passed"
+    },
+    {
+      "command": "node --input-type=module -e 'import {DatabaseSync} from \"node:sqlite\"; import {readFileSync,readdirSync} from \"node:fs\"; const db=new DatabaseSync(\":memory:\"); db.exec(\"PRAGMA foreign_keys=ON\"); const dir=\"crates/jobsentinel-storage/migrations/\"; const migrations=readdirSync(dir).filter(name=>name.endsWith(\".sql\")).sort(); const last=migrations.pop(); for(const name of migrations) db.exec(readFileSync(dir+name,\"utf8\")); const rows=()=>db.prepare(\"SELECT name, sql FROM sqlite_master WHERE type IN (?, ?)\").all(\"trigger\",\"index\").filter(row=>row.sql!==null); const before=rows(); db.exec(\"BEGIN\"); db.exec(readFileSync(dir+last,\"utf8\")); db.exec(\"COMMIT\"); const after=new Map(rows().map(row=>[row.name,row.sql])); const normalize=sql=>sql.replace(/\\s+/g,\"\").replaceAll(\"\\\"\",\"\"); const changed=before.filter(row=>!after.has(row.name)||normalize(after.get(row.name))!==normalize(row.sql)); console.log(JSON.stringify({migration:last,priorObjects:before.length,changed:changed.map(row=>row.name),foreignKeys:db.prepare(\"PRAGMA foreign_key_check\").all()},null,2)); for(const row of changed) console.log(JSON.stringify({name:row.name,before:row.sql,after:after.get(row.name)}));'",
+      "exit_status": 0,
+      "result": "All 182 prior trigger/index definitions preserved after whitespace/SQLite identifier-quoting normalization; foreign-key check empty"
+    },
+    {
+      "command": "env -u APPLE_SIGNING_IDENTITY -u MACOS_SIGNING_IDENTITY -u JOBSENTINEL_LIVE_KEYRING_TESTS JOBSENTINEL_MACOS_SIGNING_IDENTITY=- JOBSENTINEL_MACOS_NO_ACCOUNT=true JOBSENTINEL_MACOS_NOTARIZE_DMG=false npm run tauri:build:macos -- --target aarch64-apple-darwin",
+      "exit_status": 0,
+      "result": "Production frontend and runtime-enabled macOS package built; no model/tokenizer payload filenames found"
+    },
+    {
+      "command": "env -u JOBSENTINEL_LIVE_KEYRING_TESTS npm run tauri:verify:macos -- --dmg target/aarch64-apple-darwin/release/bundle/dmg/JobSentinel_3.0.0_aarch64_no-account_macos.dmg --expected-architectures arm64 --expected-bundle-id com.jobsentinel.main --expected-product-name JobSentinel --expected-version 3.0.0 --expected-icon-file icon.icns --expected-minimum-system-version 13.0 --launch-smoke --install-smoke --require-checksum",
+      "exit_status": 0,
+      "result": "Checksum, DMG, metadata, commands, signature integrity, mounted and copied launch, private isolated data and empty stderr passed; optional Gatekeeper rejection expected"
+    },
+    {
+      "command": "Computer Use: isolated installed copy under sandbox-exec denying network and access to the normal JobSentinel data/config/cache paths",
+      "exit_status": 0,
+      "result": "First-run Doctor, session-only skip, dashboard, Settings diagnostics, native model setup review and cancellation worked; isolated database existed, no recovery mode or model directory, zero stderr bytes; test copy/data removed"
+    }
+  ],
+  "additional_checks": "Typecheck, frontend lint, focused script ESLint, architecture, security/secret scan, Tauri invoke contract, harness/file-size, Markdown/link/prose/language, duplication (zero in all six scopes), Rust formatting and diff whitespace checks passed for their relevant inputs.",
+  "red_evidence": [
+    "Packaging tests failed on absent runtime configuration and missing upgrade commands before implementation.",
+    "Original domain test-first execution was not observed; an isolated Region-guard mutation failed the acceptance test and restoration passed. It is mutation proof, not a claim of historical test-first execution.",
+    "The initial migration failed because surviving triggers referenced tables during rebuild; all dependent triggers were preserved around the rebuild and exact normalized schema comparison passed.",
+    "First-run Doctor regression tests failed for paused safety states, malformed schemas, empty/duplicate permission areas, duplicate privacy IDs and contradictory model status before corrections.",
+    "Installed smoke initially entered platform recovery because /var is a symlink; canonical temporary-root creation plus matching child TMPDIR fixed the verifier without weakening application symlink guards."
+  ],
+  "artifact": {
+    "path": "target/aarch64-apple-darwin/release/bundle/dmg/JobSentinel_3.0.0_aarch64_no-account_macos.dmg",
+    "sha256": "6b8c606ff1db417373739b89831bfd3843fba14e937d193cc45bee1d648f395d",
+    "installer_bytes": 17460744,
+    "installed_app_bytes": 37277696,
+    "installed_size_method": "du -sk multiplied by 1024",
+    "executable_bytes": 36368576,
+    "detected_model_payload_filenames": 0,
+    "signature": "ad hoc",
+    "notarized": false
+  },
+  "launch_samples": [
+    {
+      "mode": "mounted",
+      "visible_window_upper_bound_ms": 830,
+      "aggregate_observed_max_rss_kib": 284288,
+      "max_process_count": 7
+    },
+    {
+      "mode": "copied_install",
+      "visible_window_upper_bound_ms": 829,
+      "aggregate_observed_max_rss_kib": 264240,
+      "max_process_count": 6
+    }
+  ],
+  "review": "Independent regional adversarial review returned SOUND. Packaging review identified model.bin scanning and retired same-version artifact cleanup gaps; both were corrected with red/green tests. Final smoke diagnosis preserved existing security guards.",
+  "caveats": [
+    "This record is partial Milestone 9 evidence, not milestone, v3.0 release, or full v3 completion.",
+    "Production region publisher trust remains unchanged and no regional pack was signed or published.",
+    "No full test suite, new model transfer, enforced 8 GiB run, exact macOS 26 run, Windows 11 run or Linux package run was performed in this slice.",
+    "Ad-hoc signatures do not establish public Gatekeeper acceptance; Developer ID signing and notarization remain release requirements.",
+    "The full milestone gate and remaining regional, veteran/access, edition and distribution acceptance requirements remain open."
+  ]
+}

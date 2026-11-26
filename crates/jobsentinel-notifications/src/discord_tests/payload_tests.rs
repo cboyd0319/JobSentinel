@@ -1,12 +1,12 @@
+//! Tests complete Discord payload structures and content boundaries.
+
 use super::super::*;
 use super::notification_fixture;
-
-// Additional comprehensive tests
 
 #[test]
 fn test_complete_payload_structure_without_mention() {
     let notification = notification_fixture();
-    let salary_display = "$180,000 - $220,000";
+    let salary_display = "USD 180000–220000 period not disclosed";
     let color = 0x10b981;
 
     let embed = json!({

@@ -1,8 +1,5 @@
-//! OS-backed storage for the credential-vault master key.
-//!
-//! Normal credential status checks must never call this module. These functions
-//! can trigger OS authentication prompts and should only run for explicit secret
-//! use, passphrase lock changes, or vault-key creation.
+//! OS-backed credential-vault master keys, accessed only for explicit secret use or lock changes.
+//! Passive status checks must never load these keys or trigger authentication.
 
 #![cfg_attr(target_os = "macos", allow(unsafe_code))]
 
@@ -50,6 +47,7 @@ pub const fn credential_vault_key_storage_policy() -> CredentialVaultKeyStorageP
         CredentialVaultKeyStoragePolicy {
             backend: CredentialVaultKeyBackend::GenericKeyring,
             user_presence_required: false,
+            // Also false on Windows: keys are now Local, but roamed copies aren't revoked.
             device_local: false,
             biometry_current_set: false,
         }
@@ -73,18 +71,21 @@ pub async fn load_credential_vault_key(
     create_if_missing: bool,
 ) -> Result<[u8; MASTER_KEY_LEN], String> {
     tokio::task::spawn_blocking(move || {
-        if let Some(encoded_key) = platform::load_vault_key()? {
-            return decode_credential_vault_key(encoded_key.as_str());
-        }
-
-        if !create_if_missing {
-            return Err(secure_storage_error());
-        }
-
-        let key = <[u8; MASTER_KEY_LEN]>::generate();
-        let protected_key = Zeroizing::new(key);
-        platform::store_vault_key(&protected_key)?;
-        Ok(key)
+        let read = || {
+            platform::load_vault_key()?
+                .map(|encoded_key| decode_credential_vault_key(encoded_key.as_str()))
+                .transpose()
+        };
+        crate::database_key::load_or_create_key(
+            create_if_missing,
+            read,
+            secure_storage_error,
+            || {
+                let key = <[u8; MASTER_KEY_LEN]>::generate();
+                platform::store_vault_key(&Zeroizing::new(key))?;
+                Ok(key)
+            },
+        )
     })
     .await
     .map_err(|_| secure_storage_error())?
@@ -101,14 +102,13 @@ fn normalize_vault_key(key: &[u8]) -> Result<Zeroizing<[u8; MASTER_KEY_LEN]>, St
 }
 
 pub fn decode_credential_vault_key(encoded_key: &str) -> Result<[u8; MASTER_KEY_LEN], String> {
-    let decoded =
-        Zeroizing::new(hex::decode(encoded_key.trim()).map_err(|_| secure_storage_error())?);
-    if decoded.len() != MASTER_KEY_LEN {
+    let trimmed = encoded_key.trim();
+    if !crate::database_key::is_valid_key_hex(trimmed) {
         return Err(secure_storage_error());
     }
 
     let mut key = [0_u8; MASTER_KEY_LEN];
-    key.copy_from_slice(decoded.as_slice());
+    hex::decode_to_slice(trimmed, &mut key).map_err(|_| secure_storage_error())?;
     Ok(key)
 }
 
@@ -119,10 +119,17 @@ mod platform {
 
     use super::MASTER_KEY_LEN;
     use super::{secure_storage_error, VAULT_KEY_NAME};
-    use crate::SECURE_STORAGE_SERVICE as SERVICE_NAME;
+
+    fn vault_key_entry() -> Result<Entry, String> {
+        #[cfg(windows)]
+        let entry = crate::windows_local_key::entry(VAULT_KEY_NAME);
+        #[cfg(not(windows))]
+        let entry = Entry::new(crate::SECURE_STORAGE_SERVICE, VAULT_KEY_NAME);
+        entry.map_err(|_| secure_storage_error())
+    }
 
     pub(super) fn store_vault_key(key: &Zeroizing<[u8; MASTER_KEY_LEN]>) -> Result<(), String> {
-        let entry = Entry::new(SERVICE_NAME, VAULT_KEY_NAME).map_err(|_| secure_storage_error())?;
+        let entry = vault_key_entry()?;
         let encoded_key = Zeroizing::new(hex::encode(key.as_ref()));
         entry
             .set_password(encoded_key.as_str())
@@ -130,7 +137,7 @@ mod platform {
     }
 
     pub(super) fn delete_vault_key() -> Result<(), String> {
-        let entry = Entry::new(SERVICE_NAME, VAULT_KEY_NAME).map_err(|_| secure_storage_error())?;
+        let entry = vault_key_entry()?;
         match entry.delete_credential() {
             Ok(()) | Err(KeyringError::NoEntry) => Ok(()),
             Err(_) => Err(secure_storage_error()),
@@ -138,11 +145,19 @@ mod platform {
     }
 
     pub(super) fn load_vault_key() -> Result<Option<Zeroizing<String>>, String> {
-        let entry = Entry::new(SERVICE_NAME, VAULT_KEY_NAME).map_err(|_| secure_storage_error())?;
+        let entry = vault_key_entry()?;
+        #[cfg(windows)]
+        {
+            crate::windows_local_key::load(&entry).map_err(|()| secure_storage_error())
+        }
+        #[cfg(not(windows))]
         match entry.get_password() {
             Ok(encoded_key) => Ok(Some(Zeroizing::new(encoded_key))),
             Err(KeyringError::NoEntry) => Ok(None),
-            Err(_) => Err(secure_storage_error()),
+            Err(error) => {
+                crate::database_key::wipe_keyring_error(error);
+                Err(secure_storage_error())
+            }
         }
     }
 }
@@ -204,7 +219,11 @@ mod platform {
             Some(SearchResult::Data(data)) => String::from_utf8(data)
                 .map(Zeroizing::new)
                 .map(Some)
-                .map_err(|_| secure_storage_error()),
+                .map_err(|error| {
+                    // Undecodable key bytes are still secret; wipe them before dropping.
+                    drop(Zeroizing::new(error.into_bytes()));
+                    secure_storage_error()
+                }),
             Some(_) => Err(secure_storage_error()),
             None => Ok(None),
         }

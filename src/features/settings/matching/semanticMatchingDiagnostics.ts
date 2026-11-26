@@ -1,3 +1,4 @@
+/** Validates local model diagnostics and dispatches explicitly reviewed lifecycle actions. */
 import { invoke } from "../../../platform/tauri";
 
 export type SemanticMatchingRuntimeStatus =
@@ -5,6 +6,12 @@ export type SemanticMatchingRuntimeStatus =
   | "needs_model_download"
   | "disabled_in_this_build"
   | "misconfigured";
+
+export type ModelCacheHealth =
+  | "missing"
+  | "incomplete"
+  | "integrity_mismatch"
+  | "ready";
 
 export interface SemanticMatchingModelDiagnostic {
   id: string;
@@ -19,6 +26,9 @@ export interface SemanticMatchingModelDiagnostic {
   required_files_present: number;
   locked_size_bytes: number | null;
   downloaded: boolean;
+  cache_present: boolean;
+  repair_available: boolean;
+  health: ModelCacheHealth;
   required_for_qwen3_runtime: boolean;
 }
 
@@ -31,6 +41,7 @@ export interface SemanticMatchingSignal {
 
 export interface SemanticMatchingDiagnostics {
   build_enabled: boolean;
+  quarantined_cache_present?: boolean;
   runtime_status: SemanticMatchingRuntimeStatus;
   active_profile: string;
   privacy_mode: string;
@@ -47,10 +58,58 @@ const STATUSES = new Set<SemanticMatchingRuntimeStatus>([
   "disabled_in_this_build",
   "misconfigured",
 ]);
+const CACHE_HEALTH = new Set<ModelCacheHealth>([
+  "missing",
+  "incomplete",
+  "integrity_mismatch",
+  "ready",
+]);
 
 export async function getSemanticMatchingDiagnostics(): Promise<SemanticMatchingDiagnostics> {
   const payload = await invoke<unknown>("get_semantic_matching_diagnostics");
   return normalizeSemanticMatchingDiagnostics(payload);
+}
+
+export async function repairSemanticMatchingModelCache(
+  modelId: string,
+): Promise<boolean> {
+  const repaired = await invoke<unknown>(
+    "repair_semantic_matching_model_cache",
+    { modelId },
+  );
+  if (typeof repaired !== "boolean") {
+    throw new Error("Local model repair returned an unreadable repair response.");
+  }
+  return repaired;
+}
+
+export async function downloadSemanticMatchingModels(): Promise<boolean> {
+  return booleanCommand("download_ml_model");
+}
+
+export async function cancelSemanticMatchingModelDownload(): Promise<boolean> {
+  return booleanCommand("cancel_ml_model_download");
+}
+
+export async function removeSemanticMatchingModels(): Promise<boolean> {
+  return booleanCommand("remove_ml_models");
+}
+
+export function formatSemanticMatchingBytes(bytes: number): string {
+  if (!Number.isFinite(bytes) || bytes <= 0) return "0 MB";
+  if (bytes >= 1_000_000_000) {
+    return `${(bytes / 1_000_000_000).toFixed(1)} GB`;
+  }
+  const mb = bytes / 1_000_000;
+  return `${mb.toFixed(mb >= 100 ? 0 : 1)} MB`;
+}
+
+async function booleanCommand(command: string): Promise<boolean> {
+  const result = await invoke<unknown>(command);
+  if (typeof result !== "boolean") {
+    throw new Error("Local model command returned an unreadable response.");
+  }
+  return result;
 }
 
 export function normalizeSemanticMatchingDiagnostics(
@@ -65,6 +124,8 @@ export function normalizeSemanticMatchingDiagnostics(
 
   return {
     build_enabled: booleanField(record, "build_enabled"),
+    quarantined_cache_present: record.quarantined_cache_present === undefined
+      ? false : booleanField(record, "quarantined_cache_present"),
     runtime_status: status as SemanticMatchingRuntimeStatus,
     active_profile: stringField(record, "active_profile"),
     privacy_mode: stringField(record, "privacy_mode"),
@@ -80,6 +141,12 @@ export function normalizeSemanticMatchingDiagnostics(
 
 function normalizeModelDiagnostic(value: unknown): SemanticMatchingModelDiagnostic {
   const record = asRecord(value);
+  const health = stringField(record, "health");
+  if (!CACHE_HEALTH.has(health as ModelCacheHealth)) {
+    throw new Error(
+      "Local matching diagnostics returned an unknown model cache health.",
+    );
+  }
 
   return {
     id: stringField(record, "id"),
@@ -94,6 +161,9 @@ function normalizeModelDiagnostic(value: unknown): SemanticMatchingModelDiagnost
     required_files_present: numberField(record, "required_files_present"),
     locked_size_bytes: nullableNumberField(record, "locked_size_bytes"),
     downloaded: booleanField(record, "downloaded"),
+    cache_present: booleanField(record, "cache_present"),
+    repair_available: record.repair_available === undefined ? false : booleanField(record, "repair_available"),
+    health: health as ModelCacheHealth,
     required_for_qwen3_runtime: booleanField(record, "required_for_qwen3_runtime"),
   };
 }

@@ -1,4 +1,7 @@
+/** Builds first-run search defaults, local preference updates, and review summary text. */
+
 import { getSearchSourceDefaults } from "../../shared/jobSourceRecommendations";
+import { searchCountryLabel } from "../../shared/searchCountry";
 export { COMMON_STARTER_JOB_TITLES, COMMON_WORK_TO_AVOID } from "./setupWizardTaxonomy";
 import type {
   FreshnessOption,
@@ -142,6 +145,7 @@ export function createDefaultSetupConfig(
       allow_hybrid: true,
       allow_onsite: true,
       cities: [],
+      search_country: null,
     },
     salary_floor_usd: 0,
     alerts: {
@@ -223,13 +227,12 @@ export function formatLocationSummary(locationPreferences: LocationPreferences) 
 }
 
 export function formatJobSourceSummary(
-  config: Pick<SetupConfig, "remoteok" | "hn_hiring" | "weworkremotely" | "simplyhired">
+  config: Pick<SetupConfig, "remoteok" | "hn_hiring" | "weworkremotely">
 ): string {
   const sources = [
     config.remoteok.enabled ? "Remote OK" : null,
     config.weworkremotely.enabled ? "We Work Remotely" : null,
     config.hn_hiring.enabled ? "Startup and tech hiring posts" : null,
-    config.simplyhired.enabled ? "SimplyHired" : null,
   ].filter((source): source is string => source !== null);
 
   if (sources.length === 0) {
@@ -292,9 +295,6 @@ export function getSuggestedJobSourceOptions(
   });
 
   const sourceOptions: SuggestedJobSourceOption[] = [];
-  const hasSearchTerms = [...config.title_allowlist, ...config.keywords_boost]
-    .some((term) => term.trim().length > 0);
-
   if (sourceDefaults.remoteokEnabled) {
     sourceOptions.push({
       key: "remoteok",
@@ -319,41 +319,7 @@ export function getSuggestedJobSourceOptions(
     });
   }
 
-  if (
-    hasSearchTerms &&
-    !sourceDefaults.remoteokEnabled &&
-    !sourceDefaults.weworkremotelyEnabled &&
-    !sourceDefaults.hnHiringEnabled
-  ) {
-    sourceOptions.push({
-      key: "simplyhired",
-      label: "SimplyHired",
-      description: "Broad public listings across many kinds of work.",
-    });
-  }
-
   return sourceOptions;
-}
-
-export function buildSetupSourceQuery(
-  config: Pick<SetupConfig, "title_allowlist" | "keywords_boost">
-): string {
-  const seen = new Set<string>();
-  const terms: string[] = [];
-
-  for (const rawTerm of [...config.title_allowlist, ...config.keywords_boost]) {
-    const term = rawTerm.trim();
-    const key = term.toLocaleLowerCase();
-
-    if (!term || seen.has(key)) continue;
-
-    seen.add(key);
-    terms.push(term);
-
-    if (terms.length >= 4) break;
-  }
-
-  return terms.join(" ").slice(0, 200);
 }
 
 export function toResumeSkillSuggestions(skills: SetupResumeSkill[]): string[] {
@@ -415,6 +381,9 @@ export function buildSetupSearchSummary(
     wantedWork: formatListSummary(config.keywords_boost, "No extra work preferences yet"),
     avoidedWork: formatListSummary(config.keywords_exclude, "Nothing selected"),
     location: formatLocationSummary(config.location_preferences),
+    searchCountry: config.location_preferences.search_country
+      ? searchCountryLabel(config.location_preferences.search_country)
+      : "Any country",
     freshness: freshnessSummary(freshnessPreference),
     reviewVolume: reviewVolumeSummary(reviewVolumePreference),
     jobSources: formatJobSourceSummary(config),

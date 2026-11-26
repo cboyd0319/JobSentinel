@@ -1,11 +1,9 @@
-//! Scoring configuration Tauri commands
-//!
-//! Commands for managing user-configurable scoring weights.
+//! Adapts user-reviewed scoring configuration reads and updates to Tauri.
 
 use crate::application::scoring::ScoringConfig;
+use crate::bootstrap::operation::State;
 use crate::bootstrap::AppState;
 use crate::ipc::errors::user_friendly_error;
-use tauri::State;
 
 /// Get current scoring configuration
 #[tauri::command]

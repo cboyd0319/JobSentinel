@@ -1,3 +1,4 @@
+# Builds, verifies, attests and uploads the Windows release assets to the staged draft, re-checking it is still a draft.
 name: Release build windows
 
 on:
@@ -7,6 +8,9 @@ on:
         required: true
         type: string
       version:
+        required: true
+        type: string
+      release_id:
         required: true
         type: string
 
@@ -252,23 +256,15 @@ jobs:
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
-          GH_REPO: ${{ github.repository }}
+          RELEASE_ID: ${{ inputs.release_id }}
           RELEASE_TAG: ${{ inputs.tag }}
         run: |
           $ErrorActionPreference = "Stop"
 
-          $assets = @(
-            gh release view $env:RELEASE_TAG --json assets --jq '.assets[].name' |
-              Where-Object { $_ -match '\.(msi|exe)(\.sha256)?$' }
-          )
-
-          foreach ($asset in $assets) {
-            if ([string]::IsNullOrWhiteSpace($asset)) {
-              continue
-            }
-            Write-Host "Deleting stale Windows release asset: $asset"
-            gh release delete-asset $env:RELEASE_TAG $asset -y
-          }
+          # Re-checks by id that the release is still this tag's draft, then deletes stale Windows assets by asset id.
+          node scripts/release/draft-assets.mjs delete-stale --platform windows --repo $env:GITHUB_REPOSITORY `
+            --release-id $env:RELEASE_ID --tag $env:RELEASE_TAG --tag-commit $env:GITHUB_SHA
+          if ($LASTEXITCODE -ne 0) { exit 1 }
 
       - name: Stage Windows release assets
         shell: pwsh
@@ -313,7 +309,7 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
-          GH_REPO: ${{ github.repository }}
+          RELEASE_ID: ${{ inputs.release_id }}
           RELEASE_TAG: ${{ inputs.tag }}
         run: |
           set -euo pipefail
@@ -325,4 +321,6 @@ jobs:
             exit 1
           fi
 
-          gh release upload "$RELEASE_TAG" "${assets[@]}" --clobber
+          # Re-checks by id that the release is still this tag's draft, then replaces and uploads by release id.
+          node scripts/release/draft-assets.mjs upload --repo "$GITHUB_REPOSITORY" \
+            --release-id "$RELEASE_ID" --tag "$RELEASE_TAG" --tag-commit "$GITHUB_SHA" -- "${assets[@]}"

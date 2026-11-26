@@ -1,6 +1,4 @@
-//! Discord Notifications via Webhooks
-//!
-//! Sends rich-formatted job alerts to Discord using webhooks with embeds.
+//! Formats and sends bounded job-alert payloads through Discord webhooks.
 
 use super::{
     format_salary_range, notification_job_href, notification_provider_failure_summary,
@@ -23,7 +21,7 @@ fn build_discord_payload(config: &DiscordConfig, notification: &Notification) ->
     let score = &notification.score;
 
     let color = discord_embed_color(score.total);
-    let salary_display = format_salary_range(job.salary_min, job.salary_max);
+    let salary_display = format_salary_range(job);
 
     let mut embed = json!({
         "title": format!("🎯 {} - {}", job.title, job.company),

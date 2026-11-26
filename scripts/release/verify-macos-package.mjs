@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// Verifies macOS package integrity, model-free composition, and isolated installed launch behavior.
 
 import { execFileSync, spawn, spawnSync } from "node:child_process";
 import {
@@ -7,12 +8,13 @@ import {
   mkdirSync,
   mkdtempSync,
   readFileSync,
+  realpathSync,
   rmSync,
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { fileURLToPath } from "node:url";
 import {
   parseArgs,
   parseLipoArchitectures,
@@ -29,10 +31,11 @@ import {
   verifyLocalDmgChecksum,
   bundleMetadataViolations,
 } from "./macos-package-contract.mjs";
-
+import {
+  assertMacosRuntimeProfileArtifact,
+  verifyMacosRuntimeProfile,
+} from "../platform/macos-runtime-profile.mjs";
 export {
-  getArgValue,
-  hasArg,
   defaultArchitectures,
   parseArgs,
   parseLipoArchitectures,
@@ -50,12 +53,28 @@ export {
   parseSha256Checksum,
   verifyLocalDmgChecksum,
   bundleMetadataViolations,
+  modelPayloadFiles,
+  runtimeProfileArtifactViolations,
+  runtimeProfileCommandViolations,
 } from "./macos-package-contract.mjs";
 
 import {
   assertDeveloperIdSignature,
   parseCodesignDetails,
 } from "../platform/macos-signature.mjs";
+import {
+  createLaunchRssMetrics,
+  recordLaunchRssSample,
+  sampleMacosAppRss,
+  stopMacosAppCoalition,
+} from "./macos-package-performance.mjs";
+import { isMainModule } from "./args.mjs";
+
+export {
+  buildMacosCoalitionKillArgs,
+  parseLsappinfoCoalition,
+  parsePsRssSample,
+} from "./macos-package-performance.mjs";
 
 const scriptPath = fileURLToPath(import.meta.url);
 const defaultRoot = resolve(dirname(scriptPath), "../..");
@@ -212,9 +231,13 @@ async function smokeLaunch({ appPath, seconds }) {
   const executable = join(appPath, "Contents", "MacOS", getBundleExecutable(appPath));
   assertPathExists(executable, "App executable");
 
-  const smokeRoot = mkdtempSync(join(tmpdir(), "jobsentinel-macos-smoke-"));
+  const smokeRoot = mkdtempSync(join(realpathSync(tmpdir()), "jobsentinel-macos-smoke-"));
   const stdoutPath = join(smokeRoot, "stdout.log");
   const stderrPath = join(smokeRoot, "stderr.log");
+  let deadline;
+  const rssMetrics = createLaunchRssMetrics();
+  let startedAt;
+  let visibleWindowUpperBoundMs;
   let child;
   let pid;
   const smokeDatabaseKeyHex = createSmokeDatabaseKeyHex();
@@ -234,11 +257,28 @@ async function smokeLaunch({ appPath, seconds }) {
       smokeRoot,
     });
     console.log(`$ open ${formatMacosOpenArgsForLog(openArgs).join(" ")}`);
+    startedAt = performance.now();
+    deadline = startedAt + (seconds * 1000);
     child = spawn("open", openArgs, {
       stdio: ["ignore", "pipe", "pipe"],
     });
 
-    await sleep(seconds * 1000);
+    while (performance.now() < deadline) {
+      pid ??= findMacosAppProcess(appPath, getBundleExecutable(appPath));
+      if (pid) {
+        const sample = sampleMacosAppRss(pid);
+        recordLaunchRssSample(rssMetrics, sample, performance.now(), startedAt);
+        if (visibleWindowUpperBoundMs === undefined) {
+          try {
+            assertLaunchWindowVisible(pid);
+            visibleWindowUpperBoundMs = Math.ceil(performance.now() - startedAt);
+          } catch {
+            // Retry until the smoke deadline so slow first-run windows get the full allowance.
+          }
+        }
+      }
+      await sleep(Math.min(100, Math.max(0, deadline - performance.now())));
+    }
 
     if (child.exitCode !== null) {
       if (child.exitCode !== 0) {
@@ -246,22 +286,30 @@ async function smokeLaunch({ appPath, seconds }) {
       }
     }
 
-    pid = findMacosAppProcess(appPath, getBundleExecutable(appPath));
-    if (!pid) {
+    const runningPid = findMacosAppProcess(appPath, getBundleExecutable(appPath));
+    if (!runningPid) {
       const stdout = readFileSync(stdoutPath, "utf8");
       const stderr = readFileSync(stderrPath, "utf8");
       throw new Error(
         `Launch smoke did not find a running app process.\nstdout:\n${stdout}\nstderr:\n${stderr}`,
       );
     }
-    assertLaunchWindowVisible(pid);
-
-    try {
-      process.kill(pid, "SIGTERM");
-    } catch {
-      // The process can exit between window verification and shutdown.
+    pid = runningPid;
+    if (visibleWindowUpperBoundMs === undefined) {
+      assertLaunchWindowVisible(pid);
+      visibleWindowUpperBoundMs = Math.ceil(performance.now() - startedAt);
     }
-    await sleep(500);
+    const finalSample = sampleMacosAppRss(pid);
+    recordLaunchRssSample(rssMetrics, finalSample, performance.now(), startedAt);
+    if (rssMetrics.sampleCount === 0) {
+      throw new Error("Launch smoke could not measure main-process RSS.");
+    }
+    console.log(
+      `Launch performance sample: visible_window_upper_bound_ms=${visibleWindowUpperBoundMs} aggregate_observed_max_rss_kib=${rssMetrics.observedMaxRssKib} max_process_count=${rssMetrics.maxProcessCount} rss_sample_count=${rssMetrics.sampleCount} max_rss_sample_gap_ms=${rssMetrics.maxSampleGapMs}.`,
+    );
+
+    await stopMacosAppCoalition(pid);
+    pid = undefined;
 
     const stderr = readFileSync(stderrPath, "utf8");
     if (stderr.trim()) {
@@ -276,11 +324,7 @@ async function smokeLaunch({ appPath, seconds }) {
     console.log(`Launch smoke passed: app stayed running for ${seconds} seconds with empty stderr.`);
   } finally {
     if (pid) {
-      try {
-        process.kill(pid, "SIGTERM");
-      } catch {
-        // Already stopped.
-      }
+      await stopMacosAppCoalition(pid);
     }
     rmSync(smokeRoot, { recursive: true, force: true });
   }
@@ -308,6 +352,7 @@ async function verifyAppBundle({
 
   const executable = join(appPath, "Contents", "MacOS", getBundleExecutable(appPath));
   assertPathExists(executable, "App executable");
+  verifyMacosRuntimeProfile(appPath, executable);
 
   const lipoOutput = runChecked("lipo", ["-info", executable]);
   const architectures = parseLipoArchitectures(lipoOutput);
@@ -362,6 +407,7 @@ async function verifyInstalledApp({
 export async function verifyMacosPackage(options) {
   requireMacos();
   assertPathExists(options.dmgPath, "DMG");
+  assertMacosRuntimeProfileArtifact(options.dmgPath);
   verifyLocalDmgChecksum(options.dmgPath, {
     requireChecksum: options.requireChecksum,
     verifyChecksum: options.verifyChecksum,
@@ -434,11 +480,10 @@ export async function main({ args = process.argv.slice(2) } = {}) {
   if (!Number.isFinite(options.smokeSeconds) || options.smokeSeconds < 1) {
     throw new Error(`Invalid --smoke-seconds value: ${options.smokeSeconds}`);
   }
-
   await verifyMacosPackage(options);
 }
 
-if (process.argv[1] && pathToFileURL(resolve(process.argv[1])).href === import.meta.url) {
+if (isMainModule(import.meta.url)) {
   try {
     await main();
   } catch (error) {

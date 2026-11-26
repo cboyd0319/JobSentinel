@@ -1,6 +1,4 @@
-//! Model Management
-//!
-//! Handles downloading, caching, and loading governed local model artifacts.
+//! Owns download, cache validation, and loading of governed local model artifacts.
 
 mod cache;
 mod device;
@@ -9,6 +7,7 @@ mod integrity;
 mod legacy;
 mod loading;
 pub(super) mod status;
+mod update_inventory;
 
 use super::manifest::{load_model_manifest, model_lock_hash, ModelFileSpec, ModelSpec};
 use super::MlError;
@@ -16,7 +15,6 @@ use anyhow::Result;
 use std::path::PathBuf;
 
 pub(crate) use legacy::SentenceTransformer;
-pub(crate) use status::ModelCacheMetadata;
 
 const RUNTIME_MODEL_LOCK_MISSING: &str = "runtime model lock entry missing";
 const DEFAULT_EMBEDDING_MODEL_LOCK_MISSING: &str = "default embedding model lock entry missing";
@@ -88,4 +86,13 @@ fn fallback_runtime_model_spec() -> ModelSpec {
         notes: None,
         files: Vec::new(),
     }
+}
+
+/// Mirror the anonymous app-scoped download policy the desktop shell sets at
+/// startup so opt-in downloading tests exercise the production checks.
+/// Downloading tests must run single-threaded because this state is global.
+#[cfg(test)]
+pub(crate) fn set_download_policy_env(app_data_dir: &std::path::Path) {
+    std::env::set_var("HF_HUB_DISABLE_IMPLICIT_TOKEN", "1");
+    std::env::set_var("HF_XET_CACHE", app_data_dir.join("ml_models").join(".xet"));
 }

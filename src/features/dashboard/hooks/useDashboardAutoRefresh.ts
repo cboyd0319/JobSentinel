@@ -1,5 +1,5 @@
 // Dashboard Auto-Refresh Hook
-// Manages auto-refresh timer logic and countdown display
+// Manages auto-refresh timers, stale delivery suppression, and countdown display.
 
 import { useState, useEffect, useRef } from "react";
 import type { Job, Statistics, ScrapingStatus } from "../types";
@@ -35,7 +35,11 @@ export function useDashboardAutoRefresh({
   // countdownTick forces re-renders to update countdown display - value is intentionally unused
   const [, setCountdownTick] = useState(0);
   const [consecutiveFailures, setConsecutiveFailures] = useState(0);
-  const toast = useToast();
+  const {
+    info: toastInfo,
+    success: toastSuccess,
+    warning: toastWarning,
+  } = useToast();
 
   // Use ref to access current statistics value in interval callback (avoid stale closure)
   const statisticsRef = useRef(statistics);
@@ -69,6 +73,7 @@ export function useDashboardAutoRefresh({
 
     // Set initial next refresh time
     setNextRefreshTime(new Date(Date.now() + intervalMs));
+    let isCurrent = true;
 
     const performAutoRefresh = async () => {
       // Don't refresh if currently searching or settings modal is open
@@ -78,7 +83,7 @@ export function useDashboardAutoRefresh({
       }
 
       try {
-        toast.info(
+        toastInfo(
           "Checking for new jobs",
           "JobSentinel is checking selected job sources.",
         );
@@ -90,6 +95,7 @@ export function useDashboardAutoRefresh({
             silent: true, // Silent mode - don't log failures for auto-refresh
           },
         );
+        if (!isCurrent) return;
 
         // Invalidate cache after mutation
         invalidateCacheByCommand("get_recent_jobs");
@@ -114,6 +120,7 @@ export function useDashboardAutoRefresh({
             { logContext: "Auto-refresh get status", silent: true },
           ),
         ]);
+        if (!isCurrent) return;
 
         onDataUpdate({
           jobs: jobsData,
@@ -133,17 +140,18 @@ export function useDashboardAutoRefresh({
         const previousHighMatches = statisticsRef.current.high_matches;
         if (statsData.high_matches > previousHighMatches) {
           const newCount = statsData.high_matches - previousHighMatches;
-          toast.success(
+          toastSuccess(
             "New matches found!",
             `${newCount} new high-match jobs`,
           );
         }
         setConsecutiveFailures(0);
       } catch {
+        if (!isCurrent) return;
         setConsecutiveFailures((prev) => {
           const count = prev + 1;
           if (count === 3) {
-            toast.warning(
+            toastWarning(
               "Auto-refresh struggling",
               "JobSentinel couldn't check for new jobs on schedule. Check your connection, then use Search Now.",
             );
@@ -153,12 +161,15 @@ export function useDashboardAutoRefresh({
       }
 
       // Schedule next refresh
-      setNextRefreshTime(new Date(Date.now() + intervalMs));
+      if (isCurrent) {
+        setNextRefreshTime(new Date(Date.now() + intervalMs));
+      }
     };
 
     const intervalId = setInterval(performAutoRefresh, intervalMs);
 
     return () => {
+      isCurrent = false;
       clearInterval(intervalId);
       setNextRefreshTime(null);
     };
@@ -168,7 +179,9 @@ export function useDashboardAutoRefresh({
     autoRefreshInterval,
     searching,
     showSettings,
-    toast,
+    toastInfo,
+    toastSuccess,
+    toastWarning,
     onDataUpdate,
   ]);
 

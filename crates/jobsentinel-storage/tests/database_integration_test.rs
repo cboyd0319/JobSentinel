@@ -1,11 +1,4 @@
-//! Database Integration Tests
-//!
-//! Tests database operations at the integration level:
-//! - Migration execution
-//! - Schema constraints (foreign keys, unique constraints)
-//! - Concurrent write operations
-//! - Transaction isolation
-//! - Integrity checks
+//! Exercises storage database integration, including native listed-pay persistence.
 
 use jobsentinel_domain::Job;
 use jobsentinel_storage::Database;
@@ -54,6 +47,8 @@ fn create_test_job(hash: &str, title: &str, company: &str) -> Job {
         salary_min: Some(120000),
         salary_max: Some(180000),
         currency: Some("USD".to_string()),
+        listed_pay: None,
+        geography: None,
         created_at: chrono::Utc::now(),
         updated_at: chrono::Utc::now(),
         last_seen: chrono::Utc::now(),

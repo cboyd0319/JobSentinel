@@ -1,8 +1,4 @@
-//! Notification Services
-//!
-//! Sends alerts via multiple channels: Slack, Email, Discord, Telegram, Teams, and Desktop.
-//!
-//! Credentials are stored in the encrypted local vault and fetched at runtime.
+//! Orchestrates enabled notifications through the injected credential vault.
 
 use crate::{
     config::Config,
@@ -68,13 +64,6 @@ fn record_notification_credential_failure(errors: &mut Vec<String>, channel: &'s
 }
 
 impl NotificationService {
-    pub fn new(config: Arc<Config>) -> Self {
-        Self {
-            config,
-            credentials: Arc::new(CredentialService::compatibility_keyring()),
-        }
-    }
-
     pub fn with_credentials(config: Arc<Config>, credentials: Arc<CredentialService>) -> Self {
         Self {
             config,

@@ -1,7 +1,10 @@
+/** Renders editable local search preferences, including optional country filtering. */
+
 import { Badge } from "../../../ui/Badge";
 import { Button } from "../../../ui/Button";
 import { HelpIcon } from "../../../ui/HelpIcon";
 import { Input } from "../../../ui/Input";
+import { SearchCountrySelect } from "../../../shared/SearchCountrySelect";
 import type { DetectedLocation } from "../../../shared/location/detectedLocationCache";
 import type { Config } from "../config/SettingsConfig";
 import { SettingsSymbol } from "../shared/SettingsIcons";
@@ -309,6 +312,19 @@ export function SettingsSearchPreferencesSection({
             </span>
           </label>
         </div>
+
+        <SearchCountrySelect
+          onChange={(search_country) =>
+            onConfigChange({
+              ...config,
+              location_preferences: {
+                ...config.location_preferences,
+                search_country,
+              },
+            })
+          }
+          value={config.location_preferences.search_country}
+        />
 
         {(config.location_preferences.allow_hybrid ||
           config.location_preferences.allow_onsite) && (

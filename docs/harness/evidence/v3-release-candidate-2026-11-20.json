@@ -1,0 +1,77 @@
+{
+  "schema": "jobsentinel.feature_evidence.v1",
+  "feature_id": "v3-release-candidate",
+  "behavior": "Prepare the preserved v3.0 core with required shared fixes and release engineering, keeping Next enhancements outside the candidate.",
+  "result": "partial",
+  "verified_at": "2026-11-21T02:49:12Z",
+  "revision": "4b96e8027b1e40db5714d75f4d38d6cf9a32fbf3 plus uncommitted candidate changes",
+  "platform": "macOS 27.2.1 arm64; Rust 1.97.1; Node 26.13.1; npm 12.2.3",
+  "scope": "Candidate verification, Windows device-local key port with fail-closed key loading, and exact-draft release-pipeline gates. Not release qualification.",
+  "gate_diff_sha256": "2af4ddd8b8392b63b435240c9543da06e91c7ae5d246e50fb0d0341129e52417",
+  "post_gate_changes": "Only docs/developer/RELEASING.md (immutable-release guidance), docs/harness/current-status.md, scripts/harness/state/feature-list.json and this file changed after the full gate; the lanes below were rerun.",
+  "decisions": [
+    "User: final Stability, Performance and Security phases certify the exact hosted draft binaries that get published (build-draft and publish runs).",
+    "User: only a recovery-mode restore may create a database key while an unreadable primary exists; every other existing-data path fails closed."
+  ],
+  "changes": [
+    "Fixed candidate defects: over-budget status and plan lines, a Vale 3.28 repetition in resume-matcher.md, and storage tests that shared fixed temp paths and left SQLite sidecars.",
+    "Ported device-local Windows database and vault keys from b574bf9b/1ccb5490 without portable, shared-computer or native-auth code.",
+    "Missing keys fail closed for existing databases, backups, promotion and vaults with ciphertext; vault creation is serialized in-process; undecodable key bytes are wiped.",
+    "Release pipeline: build-draft and publish modes, release-id draft guards before every mutation, revision- and digest-bound final-phase evidence, publish by id with post-publication verification and automatic re-draft, credential-free public downloads, readiness regression lint."
+  ],
+  "commands": [
+    {
+      "command": "npm run verify:full",
+      "exit_status": 0,
+      "relevant_result": "Gate snapshot unchanged during run. Script tests 917/917, frontend 3373/3373 in 288 files, 10 e2e smoke journeys with 0 unexpected, Rust 41 suites 3574 passed 0 failed 21 ignored; all lint, build and harness stages passed.",
+      "caveat": "Ran before the post-gate documentation and state changes. Earlier same-day runs hit a Chromium headless close stall under load and stale build artifacts from segmented runs."
+    },
+    {
+      "command": "./init.sh",
+      "exit_status": 0,
+      "relevant_result": "Locked dependencies, harness validation and the startup smoke test passed after the state update.",
+      "caveat": "Local Node and npm differ from release pins."
+    },
+    {
+      "command": "npm run harness:check",
+      "exit_status": 0,
+      "relevant_result": "Harness contract, state, architecture, hosted-workflow policy and file-size coverage passed.",
+      "caveat": ""
+    },
+    {
+      "command": "npm run lint:docs",
+      "exit_status": 0,
+      "relevant_result": "Harness, Markdown, links and prose checks passed after the documentation update.",
+      "caveat": "Local Vale is 3.28.1; the release workflow pins 3.15.1."
+    },
+    {
+      "command": "npm run lint:file-size",
+      "exit_status": 0,
+      "relevant_result": "Hard limits passed.",
+      "caveat": "Several touched owners are at review thresholds."
+    },
+    {
+      "command": "npm run test:scripts",
+      "exit_status": 0,
+      "relevant_result": "917 passed, 0 failed after the state update.",
+      "caveat": "No hosted workflow dispatch."
+    }
+  ],
+  "review": {
+    "independent": true,
+    "scope": "Fresh-context adversarial acceptance reviews of the full pipeline and key-storage targets after three and two correction rounds. Both verdicts: accept with follow-ups; no path to publish uncertified bytes and no key overwrite outside the recovery-restore ruling was found."
+  },
+  "unproven": [
+    "Native Windows compile and runtime, including Credential Manager Local persistence and spurious missing-key reads; cross-check blocked by ring needing MSVC headers.",
+    "Hosted pipeline behavior: draft listing permissions, attestation source pinning, re-draft PATCH, concurrency and release environment approval, PowerShell guard exit handling."
+  ],
+  "pending": [
+    "Recovery restore creates its key at staging and survives cancel; update recovery copy and KEYRING.md before R1.",
+    "Containment timing: add step caps and a budget lint so the job timeout cannot strand a public release; strengthen timeout and re-draft tests.",
+    "Build-workflow mutations by release id; decide immutable releases versus re-draft containment.",
+    "Readiness lint whitespace and alternate-path variants; manual-path doc gaps (publish platform input, pushing E, local DMG staging).",
+    "Vault creation lock scope and cancellation; macOS vault UTF-8 error wipe; shared vault decoder validator; KEYRING.md contract placement.",
+    "Windows device_local policy reporting; minimum gh version for attestation source flags.",
+    "Commit, push, hosted dispatch and publication require explicit authority."
+  ]
+}

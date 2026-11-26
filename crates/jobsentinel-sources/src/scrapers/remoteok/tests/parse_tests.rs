@@ -1,3 +1,5 @@
+//! Tests RemoteOK record parsing, missing fields, and conservative pay context.
+
 use super::super::*;
 
 #[test]
@@ -24,7 +26,11 @@ fn test_parse_job_complete() {
     assert_eq!(job.source, "remoteok");
     assert_eq!(job.salary_min, Some(120000));
     assert_eq!(job.salary_max, Some(180000));
-    assert_eq!(job.currency, Some("USD".to_string()));
+    assert_eq!(
+        job.currency, None,
+        "numeric pay alone does not establish its currency"
+    );
+    assert_eq!(job.usd_annual_salary_bounds(), None);
     assert_eq!(
         job.description,
         Some("Build distributed systems".to_string())
@@ -289,7 +295,7 @@ fn test_job_fields_default_values() {
     assert_eq!(job.id, 0);
     assert_eq!(job.source, "remoteok");
     assert_eq!(job.remote, Some(true));
-    assert_eq!(job.currency, Some("USD".to_string()));
+    assert_eq!(job.currency, None);
     assert_eq!(job.times_seen, 1);
     assert_eq!(job.immediate_alert_sent, false);
     assert_eq!(job.hidden, false);
@@ -383,7 +389,7 @@ fn test_url_formatting_edge_cases() {
 }
 
 #[test]
-fn test_currency_default_usd() {
+fn test_missing_currency_stays_unknown() {
     let scraper = RemoteOkScraper::new(vec![], 10);
 
     let job_data = serde_json::json!({
@@ -393,7 +399,7 @@ fn test_currency_default_usd() {
     });
 
     let job = scraper.parse_job(&job_data).unwrap().unwrap();
-    assert_eq!(job.currency, Some("USD".to_string()));
+    assert_eq!(job.currency, None);
 }
 
 #[test]

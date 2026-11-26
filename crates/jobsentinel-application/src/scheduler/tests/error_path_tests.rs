@@ -1,3 +1,5 @@
+//! Proves scheduler error handling for local state, source failures, and alert delivery.
+
 use super::*;
 
 #[tokio::test]
@@ -152,6 +154,8 @@ async fn test_scraping_cycle_alert_already_sent_skip() {
         salary_min: None,
         salary_max: None,
         currency: None,
+        listed_pay: None,
+        geography: None,
         created_at: now,
         updated_at: now,
         last_seen: now,

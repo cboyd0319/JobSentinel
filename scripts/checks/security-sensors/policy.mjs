@@ -1,3 +1,4 @@
+// Declares the security sensor phrase policies that keep supply-chain and boundary gates present.
 export const requiredSecurityDocs = [
   "docs/security/README.md",
   "docs/security/KEYRING.md",
@@ -62,7 +63,7 @@ export const releaseWorkflowChecks = [
   ["release version output guard", '[[ ! "$version" =~ ^[0-9]+\\.[0-9]+\\.[0-9]+$ ]]', "Release version must be an exact stable semver"],
   ["release tag ref guard", 'expected_ref="refs/tags/v${version}"', 'if [ "${GITHUB_REF:-}" != "$expected_ref" ]; then', "Manual release dispatch must run from", "Select the existing release tag as the workflow ref"],
   ["release setup-node cache disabled", "actions/setup-node@", "package-manager-cache: false"],
-  ["release creation through GitHub CLI", "gh release create", "gh release edit", "notes-file"],
+  ["release creation through GitHub CLI", "gh release create", "scripts/release/stage-target.mjs", "notes-file"],
   ["macOS keychain password mask", 'keychain_password="$(openssl rand -hex 24)"', "::add-mask::"],
   ["macOS Gatekeeper gate", "npm run tauri:verify:macos", "--require-gatekeeper"],
   ["macOS launch smoke gate", "npm run tauri:verify:macos", "--launch-smoke"],
@@ -75,7 +76,7 @@ export const releaseWorkflowChecks = [
   ["Linux AppImage build compatibility", "file=1:5.45-3build1", "libfuse2t64=2.9.9-8.1build1", "squashfs-tools=1:4.6.1-1build1", "Build Linux Tauri app", 'APPIMAGE_EXTRACT_AND_RUN: "1"', "scripts/platform/build-linux-appimage.mjs"],
   ["release attestation permissions", "artifact-metadata: write", "attestations: write", "id-token: write"],
   ["release SBOM generation", "npm run release:sbom", "--require-artifacts", "attestation-subjects.sha256"],
-  ["release upload through GitHub CLI", "gh release upload", "--clobber"],
+  ["release upload by release id", "node scripts/release/draft-assets.mjs upload", "--release-id"],
   ["release provenance attestation", "actions/attest@", "subject-path: release-assets/public/*"],
   ["release SBOM attestation", "release-assets/public/*.dmg", "release-assets/public/*.msi", "release-assets/public/*.exe", "release-assets/public/*.AppImage", "release-assets/public/*.deb", "sbom-path: release-assets/public/JobSentinel-"],
 ].map(([label, ...phrases]) => ({ label, phrases }));
@@ -96,7 +97,6 @@ export const releasePreflightChecks = [
 ].map(([label, ...phrases]) => ({ label, phrases }));
 
 export const publishedReleaseWorkflowChecks = [
-  ["published release trigger", "release:", "published"],
   ["manual release trigger", "workflow_dispatch:", "tag:"],
   ["public macOS artifact verifier", "macos-26", "npm run tauri:verify:macos:latest"],
   ["scoped release tag", "RELEASE_TAG", "DISPATCH_TAG", "--tag"],
@@ -108,9 +108,16 @@ export const publicReleaseVerifierChecks = [
   {
     label: "exact public installer asset set",
     phrases: [
-      "validateExactPublicInstallerAssetSet",
-      "selectedPlatformAssetExtensions",
-      "stale or unexpected installer assets",
+      "validateReleaseAssetIdentity",
+      "validateExactReleaseAssetSet",
+      "loadPlatformDeclaration",
+    ],
+  },
+  {
+    label: "credential-free public downloads",
+    phrases: [
+      "downloadPublicAsset(asset.browser_download_url",
+      "downloadDraftAsset(",
     ],
   },
 ];

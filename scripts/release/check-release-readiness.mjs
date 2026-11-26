@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// Evaluates source-level release readiness: version metadata, workflow gates, verifiers and docs.
 
 import { readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
@@ -16,19 +17,15 @@ import {
   noAccountCompletionPercentage,
   releaseAssetUploadsStayDraft,
   releasePublishesAfterSuccessfulUploads,
+  readReleaseWorkflows,
   windowsInstallerUploadRequiresSignatureOrUnsignedLabel,
 } from "./check-macos-readiness.mjs";
+import { hasAll } from "./macos-readiness-text.mjs";
+import { localFinalPhaseEvidence, publicationRequiresVerifiedDraft } from "./release-publication-checks.mjs";
+import { getArgValue, isMainModule } from "./args.mjs";
 
 const scriptPath = fileURLToPath(import.meta.url);
 const defaultRoot = resolve(dirname(scriptPath), "../..");
-const releaseWorkflowPaths = [
-  ".github/workflows/release-stage.yml",
-  ".github/workflows/release-build-windows.yml",
-  ".github/workflows/release-build-macos.yml",
-  ".github/workflows/release-build-linux.yml",
-  ".github/workflows/release-build.yml",
-  ".github/workflows/release.yml",
-];
 
 function read(root, path) {
   return readFileSync(join(root, path), "utf8");
@@ -36,22 +33,6 @@ function read(root, path) {
 
 function readJson(root, path) {
   return JSON.parse(read(root, path));
-}
-
-function readAll(root, paths) {
-  return paths.map((path) => read(root, path)).join("\n");
-}
-
-function hasAll(text, snippets) {
-  return snippets.every((snippet) => String(text ?? "").includes(snippet));
-}
-
-function getArgValue(args, name) {
-  const exactIndex = args.indexOf(name);
-  if (exactIndex >= 0) return args[exactIndex + 1];
-
-  const prefixed = args.find((arg) => arg.startsWith(`${name}=`));
-  return prefixed ? prefixed.slice(name.length + 1) : undefined;
 }
 
 function criterion(id, ok, detail) {
@@ -64,15 +45,17 @@ export function loadReleaseReadinessInputs({
   env = process.env,
 } = {}) {
   const packageJson = readJson(root, "package.json");
+  const expectedVersion = normalizeReleaseVersion(version ?? packageJson.version);
 
   return {
-    expectedVersion: normalizeReleaseVersion(version ?? packageJson.version),
+    expectedVersion,
+    finalPhases: version === undefined ? undefined : localFinalPhaseEvidence({ root, version: expectedVersion }),
     ciDocs: read(root, "docs/developer/CI_CD.md"),
     macosReport: evaluateMacosReadiness({ root, env }),
     packageJson,
     readme: read(root, "README.md"),
     releaseDocs: read(root, "docs/developer/RELEASING.md"),
-    releaseWorkflow: readAll(root, releaseWorkflowPaths),
+    releaseWorkflow: readReleaseWorkflows(root),
     tauriConfig: readJson(root, "src-tauri/tauri.conf.json"),
     verifyPublicScript: read(root, "scripts/release/verify-public-release-assets.mjs"),
     verifyWorkflow: read(root, ".github/workflows/verify-release-artifacts.yml"),
@@ -101,6 +84,8 @@ export function evaluateReleaseReadinessFromInputs(inputs) {
           "node scripts/release/check-release-environment.mjs" &&
         inputs.packageJson.scripts?.["release:verify:public"] ===
           "node scripts/release/verify-public-release-assets.mjs" &&
+        inputs.packageJson.scripts?.["release:final-phases"] ===
+          "node scripts/release/final-phase-evidence.mjs" &&
         inputs.packageJson.scripts?.["macos:readiness"] ===
           "node scripts/release/check-macos-readiness.mjs",
       "Release environment, readiness, public asset, and macOS readiness scripts must stay discoverable.",
@@ -186,8 +171,7 @@ export function evaluateReleaseReadinessFromInputs(inputs) {
       "release workflow creates verified versioned staged release",
       hasAll(inputs.releaseWorkflow, [
         "- name: Create staged release",
-        'release_notes_path="docs/releases/v${RELEASE_VERSION}.md"',
-        'cat "$release_notes_path" > "$notes_file"',
+        'node scripts/release/release-notes.mjs --version "$RELEASE_VERSION" --out "$notes_file"',
         'gh release create "$RELEASE_TAG"',
         "--verify-tag",
         "--notes-file",
@@ -201,6 +185,15 @@ export function evaluateReleaseReadinessFromInputs(inputs) {
         releaseAssetUploadsStayDraft(inputs.releaseWorkflow) &&
         releasePublishesAfterSuccessfulUploads(inputs.releaseWorkflow),
       "Hosted releases must verify the tag, use checked-in versioned release notes when present, stay draft while assets upload, and publish only after successful uploads.",
+    ),
+    ...(inputs.finalPhases
+      ? [criterion("final release phase evidence is valid", inputs.finalPhases.ok, inputs.finalPhases.detail)]
+      : []),
+    criterion(
+      "publication requires final-phase evidence and a verified draft",
+      publicationRequiresVerifiedDraft(inputs.releaseWorkflow, inputs.verifyWorkflow) &&
+        hasAll(inputs.releaseDocs, ["docs/releases/vX.Y.Z-final-phases.json", "npm run release:publish-gate"]),
+      "Publication must depend on revision-bound Stability, Performance and Security evidence and on draft verification of the declared platform set.",
     ),
     criterion(
       "Windows public upload is signed or unsigned-labeled and checksum gated",
@@ -262,7 +255,7 @@ export function evaluateReleaseReadinessFromInputs(inputs) {
         "subject-path: release-assets/public/JobSentinel-${{ needs.create-release.outputs.version }}-agent-skills.zip",
         "JobSentinel-$RELEASE_VERSION-agent-skills.tar.gz.sha256",
         "JobSentinel-$RELEASE_VERSION-agent-skills.zip.sha256",
-        "gh release upload \"$RELEASE_TAG\" \"${assets[@]}\" --clobber",
+        "node scripts/release/draft-assets.mjs upload",
       ]),
       "Release workflow must upload validated, attested Agent Skills tar.gz and ZIP archives.",
     ),
@@ -365,7 +358,7 @@ export function parseArgs(args) {
   };
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === scriptPath) {
+if (isMainModule(import.meta.url)) {
   const options = parseArgs(process.argv.slice(2));
   const report = evaluateReleaseReadiness(options);
   console.log(formatReleaseReadinessReport(report));

@@ -1,0 +1,215 @@
+{
+  "schema": "jobsentinel.feature_evidence.v1",
+  "feature_id": "v3-milestone-11-integration-qa-release",
+  "behavior": "Current artifacts meet frozen quality, recovery, accessibility and supply-chain gates.",
+  "result": "partial",
+  "verified_at": "2026-10-28T22:36:27.932166+00:00",
+  "revision": "e6b97d9b3cf3ca9bfdb516d1d4d948a26baf293b",
+  "platform": "macOS27.2 arm64,64GiB host",
+  "scope": "Current local Mac qualification; Windows/Linux VM testing deferred by explicit user direction, not reported as passed.",
+  "user_decision": {
+    "date": "2026-10-28",
+    "instruction": "We can do all local testing directly on this Mac. We will plan for VM testing for Windows and Linux later.",
+    "effect": "No Windows/Linux VM provisioning or testing in this local phase. Retain deferred coverage explicitly for Gate6 review; do not infer it from Mac results."
+  },
+  "runtime": {
+    "node": "24.18.0",
+    "npm": "12.0.1",
+    "installation": "Ignored target/toolchains only; no user/global configuration changed.",
+    "node_archive_sha256": "4477b9f78efb77744cf5eb57a0e9594dba66466b38b4e93fa9f35cb907a095a6",
+    "npm_archive_sha256": "5e02bea4c784df1c3bbea9e55c7d2232329e1d1920c254789833ed9e8b0a5f16",
+    "verification": "Official Node checksum matched; codesign --verify --strict passed. npm registry SHA512 integrity matched. Actual CLI versions confirmed; init reported0warnings.",
+    "sources": [
+      "https://nodejs.org/dist/v24.18.0/SHASUMS256.txt",
+      "https://registry.npmjs.org/npm/12.0.1"
+    ]
+  },
+  "source_files_sha256": {
+    "scripts/harness/checks/repo-artifacts.mjs": "90e1d2178a93fd40b2b5185158511aa681b44ebb2f8616040f1bb6aee03ecadf",
+    "scripts/tests/harness/check-repo-artifacts.test.mjs": "9855869e8456d335d4a51f6f9ed8593c67cf8fdcc2312cabcd6534c5f8eeaeec",
+    "src/dev-runtime/mocks/commandRegistry.ts": "9edb0b117a04755c5ee7c0ba09f0cd33748e9c8710c1c16bd69a465e3cdd4b70",
+    "src/dev-runtime/features/resumes/resumeCommands.ts": "80e4211aa2a60fc5784cfa29f8879b248c09fc5747848e9d655ccbae0f14fa71",
+    "src/dev-runtime/features/resumes/resumeRuntimeCommands.test.ts": "1fc3519773dbced6ff57e86399a4a8563d6ff2664043cbd1c7021f4c1d8da534",
+    "crates/jobsentinel-storage/src/crud.rs": "347b87fb75e13dafada615e62aa6937d4ec61409d5164a08f84f168da5fae37a",
+    "src/features/dashboard/components/JobCard.tsx": "fd22f8d70bc97c632e87c6eb0145af8a1ef517c1c250176afcce07e62eb03335",
+    "src/features/onboarding/SetupWizard.first-run.test.tsx": "77f408db5a4ae55918b202daaf75b11740bb9d15c9fd0d21fd0aeabf3f8fc240",
+    "scripts/checks/dependency-rationale.mjs": "0274ce3fa6dfd1c7e7f4405dfa4443bbeb5236c3d619003758270b1d355a383b",
+    "scripts/harness/contracts/dependency-rationale.json": "5c00d1c3292d412995636cfa629d15c67341c416ae84def7203182aeba4838f2"
+  },
+  "commands": [
+    {
+      "command": "./init.sh with project-local pinned Node/npm and isolated npm configuration",
+      "exit_status": 0,
+      "relevant_result": "Locked synchronization, doctor with0warnings, harness and9startup tests passed.",
+      "caveat": "Local Mac baseline only."
+    },
+    {
+      "command": "npm run verify:full with pinned Node/npm, attempt1",
+      "exit_status": 1,
+      "relevant_result": "Stopped at lint:bloat: generated outputs, local .serena classification and missing browser semantic-review route. Prior harness, doctor, architecture and security checks passed.",
+      "caveat": "Full verification is not passed; failed early before remaining suites."
+    },
+    {
+      "command": "node --test scripts/tests/harness/check-repo-artifacts.test.mjs",
+      "exit_status": 0,
+      "relevant_result": "5tests passed after reproducing false-positive local metadata rejection. Unknown roots and disposable outputs remain rejected.",
+      "caveat": "Classification preserves gitignored local metadata; no local tool configuration contents changed."
+    },
+    {
+      "command": "npm run clean:generated",
+      "exit_status": 0,
+      "relevant_result": "Removed only dist,storybook-static,test-results through existing owner.",
+      "caveat": "No --deep; target/toolchains/models/evidence retained."
+    },
+    {
+      "command": "npm run verify:full with pinned Node/npm, attempt2",
+      "exit_status": 1,
+      "relevant_result": "Bloat passed after fixes; stopped at missing direct open-dependency rationale.",
+      "caveat": "Full verification still not passed. Rationale added to existing owner; current run is in progress."
+    },
+    {
+      "command": "npm run verify:full with pinned Node/npm, attempt3",
+      "exit_status": 1,
+      "relevant_result": "Reached full frontend suite:286files/3369tests passed,2files/3tests failed.",
+      "caveat": "Setup failure fixtures targeted the first invocation instead of the save command; JobCard had a real missing-pay accessibility regression. Both corrected; full gate rerun in progress."
+    },
+    {
+      "command": "npm run test:run -- src/features/onboarding/SetupWizard.first-run.test.tsx src/features/dashboard/components/JobCard.formatting-actions.test.tsx",
+      "exit_status": 0,
+      "relevant_result": "39affected tests passed after reproducing the3failures; structured native pay remains protected.",
+      "caveat": "Focused correction evidence, not full-suite success."
+    }
+  ],
+  "corrections": [
+    "Local .serena metadata now receives the existing local-agent metadata classification; unrelated configuration was preserved.",
+    "Browser match_resume_semantic validates the native model-disabled argument contract, returnsnull without state writes and preserves saved score evidence. Implementer20focused tests/typecheck/ESLint pass under pinned runtime; full gate rerun pending.",
+    "Restored zero-duplication shared job binding owner after the gate found14 repeated UPDATE/INSERT binds;18 focused storage characterizations and production clippy passed.",
+    "Setup retry tests now reject complete_setup specifically and verify identical choices plus duplicate-save prevention; unrelated country-option calls no longer consume the failure fixture.",
+    "JobCard missing-pay accessibility cue now follows native/legacy evidence availability; native pay with absent legacy amounts is regression-protected.",
+    "Dependency-rationale policy/comment now name their actual lint:deps:why/full-gate owner instead of falsely claiming fast harness enforcement."
+  ],
+  "remaining": [
+    "Broad campaign parked by explicit user direction; follow the master development queue before rerunning it.",
+    "Complete full local gates and current Mac package/native user journeys.",
+    "Finish recorded retrospective coverage; bounded current model comparison is complete without product/threshold changes.",
+    "Actual positive native update/rollback and release supply-chain/Gate6 proof remain incomplete.",
+    "Windows/Linux VM testing is deferred by user; exactmacOS26 and enforced8GiB zero-swap proof are not established by this64GiB macOS27.2 host."
+  ],
+  "model_comparison": {
+    "result": "Bounded reference comparison complete; retain current governed pair pending broader/native evidence.",
+    "host": {
+      "cpu": "Apple M4 Max",
+      "memory_bytes": 68719476736,
+      "platform": "macOS 27.2 arm64",
+      "power": "AC attached"
+    },
+    "protocol": {
+      "query_embeddings": 13,
+      "passage_embeddings": 26,
+      "corpus_passages": 26,
+      "retrieval_threshold": 0.3,
+      "retrieval_top_k": 25,
+      "reranking": "Only the within-triple labeled passages admitted by the retrieval gate; unrelated corpus passages remain unjudged",
+      "warm_samples_per_pipeline": 20,
+      "fresh_processes_per_pipeline": 1,
+      "initial_workflows_per_pipeline": 1,
+      "threads": 4,
+      "interop_threads": 1,
+      "batch_size": 1,
+      "dtype": "float32",
+      "max_formatted_tokens": 512
+    },
+    "measurements": {
+      "qwen_embed+qwen_rerank": {
+        "warm_median_seconds": 4.017429520499718,
+        "warm_min_seconds": 3.9842869580024853,
+        "warm_max_seconds": 4.288750417006668,
+        "peak_rss_bytes": 6550405120,
+        "rerank_pair_counts": [
+          25
+        ]
+      },
+      "qwen_embed+ettin17": {
+        "warm_median_seconds": 2.259345812504762,
+        "warm_min_seconds": 2.0954292090027593,
+        "warm_max_seconds": 2.2936379999882774,
+        "peak_rss_bytes": 4131864576,
+        "rerank_pair_counts": [
+          25
+        ]
+      },
+      "qwen_embed+ettin32": {
+        "warm_median_seconds": 2.149277479002194,
+        "warm_min_seconds": 2.128793374999077,
+        "warm_max_seconds": 2.3461171249946347,
+        "peak_rss_bytes": 4131438592,
+        "rerank_pair_counts": [
+          25
+        ]
+      },
+      "gemma2+qwen_rerank": {
+        "warm_median_seconds": 2.881184291494719,
+        "warm_min_seconds": 2.8756805830053054,
+        "warm_max_seconds": 2.902515374997165,
+        "peak_rss_bytes": 5494734848,
+        "rerank_pair_counts": [
+          26
+        ]
+      }
+    },
+    "quality": {
+      "frozen_triples": 13,
+      "known_positive_recall_at_1": {
+        "qwen": 10,
+        "gemma2": 12
+      },
+      "known_positive_recall_at_10_and_25": "13/13 for both embedding models. Unrelated corpus passages remain unjudged.",
+      "reranker_ordering": "All three order each positive above its paired negative:13/13.",
+      "governed_qwen_frozen_acceptance": "At existing3.0,13/13 positives and0/13 paired negative-only false support. Positive and negative raw ranges separate on this sample.",
+      "ettin_limit": "At mechanical3.0, each accepts11/13 negatives. Global positive/negative ranges overlap; ranking success does not establish calibrated support.",
+      "regional_limit": "Gemma2 improves SSC/N0514 exact-ID rank, but French known-positive rank worsens2\u21923. No multilingual superiority claim."
+    },
+    "runtime": "CPU reference Python3.13.18,Torch2.15.0,Transformers5.21.0,SentenceTransformers6.2.0; F32,4threads,1interop,batch1. No production dependencies or model/threshold changes.",
+    "provenance": "Public immutable revisions and LFS/Git blob verification; governed Qwen originals hash-checked and APFS-cloned. Inference sandbox denied an outside harmless sentinel and network access.",
+    "artifact_sha256": {
+      "target/model-comparison/results/quality-summary.json": "b5dd168bb8893ac25d6698c8eafbce21b898954d5f02ff3c1e6e511b6db40454",
+      "target/model-comparison/results/performance-summary.json": "a9deab3a57bcedcda6c44441af2235f0ed42921499f86de9a81c7fecd0ba28d6",
+      "target/model-comparison/results/provenance-summary.json": "e40f0791965b53dd8796a3d2ffe2547026fed1c1850e08a1c53d2962d386fa62",
+      "target/model-comparison/results/artifact-verification.json": "b448974e4cc9263214436d6d13439edb8bd01fd72b3620763b46fb787d81c348",
+      "target/model-comparison/results/sandbox-proof.json": "e125d231b36979e44491b9f3dd62a10251949fb37b863ec195d2ec1582eae043",
+      "target/model-comparison/requirements.lock": "06db2359bc498789baefe89eb3681600d3c8c392d0455ad67d045fdd3d3b1b7f"
+    },
+    "sources": [
+      "https://huggingface.co/cross-encoder/ettin-reranker-17m-v1",
+      "https://huggingface.co/cross-encoder/ettin-reranker-32m-v1",
+      "https://huggingface.co/google/embeddinggemma-2"
+    ],
+    "limits": [
+      "Synthetic short inputs; maximum observed tokens34/Qwen embedding,110/Qwen reranker,46/Ettin,36/Gemma2; not full512-token workload",
+      "Reference CPU PyTorch timings, not JobSentinel or Candle latency",
+      "Fresh process loads reuse uncontrolled filesystem cache; no reboot/cache purge; not cold-disk measurements",
+      "One fixed pipeline order; brief artifact hash readback occurred during candidate pass; all samples retained",
+      "Twenty warm observations per pipeline do not qualify production tail latency",
+      "Observed process peak RSS is not an enforced8GiB test or installed-app memory measurement",
+      "Only this macOS27.2 ARM64 host; no Windows/Linux VM, platform or installed-app verification",
+      "Alternative score scales and0.30/3.0 diagnostics remain uncalibrated; no model/threshold replacement approved"
+    ],
+    "decision": "Keep current Qwen production configuration. Ettin requires separate calibration; Gemma2 is a promising embedding evaluation candidate, not an implemented app replacement. N13/N17 native OS model helpers remain Later, not promoted into the v3.0 cut."
+  },
+  "execution_state": {
+    "status": "parked",
+    "date": "2026-10-28",
+    "authority": "User paused implementation and requested all remaining real development before broad testing and release work.",
+    "next_trigger": "D0\u2013D10 engineering complete and user resumes qualification; this planning change runs no tests or builds.",
+    "worktree": "Earlier uncommitted corrections remain preserved; source hashes may describe those uncommitted snapshots, not shipped code."
+  },
+  "last_full_run": {
+    "command": "npm run verify:full with pinned Node24.18.0/npm12.0.1",
+    "exit_status": 101,
+    "result": "Stopped in application Rust unit tests:705passed,10failed,1ignored; failing Workbench setup reports stale policy evidence.",
+    "caveat": "No full-gate pass. Do not weaken policy freshness or change production review dates merely to green tests. Later workspace/all-feature/installed proof remains unrun.",
+    "frontend_pass_counts_from_log": [
+      3373
+    ]
+  }
+}

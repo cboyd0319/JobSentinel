@@ -1,10 +1,44 @@
-use std::sync::Arc;
+//! Defines immutable startup recovery flags and the Tauri-managed application state.
 
-use tokio::sync::RwLock;
+use std::{collections::HashMap, sync::Arc};
+
+use tokio::sync::{watch, Mutex, RwLock};
 
 use crate::application::{config::Config, credentials::CredentialService, scheduler::Scheduler};
-use crate::desktop::{BookmarkletServer, Database, DesktopServices, SchedulerStatus};
-use jobsentinel_application::PendingUrlImports;
+use crate::desktop::{
+    BookmarkletServer, Database, DesktopServices, DesktopStartupFailureKind, SchedulerStatus,
+};
+use jobsentinel_application::{
+    foundation::PendingMilitaryTransitionReviews, pack_runtime::PackRuntimeEnvironment,
+    PendingUrlImports,
+};
+
+pub(crate) struct StartupRecoveryState {
+    platform: bool,
+    failure: Option<DesktopStartupFailureKind>,
+}
+
+impl StartupRecoveryState {
+    pub(crate) const fn new(platform: bool, failure: Option<DesktopStartupFailureKind>) -> Self {
+        Self { platform, failure }
+    }
+
+    pub(crate) const fn required(&self) -> bool {
+        self.platform || self.failure.is_some()
+    }
+
+    pub(crate) const fn platform(&self) -> bool {
+        self.platform
+    }
+
+    pub(crate) const fn configuration(&self) -> bool {
+        matches!(self.failure, Some(DesktopStartupFailureKind::Configuration))
+    }
+
+    pub(crate) const fn database(&self) -> bool {
+        matches!(self.failure, Some(DesktopStartupFailureKind::Database))
+    }
+}
 
 pub(crate) struct AppState {
     pub config: Arc<RwLock<Config>>,
@@ -14,6 +48,10 @@ pub(crate) struct AppState {
     pub scheduler_status: Arc<RwLock<SchedulerStatus>>,
     pub bookmarklet_server: Arc<RwLock<BookmarkletServer>>,
     pub pending_url_imports: PendingUrlImports,
+    pub pack_runtime: PackRuntimeEnvironment,
+    pub pending_military_transition_reviews: PendingMilitaryTransitionReviews,
+    pub storage_stopping: RwLock<bool>,
+    pub outside_ai_cancellations: Arc<Mutex<HashMap<String, watch::Sender<bool>>>>,
 }
 
 impl From<DesktopServices> for AppState {
@@ -26,6 +64,22 @@ impl From<DesktopServices> for AppState {
             scheduler_status: services.scheduler_status,
             bookmarklet_server: services.bookmarklet_server,
             pending_url_imports: services.pending_url_imports,
+            pack_runtime: services.pack_runtime,
+            pending_military_transition_reviews: Default::default(),
+            storage_stopping: Default::default(),
+            outside_ai_cancellations: Default::default(),
         }
+    }
+}
+
+impl AppState {
+    pub(crate) async fn begin_storage_work(
+        &self,
+    ) -> Result<tokio::sync::RwLockReadGuard<'_, bool>, String> {
+        let stopping = self.storage_stopping.read().await;
+        if *stopping {
+            return Err("The application is shutting down.".into());
+        }
+        Ok(stopping)
     }
 }

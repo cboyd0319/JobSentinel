@@ -1,0 +1,108 @@
+{
+  "schema": "jobsentinel.v3.milestone-evidence.v1",
+  "feature_id": "v3-milestone-9-regions-access-editions-first-run",
+  "recorded_on": "2026-09-11",
+  "result": "partial",
+  "slice": "Three regional requirement hard negatives through the governed local Qwen3 pair",
+  "base_revision": "db8ec834b0e113e617702702b7501392e1d2a38d",
+  "platform": "macOS 27 arm64; repository-pinned Rust 1.97.1; unconstrained 64 GiB host",
+  "fixture": {
+    "path": "crates/jobsentinel-local-ai/src/eval_fixtures/regional_requirement_hard_negatives_v1.json",
+    "sha256": "7a814de72b48f7a594041173d245dbdfea28086dd3be2447a8e3fb02e622ed6a",
+    "kind": "synthetic JobRequirementToResumeEvidence pairs in the existing EvalFixtureSet schema",
+    "oracle": "Three expected positive/negative boundaries were fixed and independently reviewed before model execution. Region framing does not assert citizenship, language fluency, legal requirements, qualification equivalence, or real candidate eligibility.",
+    "scope": "Characterization of existing production matching; no model thresholds, prompts, inference code, or frozen ten-pair seed changed."
+  },
+  "test_source": {
+    "path": "crates/jobsentinel-local-ai/src/matcher/qwen3/tests/regional.rs",
+    "model_run_sha256": "ab251fa5367092b159ae639925058f7e8d597700794ed077f18eb9cf2fe37981",
+    "final_sha256": "148b2d9db91b478faa4f5d1fdd81c0380ac32297a6c626561ba8249322126893",
+    "annotation_only_change": "Added an explicit ignore reason after inference. Model inputs, test body, and assertions did not change; the final default-lane check passed with the model test still ignored.",
+    "registration_path": "crates/jobsentinel-local-ai/src/matcher/qwen3/tests.rs",
+    "registration_sha256": "5bae594ba192aeaad601aa1a176d9d7777cd434cb52e7de136349a9affdb6762"
+  },
+  "models": {
+    "lock_path": "crates/jobsentinel-local-ai/models.lock.toml",
+    "lock_sha256": "13876d65c8cfcb361ad01f877554891e86d6218c38b4e9ce0c5b042a7a73ab69",
+    "embedding": "Qwen/Qwen3-Embedding-0.6B@97b0c614be4d77ee51c0cef4e5f07c00f9eb65b3",
+    "reranker": "Qwen/Qwen3-Reranker-0.6B@e61197ed45024b0ed8a2d74b80b4d909f1255473",
+    "backends": ["qwen3-candle", "qwen3-reranker-candle"],
+    "embedding_dimensions": 768,
+    "required_payload_bytes": 2406043460,
+    "license": "Apache-2.0",
+    "retrieval_threshold": 0.30,
+    "reranker_acceptance": 3.0,
+    "cache_relative_path": "target/jobsentinel-qwen3-regional-YK7ruO",
+    "cache_policy": "Retained as an ignored, repository-owned public-model test cache for subsequent goal work. It is not the user's app profile or a shipped model payload. Setup uses pinned files, exact sizes/checksums, anonymous downloads, and app-scoped transfer staging. No user data was uploaded."
+  },
+  "observed_cases": [
+    {
+      "case": "uk_paye_payroll_ownership",
+      "dense_positive": 0.7668053,
+      "dense_negative": 0.54226375,
+      "reranker_positive": 6.558284,
+      "reranker_negative": 2.2490358,
+      "selected_evidence_index": 0,
+      "negative_only": "unmatched: BelowRerankerAcceptance"
+    },
+    {
+      "case": "eu_french_warehouse_evidence_for_english_requirement",
+      "dense_positive": 0.5688625,
+      "dense_negative": 0.38278955,
+      "reranker_positive": 7.9759383,
+      "reranker_negative": -0.16121659,
+      "selected_evidence_index": 0,
+      "negative_only": "unmatched: BelowRerankerAcceptance"
+    },
+    {
+      "case": "india_exact_nos_identifier_evidence",
+      "dense_positive": 0.5372468,
+      "dense_negative": 0.57391554,
+      "reranker_positive": 7.0053797,
+      "reranker_negative": 1.6228625,
+      "selected_evidence_index": 0,
+      "negative_only": "unmatched: BelowRerankerAcceptance"
+    }
+  ],
+  "findings": [
+    "All three paired production calls selected the direct positive; each negative-only production call remained unmatched with Qwen3Reranked provenance.",
+    "The India negative ranked above the positive in dense similarity. Reranking corrected the order and rejected the wrong-unit evidence; dense similarity alone does not establish equivalence.",
+    "The UK negative is only about 0.751 below the acceptance floor, narrower than the one-point margins in earlier frozen calibration sets. This seed result does not establish broad regional calibration.",
+    "All observations were collected before behavioral assertions. Existing evidence vectors were reused for paired and negative-only production calls."
+  ],
+  "checks": [
+    {
+      "command": "env -u HF_TOKEN -u HUGGING_FACE_HUB_TOKEN -u HF_ENDPOINT -u HF_HOME -u HF_HUB_CACHE -u JOBSENTINEL_LIVE_KEYRING_TESTS HF_HUB_DISABLE_IMPLICIT_TOKEN=1 JOBSENTINEL_QWEN3_TEST_CACHE=<absolute repo test-cache path> node scripts/dev/run-cargo.mjs test -p jobsentinel-local-ai --features embedded-ml --lib qwen3::tests::qwen3_ -- --ignored --test-threads=1 --nocapture",
+      "exit_status": 0,
+      "passed": 2,
+      "test_duration_seconds": 197.18,
+      "result": "Both exact governed models downloaded, checksum-verified, loaded, and passed their existing focused loader/inference checks."
+    },
+    {
+      "command": "env -u HF_TOKEN -u HUGGING_FACE_HUB_TOKEN -u JOBSENTINEL_LIVE_KEYRING_TESTS HF_HUB_DISABLE_IMPLICIT_TOKEN=1 JOBSENTINEL_QWEN3_TEST_CACHE=<absolute repo test-cache path> node scripts/dev/run-cargo.mjs test -p jobsentinel-local-ai --features embedded-ml --lib matcher::qwen3::tests::regional::pinned_qwen3_evaluates_regional_requirement_hard_negatives -- --ignored --exact --nocapture --test-threads=1",
+      "exit_status": 0,
+      "passed": 1,
+      "test_duration_seconds": 322.20,
+      "result": "All three regional pairs passed the unchanged retrieval, selection, acceptance, and negative-only abstention checks."
+    },
+    { "command": "node scripts/dev/run-cargo.mjs test -p jobsentinel-local-ai --features embedded-ml --lib matcher::qwen3::tests::regional", "exit_status": 0, "passed": 1, "ignored": 1 },
+    { "command": "node scripts/dev/run-cargo.mjs clippy -p jobsentinel-local-ai --features embedded-ml --lib -- -D warnings", "exit_status": 0 },
+    { "command": "node scripts/dev/run-cargo.mjs clippy -p jobsentinel-local-ai --features embedded-ml --lib --tests -- -D warnings", "exit_status": 101, "result": "Optional test-target lane reported 301 test-style violations across existing and new tests, including expect/unwrap usage and missing ignore reasons. The new ignored test received a reason; no crate-wide suppressions or unrelated cleanup were applied. This lane is not claimed passing." },
+    { "command": "npm run harness:check", "exit_status": 0 },
+    { "command": "git diff --check", "exit_status": 0 }
+  ],
+  "terminology_references": [
+    "https://www.gov.uk/paye-for-employers",
+    "https://www.nqr.gov.in/qualifications/13568"
+  ],
+  "review": "Pre-model scoped adversarial review returned SOUND; expected labels were not revised after scoring. The NQR identifier reference remains cached research, not a current licensing or equivalence determination.",
+  "prior_evidence": [
+    "docs/harness/evidence/v3-milestone-9-regional-location-work-arrangements-2026-09-11.json",
+    "docs/harness/evidence/v3-milestone-5-qwen-broadened-calibration-2026-07-20.json"
+  ],
+  "remaining": [
+    "Three synthetic cases on one unconstrained host do not establish regional completeness, general multilingual support, production-wide calibration, or modest-hardware performance.",
+    "Operational regional selection, country-aware normalization, wider regional fixtures/manual review, production region signing approval, and Gate 5 remain open.",
+    "Native UI-automation approval and complete installed/offline journeys remain open; no app package was rebuilt or user profile modified in this test-only slice."
+  ]
+}

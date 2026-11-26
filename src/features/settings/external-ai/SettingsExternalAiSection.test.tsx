@@ -1,3 +1,5 @@
+/** Verifies provider setup and public-only external AI controls. */
+
 import { useState } from "react";
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -69,9 +71,15 @@ describe("SettingsExternalAiSection", () => {
     render(<ExternalAiHarness />);
 
     expect(screen.getByText("OpenAI")).toBeInTheDocument();
+    expect(screen.queryByRole("checkbox", { name: "Private details after review" })).not.toBeInTheDocument();
+    expect(screen.getByText("Only reviewed public job details can be sent. Private details stay local.")).toBeInTheDocument();
     expect(screen.getByText("Anthropic")).toBeInTheDocument();
     expect(screen.getByText("Google Gemini")).toBeInTheDocument();
     expect(screen.getByText("GitHub Copilot")).toBeInTheDocument();
+    expect(screen.getByText("Durable outside AI activity")).toBeInTheDocument();
+    expect(
+      screen.queryByRole("checkbox", { name: "Save request history" }),
+    ).not.toBeInTheDocument();
 
     await user.click(screen.getByRole("checkbox", { name: /OpenAI/ }));
     await user.click(screen.getByRole("checkbox", { name: /Anthropic/ }));

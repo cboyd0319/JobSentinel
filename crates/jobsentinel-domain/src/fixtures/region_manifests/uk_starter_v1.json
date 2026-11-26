@@ -1,0 +1,55 @@
+{
+  "schema": "jobsentinel.v3.region-starter-data.v1",
+  "region_id": "uk",
+  "reviewed_on": "2026-09-11",
+  "taxonomy_mappings": [
+    {
+      "taxonomy_id": "uk_soc_2020_research",
+      "source_code": "2134",
+      "source_label": "Programmers and software development professionals",
+      "canonical_term": "software development",
+      "mapping_type": "close",
+      "confidence_note": "Tentative vocabulary alignment reviewed by JobSentinel. Compare actual duties; this is not proof of qualifications or eligibility.",
+      "provenance_url": "https://www.ons.gov.uk/methodology/classificationsandstandards/standardoccupationalclassificationsoc/soc2020/soc2020volume1structureanddescriptionsofunitgroups"
+    },
+    {
+      "taxonomy_id": "uk_soc_2020_research",
+      "source_code": "2135",
+      "source_label": "Cyber security professionals",
+      "canonical_term": "cyber security",
+      "mapping_type": "close",
+      "confidence_note": "Tentative vocabulary alignment reviewed by JobSentinel. Compare actual duties; this is not proof of qualifications or eligibility.",
+      "provenance_url": "https://www.ons.gov.uk/methodology/classificationsandstandards/standardoccupationalclassificationsoc/soc2020/soc2020volume1structureanddescriptionsofunitgroups"
+    }
+  ],
+  "cv_profiles": [
+    {
+      "profile_id": "uk_cv_research",
+      "label": "UK CV starter",
+      "sections": [
+        "Contact information",
+        "Short introduction",
+        "Relevant work and projects",
+        "Education and qualifications",
+        "References, with consent"
+      ],
+      "guidance": [
+        "Order education before work experience when it better shows your relevant evidence, including at the start of your career.",
+        "Describe paid work, placements, volunteering, or projects using your actual responsibilities and achievements.",
+        "Leave age, birth date, marital status, and nationality out of this CV starter.",
+        "Do not publish another person's contact details. Confirm reference arrangements separately."
+      ],
+      "provenance_urls": [
+        "https://nationalcareers.service.gov.uk/careers-advice/cv-sections"
+      ]
+    }
+  ],
+  "source_notes": [
+    {
+      "source_id": "govuk_find_a_job_research",
+      "label": "GOV.UK Find a job",
+      "url": "https://www.gov.uk/find-a-job",
+      "access_note": "Public research starting point for England, Scotland, and Wales; GOV.UK directs Northern Ireland searches to a separate service. This pack neither connects the service nor grants automated access."
+    }
+  ]
+}

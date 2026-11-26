@@ -1,3 +1,4 @@
+// Verifies public release asset selection, archive, checksum and SBOM helper contracts.
 import assert from "node:assert/strict";
 import { dirname, resolve } from "node:path";
 import test from "node:test";
@@ -6,28 +7,35 @@ import { gzipSync, gunzipSync } from "node:zlib";
 import { buildSkillsTarGz, buildSkillsZip } from "../../release/package-agent-skills.mjs";
 import {
   findAgentSkillsArchiveAssets,
-  findPlatformInstallerAssets,
-  parseArgs,
-  platformSignerWorkflow,
   validateAgentSkillsArchiveContents,
-  validateWindowsUnsignedAssetLabel,
   validateExactAgentSkillsAssetSet,
+} from "../../release/public-assets/agent-skills.mjs";
+import { parseArgs } from "../../release/public-assets/options.mjs";
+import {
+  findPlatformInstallerAssets,
+  platformSignerWorkflow,
+  validateWindowsUnsignedAssetLabel,
   validatePublicReleaseSupplyChain,
-  validateExactPublicInstallerAssetSet,
 } from "../../release/verify-public-release-assets.mjs";
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 
-test("public release verifier defaults to all supported platforms", () => {
+test("public release verifier defaults to the declared platform set in public mode", () => {
   assert.deepEqual(parseArgs([]), {
+    draft: false,
+    draftManifest: undefined,
+    evidenceRevision: undefined,
+    expectedRevision: undefined,
     expectedVersion: undefined,
-    platforms: ["windows", "macos", "linux"],
+    githubOutput: undefined,
+    platforms: undefined,
     releaseTag: undefined,
     repo: "cboyd0319/JobSentinel",
     requireAttestations: true,
     requireChecksum: true,
     requireSupplyChain: true,
     requireWindowsUnsignedLabel: false,
+    selection: undefined,
   });
 });
 
@@ -60,7 +68,12 @@ test("public release verifier supports scoped platform and supply-chain options"
       "--no-require-supply-chain",
     ]),
     {
+      draft: false,
+      draftManifest: undefined,
+      evidenceRevision: undefined,
+      expectedRevision: undefined,
       expectedVersion: "2.9.0",
+      githubOutput: undefined,
       platforms: ["windows", "linux"],
       releaseTag: "v2.9.0",
       repo: "example/project",
@@ -68,6 +81,7 @@ test("public release verifier supports scoped platform and supply-chain options"
       requireChecksum: false,
       requireSupplyChain: false,
       requireWindowsUnsignedLabel: false,
+      selection: undefined,
     },
   );
 });
@@ -144,53 +158,6 @@ test("public release verifier rejects missing or duplicate installer assets", ()
   assert.throws(
     () => findPlatformInstallerAssets({ assets: [] }, { platform: "windows", expectedVersion: "2.9.0" }),
     /Expected exactly one windows .msi asset/,
-  );
-});
-
-test("public release verifier rejects stale selected-platform installers and checksums", () => {
-  const release = {
-    assets: [
-      { name: "JobSentinel-Windows-v2.9.0-x64.msi", browser_download_url: "https://example.invalid/win" },
-      { name: "JobSentinel-Windows-v2.9.0-x64.msi.sha256", browser_download_url: "https://example.invalid/win.sha256" },
-      { name: "JobSentinel-Windows-v2.9.0-x64-setup.exe", browser_download_url: "https://example.invalid/win-exe" },
-      { name: "JobSentinel-Windows-v2.9.0-x64-setup.exe.sha256", browser_download_url: "https://example.invalid/win-exe.sha256" },
-      { name: "JobSentinel-Windows-v2.8.0-x64.msi", browser_download_url: "https://example.invalid/old-win" },
-      { name: "JobSentinel-Windows-v2.8.0-x64-setup.exe", browser_download_url: "https://example.invalid/old-win-exe" },
-      { name: "JobSentinel_2.8.0_no-account_universal.dmg.sha256", browser_download_url: "https://example.invalid/old-mac-sha" },
-      { name: "JobSentinel-2.9.0-windows.sbom.spdx.json", browser_download_url: "https://example.invalid/sbom" },
-    ],
-  };
-  const expectedAssets = [
-    { name: "JobSentinel-Windows-v2.9.0-x64.msi" },
-    { name: "JobSentinel-Windows-v2.9.0-x64-setup.exe" },
-    { name: "JobSentinel_2.9.0_no-account_universal.dmg" },
-  ];
-
-  assert.throws(
-    () =>
-      validateExactPublicInstallerAssetSet(release, {
-        platforms: ["windows", "macos"],
-        expectedAssets,
-      }),
-    /stale or unexpected installer assets.*JobSentinel-Windows-v2\.8\.0-x64\.msi.*JobSentinel-Windows-v2\.8\.0-x64-setup\.exe.*JobSentinel_2\.8\.0_no-account_universal\.dmg\.sha256/,
-  );
-});
-
-test("public release verifier exact asset set honors scoped platforms", () => {
-  assert.doesNotThrow(() =>
-    validateExactPublicInstallerAssetSet(
-      {
-        assets: [
-          { name: "JobSentinel-Windows-v2.8.0-x64.msi", browser_download_url: "https://example.invalid/old-win" },
-          { name: "JobSentinel_2.9.0_no-account_universal.dmg", browser_download_url: "https://example.invalid/mac" },
-          { name: "JobSentinel_2.9.0_no-account_universal.dmg.sha256", browser_download_url: "https://example.invalid/mac-sha" },
-        ],
-      },
-      {
-        platforms: ["macos"],
-        expectedAssets: [{ name: "JobSentinel_2.9.0_no-account_universal.dmg" }],
-      },
-    ),
   );
 });
 

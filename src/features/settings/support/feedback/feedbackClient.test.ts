@@ -1,3 +1,7 @@
+/** Verifies support-report copying, safe failure, and native command routing. */
+
+import { act, renderHook, waitFor } from "@testing-library/react";
+import { useFeedback } from "./useFeedback";
 import { invoke } from "@tauri-apps/api/core";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
@@ -116,19 +120,35 @@ describe("feedback client", () => {
     );
   });
 
-  it("still opens GitHub when clipboard access fails", async () => {
-    vi.mocked(navigator.clipboard.writeText).mockRejectedValueOnce(
-      new Error("clipboard denied for private data"),
-    );
-    mockInvoke
-      .mockResolvedValueOnce("safe issue report")
-      .mockResolvedValueOnce(undefined);
-
-    await openGitHubIssue("bug", "Crash after search", "debug info");
-
-    expect(mockInvoke).toHaveBeenLastCalledWith("open_github_issues", {
-      template: "bug",
+  it.each(["sanitizer", "clipboard"])("does not certify a safe clipboard after %s failure", async (failure) => {
+    if (failure === "sanitizer") mockInvoke.mockRejectedValueOnce(new Error("sanitizer failed"));
+    else {
+      mockInvoke.mockResolvedValueOnce("safe issue report");
+      vi.mocked(navigator.clipboard.writeText).mockRejectedValueOnce(new Error("clipboard denied"));
+    }
+    await expect(openGitHubIssue("bug", "Crash after search", "debug info")).rejects.toThrow();
+    expect(mockInvoke).not.toHaveBeenCalledWith("open_github_issues", expect.anything());
+    mockInvoke.mockImplementation(async (command) => {
+      if (command === "get_system_info") return systemInfo;
+      if (command === "get_config_summary") return configSummary;
+      if (command === "get_debug_log_events") return [];
+      if (command === "sanitize_feedback_text" && failure === "sanitizer") throw new Error("sanitizer failed");
+      return "safe report";
     });
+    if (failure === "clipboard") vi.mocked(navigator.clipboard.writeText).mockRejectedValueOnce(new Error("clipboard denied"));
+    const { result } = renderHook(() => useFeedback());
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    act(() => {
+      result.current.setCategory("bug");
+      result.current.setDescription("Crash after search");
+      result.current.setStep("submit");
+    });
+    await act(async () => { await result.current.submitViaGitHub(); });
+    expect(result.current.step).toBe("submit");
+    expect(result.current.submittedVia).toBeNull();
+    expect(result.current.error).toMatch(/Save a safe support report instead/);
+    expect(mockInvoke).not.toHaveBeenCalledWith("open_github_issues", expect.anything());
+
   });
 
   it("reveals a saved feedback file through an opaque token", async () => {

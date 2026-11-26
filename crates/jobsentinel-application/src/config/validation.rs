@@ -6,6 +6,7 @@ mod scrapers;
 
 use super::types::Config;
 use super::validation_error::{ValidationError, ValidationErrors};
+use jobsentinel_domain::normalize_country_code;
 use jobsentinel_security::validate_external_https_url;
 use jobsentinel_sources::{parse_greenhouse_company_url, parse_lever_company_url};
 
@@ -316,6 +317,18 @@ fn validate_location(config: &Config, errors: &mut ValidationErrors) {
             config.location_preferences.country.len(),
             MAX_COUNTRY_LENGTH,
         ));
+    }
+
+    if let Some(search_country) = &config.location_preferences.search_country {
+        if search_country.len() != 2
+            || normalize_country_code(search_country) != Some(search_country.as_str())
+        {
+            errors.add(ValidationError::invalid_value(
+                "location_preferences.search_country",
+                search_country,
+                "must be a recognized uppercase ISO alpha-2 country code",
+            ));
+        }
     }
 
     // Validate that at least one location type is enabled

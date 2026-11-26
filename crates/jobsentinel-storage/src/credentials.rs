@@ -1,3 +1,5 @@
+//! Persists encrypted credential-vault rows and passphrase key-wrapping metadata in SQLite.
+
 use sqlx::{Row, SqlitePool};
 
 /// Opaque storage failure for credential metadata and encrypted envelopes.
@@ -118,6 +120,14 @@ impl CredentialRepository {
                 .bind(key)
                 .fetch_one(&self.pool)
                 .await?;
+        Ok(exists == 1)
+    }
+
+    /// Whether any vault ciphertext exists, so a missing vault key must fail closed.
+    pub async fn any_secret_exists(&self) -> Result<bool, CredentialStorageError> {
+        let exists: i64 = sqlx::query_scalar("SELECT EXISTS(SELECT 1 FROM secret_vault)")
+            .fetch_one(&self.pool)
+            .await?;
         Ok(exists == 1)
     }
 

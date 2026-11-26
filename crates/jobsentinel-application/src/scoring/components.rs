@@ -1,3 +1,5 @@
+//! Computes evidence-based score components, with conservative annual USD pay comparisons.
+
 use super::*;
 
 impl ScoringEngine {
@@ -120,8 +122,17 @@ impl ScoringEngine {
             .salary_target_usd
             .unwrap_or(self.config.salary_floor_usd) as f64;
 
-        // Handle missing salary data
-        if job.salary_min.is_none() && job.salary_max.is_none() {
+        let comparable_pay = job.usd_annual_salary_bounds();
+        if comparable_pay.is_none()
+            && (job.listed_pay.is_some() || job.salary_min.is_some() || job.salary_max.is_some())
+        {
+            return (
+                max_score * 0.5,
+                vec!["Listed pay needs manual comparison with your annual USD target".to_string()],
+            );
+        }
+        // Apply the missing-pay preference only when no listed evidence is available.
+        let Some((salary_min, salary_max)) = comparable_pay else {
             let penalty_score = if self.config.penalize_missing_salary {
                 0.3
             } else {
@@ -132,14 +143,14 @@ impl ScoringEngine {
                 (penalty_score * 100.0) as i32
             ));
             return (max_score * penalty_score, reasons);
-        }
+        };
 
         // Calculate effective salary for comparison
         // If both min and max are available, use midpoint
         // Otherwise use whichever is available
-        let effective_salary = match (job.salary_min, job.salary_max) {
+        let effective_salary = match (salary_min, salary_max) {
             (Some(min), Some(max)) => {
-                let midpoint = (min + max) as f64 / 2.0;
+                let midpoint = (min + max) / 2.0;
                 reasons.push(format!(
                     "Salary range: ${}-${} (midpoint: ${})",
                     min, max, midpoint as i64
@@ -148,11 +159,11 @@ impl ScoringEngine {
             }
             (Some(min), None) => {
                 reasons.push(format!("Salary: ${} (minimum only)", min));
-                min as f64
+                min
             }
             (None, Some(max)) => {
                 reasons.push(format!("Salary: ${} (maximum only)", max));
-                max as f64
+                max
             }
             (None, None) => unreachable!(), // Already handled above
         };

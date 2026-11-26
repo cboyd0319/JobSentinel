@@ -1,14 +1,17 @@
-//! Schema.org JobPosting parser
-//!
-//! Extracts and parses Schema.org/JobPosting JSON-LD data from HTML.
+//! Parses Schema.org JobPosting JSON-LD into import-preview data.
 
 mod salary;
+#[cfg(test)]
+mod tests;
 mod types;
 
 pub use types::{JobPageParseError, ParsedJobPage};
 
 use self::{salary::parse_schema_org_salary, types::SchemaOrgJobPosting};
 use chrono::{DateTime, Utc};
+use jobsentinel_domain::{
+    normalize_country_code, CountryObservation, JobGeography, LocationObservation,
+};
 use scraper::{Html, Selector};
 
 /// Parse exactly one Schema.org JobPosting from a page.
@@ -20,174 +23,106 @@ pub fn parse_single_job_page(html: &str) -> Result<ParsedJobPage, JobPageParseEr
     Ok(create_parsed_job_page(&postings.remove(0)))
 }
 
-/// Parse Schema.org JobPosting data from HTML
-///
-/// Looks for <script type="application/ld+json"> tags containing JobPosting data.
-/// Returns all found JobPosting objects.
+/// Parses all Schema.org JobPosting JSON-LD objects on a page.
 fn parse_schema_org_job_posting(html: &str) -> Result<Vec<SchemaOrgJobPosting>, JobPageParseError> {
     let document = Html::parse_document(html);
-
-    // Find all JSON-LD script tags
     let script_selector = Selector::parse("script[type='application/ld+json']")
         .map_err(|error| JobPageParseError::HtmlParseError(format!("{error:?}")))?;
-
     let mut job_postings = Vec::new();
 
     for script in document.select(&script_selector) {
-        let json_text = script.inner_html();
-
-        // Try to parse as JSON
-        let json_value: serde_json::Value = match serde_json::from_str(&json_text) {
-            Ok(v) => v,
-            Err(e) => {
+        let json_value = match serde_json::from_str(&script.inner_html()) {
+            Ok(value) => value,
+            Err(error) => {
                 tracing::debug!(
-                    line = e.line(),
-                    column = e.column(),
+                    line = error.line(),
+                    column = error.column(),
                     "Skipping invalid JSON-LD script tag"
                 );
                 continue;
             }
         };
-
-        // Extract JobPosting objects (handle @type and @graph)
         extract_job_postings(&json_value, &mut job_postings);
     }
-
     if job_postings.is_empty() {
         return Err(JobPageParseError::NoSchemaOrgData);
     }
-
     tracing::info!(count = job_postings.len(), "Found JobPosting objects");
     Ok(job_postings)
 }
 
-/// Extract JobPosting objects from a JSON-LD value
-///
-/// Handles multiple formats:
-/// - Single JobPosting object: {"@type": "JobPosting", ...}
-/// - Array of objects: [{"@type": "JobPosting", ...}, ...]
-/// - Graph format: {"@graph": [{"@type": "JobPosting", ...}, ...]}
+/// Extracts JobPosting objects from direct, array, and graph JSON-LD forms.
 fn extract_job_postings(value: &serde_json::Value, output: &mut Vec<SchemaOrgJobPosting>) {
     match value {
-        serde_json::Value::Object(obj) => {
-            // Check @type
-            if let Some(type_value) = obj.get("@type") {
-                if is_job_posting_type(type_value) {
-                    // Try to deserialize this object as JobPosting
-                    if let Ok(posting) = serde_json::from_value(value.clone()) {
-                        output.push(posting);
-                        return;
-                    }
+        serde_json::Value::Object(object) => {
+            if object.get("@type").is_some_and(is_job_posting_type) {
+                if let Ok(posting) = serde_json::from_value(value.clone()) {
+                    output.push(posting);
+                    return;
                 }
             }
-
-            // Check for @graph (common pattern)
-            if let Some(graph) = obj.get("@graph") {
+            if let Some(graph) = object.get("@graph") {
                 extract_job_postings(graph, output);
             }
         }
-        serde_json::Value::Array(arr) => {
-            // Process each item in the array
-            for item in arr {
-                extract_job_postings(item, output);
+        serde_json::Value::Array(values) => {
+            for value in values {
+                extract_job_postings(value, output);
             }
         }
         _ => {}
     }
 }
 
-/// Check if a @type value indicates JobPosting
+/// Returns whether a JSON-LD type declares JobPosting.
 fn is_job_posting_type(type_value: &serde_json::Value) -> bool {
     match type_value {
-        serde_json::Value::String(s) => s == "JobPosting",
-        serde_json::Value::Array(arr) => arr.iter().any(|v| {
-            if let serde_json::Value::String(s) = v {
-                s == "JobPosting"
-            } else {
-                false
-            }
-        }),
+        serde_json::Value::String(value) => value == "JobPosting",
+        serde_json::Value::Array(values) => values
+            .iter()
+            .any(|value| value.as_str() == Some("JobPosting")),
         _ => false,
     }
 }
 
-/// Convert Schema.org JobPosting to JobImportPreview
-///
-/// Validates required fields and formats data for user preview.
+/// Converts one decoded Schema.org JobPosting into an import preview.
 fn create_parsed_job_page(posting: &SchemaOrgJobPosting) -> ParsedJobPage {
     let mut missing_fields = Vec::new();
-
-    // Extract title
-    let title = match &posting.title {
-        Some(t) if !t.trim().is_empty() => t.trim().to_string(),
-        _ => {
-            missing_fields.push("title".to_string());
-            String::new()
-        }
-    };
-
-    // Extract company name
+    let title = required_text(&posting.title, "title", &mut missing_fields);
     let company = match &posting.hiring_organization {
-        Some(org) => match &org.name {
-            Some(name) if !name.trim().is_empty() => name.trim().to_string(),
-            _ => {
-                missing_fields.push("company name".to_string());
-                String::new()
-            }
-        },
+        Some(organization) => {
+            required_text(&organization.name, "company name", &mut missing_fields)
+        }
         None => {
             missing_fields.push("company".to_string());
             String::new()
         }
     };
-
-    // Extract location
     let location = extract_location(&posting.job_location);
-
-    // Extract description (truncate for preview)
-    let description_preview = posting.description.as_ref().and_then(|desc| {
-        let stripped = strip_html_tags(desc);
-        if stripped.is_empty() {
-            None
-        } else {
-            // Truncate to 500 characters for preview
-            Some(truncate(&stripped, 500))
-        }
+    let geography = extract_geography(
+        &posting.job_location,
+        &posting.applicant_location_requirements,
+    );
+    let description_preview = posting.description.as_ref().and_then(|description| {
+        let stripped = strip_html_tags(description);
+        (!stripped.is_empty()).then(|| truncate(&stripped, 500))
     });
-
-    let parsed_salary = parse_schema_org_salary(&posting.base_salary);
-    let salary = extract_salary(&posting.base_salary, parsed_salary.as_ref());
-    let (salary_min, salary_max, currency) = parsed_salary.map_or((None, None, None), |salary| {
-        let (min, max) = salary.annual_bounds();
-        (min, max, salary.currency())
-    });
-
-    // Parse dates
-    let date_posted = posting
-        .date_posted
+    let listed_pay =
+        parse_schema_org_salary(&posting.base_salary, posting.salary_currency.as_ref());
+    let salary = listed_pay
         .as_ref()
-        .and_then(|s| DateTime::parse_from_rfc3339(s).ok())
-        .map(|dt| dt.with_timezone(&Utc));
-
-    let valid_through = posting
-        .valid_through
-        .as_ref()
-        .and_then(|s| DateTime::parse_from_rfc3339(s).ok())
-        .map(|dt| dt.with_timezone(&Utc));
-
-    // Extract employment types
-    let employment_types = extract_employment_types(&posting.employment_type);
-
-    // Check if remote
-    let remote = posting
-        .job_location_type
-        .as_ref()
-        .is_some_and(|t| t == "TELECOMMUTE");
+        .and_then(|pay| pay.raw_text.clone().or_else(|| pay.format_amounts()));
+    let (salary_min, salary_max) = listed_pay.as_ref().map_or(
+        (None, None),
+        jobsentinel_domain::ListedPay::usd_annual_integer_bounds,
+    );
+    let currency = listed_pay.as_ref().and_then(|pay| pay.currency.clone());
 
     ParsedJobPage {
         title,
         company,
         location,
+        geography,
         description: posting
             .description
             .as_deref()
@@ -196,108 +131,213 @@ fn create_parsed_job_page(posting: &SchemaOrgJobPosting) -> ParsedJobPage {
             .map(str::to_string),
         description_preview,
         salary,
+        listed_pay,
         salary_min,
         salary_max,
         currency,
-        date_posted,
-        valid_through,
-        employment_types,
-        remote,
+        date_posted: parse_date(&posting.date_posted),
+        valid_through: parse_date(&posting.valid_through),
+        employment_types: extract_employment_types(&posting.employment_type),
+        remote: posting.job_location_type.as_deref() == Some("TELECOMMUTE"),
         missing_fields,
     }
 }
 
-/// Extract location from JobLocation (can be object or array)
+fn required_text(value: &Option<String>, name: &str, missing_fields: &mut Vec<String>) -> String {
+    match value
+        .as_deref()
+        .map(str::trim)
+        .filter(|value| !value.is_empty())
+    {
+        Some(value) => value.to_string(),
+        None => {
+            missing_fields.push(name.to_string());
+            String::new()
+        }
+    }
+}
+
+fn parse_date(value: &Option<String>) -> Option<DateTime<Utc>> {
+    value
+        .as_deref()
+        .and_then(|value| DateTime::parse_from_rfc3339(value).ok())
+        .map(|date| date.with_timezone(&Utc))
+}
+
+/// Extracts a display location from one Schema.org JobLocation value.
 fn extract_location(job_location: &Option<serde_json::Value>) -> Option<String> {
-    let loc = job_location.as_ref()?;
-
-    // Handle single location object
-    if let Some(obj) = loc.as_object() {
-        return format_location_object(obj);
+    let location = job_location.as_ref()?;
+    if let Some(object) = location.as_object() {
+        return format_location_object(object);
     }
+    location
+        .as_array()?
+        .first()?
+        .as_object()
+        .and_then(format_location_object)
+}
 
-    // Handle array of locations (take first)
-    if let Some(arr) = loc.as_array() {
-        if let Some(first) = arr.first() {
-            if let Some(obj) = first.as_object() {
-                return format_location_object(obj);
-            }
+/// Formats a Schema.org location or postal address object.
+fn format_location_object(object: &serde_json::Map<String, serde_json::Value>) -> Option<String> {
+    if let Some(address) = object.get("address").and_then(serde_json::Value::as_object) {
+        let parts = [
+            "addressLocality",
+            "addressRegion",
+            "addressCountry",
+            "postalCode",
+        ]
+        .into_iter()
+        .filter_map(|name| address.get(name).and_then(serde_json::Value::as_str))
+        .collect::<Vec<_>>();
+        if !parts.is_empty() {
+            return Some(parts.join(", "));
         }
     }
-
-    None
+    object
+        .get("name")
+        .and_then(serde_json::Value::as_str)
+        .map(str::to_string)
 }
 
-/// Format a location object into a readable string
-fn format_location_object(obj: &serde_json::Map<String, serde_json::Value>) -> Option<String> {
-    // Try to get address
-    if let Some(address) = obj.get("address") {
-        if let Some(addr_obj) = address.as_object() {
-            let mut parts = Vec::new();
-
-            if let Some(city) = addr_obj.get("addressLocality").and_then(|v| v.as_str()) {
-                parts.push(city);
-            }
-            if let Some(state) = addr_obj.get("addressRegion").and_then(|v| v.as_str()) {
-                parts.push(state);
-            }
-            if let Some(country) = addr_obj.get("addressCountry").and_then(|v| v.as_str()) {
-                parts.push(country);
-            }
-
-            if !parts.is_empty() {
-                return Some(parts.join(", "));
-            }
-        }
-    }
-
-    // Fallback to name field
-    obj.get("name")
-        .and_then(|v| v.as_str())
-        .map(|s| s.to_string())
-}
-
-/// Extract salary information
-fn extract_salary(
-    base_salary: &Option<serde_json::Value>,
-    parsed: Option<&salary::ParsedSchemaOrgSalary>,
-) -> Option<String> {
-    let salary = base_salary.as_ref()?;
-
-    // Handle string format
-    if let Some(s) = salary.as_str() {
-        return Some(s.to_string());
-    }
-
-    parsed.and_then(salary::ParsedSchemaOrgSalary::preview_text)
-}
-
-/// Extract employment types (can be string or array)
-fn extract_employment_types(employment_type: &Option<serde_json::Value>) -> Vec<String> {
-    let et = match employment_type {
-        Some(v) => v,
-        None => return Vec::new(),
+fn extract_geography(
+    job_location: &Option<serde_json::Value>,
+    applicant_location_requirements: &Option<serde_json::Value>,
+) -> Option<JobGeography> {
+    let worksites = location_objects(job_location)?
+        .into_iter()
+        .map(worksite_location_observation)
+        .collect::<Option<Vec<_>>>()?;
+    let applicant_locations = location_objects(applicant_location_requirements)?
+        .into_iter()
+        .map(applicant_location_observation)
+        .collect::<Option<Vec<_>>>()?;
+    let geography = JobGeography {
+        worksite_locations: worksites,
+        remote_applicant_locations: applicant_locations,
     };
-
-    // Handle single string
-    if let Some(s) = et.as_str() {
-        return vec![format_employment_type(s)];
-    }
-
-    // Handle array
-    if let Some(arr) = et.as_array() {
-        return arr
-            .iter()
-            .filter_map(|v| v.as_str().map(format_employment_type))
-            .collect();
-    }
-
-    Vec::new()
+    (!geography.worksite_locations.is_empty() || !geography.remote_applicant_locations.is_empty())
+        .then_some(geography)
+        .filter(|value| value.canonical_json().is_ok())
 }
 
-/// Format employment type from Schema.org format to readable format
-fn format_employment_type(s: &str) -> String {
-    match s {
+fn location_objects(
+    value: &Option<serde_json::Value>,
+) -> Option<Vec<&serde_json::Map<String, serde_json::Value>>> {
+    match value.as_ref() {
+        None | Some(serde_json::Value::Null) => Some(Vec::new()),
+        Some(serde_json::Value::Object(object)) => Some(vec![object]),
+        Some(serde_json::Value::Array(values))
+            if values.len() <= JobGeography::MAX_LOCATIONS_PER_KIND =>
+        {
+            values.iter().map(serde_json::Value::as_object).collect()
+        }
+        _ => None,
+    }
+}
+
+fn worksite_location_observation(
+    object: &serde_json::Map<String, serde_json::Value>,
+) -> Option<LocationObservation> {
+    let country = match object.get("address") {
+        Some(serde_json::Value::Object(address)) => {
+            address_country_observation(address.get("addressCountry")).ok()?
+        }
+        None | Some(serde_json::Value::String(_) | serde_json::Value::Null) => None,
+        _ => return None,
+    };
+    let raw_location = object
+        .get("address")
+        .and_then(serde_json::Value::as_str)
+        .map(str::to_string)
+        .or_else(|| format_location_object(object))
+        .or_else(|| country.as_ref().map(|country| country.raw_country.clone()))?;
+    Some(LocationObservation {
+        raw_location,
+        country,
+    })
+}
+
+fn applicant_location_observation(
+    object: &serde_json::Map<String, serde_json::Value>,
+) -> Option<LocationObservation> {
+    let location_type = object.get("@type");
+    let raw_location = object.get("name")?.as_str()?;
+    let country = if location_type.is_some_and(|kind| has_schema_type(kind, "Country")) {
+        Some(country_observation(raw_location)?)
+    } else if location_type.is_none_or(|kind| {
+        ["AdministrativeArea", "State", "City"]
+            .iter()
+            .any(|name| has_schema_type(kind, name))
+    }) {
+        None
+    } else {
+        return None;
+    };
+    Some(LocationObservation {
+        raw_location: raw_location.to_string(),
+        country,
+    })
+}
+
+fn address_country_observation(
+    value: Option<&serde_json::Value>,
+) -> Result<Option<CountryObservation>, ()> {
+    let Some(value) = value.filter(|value| !value.is_null()) else {
+        return Ok(None);
+    };
+    let raw_country = match value {
+        serde_json::Value::String(value) => value.as_str(),
+        serde_json::Value::Object(object)
+            if object
+                .get("@type")
+                .is_none_or(|value| has_schema_type(value, "Country")) =>
+        {
+            object
+                .get("name")
+                .and_then(serde_json::Value::as_str)
+                .ok_or(())?
+        }
+        _ => return Err(()),
+    };
+    Ok(Some(country_observation(raw_country).ok_or(())?))
+}
+
+fn country_observation(raw_country: &str) -> Option<CountryObservation> {
+    (!raw_country.trim().is_empty()).then(|| CountryObservation {
+        raw_country: raw_country.to_string(),
+        alpha2: normalize_country_code(raw_country).map(str::to_string),
+    })
+}
+
+fn has_schema_type(value: &serde_json::Value, expected: &str) -> bool {
+    match value {
+        serde_json::Value::String(value) => value == expected,
+        serde_json::Value::Array(values) => {
+            values.iter().any(|value| value.as_str() == Some(expected))
+        }
+        _ => false,
+    }
+}
+
+/// Extracts one or more Schema.org employment-type values.
+fn extract_employment_types(employment_type: &Option<serde_json::Value>) -> Vec<String> {
+    let Some(value) = employment_type else {
+        return Vec::new();
+    };
+    if let Some(value) = value.as_str() {
+        return vec![format_employment_type(value)];
+    }
+    value.as_array().map_or_else(Vec::new, |values| {
+        values
+            .iter()
+            .filter_map(|value| value.as_str().map(format_employment_type))
+            .collect()
+    })
+}
+
+/// Formats canonical Schema.org employment-type constants for preview display.
+fn format_employment_type(value: &str) -> String {
+    match value {
         "FULL_TIME" => "Full-time",
         "PART_TIME" => "Part-time",
         "CONTRACTOR" => "Contract",
@@ -306,15 +346,14 @@ fn format_employment_type(s: &str) -> String {
         "VOLUNTEER" => "Volunteer",
         "PER_DIEM" => "Per Diem",
         "OTHER" => "Other",
-        _ => s,
+        _ => value,
     }
     .to_string()
 }
 
-/// Strip HTML tags from a string (basic implementation)
+/// Strips markup while retaining human-readable whitespace.
 fn strip_html_tags(html: &str) -> String {
-    let document = Html::parse_fragment(html);
-    document
+    Html::parse_fragment(html)
         .root_element()
         .text()
         .collect::<Vec<_>>()
@@ -324,76 +363,13 @@ fn strip_html_tags(html: &str) -> String {
         .join(" ")
 }
 
-/// Truncate a string to a maximum length, adding "..." if truncated
-fn truncate(s: &str, max_len: usize) -> String {
-    let mut chars = s.chars();
-    let preview = chars.by_ref().take(max_len).collect::<String>();
-    if chars.next().is_none() {
-        return preview;
-    }
-
-    format!("{preview}...")
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_parse_simple_job_posting() {
-        let html = r#"
-            <script type="application/ld+json">
-            {
-                "@context": "https://schema.org",
-                "@type": "JobPosting",
-                "title": "Customer Support Lead",
-                "hiringOrganization": {
-                    "name": "Example Services"
-                },
-                "jobLocation": {
-                    "address": {
-                        "addressLocality": "Chicago",
-                        "addressRegion": "IL"
-                    }
-                }
-            }
-            </script>
-        "#;
-
-        let result = parse_schema_org_job_posting(html);
-        assert!(result.is_ok());
-
-        let postings = result.unwrap();
-        assert_eq!(postings.len(), 1);
-        assert_eq!(postings[0].title.as_deref(), Some("Customer Support Lead"));
-    }
-
-    #[test]
-    fn test_no_schema_org_data() {
-        let html = "<html><body>No JSON-LD here</body></html>";
-        let result = parse_schema_org_job_posting(html);
-        assert!(matches!(result, Err(JobPageParseError::NoSchemaOrgData)));
-    }
-
-    #[test]
-    fn test_format_employment_type() {
-        assert_eq!(format_employment_type("FULL_TIME"), "Full-time");
-        assert_eq!(format_employment_type("CONTRACTOR"), "Contract");
-        assert_eq!(format_employment_type("Unknown"), "Unknown");
-    }
-
-    #[test]
-    fn test_strip_html_tags() {
-        let html = "<p>Hello <strong>world</strong>!</p>";
-        assert_eq!(strip_html_tags(html), "Hello world !");
-    }
-
-    #[test]
-    fn test_truncate_preserves_unicode_boundaries() {
-        let input = "é".repeat(501);
-        let truncated = truncate(&input, 500);
-
-        assert_eq!(truncated.chars().count(), 503);
-        assert!(truncated.ends_with("..."));
+/// Truncates a string at a character boundary and appends an ellipsis marker.
+fn truncate(value: &str, max_len: usize) -> String {
+    let mut characters = value.chars();
+    let preview = characters.by_ref().take(max_len).collect::<String>();
+    if characters.next().is_none() {
+        preview
+    } else {
+        format!("{preview}...")
     }
 }

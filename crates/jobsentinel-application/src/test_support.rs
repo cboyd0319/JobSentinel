@@ -1,3 +1,5 @@
+//! Supplies synthetic application configuration and job fixtures.
+
 use crate::config::{Config, LocationPreferences};
 use chrono::Utc;
 use jobsentinel_domain::Job;
@@ -15,6 +17,7 @@ pub(crate) fn minimal_test_config() -> Config {
             cities: vec![],
             states: vec![],
             country: "US".to_string(),
+            search_country: None,
         },
         salary_floor_usd: 100_000,
         salary_target_usd: None,
@@ -64,6 +67,8 @@ pub(crate) fn test_job(hash: &str, title: &str, company: &str) -> Job {
         salary_min: None,
         salary_max: None,
         currency: None,
+        listed_pay: None,
+        geography: None,
         created_at: now,
         updated_at: now,
         last_seen: now,

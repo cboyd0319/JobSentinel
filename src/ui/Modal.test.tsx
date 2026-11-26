@@ -1,3 +1,6 @@
+// Verifies modal rendering, keyboard behavior, focus, and body-scroll ownership.
+
+import { StrictMode } from "react";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, waitFor, within } from "@testing-library/react";
 import { Modal } from "./Modal";
@@ -224,6 +227,22 @@ describe("Modal", () => {
   });
 
   describe("keyboard handling", () => {
+    it("focuses the panel after Strict Mode effect replay and reopening", async () => {
+      const view = (isOpen: boolean) => (
+        <StrictMode>
+          <Modal isOpen={isOpen} onClose={vi.fn()} title="Focus review">Content</Modal>
+        </StrictMode>
+      );
+      const { rerender } = render(view(true));
+      const expectPanelFocus = () => waitFor(() =>
+        expect(screen.getByRole("dialog").querySelector(".app-modal-panel")).toHaveFocus(),
+      );
+      await expectPanelFocus();
+      rerender(view(false));
+      rerender(view(true));
+      await expectPanelFocus();
+    });
+
     it("calls onClose when Escape is pressed", () => {
       const onClose = vi.fn();
       render(

@@ -1,7 +1,8 @@
+/** Verifies first-run search defaults and concise review summaries. */
+
 import { describe, expect, it } from "vitest";
 import {
   applyReviewVolumePreference,
-  buildSetupSourceQuery,
   buildSetupSearchSummary,
   createDefaultSetupConfig,
   formatSetupPayFloorSummary,
@@ -20,6 +21,7 @@ describe("Setup Wizard preference helpers", () => {
       allow_hybrid: true,
       allow_onsite: true,
       cities: [],
+      search_country: null,
     });
     expect(config.salary_floor_usd).toBe(0);
     expect(config.alerts.desktop.enabled).toBe(false);
@@ -77,24 +79,6 @@ describe("Setup Wizard preference helpers", () => {
     ]);
   });
 
-  it("builds source queries from distinct reviewed search words", () => {
-    const config = {
-      ...createDefaultSetupConfig(),
-      title_allowlist: ["Office Manager", " office manager "],
-      keywords_boost: [
-        "Scheduling",
-        "scheduling",
-        "Client service",
-        "Excel",
-        "Inventory",
-      ],
-    };
-
-    expect(buildSetupSourceQuery(config)).toBe(
-      "Office Manager Scheduling Client service Excel",
-    );
-  });
-
   it("builds plain-language search summaries from config", () => {
     const config = {
       ...createDefaultSetupConfig(),
@@ -106,6 +90,7 @@ describe("Setup Wizard preference helpers", () => {
         allow_hybrid: true,
         allow_onsite: false,
         cities: ["Denver"],
+        search_country: "GB",
       },
       salary_floor_usd: 60000,
       alerts: {
@@ -123,6 +108,7 @@ describe("Setup Wizard preference helpers", () => {
       wantedWork: "Scheduling",
       avoidedWork: "night shift",
       location: "remote, hybrid near Denver",
+      searchCountry: "United Kingdom",
       freshness: "Balanced",
       reviewVolume: "Broad discovery",
       jobSources: "No outside job sources selected; add reviewed sources in Settings.",
@@ -185,22 +171,20 @@ describe("Setup Wizard preference helpers", () => {
     });
   });
 
-  it("suggests a broad public source for non-technical searches without selecting it", () => {
+  it("does not suggest a retired scheduled source for non-technical searches", () => {
     const config = {
       ...createDefaultSetupConfig(),
       title_allowlist: ["Office Manager"],
       keywords_boost: ["Scheduling"],
     };
 
-    expect(getSuggestedJobSourceOptions(config).map((source) => source.key)).toEqual([
-      "simplyhired",
-    ]);
+    expect(getSuggestedJobSourceOptions(config)).toEqual([]);
     expect(buildSetupSearchSummary(config, "balanced", "balanced")).toMatchObject({
       jobSources: "No outside job sources selected; add reviewed sources in Settings.",
     });
   });
 
-  it("summarizes only sources the user selected", () => {
+  it("does not summarize a retired source from legacy config", () => {
     const config = {
       ...createDefaultSetupConfig(),
       title_allowlist: ["Software Engineer"],
@@ -216,7 +200,7 @@ describe("Setup Wizard preference helpers", () => {
     };
 
     expect(buildSetupSearchSummary(config, "balanced", "balanced")).toMatchObject({
-      jobSources: "Remote OK, SimplyHired selected.",
+      jobSources: "Remote OK selected.",
     });
   });
 });

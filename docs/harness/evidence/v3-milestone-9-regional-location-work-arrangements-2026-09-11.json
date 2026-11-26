@@ -1,0 +1,79 @@
+{
+  "schema": "jobsentinel.v3.milestone-evidence.v1",
+  "feature_id": "v3-milestone-9-regions-access-editions-first-run",
+  "recorded_on": "2026-09-11",
+  "result": "partial",
+  "slice": "Disclosed postcodes, distinct work arrangements, and corroborated India starter provenance",
+  "base_revision": "db8ec834b0e113e617702702b7501392e1d2a38d",
+  "platform": "macOS 27 arm64; repository-pinned Rust 1.97.1; Chromium mock-browser journey",
+  "source_snapshot": {
+    "modified_source_count": 144,
+    "modified_source_digest_sha256": "dd32ee6a07353e8d8e84bf856851e691152be3462fec37e85aba6ffae23beb66",
+    "recipe": "Union git diff --name-only -z and git ls-files --others --exclude-standard -z for crates, src, src-tauri; sort unique paths; SHA256(JSON.stringify(paths.map(path => [path, SHA256(file bytes)]))).",
+    "caveat": "Includes earlier uncommitted M9 work; checks below cover this slice. E2E source is recorded separately."
+  },
+  "file_sha256": {
+    "crates/jobsentinel-sources/src/job_page/mod.rs": "d737b26e7910ebe140b1be6a963cb98553206fc7184bc261be8ab5621d67ca29",
+    "crates/jobsentinel-sources/src/job_page/tests.rs": "32dbfa10da1249d24ba17a8cd0e62a6b6691fe4f910bfe9e7a90d727293ec36f",
+    "src-tauri/src/ipc/jobs.rs": "9e478c03f9b164d0fdfdb507d98044a09772f2a469f7311730db9c55408a57d7",
+    "src/features/dashboard/types.ts": "10bf718d52b7587c33f4cdb88eab7778d6caa17402c880167b64fd96379e6f48",
+    "src/features/dashboard/workArrangement.ts": "25f222a040d6529fa58f411f48971b0fa0ab8002df179c694c43b19afc16483d",
+    "src/features/dashboard/workArrangement.test.ts": "f60bbcf4e09119554ff4404f3832fd1e183a625a7d8855643268e4afa1c588d1",
+    "src/features/dashboard/components/DashboardFiltersBar.tsx": "3d95070c5c08d490cc6f404fc2ab72363caccfcf6b05b2fd4d3d4bd54fdaf395",
+    "src/features/dashboard/components/JobCard.tsx": "716bcc5030cf2722f782bd2cc3cc8150795ac133cba517a4ca791660ac49fc2f",
+    "src/features/dashboard/components/filterLabels.ts": "a6f5264b1bb4f7ba361800fe57feedb4026fce674235c1df38c7901915fc27c0",
+    "src/features/dashboard/hooks/useDashboardFilters.ts": "46272c36a0a2fe07626c078db44f40095b85c713666c6797ced790725e01bd2c",
+    "src/dev-runtime/features/dashboard/workArrangement.ts": "586f4b5288d0ab87b5f7532963beaf63641eb24cf027952451ced1d8534c4eb3",
+    "src/dev-runtime/features/dashboard/commands.ts": "6507b5e38121a2c63421ff3b81efea50e7a602fe8c1d59064e3e26b9e4576854",
+    "crates/jobsentinel-domain/src/fixtures/region_manifests/india_starter_v1.json": "194d1ab8287288d85e92d1130cb046a512605b39b7f43d829856087dd6e23243",
+    "src/shared/regionStarterData.test.ts": "1ff0ae22dbefef8942768505e90db3ca9aa413f80cb5b3e699606145aff616b9",
+    "tests/e2e/playwright/military-inclusive-journey.spec.ts": "4cf214431bbe803dc7ed7ebd50dae7d383116be2e714ddc57265506bcb1b02fd"
+  },
+  "verified_behavior": [
+    "Schema.org display locations retain disclosed string postalCode values, including postal-only input; missing postcodes keep previous formatting. No geocoding, country inference, or postal-validity claim.",
+    "The shared desktop dashboard Job serializer adds work_arrangement from the existing application classifier. Its precedence and scoring behavior are unchanged; no database field or migration was added.",
+    "Dashboard filters distinguish remote, hybrid, onsite, and unspecified. Missing or malformed derived values fall back only from remote=true to remote; other legacy rows remain unspecified.",
+    "Known work-arrangement labels retain raw geography, including remote-country restrictions and postcodes. Browser-development projection uses the canonical indicator JSON and locale-independent lowercase conversion.",
+    "India starter data distinguishes corroborated occupation identity, tentative JobSentinel vocabulary alignment, and cached qualification research. No equivalence, credentials, eligibility, or source authority is inferred."
+  ],
+  "behavioral_red": [
+    "Postcode display tests: exit 101, two failed; structured and postal-only values were omitted.",
+    "Native wire test: exit 101, one failed; work_arrangement was absent.",
+    "Frontend work-arrangement tests: five intended failures before implementation. Follow-up display regressions exposed discarded geography before correction.",
+    "India provenance contract: exit 1, one failed; fixture still referenced the unavailable original-volume route instead of the corroborating record."
+  ],
+  "checks": [
+    { "command": "node scripts/dev/run-cargo.mjs test -p jobsentinel-sources --lib job_page::tests::location_display -- --nocapture", "exit_status": 0, "passed": 2 },
+    { "command": "node scripts/dev/run-cargo.mjs test -p jobsentinel --lib ipc::jobs::tests", "exit_status": 0, "passed": 1 },
+    { "command": "npx vitest run src/features/dashboard/hooks/useDashboardFilters.test.ts src/features/dashboard/components/JobCard.test.tsx src/features/dashboard/components/DashboardFiltersBar.test.tsx src/features/dashboard/components/filterLabels.test.ts src/dev-runtime/features/dashboard/commands.test.ts", "exit_status": 0, "passed": 67 },
+    { "command": "npx vitest run src/features/dashboard/workArrangement.test.ts src/features/dashboard/components/JobCard.test.tsx src/dev-runtime/features/dashboard/commands.test.ts", "exit_status": 0, "passed": 37, "scope": "Final geography-preservation and locale-independent mock follow-up; overlaps the preceding test set." },
+    { "command": "npx vitest run src/shared/regionStarterData.test.ts src/features/settings/packs/PackRegionReview.test.tsx", "exit_status": 0, "passed": 60 },
+    { "command": "node scripts/dev/run-cargo.mjs test -p jobsentinel-application --lib pack_runtime_tests::region::signed_starter_fixtures_survive_region_activation_and_review", "exit_status": 0, "passed": 1, "scope": "All three starter payloads, including updated India data, validate and survive test-signed activation and review." },
+    { "command": "npm run test:e2e -- tests/e2e/playwright/military-inclusive-journey.spec.ts --grep \"work arrangements\" --workers=1", "exit_status": 0, "passed": 1, "duration_seconds": 27.1 },
+    { "command": "node scripts/dev/run-cargo.mjs clippy -p jobsentinel -p jobsentinel-sources --lib -- -D warnings", "exit_status": 0 },
+    { "command": "npm run typecheck", "exit_status": 0 },
+    { "command": "npx eslint src/shared/regionStarterData.test.ts", "exit_status": 0 },
+    { "command": "node_modules/.bin/markdownlint --config .markdownlint.json docs/plans/v3/regional-readiness-framework.md", "exit_status": 0 },
+    { "command": "npm run harness:check", "exit_status": 0 },
+    { "command": "git diff --check", "exit_status": 0 }
+  ],
+  "india_source_review": {
+    "occupation_source": "https://www.msde.gov.in/static/uploads/2025/07/6a62ad4129b524c392ed1450393804f4.pdf",
+    "occupation_evidence": "MSDE/NCAER official secondary PDF, Annexure 10.1, printed p. 279 (PDF index 328), row 30: NCO 2015 2512.0204 and Software Developer – Application Development. Full extracted document text was inspected; the canonical NCO volume was not.",
+    "qualification_source": "https://www.nqr.gov.in/qualifications/13568",
+    "qualification_file": "https://www.nqr.gov.in/qualification/file/Qfile_Software%20Product%20Developer.pdf",
+    "qualification_evidence": "Cached HTML and linked qualification-file observations identify Software Product Developer, NOS SSC/N0514 and SSC/N0502, and NCO 2511.0103. Live follow-up retrieval timed out; no qualification equivalence to 2512.0204 or current eligibility is claimed.",
+    "boundary": "Public read-only research only; no authentication, access-control bypass, original-volume completeness claim, or production source grant."
+  },
+  "review": "Scoped adversarial review returned SOUND after geography-preservation correction. No material defect found; classification remains an inference from the existing source/text policy.",
+  "prior_evidence": [
+    "docs/harness/evidence/v3-milestone-9-military-access-path-2026-09-11.json"
+  ],
+  "remaining": [
+    "Country preference is currently unused metadata. Operational regional selection, country-aware normalization, broader regional fixtures, matching evaluation, and manual readiness remain open.",
+    "The location-sensitive job-hash algorithm is unchanged; no saved hashes were rewritten. Richer future import locations follow that existing identity contract.",
+    "Native six-surface/offline journey remains unproven; alternate native UI automation still awaits explicit user approval.",
+    "Production region signing approval, Gate 5, controlled 8 GiB, and remaining platform evidence remain open.",
+    "The previous verified package predates this slice. No installer rebuild, full suite, model transfer, live credential access, commit, or publication was performed."
+  ]
+}

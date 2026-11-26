@@ -1,3 +1,4 @@
+// Verifies macOS readiness scoring and release workflow text contracts.
 import assert from "node:assert/strict";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -164,7 +165,7 @@ test("macOS readiness checks no-account release workflow order", () => {
     "  run: shasum -a 256 \"${dmg_paths[0]}\" > \"${dmg_paths[0]}.sha256\"",
     "- name: Remove old macOS release assets",
     "  run: while IFS= read -r asset; do",
-    "  run: gh release delete-asset \"$RELEASE_TAG\" \"$asset\" -y",
+    "  run: node scripts/release/draft-assets.mjs delete-stale --platform macos --release-id \"$RELEASE_ID\"",
     "- name: Stage macOS release assets",
     "  run: cp target/${{ matrix.target }}/release/bundle/dmg/*.dmg.sha256 release-assets/public/",
     "- name: Generate release SBOM",
@@ -184,7 +185,7 @@ test("macOS readiness checks no-account release workflow order", () => {
     "- name: Upload release assets",
     "  run: |",
     "    assets=(release-assets/public/*)",
-    "    gh release upload \"$RELEASE_TAG\" \"${assets[@]}\" --clobber",
+    "    node scripts/release/draft-assets.mjs upload --release-id \"$RELEASE_ID\" -- \"${assets[@]}\"",
   ].join("\n");
 
   const staleWorkflow = [
@@ -196,7 +197,7 @@ test("macOS readiness checks no-account release workflow order", () => {
     "  run: rm -f \"$current_path.sha256\" \"$labeled_path.sha256\"",
     "- name: Remove old macOS release assets",
     "  run: while IFS= read -r asset; do",
-    "  run: gh release delete-asset \"$RELEASE_TAG\" \"$asset\" -y",
+    "  run: node scripts/release/draft-assets.mjs delete-stale --platform macos --release-id \"$RELEASE_ID\"",
     "- name: Upload macOS DMG",
     "  with:",
     "    files: target/${{ matrix.target }}/release/bundle/dmg/*.dmg.sha256",
@@ -263,33 +264,39 @@ test("macOS readiness checks staged uploads and automatic publication", () => {
     "    GH_REPO: ${{ github.repository }}",
     "    RELEASE_TAG: ${{ steps.release_inputs.outputs.tag }}",
     "  run: |",
-    "    gh release edit \"$RELEASE_TAG\" --draft --prerelease=false --notes-file \"$notes_file\"",
     "    gh release create \"$RELEASE_TAG\" --draft --notes-file \"$notes_file\"",
     "- name: Upload release assets",
     "  env:",
     "    GH_TOKEN: ${{ github.token }}",
-    "    GH_REPO: ${{ github.repository }}",
+    "    RELEASE_ID: ${{ inputs.release_id }}",
     "    RELEASE_TAG: ${{ needs.create-release.outputs.tag }}",
     "  run: |",
     "    assets=(release-assets/public/*)",
-    "    gh release upload \"$RELEASE_TAG\" \"${assets[@]}\" --clobber",
+    "    node scripts/release/draft-assets.mjs upload --release-id \"$RELEASE_ID\" -- \"${assets[@]}\"",
     "publish-release:",
     "  needs:",
     "    - create-release",
     "    - build-release",
     "  steps:",
+    "    - name: Confirm the verified draft is unchanged",
+    "      run: node scripts/release/confirm-verified-draft.mjs --release-id \"$RELEASE_ID\" --asset-digest \"$ASSET_DIGEST\"",
     "    - name: Publish hosted release",
     "      env:",
-    "        GH_TOKEN: ${{ github.token }}",
-    "        GH_REPO: ${{ github.repository }}",
-    "        RELEASE_TAG: ${{ needs.create-release.outputs.tag }}",
+    "        GITHUB_TOKEN: ${{ github.token }}",
+    "        RELEASE_ID: ${{ steps.publish_gate.outputs.release_id }}",
     "      run: |",
-    "        gh release edit \"$RELEASE_TAG\" --draft=false --prerelease=false",
+    "        node scripts/release/publish-release.mjs --release-id \"$RELEASE_ID\"",
   ].join("\n");
 
   assert.equal(releaseAssetUploadsStayDraft(legacyWorkflow), true);
   assert.equal(releaseAssetUploadsStayDraft(workflow), true);
   assert.equal(releasePublishesAfterSuccessfulUploads(workflow), true);
+  assert.equal(
+    releaseAssetUploadsStayDraft(
+      workflow.replace("  run: |\n    gh release create", "  run: |\n    gh release edit \"$RELEASE_TAG\" --draft\n    gh release create"),
+    ),
+    false,
+  );
   assert.equal(
     releaseAssetUploadsStayDraft(
       workflow.replaceAll("    GH_REPO: ${{ github.repository }}\n", ""),
@@ -304,7 +311,7 @@ test("macOS readiness checks staged uploads and automatic publication", () => {
   );
   assert.equal(
     releasePublishesAfterSuccessfulUploads(
-      workflow.replace("        gh release edit \"$RELEASE_TAG\" --draft=false --prerelease=false", ""),
+      workflow.replace("        node scripts/release/publish-release.mjs", "        gh api --method PATCH \"repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID\" -F draft=false\n        node scripts/release/publish-release.mjs"),
     ),
     false,
   );
@@ -377,7 +384,6 @@ test("macOS readiness checks Linux package verification gate", () => {
     "    GH_REPO: ${{ github.repository }}",
     "    RELEASE_TAG: ${{ steps.release_inputs.outputs.tag }}",
     "  run: |",
-    "    gh release edit \"$RELEASE_TAG\" --draft --prerelease=false --notes-file \"$notes_file\"",
     "    gh release create \"$RELEASE_TAG\" --draft --notes-file \"$notes_file\"",
     "- name: Verify Linux packages and checksums",
     "  env:",
@@ -401,11 +407,11 @@ test("macOS readiness checks Linux package verification gate", () => {
     "- name: Upload release assets",
     "  env:",
     "    GH_TOKEN: ${{ github.token }}",
-    "    GH_REPO: ${{ github.repository }}",
+    "    RELEASE_ID: ${{ inputs.release_id }}",
     "    RELEASE_TAG: ${{ needs.create-release.outputs.tag }}",
     "  run: |",
     "    assets=(release-assets/public/*)",
-    "    gh release upload \"$RELEASE_TAG\" \"${assets[@]}\" --clobber",
+    "    node scripts/release/draft-assets.mjs upload --release-id \"$RELEASE_ID\" -- \"${assets[@]}\"",
   ].join("\n");
 
   assert.equal(linuxPackageUploadRequiresVerification(workflow), true);

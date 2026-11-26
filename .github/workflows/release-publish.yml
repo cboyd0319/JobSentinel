@@ -1,0 +1,122 @@
+# Publishes the draft by release id only after final-phase evidence certifies its exact assets.
+name: Release publication
+
+on:
+  workflow_call:
+    inputs:
+      evidence_ref:
+        required: true
+        type: string
+      selection:
+        required: true
+        type: string
+      tag:
+        required: true
+        type: string
+      version:
+        required: true
+        type: string
+
+permissions: {}
+
+jobs:
+  publication:
+    runs-on: ubuntu-24.04
+    # release:readiness requires this to cover every step cap, the publish budget and a margin, so re-drafting runs.
+    timeout-minutes: 60
+    environment:
+      name: release
+    permissions:
+      attestations: read
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        timeout-minutes: 5
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup Node.js
+        timeout-minutes: 5
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "24.18.0"
+          package-manager-cache: false
+
+      # No npm install: these scripts import only Node built-ins (enforced by release-script-imports.test.mjs).
+      - name: Verify final-phase evidence certifies the draft
+        id: publish_gate
+        timeout-minutes: 20
+        shell: bash
+        env:
+          EVIDENCE_REF: ${{ inputs.evidence_ref }}
+          GITHUB_TOKEN: ${{ github.token }}
+          RELEASE_SELECTION: ${{ inputs.selection }}
+          RELEASE_VERSION: ${{ inputs.version }}
+          VAR_REQUIRE_WINDOWS_UNSIGNED_LABEL: ${{ vars.JOBSENTINEL_WINDOWS_REQUIRE_UNSIGNED_LABEL }}
+        run: |
+          set -euo pipefail
+
+          args=(
+            --version "$RELEASE_VERSION"
+            --selection "$RELEASE_SELECTION"
+            --evidence-revision "$EVIDENCE_REF"
+            --source-revision "$GITHUB_SHA"
+            --repo "$GITHUB_REPOSITORY"
+            --github-output "$GITHUB_OUTPUT"
+          )
+          if [ "${VAR_REQUIRE_WINDOWS_UNSIGNED_LABEL:-true}" = "true" ]; then
+            args+=(--require-windows-unsigned-label)
+          fi
+
+          node scripts/release/publish-gate.mjs "${args[@]}"
+
+      - name: Confirm the verified draft is unchanged
+        timeout-minutes: 5
+        shell: bash
+        env:
+          ASSET_DIGEST: ${{ steps.publish_gate.outputs.asset_digest }}
+          EVIDENCE_REF: ${{ inputs.evidence_ref }}
+          GITHUB_TOKEN: ${{ github.token }}
+          RELEASE_ID: ${{ steps.publish_gate.outputs.release_id }}
+          RELEASE_TAG: ${{ inputs.tag }}
+        run: |
+          set -euo pipefail
+
+          node scripts/release/confirm-verified-draft.mjs --repo "$GITHUB_REPOSITORY" \
+            --release-id "$RELEASE_ID" --tag "$RELEASE_TAG" --tag-commit "$GITHUB_SHA" \
+            --asset-digest "$ASSET_DIGEST" --evidence-revision "$EVIDENCE_REF"
+
+      # No step timeout: publish-release.mjs bounds itself by its budget and must be left to re-draft.
+      - name: Publish hosted release
+        shell: bash
+        env:
+          EVIDENCE_REF: ${{ inputs.evidence_ref }}
+          # API reads, the publish and re-draft PATCHes, and attestation lookups; downloads are anonymous.
+          GITHUB_TOKEN: ${{ github.token }}
+          RELEASE_ID: ${{ steps.publish_gate.outputs.release_id }}
+          RELEASE_SELECTION: ${{ inputs.selection }}
+          RELEASE_TAG: ${{ inputs.tag }}
+          RELEASE_VERSION: ${{ inputs.version }}
+          VAR_REQUIRE_WINDOWS_UNSIGNED_LABEL: ${{ vars.JOBSENTINEL_WINDOWS_REQUIRE_UNSIGNED_LABEL }}
+        run: |
+          set -euo pipefail
+
+          args=(
+            --tag "$RELEASE_TAG"
+            --expected-version "$RELEASE_VERSION"
+            --release-id "$RELEASE_ID"
+            --selection "$RELEASE_SELECTION"
+            --repo "$GITHUB_REPOSITORY"
+            --require-supply-chain
+            --evidence-revision "$EVIDENCE_REF"
+          )
+          if [ "${VAR_REQUIRE_WINDOWS_UNSIGNED_LABEL:-true}" = "true" ]; then
+            args+=(--require-windows-unsigned-label)
+          fi
+
+          # Publishes by id, verifies the public release, and re-drafts it by id on any failure. exec makes node the
+          # step's top process, the only one the runner signals on cancellation, so it can re-draft before exiting.
+          exec node scripts/release/publish-release.mjs "${args[@]}"

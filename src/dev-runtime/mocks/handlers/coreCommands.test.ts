@@ -1,3 +1,5 @@
+/** Verifies browser-development core command responses and platform boundaries. */
+
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { mockInvoke, resetMockData } from "../handlers";
 
@@ -24,6 +26,7 @@ type DashboardPreferences = {
   };
   salaryFloorUsd: number;
   anyJobSourceEnabled: boolean;
+  searchCountry: string | null;
 };
 
 type BrowserImportConfig = {
@@ -45,6 +48,18 @@ describe("mock core command handlers", () => {
 
   afterEach(() => {
     vi.useRealTimers();
+  });
+
+  it("exposes bounded country options and keeps native file access unavailable", async () => {
+    await expect(mockInvoke("get_search_country_options")).resolves.toEqual([
+      ["US", "United States"],
+      ["GB", "United Kingdom"],
+      ["DE", "Germany"],
+      ["FR", "France"],
+      ["IN", "India"],
+    ]);
+    await expect(mockInvoke("preview_dropped_job", { dropId: "opaque" }))
+      .rejects.toThrow("Native file drop is unavailable in browser development.");
   });
 
   it("returns the active Browser Import setup after starting the local receiver", async () => {
@@ -107,6 +122,7 @@ describe("mock core command handlers", () => {
       autoRefresh: { enabled: true, interval_minutes: 30 },
       salaryFloorUsd: 80000,
       anyJobSourceEnabled: false,
+      searchCountry: null,
     });
   });
 

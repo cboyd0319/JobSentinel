@@ -1,3 +1,5 @@
+/** Verifies dashboard persisted-filter labels remain readable and stable. */
+
 import { describe, expect, it } from "vitest";
 import {
   formatBookmarkFilter,
@@ -15,6 +17,8 @@ describe("dashboard filter labels", () => {
     expect(formatSortOption("score-asc")).toBe("Needs Review First");
     expect(formatScoreFilter("high")).toBe("Strong Fit");
     expect(formatRemoteFilter("remote")).toBe("Remote Only");
+    expect(formatRemoteFilter("hybrid")).toBe("Hybrid Only");
+    expect(formatRemoteFilter("unspecified")).toBe("Not disclosed / unspecified");
     expect(formatBookmarkFilter("bookmarked")).toBe("Bookmarked");
     expect(formatNotesFilter("has-notes")).toBe("With Notes");
   });

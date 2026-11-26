@@ -1,3 +1,4 @@
+// Writes minimal repository fixtures that satisfy every security sensor policy.
 import { mkdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -139,10 +140,11 @@ export function writeBaseRepo(root, csp) {
   writeFileSync(
     join(root, "scripts/release/verify-public-release-assets.mjs"),
     [
-      "function selectedPlatformAssetExtensions() {}",
-      "export function validateExactPublicInstallerAssetSet() {",
-      "  throw new Error('stale or unexpected installer assets');",
-      "}",
+      "validateReleaseAssetIdentity(release);",
+      "validateExactReleaseAssetSet(release);",
+      "await loadPlatformDeclaration(ctx);",
+      "downloadPublicAsset(asset.browser_download_url, path);",
+      "downloadDraftAsset(asset, path);",
     ].join("\n"),
   );
   writeFileSync(
@@ -430,7 +432,7 @@ export function readBaseReleaseWorkflowWithout(removedLine) {
     "      name: release",
     "    steps:",
     "      - run: |",
-    '          gh release edit "$RELEASE_TAG" --notes-file "$notes_file"',
+    '          node scripts/release/stage-target.mjs --repo "$GITHUB_REPOSITORY" --tag "$RELEASE_TAG"',
     '          gh release create "$RELEASE_TAG" --notes-file "$notes_file"',
     "  build-release:",
     "    environment:",
@@ -482,7 +484,7 @@ export function readBaseReleaseWorkflowWithout(removedLine) {
     "        with:",
     "          subject-path: |\n            release-assets/public/*.dmg\n            release-assets/public/*.msi\n            release-assets/public/*.exe\n            release-assets/public/*.AppImage\n            release-assets/public/*.deb",
     "          sbom-path: release-assets/public/JobSentinel-1.2.3-macos.sbom.spdx.json",
-    '      - run: gh release upload "$RELEASE_TAG" release-assets/public/* --clobber',
+    '      - run: node scripts/release/draft-assets.mjs upload --repo "$GITHUB_REPOSITORY" --release-id "$RELEASE_ID" -- release-assets/public/*',
   ]
     .join("\n")
     .replace(removedLine, "");

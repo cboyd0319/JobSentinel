@@ -1,3 +1,5 @@
+/** Verifies dashboard filtering and sorting behavior for saved job records. */
+
 import { describe, it, expect } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import {
@@ -16,6 +18,7 @@ function makeJob(overrides: Partial<Job> = {}): Job {
     location: "Remote",
     url: "https://example.com/job/1",
     source: "linkedin",
+    currency: "USD",
     score: 0.85,
     description:
       "Help customers, document issues, coordinate follow-up, and support a care team.",
@@ -24,132 +27,99 @@ function makeJob(overrides: Partial<Job> = {}): Job {
   };
 }
 
+interface SalaryFilterCase {
+  description: string;
+  jobs: Job[];
+  filters: Array<{
+    minimum?: number;
+    maximum?: number;
+    expectedIds: number[];
+  }>;
+}
+
+const salaryFilterCases: SalaryFilterCase[] = [
+  {
+    description: "treats salary filter values as full yearly dollars",
+    jobs: [
+      makeJob({ id: 1, title: "Customer Support Lead", salary_min: 65_000, salary_max: 72_000 }),
+      makeJob({ id: 2, title: "Front Desk Coordinator", salary_min: 42_000, salary_max: 52_000 }),
+      makeJob({ id: 3, title: "Operations Manager", salary_min: 90_000, salary_max: 110_000 }),
+    ],
+    filters: [
+      { minimum: 60_000, expectedIds: [1, 3] },
+      { maximum: 80_000, expectedIds: [1] },
+    ],
+  },
+  {
+    description: "keeps minimum-only pay visible when top listed pay is unknown",
+    jobs: [
+      makeJob({ id: 1, title: "Open-ended Coordinator", salary_min: 45_000, salary_max: null }),
+      makeJob({ id: 2, title: "Known Below Floor", salary_min: null, salary_max: 52_000 }),
+      makeJob({ id: 3, title: "Known Above Floor", salary_min: 70_000, salary_max: 90_000 }),
+    ],
+    filters: [{ minimum: 65_000, expectedIds: [1, 3] }],
+  },
+  {
+    description: "keeps maximum-only pay visible when bottom listed pay is unknown",
+    jobs: [
+      makeJob({ id: 1, title: "Open-ended Specialist", salary_min: null, salary_max: 150_000 }),
+      makeJob({ id: 2, title: "Known Above Cap", salary_min: 90_000, salary_max: 120_000 }),
+      makeJob({ id: 3, title: "Known Below Cap", salary_min: 55_000, salary_max: 75_000 }),
+    ],
+    filters: [{ maximum: 80_000, expectedIds: [1, 3] }],
+  },
+  {
+    description: "treats malformed listed pay as unavailable",
+    jobs: [
+      makeJob({ id: 1, title: "Reversed Range", salary_min: 150_000, salary_max: 80_000 }),
+      makeJob({ id: 2, title: "Negative Pay", salary_min: -10_000, salary_max: 80_000 }),
+      makeJob({ id: 3, title: "Infinite Pay", salary_min: 70_000, salary_max: Infinity }),
+      makeJob({ id: 4, title: "Usable Range", salary_min: 70_000, salary_max: 90_000 }),
+    ],
+    filters: [{ minimum: 65_000, expectedIds: [4] }],
+  },
+  {
+    description: "excludes non-USD and non-annual pay from USD salary filters",
+    jobs: [
+      makeJob({ id: 1, currency: null, listed_pay: { min: 5_000, max: 7_000, currency: "EUR", period: "monthly", qualifiers: [], raw_text: null } }),
+      makeJob({ id: 2, listed_pay: { min: 120_000, max: 150_000, currency: "USD", period: "annual", qualifiers: [], raw_text: null } }),
+    ],
+    filters: [{ minimum: 100_000, expectedIds: [2] }],
+  },
+];
+
 describe("useDashboardFilters — score edge cases", () => {
   describe("salary filtering", () => {
-    it("treats salary filter values as full yearly dollars", () => {
-      const jobs: Job[] = [
-        makeJob({
-          id: 1,
-          title: "Customer Support Lead",
-          salary_min: 65000,
-          salary_max: 72000,
-        }),
-        makeJob({
-          id: 2,
-          title: "Front Desk Coordinator",
-          salary_min: 42000,
-          salary_max: 52000,
-        }),
-        makeJob({
-          id: 3,
-          title: "Operations Manager",
-          salary_min: 90000,
-          salary_max: 110000,
-        }),
-      ];
-
+    it.each(salaryFilterCases)("$description", ({ jobs, filters }) => {
       const { result } = renderHook(() => useDashboardFilters(jobs));
-
-      act(() => result.current.setSalaryMinFilter(60000));
-
-      expect(result.current.filteredAndSortedJobs.map((j) => j.id).sort()).toEqual([1, 3]);
-
-      act(() => result.current.setSalaryMaxFilter(80000));
-
-      expect(result.current.filteredAndSortedJobs.map((j) => j.id)).toEqual([1]);
+      for (const filter of filters) {
+        act(() => {
+          if (filter.minimum !== undefined) result.current.setSalaryMinFilter(filter.minimum);
+          if (filter.maximum !== undefined) result.current.setSalaryMaxFilter(filter.maximum);
+        });
+        expect(result.current.filteredAndSortedJobs.map((job) => job.id).sort()).toEqual(filter.expectedIds);
+      }
     });
+  });
 
-    it("keeps minimum-only pay visible when top listed pay is unknown", () => {
+  describe("work-arrangement filtering", () => {
+    it("keeps hybrid and unknown rows out of On-site Only", () => {
       const jobs: Job[] = [
-        makeJob({
-          id: 1,
-          title: "Open-ended Coordinator",
-          salary_min: 45000,
-          salary_max: null,
-        }),
-        makeJob({
-          id: 2,
-          title: "Known Below Floor",
-          salary_min: null,
-          salary_max: 52000,
-        }),
-        makeJob({
-          id: 3,
-          title: "Known Above Floor",
-          salary_min: 70000,
-          salary_max: 90000,
-        }),
+        makeJob({ id: 1, remote: true }),
+        makeJob({ id: 2, remote: false, work_arrangement: "hybrid" }),
+        makeJob({ id: 3, remote: false, work_arrangement: "onsite" }),
+        makeJob({ id: 4, remote: false }),
       ];
-
       const { result } = renderHook(() => useDashboardFilters(jobs));
 
-      act(() => result.current.setSalaryMinFilter(65000));
+      act(() => result.current.setRemoteFilter("onsite"));
+      expect(result.current.filteredAndSortedJobs.map((job) => job.id)).toEqual([3]);
 
-      expect(result.current.filteredAndSortedJobs.map((j) => j.id).sort()).toEqual([1, 3]);
-    });
+      act(() => result.current.setRemoteFilter("hybrid"));
+      expect(result.current.filteredAndSortedJobs.map((job) => job.id)).toEqual([2]);
 
-    it("keeps maximum-only pay visible when bottom listed pay is unknown", () => {
-      const jobs: Job[] = [
-        makeJob({
-          id: 1,
-          title: "Open-ended Specialist",
-          salary_min: null,
-          salary_max: 150000,
-        }),
-        makeJob({
-          id: 2,
-          title: "Known Above Cap",
-          salary_min: 90000,
-          salary_max: 120000,
-        }),
-        makeJob({
-          id: 3,
-          title: "Known Below Cap",
-          salary_min: 55000,
-          salary_max: 75000,
-        }),
-      ];
-
-      const { result } = renderHook(() => useDashboardFilters(jobs));
-
-      act(() => result.current.setSalaryMaxFilter(80000));
-
-      expect(result.current.filteredAndSortedJobs.map((j) => j.id).sort()).toEqual([1, 3]);
-    });
-
-    it("treats malformed listed pay as unavailable", () => {
-      const jobs: Job[] = [
-        makeJob({
-          id: 1,
-          title: "Reversed Range",
-          salary_min: 150000,
-          salary_max: 80000,
-        }),
-        makeJob({
-          id: 2,
-          title: "Negative Pay",
-          salary_min: -10000,
-          salary_max: 80000,
-        }),
-        makeJob({
-          id: 3,
-          title: "Infinite Pay",
-          salary_min: 70000,
-          salary_max: Infinity,
-        }),
-        makeJob({
-          id: 4,
-          title: "Usable Range",
-          salary_min: 70000,
-          salary_max: 90000,
-        }),
-      ];
-
-      const { result } = renderHook(() => useDashboardFilters(jobs));
-
-      act(() => result.current.setSalaryMinFilter(65000));
-
-      expect(result.current.filteredAndSortedJobs.map((j) => j.id)).toEqual([4]);
+      act(() => result.current.setRemoteFilter("unspecified"));
+      expect(result.current.filteredAndSortedJobs.map((job) => job.id)).toEqual([4]);
     });
   });
 

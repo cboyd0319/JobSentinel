@@ -1,0 +1,46 @@
+{
+  "scope": "M9 development acceptance reconciliation; not release certification",
+  "source_revision": "0237aa12",
+  "platform": "macOS",
+  "results": [
+    "- Fresh macOS verification at `0237aa12` (2026-10-28): `./init.sh` exited 0 (harness and 9 startup tests).",
+    "  Focused Vitest runs passed 123 tests across 11 files: first-run doctor, Region picker/review/data,",
+    "  country selection, listed pay, military guidance, notification orchestration, dashboard lifecycle,",
+    "  Settings persistence, and onboarding location.",
+    "  `npm run test:e2e -- military-inclusive-journey.spec.ts` exited 0: all 5 mock-browser journeys passed.",
+    "  Application Rust tests exited 0: `country` (9), `scheduler::workers::persistence` (9), and `geography` (2).",
+    "  These prove current country discovery/alert and inclusive browser behavior, superseding earlier partial",
+    "  evidence claims that country preference is unused; they do not prove installed native journeys.",
+    "  Node 26.12.1 and npm 11.20.0 differ from pinned baselines; init reported warnings only."
+  ],
+  "remaining": [
+    "M10: trusted update preflight, recovery, reviewed UX and Gate 5.",
+    "M11: production Region enrollment/artifacts, current enforced 8 GiB journey, installed six-surface/native accessibility, supported platforms, signing/notarization and release certification.",
+    "M12 and M13: accepted enhancement trains and v3 line closure."
+  ],
+  "result": "passing",
+  "feature_id": "v3-milestone-9-regions-access-editions-first-run",
+  "acceptance": {
+    "Region validation and lifecycle": "v3_pack_payloads.rs, v3_region_starter.rs and pack_runtime_tests/region.rs; fresh domain region_pack_ 5/5 and application pack_runtime_tests::region 3/3, both exit 0.",
+    "Country discovery and alerts": "country_search.rs and scheduler persistence distinguish remote applicants from headquarters, preserve unknown geography, fill filtered limits and gate alerts; fresh country, persistence and geography checks passed.",
+    "Work modes and native pay": "listedPay.test.ts and complete military-inclusive-journey.spec.ts prove explicit work modes, native evidence and restricted comparisons.",
+    "Model optional setup": "FirstRunDoctor tests passed; runtime-first-run-foundation evidence records model-free composition and reviewed optional setup/cancellation.",
+    "Inclusive connected paths": "MilitaryTransitionGuidance, resume builder/matching, protected answers and saved-match case review retain voluntary participation and confirmed evidence; complete five-test browser journey passed.",
+    "Focused regional examples": "Starter-data, pay, work-mode and browser fixtures plus three recorded Qwen pairs establish bounded starter coverage only.",
+    "Gate 4": "regional-readiness-framework.md delivery decisions and editions-and-packaging.md Essentials composition freeze static optional Region packs and model-free defaults."
+  },
+  "reconciliation": "Historical partial records remain immutable. Their unused-country-metadata and incomplete guidance/pay/browser statements are superseded by checkpoint 3874f12c source and current focused checks. Production artifacts and installed qualification remain M11 requirements under the approved sequencing.",
+  "review": "Independent implementation reviewer found no material M9 development gap; read-only requirement-to-source review.",
+  "schema": "jobsentinel.feature_evidence.v1",
+  "behavior": "Regional discovery and native pay preserve source evidence; static Region and inclusive first-run workflows remain local and model-optional.",
+  "verified_at": "2026-10-28T14:00:45.730969+00:00",
+  "revision": "0237aa1276c58c45096d2526bc9c3686bfdb9fa7",
+  "commands": [
+    {
+      "command": "npm run harness:check",
+      "exit_status": 0,
+      "relevant_result": "Harness and synchronized milestone state passed.",
+      "caveat": "Documentation transition only; not release qualification."
+    }
+  ]
+}

@@ -1,3 +1,5 @@
+/** Validates required builder content without requiring work or education history. */
+
 import {
   getResumeContactValidationMessage,
   type ResumeContactValidationInput,
@@ -21,10 +23,6 @@ export function getResumeBuilderStepValidationMessage(
       input.summary.trim().length >= 10
         ? ""
         : "Write a summary of at least 10 characters.",
-    3: () =>
-      input.experiences.length > 0
-        ? ""
-        : "Add one work experience before continuing.",
     4: () => "",
     5: () =>
       input.skills.length > 0

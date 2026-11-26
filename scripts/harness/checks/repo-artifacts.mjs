@@ -1,3 +1,4 @@
+// Classifies repository files, disposable build artifacts, and local metadata boundaries.
 import { execFileSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { extname, join, relative } from "node:path";
@@ -13,6 +14,7 @@ export {
 
 const ignoredTraversalPaths = new Set([
   ".claude",
+  ".serena",
   ".git",
   ".husky/_",
   "node_modules",
@@ -35,10 +37,7 @@ const allowedTrackedGeneratedPaths = new Set([
   "src-tauri/gen/schemas/macOS-schema.json",
 ]);
 
-// Note: the local, gitignored `.claude/` agent settings directory is skipped
-// via ignoredTraversalPaths above, matching scripts/checks/harness.mjs. It is a
-// legitimate local override surface (see repo-first rules), not a disposable
-// build artifact, so it must not be forbidden here.
+// Gitignored local agent metadata is preserved rather than treated as build output.
 const forbiddenArtifactDirs = new Set([
   ".vagrant",
   "coverage",

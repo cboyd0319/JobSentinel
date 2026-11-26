@@ -1,9 +1,220 @@
+<!-- Defines required release evidence and distinguishes it from focused development verification. -->
+
 # Evaluation And Release Bar
 
 V3 should not be considered ready because the ideas are exciting. It should be
 ready only when the product works across real job-search workflows, source
 classes, resumes, local models, browser capture paths, privacy boundaries, and
 platforms.
+
+## When To Run These Checks
+
+The master plan's [remaining development queue](master-exec-plan.md#remaining-development-queue)
+owns timing. The approved v3.0 core proceeds to qualification after release-critical
+engineering; Next enhancements and broad cleanup do not block it.
+
+Use focused regression checks while preparing the candidate. Then run the
+[Release Contract](../../developer/RELEASING.md#mandatory-final-release-phases)'s
+separate full Stability, Performance and Security phases, in order, for every release.
+Reuse evidence only while its candidate, environment and inputs remain applicable.
+
+Local Mac and the running Windows 11 VM are authorized for testing after development.
+Runner safety and availability remain prerequisites; no platform coverage is waived.
+Current Mac results do not establish other-platform, exact macOS 26 or modest-hardware coverage.
+Numeric limits and release safety requirements remain unchanged.
+
+## R1 Stability Plan
+
+The release coordinator owns execution and the pass decision. Engineering baseline
+`4c811f5a` passed development verification; it is not an R1 pass. Update and Region
+public trust are enrolled, and this source is the candidate for tag `v3.0.0` (commit T).
+Do not move source during R1.
+Keep the approved v3.0 core, Gate 5 cut, 105 Now / 82 Next dispositions and governed
+Qwen models unchanged; Next consumers remain outside this candidate.
+
+### Entry and evidence
+
+Entry requires pushed tag `v3.0.0`, a verified draft built from it by the
+[local release route](../../developer/RELEASING.md#local-release-route) whose draft manifest
+lists the release id, T and every draft asset SHA-256, this platform/acceptance matrix and a
+credential-isolated runner for each executed row. No hosted runner is used.
+The v3.0.0 release notes and changelog are frozen with T; staging uses them as
+the release body. The release remains a draft until the publish gate passes.
+Missing runners block their rows, not independent work on an available runner.
+Use synthetic data in disposable app storage; never test against the user's live store.
+Retain exact tool versions, source tree, OS/architecture, fixture hashes, commands,
+exit codes, UTC start/end times, installer hashes and observed outcomes.
+
+Set `EVIDENCE_ROOT` to an external working directory for T. Keep `r1/commands.json`,
+`r1/platforms.json`, `r1/journeys.json`, `r1/recovery.json`, `r1/accessibility.json`,
+`r1/sustained-use.json` and `r1/decision.json` there, with raw logs/artifact manifests
+alongside them. Each scenario records expected/observed behavior, platform and artifact
+identity, result and unresolved gap. Failed/blocked/skipped records remain explicit.
+Phase evidence lives only in `docs/releases/v3.0.0-final-phases.json` and its records, per
+[Certified draft and phase evidence](../../developer/RELEASING.md#certified-draft-and-phase-evidence);
+these working records support it. Never fabricate passing records.
+
+### Frozen platform matrix
+
+The advertised target set is the `local` release selection; unavailable rows are not dropped.
+Windows and Linux rows run in the existing local ARM64 UTM guests `Windows11` and `ubuntu26`
+(10 GiB each). Their x86_64 artifacts are to be cross-built there and exercised under
+translation, so those rows cannot prove native x86_64 hardware behavior or its performance.
+
+| Qualification row | Candidate artifact and required execution | Available evidence and prerequisite |
+| --- | --- | --- |
+| macOS 26+ arm64 | Universal DMG/app; installed arm64 journeys, vault, OS fallback and recovery | Local macOS 27.2 arm64/64 GiB is authorized; it does not prove exact macOS 26 or constrained memory. |
+| macOS 26+ x86_64 slice | Same universal artifact; exercise the x86_64 slice on macOS where supported | Rosetta availability is unverified. Record translation explicitly; require additional hardware only for a claim translation cannot establish. |
+| Windows 11, x86_64 installers | MSI and NSIS; install/uninstall, Windows workflows, key persistence and recovery | Authorized ARM64 Windows 11 VM can exercise x64 installers under OS translation. Record that limit; its 10 GiB and pagefile do not prove 8 GiB zero-swap. |
+| Linux x86_64 | AppImage and Debian package; installed journeys, vault/passphrase fallback and recovery | ARM64 Ubuntu 26.04 guest `ubuntu26`. x86_64 cross-build and user-mode emulation are not yet established there; record that limit and any row emulation cannot run. |
+| Enforced modest hardware | Complete model-free Essentials journey and persistence on an enforced 8 GiB zero-swap profile | No current qualifying profile. R1 proves functional reliability; R2 measures the unchanged numeric budgets below. |
+
+Both guest agents execute as SYSTEM or root and are provisioning routes, not approved
+repository test launchers. Before guest execution, establish in each guest a supported
+credential-isolated user launcher, bounded filesystem/network/share access and the pinned
+Node/npm/Rust and native toolchains. Neither launcher exists yet; existing restricted
+account names and PATH probes do not prove one. Existing local Mac/VM testing and the
+explicit update-identity authorization below remain in force.
+
+### Approved update-trust preparation
+
+The user approved creating/storing `jobsentinel-update-publisher-v1` as a concealed item
+in the 1Password Private vault, enrolling only its public key, and signing exact unpublished
+3.0.0/3.0.1 qualification artifacts before installed R1 journeys. Enroll and verify
+public trust first, freeze source second, then build and sign the exact artifacts.
+Final full R3 Security still follows R2. Approval is not execution evidence.
+
+| Input | Approved scope and remaining preparation |
+| --- | --- |
+| Public registry | `crates/jobsentinel-application/src/update_preflight/review.rs`, `ReleasePublisher::production_trust()`, contains only the approved public ID/key/revocation metadata; enrollment passed independent review and full development verification. |
+| Publisher identity | Approved `jobsentinel-update-publisher-v1`; public-key enrollment is reviewed and verified. This is distinct from pack publisher identities and the public test seed. |
+| Concealed signing variable | Proposed `JOBSENTINEL_UPDATE_PRIVATE_KEY_PKCS8_B64`; the CLI accepts a caller-selected `--key-env`, and no production update variable is currently defined. |
+| Secret-store inputs | Concealed “JobSentinel Update Publisher v1” item in the approved Private vault, Ed25519 PKCS#8 base64 injected into the caller-selected signing variable, matching raw 32-byte public-key hex, publisher ID and authority to use it for the exact qualification artifact. No secret values enter evidence or the repository. |
+| First artifact target | A qualification-only macOS aarch64 Essentials v3.0.0 DMG built from T, with exact checksum and adjacent `.manifest.json`/`.sig`; use reviewed `macos`/`aarch64` edition and compatibility/readers metadata. Universal first-install artifacts do not imply a universal update-manifest architecture. |
+| Positive-path counterpart | Qualification-only 3.0.1 build from the same code with a coherent version-only metadata/lock delta in a separate checkout; not published or substituted for the 3.0.0 candidate. This version-only preparation is authorized. |
+
+The signing consumer is `npm run release:sign-update` with exact package/spec paths,
+`--publisher-key-id`, `--expected-public-key-hex` and the approved `--key-env` name.
+Load the installed 1Password skill and host execution gate before any eventual secret
+operation. Keep private material concealed and injected only into the approved consuming
+process; no key file, command argument or repository value. Enrollment changes the
+source candidate, so review/verify it before freezing. This preparation is not an R3 pass.
+
+The user also approved one Region publisher and exact qualification signing.
+[Signed Pack Releases](../../developer/RELEASING.md#signed-pack-releases) owns its
+static authority ceiling and concealed vault-item route. Review and verify Region
+public trust before freeze, then build/sign the existing UK/EU/India starter inputs
+before positive installed Region lifecycle journeys. This adds no new product scope
+or R3 pass. Region trust is in the candidate for tag `v3.0.0`.
+
+### Proposed installed update/rollback route
+
+Same-version repair is not a substitute: `connection/update_journal.rs` rejects equal
+source/target versions and requires the source version to match the running build.
+`update_preflight/startup.rs` authenticates the signed target edition/version against
+the actual running binary. Changing only a manifest version cannot satisfy this contract.
+
+After the approved trust preparation is verified:
+
+1. Build qualification-only macOS/aarch64 DMGs from T (3.0.0) and from the separately
+   identified 3.0.1 counterpart; neither replaces a draft asset. Keep both no-account
+   DMGs and app bundles under external
+   `r1/update/artifacts/candidate/` and `r1/update/artifacts/counterpart/`; record both
+   source trees, version-only diff, coherent Cargo/npm/Tauri/lock versions and checksums.
+2. Produce exact signed sidecars for each real DMG. The 3.0.1 target accepts source
+   `[3,0,0]`; the 3.0.0 rollback target accepts source `[3,0,1]`. Both require matching
+   Essentials/macOS/aarch64 identity. Derive compatibility and all eight reader ranges
+   from the Rust inventory, not fixture guesses. Current code owns database schema 2,
+   migrations through 34 and backup/export format 1; verify those actual installed values.
+   Keep migration files/checksums unchanged in the version-only counterpart, so its
+   data remains readable by the candidate. Do not claim new-format migration from this run.
+3. Use the existing macOS package-smoke data contract: a temporary
+   `jobsentinel-macos-smoke-` root and one ephemeral database key held across relaunches.
+   Reuse `macos-package-contract.mjs` launch/redaction helpers under verified process
+   isolation; they redirect app/config data and configure incognito app views. This
+   isolates synthetic user data; it does not override the update publisher registry.
+4. Install/copy and launch the actual 3.0.0 app in task-owned storage, create synthetic
+   records, then use the real reviewed local-update UI to select/apply the signed
+   3.0.1 DMG. Complete the real installer handoff in the task-owned app location,
+   restart 3.0.1 with the same isolated data root/key, and verify journal completion,
+   displayed version, exact records and backup state. Do not replace the live user app.
+5. From the actual 3.0.1 app, review/apply the signed frozen 3.0.0 DMG, complete the
+   native handoff and restart the actual candidate using the same isolation. Confirm
+   rollback labeling, authenticated startup, unchanged data and retry/repair behavior.
+   Record both artifact identities; any inaccessible OS step remains a gap.
+
+Both binaries need the approved public update identity. The only secret signing input
+is consumed by the separately authorized signer; no production key enters either build
+or installed test. This authorized route has not been executed.
+
+### Automated lane
+
+Run from the frozen checkout in verified isolation with the repository-pinned tools.
+Use `pwsh -File ./init.ps1` instead of `./init.sh` on Windows. Capture every command's
+output and exit code under `EVIDENCE_ROOT/r1`; do not infer a pass from a wrapper starting.
+
+```bash
+./init.sh
+npm run clean:generated
+npm run release:check-version -- v3.0.0
+npm run verify:full
+npm run lint:sqlx
+npm run test:e2e:all:budget
+node scripts/dev/run-cargo.mjs clippy --workspace --all-features -- -D warnings
+node scripts/dev/run-cargo.mjs test --workspace --all-features
+```
+
+The full gate includes default Rust tests, frontend/script checks, builds and Chromium
+smoke; the explicit commands add all-browser and shipped embedded-ML feature coverage.
+Inventory ignored tests and bind each required native/model scenario to an attended,
+scoped execution or a remaining gap; never enable all ignored tests indiscriminately.
+Use current governed model caches where available; absence does not justify a model swap.
+Development results and the 21 historical default-suite skips are context, not R1 passes.
+
+The phases certify the exact draft binaries that get published, so installed rows use
+the draft assets, not other builds. Download each asset and match its SHA-256 to the
+draft manifest before inspection or installation. The one exception is the installed
+update workflow row: its 3.0.0 and 3.0.1 qualification DMGs are separate builds, so its
+records name those binaries and digests and do not certify draft bytes.
+A rebuilt or re-signed draft needs new evidence.
+Keep no-account/unsigned labels truthful; final signature/notarization and supply-chain
+acceptance belongs to R3. Approved update signatures are required before installed
+positive update/rollback journeys; the signed update DMGs are qualification-only inputs.
+
+### Installed acceptance matrix
+
+Execute each applicable row on the advertised OS/artifact combinations above. Cover every
+shipped click/action using [End-To-End User Scenarios](#end-to-end-user-scenarios);
+unsupported optional integrations must show their documented fallback.
+
+| Row | Required scenarios | Pass evidence |
+| --- | --- | --- |
+| Essentials and core workflows | Fresh model-free setup without accounts; public source check; visible browser import; synthetic civilian/veteran resume; deterministic matching; packet review; tracking/reminders; interview/pay review; support report | All scenario expectations pass, final user review is preserved, records survive restart, and support output omits synthetic private markers. |
+| Installed platform and optional components | Native file picker/drop, deep links, notifications, permissions, browser companion, vault/fallback; governed model setup/removal and unavailable-model behavior; pack/Region lifecycle | Installed behavior and unavailable-platform fallback match the shipped surface; no fixture-only substitute for native claims. |
+| Persistence and portability | Save/relaunch; export/import; encrypted backup/restore; settings and component removal; offline reopen | Record identities, counts and selected synthetic values remain correct; removed components stay removed and user data is preserved. |
+| Migration and rollback | Fresh v3.0.0 baseline; supported v3.x migration with backup; compatible rollback; unsupported-newer/pre-v3 refusal; failed migration retry | Accepted paths preserve data; rejected paths preserve primary/WAL/backup state and provide usable recovery/support output. |
+| Interrupted and failed operations | Cancel import/download; kill/restart during import, migration and update/restore; unavailable source/network/model/vault; corrupt/incomplete backup or package | No silent loss, duplicate durable action or unusable half-state; retry/repair works with explicit user review. |
+| Installed update workflow | Review/cancel/refuse untrusted or incompatible package; positive trusted update and compatible rollback on disposable data | Actual native execution, restart and preserved data are proven. CLI-to-Rust fixtures do not establish this row. Candidate-valid trusted artifacts remain a prerequisite; no trust enrollment is implied. |
+| Accessibility and usability | Keyboard-only and screen-reader journeys; focus after dialogs/errors; empty/loading/error states; narrow width, high zoom, reduced motion and novice tasks | Every shipped action is reachable and understandable; no focus trap, unlabeled control or obscured required action. Record reader/browser/OS versions and observations. |
+| Sustained use | Synthetic working-day run per supported OS; eight hours is proposed, with duration selected and recorded from risk before execution. Repeat the core save/import/track cycle, cancel/retry one failed operation, and restart twice | No unexpected crash, hang, unhandled error or data mismatch; final restart and backup/restore succeed. This protocol makes no performance-budget claim. |
+
+The `ReleasePublisher::production_trust()` enrollment passed review and development
+verification, and is in the candidate for tag `v3.0.0`. Follow the
+[approved update-trust preparation](#approved-update-trust-preparation) in its stated
+order. The test-only coordinator does not prove installed behavior; do not add fixture
+trust, a smoke bypass or a passing exception.
+
+### Exit and change handling
+
+R1 passes only after all required matrix rows and applicable suites pass for T and the
+exact draft assets, blocking defects are resolved and the coordinator accepts the
+recorded evidence and remaining risks. Missing native hardware, ignored required cases,
+failed recovery, unavailable trust or deferred rows leave R1 incomplete; no R2 starts.
+If a correction is required, record the defect and new source/artifact identity, then
+repeat affected checks and downstream evidence under the Release Contract. Do not keep
+calling an edited candidate frozen. R2 budgets/commercial comparisons and full R3
+security/trust/supply-chain work remain separately planned phases, not passes inferred
+from R1 or from this development checkpoint.
 
 ## Release Bar Summary
 
@@ -229,10 +440,11 @@ Required checks:
 Because v3 is the first long-term compatibility boundary, verify:
 
 - fresh v3 install
-- v2.9-to-v3 local migration
-- backup-before-migration
-- failed migration retry
-- backup restore
+- v3.0.0 is the first supported compatibility baseline
+- pre-v3 readers, migration shims, fixtures, and release claims are absent
+- backup-before-v3.x migration
+- failed v3.x migration retry
+- v3.x backup restore
 - compatible v3 patch rollback
 - unsupported-newer-data detection
 - source pack compatibility
@@ -263,6 +475,11 @@ Use real novice-user tasks, not only component snapshots.
 
 ## Cross-Platform Verification
 
+The current execution scope and runner gaps are frozen in the [R1 matrix](#frozen-platform-matrix).
+Local Mac and running Windows 11 VM testing are authorized after development; Linux
+provisioning needs a concrete scope. Missing native rows remain open, never passed by
+proxy. Record these limitations in Gate 6 evidence; frozen thresholds remain unchanged.
+
 Required platform checks:
 
 - Windows 11 install, launch, vault, file import/export, browser companion,
@@ -280,6 +497,30 @@ Required platform checks:
   unavailable-platform fallback.
 
 If a platform lacks a feature, the UI must say so plainly and offer a fallback.
+
+### Essentials Numeric Thresholds
+
+These Gate 4 release thresholds are derived from measured evidence on the
+macOS 27 arm64 host and the enforced 8 GiB zero-swap Linux guest recorded in
+`docs/harness/evidence/`. They bind release claims only for measured
+platforms; Windows 11 and macOS 26 must be measured before claiming them.
+
+| Threshold | Limit | Measured basis |
+| --- | --- | --- |
+| Model-free macOS DMG size | <= 25,000,000 bytes | 14,224,509 bytes |
+| Model-free installed macOS app size | <= 50,000,000 bytes | 29,704,192 bytes |
+| Model-free Debian package size | <= 30,000,000 bytes | 16,181,176 bytes |
+| Model-free AppImage size | <= 120,000,000 bytes | 89,344,504 bytes |
+| Model-free installed Linux binary size | <= 60,000,000 bytes | 39,689,664 bytes |
+| Installed first visible window, polling upper bound | <= 2,000 ms | 825 ms, 582 ms, 277 ms |
+| Complete Essentials first-run journey peak memory on an enforced 8 GiB zero-swap profile | <= 1,073,741,824 bytes with zero memory-limit and OOM events | 687,190,016 bytes |
+| Persistence relaunch peak memory on the same profile | <= 1,073,741,824 bytes | 717,479,936 bytes |
+| Aggregate app-coalition observed maximum RSS on an unconstrained macOS host | <= 536,870,912 bytes | 246,251,520 bytes |
+| Model-payload filenames inside model-free packages | exactly 0 matches | 0 matches |
+
+The stronger-local download payload is not a threshold: the lock owns the
+exact 2,406,043,460-byte required total for the governed Qwen3 pair, and
+changing it requires a model-lock change with fresh calibration evidence.
 
 ## Triage Framework
 
@@ -350,5 +591,5 @@ V3 is not done until:
 - Main README and wiki reflect the shipped v3 experience.
 - Release assets, checksums, SBOMs, and attestations are produced.
 - Manual UI verification covers every click and action in the shipped surface.
-- Compatibility and rollback docs define what v3 supports and what pre-v3 does
-  not promise.
+- Compatibility and rollback docs define v3.0.0 as the first supported baseline
+  and make clear that pre-v3 upgrades are unsupported.
