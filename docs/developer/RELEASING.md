@@ -368,20 +368,24 @@ Do not publish a macOS package as zero-friction or Gatekeeper-ready until
 Build on Windows 11 or an explicitly selected Windows VM:
 
 ```powershell
+rustup target add x86_64-pc-windows-msvc
 npx --no-install tauri build --target x86_64-pc-windows-msvc
 $bundle = "target/x86_64-pc-windows-msvc/release/bundle"
 Get-AuthenticodeSignature "$bundle/msi/JobSentinel_*.msi", "$bundle/nsis/JobSentinel_*.exe"
-# Unsigned installers only: label each one, then write its checksum sidecar.
-Get-ChildItem "$bundle/msi/*.msi", "$bundle/nsis/*.exe" | ForEach-Object {
-  $labeled = Rename-Item $_ ($_.BaseName + "_unsigned" + $_.Extension) -PassThru
-  "$((Get-FileHash -Algorithm SHA256 $labeled).Hash.ToLowerInvariant())  $($labeled.Name)" |
-    Set-Content -NoNewline -Encoding ascii "$($labeled.FullName).sha256"
+# Unsigned installers only: label each one that is not labeled yet.
+@(Get-ChildItem "$bundle/msi/*.msi", "$bundle/nsis/*.exe") |
+  Where-Object { $_.BaseName -notlike "*_unsigned" } |
+  ForEach-Object { Rename-Item $_ ($_.BaseName + "_unsigned" + $_.Extension) }
+# Every installer, signed or labeled: write its checksum sidecar.
+@(Get-ChildItem "$bundle/msi/*.msi", "$bundle/nsis/*.exe") | ForEach-Object {
+  "$((Get-FileHash -Algorithm SHA256 $_).Hash.ToLowerInvariant())  $($_.Name)" |
+    Set-Content -NoNewline -Encoding ascii "$($_.FullName).sha256"
 }
 ```
 
 The explicit target matters on an ARM64 host, where the default build is ARM64.
-Signed installers keep their names and get the same sidecar. Require exactly one
-MSI and one NSIS setup, each non-empty and named with the release version.
+Require exactly one MSI and one NSIS setup, each non-empty and named with the
+release version.
 
 Public Windows MSI and NSIS setup upload is signed with locally supplied Windows
 signing secrets or visibly renamed with `_unsigned`. Both paths require matching
@@ -405,8 +409,9 @@ for asset in "$bundle"/appimage/*.AppImage "$bundle"/deb/*.deb; do
 done
 ```
 
-Use the wrapper, not a bare `tauri build`: it verifies pinned SHA-256 digests
-before running any downloaded AppImage helper.
+Use the wrapper, as the hosted job does. Its fallback packaging verifies pinned
+SHA-256 digests before running a downloaded helper; it does not verify the
+helpers Tauri's own first-pass build downloads.
 
 Public Linux upload is blocked unless the advertised set contains exactly one
 non-empty AppImage and one non-empty Debian package, versioned filenames, and
@@ -542,6 +547,7 @@ with it and `release:publish` uses it to publish and, on failure, re-draft. Run 
 same gates from a checkout containing E:
 
 ```bash
+mkdir -p release-assets
 npm run release:publish-gate -- --version vX.Y.Z --evidence-revision <E> \
   --source-revision <T> --repo <owner/repo> --selection <platform input> \
   --require-windows-unsigned-label --github-output release-assets/gate.out
