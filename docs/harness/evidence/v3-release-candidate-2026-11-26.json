@@ -3,15 +3,16 @@
   "feature_id": "v3-release-candidate",
   "behavior": "Prepare the preserved v3.0 core with required shared fixes and release engineering, keeping Next enhancements outside the candidate.",
   "result": "partial",
-  "verified_at": "2026-11-22T02:30:00Z",
-  "revision": "6c72871cbb02d267c7ce99ca75d15bf1a3093fae plus staged integration changes",
-  "platform": "macOS 27.2.1 arm64; Rust 1.97.1; Node 26.13.1; npm 12.2.3",
-  "scope": "Integration of the 2026-11-21 candidate additions onto remote checkpoint 6c72871c, plus merge-review fixes. Not release qualification.",
-  "gate_tree_sha256": "pending",
-  "post_gate_changes": "Only this file changed after the full gate.",
+  "verified_at": "2026-11-26T00:32:21Z",
+  "revision": "9094612920a25cb2ebbf0093478f1d3dd325fe03 (full gate); 0276dbd9 adds one RELEASING.md correction",
+  "platform": "macOS 27.2.1 arm64; Rust 1.97.1; Node 26.13.1; npm 11.20.0",
+  "scope": "Integration of the 2026-11-21 candidate onto checkpoint 6c72871c, the local release route, the merge of main at 98ee94b6 and review fixes. Not release qualification.",
+  "gate_tree_sha256": "f0e5f8952fd32e25ecf985cacf57d0cb8da01e0df46c5868804e18aa927754d9",
+  "post_gate_changes": "gate_tree_sha256 is the SHA-256 of `git ls-tree -r` at the gated commit. After the gate, 0276dbd9 changed only docs/developer/RELEASING.md and passed the harness-planned lanes below; then this file changed.",
   "decisions": [
     "User: rebase the candidate additions onto remote checkpoint 6c72871c, keeping its update and Region trust enrollment.",
-    "User: final Stability, Performance and Security phases certify the exact hosted draft binaries that get published.",
+    "User, 2026-11-25: no GitHub-hosted runners for any release work; build and qualify macOS, Windows and Linux on the local Mac and the two existing VMs.",
+    "User: final Stability, Performance and Security phases certify the exact draft binaries that get published.",
     "User: only a recovery-mode restore may create a database key while an unreadable primary exists; every other existing-data path fails closed.",
     "Immutable releases stay off until the user decides the trade-off with automatic re-draft containment."
   ],
@@ -20,39 +21,51 @@
     "Release body bound to notes generated from the tag at draft verification, confirmation and publish, compared after line-ending and trailing-whitespace normalization.",
     "Phase records ported from the checkpoint rules: exact release-platform coverage, exit-code-0 commands with hash-bound proofs captured inside the phase window, and owner decisions bounded by phase order.",
     "Owner/name repository validation for every --repo reader, refusal of credentialed paths that URL parsing rewrites, macOS verifier asset identity binding, and redirect hop, userinfo, port and fragment tests.",
-    "Widened the pack-task approval expiry test window to 5 s to remove a load flake."
+    "Widened the pack-task approval expiry test window to 5 s to remove a load flake.",
+    "Local release route: a `local` platform selection whose assets need no hosted attestation, accepted only when the operator names `--selection local`; Security-record local origins required per locally built platform and checked against the draft at the publish gate.",
+    "Draft asset URLs bound to their asset ids with duplicate ids rejected; a dangling `--repo` rejected; the update signer runs through symlinked paths; the publisher refuses to start without the declared selection.",
+    "Public verification workflow is manual-only with a selection input; the security sensor row that required its publication trigger was removed to match the no-hosted-runner ruling.",
+    "Merged main at 98ee94b6 (dependency cooldown, locked cargo gates, .npmrc) with v3 header comments on its changed files."
   ],
   "commands": [
     {
-      "command": "npm run verify:full",
-      "exit_status": -1,
-      "relevant_result": "pending",
-      "caveat": "pending"
+      "command": "./init.sh && npm run clean:generated && npm run release:check-version -- v3.0.0",
+      "exit_status": 0,
+      "relevant_result": "Locked dependencies, harness validation, startup smoke and the 3.0.0 version contract passed at 90946129.",
+      "caveat": "Doctor reports 3 warnings, including local Node 26.13.1 against the 24.18.0 pin and Vale 3.28.1 against the hosted 3.15.1 pin."
     },
     {
-      "command": "npm run test:scripts and release, harness, lint and type checks (merge-review fixes)",
+      "command": "npm run verify:full",
       "exit_status": 0,
-      "relevant_result": "Script tests 971/971; release:readiness, harness:check, lint:tests, lint:file-size, lint:architecture, lint:actions, lint:dup, lint:md, lint:prose, lint, typecheck and lint:bloat passed. 31 mutations of the restored guards each failed a test.",
-      "caveat": "Worker run before the lead's state changes; superseded by the full gate above."
+      "relevant_result": "Commit and worktree status unchanged across the run. Script tests 981/981, frontend 3378/3378 in 288 files, 10 e2e smoke journeys with 0 unexpected, Rust 41 suites 3588 passed 0 failed 21 ignored.",
+      "caveat": "Run at 90946129 from 2026-11-26T00:19:37Z to 00:32:21Z. Two earlier runs on superseded trees were interrupted and are not counted."
+    },
+    {
+      "command": "npm run harness:check && npm run lint:file-size && npm run lint:docs && npm run lint:security && npm run release:readiness && npm run test:scripts",
+      "exit_status": 0,
+      "relevant_result": "Lanes planned by harness:plan for the RELEASING.md-only change passed at 0276dbd9; readiness passed and script tests were 981/981.",
+      "caveat": "Not a full gate; the diff from the gated commit is documentation only."
     }
   ],
   "review": {
     "independent": true,
-    "scope": "pending"
+    "scope": "Fresh-context adversarial reviews. Integration snapshot 87ae3b49: accept with follow-ups, no blocker. Local route and main merge at 7f3a7e96: accept with follow-ups, no attestation downgrade found; its seven findings were fixed in 90946129 and confirmed resolved by the same reviewer. That follow-up found one false RELEASING.md sentence, corrected in 0276dbd9; that last correction was checked by the lead only."
   },
   "unproven": [
     "Native Windows compile and runtime, Credential Manager Local persistence and the 150 ms spurious-miss re-read; Linux runtime.",
-    "Hosted pipeline: cancel drill on a throwaway tag, draft permissions, asset digest fields, stored release body form, runner gh flags, re-draft PATCH, concurrency and release environment approval."
+    "The local release route end to end: x86_64 cross-builds in the ARM64 guests, draft creation, id-scoped uploads, asset digest fields, stored release body form, publish, re-draft PATCH and cancellation against GitHub.",
+    "Hosted workflows are unused and unexecuted."
   ],
   "follow_ups_v3_0_1": [
     "Pipeline: publish request hanging beyond 3 s at cancel; signal tests bypass the bash exec path; CLI test for confirm-verified-draft; draft manifest artifact; minimum gh version; final-phase-evidence.mjs past the 300-line review threshold; function-only import cycle between verify-latest-macos-release.mjs and release-set.mjs.",
     "Keys: cache lock held across native loads without a timeout; disable_passphrase_lock not spawned; end-to-end zeroized vault key copies; stray non-encrypted files in backups block key creation; Windows device_local reporting; shared key helper module and remaining test gaps.",
-    "Environment: Chromium headless close stalls under load (Playwright #43475)."
+    "Environment: Chromium headless close stalls under load (Playwright #43475).",
+    "Release: hosted build jobs share the release environment with contents write; Tauri first-pass AppImage helper downloads are not digest-checked by the wrapper; the release body says macOS status is enforced by the release workflow; pack-task expiry test sleeps 5 s."
   ],
   "pending": [
-    "Commit and tag v3.0.0; push, hosted build-draft dispatch and hosted cancel drill.",
-    "Windows 11 and Linux verification on user VMs; universal macOS build; qualification signatures, OS signing and notarization.",
-    "R1 Stability, R2 Performance and R3 Security on the hosted draft, then publication.",
-    "Commit, push, hosted dispatch, signing and publication require explicit authority."
+    "Push tag v3.0.0, build all three platforms locally and create the verified draft.",
+    "Toolchains, x86_64 cross-builds and isolated launchers in the Windows 11 and Ubuntu guests; universal macOS build; qualification signatures, OS signing and notarization.",
+    "R1 Stability, R2 Performance and R3 Security on the draft, then publication.",
+    "Tag push, VM provisioning, draft upload, signing and publication require explicit authority."
   ]
 }
