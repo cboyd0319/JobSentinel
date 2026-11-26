@@ -85,3 +85,7 @@ tests/e2e/fixtures/*.txt
 
 # Release assets staged outside tracked source paths
 /release-assets/
+
+# Claude Code local-only files (approved commands can embed secrets)
+**/.claude/*settings.local.json*
+*CLAUDE.local.md*

@@ -25,7 +25,7 @@ const blockDelimiters = new Map([
   [".props", [["<!--", "-->"]]], [".targets", [["<!--", "-->"]]],
   [".csproj", [["<!--", "-->"]]], [".slnx", [["<!--", "-->"]]],
 ]);
-const hashCommentFiles = new Set([".claudeignore", ".gitattributes", ".gitignore", "CODEOWNERS"]);
+const hashCommentFiles = new Set([".claudeignore", ".gitattributes", ".gitignore", ".npmrc", "CODEOWNERS"]);
 
 function excluded(path, rows) {
   return rows.some((row) => {
