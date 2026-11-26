@@ -45,6 +45,14 @@ test("producer signs exact adjacent bytes with update context and preserves over
   assert.equal(run().status,1); assert.deepEqual(readFileSync(`${pkg}.manifest.json`),bytes);
 });
 
+test("CLI launched through a symlinked script path still signs", {skip:process.platform === "win32"}, t => {
+  const {root,pkg,args} = fixture(t), link = join(root,"linked-sign-update-candidate.mjs");
+  symlinkSync(script,link);
+  const result = spawnSync(process.execPath,[link,...args],{env:{...process.env,FIXTURE_UPDATE_KEY:privateKey},encoding:"utf8"});
+  assert.equal(result.status,0,result.stderr);
+  assert(existsSync(`${pkg}.manifest.json`)); assert(existsSync(`${pkg}.sig`));
+});
+
 test("pair failure leaves existing signature intact and removes only newly created manifest", t => {
   const {pkg,run} = fixture(t); writeFileSync(`${pkg}.sig`,"preserve");
   assert.equal(run().status,1); assert.equal(existsSync(`${pkg}.manifest.json`),false);

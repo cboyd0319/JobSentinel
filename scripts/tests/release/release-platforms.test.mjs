@@ -17,7 +17,9 @@ const base = { version: "3.0.0", tag: "v3.0.0", sourceRevision: "a".repeat(40) }
 test("declaration hosted platforms match every release workflow matrix selection", () => {
   const workflow = readFileSync(resolve(repoRoot, ".github/workflows/release.yml"), "utf8");
   const cases = [...workflow.matchAll(/^ {12}([a-z-]+)\)\n {14}matrix='(\[.*\])'$/gm)];
-  assert.deepEqual(cases.map(([, selection]) => selection).sort(), Object.keys(releasePlatformSelections).sort());
+  // `local` builds nothing on hosted runners, so it is the one selection the hosted workflow does not offer.
+  const hostedSelections = Object.keys(releasePlatformSelections).filter((selection) => selection !== "local");
+  assert.deepEqual(cases.map(([, selection]) => selection).sort(), hostedSelections.sort());
   for (const [, selection, matrix] of cases) {
     const hosted = Object.entries(releasePlatformSelections[selection])
       .filter(([, source]) => source === "hosted")
@@ -32,6 +34,20 @@ test("declaration validation accepts its own build and returns ordered platforms
     platforms: ["windows", "macos", "linux"],
     sources: { windows: "hosted", macos: "local", linux: "hosted" },
   });
+});
+
+test("local selection round-trips as all three platforms built locally", () => {
+  const declaration = buildReleasePlatformDeclaration({ ...base, selection: "local" });
+  assert.deepEqual(declaration.platforms, { windows: "local", macos: "local", linux: "local" });
+  assert.deepEqual(validateReleasePlatformDeclaration(JSON.parse(JSON.stringify(declaration)), { ...base, selection: "local" }), {
+    platforms: ["windows", "macos", "linux"],
+    sources: { windows: "local", macos: "local", linux: "local" },
+  });
+  assert.throws(
+    () => validateReleasePlatformDeclaration({ ...declaration, platforms: { ...declaration.platforms, linux: "hosted" } }, base),
+    /platforms do not match selection local/,
+  );
+  assert.throws(() => validateReleasePlatformDeclaration(declaration, { ...base, selection: "all" }), /selection expected all, found local/);
 });
 
 test("declaration validation fails closed on tampering and mismatches", () => {

@@ -7,8 +7,12 @@ import { getArgValue, isMainModule } from "./args.mjs";
 
 const supportedReleasePlatforms = ["windows", "macos", "linux"];
 
-/** Maps each release workflow `platform` input to the published platforms and where each is built. */
+/**
+ * Maps each release selection to the published platforms and where each is built. `local` is the all-local route,
+ * built and staged on operator machines; every other selection is a hosted `release.yml` `platform` input.
+ */
 export const releasePlatformSelections = {
+  local: { windows: "local", macos: "local", linux: "local" },
   all: { windows: "hosted", macos: "hosted", linux: "hosted" },
   "windows-linux": { windows: "hosted", macos: "local", linux: "hosted" },
   windows: { windows: "hosted" },

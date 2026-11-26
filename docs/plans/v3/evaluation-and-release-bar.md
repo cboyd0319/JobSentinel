@@ -27,17 +27,18 @@ Numeric limits and release safety requirements remain unchanged.
 
 The release coordinator owns execution and the pass decision. Engineering baseline
 `4c811f5a` passed development verification; it is not an R1 pass. Update and Region
-public trust are enrolled, and the source is frozen at tag `v3.0.0` (commit T). Do not
-move source during R1.
+public trust are enrolled, and this source is the candidate for tag `v3.0.0` (commit T).
+Do not move source during R1.
 Keep the approved v3.0 core, Gate 5 cut, 105 Now / 82 Next dispositions and governed
 Qwen models unchanged; Next consumers remain outside this candidate.
 
 ### Entry and evidence
 
-Entry requires frozen tag `v3.0.0`, a `release.yml` `build-draft` run from it whose
-`verify-draft-release` summary lists the release id, T and every draft asset SHA-256,
-this platform/acceptance matrix and a credential-isolated runner for each executed row.
-The v3.0.0 release notes and changelog are frozen with T; `build-draft` stages them as
+Entry requires pushed tag `v3.0.0`, a verified draft built from it by the
+[local release route](../../developer/RELEASING.md#local-release-route) whose draft manifest
+lists the release id, T and every draft asset SHA-256, this platform/acceptance matrix and a
+credential-isolated runner for each executed row. No hosted runner is used.
+The v3.0.0 release notes and changelog are frozen with T; staging uses them as
 the release body. The release remains a draft until the publish gate passes.
 Missing runners block their rows, not independent work on an available runner.
 Use synthetic data in disposable app storage; never test against the user's live store.
@@ -55,22 +56,25 @@ these working records support it. Never fabricate passing records.
 
 ### Frozen platform matrix
 
-The advertised target set follows the release workflow; unavailable rows are not dropped.
+The advertised target set is the `local` release selection; unavailable rows are not dropped.
+Windows and Linux rows run in the existing local ARM64 UTM guests `Windows11` and `ubuntu26`
+(10 GiB each). Their x86_64 artifacts are cross-built there and exercised under translation,
+so those rows do not prove native x86_64 hardware behavior or its performance.
 
 | Qualification row | Candidate artifact and required execution | Available evidence and prerequisite |
 | --- | --- | --- |
 | macOS 26+ arm64 | Universal DMG/app; installed arm64 journeys, vault, OS fallback and recovery | Local macOS 27.2 arm64/64 GiB is authorized; it does not prove exact macOS 26 or constrained memory. |
 | macOS 26+ x86_64 slice | Same universal artifact; exercise the x86_64 slice on macOS where supported | Rosetta availability is unverified. Record translation explicitly; require additional hardware only for a claim translation cannot establish. |
 | Windows 11, x86_64 installers | MSI and NSIS; install/uninstall, Windows workflows, key persistence and recovery | Authorized ARM64 Windows 11 VM can exercise x64 installers under OS translation. Record that limit; its 10 GiB and pagefile do not prove 8 GiB zero-swap. |
-| Linux x86_64 | AppImage and Debian package; installed journeys, vault/passphrase fallback and recovery | No local Linux runner. Define a concrete VM scope before any provisioning; conditional willingness is not an executed environment. |
+| Linux x86_64 | AppImage and Debian package; installed journeys, vault/passphrase fallback and recovery | ARM64 Ubuntu 26.04 guest `ubuntu26`. x86_64 cross-build and user-mode emulation are not yet established there; record that limit and any row emulation cannot run. |
 | Enforced modest hardware | Complete model-free Essentials journey and persistence on an enforced 8 GiB zero-swap profile | No current qualifying profile. R1 proves functional reliability; R2 measures the unchanged numeric budgets below. |
 
-The Windows guest-agent executes as SYSTEM and is not an approved repository test
-launcher. Before Windows execution, establish a supported credential-isolated user
-launcher, bounded filesystem/network/share access, pinned Node/npm/Rust and native
-MSVC/SDK tools. Existing restricted account names and PATH probes do not prove this.
-This plan adds no VM provisioning or hosted dispatch authority. Existing local
-Mac/Windows testing and the explicit update-identity authorization below remain in force.
+Both guest agents execute as SYSTEM or root and are provisioning routes, not approved
+repository test launchers. Before guest execution, establish in each guest a supported
+credential-isolated user launcher, bounded filesystem/network/share access and the pinned
+Node/npm/Rust and native toolchains. Neither launcher exists yet; existing restricted
+account names and PATH probes do not prove one. Existing local Mac/VM testing and the
+explicit update-identity authorization below remain in force.
 
 ### Approved update-trust preparation
 
@@ -101,7 +105,7 @@ The user also approved one Region publisher and exact qualification signing.
 static authority ceiling and concealed vault-item route. Review and verify Region
 public trust before freeze, then build/sign the existing UK/EU/India starter inputs
 before positive installed Region lifecycle journeys. This adds no new product scope
-or R3 pass. The source is now frozen at tag `v3.0.0`.
+or R3 pass. Region trust is in the candidate for tag `v3.0.0`.
 
 ### Proposed installed update/rollback route
 
@@ -167,11 +171,11 @@ scoped execution or a remaining gap; never enable all ignored tests indiscrimina
 Use current governed model caches where available; absence does not justify a model swap.
 Development results and the 21 historical default-suite skips are context, not R1 passes.
 
-The phases certify the exact hosted draft binaries that get published, so installed
-rows use the `build-draft` assets, not separate local builds. Download each asset and
-match its SHA-256 to the draft summary before inspection or installation. For
-`windows-linux`, the draft's macOS DMG is the clean local build uploaded under
-[Native Platform Assets](../../developer/RELEASING.md#native-platform-assets).
+The phases certify the exact draft binaries that get published, so installed rows use
+the draft assets, not other builds. Download each asset and match its SHA-256 to the
+draft manifest before inspection or installation. The one exception is the installed
+update workflow row: its 3.0.0 and 3.0.1 qualification DMGs are separate builds, so its
+records name those binaries and digests and do not certify draft bytes.
 A rebuilt or re-signed draft needs new evidence.
 Keep no-account/unsigned labels truthful; final signature/notarization and supply-chain
 acceptance belongs to R3. Approved update signatures are required before installed
@@ -195,7 +199,7 @@ unsupported optional integrations must show their documented fallback.
 | Sustained use | Synthetic working-day run per supported OS; eight hours is proposed, with duration selected and recorded from risk before execution. Repeat the core save/import/track cycle, cancel/retry one failed operation, and restart twice | No unexpected crash, hang, unhandled error or data mismatch; final restart and backup/restore succeed. This protocol makes no performance-budget claim. |
 
 The `ReleasePublisher::production_trust()` enrollment passed review and development
-verification, and the source is frozen at tag `v3.0.0`. Follow the
+verification, and is in the candidate for tag `v3.0.0`. Follow the
 [approved update-trust preparation](#approved-update-trust-preparation) in its stated
 order. The test-only coordinator does not prove installed behavior; do not add fixture
 trust, a smoke bypass or a passing exception.

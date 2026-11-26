@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { checkFinalPhaseEvidence, validateFinalPhaseEvidence } from "../../release/final-phase-evidence.mjs";
-import { candidateDate, evidencePath, finalPhaseEvidence, now, phaseRecord, version, withEvidenceRepo } from "./final-phase-fixture.mjs";
+import { candidateDate, evidencePath, finalPhaseEvidence, localOrigin, now, phaseRecord, version, withEvidenceRepo } from "./final-phase-fixture.mjs";
 
 test("evidence passes when E adds only the evidence file and its phase records", async () => {
   await withEvidenceRepo(({ root, commit, candidate, writeEvidence }) => {
@@ -262,5 +262,44 @@ test("evidence rejects E changing an unreferenced file in the record directory",
     write("docs/releases/v3.0.0-phases/stray-proof.json", "{}");
     const evidenceCommit = commit("evidence plus a stray proof");
     assert.throws(() => checkFinalPhaseEvidence({ root, version, evidenceRevision: evidenceCommit, now }), /changes more than evidence after .*: docs\/releases\/v3\.0\.0-phases\/stray-proof\.json/);
+  });
+});
+
+test("Security local origins must bind T, a clean tree, the build and evidence artifacts", async () => {
+  await withEvidenceRepo(async ({ root, write, commit, candidate, writeEvidence }) => {
+    const evidence = finalPhaseEvidence(candidate);
+    const origin = localOrigin("linux", evidence, evidence.artifacts);
+    writeEvidence(evidence, {}, {}, { localOrigins: [origin] });
+    const result = checkFinalPhaseEvidence({ root, version, evidenceRevision: commit("local origin"), now });
+    assert.deepEqual(result.localOrigins, [origin]);
+
+    const environment = origin.buildEnvironment;
+    const cases = [
+      [{ localOrigins: [] }, /security record localOrigins must be a non-empty list/],
+      [{ localOrigins: [origin, origin] }, /local origin 2 platform linux must be a release platform listed once/],
+      [{ localOrigins: [{ ...origin, platform: "macos" }] }, /platform macos must be a release platform/],
+      [{ localOrigins: [{ ...origin, sourceRevision: "b".repeat(40) }] }, /must name source revision .* sourceClean true and the build command/],
+      [{ localOrigins: [{ ...origin, sourceClean: false }] }, /sourceClean true/],
+      [{ localOrigins: [{ ...origin, buildCommand: " " }] }, /the build command/],
+      [{ localOrigins: [{ ...origin, buildEnvironment: { ...environment, toolchains: {} } }] }, /buildEnvironment needs os, architecture and toolchain versions/],
+      [{ localOrigins: [{ ...origin, buildEnvironment: { ...environment, architecture: undefined } }] }, /needs os, architecture/],
+      [{ localOrigins: [{ ...origin, buildEnvironment: { ...environment, kernel: "x" } }] }, /buildEnvironment has unexpected fields: kernel/],
+      [{ localOrigins: [{ ...origin, artifacts: [] }] }, /must list the platform's draft assets/],
+      [{ localOrigins: [{ ...origin, artifacts: [{ name: "a.json", sha256: "1".repeat(64) }] }] }, /must be evidence artifacts with their SHA-256/],
+      [{ localOrigins: [{ ...origin, artifacts: [...origin.artifacts, ...origin.artifacts] }] }, /sorted by name without duplicates/],
+      [{ localOrigins: [{ ...origin, waiver: "unsigned" }] }, /local origin 1 has unexpected fields: waiver/],
+    ];
+    for (const [security, message] of cases) {
+      writeEvidence(evidence, {}, {}, security);
+      assert.throws(() => checkFinalPhaseEvidence({ root, version, evidenceRevision: commit(`case ${message}`), now }), message);
+    }
+
+    writeEvidence(evidence, { localOrigins: [origin] });
+    assert.throws(() => checkFinalPhaseEvidence({ root, version, evidenceRevision: commit("origin on every phase"), now }), /stability record has unexpected fields: localOrigins/);
+
+    writeEvidence(evidence, {}, {}, { localOrigins: [origin] });
+    const recordText = JSON.stringify(phaseRecord("security", evidence, { localOrigins: [origin] }));
+    write("docs/releases/v3.0.0-phases/security.json", recordText.replace('"sourceClean":true', '"sourceClean":false,"sourceClean":true'));
+    assert.throws(() => checkFinalPhaseEvidence({ root, version, evidenceRevision: commit("duplicate origin key"), now }), /duplicate key sourceClean/);
   });
 });

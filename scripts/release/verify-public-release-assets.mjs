@@ -271,7 +271,7 @@ async function verifyAgentSkillsArchives(ctx) {
       expectedVersion: ctx.expectedVersion,
     });
 
-    if (ctx.options.requireAttestations) {
+    if (ctx.options.requireAttestations && ctx.hostedStaging) {
       await attest(ctx, assetPath, `${ctx.options.repo}/.github/workflows/release-stage.yml`);
     }
   }
@@ -292,13 +292,32 @@ async function loadPlatformDeclaration(ctx) {
     version: ctx.expectedVersion,
     tag: ctx.tag,
     sourceRevision: ctx.tagCommit,
-    selection: ctx.options.draft ? ctx.options.selection : undefined,
+    selection: ctx.options.selection,
     requestedPlatforms: ctx.options.platforms,
   });
-  if (ctx.options.requireAttestations) {
+  // Hosted staging attests the declaration and skills archives. An all-local declaration has nothing to attest, so the
+  // operator must name it: a swapped-in local declaration cannot silently drop the attestations a hosted release needs.
+  ctx.hostedStaging = Object.values(result.sources).includes("hosted");
+  if (!ctx.hostedStaging && ctx.options.selection !== declaration.selection) {
+    throw new Error(`Release platform declaration ${name} declares only local builds; verify it with --selection ${declaration.selection}.`);
+  }
+  if (ctx.options.requireAttestations && ctx.hostedStaging) {
     await attest(ctx, path, `${ctx.options.repo}/.github/workflows/release-stage.yml`);
   }
   return result;
+}
+
+/** Each platform's draft assets: installers, their checksums, SBOM and manifest, with downloaded SHA-256 digests. */
+function platformAssetDigests(ctx, platforms, installerAssets) {
+  return Object.fromEntries(platforms.map((platform) => {
+    const { manifestName, sbomName } = expectedReleaseSbomNames(ctx.expectedVersion, platform);
+    const names = new Set([...installerAssets.get(platform).flatMap(({ name }) => [name, `${name}.sha256`]), manifestName, sbomName]);
+    const assets = ctx.release.assets
+      .filter((asset) => names.has(asset.name))
+      .map((asset) => ({ name: asset.name, sha256: ctx.assetHashes.get(asset.name) }))
+      .sort((left, right) => (left.name < right.name ? -1 : 1));
+    return [platform, assets];
+  }));
 }
 
 /**
@@ -333,6 +352,7 @@ export async function verifyPublicReleaseAssets(
     release,
     assetHashes: new Map(),
     sources: {},
+    hostedStaging: true,
     tag,
     tagCommit,
     tempRoot,
@@ -362,14 +382,15 @@ export async function verifyPublicReleaseAssets(
       .sort((left, right) => (left.name < right.name ? -1 : 1));
     const unhashed = artifacts.filter((artifact) => !artifact.sha256).map((artifact) => artifact.name);
     if (unhashed.length > 0) throw new Error(`Release assets were not downloaded and hashed: ${unhashed.join(", ")}`);
+    const platformAssets = platformAssetDigests(ctx, platforms, installerAssets);
     if (options.evidenceRevision) {
-      const { evidence } = checkFinalPhaseEvidence({
+      const checked = checkFinalPhaseEvidence({
         root: options.evidenceRoot,
         version: expectedVersion,
         evidenceRevision: options.evidenceRevision,
         sourceRevision: tagCommit,
       });
-      assertEvidenceCertifies(evidence, { releaseId: release.id, platforms, artifacts });
+      assertEvidenceCertifies(checked, { releaseId: release.id, platforms, artifacts, sources, platformAssets });
       console.log(`Public assets match the final-phase evidence at ${options.evidenceRevision}.`);
     }
     if (options.draftManifest) {
@@ -382,7 +403,7 @@ export async function verifyPublicReleaseAssets(
     if (options.githubOutput) {
       appendFileSync(options.githubOutput, `tag=${tag}\nmacos_source=${sources.macos ?? "none"}\n`);
     }
-    return { tag, tagCommit, platforms, sources, releaseId: release.id, assetDigest, artifacts, uploadedAt: latestAssetUpload(release) };
+    return { tag, tagCommit, platforms, sources, platformAssets, releaseId: release.id, assetDigest, artifacts, uploadedAt: latestAssetUpload(release) };
   } finally {
     rmSync(tempRoot, { recursive: true, force: true });
   }

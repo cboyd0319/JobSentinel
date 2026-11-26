@@ -264,7 +264,7 @@ The next engineering slice is the release pipeline: inspect
 `.github/workflows/release.yml`, `verify-release-artifacts.yml` and existing
 `scripts/release/` verifiers. Add fixture-backed failure checks before changing
 publication dependencies, then run script tests, workflow/security checks and the full local gate.
-Production credentials, signing, hosted dispatch and publication require separate authority.
+Production credentials, signing, tagging and publication require separate authority.
 Rollback preserves the enhancement branch and core revision; retain candidate changes
 before switching branches. Never delete profiles, keys, migrations or user work.
 
@@ -943,15 +943,15 @@ claims are historical, not fresh verification. Current state is in Handoff.
   [Preparation evidence](../../harness/evidence/v3-release-candidate-2026-11-06.json)
   retains results, review scope and earlier interrupted or failed runs.
 - Engineering baseline `4c811f5a` is committed on `agent/goal-v3-baseline`.
-- The candidate is frozen at tag `v3.0.0`: checkpoint `6c72871c` plus fail-closed key creation,
-  the exact-draft release pipeline and the recovery key warning
-  ([integration evidence](../../harness/evidence/v3-release-candidate-2026-11-22.json)).
+- The candidate for tag `v3.0.0` is checkpoint `6c72871c` plus fail-closed key creation,
+  the exact-draft release pipeline, its local release route and the recovery key warning
+  ([integration evidence](../../harness/evidence/v3-release-candidate-2026-11-26.json)).
 - The [R1 plan](evaluation-and-release-bar.md#r1-stability-plan) owns the frozen matrix and acceptance work.
   Update and Region trust are reviewed and full-gate verified.
 - Work only on `v3-release-candidate`; the release-first queue above owns the next slice.
 - Preserve the enhancement branch and its development acceptance. Do not resume P08/N15 for v3.0.
 - Retain M11 partial evidence and the governed Qwen decision; no new model or relaxed threshold is approved.
-- Run a hosted `build-draft`, then full R1, R2 and R3 in order against that draft.
+- Build the draft by the local release route, then run full R1, R2 and R3 in order against it.
 - Native and VM qualification follows development; no native test or production-signing result is claimed.
 - Installed Windows/Linux, exact macOS 26, enforced 8 GiB, signing and artifact evidence remain open.
-- Update state from observed results. No release, hosted dispatch, commit or push is implied by this plan.
+- Update state from observed results. No release, tag, commit or push is implied by this plan.

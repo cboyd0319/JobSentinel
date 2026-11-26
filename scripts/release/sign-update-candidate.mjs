@@ -3,7 +3,7 @@
 import { createHash } from "node:crypto";
 import { closeSync, constants, fstatSync, fsyncSync, lstatSync, openSync, readSync, realpathSync, unlinkSync, writeFileSync } from "node:fs";
 import { basename, dirname, extname, join, resolve } from "node:path";
-import { pathToFileURL } from "node:url";
+import { isMainModule } from "./args.mjs";
 import { signReleaseBytes } from "./sign-pack-envelope.mjs";
 import { createUpdateManifest } from "./update-candidate-metadata.mjs";
 
@@ -89,6 +89,6 @@ export function main({ args = process.argv.slice(2), environment = process.env }
   } finally { for (const {fd} of outputs) if (fd !== undefined) closeSync(fd); }
 }
 
-if (process.argv[1] && pathToFileURL(resolve(process.argv[1])).href === import.meta.url) {
+if (isMainModule(import.meta.url)) {
   try { main(); } catch { console.error("Update candidate signing failed."); process.exitCode = 1; }
 }

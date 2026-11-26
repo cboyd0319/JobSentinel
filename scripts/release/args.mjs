@@ -10,9 +10,13 @@ export function getArgValue(args, name) {
   return prefixed ? prefixed.slice(name.length + 1) : undefined;
 }
 
-/** Reads `--repo` as `owner/name` without dot parts, so it cannot retarget a credentialed GitHub request path. */
+/**
+ * Reads `--repo` as `owner/name` without dot parts, so it cannot retarget a credentialed GitHub request path.
+ * `fallback` applies only when the flag is absent; a `--repo` without a value fails.
+ */
 export function getRepoArg(args, fallback) {
-  const repo = getArgValue(args, "--repo") ?? fallback;
+  const repo = hasArg(args, "--repo") ? getArgValue(args, "--repo") : fallback;
+  if (repo === undefined && hasArg(args, "--repo")) throw new Error("--repo requires an owner/name value.");
   if (repo === undefined) return undefined;
   if (!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(repo) || repo.split("/").some((part) => part === "." || part === "..")) {
     throw new Error(`Invalid GitHub repository: ${JSON.stringify(repo)}.`);

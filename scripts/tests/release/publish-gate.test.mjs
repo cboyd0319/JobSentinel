@@ -11,8 +11,10 @@ import { fetchGitHubJson } from "../../release/public-assets/http.mjs";
 import { releaseAssetDigest } from "../../release/public-assets/release-set.mjs";
 import { parseArgs } from "../../release/public-assets/options.mjs";
 import { verifyPublicReleaseAssets } from "../../release/verify-public-release-assets.mjs";
-import { finalPhaseEvidence, now, version, withEvidenceRepo } from "./final-phase-fixture.mjs";
-import { attestationRecorder, fixtureServer, releaseFiles, releaseFromFiles, releaseNotes, repo, sha256, tag } from "./release-verification-fixture.mjs";
+import { finalPhaseEvidence, localOrigin, now, version, withEvidenceRepo } from "./final-phase-fixture.mjs";
+import {
+  attestationRecorder, fixtureServer, platformAssetNames, releaseFiles, releaseFromFiles, releaseNotes, repo, sha256, tag,
+} from "./release-verification-fixture.mjs";
 
 const token = "fixture-token";
 
@@ -20,20 +22,74 @@ function artifactsOf(files) {
   return [...files.keys()].sort().map((name) => ({ name, sha256: sha256(files.get(name)) }));
 }
 
-/** Commits evidence for `files` on top of T, then runs the gate against the served draft. */
+/** Commits evidence for `files` on top of T, with `security` merged into the Security record, then runs the gate. */
 function gate(
   { root, candidate, commit, writeEvidence },
-  { files, served = files, evidence = {}, release, tagCommit = candidate, sourceRevision = candidate, selection = "linux" },
+  {
+    files, served = files, evidence = {}, security = {}, release, tagCommit = candidate, sourceRevision = candidate, selection = "linux",
+    verifyAttestation = attestationRecorder().verifyAttestation,
+  },
 ) {
-  writeEvidence(finalPhaseEvidence(candidate, { artifacts: artifactsOf(files), ...evidence }));
+  writeEvidence(finalPhaseEvidence(candidate, { artifacts: artifactsOf(files), ...evidence }), {}, {}, security);
   const evidenceRevision = commit("record phases");
   const draft = release ?? releaseFromFiles(served, { draft: true });
   const server = fixtureServer({ files: served, release: draft, tagCommit });
   return runPublishGate(
     { root, version, evidenceRevision, sourceRevision, repo, selection, now },
-    { fetchImpl: server.fetchImpl, verifyAttestation: attestationRecorder().verifyAttestation, token },
+    { fetchImpl: server.fetchImpl, verifyAttestation, token },
   );
 }
+
+/** Local origins for `platforms`, each listing that platform's draft assets from `files`. */
+function originsFor(files, candidate, platforms) {
+  return platforms.map((platform) => localOrigin(platform, { sourceRevision: candidate }, artifactsOf(files).filter(({ name }) => platformAssetNames(platform).includes(name))));
+}
+
+const allPlatforms = ["linux", "macos", "windows"];
+
+test("local selection passes the gate with a local origin per platform and no attestation calls", async () => {
+  await withEvidenceRepo(async (repoFixture) => {
+    const files = releaseFiles({ selection: "local", sourceRevision: repoFixture.candidate });
+    const attest = attestationRecorder();
+    const security = { localOrigins: originsFor(files, repoFixture.candidate, allPlatforms) };
+    const result = await gate(repoFixture, { files, selection: "local", evidence: { platforms: allPlatforms }, security, verifyAttestation: attest.verifyAttestation });
+    assert.equal(result.releaseId, 101);
+    assert.equal(attest.calls.length, 0);
+  });
+});
+
+test("the gate rejects missing, extra and mismatched local origins", async () => {
+  await withEvidenceRepo(async (repoFixture) => {
+    const files = releaseFiles({ selection: "local", sourceRevision: repoFixture.candidate });
+    const local = { files, selection: "local", evidence: { platforms: allPlatforms } };
+    const origins = originsFor(files, repoFixture.candidate, allPlatforms);
+    await assert.rejects(gate(repoFixture, local), /local origins \(none\) do not match locally built platforms linux, macos, windows/);
+    await assert.rejects(gate(repoFixture, { ...local, security: { localOrigins: origins.slice(1) } }), /local origins macos, windows do not match/);
+    const dmgOnly = origins.map((origin) => origin.platform === "macos" ? { ...origin, artifacts: origin.artifacts.filter(({ name }) => name.endsWith(".dmg")) } : origin);
+    await assert.rejects(gate(repoFixture, { ...local, security: { localOrigins: dmgOnly } }), /local origin for macos does not list exactly its draft assets/);
+    const swapped = origins.map((origin) => origin.platform === "linux" ? { ...origin, artifacts: origins[2].artifacts } : origin);
+    await assert.rejects(gate(repoFixture, { ...local, security: { localOrigins: swapped } }), /local origin for linux does not list exactly its draft assets/);
+  });
+});
+
+test("windows-linux needs exactly the macOS local origin and hosted selections reject any", async () => {
+  await withEvidenceRepo(async (repoFixture) => {
+    const files = releaseFiles({ selection: "windows-linux", sourceRevision: repoFixture.candidate });
+    const mixed = { files, selection: "windows-linux", evidence: { platforms: allPlatforms } };
+    await assert.rejects(gate(repoFixture, mixed), /local origins \(none\) do not match locally built platforms macos/);
+    const [, macos] = originsFor(files, repoFixture.candidate, allPlatforms);
+    await gate(repoFixture, { ...mixed, security: { localOrigins: [macos] } });
+    await assert.rejects(
+      gate(repoFixture, { ...mixed, security: { localOrigins: originsFor(files, repoFixture.candidate, ["linux", "macos"]) } }),
+      /local origins linux, macos do not match locally built platforms macos/,
+    );
+  });
+  await withEvidenceRepo(async (repoFixture) => {
+    const files = releaseFiles({ sourceRevision: repoFixture.candidate });
+    const security = { localOrigins: originsFor(files, repoFixture.candidate, ["linux"]) };
+    await assert.rejects(gate(repoFixture, { files, security }), /local origins linux do not match locally built platforms \(none\)/);
+  });
+});
 
 test("publish gate passes when evidence certifies the exact draft built from T", async () => {
   await withEvidenceRepo(async (repoFixture) => {

@@ -32,6 +32,12 @@ function agentSkillsArchives() {
   return skillsArchives;
 }
 
+/** The sorted names of `platform`'s draft assets: installers, their checksums, SBOM and SBOM manifest. */
+export function platformAssetNames(platform) {
+  const sbom = [`JobSentinel-${version}-${platform}.sbom-manifest.json`, `JobSentinel-${version}-${platform}.sbom.spdx.json`];
+  return [...installerNames[platform].flatMap((name) => [name, `${name}.sha256`]), ...sbom].sort();
+}
+
 export function sha256(buffer) {
   return createHash("sha256").update(buffer).digest("hex");
 }

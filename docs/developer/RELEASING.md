@@ -62,7 +62,10 @@ phases run at the end, beginning with the v3 release.
 
 ### Certified draft and phase evidence
 
-The phases certify the exact hosted draft binaries that get published:
+The phases certify the exact draft binaries that get published. Releases from
+v3.0.0 build that draft with the [local release route](#local-release-route),
+which replaces steps 1 and 4 with local commands; the evidence rules are the
+same. The hosted `release.yml` route is retained but unused:
 
 1. Dispatch `release.yml` from tag `vX.Y.Z` (commit T) with `mode: build-draft`.
    It stages, builds and verifies the draft, and never publishes. Staging refuses a
@@ -115,6 +118,13 @@ The phases certify the exact hosted draft binaries that get published:
    - `decision`: `owner`, `rationale` and a UTC ISO-8601 `acceptedAt` no earlier
      than the phase's `completedAt` and no later than the next phase's
      `startedAt`, or E's commit for Security.
+   - `localOrigins`, in the Security record only and only when the declaration
+     marks a platform `local`: exactly one entry per such platform with
+     `platform`, `sourceRevision` (T), `"sourceClean": true`, `buildCommand`,
+     `buildEnvironment` (`os`, `architecture` and a `toolchains` map of tool
+     versions) and `artifacts`, that platform's draft installers, checksums,
+     SBOM and manifest with their SHA-256, sorted by name. A missing, extra or
+     mismatched entry fails the publish gate.
 
    Phases appear in this order and do not overlap. Every timestamp falls after T's
    commit and the newest draft asset upload, and no later than E's commit. A
@@ -408,10 +418,11 @@ Upload `JobSentinel-X.Y.Z-agent-skills.tar.gz`,
 after the local archive verifier passes.
 
 Every release also carries `JobSentinel-X.Y.Z-release-platforms.json` and its
-`.sha256`. Release staging writes it from the workflow `platform` input, tag and
-tag commit, and records each platform as `hosted` or `local`. `windows-linux`
-declares a locally built macOS DMG. Verifiers derive the platform set from this
-attested declaration and fail if it is missing, malformed or inconsistent. Local
+`.sha256`. Release staging writes it from the selection, tag and tag commit, and
+records each platform as `hosted` or `local`. `windows-linux` declares a locally
+built macOS DMG; `local` declares all three. Verifiers derive the platform set
+and the required attestations from this declaration, which hosted staging
+attests, and fail if it is missing, malformed or inconsistent. Local
 SBOM manifests record `HEAD` only when the tree has no modified or untracked
 files; generate them right after building from a clean checkout of the tag commit.
 `release-assets/` is ignored by Git, so staged assets do not dirty the tree.
@@ -437,6 +448,54 @@ For `windows-linux`, upload the local macOS assets before the hosted build:
    the DMG, its `.sha256`, the SBOM and the manifest. It re-checks the draft guard
    and uploads by release id, like the hosted pipeline.
 4. Dispatch `release.yml` with `mode: build-draft` and `platform: windows-linux`.
+
+## Local Release Route
+
+Every platform is built, staged and published from operator machines; no hosted
+runner runs. Locally built assets carry checksums, SBOMs, manifests and the
+Security record's local-origin entries, and no GitHub build-provenance or SBOM
+attestation. Nothing here applies a `release` environment approval or a
+concurrency queue, so one operator runs one release at a time. Each mutation
+below needs the authority in [Preconditions](#preconditions).
+
+1. Push tag `vX.Y.Z` at commit T. On each build machine use a clean checkout of
+   T with the pinned toolchains.
+2. Build and verify each platform under [Native Platform Assets](#native-platform-assets),
+   with `_unsigned` Windows names unless Authenticode-signed. Record the build
+   command, OS, architecture and tool versions for the local-origin entry.
+3. On each build machine copy the installers and `.sha256` sidecars into
+   `release-assets/public` and run `release:sbom` for that platform as in
+   [SBOM And Staging](#sbom-and-staging). Collect every machine's
+   `release-assets/public` on the staging machine.
+4. On the staging machine, from the clean checkout of T:
+
+   ```bash
+   export GH_TOKEN="$(gh auth token)"
+   npm run release:skills -- --version X.Y.Z --out-dir release-assets/public
+   node scripts/release/release-platforms.mjs --selection local --version X.Y.Z \
+     --tag vX.Y.Z --revision <T> --out-dir release-assets/public
+   npm run release:notes -- --version X.Y.Z --out release-assets/release-notes.md
+   gh release create vX.Y.Z --draft --verify-tag --title "JobSentinel X.Y.Z" \
+     --notes-file release-assets/release-notes.md
+   node scripts/release/stage-target.mjs --require-draft --repo <owner/repo> --tag vX.Y.Z
+   node scripts/release/draft-assets.mjs upload --repo <owner/repo> \
+     --release-id <id> --tag vX.Y.Z --tag-commit <T> -- release-assets/public/*
+   npm run release:verify:public -- --draft --draft-manifest draft-manifest.json \
+     --tag vX.Y.Z --selection local --expected-revision <T> --repo <owner/repo> \
+     --require-supply-chain --require-windows-unsigned-label
+   ```
+
+   `draft-manifest.json` lists the release id, T and every asset's SHA-256 for
+   the evidence. A `local` declaration is verified only when `--selection local`
+   names it, so it cannot stand in for a hosted release's attestations.
+5. Run the three phases against the downloaded draft assets, then commit and
+   push evidence E as in [Certified draft and phase evidence](#certified-draft-and-phase-evidence).
+6. Publish with the commands in
+   [Publication And Public Verification](#publication-and-public-verification),
+   passing `--selection local` to all of `release:publish-gate`,
+   `release:publish` and `release:verify:public`. Run `release:publish` in the
+   foreground and leave it to finish: it re-drafts on failure or Ctrl-C, but not
+   when the process is killed.
 
 ## Publication And Public Verification
 

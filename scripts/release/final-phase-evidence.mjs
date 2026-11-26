@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Validates Stability, Performance and Security evidence that certifies one hosted draft built from tag commit T.
+// Validates Stability, Performance and Security evidence that certifies one draft built from tag commit T.
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { dirname, resolve } from "node:path";
@@ -21,6 +21,8 @@ const commandFields = ["command", "exitCode", "proof"];
 const proofRefFields = ["path", "sha256"];
 const proofFields = ["schemaVersion", "phase", "sourceRevision", "command", "platform", "exitCode", "output", "startedAt", "completedAt", "artifacts"];
 const decisionFields = ["owner", "rationale", "acceptedAt"];
+const localOriginFields = ["platform", "sourceRevision", "sourceClean", "buildCommand", "buildEnvironment", "artifacts"];
+const buildEnvironmentFields = ["os", "architecture", "toolchains"];
 const releasePlatforms = ["linux", "macos", "windows"];
 const isoUtcPattern = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?Z$/;
 const shaPattern = /^[0-9a-f]{40}$/;
@@ -203,12 +205,48 @@ function validateProof(check, { label, phase, evidence, recordDirectory, recordP
 }
 
 /**
+ * Validates the Security record's `localOrigins`: one entry per locally built platform binding T, a clean tree, the
+ * build command and environment, and that platform's draft asset names and digests, each one an evidence artifact.
+ * Which platforms need an entry and their exact asset lists are checked against the draft by `assertEvidenceCertifies`.
+ */
+function validateLocalOrigins(origins, { label, evidence }) {
+  if (!Array.isArray(origins) || origins.length === 0) throw new Error(`${label} localOrigins must be a non-empty list when present.`);
+  const certified = new Map(evidence.artifacts.map((artifact) => [artifact.name, artifact.sha256]));
+  const seen = new Set();
+  origins.forEach((origin, index) => {
+    const entry = `${label} local origin ${index + 1}`;
+    rejectUnexpected(entry, origin, localOriginFields);
+    if (!evidence.platforms.includes(origin.platform) || seen.has(origin.platform)) {
+      throw new Error(`${entry} platform ${origin.platform} must be a release platform listed once.`);
+    }
+    seen.add(origin.platform);
+    if (origin.sourceRevision !== evidence.sourceRevision || origin.sourceClean !== true || !text(origin.buildCommand)) {
+      throw new Error(`${entry} must name source revision ${evidence.sourceRevision}, sourceClean true and the build command.`);
+    }
+    rejectUnexpected(`${entry} buildEnvironment`, origin.buildEnvironment, buildEnvironmentFields);
+    const { os, architecture, toolchains } = origin.buildEnvironment;
+    const versions = toolchains && typeof toolchains === "object" && !Array.isArray(toolchains) ? Object.values(toolchains) : [];
+    if (!text(os) || !text(architecture) || versions.length === 0 || !versions.every(text)) {
+      throw new Error(`${entry} buildEnvironment needs os, architecture and toolchain versions.`);
+    }
+    if (!Array.isArray(origin.artifacts) || origin.artifacts.length === 0) throw new Error(`${entry} must list the platform's draft assets.`);
+    origin.artifacts.forEach((artifact, position) => {
+      rejectUnexpected(`${entry} artifact ${position + 1}`, artifact, ["name", "sha256"]);
+      if (certified.get(artifact.name) !== artifact.sha256 || (position > 0 && origin.artifacts[position - 1].name >= artifact.name)) {
+        throw new Error(`${entry} artifacts must be evidence artifacts with their SHA-256, sorted by name without duplicates.`);
+      }
+    });
+  });
+}
+
+/**
  * Validates one record: contract fields, T, release id, platforms and artifacts, then every command's exit code and
  * proof, platform coverage, and an owner decision accepted after the phase and before the next phase (or E) starts.
  */
 function validateRecord(record, phase, { evidence, acceptedBy, now, ...proofContext }) {
   const label = `Final phase ${phase.phase} record`;
-  rejectUnexpected(label, record, recordRequiredFields);
+  rejectUnexpected(label, record, phase.phase === "security" ? [...recordRequiredFields, "localOrigins"] : recordRequiredFields);
+  if (Object.hasOwn(record, "localOrigins")) validateLocalOrigins(record.localOrigins, { label, evidence });
   const missing = recordRequiredFields.filter((field) => !Object.hasOwn(record, field));
   if (missing.length > 0) throw new Error(`${label} is missing fields: ${missing.join(", ")}.`);
   if (record.phase !== phase.phase || record.status !== "passed" || record.sourceRevision !== evidence.sourceRevision) {
@@ -243,8 +281,13 @@ function validateRecord(record, phase, { evidence, acceptedBy, now, ...proofCont
   }
 }
 
-/** Fails unless the evidence certifies exactly the verified release id, declared platforms and asset digests. */
-export function assertEvidenceCertifies(evidence, { releaseId, platforms, artifacts }) {
+/**
+ * Fails unless the evidence certifies exactly the verified release id, declared platforms and asset digests, and its
+ * Security record holds a local origin for exactly the platforms the declaration marks `local`, each listing exactly
+ * that platform's draft assets.
+ */
+export function assertEvidenceCertifies({ evidence, localOrigins = [] }, { releaseId, platforms, artifacts, sources, platformAssets }) {
+  if (!sources || !platformAssets) throw new Error("Certification requires the declared platform sources and per-platform draft assets.");
   if (releaseId !== evidence.releaseId) {
     throw new Error(`Release id ${releaseId} does not match evidence releaseId ${evidence.releaseId}.`);
   }
@@ -259,6 +302,16 @@ export function assertEvidenceCertifies(evidence, { releaseId, platforms, artifa
     ...[...actual].filter(([name, sha]) => expected.has(name) && expected.get(name) !== sha).map(([name]) => `SHA-256 changed for ${name}`),
   ];
   if (problems.length > 0) throw new Error(`Release assets do not match final-phase evidence: ${problems.join("; ")}.`);
+  const local = platforms.filter((platform) => sources[platform] === "local").sort();
+  const recorded = localOrigins.map((origin) => origin.platform).sort();
+  if (canonicalJson(recorded) !== canonicalJson(local)) {
+    throw new Error(`Security record local origins ${recorded.join(", ") || "(none)"} do not match locally built platforms ${local.join(", ") || "(none)"}.`);
+  }
+  for (const origin of localOrigins) {
+    if (canonicalJson(origin.artifacts) !== canonicalJson(platformAssets[origin.platform])) {
+      throw new Error(`Security record local origin for ${origin.platform} does not list exactly its draft assets.`);
+    }
+  }
 }
 
 /**
@@ -303,10 +356,12 @@ export function checkFinalPhaseEvidence({ root = defaultRoot, version, evidenceR
       return readBytesAt(root, evidenceCommit, proofPath, "Final phase command proof");
     },
   };
+  let localOrigins = [];
   evidence.phases.forEach((phase, index) => {
     const next = evidence.phases[index + 1];
     const record = readJsonAt(root, evidenceCommit, phase.record, `Final phase ${phase.phase} record`);
     validateRecord(record, phase, { ...proofContext, acceptedBy: next ? Date.parse(next.startedAt) : evidenceTime });
+    if (phase.phase === "security") localOrigins = record.localOrigins ?? [];
   });
   const diff = git(root, ["diff", "--name-only", "--no-renames", qualified, evidenceCommit]);
   if (!diff.ok) throw new Error(`Could not compare ${qualified} with ${evidenceCommit}: ${diff.stderr}`);
@@ -314,7 +369,7 @@ export function checkFinalPhaseEvidence({ root = defaultRoot, version, evidenceR
   if (changed.length > 0) {
     throw new Error(`Evidence revision ${evidenceCommit} changes more than evidence after ${qualified}: ${changed.join(", ")}.`);
   }
-  return { evidence, evidenceRevision: evidenceCommit, sourceRevision: qualified };
+  return { evidence, localOrigins, evidenceRevision: evidenceCommit, sourceRevision: qualified };
 }
 
 if (isMainModule(import.meta.url)) {

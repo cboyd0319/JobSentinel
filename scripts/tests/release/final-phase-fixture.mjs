@@ -81,6 +81,19 @@ export function phaseRecord(phase, evidence, overrides = {}, proofOverrides = {}
   };
 }
 
+/** A Security-record local origin binding `platform`'s build to T, listing `artifacts` (that platform's draft assets). */
+export function localOrigin(platform, evidence, artifacts, overrides = {}) {
+  return {
+    platform,
+    sourceRevision: evidence.sourceRevision,
+    sourceClean: true,
+    buildCommand: "npm run tauri build",
+    buildEnvironment: { os: "macOS 26.1", architecture: "arm64", toolchains: { node: "24.18.0", rust: "1.97.1" } },
+    artifacts,
+    ...overrides,
+  };
+}
+
 /** Creates a temporary repo with candidate commit T and helpers to commit evidence E. */
 export async function withEvidenceRepo(run) {
   const root = mkdtempSync(join(tmpdir(), "jobsentinel-final-phases-"));
@@ -98,12 +111,16 @@ export async function withEvidenceRepo(run) {
     });
     return git("rev-parse", "HEAD");
   };
-  /** Writes the evidence, each record and one proof per phase and platform; overrides apply to every phase. */
-  const writeEvidence = (evidence, recordOverrides = {}, proofOverrides = {}) => {
+  /**
+   * Writes the evidence, each record and one proof per phase and platform; record and proof overrides apply to every
+   * phase, `securityOverrides` (such as `localOrigins`) to the Security record only.
+   */
+  const writeEvidence = (evidence, recordOverrides = {}, proofOverrides = {}, securityOverrides = {}) => {
     write(evidencePath, JSON.stringify(evidence));
     for (const phase of phaseNames) {
       for (const platform of evidence.platforms) write(proofPath(phase, platform), proofText(phaseProof(phase, platform, evidence, proofOverrides)));
-      write(recordPath(phase), JSON.stringify(phaseRecord(phase, evidence, recordOverrides, proofOverrides)));
+      const overrides = phase === "security" ? { ...recordOverrides, ...securityOverrides } : recordOverrides;
+      write(recordPath(phase), JSON.stringify(phaseRecord(phase, evidence, overrides, proofOverrides)));
     }
   };
   try {

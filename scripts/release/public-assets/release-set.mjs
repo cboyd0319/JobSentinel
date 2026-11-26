@@ -76,6 +76,8 @@ export function validateReleaseAssetIdentity(release, { repo, tag, draft }) {
   const names = assets.map((asset) => asset?.name);
   const duplicates = names.filter((name, index) => names.indexOf(name) !== index);
   if (duplicates.length > 0) throw new Error(`Release ${tag} has duplicate asset names: ${[...new Set(duplicates)].join(", ")}`);
+  const ids = assets.map((asset) => asset?.id);
+  if (new Set(ids).size !== ids.length) throw new Error(`Release ${tag} has duplicate asset ids.`);
   for (const asset of assets) {
     if (typeof asset?.name !== "string" || asset.name === "" || asset.name.includes("/")) {
       throw new Error(`Release ${tag} has an asset with an invalid name.`);
@@ -84,7 +86,7 @@ export function validateReleaseAssetIdentity(release, { repo, tag, draft }) {
       throw new Error(`Release asset ${asset.name} is not fully uploaded (state ${asset.state}).`);
     }
     const expectedUrl = draft
-      ? asset.url?.startsWith(`https://api.github.com/repos/${repo}/releases/assets/`)
+      ? Number.isSafeInteger(asset.id) && asset.id > 0 && asset.url === `https://api.github.com/repos/${repo}/releases/assets/${asset.id}`
       : asset.browser_download_url === `https://github.com/${repo}/releases/download/${tag}/${encodeURIComponent(asset.name)}`;
     if (!expectedUrl) throw new Error(`Release asset ${asset.name} download URL is not bound to ${tag} in ${repo}.`);
   }

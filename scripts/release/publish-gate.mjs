@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Gates publication: valid final-phase evidence must certify the exact re-verified hosted draft, body and assets.
+// Gates publication: valid final-phase evidence must certify the exact re-verified draft, body, assets and local origins.
 import { appendFileSync } from "node:fs";
 
 import { getArgValue, getRepoArg, hasArg, isMainModule } from "./args.mjs";
@@ -24,7 +24,7 @@ export async function runPublishGate(
     ...(requireWindowsUnsignedLabel ? ["--require-windows-unsigned-label"] : []),
   ]);
   const result = await verifyPublicReleaseAssets(options, dependencies);
-  const { evidence } = checkFinalPhaseEvidence({
+  const checked = checkFinalPhaseEvidence({
     root,
     version,
     evidenceRevision,
@@ -32,7 +32,7 @@ export async function runPublishGate(
     draftUploadedAt: result.uploadedAt,
     now,
   });
-  assertEvidenceCertifies(evidence, result);
+  assertEvidenceCertifies(checked, result);
   return { releaseId: result.releaseId, tagCommit: result.tagCommit, assetDigest: result.assetDigest };
 }
 

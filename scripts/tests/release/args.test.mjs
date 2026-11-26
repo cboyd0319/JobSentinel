@@ -24,6 +24,9 @@ test("every --repo parser accepts only owner/name without dot parts, backslashes
   assert.equal(getRepoArg(["--repo", "o/r.js"]), "o/r.js");
   assert.equal(getRepoArg([], "o/r"), "o/r");
   assert.equal(getRepoArg([]), undefined);
+  for (const dangling of [["--repo"], ["--tag", "v3.0.0", "--repo"], ["--repo="], ["--repo", "--tag", "v3.0.0"]]) {
+    assert.throws(() => getRepoArg(dangling, "o/r"), /--repo requires an owner\/name value|Invalid GitHub repository/, dangling.join(" "));
+  }
   const parsers = [
     (repo) => getRepoArg(["--repo", repo]),
     (repo) => parseAssetArgs(["--repo", repo]),

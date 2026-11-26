@@ -28,13 +28,13 @@ function options(args) {
   return parseArgs(["--repo", repo, "--tag", tag, ...args]);
 }
 
-async function verify({ args = [], files = releaseFiles(), draft = false, release, releases, tagCommit, apiToken = token, deadline }) {
+async function verify({ args = [], files = releaseFiles(), draft = false, release, releases, tagCommit, apiToken = token, deadline, verifyAttestation }) {
   const releaseValue = release ?? releaseFromFiles(files, { draft });
   const server = fixtureServer({ files, release: releaseValue, releases, tagCommit });
   const attest = attestationRecorder();
   const result = await verifyPublicReleaseAssets(options(args), {
     fetchImpl: server.fetchImpl,
-    verifyAttestation: attest.verifyAttestation,
+    verifyAttestation: verifyAttestation ?? attest.verifyAttestation,
     token: apiToken,
     deadline,
   });
@@ -153,6 +153,36 @@ test("draft mode verifies the selection with authenticated asset API downloads",
   assert(attested.includes("JobSentinel_3.0.0_amd64.deb"));
   assert(attested.includes(declarationName));
   assert(!attested.includes("JobSentinel_3.0.0_no-account_universal.dmg"));
+});
+
+test("attestations follow the declared sources and a local declaration cannot drop them unnamed", async () => {
+  const local = releaseFiles({ selection: "local" });
+  const localArgs = ["--selection", "local", "--expected-revision", revision];
+  for (const draft of [true, false]) {
+    const { result, attestations } = await verify({ args: draft ? ["--draft", ...localArgs] : localArgs, files: local, draft });
+    assert.deepEqual(result.sources, { windows: "local", macos: "local", linux: "local" });
+    assert.equal(attestations.length, 0);
+  }
+  await assert.rejects(verify({ files: local }), /declares only local builds; verify it with --selection local/);
+  await assert.rejects(verify({ args: ["--selection", "all"], files: local }), /selection expected all, found local/);
+
+  const failing = () => { throw new Error("GitHub attestation verification failed"); };
+  for (const selection of ["linux", "windows-linux"]) {
+    const files = releaseFiles({ selection });
+    await assert.rejects(verify({ files, verifyAttestation: failing }), /GitHub attestation verification failed/, selection);
+    await assert.rejects(verify({ args: ["--selection", "local"], files, verifyAttestation: failing }), /selection expected local, found/, selection);
+  }
+});
+
+test("draft mode binds each asset URL to its own id and rejects duplicate ids", async () => {
+  const args = ["--draft", "--selection", "linux", "--expected-revision", revision];
+  const files = releaseFiles();
+  const foreignUrl = releaseFromFiles(files, { draft: true });
+  foreignUrl.assets[1].url = foreignUrl.assets[0].url;
+  await assert.rejects(verify({ args, files, release: foreignUrl }), /download URL is not bound to v3\.0\.0/);
+  const duplicateId = releaseFromFiles(files, { draft: true });
+  duplicateId.assets[1].id = duplicateId.assets[0].id;
+  await assert.rejects(verify({ args, files, release: duplicateId }), /duplicate asset ids/);
 });
 
 test("draft mode fails closed on selection, token, revision and release ambiguity", async () => {
