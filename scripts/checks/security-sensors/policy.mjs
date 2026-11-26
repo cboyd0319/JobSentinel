@@ -97,7 +97,6 @@ export const releasePreflightChecks = [
 ].map(([label, ...phrases]) => ({ label, phrases }));
 
 export const publishedReleaseWorkflowChecks = [
-  ["published release trigger", "release:", "published"],
   ["manual release trigger", "workflow_dispatch:", "tag:"],
   ["public macOS artifact verifier", "macos-26", "npm run tauri:verify:macos:latest"],
   ["scoped release tag", "RELEASE_TAG", "DISPATCH_TAG", "--tag"],

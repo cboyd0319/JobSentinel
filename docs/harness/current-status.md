@@ -37,8 +37,9 @@ Last updated: 2026-11-25
 - Final full phases remain Stability → Performance → Security, in order, before publication.
 - Existing M11 and retrospective audit records remain partial, not current passes.
 - No final release phase or native VM test has passed.
-- Windows 11 and Linux qualify in local ARM64 UTM guests under x86_64 translation; their toolchains
-  and isolated launchers are not yet established. Exact macOS 26 and enforced 8 GiB proof remain open.
+- Windows 11 and Linux are planned for local ARM64 UTM guests under x86_64 translation.
+  Their toolchains, cross-builds and isolated launchers are not yet established.
+- Exact macOS 26 and enforced 8 GiB proof remain open.
 - Qualification signatures, OS signing/notarization, Region artifacts and public-download proof remain open.
 - The local release route is unexecuted; tag push, draft upload and publication need explicit authority.
 - Hosted general CI remains absent under `pre-alpha-private-no-ci`; its release decision remains open.

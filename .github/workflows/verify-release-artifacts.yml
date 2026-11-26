@@ -1,10 +1,8 @@
 # Verifies a published v3+ release anonymously against its declared platform set and revision.
-# Token-published releases do not fire release: published; dispatch manually after publication.
+# Manual only: all-local releases are verified locally, or here with their selection named.
 name: Verify Release Artifacts
 
 on:
-  release:
-    types: [published]
   workflow_dispatch:
     inputs:
       tag:
@@ -23,6 +21,11 @@ on:
         type: string
       evidence_ref:
         description: Optional evidence commit E; when set, public downloads must match its certified digests.
+        required: false
+        default: ""
+        type: string
+      selection:
+        description: Release selection the declaration must equal. Required as "local" for an all-local release.
         required: false
         default: ""
         type: string
@@ -69,8 +72,8 @@ jobs:
         id: verify_public
         shell: bash
         env:
-          RELEASE_TAG: ${{ github.event.release.tag_name }}
           DISPATCH_TAG: ${{ inputs.tag }}
+          DISPATCH_SELECTION: ${{ inputs.selection }}
           DISPATCH_PLATFORMS: ${{ inputs.platforms }}
           DISPATCH_EVIDENCE_REF: ${{ inputs.evidence_ref }}
           DISPATCH_REQUIRE_WINDOWS_UNSIGNED_LABEL: ${{ inputs.require_windows_unsigned_label }}
@@ -81,9 +84,11 @@ jobs:
           set -euo pipefail
 
           args=(--require-supply-chain --repo "$GITHUB_REPOSITORY" --github-output "$GITHUB_OUTPUT")
-          release_tag="${RELEASE_TAG:-${DISPATCH_TAG:-}}"
-          if [ -n "$release_tag" ]; then
-            args+=(--tag "$release_tag")
+          if [ -n "${DISPATCH_TAG:-}" ]; then
+            args+=(--tag "$DISPATCH_TAG")
+          fi
+          if [ -n "${DISPATCH_SELECTION:-}" ]; then
+            args+=(--selection "$DISPATCH_SELECTION")
           fi
 
           if [ -n "${DISPATCH_PLATFORMS:-}" ]; then

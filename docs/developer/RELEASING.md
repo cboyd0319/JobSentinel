@@ -368,10 +368,20 @@ Do not publish a macOS package as zero-friction or Gatekeeper-ready until
 Build on Windows 11 or an explicitly selected Windows VM:
 
 ```powershell
-npm run tauri build
-Get-AuthenticodeSignature target/release/bundle/msi/JobSentinel_*.msi
-Get-AuthenticodeSignature target/release/bundle/nsis/JobSentinel_*.exe
+npx --no-install tauri build --target x86_64-pc-windows-msvc
+$bundle = "target/x86_64-pc-windows-msvc/release/bundle"
+Get-AuthenticodeSignature "$bundle/msi/JobSentinel_*.msi", "$bundle/nsis/JobSentinel_*.exe"
+# Unsigned installers only: label each one, then write its checksum sidecar.
+Get-ChildItem "$bundle/msi/*.msi", "$bundle/nsis/*.exe" | ForEach-Object {
+  $labeled = Rename-Item $_ ($_.BaseName + "_unsigned" + $_.Extension) -PassThru
+  "$((Get-FileHash -Algorithm SHA256 $labeled).Hash.ToLowerInvariant())  $($labeled.Name)" |
+    Set-Content -NoNewline -Encoding ascii "$($labeled.FullName).sha256"
+}
 ```
+
+The explicit target matters on an ARM64 host, where the default build is ARM64.
+Signed installers keep their names and get the same sidecar. Require exactly one
+MSI and one NSIS setup, each non-empty and named with the release version.
 
 Public Windows MSI and NSIS setup upload is signed with locally supplied Windows
 signing secrets or visibly renamed with `_unsigned`. Both paths require matching
@@ -385,11 +395,18 @@ Windows signing secrets stay outside the repository and require explicit use.
 Build on the supported Linux target:
 
 ```bash
-APPIMAGE_EXTRACT_AND_RUN=1 npx --no-install tauri build --target x86_64-unknown-linux-gnu
-file target/x86_64-unknown-linux-gnu/release/bundle/appimage/*.AppImage
-dpkg-deb --info target/x86_64-unknown-linux-gnu/release/bundle/deb/*.deb
-dpkg-deb --contents target/x86_64-unknown-linux-gnu/release/bundle/deb/*.deb >/dev/null
+node scripts/platform/build-linux-appimage.mjs --target x86_64-unknown-linux-gnu
+bundle=target/x86_64-unknown-linux-gnu/release/bundle
+file "$bundle"/appimage/*.AppImage
+dpkg-deb --info "$bundle"/deb/*.deb
+dpkg-deb --contents "$bundle"/deb/*.deb >/dev/null
+for asset in "$bundle"/appimage/*.AppImage "$bundle"/deb/*.deb; do
+  (cd "$(dirname "$asset")" && sha256sum "$(basename "$asset")" > "$(basename "$asset").sha256")
+done
 ```
+
+Use the wrapper, not a bare `tauri build`: it verifies pinned SHA-256 digests
+before running any downloaded AppImage helper.
 
 Public Linux upload is blocked unless the advertised set contains exactly one
 non-empty AppImage and one non-empty Debian package, versioned filenames, and
@@ -452,9 +469,12 @@ For `windows-linux`, upload the local macOS assets before the hosted build:
 ## Local Release Route
 
 Every platform is built, staged and published from operator machines; no hosted
-runner runs. Locally built assets carry checksums, SBOMs, manifests and the
-Security record's local-origin entries, and no GitHub build-provenance or SBOM
-attestation. Nothing here applies a `release` environment approval or a
+runner runs. Platform assets carry checksums, SBOMs, manifests and the Security
+record's local-origin entries; the Agent Skills archives and the platform
+declaration carry checksums and content validation only. Nothing carries a GitHub
+build-provenance or SBOM attestation. A local-origin entry is the operator's own
+statement: the gate checks only its asset names and digests against the draft.
+Nothing here applies a `release` environment approval or a
 concurrency queue, so one operator runs one release at a time. Each mutation
 below needs the authority in [Preconditions](#preconditions).
 
@@ -480,20 +500,24 @@ below needs the authority in [Preconditions](#preconditions).
    node scripts/release/stage-target.mjs --require-draft --repo <owner/repo> --tag vX.Y.Z
    node scripts/release/draft-assets.mjs upload --repo <owner/repo> \
      --release-id <id> --tag vX.Y.Z --tag-commit <T> -- release-assets/public/*
-   npm run release:verify:public -- --draft --draft-manifest draft-manifest.json \
+   npm run release:verify:public -- --draft \
+     --draft-manifest release-assets/draft-manifest.json \
      --tag vX.Y.Z --selection local --expected-revision <T> --repo <owner/repo> \
      --require-supply-chain --require-windows-unsigned-label
    ```
 
-   `draft-manifest.json` lists the release id, T and every asset's SHA-256 for
-   the evidence. A `local` declaration is verified only when `--selection local`
+   Omit `--require-windows-unsigned-label` only for Authenticode-signed Windows
+   installers. The draft manifest lists the release id, T and every asset's
+   SHA-256 for the evidence; a rerun needs a new manifest path. A `local`
+   declaration is verified only when `--selection local`
    names it, so it cannot stand in for a hosted release's attestations.
 5. Run the three phases against the downloaded draft assets, then commit and
    push evidence E as in [Certified draft and phase evidence](#certified-draft-and-phase-evidence).
 6. Publish with the commands in
    [Publication And Public Verification](#publication-and-public-verification),
    passing `--selection local` to all of `release:publish-gate`,
-   `release:publish` and `release:verify:public`. Run `release:publish` in the
+   `release:publish` and `release:verify:public`, and writing the gate output
+   under ignored `release-assets/`. Run `release:publish` in the
    foreground and leave it to finish: it re-drafts on failure or Ctrl-C, but not
    when the process is killed.
 
@@ -520,27 +544,30 @@ same gates from a checkout containing E:
 ```bash
 npm run release:publish-gate -- --version vX.Y.Z --evidence-revision <E> \
   --source-revision <T> --repo <owner/repo> --selection <platform input> \
-  --require-windows-unsigned-label --github-output gate.out
+  --require-windows-unsigned-label --github-output release-assets/gate.out
 npm run release:confirm-draft -- --repo <owner/repo> --release-id <id> \
-  --tag vX.Y.Z --tag-commit <T> --asset-digest <asset_digest from gate.out> \
+  --tag vX.Y.Z --tag-commit <T> --asset-digest <asset_digest from the gate output> \
   --evidence-revision <E>
 npm run release:publish -- --tag vX.Y.Z --expected-version X.Y.Z --release-id <id> \
-  --repo <owner/repo> --require-supply-chain --require-windows-unsigned-label \
-  --evidence-revision <E>
+  --repo <owner/repo> --selection <platform input> --require-supply-chain \
+  --require-windows-unsigned-label --evidence-revision <E>
 ```
+
+`release:publish` refuses to start without `--selection`, so a release never
+becomes public before its declared selection is named.
 
 Omit `--require-windows-unsigned-label` only for Authenticode-signed Windows
 installers.
 
-The `release: published` trigger of `verify-release-artifacts.yml` does not fire
-for releases published with the workflow token, so dispatch that workflow
-manually after publication, passing `evidence_ref` E, or verify locally. Asset downloads never send
+`verify-release-artifacts.yml` has no publication trigger. After publication,
+verify locally, or dispatch that workflow with `evidence_ref` E and, for an
+all-local release, `selection: local`. Asset downloads never send
 credentials; a token, when present, is used only for API metadata reads and
 attestation lookups. These commands verify v3 and later releases; releases before v3
 have no platform declaration and cannot be re-verified with them:
 
 ```bash
-npm run release:verify:public -- --tag vX.Y.Z
+npm run release:verify:public -- --tag vX.Y.Z [--selection local]
 npm run tauri:verify:macos:latest -- --tag vX.Y.Z --no-require-supply-chain
 ```
 

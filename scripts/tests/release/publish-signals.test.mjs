@@ -1,6 +1,6 @@
 // Proves on a spawned publisher and a local HTTP server that cancellation signals re-draft only after the publish PATCH.
 import assert from "node:assert/strict";
-import { spawn } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { chmodSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { createServer } from "node:http";
 import { tmpdir } from "node:os";
@@ -124,4 +124,12 @@ test("a signal before the publish PATCH exits non-zero without any request", { t
   assert.equal(code, 1);
   assert.match(stderr, /SIGTERM received before the publish request; release 101 stays a draft\./);
   assert.deepEqual(events, []);
+});
+
+test("the publisher CLI refuses to start without the declared selection", () => {
+  const script = fileURLToPath(new URL("../../release/publish-release.mjs", import.meta.url));
+  const args = ["--tag", "v3.0.0", "--expected-version", "3.0.0", "--release-id", "101", "--repo", "o/r"];
+  const result = spawnSync(process.execPath, [script, ...args], { encoding: "utf8", env: { ...process.env, GITHUB_TOKEN: "", GH_TOKEN: "" } });
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /Usage: publish-release\.mjs .*--selection <s>/);
 });

@@ -43,9 +43,10 @@ CI compliance.
 
 `.github/workflows/release.yml` is manual release automation with separate
 `build-draft` and `publish` modes.
-`.github/workflows/verify-release-artifacts.yml` keeps a `release: published`
-trigger, but releases published with the workflow token do not fire it, so
-dispatch it manually after publication. Neither workflow is continuous integration.
+`.github/workflows/verify-release-artifacts.yml` is dispatched manually after
+publication and has no publication trigger. Neither workflow is continuous
+integration, and releases from v3.0.0 use the
+[local release route](RELEASING.md#local-release-route) instead.
 
 Dispatch, signing, upload, publication, and release-environment approval require
 separate explicit authority. Workflow presence is not evidence that any release

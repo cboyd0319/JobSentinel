@@ -58,8 +58,8 @@ these working records support it. Never fabricate passing records.
 
 The advertised target set is the `local` release selection; unavailable rows are not dropped.
 Windows and Linux rows run in the existing local ARM64 UTM guests `Windows11` and `ubuntu26`
-(10 GiB each). Their x86_64 artifacts are cross-built there and exercised under translation,
-so those rows do not prove native x86_64 hardware behavior or its performance.
+(10 GiB each). Their x86_64 artifacts are to be cross-built there and exercised under
+translation, so those rows cannot prove native x86_64 hardware behavior or its performance.
 
 | Qualification row | Candidate artifact and required execution | Available evidence and prerequisite |
 | --- | --- | --- |

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Gates publication: valid final-phase evidence must certify the exact re-verified draft, body, assets and local origins.
+// Gates publication: valid final-phase evidence must certify the exact re-verified draft, body and assets, and list local origins.
 import { appendFileSync } from "node:fs";
 
 import { getArgValue, getRepoArg, hasArg, isMainModule } from "./args.mjs";

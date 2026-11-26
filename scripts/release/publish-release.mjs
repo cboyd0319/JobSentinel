@@ -122,7 +122,7 @@ if (isMainModule(import.meta.url)) {
   try {
     const args = process.argv.slice(2);
     const options = parseArgs(args);
-    if (!options.releaseTag || !options.expectedVersion) throw new Error("Usage: publish-release.mjs --tag vX.Y.Z --expected-version X.Y.Z --release-id <id> --repo <o/r> --evidence-revision <E> [verifier flags]");
+    if (!options.releaseTag || !options.expectedVersion || !options.selection) throw new Error("Usage: publish-release.mjs --tag vX.Y.Z --expected-version X.Y.Z --release-id <id> --repo <o/r> --selection <s> --evidence-revision <E> [verifier flags]");
     const releaseId = getArgValue(args, "--release-id");
     const publication = { patchAttempted: false };
     redraftOnCancel({ repo: options.repo, releaseId, publication });

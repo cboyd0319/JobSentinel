@@ -97,6 +97,7 @@ jobs:
           # API reads, the publish and re-draft PATCHes, and attestation lookups; downloads are anonymous.
           GITHUB_TOKEN: ${{ github.token }}
           RELEASE_ID: ${{ steps.publish_gate.outputs.release_id }}
+          RELEASE_SELECTION: ${{ inputs.selection }}
           RELEASE_TAG: ${{ inputs.tag }}
           RELEASE_VERSION: ${{ inputs.version }}
           VAR_REQUIRE_WINDOWS_UNSIGNED_LABEL: ${{ vars.JOBSENTINEL_WINDOWS_REQUIRE_UNSIGNED_LABEL }}
@@ -107,6 +108,7 @@ jobs:
             --tag "$RELEASE_TAG"
             --expected-version "$RELEASE_VERSION"
             --release-id "$RELEASE_ID"
+            --selection "$RELEASE_SELECTION"
             --repo "$GITHUB_REPOSITORY"
             --require-supply-chain
             --evidence-revision "$EVIDENCE_REF"
